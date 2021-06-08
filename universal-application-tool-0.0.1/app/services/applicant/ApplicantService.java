@@ -3,9 +3,11 @@ package services.applicant;
 import auth.UatProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Applicant;
 import models.Application;
+import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramDefinition;
 
 /**
@@ -53,7 +55,7 @@ public interface ApplicantService {
    * with association with the applicant and a program that the applicant is applying to.
    *
    * @return the saved {@link Application}. If the submission failed, a {@link
-   *     ApplictionSubmissionException} is thrown and wrapped in a `CompletionException`.
+   *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   CompletionStage<Application> submitApplication(
       long applicantId, long programId, UatProfile submittingProfile);
@@ -81,6 +83,9 @@ public interface ApplicantService {
    */
   CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId);
 
-  /** Returns the name of the given applicant id. */
+  /** Return the name of the given applicant id. */
   CompletionStage<String> getName(long applicantId);
+
+  /** Return the email of the given applicant id if they have one. */
+  CompletionStage<Optional<String>> getEmail(long applicantId);
 }

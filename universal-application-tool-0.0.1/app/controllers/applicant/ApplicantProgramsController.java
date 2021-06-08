@@ -16,7 +16,9 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import views.applicant.ApplicantProgramInfoView;
 import views.applicant.ProgramIndexView;
 
 /**
@@ -30,6 +32,7 @@ public class ApplicantProgramsController extends CiviFormController {
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
+  private final ApplicantProgramInfoView programInfoView;
   private final ProfileUtils profileUtils;
 
   @Inject
@@ -38,11 +41,13 @@ public class ApplicantProgramsController extends CiviFormController {
       ApplicantService applicantService,
       MessagesApi messagesApi,
       ProgramIndexView programIndexView,
+      ApplicantProgramInfoView programInfoView,
       ProfileUtils profileUtils) {
     this.httpContext = httpContext;
     this.applicantService = applicantService;
     this.messagesApi = checkNotNull(messagesApi);
     this.programIndexView = checkNotNull(programIndexView);
+    this.programInfoView = checkNotNull(programInfoView);
     this.profileUtils = checkNotNull(profileUtils);
   }
 
@@ -65,6 +70,41 @@ public class ApplicantProgramsController extends CiviFormController {
                         applicantStage.toCompletableFuture().join(),
                         programs,
                         banner)),
+            httpContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                if (ex.getCause() instanceof SecurityException) {
+                  return unauthorized();
+                }
+              }
+              throw new RuntimeException(ex);
+            });
+  }
+
+  @Secure
+  public CompletionStage<Result> view(Request request, long applicantId, long programId) {
+    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+
+    return applicantStage
+        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+        .thenComposeAsync(
+            v -> applicantService.relevantPrograms(applicantId), httpContext.current())
+        .thenApplyAsync(
+            programs -> {
+              Optional<ProgramDefinition> programDefinition =
+                  programs.stream().filter(program -> program.id() == programId).findFirst();
+              if (programDefinition.isPresent()) {
+                return ok(
+                    programInfoView.render(
+                        messagesApi.preferred(request),
+                        programDefinition.get(),
+                        request,
+                        applicantId,
+                        applicantStage.toCompletableFuture().join()));
+              }
+              return badRequest();
+            },
             httpContext.current())
         .exceptionally(
             ex -> {

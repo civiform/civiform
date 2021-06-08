@@ -1,8 +1,10 @@
 package models;
 
 import com.google.common.collect.ImmutableList;
+import io.ebean.annotation.DbArray;
 import io.ebean.annotation.UpdatedTimestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.Entity;
@@ -24,8 +26,22 @@ public class Version extends BaseModel {
   @ManyToMany(mappedBy = "versions")
   private List<Question> questions;
 
+  /**
+   * A tombstoned question or program is a question or program that will not be copied to the next
+   * version published. It is set on the current draft version. Questions / Programs are listed here
+   * by name rather than by ID.
+   */
+  @DbArray private List<String> tombstonedQuestionNames = new ArrayList<>();
+
   @ManyToMany(mappedBy = "versions")
   private List<Program> programs;
+
+  /**
+   * A tombstoned question or program is a question or program that will not be copied to the next
+   * version published. It is set on the current draft version. Questions / Programs are listed here
+   * by name rather than by ID.
+   */
+  @DbArray private List<String> tombstonedProgramNames = new ArrayList<>();
 
   @UpdatedTimestamp private Instant submitTime;
 
@@ -75,5 +91,47 @@ public class Version extends BaseModel {
     return getQuestions().stream()
         .filter(q -> q.getQuestionDefinition().getName().equals(name))
         .findAny();
+  }
+
+  public ImmutableList<String> getTombstonedProgramNames() {
+    if (this.tombstonedProgramNames == null) {
+      return ImmutableList.of();
+    }
+    return ImmutableList.copyOf(this.tombstonedProgramNames);
+  }
+
+  public ImmutableList<String> getTombstonedQuestionNames() {
+    if (this.tombstonedQuestionNames == null) {
+      return ImmutableList.of();
+    }
+    return ImmutableList.copyOf(this.tombstonedQuestionNames);
+  }
+
+  /** Returns true if the question is not meant to be copied to the next version. */
+  public boolean questionIsTombstoned(String questionName) {
+    return this.getTombstonedQuestionNames().contains(questionName);
+  }
+
+  /** Returns true if the program is not meant to be copied to the next version. */
+  public boolean programIsTombstoned(String programName) {
+    return this.getTombstonedProgramNames().contains(programName);
+  }
+
+  public boolean addTombstoneForQuestion(Question question) {
+    if (this.tombstonedQuestionNames == null) {
+      this.tombstonedQuestionNames = new ArrayList<>();
+    }
+    if (this.questionIsTombstoned(question.getQuestionDefinition().getName())) {
+      return false;
+    }
+    this.tombstonedQuestionNames.add(question.getQuestionDefinition().getName());
+    return true;
+  }
+
+  public boolean removeTombstoneForQuestion(Question question) {
+    if (this.tombstonedQuestionNames == null) {
+      this.tombstonedQuestionNames = new ArrayList<>();
+    }
+    return this.tombstonedQuestionNames.remove(question.getQuestionDefinition().getName());
   }
 }

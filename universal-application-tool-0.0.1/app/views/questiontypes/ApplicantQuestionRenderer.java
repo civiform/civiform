@@ -8,6 +8,7 @@ import j2html.tags.Tag;
 import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
+import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -45,14 +46,14 @@ public abstract class ApplicantQuestionRenderer {
                 div()
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
-                    .with(BaseHtmlView.createLinksAndEscapeText(question.getQuestionText())))
+                    .with(TextFormatter.createLinksAndEscapeText(question.getQuestionText())))
             // Question help text
             .with(
                 div()
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)
-                    .with(BaseHtmlView.createLinksAndEscapeText(question.getQuestionHelpText())))
+                    .with(TextFormatter.createLinksAndEscapeText(question.getQuestionHelpText())))
             .withClasses(Styles.MB_4);
 
     if (shouldDisplayQuestionErrors) {

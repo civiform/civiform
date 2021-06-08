@@ -80,7 +80,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramsController.edit(currentApplicant.id, program.id).url());
+        .contains(routes.ApplicantProgramsController.view(currentApplicant.id, program.id).url());
   }
 
   @Test
@@ -113,6 +113,30 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("A different language!");
     assertThat(contentAsString(result)).contains("English program");
+  }
+
+  @Test
+  public void view_includesApplyButton() {
+    Program program = resourceCreator().insertActiveProgram("program");
+
+    Request request = addCSRFToken(fakeRequest()).build();
+    Result result =
+        controller.view(request, currentApplicant.id, program.id).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains(routes.ApplicantProgramsController.edit(currentApplicant.id, program.id).url());
+  }
+
+  @Test
+  public void view_invalidProgram_returnsBadRequest() {
+    Result result =
+        controller
+            .view(fakeRequest().build(), currentApplicant.id, 9999L)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   @Test

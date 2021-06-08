@@ -45,4 +45,10 @@ public interface QuestionService {
    */
   ErrorAnd<QuestionDefinition, CiviFormError> update(QuestionDefinition definition)
       throws InvalidUpdateException;
+
+  void restoreQuestion(Long id) throws InvalidUpdateException;
+
+  void archiveQuestion(Long id) throws InvalidUpdateException;
+
+  void discardDraft(Long id) throws InvalidUpdateException;
 }
