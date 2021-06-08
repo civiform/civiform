@@ -3,10 +3,14 @@ package services.program;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
 import forms.BlockForm;
 import io.ebean.DB;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import models.Account;
@@ -704,26 +708,78 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   @Test
   public void getProgramDefinitionAsync_reordersBlocks() throws Exception {
     long programId = ProgramBuilder.newActiveProgram().build().id;
-    long enumeratorQuestionId = testQuestionBank.applicantHouseholdMembers().id;
-    long repeatedQuestionId = testQuestionBank.applicantHouseholdMemberName().id;
-    long nonRepeatedQuestionId = testQuestionBank.applicantFavoriteColor().id;
-
-    String blockDefinitionsString =
-        String.format(
-            "[{\"id\": 1, \"name\": \"Enumerator\", \"repeaterId\": null, \"description\":"
-                + "\"description\", \"hidePredicate\": null, \"optionalPredicate\": null,"
-                + " \"questionDefinitions\": [{\"id\": %d}]},"
-                + "{\"id\": 2, \"name\": \"Normal\", \"repeaterId\": null, \"description\": "
-                + "\"description\", \"hidePredicate\": null, \"optionalPredicate\": null,"
-                + "\"questionDefinitions\": [{\"id\": %d}]},"
-                + "{\"id\": 3, \"name\": \"Repeated\", \"repeaterId\": 1, \"description\": "
-                + "\"description\", \"hidePredicate\": null, \"optionalPredicate\": null,"
-                + "\"questionDefinitions\": [{\"id\": %d}]}]",
-            enumeratorQuestionId, nonRepeatedQuestionId, repeatedQuestionId);
+    ImmutableList<BlockDefinition> unorderedBlockDefinitions =
+        ImmutableList.<BlockDefinition>builder()
+            .add(
+                BlockDefinition.builder()
+                    .setId(1L)
+                    .setName("enumerator")
+                    .setDescription("description")
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(2L)
+                    .setName("top level")
+                    .setDescription("description")
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank.applicantEmail().getQuestionDefinition()))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(3L)
+                    .setName("nested enumerator")
+                    .setDescription("description")
+                    .setEnumeratorId(Optional.of(1L))
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank
+                                .applicantHouseholdMemberJobs()
+                                .getQuestionDefinition()))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(4L)
+                    .setName("repeated")
+                    .setDescription("description")
+                    .setEnumeratorId(Optional.of(1L))
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank
+                                .applicantHouseholdMemberName()
+                                .getQuestionDefinition()))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(5L)
+                    .setName("nested repeated")
+                    .setDescription("description")
+                    .setEnumeratorId(Optional.of(3L))
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank
+                                .applicantHouseholdMemberJobIncome()
+                                .getQuestionDefinition()))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(6L)
+                    .setName("top level 2")
+                    .setDescription("description")
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank.applicantName().getQuestionDefinition()))
+                    .build())
+            .build();
+    ObjectMapper mapper =
+        new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
     String updateString =
         String.format(
             "UPDATE programs SET block_definitions='%s' WHERE id=%d;",
-            blockDefinitionsString, programId);
+            mapper.writeValueAsString(unorderedBlockDefinitions), programId);
     DB.sqlUpdate(updateString).execute();
 
     ProgramDefinition found = ps.getProgramDefinitionAsync(programId).toCompletableFuture().get();
