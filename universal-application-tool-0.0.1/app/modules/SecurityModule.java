@@ -138,6 +138,7 @@ public class SecurityModule extends AbstractModule {
     client.setProfileCreator(
         new IdcsProfileAdapter(config, client, profileFactory, applicantRepositoryProvider));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
+    client.init();
     return client;
   }
 
@@ -167,6 +168,7 @@ public class SecurityModule extends AbstractModule {
         new AdfsProfileAdapter(
             config, client, profileFactory, this.configuration, applicantRepositoryProvider));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
+    client.init();
     return client;
   }
 
