@@ -2,8 +2,10 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableList;
 import j2html.tags.Tag;
 import java.util.OptionalLong;
+import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NumberQuestion;
 import views.components.FieldWithLabel;
@@ -36,5 +38,10 @@ public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
     Tag numberQuestionFormContent = div().with(numberField.getContainer());
 
     return renderInternal(params.messages(), numberQuestionFormContent, false);
+  }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    return ImmutableList.of(question.createNumberQuestion().getNumberPath());
   }
 }

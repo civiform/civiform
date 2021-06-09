@@ -3,8 +3,10 @@ package views.questiontypes;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 
+import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.aws.SignedS3UploadRequest;
 
@@ -17,6 +19,12 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
   @Override
   public Tag render(ApplicantQuestionRendererParams params) {
     return renderInternal(params.messages(), fileUploadFields(params));
+  }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    // We can't predict ahead of time what the path will be.
+    return ImmutableList.of();
   }
 
   @Override

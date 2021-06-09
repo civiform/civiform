@@ -2,9 +2,11 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableList;
 import j2html.tags.Tag;
 import play.i18n.Messages;
 import services.MessageKey;
+import services.Path;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import views.components.FieldWithLabel;
@@ -81,5 +83,16 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
                             .getContainer()));
 
     return renderInternal(messages, addressQuestionFormContent);
+  }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    AddressQuestion addressQuestion = question.createAddressQuestion();
+    return ImmutableList.of(
+        addressQuestion.getStreetPath(),
+        addressQuestion.getLine2Path(),
+        addressQuestion.getCityPath(),
+        addressQuestion.getStatePath(),
+        addressQuestion.getZipPath());
   }
 }

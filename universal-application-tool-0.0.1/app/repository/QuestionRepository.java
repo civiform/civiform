@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Transaction;
@@ -133,6 +134,12 @@ public class QuestionRepository {
         .find(Question.class)
         .findEachWhile(question -> !conflictDetector.hasConflict(question));
     return conflictDetector.getConflictedQuestion();
+  }
+
+  public ImmutableList<QuestionDefinition> getAllDemographicQuestions() {
+    return ebeanServer.find(Question.class).findList().stream()
+        .map(Question::getQuestionDefinition)
+        .collect(ImmutableList.toImmutableList());
   }
 
   private static class ConflictDetector {

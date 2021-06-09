@@ -3,9 +3,11 @@ package views.questiontypes;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import play.i18n.Messages;
+import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
 import views.components.TextFormatter;
@@ -28,6 +30,8 @@ public abstract class ApplicantQuestionRenderer {
   Tag renderInternal(Messages messages, Tag questionFormContent) {
     return renderInternal(messages, questionFormContent, true);
   }
+
+  public abstract ImmutableList<Path> getAllPaths();
 
   /**
    * Renders an applicant question's text, help text, errors, and the given form content.

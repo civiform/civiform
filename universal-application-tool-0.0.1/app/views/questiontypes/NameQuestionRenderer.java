@@ -2,9 +2,11 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableList;
 import j2html.tags.Tag;
 import play.i18n.Messages;
 import services.MessageKey;
+import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NameQuestion;
 import views.components.FieldWithLabel;
@@ -55,5 +57,14 @@ public class NameQuestionRenderer extends ApplicantQuestionRenderer {
                     .getContainer());
 
     return renderInternal(messages, nameQuestionFormContent);
+  }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    NameQuestion nameQuestion = question.createNameQuestion();
+    return ImmutableList.of(
+        nameQuestion.getFirstNamePath(),
+        nameQuestion.getMiddleNamePath(),
+        nameQuestion.getLastNamePath());
   }
 }

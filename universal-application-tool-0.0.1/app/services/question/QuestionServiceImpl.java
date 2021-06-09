@@ -131,6 +131,11 @@ public final class QuestionServiceImpl implements QuestionService {
     question.get().save();
   }
 
+  @Override
+  public ImmutableList<QuestionDefinition> getAllDemographicQuestions() {
+    return questionRepository.getAllDemographicQuestions();
+  }
+
   private CompletionStage<ImmutableList<QuestionDefinition>> listQuestionDefinitionsAsync() {
     return questionRepository
         .listQuestions()

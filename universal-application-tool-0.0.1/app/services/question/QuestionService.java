@@ -1,5 +1,6 @@
 package services.question;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import services.CiviFormError;
@@ -51,4 +52,6 @@ public interface QuestionService {
   void archiveQuestion(Long id) throws InvalidUpdateException;
 
   void discardDraft(Long id) throws InvalidUpdateException;
+
+  ImmutableList<QuestionDefinition> getAllDemographicQuestions();
 }

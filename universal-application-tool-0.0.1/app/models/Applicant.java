@@ -1,8 +1,10 @@
 package models;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.hash.Hashing;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
@@ -85,5 +87,15 @@ public class Applicant extends BaseModel {
 
   public Instant getWhenCreated() {
     return this.whenCreated;
+  }
+
+  /** Returns an opaque identifier - the ID hashed with the application secret key. */
+  public String opaqueIdentifier(String secret) {
+    return Hashing.sha256()
+        .newHasher()
+        .putString(secret, StandardCharsets.UTF_8)
+        .putLong(this.id)
+        .hash()
+        .toString();
   }
 }

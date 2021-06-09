@@ -15,10 +15,18 @@ public class CsvExporter {
 
   private boolean wroteHeaders;
   private ImmutableList<Column> columns;
+  private Optional<String> secret;
 
   public CsvExporter(List<Column> columns) {
     this.wroteHeaders = false;
     this.columns = ImmutableList.copyOf(columns);
+    this.secret = Optional.empty();
+  }
+
+  /** Provide a secret if you will need to use OPAQUE_ID type columns. */
+  public CsvExporter(List<Column> columns, String secret) {
+    this(columns);
+    this.secret = Optional.of(secret);
   }
 
   private void writeHeadersOnFirstExport(CSVPrinter printer) throws IOException {
@@ -65,6 +73,8 @@ public class CsvExporter {
         case SUBMITTER_EMAIL:
           printer.print(application.getSubmitterEmail().orElse("Applicant"));
           break;
+        case OPAQUE_ID:
+          printer.print(application.getApplicant().opaqueIdentifier(this.secret.get()));
       }
     }
 
