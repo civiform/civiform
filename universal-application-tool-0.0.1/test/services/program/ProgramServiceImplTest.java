@@ -15,7 +15,6 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import models.Account;
 import models.Program;
-import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
@@ -320,9 +319,15 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void addRepeatedBlockToProgram() throws Exception {
-    Question repeatedQuestion = testQuestionBank.applicantHouseholdMembers();
     Program program =
-        ProgramBuilder.newActiveProgram().withBlock().withQuestion(repeatedQuestion).build();
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.addRepeatedBlockToProgram(program.id, 1L);
@@ -333,10 +338,60 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     ProgramDefinition found = ps.getProgramDefinition(program.id);
 
-    assertThat(found.blockDefinitions()).hasSize(2);
+    assertThat(found.blockDefinitions()).hasSize(4);
     assertThat(found.getBlockDefinitionByIndex(0).get().isEnumerator()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
+    assertThat(found.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+    assertThat(found.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().isRepeated()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().enumeratorId()).contains(1L);
+    assertThat(found.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
+    assertThat(found.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
+    assertThat(found.getBlockDefinitionByIndex(2).get().getQuestionCount()).isEqualTo(0);
+    assertThat(found.getBlockDefinitionByIndex(3).get().isRepeated()).isFalse();
+    assertThat(found.blockDefinitions())
+        .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
+  }
+
+  @Test
+  public void addRepeatedBlockToProgram_toEndOfBlockList() throws Exception {
+    Program program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .build();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.addRepeatedBlockToProgram(program.id, 2L);
+
+    assertThat(result.isError()).isFalse();
+    assertThat(result.hasResult()).isTrue();
+    ProgramDefinition updatedProgramDefinition = result.getResult();
+
+    ProgramDefinition found = ps.getProgramDefinition(program.id);
+
+    assertThat(found.blockDefinitions()).hasSize(4);
+    assertThat(found.getBlockDefinitionByIndex(0).get().isEnumerator()).isFalse();
+    assertThat(found.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
+    assertThat(found.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
+    assertThat(found.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+    assertThat(found.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(2L);
+    assertThat(found.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
+    assertThat(found.getBlockDefinitionByIndex(3).get().isRepeated()).isTrue();
+    assertThat(found.getBlockDefinitionByIndex(3).get().enumeratorId()).contains(2L);
+    assertThat(found.getBlockDefinitionByIndex(3).get().getQuestionCount()).isEqualTo(0);
     assertThat(found.blockDefinitions())
         .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
   }
