@@ -110,7 +110,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
       content.with(
           new LinkElement()
               .setHref(redirectTo)
-              .setText(messages.at(MessageKey.LINK_RETURN_TO_DASH.getKeyName()))
+              .setText(messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
               .asAnchorText());
     }
 
