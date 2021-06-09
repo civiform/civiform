@@ -46,12 +46,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
       ViewUtils viewUtils,
       Config configuration,
       ProfileUtils profileUtils,
-      LanguageSelector languageSelector,
-      Config appConfig) {
+      LanguageSelector languageSelector) {
     super(viewUtils, configuration);
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
-    this.supportEmail = checkNotNull(appConfig).getString("support_email_address");
+    this.supportEmail = checkNotNull(configuration).getString("support_email_address");
   }
 
   private Content renderWithSupportFooter(HtmlBundle bundle, Messages messages) {
