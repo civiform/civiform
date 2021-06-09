@@ -9,6 +9,7 @@ import io.ebean.annotation.DbJson;
 import io.ebean.annotation.DbJsonB;
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import javax.persistence.Entity;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -190,7 +191,13 @@ public class Program extends BaseModel {
    * BlockDefinition}'s {@link services.program.ProgramQuestionDefinition}s.
    */
   private void reorderBlockDefinitionsBeforeUpdate() {
-    programDefinition = checkNotNull(programDefinition).reorderBlockDefinitions();
-    blockDefinitions = programDefinition.blockDefinitions();
+    try {
+      programDefinition = checkNotNull(programDefinition).reorderBlockDefinitions();
+      blockDefinitions = programDefinition.blockDefinitions();
+    } catch (NoSuchElementException e) {
+      // We are not able to check block order if the question definitions have not been
+      // added to the program question definitions. If we can't check order, we don't
+      // really need to make sure they're ordered, so this is a no-op.
+    }
   }
 }
