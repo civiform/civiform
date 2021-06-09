@@ -3,6 +3,7 @@ package views.components;
 import static j2html.TagCreator.div;
 import static views.BaseHtmlView.button;
 
+import j2html.TagCreator;
 import j2html.tags.Tag;
 import java.util.Optional;
 import views.style.BaseStyles;
@@ -14,14 +15,16 @@ public class Modal {
   private String modalId;
   private Tag content;
   private String modalTitle;
-  private String buttonText;
+  private String triggerButtonText;
+  private Tag triggerButtonContent;
   private String buttonStyles;
 
   private Modal(ModalBuilder builder) {
     this.modalId = builder.modalId;
     this.content = builder.content;
     this.modalTitle = builder.modalTitle;
-    this.buttonText = builder.buttonText;
+    this.triggerButtonText = builder.triggerButtonText;
+    this.triggerButtonContent = builder.triggerButtonContent;
     this.buttonStyles = builder.buttonStyles;
   }
 
@@ -34,7 +37,16 @@ public class Modal {
   }
 
   public Tag getButton() {
-    return button(modalId + "-button", buttonText).withClasses(buttonStyles);
+    String triggerButtonId = modalId + "-button";
+    if (triggerButtonContent != null) {
+      return TagCreator.button()
+          .withType("button")
+          .withClasses(buttonStyles)
+          .withId(triggerButtonId)
+          .with(triggerButtonContent);
+    } else {
+      return button(triggerButtonId, triggerButtonText).withClasses(buttonStyles);
+    }
   }
 
   private Tag getContent() {
@@ -60,7 +72,9 @@ public class Modal {
 
     // Optional fields. See #setOptionalFields().
     private String modalTitle;
-    private String buttonText;
+    private String triggerButtonText;
+
+    private Tag triggerButtonContent = null;
 
     public ModalBuilder(String modalId, Tag content) {
       this.modalId = modalId;
@@ -72,12 +86,17 @@ public class Modal {
       return this;
     }
 
-    public ModalBuilder setButtonText(String buttonText) {
-      this.buttonText = buttonText;
+    public ModalBuilder setTriggerButtonText(String triggerButtonText) {
+      this.triggerButtonText = triggerButtonText;
       return this;
     }
 
-    public ModalBuilder setButtonStyles(String buttonStyles) {
+    public ModalBuilder setTriggerButtonContent(Tag triggerButtonContent) {
+      this.triggerButtonContent = triggerButtonContent;
+      return this;
+    }
+
+    public ModalBuilder setTriggerButtonStyles(String buttonStyles) {
       this.buttonStyles = buttonStyles;
       return this;
     }
@@ -89,7 +108,7 @@ public class Modal {
 
     private void setOptionalFields() {
       modalTitle = Optional.ofNullable(modalTitle).orElse(modalId);
-      buttonText = Optional.ofNullable(buttonText).orElse(modalTitle);
+      triggerButtonText = Optional.ofNullable(triggerButtonText).orElse(modalTitle);
     }
   }
 }
