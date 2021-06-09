@@ -23,10 +23,10 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
       @JsonProperty("operator") Operator operator,
       @JsonProperty("value") PredicateValue comparedValue) {
     return builder()
-        .questionId(questionId)
-        .scalar(scalar)
-        .operator(operator)
-        .comparedValue(comparedValue)
+        .setQuestionId(questionId)
+        .setScalar(scalar)
+        .setOperator(operator)
+        .setComparedValue(comparedValue)
         .build();
   }
 
@@ -62,13 +62,13 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder questionId(long questionId);
+    public abstract Builder setQuestionId(long questionId);
 
-    public abstract Builder scalar(Scalar scalar);
+    public abstract Builder setScalar(Scalar scalar);
 
-    public abstract Builder operator(Operator operator);
+    public abstract Builder setOperator(Operator operator);
 
-    public abstract Builder comparedValue(PredicateValue comparedValue);
+    public abstract Builder setComparedValue(PredicateValue comparedValue);
 
     public abstract LeafOperationExpressionNode build();
   }

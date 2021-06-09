@@ -133,13 +133,13 @@ public class VersionRepositoryTest extends WithPostgresContainer {
     // The tree should have the same structure, just with question IDs for the draft version.
     PredicateExpressionNode expectedLeafOne =
         PredicateExpressionNode.create(
-            leafOne.getLeafNode().toBuilder().questionId(newOne.id).build());
+            leafOne.getLeafNode().toBuilder().setQuestionId(newOne.id).build());
     PredicateExpressionNode expectedLeafTwo =
         PredicateExpressionNode.create(
-            leafTwo.getLeafNode().toBuilder().questionId(newTwo.id).build());
+            leafTwo.getLeafNode().toBuilder().setQuestionId(newTwo.id).build());
     PredicateExpressionNode expectedLeafThree =
         PredicateExpressionNode.create(
-            leafThree.getLeafNode().toBuilder().questionId(newOne.id).build());
+            leafThree.getLeafNode().toBuilder().setQuestionId(newOne.id).build());
     PredicateExpressionNode expectedOr =
         PredicateExpressionNode.create(
             OrNode.create(ImmutableSet.of(expectedLeafTwo, expectedLeafThree)));

@@ -251,7 +251,8 @@ public class VersionRepository {
     return updatedBlock.build();
   }
 
-  // Update the referenced question IDs in all leaf nodes.
+  // Update the referenced question IDs in all leaf nodes. Since nodes are immutable, we
+  // recursively recreate the tree with updated leaf nodes.
   @VisibleForTesting
   protected PredicateExpressionNode updatePredicateNode(PredicateExpressionNode current) {
     switch (current.getType()) {
@@ -269,7 +270,7 @@ public class VersionRepository {
         LeafOperationExpressionNode leaf = current.getLeafNode();
         Optional<Question> updated = getLatestVersionOfQuestion(leaf.questionId());
         return PredicateExpressionNode.create(
-            leaf.toBuilder().questionId(updated.orElseThrow().id).build());
+            leaf.toBuilder().setQuestionId(updated.orElseThrow().id).build());
       default:
         return current;
     }
