@@ -50,6 +50,7 @@ public abstract class ProgramDefinition {
   /** A human readable description of a Program, localized for each supported locale. */
   public abstract LocalizedStrings localizedDescription();
 
+  /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
   /** The list of {@link ExportDefinition}s that make up the program. */
@@ -97,7 +98,9 @@ public abstract class ProgramDefinition {
     if (hasOrderedBlockDefinitionsMemo == null) {
       Deque<Long> enumeratorIds = new ArrayDeque<>();
 
-      // Walk through the list of block definitions, checking that repeated blocks are
+      // Walk through the list of block definitions, checking that repeated and nested repeated
+      // blocks
+      // immediately follow their enumerator block.
       for (BlockDefinition blockDefinition : blockDefinitions()) {
         // Pop the stack until the enumerator id matches the top of the stack.
         while (enumeratorIds.size() > 0

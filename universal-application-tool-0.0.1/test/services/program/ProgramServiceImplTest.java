@@ -706,7 +706,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void getProgramDefinitionAsync_reordersBlocks() throws Exception {
+  public void getProgramDefinitionAsync_reordersBlocksOnRead() throws Exception {
     long programId = ProgramBuilder.newActiveProgram().build().id;
     ImmutableList<BlockDefinition> unorderedBlockDefinitions =
         ImmutableList.<BlockDefinition>builder()
@@ -776,6 +776,10 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
             .build();
     ObjectMapper mapper =
         new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
+
+    // Directly update the table with DB.sqlUpdate and execute. We can't save it through
+    // the ebean model because the preupdate method will correct block ordering, and we
+    // want to test that legacy block order is corrected on read.
     String updateString =
         String.format(
             "UPDATE programs SET block_definitions='%s' WHERE id=%d;",
