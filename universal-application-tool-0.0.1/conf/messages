@@ -22,6 +22,9 @@ label.selectLanguage=Please select your preferred language.
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
 
+# Message displayed before the support email address in the page footer for applicants.
+footer.supportLinkDescription=For technical support, contact
+
 #--------------------------------------------------------------------------#
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#

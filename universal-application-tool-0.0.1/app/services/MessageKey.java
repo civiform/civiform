@@ -37,6 +37,7 @@ public enum MessageKey {
   ENUMERATOR_PLACEHOLDER_ENTITY_NAME("placeholder.entityName"),
   ENUMERATOR_VALIDATION_ENTITY_REQUIRED("validation.entityNameRequired"),
   ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME("validation.duplicateEntityName"),
+  FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
   LINK_ALL_DONE("link.allDone"),
   LINK_APPLY_TO_ANOTHER_PROGRAM("link.applyToAnotherProgram"),
   LINK_CREATE_ACCOUNT_OR_SIGN_IN("link.createAccountOrSignIn"),
