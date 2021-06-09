@@ -41,7 +41,6 @@ public enum MessageKey {
   LINK_APPLY_TO_ANOTHER_PROGRAM("link.applyToAnotherProgram"),
   LINK_CREATE_ACCOUNT_OR_SIGN_IN("link.createAccountOrSignIn"),
   LINK_PROGRAM_DETAILS("link.programDetails"),
-  LINK_RETURN_TO_DASH("link.returnToDash"),
   LINK_VIEW_APPLICATIONS("link.viewApplications"),
   MULTI_SELECT_VALIDATION_TOO_FEW("validation.tooFewSelections"),
   MULTI_SELECT_VALIDATION_TOO_MANY("validation.tooManySelections"),

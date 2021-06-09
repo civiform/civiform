@@ -9,6 +9,7 @@ import io.ebean.annotation.DbJson;
 import io.ebean.annotation.DbJsonB;
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import javax.persistence.Entity;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -23,6 +24,7 @@ import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ExportDefinition;
 import services.program.ProgramDefinition;
+import services.question.types.QuestionDefinition;
 
 /** The ebeans mapped class for the program object. */
 @Entity
@@ -83,6 +85,8 @@ public class Program extends BaseModel {
     this.localizedDescription = definition.localizedDescription();
     this.blockDefinitions = definition.blockDefinitions();
     this.exportDefinitions = definition.exportDefinitions();
+
+    orderBlockDefinitionsBeforeUpdate();
   }
 
   /**
@@ -121,6 +125,8 @@ public class Program extends BaseModel {
     blockDefinitions = programDefinition.blockDefinitions();
     exportDefinitions = programDefinition.exportDefinitions();
     slug = programDefinition.slug();
+
+    orderBlockDefinitionsBeforeUpdate();
   }
 
   /** Populates {@link ProgramDefinition} from column values. */
@@ -175,5 +181,23 @@ public class Program extends BaseModel {
       this.slug = this.programDefinition.slug();
     }
     return this.slug;
+  }
+
+  /**
+   * See {@link ProgramDefinition#orderBlockDefinitions} for why we need to order blocks.
+   *
+   * <p>This is used in {@link PreUpdate} but cannot be used when reading from storage because
+   * {@link QuestionDefinition}s may not be present in the {@link ProgramDefinition}'s {@link
+   * BlockDefinition}'s {@link services.program.ProgramQuestionDefinition}s.
+   */
+  private void orderBlockDefinitionsBeforeUpdate() {
+    try {
+      programDefinition = checkNotNull(programDefinition).orderBlockDefinitions();
+      blockDefinitions = programDefinition.blockDefinitions();
+    } catch (NoSuchElementException e) {
+      // We are not able to check block order if the question definitions have not been
+      // added to the program question definitions. If we can't check order, we don't
+      // really need to make sure they're ordered, so this is a no-op.
+    }
   }
 }

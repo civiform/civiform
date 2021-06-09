@@ -45,7 +45,8 @@ export const loginAsTestUser = async (page: Page) => {
     await page.click("#idcs");
     await page.fill("#idcs-signin-basic-signin-form-username", TEST_USER_LOGIN);
     await page.fill("#idcs-signin-basic-signin-form-password > input", TEST_USER_PASSWORD);
-    await page.click("#idcs-signin-basic-signin-form-submit")
+    await page.click("#idcs-signin-basic-signin-form-submit button");
+    await page.waitForLoadState('networkidle');
   } else {
     await page.click('#guest');
   }

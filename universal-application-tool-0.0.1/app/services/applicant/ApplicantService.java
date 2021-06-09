@@ -3,6 +3,7 @@ package services.applicant;
 import auth.UatProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Applicant;
 import models.Application;
@@ -82,6 +83,9 @@ public interface ApplicantService {
    */
   CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId);
 
-  /** Returns the name of the given applicant id. */
+  /** Return the name of the given applicant id. */
   CompletionStage<String> getName(long applicantId);
+
+  /** Return the email of the given applicant id if they have one. */
+  CompletionStage<Optional<String>> getEmail(long applicantId);
 }

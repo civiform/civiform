@@ -3,9 +3,14 @@ package services.program;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
 import forms.BlockForm;
+import io.ebean.DB;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import models.Account;
@@ -698,5 +703,91 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     // Return program admins when there are.
     assertThat(ps.getNotificationEmailAddresses(programName)).containsExactly(programAdminEmail);
+  }
+
+  @Test
+  public void getProgramDefinitionAsync_reordersBlocksOnRead() throws Exception {
+    long programId = ProgramBuilder.newActiveProgram().build().id;
+    ImmutableList<BlockDefinition> unorderedBlockDefinitions =
+        ImmutableList.<BlockDefinition>builder()
+            .add(
+                BlockDefinition.builder()
+                    .setId(1L)
+                    .setName("enumerator")
+                    .setDescription("description")
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(2L)
+                    .setName("top level")
+                    .setDescription("description")
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank.applicantEmail().getQuestionDefinition()))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(3L)
+                    .setName("nested enumerator")
+                    .setDescription("description")
+                    .setEnumeratorId(Optional.of(1L))
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank
+                                .applicantHouseholdMemberJobs()
+                                .getQuestionDefinition()))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(4L)
+                    .setName("repeated")
+                    .setDescription("description")
+                    .setEnumeratorId(Optional.of(1L))
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank
+                                .applicantHouseholdMemberName()
+                                .getQuestionDefinition()))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(5L)
+                    .setName("nested repeated")
+                    .setDescription("description")
+                    .setEnumeratorId(Optional.of(3L))
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank
+                                .applicantHouseholdMemberJobIncome()
+                                .getQuestionDefinition()))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(6L)
+                    .setName("top level 2")
+                    .setDescription("description")
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank.applicantName().getQuestionDefinition()))
+                    .build())
+            .build();
+    ObjectMapper mapper =
+        new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
+
+    // Directly update the table with DB.sqlUpdate and execute. We can't save it through
+    // the ebean model because the preupdate method will correct block ordering, and we
+    // want to test that legacy block order is corrected on read.
+    String updateString =
+        String.format(
+            "UPDATE programs SET block_definitions='%s' WHERE id=%d;",
+            mapper.writeValueAsString(unorderedBlockDefinitions), programId);
+    DB.sqlUpdate(updateString).execute();
+
+    ProgramDefinition found = ps.getProgramDefinitionAsync(programId).toCompletableFuture().get();
+
+    assertThat(found.hasOrderedBlockDefinitions()).isTrue();
   }
 }
