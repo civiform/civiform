@@ -81,7 +81,7 @@ public class ProgramServiceImpl implements ProgramService {
                         .map(this::syncProgramDefinitionQuestions)
                         .get()
                         .thenApply(
-                            programDefinition -> programDefinition.reorderBlockDefinitions()),
+                            programDefinition -> programDefinition.orderBlockDefinitions()),
             httpExecutionContext.current());
   }
 

@@ -184,7 +184,7 @@ public class Program extends BaseModel {
   }
 
   /**
-   * See {@link ProgramDefinition#reorderBlockDefinitions} for why we need to reorder blocks.
+   * See {@link ProgramDefinition#orderBlockDefinitions} for why we need to reorder blocks.
    *
    * <p>This is used in {@link PreUpdate} but cannot be used when reading from storage because
    * {@link QuestionDefinition}s may not be present in the {@link ProgramDefinition}'s {@link
@@ -192,7 +192,7 @@ public class Program extends BaseModel {
    */
   private void reorderBlockDefinitionsBeforeUpdate() {
     try {
-      programDefinition = checkNotNull(programDefinition).reorderBlockDefinitions();
+      programDefinition = checkNotNull(programDefinition).orderBlockDefinitions();
       blockDefinitions = programDefinition.blockDefinitions();
     } catch (NoSuchElementException e) {
       // We are not able to check block order if the question definitions have not been

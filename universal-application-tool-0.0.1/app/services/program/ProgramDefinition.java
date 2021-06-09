@@ -62,7 +62,7 @@ public abstract class ProgramDefinition {
    *
    * <p>Programs created before early June 2021 may not satisfy this condition.
    */
-  public ProgramDefinition reorderBlockDefinitions() {
+  public ProgramDefinition orderBlockDefinitions() {
     if (!hasOrderedBlockDefinitions()) {
       ProgramDefinition orderedProgramDefinition =
           toBuilder()
