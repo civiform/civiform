@@ -94,8 +94,7 @@ public class ExporterService {
 
     // Create a map from a key <block id, question index> to an answer with every application. It
     // doesn't matter which answer ends up in the map, as long as every <block id, question index>
-    // is
-    // accounted for.
+    // is accounted for.
     Map<String, AnswerData> answerMap = new HashMap<>();
     for (Application application : applications) {
       ReadOnlyApplicantProgramService roApplicantService =
@@ -131,6 +130,8 @@ public class ExporterService {
     columnsBuilder.add(Column.builder().setHeader("ID").setColumnType(ColumnType.ID).build());
     columnsBuilder.add(
         Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
+    columnsBuilder.add(
+        Column.builder().setHeader("Language").setColumnType(ColumnType.LANGUAGE).build());
     columnsBuilder.add(
         Column.builder()
             .setHeader("Submitted by")
