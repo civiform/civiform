@@ -129,9 +129,12 @@ public class ExporterService {
     // First add the ID, submit time, and submitter email columns.
     columnsBuilder.add(Column.builder().setHeader("ID").setColumnType(ColumnType.ID).build());
     columnsBuilder.add(
-        Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
+        Column.builder()
+            .setHeader("Applicant language")
+            .setColumnType(ColumnType.LANGUAGE)
+            .build());
     columnsBuilder.add(
-        Column.builder().setHeader("Language").setColumnType(ColumnType.LANGUAGE).build());
+        Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
     columnsBuilder.add(
         Column.builder()
             .setHeader("Submitted by")

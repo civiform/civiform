@@ -1,9 +1,9 @@
 package services.program;
 
 public enum ColumnType {
-  ID,
-  SUBMIT_TIME,
-  LANGUAGE,
   APPLICANT,
+  ID,
+  LANGUAGE,
+  SUBMIT_TIME,
   SUBMITTER_EMAIL
 }
