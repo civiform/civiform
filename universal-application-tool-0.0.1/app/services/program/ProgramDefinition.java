@@ -8,6 +8,8 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
@@ -21,6 +23,7 @@ import services.question.types.QuestionDefinition;
 public abstract class ProgramDefinition {
 
   private Optional<ImmutableSet<Long>> questionIds = Optional.empty();
+  private Boolean hasOrderedBlockDefinitionsMemo;
 
   public static Builder builder() {
     return new AutoValue_ProgramDefinition.Builder();
@@ -52,6 +55,74 @@ public abstract class ProgramDefinition {
 
   /** The list of {@link ExportDefinition}s that make up the program. */
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
+
+  /**
+   * Returns a program definition with block definitions such that each enumerator block is
+   * immediately followed by all of its repeated and nested repeated blocks. This method should be
+   * used when {@link #hasOrderedBlockDefinitions()} is a precondition for manipulating blocks.
+   *
+   * <p>Programs created before early June 2021 may not satisfy this condition.
+   */
+  public ProgramDefinition orderBlockDefinitions() {
+    if (!hasOrderedBlockDefinitions()) {
+      ProgramDefinition orderedProgramDefinition =
+          toBuilder()
+              .setBlockDefinitions(orderBlockDefinitionsInner(getNonRepeatedBlockDefinitions()))
+              .build();
+      orderedProgramDefinition.hasOrderedBlockDefinitionsMemo = true;
+      return orderedProgramDefinition;
+    }
+    return this;
+  }
+
+  private ImmutableList<BlockDefinition> orderBlockDefinitionsInner(
+      ImmutableList<BlockDefinition> currentLevel) {
+    ImmutableList.Builder<BlockDefinition> blockDefinitionBuilder = ImmutableList.builder();
+    for (BlockDefinition blockDefinition : currentLevel) {
+      blockDefinitionBuilder.add(blockDefinition);
+      if (blockDefinition.isEnumerator()) {
+        blockDefinitionBuilder.addAll(
+            orderBlockDefinitionsInner(getBlockDefinitionsForEnumerator(blockDefinition.id())));
+      }
+    }
+    return blockDefinitionBuilder.build();
+  }
+
+  /**
+   * This method should be treated as VISIBLE FOR TESTING.
+   *
+   * <p>True indicates that each enumerator block in {@link #blockDefinitions()} is immediately
+   * followed by all of its repeated and nested repeated blocks.
+   */
+  public boolean hasOrderedBlockDefinitions() {
+    if (hasOrderedBlockDefinitionsMemo == null) {
+      Deque<Long> enumeratorIds = new ArrayDeque<>();
+
+      // Walk through the list of block definitions, checking that repeated and nested repeated
+      // blocks
+      // immediately follow their enumerator block.
+      for (BlockDefinition blockDefinition : blockDefinitions()) {
+        // Pop the stack until the enumerator id matches the top of the stack.
+        while (enumeratorIds.size() > 0
+            && !blockDefinition.enumeratorId().equals(Optional.of(enumeratorIds.peek()))) {
+          enumeratorIds.pop();
+        }
+
+        // Early return if it still doesn't match, this is not ordered.
+        if (!blockDefinition.enumeratorId().equals(Optional.ofNullable(enumeratorIds.peek()))) {
+          hasOrderedBlockDefinitionsMemo = false;
+          return false;
+        }
+
+        // Push this enumerator block's id
+        if (blockDefinition.isEnumerator()) {
+          enumeratorIds.push(blockDefinition.id());
+        }
+      }
+      hasOrderedBlockDefinitionsMemo = true;
+    }
+    return hasOrderedBlockDefinitionsMemo;
+  }
 
   /**
    * Get all the {@link Locale}s this program fully supports. A program fully supports a locale if:
