@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Question;
+import models.QuestionTag;
 import models.Version;
 import play.db.ebean.EbeanConfig;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -136,8 +137,13 @@ public class QuestionRepository {
     return conflictDetector.getConflictedQuestion();
   }
 
-  public ImmutableList<QuestionDefinition> getAllDemographicQuestions() {
-    return ebeanServer.find(Question.class).findList().stream()
+  public ImmutableList<QuestionDefinition> getAllQuestionsForTag(QuestionTag tag) {
+    return ebeanServer
+        .find(Question.class)
+        .where()
+        .arrayContains("question_tags", tag)
+        .findList()
+        .stream()
         .map(Question::getQuestionDefinition)
         .collect(ImmutableList.toImmutableList());
   }

@@ -3,6 +3,7 @@ package services.question;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import models.QuestionTag;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.exceptions.InvalidUpdateException;
@@ -53,5 +54,5 @@ public interface QuestionService {
 
   void discardDraft(Long id) throws InvalidUpdateException;
 
-  ImmutableList<QuestionDefinition> getAllDemographicQuestions();
+  ImmutableList<QuestionDefinition> getQuestionsForTag(QuestionTag tag);
 }

@@ -1,8 +1,10 @@
 package services.export;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.hash.Hashing;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import models.Application;
@@ -74,10 +76,34 @@ public class CsvExporter {
           printer.print(application.getSubmitterEmail().orElse("Applicant"));
           break;
         case OPAQUE_ID:
-          printer.print(application.getApplicant().opaqueIdentifier(this.secret.get()));
+          printer.print(opaqueIdentifier(this.secret.get(), application.getApplicant().id));
+          break;
+        case APPLICANT_OPAQUE:
+          Optional<String> applicantValue =
+              application.getApplicantData().readAsString(column.jsonPath().orElseThrow());
+          // We still hash the empty value.
+          printer.print(opaqueIdentifier(this.secret.get(), applicantValue.orElse(EMPTY_VALUE)));
       }
     }
 
     printer.println();
+  }
+  /** Returns an opaque identifier - the ID hashed with the application secret key. */
+  private static String opaqueIdentifier(String secret, Long id) {
+    return Hashing.sha256()
+        .newHasher()
+        .putString(secret, StandardCharsets.UTF_8)
+        .putLong(id)
+        .hash()
+        .toString();
+  }
+
+  private static String opaqueIdentifier(String secret, String value) {
+    return Hashing.sha256()
+        .newHasher()
+        .putString(secret, StandardCharsets.UTF_8)
+        .putString(value, StandardCharsets.UTF_8)
+        .hash()
+        .toString();
   }
 }

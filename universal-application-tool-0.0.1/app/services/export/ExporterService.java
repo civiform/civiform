@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
+import models.QuestionTag;
 import services.Path;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantData;
@@ -239,21 +240,27 @@ public class ExporterService {
     columnsBuilder.add(
         Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
 
-    for (QuestionDefinition questionDefinition :
-        this.questionService.getAllDemographicQuestions()) {
-      if (questionDefinition.isEnumerator()) {
-        continue; // Do not include Enumerator answers in CSVs.
-      }
-      ApplicantQuestionRenderer renderer =
-          applicantQuestionRendererFactory.getRenderer(
-              new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty()));
-      for (Path path : renderer.getAllPaths()) {
-        columnsBuilder.add(
-            Column.builder()
-                .setHeader(pathToHeader(path))
-                .setJsonPath(path)
-                .setColumnType(ColumnType.APPLICANT)
-                .build());
+    for (QuestionTag tagType :
+        ImmutableList.of(QuestionTag.DEMOGRAPHIC, QuestionTag.DEMOGRAPHIC_PII)) {
+      for (QuestionDefinition questionDefinition :
+          this.questionService.getQuestionsForTag(tagType)) {
+        if (questionDefinition.isEnumerator()) {
+          continue; // Do not include Enumerator answers in CSVs.
+        }
+        ApplicantQuestionRenderer renderer =
+            applicantQuestionRendererFactory.getRenderer(
+                new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty()));
+        for (Path path : renderer.getAllPaths()) {
+          columnsBuilder.add(
+              Column.builder()
+                  .setHeader(pathToHeader(path))
+                  .setJsonPath(path)
+                  .setColumnType(
+                      tagType == QuestionTag.DEMOGRAPHIC_PII
+                          ? ColumnType.APPLICANT_OPAQUE
+                          : ColumnType.APPLICANT)
+                  .build());
+        }
       }
     }
     return new CsvExportConfig() {

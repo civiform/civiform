@@ -7,7 +7,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
+import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJsonB;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -77,6 +79,8 @@ public class Question extends BaseModel {
   private @DbJsonB ImmutableList<QuestionOption> questionOptions;
 
   private @DbJsonB LocalizedStrings enumeratorEntityType;
+
+  private @DbArray List<QuestionTag> questionTags;
 
   @ManyToMany
   @JoinTable(name = "versions_questions")
@@ -230,5 +234,30 @@ public class Question extends BaseModel {
 
   public boolean removeVersion(Version draftVersion) {
     return this.versions.remove(draftVersion);
+  }
+
+  public boolean addTag(QuestionTag tag) {
+    if (this.questionTags == null) {
+      this.questionTags = new ArrayList<>();
+    }
+    if (this.questionTags.contains(tag)) {
+      return false;
+    }
+    this.questionTags.add(tag);
+    return true;
+  }
+
+  public boolean removeTag(QuestionTag tag) {
+    if (this.questionTags == null) {
+      this.questionTags = new ArrayList<>();
+    }
+    return this.questionTags.remove(tag);
+  }
+
+  public boolean containsTag(QuestionTag tag) {
+    if (this.questionTags == null) {
+      this.questionTags = new ArrayList<>();
+    }
+    return this.questionTags.contains(tag);
   }
 }

@@ -9,6 +9,7 @@ import com.google.inject.Provider;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Question;
+import models.QuestionTag;
 import models.Version;
 import repository.QuestionRepository;
 import repository.VersionRepository;
@@ -132,8 +133,8 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public ImmutableList<QuestionDefinition> getAllDemographicQuestions() {
-    return questionRepository.getAllDemographicQuestions();
+  public ImmutableList<QuestionDefinition> getQuestionsForTag(QuestionTag tag) {
+    return questionRepository.getAllQuestionsForTag(tag);
   }
 
   private CompletionStage<ImmutableList<QuestionDefinition>> listQuestionDefinitionsAsync() {
