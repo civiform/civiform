@@ -76,7 +76,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       String message,
       ImmutableList<QuestionDefinition> questions) {
     Tag csrfTag = makeCsrfTokenInputTag(request);
-    String title = "Block edit view";
+    String title = String.format("Edit %s", blockDefinition.name());
 
     String blockUpdateAction =
         controllers.admin.routes.AdminProgramBlocksController.update(
@@ -361,7 +361,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 .attr("disabled", ""));
     return Modal.builder("block-description-modal", blockDescriptionForm)
         .setModalTitle(modalTitle)
-        .setButtonText(modalButtonText)
+        .setTriggerButtonText(modalButtonText)
         .build();
   }
 
