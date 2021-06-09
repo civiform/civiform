@@ -66,7 +66,7 @@ public abstract class ProgramDefinition {
     if (!hasOrderedBlockDefinitions()) {
       ProgramDefinition orderedProgramDefinition =
           toBuilder()
-              .setBlockDefinitions(reorderBlockDefinitionsInner(getNonRepeatedBlockDefinitions()))
+              .setBlockDefinitions(orderBlockDefinitionsInner(getNonRepeatedBlockDefinitions()))
               .build();
       orderedProgramDefinition.hasOrderedBlockDefinitionsMemo = true;
       return orderedProgramDefinition;
@@ -74,14 +74,14 @@ public abstract class ProgramDefinition {
     return this;
   }
 
-  private ImmutableList<BlockDefinition> reorderBlockDefinitionsInner(
+  private ImmutableList<BlockDefinition> orderBlockDefinitionsInner(
       ImmutableList<BlockDefinition> currentLevel) {
     ImmutableList.Builder<BlockDefinition> blockDefinitionBuilder = ImmutableList.builder();
     for (BlockDefinition blockDefinition : currentLevel) {
       blockDefinitionBuilder.add(blockDefinition);
       if (blockDefinition.isEnumerator()) {
         blockDefinitionBuilder.addAll(
-            reorderBlockDefinitionsInner(getBlockDefinitionsForEnumerator(blockDefinition.id())));
+            orderBlockDefinitionsInner(getBlockDefinitionsForEnumerator(blockDefinition.id())));
       }
     }
     return blockDefinitionBuilder.build();

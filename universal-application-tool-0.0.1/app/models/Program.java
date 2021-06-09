@@ -86,7 +86,7 @@ public class Program extends BaseModel {
     this.blockDefinitions = definition.blockDefinitions();
     this.exportDefinitions = definition.exportDefinitions();
 
-    reorderBlockDefinitionsBeforeUpdate();
+    orderBlockDefinitionsBeforeUpdate();
   }
 
   /**
@@ -126,7 +126,7 @@ public class Program extends BaseModel {
     exportDefinitions = programDefinition.exportDefinitions();
     slug = programDefinition.slug();
 
-    reorderBlockDefinitionsBeforeUpdate();
+    orderBlockDefinitionsBeforeUpdate();
   }
 
   /** Populates {@link ProgramDefinition} from column values. */
@@ -184,13 +184,13 @@ public class Program extends BaseModel {
   }
 
   /**
-   * See {@link ProgramDefinition#orderBlockDefinitions} for why we need to reorder blocks.
+   * See {@link ProgramDefinition#orderBlockDefinitions} for why we need to order blocks.
    *
    * <p>This is used in {@link PreUpdate} but cannot be used when reading from storage because
    * {@link QuestionDefinition}s may not be present in the {@link ProgramDefinition}'s {@link
    * BlockDefinition}'s {@link services.program.ProgramQuestionDefinition}s.
    */
-  private void reorderBlockDefinitionsBeforeUpdate() {
+  private void orderBlockDefinitionsBeforeUpdate() {
     try {
       programDefinition = checkNotNull(programDefinition).orderBlockDefinitions();
       blockDefinitions = programDefinition.blockDefinitions();
