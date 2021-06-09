@@ -44,9 +44,6 @@ link.applyToAnotherProgram=Apply to another program
 # A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=Create account or sign in
 
-# A link that offers an applicant the ability to return to their home page that lists all programs.
-link.returnToDash=Return to all programs
-
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
 #----------------------------------------------------------------------------#
