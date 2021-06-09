@@ -56,63 +56,11 @@ public abstract class ProgramDefinition {
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
 
   /**
-   * True indicates that {@link #blockDefinitions()} are in the order specified by {@link
-   * #reorderBlockDefinitions()}.
+   * Returns a program definition with block definitions such that each enumerator block is
+   * immediately followed by all of its repeated and nested repeated blocks. This method should be
+   * used when {@link #hasOrderedBlockDefinitions()} is a precondition for manipulating blocks.
    *
-   * <p>This check walks through the list of block definitions with a stack of enumerator ids and:
-   *
-   * <ul>
-   *   <li>pops the stack until the enumerator id of the block matches the top of the stack. If it
-   *       never matches, then the list is not ordered.
-   *   <li>pushes to the stack if the block is an enumerator block.
-   * </ul>
-   *
-   * This checks that repeated blocks immediately follow their enumerator and are not separated.
-   */
-  public boolean hasOrderedBlockDefinitions() {
-    if (hasOrderedBlockDefinitionsMemo == null) {
-      Deque<Long> enumeratorIds = new ArrayDeque<>();
-      for (BlockDefinition blockDefinition : blockDefinitions()) {
-        // Pop the stack until the enumerator id matches the top of the stack.
-        while (enumeratorIds.size() > 0
-            && !blockDefinition.enumeratorId().equals(Optional.of(enumeratorIds.peek()))) {
-          enumeratorIds.pop();
-        }
-
-        // Early return if it still doesn't match, this is not ordered.
-        if (!blockDefinition.enumeratorId().equals(Optional.ofNullable(enumeratorIds.peek()))) {
-          hasOrderedBlockDefinitionsMemo = false;
-          return false;
-        }
-
-        // Push this enumerator block's id
-        if (blockDefinition.isEnumerator()) {
-          enumeratorIds.push(blockDefinition.id());
-        }
-      }
-      hasOrderedBlockDefinitionsMemo = true;
-    }
-    return hasOrderedBlockDefinitionsMemo;
-  }
-
-  /**
-   * Programs created before early June 2021 may not have block definitions stored in a good order.
-   * The desired ordering is:
-   *
-   * <ol>
-   *   <li>Blocks with the same enumerator block are in order
-   *   <li>An enumerator block is immediately followed by all of its repeated and nested repeated
-   *       blocks.
-   * </ol>
-   *
-   * <p>This method should be used in methods that read and write from storage:
-   *
-   * <ul>
-   *   <li>the {@link Program#persistChangesToProgramDefinition()} preupdate method to make sure
-   *       programs are stored with block definitions in a good order.
-   *   <li>{@link ProgramService#getProgramDefinitionAsync(long)} to make sure programs are loaded
-   *       from storage with block definitions in a good order.
-   * </ul>
+   * <p>Programs created before early June 2021 may not satisfy this condition.
    */
   public ProgramDefinition reorderBlockDefinitions() {
     if (!hasOrderedBlockDefinitions()) {
@@ -137,6 +85,40 @@ public abstract class ProgramDefinition {
       }
     }
     return blockDefinitionBuilder.build();
+  }
+
+  /**
+   * This method should be treated as VISIBLE FOR TESTING.
+   *
+   * <p>True indicates that each enumerator block in {@link #blockDefinitions()} is immediately
+   * followed by all of its repeated and nested repeated blocks.
+   */
+  public boolean hasOrderedBlockDefinitions() {
+    if (hasOrderedBlockDefinitionsMemo == null) {
+      Deque<Long> enumeratorIds = new ArrayDeque<>();
+
+      // Walk through the list of block definitions, checking that repeated blocks are
+      for (BlockDefinition blockDefinition : blockDefinitions()) {
+        // Pop the stack until the enumerator id matches the top of the stack.
+        while (enumeratorIds.size() > 0
+            && !blockDefinition.enumeratorId().equals(Optional.of(enumeratorIds.peek()))) {
+          enumeratorIds.pop();
+        }
+
+        // Early return if it still doesn't match, this is not ordered.
+        if (!blockDefinition.enumeratorId().equals(Optional.ofNullable(enumeratorIds.peek()))) {
+          hasOrderedBlockDefinitionsMemo = false;
+          return false;
+        }
+
+        // Push this enumerator block's id
+        if (blockDefinition.isEnumerator()) {
+          enumeratorIds.push(blockDefinition.id());
+        }
+      }
+      hasOrderedBlockDefinitionsMemo = true;
+    }
+    return hasOrderedBlockDefinitionsMemo;
   }
 
   /**
