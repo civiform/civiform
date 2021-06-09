@@ -6,18 +6,23 @@ import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Transaction;
 import models.LifecycleStage;
+import models.Program;
 import models.Question;
 import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import services.applicant.question.Scalar;
+import services.program.ProgramDefinition;
 import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.OrNode;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateExpressionNodeType;
 import services.program.predicate.PredicateValue;
+import support.ProgramBuilder;
 
 public class VersionRepositoryTest extends WithPostgresContainer {
   private VersionRepository versionRepository;
@@ -149,5 +154,72 @@ public class VersionRepositoryTest extends WithPostgresContainer {
 
     assertThat(updated.getType()).isEqualTo(PredicateExpressionNodeType.AND);
     assertThat(updated).isEqualTo(expectedAnd);
+  }
+
+  @Test
+  public void updateQuestionVersions_updatesAllQuestionsInBlocks() {
+    Version draft = versionRepository.getDraftVersion();
+    Version active = versionRepository.getActiveVersion();
+
+    // Create some old questions
+    Question oldOne = resourceCreator.insertQuestion("one");
+    oldOne.addVersion(active);
+    oldOne.save();
+    Question oldTwo = resourceCreator.insertQuestion("two");
+    oldTwo.addVersion(active);
+    oldTwo.save();
+
+    // Create new versions of the old questions
+    Question newOne = resourceCreator.insertQuestion("one");
+    newOne.addVersion(draft);
+    newOne.save();
+    Question newTwo = resourceCreator.insertQuestion("two");
+    newTwo.addVersion(draft);
+    newTwo.save();
+
+    // Create a predicate based on the old questions
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    oldOne.id, Scalar.NUMBER, Operator.EQUAL_TO, PredicateValue.of(100))),
+            PredicateAction.SHOW_BLOCK);
+
+    // Create a program that uses the old questions in blocks and block predicates.
+    Program program =
+        ProgramBuilder.newDraftProgram("questions-need-updating")
+            .withBlock()
+            .withQuestion(oldOne)
+            .withBlock()
+            .withQuestion(oldTwo)
+            .withPredicate(predicate)
+            .build();
+    program.save();
+
+    versionRepository.updateQuestionVersions(program);
+    ProgramDefinition updated =
+        versionRepository
+            .getDraftVersion()
+            .getProgramByName(program.getProgramDefinition().adminName())
+            .get()
+            .getProgramDefinition();
+
+    assertThat(updated.blockDefinitions()).hasSize(2);
+    // Note: compare IDs here directly since ProgramQuestionDefinitions don't have
+    // QuestionDefinitions on load.
+    assertThat(updated.blockDefinitions().get(0).programQuestionDefinitions().get(0).id())
+        .isEqualTo(newOne.getQuestionDefinition().getId());
+    assertThat(updated.blockDefinitions().get(1).programQuestionDefinitions().get(0).id())
+        .isEqualTo(newTwo.getQuestionDefinition().getId());
+    assertThat(
+            updated
+                .blockDefinitions()
+                .get(1)
+                .visibilityPredicate()
+                .get()
+                .rootNode()
+                .getLeafNode()
+                .questionId())
+        .isEqualTo(newOne.id);
   }
 }
