@@ -22,7 +22,12 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
       @JsonProperty("scalar") Scalar scalar,
       @JsonProperty("operator") Operator operator,
       @JsonProperty("value") PredicateValue comparedValue) {
-    return new AutoValue_LeafOperationExpressionNode(questionId, scalar, operator, comparedValue);
+    return builder()
+        .questionId(questionId)
+        .scalar(scalar)
+        .operator(operator)
+        .comparedValue(comparedValue)
+        .build();
   }
 
   /**
@@ -47,5 +52,24 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
   @JsonIgnore
   public PredicateExpressionNodeType getType() {
     return PredicateExpressionNodeType.LEAF_OPERATION;
+  }
+
+  public static Builder builder() {
+    return new AutoValue_LeafOperationExpressionNode.Builder();
+  }
+
+  public abstract Builder toBuilder();
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+    public abstract Builder questionId(long questionId);
+
+    public abstract Builder scalar(Scalar scalar);
+
+    public abstract Builder operator(Operator operator);
+
+    public abstract Builder comparedValue(PredicateValue comparedValue);
+
+    public abstract LeafOperationExpressionNode build();
   }
 }
