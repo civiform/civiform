@@ -62,9 +62,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       currentBlockList =
           getBlocks(
               block ->
-                  (!block.isCompleteWithoutErrors()
-                          || block.wasCompletedInProgram(programDefinition.id()))
-                      && showBlock(block));
+                  !block.isCompleteWithoutErrors()
+                      || block.wasCompletedInProgram(programDefinition.id()));
     }
     return currentBlockList;
   }
@@ -177,7 +176,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
               blockDefinition,
               applicantData,
               maybeRepeatedEntity);
-      if (includeBlockIfTrue.test(block)) {
+      if (includeBlockIfTrue.test(block) && showBlock(block)) {
         blockListBuilder.add(block);
       }
 

@@ -10,8 +10,8 @@ public interface ReadOnlyApplicantProgramService {
 
   /**
    * Get the {@link Block}s for this program and applicant. This includes all blocks, whether the
-   * block was filled out in this program or a previous program. This also includes blocks that may
-   * be hidden from the applicant (i.e. they have a show/hide predicate).
+   * block was filled out in this program or a previous program. This will not include blocks that
+   * are hidden from the applicant (i.e. they have a show/hide predicate).
    */
   ImmutableList<Block> getAllBlocks();
 
