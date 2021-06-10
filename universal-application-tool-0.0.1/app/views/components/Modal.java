@@ -16,7 +16,7 @@ public class Modal {
   private Tag content;
   private String modalTitle;
   private String triggerButtonText;
-  private Tag triggerButtonContent;
+  private Optional<Tag> triggerButtonContent;
   private String buttonStyles;
 
   private Modal(ModalBuilder builder) {
@@ -38,12 +38,12 @@ public class Modal {
 
   public Tag getButton() {
     String triggerButtonId = modalId + "-button";
-    if (triggerButtonContent != null) {
+    if (triggerButtonContent.isPresent()) {
       return TagCreator.button()
           .withType("button")
           .withClasses(buttonStyles)
           .withId(triggerButtonId)
-          .with(triggerButtonContent);
+          .with(triggerButtonContent.get());
     } else {
       return button(triggerButtonId, triggerButtonText).withClasses(buttonStyles);
     }
@@ -74,7 +74,7 @@ public class Modal {
     private String modalTitle;
     private String triggerButtonText;
 
-    private Tag triggerButtonContent = null;
+    private Optional<Tag> triggerButtonContent = Optional.empty();
 
     public ModalBuilder(String modalId, Tag content) {
       this.modalId = modalId;
@@ -92,7 +92,7 @@ public class Modal {
     }
 
     public ModalBuilder setTriggerButtonContent(Tag triggerButtonContent) {
-      this.triggerButtonContent = triggerButtonContent;
+      this.triggerButtonContent = Optional.ofNullable(triggerButtonContent);
       return this;
     }
 
