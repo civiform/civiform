@@ -151,7 +151,10 @@ public class QuestionRepository {
         .arrayContains("question_tags", tag)
         .findList()
         .stream()
-        .filter(question -> active.getQuestions().stream().anyMatch(activeQuestion -> activeQuestion.id.equals(question.id)))
+        .filter(
+            question ->
+                active.getQuestions().stream()
+                    .anyMatch(activeQuestion -> activeQuestion.id.equals(question.id)))
         .map(Question::getQuestionDefinition)
         .collect(ImmutableList.toImmutableList());
   }
