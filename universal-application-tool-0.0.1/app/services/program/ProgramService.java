@@ -127,8 +127,8 @@ public interface ProgramService {
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
 
   /**
-   * Move the block definition one position earlier in the program. If the movement is not allowed,
-   * then it is not moved.
+   * Move the block definition one position in the direction specified. If the movement is not
+   * allowed, then it is not moved.
    *
    * <p>Movement is not allowed if:
    *
@@ -142,25 +142,8 @@ public interface ProgramService {
    * @param blockId the ID of the block to move
    * @return the program definition, with the block moved if it is allowed.
    */
-  ProgramDefinition moveBlockUp(long programId, long blockId) throws ProgramNotFoundException;
-
-  /**
-   * Move the block definition one position later in the program. If the movement is not allowed,
-   * then it is not moved.
-   *
-   * <p>Movement is not allowed if:
-   *
-   * <ul>
-   *   <li>it would move the block past the ends of the list
-   *   <li>it would move a repeated block such that it is not contiguous with its enumerator block's
-   *       repeated and nested repeated blocks.
-   * </ul>
-   *
-   * @param programId the ID of the program to update
-   * @param blockId the ID of the block to move
-   * @return the program definition, with the block moved if it is allowed.
-   */
-  ProgramDefinition moveBlockDown(long programId, long blockId) throws ProgramNotFoundException;
+  ProgramDefinition moveBlock(long programId, long blockId, ProgramDefinition.Direction direction)
+      throws ProgramNotFoundException;
 
   /**
    * Update a {@link BlockDefinition}'s attributes.
