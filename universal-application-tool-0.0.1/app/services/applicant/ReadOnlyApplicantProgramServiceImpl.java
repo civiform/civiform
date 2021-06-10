@@ -26,8 +26,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   /**
    * Note that even though {@link ApplicantData} is mutable, we can consider it immutable at this
-   * point since there is no shared state between requests. This means that we can memoize
-   * attributes based on ApplicantData without concern that the data will change.
+   * point since there is no shared state between requests. In fact, we call {@link
+   * ApplicantData#lock()} in the constructor so no changes can occur. This means that we can
+   * memoize attributes based on ApplicantData without concern that the data will change.
    */
   private final ApplicantData applicantData;
 
