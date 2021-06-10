@@ -45,6 +45,21 @@ public class JsonPathPredicateGeneratorTest {
   }
 
   @Test
+  public void fromLeafNode_generatesCorrectStringForArrayValue() throws Exception {
+    LeafOperationExpressionNode node =
+        LeafOperationExpressionNode.create(
+            question.getId(),
+            Scalar.CITY,
+            Operator.IN,
+            PredicateValue.of(ImmutableList.of("Seattle", "Portland")));
+
+    assertThat(generator.fromLeafNode(node))
+        .isEqualTo(
+            JsonPathPredicate.create(
+                "$.applicant.applicant_address[?(@.city in [\"Seattle\", \"Portland\"])]"));
+  }
+
+  @Test
   public void fromLeafNode_canBeEvaluated() throws Exception {
     ApplicantData data = new ApplicantData();
     data.putString(Path.create("applicant.applicant_address.city"), "Chicago");
