@@ -23,6 +23,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         program.getAdminDescription(),
         program.getLocalizedDisplayName(),
         program.getLocalizedDisplayDescription(),
+        program.getExternalLink(),
         editExistingProgram);
   }
 
@@ -34,6 +35,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         program.adminDescription(),
         program.localizedName().getDefault(),
         program.localizedDescription().getDefault(),
+        program.externalLink(),
         editExistingProgram);
   }
 
@@ -42,6 +44,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
       String adminDescription,
       String displayName,
       String displayDescription,
+      String externalLink,
       boolean editExistingProgram) {
     ContainerTag formTag = form().withMethod("POST");
     formTag.with(
@@ -73,6 +76,12 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .setFieldName("localizedDisplayDescription")
             .setLabelText("Describe this program for the public")
             .setValue(displayDescription)
+            .getContainer(),
+        FieldWithLabel.input()
+            .setId("program-external-link-input")
+            .setFieldName("externalLink")
+            .setLabelText("Link for additional program information")
+            .setValue(externalLink)
             .getContainer(),
         submitButton("Save").withId("program-update-button"));
     return formTag;
