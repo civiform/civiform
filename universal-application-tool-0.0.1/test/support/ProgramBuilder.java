@@ -57,7 +57,7 @@ public class ProgramBuilder {
   /** Creates a {@link ProgramBuilder} with a new {@link Program} in draft state. */
   public static ProgramBuilder newDraftProgram(String name, String description) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
-    Program program = new Program(name, description, name, description);
+    Program program = new Program(name, description, name, description, "");
     program.addVersion(versionRepository.getDraftVersion());
     program.save();
     ProgramDefinition.Builder builder =
@@ -86,7 +86,7 @@ public class ProgramBuilder {
   /** Creates a {@link ProgramBuilder} with a new {@link Program} in active state. */
   public static ProgramBuilder newActiveProgram(String name, String description) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
-    Program program = new Program(name, description, name, description);
+    Program program = new Program(name, description, name, description, "");
     program.addVersion(versionRepository.getActiveVersion());
     program.save();
     ProgramDefinition.Builder builder =
