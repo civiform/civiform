@@ -24,7 +24,7 @@ import views.style.Styles;
 
 public class FieldWithLabel {
   private static final ImmutableSet<String> STRING_TYPES =
-      ImmutableSet.of("text", "checkbox", "date", "email");
+      ImmutableSet.of("text", "checkbox", "radio", "date", "email");
 
   protected Tag fieldTag;
   protected String fieldName = "";
@@ -52,6 +52,11 @@ public class FieldWithLabel {
   public static FieldWithLabel checkbox() {
     Tag fieldTag = TagCreator.input();
     return new FieldWithLabel(fieldTag).setFieldType("checkbox");
+  }
+
+  public static FieldWithLabel radio() {
+    Tag fieldTag = TagCreator.input();
+    return new FieldWithLabel(fieldTag).setFieldType("radio");
   }
 
   public static FieldWithLabel input() {
@@ -205,7 +210,7 @@ public class FieldWithLabel {
         .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
 
-    if (this.fieldType.equals("checkbox")) {
+    if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
       return getCheckboxContainer();
     }
 

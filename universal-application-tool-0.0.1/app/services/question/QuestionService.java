@@ -7,6 +7,7 @@ import models.QuestionTag;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.exceptions.InvalidUpdateException;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -55,4 +56,7 @@ public interface QuestionService {
   void discardDraft(Long id) throws InvalidUpdateException;
 
   ImmutableList<QuestionDefinition> getQuestionsForTag(QuestionTag tag);
+
+  void setExportState(QuestionDefinition questionDefinition, String questionExportState)
+      throws QuestionNotFoundException, InvalidUpdateException;
 }

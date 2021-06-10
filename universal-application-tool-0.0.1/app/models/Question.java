@@ -260,4 +260,11 @@ public class Question extends BaseModel {
     }
     return this.questionTags.contains(tag);
   }
+
+  public List<QuestionTag> getQuestionTags() {
+    if (this.questionTags == null) {
+      this.questionTags = new ArrayList<>();
+    }
+    return this.questionTags;
+  }
 }

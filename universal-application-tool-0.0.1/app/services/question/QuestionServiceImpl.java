@@ -16,6 +16,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.exceptions.InvalidUpdateException;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 
 public final class QuestionServiceImpl implements QuestionService {
@@ -130,11 +131,36 @@ public final class QuestionServiceImpl implements QuestionService {
       throw new InvalidUpdateException("Did not find question in draft version.");
     }
     question.get().save();
+    versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(id);
   }
 
   @Override
   public ImmutableList<QuestionDefinition> getQuestionsForTag(QuestionTag tag) {
     return questionRepository.getAllQuestionsForTag(tag);
+  }
+
+  @Override
+  public void setExportState(QuestionDefinition questionDefinition, String questionExportState)
+      throws QuestionNotFoundException, InvalidUpdateException {
+    Optional<Question> question =
+        questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
+    if (question.isEmpty()) {
+      throw new QuestionNotFoundException(questionDefinition.getId());
+    }
+    if (questionExportState.equals(QuestionTag.DEMOGRAPHIC.getValue())) {
+      question.get().removeTag(QuestionTag.DEMOGRAPHIC_PII);
+      question.get().addTag(QuestionTag.DEMOGRAPHIC);
+    } else if (questionExportState.equals(QuestionTag.DEMOGRAPHIC_PII.getValue())) {
+      question.get().removeTag(QuestionTag.DEMOGRAPHIC);
+      question.get().addTag(QuestionTag.DEMOGRAPHIC_PII);
+    } else if (questionExportState.equals("none")) {
+      question.get().removeTag(QuestionTag.DEMOGRAPHIC_PII);
+      question.get().removeTag(QuestionTag.DEMOGRAPHIC);
+    } else {
+      throw new InvalidUpdateException(
+          String.format("Unknown question export state: %s", questionExportState));
+    }
+    question.get().save();
   }
 
   private CompletionStage<ImmutableList<QuestionDefinition>> listQuestionDefinitionsAsync() {

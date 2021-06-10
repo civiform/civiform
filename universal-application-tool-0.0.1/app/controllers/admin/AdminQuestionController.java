@@ -261,6 +261,12 @@ public class AdminQuestionController extends CiviFormController {
           editView.renderEditQuestionForm(
               request, id, questionForm, maybeEnumerationQuestion, errorMessage));
     }
+    try {
+      service.setExportState(
+          errorAndUpdatedQuestionDefinition.getResult(), questionForm.getQuestionExportState());
+    } catch (InvalidUpdateException | QuestionNotFoundException e) {
+      return badRequest(e.toString());
+    }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
     return withMessage(redirect(routes.AdminQuestionController.index()), successMessage);

@@ -68,6 +68,12 @@ public class QuestionRepository {
           Question newDraft =
               new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
           insertQuestionSync(newDraft);
+          // Fetch the tags off the old question.
+          Question oldQuestion = new Question(definition);
+          oldQuestion.refresh();
+          for (QuestionTag tag : oldQuestion.getQuestionTags()) {
+            newDraft.addTag(tag);
+          }
           newDraft.addVersion(draftVersion);
           newDraft.save();
           draftVersion.refresh();
@@ -138,12 +144,14 @@ public class QuestionRepository {
   }
 
   public ImmutableList<QuestionDefinition> getAllQuestionsForTag(QuestionTag tag) {
+    Version active = versionRepositoryProvider.get().getActiveVersion();
     return ebeanServer
         .find(Question.class)
         .where()
         .arrayContains("question_tags", tag)
         .findList()
         .stream()
+        .filter(question -> active.getQuestions().stream().anyMatch(activeQuestion -> activeQuestion.id.equals(question.id)))
         .map(Question::getQuestionDefinition)
         .collect(ImmutableList.toImmutableList());
   }
