@@ -3,6 +3,7 @@ package services.export;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -102,29 +103,19 @@ public class ExporterService {
               .getReadOnlyApplicantProgramService(application)
               .toCompletableFuture()
               .join();
-      for (AnswerData answerData : roApplicantService.getSummaryData()) {
-        String key = answerDataKey(answerData);
-        if (!answerMap.containsKey(key)) {
-          answerMap.put(key, answerData);
-        }
-      }
+      roApplicantService
+          .getSummaryDataMap()
+          .forEach((key, data) -> answerMap.putIfAbsent(key, data));
     }
 
-    // Get the list of all answers, sorted by block ID and question index, and generate the default
-    // csv config.
-    ImmutableList<AnswerData> answers =
-        answerMap.values().stream()
-            .sorted(
-                Comparator.comparing(AnswerData::blockId).thenComparing(AnswerData::questionIndex))
-            .collect(ImmutableList.toImmutableList());
-    return generateDefaultCsvConfig(answers);
+    return generateDefaultCsvConfig(ImmutableMap.copyOf(answerMap));
   }
 
   /**
-   * Produce the default {@link CsvExportConfig} for a list of {@link AnswerData}s. The default
+   * Produce the default {@link CsvExportConfig} for a map of {@link AnswerData}s. The default
    * config includes all the questions, the application id, and the application submission time.
    */
-  private CsvExportConfig generateDefaultCsvConfig(ImmutableList<AnswerData> answerDataList) {
+  private CsvExportConfig generateDefaultCsvConfig(ImmutableMap<String, AnswerData> answerDataMap) {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
     // First add the ID, submit time, and submitter email columns.
     columnsBuilder.add(Column.builder().setHeader("ID").setColumnType(ColumnType.ID).build());
@@ -141,19 +132,27 @@ public class ExporterService {
             .setColumnType(ColumnType.SUBMITTER_EMAIL)
             .build());
 
-    // Add columns for each path to an answer.
-    for (AnswerData answerData : answerDataList) {
+    // Sort answers by answerDataKey (by block ID and then by question index).
+    ImmutableList<String> sortedAnswerKeys =
+        answerDataMap.keySet().stream().sorted().collect(ImmutableList.toImmutableList());
+    // Add columns for each answer to a question.
+    for (String key : sortedAnswerKeys) {
+      AnswerData answerData = answerDataMap.get(key);
       if (answerData.questionDefinition().isEnumerator()) {
         continue; // Do not include Enumerator answers in CSVs.
       }
-      for (Path path : answerData.scalarAnswersInDefaultLocale().keySet()) {
-        columnsBuilder.add(
-            Column.builder()
-                .setHeader(pathToHeader(path))
-                .setJsonPath(path)
-                .setColumnType(ColumnType.APPLICANT)
-                .build());
-      }
+      // Within a question, sort scalars by their key names.
+      answerData.scalarAnswersInDefaultLocale().keySet().stream()
+          .sorted(Comparator.comparing(Path::keyName))
+          .forEach(
+              path ->
+                  columnsBuilder.add(
+                      Column.builder()
+                          .setHeader(pathToHeader(path))
+                          .setAnswerDataKey(key)
+                          .setJsonPath(path)
+                          .setColumnType(ColumnType.APPLICANT)
+                          .build()));
     }
     return new CsvExportConfig() {
       @Override
@@ -197,13 +196,5 @@ public class ExporterService {
       }
     }
     return builder.toString();
-  }
-
-  /**
-   * A useful string that uniquely identifies an answer within an applicant program and is shared
-   * across applicant programs.
-   */
-  private static String answerDataKey(AnswerData answerData) {
-    return String.format("%s-%d", answerData.blockId(), answerData.questionIndex());
   }
 }

@@ -8,6 +8,8 @@ import services.Path;
 public abstract class Column {
   public abstract String header();
 
+  public abstract Optional<String> answerDataKey();
+
   public abstract Optional<Path> jsonPath();
 
   public abstract ColumnType columnType();
@@ -19,6 +21,8 @@ public abstract class Column {
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setHeader(String header);
+
+    public abstract Builder setAnswerDataKey(String answerDataKey);
 
     public abstract Builder setJsonPath(Path jsonPath);
 

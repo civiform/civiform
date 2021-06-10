@@ -1,6 +1,7 @@
 package services.applicant;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 
 /** Provides synchronous, read-only behavior relevant to an applicant for a specific program. */
@@ -36,17 +37,32 @@ public interface ReadOnlyApplicantProgramService {
    */
   Optional<Block> getInProgressBlockAfter(String blockId);
 
-  /** Returns the index of the given block in the context of all blocks of the program. */
+  /** Return the index of the given block in the context of all blocks of the program. */
   int getBlockIndex(String blockId);
 
   /** Get the program block with the lowest index that has missing answer data if there is one. */
   Optional<Block> getFirstIncompleteBlock();
 
-  /** Returns summary data for each question in this application. */
+  /**
+   * Return a list of answer data for each question in this application ordered by block and
+   * question index.
+   */
   ImmutableList<AnswerData> getSummaryData();
 
   /**
-   * Returns true if this program fully supports this applicant's preferred language, and false
+   * Return a map of answer data for each question in this application keyed by identifiers
+   * generated from `answerDataKey()`.
+   */
+  ImmutableMap<String, AnswerData> getSummaryDataMap();
+
+  /**
+   * Return a string that uniquely identifies an {@link AnswerData} within an applicant program and
+   * is shared across applicant programs.
+   */
+  String answerDataKey(AnswerData answerData);
+
+  /**
+   * Return true if this program fully supports this applicant's preferred language, and false
    * otherwise.
    */
   boolean preferredLanguageSupported();

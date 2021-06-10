@@ -137,6 +137,20 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return builder.build();
   }
 
+  @Override
+  public ImmutableMap<String, AnswerData> getSummaryDataMap() {
+    ImmutableMap.Builder<String, AnswerData> builder = new ImmutableMap.Builder<>();
+    for (AnswerData data : getSummaryData()) {
+      builder.put(answerDataKey(data), data);
+    }
+    return builder.build();
+  }
+
+  @Override
+  public String answerDataKey(AnswerData answerData) {
+    return String.format("%s-%d", answerData.blockId(), answerData.questionIndex());
+  }
+
   /**
    * Gets {@link Block}s for this program and applicant. If {@code onlyIncludeInProgressBlocks} is
    * true, then only the current blocks will be included in the list. A block is "in progress" if it
@@ -271,7 +285,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                     selectedOptions ->
                         selectedOptions.stream()
                             .map(LocalizedQuestionOption::optionText)
-                            .collect(Collectors.joining(", ")))
+                            .collect(Collectors.joining(", ", "\"[", "]\"")))
                 .orElse(""));
       case FILEUPLOAD:
         return ImmutableMap.of(

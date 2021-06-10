@@ -302,15 +302,15 @@ public class CsvExporterTest extends WithPostgresContainer {
                 .put("Submit time", 2)
                 .put("Submitted by", 3)
                 .put("applicant name (first_name)", 4)
-                .put("applicant name (middle_name)", 5)
-                .put("applicant name (last_name)", 6)
+                .put("applicant name (last_name)", 5)
+                .put("applicant name (middle_name)", 6)
                 .put("applicant favorite color (text)", 7)
                 .put("applicant household members[0] - household members name (first_name)", 8)
-                .put("applicant household members[0] - household members name (middle_name)", 9)
-                .put("applicant household members[0] - household members name (last_name)", 10)
+                .put("applicant household members[0] - household members name (last_name)", 9)
+                .put("applicant household members[0] - household members name (middle_name)", 10)
                 .put("applicant household members[1] - household members name (first_name)", 11)
-                .put("applicant household members[1] - household members name (middle_name)", 12)
-                .put("applicant household members[1] - household members name (last_name)", 13)
+                .put("applicant household members[1] - household members name (last_name)", 12)
+                .put("applicant household members[1] - household members name (middle_name)", 13)
                 .put(
                     "applicant household members[0] - household members jobs[0] - household"
                         + " members jobs income (number)",

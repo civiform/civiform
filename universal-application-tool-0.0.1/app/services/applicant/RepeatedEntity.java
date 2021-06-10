@@ -95,8 +95,9 @@ public abstract class RepeatedEntity {
   /**
    * Contextualize the text with repeated entity names.
    *
-   * <p>Replaces "$this" with this repeated entity's name. "$this.parent" and "$this.parent.parent"
-   * (ad infinitum) are replaced with the names of the ancestors of this repeated entity.
+   * <p>Replaces "\$this" with this repeated entity's name. "\$this.parent" and
+   * "\$this.parent.parent" (ad infinitum) are replaced with the names of the ancestors of this
+   * repeated entity.
    */
   public String contextualize(String text) {
     return contextualize(text, REPLACEMENT_STRING);
@@ -106,7 +107,7 @@ public abstract class RepeatedEntity {
    * Recursive helper method for {@link #contextualize(String)}.
    *
    * <p>Recursively do the parents FIRST, because {@link String#replace} is eager and will replace
-   * "$this" first and mess up "$this.parent".
+   * "\$this" first and mess up "\$this.parent".
    */
   private String contextualize(String text, String target) {
     String updatedText =
