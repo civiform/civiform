@@ -84,7 +84,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
 
   private ContainerTag createButtons(Long applicantId, Long programId, Messages messages) {
     String applyUrl =
-        controllers.applicant.routes.ApplicantProgramsController.edit(applicantId, programId).url();
+        controllers.applicant.routes.ApplicantProgramReviewController.preview(applicantId, programId).url();
     ContainerTag applyLink =
         a().withText(messages.at(MessageKey.BUTTON_APPLY.getKeyName()))
             .withHref(applyUrl)

@@ -139,6 +139,8 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.LINE_CLAMP_5)
             .with(descriptionContent);
 
+    String infoUrl = controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id()).url();
+    
     ContainerTag externalLink =
         new LinkElement()
             .setId(baseId + "-external-link")
@@ -152,9 +154,8 @@ public class ProgramIndexView extends BaseHtmlView {
             .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO)
             .with(title, description, externalLink);
 
-    String applyUrl =
-        controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
-            .url();
+    String applyUrl = controllers.applicant.routes.ApplicantProgramReviewController.preview(applicantId, program.id()).url();
+
     ContainerTag applyButton =
         a().attr(HREF, applyUrl)
             .withText(messages.at(MessageKey.BUTTON_APPLY.getKeyName()))
