@@ -133,7 +133,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                     new SelectWithLabel()
                         .setLabelText("Operator")
                         // TODO(#322): Display the right operators for the given scalar type
-                        // (requires javascript).
+                        //  (requires javascript).
                         .setOptions(
                             ImmutableList.of(
                                 new SimpleEntry<>("is equal to", "equalTo"),
