@@ -99,7 +99,7 @@ public interface ProgramService {
       throws ProgramNotFoundException;
 
   /**
-   * Adds an empty {@link BlockDefinition} to the given program.
+   * Adds an empty {@link BlockDefinition} to the end of a given program.
    *
    * @param programId the ID of the program to update
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors with
@@ -110,7 +110,9 @@ public interface ProgramService {
       throws ProgramNotFoundException;
 
   /**
-   * Adds an empty repeated {@link BlockDefinition} to the given program.
+   * Adds an empty repeated {@link BlockDefinition} to the given program. The block should be added
+   * after the last repeated or nested repeated block with the same ancestor. See {@link
+   * ProgramDefinition#orderBlockDefinitions()} for more details about block positioning.
    *
    * @param programId the ID of the program to update
    * @param enumeratorBlockId ID of the enumerator block

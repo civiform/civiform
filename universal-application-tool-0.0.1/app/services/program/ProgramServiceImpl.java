@@ -7,8 +7,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import forms.BlockForm;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -240,14 +243,75 @@ public class ProgramServiceImpl implements ProgramService {
             .setDescription(blockDescription)
             .setEnumeratorId(enumeratorBlockId)
             .build();
-
     Program program =
-        programDefinition.toBuilder().addBlockDefinition(blockDefinition).build().toProgram();
+        insertBlockDefinitionInTheRightPlace(programDefinition, blockDefinition).toProgram();
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
             .join());
+  }
+
+  /**
+   * Inserts the new block into the list of blocks such that it appears immediately after the last
+   * repeated or nested repeated block with the same enumerator. If there is no enumerator, it is
+   * added at the end.
+   */
+  private static ProgramDefinition insertBlockDefinitionInTheRightPlace(
+      ProgramDefinition programDefinition, BlockDefinition newBlockDefinition) {
+    // Simple return for non-repeated block - just add to the end of the list
+    if (!newBlockDefinition.isRepeated()) {
+      return programDefinition.toBuilder().addBlockDefinition(newBlockDefinition).build();
+    }
+
+    // Precondition: blocks have to be ordered
+    ProgramDefinition orderedProgramDefinition = programDefinition.orderBlockDefinitions();
+
+    // Find the index of the enumerator block
+    long enumeratorId = newBlockDefinition.enumeratorId().get();
+    int enumeratorIndex;
+    try {
+      enumeratorIndex =
+          orderedProgramDefinition
+              .blockDefinitions()
+              .indexOf(orderedProgramDefinition.getBlockDefinition(enumeratorId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      // This should never happen. A repeated block can only be added if its enumerator is present.
+      throw new RuntimeException(e);
+    }
+
+    // Increment the index until the ordered block definitions are not repeated or nested repeated
+    // blocks of the enumerator
+    int insertIndex = enumeratorIndex + 1;
+    Set<Long> enumeratorIds = new HashSet<>(Arrays.asList(enumeratorId));
+    while (insertIndex < orderedProgramDefinition.blockDefinitions().size()) {
+      BlockDefinition current = orderedProgramDefinition.blockDefinitions().get(insertIndex);
+      if (current.enumeratorId().isEmpty()
+          || !enumeratorIds.contains(current.enumeratorId().get())) {
+        // This is not a repeated or nested repeated block of the enumerator
+        break;
+      }
+      // Add nested enumerators into the set of enumerators
+      if (current.isEnumerator()) {
+        enumeratorIds.add(current.id());
+      }
+      insertIndex++;
+    }
+
+    // At this point, insertIndex is AFTER the last repeated or nested repeated block of the
+    // enumerator. This might be off the end of the list.
+    ImmutableList.Builder<BlockDefinition> newBlockDefinitionsBuilder = ImmutableList.builder();
+    orderedProgramDefinition.blockDefinitions().stream()
+        .limit(insertIndex)
+        .forEach(blockDefinition -> newBlockDefinitionsBuilder.add(blockDefinition));
+    newBlockDefinitionsBuilder.add(newBlockDefinition);
+    orderedProgramDefinition.blockDefinitions().stream()
+        .skip(insertIndex)
+        .forEach(blockDefinition -> newBlockDefinitionsBuilder.add(blockDefinition));
+
+    return programDefinition.toBuilder()
+        .setBlockDefinitions(newBlockDefinitionsBuilder.build())
+        .build();
   }
 
   @Override
