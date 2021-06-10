@@ -84,7 +84,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
-  public void getAllBlocks_includesBlocksThatAreHidden() {
+  public void getAllBlocks_doesNotIncludeBlocksThatAreHidden() {
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -111,7 +111,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
     ImmutableList<Block> allBlocks = subject.getAllBlocks();
 
-    assertThat(allBlocks).hasSize(2);
+    assertThat(allBlocks).hasSize(1);
   }
 
   @Test
