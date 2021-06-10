@@ -1,8 +1,11 @@
 package services.program.predicate;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Represents the value on the right side of a JsonPath (https://github.com/json-path/JsonPath)
@@ -18,7 +21,15 @@ public abstract class PredicateValue {
 
   public static PredicateValue of(String value) {
     // Escape the string value
-    return create("\"" + value + "\"");
+    return create(surroundWithQuotes(value));
+  }
+
+  public static PredicateValue of(ImmutableList<String> value) {
+    return create(
+        value.stream()
+            .map(PredicateValue::surroundWithQuotes)
+            .collect(toImmutableList())
+            .toString());
   }
 
   @JsonCreator
@@ -28,4 +39,8 @@ public abstract class PredicateValue {
 
   @JsonProperty("value")
   public abstract String value();
+
+  private static String surroundWithQuotes(String s) {
+    return "\"" + s + "\"";
+  }
 }
