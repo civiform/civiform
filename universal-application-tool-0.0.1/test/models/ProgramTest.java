@@ -257,6 +257,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setId(45832L)
             .setAdminName("test program")
             .setAdminDescription("test description")
+            .setExternalLink("")
             .setLocalizedName(LocalizedStrings.withDefaultValue("test name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("test description"))
             .setBlockDefinitions(unorderedBlocks)
