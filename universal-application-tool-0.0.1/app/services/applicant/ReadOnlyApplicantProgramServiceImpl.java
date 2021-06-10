@@ -52,7 +52,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public ImmutableList<Block> getAllBlocks() {
     if (allBlockList == null) {
-      allBlockList = getBlocks(block -> true);
+      allBlockList = getBlocks(this::showBlock);
     }
     return allBlockList;
   }
@@ -63,8 +63,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       currentBlockList =
           getBlocks(
               block ->
-                  !block.isCompleteWithoutErrors()
-                      || block.wasCompletedInProgram(programDefinition.id()));
+                  (!block.isCompleteWithoutErrors()
+                          || block.wasCompletedInProgram(programDefinition.id()))
+                      && showBlock(block));
     }
     return currentBlockList;
   }
@@ -177,7 +178,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
               blockDefinition,
               applicantData,
               maybeRepeatedEntity);
-      if (includeBlockIfTrue.test(block) && showBlock(block)) {
+      if (includeBlockIfTrue.test(block)) {
         blockListBuilder.add(block);
       }
 
