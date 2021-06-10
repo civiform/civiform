@@ -47,13 +47,14 @@ public class JsonPathPredicateGeneratorTest {
   @Test
   public void fromLeafNode_generatesCorrectStringForArrayValue() throws Exception {
     LeafOperationExpressionNode node =
-            LeafOperationExpressionNode.create(
-                    question.getId(),
-                    Scalar.CITY,
-                    Operator.IN,
-                    PredicateValue.of(ImmutableList.of("Seattle", "Portland")));
+        LeafOperationExpressionNode.create(
+            question.getId(),
+            Scalar.CITY,
+            Operator.IN,
+            PredicateValue.of(ImmutableList.of("Seattle", "Portland")));
 
-    JsonPathPredicate predicate = JsonPathPredicate.create(
+    JsonPathPredicate predicate =
+        JsonPathPredicate.create(
             "$.applicant.applicant_address[?(@.city in [\"Seattle\", \"Portland\"])]");
 
     assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);
