@@ -105,7 +105,9 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
 
   private Tag renderPredicateForm(
       String blockName, QuestionDefinition questionDefinition, Tag csrfTag) {
+    // TODO(#322): Create POST action endpoint for this form.
     return form(csrfTag)
+        .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
         .with(
             new SelectWithLabel()
                 .setLabelText(String.format("%s should be", blockName))
@@ -121,6 +123,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                 .with(
                     new SelectWithLabel()
                         .setLabelText("Scalar")
+                        // TODO(#322): Display the right scalars for the given question type.
                         .setOptions(
                             ImmutableList.of(
                                 new SimpleEntry<>("street", "street"),
@@ -129,10 +132,12 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                 .with(
                     new SelectWithLabel()
                         .setLabelText("Operator")
+                        // TODO(#322): Display the right operators for the given scalar type
+                        // (requires javascript).
                         .setOptions(
                             ImmutableList.of(
-                                new SimpleEntry<>("==", "is equal to"),
-                                new SimpleEntry<>(">", "is greater than")))
+                                new SimpleEntry<>("is equal to", "equalTo"),
+                                new SimpleEntry<>("is greater than", "greaterThan")))
                         .getContainer())
                 .with(FieldWithLabel.input().setLabelText("Value").getContainer()));
   }

@@ -58,7 +58,7 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
-    assertThat(content).contains("Add show/hide predicates for Block 1");
+    assertThat(content).contains("Add a condition to show or hide Block 1");
     assertThat(content).doesNotContain("applicant name");
     assertThat(content).doesNotContain("applicant address");
   }
@@ -81,7 +81,7 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
-    assertThat(content).contains("Add show/hide predicates for Block 3");
+    assertThat(content).contains("Add a condition to show or hide Block 3");
     assertThat(content).contains("applicant name");
     assertThat(content).contains("applicant address");
     assertThat(content).contains("applicant ice cream");
