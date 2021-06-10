@@ -64,6 +64,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
+            .setExternalLink("")
             .build();
     Program program = new Program(definition);
 
@@ -128,6 +129,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
+            .setExternalLink("")
             .build();
     Program program = new Program(definition);
     program.save();
@@ -168,6 +170,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
+            .setExternalLink("")
             .build();
     Program program = new Program(definition);
     program.save();

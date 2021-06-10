@@ -29,6 +29,7 @@ public class ProgramDefinitionTest {
         .setAdminDescription("Admin description")
         .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
         .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+        .setExternalLink("")
         .addBlockDefinition(blockA)
         .build();
   }
@@ -48,6 +49,7 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
             .addBlockDefinition(blockA)
             .build();
 
@@ -63,6 +65,7 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
@@ -98,6 +101,7 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             .build();
@@ -116,6 +120,7 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "Applicant friendly name"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "English description"))
+            .setExternalLink("")
             .build();
 
     assertThat(program.adminName()).isEqualTo("Admin name");
@@ -143,6 +148,7 @@ public class ProgramDefinitionTest {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "existing name"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "existing description"))
+            .setExternalLink("")
             .build();
 
     program =
@@ -170,6 +176,7 @@ public class ProgramDefinitionTest {
                 LocalizedStrings.of(Locale.US, "Applicant friendly name", Locale.FRANCE, "test"))
             .setLocalizedDescription(
                 LocalizedStrings.of(Locale.US, "English description", Locale.GERMAN, "test"))
+            .setExternalLink("")
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -207,6 +214,7 @@ public class ProgramDefinitionTest {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .setExternalLink("")
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             .build();
@@ -258,6 +266,7 @@ public class ProgramDefinitionTest {
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             .addBlockDefinition(blockC)
+            .setExternalLink("")
             .build();
 
     // blockA
@@ -332,6 +341,7 @@ public class ProgramDefinitionTest {
             .setLocalizedDescription(
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .setExternalLink("")
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             .addBlockDefinition(blockC)

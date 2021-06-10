@@ -38,6 +38,9 @@ public class Program extends BaseModel {
 
   @Constraints.Required private String description;
 
+  /** Link to external site for this program. */
+  @Constraints.Required private String externalLink;
+
   // Not required - will be autofilled if not present.
   private String slug;
 
@@ -81,6 +84,7 @@ public class Program extends BaseModel {
     this.id = definition.id();
     this.name = definition.adminName();
     this.description = definition.adminDescription();
+    this.externalLink = definition.externalLink();
     this.localizedName = definition.localizedName();
     this.localizedDescription = definition.localizedDescription();
     this.blockDefinitions = definition.blockDefinitions();
@@ -97,12 +101,14 @@ public class Program extends BaseModel {
       String adminName,
       String adminDescription,
       String defaultDisplayName,
-      String defaultDisplayDescription) {
+      String defaultDisplayDescription,
+      String externalLink) {
     this.name = adminName;
     this.description = adminDescription;
     // A program is always created with the default CiviForm locale first, then localized.
     this.localizedName = LocalizedStrings.withDefaultValue(defaultDisplayName);
     this.localizedDescription = LocalizedStrings.withDefaultValue(defaultDisplayDescription);
+    this.externalLink = externalLink;
     BlockDefinition emptyBlock =
         BlockDefinition.builder()
             .setId(1L)
@@ -119,6 +125,7 @@ public class Program extends BaseModel {
   public void persistChangesToProgramDefinition() {
     id = programDefinition.id();
     name = programDefinition.adminName();
+    externalLink = programDefinition.externalLink();
     description = programDefinition.adminDescription();
     localizedName = programDefinition.localizedName();
     localizedDescription = programDefinition.localizedDescription();
@@ -140,7 +147,8 @@ public class Program extends BaseModel {
             .setAdminName(name)
             .setAdminDescription(description)
             .setBlockDefinitions(blockDefinitions)
-            .setExportDefinitions(exportDefinitions);
+            .setExportDefinitions(exportDefinitions)
+            .setExternalLink(externalLink);
 
     setLocalizedName(builder);
     setLocalizedDescription(builder);
