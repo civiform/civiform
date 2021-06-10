@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.IntStream;
 import models.Account;
 import models.Application;
 import models.Program;
@@ -316,6 +317,40 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
+  public ProgramDefinition moveBlockUp(long programId, long blockId)
+      throws ProgramNotFoundException {
+    return moveBlock(programId, blockId, Direction.UP);
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition moveBlockDown(long programId, long blockId)
+      throws ProgramNotFoundException {
+    return moveBlock(programId, blockId, Direction.DOWN);
+  }
+
+  private ProgramDefinition moveBlock(long programId, long blockId, Direction direction)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+
+    // Find the block
+    int index =
+        IntStream.range(0, programDefinition.blockDefinitions().size())
+            .filter(i -> programDefinition.blockDefinitions().get(i).id() == blockId)
+            .findFirst()
+            .getAsInt();
+    BlockDefinition blockDefinition = programDefinition.blockDefinitions().get(index);
+
+    // Find the block to swap with
+    Optional<Integer> maybeSwapIndex =
+        direction.equals(Direction.UP) ? Optional.of(index - 1) : Optional.of(index + 1);
+
+    // Swap
+    return ProgramDefinition.builder().build();
+  }
+
+  @Override
+  @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> updateBlock(
       long programId, long blockDefinitionId, BlockForm blockForm)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
@@ -601,5 +636,10 @@ public class ProgramServiceImpl implements ProgramService {
       throw new RuntimeException(e);
     }
     return ProgramQuestionDefinition.create(questionDefinition);
+  }
+
+  private enum Direction {
+    UP,
+    DOWN;
   }
 }
