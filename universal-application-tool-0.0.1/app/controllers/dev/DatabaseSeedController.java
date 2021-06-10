@@ -18,10 +18,17 @@ import play.db.ebean.EbeanConfig;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.LocalizedStrings;
+import services.applicant.question.Scalar;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateValue;
 import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.AddressQuestionDefinition;
@@ -192,7 +199,12 @@ public class DatabaseSeedController extends DevController {
     try {
       ProgramDefinition programDefinition =
           programService
-              .createProgramDefinition(name, "desc", name, "display description")
+              .createProgramDefinition(
+                  name,
+                  "desc",
+                  name,
+                  "display description",
+                  "https://github.com/seattle-uat/civiform")
               .getResult();
       long programId = programDefinition.id();
 
@@ -229,13 +241,29 @@ public class DatabaseSeedController extends DevController {
       blockForm.setName("Block 4");
       blockForm.setDescription("Random information");
       programService.updateBlock(programId, blockId, blockForm);
-      programDefinition =
-          programService.addQuestionsToBlock(
-              programId,
-              blockId,
-              ImmutableList.of(
-                  insertCheckboxQuestionDefinition().getId(),
-                  insertRadioButtonQuestionDefinition().getId()));
+      long radioButtonQuestionId = insertRadioButtonQuestionDefinition().getId();
+      programService.addQuestionsToBlock(
+          programId, blockId, ImmutableList.of(radioButtonQuestionId));
+
+      blockId =
+          programService.addBlockToProgram(programId).getResult().getLastBlockDefinition().id();
+      blockForm.setName("Block with Predicate");
+      blockForm.setDescription("May be hidden");
+      programService.updateBlock(programId, blockId, blockForm);
+      // Add an unanswered question to the block so it is considered incomplete.
+      programService.addQuestionsToBlock(
+          programId, blockId, ImmutableList.of(insertCheckboxQuestionDefinition().getId()));
+      // Add a predicate based on the "favorite season" radio button question in Block 4
+      LeafOperationExpressionNode operation =
+          LeafOperationExpressionNode.create(
+              radioButtonQuestionId,
+              Scalar.SELECTION,
+              Operator.IN,
+              PredicateValue.of(ImmutableList.of("spring", "summer")));
+      PredicateDefinition predicate =
+          PredicateDefinition.create(
+              PredicateExpressionNode.create(operation), PredicateAction.SHOW_BLOCK);
+      programDefinition = programService.setBlockPredicate(programId, blockId, predicate);
 
       return programDefinition;
     } catch (Exception e) {

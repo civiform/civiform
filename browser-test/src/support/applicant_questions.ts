@@ -87,16 +87,10 @@ export class ApplicantQuestions {
     // Click on submit button.
     await this.page.click('text="Submit"');
 
-    if (this.page.url().match(/considerSignIn\?.*redirectTo=/)) {
-      await this.page.click('text="Not right now"');
-    } else {
-      await this.page.click('text="Return to all programs"');
-    }
+    await this.page.click('text="Apply to another program"');
 
     // Ensure that we redirected to the programs list page.
     expect(await this.page.url().split('/').pop()).toEqual('programs');
-
-    // And grab the toast message to verify that the app was submitted.
   }
 
   async validateHeader(lang: string) {

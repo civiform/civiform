@@ -470,6 +470,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
                 .setLocalizedDescription(
                     LocalizedStrings.of(Locale.US, "This program is for testing."))
+                .setExternalLink("")
                 .build());
 
     Optional<Block> maybeBlock = subject.getInProgressBlockAfter("321");

@@ -395,6 +395,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   @Test
   public void submitApplication_returnsSavedApplication() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(Path.create("applicant.name").join(Scalar.FIRST_NAME).toString(), "Alice")
@@ -421,6 +423,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   @Test
   public void submitApplication_obsoletesOldApplication() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(Path.create("applicant.name").join(Scalar.FIRST_NAME).toString(), "Alice")
@@ -478,6 +482,52 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
                     .join())
         .withCauseInstanceOf(ApplicationSubmissionException.class)
         .withMessageContaining("Application", "failed to save");
+  }
+
+  @Test
+  public void getName_invalidApplicantId_doesNotFail() {
+    subject.getName(9999L).toCompletableFuture().join();
+  }
+
+  @Test
+  public void getName_anonymousApplicant() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    String name = subject.getName(applicant.id).toCompletableFuture().join();
+    assertThat(name).isEqualTo("<Anonymous Applicant>");
+  }
+
+  @Test
+  public void getName_namedApplicantId() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    applicant.getApplicantData().setUserName("Hello World");
+    applicant.save();
+    String name = subject.getName(applicant.id).toCompletableFuture().join();
+    assertThat(name).isEqualTo("World, Hello");
+  }
+
+  @Test
+  public void getEmail_invalidApplicantId_doesNotFail() {
+    subject.getEmail(9999L).toCompletableFuture().join();
+  }
+
+  @Test
+  public void getEmail_applicantWithNoEmail_returnsEmpty() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    Account account = resourceCreator.insertAccount();
+    applicant.setAccount(account);
+    applicant.save();
+    Optional<String> email = subject.getEmail(applicant.id).toCompletableFuture().join();
+    assertThat(email).isEmpty();
+  }
+
+  @Test
+  public void getEmail_applicantWithEmail() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    applicant.setAccount(account);
+    applicant.save();
+    Optional<String> email = subject.getEmail(applicant.id).toCompletableFuture().join();
+    assertThat(email).hasValue("test@example.com");
   }
 
   private void createQuestions() {

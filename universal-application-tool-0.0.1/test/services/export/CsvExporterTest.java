@@ -298,34 +298,35 @@ public class CsvExporterTest extends WithPostgresContainer {
         .containsExactlyEntriesOf(
             ImmutableMap.<String, Integer>builder()
                 .put("ID", 0)
-                .put("Submit time", 1)
-                .put("Submitted by", 2)
-                .put("applicant name (first_name)", 3)
-                .put("applicant name (middle_name)", 4)
-                .put("applicant name (last_name)", 5)
-                .put("applicant favorite color (text)", 6)
-                .put("applicant household members[0] - household members name (first_name)", 7)
-                .put("applicant household members[0] - household members name (middle_name)", 8)
-                .put("applicant household members[0] - household members name (last_name)", 9)
-                .put("applicant household members[1] - household members name (first_name)", 10)
-                .put("applicant household members[1] - household members name (middle_name)", 11)
-                .put("applicant household members[1] - household members name (last_name)", 12)
+                .put("Applicant language", 1)
+                .put("Submit time", 2)
+                .put("Submitted by", 3)
+                .put("applicant name (first_name)", 4)
+                .put("applicant name (middle_name)", 5)
+                .put("applicant name (last_name)", 6)
+                .put("applicant favorite color (text)", 7)
+                .put("applicant household members[0] - household members name (first_name)", 8)
+                .put("applicant household members[0] - household members name (middle_name)", 9)
+                .put("applicant household members[0] - household members name (last_name)", 10)
+                .put("applicant household members[1] - household members name (first_name)", 11)
+                .put("applicant household members[1] - household members name (middle_name)", 12)
+                .put("applicant household members[1] - household members name (last_name)", 13)
                 .put(
                     "applicant household members[0] - household members jobs[0] - household"
                         + " members jobs income (number)",
-                    13)
+                    14)
                 .put(
                     "applicant household members[0] - household members jobs[1] - household"
                         + " members jobs income (number)",
-                    14)
+                    15)
                 .put(
                     "applicant household members[0] - household members jobs[2] - household"
                         + " members jobs income (number)",
-                    15)
+                    16)
                 .put(
                     "applicant household members[1] - household members jobs[0] - household"
                         + " members jobs income (number)",
-                    16)
+                    17)
                 .build());
 
     List<CSVRecord> records = parser.getRecords();

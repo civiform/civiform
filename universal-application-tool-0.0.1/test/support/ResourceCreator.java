@@ -30,6 +30,15 @@ public class ResourceCreator {
     Models.truncate(ebeanServer);
   }
 
+  public Question insertQuestion(String name) {
+    QuestionDefinition definition =
+        new TextQuestionDefinition(
+            name, Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+    Question question = new Question(definition);
+    question.save();
+    return question;
+  }
+
   public Question insertQuestion() {
     String name = UUID.randomUUID().toString();
     QuestionDefinition definition =
@@ -60,6 +69,13 @@ public class ResourceCreator {
 
   public Account insertAccount() {
     Account account = new Account();
+    account.save();
+    return account;
+  }
+
+  public Account insertAccountWithEmail(String email) {
+    Account account = new Account();
+    account.setEmailAddress(email);
     account.save();
     return account;
   }

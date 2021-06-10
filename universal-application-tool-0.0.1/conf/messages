@@ -22,6 +22,9 @@ label.selectLanguage=Please select your preferred language.
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
 
+# Message displayed before the support email address in the page footer for applicants.
+footer.supportLinkDescription=For technical support, contact
+
 #--------------------------------------------------------------------------#
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
@@ -35,20 +38,20 @@ button.review=Review
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=We''re sorry, this program is not fully translated to your preferred language.
 
-# A link that offers applicants the option to create an account.
-link.doCreateAccount=Create account or sign in
+# A link that logs out a guest user after they submit an application.
+link.allDone=I''m all done
 
 # A link that appears next to the create account button that offers applicants the option to not create an account right now.
-link.dontCreateAccount=Not right now
+link.applyToAnotherProgram=Apply to another program
 
-# A link that offers an applicant the ability to return to their home page that lists all programs.
-link.returnToDash=Return to all programs
+# A link that offers applicants the option to create an account.
+link.createAccountOrSignIn=Create account or sign in
 
 #----------------------------------------------------------------------------#
 # APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
 #----------------------------------------------------------------------------#
 
-# The text on the button an applicant clicks to apply to a specific rogram.
+# The text on the button an applicant clicks to apply to a specific program.
 button.apply=Apply
 
 # "Get benefits" floating text

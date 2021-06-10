@@ -5,12 +5,14 @@ public class ProgramForm {
   private String adminDescription;
   private String localizedDisplayName;
   private String localizedDisplayDescription;
+  private String externalLink;
 
   public ProgramForm() {
     adminName = "";
     adminDescription = "";
     localizedDisplayName = "";
     localizedDisplayDescription = "";
+    externalLink = "";
   }
 
   public String getAdminName() {
@@ -27,6 +29,14 @@ public class ProgramForm {
 
   public void setAdminDescription(String adminDescription) {
     this.adminDescription = adminDescription;
+  }
+
+  public String getExternalLink() {
+    return externalLink;
+  }
+
+  public void setExternalLink(String externalLink) {
+    this.externalLink = externalLink;
   }
 
   public String getLocalizedDisplayName() {

@@ -100,7 +100,7 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void insertProgramSync() throws Exception {
-    Program program = new Program("ProgramRepository", "desc", "name", "description");
+    Program program = new Program("ProgramRepository", "desc", "name", "description", "");
 
     Program withId = repo.insertProgramSync(program);
 

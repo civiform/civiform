@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ProgramRepository;
@@ -63,6 +64,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
+            .setExternalLink("")
             .build();
     Program program = new Program(definition);
 
@@ -127,6 +129,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
+            .setExternalLink("")
             .build();
     Program program = new Program(definition);
     program.save();
@@ -167,6 +170,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
+            .setExternalLink("")
             .build();
     Program program = new Program(definition);
     program.save();
@@ -177,5 +181,93 @@ public class ProgramTest extends WithPostgresContainer {
     BlockDefinition block = found.getProgramDefinition().getBlockDefinition(1L);
     assertThat(block.visibilityPredicate()).hasValue(predicate);
     assertThat(block.optionalPredicate()).isEmpty();
+  }
+
+  @Test
+  public void unorderedBlockDefinitions_getOrderedBlockDefinitionsOnSave() {
+    ImmutableList<BlockDefinition> unorderedBlocks =
+        ImmutableList.<BlockDefinition>builder()
+            .add(
+                BlockDefinition.builder()
+                    .setId(1L)
+                    .setName("enumerator")
+                    .setDescription("description")
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(2L)
+                    .setName("top level")
+                    .setDescription("description")
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank.applicantEmail().getQuestionDefinition()))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(3L)
+                    .setName("nested enumerator")
+                    .setDescription("description")
+                    .setEnumeratorId(Optional.of(1L))
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank
+                                .applicantHouseholdMemberJobs()
+                                .getQuestionDefinition()))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(4L)
+                    .setName("repeated")
+                    .setDescription("description")
+                    .setEnumeratorId(Optional.of(1L))
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank
+                                .applicantHouseholdMemberName()
+                                .getQuestionDefinition()))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(5L)
+                    .setName("nested repeated")
+                    .setDescription("description")
+                    .setEnumeratorId(Optional.of(3L))
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank
+                                .applicantHouseholdMemberJobIncome()
+                                .getQuestionDefinition()))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(6L)
+                    .setName("top level 2")
+                    .setDescription("description")
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank.applicantName().getQuestionDefinition()))
+                    .build())
+            .build();
+
+    ProgramDefinition programDefinition =
+        ProgramDefinition.builder()
+            .setId(45832L)
+            .setAdminName("test program")
+            .setAdminDescription("test description")
+            .setExternalLink("")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("test name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("test description"))
+            .setBlockDefinitions(unorderedBlocks)
+            .build();
+
+    assertThat(programDefinition.hasOrderedBlockDefinitions()).isFalse();
+
+    Program program = programDefinition.toProgram();
+    program.save();
+
+    assertThat(program.getProgramDefinition().hasOrderedBlockDefinitions()).isTrue();
   }
 }
