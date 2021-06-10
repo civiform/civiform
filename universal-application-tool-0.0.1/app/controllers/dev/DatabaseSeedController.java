@@ -192,7 +192,12 @@ public class DatabaseSeedController extends DevController {
     try {
       ProgramDefinition programDefinition =
           programService
-              .createProgramDefinition(name, "desc", name, "display description")
+              .createProgramDefinition(
+                  name,
+                  "desc",
+                  name,
+                  "display description",
+                  "https://github.com/seattle-uat/civiform")
               .getResult();
       long programId = programDefinition.id();
 

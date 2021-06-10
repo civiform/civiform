@@ -55,6 +55,10 @@ public class CsvExporter {
         case ID:
           printer.print(application.id);
           break;
+        case LANGUAGE:
+          printer.print(
+              application.getApplicant().getApplicantData().preferredLocale().toLanguageTag());
+          break;
         case SUBMIT_TIME:
           printer.print(application.getSubmitTime().toString());
           break;

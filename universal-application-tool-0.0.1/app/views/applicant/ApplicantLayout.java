@@ -7,6 +7,7 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.nav;
+import static j2html.TagCreator.text;
 
 import auth.ProfileUtils;
 import auth.Roles;
@@ -33,10 +34,12 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 public class ApplicantLayout extends BaseHtmlLayout {
+
   private static final String CIVIFORM_TITLE = "CiviForm";
 
   private final ProfileUtils profileUtils;
   public final LanguageSelector languageSelector;
+  public final String supportEmail;
 
   @Inject
   public ApplicantLayout(
@@ -47,17 +50,39 @@ public class ApplicantLayout extends BaseHtmlLayout {
     super(viewUtils, configuration);
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
+    this.supportEmail = checkNotNull(configuration).getString("support_email_address");
+  }
+
+  private Content renderWithSupportFooter(HtmlBundle bundle, Messages messages) {
+    ContainerTag supportLink =
+        div()
+            .with(
+                text(messages.at(MessageKey.FOOTER_SUPPORT_LINK_DESCRIPTION.getKeyName())),
+                text(" "),
+                a(supportEmail)
+                    .withHref("mailto:" + supportEmail)
+                    .withTarget("_blank")
+                    .withClasses(Styles.TEXT_BLUE_800))
+            .withClasses(Styles.MX_AUTO, Styles.MAX_W_SCREEN_SM, Styles.W_5_6);
+
+    bundle.addFooterContent(supportLink);
+
+    return render(bundle);
   }
 
   @Override
   public Content render(HtmlBundle bundle) {
     bundle.addBodyStyles(ApplicantStyles.BODY);
     String currentTitle = bundle.getTitle();
+
     if (currentTitle != null && !currentTitle.isEmpty()) {
       bundle.setTitle(String.format("%s — %s", currentTitle, CIVIFORM_TITLE));
     } else {
       bundle.setTitle(CIVIFORM_TITLE);
     }
+
+    bundle.addFooterStyles(Styles.MT_24);
+
     return super.render(bundle);
   }
 
@@ -66,7 +91,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBar(request, userName, messages));
-    return render(bundle);
+    return renderWithSupportFooter(bundle, messages);
   }
 
   private ContainerTag renderNavBar(Http.Request request, String userName, Messages messages) {
@@ -228,8 +253,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
    * non-summary views.
    */
   private int getPercentComplete(int blockIndex, int totalBlockCount, boolean forSummary) {
-    if (totalBlockCount == 0) return 100;
-    if (blockIndex == -1) return 0;
+    if (totalBlockCount == 0) {
+      return 100;
+    }
+    if (blockIndex == -1) {
+      return 0;
+    }
 
     // While in progress, add one to blockIndex for 1-based indexing, so that when applicant is on
     // first block, we show

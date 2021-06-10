@@ -38,6 +38,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
       String redirectTo,
       Account account,
       String programTitle,
+      String applicantName,
       Long applicationId,
       Messages messages,
       Optional<String> banner) {
@@ -109,7 +110,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
       content.with(
           new LinkElement()
               .setHref(redirectTo)
-              .setText(messages.at(MessageKey.LINK_RETURN_TO_DASH.getKeyName()))
+              .setText(messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
               .asAnchorText());
     }
 
@@ -121,6 +122,6 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
         .addMainContent(h1(title).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION), content);
 
-    return layout.renderWithNav(request, account.getApplicantName(), messages, bundle);
+    return layout.renderWithNav(request, applicantName, messages, bundle);
   }
 }

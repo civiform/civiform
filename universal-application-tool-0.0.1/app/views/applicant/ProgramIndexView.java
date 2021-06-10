@@ -139,23 +139,34 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.LINE_CLAMP_5)
             .with(descriptionContent);
 
-    String infoUrl = controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id()).url();
+    ContainerTag programData = div()
+        .withId(baseId + "-data")
+        .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO)
+        .with(title, description);
+
+    // Add info link.
+    String infoUrl = controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id()).url();    
+    ContainerTag infoLink = new LinkElement()
+        .setId(baseId + "-external-link")
+        .setStyles(Styles.TEXT_XS, Styles.UNDERLINE)
+        .setText("Program info")
+        .setHref(linkUrl)
+        .asAnchorText();
+    programData.with(infoLink);
     
-    ContainerTag externalLink =
-        new LinkElement()
-            .setId(baseId + "-external-link")
-            .setStyles(Styles.TEXT_XS, Styles.UNDERLINE)
-            .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
-            .setHref(routes.RedirectController.programByName(program.slug()).url())
-            .asAnchorText();
-    ContainerTag programData =
-        div()
-            .withId(baseId + "-data")
-            .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO)
-            .with(title, description, externalLink);
-
+    // Add external link if it is set.
+    if (!program.externalLink().isEmpty()) {
+        ContainerTag externalLink =
+            new LinkElement()
+                .setId(baseId + "-external-link")
+                .setStyles(Styles.TEXT_XS, Styles.UNDERLINE)
+                .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
+                .setHref(program.externalLink())
+                .asAnchorText();
+        programData.with(externalLink);
+    }
+  
     String applyUrl = controllers.applicant.routes.ApplicantProgramReviewController.preview(applicantId, program.id()).url();
-
     ContainerTag applyButton =
         a().attr(HREF, applyUrl)
             .withText(messages.at(MessageKey.BUTTON_APPLY.getKeyName()))

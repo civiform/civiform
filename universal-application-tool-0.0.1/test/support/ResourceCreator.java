@@ -30,6 +30,15 @@ public class ResourceCreator {
     Models.truncate(ebeanServer);
   }
 
+  public Question insertQuestion(String name) {
+    QuestionDefinition definition =
+        new TextQuestionDefinition(
+            name, Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+    Question question = new Question(definition);
+    question.save();
+    return question;
+  }
+
   public Question insertQuestion() {
     String name = UUID.randomUUID().toString();
     QuestionDefinition definition =

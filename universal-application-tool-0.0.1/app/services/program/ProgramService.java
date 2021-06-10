@@ -52,6 +52,7 @@ public interface ProgramService {
    * @param adminDescription a description of this program for use by admins
    * @param defaultDisplayName the name of this program to display to applicants
    * @param defaultDisplayDescription a description for this program to display to applicants
+   * @param externalLink A link to an external page containing additional program details
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
    */
@@ -59,7 +60,8 @@ public interface ProgramService {
       String adminName,
       String adminDescription,
       String defaultDisplayName,
-      String defaultDisplayDescription);
+      String defaultDisplayDescription,
+      String externalLink);
 
   /**
    * Update a program's mutable fields: admin description, display name and description for
@@ -71,6 +73,7 @@ public interface ProgramService {
    * @param adminDescription the description of this program - visible only to admins
    * @param displayName a name for this program
    * @param displayDescription the description of what the program provides
+   * @param externalLink A link to an external page containing additional program details
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
@@ -80,7 +83,8 @@ public interface ProgramService {
       Locale locale,
       String adminDescription,
       String displayName,
-      String displayDescription)
+      String displayDescription,
+      String externalLink)
       throws ProgramNotFoundException;
 
   /**
@@ -99,7 +103,7 @@ public interface ProgramService {
       throws ProgramNotFoundException;
 
   /**
-   * Adds an empty {@link BlockDefinition} to the given program.
+   * Adds an empty {@link BlockDefinition} to the end of a given program.
    *
    * @param programId the ID of the program to update
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors with
@@ -110,7 +114,9 @@ public interface ProgramService {
       throws ProgramNotFoundException;
 
   /**
-   * Adds an empty repeated {@link BlockDefinition} to the given program.
+   * Adds an empty repeated {@link BlockDefinition} to the given program. The block should be added
+   * after the last repeated or nested repeated block with the same ancestor. See {@link
+   * ProgramDefinition#orderBlockDefinitions()} for more details about block positioning.
    *
    * @param programId the ID of the program to update
    * @param enumeratorBlockId ID of the enumerator block
