@@ -1,14 +1,14 @@
 package views.questiontypes;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
 
 import j2html.tags.Tag;
-import java.util.AbstractMap;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.SingleSelectQuestion;
+import services.question.LocalizedQuestionOption;
 import views.components.SelectWithLabel;
 
 public class DropdownQuestionRenderer extends ApplicantQuestionRenderer {
@@ -32,11 +32,10 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRenderer {
             .setFieldName(singleSelectQuestion.getSelectionPath().toString())
             .setOptions(
                 singleSelectQuestion.getOptions().stream()
-                    .map(
-                        option ->
-                            new AbstractMap.SimpleEntry<>(
-                                option.optionText(), String.valueOf(option.id())))
-                    .collect(toImmutableList()));
+                    .collect(
+                        toImmutableMap(
+                            LocalizedQuestionOption::optionText,
+                            option -> String.valueOf(option.id()))));
 
     if (singleSelectQuestion.getSelectedOptionId().isPresent()) {
       select.setValue(String.valueOf(singleSelectQuestion.getSelectedOptionId().get()));

@@ -6,6 +6,7 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
@@ -340,10 +341,9 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private DomContent formQuestionTypeSelect(QuestionType selectedType) {
-    ImmutableList<SimpleEntry<String, String>> options =
+    ImmutableMap<String, String> options =
         Arrays.stream(QuestionType.values())
-            .map(item -> new SimpleEntry<>(item.toString(), item.name()))
-            .collect(ImmutableList.toImmutableList());
+            .collect(ImmutableMap.toImmutableMap(Enum::toString, Enum::name));
 
     return new SelectWithLabel()
         .setId("question-type-select")
@@ -391,16 +391,15 @@ public final class QuestionEditView extends BaseHtmlView {
                         enumeratorQuestionDefinition.getName(),
                         String.valueOf(enumeratorQuestionDefinition.getId())))
             .orElse(new SimpleEntry<>(NO_ENUMERATOR_DISPLAY_STRING, NO_ENUMERATOR_ID_STRING));
-    return enumeratorOptions(ImmutableList.of(enumeratorOption), enumeratorOption.getValue());
+    return enumeratorOptions(enumeratorOption, enumeratorOption.getValue());
   }
 
-  private SelectWithLabel enumeratorOptions(
-      ImmutableList<SimpleEntry<String, String>> options, String selected) {
+  private SelectWithLabel enumeratorOptions(SimpleEntry<String, String> option, String selected) {
     return new SelectWithLabel()
         .setId("question-enumerator-select")
         .setFieldName(QUESTION_ENUMERATOR_FIELD)
         .setLabelText("Question enumerator")
-        .setOptions(options)
+        .setOptions(option)
         .setValue(selected);
   }
 

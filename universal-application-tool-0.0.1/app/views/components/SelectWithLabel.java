@@ -3,15 +3,15 @@ package views.components;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.AbstractMap.SimpleEntry;
+import java.util.Map;
 
 public class SelectWithLabel extends FieldWithLabel {
 
-  private ImmutableList<SimpleEntry<String, String>> options = ImmutableList.of();
+  private ImmutableMap<String, String> options = ImmutableMap.of();
 
   public SelectWithLabel() {
     super(select());
@@ -23,8 +23,13 @@ public class SelectWithLabel extends FieldWithLabel {
     return this;
   }
 
-  public SelectWithLabel setOptions(ImmutableList<SimpleEntry<String, String>> options) {
+  public SelectWithLabel setOptions(ImmutableMap<String, String> options) {
     this.options = options;
+    return this;
+  }
+
+  public SelectWithLabel setOptions(Map.Entry<String, String> option) {
+    this.options = ImmutableMap.of(option.getKey(), option.getValue());
     return this;
   }
 
@@ -72,7 +77,7 @@ public class SelectWithLabel extends FieldWithLabel {
 
   @Override
   public ContainerTag getContainer() {
-    for (SimpleEntry<String, String> option : this.options) {
+    for (Map.Entry<String, String> option : this.options.entrySet()) {
       Tag optionTag = option(option.getKey()).withValue(option.getValue());
       if (option.getValue().equals(this.fieldValue)) {
         optionTag.attr(Attr.SELECTED);

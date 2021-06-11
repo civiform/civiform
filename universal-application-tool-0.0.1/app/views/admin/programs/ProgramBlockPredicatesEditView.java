@@ -7,9 +7,9 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.AbstractMap.SimpleEntry;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -111,10 +111,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .with(
             new SelectWithLabel()
                 .setLabelText(String.format("%s should be", blockName))
-                .setOptions(
-                    ImmutableList.of(
-                        new SimpleEntry<>("hidden if", "hide"),
-                        new SimpleEntry<>("shown if", "show")))
+                .setOptions(ImmutableMap.of("hidden if", "hide", "shown if", "show"))
                 .getContainer())
         .with(renderQuestionDefinitionBox(questionDefinition))
         .with(
@@ -124,10 +121,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                     new SelectWithLabel()
                         .setLabelText("Scalar")
                         // TODO(#322): Display the right scalars for the given question type.
-                        .setOptions(
-                            ImmutableList.of(
-                                new SimpleEntry<>("street", "street"),
-                                new SimpleEntry<>("city", "city")))
+                        .setOptions(ImmutableMap.of("street", "street", "city", "city"))
                         .getContainer())
                 .with(
                     new SelectWithLabel()
@@ -135,9 +129,8 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                         // TODO(#322): Display the right operators for the given scalar type
                         //  (requires javascript).
                         .setOptions(
-                            ImmutableList.of(
-                                new SimpleEntry<>("is equal to", "equalTo"),
-                                new SimpleEntry<>("is greater than", "greaterThan")))
+                            ImmutableMap.of(
+                                "is equal to", "equalTo", "is greater than", "greaterThan"))
                         .getContainer())
                 .with(FieldWithLabel.input().setLabelText("Value").getContainer()));
   }
