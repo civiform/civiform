@@ -23,6 +23,10 @@ public class SelectWithLabel extends FieldWithLabel {
     return this;
   }
 
+  /**
+   * Keys are the user-visible text; values are the html {@code value} that is submitted in the
+   * form.
+   */
   public SelectWithLabel setOptions(ImmutableMap<String, String> options) {
     this.options = options;
     return this;
@@ -77,13 +81,14 @@ public class SelectWithLabel extends FieldWithLabel {
 
   @Override
   public ContainerTag getContainer() {
-    for (Map.Entry<String, String> option : this.options.entrySet()) {
-      Tag optionTag = option(option.getKey()).withValue(option.getValue());
-      if (option.getValue().equals(this.fieldValue)) {
-        optionTag.attr(Attr.SELECTED);
-      }
-      ((ContainerTag) fieldTag).with(optionTag);
-    }
+    this.options.forEach(
+        (text, value) -> {
+          Tag optionTag = option(text).withValue(value);
+          if (value.equals(this.fieldValue)) {
+            optionTag.attr(Attr.SELECTED);
+          }
+          ((ContainerTag) fieldTag).with(optionTag);
+        });
     return super.getContainer();
   }
 }
