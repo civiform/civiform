@@ -41,6 +41,42 @@ public enum Scalar {
   UPDATED_AT,
   PROGRAM_UPDATED_IN;
 
+  @Override
+  public String toString() {
+    switch (this) {
+      case CITY:
+        return "city";
+      case DATE:
+        return "date";
+      case EMAIL:
+        return "email";
+      case FILE_KEY:
+        return "file key";
+      case FIRST_NAME:
+        return "first name";
+      case LAST_NAME:
+        return "last name";
+      case LINE2:
+        return "address line 2";
+      case MIDDLE_NAME:
+        return "middle name";
+      case NUMBER:
+        return "number";
+      case SELECTION:
+        return "selection";
+      case STATE:
+        return "state";
+      case STREET:
+        return "street";
+      case TEXT:
+        return "text";
+      case ZIP:
+        return "ZIP code";
+      default:
+        return this.toString();
+    }
+  }
+
   private static final ImmutableMap<Scalar, ScalarType> ADDRESS_SCALARS =
       ImmutableMap.of(
           STREET, ScalarType.STRING,
