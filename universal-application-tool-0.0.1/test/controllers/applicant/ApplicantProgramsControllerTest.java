@@ -125,7 +125,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramReviewController.preview(currentApplicant.id, program.id).url());
+        .contains(
+            routes.ApplicantProgramReviewController.preview(currentApplicant.id, program.id).url());
   }
 
   @Test
@@ -176,7 +177,6 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             routes.ApplicantProgramBlocksController.edit(currentApplicant.id, program.id, "1")
                 .url());
   }
-
 
   @Test
   public void edit_redirectsToFirstIncompleteBlock() {
