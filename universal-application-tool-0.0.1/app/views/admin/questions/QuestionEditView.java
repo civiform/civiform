@@ -14,6 +14,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import models.QuestionTag;
 import play.i18n.Lang;
@@ -394,7 +395,7 @@ public final class QuestionEditView extends BaseHtmlView {
     return enumeratorOptions(enumeratorOption, enumeratorOption.getValue());
   }
 
-  private SelectWithLabel enumeratorOptions(SimpleEntry<String, String> option, String selected) {
+  private SelectWithLabel enumeratorOptions(Map.Entry<String, String> option, String selected) {
     return new SelectWithLabel()
         .setId("question-enumerator-select")
         .setFieldName(QUESTION_ENUMERATOR_FIELD)
