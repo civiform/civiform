@@ -125,7 +125,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         ImmutableList.builder();
     scalars.forEach(
         (scalar, type) -> {
-          scalarOptionsBuilder.add(new SimpleEntry<>(scalar.getDisplayString(), scalar.name()));
+          scalarOptionsBuilder.add(new SimpleEntry<>(scalar.toDisplayString(), scalar.name()));
         });
 
     ContainerTag valueField;

@@ -48,7 +48,7 @@ public enum Scalar {
     this.displayString = displayString;
   }
 
-  public String getDisplayString() {
+  public String toDisplayString() {
     return this.displayString;
   }
 
