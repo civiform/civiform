@@ -5,10 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
 import java.util.Comparator;
 import java.util.List;
@@ -26,8 +22,6 @@ import org.junit.Test;
 import repository.WithPostgresContainer;
 import services.Path;
 import services.applicant.ApplicantData;
-import services.applicant.ApplicantService;
-import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.MultiSelectQuestion;
@@ -46,9 +40,6 @@ import support.QuestionAnswerer;
 public class CsvExporterTest extends WithPostgresContainer {
   private ImmutableList<Question> fakeQuestions;
   private Program fakeProgramWithCsvExport;
-  private ImmutableList<Applicant> fakeApplicants;
-  private Writer writer;
-  private ByteArrayOutputStream inMemoryBytes;
 
   private void createFakeQuestions() {
     this.fakeQuestions =
@@ -63,7 +54,7 @@ public class CsvExporterTest extends WithPostgresContainer {
 
   private void createFakeProgram() {
     createFakeQuestions();
-    ProgramBuilder fakeProgram = ProgramBuilder.newDraftProgram();
+    ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram();
     CsvExportConfig.Builder csvExportConfigBuilder = CsvExportConfig.builder();
     fakeQuestions.forEach(
         question -> {
@@ -157,7 +148,7 @@ public class CsvExporterTest extends WithPostgresContainer {
     }
   }
 
-  private void createFakeApplicants() {
+  private void createFakeApplications() {
     Applicant fakeApplicantOne = new Applicant();
     Applicant fakeApplicantTwo = new Applicant();
     testQuestionBank.getSampleQuestionsForAllTypes().entrySet().stream()
@@ -170,42 +161,22 @@ public class CsvExporterTest extends WithPostgresContainer {
                     fakeApplicantTwo.getApplicantData()));
     fakeApplicantOne.save();
     fakeApplicantTwo.save();
-    this.fakeApplicants = ImmutableList.of(fakeApplicantOne, fakeApplicantTwo);
-  }
-
-  public void createInMemoryWriter() {
-    this.inMemoryBytes = new ByteArrayOutputStream();
-    this.writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8);
+    new Application(fakeApplicantOne, fakeProgramWithCsvExport, LifecycleStage.ACTIVE).save();
+    new Application(fakeApplicantTwo, fakeProgramWithCsvExport, LifecycleStage.ACTIVE).save();
   }
 
   @Before
   public void setUp() {
     createFakeProgram();
-    createFakeApplicants();
-    createInMemoryWriter();
+    createFakeApplications();
   }
 
   @Test
-  public void fillOutCsv() throws Exception {
-    ApplicantService applicantService = instanceOf(ApplicantService.class);
-    ExporterFactory exporterFactory = instanceOf(ExporterFactory.class);
-    CsvExporter exporter = exporterFactory.csvExporter(fakeProgramWithCsvExport);
-    for (Applicant applicant : fakeApplicants) {
-      Application application =
-          new Application(applicant, fakeProgramWithCsvExport, LifecycleStage.ACTIVE);
-      application.save();
-      ReadOnlyApplicantProgramService roApplicantService =
-          applicantService
-              .getReadOnlyApplicantProgramService(application)
-              .toCompletableFuture()
-              .get();
-      exporter.export(application, roApplicantService, writer);
-    }
-    writer.close();
-
+  public void useProgramCsvExport_noRepeatedEntities() throws Exception {
+    ExporterService exporterService = instanceOf(ExporterService.class);
     CSVParser parser =
         CSVParser.parse(
-            inMemoryBytes.toString(StandardCharsets.UTF_8),
+            exporterService.getProgramCsv(fakeProgramWithCsvExport.id),
             CSVFormat.DEFAULT.withFirstRecordAsHeader());
     List<CSVRecord> records = parser.getRecords();
     assertThat(records).hasSize(2);
@@ -249,11 +220,13 @@ public class CsvExporterTest extends WithPostgresContainer {
         getApplicantQuestion(fileuploadQuestion.getQuestionDefinition()).createFileUploadQuestion();
     String fileKeyHeader =
         ExporterService.pathToHeader(fileuploadApplicantQuestion.getFileKeyPath());
-    assertThat(records.get(0).get(fileKeyHeader)).isEqualTo("/admin/programs/1/files/my-file-key");
+    assertThat(records.get(0).get(fileKeyHeader))
+        .isEqualTo(
+            String.format("/admin/programs/%d/files/my-file-key", fakeProgramWithCsvExport.id));
   }
 
   @Test
-  public void useExporterService() throws Exception {
+  public void useDefaultCsvConfig_withRepeatedEntities() throws Exception {
     // Define the program
     Question nameQuestion = testQuestionBank.applicantName();
     Question colorQuestion = testQuestionBank.applicantFavoriteColor();
@@ -274,7 +247,6 @@ public class CsvExporterTest extends WithPostgresContainer {
             .withRepeatedBlock()
             .withQuestion(hmJobIncomeQuestion)
             .build();
-    ExporterService exporterService = instanceOf(ExporterService.class);
 
     // First applicant has two household members, and the second one has one job.
     Applicant firstApplicant = new Applicant();
@@ -380,26 +352,7 @@ public class CsvExporterTest extends WithPostgresContainer {
     secondApplication.save();
 
     // Generate default CSV
-    ApplicantService applicantService = instanceOf(ApplicantService.class);
-    ExporterFactory exporterFactory = instanceOf(ExporterFactory.class);
-    CsvExporter exporter =
-        exporterFactory.csvExporter(exporterService.generateDefaultCsvConfig(program.id));
-    exporter.export(
-        firstApplication,
-        applicantService
-            .getReadOnlyApplicantProgramService(firstApplication)
-            .toCompletableFuture()
-            .get(),
-        writer);
-    exporter.export(
-        secondApplication,
-        applicantService
-            .getReadOnlyApplicantProgramService(secondApplication)
-            .toCompletableFuture()
-            .get(),
-        writer);
-    writer.close();
-
+    ExporterService exporterService = instanceOf(ExporterService.class);
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramCsv(program.id), CSVFormat.DEFAULT.withFirstRecordAsHeader());
