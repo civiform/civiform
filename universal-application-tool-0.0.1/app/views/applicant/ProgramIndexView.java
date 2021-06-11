@@ -82,19 +82,31 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.FONT_SEMIBOLD,
                 Styles.MB_2,
                 StyleUtils.responsiveSmall(Styles.MB_6));
+
     ContainerTag infoLine1Div =
         div()
             .withText(infoTextLine1)
             .withClasses(Styles.TEXT_SM, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
+
     ContainerTag infoLine2Div =
         div()
             .withText(infoTextLine2)
             .withClasses(Styles.TEXT_SM, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
 
+    ContainerTag seattleLogoDiv =
+        div()
+            .with(
+                this.layout
+                    .viewUtils
+                    .makeLocalImageTag("Seattle-logo_horizontal_blue-white_small")
+                    .attr("width", 175)
+                    .attr("height", 70))
+            .withClasses(Styles.ABSOLUTE, Styles.TOP_2, Styles.LEFT_2);
+
     return div()
         .withId("top-content")
-        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT)
-        .with(programIndexH1, infoLine1Div, infoLine2Div);
+        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, Styles.RELATIVE)
+        .with(seattleLogoDiv, programIndexH1, infoLine1Div, infoLine2Div);
   }
 
   private ContainerTag mainContent(
