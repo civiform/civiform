@@ -12,6 +12,7 @@ import auth.UatProfile;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -56,10 +57,19 @@ public final class ProgramIndexView extends BaseHtmlView {
                             programs.getActiveProgramDefinition(name),
                             programs.getDraftProgramDefinition(name),
                             request,
-                            profile)));
+                            profile)))
+            .with(renderDownloadExportCsvButton());
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(pageTitle).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
+  }
+
+  private ContainerTag renderDownloadExportCsvButton() {
+    return new LinkElement()
+        .setId("download-export-csv-button")
+        .setHref(routes.AdminApplicationController.downloadDemographics().url())
+        .setText("Download Exported Data (CSV)")
+        .asButton();
   }
 
   private Tag maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {

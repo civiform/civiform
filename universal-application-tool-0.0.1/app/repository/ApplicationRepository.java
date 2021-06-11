@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.List;
@@ -120,6 +121,10 @@ public class ApplicationRepository {
               exception.printStackTrace();
               return Optional.empty();
             });
+  }
+
+  public ImmutableList<Application> getAllApplications() {
+    return ImmutableList.copyOf(ebeanServer.find(Application.class).findList());
   }
 
   // Need to transmit both arguments to submitApplication through the CompletionStage pipeline.

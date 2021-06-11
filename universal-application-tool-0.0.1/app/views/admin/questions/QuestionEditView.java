@@ -14,6 +14,7 @@ import j2html.tags.DomContent;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Optional;
+import models.QuestionTag;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -75,7 +76,6 @@ public final class QuestionEditView extends BaseHtmlView {
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
       Optional<String> message) {
     QuestionType questionType = questionForm.getQuestionType();
-    //    String title = String.format("New %s question", questionType.toString().toLowerCase());
     String title = String.format("New %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
@@ -303,7 +303,40 @@ public final class QuestionEditView extends BaseHtmlView {
         .with(formQuestionTypeSelect(questionType));
 
     formTag.with(QuestionConfig.buildQuestionConfig(questionForm));
+    formTag.with(buildDemographicFields(questionForm));
     return formTag;
+  }
+
+  private ImmutableList<DomContent> buildDemographicFields(QuestionForm questionForm) {
+    return ImmutableList.of(
+        FieldWithLabel.radio()
+            .setId("question-demographic-no-export")
+            .setFieldName("questionExportState")
+            .setLabelText("No export")
+            .setValue(QuestionTag.NON_DEMOGRAPHIC.getValue())
+            .setChecked(
+                questionForm
+                    .getQuestionExportState()
+                    .equals(QuestionTag.NON_DEMOGRAPHIC.getValue()))
+            .getContainer(),
+        FieldWithLabel.radio()
+            .setId("question-demographic-export-demographic")
+            .setFieldName("questionExportState")
+            .setLabelText("Export Value")
+            .setValue(QuestionTag.DEMOGRAPHIC.getValue())
+            .setChecked(
+                questionForm.getQuestionExportState().equals(QuestionTag.DEMOGRAPHIC.getValue()))
+            .getContainer(),
+        FieldWithLabel.radio()
+            .setId("question-demographic-export-pii")
+            .setFieldName("questionExportState")
+            .setLabelText("Export Obfuscated")
+            .setValue(QuestionTag.DEMOGRAPHIC_PII.getValue())
+            .setChecked(
+                questionForm
+                    .getQuestionExportState()
+                    .equals(QuestionTag.DEMOGRAPHIC_PII.getValue()))
+            .getContainer());
   }
 
   private DomContent formQuestionTypeSelect(QuestionType selectedType) {
