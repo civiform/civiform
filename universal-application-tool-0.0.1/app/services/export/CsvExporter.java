@@ -1,13 +1,16 @@
 package services.export;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
-import java.util.Optional;
 import models.Application;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import services.Path;
+import services.applicant.AnswerData;
+import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.Column;
 
 public class CsvExporter {
@@ -40,17 +43,27 @@ public class CsvExporter {
    * the writer between calls. Since it is intended for many applications, this function is intended
    * to be called several times.
    */
-  public void export(Application application, Writer writer) throws IOException {
+  public void export(
+      Application application, ReadOnlyApplicantProgramService roApplicantService, Writer writer)
+      throws IOException {
     CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withFirstRecordAsHeader());
 
     this.writeHeadersOnFirstExport(printer);
 
+    ImmutableMap<String, AnswerData> answerMap = roApplicantService.getSummaryDataMap();
     for (Column column : getColumns()) {
       switch (column.columnType()) {
         case APPLICANT:
-          Optional<String> value =
-              application.getApplicantData().readAsString(column.jsonPath().orElseThrow());
-          printer.print(value.orElse(EMPTY_VALUE));
+          String value = EMPTY_VALUE;
+          String key = column.answerDataKey().orElseThrow();
+          Path path = column.jsonPath().orElseThrow();
+          if (answerMap.containsKey(key)) {
+            ImmutableMap<Path, String> scalars = answerMap.get(key).scalarAnswersInDefaultLocale();
+            if (scalars.containsKey(path)) {
+              value = scalars.get(path);
+            }
+          }
+          printer.print(value);
           break;
         case ID:
           printer.print(application.id);

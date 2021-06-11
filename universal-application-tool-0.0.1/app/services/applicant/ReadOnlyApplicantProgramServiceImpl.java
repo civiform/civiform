@@ -285,7 +285,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                     selectedOptions ->
                         selectedOptions.stream()
                             .map(LocalizedQuestionOption::optionText)
-                            .collect(Collectors.joining(", ", "\"[", "]\"")))
+                            .collect(Collectors.joining(", ", "[", "]")))
                 .orElse(""));
       case FILEUPLOAD:
         return ImmutableMap.of(
