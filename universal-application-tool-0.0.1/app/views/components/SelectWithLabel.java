@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.Map;
 
 public class SelectWithLabel extends FieldWithLabel {
 
@@ -29,11 +28,6 @@ public class SelectWithLabel extends FieldWithLabel {
    */
   public SelectWithLabel setOptions(ImmutableMap<String, String> options) {
     this.options = options;
-    return this;
-  }
-
-  public SelectWithLabel setOptions(Map.Entry<String, String> option) {
-    this.options = ImmutableMap.of(option.getKey(), option.getValue());
     return this;
   }
 
