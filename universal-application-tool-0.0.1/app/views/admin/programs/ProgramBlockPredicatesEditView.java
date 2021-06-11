@@ -7,17 +7,23 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.AbstractMap.SimpleEntry;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
+import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.ScalarType;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -105,20 +111,56 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .build();
   }
 
+  // TODO(#322): Create POST action endpoint for this form.
   private Tag renderPredicateForm(
       String blockName, QuestionDefinition questionDefinition, Tag csrfTag) {
-    // TODO(#322): Create POST action endpoint for this form.
 
     ImmutableList.Builder<SimpleEntry<String, String>> actionOptionsBuilder =
-        ImmutableList.builder();
+            ImmutableList.builder();
     for (PredicateAction action : PredicateAction.values()) {
       actionOptionsBuilder.add(new SimpleEntry<>(action.toDisplayString(), action.name()));
     }
 
     ImmutableList.Builder<SimpleEntry<String, String>> operatorOptionsBuilder =
-        ImmutableList.builder();
+            ImmutableList.builder();
     for (Operator operator : Operator.values()) {
       operatorOptionsBuilder.add(new SimpleEntry<>(operator.toDisplayString(), operator.name()));
+    }
+
+    ImmutableMap<Scalar, ScalarType> scalars;
+    try {
+      scalars = Scalar.getScalars(questionDefinition.getQuestionType());
+    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+      // This should never happen since we filter out Enumerator questions before this point.
+      return div()
+          .withText("Sorry, you cannot create a show/hide predicate with this question type.");
+    }
+    ImmutableList.Builder<SimpleEntry<String, String>> scalarOptionsBuilder =
+        ImmutableList.builder();
+    scalars.forEach(
+        (scalar, type) -> {
+          scalarOptionsBuilder.add(new SimpleEntry<>(scalar.toDisplayString(), scalar.name()));
+        });
+
+    ContainerTag valueField;
+    if (questionDefinition.getQuestionType().isMultiOptionType()) {
+      // If it's a multi-option question, we need to provide a discrete list of possible values to
+      // choose from instead of a freeform text field. Not only is it a better UX, but we store the
+      // ID of the options rather than the display strings since the option display strings are
+      // localized.
+      ImmutableList<SimpleEntry<String, String>> valueOptions =
+          ((MultiOptionQuestionDefinition) questionDefinition)
+              .getOptions().stream()
+                  .map(
+                      option ->
+                          new SimpleEntry<>(
+                              option.optionText().getDefault(), String.valueOf(option.id())))
+                  .collect(ImmutableList.toImmutableList());
+
+      valueField =
+          new SelectWithLabel().setLabelText("Value").setOptions(valueOptions).getContainer();
+    } else {
+      valueField = FieldWithLabel.input().setLabelText("Value").getContainer();
     }
 
     return form(csrfTag)
@@ -135,11 +177,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                 .with(
                     new SelectWithLabel()
                         .setLabelText("Scalar")
-                        // TODO(#322): Display the right scalars for the given question type.
-                        .setOptions(
-                            ImmutableList.of(
-                                new SimpleEntry<>("street", "street"),
-                                new SimpleEntry<>("city", "city")))
+                        .setOptions(scalarOptionsBuilder.build())
                         .getContainer())
                 .with(
                     new SelectWithLabel()
@@ -148,7 +186,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                         //  (requires javascript).
                         .setOptions(operatorOptionsBuilder.build())
                         .getContainer())
-                .with(FieldWithLabel.input().setLabelText("Value").getContainer()));
+                .with(valueField));
   }
 
   private ContainerTag renderPredicateModalTriggerButtons(ImmutableList<Modal> modals) {
