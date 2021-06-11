@@ -18,63 +18,38 @@ import services.question.types.ScalarType;
  * <p>EXISTING SCALARS SHOULD NOT BE MODIFIED. The Scalar enum should be treated as append-only.
  */
 public enum Scalar {
-  CITY,
-  DATE,
-  EMAIL,
-  FILE_KEY,
-  FIRST_NAME,
-  LAST_NAME,
-  LINE2,
-  MIDDLE_NAME,
-  NUMBER,
-  SELECTION,
-  STATE,
-  STREET,
-  TEXT,
-  ZIP,
+  CITY("city"),
+  DATE("date"),
+  EMAIL("email"),
+  FILE_KEY("file key"),
+  FIRST_NAME("first name"),
+  LAST_NAME("last name"),
+  LINE2("address line 2"),
+  MIDDLE_NAME("middle name"),
+  NUMBER("number"),
+  SELECTION("selection"),
+  STATE("state"),
+  STREET("street"),
+  TEXT("text"),
+  ZIP("ZIP code"),
 
   // Special scalars for Enumerator updates
-  DELETE_ENTITY, // This is used for deleting enumerator entries
-  ENTITY_NAME, // This is used for adding/updating enumerator entries
+  DELETE_ENTITY("delete entity"), // This is used for deleting enumerator entries
+  ENTITY_NAME("entity name"), // This is used for adding/updating enumerator entries
 
   // Metadata scalars
-  UPDATED_AT,
-  PROGRAM_UPDATED_IN;
+  UPDATED_AT("updated at"),
+  PROGRAM_UPDATED_IN("program updated in");
 
-  @Override
-  public String toString() {
-    switch (this) {
-      case CITY:
-        return "city";
-      case DATE:
-        return "date";
-      case EMAIL:
-        return "email";
-      case FILE_KEY:
-        return "file key";
-      case FIRST_NAME:
-        return "first name";
-      case LAST_NAME:
-        return "last name";
-      case LINE2:
-        return "address line 2";
-      case MIDDLE_NAME:
-        return "middle name";
-      case NUMBER:
-        return "number";
-      case SELECTION:
-        return "selection";
-      case STATE:
-        return "state";
-      case STREET:
-        return "street";
-      case TEXT:
-        return "text";
-      case ZIP:
-        return "ZIP code";
-      default:
-        return this.toString();
-    }
+  private final String displayString;
+
+  /** The displayString should only be used in the Admin UI, since it is not localized. */
+  Scalar(String displayString) {
+    this.displayString = displayString;
+  }
+
+  public String getDisplayString() {
+    return this.displayString;
   }
 
   private static final ImmutableMap<Scalar, ScalarType> ADDRESS_SCALARS =

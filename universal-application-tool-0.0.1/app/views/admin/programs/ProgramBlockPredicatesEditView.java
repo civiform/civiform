@@ -116,6 +116,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
     try {
       scalars = Scalar.getScalars(questionDefinition.getQuestionType());
     } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+      // This should never happen since we filter out Enumerator questions before this point.
       return div()
           .withText("Sorry, you cannot create a show/hide predicate with this question type.");
     }
@@ -124,11 +125,15 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         ImmutableList.builder();
     scalars.forEach(
         (scalar, type) -> {
-          scalarOptionsBuilder.add(new SimpleEntry<>(scalar.toString(), scalar.toString()));
+          scalarOptionsBuilder.add(new SimpleEntry<>(scalar.getDisplayString(), scalar.name()));
         });
 
     ContainerTag valueField;
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
+      // If it's a multi-option question, we need to provide a discrete list of possible values to
+      // choose from instead of a freeform text field. Not only is it a better UX, but we store the
+      // ID of the options rather than the display strings since the option display strings are
+      // localized.
       ImmutableList<SimpleEntry<String, String>> valueOptions =
           ((MultiOptionQuestionDefinition) questionDefinition)
               .getOptions().stream()
