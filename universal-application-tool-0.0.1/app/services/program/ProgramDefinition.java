@@ -161,7 +161,12 @@ public abstract class ProgramDefinition {
     return toBuilder().setBlockDefinitions(newBlockDefinitionsBuilder.build()).build();
   }
 
-  public ProgramDefinition moveBlock(long blockId, Direction direction) {
+  /**
+   * Move the block in the direction specified if it is allowed. Blocks are not allowed to move
+   * beyond the contiguous slice of repeated and nested repeated blocks of their enumerator.
+   */
+  public ProgramDefinition moveBlock(long blockId, Direction direction)
+      throws ProgramBlockDefinitionNotFoundException {
     // Precondition: blocks have to be ordered
     if (!hasOrderedBlockDefinitions()) {
       return orderBlockDefinitions().moveBlock(blockId, direction);
@@ -208,7 +213,7 @@ public abstract class ProgramDefinition {
    * itself. For enumerator blocks, the slice of blocks also contain all of its repeated and nested
    * repeated blocks.
    */
-  private BlockSlice getBlockSlice(long blockId) {
+  private BlockSlice getBlockSlice(long blockId) throws ProgramBlockDefinitionNotFoundException {
     // Precondition: blocks have to be ordered
     if (!hasOrderedBlockDefinitions()) {
       return orderBlockDefinitions().getBlockSlice(blockId);
@@ -224,7 +229,7 @@ public abstract class ProgramDefinition {
               .getAsInt();
     } catch (NoSuchElementException e) {
       // The enumerator id must correspond to a block within blocks.
-      throw new RuntimeException(e);
+      throw new ProgramBlockDefinitionNotFoundException(id(), blockId);
     }
     BlockDefinition blockDefinition = blockDefinitions().get(startIndex);
     int endIndex = startIndex + 1;

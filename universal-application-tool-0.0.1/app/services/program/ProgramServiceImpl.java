@@ -254,7 +254,13 @@ public class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition moveBlock(
       long programId, long blockId, ProgramDefinition.Direction direction)
       throws ProgramNotFoundException {
-    Program program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
+    Program program;
+    try {
+      program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(
+          "Something happened to the programs block while trying to move it", e);
+    }
     return syncProgramDefinitionQuestions(
             programRepository.updateProgramSync(program).getProgramDefinition())
         .toCompletableFuture()

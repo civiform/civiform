@@ -190,52 +190,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
       String questionCountText = String.format("Question count: %d", numQuestions);
       String blockName = blockDefinition.name();
 
-      String selectedClasses = blockDefinition.id() == focusedBlockId ? Styles.BG_GRAY_100 : "";
-
-      String moveUpFormAction =
-          routes.AdminProgramBlocksController.move(programDefinition.id(), blockDefinition.id())
-              .url();
-      // Move up button is invisible for the first block
-      String moveUpStyles =
-          StyleUtils.joinStyles(
-              AdminStyles.MOVE_BLOCK_BUTTON,
-              (blockDefinition.id() == blockDefinitions.get(0).id()) ? Styles.INVISIBLE : "");
-      Tag moveUp =
-          div()
-              .with(
-                  form()
-                      .withAction(moveUpFormAction)
-                      .withMethod(HttpVerbs.POST)
-                      .with(makeCsrfTokenInputTag(request))
-                      .with(input().isHidden().withName("direction").withValue(Direction.UP.name()))
-                      .with(submitButton("^").withClasses(moveUpStyles)));
-
-      String moveDownFormAction =
-          routes.AdminProgramBlocksController.move(programDefinition.id(), blockDefinition.id())
-              .url();
-      // Move down button is invisible for the last block
-      String moveDownStyles =
-          StyleUtils.joinStyles(
-              AdminStyles.MOVE_BLOCK_BUTTON,
-              (blockDefinition.id() == blockDefinitions.get(blockDefinitions.size() - 1).id())
-                  ? Styles.INVISIBLE
-                  : "");
-      Tag moveDown =
-          div()
-              .withClasses(Styles.TRANSFORM, Styles.ROTATE_180)
-              .with(
-                  form()
-                      .withAction(moveDownFormAction)
-                      .withMethod(HttpVerbs.POST)
-                      .with(makeCsrfTokenInputTag(request))
-                      .with(
-                          input().isHidden().withName("direction").withValue(Direction.DOWN.name()))
-                      .with(submitButton("^").withClasses(moveDownStyles)));
       ContainerTag moveButtons =
-          div()
-              .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.SELF_CENTER)
-              .with(moveUp, moveDown);
-
+          blockMoveButtons(request, programDefinition.id(), blockDefinitions, blockDefinition);
+      String selectedClasses = blockDefinition.id() == focusedBlockId ? Styles.BG_GRAY_100 : "";
       ContainerTag blockTag =
           div()
               .withClasses(
@@ -268,6 +225,52 @@ public class ProgramBlockEditView extends BaseHtmlView {
       }
     }
     return container;
+  }
+
+  private ContainerTag blockMoveButtons(
+      Request request,
+      long programId,
+      ImmutableList<BlockDefinition> blockDefinitions,
+      BlockDefinition blockDefinition) {
+    String moveUpFormAction =
+        routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
+    // Move up button is invisible for the first block
+    String moveUpStyles =
+        StyleUtils.joinStyles(
+            AdminStyles.MOVE_BLOCK_BUTTON,
+            (blockDefinition.id() == blockDefinitions.get(0).id()) ? Styles.INVISIBLE : "");
+    Tag moveUp =
+        div()
+            .with(
+                form()
+                    .withAction(moveUpFormAction)
+                    .withMethod(HttpVerbs.POST)
+                    .with(makeCsrfTokenInputTag(request))
+                    .with(input().isHidden().withName("direction").withValue(Direction.UP.name()))
+                    .with(submitButton("^").withClasses(moveUpStyles)));
+
+    String moveDownFormAction =
+        routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
+    // Move down button is invisible for the last block
+    String moveDownStyles =
+        StyleUtils.joinStyles(
+            AdminStyles.MOVE_BLOCK_BUTTON,
+            (blockDefinition.id() == blockDefinitions.get(blockDefinitions.size() - 1).id())
+                ? Styles.INVISIBLE
+                : "");
+    Tag moveDown =
+        div()
+            .withClasses(Styles.TRANSFORM, Styles.ROTATE_180)
+            .with(
+                form()
+                    .withAction(moveDownFormAction)
+                    .withMethod(HttpVerbs.POST)
+                    .with(makeCsrfTokenInputTag(request))
+                    .with(input().isHidden().withName("direction").withValue(Direction.DOWN.name()))
+                    .with(submitButton("^").withClasses(moveDownStyles)));
+    ContainerTag moveButtons =
+        div().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.SELF_CENTER).with(moveUp, moveDown);
+    return moveButtons;
   }
 
   private ContainerTag blockEditPanel(

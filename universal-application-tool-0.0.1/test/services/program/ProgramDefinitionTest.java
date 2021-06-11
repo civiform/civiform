@@ -397,7 +397,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
   }
 
   @Test
-  public void moveBlock_up() {
+  public void moveBlock_up() throws Exception {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
@@ -425,7 +425,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
   }
 
   @Test
-  public void moveBlock_down() {
+  public void moveBlock_down() throws Exception {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
