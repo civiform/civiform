@@ -63,14 +63,8 @@ content.description1=CiviForm lets you apply for many benefits at once by reusin
 # Long form description of the CiviForm site shown to the applicant. Line 2.
 content.description2=Get started by choosing an application below.
 
-# Text indicating a particular program does not belong to any category.
-content.noCategory=No Category
-
 # Link text to read more about a program.
 link.programDetails=Program details
-
-# The text an applicant clicks on the home page to view their submitted applications.
-link.viewApplications=view my applications
 
 # The title of the page for the list of programs.
 title.programs=Programs & services

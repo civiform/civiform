@@ -75,4 +75,17 @@ public class AdminStyles {
           Styles.OVERFLOW_Y_AUTO,
           Styles.SHADOW_LG,
           Styles.W_SCREEN);
+
+  public static final String BUTTON_QUESTION_PREDICATE =
+      StyleUtils.joinStyles(
+          Styles.W_FULL,
+          Styles.PX_4,
+          Styles.PY_2,
+          Styles.BORDER,
+          Styles.BORDER_GRAY_200,
+          Styles.TEXT_BLACK,
+          Styles.TEXT_LEFT,
+          Styles.FONT_NORMAL,
+          Styles.BG_WHITE,
+          StyleUtils.hover(Styles.TEXT_GRAY_800, Styles.BG_GRAY_100));
 }

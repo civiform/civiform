@@ -19,12 +19,11 @@ title.applicationConfirmation=Confirmación de la solicitud
 title.createAnAccount=Crea una cuenta o inicia sesión
 content.confirmed=Gracias por postularse a {0}. Su solicitud ha sido recibida y su ID de solicitud es {1}.
 content.pleaseCreateAccount=Si inicia sesión en una cuenta de la ciudad ahora, su información se guardará y podrá regresar en cualquier momento para completar solicitudes futuras. Si aún no tiene una cuenta, la página de inicio de sesión le permitirá registrarse. No perderá ningún dato que ya haya ingresado.
-link.doCreateAccount=Crea una cuenta o inicia sesión
-link.dontCreateAccount=No ahora
+link.allDone=Ya terminé
+link.applyToAnotherProgram=Aplicar a otro programa
+link.createAccountOrSignIn=Crea una cuenta o inicia sesión
 
 title.programs=Programas y servicios
-link.viewApplications=ver mis applicaciones
-content.noCategory=Sin Categoría
 link.programDetails=Detalles del programa
 content.benefits=Obtener beneficios
 content.description1=CiviForm le permite solicitar muchos beneficios a la vez reutilizando información.
