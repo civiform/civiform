@@ -19,6 +19,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
 import views.BaseHtmlView;
@@ -112,14 +113,11 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       String blockName, QuestionDefinition questionDefinition, Tag csrfTag) {
 
     ImmutableMap<Scalar, ScalarType> scalars;
-
     try {
       scalars = Scalar.getScalars(questionDefinition.getQuestionType());
-    } catch (InvalidQuestionTypeException e) {
-      // TODO(natsid): Handle these exceptions better.
-      throw new RuntimeException(e);
-    } catch (UnsupportedQuestionTypeException e) {
-      throw new RuntimeException(e);
+    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+      return div()
+          .withText("Sorry, you cannot create a show/hide predicate with this question type.");
     }
 
     ImmutableList.Builder<SimpleEntry<String, String>> scalarOptionsBuilder =
@@ -129,6 +127,24 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         (scalar, type) -> {
           scalarOptionsBuilder.add(new SimpleEntry<>(scalar.toString(), scalar.toString()));
         });
+
+    ContainerTag valueField;
+    if (questionDefinition.getQuestionType().isMultiOptionType()) {
+      ImmutableList<SimpleEntry<String, String>> valueOptions =
+          ((MultiOptionQuestionDefinition) questionDefinition)
+              .getOptions().stream()
+                  .map(
+                      option ->
+                          new SimpleEntry<>(
+                              option.optionText().getDefault(), String.valueOf(option.id())))
+                  .collect(ImmutableList.toImmutableList());
+
+      valueField =
+          new SelectWithLabel().setLabelText("Value").setOptions(valueOptions).getContainer();
+
+    } else {
+      valueField = FieldWithLabel.input().setLabelText("Value").getContainer();
+    }
 
     // TODO(#322): Create POST action endpoint for this form.
     return form(csrfTag)
@@ -148,7 +164,6 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                 .with(
                     new SelectWithLabel()
                         .setLabelText("Scalar")
-                        // TODO(#322): Display the right scalars for the given question type.
                         .setOptions(scalarOptionsBuilder.build())
                         .getContainer())
                 .with(
@@ -161,7 +176,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                                 new SimpleEntry<>("is equal to", "equalTo"),
                                 new SimpleEntry<>("is greater than", "greaterThan")))
                         .getContainer())
-                .with(FieldWithLabel.input().setLabelText("Value").getContainer()));
+                .with(valueField));
   }
 
   private ContainerTag renderPredicateModalTriggerButtons(ImmutableList<Modal> modals) {
