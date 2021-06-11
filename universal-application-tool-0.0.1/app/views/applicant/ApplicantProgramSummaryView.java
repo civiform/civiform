@@ -68,7 +68,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       }
       applicationSummary.with(
           renderQuestionSummary(
-              answerData, params.applicantId(), params.inReview(), isFirstUnanswered));
+              answerData, messages, params.applicantId(), params.inReview(), isFirstUnanswered));
       isFirstUnanswered = isFirstUnanswered && answerData.timestamp() > 0;
       previousRepeatedEntity = currentRepeatedEntity;
     }
@@ -121,7 +121,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   }
 
   private ContainerTag renderQuestionSummary(
-      AnswerData data, long applicantId, boolean inReview, boolean isFirstUnanswered) {
+      AnswerData data, Messages messages, long applicantId, boolean inReview, boolean isFirstUnanswered) {
     boolean isAnswered = data.timestamp() > 0;
 
     ContainerTag questionPrompt =
