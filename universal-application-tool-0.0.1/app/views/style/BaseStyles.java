@@ -104,7 +104,7 @@ public final class BaseStyles {
           Styles.ROUNDED_XL,
           Styles.SHADOW_XL,
           Styles.BG_WHITE,
-          Styles.W_1_3,
+          Styles.W_AUTO,
           Styles.MAX_H_SCREEN,
           Styles.OVERFLOW_Y_AUTO);
 

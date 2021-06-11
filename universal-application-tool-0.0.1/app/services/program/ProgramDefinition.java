@@ -273,12 +273,13 @@ public abstract class ProgramDefinition {
    * Returns a list of the question definitions that may be used to define predicates on the block
    * definition with the given ID.
    *
-   * <p>The available question definitions for predicates satisfy BOTH of the following:
+   * <p>The available question definitions for predicates satisfy ALL of the following:
    *
    * <ul>
    *   <li>In a block definition that comes sequentially before the given block definition.
    *   <li>In a block definition that either has the same enumerator ID as the given block
    *       definition, or has the same enumerator ID as some "parent" of the given block definition.
+   *   <li>Is not an enumerator.
    * </ul>
    */
   public ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(long blockId)
@@ -290,6 +291,7 @@ public abstract class ProgramDefinition {
       builder.addAll(
           blockDefinition.programQuestionDefinitions().stream()
               .map(ProgramQuestionDefinition::getQuestionDefinition)
+              .filter(qd -> !qd.isEnumerator())
               .collect(Collectors.toList()));
     }
 
