@@ -230,7 +230,8 @@ public class AdminQuestionControllerTest extends WithPostgresContainer {
         .put("questionDescription", "a new description")
         .put("questionType", nameQuestion.getQuestionType().name())
         .put("questionText", "question text updated")
-        .put("questionHelpText", "a new help text");
+        .put("questionHelpText", "a new help text")
+        .put("questionExportState", "NON_DEMOGRAPHIC");
     RequestBuilder requestBuilder = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build()));
 
     Result result =
@@ -275,6 +276,7 @@ public class AdminQuestionControllerTest extends WithPostgresContainer {
             .put("options[0]", "coffee") // Unchanged but out of order
             .put("options[1]", "lavender") // New flavor
             .put("options[2]", "vanilla") // Unchanged and in order
+            .put("questionExportState", "NON_DEMOGRAPHIC")
             // Has one fewer than the original question
             .build();
     RequestBuilder requestBuilder = addCSRFToken(Helpers.fakeRequest().bodyForm(formData));

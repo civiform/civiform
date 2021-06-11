@@ -20,6 +20,7 @@ public abstract class QuestionForm {
   private String questionText;
   private String questionHelpText;
   private String questionExportState;
+  private QuestionDefinition qd;
 
   protected QuestionForm() {
     questionName = "";
@@ -31,12 +32,11 @@ public abstract class QuestionForm {
   }
 
   protected QuestionForm(QuestionDefinition qd) {
+    this.qd = qd;
+    questionExportState = null;
     questionName = qd.getName();
     questionDescription = qd.getDescription();
     enumeratorId = qd.getEnumeratorId();
-    Question q = new Question(qd);
-    q.refresh();
-    this.setQuestionExportStateFromTags(q.getQuestionTags());
 
     try {
       questionText = qd.getQuestionText().get(LocalizedStrings.DEFAULT_LOCALE);
@@ -130,6 +130,11 @@ public abstract class QuestionForm {
   }
 
   public String getQuestionExportState() {
+    if (this.questionExportState == null) {
+      Question q = new Question(this.qd);
+      q.refresh();
+      this.setQuestionExportStateFromTags(q.getQuestionTags());
+    }
     return this.questionExportState;
   }
 }
