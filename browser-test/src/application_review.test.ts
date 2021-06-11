@@ -13,6 +13,8 @@ describe('normal application flow', () => {
     await adminQuestions.addEmailQuestion('email-q');
     await adminQuestions.addDropdownQuestion('ice-cream-q', ['chocolate', 'banana', 'black raspberry']);
     await adminQuestions.addCheckboxQuestion('favorite-trees-q', ['oak', 'maple', 'pine', 'cherry']);
+    await adminQuestions.addCheckboxQuestion('favorite-rats-q', ['sewage', 'laboratory', 'bubonic', 'giant']);
+    await adminQuestions.addCheckboxQuestion('scared-of-q', ['dogs', 'bees', 'spiders', 'the dark', 'clowns']);
     await adminQuestions.addAddressQuestion('address-q');
     await adminQuestions.addFileUploadQuestion('fileupload-q');
     await adminQuestions.addNameQuestion('name-q');
@@ -25,6 +27,7 @@ describe('normal application flow', () => {
     await adminPrograms.editProgramBlock(programName, 'block description', ['date-q', 'address-q', 'name-q', 'radio-q', 'email-q']);
     await adminPrograms.addProgramBlock(programName, 'another description', ['ice-cream-q', 'favorite-trees-q', 'number-q', 'text-q']);
     await adminPrograms.addProgramBlock(programName, 'third description', ['fileupload-q']);
+    await adminPrograms.addProgramBlock(programName, 'fourth description', ['scared-of-q', 'favorite-rats-q']);
 
     await adminPrograms.gotoAdminProgramsPage();
     await adminPrograms.expectDraftProgram(programName);
@@ -34,6 +37,8 @@ describe('normal application flow', () => {
 
     await adminQuestions.expectActiveQuestionExist('ice-cream-q');
     await adminQuestions.expectActiveQuestionExist('favorite-trees-q');
+    await adminQuestions.expectActiveQuestionExist('favorite-rats-q');
+    await adminQuestions.expectActiveQuestionExist('scared-of-q');
     await adminQuestions.expectActiveQuestionExist('address-q');
     await adminQuestions.expectActiveQuestionExist('name-q');
     await adminQuestions.expectActiveQuestionExist('date-q');
@@ -49,7 +54,7 @@ describe('normal application flow', () => {
     const applicantQuestions = new ApplicantQuestions(page);
     await applicantQuestions.validateHeader('en-US');
 
-    // Applicant fills out first application block.
+    // fill 1st application block.
     await applicantQuestions.applyProgram(programName);
     await applicantQuestions.answerAddressQuestion('', '', '', '', '');
     await applicantQuestions.answerNameQuestion('', '', '');
@@ -74,18 +79,23 @@ describe('normal application flow', () => {
     await applicantQuestions.answerAddressQuestion('1234 St', 'Unit B', 'Sim', 'Ames', '54321');
     await applicantQuestions.clickNext();
 
-    // Applicant fills out second application block.
+    // fill 2nd application block.
     await applicantQuestions.answerDropdownQuestion('banana');
     await applicantQuestions.answerCheckboxQuestion(['cherry', 'pine']);
     await applicantQuestions.answerNumberQuestion('42');
     await applicantQuestions.answerTextQuestion('some text');
     await applicantQuestions.clickNext();
 
-    // Applicant fills out third application block.
+    // fill 3rd application block.
     await applicantQuestions.answerFileUploadQuestion('file key');
     await applicantQuestions.clickNext();
 
-    // Applicant submits answers from review page.
+    // fill 4th application block. 
+    // skip one checkbox question.
+    await applicantQuestions.answerCheckboxQuestion(['clowns']);
+    await applicantQuestions.clickNext();
+
+    // submit
     await applicantQuestions.submitFromReviewPage(programName);
 
     await logout(page);
