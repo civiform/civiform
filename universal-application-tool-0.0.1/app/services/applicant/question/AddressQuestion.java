@@ -271,4 +271,10 @@ public class AddressQuestion implements PresentsErrors {
         .filter(line -> line.length() > 0)
         .collect(Collectors.joining("\n"));
   }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    return ImmutableList.of(
+        getStreetPath(), getLine2Path(), getCityPath(), getStatePath(), getZipPath());
+  }
 }

@@ -7,7 +7,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
+import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJsonB;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -77,6 +79,8 @@ public class Question extends BaseModel {
   private @DbJsonB ImmutableList<QuestionOption> questionOptions;
 
   private @DbJsonB LocalizedStrings enumeratorEntityType;
+
+  private @DbArray List<QuestionTag> questionTags;
 
   @ManyToMany
   @JoinTable(name = "versions_questions")
@@ -230,5 +234,39 @@ public class Question extends BaseModel {
 
   public boolean removeVersion(Version draftVersion) {
     return this.versions.remove(draftVersion);
+  }
+
+  private void initTags() {
+    if (this.questionTags == null) {
+      this.questionTags = new ArrayList<>();
+    }
+  }
+
+  /** Adds the specified tag, returning true if it was not already present. */
+  public boolean addTag(QuestionTag tag) {
+    initTags();
+    if (this.questionTags.contains(tag)) {
+      return false;
+    }
+    this.questionTags.add(tag);
+    return true;
+  }
+
+  /** Remove the specified tag, returning true if it was present. */
+  public boolean removeTag(QuestionTag tag) {
+    initTags();
+    return this.questionTags.remove(tag);
+  }
+
+  /** Return true if the tag is present. */
+  public boolean containsTag(QuestionTag tag) {
+    initTags();
+    return this.questionTags.contains(tag);
+  }
+
+  /** Return all the tags on this question. */
+  public ImmutableList<QuestionTag> getQuestionTags() {
+    initTags();
+    return ImmutableList.copyOf(this.questionTags);
   }
 }

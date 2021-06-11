@@ -75,6 +75,11 @@ public class MultiSelectQuestion implements PresentsErrors {
   }
 
   @Override
+  public ImmutableList<Path> getAllPaths() {
+    return ImmutableList.of(getSelectionPath());
+  }
+
+  @Override
   public boolean isAnswered() {
     return applicantQuestion.getApplicantData().hasPath(getSelectionPath());
   }

@@ -222,6 +222,18 @@ export class AdminPrograms {
     return readFileSync(path, 'utf8');
   }
 
+  async getDemographicsCsv() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.click('text="Download Exported Data (CSV)"')
+    ]);
+    const path = await downloadEvent.path();
+    if (path === null) {
+      throw new Error('download failed');
+    }
+    return readFileSync(path, 'utf8');
+  }
+
   async addAndPublishProgramWithQuestions(questionNames: string[], programName: string) {
     await this.addProgram(programName);
     await this.editProgramBlock(programName, 'dummy description', questionNames);

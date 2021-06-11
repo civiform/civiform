@@ -25,6 +25,11 @@ public class SingleSelectQuestion implements PresentsErrors {
   }
 
   @Override
+  public ImmutableList<Path> getAllPaths() {
+    return ImmutableList.of(getSelectionPath());
+  }
+
+  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     // Only one selection is possible - there is no admin-configured validation.
     return ImmutableSet.of();

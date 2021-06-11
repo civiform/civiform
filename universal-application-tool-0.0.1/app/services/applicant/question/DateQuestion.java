@@ -1,5 +1,6 @@
 package services.applicant.question;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -39,6 +40,11 @@ public class DateQuestion implements PresentsErrors {
   public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     // TODO: Need to add some date specific validation.
     return ImmutableSet.of();
+  }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    return ImmutableList.of(getDatePath());
   }
 
   @Override

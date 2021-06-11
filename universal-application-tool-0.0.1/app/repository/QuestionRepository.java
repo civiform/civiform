@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Transaction;
@@ -14,6 +15,7 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Question;
+import models.QuestionTag;
 import models.Version;
 import play.db.ebean.EbeanConfig;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -66,6 +68,12 @@ public class QuestionRepository {
           Question newDraft =
               new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
           insertQuestionSync(newDraft);
+          // Fetch the tags off the old question.
+          Question oldQuestion = new Question(definition);
+          oldQuestion.refresh();
+          for (QuestionTag tag : oldQuestion.getQuestionTags()) {
+            newDraft.addTag(tag);
+          }
           newDraft.addVersion(draftVersion);
           newDraft.save();
           draftVersion.refresh();
@@ -133,6 +141,23 @@ public class QuestionRepository {
         .find(Question.class)
         .findEachWhile(question -> !conflictDetector.hasConflict(question));
     return conflictDetector.getConflictedQuestion();
+  }
+
+  /** Get the questions with the specified tag which are in the active version. */
+  public ImmutableList<QuestionDefinition> getAllQuestionsForTag(QuestionTag tag) {
+    Version active = versionRepositoryProvider.get().getActiveVersion();
+    return ebeanServer
+        .find(Question.class)
+        .where()
+        .arrayContains("question_tags", tag)
+        .findList()
+        .stream()
+        .filter(
+            question ->
+                active.getQuestions().stream()
+                    .anyMatch(activeQuestion -> activeQuestion.id.equals(question.id)))
+        .map(Question::getQuestionDefinition)
+        .collect(ImmutableList.toImmutableList());
   }
 
   private static class ConflictDetector {
