@@ -108,7 +108,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     answerColorQuestion(program.id(), "blue");
 
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
     ImmutableList<Block> allBlocks = subject.getAllBlocks();
 
     assertThat(allBlocks).hasSize(1);
