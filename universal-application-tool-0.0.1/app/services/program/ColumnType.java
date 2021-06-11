@@ -5,5 +5,7 @@ public enum ColumnType {
   ID,
   LANGUAGE,
   SUBMIT_TIME,
-  SUBMITTER_EMAIL
+  SUBMITTER_EMAIL,
+  OPAQUE_ID,
+  APPLICANT_OPAQUE;
 }

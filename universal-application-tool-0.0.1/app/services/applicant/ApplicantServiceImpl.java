@@ -328,6 +328,11 @@ public class ApplicantServiceImpl implements ApplicantService {
             httpExecutionContext.current());
   }
 
+  @Override
+  public ImmutableList<Application> getAllApplications() {
+    return applicationRepository.getAllApplications();
+  }
+
   /**
    * In-place update of {@link ApplicantData}. Adds program id and timestamp metadata with updates.
    *

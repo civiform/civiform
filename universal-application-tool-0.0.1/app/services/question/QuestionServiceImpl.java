@@ -9,12 +9,14 @@ import com.google.inject.Provider;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Question;
+import models.QuestionTag;
 import models.Version;
 import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.exceptions.InvalidUpdateException;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 
 public final class QuestionServiceImpl implements QuestionService {
@@ -129,6 +131,44 @@ public final class QuestionServiceImpl implements QuestionService {
       throw new InvalidUpdateException("Did not find question in draft version.");
     }
     question.get().save();
+    versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(id);
+  }
+
+  @Override
+  public ImmutableList<QuestionDefinition> getQuestionsForTag(QuestionTag tag) {
+    return questionRepository.getAllQuestionsForTag(tag);
+  }
+
+  @Override
+  public void setExportState(QuestionDefinition questionDefinition, QuestionTag questionExportState)
+      throws QuestionNotFoundException, InvalidUpdateException {
+    Optional<Question> questionMaybe =
+        questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
+    if (questionMaybe.isEmpty()) {
+      throw new QuestionNotFoundException(questionDefinition.getId());
+    }
+    Question question = questionMaybe.get();
+    switch (questionExportState) {
+      case DEMOGRAPHIC:
+        question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
+        question.removeTag(QuestionTag.NON_DEMOGRAPHIC);
+        question.addTag(QuestionTag.DEMOGRAPHIC);
+        break;
+      case DEMOGRAPHIC_PII:
+        question.removeTag(QuestionTag.DEMOGRAPHIC);
+        question.removeTag(QuestionTag.NON_DEMOGRAPHIC);
+        question.addTag(QuestionTag.DEMOGRAPHIC_PII);
+        break;
+      case NON_DEMOGRAPHIC:
+        question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
+        question.removeTag(QuestionTag.DEMOGRAPHIC);
+        question.addTag(QuestionTag.NON_DEMOGRAPHIC);
+        break;
+      default:
+        throw new InvalidUpdateException(
+            String.format("Unknown question export state: %s", questionExportState));
+    }
+    question.save();
   }
 
   private CompletionStage<ImmutableList<QuestionDefinition>> listQuestionDefinitionsAsync() {

@@ -127,6 +127,20 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName);
   }
 
+  async exportQuestion(questionName: string) {
+    await this.gotoQuestionEditPage(questionName);
+    await this.page.click('text="Export Value"');
+    await this.page.click('button:text("Update")');
+    await this.expectDraftQuestionExist(questionName);
+  }
+
+  async exportQuestionOpaque(questionName: string) {
+    await this.gotoQuestionEditPage(questionName);
+    await this.page.click('text="Export Obfuscated"');
+    await this.page.click('button:text("Update")');
+    await this.expectDraftQuestionExist(questionName);
+  }
+
   async createNewVersion(questionName: string) {
     await this.gotoAdminQuestionsPage();
     await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("New Version")'));
