@@ -6,7 +6,7 @@ public enum PredicateAction {
   /** If the predicate evaluates to true, show the current block. */
   SHOW_BLOCK("shown if");
 
-  private String displayString;
+  private final String displayString;
 
   PredicateAction(String displayString) {
     this.displayString = displayString;
