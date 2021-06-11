@@ -143,6 +143,7 @@ public class QuestionRepository {
     return conflictDetector.getConflictedQuestion();
   }
 
+  /** Get the questions with the specified tag which are in the active version. */
   public ImmutableList<QuestionDefinition> getAllQuestionsForTag(QuestionTag tag) {
     Version active = versionRepositoryProvider.get().getActiveVersion();
     return ebeanServer

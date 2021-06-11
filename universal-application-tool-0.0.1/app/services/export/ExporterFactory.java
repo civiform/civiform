@@ -1,5 +1,6 @@
 package services.export;
 
+import com.google.common.base.Preconditions;
 import com.typesafe.config.Config;
 import java.io.IOException;
 import java.util.Optional;
@@ -13,7 +14,7 @@ public class ExporterFactory {
 
   @Inject
   public ExporterFactory(Config config) {
-    this.config = config;
+    this.config = Preconditions.checkNotNull(config);
   }
 
   public PdfExporter pdfExporter(Program program) throws NotConfiguredException, IOException {

@@ -25,6 +25,7 @@ import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.PresentsErrors;
 import services.program.Column;
 import services.program.ColumnType;
 import services.program.CsvExportConfig;
@@ -33,14 +34,11 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
-import views.questiontypes.ApplicantQuestionRenderer;
-import views.questiontypes.ApplicantQuestionRendererFactory;
 
 public class ExporterService {
   private final ExporterFactory exporterFactory;
   private final ProgramService programService;
   private final QuestionService questionService;
-  private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
   private final ApplicantService applicantService;
 
   private static final String HEADER_SPACER_ENUM = " - ";
@@ -51,12 +49,10 @@ public class ExporterService {
       ExporterFactory exporterFactory,
       ProgramService programService,
       QuestionService questionService,
-      ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
       ApplicantService applicantService) {
     this.exporterFactory = checkNotNull(exporterFactory);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
-    this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
     this.applicantService = checkNotNull(applicantService);
   }
 
@@ -247,10 +243,10 @@ public class ExporterService {
         if (questionDefinition.isEnumerator()) {
           continue; // Do not include Enumerator answers in CSVs.
         }
-        ApplicantQuestionRenderer renderer =
-            applicantQuestionRendererFactory.getRenderer(
-                new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty()));
-        for (Path path : renderer.getAllPaths()) {
+        PresentsErrors applicantQuestion =
+            new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty())
+                .errorsPresenter();
+        for (Path path : applicantQuestion.getAllPaths()) {
           columnsBuilder.add(
               Column.builder()
                   .setHeader(pathToHeader(path))

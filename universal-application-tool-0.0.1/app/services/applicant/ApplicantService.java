@@ -89,5 +89,6 @@ public interface ApplicantService {
   /** Return the email of the given applicant id if they have one. */
   CompletionStage<Optional<String>> getEmail(long applicantId);
 
+  /** Return all applications, including applications from previous versions. */
   ImmutableList<Application> getAllApplications();
 }

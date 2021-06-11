@@ -5,10 +5,8 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
 
-import com.google.common.collect.ImmutableList;
 import j2html.tags.Tag;
 import java.util.AbstractMap;
-import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.SingleSelectQuestion;
 import views.components.SelectWithLabel;
@@ -47,10 +45,5 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRenderer {
     Tag dropdownQuestionFormContent = div().with(select.getContainer());
 
     return renderInternal(params.messages(), dropdownQuestionFormContent);
-  }
-
-  @Override
-  public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of(question.createSingleSelectQuestion().getSelectionPath());
   }
 }

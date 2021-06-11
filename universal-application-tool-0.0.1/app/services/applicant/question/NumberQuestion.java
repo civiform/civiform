@@ -1,5 +1,6 @@
 package services.applicant.question;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.MessageKey;
@@ -16,6 +17,11 @@ public class NumberQuestion implements PresentsErrors {
   public NumberQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
     assertQuestionType();
+  }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    return ImmutableList.of(getNumberPath());
   }
 
   @Override

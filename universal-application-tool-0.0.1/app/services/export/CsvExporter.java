@@ -76,9 +76,15 @@ public class CsvExporter {
           printer.print(application.getSubmitterEmail().orElse("Applicant"));
           break;
         case OPAQUE_ID:
+          if (this.secret.isEmpty()) {
+            throw new RuntimeException("Secret not present, but opaque ID requested.");
+          }
           printer.print(opaqueIdentifier(this.secret.get(), application.getApplicant().id));
           break;
         case APPLICANT_OPAQUE:
+          if (this.secret.isEmpty()) {
+            throw new RuntimeException("Secret not present, but opaque applicant data requested.");
+          }
           Optional<String> applicantValue =
               application.getApplicantData().readAsString(column.jsonPath().orElseThrow());
           // We still hash the empty value.

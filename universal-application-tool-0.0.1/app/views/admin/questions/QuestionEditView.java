@@ -313,8 +313,11 @@ public final class QuestionEditView extends BaseHtmlView {
             .setId("question-demographic-no-export")
             .setFieldName("questionExportState")
             .setLabelText("No export")
-            .setValue("none")
-            .setChecked(questionForm.getQuestionExportState().equals("none"))
+            .setValue(QuestionTag.NON_DEMOGRAPHIC.getValue())
+            .setChecked(
+                questionForm
+                    .getQuestionExportState()
+                    .equals(QuestionTag.NON_DEMOGRAPHIC.getValue()))
             .getContainer(),
         FieldWithLabel.radio()
             .setId("question-demographic-export-demographic")

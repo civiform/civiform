@@ -92,12 +92,6 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
     return renderInternal(messages, enumeratorQuestionFormContent, false);
   }
 
-  @Override
-  public ImmutableList<Path> getAllPaths() {
-    // Not intended to return the leaf question paths.
-    return ImmutableList.of();
-  }
-
   /**
    * Create an enumerator field for existing entries. These come with a checkbox to delete during
    * form submission.

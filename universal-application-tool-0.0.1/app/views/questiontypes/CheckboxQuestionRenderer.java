@@ -5,11 +5,9 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 
-import com.google.common.collect.ImmutableList;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.question.LocalizedQuestionOption;
@@ -53,11 +51,6 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRenderer {
                             multiOptionQuestion.optionIsSelected(option))));
 
     return renderInternal(params.messages(), checkboxQuestionFormContent);
-  }
-
-  @Override
-  public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of(question.createMultiSelectQuestion().getSelectionPath());
   }
 
   private Tag renderCheckboxOption(

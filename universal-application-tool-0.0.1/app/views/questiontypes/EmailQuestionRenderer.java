@@ -1,8 +1,6 @@
 package views.questiontypes;
 
-import com.google.common.collect.ImmutableList;
 import j2html.tags.Tag;
-import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.EmailQuestion;
 import views.components.FieldWithLabel;
@@ -31,10 +29,5 @@ public class EmailQuestionRenderer extends ApplicantQuestionRenderer {
             .getContainer();
 
     return renderInternal(params.messages(), questionFormContent, false);
-  }
-
-  @Override
-  public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of(question.createEmailQuestion().getEmailPath());
   }
 }

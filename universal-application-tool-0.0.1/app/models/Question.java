@@ -236,10 +236,15 @@ public class Question extends BaseModel {
     return this.versions.remove(draftVersion);
   }
 
-  public boolean addTag(QuestionTag tag) {
+  private void initTags() {
     if (this.questionTags == null) {
       this.questionTags = new ArrayList<>();
     }
+  }
+
+  /** Adds the specified tag, returning true if it was not already present. */
+  public boolean addTag(QuestionTag tag) {
+    initTags();
     if (this.questionTags.contains(tag)) {
       return false;
     }
@@ -247,24 +252,21 @@ public class Question extends BaseModel {
     return true;
   }
 
+  /** Remove the specified tag, returning true if it was present. */
   public boolean removeTag(QuestionTag tag) {
-    if (this.questionTags == null) {
-      this.questionTags = new ArrayList<>();
-    }
+    initTags();
     return this.questionTags.remove(tag);
   }
 
+  /** Return true if the tag is present. */
   public boolean containsTag(QuestionTag tag) {
-    if (this.questionTags == null) {
-      this.questionTags = new ArrayList<>();
-    }
+    initTags();
     return this.questionTags.contains(tag);
   }
 
-  public List<QuestionTag> getQuestionTags() {
-    if (this.questionTags == null) {
-      this.questionTags = new ArrayList<>();
-    }
-    return this.questionTags;
+  /** Return all the tags on this question. */
+  public ImmutableList<QuestionTag> getQuestionTags() {
+    initTags();
+    return ImmutableList.copyOf(this.questionTags);
   }
 }

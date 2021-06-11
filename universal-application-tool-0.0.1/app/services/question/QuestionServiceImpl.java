@@ -140,27 +140,35 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public void setExportState(QuestionDefinition questionDefinition, String questionExportState)
+  public void setExportState(QuestionDefinition questionDefinition, QuestionTag questionExportState)
       throws QuestionNotFoundException, InvalidUpdateException {
-    Optional<Question> question =
+    Optional<Question> questionMaybe =
         questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
-    if (question.isEmpty()) {
+    if (questionMaybe.isEmpty()) {
       throw new QuestionNotFoundException(questionDefinition.getId());
     }
-    if (questionExportState.equals(QuestionTag.DEMOGRAPHIC.getValue())) {
-      question.get().removeTag(QuestionTag.DEMOGRAPHIC_PII);
-      question.get().addTag(QuestionTag.DEMOGRAPHIC);
-    } else if (questionExportState.equals(QuestionTag.DEMOGRAPHIC_PII.getValue())) {
-      question.get().removeTag(QuestionTag.DEMOGRAPHIC);
-      question.get().addTag(QuestionTag.DEMOGRAPHIC_PII);
-    } else if (questionExportState.equals("none")) {
-      question.get().removeTag(QuestionTag.DEMOGRAPHIC_PII);
-      question.get().removeTag(QuestionTag.DEMOGRAPHIC);
-    } else {
-      throw new InvalidUpdateException(
-          String.format("Unknown question export state: %s", questionExportState));
+    Question question = questionMaybe.get();
+    switch (questionExportState) {
+      case DEMOGRAPHIC:
+        question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
+        question.removeTag(QuestionTag.NON_DEMOGRAPHIC);
+        question.addTag(QuestionTag.DEMOGRAPHIC);
+        break;
+      case DEMOGRAPHIC_PII:
+        question.removeTag(QuestionTag.DEMOGRAPHIC);
+        question.removeTag(QuestionTag.NON_DEMOGRAPHIC);
+        question.addTag(QuestionTag.DEMOGRAPHIC_PII);
+        break;
+      case NON_DEMOGRAPHIC:
+        question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
+        question.removeTag(QuestionTag.DEMOGRAPHIC);
+        question.addTag(QuestionTag.NON_DEMOGRAPHIC);
+        break;
+      default:
+        throw new InvalidUpdateException(
+            String.format("Unknown question export state: %s", questionExportState));
     }
-    question.get().save();
+    question.save();
   }
 
   private CompletionStage<ImmutableList<QuestionDefinition>> listQuestionDefinitionsAsync() {

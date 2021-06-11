@@ -125,7 +125,7 @@ public abstract class QuestionForm {
     } else if (questionTags.contains(QuestionTag.DEMOGRAPHIC_PII)) {
       this.questionExportState = QuestionTag.DEMOGRAPHIC_PII.getValue();
     } else {
-      questionExportState = "none";
+      questionExportState = QuestionTag.NON_DEMOGRAPHIC.getValue();
     }
   }
 

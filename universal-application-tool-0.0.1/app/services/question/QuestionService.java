@@ -49,14 +49,19 @@ public interface QuestionService {
   ErrorAnd<QuestionDefinition, CiviFormError> update(QuestionDefinition definition)
       throws InvalidUpdateException;
 
+  /** If this question is archived but a new version has not been published yet, un-archive it. */
   void restoreQuestion(Long id) throws InvalidUpdateException;
 
+  /** If this question is not used in any program, archive it. */
   void archiveQuestion(Long id) throws InvalidUpdateException;
 
+  /** If this is a draft question, remove it from the draft version and update all programs. */
   void discardDraft(Long id) throws InvalidUpdateException;
 
+  /** Return all active questions which have the given tag. */
   ImmutableList<QuestionDefinition> getQuestionsForTag(QuestionTag tag);
 
-  void setExportState(QuestionDefinition questionDefinition, String questionExportState)
+  /** Set the export state of the question provided. */
+  void setExportState(QuestionDefinition questionDefinition, QuestionTag questionExportState)
       throws QuestionNotFoundException, InvalidUpdateException;
 }
