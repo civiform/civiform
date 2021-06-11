@@ -9,7 +9,6 @@ import static j2html.TagCreator.h2;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
-import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.Locale;
@@ -139,34 +138,41 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.LINE_CLAMP_5)
             .with(descriptionContent);
 
-    ContainerTag programData = div()
-        .withId(baseId + "-data")
-        .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO)
-        .with(title, description);
+    ContainerTag programData =
+        div()
+            .withId(baseId + "-data")
+            .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO)
+            .with(title, description);
 
     // Add info link.
-    String infoUrl = controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id()).url();    
-    ContainerTag infoLink = new LinkElement()
-        .setId(baseId + "-info-link")
-        .setStyles(Styles.BLOCK, Styles.TEXT_XS, Styles.UNDERLINE)
-        .setText("Program info")
-        .setHref(infoUrl)
-        .asAnchorText();
+    String infoUrl =
+        controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
+            .url();
+    ContainerTag infoLink =
+        new LinkElement()
+            .setId(baseId + "-info-link")
+            .setStyles(Styles.BLOCK, Styles.TEXT_XS, Styles.UNDERLINE)
+            .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
+            .setHref(infoUrl)
+            .asAnchorText();
     programData.with(infoLink);
-    
+
     // Add external link if it is set.
     if (!program.externalLink().isEmpty()) {
-        ContainerTag externalLink =
-            new LinkElement()
-                .setId(baseId + "-external-link")
-                .setStyles(Styles.BLOCK, Styles.TEXT_XS, Styles.UNDERLINE)
-                .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
-                .setHref(program.externalLink())
-                .asAnchorText();
-        programData.with(externalLink);
+      ContainerTag externalLink =
+          new LinkElement()
+              .setId(baseId + "-external-link")
+              .setStyles(Styles.BLOCK, Styles.TEXT_XS, Styles.UNDERLINE)
+              .setText("External Site")
+              .setHref(program.externalLink())
+              .asAnchorText();
+      programData.with(externalLink);
     }
-  
-    String applyUrl = controllers.applicant.routes.ApplicantProgramReviewController.preview(applicantId, program.id()).url();
+
+    String applyUrl =
+        controllers.applicant.routes.ApplicantProgramReviewController.preview(
+                applicantId, program.id())
+            .url();
     ContainerTag applyButton =
         a().attr(HREF, applyUrl)
             .withText(messages.at(MessageKey.BUTTON_APPLY.getKeyName()))

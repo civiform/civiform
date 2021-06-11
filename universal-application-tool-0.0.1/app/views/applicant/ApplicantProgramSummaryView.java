@@ -31,8 +31,8 @@ import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
 import views.style.StyleUtils;
+import views.style.Styles;
 
 public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
@@ -50,7 +50,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
    */
   public Content render(Params params) {
     Messages messages = params.messages();
-    String pageTitle = params.inReview() ? "Application summary" : "Application preview";
+    String pageTitle =
+        params.inReview()
+            ? messages.at(MessageKey.TITLE_PROGRAM_REVIEW.getKeyName())
+            : messages.at(MessageKey.TITLE_PROGRAM_PREVIEW.getKeyName());
     HtmlBundle bundle =
         layout.getBundle().setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
 
@@ -63,7 +66,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
           && currentRepeatedEntity.isPresent()) {
         applicationSummary.with(renderRepeatedEntitySection(currentRepeatedEntity.get(), messages));
       }
-      applicationSummary.with(renderQuestionSummary(answerData, params.applicantId(), params.inReview(), isFirstUnanswered));
+      applicationSummary.with(
+          renderQuestionSummary(
+              answerData, params.applicantId(), params.inReview(), isFirstUnanswered));
       isFirstUnanswered = isFirstUnanswered && answerData.timestamp() > 0;
       previousRepeatedEntity = currentRepeatedEntity;
     }
@@ -115,9 +120,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         params.request(), params.applicantName(), params.messages(), bundle);
   }
 
-  private ContainerTag renderQuestionSummary(AnswerData data, long applicantId, boolean inReview, boolean isFirstUnanswered) {
+  private ContainerTag renderQuestionSummary(
+      AnswerData data, long applicantId, boolean inReview, boolean isFirstUnanswered) {
     boolean isAnswered = data.timestamp() > 0;
-    
+
     ContainerTag questionPrompt =
         div(data.questionText()).withClasses(Styles.FLEX_AUTO, Styles.FONT_SEMIBOLD);
     ContainerTag questionContent =
@@ -156,14 +162,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     ContainerTag answerDiv =
         div(answerContent).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
 
-    // Maybe show edit link.
-    if (isAnswered || inReview || isFirstUnanswered) {
-      // Link to block containing specific question.
-      String editText = "Edit";
-      if (!isAnswered && !inReview) {
-        editText = "Start here";
-      }
-  
+    // Maybe link to block containing specific question.
+    if (inReview || isAnswered || isFirstUnanswered) {
+      String editText =
+          (!isAnswered && !inReview)
+              ? messages.at(MessageKey.LINK_BEGIN.getKeyName())
+              : messages.at(MessageKey.LINK_EDIT.getKeyName());
+
       String editLink =
           routes.ApplicantProgramBlocksController.review(
                   applicantId, data.programId(), data.blockId())
@@ -172,16 +177,18 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
           new LinkElement()
               .setHref(editLink)
               .setText(editText)
-              .setStyles(Styles.ABSOLUTE, Styles.BOTTOM_0, Styles.RIGHT_0, Styles.PR_2,
-              Styles.TEXT_BLUE_600, StyleUtils.hover(Styles.TEXT_BLUE_700))
+              .setStyles(
+                  Styles.ABSOLUTE,
+                  Styles.BOTTOM_0,
+                  Styles.RIGHT_0,
+                  Styles.PR_2,
+                  Styles.TEXT_BLUE_600,
+                  StyleUtils.hover(Styles.TEXT_BLUE_700))
               .asAnchorText();
       ContainerTag editContent =
           div(editAction)
               .withClasses(
-                  Styles.FLEX_AUTO,
-                  Styles.TEXT_RIGHT,
-                  Styles.FONT_MEDIUM,
-                  Styles.RELATIVE);
+                  Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_MEDIUM, Styles.RELATIVE);
 
       answerDiv.with(editContent);
     }

@@ -40,7 +40,9 @@ public enum MessageKey {
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
   LINK_ALL_DONE("link.allDone"),
   LINK_APPLY_TO_ANOTHER_PROGRAM("link.applyToAnotherProgram"),
+  LINK_BEGIN("link.begin"),
   LINK_CREATE_ACCOUNT_OR_SIGN_IN("link.createAccountOrSignIn"),
+  LINK_EDIT("link.edit"),
   LINK_PROGRAM_DETAILS("link.programDetails"),
   LINK_VIEW_APPLICATIONS("link.viewApplications"),
   MULTI_SELECT_VALIDATION_TOO_FEW("validation.tooFewSelections"),
@@ -60,6 +62,8 @@ public enum MessageKey {
   TITLE_APPLICATION_CONFIRMATION("title.applicationConfirmation"),
   TITLE_CREATE_AN_ACCOUNT("title.createAnAccount"),
   TITLE_PROGRAMS("title.programs"),
+  TITLE_PROGRAM_PREVIEW("title.programPreview"),
+  TITLE_PROGRAM_REVIEW("title.programReview"),
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
   TOAST_PROGRAM_COMPLETED("toast.programCompleted");
