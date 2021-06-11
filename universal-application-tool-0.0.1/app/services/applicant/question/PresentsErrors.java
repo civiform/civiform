@@ -1,6 +1,8 @@
 package services.applicant.question;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import services.Path;
 import services.applicant.ValidationErrorMessage;
 
 public interface PresentsErrors {
@@ -31,4 +33,7 @@ public interface PresentsErrors {
 
   /** Returns the answer as a text string. */
   String getAnswerString();
+
+  /** Return every path used by this question. */
+  ImmutableList<Path> getAllPaths();
 }

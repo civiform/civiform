@@ -55,7 +55,8 @@ public class CsvExporterTest extends WithPostgresContainer {
   private void createFakeProgram() {
     createFakeQuestions();
     ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram();
-    CsvExportConfig.Builder csvExportConfigBuilder = CsvExportConfig.builder();
+    CsvExportConfig.Builder csvExportConfigBuilder =
+        CsvExportConfig.builder().setExportOneProgram(true);
     fakeQuestions.forEach(
         question -> {
           Program program = fakeProgram.withBlock().withQuestion(question).build();

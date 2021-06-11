@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.QuestionTag;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
@@ -260,6 +261,13 @@ public class AdminQuestionController extends CiviFormController {
       return ok(
           editView.renderEditQuestionForm(
               request, id, questionForm, maybeEnumerationQuestion, errorMessage));
+    }
+    try {
+      service.setExportState(
+          errorAndUpdatedQuestionDefinition.getResult(),
+          QuestionTag.valueOf(questionForm.getQuestionExportState()));
+    } catch (InvalidUpdateException | QuestionNotFoundException e) {
+      return badRequest(e.toString());
     }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());

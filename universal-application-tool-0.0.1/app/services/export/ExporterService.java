@@ -17,23 +17,30 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
+import models.QuestionTag;
 import services.Path;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.PresentsErrors;
 import services.program.Column;
 import services.program.ColumnType;
 import services.program.CsvExportConfig;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.question.QuestionService;
+import services.question.types.QuestionDefinition;
 
 public class ExporterService {
   private final ExporterFactory exporterFactory;
   private final ProgramService programService;
+  private final QuestionService questionService;
   private final ApplicantService applicantService;
 
   private static final String HEADER_SPACER_ENUM = " - ";
@@ -43,9 +50,11 @@ public class ExporterService {
   public ExporterService(
       ExporterFactory exporterFactory,
       ProgramService programService,
+      QuestionService questionService,
       ApplicantService applicantService) {
     this.exporterFactory = checkNotNull(exporterFactory);
     this.programService = checkNotNull(programService);
+    this.questionService = checkNotNull(questionService);
     this.applicantService = checkNotNull(applicantService);
   }
 
@@ -64,7 +73,10 @@ public class ExporterService {
     } else {
       csvExporter = exporterFactory.csvExporter(generateDefaultCsvConfig(programId));
     }
+    return exportCsv(csvExporter, applications);
+  }
 
+  public String exportCsv(CsvExporter csvExporter, ImmutableList<Application> applications) {
     try {
       OutputStream inMemoryBytes = new ByteArrayOutputStream();
       Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8);
@@ -165,6 +177,11 @@ public class ExporterService {
       public ImmutableList<Column> columns() {
         return columnsBuilder.build();
       }
+
+      @Override
+      public boolean exportOneProgram() {
+        return true;
+      }
     };
   }
 
@@ -203,5 +220,58 @@ public class ExporterService {
       }
     }
     return builder.toString();
+  }
+
+  /**
+   * A string containing the CSV which maps applicants (opaquely) to the programs they applied to.
+   */
+  public String getDemographicsCsv() {
+    return exportCsv(
+        exporterFactory.csvExporter(getDemographicsExporterConfig()),
+        applicantService.getAllApplications());
+  }
+
+  public CsvExportConfig getDemographicsExporterConfig() {
+    ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
+    // First add the ID, submit time, and submitter email columns.
+    columnsBuilder.add(
+        Column.builder().setHeader("Opaque ID").setColumnType(ColumnType.OPAQUE_ID).build());
+    columnsBuilder.add(
+        Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
+
+    for (QuestionTag tagType :
+        ImmutableList.of(QuestionTag.DEMOGRAPHIC, QuestionTag.DEMOGRAPHIC_PII)) {
+      for (QuestionDefinition questionDefinition :
+          this.questionService.getQuestionsForTag(tagType)) {
+        if (questionDefinition.isEnumerator()) {
+          continue; // Do not include Enumerator answers in CSVs.
+        }
+        PresentsErrors applicantQuestion =
+            new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty())
+                .errorsPresenter();
+        for (Path path : applicantQuestion.getAllPaths()) {
+          columnsBuilder.add(
+              Column.builder()
+                  .setHeader(pathToHeader(path))
+                  .setJsonPath(path)
+                  .setColumnType(
+                      tagType == QuestionTag.DEMOGRAPHIC_PII
+                          ? ColumnType.APPLICANT_OPAQUE
+                          : ColumnType.APPLICANT)
+                  .build());
+        }
+      }
+    }
+    return new CsvExportConfig() {
+      @Override
+      public ImmutableList<Column> columns() {
+        return columnsBuilder.build();
+      }
+
+      @Override
+      public boolean exportOneProgram() {
+        return false;
+      }
+    };
   }
 }
