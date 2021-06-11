@@ -16,6 +16,7 @@ import play.twirl.api.Content;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -108,6 +109,12 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       String blockName, QuestionDefinition questionDefinition, Tag csrfTag) {
     // TODO(#322): Create POST action endpoint for this form.
 
+    ImmutableList.Builder<SimpleEntry<String, String>> actionOptionsBuilder =
+        ImmutableList.builder();
+    for (PredicateAction action : PredicateAction.values()) {
+      actionOptionsBuilder.add(new SimpleEntry<>(action.toDisplayString(), action.name()));
+    }
+
     ImmutableList.Builder<SimpleEntry<String, String>> operatorOptionsBuilder =
         ImmutableList.builder();
     for (Operator operator : Operator.values()) {
@@ -119,10 +126,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .with(
             new SelectWithLabel()
                 .setLabelText(String.format("%s should be", blockName))
-                .setOptions(
-                    ImmutableList.of(
-                        new SimpleEntry<>("hidden if", "hide"),
-                        new SimpleEntry<>("shown if", "show")))
+                .setOptions(actionOptionsBuilder.build())
                 .getContainer())
         .with(renderQuestionDefinitionBox(questionDefinition))
         .with(
