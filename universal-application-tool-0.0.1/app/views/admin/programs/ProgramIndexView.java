@@ -41,6 +41,10 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   public Content render(
       ActiveAndDraftPrograms programs, Http.Request request, Optional<UatProfile> profile) {
+    if (profile.isPresent() && profile.get().isProgramAdmin()) {
+      layout.setProgramAdminType();
+    }
+
     String pageTitle = "All programs";
     Tag contentDiv =
         div()

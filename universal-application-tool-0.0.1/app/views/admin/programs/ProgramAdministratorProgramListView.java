@@ -8,6 +8,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.p;
 
+import auth.UatProfile;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.Tag;
@@ -26,6 +27,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 public class ProgramAdministratorProgramListView extends BaseHtmlView {
+
   private final AdminLayout layout;
   private final String baseUrl;
 
@@ -35,7 +37,14 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
     this.baseUrl = checkNotNull(config).getString("base_url");
   }
 
-  public Content render(ActiveAndDraftPrograms programs, List<String> authorizedPrograms) {
+  public Content render(
+      ActiveAndDraftPrograms programs,
+      List<String> authorizedPrograms,
+      Optional<UatProfile> uatProfile) {
+    if (uatProfile.isPresent() && uatProfile.get().isProgramAdmin()) {
+      layout.setProgramAdminType();
+    }
+
     String title = "Your programs";
     Tag contentDiv =
         div()
@@ -52,6 +61,7 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
                                     programs.getDraftProgramDefinition(name)))));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
+
     return layout.renderCentered(htmlBundle);
   }
 
