@@ -15,6 +15,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.predicate.Operator;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -106,6 +107,13 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
   private Tag renderPredicateForm(
       String blockName, QuestionDefinition questionDefinition, Tag csrfTag) {
     // TODO(#322): Create POST action endpoint for this form.
+
+    ImmutableList.Builder<SimpleEntry<String, String>> operatorOptionsBuilder =
+        ImmutableList.builder();
+    for (Operator operator : Operator.values()) {
+      operatorOptionsBuilder.add(new SimpleEntry<>(operator.toDisplayString(), operator.name()));
+    }
+
     return form(csrfTag)
         .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
         .with(
@@ -134,10 +142,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                         .setLabelText("Operator")
                         // TODO(#322): Display the right operators for the given scalar type
                         //  (requires javascript).
-                        .setOptions(
-                            ImmutableList.of(
-                                new SimpleEntry<>("is equal to", "equalTo"),
-                                new SimpleEntry<>("is greater than", "greaterThan")))
+                        .setOptions(operatorOptionsBuilder.build())
                         .getContainer())
                 .with(FieldWithLabel.input().setLabelText("Value").getContainer()));
   }
