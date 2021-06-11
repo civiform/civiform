@@ -9,11 +9,12 @@ public interface ReadOnlyApplicantProgramService {
   String getProgramTitle();
 
   /**
-   * Get the {@link Block}s for this program and applicant. This includes all blocks, whether the
-   * block was filled out in this program or a previous program. This will not include blocks that
-   * are hidden from the applicant (i.e. they have a show/hide predicate).
+   * Get the {@link Block}s for this program and applicant. This includes all blocks an applicant
+   * must complete for this program, regardless of whether the block was filled out in this program
+   * or a previous program. This will not include blocks that are hidden from the applicant (i.e.
+   * they have a show/hide predicate).
    */
-  ImmutableList<Block> getAllBlocks();
+  ImmutableList<Block> getAllActiveBlocks();
 
   /**
    * Get the {@link Block}s this applicant needs to fill out or has filled out for this program.

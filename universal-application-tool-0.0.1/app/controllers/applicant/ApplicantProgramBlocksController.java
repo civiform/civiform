@@ -117,7 +117,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             .setBlock(block.get())
                             .setInReview(inReview)
                             .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
-                            .setTotalBlockCount(roApplicantProgramService.getAllBlocks().size())
+                            .setTotalBlockCount(
+                                roApplicantProgramService.getAllActiveBlocks().size())
                             .setApplicantName(applicantStage.toCompletableFuture().join())
                             .setPreferredLanguageSupported(
                                 roApplicantProgramService.preferredLanguageSupported())
@@ -267,7 +268,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           .setProgramId(programId)
                           .setBlock(thisBlockUpdated)
                           .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
-                          .setTotalBlockCount(roApplicantProgramService.getAllBlocks().size())
+                          .setTotalBlockCount(roApplicantProgramService.getAllActiveBlocks().size())
                           .setApplicantName(applicantName)
                           .setInReview(inReview)
                           .setPreferredLanguageSupported(

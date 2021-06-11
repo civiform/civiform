@@ -76,7 +76,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
-    ImmutableList<Block> allBlocks = subject.getAllBlocks();
+    ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
 
     assertThat(allBlocks).hasSize(2);
     assertThat(allBlocks.get(0).getName()).isEqualTo("Block one");
@@ -109,7 +109,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
-    ImmutableList<Block> allBlocks = subject.getAllBlocks();
+    ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
 
     assertThat(allBlocks).hasSize(1);
   }
@@ -158,7 +158,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
 
-    ImmutableList<Block> blocks = service.getAllBlocks();
+    ImmutableList<Block> blocks = service.getAllActiveBlocks();
 
     assertThat(blocks).hasSize(11);
 

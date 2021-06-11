@@ -50,7 +50,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public ImmutableList<Block> getAllBlocks() {
+  public ImmutableList<Block> getAllActiveBlocks() {
     if (allBlockList == null) {
       allBlockList = getBlocks(this::showBlock);
     }
@@ -72,7 +72,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public Optional<Block> getBlock(String blockId) {
-    return getAllBlocks().stream().filter((block) -> block.getId().equals(blockId)).findFirst();
+    return getAllActiveBlocks().stream()
+        .filter((block) -> block.getId().equals(blockId))
+        .findFirst();
   }
 
   @Override
@@ -88,7 +90,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public int getBlockIndex(String blockId) {
-    ImmutableList<Block> allBlocks = getAllBlocks();
+    ImmutableList<Block> allBlocks = getAllActiveBlocks();
 
     for (int i = 0; i < allBlocks.size(); i++) {
       if (allBlocks.get(i).getId().equals(blockId)) return i;
@@ -113,7 +115,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   public ImmutableList<AnswerData> getSummaryData() {
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
-    ImmutableList<Block> blocks = getAllBlocks();
+    ImmutableList<Block> blocks = getAllActiveBlocks();
     for (Block block : blocks) {
       ImmutableList<ApplicantQuestion> questions = block.getQuestions();
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
