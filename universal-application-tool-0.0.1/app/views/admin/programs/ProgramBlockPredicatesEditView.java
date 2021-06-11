@@ -122,7 +122,6 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
 
     ImmutableList.Builder<SimpleEntry<String, String>> scalarOptionsBuilder =
         ImmutableList.builder();
-
     scalars.forEach(
         (scalar, type) -> {
           scalarOptionsBuilder.add(new SimpleEntry<>(scalar.toString(), scalar.toString()));
@@ -141,7 +140,6 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
 
       valueField =
           new SelectWithLabel().setLabelText("Value").setOptions(valueOptions).getContainer();
-
     } else {
       valueField = FieldWithLabel.input().setLabelText("Value").getContainer();
     }
