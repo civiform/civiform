@@ -133,8 +133,8 @@ public abstract class ProgramDefinition {
    * repeated or nested repeated block with the same enumerator. If there is no enumerator, it is
    * added at the end.
    */
-  public ProgramDefinition insertBlockDefinitionInTheRightPlace(
-      BlockDefinition newBlockDefinition) {
+  public ProgramDefinition insertBlockDefinitionInTheRightPlace(BlockDefinition newBlockDefinition)
+      throws ProgramBlockDefinitionNotFoundException {
     // Precondition: blocks have to be ordered
     if (!hasOrderedBlockDefinitions()) {
       return orderBlockDefinitions().insertBlockDefinitionInTheRightPlace(newBlockDefinition);
