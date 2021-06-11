@@ -233,11 +233,13 @@ public class ApplicantData {
 
   private void putAt(Path path, Object value) {
     checkLocked();
+    putParentIfMissing(path);
     jsonData.put(path.parentPath().toString(), path.keyName(), value);
   }
 
   private void addAt(Path path, Object value) {
     checkLocked();
+    putParentIfMissing(path);
     jsonData.add(path.withoutArrayReference().toString(), value);
   }
 
