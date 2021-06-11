@@ -24,7 +24,14 @@ import services.question.types.EnumeratorQuestionDefinition;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
+  /**
+   * Note that even though {@link ApplicantData} is mutable, we can consider it immutable at this
+   * point since there is no shared state between requests. In fact, we call {@link
+   * ApplicantData#lock()} in the constructor so no changes can occur. This means that we can
+   * memoize attributes based on ApplicantData without concern that the data will change.
+   */
   private final ApplicantData applicantData;
+
   private final ProgramDefinition programDefinition;
   private ImmutableList<Block> allBlockList;
   private ImmutableList<Block> currentBlockList;
@@ -43,9 +50,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public ImmutableList<Block> getAllBlocks() {
+  public ImmutableList<Block> getAllActiveBlocks() {
     if (allBlockList == null) {
-      allBlockList = getBlocks(block -> true);
+      allBlockList = getBlocks(this::showBlock);
     }
     return allBlockList;
   }
@@ -56,15 +63,18 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       currentBlockList =
           getBlocks(
               block ->
-                  !block.isCompleteWithoutErrors()
-                      || block.wasCompletedInProgram(programDefinition.id()));
+                  (!block.isCompleteWithoutErrors()
+                          || block.wasCompletedInProgram(programDefinition.id()))
+                      && showBlock(block));
     }
     return currentBlockList;
   }
 
   @Override
   public Optional<Block> getBlock(String blockId) {
-    return getAllBlocks().stream().filter((block) -> block.getId().equals(blockId)).findFirst();
+    return getAllActiveBlocks().stream()
+        .filter((block) -> block.getId().equals(blockId))
+        .findFirst();
   }
 
   @Override
@@ -80,7 +90,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public int getBlockIndex(String blockId) {
-    ImmutableList<Block> allBlocks = getAllBlocks();
+    ImmutableList<Block> allBlocks = getAllActiveBlocks();
 
     for (int i = 0; i < allBlocks.size(); i++) {
       if (allBlocks.get(i).getId().equals(blockId)) return i;
@@ -105,7 +115,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   public ImmutableList<AnswerData> getSummaryData() {
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
-    ImmutableList<Block> blocks = getAllBlocks();
+    ImmutableList<Block> blocks = getAllActiveBlocks();
     for (Block block : blocks) {
       ImmutableList<ApplicantQuestion> questions = block.getQuestions();
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
@@ -207,8 +217,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return blockListBuilder.build();
   }
 
-  // TODO(cdanzi): Change to private when this method is used.
-  protected boolean showBlock(Block block) {
+  private boolean showBlock(Block block) {
     if (block.getVisibilityPredicate().isEmpty()) {
       // Default to show
       return true;

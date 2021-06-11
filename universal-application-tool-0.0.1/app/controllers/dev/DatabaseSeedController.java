@@ -188,10 +188,12 @@ public class DatabaseSeedController extends DevController {
                 LocalizedStrings.of(Locale.US, "What is your favorite season?"),
                 LocalizedStrings.of(Locale.US, "this is sample help text"),
                 ImmutableList.of(
-                    QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "winter")),
+                    QuestionOption.create(
+                        1L, LocalizedStrings.of(Locale.US, "winter (will hide next block)")),
                     QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "spring")),
                     QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "summer")),
-                    QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "fall")))))
+                    QuestionOption.create(
+                        4L, LocalizedStrings.of(Locale.US, "fall (will hide next block)")))))
         .getResult();
   }
 
@@ -259,7 +261,7 @@ public class DatabaseSeedController extends DevController {
               radioButtonQuestionId,
               Scalar.SELECTION,
               Operator.IN,
-              PredicateValue.of(ImmutableList.of("spring", "summer")));
+              PredicateValue.of(ImmutableList.of("2", "3")));
       PredicateDefinition predicate =
           PredicateDefinition.create(
               PredicateExpressionNode.create(operation), PredicateAction.SHOW_BLOCK);
