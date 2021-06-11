@@ -116,13 +116,13 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       String blockName, QuestionDefinition questionDefinition, Tag csrfTag) {
 
     ImmutableList.Builder<SimpleEntry<String, String>> actionOptionsBuilder =
-            ImmutableList.builder();
+        ImmutableList.builder();
     for (PredicateAction action : PredicateAction.values()) {
       actionOptionsBuilder.add(new SimpleEntry<>(action.toDisplayString(), action.name()));
     }
 
     ImmutableList.Builder<SimpleEntry<String, String>> operatorOptionsBuilder =
-            ImmutableList.builder();
+        ImmutableList.builder();
     for (Operator operator : Operator.values()) {
       operatorOptionsBuilder.add(new SimpleEntry<>(operator.toDisplayString(), operator.name()));
     }
