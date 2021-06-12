@@ -18,7 +18,7 @@ public class SelectWithLabelTest {
   public void createSelect_rendersOptions() {
     SelectWithLabel selectWithLabel = new SelectWithLabel().setId("id");
     ImmutableList<SimpleEntry<String, String>> options =
-            ImmutableList.of(new SimpleEntry<String, String>("a", "b"));
+        ImmutableList.of(new SimpleEntry<String, String>("a", "b"));
     selectWithLabel.setOptions(options);
     assertThat(selectWithLabel.getContainer().render()).contains("<option");
   }
@@ -27,7 +27,7 @@ public class SelectWithLabelTest {
   public void createSelect_rendersPlaceholder() {
     String placeholderText = "Placeholder text";
     SelectWithLabel selectWithLabel =
-            new SelectWithLabel().setId("id").setPlaceholderText(placeholderText);
+        new SelectWithLabel().setId("id").setPlaceholderText(placeholderText);
     assertThat(selectWithLabel.getContainer().render()).contains(placeholderText);
     assertThat(selectWithLabel.getContainer().render()).contains("hidden selected");
   }
@@ -36,7 +36,7 @@ public class SelectWithLabelTest {
   public void createSelect_rendersSelectedOption() {
     SelectWithLabel selectWithLabel = new SelectWithLabel().setId("id");
     ImmutableList<SimpleEntry<String, String>> options =
-            ImmutableList.of(new SimpleEntry<String, String>("a", "b"));
+        ImmutableList.of(new SimpleEntry<String, String>("a", "b"));
     selectWithLabel.setOptions(options);
     selectWithLabel.setValue("b");
     assertThat(selectWithLabel.getContainer().render()).contains("<select");
