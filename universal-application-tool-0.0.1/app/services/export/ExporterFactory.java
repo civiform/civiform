@@ -42,9 +42,6 @@ public class ExporterFactory {
   }
 
   public CsvExporter csvExporter(CsvExportConfig exportConfig) {
-    return new CsvExporter(
-        exportConfig.columns(),
-        exportConfig.exportOneProgram(),
-        config.getString("play.http.secret.key"));
+    return new CsvExporter(exportConfig.columns(), config.getString("play.http.secret.key"));
   }
 }

@@ -7,34 +7,31 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import models.Application;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import services.Path;
-import services.applicant.AnswerData;
-import services.applicant.ApplicantData;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.Column;
 
 public class CsvExporter {
   private final String EMPTY_VALUE = "";
 
-  private boolean exportOneParticularProgram;
   private boolean wroteHeaders;
   private ImmutableList<Column> columns;
   private Optional<String> secret;
 
-  public CsvExporter(List<Column> columns, boolean exportOneProgram) {
-    this.exportOneParticularProgram = exportOneProgram;
+  public CsvExporter(List<Column> columns) {
     this.wroteHeaders = false;
     this.columns = ImmutableList.copyOf(columns);
     this.secret = Optional.empty();
   }
 
   /** Provide a secret if you will need to use OPAQUE_ID type columns. */
-  public CsvExporter(List<Column> columns, boolean exportOneProgram, String secret) {
-    this(columns, exportOneProgram);
+  public CsvExporter(List<Column> columns, String secret) {
+    this(columns);
     this.secret = Optional.of(secret);
   }
 
@@ -64,16 +61,14 @@ public class CsvExporter {
 
     this.writeHeadersOnFirstExport(printer);
 
-    ImmutableMap<String, AnswerData> answerMap = roApplicantService.getSummaryDataMap();
+    ImmutableMap<Path, String> answerMap =
+        roApplicantService.getSummaryData().stream()
+            .flatMap(data -> data.scalarAnswersInDefaultLocale().entrySet().stream())
+            .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
     for (Column column : getColumns()) {
       switch (column.columnType()) {
         case APPLICANT:
-          String value = EMPTY_VALUE;
-          if (exportOneParticularProgram) {
-            value = getValueFromAnswerMap(column, answerMap);
-          } else {
-            value = getValueFromApplicantData(column, application.getApplicantData());
-          }
+          String value = getValueFromAnswerMap(column, answerMap);
           printer.print(value);
           break;
         case ID:
@@ -113,22 +108,12 @@ public class CsvExporter {
    * from the raw value in applicant data, such as translating enum number to human readable text in
    * default locale or mapping file key to download url.
    */
-  private String getValueFromAnswerMap(Column column, ImmutableMap<String, AnswerData> answerMap) {
-    String key = column.answerDataKey().orElseThrow();
+  private String getValueFromAnswerMap(Column column, ImmutableMap<Path, String> answerMap) {
     Path path = column.jsonPath().orElseThrow();
-    if (!answerMap.containsKey(key)) {
+    if (!answerMap.containsKey(path)) {
       return EMPTY_VALUE;
     }
-    ImmutableMap<Path, String> scalars = answerMap.get(key).scalarAnswersInDefaultLocale();
-    if (!scalars.containsKey(path)) {
-      return EMPTY_VALUE;
-    }
-    return scalars.get(path);
-  }
-
-  /** Returns the raw value in applicant data. */
-  private String getValueFromApplicantData(Column column, ApplicantData applicantData) {
-    return applicantData.readAsString(column.jsonPath().orElseThrow()).orElse(EMPTY_VALUE);
+    return answerMap.get(path);
   }
 
   /** Returns an opaque identifier - the ID hashed with the application secret key. */

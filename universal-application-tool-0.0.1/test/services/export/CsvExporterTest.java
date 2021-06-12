@@ -38,8 +38,8 @@ import support.ProgramBuilder;
 import support.QuestionAnswerer;
 
 public class CsvExporterTest extends WithPostgresContainer {
-  private ImmutableList<Question> fakeQuestions;
   private Program fakeProgramWithCsvExport;
+  private ImmutableList<Question> fakeQuestions;
 
   private void createFakeQuestions() {
     this.fakeQuestions =
@@ -52,38 +52,36 @@ public class CsvExporterTest extends WithPostgresContainer {
     return new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty());
   }
 
+  private CsvExportConfig createFakeCsvConfig() {
+    CsvExportConfig.Builder csvExportConfigBuilder = CsvExportConfig.builder();
+    fakeQuestions.stream()
+        .map(question -> question.getQuestionDefinition())
+        .filter(question -> !question.isEnumerator())
+        .flatMap(
+            question -> getApplicantQuestion(question).getContextualizedScalars().keySet().stream())
+        .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
+        .forEach(
+            path ->
+                csvExportConfigBuilder.addColumn(
+                    Column.builder()
+                        .setHeader(ExporterService.pathToHeader(path))
+                        .setJsonPath(path)
+                        .setColumnType(ColumnType.APPLICANT)
+                        .build()));
+    return csvExportConfigBuilder.build();
+  }
+
   private void createFakeProgram() {
-    createFakeQuestions();
     ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram();
-    CsvExportConfig.Builder csvExportConfigBuilder =
-        CsvExportConfig.builder().setExportOneProgram(true);
-    fakeQuestions.forEach(
-        question -> {
-          Program program = fakeProgram.withBlock().withQuestion(question).build();
-          long blockId = program.getProgramDefinition().getMaxBlockDefinitionId();
-          QuestionDefinition questionDefinition = question.getQuestionDefinition();
-          if (questionDefinition.isEnumerator()) {
-            return;
-          }
-          getApplicantQuestion(questionDefinition).getContextualizedScalars().keySet().stream()
-              .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
-              .sorted(Comparator.comparing(Path::keyName))
-              .forEach(
-                  path ->
-                      csvExportConfigBuilder.addColumn(
-                          Column.builder()
-                              .setHeader(ExporterService.pathToHeader(path))
-                              .setAnswerDataKey(String.format("%d-0", blockId))
-                              .setJsonPath(path)
-                              .setColumnType(ColumnType.APPLICANT)
-                              .build()));
-        });
+    createFakeQuestions();
+    fakeQuestions.forEach(question -> fakeProgram.withBlock().withQuestion(question).build());
+
     this.fakeProgramWithCsvExport =
         fakeProgram
             .withExportDefinition(
                 ExportDefinition.builder()
                     .setEngine(ExportEngine.CSV)
-                    .setCsvConfig(Optional.of(csvExportConfigBuilder.build()))
+                    .setCsvConfig(Optional.of(createFakeCsvConfig()))
                     .build())
             .build();
   }
@@ -191,8 +189,7 @@ public class CsvExporterTest extends WithPostgresContainer {
                             .keySet()
                             .stream()
                             .filter(
-                                path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
-                            .sorted(Comparator.comparing(Path::keyName))),
+                                path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))),
             (path, index) -> new AbstractMap.SimpleEntry<Path, Integer>(path, (int) index))
         .forEach(
             entry ->
@@ -366,15 +363,15 @@ public class CsvExporterTest extends WithPostgresContainer {
                 .put("Submit time", 2)
                 .put("Submitted by", 3)
                 .put("applicant name (first_name)", 4)
-                .put("applicant name (last_name)", 5)
-                .put("applicant name (middle_name)", 6)
+                .put("applicant name (middle_name)", 5)
+                .put("applicant name (last_name)", 6)
                 .put("applicant favorite color (text)", 7)
                 .put("applicant household members[0] - household members name (first_name)", 8)
-                .put("applicant household members[0] - household members name (last_name)", 9)
-                .put("applicant household members[0] - household members name (middle_name)", 10)
+                .put("applicant household members[0] - household members name (middle_name)", 9)
+                .put("applicant household members[0] - household members name (last_name)", 10)
                 .put("applicant household members[1] - household members name (first_name)", 11)
-                .put("applicant household members[1] - household members name (last_name)", 12)
-                .put("applicant household members[1] - household members name (middle_name)", 13)
+                .put("applicant household members[1] - household members name (middle_name)", 12)
+                .put("applicant household members[1] - household members name (last_name)", 13)
                 .put(
                     "applicant household members[0] - household members jobs[0] - household"
                         + " members jobs income (number)",

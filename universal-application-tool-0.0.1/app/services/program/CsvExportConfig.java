@@ -11,9 +11,6 @@ public abstract class CsvExportConfig {
   @JsonProperty("columns")
   public abstract ImmutableList<Column> columns();
 
-  @JsonProperty("exportOneProgram")
-  public abstract boolean exportOneProgram();
-
   public static CsvExportConfig.Builder builder() {
     return new AutoValue_CsvExportConfig.Builder();
   }
@@ -22,9 +19,6 @@ public abstract class CsvExportConfig {
   public abstract static class Builder {
     @JsonProperty("columns")
     public abstract CsvExportConfig.Builder setColumns(ImmutableList<Column> columns);
-
-    @JsonProperty("exportOneProgram")
-    public abstract CsvExportConfig.Builder setExportOneProgram(boolean exportOneProgram);
 
     public abstract ImmutableList.Builder<Column> columnsBuilder();
 

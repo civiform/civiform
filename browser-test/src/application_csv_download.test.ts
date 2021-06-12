@@ -38,7 +38,7 @@ describe('normal application flow', () => {
 
     await adminPrograms.viewApplications(programName);
     const csvContent = await adminPrograms.getCsv();
-    expect(csvContent).toContain('sarah,smith,');
+    expect(csvContent).toContain('sarah,,smith');
 
     await logout(page);
     await loginAsAdmin(page)

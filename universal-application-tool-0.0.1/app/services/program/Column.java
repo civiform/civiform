@@ -12,9 +12,6 @@ public abstract class Column {
   @JsonProperty("header")
   public abstract String header();
 
-  @JsonProperty("answerDataKey")
-  public abstract Optional<String> answerDataKey();
-
   @JsonProperty("jsonPath")
   public abstract Optional<Path> jsonPath();
 
@@ -29,9 +26,6 @@ public abstract class Column {
   public abstract static class Builder {
     @JsonProperty("header")
     public abstract Builder setHeader(String header);
-
-    @JsonProperty("answerDataKey")
-    public abstract Builder setAnswerDataKey(String answerDataKey);
 
     @JsonProperty("jsonPath")
     public abstract Builder setJsonPath(Path jsonPath);
