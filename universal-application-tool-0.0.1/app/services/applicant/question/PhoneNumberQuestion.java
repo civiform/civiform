@@ -33,13 +33,17 @@ public class PhoneNumberQuestion implements PresentsErrors {
 
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
+    int phoneNumberLength = getPhoneNumberValue().map(s -> s.length()).orElse(0);
+
+    if (phoneNumberLength != 12 || !getPhoneNumberValue().get().matches("^([0-9]{3})-([0-9]{3})-([0-9]{4})$")) {
+        errors.add(ValidationErrorMessage.create(MessageKey.PHONE_NUMBER_INVALID));
+    }
+
     return errors.build();
   }
 
   @Override
-  public boolean hasTypeSpecificErrors() {
-    return !getAllTypeSpecificErrors().isEmpty();
-  }
+  public boolean hasTypeSpecificErrors() { return !getAllTypeSpecificErrors().isEmpty(); }
 
   @Override
   public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
@@ -55,9 +59,10 @@ public class PhoneNumberQuestion implements PresentsErrors {
   }
 
   // Checks if phone number has valid length (e.g. 10 digits)
+  // Not exactly sure if we need a separate error creating function if we have getQuestionErrors()
   public ImmutableSet<ValidationErrorMessage> getLengthErrors() {
     // 10 digits plus two dashes (e.g. "111-111-1111")
-    if (getPhoneNumberValue().get().length() != 12) {
+    if (isPhoneNumberAnswered() && getPhoneNumberValue().get().length() != 12) {
       return ImmutableSet.of(
               ValidationErrorMessage.create(MessageKey.PHONE_NUMBER_INVALID));
     }
@@ -67,7 +72,7 @@ public class PhoneNumberQuestion implements PresentsErrors {
 
   // Checks if phone number has valid digit characters
   public ImmutableSet<ValidationErrorMessage> getDigitErrors() {
-    if (!getPhoneNumberValue().get().matches("^([0-9]{3})-([0-9]{3})-([0-9]{4})$")) {
+    if (isPhoneNumberAnswered() && !getPhoneNumberValue().get().matches("^([0-9]{3})-([0-9]{3})-([0-9]{4})$")) {
       return ImmutableSet.of(
               ValidationErrorMessage.create(MessageKey.PHONE_NUMBER_INVALID));
     }
@@ -105,5 +110,9 @@ public class PhoneNumberQuestion implements PresentsErrors {
   @Override
   public String getAnswerString() {
     return getPhoneNumberValue().orElse("-");
+  }
+
+  private boolean isPhoneNumberAnswered() {
+    return applicantQuestion.getApplicantData().hasPath(getPhoneNumberPath());
   }
 }
