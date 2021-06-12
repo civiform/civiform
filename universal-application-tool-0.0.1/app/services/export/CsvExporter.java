@@ -68,8 +68,7 @@ public class CsvExporter {
     for (Column column : getColumns()) {
       switch (column.columnType()) {
         case APPLICANT:
-          String value = getValueFromAnswerMap(column, answerMap);
-          printer.print(value);
+          printer.print(getValueFromAnswerMap(column, answerMap));
           break;
         case ID:
           printer.print(application.id);
@@ -93,10 +92,9 @@ public class CsvExporter {
           if (this.secret.isEmpty()) {
             throw new RuntimeException("Secret not present, but opaque applicant data requested.");
           }
-          Optional<String> applicantValue =
-              application.getApplicantData().readAsString(column.jsonPath().orElseThrow());
           // We still hash the empty value.
-          printer.print(opaqueIdentifier(this.secret.get(), applicantValue.orElse(EMPTY_VALUE)));
+          printer.print(
+              opaqueIdentifier(this.secret.get(), getValueFromAnswerMap(column, answerMap)));
       }
     }
 
