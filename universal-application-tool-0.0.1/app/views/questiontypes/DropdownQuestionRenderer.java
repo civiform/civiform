@@ -7,6 +7,8 @@ import static j2html.TagCreator.select;
 
 import j2html.tags.Tag;
 import java.util.AbstractMap;
+import play.i18n.Messages;
+import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.SingleSelectQuestion;
 import views.components.SelectWithLabel;
@@ -24,12 +26,14 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRenderer {
 
   @Override
   public Tag render(ApplicantQuestionRendererParams params) {
+    Messages messages = params.messages();
     SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();
 
     SelectWithLabel select =
         new SelectWithLabel()
             .addReferenceClass("cf-dropdown-question")
             .setFieldName(singleSelectQuestion.getSelectionPath().toString())
+            .setPlaceholderText(messages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
             .setOptions(
                 singleSelectQuestion.getOptions().stream()
                     .map(
