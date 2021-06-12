@@ -85,7 +85,8 @@ public class ApplicationRepository {
         }
         application.save();
       }
-      Application application = completedApplication.orElse(new Application(applicant, program, LifecycleStage.ACTIVE));
+      Application application =
+          completedApplication.orElse(new Application(applicant, program, LifecycleStage.ACTIVE));
 
       if (submitterEmail.isPresent()) {
         application.setSubmitterEmail(submitterEmail.get());

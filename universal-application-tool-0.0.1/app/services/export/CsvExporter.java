@@ -31,7 +31,8 @@ public class CsvExporter {
   }
 
   /** Provide a secret if you will need to use OPAQUE_ID type columns. */
-  public CsvExporter(ImmutableList<Column> columns, String secret, ProgramRepository programRepository) {
+  public CsvExporter(
+      ImmutableList<Column> columns, String secret, ProgramRepository programRepository) {
     this(columns);
     this.secret = Optional.of(secret);
     this.programRepository = Optional.of(programRepository);
@@ -96,14 +97,25 @@ public class CsvExporter {
         case PROGRAM:
           Program program = application.getProgram();
           if (programRepository.isEmpty()) {
-            throw new RuntimeException("No program repository provided, but program details requested.");
+            throw new RuntimeException(
+                "No program repository provided, but program details requested.");
           }
           // This is a strange workaround for a bug in ebean.  For some reason, the program that
-          // is returned from the application crashes ebean's server when we attempt to access anything
-          // other than the id.  This is hard to debug since ebean doesn't write code, it writes bytecode,
+          // is returned from the application crashes ebean's server when we attempt to access
+          // anything
+          // other than the id.  This is hard to debug since ebean doesn't write code, it writes
+          // bytecode,
           // directly.  This workaround costs 1 extremely cheap query per application - bad, but
           // probably not problematic until the size of the database gets huge.
-          printer.print(programRepository.get().lookupProgram(program.id).toCompletableFuture().join().get().getProgramDefinition().adminName());
+          printer.print(
+              programRepository
+                  .get()
+                  .lookupProgram(program.id)
+                  .toCompletableFuture()
+                  .join()
+                  .get()
+                  .getProgramDefinition()
+                  .adminName());
           break;
         case TI_ORGANIZATION:
           printer.print(
