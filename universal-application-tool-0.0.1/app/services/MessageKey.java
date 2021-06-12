@@ -54,6 +54,7 @@ public enum MessageKey {
   NAME_VALIDATION_LAST_REQUIRED("validation.lastNameRequired"),
   NUMBER_VALIDATION_TOO_BIG("validation.numberTooBig"),
   NUMBER_VALIDATION_TOO_SMALL("validation.numberTooSmall"),
+  PHONE_NUMBER_INVALID("validation.invalidPhoneNumber"),
   TEXT_VALIDATION_TOO_LONG("validation.textTooLong"),
   TEXT_VALIDATION_TOO_SHORT("validation.textTooShort"),
   TITLE_PROGRAMS("title.programs"),

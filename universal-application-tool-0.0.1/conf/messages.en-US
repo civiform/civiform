@@ -65,3 +65,4 @@ validation.zipcodeRequired=Please enter valid ZIP code.
 validation.invalidZipcode=Please enter valid 5-digit ZIP code.
 validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 validation.entityNameRequired=Please enter a value for each line.
+validation.invalidPhoneNumber=Please enter a valid 10-digit phone number.

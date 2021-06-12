@@ -15,8 +15,7 @@ public class PhoneNumberQuestionRenderer extends ApplicantQuestionRenderer {
   public Tag render(ApplicantQuestionRendererParams params) {
     PhoneNumberQuestion phoneNumberQuestion = question.createPhoneNumberQuestion();
 
-    // TODO: Add <input type="tel"> using J2Html
-    // with validation pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+    // TODO: Add validation pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" using J2Html.
     // Might need to add a function to FieldWithLabel.java to support adding
     // a value to pattern attribute
     // https://github.com/seattle-uat/civiform/issues/452

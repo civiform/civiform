@@ -3,6 +3,7 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.Path;
+import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.QuestionType;
 import services.question.types.PhoneNumberQuestionDefinition;
@@ -22,6 +23,8 @@ public class PhoneNumberQuestion implements PresentsErrors {
     return !getQuestionErrors().isEmpty();
   }
 
+  // Add simple back-end validation for phone number input
+  // They must be in the form ("111-111-1111").
   @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     if (!isAnswered()) {
@@ -40,12 +43,36 @@ public class PhoneNumberQuestion implements PresentsErrors {
 
   @Override
   public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    return ImmutableSet.of();
+    return ImmutableSet.<ValidationErrorMessage>builder()
+            .addAll(getLengthErrors())
+            .addAll(getDigitErrors())
+            .build();
   }
 
   @Override
   public boolean isAnswered() {
     return applicantQuestion.getApplicantData().hasPath(getPhoneNumberPath());
+  }
+
+  // Checks if phone number has valid length (e.g. 10 digits)
+  public ImmutableSet<ValidationErrorMessage> getLengthErrors() {
+    // 10 digits plus two dashes (e.g. "111-111-1111")
+    if (getPhoneNumberValue().get().length() != 12) {
+      return ImmutableSet.of(
+              ValidationErrorMessage.create(MessageKey.PHONE_NUMBER_INVALID));
+    }
+
+    return ImmutableSet.of();
+  }
+
+  // Checks if phone number has valid digit characters
+  public ImmutableSet<ValidationErrorMessage> getDigitErrors() {
+    if (!getPhoneNumberValue().get().matches("^([0-9]{3})-([0-9]{3})-([0-9]{4})$")) {
+      return ImmutableSet.of(
+              ValidationErrorMessage.create(MessageKey.PHONE_NUMBER_INVALID));
+    }
+
+    return ImmutableSet.of();
   }
 
   public Optional<String> getPhoneNumberValue() {
