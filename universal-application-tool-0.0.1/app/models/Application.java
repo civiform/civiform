@@ -1,5 +1,6 @@
 package models;
 
+import io.ebean.annotation.CreatedTimestamp;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.UpdatedTimestamp;
 import java.time.Instant;
@@ -19,6 +20,7 @@ public class Application extends BaseModel {
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
+  @CreatedTimestamp private Instant createTime;
   @UpdatedTimestamp private Instant submitTime;
 
   // used by generated code
@@ -64,6 +66,10 @@ public class Application extends BaseModel {
 
   public Instant getSubmitTime() {
     return this.submitTime;
+  }
+
+  public Instant getCreateTime() {
+    return this.createTime;
   }
 
   public void setLifecycleStage(LifecycleStage stage) {
