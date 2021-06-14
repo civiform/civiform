@@ -6,7 +6,7 @@ public enum Operator {
   EQUAL_TO("==", "is equal to"),
   GREATER_THAN(">", "is greater than"),
   GREATER_THAN_OR_EQUAL_TO(">=", "is greater than or equal to"),
-  IN("in", "is in"),
+  IN("in", "is one of"),
   LESS_THAN("<", "is less than"),
   LESS_THAN_OR_EQUAL_TO("<=", "is less than or equal to"),
   NONE_OF("noneof", "is none of"),
