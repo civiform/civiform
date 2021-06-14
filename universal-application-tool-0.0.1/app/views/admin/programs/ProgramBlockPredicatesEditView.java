@@ -1,6 +1,7 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -10,7 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.AbstractMap.SimpleEntry;
+import java.util.Arrays;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -115,17 +116,13 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
   private Tag renderPredicateForm(
       String blockName, QuestionDefinition questionDefinition, Tag csrfTag) {
 
-    ImmutableList.Builder<SimpleEntry<String, String>> actionOptionsBuilder =
-        ImmutableList.builder();
-    for (PredicateAction action : PredicateAction.values()) {
-      actionOptionsBuilder.add(new SimpleEntry<>(action.toDisplayString(), action.name()));
-    }
+    ImmutableMap<String, String> actionOptions =
+        Arrays.stream(PredicateAction.values())
+            .collect(toImmutableMap(PredicateAction::toDisplayString, PredicateAction::name));
 
-    ImmutableList.Builder<SimpleEntry<String, String>> operatorOptionsBuilder =
-        ImmutableList.builder();
-    for (Operator operator : Operator.values()) {
-      operatorOptionsBuilder.add(new SimpleEntry<>(operator.toDisplayString(), operator.name()));
-    }
+    ImmutableMap<String, String> operatorOptions =
+        Arrays.stream(Operator.values())
+            .collect(toImmutableMap(Operator::toDisplayString, Operator::name));
 
     ImmutableMap<Scalar, ScalarType> scalars;
     try {
@@ -135,12 +132,8 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       return div()
           .withText("Sorry, you cannot create a show/hide predicate with this question type.");
     }
-    ImmutableList.Builder<SimpleEntry<String, String>> scalarOptionsBuilder =
-        ImmutableList.builder();
-    scalars.forEach(
-        (scalar, type) -> {
-          scalarOptionsBuilder.add(new SimpleEntry<>(scalar.toDisplayString(), scalar.name()));
-        });
+    ImmutableMap<String, String> scalarOptions =
+        scalars.keySet().stream().collect(toImmutableMap(Scalar::toDisplayString, Scalar::name));
 
     ContainerTag valueField;
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
@@ -148,14 +141,13 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       // choose from instead of a freeform text field. Not only is it a better UX, but we store the
       // ID of the options rather than the display strings since the option display strings are
       // localized.
-      ImmutableList<SimpleEntry<String, String>> valueOptions =
+      ImmutableMap<String, String> valueOptions =
           ((MultiOptionQuestionDefinition) questionDefinition)
               .getOptions().stream()
-                  .map(
-                      option ->
-                          new SimpleEntry<>(
-                              option.optionText().getDefault(), String.valueOf(option.id())))
-                  .collect(ImmutableList.toImmutableList());
+                  .collect(
+                      toImmutableMap(
+                          option -> option.optionText().getDefault(),
+                          option -> String.valueOf(option.id())));
 
       valueField =
           new SelectWithLabel().setLabelText("Value").setOptions(valueOptions).getContainer();
@@ -168,7 +160,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .with(
             new SelectWithLabel()
                 .setLabelText(String.format("%s should be", blockName))
-                .setOptions(actionOptionsBuilder.build())
+                .setOptions(actionOptions)
                 .getContainer())
         .with(renderQuestionDefinitionBox(questionDefinition))
         .with(
@@ -177,14 +169,14 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                 .with(
                     new SelectWithLabel()
                         .setLabelText("Scalar")
-                        .setOptions(scalarOptionsBuilder.build())
+                        .setOptions(scalarOptions)
                         .getContainer())
                 .with(
                     new SelectWithLabel()
                         .setLabelText("Operator")
                         // TODO(#322): Display the right operators for the given scalar type
                         //  (requires javascript).
-                        .setOptions(operatorOptionsBuilder.build())
+                        .setOptions(operatorOptions)
                         .getContainer())
                 .with(valueField));
   }

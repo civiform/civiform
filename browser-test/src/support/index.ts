@@ -7,6 +7,10 @@ export { ApplicantQuestions } from './applicant_questions'
 
 const { BASE_URL = 'http://civiform:9000', TEST_USER_LOGIN = '', TEST_USER_PASSWORD = '' } = process.env
 
+export const isLocalDevEnvironment = () => {
+  return BASE_URL === 'http://civiform:9000' || BASE_URL === 'http://localhost:9999';
+}
+
 export const startSession = async () => {
   const browser = await chromium.launch();
   const page = await browser.newPage({ acceptDownloads: true });
