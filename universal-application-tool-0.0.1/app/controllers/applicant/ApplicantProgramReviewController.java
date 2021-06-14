@@ -6,19 +6,23 @@ import auth.ProfileUtils;
 import auth.UatProfile;
 import controllers.CiviFormController;
 import java.util.Optional;
+import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Application;
 import org.pac4j.play.java.Secure;
+import services.applicant.AnswerData;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.applicant.ApplicantService;
+import services.applicant.Block;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
+import services.applicant.ReadOnlyApplicantProgramService;
 import views.applicant.ApplicantProgramSummaryView;
 
 /**
@@ -116,6 +120,24 @@ public class ApplicantProgramReviewController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
+      ReadOnlyApplicantProgramService roApplicantProgramService) {
+    ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryData();
+    int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
+    int completedBlockCount =
+        roApplicantProgramService.getAllActiveBlocks().stream()
+            .filter(Block::isCompleteWithoutErrors)
+            .mapToInt(b -> 1)
+            .sum();
+    String programTitle = roApplicantProgramService.getProgramTitle();
+
+    return ApplicantProgramSummaryView.Params.builder()
+        .setCompletedBlockCount(completedBlockCount)
+        .setProgramTitle(programTitle)
+        .setSummaryData(summaryData)
+        .setTotalBlockCount(totalBlockCount);
   }
 
   private CompletionStage<Result> submitInternal(
