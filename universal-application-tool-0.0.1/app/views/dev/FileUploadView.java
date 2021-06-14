@@ -23,6 +23,7 @@ import models.StoredFile;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.aws.SignedS3UploadRequest;
+import services.aws.SimpleStorage;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -30,10 +31,12 @@ import views.style.Styles;
 
 public class FileUploadView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
+  private final SimpleStorage s3Client;
 
   @Inject
-  public FileUploadView(BaseHtmlLayout layout) {
+  public FileUploadView(BaseHtmlLayout layout, SimpleStorage s3Client) {
     this.layout = checkNotNull(layout);
+    this.s3Client = checkNotNull(s3Client);
   }
 
   public Content render(
@@ -67,7 +70,11 @@ public class FileUploadView extends BaseHtmlView {
                     file ->
                         tr(
                             td(String.valueOf(file.id)),
-                            td(a(file.getName()).withHref(file.getPresignedURL().toString()))))));
+                            td(a(file.getName()).withHref(getPresignedURL(file)))))));
+  }
+
+  private String getPresignedURL(StoredFile file) {
+    return s3Client.getPresignedUrl(file.getName()).toString();
   }
 
   private ContainerTag fileUploadForm(SignedS3UploadRequest request) {
