@@ -2,7 +2,7 @@ package services.program.predicate;
 
 /** Represents a JsonPath operator (https://github.com/json-path/JsonPath#filter-operators). */
 public enum Operator {
-  ANY_OF("anyof", "is any of"),
+  ANY_OF("anyof", "contains any of"),
   EQUAL_TO("==", "is equal to"),
   GREATER_THAN(">", "is greater than"),
   GREATER_THAN_OR_EQUAL_TO(">=", "is greater than or equal to"),
@@ -11,7 +11,7 @@ public enum Operator {
   LESS_THAN_OR_EQUAL_TO("<=", "is less than or equal to"),
   NONE_OF("noneof", "is none of"),
   NOT_EQUAL_TO("!=", "is not equal to"),
-  NOT_IN("nin", "is not in"),
+  NOT_IN("nin", "is not one of"),
   SUBSET_OF("subsetof", "is a subset of");
 
   private final String jsonPathOperator;
