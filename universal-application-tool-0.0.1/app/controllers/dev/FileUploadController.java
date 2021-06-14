@@ -45,8 +45,7 @@ public class FileUploadController extends DevController {
     SignedS3UploadRequest signedRequest =
         s3Client.getSignedUploadRequest(
             "dev/${filename}", baseUrl + routes.FileUploadController.create().url());
-    Set<StoredFile> files =
-        storedFileRepository.listWithPresignedUrl().toCompletableFuture().join();
+    Set<StoredFile> files = storedFileRepository.list().toCompletableFuture().join();
     ImmutableList<StoredFile> fileList =
         files.stream()
             .sorted(Comparator.comparing(StoredFile::getName))
@@ -73,7 +72,7 @@ public class FileUploadController extends DevController {
   }
 
   private void updateFileRecord(String key) {
-    StoredFile storedFile = new StoredFile();
+    StoredFile storedFile = new StoredFile(null);
     storedFile.setName(key);
     storedFileRepository.insert(storedFile);
   }

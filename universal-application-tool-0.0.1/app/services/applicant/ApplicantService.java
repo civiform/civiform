@@ -63,6 +63,9 @@ public interface ApplicantService {
   /** Create a new {@link Applicant} for a given user. */
   CompletionStage<Applicant> createApplicant(long userId);
 
+  /** Return the {@link Applicant} for a given ID. */
+  CompletionStage<Applicant> getApplicant(long applicantId);
+
   /**
    * Get a {@link ReadOnlyApplicantProgramService} which implements synchronous, in-memory read
    * behavior relevant to an applicant for a specific program.

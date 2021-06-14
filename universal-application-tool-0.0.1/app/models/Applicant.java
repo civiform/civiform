@@ -33,6 +33,9 @@ public class Applicant extends BaseModel {
   @OneToMany(mappedBy = "applicant")
   private List<Application> applications;
 
+  @OneToMany(mappedBy = "applicant")
+  private List<StoredFile> storedFiles;
+
   public Applicant() {
     super();
   }
@@ -81,6 +84,10 @@ public class Applicant extends BaseModel {
 
   public ImmutableList<Application> getApplications() {
     return ImmutableList.copyOf(this.applications);
+  }
+
+  public ImmutableList<StoredFile> getStoredFiles() {
+    return ImmutableList.copyOf(this.storedFiles);
   }
 
   public Instant getWhenCreated() {

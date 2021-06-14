@@ -11,9 +11,11 @@ import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.Applicant;
 import models.StoredFile;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
@@ -155,9 +157,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> updateFile(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
-    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+    CompletableFuture<Applicant> applicant =
+        this.applicantService.getApplicant(applicantId).toCompletableFuture();
+    CompletableFuture<String> applicantName =
+        this.applicantService.getName(applicantId).toCompletableFuture();
 
-    return applicantStage
+    return CompletableFuture.allOf(applicant, applicantName)
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
@@ -188,7 +193,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ImmutableMap<String, String> formData =
                   ImmutableMap.of(applicantFileUploadQuestionKeyPath, key.get());
 
-              updateFileRecord(key.get());
+              updateFileRecord(applicant.join(), key.get());
               return applicantService.stageAndUpdateIfValid(
                   applicantId, programId, blockId, formData);
             },
@@ -200,7 +205,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantId,
                   programId,
                   blockId,
-                  applicantStage.toCompletableFuture().join(),
+                  applicantName.join(),
                   inReview,
                   roApplicantProgramService);
             },
@@ -311,8 +316,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
-  private void updateFileRecord(String key) {
-    StoredFile storedFile = new StoredFile();
+  private void updateFileRecord(Applicant applicant, String key) {
+    StoredFile storedFile = new StoredFile(applicant);
     storedFile.setName(key);
     storedFileRepository.insert(storedFile);
   }

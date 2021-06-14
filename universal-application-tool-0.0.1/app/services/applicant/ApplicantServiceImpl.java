@@ -81,6 +81,20 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
+  public CompletionStage<Applicant> getApplicant(long applicantId) {
+    return userRepository
+        .lookupApplicant(applicantId)
+        .thenComposeAsync(
+            applicant -> {
+              if (applicant.isEmpty()) {
+                return CompletableFuture.failedFuture(new ApplicantNotFoundException(applicantId));
+              }
+              return CompletableFuture.completedFuture(applicant.get());
+            },
+            httpExecutionContext.current());
+  }
+
+  @Override
   public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
       long applicantId, long programId) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =

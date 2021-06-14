@@ -9,7 +9,7 @@ public class StoredFileRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void createFileRecord() {
-    StoredFile file = new StoredFile();
+    StoredFile file = new StoredFile(null);
     file.setName("file name");
 
     StoredFileRepository repo = instanceOf(StoredFileRepository.class);
