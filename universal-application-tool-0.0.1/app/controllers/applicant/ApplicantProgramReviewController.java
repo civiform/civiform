@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileUtils;
 import auth.UatProfile;
-import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -17,10 +16,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
-import services.applicant.Block;
-import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramSummaryView;
@@ -63,7 +59,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
     return view(request, applicantId, programId, true);
   }
 
-  private CompletionStage<Result> view(Request request, long applicantId, long programId, boolean inReview) {
+  private CompletionStage<Result> view(
+      Request request, long applicantId, long programId, boolean inReview) {
     Optional<String> banner = request.flash().get("banner");
     CompletionStage<String> applicantStage = applicantService.getName(applicantId);
 
@@ -75,15 +72,15 @@ public class ApplicantProgramReviewController extends CiviFormController {
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               ApplicantProgramSummaryView.Params params =
-                this.generateParamsBuilder(roApplicantProgramService)
-                    .setApplicantId(applicantId)
-                    .setApplicantName(applicantStage.toCompletableFuture().join())
-                    .setBanner(banner.isPresent() ? banner.get() : "")
-                    .setInReview(inReview)
-                    .setMessages(messagesApi.preferred(request))
-                    .setProgramId(programId)
-                    .setRequest(request)
-                    .build();
+                  this.generateParamsBuilder(roApplicantProgramService)
+                      .setApplicantId(applicantId)
+                      .setApplicantName(applicantStage.toCompletableFuture().join())
+                      .setBanner(banner.isPresent() ? banner.get() : "")
+                      .setInReview(inReview)
+                      .setMessages(messagesApi.preferred(request))
+                      .setProgramId(programId)
+                      .setRequest(request)
+                      .build();
               return ok(summaryView.render(params));
             },
             httpExecutionContext.current())

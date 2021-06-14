@@ -173,9 +173,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
               ? messages.at(MessageKey.LINK_BEGIN.getKeyName())
               : messages.at(MessageKey.LINK_EDIT.getKeyName());
 
-      String editLink = (!isAnswered && !inReview) ? 
-          routes.ApplicantProgramBlocksController.edit(applicantId, data.programId(), data.blockId()).url() :
-          routes.ApplicantProgramBlocksController.review(applicantId, data.programId(), data.blockId()).url();
+      String editLink =
+          (!isAnswered && !inReview)
+              ? routes.ApplicantProgramBlocksController.edit(
+                      applicantId, data.programId(), data.blockId())
+                  .url()
+              : routes.ApplicantProgramBlocksController.review(
+                      applicantId, data.programId(), data.blockId())
+                  .url();
 
       ContainerTag editAction =
           new LinkElement()
