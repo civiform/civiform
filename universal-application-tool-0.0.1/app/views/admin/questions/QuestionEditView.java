@@ -1,17 +1,18 @@
 package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Optional;
 import models.QuestionTag;
@@ -340,10 +341,8 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private DomContent formQuestionTypeSelect(QuestionType selectedType) {
-    ImmutableList<SimpleEntry<String, String>> options =
-        Arrays.stream(QuestionType.values())
-            .map(item -> new SimpleEntry<>(item.toString(), item.name()))
-            .collect(ImmutableList.toImmutableList());
+    ImmutableMap<String, String> options =
+        Arrays.stream(QuestionType.values()).collect(toImmutableMap(Enum::toString, Enum::name));
 
     return new SelectWithLabel()
         .setId("question-type-select")
@@ -362,16 +361,11 @@ public final class QuestionEditView extends BaseHtmlView {
   private SelectWithLabel enumeratorOptionsFromEnumerationQuestionDefinitions(
       QuestionForm questionForm,
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions) {
-    ImmutableList.Builder<SimpleEntry<String, String>> optionsBuilder = ImmutableList.builder();
-    optionsBuilder.add(new SimpleEntry<>(NO_ENUMERATOR_DISPLAY_STRING, NO_ENUMERATOR_ID_STRING));
-    optionsBuilder.addAll(
+    ImmutableMap.Builder<String, String> optionsBuilder = ImmutableMap.builder();
+    optionsBuilder.put(NO_ENUMERATOR_DISPLAY_STRING, NO_ENUMERATOR_ID_STRING);
+    optionsBuilder.putAll(
         enumeratorQuestionDefinitions.stream()
-            .map(
-                enumeratorQuestionDefinition ->
-                    new SimpleEntry<>(
-                        enumeratorQuestionDefinition.getName(),
-                        String.valueOf(enumeratorQuestionDefinition.getId())))
-            .collect(ImmutableList.toImmutableList()));
+            .collect(toImmutableMap(QuestionDefinition::getName, q -> String.valueOf(q.getId()))));
     return enumeratorOptions(
         optionsBuilder.build(),
         questionForm.getEnumeratorId().map(String::valueOf).orElse(NO_ENUMERATOR_ID_STRING));
@@ -383,19 +377,18 @@ public final class QuestionEditView extends BaseHtmlView {
    */
   private SelectWithLabel enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition) {
-    SimpleEntry<String, String> enumeratorOption =
+    String enumeratorName =
         maybeEnumerationQuestionDefinition
-            .map(
-                enumeratorQuestionDefinition ->
-                    new SimpleEntry<>(
-                        enumeratorQuestionDefinition.getName(),
-                        String.valueOf(enumeratorQuestionDefinition.getId())))
-            .orElse(new SimpleEntry<>(NO_ENUMERATOR_DISPLAY_STRING, NO_ENUMERATOR_ID_STRING));
-    return enumeratorOptions(ImmutableList.of(enumeratorOption), enumeratorOption.getValue());
+            .map(QuestionDefinition::getName)
+            .orElse(NO_ENUMERATOR_DISPLAY_STRING);
+    String enumeratorId =
+        maybeEnumerationQuestionDefinition
+            .map(q -> String.valueOf(q.getId()))
+            .orElse(NO_ENUMERATOR_ID_STRING);
+    return enumeratorOptions(ImmutableMap.of(enumeratorName, enumeratorId), enumeratorId);
   }
 
-  private SelectWithLabel enumeratorOptions(
-      ImmutableList<SimpleEntry<String, String>> options, String selected) {
+  private SelectWithLabel enumeratorOptions(ImmutableMap<String, String> options, String selected) {
     return new SelectWithLabel()
         .setId("question-enumerator-select")
         .setFieldName(QUESTION_ENUMERATOR_FIELD)

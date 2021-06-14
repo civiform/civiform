@@ -3,15 +3,14 @@ package views.components;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.AbstractMap.SimpleEntry;
 
 public class SelectWithLabel extends FieldWithLabel {
 
-  private ImmutableList<SimpleEntry<String, String>> options = ImmutableList.of();
+  private ImmutableMap<String, String> options = ImmutableMap.of();
 
   public SelectWithLabel() {
     super(select());
@@ -23,7 +22,11 @@ public class SelectWithLabel extends FieldWithLabel {
     return this;
   }
 
-  public SelectWithLabel setOptions(ImmutableList<SimpleEntry<String, String>> options) {
+  /**
+   * Keys are the user-visible text; values are the html {@code value} that is submitted in the
+   * form.
+   */
+  public SelectWithLabel setOptions(ImmutableMap<String, String> options) {
     this.options = options;
     return this;
   }
@@ -77,13 +80,16 @@ public class SelectWithLabel extends FieldWithLabel {
       placeholder.attr(Attr.SELECTED);
     }
     ((ContainerTag) fieldTag).with(placeholder);
-    for (SimpleEntry<String, String> option : this.options) {
-      Tag optionTag = option(option.getKey()).withValue(option.getValue());
-      if (option.getValue().equals(this.fieldValue)) {
-        optionTag.attr(Attr.SELECTED);
-      }
-      ((ContainerTag) fieldTag).with(optionTag);
-    }
+
+    this.options.forEach(
+        (text, value) -> {
+          Tag optionTag = option(text).withValue(value);
+          if (value.equals(this.fieldValue)) {
+            optionTag.attr(Attr.SELECTED);
+          }
+          ((ContainerTag) fieldTag).with(optionTag);
+        });
+
     return super.getContainer();
   }
 }
