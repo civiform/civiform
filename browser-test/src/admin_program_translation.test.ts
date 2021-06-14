@@ -60,7 +60,8 @@ describe('Admin can manage translations', () => {
     await selectApplicantLanguage(page, 'Español');
     const applicantQuestions = new ApplicantQuestions(page);
     await applicantQuestions.validateHeader('es-US');
-   
+
+
     // Expect program details link to contain 'Detalles del programa' with link to 'http://seattle.gov'
     expect(await page.innerText('.cf-application-card a[href="http://seattle.gov"]')).toContain('External Site');
 

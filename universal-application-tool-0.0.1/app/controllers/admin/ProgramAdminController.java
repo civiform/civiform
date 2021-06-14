@@ -33,10 +33,15 @@ public class ProgramAdminController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.PROGRAM_ADMIN)
   public Result index(Http.Request request) {
     Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
-    profile.get();
+
+    if (!profile.isPresent()) {
+      throw new RuntimeException("No profile found for program admin");
+    }
+
     ImmutableList<String> administeredPrograms =
         profile.get().getAccount().join().getAdministeredProgramNames();
     ActiveAndDraftPrograms activeAndDraftPrograms = this.programService.getActiveAndDraftPrograms();
-    return ok(listView.render(activeAndDraftPrograms, administeredPrograms));
+
+    return ok(listView.render(activeAndDraftPrograms, administeredPrograms, profile));
   }
 }
