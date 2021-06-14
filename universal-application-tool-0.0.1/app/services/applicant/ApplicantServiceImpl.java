@@ -188,7 +188,12 @@ public class ApplicantServiceImpl implements ApplicantService {
 
               return CompletableFuture.completedFuture(roApplicantProgramService);
             },
-            httpExecutionContext.current());
+            httpExecutionContext.current())
+        .thenCompose(
+            (v) ->
+                applicationRepository
+                    .createOrUpdateDraft(applicantId, programId)
+                    .thenApplyAsync(appDraft -> v));
   }
 
   @Override

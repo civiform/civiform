@@ -8,8 +8,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import models.Application;
+import models.Program;
+import models.TrustedIntermediaryGroup;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import repository.ProgramRepository;
 import services.program.Column;
 
 public class CsvExporter {
@@ -18,17 +21,21 @@ public class CsvExporter {
   private boolean wroteHeaders;
   private ImmutableList<Column> columns;
   private Optional<String> secret;
+  private Optional<ProgramRepository> programRepository;
 
   public CsvExporter(List<Column> columns) {
     this.wroteHeaders = false;
     this.columns = ImmutableList.copyOf(columns);
     this.secret = Optional.empty();
+    this.programRepository = Optional.empty();
   }
 
   /** Provide a secret if you will need to use OPAQUE_ID type columns. */
-  public CsvExporter(List<Column> columns, String secret) {
+  public CsvExporter(
+      ImmutableList<Column> columns, String secret, ProgramRepository programRepository) {
     this(columns);
     this.secret = Optional.of(secret);
+    this.programRepository = Optional.of(programRepository);
   }
 
   private void writeHeadersOnFirstExport(CSVPrinter printer) throws IOException {
@@ -68,11 +75,56 @@ public class CsvExporter {
         case LANGUAGE:
           printer.print(application.getApplicantData().preferredLocale().toLanguageTag());
           break;
+        case CREATE_TIME:
+          printer.print(application.getCreateTime().toString());
+          break;
         case SUBMIT_TIME:
           printer.print(application.getSubmitTime().toString());
           break;
+        case SUBMITTER_EMAIL_OPAQUE:
+          if (this.secret.isEmpty()) {
+            throw new RuntimeException("Secret not present, but opaque ID requested.");
+          }
+          printer.print(
+              application
+                  .getSubmitterEmail()
+                  .map(email -> opaqueIdentifier(this.secret.get(), email))
+                  .orElse(EMPTY_VALUE));
+          break;
         case SUBMITTER_EMAIL:
           printer.print(application.getSubmitterEmail().orElse("Applicant"));
+          break;
+        case PROGRAM:
+          Program program = application.getProgram();
+          if (programRepository.isEmpty()) {
+            throw new RuntimeException(
+                "No program repository provided, but program details requested.");
+          }
+          // This is a strange workaround for a bug in ebean.  For some reason, the program that
+          // is returned from the application crashes ebean's server when we attempt to access
+          // anything
+          // other than the id.  This is hard to debug since ebean doesn't write code, it writes
+          // bytecode,
+          // directly.  This workaround costs 1 extremely cheap query per application - bad, but
+          // probably not problematic until the size of the database gets huge.
+          printer.print(
+              programRepository
+                  .get()
+                  .lookupProgram(program.id)
+                  .toCompletableFuture()
+                  .join()
+                  .get()
+                  .getProgramDefinition()
+                  .adminName());
+          break;
+        case TI_ORGANIZATION:
+          printer.print(
+              application
+                  .getApplicant()
+                  .getAccount()
+                  .getManagedByGroup()
+                  .map(TrustedIntermediaryGroup::getName)
+                  .orElse(EMPTY_VALUE));
           break;
         case OPAQUE_ID:
           if (this.secret.isEmpty()) {
