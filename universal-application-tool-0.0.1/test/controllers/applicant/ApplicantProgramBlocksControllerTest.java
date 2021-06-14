@@ -310,7 +310,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void updateFile_invalidApplicant_returnsUnauthorized() {
-    long badApplicantId = applicant.id + 1000;
+    long badApplicantId = resourceCreator().insertApplicant().id;
     RequestBuilder request =
         fakeRequest(
             routes.ApplicantProgramBlocksController.updateFile(
