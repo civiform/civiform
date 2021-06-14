@@ -45,4 +45,15 @@ public class AdminProgramBlockPredicatesController {
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     }
   }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result update(Request request, long programId, long blockDefinitionId) {
+    // 1. Create the PredicateDefinition using request (and a VisibilityPredicateForm)
+    // 2. Validate that it is well-formed.
+    // 3. programService.setBlockPredicate(programId, blockDefinitionId, predicate);
+    //    catch ProgramNotFoundException | ProgramBlockDefinitionNotFoundException.
+    // 4. Redirect back to the predicate edit page? or back to the block edit page?
+
+    return ok("POST");
+  }
 }

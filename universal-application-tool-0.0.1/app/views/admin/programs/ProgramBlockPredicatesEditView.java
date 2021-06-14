@@ -6,9 +6,12 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static views.ViewUtils.POST;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import controllers.admin.routes;
+import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Arrays;
@@ -36,6 +39,8 @@ import views.style.AdminStyles;
 import views.style.Styles;
 
 public class ProgramBlockPredicatesEditView extends BaseHtmlView {
+  private static final String VISIBILITY_PREDICATE_FORM_ID = "visibility-predicate-form";
+
   private final AdminLayout layout;
 
   @Inject
@@ -50,9 +55,14 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       ImmutableList<QuestionDefinition> potentialPredicateQuestions) {
     String title = String.format("Add a condition to show or hide %s", blockDefinition.name());
 
+    String predicateUpdateAction =
+        routes.AdminProgramBlockPredicatesController.update(
+                programDefinition.id(), blockDefinition.id())
+            .url();
     Tag csrfTag = makeCsrfTokenInputTag(request);
     ImmutableList<Modal> modals =
-        predicateFormModals(blockDefinition.name(), potentialPredicateQuestions, csrfTag);
+        predicateFormModals(
+            blockDefinition.name(), potentialPredicateQuestions, predicateUpdateAction, csrfTag);
 
     ContainerTag content =
         div()
@@ -64,8 +74,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         layout
             .getBundle()
             .setTitle(title)
-            .addMainContent(
-                form().with(csrfTag), layout.renderProgramInfo(programDefinition), content);
+            .addMainContent(layout.renderProgramInfo(programDefinition), content);
 
     for (Modal modal : modals) {
       htmlBundle = htmlBundle.addModals(modal);
@@ -75,16 +84,22 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
   }
 
   private ImmutableList<Modal> predicateFormModals(
-      String blockName, ImmutableList<QuestionDefinition> questionDefinitions, Tag csrfTag) {
+      String blockName,
+      ImmutableList<QuestionDefinition> questionDefinitions,
+      String predicateUpdateAction,
+      Tag csrfTag) {
     ImmutableList.Builder<Modal> builder = ImmutableList.builder();
     for (QuestionDefinition qd : questionDefinitions) {
-      builder.add(predicateFormModal(blockName, qd, csrfTag));
+      builder.add(predicateFormModal(blockName, qd, predicateUpdateAction, csrfTag));
     }
     return builder.build();
   }
 
   private Modal predicateFormModal(
-      String blockName, QuestionDefinition questionDefinition, Tag csrfTag) {
+      String blockName,
+      QuestionDefinition questionDefinition,
+      String predicateUpdateAction,
+      Tag csrfTag) {
     Tag triggerButtonContent =
         div()
             .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
@@ -102,7 +117,8 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
     ContainerTag modalContent =
         div()
             .withClasses(Styles.M_4)
-            .with(renderPredicateForm(blockName, questionDefinition, csrfTag));
+            .with(
+                renderPredicateForm(blockName, questionDefinition, predicateUpdateAction, csrfTag));
 
     return Modal.builder(
             String.format("predicate-modal-%s", questionDefinition.getId()), modalContent)
@@ -112,9 +128,11 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .build();
   }
 
-  // TODO(#322): Create POST action endpoint for this form.
   private Tag renderPredicateForm(
-      String blockName, QuestionDefinition questionDefinition, Tag csrfTag) {
+      String blockName,
+      QuestionDefinition questionDefinition,
+      String predicateUpdateAction,
+      Tag csrfTag) {
 
     ImmutableMap<String, String> actionOptions =
         Arrays.stream(PredicateAction.values())
@@ -156,6 +174,9 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
     }
 
     return form(csrfTag)
+        .withId(VISIBILITY_PREDICATE_FORM_ID)
+        .withMethod(POST)
+        .withAction(predicateUpdateAction)
         .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
         .with(
             new SelectWithLabel()
@@ -178,7 +199,8 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                         //  (requires javascript).
                         .setOptions(operatorOptions)
                         .getContainer())
-                .with(valueField));
+                .with(valueField))
+        .with(submitButton("Submit").attr(Attr.FORM, VISIBILITY_PREDICATE_FORM_ID));
   }
 
   private ContainerTag renderPredicateModalTriggerButtons(ImmutableList<Modal> modals) {
