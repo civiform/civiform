@@ -60,6 +60,10 @@ public class Application extends BaseModel {
     return new ApplicantData(this.object);
   }
 
+  public void setApplicantData(ApplicantData data) {
+    this.object = data.asJsonString();
+  }
+
   public LifecycleStage getLifecycleStage() {
     return this.lifecycleStage;
   }

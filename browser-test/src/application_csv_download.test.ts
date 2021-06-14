@@ -45,7 +45,7 @@ describe('normal application flow', () => {
 
     await adminPrograms.gotoAdminProgramsPage();
     const demographicsCsvContent = await adminPrograms.getDemographicsCsv();
-    expect(demographicsCsvContent).toContain('Opaque ID,Submit time,namecsv (first_name),namecsv (middle_name),namecsv (last_name)');
+    expect(demographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,namecsv (first_name),namecsv (middle_name),namecsv (last_name)');
     expect(demographicsCsvContent).toContain(',sarah,,smith');
 
     await adminQuestions.createNewVersion('name-csv');
@@ -54,7 +54,7 @@ describe('normal application flow', () => {
 
     await adminPrograms.gotoAdminProgramsPage();
     const newDemographicsCsvContent = await adminPrograms.getDemographicsCsv();
-    expect(newDemographicsCsvContent).toContain('Opaque ID,Submit time,namecsv (first_name),namecsv (middle_name),namecsv (last_name)');
+    expect(newDemographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,namecsv (first_name),namecsv (middle_name),namecsv (last_name)');
     expect(newDemographicsCsvContent).not.toContain(',sarah,,smith');
     if (isLocalDevEnvironment()) {
       // The hashed values "sarah", empty value, "smith", with the dev secret key.

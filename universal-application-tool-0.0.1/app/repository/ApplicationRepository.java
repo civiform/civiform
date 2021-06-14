@@ -155,6 +155,7 @@ public class ApplicationRepository {
               .findOneOrEmpty();
       Application application =
           existingDraft.orElse(new Application(applicant, program, LifecycleStage.DRAFT));
+      application.setApplicantData(applicant.getApplicantData());
       application.save();
       ebeanServer.commitTransaction();
       return application;
