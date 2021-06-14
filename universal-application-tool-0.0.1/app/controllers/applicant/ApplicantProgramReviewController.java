@@ -63,27 +63,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     return view(request, applicantId, programId, true);
   }
 
-  @Secure
-  public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
-        .thenComposeAsync(
-            v -> submitInternal(request, applicantId, programId), httpExecutionContext.current())
-        .exceptionally(
-            ex -> {
-              if (ex instanceof CompletionException) {
-                Throwable cause = ex.getCause();
-                if (cause instanceof SecurityException) {
-                  return unauthorized();
-                }
-                throw new RuntimeException(cause);
-              }
-              throw new RuntimeException(ex);
-            });
-  }
-
-  @Secure
-  private CompletionStage<Result> view(
-      Request request, long applicantId, long programId, boolean inReview) {
+  private CompletionStage<Result> view(Request request, long applicantId, long programId, boolean inReview) {
     Optional<String> banner = request.flash().get("banner");
     CompletionStage<String> applicantStage = applicantService.getName(applicantId);
 
@@ -95,16 +75,15 @@ public class ApplicantProgramReviewController extends CiviFormController {
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               ApplicantProgramSummaryView.Params params =
-                  this.generateParamsBuilder(roApplicantProgramService)
-                      .setApplicantId(applicantId)
-                      .setApplicantName(applicantStage.toCompletableFuture().join())
-                      .setBanner(banner.isPresent() ? banner.get() : "")
-                      .setInReview(inReview)
-                      .setMessages(messagesApi.preferred(request))
-                      .setProgramId(programId)
-                      .setRequest(request)
-                      .build();
-
+                this.generateParamsBuilder(roApplicantProgramService)
+                    .setApplicantId(applicantId)
+                    .setApplicantName(applicantStage.toCompletableFuture().join())
+                    .setBanner(banner.isPresent() ? banner.get() : "")
+                    .setInReview(inReview)
+                    .setMessages(messagesApi.preferred(request))
+                    .setProgramId(programId)
+                    .setRequest(request)
+                    .build();
               return ok(summaryView.render(params));
             },
             httpExecutionContext.current())
@@ -124,22 +103,22 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
-  private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
-      ReadOnlyApplicantProgramService roApplicantProgramService) {
-    ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryData();
-    int totalBlockCount = roApplicantProgramService.getAllBlocks().size();
-    int completedBlockCount =
-        roApplicantProgramService.getAllBlocks().stream()
-            .filter(Block::isCompleteWithoutErrors)
-            .mapToInt(b -> 1)
-            .sum();
-    String programTitle = roApplicantProgramService.getProgramTitle();
-
-    return ApplicantProgramSummaryView.Params.builder()
-        .setCompletedBlockCount(completedBlockCount)
-        .setProgramTitle(programTitle)
-        .setSummaryData(summaryData)
-        .setTotalBlockCount(totalBlockCount);
+  @Secure
+  public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
+    return checkApplicantAuthorization(profileUtils, request, applicantId)
+        .thenComposeAsync(
+            v -> submitInternal(request, applicantId, programId), httpExecutionContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof SecurityException) {
+                  return unauthorized();
+                }
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
   }
 
   private CompletionStage<Result> submitInternal(
