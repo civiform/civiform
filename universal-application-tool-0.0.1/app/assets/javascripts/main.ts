@@ -159,10 +159,19 @@ function attachLineClampListeners() {
   applicationCardDescriptions.forEach(el => el.addEventListener("click", removeLineClamp));
 }
 
+function filterOperators(event: Event) {
+  // Filter the operators available for a given selected scalar.
+}
+
 window.addEventListener('load', (event) => {
   attachDropdown("create-question-button");
 
   attachLineClampListeners();
+
+  const scalarDropdown = document.getElementById("select-scalar");
+  if (scalarDropdown) {
+    scalarDropdown.addEventListener("change", filterOperators);
+  }
 
   // Submit button is disabled by default until program block edit form is changed
   const blockEditForm = document.getElementById("block-edit-form");

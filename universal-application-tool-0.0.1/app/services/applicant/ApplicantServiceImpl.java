@@ -476,6 +476,7 @@ public class ApplicantServiceImpl implements ApplicantService {
         case DATE:
           applicantData.putDate(currentPath, update.value());
           break;
+        case LIST_OF_STRINGS:
         case STRING:
           applicantData.putString(currentPath, update.value());
           break;

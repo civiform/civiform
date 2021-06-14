@@ -168,6 +168,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                 .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_1)
                 .with(
                     new SelectWithLabel()
+                        .setId("select-scalar")
                         .setLabelText("Scalar")
                         .setOptions(scalarOptions)
                         .getContainer())
