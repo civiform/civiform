@@ -34,7 +34,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   @Inject
   public ProgramApplicationListView(AdminLayout layout) {
-    this.layout = checkNotNull(layout);
+    this.layout = checkNotNull(layout).setProgramAdminType();
   }
 
   public Content render(

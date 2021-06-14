@@ -75,6 +75,12 @@ public class SelectWithLabel extends FieldWithLabel {
 
   @Override
   public ContainerTag getContainer() {
+    Tag placeholder = option(placeholderText).withValue("").attr(Attr.HIDDEN);
+    if (this.fieldValue.isEmpty()) {
+      placeholder.attr(Attr.SELECTED);
+    }
+    ((ContainerTag) fieldTag).with(placeholder);
+
     this.options.forEach(
         (text, value) -> {
           Tag optionTag = option(text).withValue(value);
@@ -83,6 +89,7 @@ public class SelectWithLabel extends FieldWithLabel {
           }
           ((ContainerTag) fieldTag).with(optionTag);
         });
+
     return super.getContainer();
   }
 }

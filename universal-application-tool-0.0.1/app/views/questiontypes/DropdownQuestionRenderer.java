@@ -2,10 +2,10 @@ package views.questiontypes;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.option;
-import static j2html.TagCreator.select;
 
 import j2html.tags.Tag;
+import play.i18n.Messages;
+import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.SingleSelectQuestion;
 import services.question.LocalizedQuestionOption;
@@ -24,12 +24,14 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRenderer {
 
   @Override
   public Tag render(ApplicantQuestionRendererParams params) {
+    Messages messages = params.messages();
     SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();
 
     SelectWithLabel select =
         new SelectWithLabel()
             .addReferenceClass("cf-dropdown-question")
             .setFieldName(singleSelectQuestion.getSelectionPath().toString())
+            .setPlaceholderText(messages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
             .setOptions(
                 singleSelectQuestion.getOptions().stream()
                     .collect(

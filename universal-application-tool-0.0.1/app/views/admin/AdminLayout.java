@@ -21,11 +21,26 @@ import views.style.Styles;
 
 public class AdminLayout extends BaseHtmlLayout {
 
+  public enum AdminType {
+    CIVI_FORM_ADMIN,
+    PROGRAM_ADMIN
+  }
+
   private static final String[] FOOTER_SCRIPTS = {"preview", "questionBank"};
+
+  private AdminType adminType = AdminType.CIVI_FORM_ADMIN;
 
   @Inject
   public AdminLayout(ViewUtils viewUtils, Config configuration) {
     super(viewUtils, configuration);
+  }
+
+  /**
+   * Sets this layout's admin type to PROGRAM_ADMIN, used to determine which navigation to include.
+   */
+  public AdminLayout setProgramAdminType() {
+    adminType = AdminType.PROGRAM_ADMIN;
+    return this;
   }
 
   public Content renderCentered(HtmlBundle bundle) {
@@ -42,12 +57,15 @@ public class AdminLayout extends BaseHtmlLayout {
         AdminStyles.MAIN, isCentered ? AdminStyles.MAIN_CENTERED : AdminStyles.MAIN_FULL);
     bundle.addBodyStyles(AdminStyles.BODY);
     String currentTitle = bundle.getTitle();
+
     if (currentTitle != null && !currentTitle.isEmpty()) {
       bundle.setTitle(currentTitle + " - CiviForm Admin Console");
     }
+
     for (String source : FOOTER_SCRIPTS) {
       bundle.addFooterScripts(viewUtils.makeLocalJsTag(source));
     }
+
     return super.render(bundle);
   }
 
@@ -57,10 +75,6 @@ public class AdminLayout extends BaseHtmlLayout {
   }
 
   private ContainerTag renderNavBar() {
-    String questionLink = controllers.admin.routes.AdminQuestionController.index().url();
-    String programLink = controllers.admin.routes.AdminProgramController.index().url();
-    String versionLink = routes.AdminVersionController.index().url();
-    String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
 
     ContainerTag headerIcon =
@@ -73,15 +87,24 @@ public class AdminLayout extends BaseHtmlLayout {
             .with(span("Civi"), span("Form").withClasses(Styles.FONT_THIN));
 
     ContainerTag adminHeader =
-        nav()
-            .with(headerIcon, headerTitle)
-            .with(headerLink("Questions", questionLink))
-            .with(headerLink("Programs", programLink))
-            .with(headerLink("Versions", versionLink))
-            .with(headerLink("Intermediaries", intermediaryLink))
-            .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT))
-            .withClasses(AdminStyles.NAV_STYLES);
-    return adminHeader;
+        nav().with(headerIcon, headerTitle).withClasses(AdminStyles.NAV_STYLES);
+
+    // Don't include nav links for program admin.
+    if (adminType.equals(AdminType.PROGRAM_ADMIN)) {
+      return adminHeader.with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT));
+    }
+
+    String programLink = controllers.admin.routes.AdminProgramController.index().url();
+    String questionLink = controllers.admin.routes.AdminQuestionController.index().url();
+    String versionLink = routes.AdminVersionController.index().url();
+    String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
+
+    return adminHeader
+        .with(headerLink("Programs", programLink))
+        .with(headerLink("Questions", questionLink))
+        .with(headerLink("Versions", versionLink))
+        .with(headerLink("Intermediaries", intermediaryLink))
+        .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT));
   }
 
   private Tag headerLink(String text, String href, String... styles) {

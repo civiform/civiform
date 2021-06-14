@@ -26,10 +26,13 @@ public abstract class ExportDefinition {
 
   @AutoValue.Builder
   public abstract static class Builder {
+    @JsonProperty("engine")
     public abstract ExportDefinition.Builder setEngine(ExportEngine engine);
 
+    @JsonProperty("csvConfig")
     public abstract ExportDefinition.Builder setCsvConfig(Optional<CsvExportConfig> csvConfig);
 
+    @JsonProperty("pdfConfig")
     public abstract ExportDefinition.Builder setPdfConfig(Optional<PdfExportConfig> pdfConfig);
 
     public abstract ExportDefinition build();
