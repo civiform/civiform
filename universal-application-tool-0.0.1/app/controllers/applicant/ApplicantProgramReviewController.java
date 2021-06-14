@@ -4,25 +4,25 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileUtils;
 import auth.UatProfile;
+import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.Optional;
-import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Application;
 import org.pac4j.play.java.Secure;
-import services.applicant.AnswerData;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
+import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
-import services.applicant.ReadOnlyApplicantProgramService;
 import views.applicant.ApplicantProgramSummaryView;
 
 /**
