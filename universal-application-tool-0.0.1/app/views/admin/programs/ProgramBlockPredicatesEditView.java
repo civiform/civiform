@@ -11,12 +11,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Arrays;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -109,8 +112,17 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .build();
   }
 
+  // TODO(#322): Create POST action endpoint for this form.
   private Tag renderPredicateForm(
       String blockName, QuestionDefinition questionDefinition, Tag csrfTag) {
+
+    ImmutableMap<String, String> actionOptions =
+        Arrays.stream(PredicateAction.values())
+            .collect(toImmutableMap(PredicateAction::toDisplayString, PredicateAction::name));
+
+    ImmutableMap<String, String> operatorOptions =
+        Arrays.stream(Operator.values())
+            .collect(toImmutableMap(Operator::toDisplayString, Operator::name));
 
     ImmutableMap<Scalar, ScalarType> scalars;
     try {
@@ -120,7 +132,6 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       return div()
           .withText("Sorry, you cannot create a show/hide predicate with this question type.");
     }
-
     ImmutableMap<String, String> scalarOptions =
         scalars.keySet().stream().collect(toImmutableMap(Scalar::toDisplayString, Scalar::name));
 
@@ -144,13 +155,12 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       valueField = FieldWithLabel.input().setLabelText("Value").getContainer();
     }
 
-    // TODO(#322): Create POST action endpoint for this form.
     return form(csrfTag)
         .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
         .with(
             new SelectWithLabel()
                 .setLabelText(String.format("%s should be", blockName))
-                .setOptions(ImmutableMap.of("hidden if", "hide", "shown if", "show"))
+                .setOptions(actionOptions)
                 .getContainer())
         .with(renderQuestionDefinitionBox(questionDefinition))
         .with(
@@ -166,9 +176,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                         .setLabelText("Operator")
                         // TODO(#322): Display the right operators for the given scalar type
                         //  (requires javascript).
-                        .setOptions(
-                            ImmutableMap.of(
-                                "is equal to", "equalTo", "is greater than", "greaterThan"))
+                        .setOptions(operatorOptions)
                         .getContainer())
                 .with(valueField));
   }
