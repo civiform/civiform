@@ -160,7 +160,19 @@ function attachLineClampListeners() {
 }
 
 function filterOperators(event: Event) {
-  // Filter the operators available for a given selected scalar.
+  const scalarDropdown = event.target as HTMLSelectElement;
+  const selectedScalarType = scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type;
+
+  // Filter the operators available for the given selected scalar type.
+  const operatorDropdown = document.getElementById("select-operator") as HTMLSelectElement;
+  Array.from(operatorDropdown.options).forEach(option => {
+    // Show by default.
+    option.classList.remove("hidden");
+    // If this operator is not for the currently selected type, hide it.
+    if (!option.classList.contains(selectedScalarType)) {
+      option.classList.add("hidden");
+    }
+  });
 }
 
 window.addEventListener('load', (event) => {

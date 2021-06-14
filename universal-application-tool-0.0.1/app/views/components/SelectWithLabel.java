@@ -3,6 +3,7 @@ package views.components;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
@@ -11,6 +12,7 @@ import j2html.tags.Tag;
 public class SelectWithLabel extends FieldWithLabel {
 
   private ImmutableMap<String, String> options = ImmutableMap.of();
+  private ImmutableList<ContainerTag> customOptions = ImmutableList.of();
 
   public SelectWithLabel() {
     super(select());
@@ -28,6 +30,15 @@ public class SelectWithLabel extends FieldWithLabel {
    */
   public SelectWithLabel setOptions(ImmutableMap<String, String> options) {
     this.options = options;
+    return this;
+  }
+
+  /**
+   * If you want more flexibility over your options (for example, if you want to add individual
+   * classes or other attributes), set custom options here.
+   */
+  public SelectWithLabel setCustomOptions(ImmutableList<ContainerTag> options) {
+    this.customOptions = options;
     return this;
   }
 
@@ -75,20 +86,24 @@ public class SelectWithLabel extends FieldWithLabel {
 
   @Override
   public ContainerTag getContainer() {
-    Tag placeholder = option(placeholderText).withValue("").attr(Attr.HIDDEN);
-    if (this.fieldValue.isEmpty()) {
-      placeholder.attr(Attr.SELECTED);
-    }
-    ((ContainerTag) fieldTag).with(placeholder);
+    if (!this.customOptions.isEmpty()) {
+      this.customOptions.forEach(option -> ((ContainerTag) fieldTag).with(option));
+    } else {
+      Tag placeholder = option(placeholderText).withValue("").attr(Attr.HIDDEN);
+      if (this.fieldValue.isEmpty()) {
+        placeholder.attr(Attr.SELECTED);
+      }
+      ((ContainerTag) fieldTag).with(placeholder);
 
-    this.options.forEach(
-        (text, value) -> {
-          Tag optionTag = option(text).withValue(value);
-          if (value.equals(this.fieldValue)) {
-            optionTag.attr(Attr.SELECTED);
-          }
-          ((ContainerTag) fieldTag).with(optionTag);
-        });
+      this.options.forEach(
+          (text, value) -> {
+            Tag optionTag = option(text).withValue(value);
+            if (value.equals(this.fieldValue)) {
+              optionTag.attr(Attr.SELECTED);
+            }
+            ((ContainerTag) fieldTag).with(optionTag);
+          });
+    }
 
     return super.getContainer();
   }

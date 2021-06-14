@@ -1,11 +1,13 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.option;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -120,21 +122,6 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         Arrays.stream(PredicateAction.values())
             .collect(toImmutableMap(PredicateAction::toDisplayString, PredicateAction::name));
 
-    ImmutableMap<String, String> operatorOptions =
-        Arrays.stream(Operator.values())
-            .collect(toImmutableMap(Operator::toDisplayString, Operator::name));
-
-    ImmutableMap<Scalar, ScalarType> scalars;
-    try {
-      scalars = Scalar.getScalars(questionDefinition.getQuestionType());
-    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
-      // This should never happen since we filter out Enumerator questions before this point.
-      return div()
-          .withText("Sorry, you cannot create a show/hide predicate with this question type.");
-    }
-    ImmutableMap<String, String> scalarOptions =
-        scalars.keySet().stream().collect(toImmutableMap(Scalar::toDisplayString, Scalar::name));
-
     ContainerTag valueField;
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       // If it's a multi-option question, we need to provide a discrete list of possible values to
@@ -166,19 +153,8 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .with(
             div()
                 .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_1)
-                .with(
-                    new SelectWithLabel()
-                        .setId("select-scalar")
-                        .setLabelText("Scalar")
-                        .setOptions(scalarOptions)
-                        .getContainer())
-                .with(
-                    new SelectWithLabel()
-                        .setLabelText("Operator")
-                        // TODO(#322): Display the right operators for the given scalar type
-                        //  (requires javascript).
-                        .setOptions(operatorOptions)
-                        .getContainer())
+                .with(renderScalarDropdown(questionDefinition))
+                .with(renderOperatorDropdown())
                 .with(valueField));
   }
 
@@ -208,5 +184,51 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                     div(questionDefinition.getName()),
                     div(questionDefinition.getDescription())
                         .withClasses(Styles.MT_1, Styles.TEXT_SM)));
+  }
+
+  private static ContainerTag renderScalarDropdown(QuestionDefinition questionDefinition) {
+    ImmutableMap<Scalar, ScalarType> scalars;
+    try {
+      scalars = Scalar.getScalars(questionDefinition.getQuestionType());
+    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+      // This should never happen since we filter out Enumerator questions before this point.
+      return div()
+          .withText("Sorry, you cannot create a show/hide predicate with this question type.");
+    }
+
+    ImmutableList<ContainerTag> options =
+        scalars.entrySet().stream()
+            .map(
+                e ->
+                    option(e.getKey().toDisplayString())
+                        .withValue(e.getKey().name())
+                        .withData("type", e.getValue().name()))
+            .collect(toImmutableList());
+
+    return new SelectWithLabel()
+        .setId("select-scalar")
+        .setLabelText("Scalar")
+        .setCustomOptions(options)
+        .getContainer();
+  }
+
+  private static ContainerTag renderOperatorDropdown() {
+    ImmutableList<ContainerTag> operatorOptions =
+        Arrays.stream(Operator.values())
+            .map(
+                operator ->
+                    option(operator.toDisplayString())
+                        .withValue(operator.name())
+                        .withClasses(
+                            operator.getOperableTypes().stream()
+                                .map(ScalarType::name)
+                                .toArray(String[]::new)))
+            .collect(toImmutableList());
+
+    return new SelectWithLabel()
+        .setId("select-operator")
+        .setLabelText("Operator")
+        .setCustomOptions(operatorOptions)
+        .getContainer();
   }
 }
