@@ -1,11 +1,13 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.option;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -33,6 +35,7 @@ import views.components.Icons;
 import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.style.AdminStyles;
+import views.style.ReferenceClasses;
 import views.style.Styles;
 
 public class ProgramBlockPredicatesEditView extends BaseHtmlView {
@@ -120,10 +123,6 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         Arrays.stream(PredicateAction.values())
             .collect(toImmutableMap(PredicateAction::toDisplayString, PredicateAction::name));
 
-    ImmutableMap<String, String> operatorOptions =
-        Arrays.stream(Operator.values())
-            .collect(toImmutableMap(Operator::toDisplayString, Operator::name));
-
     ImmutableMap<Scalar, ScalarType> scalars;
     try {
       scalars = Scalar.getScalars(questionDefinition.getQuestionType());
@@ -132,8 +131,6 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       return div()
           .withText("Sorry, you cannot create a show/hide predicate with this question type.");
     }
-    ImmutableMap<String, String> scalarOptions =
-        scalars.keySet().stream().collect(toImmutableMap(Scalar::toDisplayString, Scalar::name));
 
     ContainerTag valueField;
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
@@ -165,19 +162,10 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .with(renderQuestionDefinitionBox(questionDefinition))
         .with(
             div()
-                .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_1)
-                .with(
-                    new SelectWithLabel()
-                        .setLabelText("Scalar")
-                        .setOptions(scalarOptions)
-                        .getContainer())
-                .with(
-                    new SelectWithLabel()
-                        .setLabelText("Operator")
-                        // TODO(#322): Display the right operators for the given scalar type
-                        //  (requires javascript).
-                        .setOptions(operatorOptions)
-                        .getContainer())
+                .withClasses(
+                    ReferenceClasses.PREDICATE_OPTIONS, Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_1)
+                .with(createScalarDropdown(scalars))
+                .with(createOperatorDropdown())
                 .with(valueField));
   }
 
@@ -207,5 +195,47 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                     div(questionDefinition.getName()),
                     div(questionDefinition.getDescription())
                         .withClasses(Styles.MT_1, Styles.TEXT_SM)));
+  }
+
+  private static ContainerTag createScalarDropdown(ImmutableMap<Scalar, ScalarType> scalars) {
+    ImmutableList<ContainerTag> options =
+        scalars.entrySet().stream()
+            .map(
+                e ->
+                    option(e.getKey().toDisplayString())
+                        .withValue(e.getKey().name())
+                        // Add the scalar type as data so we can determine which operators to allow.
+                        .withData("type", e.getValue().name().toLowerCase()))
+            .collect(toImmutableList());
+
+    return new SelectWithLabel()
+        .setLabelText("Scalar")
+        .setCustomOptions(options)
+        .addReferenceClass(ReferenceClasses.PREDICATE_SCALAR_SELECT)
+        .getContainer();
+  }
+
+  private static ContainerTag createOperatorDropdown() {
+    ImmutableList<ContainerTag> operatorOptions =
+        Arrays.stream(Operator.values())
+            .map(
+                operator -> {
+                  // Add this operator's allowed scalar types as data, so that we can determine
+                  // whether to show or hide each operator based on the current type of scalar
+                  // selected.
+                  ContainerTag option =
+                      option(operator.toDisplayString()).withValue(operator.name());
+                  operator
+                      .getOperableTypes()
+                      .forEach(type -> option.attr("data-" + type.name().toLowerCase()));
+                  return option;
+                })
+            .collect(toImmutableList());
+
+    return new SelectWithLabel()
+        .setLabelText("Operator")
+        .setCustomOptions(operatorOptions)
+        .addReferenceClass(ReferenceClasses.PREDICATE_OPERATOR_SELECT)
+        .getContainer();
   }
 }

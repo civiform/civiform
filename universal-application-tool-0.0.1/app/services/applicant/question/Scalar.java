@@ -70,7 +70,7 @@ public enum Scalar {
       ImmutableMap.of(FILE_KEY, ScalarType.STRING);
 
   private static final ImmutableMap<Scalar, ScalarType> MULTI_SELECT_SCALARS =
-      ImmutableMap.of(SELECTION, ScalarType.STRING);
+      ImmutableMap.of(SELECTION, ScalarType.LIST_OF_STRINGS);
 
   private static final ImmutableMap<Scalar, ScalarType> NAME_SCALARS =
       ImmutableMap.of(
