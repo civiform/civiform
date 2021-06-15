@@ -234,6 +234,20 @@ public class ExporterService {
     columnsBuilder.add(
         Column.builder().setHeader("Opaque ID").setColumnType(ColumnType.OPAQUE_ID).build());
     columnsBuilder.add(
+        Column.builder().setHeader("Program").setColumnType(ColumnType.PROGRAM).build());
+    columnsBuilder.add(
+        Column.builder()
+            .setHeader("Submitter Email (Opaque)")
+            .setColumnType(ColumnType.SUBMITTER_EMAIL_OPAQUE)
+            .build());
+    columnsBuilder.add(
+        Column.builder()
+            .setHeader("TI Organization")
+            .setColumnType(ColumnType.TI_ORGANIZATION)
+            .build());
+    columnsBuilder.add(
+        Column.builder().setHeader("Create time").setColumnType(ColumnType.CREATE_TIME).build());
+    columnsBuilder.add(
         Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
 
     for (QuestionTag tagType :

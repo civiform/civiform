@@ -48,10 +48,10 @@ public class ApplicationRepositoryTest extends WithPostgresContainer {
     assertThat(
             repo.getApplication(appOne.id).toCompletableFuture().join().get().getLifecycleStage())
         .isEqualTo(LifecycleStage.OBSOLETE);
-    // And that the DRAFT is DELETED.
+    // And that the DRAFT is now ACTIVE.
     assertThat(
             repo.getApplication(appTwo.id).toCompletableFuture().join().get().getLifecycleStage())
-        .isEqualTo(LifecycleStage.DELETED);
+        .isEqualTo(LifecycleStage.ACTIVE);
   }
 
   @Test

@@ -74,16 +74,19 @@ public class ApplicationRepository {
               .eq("applicant.id", applicant.id)
               .eq("program.name", program.getProgramDefinition().adminName())
               .findList();
+      Optional<Application> completedApplication = Optional.empty();
       for (Application application : oldApplications) {
         // Delete any in-progress drafts, and mark obsolete any old applications.
         if (application.getLifecycleStage().equals(LifecycleStage.DRAFT)) {
-          application.setLifecycleStage(LifecycleStage.DELETED);
+          application.setLifecycleStage(LifecycleStage.ACTIVE);
+          completedApplication = Optional.of(application);
         } else {
           application.setLifecycleStage(LifecycleStage.OBSOLETE);
         }
         application.save();
       }
-      Application application = new Application(applicant, program, LifecycleStage.ACTIVE);
+      Application application =
+          completedApplication.orElse(new Application(applicant, program, LifecycleStage.ACTIVE));
 
       if (submitterEmail.isPresent()) {
         application.setSubmitterEmail(submitterEmail.get());
@@ -152,6 +155,7 @@ public class ApplicationRepository {
               .findOneOrEmpty();
       Application application =
           existingDraft.orElse(new Application(applicant, program, LifecycleStage.DRAFT));
+      application.setApplicantData(applicant.getApplicantData());
       application.save();
       ebeanServer.commitTransaction();
       return application;
