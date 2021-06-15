@@ -198,9 +198,9 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
         .with(
             input()
+                .isHidden()
                 .withName("questionId")
                 .withType("number")
-                .attr(Attr.HIDDEN)
                 .withValue(String.valueOf(questionDefinition.getId())))
         .with(
             new SelectWithLabel()
