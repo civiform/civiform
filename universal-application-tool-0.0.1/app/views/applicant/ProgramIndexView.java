@@ -9,7 +9,6 @@ import static j2html.TagCreator.h2;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
-import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.Locale;
@@ -139,27 +138,40 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.LINE_CLAMP_5)
             .with(descriptionContent);
 
-    String linkString = program.externalLink();
-    if (linkString.isEmpty()) {
-      linkString = routes.RedirectController.programByName(program.slug()).url();
-    }
-
-    ContainerTag externalLink =
-        new LinkElement()
-            .setId(baseId + "-external-link")
-            .setStyles(Styles.TEXT_XS, Styles.UNDERLINE)
-            .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
-            .setHref(linkString)
-            .asAnchorText();
-
     ContainerTag programData =
         div()
             .withId(baseId + "-data")
             .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO)
-            .with(title, description, externalLink);
+            .with(title, description);
+
+    // Add info link.
+    String infoUrl =
+        controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
+            .url();
+    ContainerTag infoLink =
+        new LinkElement()
+            .setId(baseId + "-info-link")
+            .setStyles(Styles.BLOCK, Styles.TEXT_XS, Styles.UNDERLINE)
+            .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
+            .setHref(infoUrl)
+            .asAnchorText();
+    programData.with(infoLink);
+
+    // Add external link if it is set.
+    if (!program.externalLink().isEmpty()) {
+      ContainerTag externalLink =
+          new LinkElement()
+              .setId(baseId + "-external-link")
+              .setStyles(Styles.BLOCK, Styles.TEXT_XS, Styles.UNDERLINE)
+              .setText(messages.at(MessageKey.EXTERNAL_LINK.getKeyName()))
+              .setHref(program.externalLink())
+              .asAnchorText();
+      programData.with(externalLink);
+    }
 
     String applyUrl =
-        controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
+        controllers.applicant.routes.ApplicantProgramReviewController.preview(
+                applicantId, program.id())
             .url();
     ContainerTag applyButton =
         a().attr(HREF, applyUrl)

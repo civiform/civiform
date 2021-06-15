@@ -66,6 +66,9 @@ content.description2=Get started by choosing an application below.
 # Link text to read more about a program.
 link.programDetails=Program details
 
+# Link text to an external site to read more about a program.
+link.externalLink=External site
+
 # The title of the page for the list of programs.
 title.programs=Programs & services
 
@@ -84,6 +87,18 @@ button.submit=Submit
 
 # Continue application button
 button.continue=Continue
+
+# The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
+link.begin=Start here
+
+# The text that appears next to an answered question that the applicant can click on to modify the response.
+link.edit=Edit
+
+# Program Prewiew Title
+title.programPreview=Program application preview
+
+# Program Rewiew Title
+title.programReview=Program application review
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #

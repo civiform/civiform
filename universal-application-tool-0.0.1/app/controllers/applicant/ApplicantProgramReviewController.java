@@ -20,6 +20,7 @@ import play.mvc.Result;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
+import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantProgramSummaryView;
@@ -53,7 +54,17 @@ public class ApplicantProgramReviewController extends CiviFormController {
   }
 
   @Secure
+  public CompletionStage<Result> preview(Request request, long applicantId, long programId) {
+    return view(request, applicantId, programId, false);
+  }
+
+  @Secure
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
+    return view(request, applicantId, programId, true);
+  }
+
+  private CompletionStage<Result> view(
+      Request request, long applicantId, long programId, boolean inReview) {
     Optional<String> banner = request.flash().get("banner");
     CompletionStage<String> applicantStage = applicantService.getName(applicantId);
 
@@ -64,26 +75,17 @@ public class ApplicantProgramReviewController extends CiviFormController {
             httpExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
-              ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryData();
-              int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
-              int completedBlockCount =
-                  roApplicantProgramService.getAllActiveBlocks().stream()
-                      .filter(Block::isCompleteWithoutErrors)
-                      .mapToInt(b -> 1)
-                      .sum();
-              String programTitle = roApplicantProgramService.getProgramTitle();
-              return ok(
-                  summaryView.render(
-                      request,
-                      applicantId,
-                      applicantStage.toCompletableFuture().join(),
-                      programId,
-                      programTitle,
-                      summaryData,
-                      completedBlockCount,
-                      totalBlockCount,
-                      messagesApi.preferred(request),
-                      banner));
+              ApplicantProgramSummaryView.Params params =
+                  this.generateParamsBuilder(roApplicantProgramService)
+                      .setApplicantId(applicantId)
+                      .setApplicantName(applicantStage.toCompletableFuture().join())
+                      .setBanner(banner.isPresent() ? banner.get() : "")
+                      .setInReview(inReview)
+                      .setMessages(messagesApi.preferred(request))
+                      .setProgramId(programId)
+                      .setRequest(request)
+                      .build();
+              return ok(summaryView.render(params));
             },
             httpExecutionContext.current())
         .exceptionally(
@@ -118,6 +120,24 @@ public class ApplicantProgramReviewController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
+      ReadOnlyApplicantProgramService roApplicantProgramService) {
+    ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryData();
+    int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
+    int completedBlockCount =
+        roApplicantProgramService.getAllActiveBlocks().stream()
+            .filter(Block::isCompleteWithoutErrors)
+            .mapToInt(b -> 1)
+            .sum();
+    String programTitle = roApplicantProgramService.getProgramTitle();
+
+    return ApplicantProgramSummaryView.Params.builder()
+        .setCompletedBlockCount(completedBlockCount)
+        .setProgramTitle(programTitle)
+        .setSummaryData(summaryData)
+        .setTotalBlockCount(totalBlockCount);
   }
 
   private CompletionStage<Result> submitInternal(
