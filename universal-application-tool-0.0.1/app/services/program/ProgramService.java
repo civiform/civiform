@@ -244,6 +244,23 @@ public interface ProgramService {
       throws ProgramNotFoundException, ProgramNeedsABlockException;
 
   /**
+   * Set a program question definition to optional or required. If the question definition ID is not
+   * present in the program's block, then nothing is changed.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param questionDefinitionId the ID of the question to update
+   * @param optional boolean representing whether the question is optional or required
+   * @return the updated program definition
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block
+   */
+  ProgramDefinition setProgramQuestionDefinitionOptionality(
+      long programId, long blockDefinitionId, long questionDefinitionId, boolean optional)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
+
+  /**
    * Get all the program's applications.
    *
    * @param programId the program id.
