@@ -6,7 +6,9 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.text;
 import static views.ViewUtils.POST;
 
 import com.google.common.collect.ImmutableList;
@@ -42,6 +44,12 @@ import views.style.Styles;
 
 public class ProgramBlockPredicatesEditView extends BaseHtmlView {
   private static final String VISIBILITY_PREDICATE_FORM_ID = "visibility-predicate-form";
+  private static final String H2_CURRENT_VISIBILITY_CONDITION = "Current visibility condition";
+  private static final String H2_CREATE_NEW_VISIBILITY_CONDITION =
+      "Create a new visibility condition";
+  private static final String TEXT_NO_VISIBILITY_CONDITIONS = "This block is always shown.";
+  private static final String TEXT_NO_AVAILABLE_QUESTIONS =
+      "There are no available questions with which to set a visibility condition for this block.";
 
   private final AdminLayout layout;
 
@@ -56,7 +64,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> potentialPredicateQuestions) {
 
-    String title = String.format("Add a condition to show or hide %s", blockDefinition.name());
+    String title = String.format("Visibility condition for %s", blockDefinition.name());
 
     String predicateUpdateAction =
         routes.AdminProgramBlockPredicatesController.update(
@@ -70,8 +78,27 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
     ContainerTag content =
         div()
             .withClasses(Styles.MX_6, Styles.MY_10)
-            .with(h1().withText(title).withClasses(Styles.MY_4, Styles.FONT_BOLD, Styles.TEXT_XL))
-            .with(renderPredicateModalTriggerButtons(modals));
+            .with(h1(title).withClasses(Styles.MY_4, Styles.FONT_BOLD, Styles.TEXT_XL))
+            .with(
+                div()
+                    .withClasses(Styles.MB_8)
+                    .with(
+                        h2(H2_CURRENT_VISIBILITY_CONDITION)
+                            .withClasses(Styles.FONT_SEMIBOLD, Styles.TEXT_LG))
+                    .with(
+                        div(
+                            blockDefinition.visibilityPredicate().isPresent()
+                                ? blockDefinition.visibilityPredicate().get().toString()
+                                : TEXT_NO_VISIBILITY_CONDITIONS)))
+            .with(
+                div()
+                    .with(
+                        h2(H2_CREATE_NEW_VISIBILITY_CONDITION)
+                            .withClasses(Styles.FONT_SEMIBOLD, Styles.TEXT_LG))
+                    .with(
+                        modals.isEmpty()
+                            ? text(TEXT_NO_AVAILABLE_QUESTIONS)
+                            : renderPredicateModalTriggerButtons(modals)));
 
     HtmlBundle htmlBundle =
         layout
@@ -132,7 +159,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
 
     return Modal.builder(
             String.format("predicate-modal-%s", questionDefinition.getId()), modalContent)
-        .setModalTitle(String.format("Add a condition to show or hide %s", blockName))
+        .setModalTitle(String.format("Add a visibility condition for %s", blockName))
         .setTriggerButtonContent(triggerButtonContent)
         .setTriggerButtonStyles(AdminStyles.BUTTON_QUESTION_PREDICATE)
         .build();
