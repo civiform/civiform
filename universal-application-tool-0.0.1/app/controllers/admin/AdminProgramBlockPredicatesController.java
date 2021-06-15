@@ -95,7 +95,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         return notFound(String.format("Program ID %d not found.", programId));
       } catch (ProgramBlockDefinitionNotFoundException e) {
         return notFound(
-                String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+            String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
       }
 
       return redirect(

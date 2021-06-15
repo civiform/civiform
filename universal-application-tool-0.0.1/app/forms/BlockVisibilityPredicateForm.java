@@ -28,7 +28,7 @@ public class BlockVisibilityPredicateForm {
     //  NumberQuestionForm)?
     scalar = "";
     operator = "";
-    this.predicateValue = "";
+    predicateValue = "";
   }
 
   public String getPredicateAction() {
