@@ -227,7 +227,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                       option(operator.toDisplayString()).withValue(operator.name());
                   operator
                       .getOperableTypes()
-                      .forEach(type -> option.withData(type.name().toLowerCase(), type.name()));
+                      .forEach(type -> option.attr("data-" + type.name().toLowerCase()));
                   return option;
                 })
             .collect(toImmutableList());
