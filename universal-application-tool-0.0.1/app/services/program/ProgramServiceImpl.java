@@ -555,12 +555,11 @@ public class ProgramServiceImpl implements ProgramService {
 
   private ProgramQuestionDefinition syncProgramQuestionDefinition(
       ProgramQuestionDefinition pqd, ReadOnlyQuestionService roQuestionService) {
-    QuestionDefinition questionDefinition;
     try {
-      questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
+      QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
+      return pqd.setQuestionDefinition(questionDefinition);
     } catch (QuestionNotFoundException e) {
       throw new RuntimeException(e);
     }
-    return ProgramQuestionDefinition.create(questionDefinition);
   }
 }

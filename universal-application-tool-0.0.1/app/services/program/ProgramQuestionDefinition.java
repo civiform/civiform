@@ -18,6 +18,12 @@ public abstract class ProgramQuestionDefinition {
   @JsonProperty("id")
   public abstract long id();
 
+  /**
+   * If optional is true, this program question definition is optional. Otherwise it is required.
+   */
+  @JsonProperty("optional")
+  public abstract boolean optional();
+
   abstract Optional<QuestionDefinition> questionDefinition();
 
   @JsonIgnore
@@ -31,12 +37,31 @@ public abstract class ProgramQuestionDefinition {
   }
 
   @JsonCreator
-  static ProgramQuestionDefinition create(@JsonProperty("id") long id) {
-    return new AutoValue_ProgramQuestionDefinition(id, Optional.empty());
+  static ProgramQuestionDefinition create(
+      @JsonProperty("id") long id, @JsonProperty("optional") boolean optional) {
+    return new AutoValue_ProgramQuestionDefinition(id, optional, Optional.empty());
   }
 
+  /** Create an optional program question definition. */
   public static ProgramQuestionDefinition create(QuestionDefinition questionDefinition) {
+    return create(questionDefinition, true);
+  }
+
+  /** Create a program question definition. */
+  public static ProgramQuestionDefinition create(
+      QuestionDefinition questionDefinition, boolean optional) {
     return new AutoValue_ProgramQuestionDefinition(
-        questionDefinition.getId(), Optional.of(questionDefinition));
+        questionDefinition.getId(), optional, Optional.of(questionDefinition));
+  }
+
+  /** Return a program question definition with the {@link QuestionDefinition} set. */
+  public ProgramQuestionDefinition setQuestionDefinition(QuestionDefinition questionDefinition) {
+    return new AutoValue_ProgramQuestionDefinition(
+        questionDefinition.getId(), optional(), Optional.of(questionDefinition));
+  }
+
+  /** Return a program question definition with a new optional setting. */
+  public ProgramQuestionDefinition setOptional(boolean optional) {
+    return create(getQuestionDefinition(), optional);
   }
 }
