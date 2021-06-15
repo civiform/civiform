@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.input;
 import static views.ViewUtils.POST;
 
 import com.google.common.collect.ImmutableList;
@@ -35,6 +36,7 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.SelectWithLabel;
+import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.Styles;
 
@@ -53,6 +55,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
       ImmutableList<QuestionDefinition> potentialPredicateQuestions) {
+
     String title = String.format("Add a condition to show or hide %s", blockDefinition.name());
 
     String predicateUpdateAction =
@@ -75,6 +78,13 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
             .getBundle()
             .setTitle(title)
             .addMainContent(layout.renderProgramInfo(programDefinition), content);
+
+    Http.Flash flash = request.flash();
+    if (flash.get("error").isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.error(flash.get("error").get()));
+    } else if (flash.get("success").isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
+    }
 
     for (Modal modal : modals) {
       htmlBundle = htmlBundle.addModals(modal);
@@ -168,9 +178,17 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                           option -> String.valueOf(option.id())));
 
       valueField =
-          new SelectWithLabel().setLabelText("Value").setOptions(valueOptions).getContainer();
+          new SelectWithLabel()
+              .setFieldName("predicateValue")
+              .setLabelText("Value")
+              .setOptions(valueOptions)
+              .getContainer();
     } else {
-      valueField = FieldWithLabel.input().setLabelText("Value").getContainer();
+      valueField =
+          FieldWithLabel.input()
+              .setFieldName("predicateValue")
+              .setLabelText("Value")
+              .getContainer();
     }
 
     return form(csrfTag)
@@ -179,7 +197,14 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .withAction(predicateUpdateAction)
         .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
         .with(
+            input()
+                .withName("questionId")
+                .withType("number")
+                .attr(Attr.HIDDEN)
+                .withValue(String.valueOf(questionDefinition.getId())))
+        .with(
             new SelectWithLabel()
+                .setFieldName("predicateAction")
                 .setLabelText(String.format("%s should be", blockName))
                 .setOptions(actionOptions)
                 .getContainer())
@@ -189,11 +214,13 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                 .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_1)
                 .with(
                     new SelectWithLabel()
+                        .setFieldName("scalar")
                         .setLabelText("Scalar")
                         .setOptions(scalarOptions)
                         .getContainer())
                 .with(
                     new SelectWithLabel()
+                        .setFieldName("operator")
                         .setLabelText("Operator")
                         // TODO(#322): Display the right operators for the given scalar type
                         //  (requires javascript).

@@ -5,26 +5,41 @@ import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
 import auth.Authorizers;
+import controllers.CiviFormController;
+import forms.BlockVisibilityPredicateForm;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
+import play.data.Form;
+import play.data.FormFactory;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateValue;
 import views.admin.programs.ProgramBlockPredicatesEditView;
 
-public class AdminProgramBlockPredicatesController {
+public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final ProgramService programService;
   private final ProgramBlockPredicatesEditView predicatesEditView;
+  private final FormFactory formFactory;
 
   @Inject
   public AdminProgramBlockPredicatesController(
-      ProgramService programService, ProgramBlockPredicatesEditView predicatesEditView) {
+      ProgramService programService,
+      ProgramBlockPredicatesEditView predicatesEditView,
+      FormFactory formFactory) {
     this.programService = checkNotNull(programService);
     this.predicatesEditView = checkNotNull(predicatesEditView);
+    this.formFactory = checkNotNull(formFactory);
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
@@ -48,12 +63,37 @@ public class AdminProgramBlockPredicatesController {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result update(Request request, long programId, long blockDefinitionId) {
-    // 1. Create the PredicateDefinition using request (and a VisibilityPredicateForm)
-    // 2. Validate that it is well-formed.
     // 3. programService.setBlockPredicate(programId, blockDefinitionId, predicate);
     //    catch ProgramNotFoundException | ProgramBlockDefinitionNotFoundException.
     // 4. Redirect back to the predicate edit page? or back to the block edit page?
 
-    return ok("POST");
+    Form<BlockVisibilityPredicateForm> predicateFormWrapper =
+        formFactory.form(BlockVisibilityPredicateForm.class).bindFromRequest(request);
+
+    if (predicateFormWrapper.hasErrors()) {
+      return redirect(
+              routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
+          .flashing(
+              "error",
+              "Did not save visibility condition. The form was missing at least one required"
+                  + " field.");
+    } else {
+      BlockVisibilityPredicateForm predicateForm = predicateFormWrapper.get();
+      PredicateDefinition predicateDefinition =
+          PredicateDefinition.create(
+              PredicateExpressionNode.create(
+                  LeafOperationExpressionNode.create(
+                      predicateForm.getQuestionId(),
+                      Scalar.valueOf(predicateForm.getScalar()),
+                      Operator.valueOf(predicateForm.getOperator()),
+                      PredicateValue.of(predicateForm.getPredicateValue()))),
+              PredicateAction.valueOf(predicateForm.getPredicateAction()));
+
+      return redirect(
+              routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
+          .flashing(
+              "success",
+              String.format("Successfully saved visibility condition: %s", predicateDefinition));
+    }
   }
 }
