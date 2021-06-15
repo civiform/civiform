@@ -235,39 +235,36 @@ public class ProgramBlockEditView extends BaseHtmlView {
     String moveUpFormAction =
         routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
     // Move up button is invisible for the first block
-    String moveUpStyles =
-        StyleUtils.joinStyles(
-            AdminStyles.MOVE_BLOCK_BUTTON,
-            (blockDefinition.id() == blockDefinitions.get(0).id()) ? Styles.INVISIBLE : "");
+    String moveUpInvisible =
+        blockDefinition.id() == blockDefinitions.get(0).id() ? Styles.INVISIBLE : "";
     Tag moveUp =
         div()
+            .withClass(moveUpInvisible)
             .with(
                 form()
                     .withAction(moveUpFormAction)
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
                     .with(input().isHidden().withName("direction").withValue(Direction.UP.name()))
-                    .with(submitButton("^").withClasses(moveUpStyles)));
+                    .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
 
     String moveDownFormAction =
         routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
     // Move down button is invisible for the last block
-    String moveDownStyles =
-        StyleUtils.joinStyles(
-            AdminStyles.MOVE_BLOCK_BUTTON,
-            (blockDefinition.id() == blockDefinitions.get(blockDefinitions.size() - 1).id())
-                ? Styles.INVISIBLE
-                : "");
+    String moveDownInvisible =
+        blockDefinition.id() == blockDefinitions.get(blockDefinitions.size() - 1).id()
+            ? Styles.INVISIBLE
+            : "";
     Tag moveDown =
         div()
-            .withClasses(Styles.TRANSFORM, Styles.ROTATE_180)
+            .withClasses(Styles.TRANSFORM, Styles.ROTATE_180, moveDownInvisible)
             .with(
                 form()
                     .withAction(moveDownFormAction)
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
                     .with(input().isHidden().withName("direction").withValue(Direction.DOWN.name()))
-                    .with(submitButton("^").withClasses(moveDownStyles)));
+                    .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
     ContainerTag moveButtons =
         div().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.SELF_CENTER).with(moveUp, moveDown);
     return moveButtons;
