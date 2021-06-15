@@ -89,6 +89,15 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                       PredicateValue.of(predicateForm.getPredicateValue()))),
               PredicateAction.valueOf(predicateForm.getPredicateAction()));
 
+      try {
+        programService.setBlockPredicate(programId, blockDefinitionId, predicateDefinition);
+      } catch (ProgramNotFoundException e) {
+        return notFound(String.format("Program ID %d not found.", programId));
+      } catch (ProgramBlockDefinitionNotFoundException e) {
+        return notFound(
+                String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+      }
+
       return redirect(
               routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
           .flashing(
