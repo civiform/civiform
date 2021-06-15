@@ -43,7 +43,6 @@ import views.style.AdminStyles;
 import views.style.Styles;
 
 public class ProgramBlockPredicatesEditView extends BaseHtmlView {
-  private static final String VISIBILITY_PREDICATE_FORM_ID = "visibility-predicate-form";
   private static final String H2_CURRENT_VISIBILITY_CONDITION = "Current visibility condition";
   private static final String H2_CREATE_NEW_VISIBILITY_CONDITION =
       "Create a new visibility condition";
@@ -218,8 +217,10 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
               .getContainer();
     }
 
+    String formId = String.format("visibility-predicate-form-%s", questionDefinition.getId());
+
     return form(csrfTag)
-        .withId(VISIBILITY_PREDICATE_FORM_ID)
+        .withId(formId)
         .withMethod(POST)
         .withAction(predicateUpdateAction)
         .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
@@ -254,7 +255,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                         .setOptions(operatorOptions)
                         .getContainer())
                 .with(valueField))
-        .with(submitButton("Submit").attr(Attr.FORM, VISIBILITY_PREDICATE_FORM_ID));
+        .with(submitButton("Submit").attr(Attr.FORM, formId));
   }
 
   private ContainerTag renderPredicateModalTriggerButtons(ImmutableList<Modal> modals) {
