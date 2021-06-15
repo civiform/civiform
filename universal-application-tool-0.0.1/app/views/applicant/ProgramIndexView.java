@@ -163,7 +163,7 @@ public class ProgramIndexView extends BaseHtmlView {
           new LinkElement()
               .setId(baseId + "-external-link")
               .setStyles(Styles.BLOCK, Styles.TEXT_XS, Styles.UNDERLINE)
-              .setText("External Site")
+              .setText(messages.at(MessageKey.EXTERNAL_LINK.getKeyName()))
               .setHref(program.externalLink())
               .asAnchorText();
       programData.with(externalLink);
