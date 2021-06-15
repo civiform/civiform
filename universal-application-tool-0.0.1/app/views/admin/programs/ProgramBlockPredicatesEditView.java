@@ -205,7 +205,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                     option(e.getKey().toDisplayString())
                         .withValue(e.getKey().name())
                         // Add the scalar type as data so we can determine which operators to allow.
-                        .withData("type", e.getValue().name()))
+                        .withData("type", e.getValue().name().toLowerCase()))
             .collect(toImmutableList());
 
     return new SelectWithLabel()
@@ -220,15 +220,15 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         Arrays.stream(Operator.values())
             .map(
                 operator -> {
-                  // Add this operator's allowed scalar types as classes, so that we can determine
+                  // Add this operator's allowed scalar types as data, so that we can determine
                   // whether to show or hide each operator based on the current type of scalar
                   // selected.
-                  return option(operator.toDisplayString())
-                      .withValue(operator.name())
-                      .withClasses(
-                          operator.getOperableTypes().stream()
-                              .map(ScalarType::name)
-                              .toArray(String[]::new));
+                  ContainerTag option =
+                      option(operator.toDisplayString()).withValue(operator.name());
+                  operator
+                      .getOperableTypes()
+                      .forEach(type -> option.withData(type.name().toLowerCase(), type.name()));
+                  return option;
                 })
             .collect(toImmutableList());
 

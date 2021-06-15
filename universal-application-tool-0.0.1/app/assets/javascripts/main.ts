@@ -178,7 +178,7 @@ function filterOperators(event: Event) {
     // Remove any existing hidden class from previous filtering.
     option.classList.remove("hidden");
     // If this operator is not for the currently selected type, hide it.
-    if (!option.classList.contains(selectedScalarType)) {
+    if (!(selectedScalarType in option.dataset)) {
       option.classList.add("hidden");
     }
   });
