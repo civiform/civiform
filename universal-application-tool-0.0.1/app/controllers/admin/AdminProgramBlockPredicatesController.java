@@ -63,20 +63,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result update(Request request, long programId, long blockDefinitionId) {
-    // 3. programService.setBlockPredicate(programId, blockDefinitionId, predicate);
-    //    catch ProgramNotFoundException | ProgramBlockDefinitionNotFoundException.
-    // 4. Redirect back to the predicate edit page? or back to the block edit page?
-
     Form<BlockVisibilityPredicateForm> predicateFormWrapper =
         formFactory.form(BlockVisibilityPredicateForm.class).bindFromRequest(request);
 
     if (predicateFormWrapper.hasErrors()) {
       return redirect(
               routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
-          .flashing(
-              "error",
-              "Did not save visibility condition. The form was missing at least one required"
-                  + " field.");
+          .flashing("error", "Did not save visibility condition. Missing required fields.");
     } else {
       BlockVisibilityPredicateForm predicateForm = predicateFormWrapper.get();
       PredicateDefinition predicateDefinition =
@@ -102,7 +95,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
           .flashing(
               "success",
-              String.format("Successfully saved visibility condition: %s", predicateDefinition));
+              String.format("Saved visibility condition: %s", predicateDefinition));
     }
   }
 }

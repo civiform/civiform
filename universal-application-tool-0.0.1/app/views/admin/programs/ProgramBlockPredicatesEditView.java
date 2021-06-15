@@ -107,9 +107,9 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
 
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.error(flash.get("error").get()));
+      htmlBundle.addToastMessages(ToastMessage.error(flash.get("error").get()).setDuration(-1));
     } else if (flash.get("success").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
+      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
     }
 
     for (Modal modal : modals) {
