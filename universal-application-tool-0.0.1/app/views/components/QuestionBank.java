@@ -6,7 +6,6 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
-import static views.ViewUtils.POST;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
@@ -16,6 +15,7 @@ import j2html.tags.Tag;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Predicate;
+import play.mvc.Http.HttpVerbs;
 import services.program.BlockDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
@@ -64,7 +64,8 @@ public class QuestionBank {
   }
 
   private ContainerTag questionBankPanel() {
-    ContainerTag questionForm = form(this.csrfTag).withMethod(POST).withAction(questionAction);
+    ContainerTag questionForm =
+        form(this.csrfTag).withMethod(HttpVerbs.POST).withAction(questionAction);
 
     div().withClasses(Styles.INLINE_BLOCK, Styles.W_1_4);
     ContainerTag innerDiv =

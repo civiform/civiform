@@ -9,11 +9,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import models.Program;
 import services.LocalizedStrings;
@@ -125,6 +129,178 @@ public abstract class ProgramDefinition {
       hasOrderedBlockDefinitionsMemo = true;
     }
     return hasOrderedBlockDefinitionsMemo;
+  }
+
+  /**
+   * Inserts the new block into the list of blocks such that it appears immediately after the last
+   * repeated or nested repeated block with the same enumerator. If there is no enumerator, it is
+   * added at the end.
+   */
+  public ProgramDefinition insertBlockDefinitionInTheRightPlace(BlockDefinition newBlockDefinition)
+      throws ProgramBlockDefinitionNotFoundException {
+    // Precondition: blocks have to be ordered
+    if (!hasOrderedBlockDefinitions()) {
+      return orderBlockDefinitions().insertBlockDefinitionInTheRightPlace(newBlockDefinition);
+    }
+
+    // Simple return for non-repeated block - just add to the end of the list
+    if (!newBlockDefinition.isRepeated()) {
+      return toBuilder().addBlockDefinition(newBlockDefinition).build();
+    }
+    BlockSlice enumeratorIndices = getBlockSlice(newBlockDefinition.enumeratorId().get());
+    int insertIndex = enumeratorIndices.endIndex();
+
+    // At this point, insertIndex is AFTER the last repeated or nested repeated block of the
+    // enumerator. This might be off the end of the list.
+    ImmutableList.Builder<BlockDefinition> newBlockDefinitionsBuilder = ImmutableList.builder();
+    blockDefinitions().stream()
+        .limit(insertIndex)
+        .forEach(blockDefinition -> newBlockDefinitionsBuilder.add(blockDefinition));
+    newBlockDefinitionsBuilder.add(newBlockDefinition);
+    blockDefinitions().stream()
+        .skip(insertIndex)
+        .forEach(blockDefinition -> newBlockDefinitionsBuilder.add(blockDefinition));
+
+    return toBuilder().setBlockDefinitions(newBlockDefinitionsBuilder.build()).build();
+  }
+
+  /**
+   * Move the block in the direction specified if it is allowed. Blocks are not allowed to move
+   * beyond the contiguous slice of repeated and nested repeated blocks of their enumerator.
+   */
+  public ProgramDefinition moveBlock(long blockId, Direction direction)
+      throws ProgramBlockDefinitionNotFoundException {
+    // Precondition: blocks have to be ordered
+    if (!hasOrderedBlockDefinitions()) {
+      return orderBlockDefinitions().moveBlock(blockId, direction);
+    }
+
+    BlockSlice blockSlice = getBlockSlice(blockId);
+    Optional<BlockDefinition> otherBlock = findNextBlockWithSameEnumerator(blockSlice, direction);
+
+    // Early return if there's no other block to swap with.
+    if (otherBlock.isEmpty()) {
+      return this;
+    }
+
+    BlockSlice otherBlockSlice = getBlockSlice(otherBlock.get().id());
+
+    BlockSlice earlierSlice =
+        blockSlice.startsBefore(otherBlockSlice) ? blockSlice : otherBlockSlice;
+    BlockSlice latterSlice =
+        blockSlice.startsBefore(otherBlockSlice) ? otherBlockSlice : blockSlice;
+    ImmutableList.Builder<BlockDefinition> blocksBuilder = ImmutableList.builder();
+
+    // Swap the two slices, assuming these slices are consecutive slices
+    blockDefinitions().stream()
+        .limit(earlierSlice.startIndex())
+        .forEach(blockDefinition -> blocksBuilder.add(blockDefinition));
+    blockDefinitions().stream()
+        .skip(latterSlice.startIndex())
+        .limit(latterSlice.endIndex() - latterSlice.startIndex())
+        .forEach(blockDefinition -> blocksBuilder.add(blockDefinition));
+    blockDefinitions().stream()
+        .skip(earlierSlice.startIndex())
+        .limit(earlierSlice.endIndex() - earlierSlice.startIndex())
+        .forEach(blockDefinition -> blocksBuilder.add(blockDefinition));
+    blockDefinitions().stream()
+        .skip(latterSlice.endIndex())
+        .forEach(blockDefinition -> blocksBuilder.add(blockDefinition));
+
+    return toBuilder().setBlockDefinitions(blocksBuilder.build()).build();
+  }
+
+  /**
+   * Find the start and end indices of the slice of blocks associated with the block definition id.
+   * For non-enumerator blocks, the slice of blocks associated with the block is just the block
+   * itself. For enumerator blocks, the slice of blocks also contain all of its repeated and nested
+   * repeated blocks.
+   */
+  private BlockSlice getBlockSlice(long blockId) throws ProgramBlockDefinitionNotFoundException {
+    // Precondition: blocks have to be ordered
+    if (!hasOrderedBlockDefinitions()) {
+      return orderBlockDefinitions().getBlockSlice(blockId);
+    }
+
+    // Find the enumerator block
+    int startIndex;
+    try {
+      startIndex =
+          IntStream.range(0, blockDefinitions().size())
+              .filter(i -> blockDefinitions().get(i).id() == blockId)
+              .findFirst()
+              .getAsInt();
+    } catch (NoSuchElementException e) {
+      // The enumerator id must correspond to a block within blocks.
+      throw new ProgramBlockDefinitionNotFoundException(id(), blockId);
+    }
+    BlockDefinition blockDefinition = blockDefinitions().get(startIndex);
+    int endIndex = startIndex + 1;
+
+    // Early return for non-enumerator blocks
+    if (!blockDefinition.isEnumerator()) {
+      return BlockSlice.create(startIndex, endIndex);
+    }
+
+    // Increment the index until the ordered block definitions are not repeated or nested repeated
+    // blocks of the enumerator
+    Set<Long> enumeratorIds = new HashSet<>(Arrays.asList(blockId));
+    while (endIndex < getBlockCount()) {
+      BlockDefinition current = blockDefinitions().get(endIndex);
+      if (current.enumeratorId().isEmpty()
+          || !enumeratorIds.contains(current.enumeratorId().get())) {
+        // This is not a repeated or nested repeated block of the enumerator
+        break;
+      }
+      // Add nested enumerators into the set of enumerators
+      if (current.isEnumerator()) {
+        enumeratorIds.add(current.id());
+      }
+      endIndex++;
+    }
+
+    return BlockSlice.create(startIndex, endIndex);
+  }
+
+  /**
+   * Find the next block with the same enumerator as the block at the start of the slice in the
+   * specified direction. This block may not exist.
+   */
+  private Optional<BlockDefinition> findNextBlockWithSameEnumerator(
+      BlockSlice blockSlice, Direction direction) {
+    // Precondition: blocks have to be ordered
+    if (!hasOrderedBlockDefinitions()) {
+      return orderBlockDefinitions().findNextBlockWithSameEnumerator(blockSlice, direction);
+    }
+
+    BlockDefinition blockDefinition = blockDefinitions().get(blockSlice.startIndex());
+
+    int index;
+    switch (direction) {
+      case UP:
+        // Walk up from the start of the slice checking for the first block with
+        // matching enumerator.
+        index = blockSlice.startIndex() - 1;
+        while (index >= 0) {
+          if (blockDefinition.enumeratorId().equals(blockDefinitions().get(index).enumeratorId())) {
+            break;
+          }
+          index--;
+        }
+        break;
+      case DOWN:
+      default:
+        // Use the block after the end of the slice if it has the same enumerator,
+        // or the other block does not exist
+        BlockDefinition otherBlockDefinition = blockDefinitions().get(blockSlice.endIndex());
+        index =
+            blockDefinition.enumeratorId().equals(otherBlockDefinition.enumeratorId())
+                ? blockSlice.endIndex()
+                : -1;
+    }
+    return (0 <= index && index < getBlockCount())
+        ? Optional.of(blockDefinitions().get(index))
+        : Optional.empty();
   }
 
   /**
@@ -388,6 +564,26 @@ public abstract class ProgramDefinition {
     public Builder addLocalizedDescription(Locale locale, String description) {
       localizedDescriptionBuilder().put(locale, description);
       return this;
+    }
+  }
+
+  public enum Direction {
+    UP,
+    DOWN;
+  }
+
+  @AutoValue
+  abstract static class BlockSlice {
+    abstract int startIndex();
+
+    abstract int endIndex();
+
+    static BlockSlice create(int startIndex, int endIndex) {
+      return new AutoValue_ProgramDefinition_BlockSlice(startIndex, endIndex);
+    }
+
+    boolean startsBefore(BlockSlice other) {
+      return startIndex() < other.startIndex();
     }
   }
 }

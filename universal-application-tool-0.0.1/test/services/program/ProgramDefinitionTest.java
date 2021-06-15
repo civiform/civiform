@@ -6,14 +6,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
+import repository.WithPostgresContainer;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.question.types.QuestionDefinition;
+import support.ProgramBuilder;
 import support.TestQuestionBank;
 
-public class ProgramDefinitionTest {
+public class ProgramDefinitionTest extends WithPostgresContainer {
 
-  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
+  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(true);
 
   @Test
   public void createProgramDefinition() {
@@ -363,5 +365,100 @@ public class ProgramDefinitionTest {
     // blockE (applicantHouseholdMembers.householdMemberJobs.householdMemberJobIncome)
     assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(5L))
         .containsExactly(questionA, questionC);
+  }
+
+  @Test
+  public void insertBlockDefinitionInTheRightPlace_repeatedBlock() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .build()
+            .getProgramDefinition();
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setName("new block")
+            .setDescription("new block")
+            .setId(100L)
+            .setEnumeratorId(Optional.of(1L))
+            .build();
+
+    ProgramDefinition result =
+        programDefinition.insertBlockDefinitionInTheRightPlace(blockDefinition);
+
+    assertThat(result.blockDefinitions()).hasSize(4);
+    assertThat(result.getBlockDefinitionByIndex(0).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
+    assertThat(result.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+    assertThat(result.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(1).get().isRepeated()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(1).get().enumeratorId()).contains(1L);
+    assertThat(result.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
+    assertThat(result.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
+    assertThat(result.getBlockDefinitionByIndex(2).get().getQuestionCount()).isEqualTo(0);
+    assertThat(result.getBlockDefinitionByIndex(3).get().isRepeated()).isFalse();
+  }
+
+  @Test
+  public void moveBlock_up() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .build()
+            .getProgramDefinition();
+
+    ProgramDefinition result = programDefinition.moveBlock(3L, ProgramDefinition.Direction.UP);
+
+    assertThat(result.blockDefinitions()).hasSize(3);
+    assertThat(result.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
+    assertThat(result.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
+    assertThat(result.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+    assertThat(result.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
+    assertThat(result.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
+  }
+
+  @Test
+  public void moveBlock_down() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .build()
+            .getProgramDefinition();
+
+    ProgramDefinition result = programDefinition.moveBlock(1L, ProgramDefinition.Direction.DOWN);
+
+    assertThat(result.blockDefinitions()).hasSize(3);
+    assertThat(result.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
+    assertThat(result.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
+    assertThat(result.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+    assertThat(result.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
+    assertThat(result.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
   }
 }

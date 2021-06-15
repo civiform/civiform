@@ -23,8 +23,14 @@ link.allDone=Ya terminé
 link.applyToAnotherProgram=Aplicar a otro programa
 link.createAccountOrSignIn=Crea una cuenta o inicia sesión
 
+link.begin=Empieza aqui
+link.edit=Editar
+title.programPreview=Vista previa del programa
+title.programReview=Revisión del programa
+
 title.programs=Programas y servicios
 link.programDetails=Detalles del programa
+link.externalLink=Sitio externo
 content.benefits=Obtener beneficios
 content.description1=CiviForm le permite solicitar muchos beneficios a la vez reutilizando información.
 content.description2=Comience eligiendo una aplicación a continuación.
