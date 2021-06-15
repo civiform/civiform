@@ -159,14 +159,23 @@ function attachLineClampListeners() {
   applicationCardDescriptions.forEach(el => el.addEventListener("click", removeLineClamp));
 }
 
+/**
+ * Filter the operators available for each scalar type based on the current scalar selected.
+ */
 function filterOperators(event: Event) {
+  // Get the type of scalar currently selected.
   const scalarDropdown = event.target as HTMLSelectElement;
   const selectedScalarType = scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type;
 
   // Filter the operators available for the given selected scalar type.
-  const operatorDropdown = document.getElementById("select-operator") as HTMLSelectElement;
+  const operatorDropdown =
+    scalarDropdown
+      .closest(".cf-predicate-options") // div containing all predicate builder dropdowns
+      .querySelector(".cf-operator-select") // div containing the operator dropdown
+      .querySelector("select") as HTMLSelectElement;
+
   Array.from(operatorDropdown.options).forEach(option => {
-    // Show by default.
+    // Remove any existing hidden class from previous filtering.
     option.classList.remove("hidden");
     // If this operator is not for the currently selected type, hide it.
     if (!option.classList.contains(selectedScalarType)) {
@@ -180,10 +189,10 @@ window.addEventListener('load', (event) => {
 
   attachLineClampListeners();
 
-  const scalarDropdown = document.getElementById("select-scalar");
-  if (scalarDropdown) {
-    scalarDropdown.addEventListener("change", filterOperators);
-  }
+  // Configure the admin predicate builder to filter available operators based on
+  // the type of scalar selected.
+  Array.from(document.querySelectorAll('.cf-scalar-select')).forEach(
+    el => el.addEventListener("input", filterOperators));
 
   // Submit button is disabled by default until program block edit form is changed
   const blockEditForm = document.getElementById("block-edit-form");

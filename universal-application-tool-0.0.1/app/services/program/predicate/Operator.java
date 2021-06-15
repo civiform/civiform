@@ -37,6 +37,10 @@ public enum Operator {
     return this.displayString;
   }
 
+  /**
+   * What type must the value on the left of the operator be? For example, "anyof" can only operate
+   * on a list, since it compares "does X list contain any of the values in Y list?"
+   */
   public ImmutableSet<ScalarType> getOperableTypes() {
     return this.operableTypes;
   }

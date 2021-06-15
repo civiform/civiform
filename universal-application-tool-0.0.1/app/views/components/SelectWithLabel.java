@@ -86,15 +86,16 @@ public class SelectWithLabel extends FieldWithLabel {
 
   @Override
   public ContainerTag getContainer() {
+    Tag placeholder = option(placeholderText).withValue("").attr(Attr.HIDDEN);
+    if (this.fieldValue.isEmpty()) {
+      placeholder.attr(Attr.SELECTED);
+    }
+    ((ContainerTag) fieldTag).with(placeholder);
+
+    // Either set the options to be custom options or create options from the (text, value) pairs.
     if (!this.customOptions.isEmpty()) {
       this.customOptions.forEach(option -> ((ContainerTag) fieldTag).with(option));
     } else {
-      Tag placeholder = option(placeholderText).withValue("").attr(Attr.HIDDEN);
-      if (this.fieldValue.isEmpty()) {
-        placeholder.attr(Attr.SELECTED);
-      }
-      ((ContainerTag) fieldTag).with(placeholder);
-
       this.options.forEach(
           (text, value) -> {
             Tag optionTag = option(text).withValue(value);

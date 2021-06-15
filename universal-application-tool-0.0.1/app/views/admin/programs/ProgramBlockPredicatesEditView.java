@@ -35,6 +35,7 @@ import views.components.Icons;
 import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.style.AdminStyles;
+import views.style.ReferenceClasses;
 import views.style.Styles;
 
 public class ProgramBlockPredicatesEditView extends BaseHtmlView {
@@ -122,6 +123,15 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         Arrays.stream(PredicateAction.values())
             .collect(toImmutableMap(PredicateAction::toDisplayString, PredicateAction::name));
 
+    ImmutableMap<Scalar, ScalarType> scalars;
+    try {
+      scalars = Scalar.getScalars(questionDefinition.getQuestionType());
+    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+      // This should never happen since we filter out Enumerator questions before this point.
+      return div()
+          .withText("Sorry, you cannot create a show/hide predicate with this question type.");
+    }
+
     ContainerTag valueField;
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       // If it's a multi-option question, we need to provide a discrete list of possible values to
@@ -152,9 +162,10 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .with(renderQuestionDefinitionBox(questionDefinition))
         .with(
             div()
-                .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_1)
-                .with(renderScalarDropdown(questionDefinition))
-                .with(renderOperatorDropdown())
+                .withClasses(
+                    ReferenceClasses.PREDICATE_OPTIONS, Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_1)
+                .with(createScalarDropdown(scalars))
+                .with(createOperatorDropdown())
                 .with(valueField));
   }
 
@@ -186,49 +197,45 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                         .withClasses(Styles.MT_1, Styles.TEXT_SM)));
   }
 
-  private static ContainerTag renderScalarDropdown(QuestionDefinition questionDefinition) {
-    ImmutableMap<Scalar, ScalarType> scalars;
-    try {
-      scalars = Scalar.getScalars(questionDefinition.getQuestionType());
-    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
-      // This should never happen since we filter out Enumerator questions before this point.
-      return div()
-          .withText("Sorry, you cannot create a show/hide predicate with this question type.");
-    }
-
+  private static ContainerTag createScalarDropdown(ImmutableMap<Scalar, ScalarType> scalars) {
     ImmutableList<ContainerTag> options =
         scalars.entrySet().stream()
             .map(
                 e ->
                     option(e.getKey().toDisplayString())
                         .withValue(e.getKey().name())
+                        // Add the scalar type as data so we can determine which operators to allow.
                         .withData("type", e.getValue().name()))
             .collect(toImmutableList());
 
     return new SelectWithLabel()
-        .setId("select-scalar")
         .setLabelText("Scalar")
         .setCustomOptions(options)
+        .addReferenceClass(ReferenceClasses.PREDICATE_SCALAR_SELECT)
         .getContainer();
   }
 
-  private static ContainerTag renderOperatorDropdown() {
+  private static ContainerTag createOperatorDropdown() {
     ImmutableList<ContainerTag> operatorOptions =
         Arrays.stream(Operator.values())
             .map(
-                operator ->
-                    option(operator.toDisplayString())
-                        .withValue(operator.name())
-                        .withClasses(
-                            operator.getOperableTypes().stream()
-                                .map(ScalarType::name)
-                                .toArray(String[]::new)))
+                operator -> {
+                  // Add this operator's allowed scalar types as classes, so that we can determine
+                  // whether to show or hide each operator based on the current type of scalar
+                  // selected.
+                  return option(operator.toDisplayString())
+                      .withValue(operator.name())
+                      .withClasses(
+                          operator.getOperableTypes().stream()
+                              .map(ScalarType::name)
+                              .toArray(String[]::new));
+                })
             .collect(toImmutableList());
 
     return new SelectWithLabel()
-        .setId("select-operator")
         .setLabelText("Operator")
         .setCustomOptions(operatorOptions)
+        .addReferenceClass(ReferenceClasses.PREDICATE_OPERATOR_SELECT)
         .getContainer();
   }
 }
