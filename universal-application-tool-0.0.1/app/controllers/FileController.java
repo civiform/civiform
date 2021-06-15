@@ -39,6 +39,12 @@ public class FileController extends CiviFormController {
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenApplyAsync(
             v -> {
+              // Ensure the file being accessed indeed belongs to the applicant.
+              // The key is generated when the applicant first uploaded the file, see below link.
+              // https://github.com/seattle-uat/civiform/blob/4d1e90fddd3d6da2c4a249f4f78442d08f9088d3/universal-application-tool-0.0.1/app/views/applicant/ApplicantProgramBlockEditView.java#L128
+              if (!fileKey.contains(String.format("applicant-%d", applicantId))) {
+                return notFound();
+              }
               return redirect(amazonS3Client.getPresignedUrl(fileKey).toString());
             },
             httpExecutionContext.current())
@@ -59,6 +65,10 @@ public class FileController extends CiviFormController {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
+      // Ensure the file being accessed indeed belongs to the program.
+      if (!fileKey.contains(String.format("program-%d", programId))) {
+        return notFound();
+      }
       return redirect(amazonS3Client.getPresignedUrl(fileKey).toString());
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
