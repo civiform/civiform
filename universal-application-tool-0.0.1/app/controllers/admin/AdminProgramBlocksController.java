@@ -8,6 +8,7 @@ import forms.BlockForm;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
@@ -17,6 +18,7 @@ import services.ErrorAnd;
 import services.program.BlockDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
+import services.program.ProgramDefinition.Direction;
 import services.program.ProgramNeedsABlockException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -110,6 +112,18 @@ public class AdminProgramBlocksController extends CiviFormController {
       return notFound(e.toString());
     }
 
+    return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result move(Request request, long programId, long blockId) {
+    DynamicForm requestData = formFactory.form().bindFromRequest(request);
+    Direction direction = Direction.valueOf(requestData.get("direction"));
+    try {
+      programService.moveBlock(programId, blockId, direction);
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
+    }
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
   }
 

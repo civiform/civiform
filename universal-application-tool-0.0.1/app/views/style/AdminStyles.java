@@ -52,6 +52,15 @@ public class AdminStyles {
           Styles.TOP_0,
           Styles.W_FULL);
 
+  public static final String MOVE_BLOCK_BUTTON =
+      StyleUtils.joinStyles(
+          Styles.BG_TRANSPARENT,
+          Styles.P_0,
+          Styles.W_6,
+          Styles.TEXT_CENTER,
+          Styles.TEXT_GRAY_500,
+          StyleUtils.hover(Styles.BG_GRAY_200, Styles.TEXT_GRAY_900));
+
   public static final String BODY =
       StyleUtils.joinStyles(
           BODY_GRADIENT_STYLE,

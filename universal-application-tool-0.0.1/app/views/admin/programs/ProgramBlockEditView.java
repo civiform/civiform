@@ -4,22 +4,25 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
-import static views.ViewUtils.POST;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.admin.routes;
 import forms.BlockForm;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.OptionalLong;
+import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramDefinition.Direction;
 import services.program.ProgramQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
@@ -95,7 +98,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 div()
                     .withId("program-block-info")
                     .withClasses(Styles.FLEX, Styles.FLEX_GROW, Styles._MX_2)
-                    .with(blockOrderPanel(programDefinition, blockId))
+                    .with(blockOrderPanel(request, programDefinition, blockId))
                     .with(
                         blockEditPanel(
                             programDefinition,
@@ -120,12 +123,15 @@ public class ProgramBlockEditView extends BaseHtmlView {
     String blockCreateAction =
         controllers.admin.routes.AdminProgramBlocksController.create(programId).url();
     ContainerTag createBlockForm =
-        form(csrfTag).withId(CREATE_BLOCK_FORM_ID).withMethod(POST).withAction(blockCreateAction);
+        form(csrfTag)
+            .withId(CREATE_BLOCK_FORM_ID)
+            .withMethod(HttpVerbs.POST)
+            .withAction(blockCreateAction);
 
     ContainerTag createRepeatedBlockForm =
         form(csrfTag)
             .withId(CREATE_REPEATED_BLOCK_FORM_ID)
-            .withMethod(POST)
+            .withMethod(HttpVerbs.POST)
             .withAction(blockCreateAction)
             .with(
                 FieldWithLabel.number()
@@ -136,13 +142,17 @@ public class ProgramBlockEditView extends BaseHtmlView {
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.destroy(programId, blockId).url();
     ContainerTag deleteBlockForm =
-        form(csrfTag).withId(DELETE_BLOCK_FORM_ID).withMethod(POST).withAction(blockDeleteAction);
+        form(csrfTag)
+            .withId(DELETE_BLOCK_FORM_ID)
+            .withMethod(HttpVerbs.POST)
+            .withAction(blockDeleteAction);
 
     return div(createBlockForm, createRepeatedBlockForm, deleteBlockForm)
         .withClasses(Styles.HIDDEN);
   }
 
-  public ContainerTag blockOrderPanel(ProgramDefinition program, long focusedBlockId) {
+  private ContainerTag blockOrderPanel(
+      Request request, ProgramDefinition program, long focusedBlockId) {
     ContainerTag ret =
         div()
             .withClasses(
@@ -151,7 +161,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 Styles.W_1_5,
                 Styles.BORDER_R,
                 Styles.BORDER_GRAY_200);
-    ret.with(renderBlockList(program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
+    ret.with(
+        renderBlockList(
+            request, program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
     ret.with(
         submitButton("Add Block")
             .withId("add-block-button")
@@ -161,6 +173,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
   }
 
   private ContainerTag renderBlockList(
+      Request request,
       ProgramDefinition programDefinition,
       ImmutableList<BlockDefinition> blockDefinitions,
       long focusedBlockId,
@@ -177,11 +190,26 @@ public class ProgramBlockEditView extends BaseHtmlView {
       String questionCountText = String.format("Question count: %d", numQuestions);
       String blockName = blockDefinition.name();
 
-      ContainerTag blockTag =
-          a().withHref(editBlockLink)
-              .with(p(blockName), p(questionCountText).withClasses(Styles.TEXT_SM));
+      ContainerTag moveButtons =
+          blockMoveButtons(request, programDefinition.id(), blockDefinitions, blockDefinition);
       String selectedClasses = blockDefinition.id() == focusedBlockId ? Styles.BG_GRAY_100 : "";
-      blockTag.withClasses(Styles.BLOCK, Styles.PY_2, Styles.PX_4, selectedClasses);
+      ContainerTag blockTag =
+          div()
+              .withClasses(
+                  Styles.FLEX,
+                  Styles.FLEX_ROW,
+                  Styles.GAP_2,
+                  Styles.PY_2,
+                  Styles.PX_4,
+                  Styles.BORDER,
+                  Styles.BORDER_WHITE,
+                  StyleUtils.hover(Styles.BORDER_GRAY_300),
+                  selectedClasses)
+              .with(
+                  a().withClasses(Styles.FLEX_GROW, Styles.OVERFLOW_HIDDEN)
+                      .withHref(editBlockLink)
+                      .with(p(blockName), p(questionCountText).withClasses(Styles.TEXT_SM)))
+              .with(moveButtons);
 
       container.with(blockTag);
 
@@ -189,6 +217,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       if (blockDefinition.isEnumerator()) {
         container.with(
             renderBlockList(
+                request,
                 programDefinition,
                 programDefinition.getBlockDefinitionsForEnumerator(blockDefinition.id()),
                 focusedBlockId,
@@ -196,6 +225,49 @@ public class ProgramBlockEditView extends BaseHtmlView {
       }
     }
     return container;
+  }
+
+  private ContainerTag blockMoveButtons(
+      Request request,
+      long programId,
+      ImmutableList<BlockDefinition> blockDefinitions,
+      BlockDefinition blockDefinition) {
+    String moveUpFormAction =
+        routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
+    // Move up button is invisible for the first block
+    String moveUpInvisible =
+        blockDefinition.id() == blockDefinitions.get(0).id() ? Styles.INVISIBLE : "";
+    Tag moveUp =
+        div()
+            .withClass(moveUpInvisible)
+            .with(
+                form()
+                    .withAction(moveUpFormAction)
+                    .withMethod(HttpVerbs.POST)
+                    .with(makeCsrfTokenInputTag(request))
+                    .with(input().isHidden().withName("direction").withValue(Direction.UP.name()))
+                    .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
+
+    String moveDownFormAction =
+        routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
+    // Move down button is invisible for the last block
+    String moveDownInvisible =
+        blockDefinition.id() == blockDefinitions.get(blockDefinitions.size() - 1).id()
+            ? Styles.INVISIBLE
+            : "";
+    Tag moveDown =
+        div()
+            .withClasses(Styles.TRANSFORM, Styles.ROTATE_180, moveDownInvisible)
+            .with(
+                form()
+                    .withAction(moveDownFormAction)
+                    .withMethod(HttpVerbs.POST)
+                    .with(makeCsrfTokenInputTag(request))
+                    .with(input().isHidden().withName("direction").withValue(Direction.DOWN.name()))
+                    .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
+    ContainerTag moveButtons =
+        div().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.SELF_CENTER).with(moveUp, moveDown);
+    return moveButtons;
   }
 
   private ContainerTag blockEditPanel(
@@ -255,7 +327,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     ContainerTag questionDeleteForm =
         form(csrfTag)
             .withId("block-questions-form")
-            .withMethod(POST)
+            .withMethod(HttpVerbs.POST)
             .withAction(deleteQuestionAction);
     blockQuestions.forEach(
         pqd -> questionDeleteForm.with(renderQuestion(pqd.getQuestionDefinition(), canDelete)));
@@ -332,7 +404,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     String modalTitle = "Block Name and Description";
     String modalButtonText = "Edit Name and Description";
     ContainerTag blockDescriptionForm =
-        form(csrfTag).withMethod(POST).withAction(blockUpdateAction);
+        form(csrfTag).withMethod(HttpVerbs.POST).withAction(blockUpdateAction);
     blockDescriptionForm
         .withId("block-edit-form")
         .with(
