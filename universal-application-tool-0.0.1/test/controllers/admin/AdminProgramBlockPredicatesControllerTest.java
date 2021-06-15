@@ -59,8 +59,11 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
     assertThat(content).contains("Add a condition to show or hide Block 1");
-    assertThat(content).doesNotContain("applicant name");
-    assertThat(content).doesNotContain("applicant address");
+    assertThat(content).contains("This block is always shown.");
+    assertThat(content)
+        .contains(
+            "There are no available questions with which to set a visibility condition for this"
+                + " block.");
   }
 
   @Test
@@ -87,4 +90,10 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
     assertThat(content).contains("applicant ice cream");
     assertThat(content).doesNotContain("applicant favorite color");
   }
+
+  @Test
+  public void update_withValidFormData_savesNewPredicate() {}
+
+  @Test
+  public void update_withInvalidFormData_doesNotSavePredicate() {}
 }

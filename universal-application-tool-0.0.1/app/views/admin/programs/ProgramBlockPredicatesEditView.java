@@ -80,7 +80,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
             .with(h1(title).withClasses(Styles.MY_4, Styles.FONT_BOLD, Styles.TEXT_XL))
             .with(
                 div()
-                    .withClasses(Styles.MB_8)
+                    .withClasses(Styles.MB_4)
                     .with(
                         h2(H2_CURRENT_VISIBILITY_CONDITION)
                             .withClasses(Styles.FONT_SEMIBOLD, Styles.TEXT_LG))

@@ -94,8 +94,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       return redirect(
               routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
           .flashing(
-              "success",
-              String.format("Saved visibility condition: %s", predicateDefinition));
+              "success", String.format("Saved visibility condition: %s", predicateDefinition));
     }
   }
 }
