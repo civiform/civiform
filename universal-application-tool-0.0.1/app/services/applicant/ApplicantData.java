@@ -227,19 +227,18 @@ public class ApplicantData {
   /** Clears an array in preparation of updates. */
   public void maybeClearArray(Path path) {
     if (path.isArrayElement()) {
+      putParentIfMissing(path);
       putAt(path.withoutArrayReference(), new ArrayList<>());
     }
   }
 
   private void putAt(Path path, Object value) {
     checkLocked();
-    putParentIfMissing(path);
     jsonData.put(path.parentPath().toString(), path.keyName(), value);
   }
 
   private void addAt(Path path, Object value) {
     checkLocked();
-    putParentIfMissing(path);
     jsonData.add(path.withoutArrayReference().toString(), value);
   }
 
