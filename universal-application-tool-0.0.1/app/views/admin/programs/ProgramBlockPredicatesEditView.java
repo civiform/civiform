@@ -16,6 +16,7 @@ import static play.mvc.Http.HttpVerbs.POST;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.admin.routes;
+import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Arrays;
@@ -171,48 +172,6 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       QuestionDefinition questionDefinition,
       String predicateUpdateAction,
       Tag csrfTag) {
-
-    ImmutableMap<String, String> actionOptions =
-        Arrays.stream(PredicateAction.values())
-            .collect(toImmutableMap(PredicateAction::toDisplayString, PredicateAction::name));
-
-    ImmutableMap<Scalar, ScalarType> scalars;
-    try {
-      scalars = Scalar.getScalars(questionDefinition.getQuestionType());
-    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
-      // This should never happen since we filter out Enumerator questions before this point.
-      return div()
-          .withText("Sorry, you cannot create a show/hide predicate with this question type.");
-    }
-
-    ContainerTag valueField;
-    if (questionDefinition.getQuestionType().isMultiOptionType()) {
-      // If it's a multi-option question, we need to provide a discrete list of possible values to
-      // choose from instead of a freeform text field. Not only is it a better UX, but we store the
-      // ID of the options rather than the display strings since the option display strings are
-      // localized.
-      ImmutableMap<String, String> valueOptions =
-          ((MultiOptionQuestionDefinition) questionDefinition)
-              .getOptions().stream()
-                  .collect(
-                      toImmutableMap(
-                          option -> option.optionText().getDefault(),
-                          option -> String.valueOf(option.id())));
-
-      valueField =
-          new SelectWithLabel()
-              .setFieldName("predicateValue")
-              .setLabelText("Value")
-              .setOptions(valueOptions)
-              .getContainer();
-    } else {
-      valueField =
-          FieldWithLabel.input()
-              .setFieldName("predicateValue")
-              .setLabelText("Value")
-              .getContainer();
-    }
-
     String formId = String.format("visibility-predicate-form-%s", questionDefinition.getId());
 
     return form(csrfTag)
@@ -220,26 +179,17 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .withMethod(POST)
         .withAction(predicateUpdateAction)
         .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
-        .with(
-            input()
-                .isHidden()
-                .withName("questionId")
-                .withType("number")
-                .withValue(String.valueOf(questionDefinition.getId())))
-        .with(
-            new SelectWithLabel()
-                .setFieldName("predicateAction")
-                .setLabelText(String.format("%s should be", blockName))
-                .setOptions(actionOptions)
-                .getContainer())
+        .with(createActionDropdown(blockName))
         .with(renderQuestionDefinitionBox(questionDefinition))
+        .with(createHiddenQuestionDefinitionInput(questionDefinition))
         .with(
             div()
                 .withClasses(
                     ReferenceClasses.PREDICATE_OPTIONS, Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_1)
-                .with(createScalarDropdown(scalars))
+                .with(createScalarDropdown(questionDefinition))
                 .with(createOperatorDropdown())
-                .with(valueField));
+                .with(createValueField(questionDefinition)))
+        .with(submitButton("Submit").attr(Attr.FORM, formId));
   }
 
   private ContainerTag renderPredicateModalTriggerButtons(ImmutableList<Modal> modals) {
@@ -270,7 +220,35 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                         .withClasses(Styles.MT_1, Styles.TEXT_SM)));
   }
 
-  private static ContainerTag createScalarDropdown(ImmutableMap<Scalar, ScalarType> scalars) {
+  private ContainerTag createActionDropdown(String blockName) {
+    ImmutableMap<String, String> actionOptions =
+        Arrays.stream(PredicateAction.values())
+            .collect(toImmutableMap(PredicateAction::toDisplayString, PredicateAction::name));
+    return new SelectWithLabel()
+        .setFieldName("predicateAction")
+        .setLabelText(String.format("%s should be", blockName))
+        .setOptions(actionOptions)
+        .getContainer();
+  }
+
+  private Tag createHiddenQuestionDefinitionInput(QuestionDefinition questionDefinition) {
+    return input()
+        .isHidden()
+        .withName("questionId")
+        .withType("number")
+        .withValue(String.valueOf(questionDefinition.getId()));
+  }
+
+  private ContainerTag createScalarDropdown(QuestionDefinition questionDefinition) {
+    ImmutableMap<Scalar, ScalarType> scalars;
+    try {
+      scalars = Scalar.getScalars(questionDefinition.getQuestionType());
+    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+      // This should never happen since we filter out Enumerator questions before this point.
+      return div()
+          .withText("Sorry, you cannot create a show/hide predicate with this question type.");
+    }
+
     ImmutableList<ContainerTag> options =
         scalars.entrySet().stream()
             .map(
@@ -289,7 +267,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .getContainer();
   }
 
-  private static ContainerTag createOperatorDropdown() {
+  private ContainerTag createOperatorDropdown() {
     ImmutableList<ContainerTag> operatorOptions =
         Arrays.stream(Operator.values())
             .map(
@@ -312,5 +290,32 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .setCustomOptions(operatorOptions)
         .addReferenceClass(ReferenceClasses.PREDICATE_OPERATOR_SELECT)
         .getContainer();
+  }
+
+  private ContainerTag createValueField(QuestionDefinition questionDefinition) {
+    if (questionDefinition.getQuestionType().isMultiOptionType()) {
+      // If it's a multi-option question, we need to provide a discrete list of possible values to
+      // choose from instead of a freeform text field. Not only is it a better UX, but we store the
+      // ID of the options rather than the display strings since the option display strings are
+      // localized.
+      ImmutableMap<String, String> valueOptions =
+          ((MultiOptionQuestionDefinition) questionDefinition)
+              .getOptions().stream()
+                  .collect(
+                      toImmutableMap(
+                          option -> option.optionText().getDefault(),
+                          option -> String.valueOf(option.id())));
+
+      return new SelectWithLabel()
+          .setFieldName("predicateValue")
+          .setLabelText("Value")
+          .setOptions(valueOptions)
+          .getContainer();
+    } else {
+      return FieldWithLabel.input()
+          .setFieldName("predicateValue")
+          .setLabelText("Value")
+          .getContainer();
+    }
   }
 }
