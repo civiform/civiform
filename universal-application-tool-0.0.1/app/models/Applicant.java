@@ -17,28 +17,37 @@ import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
 
 /**
- * An EBean mapped class that represents a single applicant at a specific version.
+ * An EBean mapped class that represents a single applicant at a specific {@code Version}.
  *
- * <p>This class primarily exists to handle database interaction for its {@code object} property
- * which it uses to hydrate a {@code ApplicantData} instance. See {@code
+ * <p>This class primarily exists to handle persistence for its {@code object} property
+ * which it uses to hydrate an {@code ApplicantData} instance. See {@code
  * Applicant#getApplicantData}.
  *
- * <p>Note that an {@code Applicant} is not one-to-one with an actual human applicant: {@code
- * Account}s and therefore human applicants may have multiple associated {@code Applicant} records
- * for different CiviForm versions.
+ * <p>Note that an {@code Applicant} is one-to-one with an actual human applicant in practice:
+ * {@code Account}s and therefore human applicants only have one {@code Applicant} record despite
+ * the code specifying a one-to-many relationship. This is technical debt that stems from earlier
+ * reasoning about the approach wherein we expected we'd need to create multiple versions of the
+ * resident's {@code ApplicantData} for each version they interact with. That isn't the case and a
+ * their {@code ApplicantData} migrates seamlessly with each additional version but the database
+ * schema remains.
  */
 @Entity
 @Table(name = "applicants")
 public class Applicant extends BaseModel {
+
   private static final long serialVersionUID = 1L;
   private ApplicantData applicantData;
 
-  @WhenCreated private Instant whenCreated;
+  @WhenCreated
+  private Instant whenCreated;
 
   private String preferredLocale;
 
-  @Constraints.Required @DbJson private String object;
-  @ManyToOne private Account account;
+  @Constraints.Required
+  @DbJson
+  private String object;
+  @ManyToOne
+  private Account account;
 
   @OneToMany(mappedBy = "applicant")
   private List<Application> applications;
