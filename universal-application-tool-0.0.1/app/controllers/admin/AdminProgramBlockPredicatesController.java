@@ -77,6 +77,10 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
           .flashing("error", errorMessageBuilder.toString());
     } else {
+      // TODO(https://github.com/seattle-uat/civiform/issues/322): Implement complex predicates.
+      //  Right now we only support "leaf node" predicates (a single logical statement based on one
+      //  question). In the future we should support logical statements that combine multiple "leaf
+      //  node" predicates with ANDs and ORs.
       BlockVisibilityPredicateForm predicateForm = predicateFormWrapper.get();
       PredicateDefinition predicateDefinition =
           PredicateDefinition.create(
