@@ -664,12 +664,12 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     programDefinition =
         ps.setProgramQuestionDefinitionOptionality(programId, 1L, nameQuestion.getId(), true);
     assertThat(
-        programDefinition
-            .getBlockDefinitionByIndex(0)
-            .get()
-            .programQuestionDefinitions()
-            .get(0)
-            .optional())
+            programDefinition
+                .getBlockDefinitionByIndex(0)
+                .get()
+                .programQuestionDefinitions()
+                .get(0)
+                .optional())
         .isTrue();
     // Checking that there's no problem
     ps.setProgramQuestionDefinitionOptionality(programId, 1L, nameQuestion.getId() + 1, false);

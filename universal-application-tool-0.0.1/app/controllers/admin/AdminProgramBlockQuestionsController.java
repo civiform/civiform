@@ -57,30 +57,26 @@ public class AdminProgramBlockQuestionsController extends Controller {
   }
 
   @Secure(authorizers = Labels.UAT_ADMIN)
-  public Result destroy(Request request, long programId, long blockId) {
-    DynamicForm requestData = formFactory.form().bindFromRequest(request);
-
-    ImmutableList<Long> questionIds =
-        requestData.rawData().entrySet().stream()
-            .filter(formField -> formField.getKey().startsWith("block-question-"))
-            .map(formField -> Long.valueOf(formField.getValue()))
-            .collect(ImmutableList.toImmutableList());
-
+  public Result destroy(long programId, long blockDefinitionId, long questionDefinitionId) {
     try {
-      programService.removeQuestionsFromBlock(programId, blockId, questionIds);
+      programService.removeQuestionsFromBlock(
+          programId, blockDefinitionId, ImmutableList.of(questionDefinitionId));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
-      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
+      return notFound(
+          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     } catch (QuestionNotFoundException e) {
-      return notFound(String.format("Question ID %s not found", questionIds));
+      return notFound(String.format("Question ID %s not found", questionDefinitionId));
     }
 
-    return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId));
+    return redirect(
+        controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockDefinitionId));
   }
 
   @Secure(authorizers = Labels.UAT_ADMIN)
-  public Result setOptional(Request request, long programId, long blockId) {
+  public Result setOptional(
+      Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
     ProgramQuestionDefinitionOptionalityForm programQuestionDefinitionOptionalityForm =
         formFactory
             .form(ProgramQuestionDefinitionOptionalityForm.class)
@@ -90,15 +86,17 @@ public class AdminProgramBlockQuestionsController extends Controller {
     try {
       programService.setProgramQuestionDefinitionOptionality(
           programId,
-          blockId,
-          programQuestionDefinitionOptionalityForm.getQuestionDefinitionId(),
+          blockDefinitionId,
+          questionDefinitionId,
           programQuestionDefinitionOptionalityForm.getOptional());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
-      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
+      return notFound(
+          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     }
 
-    return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId));
+    return redirect(
+        controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockDefinitionId));
   }
 }
