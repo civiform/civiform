@@ -378,7 +378,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 isRequired ? Styles.TEXT_BLACK : Styles.TEXT_GRAY_400,
                 Styles.FONT_MEDIUM,
                 Styles.BG_TRANSPARENT,
-                StyleUtils.hover(Styles.BG_GRAY_500, Styles.TEXT_GRAY_300))
+                Styles.ROUNDED_FULL,
+                StyleUtils.hover(Styles.BG_GRAY_400, Styles.TEXT_GRAY_300))
             .withType("submit")
             .with(p("required").withClasses("hover-group:text-white"))
             .with(
