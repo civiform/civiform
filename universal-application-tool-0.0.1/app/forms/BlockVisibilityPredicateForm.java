@@ -2,9 +2,11 @@ package forms;
 
 import play.data.validation.Constraints;
 import play.data.validation.Constraints.Validatable;
+import play.data.validation.Constraints.Validate;
 import services.applicant.question.Scalar;
 import services.program.predicate.Operator;
 
+@Validate
 public class BlockVisibilityPredicateForm implements Validatable<String> {
   @Constraints.Required(message = "Must select 'hidden if' or 'shown if'.")
   private String predicateAction;

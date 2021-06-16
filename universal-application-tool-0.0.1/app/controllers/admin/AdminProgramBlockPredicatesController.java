@@ -67,8 +67,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         formFactory.form(BlockVisibilityPredicateForm.class).bindFromRequest(request);
 
     if (predicateFormWrapper.hasErrors()) {
-      StringBuilder errorMessageBuilder = new StringBuilder();
-      errorMessageBuilder.append("Did not save visibility condition:");
+      StringBuilder errorMessageBuilder = new StringBuilder("Did not save visibility condition:");
       predicateFormWrapper
           .errors()
           .forEach(error -> errorMessageBuilder.append(String.format("\n• %s", error.message())));
