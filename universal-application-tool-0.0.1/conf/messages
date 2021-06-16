@@ -72,6 +72,12 @@ link.externalLink=External site
 # The title of the page for the list of programs.
 title.programs=Programs & services
 
+# Subtitle for the list of programs with draft applications
+titles.inProgressPrograms=Continue
+
+# Subtitle for the list of programs for which the applicant has no draft applications
+titles.activePrograms=New Programs
+
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Successfully saved application: application ID {0}
 

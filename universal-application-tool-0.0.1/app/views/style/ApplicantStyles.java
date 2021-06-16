@@ -41,7 +41,7 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(BaseStyles.TEXT_SEATTLE_BLUE, Styles.TEXT_LG, Styles.FONT_BOLD);
 
   public static final String PROGRAM_CARDS_CONTAINER =
-      StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_WRAP, Styles.GAP_4);
+      StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_WRAP, Styles.GAP_4, Styles.MB_16);
   public static final String PROGRAM_CARD =
       StyleUtils.joinStyles(
           Styles.INLINE_BLOCK,

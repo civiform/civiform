@@ -62,6 +62,8 @@ public enum MessageKey {
   TITLE_APPLICATION_CONFIRMATION("title.applicationConfirmation"),
   TITLE_CREATE_AN_ACCOUNT("title.createAnAccount"),
   TITLE_PROGRAMS("title.programs"),
+  TITLE_PROGRAMS_ACTIVE("title.activePrograms"),
+  TITLE_PROGRAMS_IN_PROGRESS("title.inProgressPrograms"),
   TITLE_PROGRAM_PREVIEW("title.programPreview"),
   TITLE_PROGRAM_REVIEW("title.programReview"),
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
