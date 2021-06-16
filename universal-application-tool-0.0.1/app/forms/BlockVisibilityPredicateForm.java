@@ -1,13 +1,25 @@
 package forms;
 
 import play.data.validation.Constraints;
+import play.data.validation.Constraints.Validatable;
+import services.applicant.question.Scalar;
+import services.program.predicate.Operator;
 
-public class BlockVisibilityPredicateForm {
-  @Constraints.Required private String predicateAction;
-  @Constraints.Required private long questionId;
-  @Constraints.Required private String scalar;
-  @Constraints.Required private String operator;
-  @Constraints.Required private String predicateValue;
+public class BlockVisibilityPredicateForm implements Validatable<String> {
+  @Constraints.Required(message = "Must select 'hidden if' or 'shown if'.")
+  private String predicateAction;
+
+  @Constraints.Required(message = "Question ID is required.")
+  private long questionId;
+
+  @Constraints.Required(message = "Scalar is required.")
+  private String scalar;
+
+  @Constraints.Required(message = "Operator is required.")
+  private String operator;
+
+  @Constraints.Required(message = "Value is required.")
+  private String predicateValue;
 
   public BlockVisibilityPredicateForm(
       String predicateAction,
@@ -29,6 +41,19 @@ public class BlockVisibilityPredicateForm {
     scalar = "";
     operator = "";
     predicateValue = "";
+  }
+
+  @Override
+  public String validate() {
+    Operator operator = Operator.valueOf(getOperator());
+    Scalar scalar = Scalar.valueOf(getScalar());
+    // This should never happen since we only expose the usable operators for the given scalar.
+    if (!operator.getOperableTypes().contains(scalar.toScalarType())) {
+      return String.format(
+          "Cannot use operator \"%s\" on scalar %s.",
+          operator.toDisplayString(), scalar.toDisplayString());
+    }
+    return null;
   }
 
   public String getPredicateAction() {
