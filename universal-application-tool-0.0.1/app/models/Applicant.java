@@ -19,9 +19,8 @@ import services.applicant.ApplicantData;
 /**
  * An EBean mapped class that represents a single applicant at a specific {@code Version}.
  *
- * <p>This class primarily exists to handle persistence for its {@code object} property
- * which it uses to hydrate an {@code ApplicantData} instance. See {@code
- * Applicant#getApplicantData}.
+ * <p>This class primarily exists to handle persistence for its {@code object} property which it
+ * uses to hydrate an {@code ApplicantData} instance. See {@code Applicant#getApplicantData}.
  *
  * <p>Note that an {@code Applicant} is one-to-one with an actual human applicant in practice:
  * {@code Account}s and therefore human applicants only have one {@code Applicant} record despite
@@ -38,16 +37,12 @@ public class Applicant extends BaseModel {
   private static final long serialVersionUID = 1L;
   private ApplicantData applicantData;
 
-  @WhenCreated
-  private Instant whenCreated;
+  @WhenCreated private Instant whenCreated;
 
   private String preferredLocale;
 
-  @Constraints.Required
-  @DbJson
-  private String object;
-  @ManyToOne
-  private Account account;
+  @Constraints.Required @DbJson private String object;
+  @ManyToOne private Account account;
 
   @OneToMany(mappedBy = "applicant")
   private List<Application> applications;
