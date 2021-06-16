@@ -11,9 +11,20 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
 
+/**
+ * An EBean mapped class that records the submission of a single applicant to a single program at a
+ * single version.
+ *
+ * <p>When a resident or trusted intermediary submits an application for a program, an {@code
+ * Application} is created with a snapshot of the resident's {@code ApplicantData}. This ensures
+ * that the data seen by the program administrator is consistent with what was actually submitted
+ * and not subject to change if the resident or trusted intermediary changes answers to shared
+ * questions after submitting.
+ */
 @Entity
 @Table(name = "applications")
 public class Application extends BaseModel {
+
   @ManyToOne private Applicant applicant;
 
   @ManyToOne private Program program;

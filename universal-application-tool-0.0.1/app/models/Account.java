@@ -14,20 +14,40 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import services.program.ProgramDefinition;
 
+/**
+ * An EBean mapped class that represents a single user account in CiviForm. Users of all roles have
+ * an {@code Account}.
+ *
+ * <p>When a user logs in for the first time using SSO or fills out an application as a guest,
+ * CiviForm creates an {@code Account} record for them.
+ *
+ * <p>Note that residents have a single {@code Account} and a single {@code Applicant}
+ * record, despite the one to many relationship. This is technical debt that stems from earlier
+ * reasoning about the approach wherein we expected we'd need to create multiple versions of the
+ * resident's {@code ApplicantData} for each version they interact with. That isn't the case and a
+ * their {@code ApplicantData} migrates seamlessly with each additional version but the database
+ * schema remains.
+ *
+ * <p>Accounts are not versioned.
+ */
 @Entity
 @Table(name = "accounts")
 public class Account extends BaseModel {
+
   private static final long serialVersionUID = 1L;
 
   @OneToMany(mappedBy = "account")
   private List<Applicant> applicants;
 
-  @ManyToOne private TrustedIntermediaryGroup memberOfGroup;
-  @ManyToOne private TrustedIntermediaryGroup managedByGroup;
+  @ManyToOne
+  private TrustedIntermediaryGroup memberOfGroup;
+  @ManyToOne
+  private TrustedIntermediaryGroup managedByGroup;
   private boolean globalAdmin;
 
   // This must be a mutable collection so we can add to the list later.
-  @DbArray private List<String> adminOf = new ArrayList<>();
+  @DbArray
+  private List<String> adminOf = new ArrayList<>();
 
   private String emailAddress;
 

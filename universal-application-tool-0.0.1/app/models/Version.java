@@ -13,14 +13,21 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 /**
- * A version object has a lifecycle stage (active, draft, obsolete, deleted) and a list of programs
- * and questions. There is exactly one active version at any given time, and at most one draft -
- * there are an arbitrary number of obsolete and deleted versions. Obsolete versions may be reverted
- * to - deleted ones will not be displayed under any circumstances.
+ * An EBean mapped class that stores a reference object for coordinating the CiviForm data model.
+ *
+ * <p>A version object has a lifecycle stage (active, draft, obsolete, deleted) and a list of
+ * programs and questions. There is exactly one active version at any given time, and at most one
+ * draft - there are an arbitrary number of obsolete and deleted versions. Obsolete versions may be
+ * reverted to - deleted ones will not be displayed under any circumstances.
+ *
+ * <p>Versions synchronize the CiviForm admin-configured data model, i.e. {@code Question}s and
+ * {@code Programs}s, along with the resident and trusted intermediary-provided answers stored in
+ * {@code ApplicantData}, {@code Applicant}, and {@code Application}.
  */
 @Entity
 @Table(name = "versions")
 public class Version extends BaseModel {
+
   @Constraints.Required private LifecycleStage lifecycleStage;
 
   @ManyToMany(mappedBy = "versions")

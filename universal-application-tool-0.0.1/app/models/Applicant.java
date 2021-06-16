@@ -16,7 +16,17 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
 
-/** The ebean mapped class that represents an individual applicant */
+/**
+ * An EBean mapped class that represents a single applicant at a specific version.
+ *
+ * <p>This class primarily exists to handle database interaction for its {@code object} property
+ * which it uses to hydrate a {@code ApplicantData} instance. See {@code
+ * Applicant#getApplicantData}.
+ *
+ * <p>Note that an {@code Applicant} is not one-to-one with an actual human applicant: {@code
+ * Account}s and therefore human applicants may have multiple associated {@code Applicant} records
+ * for different CiviForm versions.
+ */
 @Entity
 @Table(name = "applicants")
 public class Applicant extends BaseModel {
