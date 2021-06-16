@@ -34,6 +34,15 @@ public class BlockVisibilityPredicateForm implements Validatable<String> {
     this.predicateValue = predicateValue;
   }
 
+  public BlockVisibilityPredicateForm() {
+    predicateAction = "";
+    // TODO(natsid): Default value for questionId? Should it be OptionalLong (see
+    //  NumberQuestionForm)?
+    scalar = "";
+    operator = "";
+    predicateValue = "";
+  }
+
   @Override
   public String validate() {
     Operator operator = Operator.valueOf(getOperator());
@@ -45,7 +54,6 @@ public class BlockVisibilityPredicateForm implements Validatable<String> {
           "Cannot use operator \"%s\" on scalar \"%s\".",
           operator.toDisplayString(), scalar.toDisplayString());
     }
-
     return null;
   }
 
