@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
+import forms.ProgramQuestionDefinitionOptionalityForm;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
@@ -73,6 +74,29 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
     } catch (QuestionNotFoundException e) {
       return notFound(String.format("Question ID %s not found", questionIds));
+    }
+
+    return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId));
+  }
+
+  @Secure(authorizers = Labels.UAT_ADMIN)
+  public Result setOptional(Request request, long programId, long blockId) {
+    ProgramQuestionDefinitionOptionalityForm programQuestionDefinitionOptionalityForm =
+        formFactory
+            .form(ProgramQuestionDefinitionOptionalityForm.class)
+            .bindFromRequest(request)
+            .get();
+
+    try {
+      programService.setProgramQuestionDefinitionOptionality(
+          programId,
+          blockId,
+          programQuestionDefinitionOptionalityForm.getQuestionDefinitionId(),
+          programQuestionDefinitionOptionalityForm.getOptional());
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
     }
 
     return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId));

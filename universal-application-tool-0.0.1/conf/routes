@@ -45,6 +45,7 @@ GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit/predicates/edi
 # A controller for adding and removing questions from program blocks
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions               controllers.admin.AdminProgramBlockQuestionsController.create(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/delete        controllers.admin.AdminProgramBlockQuestionsController.destroy(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/setOptional   controllers.admin.AdminProgramBlockQuestionsController.setOptional(request: Request, programId: Long, blockDefinitionId: Long)
 
 # A controller for a page for an admin to view, edit, and create questions
 GET     /admin/questions             controllers.admin.AdminQuestionController.index(request: Request)
