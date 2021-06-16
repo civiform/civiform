@@ -47,6 +47,9 @@ public class BlockVisibilityPredicateForm implements Validatable<String> {
 
   @Override
   public String validate() {
+    // Don't attempt to run this validate method if missing required values.
+    if (operator.isEmpty() || scalar.isEmpty()) return null;
+
     Operator operator = Operator.valueOf(getOperator());
     Scalar scalar = Scalar.valueOf(getScalar());
 
