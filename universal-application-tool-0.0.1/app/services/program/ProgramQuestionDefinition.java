@@ -21,7 +21,7 @@ public abstract class ProgramQuestionDefinition {
   /**
    * True if this program question definition is required. Otherwise it is optional.
    *
-   * <p>This field was added in June. Program question definitions created before this field will
+   * <p>This field was added in June 2021. Program question definitions created before this field will
    * default to optional (false).
    */
   @JsonProperty("required")
