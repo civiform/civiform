@@ -21,6 +21,7 @@ public enum Scalar {
   CITY("city"),
   DATE("date"),
   EMAIL("email"),
+  EMPTY("empty"),
   FILE_KEY("file key"),
   FIRST_NAME("first name"),
   LAST_NAME("last name"),
