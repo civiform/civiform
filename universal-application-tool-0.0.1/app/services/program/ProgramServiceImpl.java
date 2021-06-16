@@ -413,6 +413,33 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
+  public ProgramDefinition setProgramQuestionDefinitionOptionality(
+      long programId, long blockDefinitionId, long questionDefinitionId, boolean optional)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+
+    if (!blockDefinition.programQuestionDefinitions().stream()
+        .anyMatch(pqd -> pqd.id() == questionDefinitionId)) {
+      throw new ProgramQuestionDefinitionNotFoundException(
+          programId, blockDefinitionId, questionDefinitionId);
+    }
+
+    ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions =
+        blockDefinition.programQuestionDefinitions().stream()
+            .map(pqd -> pqd.id() == questionDefinitionId ? pqd.setOptional(optional) : pqd)
+            .collect(ImmutableList.toImmutableList());
+
+    return updateProgramDefinitionWithBlockDefinition(
+        programDefinition,
+        blockDefinition.toBuilder()
+            .setProgramQuestionDefinitions(programQuestionDefinitions)
+            .build());
+  }
+
+  @Override
+  @Transactional
   public ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
       throws ProgramNotFoundException, ProgramNeedsABlockException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
@@ -555,12 +582,11 @@ public class ProgramServiceImpl implements ProgramService {
 
   private ProgramQuestionDefinition syncProgramQuestionDefinition(
       ProgramQuestionDefinition pqd, ReadOnlyQuestionService roQuestionService) {
-    QuestionDefinition questionDefinition;
     try {
-      questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
+      QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
+      return pqd.setQuestionDefinition(questionDefinition);
     } catch (QuestionNotFoundException e) {
       throw new RuntimeException(e);
     }
-    return ProgramQuestionDefinition.create(questionDefinition);
   }
 }
