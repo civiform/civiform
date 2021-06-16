@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
-import forms.ProgramQuestionDefinitionRequiredForm;
+import forms.ProgramQuestionDefinitionOptionalityForm;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
@@ -75,20 +75,20 @@ public class AdminProgramBlockQuestionsController extends Controller {
   }
 
   @Secure(authorizers = Labels.UAT_ADMIN)
-  public Result setRequired(
+  public Result setOptional(
       Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
-    ProgramQuestionDefinitionRequiredForm programQuestionDefinitionRequiredForm =
+    ProgramQuestionDefinitionOptionalityForm programQuestionDefinitionOptionalityForm =
         formFactory
-            .form(ProgramQuestionDefinitionRequiredForm.class)
+            .form(ProgramQuestionDefinitionOptionalityForm.class)
             .bindFromRequest(request)
             .get();
 
     try {
-      programService.setProgramQuestionDefinitionRequired(
+      programService.setProgramQuestionDefinitionOptionality(
           programId,
           blockDefinitionId,
           questionDefinitionId,
-          programQuestionDefinitionRequiredForm.getRequired());
+          programQuestionDefinitionOptionalityForm.getOptional());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {

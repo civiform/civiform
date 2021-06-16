@@ -19,13 +19,13 @@ public abstract class ProgramQuestionDefinition {
   public abstract long id();
 
   /**
-   * True if this program question definition is required. Otherwise it is optional.
+   * True if this program question definition is optional. Otherwise it is required.
    *
    * <p>This field was added in June 2021. Program question definitions created before this field will
-   * default to optional (false).
+   * default to required (false).
    */
-  @JsonProperty("required")
-  public abstract boolean required();
+  @JsonProperty("optional")
+  public abstract boolean optional();
 
   abstract Optional<QuestionDefinition> questionDefinition();
 
@@ -41,30 +41,30 @@ public abstract class ProgramQuestionDefinition {
 
   @JsonCreator
   static ProgramQuestionDefinition create(
-      @JsonProperty("id") long id, @JsonProperty("required") boolean required) {
-    return new AutoValue_ProgramQuestionDefinition(id, required, Optional.empty());
+      @JsonProperty("id") long id, @JsonProperty("optional") boolean optional) {
+    return new AutoValue_ProgramQuestionDefinition(id, optional, Optional.empty());
   }
 
   /** Create an optional program question definition. */
   public static ProgramQuestionDefinition create(QuestionDefinition questionDefinition) {
-    return create(questionDefinition, false);
+    return create(questionDefinition, true);
   }
 
   /** Create a program question definition. */
   public static ProgramQuestionDefinition create(
-      QuestionDefinition questionDefinition, boolean required) {
+      QuestionDefinition questionDefinition, boolean optional) {
     return new AutoValue_ProgramQuestionDefinition(
-        questionDefinition.getId(), required, Optional.of(questionDefinition));
+        questionDefinition.getId(), optional, Optional.of(questionDefinition));
   }
 
   /** Return a program question definition with the {@link QuestionDefinition} set. */
   public ProgramQuestionDefinition setQuestionDefinition(QuestionDefinition questionDefinition) {
     return new AutoValue_ProgramQuestionDefinition(
-        questionDefinition.getId(), required(), Optional.of(questionDefinition));
+        questionDefinition.getId(), optional(), Optional.of(questionDefinition));
   }
 
-  /** Return a program question definition with a new required setting. */
-  public ProgramQuestionDefinition setRequired(boolean required) {
-    return create(getQuestionDefinition(), required);
+  /** Return a program question definition with a new optional setting. */
+  public ProgramQuestionDefinition setOptional(boolean optional) {
+    return create(getQuestionDefinition(), optional);
   }
 }

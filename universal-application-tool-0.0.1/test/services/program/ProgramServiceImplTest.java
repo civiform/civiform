@@ -647,37 +647,37 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                 .get()
                 .programQuestionDefinitions()
                 .get(0)
-                .required())
-        .isFalse();
-
-    programDefinition =
-        ps.setProgramQuestionDefinitionRequired(programId, 1L, nameQuestion.getId(), true);
-    assertThat(
-            programDefinition
-                .getBlockDefinitionByIndex(0)
-                .get()
-                .programQuestionDefinitions()
-                .get(0)
-                .required())
+                .optional())
         .isTrue();
 
     programDefinition =
-        ps.setProgramQuestionDefinitionRequired(programId, 1L, nameQuestion.getId(), false);
+        ps.setProgramQuestionDefinitionOptionality(programId, 1L, nameQuestion.getId(), false);
     assertThat(
             programDefinition
                 .getBlockDefinitionByIndex(0)
                 .get()
                 .programQuestionDefinitions()
                 .get(0)
-                .required())
+                .optional())
         .isFalse();
 
+    programDefinition =
+        ps.setProgramQuestionDefinitionOptionality(programId, 1L, nameQuestion.getId(), true);
+    assertThat(
+            programDefinition
+                .getBlockDefinitionByIndex(0)
+                .get()
+                .programQuestionDefinitions()
+                .get(0)
+                .optional())
+        .isTrue();
+
     // Checking that there's no problem
-    ps.setProgramQuestionDefinitionRequired(programId, 1L, nameQuestion.getId() + 1, false);
+    ps.setProgramQuestionDefinitionOptionality(programId, 1L, nameQuestion.getId() + 1, false);
   }
 
   @Test
-  public void deleteBlock_invalidProgram_throwsProgramNotFoundException() {
+  public void deleteBlock_invalidProgram_throwsProgramNotfoundException() {
     assertThatThrownBy(() -> ps.deleteBlock(1L, 2L))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
