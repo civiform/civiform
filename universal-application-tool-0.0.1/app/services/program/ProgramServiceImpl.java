@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import forms.BlockForm;
 import java.util.Locale;
@@ -79,6 +80,10 @@ public class ProgramServiceImpl implements ProgramService {
                 return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
               }
               Program program = programMaybe.get();
+              if (isActiveOrDraftProgram(program)) {
+                return syncProgramDefinitionQuestions(program.getProgramDefinition())
+                    .thenApply(programDefinition -> programDefinition.orderBlockDefinitions());
+              }
               // Any version that the program is in has all the questions the program has.
               Version version = program.getVersions().stream().findAny().get();
               ProgramDefinition programDefinition =
@@ -540,6 +545,13 @@ public class ProgramServiceImpl implements ProgramService {
 
   private long getNextBlockId(ProgramDefinition programDefinition) {
     return programDefinition.getMaxBlockDefinitionId() + 1;
+  }
+
+  private boolean isActiveOrDraftProgram(Program program) {
+    return Streams.concat(
+            versionRepository.getActiveVersion().getPrograms().stream(),
+            versionRepository.getDraftVersion().getPrograms().stream())
+        .anyMatch(p -> p.id.equals(program.id));
   }
 
   /**
