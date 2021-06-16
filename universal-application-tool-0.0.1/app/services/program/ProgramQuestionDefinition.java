@@ -21,8 +21,8 @@ public abstract class ProgramQuestionDefinition {
   /**
    * True if this program question definition is optional. Otherwise it is required.
    *
-   * <p>This field was added in June 2021. Program question definitions created before this field will
-   * default to required (false).
+   * <p>This field was added in June 2021. Program question definitions created before this field
+   * will default to required (false).
    */
   @JsonProperty("optional")
   public abstract boolean optional();
@@ -45,9 +45,9 @@ public abstract class ProgramQuestionDefinition {
     return new AutoValue_ProgramQuestionDefinition(id, optional, Optional.empty());
   }
 
-  /** Create an optional program question definition. */
+  /** Create a required program question definition. */
   public static ProgramQuestionDefinition create(QuestionDefinition questionDefinition) {
-    return create(questionDefinition, true);
+    return create(questionDefinition, false);
   }
 
   /** Create a program question definition. */

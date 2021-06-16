@@ -4,7 +4,7 @@ public class ProgramQuestionDefinitionOptionalityForm {
   private Boolean optional;
 
   public ProgramQuestionDefinitionOptionalityForm() {
-    optional = true;
+    optional = false;
   }
 
   public Boolean getOptional() {

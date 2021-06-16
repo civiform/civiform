@@ -358,7 +358,6 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 Styles.FLEX,
                 Styles.GAP_4,
                 Styles.ITEMS_CENTER,
-                canRemove ? "" : Styles.OPACITY_50,
                 StyleUtils.hover(Styles.TEXT_GRAY_800, Styles.BG_GRAY_100));
 
     ContainerTag icon =
@@ -374,22 +373,22 @@ public class ProgramBlockEditView extends BaseHtmlView {
         TagCreator.button()
             .withClasses(
                 Styles.FLEX,
-                Styles.GAP_1,
+                Styles.GAP_2,
                 Styles.ITEMS_CENTER,
-                isOptional ? Styles.TEXT_GRAY_400 : Styles.TEXT_BLACK,
+                isOptional ? Styles.TEXT_BLACK : Styles.TEXT_GRAY_400,
                 Styles.FONT_MEDIUM,
                 Styles.BG_TRANSPARENT,
                 Styles.ROUNDED_FULL,
                 StyleUtils.hover(Styles.BG_GRAY_400, Styles.TEXT_GRAY_300))
             .withType("submit")
-            .with(p("required").withClasses("hover-group:text-white"))
+            .with(p("optional").withClasses("hover-group:text-white"))
             .with(
                 div()
                     .withClasses(Styles.RELATIVE)
                     .with(
                         div()
                             .withClasses(
-                                isOptional ? Styles.BG_GRAY_600 : Styles.BG_BLUE_600,
+                                isOptional ? Styles.BG_BLUE_600 : Styles.BG_GRAY_600,
                                 Styles.W_14,
                                 Styles.H_8,
                                 Styles.ROUNDED_FULL))
@@ -398,7 +397,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                             .withClasses(
                                 Styles.ABSOLUTE,
                                 Styles.BG_WHITE,
-                                isOptional ? Styles.LEFT_1 : Styles.RIGHT_1,
+                                isOptional ? Styles.RIGHT_1 : Styles.LEFT_1,
                                 Styles.TOP_1,
                                 Styles.W_6,
                                 Styles.H_6,
@@ -426,7 +425,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 Attr.TITLE,
                 "An enumerator question can only be removed from the block when the block has no"
                     + " repeated blocks.")
-            .withClasses(ReferenceClasses.REMOVE_QUESTION_BUTTON);
+            .withClasses(
+                ReferenceClasses.REMOVE_QUESTION_BUTTON, canRemove ? "" : Styles.OPACITY_50);
     String deleteQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
