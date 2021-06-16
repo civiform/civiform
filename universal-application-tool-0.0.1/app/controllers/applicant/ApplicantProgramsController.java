@@ -68,7 +68,7 @@ public class ApplicantProgramsController extends CiviFormController {
             allPrograms -> {
               Set<String> programsWithDraftApplication =
                   allPrograms.get(LifecycleStage.DRAFT).stream()
-                      .map(programDefinition -> programDefinition.adminName())
+                      .map(ProgramDefinition::adminName)
                       .collect(Collectors.toSet());
               ImmutableList<ProgramDefinition> dedupedActivePrograms =
                   allPrograms.get(LifecycleStage.ACTIVE).stream()
@@ -110,7 +110,7 @@ public class ApplicantProgramsController extends CiviFormController {
             allPrograms -> {
               Optional<ProgramDefinition> programDefinition =
                   allPrograms.values().stream()
-                      .flatMap(programs -> programs.stream())
+                      .flatMap(ImmutableList::stream)
                       .filter(program -> program.id() == programId)
                       .findFirst();
               if (programDefinition.isPresent()) {

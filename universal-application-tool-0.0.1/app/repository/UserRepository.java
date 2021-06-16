@@ -79,11 +79,11 @@ public class UserRepository {
                   .endOr()
                   .findList()
                   .stream()
-                  .map(program -> program.getProgramDefinition())
+                  .map(Program::getProgramDefinition)
                   .collect(ImmutableList.toImmutableList());
           ImmutableList<ProgramDefinition> activePrograms =
               versionRepositoryProvider.get().getActiveVersion().getPrograms().stream()
-                  .map(program -> program.getProgramDefinition())
+                  .map(Program::getProgramDefinition)
                   .collect(ImmutableList.toImmutableList());
           return ImmutableMap.of(
               LifecycleStage.DRAFT, inProgressPrograms,
