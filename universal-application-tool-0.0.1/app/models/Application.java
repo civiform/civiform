@@ -4,6 +4,7 @@ import io.ebean.annotation.CreatedTimestamp;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.UpdatedTimestamp;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -23,18 +24,14 @@ public class Application extends BaseModel {
   @CreatedTimestamp private Instant createTime;
   @UpdatedTimestamp private Instant submitTime;
 
-  // used by generated code
-  @SuppressWarnings("UnusedVariable")
-  @Constraints.Required
-  @DbJson
-  private String object;
+  @Constraints.Required @DbJson private String object;
 
+  private String preferredLocale;
   private String submitterEmail;
 
   public Application(Applicant applicant, Program program, LifecycleStage lifecycleStage) {
     this.applicant = applicant;
-    ApplicantData data = applicant.getApplicantData();
-    this.object = data.asJsonString();
+    setApplicantData(applicant.getApplicantData());
     this.program = program;
     this.lifecycleStage = lifecycleStage;
   }
@@ -57,10 +54,17 @@ public class Application extends BaseModel {
   }
 
   public ApplicantData getApplicantData() {
-    return new ApplicantData(this.object);
+    if (this.preferredLocale == null || this.preferredLocale.isEmpty()) {
+      // Default to English.
+      return new ApplicantData(this.object);
+    }
+
+    return new ApplicantData(Optional.of(Locale.forLanguageTag(preferredLocale)), this.object);
   }
 
   public void setApplicantData(ApplicantData data) {
+    this.preferredLocale =
+        data.hasPreferredLocale() ? data.preferredLocale().toLanguageTag() : null;
     this.object = data.asJsonString();
   }
 

@@ -632,6 +632,55 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void setProgramQuestionDefinitionOptionality() throws Exception {
+    QuestionDefinition question = nameQuestion;
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withQuestionDefinition(question)
+            .buildDefinition();
+    Long programId = programDefinition.id();
+
+    assertThat(
+            programDefinition
+                .getBlockDefinitionByIndex(0)
+                .get()
+                .programQuestionDefinitions()
+                .get(0)
+                .optional())
+        .isFalse();
+
+    programDefinition =
+        ps.setProgramQuestionDefinitionOptionality(programId, 1L, nameQuestion.getId(), true);
+    assertThat(
+            programDefinition
+                .getBlockDefinitionByIndex(0)
+                .get()
+                .programQuestionDefinitions()
+                .get(0)
+                .optional())
+        .isTrue();
+
+    programDefinition =
+        ps.setProgramQuestionDefinitionOptionality(programId, 1L, nameQuestion.getId(), false);
+    assertThat(
+            programDefinition
+                .getBlockDefinitionByIndex(0)
+                .get()
+                .programQuestionDefinitions()
+                .get(0)
+                .optional())
+        .isFalse();
+
+    // Checking that there's no problem
+    assertThatThrownBy(
+            () ->
+                ps.setProgramQuestionDefinitionOptionality(
+                    programId, 1L, nameQuestion.getId() + 1, false))
+        .isInstanceOf(ProgramQuestionDefinitionNotFoundException.class);
+  }
+
+  @Test
   public void deleteBlock_invalidProgram_throwsProgramNotfoundException() {
     assertThatThrownBy(() -> ps.deleteBlock(1L, 2L))
         .isInstanceOf(ProgramNotFoundException.class)

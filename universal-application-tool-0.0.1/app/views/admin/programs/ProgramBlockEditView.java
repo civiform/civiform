@@ -321,27 +321,34 @@ public class ProgramBlockEditView extends BaseHtmlView {
                   StyleUtils.disabled(Styles.OPACITY_50)));
     }
 
-    String deleteQuestionAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(program.id(), blockId)
-            .url();
-    ContainerTag questionDeleteForm =
-        form(csrfTag)
-            .withId("block-questions-form")
-            .withMethod(HttpVerbs.POST)
-            .withAction(deleteQuestionAction);
+    ContainerTag programQuestions = div();
     blockQuestions.forEach(
-        pqd -> questionDeleteForm.with(renderQuestion(pqd.getQuestionDefinition(), canDelete)));
+        pqd ->
+            programQuestions.with(
+                renderQuestion(
+                    csrfTag,
+                    program.id(),
+                    blockId,
+                    pqd.getQuestionDefinition(),
+                    canDelete,
+                    pqd.optional())));
 
     return div()
         .withClasses(Styles.FLEX_AUTO, Styles.PY_6)
-        .with(blockInfoDisplay, buttons, questionDeleteForm);
+        .with(blockInfoDisplay, buttons, programQuestions);
   }
 
-  private ContainerTag renderQuestion(QuestionDefinition definition, boolean canRemove) {
+  private ContainerTag renderQuestion(
+      Tag csrfTag,
+      long programDefinitionId,
+      long blockDefinitionId,
+      QuestionDefinition questionDefinition,
+      boolean canRemove,
+      boolean isOptional) {
     ContainerTag ret =
         div()
             .withClasses(
-                Styles.RELATIVE,
+                ReferenceClasses.PROGRAM_QUESTION,
                 Styles.MX_4,
                 Styles.MY_2,
                 Styles.BORDER,
@@ -349,35 +356,89 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 Styles.PX_4,
                 Styles.PY_2,
                 Styles.FLEX,
-                Styles.ITEMS_START,
-                canRemove ? "" : Styles.OPACITY_50,
+                Styles.GAP_4,
+                Styles.ITEMS_CENTER,
                 StyleUtils.hover(Styles.TEXT_GRAY_800, Styles.BG_GRAY_100));
 
-    Tag removeButton =
-        TagCreator.button(text(definition.getName()))
+    ContainerTag icon =
+        Icons.questionTypeSvg(questionDefinition.getQuestionType(), 24)
+            .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
+    ContainerTag content =
+        div()
+            .withClass(Styles.FLEX_GROW)
+            .with(p(questionDefinition.getName()))
+            .with(p(questionDefinition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM));
+
+    ContainerTag optionalButton =
+        TagCreator.button()
+            .withClasses(
+                Styles.FLEX,
+                Styles.GAP_2,
+                Styles.ITEMS_CENTER,
+                isOptional ? Styles.TEXT_BLACK : Styles.TEXT_GRAY_400,
+                Styles.FONT_MEDIUM,
+                Styles.BG_TRANSPARENT,
+                Styles.ROUNDED_FULL,
+                StyleUtils.hover(Styles.BG_GRAY_400, Styles.TEXT_GRAY_300))
             .withType("submit")
-            .withId("block-question-" + definition.getId())
-            .withName("block-question-" + definition.getId())
-            .withValue(definition.getId() + "")
+            .with(p("optional").withClasses("hover-group:text-white"))
+            .with(
+                div()
+                    .withClasses(Styles.RELATIVE)
+                    .with(
+                        div()
+                            .withClasses(
+                                isOptional ? Styles.BG_BLUE_600 : Styles.BG_GRAY_600,
+                                Styles.W_14,
+                                Styles.H_8,
+                                Styles.ROUNDED_FULL))
+                    .with(
+                        div()
+                            .withClasses(
+                                Styles.ABSOLUTE,
+                                Styles.BG_WHITE,
+                                isOptional ? Styles.RIGHT_1 : Styles.LEFT_1,
+                                Styles.TOP_1,
+                                Styles.W_6,
+                                Styles.H_6,
+                                Styles.ROUNDED_FULL)));
+    String toggleOptionalAction =
+        controllers.admin.routes.AdminProgramBlockQuestionsController.setOptional(
+                programDefinitionId, blockDefinitionId, questionDefinition.getId())
+            .url();
+    ContainerTag optionalToggle =
+        form(csrfTag)
+            .withMethod(HttpVerbs.POST)
+            .withAction(toggleOptionalAction)
+            .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
+            .with(optionalButton);
+
+    Tag removeButton =
+        TagCreator.button(text("DELETE"))
+            .withType("submit")
+            .withId("block-question-" + questionDefinition.getId())
+            .withName("questionDefinitionId")
+            .withValue(String.valueOf(questionDefinition.getId()))
             .condAttr(!canRemove, Attr.DISABLED, "")
             .condAttr(
                 !canRemove,
                 Attr.TITLE,
                 "An enumerator question can only be removed from the block when the block has no"
                     + " repeated blocks.")
-            .withClasses(ReferenceClasses.REMOVE_QUESTION_BUTTON, AdminStyles.CLICK_TARGET_BUTTON);
+            .withClasses(
+                ReferenceClasses.REMOVE_QUESTION_BUTTON, canRemove ? "" : Styles.OPACITY_50);
+    String deleteQuestionAction =
+        controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
+                programDefinitionId, blockDefinitionId, questionDefinition.getId())
+            .url();
+    ContainerTag questionDeleteForm =
+        form(csrfTag)
+            .withId("block-questions-form")
+            .withMethod(HttpVerbs.POST)
+            .withAction(deleteQuestionAction)
+            .with(removeButton);
 
-    ContainerTag icon =
-        Icons.questionTypeSvg(definition.getQuestionType(), 24)
-            .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
-    ContainerTag content =
-        div()
-            .withClasses(Styles.ML_4)
-            .with(
-                p(definition.getName()),
-                p(definition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM),
-                removeButton);
-    return ret.with(icon, content);
+    return ret.with(icon, content, optionalToggle, questionDeleteForm);
   }
 
   private ContainerTag questionBankPanel(
