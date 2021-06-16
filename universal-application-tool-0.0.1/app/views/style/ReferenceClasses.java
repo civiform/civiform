@@ -28,6 +28,7 @@ public final class ReferenceClasses {
   public static final String VIEW_BUTTON = "cf-view-application-button";
 
   public static final String PROGRAM_ADMIN_REMOVE_BUTTON = "cf-program-admin-remove-button";
+  public static final String PROGRAM_QUESTION = "cf-program-question";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Applicant reference classes

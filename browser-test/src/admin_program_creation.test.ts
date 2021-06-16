@@ -31,8 +31,8 @@ describe('Create program with enumerator and repeated questions', () => {
     expect(await page.innerText('id=question-bank-questions')).not.toContain('apc-enumerator');
     expect(await page.innerText('id=question-bank-questions')).not.toContain('apc-repeated');
 
-    // Remove the non-enumerator question and add a enumerator question. All options should go away..
-    await page.click('button:text("apc-name")');
+    // Remove the non-enumerator question and add a enumerator question. All options should go away.
+    await page.click('.cf-program-question:has-text("apc-name") >> .cf-remove-question-button');
     await page.click('button:text("apc-enumerator")');
     expect(await page.innerText('id=question-bank-questions')).toBe('Question bank');
 

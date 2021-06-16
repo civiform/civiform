@@ -348,6 +348,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     ContainerTag ret =
         div()
             .withClasses(
+                ReferenceClasses.PROGRAM_QUESTION,
                 Styles.MX_4,
                 Styles.MY_2,
                 Styles.BORDER,

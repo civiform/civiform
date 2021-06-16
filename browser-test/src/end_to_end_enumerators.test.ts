@@ -29,7 +29,7 @@ describe('End to end enumerator test', () => {
     expect(await page.innerText('id=question-bank-questions')).toBe('Question bank');
 
     // Remove the enumerator question and add a non-enumerator question, and the enumerator option should not be in the bank.
-    await page.click('button:text("enumerator-ete-householdmembers")');
+    await page.click('.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button');
     await page.click('button:text("enumerator-ete-name")');
     expect(await page.innerText('id=question-bank-questions')).not.toContain('enumerator-ete-householdmembers');
 
@@ -43,7 +43,7 @@ describe('End to end enumerator test', () => {
     // Go back to the enumerator block, and with a repeated block, it cannot be deleted now. The enumerator question cannot be removed, either.
     await page.click('p:text("Block 2")');
     expect(await page.getAttribute('#delete-block-button', 'disabled')).not.toBeNull();
-    expect(await page.getAttribute('button:text("enumerator-ete-householdmembers")', 'disabled')).not.toBeNull();
+    expect(await page.getAttribute('.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button', 'disabled')).not.toBeNull();
 
     // Create the rest of the program.
     // Add repeated name question
