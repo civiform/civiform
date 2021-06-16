@@ -12,8 +12,7 @@ import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
 
 /**
- * An EBean mapped class that records the submission of a single applicant to a single program at a
- * single version.
+ * An EBean mapped class that records the submission of a single applicant to a single program.
  *
  * <p>When a resident or trusted intermediary submits an application for a program, an {@code
  * Application} is created with a snapshot of the resident's {@code ApplicantData}. This ensures
