@@ -331,7 +331,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     blockId,
                     pqd.getQuestionDefinition(),
                     canDelete,
-                    pqd.optional())));
+                    pqd.required())));
 
     return div()
         .withClasses(Styles.FLEX_AUTO, Styles.PY_6)
@@ -344,7 +344,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       long blockDefinitionId,
       QuestionDefinition questionDefinition,
       boolean canRemove,
-      boolean isOptional) {
+      boolean isRequired) {
     ContainerTag ret =
         div()
             .withClasses(
@@ -369,13 +369,13 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .with(p(questionDefinition.getName()))
             .with(p(questionDefinition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM));
 
-    ContainerTag optionalButton =
+    ContainerTag requiredButton =
         TagCreator.button()
             .withClasses(
                 Styles.FLEX,
                 Styles.GAP_1,
                 Styles.ITEMS_CENTER,
-                isOptional ? Styles.TEXT_GRAY_400 : Styles.TEXT_BLACK,
+                isRequired ? Styles.TEXT_BLACK : Styles.TEXT_GRAY_400,
                 Styles.FONT_MEDIUM,
                 Styles.BG_TRANSPARENT,
                 StyleUtils.hover(Styles.BG_GRAY_500, Styles.TEXT_GRAY_300))
@@ -387,7 +387,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     .with(
                         div()
                             .withClasses(
-                                isOptional ? Styles.BG_GRAY_600 : Styles.BG_BLUE_600,
+                                isRequired ? Styles.BG_BLUE_600 : Styles.BG_GRAY_600,
                                 Styles.W_14,
                                 Styles.H_8,
                                 Styles.ROUNDED_FULL))
@@ -396,21 +396,25 @@ public class ProgramBlockEditView extends BaseHtmlView {
                             .withClasses(
                                 Styles.ABSOLUTE,
                                 Styles.BG_WHITE,
-                                isOptional ? Styles.LEFT_1 : Styles.RIGHT_1,
+                                isRequired ? Styles.RIGHT_1 : Styles.LEFT_1,
                                 Styles.TOP_1,
                                 Styles.W_6,
                                 Styles.H_6,
                                 Styles.ROUNDED_FULL)));
     String toggleOptionalAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.setOptional(
+        controllers.admin.routes.AdminProgramBlockQuestionsController.setRequired(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
             .url();
     ContainerTag optionalToggle =
         form(csrfTag)
             .withMethod(HttpVerbs.POST)
             .withAction(toggleOptionalAction)
-            .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
-            .with(optionalButton);
+            .with(
+                input()
+                    .isHidden()
+                    .withName("required")
+                    .withValue(Boolean.valueOf(!isRequired).toString()))
+            .with(requiredButton);
 
     Tag removeButton =
         TagCreator.button(text("DELETE"))

@@ -413,15 +413,15 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public ProgramDefinition setProgramQuestionDefinitionOptionality(
-      long programId, long blockDefinitionId, long questionDefinitionId, boolean optional)
+  public ProgramDefinition setProgramQuestionDefinitionRequired(
+      long programId, long blockDefinitionId, long questionDefinitionId, boolean required)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
     ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions =
         blockDefinition.programQuestionDefinitions().stream()
-            .map(pqd -> pqd.id() == questionDefinitionId ? pqd.setOptional(optional) : pqd)
+            .map(pqd -> pqd.id() == questionDefinitionId ? pqd.setRequired(required) : pqd)
             .collect(ImmutableList.toImmutableList());
 
     return updateProgramDefinitionWithBlockDefinition(
