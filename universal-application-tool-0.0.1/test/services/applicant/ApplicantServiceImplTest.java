@@ -552,7 +552,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>> programs =
         subject.relevantPrograms(applicant.id).toCompletableFuture().join();
 
-    assertThat(programs.get(LifecycleStage.DRAFT).stream().map(ProgramDefinition::id)).containsExactly(p1.id);
+    assertThat(programs.get(LifecycleStage.DRAFT).stream().map(ProgramDefinition::id))
+        .containsExactly(p1.id);
     assertThat(programs.get(LifecycleStage.ACTIVE).stream().map(ProgramDefinition::id))
         .containsExactly(p1.id, p2.id);
   }
