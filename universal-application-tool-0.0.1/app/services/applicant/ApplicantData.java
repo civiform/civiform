@@ -227,6 +227,7 @@ public class ApplicantData {
   /** Clears an array in preparation of updates. */
   public void maybeClearArray(Path path) {
     if (path.isArrayElement()) {
+      putParentIfMissing(path);
       putAt(path.withoutArrayReference(), new ArrayList<>());
     }
   }
