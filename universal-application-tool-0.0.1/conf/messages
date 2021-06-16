@@ -75,7 +75,7 @@ title.programs=Programs & services
 # Subtitle for the list of programs with draft applications
 titles.inProgressPrograms=Continue
 
-# Subtitle for the list of active programs
+# Subtitle for the list of programs for which the applicant has no draft applications
 titles.activePrograms=New Programs
 
 # A toast message that displays when an applicant submits an application.
