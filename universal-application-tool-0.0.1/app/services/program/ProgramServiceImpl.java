@@ -298,7 +298,7 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   private ImmutableSet<CiviFormError> validateBlockDefinition(String name, String description) {
-    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.<CiviFormError>builder();
+    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
     if (name.isBlank()) {
       errors.add(CiviFormError.of("block name cannot be blank"));
     }

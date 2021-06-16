@@ -43,7 +43,7 @@ public class FieldWithLabel {
   protected boolean showFieldErrors = true;
   protected boolean checked = false;
   protected boolean disabled = false;
-  protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.<String>builder();
+  protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
 
   public FieldWithLabel(Tag fieldTag) {
     this.fieldTag = checkNotNull(fieldTag);
