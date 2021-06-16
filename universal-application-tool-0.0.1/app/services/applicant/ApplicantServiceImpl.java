@@ -21,6 +21,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
+import models.LifecycleStage;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
 import repository.UserRepository;
@@ -234,7 +235,8 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
-  public CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId) {
+  public CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>>
+      relevantPrograms(long applicantId) {
     return userRepository.programsForApplicant(applicantId);
   }
 

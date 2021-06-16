@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -61,14 +62,15 @@ public class ApplicantProgramsController extends CiviFormController {
         .thenComposeAsync(
             v -> applicantService.relevantPrograms(applicantId), httpContext.current())
         .thenApplyAsync(
-            programs ->
+            allPrograms ->
                 ok(
                     programIndexView.render(
                         messagesApi.preferred(request),
                         request,
                         applicantId,
                         applicantStage.toCompletableFuture().join(),
-                        programs,
+                        allPrograms.get(LifecycleStage.DRAFT),
+                        allPrograms.get(LifecycleStage.ACTIVE),
                         banner)),
             httpContext.current())
         .exceptionally(
@@ -91,9 +93,12 @@ public class ApplicantProgramsController extends CiviFormController {
         .thenComposeAsync(
             v -> applicantService.relevantPrograms(applicantId), httpContext.current())
         .thenApplyAsync(
-            programs -> {
+            allPrograms -> {
               Optional<ProgramDefinition> programDefinition =
-                  programs.stream().filter(program -> program.id() == programId).findFirst();
+                  allPrograms.values().stream()
+                      .flatMap(programs -> programs.stream())
+                      .filter(program -> program.id() == programId)
+                      .findFirst();
               if (programDefinition.isPresent()) {
                 return ok(
                     programInfoView.render(

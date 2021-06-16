@@ -29,6 +29,8 @@ title.programPreview=Vista previa del programa
 title.programReview=Revisión del programa
 
 title.programs=Programas y servicios
+title.inProgressPrograms=Seguir
+title.activePrograms=Nuevos Programas
 link.programDetails=Detalles del programa
 link.externalLink=Sitio externo
 content.benefits=Obtener beneficios

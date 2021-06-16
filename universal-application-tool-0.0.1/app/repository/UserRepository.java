@@ -6,6 +6,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import auth.UatProfile;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import io.ebean.Ebean;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Account;
@@ -55,40 +57,54 @@ public class UserRepository {
   }
 
   /**
-   * Returns all programs that are appropriate to serve to an applicant - which is any active
-   * program, plus any program where they have an application in the draft stage.
+   * Returns all programs that are appropriate to serve to an applicant - which is any program
+   * program where they have an application in the draft stage, and any active program. Programs
+   * with an application in the draft stage and active programs are deduped, with the ones with an
+   * application in the draft stage taking priority.
    */
-  public CompletionStage<ImmutableList<ProgramDefinition>> programsForApplicant(long applicantId) {
+  public CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>>
+      programsForApplicant(long applicantId) {
     return supplyAsync(
-            () -> {
-              List<Program> inProgressPrograms =
-                  ebeanServer
-                      .find(Program.class)
-                      .alias("p")
-                      .where()
-                      .exists(
-                          ebeanServer
-                              .find(Application.class)
-                              .where()
-                              .eq("applicant.id", applicantId)
-                              .eq("lifecycle_stage", LifecycleStage.DRAFT)
-                              .raw("program.id = p.id")
-                              .query())
-                      .endOr()
-                      .findList();
-              List<Program> activePrograms =
-                  versionRepositoryProvider.get().getActiveVersion().getPrograms();
-              return new ImmutableList.Builder<Program>()
-                  .addAll(activePrograms)
-                  .addAll(inProgressPrograms)
-                  .build();
-            },
-            executionContext.current())
-        .thenApplyAsync(
-            (programs) ->
-                programs.stream()
-                    .map(program -> program.getProgramDefinition())
-                    .collect(ImmutableList.toImmutableList()));
+        () -> {
+          List<Program> inProgressPrograms =
+              ebeanServer
+                  .find(Program.class)
+                  .alias("p")
+                  .where()
+                  .exists(
+                      ebeanServer
+                          .find(Application.class)
+                          .where()
+                          .eq("applicant.id", applicantId)
+                          .eq("lifecycle_stage", LifecycleStage.DRAFT)
+                          .raw("program.id = p.id")
+                          .query())
+                  .endOr()
+                  .findList();
+          Set<String> draftProgramAdminNames =
+              inProgressPrograms.stream()
+                  .map(program -> program.getProgramDefinition().adminName())
+                  .collect(Collectors.toSet());
+
+          // Get active programs, but dedupe the ones with a draft application.
+          List<Program> activePrograms =
+              versionRepositoryProvider.get().getActiveVersion().getPrograms().stream()
+                  .filter(
+                      program ->
+                          !draftProgramAdminNames.contains(
+                              program.getProgramDefinition().adminName()))
+                  .collect(Collectors.toList());
+          return ImmutableMap.of(
+              LifecycleStage.DRAFT,
+                  inProgressPrograms.stream()
+                      .map(p -> p.getProgramDefinition())
+                      .collect(ImmutableList.toImmutableList()),
+              LifecycleStage.ACTIVE,
+                  activePrograms.stream()
+                      .map(p -> p.getProgramDefinition())
+                      .collect(ImmutableList.toImmutableList()));
+        },
+        executionContext.current());
   }
 
   public Optional<Account> lookupAccount(String emailAddress) {

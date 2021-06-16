@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Applicant;
 import models.Application;
+import models.LifecycleStage;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramDefinition;
 
@@ -81,7 +82,8 @@ public interface ApplicantService {
    * Return all programs that are appropriate to serve to an applicant - which is any active
    * program, plus any program where they have an application in the draft stage.
    */
-  CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId);
+  CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>> relevantPrograms(
+      long applicantId);
 
   /** Return the name of the given applicant id. */
   CompletionStage<String> getName(long applicantId);
