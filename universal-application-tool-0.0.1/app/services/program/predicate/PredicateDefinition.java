@@ -19,4 +19,7 @@ public abstract class PredicateDefinition {
 
   @JsonProperty("action")
   public abstract PredicateAction action();
+
+  // TODO(https://github.com/seattle-uat/civiform/issues/322): Override toString method and/or add a
+  //  different getDisplayString method to pretty print a predicate definition for an admin.
 }
