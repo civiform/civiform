@@ -16,12 +16,23 @@ import repository.WithPostgresContainer;
 import support.ProgramBuilder;
 
 public class AdminProgramBlockPredicatesControllerTest extends WithPostgresContainer {
+  private Program programWithThreeBlocks;
 
   private AdminProgramBlockPredicatesController controller;
 
   @Before
   public void setup() {
     controller = instanceOf(AdminProgramBlockPredicatesController.class);
+    programWithThreeBlocks =
+        ProgramBuilder.newDraftProgram()
+            .withBlock("Block 1")
+            .withQuestion(testQuestionBank.applicantName())
+            .withBlock("Block 2")
+            .withQuestion(testQuestionBank.applicantAddress())
+            .withQuestion(testQuestionBank.applicantIceCream())
+            .withBlock("Block 3")
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
   }
 
   @Test
@@ -46,19 +57,12 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
   @Test
   public void edit_withFirstBlock_displaysEmptyList() {
     Http.Request request = addCSRFToken(fakeRequest()).build();
-    Program program =
-        ProgramBuilder.newDraftProgram()
-            .withBlock("Block 1")
-            .withQuestion(testQuestionBank.applicantName())
-            .withBlock("Block 2")
-            .withQuestion(testQuestionBank.applicantAddress())
-            .build();
 
-    Result result = controller.edit(request, program.id, 1L);
+    Result result = controller.edit(request, programWithThreeBlocks.id, 1L);
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
-    assertThat(content).contains("Add a condition to show or hide Block 1");
+    assertThat(content).contains("Visibility condition for Block 1");
     assertThat(content).contains("This block is always shown.");
     assertThat(content)
         .contains(
@@ -69,22 +73,12 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
   @Test
   public void edit_withThirdBlock_displaysQuestionsFromFirstAndSecondBlock() {
     Http.Request request = addCSRFToken(fakeRequest()).build();
-    Program program =
-        ProgramBuilder.newDraftProgram()
-            .withBlock("Block 1")
-            .withQuestion(testQuestionBank.applicantName())
-            .withBlock("Block 2")
-            .withQuestion(testQuestionBank.applicantAddress())
-            .withQuestion(testQuestionBank.applicantIceCream())
-            .withBlock("Block 3")
-            .withQuestion(testQuestionBank.applicantFavoriteColor())
-            .build();
 
-    Result result = controller.edit(request, program.id, 3L);
+    Result result = controller.edit(request, programWithThreeBlocks.id, 3L);
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
-    assertThat(content).contains("Add a condition to show or hide Block 3");
+    assertThat(content).contains("Visibility condition for Block 3");
     assertThat(content).contains("applicant name");
     assertThat(content).contains("applicant address");
     assertThat(content).contains("applicant ice cream");
