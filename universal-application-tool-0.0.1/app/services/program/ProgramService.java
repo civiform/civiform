@@ -255,10 +255,13 @@ public interface ProgramService {
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
    *     real Block
+   * @throws ProgramQuestionDefinitionNotFoundException when questionDefinitionId does not
+   *     correspond to a real question in the block
    */
   ProgramDefinition setProgramQuestionDefinitionOptionality(
       long programId, long blockDefinitionId, long questionDefinitionId, boolean optional)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException;
 
   /**
    * Get all the program's applications.

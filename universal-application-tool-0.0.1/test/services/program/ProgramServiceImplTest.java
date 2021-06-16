@@ -673,7 +673,11 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
         .isFalse();
 
     // Checking that there's no problem
-    ps.setProgramQuestionDefinitionOptionality(programId, 1L, nameQuestion.getId() + 1, false);
+    assertThatThrownBy(
+            () ->
+                ps.setProgramQuestionDefinitionOptionality(
+                    programId, 1L, nameQuestion.getId() + 1, false))
+        .isInstanceOf(ProgramQuestionDefinitionNotFoundException.class);
   }
 
   @Test

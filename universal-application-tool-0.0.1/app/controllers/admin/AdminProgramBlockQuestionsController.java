@@ -15,6 +15,7 @@ import play.mvc.Result;
 import services.program.DuplicateProgramQuestionException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.QuestionNotFoundException;
 
@@ -94,6 +95,11 @@ public class AdminProgramBlockQuestionsController extends Controller {
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+    } catch (ProgramQuestionDefinitionNotFoundException e) {
+      return notFound(
+          String.format(
+              "Question ID %d not found in Block %d for program %d",
+              questionDefinitionId, blockDefinitionId, programId));
     }
 
     return redirect(
