@@ -119,41 +119,48 @@ public class ProgramIndexView extends BaseHtmlView {
       ImmutableList<ProgramDefinition> activePrograms,
       long applicantId,
       Locale preferredLocale) {
-    return div()
-        .withClasses(Styles.FLEX, Styles.JUSTIFY_CENTER)
-        .with(
-            div()
-                .withId("main-content")
-                .withClasses(Styles.MX_AUTO, Styles.MY_4, StyleUtils.responsiveSmall(Styles.M_10))
-                .with(
-                    h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
-                        .withClasses(
-                            Styles.BLOCK, Styles.MB_4, Styles.TEXT_XL, Styles.FONT_SEMIBOLD))
-                .with(
-                    h2().withText(messages.at(MessageKey.TITLE_PROGRAMS_IN_PROGRESS.getKeyName()))
-                        .withClasses(Styles.MT_10, Styles.MB_4, Styles.TEXT_LG))
-                .with(
-                    div()
-                        .withClasses(ApplicantStyles.PROGRAM_CARDS_CONTAINER)
-                        .with(
-                            each(
-                                draftPrograms,
-                                program ->
-                                    programCard(
-                                        messages, program, applicantId, preferredLocale, true))))
-                .with(hr())
-                .with(
-                    h2().withText(messages.at(MessageKey.TITLE_PROGRAMS_ACTIVE.getKeyName()))
-                        .withClasses(Styles.MT_10, Styles.MB_4, Styles.TEXT_LG))
-                .with(
-                    div()
-                        .withClasses(ApplicantStyles.PROGRAM_CARDS_CONTAINER)
-                        .with(
-                            each(
-                                activePrograms,
-                                program ->
-                                    programCard(
-                                        messages, program, applicantId, preferredLocale, false)))));
+    ContainerTag content =
+        div()
+            .withId("main-content")
+            .withClasses(
+                Styles.MX_AUTO, Styles.MY_4, Styles.W_3_5, StyleUtils.responsiveSmall(Styles.M_10))
+            .with(
+                h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
+                    .withClasses(Styles.BLOCK, Styles.MB_4, Styles.TEXT_XL, Styles.FONT_SEMIBOLD));
+    if (!draftPrograms.isEmpty()) {
+      content
+          .with(
+              h2().withText(messages.at(MessageKey.TITLE_PROGRAMS_IN_PROGRESS.getKeyName()))
+                  .withClasses(Styles.MT_10, Styles.MB_4, Styles.TEXT_LG))
+          .with(
+              div()
+                  .withClasses(ApplicantStyles.PROGRAM_CARDS_CONTAINER)
+                  .with(
+                      each(
+                          draftPrograms,
+                          program ->
+                              programCard(messages, program, applicantId, preferredLocale, true))));
+    }
+    if (!draftPrograms.isEmpty() && !activePrograms.isEmpty()) {
+      content.with(hr());
+    }
+    if (!activePrograms.isEmpty()) {
+      content
+          .with(
+              h2().withText(messages.at(MessageKey.TITLE_PROGRAMS_ACTIVE.getKeyName()))
+                  .withClasses(Styles.MT_10, Styles.MB_4, Styles.TEXT_LG))
+          .with(
+              div()
+                  .withClasses(ApplicantStyles.PROGRAM_CARDS_CONTAINER)
+                  .with(
+                      each(
+                          activePrograms,
+                          program ->
+                              programCard(
+                                  messages, program, applicantId, preferredLocale, false))));
+    }
+
+    return div().withClasses(Styles.FLEX, Styles.JUSTIFY_CENTER).with(content);
   }
 
   private ContainerTag programCard(
