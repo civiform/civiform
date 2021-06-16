@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Account;
@@ -58,15 +57,13 @@ public class UserRepository {
 
   /**
    * Returns all programs that are appropriate to serve to an applicant - which is any program
-   * program where they have an application in the draft stage, and any active program. Programs
-   * with an application in the draft stage and active programs are deduped, with the ones with an
-   * application in the draft stage taking priority.
+   * program where they have an application in the draft stage, and any active program.
    */
   public CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>>
       programsForApplicant(long applicantId) {
     return supplyAsync(
         () -> {
-          List<Program> inProgressPrograms =
+          ImmutableList<ProgramDefinition> inProgressPrograms =
               ebeanServer
                   .find(Program.class)
                   .alias("p")
@@ -80,29 +77,17 @@ public class UserRepository {
                           .raw("program.id = p.id")
                           .query())
                   .endOr()
-                  .findList();
-          Set<String> draftProgramAdminNames =
-              inProgressPrograms.stream()
-                  .map(program -> program.getProgramDefinition().adminName())
-                  .collect(Collectors.toSet());
-
-          // Get active programs, but dedupe the ones with a draft application.
-          List<Program> activePrograms =
+                  .findList()
+                  .stream()
+                  .map(program -> program.getProgramDefinition())
+                  .collect(ImmutableList.toImmutableList());
+          ImmutableList<ProgramDefinition> activePrograms =
               versionRepositoryProvider.get().getActiveVersion().getPrograms().stream()
-                  .filter(
-                      program ->
-                          !draftProgramAdminNames.contains(
-                              program.getProgramDefinition().adminName()))
-                  .collect(Collectors.toList());
+                  .map(program -> program.getProgramDefinition())
+                  .collect(ImmutableList.toImmutableList());
           return ImmutableMap.of(
-              LifecycleStage.DRAFT,
-                  inProgressPrograms.stream()
-                      .map(p -> p.getProgramDefinition())
-                      .collect(ImmutableList.toImmutableList()),
-              LifecycleStage.ACTIVE,
-                  activePrograms.stream()
-                      .map(p -> p.getProgramDefinition())
-                      .collect(ImmutableList.toImmutableList()));
+              LifecycleStage.DRAFT, inProgressPrograms,
+              LifecycleStage.ACTIVE, activePrograms);
         },
         executionContext.current());
   }

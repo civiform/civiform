@@ -81,6 +81,8 @@ public interface ApplicantService {
   /**
    * Return all programs that are appropriate to serve to an applicant - which is any active
    * program, plus any program where they have an application in the draft stage.
+   *
+   * <p>The programs do not have question definitions loaded into its program question definitions.
    */
   CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>> relevantPrograms(
       long applicantId);

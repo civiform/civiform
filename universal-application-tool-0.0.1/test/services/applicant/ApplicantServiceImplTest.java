@@ -535,18 +535,26 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void relevantPrograms_hasNoDuplicates() {
+  public void relevantPrograms() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
-    Program p1 = ProgramBuilder.newActiveProgram()
-        .withBlock().withQuestion(testQuestionBank.applicantName()).build();
-    Program p2 = ProgramBuilder.newActiveProgram()
-        .withBlock().withQuestion(testQuestionBank.applicantFavoriteColor()).build();
+    Program p1 =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantName())
+            .build();
+    Program p2 =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
     applicationRepository.createOrUpdateDraft(applicant.id, p1.id).toCompletableFuture().join();
 
-    ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>> programs = subject.relevantPrograms(applicant.id).toCompletableFuture().join();
+    ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>> programs =
+        subject.relevantPrograms(applicant.id).toCompletableFuture().join();
 
-    assertThat(programs.get(LifecycleStage.DRAFT)).containsExactly(p1.getProgramDefinition());
-    assertThat(programs.get(LifecycleStage.ACTIVE)).containsExactly(p2.getProgramDefinition());
+    assertThat(programs.get(LifecycleStage.DRAFT).stream().map(p -> p.id())).containsExactly(p1.id);
+    assertThat(programs.get(LifecycleStage.ACTIVE).stream().map(p -> p.id()))
+        .containsExactly(p1.id, p2.id);
   }
 
   private void createQuestions() {
