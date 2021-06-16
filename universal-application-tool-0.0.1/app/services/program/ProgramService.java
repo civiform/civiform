@@ -25,6 +25,10 @@ public interface ProgramService {
   /**
    * Get the definition for a given program.
    *
+   * <p>This method loads question definitions for all block definitions from a version the program
+   * is in. If the program contains a question that is not in any versions associated with the
+   * program, a {@link QuestionNotFoundException} is thrown.
+   *
    * @param id the ID of the program to retrieve
    * @return the {@link ProgramDefinition} for the given ID if it exists
    * @throws ProgramNotFoundException when ID does not correspond to a real Program

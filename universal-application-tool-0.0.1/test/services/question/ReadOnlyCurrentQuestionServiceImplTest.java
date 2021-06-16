@@ -15,12 +15,12 @@ import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import support.TestQuestionBank;
 
-public class ReadOnlyQuestionServiceImplTest {
+public class ReadOnlyCurrentQuestionServiceImplTest {
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
   private final ReadOnlyQuestionService emptyService =
-      new ReadOnlyQuestionServiceImpl(
+      new ReadOnlyCurrentQuestionServiceImpl(
           new Version(LifecycleStage.ACTIVE), new Version(LifecycleStage.DRAFT));
   private NameQuestionDefinition nameQuestion;
   private AddressQuestionDefinition addressQuestion;
@@ -40,7 +40,7 @@ public class ReadOnlyQuestionServiceImplTest {
         (TextQuestionDefinition) testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     questions = ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
     service =
-        new ReadOnlyQuestionServiceImpl(
+        new ReadOnlyCurrentQuestionServiceImpl(
             new Version(LifecycleStage.ACTIVE) {
               @Override
               public ImmutableList<Question> getQuestions() {
@@ -68,7 +68,7 @@ public class ReadOnlyQuestionServiceImplTest {
         testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
 
     service =
-        new ReadOnlyQuestionServiceImpl(
+        new ReadOnlyCurrentQuestionServiceImpl(
             new Version(LifecycleStage.ACTIVE) {
               @Override
               public ImmutableList<Question> getQuestions() {

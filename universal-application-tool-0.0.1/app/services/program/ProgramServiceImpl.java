@@ -15,6 +15,7 @@ import java.util.concurrent.CompletionStage;
 import models.Account;
 import models.Application;
 import models.Program;
+import models.Version;
 import play.db.ebean.Transactional;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
@@ -73,14 +74,17 @@ public class ProgramServiceImpl implements ProgramService {
     return programRepository
         .lookupProgram(id)
         .thenComposeAsync(
-            programMaybe ->
-                programMaybe.isEmpty()
-                    ? CompletableFuture.failedFuture(new ProgramNotFoundException(id))
-                    : programMaybe
-                        .map(Program::getProgramDefinition)
-                        .map(this::syncProgramDefinitionQuestions)
-                        .get()
-                        .thenApply(programDefinition -> programDefinition.orderBlockDefinitions()),
+            programMaybe -> {
+              if (programMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
+              }
+              Program program = programMaybe.get();
+              // Any version that the program is in has all the questions the program has.
+              Version version = program.getVersions().stream().findAny().get();
+              ProgramDefinition programDefinition =
+                  syncProgramDefinitionQuestions(program.getProgramDefinition(), version);
+              return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
+            },
             httpExecutionContext.current());
   }
 
@@ -550,6 +554,12 @@ public class ProgramServiceImpl implements ProgramService {
             roQuestionService ->
                 syncProgramDefinitionQuestions(programDefinition, roQuestionService),
             httpExecutionContext.current());
+  }
+
+  private ProgramDefinition syncProgramDefinitionQuestions(
+      ProgramDefinition programDefinition, Version version) {
+    return syncProgramDefinitionQuestions(
+        programDefinition, questionService.getReadOnlyVersionedQuestionService(version));
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(

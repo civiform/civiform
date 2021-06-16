@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import models.Question;
 import models.QuestionTag;
@@ -52,12 +53,15 @@ public final class QuestionServiceImpl implements QuestionService {
 
   @Override
   public CompletionStage<ReadOnlyQuestionService> getReadOnlyQuestionService() {
-    return listQuestionDefinitionsAsync()
-        .thenApply(
-            questionDefinitions ->
-                new ReadOnlyQuestionServiceImpl(
-                    versionRepositoryProvider.get().getActiveVersion(),
-                    versionRepositoryProvider.get().getDraftVersion()));
+    return CompletableFuture.completedStage(
+        new ReadOnlyCurrentQuestionServiceImpl(
+            versionRepositoryProvider.get().getActiveVersion(),
+            versionRepositoryProvider.get().getDraftVersion()));
+  }
+
+  @Override
+  public ReadOnlyQuestionService getReadOnlyVersionedQuestionService(Version version) {
+    return new ReadOnlyVersionedQuestionServiceImpl(version);
   }
 
   @Override
@@ -169,16 +173,6 @@ public final class QuestionServiceImpl implements QuestionService {
             String.format("Unknown question export state: %s", questionExportState));
     }
     question.save();
-  }
-
-  private CompletionStage<ImmutableList<QuestionDefinition>> listQuestionDefinitionsAsync() {
-    return questionRepository
-        .listQuestions()
-        .thenApply(
-            questions ->
-                questions.stream()
-                    .map(question -> question.getQuestionDefinition())
-                    .collect(ImmutableList.toImmutableList()));
   }
 
   /**
