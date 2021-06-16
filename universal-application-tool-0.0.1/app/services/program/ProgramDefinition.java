@@ -169,7 +169,7 @@ public abstract class ProgramDefinition {
    * beyond the contiguous slice of repeated and nested repeated blocks of their enumerator.
    */
   public ProgramDefinition moveBlock(long blockId, Direction direction)
-      throws ProgramBlockDefinitionNotFoundException {
+      throws ProgramBlockDefinitionNotFoundException, IllegalBlockMoveException {
     // Precondition: blocks have to be ordered
     if (!hasOrderedBlockDefinitions()) {
       return orderBlockDefinitions().moveBlock(blockId, direction);
@@ -189,29 +189,38 @@ public abstract class ProgramDefinition {
         blockSlice.startsBefore(otherBlockSlice) ? blockSlice : otherBlockSlice;
     BlockSlice latterSlice =
         blockSlice.startsBefore(otherBlockSlice) ? otherBlockSlice : blockSlice;
-    ImmutableList.Builder<BlockDefinition> blocksBuilder = ImmutableList.builder();
 
+    // An illegal move is when a predicate in a later block depends on an earlier block.
+    // Get the questions used in any predicate in the latter block.
     ImmutableSet<Long> predicateQuestions =
-        blockDefinitions().subList(blockSlice.startIndex(), blockSlice.endIndex()).stream()
+        blockDefinitions().subList(latterSlice.startIndex(), blockSlice.endIndex()).stream()
             .filter(b -> b.visibilityPredicate().isPresent())
             .flatMap(b -> b.visibilityPredicate().get().getQuestions().stream())
             .collect(toImmutableSet());
 
+    if (!predicateQuestions.isEmpty()) {
+      if (blockDefinitions().subList(earlierSlice.startIndex(), earlierSlice.endIndex()).stream()
+          .flatMap(b -> b.programQuestionDefinitions().stream().map(ProgramQuestionDefinition::id))
+          .anyMatch(predicateQuestions::contains)) {
+        throw new IllegalBlockMoveException(
+            "This move is not possible - it would move a block condition before the question it"
+                + " depends on");
+      }
+    }
+
+    ImmutableList.Builder<BlockDefinition> blocksBuilder = ImmutableList.builder();
+
     // Swap the two slices, assuming these slices are consecutive slices
-    blockDefinitions().stream()
-        .limit(earlierSlice.startIndex())
-        .forEach(blockDefinition -> blocksBuilder.add(blockDefinition));
+    blockDefinitions().stream().limit(earlierSlice.startIndex()).forEach(blocksBuilder::add);
     blockDefinitions().stream()
         .skip(latterSlice.startIndex())
         .limit(latterSlice.endIndex() - latterSlice.startIndex())
-        .forEach(blockDefinition -> blocksBuilder.add(blockDefinition));
+        .forEach(blocksBuilder::add);
     blockDefinitions().stream()
         .skip(earlierSlice.startIndex())
         .limit(earlierSlice.endIndex() - earlierSlice.startIndex())
-        .forEach(blockDefinition -> blocksBuilder.add(blockDefinition));
-    blockDefinitions().stream()
-        .skip(latterSlice.endIndex())
-        .forEach(blockDefinition -> blocksBuilder.add(blockDefinition));
+        .forEach(blocksBuilder::add);
+    blockDefinitions().stream().skip(latterSlice.endIndex()).forEach(blocksBuilder::add);
 
     return toBuilder().setBlockDefinitions(blocksBuilder.build()).build();
   }

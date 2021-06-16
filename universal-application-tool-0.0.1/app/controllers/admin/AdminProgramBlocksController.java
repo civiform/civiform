@@ -16,6 +16,7 @@ import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.program.BlockDefinition;
+import services.program.IllegalBlockMoveException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramDefinition.Direction;
@@ -123,6 +124,9 @@ public class AdminProgramBlocksController extends CiviFormController {
       programService.moveBlock(programId, blockId, direction);
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
+    } catch (IllegalBlockMoveException e) {
+      return redirect(routes.AdminProgramBlocksController.edit(programId, blockId))
+          .flashing("error", e.getLocalizedMessage());
     }
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
   }

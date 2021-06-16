@@ -112,6 +112,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
                         questionBankPanel(questions, programDefinition, blockDefinition, csrfTag)))
             .addModals(blockDescriptionEditModal);
 
+    // Add toast messages
+    if (request.flash().get("error").isPresent()) {
+      htmlBundle.addToastMessages(
+          ToastMessage.error(request.flash().get("error").get()).setDuration(-1));
+    }
     if (message.length() > 0) {
       htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));
     }
