@@ -181,6 +181,9 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
         .with(createActionDropdown(blockName))
         .with(renderQuestionDefinitionBox(questionDefinition))
+        // Need to pass in the question ID with the rest of the form data in order to save the
+        // correct predicate. However, this field's value is already known and set by the time the
+        // modal is open, so make this field hidden.
         .with(createHiddenQuestionDefinitionInput(questionDefinition))
         .with(
             div()
