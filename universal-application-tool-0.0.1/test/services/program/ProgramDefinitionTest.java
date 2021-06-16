@@ -1,14 +1,23 @@
 package services.program;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Locale;
 import java.util.Optional;
+import models.Question;
 import org.junit.Test;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
+import services.applicant.question.Scalar;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
@@ -460,5 +469,65 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     assertThat(result.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
     assertThat(result.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
+  }
+
+  @Test
+  public void moveBlockUp_throwsForIllegalMove() {
+    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    // Trying to move a block with a predicate before the block it depends on throws.
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    predicateQuestion.id,
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("yellow"))),
+            PredicateAction.SHOW_BLOCK);
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(predicateQuestion)
+            .withBlock()
+            .withPredicate(predicate)
+            .build()
+            .getProgramDefinition();
+
+    assertThatExceptionOfType(IllegalBlockMoveException.class)
+        .isThrownBy(() -> programDefinition.moveBlock(2L, ProgramDefinition.Direction.UP))
+        .withMessage(
+            "This move is not possible - it would move a block condition before the question it"
+                + " depends on");
+  }
+
+  @Test
+  public void moveBlockDown_throwsForIllegalMove() {
+    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    // Trying to move a block after a block that depends on it throws.
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    predicateQuestion.id,
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("yellow"))),
+            PredicateAction.SHOW_BLOCK);
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(predicateQuestion)
+            .withBlock()
+            .withPredicate(predicate)
+            .build()
+            .getProgramDefinition();
+
+    assertThatExceptionOfType(IllegalBlockMoveException.class)
+        .isThrownBy(() -> programDefinition.moveBlock(1L, ProgramDefinition.Direction.DOWN))
+        .withMessage(
+            "This move is not possible - it would move a block condition before the question it"
+                + " depends on");
   }
 }

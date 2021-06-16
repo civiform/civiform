@@ -193,7 +193,7 @@ public abstract class ProgramDefinition {
     // An illegal move is when a predicate in a later block depends on an earlier block.
     // Get the questions used in any predicate in the latter block.
     ImmutableSet<Long> predicateQuestions =
-        blockDefinitions().subList(latterSlice.startIndex(), blockSlice.endIndex()).stream()
+        blockDefinitions().subList(latterSlice.startIndex(), latterSlice.endIndex()).stream()
             .filter(b -> b.visibilityPredicate().isPresent())
             .flatMap(b -> b.visibilityPredicate().get().getQuestions().stream())
             .collect(toImmutableSet());
