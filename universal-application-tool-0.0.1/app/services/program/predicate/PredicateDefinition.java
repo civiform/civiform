@@ -1,8 +1,11 @@
 package services.program.predicate;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
+import com.google.auto.value.extension.memoized.Memoized;
+import com.google.common.collect.ImmutableSet;
 
 @AutoValue
 public abstract class PredicateDefinition {
@@ -19,4 +22,10 @@ public abstract class PredicateDefinition {
 
   @JsonProperty("action")
   public abstract PredicateAction action();
+
+  @JsonIgnore
+  @Memoized
+  public ImmutableSet<Long> getQuestions() {
+    return rootNode().getQuestions();
+  }
 }

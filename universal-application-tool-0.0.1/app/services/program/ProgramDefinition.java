@@ -191,6 +191,12 @@ public abstract class ProgramDefinition {
         blockSlice.startsBefore(otherBlockSlice) ? otherBlockSlice : blockSlice;
     ImmutableList.Builder<BlockDefinition> blocksBuilder = ImmutableList.builder();
 
+    ImmutableSet<Long> predicateQuestions =
+        blockDefinitions().subList(blockSlice.startIndex(), blockSlice.endIndex()).stream()
+            .filter(b -> b.visibilityPredicate().isPresent())
+            .flatMap(b -> b.visibilityPredicate().get().getQuestions().stream())
+            .collect(toImmutableSet());
+
     // Swap the two slices, assuming these slices are consecutive slices
     blockDefinitions().stream()
         .limit(earlierSlice.startIndex())

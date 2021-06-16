@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
+import com.google.common.collect.ImmutableSet;
 
 /** Represents a predicate that can be evaluated over {@link services.applicant.ApplicantData}. */
 @AutoValue
@@ -56,5 +57,33 @@ public abstract class PredicateExpressionNode {
           String.format("Expected an OR node but received %s node", getType()));
     }
     return (OrNode) node();
+  }
+
+  @JsonIgnore
+  @Memoized
+  public ImmutableSet<Long> getQuestions() {
+    ImmutableSet.Builder<Long> builder = ImmutableSet.builder();
+    getQuestions(builder, this);
+    return builder.build();
+  }
+
+  private void getQuestions(
+      ImmutableSet.Builder<Long> builder, PredicateExpressionNode currentNode) {
+    switch (currentNode.getType()) {
+      case AND:
+        currentNode.getAndNode().children().stream()
+            .flatMap(child -> child.getQuestions().stream())
+            .forEach(builder::add);
+        break;
+      case OR:
+        currentNode.getOrNode().children().stream()
+            .flatMap(child -> child.getQuestions().stream())
+            .forEach(builder::add);
+        break;
+      case LEAF_OPERATION:
+        builder.add(currentNode.getLeafNode().questionId());
+        break;
+      default:
+    }
   }
 }
