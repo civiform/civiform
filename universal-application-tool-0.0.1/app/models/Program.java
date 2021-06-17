@@ -29,11 +29,9 @@ import services.question.types.QuestionDefinition;
 /**
  * An EBean mapped class that stores configuration for a specific benefits program.
  *
- * <p>A simplified concept of a program is an ordered subset of the {@code Question}s in a specific
- * {@code Version}.
- *
  * <p>A program contains a list of {@code BlockDefinition}s, each of which contains {@code
- * ProgramQuestionDefinition}s that reference a given {@code Question}.
+ * ProgramQuestionDefinition}s that reference a given {@code Question}. All questions referenced by
+ * a program must be present in every {@code Version} which contains the program.
  *
  * <p>When an application is submitted, an immutable snapshot of the applicant's answers for the
  * program application are stored for that program and applicant in an {@code Application}.
