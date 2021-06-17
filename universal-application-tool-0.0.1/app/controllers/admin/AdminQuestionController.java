@@ -361,7 +361,9 @@ public class AdminQuestionController extends CiviFormController {
     // a new, empty set of translations.
     ImmutableList.Builder<QuestionOption> updatedOptionsBuilder = ImmutableList.builder();
     for (QuestionOption updatedOption : updatedOptions) {
-      if (existingTranslations.containsKey(updatedOption.optionText().getDefault())) {
+      if (existingTranslations.containsKey(updatedOption.optionText().getDefault())
+          && existingTranslations.get(updatedOption.optionText().getDefault()).id()
+              == updatedOption.id()) {
         QuestionOption existingOption =
             existingTranslations.get(updatedOption.optionText().getDefault());
         if (existingOption.id() == updatedOption.id()) {
