@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import forms.BlockForm;
 import java.util.Locale;
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletionStage;
 import models.Account;
 import models.Application;
 import models.Program;
+import models.Version;
 import play.db.ebean.Transactional;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
@@ -73,14 +75,21 @@ public class ProgramServiceImpl implements ProgramService {
     return programRepository
         .lookupProgram(id)
         .thenComposeAsync(
-            programMaybe ->
-                programMaybe.isEmpty()
-                    ? CompletableFuture.failedFuture(new ProgramNotFoundException(id))
-                    : programMaybe
-                        .map(Program::getProgramDefinition)
-                        .map(this::syncProgramDefinitionQuestions)
-                        .get()
-                        .thenApply(programDefinition -> programDefinition.orderBlockDefinitions()),
+            programMaybe -> {
+              if (programMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
+              }
+              Program program = programMaybe.get();
+              if (isActiveOrDraftProgram(program)) {
+                return syncProgramDefinitionQuestions(program.getProgramDefinition())
+                    .thenApply(programDefinition -> programDefinition.orderBlockDefinitions());
+              }
+              // Any version that the program is in has all the questions the program has.
+              Version version = program.getVersions().stream().findAny().get();
+              ProgramDefinition programDefinition =
+                  syncProgramDefinitionQuestions(program.getProgramDefinition(), version);
+              return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
+            },
             httpExecutionContext.current());
   }
 
@@ -538,6 +547,13 @@ public class ProgramServiceImpl implements ProgramService {
     return programDefinition.getMaxBlockDefinitionId() + 1;
   }
 
+  private boolean isActiveOrDraftProgram(Program program) {
+    return Streams.concat(
+            versionRepository.getActiveVersion().getPrograms().stream(),
+            versionRepository.getDraftVersion().getPrograms().stream())
+        .anyMatch(p -> p.id.equals(program.id));
+  }
+
   /**
    * Update all {@link QuestionDefinition}s in the ProgramDefinition with appropriate versions from
    * the {@link QuestionService}.
@@ -550,6 +566,12 @@ public class ProgramServiceImpl implements ProgramService {
             roQuestionService ->
                 syncProgramDefinitionQuestions(programDefinition, roQuestionService),
             httpExecutionContext.current());
+  }
+
+  private ProgramDefinition syncProgramDefinitionQuestions(
+      ProgramDefinition programDefinition, Version version) {
+    return syncProgramDefinitionQuestions(
+        programDefinition, questionService.getReadOnlyVersionedQuestionService(version));
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(
