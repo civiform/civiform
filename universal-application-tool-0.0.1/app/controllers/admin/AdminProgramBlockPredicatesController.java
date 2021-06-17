@@ -15,6 +15,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
+import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -98,6 +99,10 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       } catch (ProgramBlockDefinitionNotFoundException e) {
         return notFound(
             String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+      } catch (IllegalPredicateOrderingException e) {
+        return redirect(
+                routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
+            .flashing("error", e.getLocalizedMessage());
       }
 
       return redirect(

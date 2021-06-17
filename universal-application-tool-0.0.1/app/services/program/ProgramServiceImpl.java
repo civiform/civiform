@@ -307,7 +307,8 @@ public class ProgramServiceImpl implements ProgramService {
           updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition));
     } catch (IllegalPredicateOrderingException e) {
       // Updating a block's metadata should never invalidate a predicate.
-      throw new RuntimeException("Updating this block invalidates a condition in this program");
+      throw new RuntimeException(
+          "Unexpected error: updating this block invalidated a block condition");
     }
   }
 
@@ -384,7 +385,8 @@ public class ProgramServiceImpl implements ProgramService {
       // This should never happen
       throw new RuntimeException(
           String.format(
-              "Adding a question to block %s invalidated a predicate", blockDefinition.name()));
+              "Unexpected error: Adding a question to block %s invalidated a predicate",
+              blockDefinition.name()));
     }
   }
 
