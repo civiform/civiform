@@ -554,5 +554,40 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .getProgramDefinition();
 
     assertThat(programDefinition.hasValidPredicateOrdering()).isTrue();
+
+    programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withPredicate(predicate)
+            .withBlock()
+            .withQuestion(predicateQuestion)
+            .build()
+            .getProgramDefinition();
+
+    assertThat(programDefinition.hasValidPredicateOrdering()).isFalse();
+  }
+
+  @Test
+  public void hasValidPredicateOrdering_returnsFalseIfQuestionsAreInSameBlockAsPredicate() {
+    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    predicateQuestion.id,
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("yellow"))),
+            PredicateAction.SHOW_BLOCK);
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(predicateQuestion)
+            .withPredicate(predicate)
+            .build()
+            .getProgramDefinition();
+
+    assertThat(programDefinition.hasValidPredicateOrdering()).isFalse();
   }
 }
