@@ -26,7 +26,19 @@ import services.program.ExportDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 
-/** The ebeans mapped class for the program object. */
+/**
+ * An EBean mapped class that stores configuration for a specific benefits program.
+ *
+ * <p>A program contains a list of {@code BlockDefinition}s, each of which contains {@code
+ * ProgramQuestionDefinition}s that reference a given {@code Question}. All questions referenced by
+ * a program must be present in every {@code Version} which contains the program.
+ *
+ * <p>When an application is submitted, an immutable snapshot of the applicant's answers for the
+ * program application are stored for that program and applicant in an {@code Application}.
+ *
+ * <p>Programs that aren't updated between versions are associated with multiple versions. I.e. A
+ * program that is not updated will be carried over to a new version.
+ */
 @Entity
 @Table(name = "programs")
 public class Program extends BaseModel {

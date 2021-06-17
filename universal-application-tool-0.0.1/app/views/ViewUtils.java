@@ -1,6 +1,7 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.img;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.script;
 
@@ -34,5 +35,9 @@ public final class ViewUtils {
     return link()
         .withHref(assetsFinder.path("stylesheets/" + filename + ".css"))
         .withRel("stylesheet");
+  }
+
+  public Tag makeLocalImageTag(String filename) {
+    return img().withSrc(assetsFinder.path("Images/" + filename + ".png"));
   }
 }

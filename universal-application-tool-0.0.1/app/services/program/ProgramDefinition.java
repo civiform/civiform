@@ -132,6 +132,23 @@ public abstract class ProgramDefinition {
   }
 
   /**
+   * Checks whether this program has a valid block order, so that no predicate depends on a block
+   * that appears after it.
+   */
+  public boolean hasValidPredicateOrdering() {
+    Set<Long> previousQuestionIds = new HashSet<>();
+    for (BlockDefinition b : blockDefinitions()) {
+      // Check that all the predicate questions exist before this block.
+      if (b.visibilityPredicate().isPresent()
+          && !previousQuestionIds.containsAll(b.visibilityPredicate().get().getQuestions())) {
+        return false;
+      }
+      b.programQuestionDefinitions().forEach(pqd -> previousQuestionIds.add(pqd.id()));
+    }
+    return true;
+  }
+
+  /**
    * Inserts the new block into the list of blocks such that it appears immediately after the last
    * repeated or nested repeated block with the same enumerator. If there is no enumerator, it is
    * added at the end.
@@ -169,7 +186,7 @@ public abstract class ProgramDefinition {
    * beyond the contiguous slice of repeated and nested repeated blocks of their enumerator.
    */
   public ProgramDefinition moveBlock(long blockId, Direction direction)
-      throws ProgramBlockDefinitionNotFoundException {
+      throws ProgramBlockDefinitionNotFoundException, IllegalBlockMoveException {
     // Precondition: blocks have to be ordered
     if (!hasOrderedBlockDefinitions()) {
       return orderBlockDefinitions().moveBlock(blockId, direction);
@@ -189,25 +206,30 @@ public abstract class ProgramDefinition {
         blockSlice.startsBefore(otherBlockSlice) ? blockSlice : otherBlockSlice;
     BlockSlice latterSlice =
         blockSlice.startsBefore(otherBlockSlice) ? otherBlockSlice : blockSlice;
+
     ImmutableList.Builder<BlockDefinition> blocksBuilder = ImmutableList.builder();
 
     // Swap the two slices, assuming these slices are consecutive slices
-    blockDefinitions().stream()
-        .limit(earlierSlice.startIndex())
-        .forEach(blockDefinition -> blocksBuilder.add(blockDefinition));
+    blockDefinitions().stream().limit(earlierSlice.startIndex()).forEach(blocksBuilder::add);
     blockDefinitions().stream()
         .skip(latterSlice.startIndex())
         .limit(latterSlice.endIndex() - latterSlice.startIndex())
-        .forEach(blockDefinition -> blocksBuilder.add(blockDefinition));
+        .forEach(blocksBuilder::add);
     blockDefinitions().stream()
         .skip(earlierSlice.startIndex())
         .limit(earlierSlice.endIndex() - earlierSlice.startIndex())
-        .forEach(blockDefinition -> blocksBuilder.add(blockDefinition));
-    blockDefinitions().stream()
-        .skip(latterSlice.endIndex())
-        .forEach(blockDefinition -> blocksBuilder.add(blockDefinition));
+        .forEach(blocksBuilder::add);
+    blockDefinitions().stream().skip(latterSlice.endIndex()).forEach(blocksBuilder::add);
 
-    return toBuilder().setBlockDefinitions(blocksBuilder.build()).build();
+    ProgramDefinition newProgram = toBuilder().setBlockDefinitions(blocksBuilder.build()).build();
+
+    if (!newProgram.hasValidPredicateOrdering()) {
+      throw new IllegalBlockMoveException(
+          "This move is not possible - it would move a block condition before the question it"
+              + " depends on");
+    }
+
+    return newProgram;
   }
 
   /**

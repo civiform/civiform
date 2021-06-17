@@ -14,6 +14,9 @@ public final class ReferenceClasses {
   public static final String ADMIN_TI_GROUP_ROW = "cf-ti-row";
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
   public static final String QUESTION_CONFIG = "cf-question-config";
+  public static final String PREDICATE_SCALAR_SELECT = "cf-scalar-select";
+  public static final String PREDICATE_OPERATOR_SELECT = "cf-operator-select";
+  public static final String PREDICATE_OPTIONS = "cf-predicate-options";
 
   public static final String QUESTION_BANK_ELEMENT = "cf-question-bank-element";
 
@@ -25,6 +28,7 @@ public final class ReferenceClasses {
   public static final String VIEW_BUTTON = "cf-view-application-button";
 
   public static final String PROGRAM_ADMIN_REMOVE_BUTTON = "cf-program-admin-remove-button";
+  public static final String PROGRAM_QUESTION = "cf-program-question";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Applicant reference classes

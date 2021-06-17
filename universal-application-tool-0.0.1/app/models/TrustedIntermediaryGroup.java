@@ -9,9 +9,17 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+/**
+ * An EBean mapped class that represents a group of trusted intermediaries, usually corresponding to
+ * a single community-based organization.
+ *
+ * <p>Permissions for trusted intermediary {@code Account}s are managed via their membership in a
+ * {@code TrustedIntermediaryGroup}.
+ */
 @Entity
 @Table(name = "ti_organizations")
 public class TrustedIntermediaryGroup extends BaseModel {
+
   @OneToMany(mappedBy = "memberOfGroup")
   private List<Account> tiAccounts;
 

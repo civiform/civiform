@@ -9,6 +9,7 @@ package services.question.types;
 public enum ScalarType {
   DATE,
   EMPTY,
+  LIST_OF_STRINGS,
   LONG,
   STRING;
 }
