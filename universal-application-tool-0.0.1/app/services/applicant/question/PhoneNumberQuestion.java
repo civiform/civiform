@@ -33,9 +33,10 @@ public class PhoneNumberQuestion implements PresentsErrors {
 
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
-    int phoneNumberLength = getPhoneNumberValue().map(s -> s.length()).orElse(0);
+    Optional<String> phoneNumber = getPhoneNumberValue();
+    int phoneNumberLength = phoneNumber.map(s -> s.length()).orElse(0);
 
-    if (phoneNumberLength != 12 || !getPhoneNumberValue().get().matches("^([0-9]{3})-([0-9]{3})-([0-9]{4})$")) {
+    if (phoneNumberLength != 12 || !phoneNumber.get().matches("^([0-9]{3})-([0-9]{3})-([0-9]{4})$")) {
         errors.add(ValidationErrorMessage.create(MessageKey.PHONE_NUMBER_INVALID));
     }
 
