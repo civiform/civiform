@@ -26,7 +26,7 @@ import services.applicant.ApplicantData;
  * {@code Account}s and therefore human applicants only have one {@code Applicant} record despite
  * the code specifying a one-to-many relationship. This is technical debt that stems from earlier
  * reasoning about the approach wherein we expected we'd need to create multiple versions of the
- * resident's {@code ApplicantData} for each version they interact with. That isn't the case and a
+ * resident's {@code ApplicantData} for each version they interact with. That isn't the case and
  * their {@code ApplicantData} migrates seamlessly with each additional version but the database
  * schema remains.
  */
