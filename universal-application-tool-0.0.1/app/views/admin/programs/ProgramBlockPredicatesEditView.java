@@ -47,11 +47,13 @@ import views.style.Styles;
 
 public class ProgramBlockPredicatesEditView extends BaseHtmlView {
   private static final String H2_CURRENT_VISIBILITY_CONDITION = "Current visibility condition";
-  private static final String H2_CREATE_NEW_VISIBILITY_CONDITION =
-      "Create a new visibility condition";
+  private static final String H2_NEW_VISIBILITY_CONDITION = "New visibility condition";
   private static final String TEXT_NO_VISIBILITY_CONDITIONS = "This block is always shown.";
   private static final String TEXT_NO_AVAILABLE_QUESTIONS =
       "There are no available questions with which to set a visibility condition for this block.";
+  private static final String TEXT_NEW_VISIBILITY_CONDITION =
+      "Apply a visibility condition using a question below. When you create a visibility"
+          + " condition, it replaces the present one.";
 
   private final AdminLayout layout;
 
@@ -95,8 +97,9 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
             .with(
                 div()
                     .with(
-                        h2(H2_CREATE_NEW_VISIBILITY_CONDITION)
+                        h2(H2_NEW_VISIBILITY_CONDITION)
                             .withClasses(Styles.FONT_SEMIBOLD, Styles.TEXT_LG))
+                    .with(div(TEXT_NEW_VISIBILITY_CONDITION).withClasses(Styles.MB_2))
                     .with(
                         modals.isEmpty()
                             ? text(TEXT_NO_AVAILABLE_QUESTIONS)
@@ -178,7 +181,6 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .withId(formId)
         .withMethod(POST)
         .withAction(predicateUpdateAction)
-        .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
         .with(createActionDropdown(blockName))
         .with(renderQuestionDefinitionBox(questionDefinition))
         // Need to pass in the question ID with the rest of the form data in order to save the
@@ -264,7 +266,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
 
     return new SelectWithLabel()
         .setFieldName("scalar")
-        .setLabelText("Scalar")
+        .setLabelText("Field")
         .setCustomOptions(options)
         .addReferenceClass(ReferenceClasses.PREDICATE_SCALAR_SELECT)
         .getContainer();
