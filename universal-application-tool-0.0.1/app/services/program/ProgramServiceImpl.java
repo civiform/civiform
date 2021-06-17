@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import javax.annotation.Nullable;
 import models.Account;
 import models.Application;
 import models.Program;
@@ -408,7 +409,7 @@ public class ProgramServiceImpl implements ProgramService {
   @Override
   @Transactional
   public ProgramDefinition setBlockPredicate(
-      long programId, long blockDefinitionId, PredicateDefinition predicate)
+      long programId, long blockDefinitionId, @Nullable PredicateDefinition predicate)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
