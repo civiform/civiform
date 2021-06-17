@@ -414,10 +414,17 @@ public class ProgramServiceImpl implements ProgramService {
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setVisibilityPredicate(Optional.of(predicate))
+            .setVisibilityPredicate(Optional.ofNullable(predicate))
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition removeBlockPredicate(long programId, long blockDefinitionId)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+    return setBlockPredicate(programId, blockDefinitionId, null);
   }
 
   @Override
