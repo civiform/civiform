@@ -303,8 +303,14 @@ public final class QuestionEditView extends BaseHtmlView {
                 .getContainer())
         .with(formQuestionTypeSelect(questionType));
 
+    boolean demographicFieldsHidden = 
+            questionForm.getQuestionType() == QuestionType.STATIC;
     formTag.with(QuestionConfig.buildQuestionConfig(questionForm));
-    formTag.with(buildDemographicFields(questionForm));
+    formTag.with(
+        div()
+            .withClasses(demographicFieldsHidden ? "hidden" : "")
+            .withId("demographic-field-content")
+            .with(buildDemographicFields(questionForm)));
     return formTag;
   }
 
