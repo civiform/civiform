@@ -24,7 +24,7 @@ import services.program.ProgramDefinition;
  * <p>Note that residents have a single {@code Account} and a single {@code Applicant} record,
  * despite the one to many relationship. This is technical debt that stems from earlier reasoning
  * about the approach wherein we expected we'd need to create multiple versions of the resident's
- * {@code ApplicantData} for each version they interact with. That isn't the case and a their {@code
+ * {@code ApplicantData} for each version they interact with. That isn't the case and their {@code
  * ApplicantData} migrates seamlessly with each additional version but the database schema remains.
  *
  * <p>Accounts are not versioned.
