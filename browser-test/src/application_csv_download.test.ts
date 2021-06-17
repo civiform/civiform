@@ -16,11 +16,11 @@ describe('normal application flow', () => {
     const applicantQuestions = new ApplicantQuestions(page);
 
     const programName = 'test program for csv export';
-    await adminQuestions.addNameQuestion('name-csv');
-    await adminQuestions.addDropdownQuestion('dropdown-csv', ['op1', 'op2', 'op3']);
-    await adminQuestions.exportQuestion('name-csv');
-    await adminQuestions.exportQuestion('dropdown-csv');
-    await adminPrograms.addAndPublishProgramWithQuestions(['name-csv', 'dropdown-csv'], programName);
+    await adminQuestions.addNameQuestion('name-csv-download');
+    await adminQuestions.addDropdownQuestion('dropdown-csv-download', ['op1', 'op2', 'op3']);
+    await adminQuestions.exportQuestion('name-csv-download');
+    await adminQuestions.exportQuestion('dropdown-csv-download');
+    await adminPrograms.addAndPublishProgramWithQuestions(['name-csv-download', 'dropdown-csv-download'], programName);
 
     await logout(page);
     await loginAsTestUser(page);
@@ -46,8 +46,8 @@ describe('normal application flow', () => {
     await logout(page);
     await loginAsAdmin(page)
 
-    await adminQuestions.createNewVersion('dropdown-csv');
-    await adminQuestions.gotoQuestionEditPage('dropdown-csv');
+    await adminQuestions.createNewVersion('dropdown-csv-download');
+    await adminQuestions.gotoQuestionEditPage('dropdown-csv-download');
     await page.click('button:text("Remove"):visible')
     await page.click('text=Update');
     await adminPrograms.publishProgram(programName);
@@ -65,16 +65,16 @@ describe('normal application flow', () => {
 
     await adminPrograms.gotoAdminProgramsPage();
     const demographicsCsvContent = await adminPrograms.getDemographicsCsv();
-    expect(demographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,dropdowncsv (selection),namecsv (first_name),namecsv (middle_name),namecsv (last_name)');
+    expect(demographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,dropdowncsvdownload (selection),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)');
     expect(demographicsCsvContent).toContain('op2,sarah,,smith');
 
-    await adminQuestions.createNewVersion('name-csv');
-    await adminQuestions.exportQuestionOpaque('name-csv');
+    await adminQuestions.createNewVersion('name-csv-download');
+    await adminQuestions.exportQuestionOpaque('name-csv-download');
     await adminPrograms.publishProgram(programName);
 
     await adminPrograms.gotoAdminProgramsPage();
     const newDemographicsCsvContent = await adminPrograms.getDemographicsCsv();
-    expect(newDemographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,dropdowncsv (selection),namecsv (first_name),namecsv (middle_name),namecsv (last_name)');
+    expect(newDemographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,dropdowncsvdownload (selection),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)');
     expect(newDemographicsCsvContent).not.toContain(',sarah,,smith');
     expect(newDemographicsCsvContent).toContain(',op2,');
     if (isLocalDevEnvironment()) {
