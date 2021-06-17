@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Streams;
+import java.util.AbstractMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import models.Applicant;
@@ -19,50 +22,62 @@ import org.junit.Test;
 import repository.WithPostgresContainer;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.FileUploadQuestion;
+import services.applicant.question.MultiSelectQuestion;
+import services.applicant.question.NameQuestion;
+import services.applicant.question.Scalar;
 import services.program.Column;
 import services.program.ColumnType;
 import services.program.CsvExportConfig;
 import services.program.ExportDefinition;
 import services.program.ExportEngine;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import support.ProgramBuilder;
 import support.QuestionAnswerer;
 
 public class CsvExporterTest extends WithPostgresContainer {
-  private static Program fakeProgramWithCsvExport;
-  private ImmutableList<Applicant> fakeApplicants;
+  private Program fakeProgramWithCsvExport;
+  private ImmutableList<Question> fakeQuestions;
 
-  public static CsvExportConfig createFakeCsvConfig() {
-    return CsvExportConfig.builder()
-        .addColumn(
-            Column.builder()
-                .setHeader("first name")
-                .setJsonPath(Path.create("$.applicant.applicant_name.first_name"))
-                .setColumnType(ColumnType.APPLICANT)
-                .build())
-        .addColumn(
-            Column.builder()
-                .setHeader("last name")
-                .setJsonPath(Path.create("$.applicant.applicant_name.last_name"))
-                .setColumnType(ColumnType.APPLICANT)
-                .build())
-        .addColumn(
-            Column.builder()
-                .setHeader("column")
-                .setJsonPath(Path.create("$.applicant.column"))
-                .setColumnType(ColumnType.APPLICANT)
-                .build())
-        .addColumn(
-            Column.builder()
-                .setHeader("multiselect")
-                .setJsonPath(Path.create("$.applicant.multiselect.selection"))
-                .setColumnType(ColumnType.APPLICANT)
-                .build())
-        .build();
+  private void createFakeQuestions() {
+    this.fakeQuestions =
+        testQuestionBank.getSampleQuestionsForAllTypes().values().stream()
+            .sorted(Comparator.comparing(question -> question.getQuestionDefinition().getName()))
+            .collect(ImmutableList.toImmutableList());
   }
 
-  public void createFakeProgram() {
-    fakeProgramWithCsvExport =
-        ProgramBuilder.newDraftProgram()
+  private ApplicantQuestion getApplicantQuestion(QuestionDefinition questionDefinition) {
+    return new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty());
+  }
+
+  private CsvExportConfig createFakeCsvConfig() {
+    CsvExportConfig.Builder csvExportConfigBuilder = CsvExportConfig.builder();
+    fakeQuestions.stream()
+        .map(question -> question.getQuestionDefinition())
+        .filter(question -> !question.isEnumerator())
+        .flatMap(
+            question -> getApplicantQuestion(question).getContextualizedScalars().keySet().stream())
+        .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
+        .forEach(
+            path ->
+                csvExportConfigBuilder.addColumn(
+                    Column.builder()
+                        .setHeader(ExporterService.pathToHeader(path))
+                        .setJsonPath(path)
+                        .setColumnType(ColumnType.APPLICANT)
+                        .build()));
+    return csvExportConfigBuilder.build();
+  }
+
+  private void createFakeProgram() {
+    ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram();
+    createFakeQuestions();
+    fakeQuestions.forEach(question -> fakeProgram.withBlock().withQuestion(question).build());
+
+    this.fakeProgramWithCsvExport =
+        fakeProgram
             .withExportDefinition(
                 ExportDefinition.builder()
                     .setEngine(ExportEngine.CSV)
@@ -71,77 +86,141 @@ public class CsvExporterTest extends WithPostgresContainer {
             .build();
   }
 
-  public void createFakeApplicants() {
-    Applicant fakeApplicantOne = new Applicant();
-    fakeApplicantOne
-        .getApplicantData()
-        .putString(Path.create("applicant.applicant_name.first_name"), "Alice");
-    fakeApplicantOne
-        .getApplicantData()
-        .putString(Path.create("applicant.applicant_name.last_name"), "Appleton");
-    fakeApplicantOne
-        .getApplicantData()
-        .putString(
-            Path.create("applicant.column"), "Some Value \" containing ,,, special characters");
-    fakeApplicantOne
-        .getApplicantData()
-        .putLong(Path.create("applicant.multiselect.selection[0]"), 1L);
-    fakeApplicantOne
-        .getApplicantData()
-        .putLong(Path.create("applicant.multiselect.selection[1]"), 2L);
-    fakeApplicantOne
-        .getApplicantData()
-        .putString(Path.create("applicant.applicant_favorite_color.text"), "fuchsia");
-    fakeApplicantOne.save();
+  private void answerQuestion(
+      QuestionType questionType,
+      Question question,
+      ApplicantData applicantDataOne,
+      ApplicantData applicantDataTwo) {
+    Path answerPath =
+        question
+            .getQuestionDefinition()
+            .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
+    switch (questionType) {
+      case ADDRESS:
+        QuestionAnswerer.answerAddressQuestion(
+            applicantDataOne, answerPath, "street st", "apt 100", "city", "AB", "54321");
+        // applicant two did not answer this question.
+        break;
+      case CHECKBOX:
+        QuestionAnswerer.answerMultiSelectQuestion(applicantDataOne, answerPath, 0, 1L);
+        QuestionAnswerer.answerMultiSelectQuestion(applicantDataOne, answerPath, 1, 2L);
+        // applicant two did not answer this question.
+        break;
+      case DATE:
+        QuestionAnswerer.answerDateQuestion(applicantDataOne, answerPath, "1980-01-01");
+        // applicant two did not answer this question.
+        break;
+      case DROPDOWN:
+        QuestionAnswerer.answerSingleSelectQuestion(applicantDataOne, answerPath, 2L);
+        // applicant two did not answer this question.
+        break;
+      case EMAIL:
+        QuestionAnswerer.answerEmailQuestion(applicantDataOne, answerPath, "one@example.com");
+        // applicant two did not answer this question.
+        break;
+      case FILEUPLOAD:
+        QuestionAnswerer.answerFileQuestion(applicantDataOne, answerPath, "my-file-key");
+        // applicant two did not answer this question.
+        break;
+      case NAME:
+        QuestionAnswerer.answerNameQuestion(applicantDataOne, answerPath, "Alice", "", "Appleton");
+        QuestionAnswerer.answerNameQuestion(applicantDataTwo, answerPath, "Bob", "", "Baker");
+        break;
+      case NUMBER:
+        QuestionAnswerer.answerNumberQuestion(applicantDataOne, answerPath, "123456");
+        // applicant two did not answer this question.
+        break;
+      case RADIO_BUTTON:
+        QuestionAnswerer.answerSingleSelectQuestion(applicantDataOne, answerPath, 1L);
+        // applicant two did not answer this question.
+        break;
+      case ENUMERATOR:
+        QuestionAnswerer.answerEnumeratorQuestion(
+            applicantDataOne, answerPath, ImmutableList.of("item1", "item2"));
+        // applicant two did not answer this question.
+        break;
+      case TEXT:
+        QuestionAnswerer.answerTextQuestion(
+            applicantDataOne, answerPath, "Some Value \" containing ,,, special characters");
+        // applicant two did not answer this question.
+        break;
+    }
+  }
 
+  private void createFakeApplications() {
+    Applicant fakeApplicantOne = new Applicant();
     Applicant fakeApplicantTwo = new Applicant();
-    fakeApplicantTwo
-        .getApplicantData()
-        .putString(Path.create("applicant.applicant_name.first_name"), "Bob");
-    fakeApplicantTwo
-        .getApplicantData()
-        .putString(Path.create("applicant.applicant_name.last_name"), "Baker");
-    fakeApplicantTwo.getApplicantData().putString(Path.create("applicant.column"), "");
-    fakeApplicantTwo
-        .getApplicantData()
-        .putString(Path.create("applicant.multiselect.selection[0]"), "hello");
-    fakeApplicantTwo
-        .getApplicantData()
-        .putString(Path.create("applicant.applicant_favorite_color.text"), "maroon");
+    testQuestionBank.getSampleQuestionsForAllTypes().entrySet().stream()
+        .forEach(
+            entry ->
+                answerQuestion(
+                    entry.getKey(),
+                    entry.getValue(),
+                    fakeApplicantOne.getApplicantData(),
+                    fakeApplicantTwo.getApplicantData()));
+    fakeApplicantOne.save();
     fakeApplicantTwo.save();
-    this.fakeApplicants = ImmutableList.of(fakeApplicantOne, fakeApplicantTwo);
+    new Application(fakeApplicantOne, fakeProgramWithCsvExport, LifecycleStage.ACTIVE).save();
+    new Application(fakeApplicantTwo, fakeProgramWithCsvExport, LifecycleStage.ACTIVE).save();
   }
 
   @Before
   public void setUp() {
     createFakeProgram();
-    createFakeApplicants();
+    createFakeApplications();
   }
 
   @Test
   public void useProgramCsvExport_noRepeatedEntities() throws Exception {
-    for (Applicant applicant : fakeApplicants) {
-      Application application =
-          new Application(applicant, fakeProgramWithCsvExport, LifecycleStage.ACTIVE);
-      application.save();
-    }
     ExporterService exporterService = instanceOf(ExporterService.class);
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramCsv(fakeProgramWithCsvExport.id),
             CSVFormat.DEFAULT.withFirstRecordAsHeader());
-
-    assertThat(parser.getHeaderMap()).containsEntry("first name", 0);
-    assertThat(parser.getHeaderMap()).containsEntry("last name", 1);
-    assertThat(parser.getHeaderMap()).containsEntry("column", 2);
-    assertThat(parser.getHeaderMap()).containsEntry("multiselect", 3);
     List<CSVRecord> records = parser.getRecords();
     assertThat(records).hasSize(2);
-    assertThat(records.get(0).get("first name")).isEqualTo("Alice");
-    assertThat(records.get(1).get("last name")).isEqualTo("Baker");
-    // Check list for multiselect
-    // TODO: export the string values of the selects instead of the IDs
-    assertThat(records.get(0).get("multiselect")).isEqualTo("[1, 2]");
+    Streams.mapWithIndex(
+            fakeQuestions.stream()
+                .filter(question -> !question.getQuestionDefinition().isEnumerator())
+                .flatMap(
+                    question ->
+                        getApplicantQuestion(question.getQuestionDefinition())
+                            .getContextualizedScalars()
+                            .keySet()
+                            .stream()
+                            .filter(
+                                path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))),
+            (path, index) -> new AbstractMap.SimpleEntry<Path, Integer>(path, (int) index))
+        .forEach(
+            entry ->
+                assertThat(parser.getHeaderMap())
+                    .containsEntry(ExporterService.pathToHeader(entry.getKey()), entry.getValue()));
+
+    Question nameQuestion = testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.NAME);
+    NameQuestion nameApplicantQuestion =
+        getApplicantQuestion(nameQuestion.getQuestionDefinition()).createNameQuestion();
+    String firstNameHeader = ExporterService.pathToHeader(nameApplicantQuestion.getFirstNamePath());
+    String lastNameHeader = ExporterService.pathToHeader(nameApplicantQuestion.getLastNamePath());
+    assertThat(records.get(0).get(firstNameHeader)).isEqualTo("Alice");
+    assertThat(records.get(1).get(lastNameHeader)).isEqualTo("Baker");
+    // Check list for multiselect in default locale
+    Question checkboxQuestion =
+        testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.CHECKBOX);
+    MultiSelectQuestion multiSelectApplicantQuestion =
+        getApplicantQuestion(checkboxQuestion.getQuestionDefinition()).createMultiSelectQuestion();
+    String multiSelectHeader =
+        ExporterService.pathToHeader(multiSelectApplicantQuestion.getSelectionPath());
+    assertThat(records.get(0).get(multiSelectHeader)).isEqualTo("[toaster, pepper grinder]");
+    // Check link for uploaded file
+    Question fileuploadQuestion =
+        testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.FILEUPLOAD);
+    FileUploadQuestion fileuploadApplicantQuestion =
+        getApplicantQuestion(fileuploadQuestion.getQuestionDefinition()).createFileUploadQuestion();
+    String fileKeyHeader =
+        ExporterService.pathToHeader(fileuploadApplicantQuestion.getFileKeyPath());
+    assertThat(records.get(0).get(fileKeyHeader))
+        .isEqualTo(
+            String.format("/admin/programs/%d/files/my-file-key", fakeProgramWithCsvExport.id));
   }
 
   @Test

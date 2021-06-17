@@ -611,7 +611,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 ApplicantData.APPLICANT_PATH
                     .join(multiSelectQuestionDefinition.getQuestionPathSegment())
                     .join(Scalar.SELECTION),
-                "toaster, pepper grinder"));
+                "[toaster, pepper grinder]"));
 
     // check enumerator and repeated answers
     assertThat(result.get(5).questionIndex()).isEqualTo(0);

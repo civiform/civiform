@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.QuestionTag;
+import models.Version;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.question.exceptions.InvalidUpdateException;
@@ -21,9 +22,15 @@ public interface QuestionService {
 
   /**
    * Get a {@link ReadOnlyQuestionService} which implements synchronous, in-memory read behavior for
-   * questions.
+   * questions in current active and draft versions.
    */
   CompletionStage<ReadOnlyQuestionService> getReadOnlyQuestionService();
+
+  /**
+   * Get a {@link ReadOnlyQuestionService} which implements synchronous, in-memory read behavior for
+   * questions in a particular version.
+   */
+  ReadOnlyQuestionService getReadOnlyVersionedQuestionService(Version version);
 
   /**
    * Creates a new Question Definition. Returns a QuestionDefinition object on success and {@link

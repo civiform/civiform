@@ -177,7 +177,11 @@ export class AdminPrograms {
   }
 
   async viewApplications(programName: string) {
-    await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', ':text("Applications")'));
+    await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', 'a:text("Applications")'));
+  }
+
+  async viewApplicationsInOldVersion() {
+    await this.page.click('a:text("Applications")');
   }
 
   selectApplicationCardForApplicant(applicantName: string) {
@@ -197,7 +201,7 @@ export class AdminPrograms {
   }
 
   async viewApplicationForApplicant(applicantName: string) {
-    await this.page.click(this.selectWithinApplicationForApplicant(applicantName, ':text("View")'));
+    await this.page.click(this.selectWithinApplicationForApplicant(applicantName, 'a:text("View")'));
   }
 
   async expectApplicationAnswers(blockName: string, questionName: string, answer: string) {

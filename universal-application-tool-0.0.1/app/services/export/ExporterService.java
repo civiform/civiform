@@ -2,6 +2,7 @@ package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -79,7 +80,12 @@ public class ExporterService {
       OutputStream inMemoryBytes = new ByteArrayOutputStream();
       Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8);
       for (Application application : applications) {
-        csvExporter.export(application, writer);
+        ReadOnlyApplicantProgramService roApplicantService =
+            applicantService
+                .getReadOnlyApplicantProgramService(application)
+                .toCompletableFuture()
+                .join();
+        csvExporter.export(application, roApplicantService, writer);
       }
       writer.close();
       return inMemoryBytes.toString();
@@ -114,12 +120,9 @@ public class ExporterService {
               .getReadOnlyApplicantProgramService(application)
               .toCompletableFuture()
               .join();
-      for (AnswerData answerData : roApplicantService.getSummaryData()) {
-        String key = answerDataKey(answerData);
-        if (!answerMap.containsKey(key)) {
-          answerMap.put(key, answerData);
-        }
-      }
+      roApplicantService
+          .getSummaryData()
+          .forEach(data -> answerMap.putIfAbsent(answerDataKey(data), data));
     }
 
     // Get the list of all answers, sorted by block ID and question index, and generate the default
@@ -186,7 +189,8 @@ public class ExporterService {
    *
    * @param path is a path that ends in a {@link services.applicant.question.Scalar}.
    */
-  private static String pathToHeader(Path path) {
+  @VisibleForTesting
+  static String pathToHeader(Path path) {
     String scalarComponent = String.format("(%s)", path.keyName());
     List<String> reversedHeaderComponents = new ArrayList<>(Arrays.asList(scalarComponent));
     while (!path.parentPath().isEmpty()
