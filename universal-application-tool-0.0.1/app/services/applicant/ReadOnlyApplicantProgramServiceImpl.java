@@ -20,6 +20,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.LocalizedQuestionOption;
+import services.question.types.QuestionType;
 import services.question.types.EnumeratorQuestionDefinition;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
@@ -120,6 +121,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       ImmutableList<ApplicantQuestion> questions = block.getQuestions();
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
         ApplicantQuestion question = questions.get(questionIndex);
+        // Don't include static content in summary data.
+        if (question.getType() == QuestionType.STATIC) {
+          continue;
+        }
         String questionText = question.getQuestionText();
         String answerText = question.errorsPresenter().getAnswerString();
         Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
@@ -140,7 +145,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setIsPreviousResponse(isPreviousResponse)
                 .setScalarAnswersInDefaultLocale(
                     getScalarAnswers(question, LocalizedStrings.DEFAULT_LOCALE))
-                .build();
+                .build();        
         builder.add(data);
       }
     }

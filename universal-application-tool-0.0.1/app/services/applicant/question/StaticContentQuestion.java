@@ -14,6 +14,8 @@ import services.question.types.QuestionType;
 
 public class StaticContentQuestion implements PresentsErrors {
 
+    private final ApplicantQuestion applicantQuestion;
+
     public StaticContentQuestion(ApplicantQuestion applicantQuestion) {
       this.applicantQuestion = applicantQuestion;
       assertQuestionType();
@@ -54,13 +56,17 @@ public class StaticContentQuestion implements PresentsErrors {
         return true;
     }
 
-    @Overrride
+    @Override
     public String getAnswerString() {
         return "";
     }
 
     @Override
     public ImmutableList<Path> getAllPaths() {
+        return ImmutableList.of(getPath());
+    }
+
+    public Path getPath() {
         return applicantQuestion.getContextualizedPath().join(Scalar.EMPTY);
     }
 }

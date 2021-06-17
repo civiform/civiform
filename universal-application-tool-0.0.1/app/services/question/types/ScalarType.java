@@ -8,6 +8,7 @@ package services.question.types;
  */
 public enum ScalarType {
   DATE,
+  EMPTY,
   LONG,
   STRING;
 }

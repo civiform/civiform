@@ -249,6 +249,9 @@ public class QuestionDefinitionBuilder {
         return new EnumeratorQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText, entityType);
 
+      case STATIC:
+        return new StaticContentQuestionDefinition(id, name, enumeratorId, description, questionText, questionHelpText);
+
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {

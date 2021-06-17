@@ -85,6 +85,9 @@ public enum Scalar {
   private static final ImmutableMap<Scalar, ScalarType> SINGLE_SELECT_SCALARS =
       ImmutableMap.of(SELECTION, ScalarType.STRING);
 
+  private static final ImmutableMap<Scalar, ScalarType> STATIC_SCALARS =
+      ImmutableMap.of(EMPTY, ScalarType.EMPTY);
+
   private static final ImmutableMap<Scalar, ScalarType> TEXT_SCALARS =
       ImmutableMap.of(TEXT, ScalarType.STRING);
 
@@ -125,6 +128,9 @@ public enum Scalar {
       case DROPDOWN: // QuestionTypes with single-selection
       case RADIO_BUTTON:
         return SINGLE_SELECT_SCALARS;
+
+      case STATIC:
+        return STATIC_SCALARS;
 
       case ENUMERATOR: // Enumerator Question does not have scalars like the other question types
         // do.
