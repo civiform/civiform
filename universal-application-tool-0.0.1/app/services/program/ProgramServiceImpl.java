@@ -270,7 +270,7 @@ public class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ProgramDefinition moveBlock(
       long programId, long blockId, ProgramDefinition.Direction direction)
-      throws ProgramNotFoundException, IllegalBlockMoveException {
+      throws ProgramNotFoundException, IllegalPredicateOrderingException {
     Program program;
     try {
       program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
@@ -302,8 +302,13 @@ public class ProgramServiceImpl implements ProgramService {
             .setDescription(blockForm.getDescription())
             .build();
 
-    return ErrorAnd.of(
-        updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition));
+    try {
+      return ErrorAnd.of(
+          updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition));
+    } catch (IllegalPredicateOrderingException e) {
+      // Updating a block's metadata should never invalidate a predicate.
+      throw new RuntimeException("Updating this block invalidates a condition in this program");
+    }
   }
 
   private ImmutableSet<CiviFormError> validateBlockDefinition(String name, String description) {
@@ -323,7 +328,8 @@ public class ProgramServiceImpl implements ProgramService {
       long programId,
       long blockDefinitionId,
       ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
@@ -372,8 +378,14 @@ public class ProgramServiceImpl implements ProgramService {
         blockDefinition.toBuilder()
             .setProgramQuestionDefinitions(newProgramQuestionDefinitions)
             .build();
-
-    return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+    try {
+      return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+    } catch (IllegalPredicateOrderingException e) {
+      // This should never happen
+      throw new RuntimeException(
+          String.format(
+              "Adding a question to block %s invalidated a predicate", blockDefinition.name()));
+    }
   }
 
   @Override
@@ -381,7 +393,7 @@ public class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition removeQuestionsFromBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
       throws QuestionNotFoundException, ProgramNotFoundException,
-          ProgramBlockDefinitionNotFoundException {
+          ProgramBlockDefinitionNotFoundException, IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     for (long questionId : questionIds) {
@@ -409,7 +421,8 @@ public class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ProgramDefinition setBlockPredicate(
       long programId, long blockDefinitionId, PredicateDefinition predicate)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
@@ -440,17 +453,25 @@ public class ProgramServiceImpl implements ProgramService {
             .map(pqd -> pqd.id() == questionDefinitionId ? pqd.setOptional(optional) : pqd)
             .collect(ImmutableList.toImmutableList());
 
-    return updateProgramDefinitionWithBlockDefinition(
-        programDefinition,
-        blockDefinition.toBuilder()
-            .setProgramQuestionDefinitions(programQuestionDefinitions)
-            .build());
+    try {
+      return updateProgramDefinitionWithBlockDefinition(
+          programDefinition,
+          blockDefinition.toBuilder()
+              .setProgramQuestionDefinitions(programQuestionDefinitions)
+              .build());
+    } catch (IllegalPredicateOrderingException e) {
+      // Changing a question between required and optional should not affect predicates. If a
+      // question is optional and a predicate depends on its answer, the predicate will be false.
+      throw new RuntimeException(
+          "Unexpected error: updating this question invalidated a block condition");
+    }
   }
 
   @Override
   @Transactional
   public ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
-      throws ProgramNotFoundException, ProgramNeedsABlockException {
+      throws ProgramNotFoundException, ProgramNeedsABlockException,
+          IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     ImmutableList<BlockDefinition> newBlocks =
@@ -461,12 +482,7 @@ public class ProgramServiceImpl implements ProgramService {
       throw new ProgramNeedsABlockException(programId);
     }
 
-    Program program =
-        programDefinition.toBuilder().setBlockDefinitions(newBlocks).build().toProgram();
-    return syncProgramDefinitionQuestions(
-            programRepository.updateProgramSync(program).getProgramDefinition())
-        .toCompletableFuture()
-        .join();
+    return updateProgramDefinitionWithBlockDefinitions(programDefinition, newBlocks);
   }
 
   @Override
@@ -524,23 +540,31 @@ public class ProgramServiceImpl implements ProgramService {
     return programRepository.getOtherProgramVersions(programId);
   }
 
+  private ProgramDefinition updateProgramDefinitionWithBlockDefinitions(
+      ProgramDefinition programDefinition, ImmutableList<BlockDefinition> blocks)
+      throws IllegalPredicateOrderingException {
+    ProgramDefinition program = programDefinition.toBuilder().setBlockDefinitions(blocks).build();
+
+    if (!program.hasValidPredicateOrdering()) {
+      throw new IllegalPredicateOrderingException("This action would invalidate a block condition");
+    }
+
+    return syncProgramDefinitionQuestions(
+            programRepository.updateProgramSync(program.toProgram()).getProgramDefinition())
+        .toCompletableFuture()
+        .join();
+  }
+
   private ProgramDefinition updateProgramDefinitionWithBlockDefinition(
-      ProgramDefinition programDefinition, BlockDefinition blockDefinition) {
+      ProgramDefinition programDefinition, BlockDefinition blockDefinition)
+      throws IllegalPredicateOrderingException {
 
     ImmutableList<BlockDefinition> updatedBlockDefinitions =
         programDefinition.blockDefinitions().stream()
             .map(b -> b.id() == blockDefinition.id() ? blockDefinition : b)
             .collect(ImmutableList.toImmutableList());
 
-    Program program =
-        programDefinition.toBuilder()
-            .setBlockDefinitions(updatedBlockDefinitions)
-            .build()
-            .toProgram();
-    return syncProgramDefinitionQuestions(
-            programRepository.updateProgramSync(program).getProgramDefinition())
-        .toCompletableFuture()
-        .join();
+    return updateProgramDefinitionWithBlockDefinitions(programDefinition, updatedBlockDefinitions);
   }
 
   private long getNextBlockId(ProgramDefinition programDefinition) {
