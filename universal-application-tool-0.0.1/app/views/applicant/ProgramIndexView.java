@@ -122,8 +122,7 @@ public class ProgramIndexView extends BaseHtmlView {
     ContainerTag content =
         div()
             .withId("main-content")
-            .withClasses(
-                Styles.MX_AUTO, Styles.MY_4, Styles.W_3_5, StyleUtils.responsiveSmall(Styles.M_10))
+            .withClasses(Styles.MX_AUTO, Styles.MY_4, StyleUtils.responsiveSmall(Styles.M_10))
             .with(
                 h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
                     .withClasses(Styles.BLOCK, Styles.MB_4, Styles.TEXT_XL, Styles.FONT_SEMIBOLD));
