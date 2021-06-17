@@ -205,7 +205,9 @@ public class Question extends BaseModel {
                 legacyQuestionOptions.get(firstKey).stream(),
                 (optionText, i) ->
                     QuestionOption.create(
-                        Long.valueOf(i), LocalizedStrings.of(firstKey, optionText)))
+                        Long.valueOf(i),
+                        Long.valueOf(i),
+                        LocalizedStrings.of(firstKey, optionText)))
             .collect(toImmutableList());
 
     builder.setQuestionOptions(options);

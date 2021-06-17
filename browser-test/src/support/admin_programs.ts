@@ -184,6 +184,11 @@ export class AdminPrograms {
     await this.page.click('a:text("Applications")');
   }
 
+  async viewApplicationsForOldVersion(programName: string) {
+    await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', ':text("Applications")'));
+    await this.page.click("a:has-text(\"Applications\")");
+  }
+
   selectApplicationCardForApplicant(applicantName: string) {
     return `.cf-admin-application-card:has-text("${applicantName}")`;
   }
@@ -215,6 +220,7 @@ export class AdminPrograms {
   }
 
   async getCsv() {
+    await this.page.screenshot({path: 'tmp/download.png', fullPage: true});
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.page.click('text="Download all (CSV)"')

@@ -1,6 +1,5 @@
 package views.admin.questions;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.label;
@@ -17,6 +16,8 @@ import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
+import services.LocalizedStrings;
+import services.question.LocalizedQuestionOption;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
@@ -155,14 +156,23 @@ public class QuestionConfig {
    * Creates an individual text field where an admin can enter a single multi-option question
    * answer, along with a button to remove the option.
    */
-  public static ContainerTag multiOptionQuestionField(Optional<String> existingOption) {
+  public static ContainerTag multiOptionQuestionField(
+      Optional<LocalizedQuestionOption> existingOption) {
     ContainerTag optionInput =
         FieldWithLabel.input()
-            .setFieldName("options[]")
+            .setFieldName(existingOption.isPresent() ? "options[]" : "newOptions[]")
             .setLabelText("Question option")
-            .setValue(existingOption)
+            .setValue(existingOption.map(LocalizedQuestionOption::optionText))
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2);
+    ContainerTag optionIndexInput =
+        existingOption.isEmpty()
+            ? div()
+            : FieldWithLabel.input()
+                .setFieldName("optionIndexes[]")
+                .setValue(String.valueOf(existingOption.get().id()))
+                .getContainer()
+                .withClasses(Styles.HIDDEN);
     Tag removeOptionButton =
         button("Remove")
             .withType("button")
@@ -170,18 +180,25 @@ public class QuestionConfig {
 
     return div()
         .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4)
-        .with(optionInput, removeOptionButton);
+        .with(optionInput, optionIndexInput, removeOptionButton);
   }
 
   private QuestionConfig addMultiOptionQuestionFields(
       MultiOptionQuestionForm multiOptionQuestionForm) {
-    ImmutableList<ContainerTag> existingOptions =
-        multiOptionQuestionForm.getOptions().stream()
-            .map(option -> multiOptionQuestionField(Optional.of(option)))
-            .collect(toImmutableList());
+    ImmutableList.Builder<ContainerTag> existingOptionsBuilder = ImmutableList.builder();
+    for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
+      existingOptionsBuilder.add(
+          multiOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      multiOptionQuestionForm.getOptionIndexes().get(i),
+                      0L,
+                      multiOptionQuestionForm.getOptions().get(i),
+                      LocalizedStrings.DEFAULT_LOCALE))));
+    }
 
     content
-        .with(existingOptions)
+        .with(existingOptionsBuilder.build())
         .with(
             button("Add answer option")
                 .withType("button")
