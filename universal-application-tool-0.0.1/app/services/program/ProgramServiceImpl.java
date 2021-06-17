@@ -298,7 +298,7 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   private ImmutableSet<CiviFormError> validateBlockDefinition(String name, String description) {
-    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.<CiviFormError>builder();
+    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
     if (name.isBlank()) {
       errors.add(CiviFormError.of("block name cannot be blank"));
     }
@@ -409,6 +409,33 @@ public class ProgramServiceImpl implements ProgramService {
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition setProgramQuestionDefinitionOptionality(
+      long programId, long blockDefinitionId, long questionDefinitionId, boolean optional)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+
+    if (!blockDefinition.programQuestionDefinitions().stream()
+        .anyMatch(pqd -> pqd.id() == questionDefinitionId)) {
+      throw new ProgramQuestionDefinitionNotFoundException(
+          programId, blockDefinitionId, questionDefinitionId);
+    }
+
+    ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions =
+        blockDefinition.programQuestionDefinitions().stream()
+            .map(pqd -> pqd.id() == questionDefinitionId ? pqd.setOptional(optional) : pqd)
+            .collect(ImmutableList.toImmutableList());
+
+    return updateProgramDefinitionWithBlockDefinition(
+        programDefinition,
+        blockDefinition.toBuilder()
+            .setProgramQuestionDefinitions(programQuestionDefinitions)
+            .build());
   }
 
   @Override
@@ -555,12 +582,11 @@ public class ProgramServiceImpl implements ProgramService {
 
   private ProgramQuestionDefinition syncProgramQuestionDefinition(
       ProgramQuestionDefinition pqd, ReadOnlyQuestionService roQuestionService) {
-    QuestionDefinition questionDefinition;
     try {
-      questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
+      QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
+      return pqd.setQuestionDefinition(questionDefinition);
     } catch (QuestionNotFoundException e) {
       throw new RuntimeException(e);
     }
-    return ProgramQuestionDefinition.create(questionDefinition);
   }
 }
