@@ -33,7 +33,7 @@ import services.applicant.predicate.JsonPathPredicate;
 import services.applicant.question.Scalar;
 
 /**
- * Brokers access to the answer data for a specific applicant at a specific version.
+ * Brokers access to the answer data for a specific applicant across versions.
  *
  * <p>Instances are hydrated and persisted through {@code models.Applicant}.
  *

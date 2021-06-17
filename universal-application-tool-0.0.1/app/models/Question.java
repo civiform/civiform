@@ -36,7 +36,7 @@ import services.question.types.QuestionType;
 /**
  * An EBean mapped class that stores the configuration for a single question.
  *
- * <p>Questions can be shared by multiple {@code Program}s. The set of questions for a given program
+ * <p>Questions can be shared by multiple {@code Program}s. The set of questions for a given version
  * define the data model for a given applicant i.e. all of the data that can be collected for an
  * {@code Applicant} across all programs.
  *
@@ -44,7 +44,8 @@ import services.question.types.QuestionType;
  * create a new {@code Version} draft, make updates, and publish which will create a new version of
  * all updated questions.
  *
- * <p>Questions that aren't updated between versions are associated with multiple versions.
+ * <p>Questions that aren't updated between versions are associated with multiple versions. I.e.
+ * Questions that are not updated will be carried over to new versions.
  */
 @Entity
 @Table(name = "questions")

@@ -15,7 +15,7 @@ import play.data.validation.Constraints;
 /**
  * An EBean mapped class that stores a reference object for coordinating the CiviForm data model.
  *
- * <p>A version object has a lifecycle stage (active, draft, obsolete, deleted) and a list of
+ * <p>A version object has a {@code LifecycleStage} (active, draft, obsolete, deleted) and a list of
  * programs and questions. There is exactly one active version at any given time, and at most one
  * draft - there are an arbitrary number of obsolete and deleted versions. Obsolete versions may be
  * reverted to - deleted ones will not be displayed under any circumstances.

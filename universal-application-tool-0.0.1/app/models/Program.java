@@ -35,8 +35,11 @@ import services.question.types.QuestionDefinition;
  * <p>A program contains a list of {@code BlockDefinition}s, each of which contains {@code
  * ProgramQuestionDefinition}s that reference a given {@code Question}.
  *
- * <p>When an application is submitted, a snapshot of the applicant's answers for the program
- * application are stored for that program and applicant in an {@code Application}.
+ * <p>When an application is submitted, an immutable snapshot of the applicant's answers for the
+ * program application are stored for that program and applicant in an {@code Application}.
+ *
+ * <p>Programs that aren't updated between versions are associated with multiple versions. I.e. A
+ * program that is not updated will be carried over to a new version.
  */
 @Entity
 @Table(name = "programs")
