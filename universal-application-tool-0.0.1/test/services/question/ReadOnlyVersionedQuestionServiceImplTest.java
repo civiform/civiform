@@ -30,8 +30,6 @@ public class ReadOnlyVersionedQuestionServiceImplTest {
 
   @Before
   public void setupQuestions() {
-    // The tests mimic that the persisted questions are read into ReadOnlyQuestionService.
-    // Therefore, question ids cannot be empty.
     nameQuestion =
         (NameQuestionDefinition) testQuestionBank.applicantName().getQuestionDefinition();
     addressQuestion =
