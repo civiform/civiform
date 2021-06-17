@@ -17,7 +17,7 @@ import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
 
 /**
- * An EBean mapped class that represents a single applicant at a specific {@code Version}.
+ * An EBean mapped class that represents a single applicant.
  *
  * <p>This class primarily exists to handle persistence for its {@code object} property which it
  * uses to hydrate an {@code ApplicantData} instance. See {@code Applicant#getApplicantData}.
