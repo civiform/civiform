@@ -196,4 +196,40 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
         controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
     assertThat(Helpers.contentAsString(redirectResult)).contains("This block is always shown.");
   }
+
+  @Test
+  public void destroy_removesPredicate() throws Exception {
+    // First add a predicate and assert its presence.
+    Http.Request request =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.of(
+                    "predicateAction",
+                    "HIDE_BLOCK",
+                    "questionId",
+                    "1",
+                    "scalar",
+                    "FIRST_NAME",
+                    "operator",
+                    "EQUAL_TO",
+                    "predicateValue",
+                    "Hello"))
+            .build();
+    Result resultWithPredicate = controller.update(request, programWithThreeBlocks.id, 3L);
+    assertThat(resultWithPredicate.flash().get("success").get())
+        .contains("Saved visibility condition");
+
+    // Then use the destroy endpoint and confirm the predicate's absence.
+    Result resultWithoutPredicate = controller.destroy(programWithThreeBlocks.id, 3L);
+
+    assertThat(resultWithoutPredicate.status()).isEqualTo(SEE_OTHER);
+    assertThat(resultWithoutPredicate.flash().get("success").get())
+        .contains("Removed the visibility condition for this block.");
+
+    // For some reason the above result has an empty contents. So we test the new content of the
+    // edit page manually.
+    Result redirectResult =
+        controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
+    assertThat(Helpers.contentAsString(redirectResult)).contains("This block is always shown.");
+  }
 }
