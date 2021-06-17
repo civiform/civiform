@@ -32,6 +32,18 @@ import services.applicant.exception.JsonPathTypeMismatchException;
 import services.applicant.predicate.JsonPathPredicate;
 import services.applicant.question.Scalar;
 
+/**
+ * Brokers access to the answer data for a specific applicant across versions.
+ *
+ * <p>Instances are hydrated and persisted through {@code models.Applicant}.
+ *
+ * <p>While the underlying storage format is JSON, this class presents a read/write interface in
+ * terms of CiviForm's domain semantics, such as {@code Path}, rather than raw JSON paths and
+ * values.
+ *
+ * <p>When extending this class, seek to avoid leaking details of the JSON format to the code that
+ * consumes it and prefer higher-level objects over primitives in method signatures.
+ */
 public class ApplicantData {
 
   private static final String APPLICANT = "applicant";

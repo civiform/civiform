@@ -4,7 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 
-/** The ebean mapped class for a file stored in AWS S3 */
+/** The EBean mapped class for a file stored in AWS S3 */
 @Entity
 @Table(name = "files")
 public class StoredFile extends BaseModel {
