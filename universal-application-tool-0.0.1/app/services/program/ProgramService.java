@@ -147,7 +147,7 @@ public interface ProgramService {
    * @return the program definition, with the block moved if it is allowed.
    */
   ProgramDefinition moveBlock(long programId, long blockId, ProgramDefinition.Direction direction)
-      throws ProgramNotFoundException;
+      throws ProgramNotFoundException, IllegalBlockMoveException;
 
   /**
    * Update a {@link BlockDefinition}'s attributes.

@@ -261,7 +261,7 @@ public class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ProgramDefinition moveBlock(
       long programId, long blockId, ProgramDefinition.Direction direction)
-      throws ProgramNotFoundException {
+      throws ProgramNotFoundException, IllegalBlockMoveException {
     Program program;
     try {
       program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
