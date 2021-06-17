@@ -14,11 +14,13 @@ import services.applicant.ApplicantData;
 /**
  * An EBean mapped class that records the submission of a single applicant to a single program.
  *
- * <p>When a resident or trusted intermediary submits an application for a program, an {@code
- * Application} is created with a snapshot of the resident's {@code ApplicantData}. This ensures
- * that the data seen by the program administrator is consistent with what was actually submitted
- * and not subject to change if the resident or trusted intermediary changes answers to shared
- * questions after submitting.
+ * <p>A draft {@code Application} is created when an {@code Applicant} submits at least one block
+ * for a {@code Program}. The application transitions to active when submitted from the review page,
+ * and obsolete when a second application is submitted for the same program by the same applicant.
+ * The application's {@code ApplicantData} is immutable when it is not in draft {@code
+ * LifecycleStage}. This ensures that the data seen by the program administrator is consistent with
+ * what was actually submitted and not subject to change if the resident or trusted intermediary
+ * changes answers to shared questions after submitting.
  */
 @Entity
 @Table(name = "applications")
