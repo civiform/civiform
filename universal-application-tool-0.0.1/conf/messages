@@ -66,8 +66,17 @@ content.description2=Get started by choosing an application below.
 # Link text to read more about a program.
 link.programDetails=Program details
 
+# Link text to an external site to read more about a program.
+link.externalLink=External site
+
 # The title of the page for the list of programs.
 title.programs=Programs & services
+
+# Subtitle for the list of programs with draft applications
+titles.inProgressPrograms=Continue
+
+# Subtitle for the list of programs for which the applicant has no draft applications
+titles.activePrograms=New Programs
 
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Successfully saved application: application ID {0}
@@ -84,6 +93,18 @@ button.submit=Submit
 
 # Continue application button
 button.continue=Continue
+
+# The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
+link.begin=Start here
+
+# The text that appears next to an answered question that the applicant can click on to modify the response.
+link.edit=Edit
+
+# Program Prewiew Title
+title.programPreview=Program application preview
+
+# Program Rewiew Title
+title.programReview=Program application review
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -126,6 +147,13 @@ validation.stateRequired=Please enter state.
 validation.zipcodeRequired=Please enter valid ZIP code.
 validation.invalidZipcode=Please enter valid 5-digit ZIP code.
 validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
+
+#----------------------------------------------------------------------------------------------------------#
+# DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
+#----------------------------------------------------------------------------------------------------------#
+
+# Placeholder text shown in a dropdown selector before the user has made a selection.
+placeholder.noDropdownSelection=Choose an option:
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #

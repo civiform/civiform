@@ -6,10 +6,10 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.hr;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
-import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.Locale;
@@ -47,8 +47,10 @@ public class ProgramIndexView extends BaseHtmlView {
    *
    * @param messages the localized {@link Messages} for the current applicant
    * @param applicantId the ID of the current applicant
-   * @param programs an {@link ImmutableList} of {@link ProgramDefinition}s with the most recent
-   *     published versions
+   * @param draftPrograms an {@link ImmutableList} of {@link ProgramDefinition}s which the applicant
+   *     has draft applications of
+   * @param activePrograms an {@link ImmutableList} of {@link ProgramDefinition}s with the most
+   *     recent published versions
    * @return HTML content for rendering the list of available programs
    */
   public Content render(
@@ -56,7 +58,8 @@ public class ProgramIndexView extends BaseHtmlView {
       Http.Request request,
       long applicantId,
       String userName,
-      ImmutableList<ProgramDefinition> programs,
+      ImmutableList<ProgramDefinition> draftPrograms,
+      ImmutableList<ProgramDefinition> activePrograms,
       Optional<String> banner) {
     HtmlBundle bundle = layout.getBundle();
     if (banner.isPresent()) {
@@ -67,7 +70,8 @@ public class ProgramIndexView extends BaseHtmlView {
             messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()),
             messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_1.getKeyName()),
             messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_2.getKeyName())),
-        mainContent(messages, programs, applicantId, messages.lang().toLocale()));
+        mainContent(
+            messages, draftPrograms, activePrograms, applicantId, messages.lang().toLocale()));
 
     return layout.renderWithNav(request, userName, messages, bundle);
   }
@@ -82,43 +86,89 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.FONT_SEMIBOLD,
                 Styles.MB_2,
                 StyleUtils.responsiveSmall(Styles.MB_6));
+
     ContainerTag infoLine1Div =
         div()
             .withText(infoTextLine1)
             .withClasses(Styles.TEXT_SM, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
+
     ContainerTag infoLine2Div =
         div()
             .withText(infoTextLine2)
             .withClasses(Styles.TEXT_SM, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
 
+    ContainerTag seattleLogoDiv =
+        div()
+            .with(
+                this.layout
+                    .viewUtils
+                    .makeLocalImageTag("Seattle-logo_horizontal_blue-white_small")
+                    .attr("width", 175)
+                    .attr("height", 70))
+            .withClasses(Styles.ABSOLUTE, Styles.TOP_2, Styles.LEFT_2);
+
     return div()
         .withId("top-content")
-        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT)
-        .with(programIndexH1, infoLine1Div, infoLine2Div);
+        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, Styles.RELATIVE)
+        .with(seattleLogoDiv, programIndexH1, infoLine1Div, infoLine2Div);
   }
 
   private ContainerTag mainContent(
       Messages messages,
-      ImmutableList<ProgramDefinition> programs,
+      ImmutableList<ProgramDefinition> draftPrograms,
+      ImmutableList<ProgramDefinition> activePrograms,
       long applicantId,
       Locale preferredLocale) {
-    return div()
-        .withId("main-content")
-        .withClasses(Styles.MX_6, Styles.MY_4, StyleUtils.responsiveSmall(Styles.M_10))
-        .with(
-            h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
-                .withClasses(Styles.BLOCK, Styles.MB_4, Styles.TEXT_LG, Styles.FONT_SEMIBOLD))
-        .with(
-            div()
-                .withClasses(ApplicantStyles.PROGRAM_CARDS_CONTAINER)
-                .with(
-                    each(
-                        programs,
-                        program -> programCard(messages, program, applicantId, preferredLocale))));
+    ContainerTag content =
+        div()
+            .withId("main-content")
+            .withClasses(
+                Styles.MX_AUTO, Styles.MY_4, Styles.W_3_5, StyleUtils.responsiveSmall(Styles.M_10))
+            .with(
+                h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
+                    .withClasses(Styles.BLOCK, Styles.MB_4, Styles.TEXT_XL, Styles.FONT_SEMIBOLD));
+    if (!draftPrograms.isEmpty()) {
+      content
+          .with(
+              h2().withText(messages.at(MessageKey.TITLE_PROGRAMS_IN_PROGRESS.getKeyName()))
+                  .withClasses(Styles.MT_10, Styles.MB_4, Styles.TEXT_LG))
+          .with(
+              div()
+                  .withClasses(ApplicantStyles.PROGRAM_CARDS_CONTAINER)
+                  .with(
+                      each(
+                          draftPrograms,
+                          program ->
+                              programCard(messages, program, applicantId, preferredLocale, true))));
+    }
+    if (!draftPrograms.isEmpty() && !activePrograms.isEmpty()) {
+      content.with(hr());
+    }
+    if (!activePrograms.isEmpty()) {
+      content
+          .with(
+              h2().withText(messages.at(MessageKey.TITLE_PROGRAMS_ACTIVE.getKeyName()))
+                  .withClasses(Styles.MT_10, Styles.MB_4, Styles.TEXT_LG))
+          .with(
+              div()
+                  .withClasses(ApplicantStyles.PROGRAM_CARDS_CONTAINER)
+                  .with(
+                      each(
+                          activePrograms,
+                          program ->
+                              programCard(
+                                  messages, program, applicantId, preferredLocale, false))));
+    }
+
+    return div().withClasses(Styles.FLEX, Styles.JUSTIFY_CENTER).with(content);
   }
 
   private ContainerTag programCard(
-      Messages messages, ProgramDefinition program, Long applicantId, Locale preferredLocale) {
+      Messages messages,
+      ProgramDefinition program,
+      Long applicantId,
+      Locale preferredLocale,
+      boolean isDraft) {
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
     ContainerTag title =
@@ -139,31 +189,47 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.LINE_CLAMP_5)
             .with(descriptionContent);
 
-    String linkString = program.externalLink();
-    if (linkString.isEmpty()) {
-      linkString = routes.RedirectController.programByName(program.slug()).url();
-    }
-
-    ContainerTag externalLink =
-        new LinkElement()
-            .setId(baseId + "-external-link")
-            .setStyles(Styles.TEXT_XS, Styles.UNDERLINE)
-            .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
-            .setHref(linkString)
-            .asAnchorText();
-
     ContainerTag programData =
         div()
             .withId(baseId + "-data")
             .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO)
-            .with(title, description, externalLink);
+            .with(title, description);
+
+    // Add info link.
+    String infoUrl =
+        controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
+            .url();
+    ContainerTag infoLink =
+        new LinkElement()
+            .setId(baseId + "-info-link")
+            .setStyles(Styles.BLOCK, Styles.TEXT_XS, Styles.UNDERLINE)
+            .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
+            .setHref(infoUrl)
+            .asAnchorText();
+    programData.with(infoLink);
+
+    // Add external link if it is set.
+    if (!program.externalLink().isEmpty()) {
+      ContainerTag externalLink =
+          new LinkElement()
+              .setId(baseId + "-external-link")
+              .setStyles(Styles.BLOCK, Styles.TEXT_XS, Styles.UNDERLINE)
+              .setText(messages.at(MessageKey.EXTERNAL_LINK.getKeyName()))
+              .setHref(program.externalLink())
+              .asAnchorText();
+      programData.with(externalLink);
+    }
 
     String applyUrl =
-        controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
+        controllers.applicant.routes.ApplicantProgramReviewController.preview(
+                applicantId, program.id())
             .url();
     ContainerTag applyButton =
         a().attr(HREF, applyUrl)
-            .withText(messages.at(MessageKey.BUTTON_APPLY.getKeyName()))
+            .withText(
+                isDraft
+                    ? messages.at(MessageKey.BUTTON_CONTINUE.getKeyName())
+                    : messages.at(MessageKey.BUTTON_APPLY.getKeyName()))
             .withId(baseId + "-apply")
             .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
 

@@ -4,11 +4,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
+import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -61,15 +65,27 @@ public class ApplicantProgramsController extends CiviFormController {
         .thenComposeAsync(
             v -> applicantService.relevantPrograms(applicantId), httpContext.current())
         .thenApplyAsync(
-            programs ->
-                ok(
-                    programIndexView.render(
-                        messagesApi.preferred(request),
-                        request,
-                        applicantId,
-                        applicantStage.toCompletableFuture().join(),
-                        programs,
-                        banner)),
+            allPrograms -> {
+              Set<String> programsWithDraftApplication =
+                  allPrograms.get(LifecycleStage.DRAFT).stream()
+                      .map(ProgramDefinition::adminName)
+                      .collect(Collectors.toSet());
+              ImmutableList<ProgramDefinition> dedupedActivePrograms =
+                  allPrograms.get(LifecycleStage.ACTIVE).stream()
+                      .filter(
+                          programDefinition ->
+                              !programsWithDraftApplication.contains(programDefinition.adminName()))
+                      .collect(ImmutableList.toImmutableList());
+              return ok(
+                  programIndexView.render(
+                      messagesApi.preferred(request),
+                      request,
+                      applicantId,
+                      applicantStage.toCompletableFuture().join(),
+                      allPrograms.get(LifecycleStage.DRAFT),
+                      dedupedActivePrograms,
+                      banner));
+            },
             httpContext.current())
         .exceptionally(
             ex -> {
@@ -91,9 +107,12 @@ public class ApplicantProgramsController extends CiviFormController {
         .thenComposeAsync(
             v -> applicantService.relevantPrograms(applicantId), httpContext.current())
         .thenApplyAsync(
-            programs -> {
+            allPrograms -> {
               Optional<ProgramDefinition> programDefinition =
-                  programs.stream().filter(program -> program.id() == programId).findFirst();
+                  allPrograms.values().stream()
+                      .flatMap(ImmutableList::stream)
+                      .filter(program -> program.id() == programId)
+                      .findFirst();
               if (programDefinition.isPresent()) {
                 return ok(
                     programInfoView.render(

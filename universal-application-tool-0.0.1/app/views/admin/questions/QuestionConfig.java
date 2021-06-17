@@ -7,6 +7,7 @@ import static j2html.TagCreator.label;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import forms.AddressQuestionForm;
 import forms.EnumeratorQuestionForm;
 import forms.MultiOptionQuestionForm;
@@ -15,7 +16,6 @@ import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Optional;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
@@ -247,8 +247,7 @@ public class QuestionConfig {
    * I don't feel like hard-coding a list of states here, so this will do until we can think up a
    * better approach.
    */
-  private static ImmutableList<SimpleEntry<String, String>> stateOptions() {
-    return ImmutableList.of(
-        new SimpleEntry<>("-- Leave blank --", "-"), new SimpleEntry<>("Washington", "WA"));
+  private static ImmutableMap<String, String> stateOptions() {
+    return ImmutableMap.of("-- Leave blank --", "-", "Washington", "WA");
   }
 }

@@ -1,19 +1,30 @@
 package services.program;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Locale;
 import java.util.Optional;
+import models.Question;
 import org.junit.Test;
+import repository.WithPostgresContainer;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
+import services.applicant.question.Scalar;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
+import support.ProgramBuilder;
 import support.TestQuestionBank;
 
-public class ProgramDefinitionTest {
+public class ProgramDefinitionTest extends WithPostgresContainer {
 
-  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
+  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(true);
 
   @Test
   public void createProgramDefinition() {
@@ -363,5 +374,220 @@ public class ProgramDefinitionTest {
     // blockE (applicantHouseholdMembers.householdMemberJobs.householdMemberJobIncome)
     assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(5L))
         .containsExactly(questionA, questionC);
+  }
+
+  @Test
+  public void insertBlockDefinitionInTheRightPlace_repeatedBlock() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .build()
+            .getProgramDefinition();
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setName("new block")
+            .setDescription("new block")
+            .setId(100L)
+            .setEnumeratorId(Optional.of(1L))
+            .build();
+
+    ProgramDefinition result =
+        programDefinition.insertBlockDefinitionInTheRightPlace(blockDefinition);
+
+    assertThat(result.blockDefinitions()).hasSize(4);
+    assertThat(result.getBlockDefinitionByIndex(0).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
+    assertThat(result.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+    assertThat(result.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(1).get().isRepeated()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(1).get().enumeratorId()).contains(1L);
+    assertThat(result.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
+    assertThat(result.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
+    assertThat(result.getBlockDefinitionByIndex(2).get().getQuestionCount()).isEqualTo(0);
+    assertThat(result.getBlockDefinitionByIndex(3).get().isRepeated()).isFalse();
+  }
+
+  @Test
+  public void moveBlock_up() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .build()
+            .getProgramDefinition();
+
+    ProgramDefinition result = programDefinition.moveBlock(3L, ProgramDefinition.Direction.UP);
+
+    assertThat(result.blockDefinitions()).hasSize(3);
+    assertThat(result.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
+    assertThat(result.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
+    assertThat(result.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+    assertThat(result.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
+    assertThat(result.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
+  }
+
+  @Test
+  public void moveBlock_down() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .build()
+            .getProgramDefinition();
+
+    ProgramDefinition result = programDefinition.moveBlock(1L, ProgramDefinition.Direction.DOWN);
+
+    assertThat(result.blockDefinitions()).hasSize(3);
+    assertThat(result.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
+    assertThat(result.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
+    assertThat(result.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+    assertThat(result.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
+    assertThat(result.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
+    assertThat(result.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
+  }
+
+  @Test
+  public void moveBlockUp_throwsForIllegalMove() {
+    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    // Trying to move a block with a predicate before the block it depends on throws.
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    predicateQuestion.id,
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("yellow"))),
+            PredicateAction.SHOW_BLOCK);
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(predicateQuestion)
+            .withBlock()
+            .withPredicate(predicate)
+            .build()
+            .getProgramDefinition();
+
+    assertThatExceptionOfType(IllegalBlockMoveException.class)
+        .isThrownBy(() -> programDefinition.moveBlock(2L, ProgramDefinition.Direction.UP))
+        .withMessage(
+            "This move is not possible - it would move a block condition before the question it"
+                + " depends on");
+  }
+
+  @Test
+  public void moveBlockDown_throwsForIllegalMove() {
+    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    // Trying to move a block after a block that depends on it throws.
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    predicateQuestion.id,
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("yellow"))),
+            PredicateAction.SHOW_BLOCK);
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(predicateQuestion)
+            .withBlock()
+            .withPredicate(predicate)
+            .build()
+            .getProgramDefinition();
+
+    assertThatExceptionOfType(IllegalBlockMoveException.class)
+        .isThrownBy(() -> programDefinition.moveBlock(1L, ProgramDefinition.Direction.DOWN))
+        .withMessage(
+            "This move is not possible - it would move a block condition before the question it"
+                + " depends on");
+  }
+
+  @Test
+  public void hasValidPredicateOrdering() {
+    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    predicateQuestion.id,
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("yellow"))),
+            PredicateAction.SHOW_BLOCK);
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(predicateQuestion)
+            .withBlock()
+            .withPredicate(predicate)
+            .build()
+            .getProgramDefinition();
+
+    assertThat(programDefinition.hasValidPredicateOrdering()).isTrue();
+
+    programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withPredicate(predicate)
+            .withBlock()
+            .withQuestion(predicateQuestion)
+            .build()
+            .getProgramDefinition();
+
+    assertThat(programDefinition.hasValidPredicateOrdering()).isFalse();
+  }
+
+  @Test
+  public void hasValidPredicateOrdering_returnsFalseIfQuestionsAreInSameBlockAsPredicate() {
+    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    predicateQuestion.id,
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("yellow"))),
+            PredicateAction.SHOW_BLOCK);
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(predicateQuestion)
+            .withPredicate(predicate)
+            .build()
+            .getProgramDefinition();
+
+    assertThat(programDefinition.hasValidPredicateOrdering()).isFalse();
   }
 }

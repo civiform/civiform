@@ -68,8 +68,8 @@ export class ApplicantQuestions {
     // User clicks the apply button on an application card. It takes them to the application info page.
     await this.page.click(`.cf-application-card:has-text("${programName}") .cf-apply-button`);
 
-    // The user can see the application info page. Clicking on apply sends them to the first unanswered question.
-    await this.page.click(`.cf-apply-button`);
+    // The user can see the application preview page. Clicking on apply sends them to the first unanswered question.
+    await this.page.click(`#continue-application-button`);
   }
 
   async clickNext() {
@@ -82,7 +82,7 @@ export class ApplicantQuestions {
 
   async submitFromReviewPage(programName: string) {
     // Assert that we're on the review page.
-    expect(await this.page.innerText('h1')).toContain('Application summary');
+    expect(await this.page.innerText('h1')).toContain('Program application review');
 
     // Click on submit button.
     await this.page.click('text="Submit"');

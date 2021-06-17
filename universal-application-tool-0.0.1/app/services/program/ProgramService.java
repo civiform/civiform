@@ -25,6 +25,10 @@ public interface ProgramService {
   /**
    * Get the definition for a given program.
    *
+   * <p>This method loads question definitions for all block definitions from a version the program
+   * is in. If the program contains a question that is not in any versions associated with the
+   * program, a `RuntimeException` is thrown caused by an unexpected QuestionNotFoundException.
+   *
    * @param id the ID of the program to retrieve
    * @return the {@link ProgramDefinition} for the given ID if it exists
    * @throws ProgramNotFoundException when ID does not correspond to a real Program
@@ -131,6 +135,25 @@ public interface ProgramService {
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
 
   /**
+   * Move the block definition one position in the direction specified. If the movement is not
+   * allowed, then it is not moved.
+   *
+   * <p>Movement is not allowed if:
+   *
+   * <ul>
+   *   <li>it would move the block past the ends of the list
+   *   <li>it would move a repeated block such that it is not contiguous with its enumerator block's
+   *       repeated and nested repeated blocks.
+   * </ul>
+   *
+   * @param programId the ID of the program to update
+   * @param blockId the ID of the block to move
+   * @return the program definition, with the block moved if it is allowed.
+   */
+  ProgramDefinition moveBlock(long programId, long blockId, ProgramDefinition.Direction direction)
+      throws ProgramNotFoundException, IllegalBlockMoveException;
+
+  /**
    * Update a {@link BlockDefinition}'s attributes.
    *
    * @param programId the ID of the program to update
@@ -223,6 +246,26 @@ public interface ProgramService {
    */
   ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
       throws ProgramNotFoundException, ProgramNeedsABlockException;
+
+  /**
+   * Set a program question definition to optional or required. If the question definition ID is not
+   * present in the program's block, then nothing is changed.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param questionDefinitionId the ID of the question to update
+   * @param optional boolean representing whether the question is optional or required
+   * @return the updated program definition
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block
+   * @throws ProgramQuestionDefinitionNotFoundException when questionDefinitionId does not
+   *     correspond to a real question in the block
+   */
+  ProgramDefinition setProgramQuestionDefinitionOptionality(
+      long programId, long blockDefinitionId, long questionDefinitionId, boolean optional)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException;
 
   /**
    * Get all the program's applications.

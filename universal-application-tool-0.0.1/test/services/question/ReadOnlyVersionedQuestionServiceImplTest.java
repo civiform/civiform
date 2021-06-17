@@ -1,6 +1,7 @@
 package services.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import models.LifecycleStage;
@@ -15,13 +16,12 @@ import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import support.TestQuestionBank;
 
-public class ReadOnlyQuestionServiceImplTest {
+public class ReadOnlyVersionedQuestionServiceImplTest {
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
   private final ReadOnlyQuestionService emptyService =
-      new ReadOnlyQuestionServiceImpl(
-          new Version(LifecycleStage.ACTIVE), new Version(LifecycleStage.DRAFT));
+      new ReadOnlyVersionedQuestionServiceImpl(new Version(LifecycleStage.OBSOLETE));
   private NameQuestionDefinition nameQuestion;
   private AddressQuestionDefinition addressQuestion;
   private TextQuestionDefinition basicQuestion;
@@ -30,8 +30,6 @@ public class ReadOnlyQuestionServiceImplTest {
 
   @Before
   public void setupQuestions() {
-    // The tests mimic that the persisted questions are read into ReadOnlyQuestionService.
-    // Therefore, question ids cannot be empty.
     nameQuestion =
         (NameQuestionDefinition) testQuestionBank.applicantName().getQuestionDefinition();
     addressQuestion =
@@ -40,16 +38,15 @@ public class ReadOnlyQuestionServiceImplTest {
         (TextQuestionDefinition) testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     questions = ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
     service =
-        new ReadOnlyQuestionServiceImpl(
-            new Version(LifecycleStage.ACTIVE) {
+        new ReadOnlyVersionedQuestionServiceImpl(
+            new Version(LifecycleStage.OBSOLETE) {
               @Override
               public ImmutableList<Question> getQuestions() {
                 return questions.stream()
                     .map(q -> new Question(q))
                     .collect(ImmutableList.toImmutableList());
               }
-            },
-            new Version(LifecycleStage.DRAFT));
+            });
   }
 
   @Test
@@ -63,13 +60,34 @@ public class ReadOnlyQuestionServiceImplTest {
   }
 
   @Test
+  public void getActiveAndDraftQuestions_notSupported() {
+    assertThatThrownBy(() -> service.getActiveAndDraftQuestions())
+        .isInstanceOf(RuntimeException.class)
+        .hasMessageContaining("does not support getActiveAndDraftQuestions");
+  }
+
+  @Test
+  public void getUpToDateQuestions_notSupported() {
+    assertThatThrownBy(() -> service.getUpToDateQuestions())
+        .isInstanceOf(RuntimeException.class)
+        .hasMessageContaining("does not support getUpToDateQuestions");
+  }
+
+  @Test
+  public void getUpToDateEnumeratorQuestions_notSupported() {
+    assertThatThrownBy(() -> service.getUpToDateEnumeratorQuestions())
+        .isInstanceOf(RuntimeException.class)
+        .hasMessageContaining("does not support getUpToDateEnumeratorQuestions");
+  }
+
+  @Test
   public void getEnumeratorQuestions() {
     QuestionDefinition enumeratorQuestion =
         testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
 
     service =
-        new ReadOnlyQuestionServiceImpl(
-            new Version(LifecycleStage.ACTIVE) {
+        new ReadOnlyVersionedQuestionServiceImpl(
+            new Version(LifecycleStage.OBSOLETE) {
               @Override
               public ImmutableList<Question> getQuestions() {
                 return ImmutableList.<QuestionDefinition>builder()
@@ -80,18 +98,21 @@ public class ReadOnlyQuestionServiceImplTest {
                     .map(q -> new Question(q))
                     .collect(ImmutableList.toImmutableList());
               }
-            },
-            new Version(LifecycleStage.DRAFT));
+            });
 
     assertThat(service.getAllEnumeratorQuestions().size()).isEqualTo(1);
     assertThat(service.getAllEnumeratorQuestions().get(0)).isEqualTo(enumeratorQuestion);
-    assertThat(service.getUpToDateEnumeratorQuestions().size()).isEqualTo(1);
-    assertThat(service.getUpToDateEnumeratorQuestions().get(0)).isEqualTo(enumeratorQuestion);
   }
 
   @Test
   public void getQuestionDefinition_byId() throws QuestionNotFoundException {
     long questionId = nameQuestion.getId();
     assertThat(service.getQuestionDefinition(questionId)).isEqualTo(nameQuestion);
+  }
+
+  @Test
+  public void getQuestionDefinition_notFound() throws QuestionNotFoundException {
+    assertThatThrownBy(() -> service.getQuestionDefinition(9999L))
+        .isInstanceOf(QuestionNotFoundException.class);
   }
 }

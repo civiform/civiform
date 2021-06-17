@@ -1,10 +1,13 @@
 package services.program.predicate;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
+import com.google.common.collect.ImmutableSet;
 
 /** Represents a predicate that can be evaluated over {@link services.applicant.ApplicantData}. */
 @AutoValue
@@ -56,5 +59,24 @@ public abstract class PredicateExpressionNode {
           String.format("Expected an OR node but received %s node", getType()));
     }
     return (OrNode) node();
+  }
+
+  @JsonIgnore
+  @Memoized
+  public ImmutableSet<Long> getQuestions() {
+    switch (getType()) {
+      case LEAF_OPERATION:
+        return ImmutableSet.of(getLeafNode().questionId());
+      case AND:
+        return getAndNode().children().stream()
+            .flatMap(n -> n.getQuestions().stream())
+            .collect(toImmutableSet());
+      case OR:
+        return getOrNode().children().stream()
+            .flatMap(n -> n.getQuestions().stream())
+            .collect(toImmutableSet());
+      default:
+        return ImmutableSet.of();
+    }
   }
 }

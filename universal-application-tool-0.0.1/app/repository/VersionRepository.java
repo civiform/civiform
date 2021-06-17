@@ -232,7 +232,7 @@ public class VersionRepository {
       LOG.trace(
           "Updating question ID {} to new ID {}.", question.id(), updatedQuestion.orElseThrow().id);
       updatedBlock.addQuestion(
-          ProgramQuestionDefinition.create(updatedQuestion.orElseThrow().getQuestionDefinition()));
+          question.setQuestionDefinition(updatedQuestion.orElseThrow().getQuestionDefinition()));
     }
     // Update questions referenced in this block's predicate(s)
     if (block.visibilityPredicate().isPresent()) {
