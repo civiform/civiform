@@ -132,6 +132,23 @@ public abstract class ProgramDefinition {
   }
 
   /**
+   * Checks whether this program has a valid block order, so that no predicate depends on a block
+   * that appears after it.
+   */
+  public boolean hasValidPredicateOrdering() {
+    Set<Long> previousQuestionIds = new HashSet<>();
+    for (BlockDefinition b : blockDefinitions()) {
+      // Check that all the predicate questions exist before this block.
+      if (b.visibilityPredicate().isPresent()
+          && !previousQuestionIds.containsAll(b.visibilityPredicate().get().getQuestions())) {
+        return false;
+      }
+      b.programQuestionDefinitions().forEach(pqd -> previousQuestionIds.add(pqd.id()));
+    }
+    return true;
+  }
+
+  /**
    * Inserts the new block into the list of blocks such that it appears immediately after the last
    * repeated or nested repeated block with the same enumerator. If there is no enumerator, it is
    * added at the end.
@@ -190,24 +207,6 @@ public abstract class ProgramDefinition {
     BlockSlice latterSlice =
         blockSlice.startsBefore(otherBlockSlice) ? otherBlockSlice : blockSlice;
 
-    // An illegal move is when a predicate in a later block depends on an earlier block.
-    // Get the questions used in any predicate in the latter block.
-    ImmutableSet<Long> predicateQuestions =
-        blockDefinitions().subList(latterSlice.startIndex(), latterSlice.endIndex()).stream()
-            .filter(b -> b.visibilityPredicate().isPresent())
-            .flatMap(b -> b.visibilityPredicate().get().getQuestions().stream())
-            .collect(toImmutableSet());
-
-    if (!predicateQuestions.isEmpty()) {
-      if (blockDefinitions().subList(earlierSlice.startIndex(), earlierSlice.endIndex()).stream()
-          .flatMap(b -> b.programQuestionDefinitions().stream().map(ProgramQuestionDefinition::id))
-          .anyMatch(predicateQuestions::contains)) {
-        throw new IllegalBlockMoveException(
-            "This move is not possible - it would move a block condition before the question it"
-                + " depends on");
-      }
-    }
-
     ImmutableList.Builder<BlockDefinition> blocksBuilder = ImmutableList.builder();
 
     // Swap the two slices, assuming these slices are consecutive slices
@@ -222,7 +221,15 @@ public abstract class ProgramDefinition {
         .forEach(blocksBuilder::add);
     blockDefinitions().stream().skip(latterSlice.endIndex()).forEach(blocksBuilder::add);
 
-    return toBuilder().setBlockDefinitions(blocksBuilder.build()).build();
+    ProgramDefinition newProgram = toBuilder().setBlockDefinitions(blocksBuilder.build()).build();
+
+    if (!newProgram.hasValidPredicateOrdering()) {
+      throw new IllegalBlockMoveException(
+          "This move is not possible - it would move a block condition before the question it"
+              + " depends on");
+    }
+
+    return newProgram;
   }
 
   /**

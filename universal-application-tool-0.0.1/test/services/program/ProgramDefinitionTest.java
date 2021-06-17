@@ -530,4 +530,29 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             "This move is not possible - it would move a block condition before the question it"
                 + " depends on");
   }
+
+  @Test
+  public void hasValidPredicateOrdering() {
+    Question predicateQuestion = testQuestionBank.applicantFavoriteColor();
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    predicateQuestion.id,
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("yellow"))),
+            PredicateAction.SHOW_BLOCK);
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(predicateQuestion)
+            .withBlock()
+            .withPredicate(predicate)
+            .build()
+            .getProgramDefinition();
+
+    assertThat(programDefinition.hasValidPredicateOrdering()).isTrue();
+  }
 }
