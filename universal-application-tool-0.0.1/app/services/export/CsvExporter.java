@@ -1,11 +1,13 @@
 package services.export;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import models.Application;
 import models.Program;
@@ -13,6 +15,8 @@ import models.TrustedIntermediaryGroup;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import repository.ProgramRepository;
+import services.Path;
+import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.Column;
 
 public class CsvExporter {
@@ -57,17 +61,21 @@ public class CsvExporter {
    * the writer between calls. Since it is intended for many applications, this function is intended
    * to be called several times.
    */
-  public void export(Application application, Writer writer) throws IOException {
+  public void export(
+      Application application, ReadOnlyApplicantProgramService roApplicantService, Writer writer)
+      throws IOException {
     CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withFirstRecordAsHeader());
 
     this.writeHeadersOnFirstExport(printer);
 
+    ImmutableMap<Path, String> answerMap =
+        roApplicantService.getSummaryData().stream()
+            .flatMap(data -> data.scalarAnswersInDefaultLocale().entrySet().stream())
+            .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
     for (Column column : getColumns()) {
       switch (column.columnType()) {
         case APPLICANT:
-          Optional<String> value =
-              application.getApplicantData().readAsString(column.jsonPath().orElseThrow());
-          printer.print(value.orElse(EMPTY_VALUE));
+          printer.print(getValueFromAnswerMap(column, answerMap));
           break;
         case ID:
           printer.print(application.id);
@@ -136,15 +144,28 @@ public class CsvExporter {
           if (this.secret.isEmpty()) {
             throw new RuntimeException("Secret not present, but opaque applicant data requested.");
           }
-          Optional<String> applicantValue =
-              application.getApplicantData().readAsString(column.jsonPath().orElseThrow());
           // We still hash the empty value.
-          printer.print(opaqueIdentifier(this.secret.get(), applicantValue.orElse(EMPTY_VALUE)));
+          printer.print(
+              opaqueIdentifier(this.secret.get(), getValueFromAnswerMap(column, answerMap)));
       }
     }
 
     printer.println();
   }
+
+  /**
+   * Returns the answer retrieved by {@link ReadOnlyApplicantProgramService}. The value is derived
+   * from the raw value in applicant data, such as translating enum number to human readable text in
+   * default locale or mapping file key to download url.
+   */
+  private String getValueFromAnswerMap(Column column, ImmutableMap<Path, String> answerMap) {
+    Path path = column.jsonPath().orElseThrow();
+    if (!answerMap.containsKey(path)) {
+      return EMPTY_VALUE;
+    }
+    return answerMap.get(path);
+  }
+
   /** Returns an opaque identifier - the ID hashed with the application secret key. */
   private static String opaqueIdentifier(String secret, Long id) {
     return Hashing.sha256()
