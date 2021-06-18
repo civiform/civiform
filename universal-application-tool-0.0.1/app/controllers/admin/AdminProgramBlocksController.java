@@ -136,7 +136,7 @@ public class AdminProgramBlocksController extends CiviFormController {
     try {
       programService.deleteBlock(programId, blockId);
     } catch (IllegalPredicateOrderingException e) {
-      return redirect(routes.AdminProgramBlocksController.index(programId))
+      return redirect(routes.AdminProgramBlocksController.edit(programId, blockId))
           .flashing("error", e.getLocalizedMessage());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
       return notFound(e.toString());
