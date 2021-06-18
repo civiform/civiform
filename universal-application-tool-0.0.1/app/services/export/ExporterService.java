@@ -2,6 +2,7 @@ package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,23 +16,30 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
+import models.QuestionTag;
 import services.Path;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.PresentsErrors;
 import services.program.Column;
 import services.program.ColumnType;
 import services.program.CsvExportConfig;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.question.QuestionService;
+import services.question.types.QuestionDefinition;
 
 public class ExporterService {
   private final ExporterFactory exporterFactory;
   private final ProgramService programService;
+  private final QuestionService questionService;
   private final ApplicantService applicantService;
 
   private static final String HEADER_SPACER_ENUM = " - ";
@@ -41,9 +49,11 @@ public class ExporterService {
   public ExporterService(
       ExporterFactory exporterFactory,
       ProgramService programService,
+      QuestionService questionService,
       ApplicantService applicantService) {
     this.exporterFactory = checkNotNull(exporterFactory);
     this.programService = checkNotNull(programService);
+    this.questionService = checkNotNull(questionService);
     this.applicantService = checkNotNull(applicantService);
   }
 
@@ -62,12 +72,20 @@ public class ExporterService {
     } else {
       csvExporter = exporterFactory.csvExporter(generateDefaultCsvConfig(programId));
     }
+    return exportCsv(csvExporter, applications);
+  }
 
+  public String exportCsv(CsvExporter csvExporter, ImmutableList<Application> applications) {
     try {
       OutputStream inMemoryBytes = new ByteArrayOutputStream();
       Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8);
       for (Application application : applications) {
-        csvExporter.export(application, writer);
+        ReadOnlyApplicantProgramService roApplicantService =
+            applicantService
+                .getReadOnlyApplicantProgramService(application)
+                .toCompletableFuture()
+                .join();
+        csvExporter.export(application, roApplicantService, writer);
       }
       writer.close();
       return inMemoryBytes.toString();
@@ -94,8 +112,7 @@ public class ExporterService {
 
     // Create a map from a key <block id, question index> to an answer with every application. It
     // doesn't matter which answer ends up in the map, as long as every <block id, question index>
-    // is
-    // accounted for.
+    // is accounted for.
     Map<String, AnswerData> answerMap = new HashMap<>();
     for (Application application : applications) {
       ReadOnlyApplicantProgramService roApplicantService =
@@ -103,12 +120,9 @@ public class ExporterService {
               .getReadOnlyApplicantProgramService(application)
               .toCompletableFuture()
               .join();
-      for (AnswerData answerData : roApplicantService.getSummaryData()) {
-        String key = answerDataKey(answerData);
-        if (!answerMap.containsKey(key)) {
-          answerMap.put(key, answerData);
-        }
-      }
+      roApplicantService
+          .getSummaryData()
+          .forEach(data -> answerMap.putIfAbsent(answerDataKey(data), data));
     }
 
     // Get the list of all answers, sorted by block ID and question index, and generate the default
@@ -127,10 +141,20 @@ public class ExporterService {
    */
   private CsvExportConfig generateDefaultCsvConfig(ImmutableList<AnswerData> answerDataList) {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
-    // First add the ID and submit time columns.
+    // First add the ID, submit time, and submitter email columns.
     columnsBuilder.add(Column.builder().setHeader("ID").setColumnType(ColumnType.ID).build());
     columnsBuilder.add(
+        Column.builder()
+            .setHeader("Applicant language")
+            .setColumnType(ColumnType.LANGUAGE)
+            .build());
+    columnsBuilder.add(
         Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
+    columnsBuilder.add(
+        Column.builder()
+            .setHeader("Submitted by")
+            .setColumnType(ColumnType.SUBMITTER_EMAIL)
+            .build());
 
     // Add columns for each path to an answer.
     for (AnswerData answerData : answerDataList) {
@@ -165,7 +189,8 @@ public class ExporterService {
    *
    * @param path is a path that ends in a {@link services.applicant.question.Scalar}.
    */
-  private static String pathToHeader(Path path) {
+  @VisibleForTesting
+  static String pathToHeader(Path path) {
     String scalarComponent = String.format("(%s)", path.keyName());
     List<String> reversedHeaderComponents = new ArrayList<>(Arrays.asList(scalarComponent));
     while (!path.parentPath().isEmpty()
@@ -196,5 +221,67 @@ public class ExporterService {
    */
   private static String answerDataKey(AnswerData answerData) {
     return String.format("%s-%d", answerData.blockId(), answerData.questionIndex());
+  }
+
+  /**
+   * A string containing the CSV which maps applicants (opaquely) to the programs they applied to.
+   */
+  public String getDemographicsCsv() {
+    return exportCsv(
+        exporterFactory.csvExporter(getDemographicsExporterConfig()),
+        applicantService.getAllApplications());
+  }
+
+  public CsvExportConfig getDemographicsExporterConfig() {
+    ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
+    // First add the ID, submit time, and submitter email columns.
+    columnsBuilder.add(
+        Column.builder().setHeader("Opaque ID").setColumnType(ColumnType.OPAQUE_ID).build());
+    columnsBuilder.add(
+        Column.builder().setHeader("Program").setColumnType(ColumnType.PROGRAM).build());
+    columnsBuilder.add(
+        Column.builder()
+            .setHeader("Submitter Email (Opaque)")
+            .setColumnType(ColumnType.SUBMITTER_EMAIL_OPAQUE)
+            .build());
+    columnsBuilder.add(
+        Column.builder()
+            .setHeader("TI Organization")
+            .setColumnType(ColumnType.TI_ORGANIZATION)
+            .build());
+    columnsBuilder.add(
+        Column.builder().setHeader("Create time").setColumnType(ColumnType.CREATE_TIME).build());
+    columnsBuilder.add(
+        Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
+
+    for (QuestionTag tagType :
+        ImmutableList.of(QuestionTag.DEMOGRAPHIC, QuestionTag.DEMOGRAPHIC_PII)) {
+      for (QuestionDefinition questionDefinition :
+          this.questionService.getQuestionsForTag(tagType)) {
+        if (questionDefinition.isEnumerator()) {
+          continue; // Do not include Enumerator answers in CSVs.
+        }
+        PresentsErrors applicantQuestion =
+            new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty())
+                .errorsPresenter();
+        for (Path path : applicantQuestion.getAllPaths()) {
+          columnsBuilder.add(
+              Column.builder()
+                  .setHeader(pathToHeader(path))
+                  .setJsonPath(path)
+                  .setColumnType(
+                      tagType == QuestionTag.DEMOGRAPHIC_PII
+                          ? ColumnType.APPLICANT_OPAQUE
+                          : ColumnType.APPLICANT)
+                  .build());
+        }
+      }
+    }
+    return new CsvExportConfig() {
+      @Override
+      public ImmutableList<Column> columns() {
+        return columnsBuilder.build();
+      }
+    };
   }
 }

@@ -16,13 +16,13 @@ import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
-public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionService {
+public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestionService {
 
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final ImmutableSet<QuestionDefinition> upToDateQuestions;
   private final ActiveAndDraftQuestions activeAndDraftQuestions;
 
-  public ReadOnlyQuestionServiceImpl(Version activeVersion, Version draftVersion) {
+  public ReadOnlyCurrentQuestionServiceImpl(Version activeVersion, Version draftVersion) {
     checkNotNull(activeVersion);
     checkState(
         activeVersion.getLifecycleStage().equals(LifecycleStage.ACTIVE),
@@ -38,7 +38,10 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
         draftVersion.getQuestions().stream()
             .map(Question::getQuestionDefinition)
             .collect(Collectors.toList())) {
-      upToDateBuilder.add(qd);
+      if (!draftVersion.getTombstonedQuestionNames().contains(qd.getName())) {
+        // If the question is about to be deleted, it is not "up to date."
+        upToDateBuilder.add(qd);
+      }
       questionIdMap.put(qd.getId(), qd);
       namesFoundInDraft.add(qd.getName());
     }
@@ -48,7 +51,8 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
             .collect(Collectors.toList())) {
 
       questionIdMap.put(qd.getId(), qd);
-      if (!namesFoundInDraft.contains(qd.getName())) {
+      if (!namesFoundInDraft.contains(qd.getName())
+          && !draftVersion.getTombstonedQuestionNames().contains(qd.getName())) {
         upToDateBuilder.add(qd);
       }
     }
@@ -87,9 +91,6 @@ public final class ReadOnlyQuestionServiceImpl implements ReadOnlyQuestionServic
         .map(questionDefinition -> (EnumeratorQuestionDefinition) questionDefinition)
         .collect(ImmutableList.toImmutableList());
   }
-
-  // TODO(https://github.com/seattle-uat/civiform/issues/673): delete this when question definitions
-  //  don't need paths
 
   @Override
   public QuestionDefinition getQuestionDefinition(long id) throws QuestionNotFoundException {

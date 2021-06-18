@@ -8,17 +8,17 @@ export class ApplicantQuestions {
   }
 
   async answerAddressQuestion(street: string, line2: string, city: string, state: string, zip: string) {
-    await this.page.fill('input:near(:text("Address line 1"))', street);
-    await this.page.fill('input:near(:text("Address line 2"))', line2);
-    await this.page.fill('input:near(:text("City"))', city);
-    await this.page.fill('input:near(:text("State"))', state);
-    await this.page.fill('input:near(:text("ZIP Code"))', zip);
+    await this.page.fill('.cf-address-street-1 input', street);
+    await this.page.fill('.cf-address-street-2 input', line2);
+    await this.page.fill('.cf-address-city input', city);
+    await this.page.fill('.cf-address-state input', state);
+    await this.page.fill('.cf-address-zip input', zip);
   }
 
   async answerNameQuestion(firstName: string, lastName: string, middleName = '') {
-    await this.page.fill('input:near(:text("First name"))', firstName);
-    await this.page.fill('input:near(:text("Middle name"))', middleName);
-    await this.page.fill('input:near(:text("Last name"))', lastName);
+    await this.page.fill('.cf-name-first input', firstName);
+    await this.page.fill('.cf-name-middle input', middleName);
+    await this.page.fill('.cf-name-last input', lastName);
   }
 
   async answerCheckboxQuestion(checked: Array<string>) {
@@ -40,7 +40,7 @@ export class ApplicantQuestions {
   }
 
   async answerDropdownQuestion(selected: string) {
-    await this.page.selectOption('select', { label: selected });
+    await this.page.selectOption('.cf-dropdown-question select', { label: selected });
   }
 
   async answerNumberQuestion(number: string) {
@@ -55,13 +55,21 @@ export class ApplicantQuestions {
     await this.page.fill('input[type="text"]', text);
   }
 
+  async answerEmailQuestion(email: string) {
+    await this.page.fill('input[type="email"]', email);
+  }
+
   async addEnumeratorAnswer(entityName: string) {
     await this.page.click('button:text("add entity")');
-    await this.page.fill('input:above(#enumerator-field-add-button)', entityName)
+    await this.page.fill('#enumerator-fields .cf-enumerator-field:last-of-type input', entityName)
   }
 
   async applyProgram(programName: string) {
+    // User clicks the apply button on an application card. It takes them to the application info page.
     await this.page.click(`.cf-application-card:has-text("${programName}") .cf-apply-button`);
+
+    // The user can see the application preview page. Clicking on apply sends them to the first unanswered question.
+    await this.page.click(`#continue-application-button`);
   }
 
   async clickNext() {
@@ -73,21 +81,16 @@ export class ApplicantQuestions {
   }
 
   async submitFromReviewPage(programName: string) {
-    // assert that we're on the review page.
-    expect(await this.page.innerText('h1')).toContain('Application summary');
+    // Assert that we're on the review page.
+    expect(await this.page.innerText('h1')).toContain('Program application review');
 
-    // click on submit button.
+    // Click on submit button.
     await this.page.click('text="Submit"');
-    const pleaseLogInPageRegex = /considerSignIn\?redirectTo=/;
-    const maybePleaseLogInPage = await this.page.url();
-    if (maybePleaseLogInPage.match(pleaseLogInPageRegex)) {
-       await this.page.click('text="Not Right Now"');
-    }
+
+    await this.page.click('text="Apply to another program"');
 
     // Ensure that we redirected to the programs list page.
-    expect(await this.page.url().split('/').pop()).toEqual('confirmation');
-
-    // And grab the toast message to verify that the app was submitted.
+    expect(await this.page.url().split('/').pop()).toEqual('programs');
   }
 
   async validateHeader(lang: string) {

@@ -5,10 +5,12 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import controllers.routes;
 import j2html.tags.ContainerTag;
 import java.util.Optional;
+import models.Account;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -16,6 +18,9 @@ import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
+import views.components.ToastMessage;
+import views.style.ApplicantStyles;
+import views.style.StyleUtils;
 import views.style.Styles;
 
 public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
@@ -29,28 +34,94 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
 
   /** Renders a sign-up page with a baked-in redirect. */
   public Content render(
-      Http.Request request, String redirectTo, Messages messages, String userName) {
-    String title = "Account Creation Interstitial";
+      Http.Request request,
+      String redirectTo,
+      Account account,
+      String programTitle,
+      String applicantName,
+      Long applicationId,
+      Messages messages,
+      Optional<String> banner) {
+    String title = messages.at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName());
+
     HtmlBundle bundle = layout.getBundle().setTitle(title);
 
-    ContainerTag content = div().withClasses(Styles.MX_16);
-    content.with(h2(messages.at(MessageKey.CONTENT_PLEASE_SIGN_IN.getKeyName())));
-    content.with(
-        new LinkElement()
-            .setHref(routes.LoginController.idcsLoginWithRedirect(Optional.of(redirectTo)).url())
-            .setText(messages.at(MessageKey.LINK_DO_SIGN_IN.getKeyName()))
-            .asButton());
-    content.with(
-        new LinkElement()
-            .setHref(redirectTo)
-            .setText(messages.at(MessageKey.LINK_DONT_SIGN_IN.getKeyName()))
-            .asButton());
+    ContainerTag createAccountBox =
+        div()
+            .withClasses(
+                Styles.BORDER,
+                Styles.BORDER_GRAY_200,
+                Styles.ROUNDED_2XL,
+                Styles.SHADOW_MD,
+                Styles.BG_WHITE,
+                Styles.P_4,
+                StyleUtils.responsiveSmall(Styles.P_6),
+                Styles.MY_6)
+            .with(
+                h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName()))
+                    .withClasses(Styles.MB_4))
+            .with(
+                div(messages.at(MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName()))
+                    .withClasses(Styles.MB_4))
+            .with(
+                div()
+                    .withClasses(
+                        Styles.FLEX,
+                        Styles.FLEX_COL,
+                        Styles.GAP_4,
+                        StyleUtils.responsiveSmall(Styles.FLEX_ROW))
+                    // Empty div to push buttons to the right on desktop.
+                    .with(div().withClasses(Styles.FLEX_GROW))
+                    .with(
+                        new LinkElement()
+                            .setHref(redirectTo)
+                            .setText(
+                                messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
+                            .asButton()
+                            .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
+                    .with(
+                        new LinkElement()
+                            .setHref(org.pac4j.play.routes.LogoutController.logout().url())
+                            .setText(messages.at(MessageKey.LINK_ALL_DONE.getKeyName()))
+                            .asButton()
+                            .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
+                    .with(
+                        new LinkElement()
+                            .setHref(
+                                routes.LoginController.idcsLoginWithRedirect(
+                                        Optional.of(redirectTo))
+                                    .url())
+                            .setText(
+                                messages.at(MessageKey.LINK_CREATE_ACCOUNT_OR_SIGN_IN.getKeyName()))
+                            .asButton()
+                            .withClasses(ApplicantStyles.BUTTON_CREATE_ACCOUNT)));
 
-    bundle.addMainContent(
-        layout.renderProgramApplicationTitleAndProgressIndicator(title),
-        h1(title).withClasses(Styles.PX_16, Styles.PY_4),
-        content);
+    ContainerTag content =
+        div()
+            .with(
+                div(messages.at(
+                        MessageKey.CONTENT_CONFIRMED.getKeyName(), programTitle, applicationId))
+                    .withClasses(Styles.TEXT_LG));
 
-    return layout.renderWithNav(request, userName, messages, bundle);
+    // Don't show "create an account" upsell box to TIs, or anyone with an email address already.
+    if (Strings.isNullOrEmpty(account.getEmailAddress()) && account.getMemberOfGroup().isEmpty()) {
+      content.with(createAccountBox);
+    } else {
+      content.with(
+          new LinkElement()
+              .setHref(redirectTo)
+              .setText(messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
+              .asAnchorText());
+    }
+
+    if (banner.isPresent()) {
+      bundle.addToastMessages(ToastMessage.error(banner.get()));
+    }
+
+    bundle
+        .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
+        .addMainContent(h1(title).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION), content);
+
+    return layout.renderWithNav(request, applicantName, messages, bundle);
   }
 }

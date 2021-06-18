@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import services.MessageKey;
+import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionType;
@@ -20,6 +21,12 @@ public class EnumeratorQuestion implements PresentsErrors {
   @Override
   public boolean hasQuestionErrors() {
     return !getQuestionErrors().isEmpty();
+  }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    // Not intended to return the leaf question paths.
+    return ImmutableList.of();
   }
 
   @Override
@@ -51,6 +58,10 @@ public class EnumeratorQuestion implements PresentsErrors {
           ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME));
     }
     return errorsBuilder.build();
+  }
+
+  public ValidationErrorMessage getQuestionErrorMessage() {
+    return ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME);
   }
 
   public void assertQuestionType() {

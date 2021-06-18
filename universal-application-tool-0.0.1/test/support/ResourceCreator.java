@@ -10,6 +10,7 @@ import models.Applicant;
 import models.Models;
 import models.Program;
 import models.Question;
+import models.TrustedIntermediaryGroup;
 import play.db.ebean.EbeanConfig;
 import play.inject.Injector;
 import services.LocalizedStrings;
@@ -27,6 +28,15 @@ public class ResourceCreator {
 
   public void truncateTables() {
     Models.truncate(ebeanServer);
+  }
+
+  public Question insertQuestion(String name) {
+    QuestionDefinition definition =
+        new TextQuestionDefinition(
+            name, Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+    Question question = new Question(definition);
+    question.save();
+    return question;
   }
 
   public Question insertQuestion() {
@@ -61,5 +71,22 @@ public class ResourceCreator {
     Account account = new Account();
     account.save();
     return account;
+  }
+
+  public Account insertAccountWithEmail(String email) {
+    Account account = new Account();
+    account.setEmailAddress(email);
+    account.save();
+    return account;
+  }
+
+  public TrustedIntermediaryGroup insertTrustedIntermediaryGroup() {
+    return insertTrustedIntermediaryGroup("");
+  }
+
+  public TrustedIntermediaryGroup insertTrustedIntermediaryGroup(String name) {
+    TrustedIntermediaryGroup group = new TrustedIntermediaryGroup(name, "description");
+    group.save();
+    return group;
   }
 }

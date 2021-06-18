@@ -3,14 +3,18 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.nav;
+import static j2html.TagCreator.text;
 
 import auth.ProfileUtils;
 import auth.Roles;
 import auth.UatProfile;
 import com.typesafe.config.Config;
 import controllers.routes;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
@@ -21,55 +25,78 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
+import views.LanguageSelector;
 import views.ViewUtils;
+import views.html.helper.CSRF;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
 public class ApplicantLayout extends BaseHtmlLayout {
+
   private static final String CIVIFORM_TITLE = "CiviForm";
 
   private final ProfileUtils profileUtils;
+  public final LanguageSelector languageSelector;
+  public final String supportEmail;
 
   @Inject
-  public ApplicantLayout(ViewUtils viewUtils, Config configuration, ProfileUtils profileUtils) {
+  public ApplicantLayout(
+      ViewUtils viewUtils,
+      Config configuration,
+      ProfileUtils profileUtils,
+      LanguageSelector languageSelector) {
     super(viewUtils, configuration);
     this.profileUtils = checkNotNull(profileUtils);
+    this.languageSelector = checkNotNull(languageSelector);
+    this.supportEmail = checkNotNull(configuration).getString("support_email_address");
+  }
+
+  private Content renderWithSupportFooter(HtmlBundle bundle, Messages messages) {
+    ContainerTag supportLink =
+        div()
+            .with(
+                text(messages.at(MessageKey.FOOTER_SUPPORT_LINK_DESCRIPTION.getKeyName())),
+                text(" "),
+                a(supportEmail)
+                    .withHref("mailto:" + supportEmail)
+                    .withTarget("_blank")
+                    .withClasses(Styles.TEXT_BLUE_800))
+            .withClasses(Styles.MX_AUTO, Styles.MAX_W_SCREEN_SM, Styles.W_5_6);
+
+    bundle.addFooterContent(supportLink);
+
+    return render(bundle);
   }
 
   @Override
   public Content render(HtmlBundle bundle) {
     bundle.addBodyStyles(ApplicantStyles.BODY);
     String currentTitle = bundle.getTitle();
+
     if (currentTitle != null && !currentTitle.isEmpty()) {
       bundle.setTitle(String.format("%s — %s", currentTitle, CIVIFORM_TITLE));
     } else {
       bundle.setTitle(CIVIFORM_TITLE);
     }
+
+    bundle.addFooterStyles(Styles.MT_24);
+
     return super.render(bundle);
   }
 
   public Content renderWithNav(
       Http.Request request, String userName, Messages messages, HtmlBundle bundle) {
-    // TODO: This will set the html lang attribute to the requested language when we actually want
-    // the rendered language.
-    Optional<Http.Cookie> language = request.cookies().get("PLAY_LANG");
-    if (language.isPresent()) {
-      bundle.setLanguage(language.get().value());
-    }
-
+    String language = languageSelector.getPreferredLangage(request).code();
+    bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBar(request, userName, messages));
-    return render(bundle);
+    return renderWithSupportFooter(bundle, messages);
   }
 
   private ContainerTag renderNavBar(Http.Request request, String userName, Messages messages) {
     Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
-    return renderNavBar(profile, messages, userName);
-  }
 
-  private ContainerTag renderNavBar(
-      Optional<UatProfile> profile, Messages messages, String userName) {
     return nav()
         .withClasses(
             Styles.BG_WHITE,
@@ -80,7 +107,43 @@ public class ApplicantLayout extends BaseHtmlLayout {
             Styles.GRID_COLS_3)
         .with(branding())
         .with(maybeRenderTiButton(profile, userName))
-        .with(div(logoutButton(messages)).withClasses(Styles.JUSTIFY_SELF_END));
+        .with(
+            div(getLanguageForm(request, profile), logoutButton(messages))
+                .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
+  }
+
+  private ContainerTag getLanguageForm(Http.Request request, Optional<UatProfile> profile) {
+    ContainerTag languageForm = div();
+    if (profile.isPresent()) { // Show language switcher.
+      long userId = profile.get().getApplicant().join().id;
+
+      String applicantInfoUrl =
+          controllers.applicant.routes.ApplicantInformationController.edit(userId).url();
+      String updateLanguageAction =
+          controllers.applicant.routes.ApplicantInformationController.update(userId).url();
+
+      // Show language switcher if we're not on the applicant info page.
+      boolean showLanguageSwitcher = !request.uri().equals(applicantInfoUrl);
+      if (showLanguageSwitcher) {
+        String csrfToken = CSRF.getToken(request.asScala()).value();
+        Tag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
+        Tag redirectInput = input().isHidden().withValue(request.uri()).withName("redirectLink");
+        String preferredLanguage = languageSelector.getPreferredLangage(request).code();
+        ContainerTag languageDropdown =
+            languageSelector
+                .renderDropdown(preferredLanguage)
+                .attr("onchange", "this.form.submit()");
+        languageForm =
+            form()
+                .withAction(updateLanguageAction)
+                .withMethod(Http.HttpVerbs.POST)
+                .with(csrfInput)
+                .with(redirectInput)
+                .with(languageDropdown)
+                .with(TagCreator.button().withId("cf-update-lang").withType("submit").isHidden());
+      }
+    }
+    return languageForm;
   }
 
   private ContainerTag branding() {
@@ -96,7 +159,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
     if (profile.isPresent() && profile.get().getRoles().contains(Roles.ROLE_TI.toString())) {
       String tiDashboardText = "Trusted intermediary dashboard";
       String tiDashboardLink =
-          controllers.ti.routes.TrustedIntermediaryController.dashboard().url();
+          controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                  Optional.empty(), Optional.empty())
+              .url();
       return div(
           a(tiDashboardText)
               .withHref(tiDashboardLink)
@@ -116,13 +181,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
         .withHref(logoutLink)
         .withClasses(ApplicantStyles.LINK_LOGOUT);
-  }
-
-  /**
-   * Use this one after the application has been submitted, to show a complete progress indicator.
-   */
-  protected ContainerTag renderProgramApplicationTitleAndProgressIndicator(String programTitle) {
-    return renderProgramApplicationTitleAndProgressIndicator(programTitle, 0, 0, true);
   }
 
   /**
@@ -195,8 +253,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
    * non-summary views.
    */
   private int getPercentComplete(int blockIndex, int totalBlockCount, boolean forSummary) {
-    if (totalBlockCount == 0) return 100;
-    if (blockIndex == -1) return 0;
+    if (totalBlockCount == 0) {
+      return 100;
+    }
+    if (blockIndex == -1) {
+      return 0;
+    }
 
     // While in progress, add one to blockIndex for 1-based indexing, so that when applicant is on
     // first block, we show

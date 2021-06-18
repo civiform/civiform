@@ -1,7 +1,15 @@
 package services.program;
 
 public enum ColumnType {
+  APPLICANT,
   ID,
+  LANGUAGE,
   SUBMIT_TIME,
-  APPLICANT
+  SUBMITTER_EMAIL,
+  OPAQUE_ID,
+  APPLICANT_OPAQUE,
+  PROGRAM,
+  TI_ORGANIZATION,
+  CREATE_TIME,
+  SUBMITTER_EMAIL_OPAQUE;
 }

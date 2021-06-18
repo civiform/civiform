@@ -7,6 +7,10 @@ export { ApplicantQuestions } from './applicant_questions'
 
 const { BASE_URL = 'http://civiform:9000', TEST_USER_LOGIN = '', TEST_USER_PASSWORD = '' } = process.env
 
+export const isLocalDevEnvironment = () => {
+  return BASE_URL === 'http://civiform:9000' || BASE_URL === 'http://localhost:9999';
+}
+
 export const startSession = async () => {
   const browser = await chromium.launch();
   const page = await browser.newPage({ acceptDownloads: true });
@@ -43,9 +47,10 @@ export const loginAsGuest = async (page: Page) => {
 export const loginAsTestUser = async (page: Page) => {
   if (isTestUser()) {
     await page.click("#idcs");
-    await page.fill("#idcs-signin-basic-signin-form-username", TEST_USER_LOGIN);
-    await page.fill("#idcs-signin-basic-signin-form-password > input", TEST_USER_PASSWORD);
-    await page.click("#idcs-signin-basic-signin-form-submit")
+    await page.fill("input[name=userName]", TEST_USER_LOGIN);
+    await page.fill("input[name=password]", TEST_USER_PASSWORD);
+    await page.click("button:has-text(\"Login\")");
+    await page.waitForLoadState('networkidle');
   } else {
     await page.click('#guest');
   }
@@ -72,8 +77,9 @@ export const selectApplicantLanguage = async (page: Page, language: string) => {
   const infoPageRegex = /applicants\/\d+\/edit/;
   const maybeSelectLanguagePage = await page.url();
   if (maybeSelectLanguagePage.match(infoPageRegex)) {
-    await page.selectOption('select', { label: language });
-    await page.click('button');
+    const languageOption = `.cf-radio-option:has-text("${language}")`;
+    await page.click(languageOption + ' input');
+    await page.click('button:visible');
   }
 
   const programIndexRegex = /applicants\/\d+\/programs/;

@@ -6,6 +6,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import auth.UatProfile;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import io.ebean.Ebean;
@@ -55,40 +56,40 @@ public class UserRepository {
   }
 
   /**
-   * Returns all programs that are appropriate to serve to an applicant - which is any active
-   * program, plus any program where they have an application in the draft stage.
+   * Returns all programs that are appropriate to serve to an applicant - which is any program
+   * program where they have an application in the draft stage, and any active program.
    */
-  public CompletionStage<ImmutableList<ProgramDefinition>> programsForApplicant(long applicantId) {
+  public CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>>
+      programsForApplicant(long applicantId) {
     return supplyAsync(
-            () -> {
-              List<Program> inProgressPrograms =
-                  ebeanServer
-                      .find(Program.class)
-                      .alias("p")
-                      .where()
-                      .exists(
-                          ebeanServer
-                              .find(Application.class)
-                              .where()
-                              .eq("applicant.id", applicantId)
-                              .eq("lifecycle_stage", LifecycleStage.DRAFT)
-                              .raw("program.id = p.id")
-                              .query())
-                      .endOr()
-                      .findList();
-              List<Program> activePrograms =
-                  versionRepositoryProvider.get().getActiveVersion().getPrograms();
-              return new ImmutableList.Builder<Program>()
-                  .addAll(activePrograms)
-                  .addAll(inProgressPrograms)
-                  .build();
-            },
-            executionContext.current())
-        .thenApplyAsync(
-            (programs) ->
-                programs.stream()
-                    .map(program -> program.getProgramDefinition())
-                    .collect(ImmutableList.toImmutableList()));
+        () -> {
+          ImmutableList<ProgramDefinition> inProgressPrograms =
+              ebeanServer
+                  .find(Program.class)
+                  .alias("p")
+                  .where()
+                  .exists(
+                      ebeanServer
+                          .find(Application.class)
+                          .where()
+                          .eq("applicant.id", applicantId)
+                          .eq("lifecycle_stage", LifecycleStage.DRAFT)
+                          .raw("program.id = p.id")
+                          .query())
+                  .endOr()
+                  .findList()
+                  .stream()
+                  .map(Program::getProgramDefinition)
+                  .collect(ImmutableList.toImmutableList());
+          ImmutableList<ProgramDefinition> activePrograms =
+              versionRepositoryProvider.get().getActiveVersion().getPrograms().stream()
+                  .map(Program::getProgramDefinition)
+                  .collect(ImmutableList.toImmutableList());
+          return ImmutableMap.of(
+              LifecycleStage.DRAFT, inProgressPrograms,
+              LifecycleStage.ACTIVE, activePrograms);
+        },
+        executionContext.current());
   }
 
   public Optional<Account> lookupAccount(String emailAddress) {

@@ -2,6 +2,7 @@ package views.admin.programs;
 
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h3;
 
 import forms.ProgramForm;
 import j2html.tags.ContainerTag;
@@ -22,6 +23,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         program.getAdminDescription(),
         program.getLocalizedDisplayName(),
         program.getLocalizedDisplayDescription(),
+        program.getExternalLink(),
         editExistingProgram);
   }
 
@@ -33,6 +35,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         program.adminDescription(),
         program.localizedName().getDefault(),
         program.localizedDescription().getDefault(),
+        program.externalLink(),
         editExistingProgram);
   }
 
@@ -41,43 +44,44 @@ public class ProgramFormBuilder extends BaseHtmlView {
       String adminDescription,
       String displayName,
       String displayDescription,
+      String externalLink,
       boolean editExistingProgram) {
     ContainerTag formTag = form().withMethod("POST");
     formTag.with(
-        h2("Program Information - Administrative Use Only"),
+        h2("Internal program information"),
+        h3("This will only be visible to administrators"),
         FieldWithLabel.input()
             .setId("program-name-input")
             .setFieldName("adminName")
-            .setLabelText("What do you want to call this program?")
-            .setPlaceholderText(
-                "Give a name for internal identification purposes - this cannot be updated once"
-                    + " set")
+            .setLabelText("Enter internal name or nickname of this program")
             .setValue(adminName)
             .setDisabled(editExistingProgram)
             .getContainer(),
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
-            .setLabelText("Program description")
-            .setPlaceholderText("This description is visible only to system admins")
+            .setLabelText("Describe this program for administrative use")
             .setValue(adminDescription)
             .getContainer(),
-        h2("Publicly Visible Program Information"),
+        h2("Public program information"),
+        h3("This will be visible to the public"),
         FieldWithLabel.input()
             .setId("program-display-name-input")
             .setFieldName("localizedDisplayName")
-            .setLabelText("Program display name")
-            .setPlaceholderText(
-                "What is the name of this program? This will be shown to applicants")
+            .setLabelText("Enter the publicly displayed name for this program")
             .setValue(displayName)
             .getContainer(),
         FieldWithLabel.textArea()
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
-            .setLabelText("Program display description")
-            .setPlaceholderText(
-                "A short description of this program. This will be shown to applicants")
+            .setLabelText("Describe this program for the public")
             .setValue(displayDescription)
+            .getContainer(),
+        FieldWithLabel.input()
+            .setId("program-external-link-input")
+            .setFieldName("externalLink")
+            .setLabelText("Link for additional program information")
+            .setValue(externalLink)
             .getContainer(),
         submitButton("Save").withId("program-update-button"));
     return formTag;

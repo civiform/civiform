@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.QuestionTag;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
@@ -67,7 +68,9 @@ public class AdminQuestionController extends CiviFormController {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService ->
-                ok(listView.render(readOnlyService.getActiveAndDraftQuestions(), maybeFlash)),
+                ok(
+                    listView.render(
+                        readOnlyService.getActiveAndDraftQuestions(), maybeFlash, request)),
             httpExecutionContext.current());
   }
 
@@ -157,6 +160,36 @@ public class AdminQuestionController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result restore(Request request, Long id) {
+    try {
+      service.restoreQuestion(id);
+    } catch (InvalidUpdateException e) {
+      return badRequest("Failed to restore question.");
+    }
+    return redirect(routes.AdminQuestionController.index());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result archive(Request request, Long id) {
+    try {
+      service.archiveQuestion(id);
+    } catch (InvalidUpdateException e) {
+      return badRequest("Failed to archive question.");
+    }
+    return redirect(routes.AdminQuestionController.index());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result discardDraft(Request request, Long id) {
+    try {
+      service.discardDraft(id);
+    } catch (InvalidUpdateException e) {
+      return badRequest("Failed to discard draft question.");
+    }
+    return redirect(routes.AdminQuestionController.index());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public CompletionStage<Result> edit(Request request, Long id) {
     return service
         .getReadOnlyQuestionService()
@@ -229,6 +262,13 @@ public class AdminQuestionController extends CiviFormController {
           editView.renderEditQuestionForm(
               request, id, questionForm, maybeEnumerationQuestion, errorMessage));
     }
+    try {
+      service.setExportState(
+          errorAndUpdatedQuestionDefinition.getResult(),
+          QuestionTag.valueOf(questionForm.getQuestionExportState()));
+    } catch (InvalidUpdateException | QuestionNotFoundException e) {
+      return badRequest(e.toString());
+    }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
     return withMessage(redirect(routes.AdminQuestionController.index()), successMessage);
@@ -264,11 +304,18 @@ public class AdminQuestionController extends CiviFormController {
         existing
             .getQuestionText()
             .updateTranslation(LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionText()));
-    updated.setQuestionHelpText(
-        existing
-            .getQuestionHelpText()
-            .updateTranslation(
-                LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionHelpText()));
+
+    // Question help text is optional. If the admin submits an empty string, delete
+    // all translations of it.
+    if (questionForm.getQuestionHelpText().isBlank()) {
+      updated.setQuestionHelpText(LocalizedStrings.empty());
+    } else {
+      updated.setQuestionHelpText(
+          existing
+              .getQuestionHelpText()
+              .updateTranslation(
+                  LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionHelpText()));
+    }
 
     if (existing.getQuestionType().equals(QuestionType.ENUMERATOR)) {
       updateDefaultLocalizationForEntityType(

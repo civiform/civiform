@@ -24,10 +24,10 @@ export class AdminQuestions {
     helpText: string,
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     // This function should only be called on question create/edit page.
-    await this.page.fill('text="Name"', questionName);
-    await this.page.fill('text=Description', description);
-    await this.page.fill('text=Question Text', questionText);
-    await this.page.fill('text=Question help text', helpText);
+    await this.page.fill('label:has-text("Name")', questionName);
+    await this.page.fill('label:has-text("Description")', description);
+    await this.page.fill('label:has-text("Question Text")', questionText);
+    await this.page.fill('label:has-text("Question help text")', helpText);
     await this.page.selectOption('#question-enumerator-select', { label: enumeratorName });
   }
 
@@ -66,10 +66,36 @@ export class AdminQuestions {
     expect(await this.page.innerText(this.selectQuestionTableRow(questionName))).toContain('New Version');
   }
 
+  async expectActiveQuestionNotExist(questionName: string) {
+    await this.gotoAdminQuestionsPage();
+    const tableInnerText = await this.page.innerText('table');
+
+    expect(tableInnerText).not.toContain(questionName);
+  }
+
+
   async gotoQuestionEditPage(questionName: string) {
     await this.gotoAdminQuestionsPage();
     await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("Edit")'));
     await this.expectQuestionEditPage(questionName);
+  }
+
+  async undeleteQuestion(questionName: string) {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("Restore")'));
+    await this.expectAdminQuestionsPage();
+  }
+
+  async discardDraft(questionName: string) {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("Discard Draft")'));
+    await this.expectAdminQuestionsPage();
+  }
+
+  async archiveQuestion(questionName: string) {
+    await this.gotoAdminQuestionsPage();
+    await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("Archive")'));
+    await this.expectAdminQuestionsPage();
   }
 
   async goToQuestionTranslationPage(questionName: string) {
@@ -94,6 +120,27 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, newQuestionText);
   }
 
+  async changeQuestionHelpText(questionName: string, questionHelpText: string) {
+    await this.gotoQuestionEditPage(questionName);
+    await this.page.fill('text=Question Help Text', questionHelpText);
+    await this.page.click('button:text("Update")');
+    await this.expectDraftQuestionExist(questionName);
+  }
+
+  async exportQuestion(questionName: string) {
+    await this.gotoQuestionEditPage(questionName);
+    await this.page.click('text="Export Value"');
+    await this.page.click('button:text("Update")');
+    await this.expectDraftQuestionExist(questionName);
+  }
+
+  async exportQuestionOpaque(questionName: string) {
+    await this.gotoQuestionEditPage(questionName);
+    await this.page.click('text="Export Obfuscated"');
+    await this.page.click('button:text("Update")');
+    await this.expectDraftQuestionExist(questionName);
+  }
+
   async createNewVersion(questionName: string) {
     await this.gotoAdminQuestionsPage();
     await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("New Version")'));
@@ -108,6 +155,7 @@ export class AdminQuestions {
     await this.addCheckboxQuestion(questionNamePrefix + 'checkbox', ['op1', 'op2', 'op3', 'op4']);
     await this.addDateQuestion(questionNamePrefix + 'date');
     await this.addDropdownQuestion(questionNamePrefix + 'dropdown', ['op1', 'op2', 'op3']);
+    await this.addEmailQuestion(questionNamePrefix + 'email');
     await this.addNameQuestion(questionNamePrefix + 'name');
     await this.addNumberQuestion(questionNamePrefix + 'number');
     await this.addRadioButtonQuestion(questionNamePrefix + 'radio', ['one', 'two', 'three']);
@@ -116,6 +164,7 @@ export class AdminQuestions {
     questionNamePrefix + 'checkbox',
     questionNamePrefix + 'date',
     questionNamePrefix + 'dropdown',
+    questionNamePrefix + 'email',
     questionNamePrefix + 'name',
     questionNamePrefix + 'number',
     questionNamePrefix + 'radio',
@@ -161,13 +210,15 @@ export class AdminQuestions {
     helpText = 'address question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-address-question');
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -175,18 +226,20 @@ export class AdminQuestions {
   }
 
   async addDateQuestion(questionName: string,
-                           description = 'date description',
-                           questionText = 'date question text',
-                           helpText = 'date question help text',
-                           enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
+    description = 'date description',
+    questionText = 'date question text',
+    helpText = 'date question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-date-question');
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -200,6 +253,8 @@ export class AdminQuestions {
     helpText = 'checkbox question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-checkbox-question');
@@ -208,10 +263,11 @@ export class AdminQuestions {
 
     for (var index in options) {
       await this.page.click('#add-new-option');
-      await this.page.fill('input:above(#add-new-option)', options[index]);
+      var matchIndex = Number(index) + 1;
+      await this.page.fill(`:nth-match(#question-settings div.flex-row, ${matchIndex}) input`, options[index]);
     }
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -225,6 +281,8 @@ export class AdminQuestions {
     helpText = 'dropdown question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-dropdown-question');
@@ -233,10 +291,11 @@ export class AdminQuestions {
 
     for (var index in options) {
       await this.page.click('#add-new-option');
-      await this.page.fill('input:above(#add-new-option)', options[index]);
+      var matchIndex = Number(index) + 1;
+      await this.page.fill(`:nth-match(#question-settings div.flex-row, ${matchIndex}) input`, options[index]);
     }
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -249,13 +308,15 @@ export class AdminQuestions {
     helpText = 'fileupload question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-fileupload-question');
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -268,13 +329,15 @@ export class AdminQuestions {
     helpText = 'name question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-name-question');
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -287,13 +350,15 @@ export class AdminQuestions {
     helpText = 'number question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-number-question');
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -307,6 +372,8 @@ export class AdminQuestions {
     helpText = 'radio button question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-radio_button-question');
@@ -315,10 +382,11 @@ export class AdminQuestions {
 
     for (var index in options) {
       await this.page.click('#add-new-option')
-      await this.page.fill('input:above(#add-new-option)', options[index])
+      var matchIndex = Number(index) + 1;
+      await this.page.fill(`:nth-match(#question-settings div.flex-row, ${matchIndex}) input`, options[index]);
     }
 
-    await this.page.click('text=Create')
+    await this.page.click('button:has-text("Create")')
 
     await this.expectAdminQuestionsPage();
 
@@ -331,13 +399,36 @@ export class AdminQuestions {
     helpText = 'text question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-text-question');
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
+
+    await this.expectAdminQuestionsPage();
+
+    await this.expectDraftQuestionExist(questionName, questionText);
+  }
+
+  async addEmailQuestion(questionName: string,
+    description = 'email description',
+    questionText = 'email question text',
+    helpText = 'email question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
+    await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
+    await this.page.click('#create-question-button');
+
+    await this.page.click('#create-email-question');
+
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
+
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 
@@ -353,6 +444,8 @@ export class AdminQuestions {
     helpText = 'enumerator question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
+    // Wait for dropdown event listener to be attached
+    await this.page.waitForLoadState('load');
     await this.page.click('#create-question-button');
 
     await this.page.click('#create-enumerator-question');
@@ -361,7 +454,7 @@ export class AdminQuestions {
 
     await this.page.fill('text=Repeated Entity Type', 'Entity');
 
-    await this.page.click('text=Create');
+    await this.page.click('button:has-text("Create")');
 
     await this.expectAdminQuestionsPage();
 

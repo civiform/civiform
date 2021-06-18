@@ -3,15 +3,18 @@ import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, 
 describe('normal application flow', () => {
   it('all major steps', async () => {
     const { browser, page } = await startSession()
-    page.setDefaultTimeout(2000);
+    page.setDefaultTimeout(5000);
 
     await loginAsAdmin(page);
     const adminQuestions = new AdminQuestions(page);
     const adminPrograms = new AdminPrograms(page);
 
     await adminQuestions.addDateQuestion('date-q');
+    await adminQuestions.addEmailQuestion('email-q');
     await adminQuestions.addDropdownQuestion('ice-cream-q', ['chocolate', 'banana', 'black raspberry']);
     await adminQuestions.addCheckboxQuestion('favorite-trees-q', ['oak', 'maple', 'pine', 'cherry']);
+    await adminQuestions.addCheckboxQuestion('favorite-rats-q', ['sewage', 'laboratory', 'bubonic', 'giant']);
+    await adminQuestions.addCheckboxQuestion('scared-of-q', ['dogs', 'bees', 'spiders', 'the dark', 'clowns']);
     await adminQuestions.addAddressQuestion('address-q');
     await adminQuestions.addFileUploadQuestion('fileupload-q');
     await adminQuestions.addNameQuestion('name-q');
@@ -21,9 +24,10 @@ describe('normal application flow', () => {
 
     const programName = 'a shiny new program';
     await adminPrograms.addProgram(programName);
-    await adminPrograms.editProgramBlock(programName, 'block description', ['date-q', 'address-q', 'name-q', 'radio-q']);
+    await adminPrograms.editProgramBlock(programName, 'block description', ['date-q', 'address-q', 'name-q', 'radio-q', 'email-q']);
     await adminPrograms.addProgramBlock(programName, 'another description', ['ice-cream-q', 'favorite-trees-q', 'number-q', 'text-q']);
     await adminPrograms.addProgramBlock(programName, 'third description', ['fileupload-q']);
+    await adminPrograms.addProgramBlock(programName, 'fourth description', ['scared-of-q', 'favorite-rats-q']);
 
     await adminPrograms.gotoAdminProgramsPage();
     await adminPrograms.expectDraftProgram(programName);
@@ -33,12 +37,15 @@ describe('normal application flow', () => {
 
     await adminQuestions.expectActiveQuestionExist('ice-cream-q');
     await adminQuestions.expectActiveQuestionExist('favorite-trees-q');
+    await adminQuestions.expectActiveQuestionExist('favorite-rats-q');
+    await adminQuestions.expectActiveQuestionExist('scared-of-q');
     await adminQuestions.expectActiveQuestionExist('address-q');
     await adminQuestions.expectActiveQuestionExist('name-q');
     await adminQuestions.expectActiveQuestionExist('date-q');
     await adminQuestions.expectActiveQuestionExist('number-q');
     await adminQuestions.expectActiveQuestionExist('text-q');
     await adminQuestions.expectActiveQuestionExist('radio-q');
+    await adminQuestions.expectActiveQuestionExist('email-q');
 
     await logout(page);
     await loginAsTestUser(page);
@@ -47,26 +54,48 @@ describe('normal application flow', () => {
     const applicantQuestions = new ApplicantQuestions(page);
     await applicantQuestions.validateHeader('en-US');
 
-    // Applicant fills out first application block.
+    // fill 1st application block.
     await applicantQuestions.applyProgram(programName);
-    await applicantQuestions.answerAddressQuestion('1234 St', 'Unit B', 'Sim', 'Ames', '54321');
-    await applicantQuestions.answerNameQuestion('Queen', 'Hearts', 'of');
+    await applicantQuestions.answerAddressQuestion('', '', '', '', '');
+    await applicantQuestions.answerNameQuestion('', '', '');
     await applicantQuestions.answerRadioButtonQuestion('two');
     await applicantQuestions.answerDateQuestion('2021-05-10');
+    await applicantQuestions.answerEmailQuestion('test1@gmail.com');
     await applicantQuestions.clickNext();
 
-    // Applicant fills out second application block.
+    // Application doesn't progress because of name and address question errors.
+    // Verify that address error messages are visible.
+    expect(await page.innerText('.cf-address-street-1-error:visible')).toEqual("Please enter valid street name and number.");
+    expect(await page.innerText('.cf-address-city-error:visible')).toEqual("Please enter city.");
+    expect(await page.innerText('.cf-address-state-error:visible')).toEqual("Please enter state.");
+    expect(await page.innerText('.cf-address-zip-error:visible')).toEqual("Please enter valid 5-digit ZIP code.");
+
+    // Verify that name question error messages are visible.
+    expect(await page.innerText('.cf-name-first-error:visible')).toEqual("Please enter your first name.");
+    expect(await page.innerText('.cf-name-last-error:visible')).toEqual("Please enter your last name.");
+
+    // Fix the address and name questions and submit.
+    await applicantQuestions.answerNameQuestion('Queen', 'Hearts', 'of');
+    await applicantQuestions.answerAddressQuestion('1234 St', 'Unit B', 'Sim', 'Ames', '54321');
+    await applicantQuestions.clickNext();
+
+    // fill 2nd application block.
     await applicantQuestions.answerDropdownQuestion('banana');
     await applicantQuestions.answerCheckboxQuestion(['cherry', 'pine']);
     await applicantQuestions.answerNumberQuestion('42');
     await applicantQuestions.answerTextQuestion('some text');
     await applicantQuestions.clickNext();
 
-    // Applicant fills out third application block.
+    // fill 3rd application block.
     await applicantQuestions.answerFileUploadQuestion('file key');
     await applicantQuestions.clickNext();
 
-    // Applicant submits answers from review page.
+    // fill 4th application block. 
+    // skip one checkbox question.
+    await applicantQuestions.answerCheckboxQuestion(['clowns']);
+    await applicantQuestions.clickNext();
+
+    // submit
     await applicantQuestions.submitFromReviewPage(programName);
 
     await logout(page);
@@ -81,13 +110,14 @@ describe('normal application flow', () => {
     // https://github.com/seattle-uat/civiform/issues/778
     await adminPrograms.expectApplicationAnswers('Block 1', 'radio-q', '2');
     await adminPrograms.expectApplicationAnswers('Block 1', 'date-q', '05/10/2021');
+    await adminPrograms.expectApplicationAnswers('Block 1', 'email-q', 'test1@gmail.com');
 
     await adminPrograms.expectApplicationAnswers('Block 2', 'ice-cream-q', '2');
     await adminPrograms.expectApplicationAnswers('Block 2', 'favorite-trees-q', 'pine cherry');
 
     await adminPrograms.expectApplicationAnswers('Block 2', 'number-q', '42');
     await adminPrograms.expectApplicationAnswers('Block 2', 'text-q', 'some text');
-    await adminPrograms.expectApplicationAnswers('Block 3', 'fileupload-q', '-- FILE UPLOADED --');
+    await adminPrograms.expectApplicationAnswerLinks('Block 3', 'fileupload-q');
     await endSession(browser);
   })
 })

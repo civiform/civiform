@@ -1,10 +1,14 @@
 package services.applicant;
 
+import auth.UatProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Applicant;
 import models.Application;
+import models.LifecycleStage;
+import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramDefinition;
 
 /**
@@ -52,9 +56,10 @@ public interface ApplicantService {
    * with association with the applicant and a program that the applicant is applying to.
    *
    * @return the saved {@link Application}. If the submission failed, a {@link
-   *     ApplictionSubmissionException} is thrown and wrapped in a `CompletionException`.
+   *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
-  CompletionStage<Application> submitApplication(long applicantId, long programId);
+  CompletionStage<Application> submitApplication(
+      long applicantId, long programId, UatProfile submittingProfile);
 
   /** Create a new {@link Applicant} for a given user. */
   CompletionStage<Applicant> createApplicant(long userId);
@@ -76,9 +81,18 @@ public interface ApplicantService {
   /**
    * Return all programs that are appropriate to serve to an applicant - which is any active
    * program, plus any program where they have an application in the draft stage.
+   *
+   * <p>The programs do not have question definitions loaded into its program question definitions.
    */
-  CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId);
+  CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>> relevantPrograms(
+      long applicantId);
 
-  /** Returns the name of the given applicant id. */
+  /** Return the name of the given applicant id. */
   CompletionStage<String> getName(long applicantId);
+
+  /** Return the email of the given applicant id if they have one. */
+  CompletionStage<Optional<String>> getEmail(long applicantId);
+
+  /** Return all applications, including applications from previous versions. */
+  ImmutableList<Application> getAllApplications();
 }

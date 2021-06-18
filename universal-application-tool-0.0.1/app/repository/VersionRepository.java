@@ -1,9 +1,12 @@
 package repository;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.SerializableConflictException;
@@ -25,6 +28,11 @@ import play.db.ebean.EbeanConfig;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.predicate.AndNode;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.OrNode;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
 
 /** A repository object for dealing with versioning of questions and programs. */
 public class VersionRepository {
@@ -53,6 +61,9 @@ public class VersionRepository {
       active.getPrograms().stream()
           .filter(
               activeProgram ->
+                  !draft.programIsTombstoned(activeProgram.getProgramDefinition().adminName()))
+          .filter(
+              activeProgram ->
                   draft.getPrograms().stream()
                       .noneMatch(
                           draftProgram ->
@@ -66,6 +77,9 @@ public class VersionRepository {
                 activeProgramNotInDraft.save();
               });
       active.getQuestions().stream()
+          .filter(
+              activeQuestion ->
+                  !draft.questionIsTombstoned(activeQuestion.getQuestionDefinition().getName()))
           .filter(
               activeQuestion ->
                   draft.getQuestions().stream()
@@ -186,6 +200,7 @@ public class VersionRepository {
     draftProgram = new Program(updatedDefinition.build());
     LOG.trace("Submitting update.");
     ebeanServer.update(draftProgram);
+    draftProgram.refresh();
   }
 
   public boolean isInactive(Question question) {
@@ -211,14 +226,54 @@ public class VersionRepository {
   private BlockDefinition updateQuestionVersions(BlockDefinition block) {
     BlockDefinition.Builder updatedBlock =
         block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of());
+    // Update questions contained in this block.
     for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
       Optional<Question> updatedQuestion = getLatestVersionOfQuestion(question.id());
       LOG.trace(
           "Updating question ID {} to new ID {}.", question.id(), updatedQuestion.orElseThrow().id);
       updatedBlock.addQuestion(
-          ProgramQuestionDefinition.create(updatedQuestion.orElseThrow().getQuestionDefinition()));
+          question.setQuestionDefinition(updatedQuestion.orElseThrow().getQuestionDefinition()));
+    }
+    // Update questions referenced in this block's predicate(s)
+    if (block.visibilityPredicate().isPresent()) {
+      PredicateDefinition oldPredicate = block.visibilityPredicate().get();
+      updatedBlock.setVisibilityPredicate(
+          PredicateDefinition.create(
+              updatePredicateNode(oldPredicate.rootNode()), oldPredicate.action()));
+    }
+    if (block.optionalPredicate().isPresent()) {
+      PredicateDefinition oldPredicate = block.optionalPredicate().get();
+      updatedBlock.setOptionalPredicate(
+          Optional.of(
+              PredicateDefinition.create(
+                  updatePredicateNode(oldPredicate.rootNode()), oldPredicate.action())));
     }
     return updatedBlock.build();
+  }
+
+  // Update the referenced question IDs in all leaf nodes. Since nodes are immutable, we
+  // recursively recreate the tree with updated leaf nodes.
+  @VisibleForTesting
+  protected PredicateExpressionNode updatePredicateNode(PredicateExpressionNode current) {
+    switch (current.getType()) {
+      case AND:
+        AndNode and = current.getAndNode();
+        ImmutableSet<PredicateExpressionNode> updatedAndChildren =
+            and.children().stream().map(this::updatePredicateNode).collect(toImmutableSet());
+        return PredicateExpressionNode.create(AndNode.create(updatedAndChildren));
+      case OR:
+        OrNode or = current.getOrNode();
+        ImmutableSet<PredicateExpressionNode> updatedOrChildren =
+            or.children().stream().map(this::updatePredicateNode).collect(toImmutableSet());
+        return PredicateExpressionNode.create(OrNode.create(updatedOrChildren));
+      case LEAF_OPERATION:
+        LeafOperationExpressionNode leaf = current.getLeafNode();
+        Optional<Question> updated = getLatestVersionOfQuestion(leaf.questionId());
+        return PredicateExpressionNode.create(
+            leaf.toBuilder().setQuestionId(updated.orElseThrow().id).build());
+      default:
+        return current;
+    }
   }
 
   public void updateProgramsForNewDraftQuestion(long oldId) {

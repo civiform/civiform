@@ -85,10 +85,7 @@ public class ApplicantQuestion {
    * "applicant.household_member[3].name".
    */
   public Path getContextualizedPath() {
-    return repeatedEntity
-        .map(RepeatedEntity::contextualizedPath)
-        .orElse(ApplicantData.APPLICANT_PATH)
-        .join(questionDefinition.getQuestionPathSegment());
+    return questionDefinition.getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
   }
 
   /**
@@ -154,6 +151,10 @@ public class ApplicantQuestion {
     return new DateQuestion(this);
   }
 
+  public EmailQuestion createEmailQuestion() {
+    return new EmailQuestion(this);
+  }
+
   public FileUploadQuestion createFileUploadQuestion() {
     return new FileUploadQuestion(this);
   }
@@ -192,6 +193,8 @@ public class ApplicantQuestion {
         return createMultiSelectQuestion();
       case DATE:
         return createDateQuestion();
+      case EMAIL:
+        return createEmailQuestion();
       case FILEUPLOAD:
         return createFileUploadQuestion();
       case NAME:

@@ -2,7 +2,9 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.UatProfile;
 import com.google.auto.value.AutoValue;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -19,6 +21,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
+import models.LifecycleStage;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
 import repository.UserRepository;
@@ -36,8 +39,13 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 
 public class ApplicantServiceImpl implements ApplicantService {
+
   private static final String STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST =
       "seattle-civiform-program-admins-notify@google.com";
+  private static final String STAGING_TI_NOTIFICATION_MAILING_LIST =
+      "seattle-civiform-trusted-intermediaries-notify@google.com";
+  private static final String STAGING_APPLICANT_NOTIFICATION_MAILING_LIST =
+      "seattle-civiform-applicants-notify@google.com";
 
   private final ApplicationRepository applicationRepository;
   private final UserRepository userRepository;
@@ -181,13 +189,33 @@ public class ApplicantServiceImpl implements ApplicantService {
 
               return CompletableFuture.completedFuture(roApplicantProgramService);
             },
-            httpExecutionContext.current());
+            httpExecutionContext.current())
+        .thenCompose(
+            (v) ->
+                applicationRepository
+                    .createOrUpdateDraft(applicantId, programId)
+                    .thenApplyAsync(appDraft -> v));
   }
 
   @Override
-  public CompletionStage<Application> submitApplication(long applicantId, long programId) {
+  public CompletionStage<Application> submitApplication(
+      long applicantId, long programId, UatProfile submitterProfile) {
+    if (submitterProfile.isTrustedIntermediary()) {
+      return submitterProfile
+          .getAccount()
+          .thenComposeAsync(
+              account ->
+                  submitApplication(applicantId, programId, Optional.of(account.getEmailAddress())),
+              httpExecutionContext.current());
+    }
+
+    return submitApplication(applicantId, programId, Optional.empty());
+  }
+
+  private CompletionStage<Application> submitApplication(
+      long applicantId, long programId, Optional<String> submitterEmail) {
     return applicationRepository
-        .submitApplication(applicantId, programId)
+        .submitApplication(applicantId, programId, submitterEmail)
         .thenComposeAsync(
             applicationMaybe -> {
               if (applicationMaybe.isEmpty()) {
@@ -197,13 +225,18 @@ public class ApplicantServiceImpl implements ApplicantService {
               Application application = applicationMaybe.get();
               String programName = application.getProgram().getProgramDefinition().adminName();
               notifyProgramAdmins(applicantId, programId, application.id, programName);
+              if (submitterEmail.isPresent()) {
+                notifySubmitter(submitterEmail.get(), applicantId, application.id, programName);
+              }
+              maybeNotifyApplicant(applicantId, application.id, programName);
               return CompletableFuture.completedFuture(application);
             },
             httpExecutionContext.current());
   }
 
   @Override
-  public CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId) {
+  public CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>>
+      relevantPrograms(long applicantId) {
     return userRepository.programsForApplicant(applicantId);
   }
 
@@ -226,6 +259,50 @@ public class ApplicantServiceImpl implements ApplicantService {
     }
   }
 
+  private void notifySubmitter(
+      String submitter, long applicantId, long applicationId, String programName) {
+    String tiDashLink =
+        baseUrl
+            + controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                    Optional.empty(), Optional.empty())
+                .url();
+    String subject =
+        String.format(
+            "You submitted an application for program %s on behalf of applicant %d",
+            programName, applicantId);
+    String message =
+        String.format(
+            "The application to program %s as applicant %d has been received, and the application"
+                + " ID is %d.\n"
+                + "Manage your clients at %s.",
+            programName, applicantId, applicationId, tiDashLink);
+    if (isStaging) {
+      amazonSESClient.send(STAGING_TI_NOTIFICATION_MAILING_LIST, subject, message);
+    } else {
+      amazonSESClient.send(submitter, subject, message);
+    }
+  }
+
+  private void maybeNotifyApplicant(long applicantId, long applicationId, String programName) {
+    Optional<String> email = getEmail(applicantId).toCompletableFuture().join();
+    if (email.isEmpty()) {
+      return;
+    }
+    String civiformLink = baseUrl;
+    String subject = String.format("Your application to program %s is received", programName);
+    String message =
+        String.format(
+            "Your application to program %s has been received. Your applicant ID is %d and the"
+                + " application ID is %d.\n"
+                + "Log in to CiviForm at %s.",
+            programName, applicantId, applicationId, civiformLink);
+    if (isStaging) {
+      amazonSESClient.send(STAGING_APPLICANT_NOTIFICATION_MAILING_LIST, subject, message);
+    } else {
+      amazonSESClient.send(email.get(), subject, message);
+    }
+  }
+
   @Override
   public CompletionStage<String> getName(long applicantId) {
     return userRepository
@@ -236,7 +313,31 @@ public class ApplicantServiceImpl implements ApplicantService {
                 return "<Anonymous Applicant>";
               }
               return applicant.get().getApplicantData().getApplicantName();
-            });
+            },
+            httpExecutionContext.current());
+  }
+
+  @Override
+  public CompletionStage<Optional<String>> getEmail(long applicantId) {
+    return userRepository
+        .lookupApplicant(applicantId)
+        .thenApplyAsync(
+            applicant -> {
+              if (applicant.isEmpty()) {
+                return Optional.empty();
+              }
+              String emailAddress = applicant.get().getAccount().getEmailAddress();
+              if (Strings.isNullOrEmpty(emailAddress)) {
+                return Optional.empty();
+              }
+              return Optional.of(emailAddress);
+            },
+            httpExecutionContext.current());
+  }
+
+  @Override
+  public ImmutableList<Application> getAllApplications() {
+    return applicationRepository.getAllApplications();
   }
 
   /**
@@ -382,6 +483,7 @@ public class ApplicantServiceImpl implements ApplicantService {
         case DATE:
           applicantData.putDate(currentPath, update.value());
           break;
+        case LIST_OF_STRINGS:
         case STRING:
           applicantData.putString(currentPath, update.value());
           break;
@@ -405,12 +507,13 @@ public class ApplicantServiceImpl implements ApplicantService {
 
   @AutoValue
   abstract static class UpdateMetadata {
-    abstract long programId();
-
-    abstract long updatedAt();
 
     static UpdateMetadata create(long programId, long updatedAt) {
       return new AutoValue_ApplicantServiceImpl_UpdateMetadata(programId, updatedAt);
     }
+
+    abstract long programId();
+
+    abstract long updatedAt();
   }
 }

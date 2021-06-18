@@ -13,6 +13,9 @@ public class Icons {
       "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z";
   // Menu
   public static final String DROPDOWN_SVG_PATH = "M4 6h16M4 10h16M4 14h16M4 18h16";
+  public static final String EMAIL_SVG_PATH =
+      "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2"
+          + " 0 002 2z";
   public static final String ENUMERATOR_SVG_PATH =
       "M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2"
           + " 2 0 00-2 2v8a2 2 0 002 2z";
@@ -57,6 +60,8 @@ public class Icons {
           + " 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012"
           + " 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z";
 
+  public static final String ACCORDION_BUTTON_PATH = "M19 9l-7 7-7-7";
+
   public static ContainerTag questionTypeSvg(QuestionType type, int size) {
     return questionTypeSvg(type, size, size);
   }
@@ -81,6 +86,12 @@ public class Icons {
             .attr("stroke-width", "2");
       case DROPDOWN:
         return svg(Icons.DROPDOWN_SVG_PATH, width, height)
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2");
+      case EMAIL:
+        return svg(Icons.EMAIL_SVG_PATH, width, height)
+            .attr("fill", "none")
             .attr("stroke-linecap", "round")
             .attr("stroke-linejoin", "round")
             .attr("stroke-width", "2");

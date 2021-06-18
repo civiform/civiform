@@ -8,6 +8,7 @@ import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DateQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
+import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
@@ -31,6 +32,8 @@ public class QuestionFormBuilder {
         return formFactory.form(DateQuestionForm.class).bindFromRequest(request).get();
       case DROPDOWN:
         return formFactory.form(DropdownQuestionForm.class).bindFromRequest(request).get();
+      case EMAIL:
+        return formFactory.form(EmailQuestionForm.class).bindFromRequest(request).get();
       case FILEUPLOAD:
         return formFactory.form(FileUploadQuestionForm.class).bindFromRequest(request).get();
       case NAME:
@@ -61,6 +64,8 @@ public class QuestionFormBuilder {
         return new DateQuestionForm();
       case DROPDOWN:
         return new DropdownQuestionForm();
+      case EMAIL:
+        return new EmailQuestionForm();
       case FILEUPLOAD:
         return new FileUploadQuestionForm();
       case NAME:
@@ -92,6 +97,8 @@ public class QuestionFormBuilder {
         return new DateQuestionForm((DateQuestionDefinition) questionDefinition);
       case DROPDOWN:
         return new DropdownQuestionForm((DropdownQuestionDefinition) questionDefinition);
+      case EMAIL:
+        return new EmailQuestionForm((EmailQuestionDefinition) questionDefinition);
       case FILEUPLOAD:
         return new FileUploadQuestionForm((FileUploadQuestionDefinition) questionDefinition);
       case NAME:

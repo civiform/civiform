@@ -1,32 +1,29 @@
 package views;
 
-import static j2html.TagCreator.a;
+import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.text;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.linkedin.urls.Url;
-import com.linkedin.urls.detection.UrlDetector;
-import com.linkedin.urls.detection.UrlDetectorOptions;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
-import j2html.tags.DomContent;
 import j2html.tags.Tag;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Optional;
+import java.util.function.Function;
 import play.i18n.Messages;
+import play.mvc.Call;
 import play.mvc.Http;
 import services.applicant.ValidationErrorMessage;
+import views.components.FieldWithLabel;
+import views.components.LinkElement;
 import views.html.helper.CSRF;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
@@ -39,7 +36,6 @@ import views.style.Styles;
  * rendered.
  */
 public abstract class BaseHtmlView {
-  private static final Logger LOG = LoggerFactory.getLogger(BaseHtmlView.class);
 
   public static Tag renderHeader(String headerText, String... additionalClasses) {
     return h1(headerText).withClasses(Styles.MB_4, StyleUtils.joinStyles(additionalClasses));
@@ -90,34 +86,43 @@ public abstract class BaseHtmlView {
     return datetime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a"));
   }
 
-  protected ImmutableList<DomContent> createLinksAndEscapeText(String content) {
-    List<Url> urls = new UrlDetector(content, UrlDetectorOptions.Default).detect();
-    ImmutableList.Builder<DomContent> contentBuilder = ImmutableList.builder();
-    for (Url url : urls) {
-      int index = content.indexOf(url.getOriginalUrl());
-      // Find where this URL is in the text.
-      if (index == -1) {
-        LOG.error(
-            String.format(
-                "Detected URL %s not present in actual content, %s.",
-                url.getOriginalUrl(), content));
-        continue;
-      }
-      if (index > 0) {
-        // If it's not at the beginning, add the text from before the URL.
-        contentBuilder.add(text(content.substring(0, index)));
-      }
-      // Add the URL.
-      contentBuilder.add(
-          a().withText(url.getOriginalUrl())
-              .withHref(url.getFullUrl())
-              .withClasses(Styles.OPACITY_75));
-      content = content.substring(index + url.getOriginalUrl().length());
+  protected ContainerTag renderPaginationDiv(
+      int page, int pageCount, Function<Integer, Call> linkForPage) {
+    ContainerTag div = div();
+    if (page <= 1) {
+      div.with(new LinkElement().setText("∅").asButton());
+    } else {
+      div.with(
+          new LinkElement().setText("←").setHref(linkForPage.apply(page - 1).url()).asButton());
     }
-    // If there's content leftover, add it.
-    if (!Strings.isNullOrEmpty(content)) {
-      contentBuilder.add(text(content));
+    div.with(
+        div("Page " + page + " of " + pageCount)
+            .withClasses(
+                Styles.LEADING_3, Styles.FLOAT_LEFT, Styles.INLINE_BLOCK, Styles.P_2, Styles.M_4));
+    if (pageCount > page) {
+      div.with(
+          new LinkElement().setText("→").setHref(linkForPage.apply(page + 1).url()).asButton());
+    } else {
+      div.with(new LinkElement().setText("∅").asButton());
     }
-    return contentBuilder.build();
+    return div.with(br());
+  }
+
+  protected ContainerTag renderSearchForm(
+      Http.Request request, Optional<String> search, Call searchCall) {
+    return form()
+        .withMethod("GET")
+        .withAction(searchCall.url())
+        .with(
+            FieldWithLabel.input()
+                .setId("search-field")
+                .setFieldName("search")
+                .setLabelText("Search")
+                .setValue(search.orElse(""))
+                .setPlaceholderText("Search")
+                .getContainer()
+                .withClasses(Styles.W_1_4),
+            makeCsrfTokenInputTag(request),
+            submitButton("Search").withClasses(Styles.M_2));
   }
 }

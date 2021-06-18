@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import forms.BlockForm;
 import java.util.Locale;
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletionStage;
 import models.Account;
 import models.Application;
 import models.Program;
+import models.Version;
 import play.db.ebean.Transactional;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
@@ -22,6 +24,7 @@ import repository.UserRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
@@ -72,13 +75,21 @@ public class ProgramServiceImpl implements ProgramService {
     return programRepository
         .lookupProgram(id)
         .thenComposeAsync(
-            programMaybe ->
-                programMaybe.isEmpty()
-                    ? CompletableFuture.failedFuture(new ProgramNotFoundException(id))
-                    : programMaybe
-                        .map(Program::getProgramDefinition)
-                        .map(this::syncProgramDefinitionQuestions)
-                        .get(),
+            programMaybe -> {
+              if (programMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
+              }
+              Program program = programMaybe.get();
+              if (isActiveOrDraftProgram(program)) {
+                return syncProgramDefinitionQuestions(program.getProgramDefinition())
+                    .thenApply(programDefinition -> programDefinition.orderBlockDefinitions());
+              }
+              // Any version that the program is in has all the questions the program has.
+              Version version = program.getVersions().stream().findAny().get();
+              ProgramDefinition programDefinition =
+                  syncProgramDefinitionQuestions(program.getProgramDefinition(), version);
+              return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
+            },
             httpExecutionContext.current());
   }
 
@@ -87,9 +98,13 @@ public class ProgramServiceImpl implements ProgramService {
       String adminName,
       String adminDescription,
       String defaultDisplayName,
-      String defaultDisplayDescription) {
+      String defaultDisplayDescription,
+      String externalLink) {
 
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    if (hasProgramNameCollision(adminName)) {
+      errorsBuilder.add(CiviFormError.of("a program named " + adminName + " already exists"));
+    }
     validateProgramText(errorsBuilder, "admin name", adminName);
     validateProgramText(errorsBuilder, "admin description", adminDescription);
     validateProgramText(errorsBuilder, "display name", defaultDisplayName);
@@ -100,7 +115,12 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     Program program =
-        new Program(adminName, adminDescription, defaultDisplayName, defaultDisplayDescription);
+        new Program(
+            adminName,
+            adminDescription,
+            defaultDisplayName,
+            defaultDisplayDescription,
+            externalLink);
     program.addVersion(versionRepository.getDraftVersion());
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
@@ -111,7 +131,8 @@ public class ProgramServiceImpl implements ProgramService {
       Locale locale,
       String adminDescription,
       String displayName,
-      String displayDescription)
+      String displayDescription,
+      String externalLink)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
@@ -132,6 +153,7 @@ public class ProgramServiceImpl implements ProgramService {
                 programDefinition
                     .localizedDescription()
                     .updateTranslation(locale, displayDescription))
+            .setExternalLink(externalLink)
             .build()
             .toProgram();
     return ErrorAnd.of(
@@ -169,6 +191,10 @@ public class ProgramServiceImpl implements ProgramService {
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
             .join());
+  }
+
+  private boolean hasProgramNameCollision(String programName) {
+    return getActiveAndDraftPrograms().getProgramNames().contains(programName);
   }
 
   private void validateProgramText(
@@ -231,14 +257,31 @@ public class ProgramServiceImpl implements ProgramService {
             .setDescription(blockDescription)
             .setEnumeratorId(enumeratorBlockId)
             .build();
-
     Program program =
-        programDefinition.toBuilder().addBlockDefinition(blockDefinition).build().toProgram();
+        programDefinition.insertBlockDefinitionInTheRightPlace(blockDefinition).toProgram();
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
             .join());
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition moveBlock(
+      long programId, long blockId, ProgramDefinition.Direction direction)
+      throws ProgramNotFoundException, IllegalBlockMoveException {
+    Program program;
+    try {
+      program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(
+          "Something happened to the program's block while trying to move it", e);
+    }
+    return syncProgramDefinitionQuestions(
+            programRepository.updateProgramSync(program).getProgramDefinition())
+        .toCompletableFuture()
+        .join();
   }
 
   @Override
@@ -264,7 +307,7 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   private ImmutableSet<CiviFormError> validateBlockDefinition(String name, String description) {
-    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.<CiviFormError>builder();
+    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
     if (name.isBlank()) {
       errors.add(CiviFormError.of("block name cannot be blank"));
     }
@@ -364,14 +407,14 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public ProgramDefinition setBlockHidePredicate(
-      long programId, long blockDefinitionId, Predicate predicate)
+  public ProgramDefinition setBlockPredicate(
+      long programId, long blockDefinitionId, PredicateDefinition predicate)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setHidePredicate(Optional.of(predicate))
+            .setVisibilityPredicate(Optional.of(predicate))
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
@@ -379,17 +422,29 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public ProgramDefinition setBlockOptionalPredicate(
-      long programId, long blockDefinitionId, Predicate predicate)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+  public ProgramDefinition setProgramQuestionDefinitionOptionality(
+      long programId, long blockDefinitionId, long questionDefinitionId, boolean optional)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
+    BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
 
-    BlockDefinition blockDefinition =
-        programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setOptionalPredicate(Optional.of(predicate))
-            .build();
+    if (!blockDefinition.programQuestionDefinitions().stream()
+        .anyMatch(pqd -> pqd.id() == questionDefinitionId)) {
+      throw new ProgramQuestionDefinitionNotFoundException(
+          programId, blockDefinitionId, questionDefinitionId);
+    }
 
-    return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+    ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions =
+        blockDefinition.programQuestionDefinitions().stream()
+            .map(pqd -> pqd.id() == questionDefinitionId ? pqd.setOptional(optional) : pqd)
+            .collect(ImmutableList.toImmutableList());
+
+    return updateProgramDefinitionWithBlockDefinition(
+        programDefinition,
+        blockDefinition.toBuilder()
+            .setProgramQuestionDefinitions(programQuestionDefinitions)
+            .build());
   }
 
   @Override
@@ -426,6 +481,20 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  public ImmutableList<Application> getProgramApplications(long programId, Optional<String> search)
+      throws ProgramNotFoundException {
+    return getProgramApplications(programId).stream()
+        .filter(
+            application ->
+                application
+                    .getApplicantData()
+                    .getApplicantName()
+                    .toLowerCase(Locale.ROOT)
+                    .contains(search.orElse("").toLowerCase(Locale.ROOT)))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
   public ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException {
     return programRepository
         .createOrUpdateDraft(this.getProgramDefinition(id).toProgram())
@@ -448,6 +517,11 @@ public class ProgramServiceImpl implements ProgramService {
         .map(Account::getEmailAddress)
         .filter(address -> !Strings.isNullOrEmpty(address))
         .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
+  public ImmutableList<Program> getOtherProgramVersions(long programId) {
+    return programRepository.getOtherProgramVersions(programId);
   }
 
   private ProgramDefinition updateProgramDefinitionWithBlockDefinition(
@@ -473,6 +547,13 @@ public class ProgramServiceImpl implements ProgramService {
     return programDefinition.getMaxBlockDefinitionId() + 1;
   }
 
+  private boolean isActiveOrDraftProgram(Program program) {
+    return Streams.concat(
+            versionRepository.getActiveVersion().getPrograms().stream(),
+            versionRepository.getDraftVersion().getPrograms().stream())
+        .anyMatch(p -> p.id.equals(program.id));
+  }
+
   /**
    * Update all {@link QuestionDefinition}s in the ProgramDefinition with appropriate versions from
    * the {@link QuestionService}.
@@ -485,6 +566,12 @@ public class ProgramServiceImpl implements ProgramService {
             roQuestionService ->
                 syncProgramDefinitionQuestions(programDefinition, roQuestionService),
             httpExecutionContext.current());
+  }
+
+  private ProgramDefinition syncProgramDefinitionQuestions(
+      ProgramDefinition programDefinition, Version version) {
+    return syncProgramDefinitionQuestions(
+        programDefinition, questionService.getReadOnlyVersionedQuestionService(version));
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(
@@ -517,12 +604,11 @@ public class ProgramServiceImpl implements ProgramService {
 
   private ProgramQuestionDefinition syncProgramQuestionDefinition(
       ProgramQuestionDefinition pqd, ReadOnlyQuestionService roQuestionService) {
-    QuestionDefinition questionDefinition;
     try {
-      questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
+      QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
+      return pqd.setQuestionDefinition(questionDefinition);
     } catch (QuestionNotFoundException e) {
       throw new RuntimeException(e);
     }
-    return ProgramQuestionDefinition.create(questionDefinition);
   }
 }

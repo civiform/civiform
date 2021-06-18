@@ -8,6 +8,7 @@ import j2html.tags.Tag;
 import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
+import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -19,6 +20,8 @@ public abstract class ApplicantQuestionRenderer {
   public ApplicantQuestionRenderer(ApplicantQuestion question) {
     this.question = checkNotNull(question);
   }
+
+  public abstract String getReferenceClass();
 
   public abstract Tag render(ApplicantQuestionRendererParams params);
 
@@ -43,14 +46,14 @@ public abstract class ApplicantQuestionRenderer {
                 div()
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
-                    .withText(question.getQuestionText()))
+                    .with(TextFormatter.createLinksAndEscapeText(question.getQuestionText())))
             // Question help text
             .with(
                 div()
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)
-                    .withText(question.getQuestionHelpText()))
+                    .with(TextFormatter.createLinksAndEscapeText(question.getQuestionHelpText())))
             .withClasses(Styles.MB_4);
 
     if (shouldDisplayQuestionErrors) {
@@ -60,7 +63,7 @@ public abstract class ApplicantQuestionRenderer {
 
     return div()
         .withId(question.getContextualizedPath().toString())
-        .withClasses(Styles.MX_AUTO, Styles.MB_8)
+        .withClasses(Styles.MX_AUTO, Styles.MB_8, this.getReferenceClass())
         .with(questionTextDiv)
         .with(questionFormContent);
   }

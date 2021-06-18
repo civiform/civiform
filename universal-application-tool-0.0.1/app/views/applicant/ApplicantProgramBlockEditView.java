@@ -74,6 +74,9 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
               params.messages()));
     }
 
+    // Add question validation scripts.
+    bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("validation"));
+
     return layout.renderWithNav(
         params.request(), params.applicantName(), params.messages(), bundle);
   }
@@ -110,6 +113,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         ApplicantQuestionRendererParams.builder().setMessages(params.messages()).build();
 
     return form()
+        .withId("cf-block-form")
         .withAction(formAction)
         .withMethod(HttpVerbs.POST)
         .with(makeCsrfTokenInputTag(params.request()))
@@ -121,6 +125,10 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   private Tag renderFileUploadBlockSubmitForm(Params params) {
+    // Note: This key uniquely identifies the file to be uploaded by the applicant and will be
+    // persisted in DB. Other parts of the system rely on the format of the key, e.g. in
+    // FileController.java we check if a file can be accessed based on the key content, so be extra
+    // cautious if you want to change the format.
     String key =
         String.format(
             "applicant-%d/program-%d/block-%s",
@@ -177,7 +185,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   private Tag renderNextButton(Params params) {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName()))
-        .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT);
+        .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
+        .withId("cf-block-submit");
   }
 
   @AutoValue

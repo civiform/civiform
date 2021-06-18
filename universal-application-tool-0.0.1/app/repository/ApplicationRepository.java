@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.collect.ImmutableList;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.List;
@@ -44,24 +45,26 @@ public class ApplicationRepository {
    * applications to a program with the same name (to include past versions of the same program),
    * and create a new application in the active state.
    */
-  public CompletionStage<Application> submitApplication(Applicant applicant, Program program) {
+  public CompletionStage<Application> submitApplication(
+      Applicant applicant, Program program, Optional<String> submitterEmail) {
     return supplyAsync(
         () -> {
-          return submitApplicationInternal(applicant, program);
+          return submitApplicationInternal(applicant, program, submitterEmail);
         },
         executionContext.current());
   }
 
   public CompletionStage<Optional<Application>> submitApplication(
-      long applicantId, long programId) {
+      long applicantId, long programId, Optional<String> submitterEmail) {
     return this.perform(
         applicantId,
         programId,
         (ApplicationArguments appArgs) ->
-            submitApplicationInternal(appArgs.applicant, appArgs.program));
+            submitApplicationInternal(appArgs.applicant, appArgs.program, submitterEmail));
   }
 
-  private Application submitApplicationInternal(Applicant applicant, Program program) {
+  private Application submitApplicationInternal(
+      Applicant applicant, Program program, Optional<String> submitterEmail) {
     ebeanServer.beginTransaction();
     try {
       List<Application> oldApplications =
@@ -71,16 +74,24 @@ public class ApplicationRepository {
               .eq("applicant.id", applicant.id)
               .eq("program.name", program.getProgramDefinition().adminName())
               .findList();
+      Optional<Application> completedApplication = Optional.empty();
       for (Application application : oldApplications) {
         // Delete any in-progress drafts, and mark obsolete any old applications.
         if (application.getLifecycleStage().equals(LifecycleStage.DRAFT)) {
-          application.setLifecycleStage(LifecycleStage.DELETED);
+          application.setLifecycleStage(LifecycleStage.ACTIVE);
+          completedApplication = Optional.of(application);
         } else {
           application.setLifecycleStage(LifecycleStage.OBSOLETE);
         }
         application.save();
       }
-      Application application = new Application(applicant, program, LifecycleStage.ACTIVE);
+      Application application =
+          completedApplication.orElse(new Application(applicant, program, LifecycleStage.ACTIVE));
+
+      if (submitterEmail.isPresent()) {
+        application.setSubmitterEmail(submitterEmail.get());
+      }
+
       application.save();
       ebeanServer.commitTransaction();
       return application;
@@ -115,6 +126,10 @@ public class ApplicationRepository {
             });
   }
 
+  public ImmutableList<Application> getAllApplications() {
+    return ImmutableList.copyOf(ebeanServer.find(Application.class).findList());
+  }
+
   // Need to transmit both arguments to submitApplication through the CompletionStage pipeline.
   // Not useful in the API, not needed more broadly.
   private static class ApplicationArguments {
@@ -140,6 +155,7 @@ public class ApplicationRepository {
               .findOneOrEmpty();
       Application application =
           existingDraft.orElse(new Application(applicant, program, LifecycleStage.DRAFT));
+      application.setApplicantData(applicant.getApplicantData());
       application.save();
       ebeanServer.commitTransaction();
       return application;

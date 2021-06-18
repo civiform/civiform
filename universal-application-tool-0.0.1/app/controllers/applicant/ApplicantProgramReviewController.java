@@ -3,6 +3,7 @@ package controllers.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileUtils;
+import auth.UatProfile;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.Optional;
@@ -19,9 +20,9 @@ import play.mvc.Result;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
+import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramNotFoundException;
-import views.applicant.ApplicantProgramConfirmationView;
 import views.applicant.ApplicantProgramSummaryView;
 
 /**
@@ -37,7 +38,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
   private final ProfileUtils profileUtils;
-  private final ApplicantProgramConfirmationView confirmationView;
 
   @Inject
   public ApplicantProgramReviewController(
@@ -45,20 +45,28 @@ public class ApplicantProgramReviewController extends CiviFormController {
       HttpExecutionContext httpExecutionContext,
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
-      ApplicantProgramConfirmationView applicantProgramConfirmationView,
       ProfileUtils profileUtils) {
     this.applicantService = checkNotNull(applicantService);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
     this.profileUtils = checkNotNull(profileUtils);
-    this.confirmationView = checkNotNull(applicantProgramConfirmationView);
+  }
+
+  @Secure
+  public CompletionStage<Result> preview(Request request, long applicantId, long programId) {
+    return view(request, applicantId, programId, false);
   }
 
   @Secure
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
+    return view(request, applicantId, programId, true);
+  }
+
+  private CompletionStage<Result> view(
+      Request request, long applicantId, long programId, boolean inReview) {
     Optional<String> banner = request.flash().get("banner");
-    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<String> applicantStage = applicantService.getName(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
@@ -67,26 +75,17 @@ public class ApplicantProgramReviewController extends CiviFormController {
             httpExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
-              ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryData();
-              int totalBlockCount = roApplicantProgramService.getAllBlocks().size();
-              int completedBlockCount =
-                  roApplicantProgramService.getAllBlocks().stream()
-                      .filter(Block::isCompleteWithoutErrors)
-                      .mapToInt(b -> 1)
-                      .sum();
-              String programTitle = roApplicantProgramService.getProgramTitle();
-              return ok(
-                  summaryView.render(
-                      request,
-                      applicantId,
-                      applicantStage.toCompletableFuture().join(),
-                      programId,
-                      programTitle,
-                      summaryData,
-                      completedBlockCount,
-                      totalBlockCount,
-                      messagesApi.preferred(request),
-                      banner));
+              ApplicantProgramSummaryView.Params params =
+                  this.generateParamsBuilder(roApplicantProgramService)
+                      .setApplicantId(applicantId)
+                      .setApplicantName(applicantStage.toCompletableFuture().join())
+                      .setBanner(banner.isPresent() ? banner.get() : "")
+                      .setInReview(inReview)
+                      .setMessages(messagesApi.preferred(request))
+                      .setProgramId(programId)
+                      .setRequest(request)
+                      .build();
+              return ok(summaryView.render(params));
             },
             httpExecutionContext.current())
         .exceptionally(
@@ -109,10 +108,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
-            v -> {
-              return submit(applicantId, programId);
-            },
-            httpExecutionContext.current())
+            v -> submitInternal(request, applicantId, programId), httpExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -120,68 +116,46 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (cause instanceof SecurityException) {
                   return unauthorized();
                 }
-                if (cause instanceof ProgramNotFoundException) {
-                  return notFound(cause.toString());
-                }
                 throw new RuntimeException(cause);
               }
               throw new RuntimeException(ex);
             });
   }
 
-  @Secure
-  public CompletionStage<Result> confirmation(
-      Request request, long applicantId, long programId, long applicationId) {
-    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+  private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
+      ReadOnlyApplicantProgramService roApplicantProgramService) {
+    ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryData();
+    int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
+    int completedBlockCount =
+        roApplicantProgramService.getAllActiveBlocks().stream()
+            .filter(Block::isCompleteWithoutErrors)
+            .mapToInt(b -> 1)
+            .sum();
+    String programTitle = roApplicantProgramService.getProgramTitle();
 
-    return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
-        .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-            httpExecutionContext.current())
-        .thenApplyAsync(
-            (roApplicantProgramService) -> {
-              String programTitle = roApplicantProgramService.getProgramTitle();
-              Optional<String> banner = request.flash().get("banner");
-              return ok(
-                  confirmationView.render(
-                      request,
-                      applicantId,
-                      applicantStage.toCompletableFuture().join(),
-                      applicationId,
-                      programTitle,
-                      messagesApi.preferred(request),
-                      banner));
-            },
-            httpExecutionContext.current())
-        .exceptionally(
-            ex -> {
-              if (ex instanceof CompletionException) {
-                Throwable cause = ex.getCause();
-                if (cause instanceof SecurityException) {
-                  return unauthorized();
-                }
-                if (cause instanceof ProgramNotFoundException) {
-                  return notFound(cause.toString());
-                }
-                throw new RuntimeException(cause);
-              }
-              throw new RuntimeException(ex);
-            });
+    return ApplicantProgramSummaryView.Params.builder()
+        .setCompletedBlockCount(completedBlockCount)
+        .setProgramTitle(programTitle)
+        .setSummaryData(summaryData)
+        .setTotalBlockCount(totalBlockCount);
   }
 
-  private CompletionStage<Result> submit(long applicantId, long programId) {
+  private CompletionStage<Result> submitInternal(
+      Request request, long applicantId, long programId) {
+    UatProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
+
     CompletionStage<Application> submitApp =
-        applicantService.submitApplication(applicantId, programId);
+        applicantService.submitApplication(applicantId, programId, submittingProfile);
     return submitApp
         .thenApplyAsync(
             application -> {
               Long applicationId = application.id;
               Call endOfProgramSubmission =
                   routes.RedirectController.considerRegister(
-                      routes.ApplicantProgramReviewController.confirmation(
-                              applicantId, programId, applicationId)
-                          .url());
+                      applicantId,
+                      programId,
+                      applicationId,
+                      routes.ApplicantProgramsController.index(applicantId).url());
               return found(endOfProgramSubmission);
             },
             httpExecutionContext.current())

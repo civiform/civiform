@@ -171,6 +171,7 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             addressValidationPredicates);
+
       case CHECKBOX:
         MultiOptionValidationPredicates multiOptionValidationPredicates =
             MultiOptionValidationPredicates.create();
@@ -195,9 +196,15 @@ public class QuestionDefinitionBuilder {
       case DROPDOWN:
         return new DropdownQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText, questionOptions);
+
+      case EMAIL:
+        return new EmailQuestionDefinition(
+            id, name, enumeratorId, description, questionText, questionHelpText);
+
       case FILEUPLOAD:
         return new FileUploadQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText);
+
       case NAME:
         NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
@@ -211,6 +218,7 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             nameValidationPredicates);
+
       case NUMBER:
         NumberQuestionDefinition.NumberValidationPredicates numberValidationPredicates =
             NumberQuestionDefinition.NumberValidationPredicates.create();
@@ -226,11 +234,14 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             numberValidationPredicates);
+
       case PHONENUMBER:
         return new PhoneNumberQuestionDefinition(id, name, enumeratorId, description, questionText, questionHelpText);
+
       case RADIO_BUTTON:
         return new RadioButtonQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText, questionOptions);
+
       case ENUMERATOR:
         // This shouldn't happen, but protects us in case there are enumerator questions in the prod
         // database that don't have entity type specified.
@@ -240,6 +251,7 @@ public class QuestionDefinitionBuilder {
         }
         return new EnumeratorQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText, entityType);
+
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
@@ -253,6 +265,7 @@ public class QuestionDefinitionBuilder {
             questionText,
             questionHelpText,
             textValidationPredicates);
+
       default:
         throw new UnsupportedQuestionTypeException(this.questionType);
     }

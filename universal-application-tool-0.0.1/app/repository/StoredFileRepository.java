@@ -11,37 +11,21 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.StoredFile;
 import play.db.ebean.EbeanConfig;
-import services.aws.SimpleStorage;
 
 public class StoredFileRepository {
 
   private final EbeanServer ebeanServer;
-  private final SimpleStorage s3Client;
   private final DatabaseExecutionContext executionContext;
 
   @Inject
-  public StoredFileRepository(
-      EbeanConfig ebeanConfig, SimpleStorage s3Client, DatabaseExecutionContext executionContext) {
+  public StoredFileRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
     this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
-    this.s3Client = checkNotNull(s3Client);
     this.executionContext = checkNotNull(executionContext);
   }
 
   /** Return all files in a set. */
   public CompletionStage<Set<StoredFile>> list() {
     return supplyAsync(() -> ebeanServer.find(StoredFile.class).findSet(), executionContext);
-  }
-
-  public CompletionStage<Set<StoredFile>> listWithPresignedUrl() {
-    return supplyAsync(
-        () -> {
-          Set<StoredFile> files = ebeanServer.find(StoredFile.class).findSet();
-          for (StoredFile file : files) {
-            file.setPresignedURL(s3Client.getPresignedUrl(file.getName()));
-          }
-          return files;
-        },
-        executionContext);
   }
 
   public CompletionStage<Optional<StoredFile>> lookupFile(Long id) {

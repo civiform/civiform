@@ -1,5 +1,6 @@
 package services.applicant.question;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.Path;
@@ -26,6 +27,12 @@ public class FileUploadQuestion implements PresentsErrors {
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     // TODO: Implement admin-defined validation.
     return ImmutableSet.of();
+  }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    // We can't predict ahead of time what the path will be.
+    return ImmutableList.of();
   }
 
   @Override
@@ -75,7 +82,6 @@ public class FileUploadQuestion implements PresentsErrors {
 
   @Override
   public String getAnswerString() {
-    // TODO: What do we display here when a file has been uploaded? Filename? Link to the file?
-    return isAnswered() ? "-- FILE UPLOADED --" : "-- NO FILE SELECTED --";
+    return isAnswered() ? "-- FILE UPLOADED (click to download) --" : "-- NO FILE SELECTED --";
   }
 }

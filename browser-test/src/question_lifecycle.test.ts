@@ -11,22 +11,34 @@ describe('normal question lifecycle', () => {
 
     const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes('qlc-');
     const singleBlockQuestions = await adminQuestions.addAllSingleBlockQuestionTypes('qlc-');
+    const repeatedQuestion = 'qlc-repeated-number';
+    await adminQuestions.addNumberQuestion(
+      repeatedQuestion, 'description', '$this\'s favorite number', '', 'qlc-enumerator');
 
-    await adminQuestions.updateAllQuestions(questions);
+    // Combine all the questions that were made so we can update them all together.
+    const allQuestions = questions.concat(singleBlockQuestions);
+    // Add to the front of the list because creating a new version of the enumerator question will
+    // automatically create a new version of the repeated question.
+    allQuestions.unshift(repeatedQuestion);
+
+    await adminQuestions.updateAllQuestions(allQuestions);
 
     const programName = 'program for question lifecycle';
     await adminPrograms.addProgram(programName);
     await adminPrograms.editProgramBlock(programName, 'qlc program description', questions);
     for (const singleBlockQuestion of singleBlockQuestions) {
-      await adminPrograms.addProgramBlock(programName, 'single-block question', [singleBlockQuestion]);
+      const blockName = await adminPrograms.addProgramBlock(programName, 'single-block question', [singleBlockQuestion]);
+      if (singleBlockQuestion == 'qlc-enumerator') {
+        await adminPrograms.addProgramRepeatedBlock(programName, blockName, 'repeated block desc', [repeatedQuestion]);
+      }
     }
     await adminPrograms.publishProgram(programName);
 
-    await adminQuestions.expectActiveQuestions(questions);
+    await adminQuestions.expectActiveQuestions(allQuestions);
 
-    await adminQuestions.createNewVersionForQuestions(questions)
+    await adminQuestions.createNewVersionForQuestions(allQuestions)
 
-    await adminQuestions.updateAllQuestions(questions);
+    await adminQuestions.updateAllQuestions(allQuestions);
 
     await adminPrograms.publishProgram(programName);
 
@@ -34,7 +46,7 @@ describe('normal question lifecycle', () => {
 
     await adminPrograms.publishProgram(programName);
 
-    await adminQuestions.expectActiveQuestions(questions);
+    await adminQuestions.expectActiveQuestions(allQuestions);
 
     await endSession(browser);
   })

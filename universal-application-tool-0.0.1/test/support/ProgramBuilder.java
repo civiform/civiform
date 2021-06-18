@@ -10,9 +10,9 @@ import play.inject.Injector;
 import repository.VersionRepository;
 import services.program.BlockDefinition;
 import services.program.ExportDefinition;
-import services.program.Predicate;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -57,7 +57,7 @@ public class ProgramBuilder {
   /** Creates a {@link ProgramBuilder} with a new {@link Program} in draft state. */
   public static ProgramBuilder newDraftProgram(String name, String description) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
-    Program program = new Program(name, description, name, description);
+    Program program = new Program(name, description, name, description, "");
     program.addVersion(versionRepository.getDraftVersion());
     program.save();
     ProgramDefinition.Builder builder =
@@ -86,7 +86,7 @@ public class ProgramBuilder {
   /** Creates a {@link ProgramBuilder} with a new {@link Program} in active state. */
   public static ProgramBuilder newActiveProgram(String name, String description) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
-    Program program = new Program(name, description, name, description);
+    Program program = new Program(name, description, name, description, "");
     program.addVersion(versionRepository.getActiveVersion());
     program.save();
     ProgramDefinition.Builder builder =
@@ -195,23 +195,8 @@ public class ProgramBuilder {
       return this;
     }
 
-    public BlockBuilder withHidePredicate(Predicate predicate) {
-      blockDefBuilder.setHidePredicate(predicate);
-      return this;
-    }
-
-    public BlockBuilder withHidePredicate(String predicate) {
-      blockDefBuilder.setHidePredicate(Predicate.create(predicate));
-      return this;
-    }
-
-    public BlockBuilder withOptionalPredicate(Predicate predicate) {
-      blockDefBuilder.setOptionalPredicate(predicate);
-      return this;
-    }
-
-    public BlockBuilder withOptionalPredicate(String predicate) {
-      blockDefBuilder.setOptionalPredicate(Predicate.create(predicate));
+    public BlockBuilder withPredicate(PredicateDefinition predicate) {
+      blockDefBuilder.setVisibilityPredicate(predicate);
       return this;
     }
 

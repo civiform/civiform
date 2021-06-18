@@ -14,6 +14,7 @@ import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.ti.routes;
 import j2html.tags.ContainerTag;
@@ -48,7 +49,14 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   public Content render(
-      TrustedIntermediaryGroup tiGroup, String userName, Http.Request request, Messages messages) {
+      TrustedIntermediaryGroup tiGroup,
+      String userName,
+      ImmutableList<Account> managedAccounts,
+      int totalPageCount,
+      int page,
+      Optional<String> search,
+      Http.Request request,
+      Messages messages) {
     HtmlBundle bundle =
         layout
             .getBundle()
@@ -61,7 +69,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 renderAddNewForm(tiGroup, request),
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Clients"),
-                renderTIApplicantsTable(tiGroup),
+                renderSearchForm(
+                    request,
+                    search,
+                    routes.TrustedIntermediaryController.dashboard(
+                        Optional.empty(), Optional.empty())),
+                renderTIApplicantsTable(managedAccounts, search, page, totalPageCount),
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Trusted Intermediary Members"),
                 renderTIMembersTable(tiGroup).withClasses(Styles.ML_2))
@@ -80,18 +93,29 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return layout.renderWithNav(request, userName, messages, bundle);
   }
 
-  private ContainerTag renderTIApplicantsTable(TrustedIntermediaryGroup tiGroup) {
-    return div(
-        table()
-            .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_3_4)
-            .with(renderApplicantTableHeader())
-            .with(
-                tbody(
-                    each(
-                        tiGroup.getManagedAccounts().stream()
-                            .sorted(Comparator.comparing(Account::getApplicantName))
-                            .collect(Collectors.toList()),
-                        account -> renderApplicantRow(account)))));
+  private ContainerTag renderTIApplicantsTable(
+      ImmutableList<Account> managedAccounts,
+      Optional<String> search,
+      int page,
+      int totalPageCount) {
+    ContainerTag main =
+        div(table()
+                .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_3_4)
+                .with(renderApplicantTableHeader())
+                .with(
+                    tbody(
+                        each(
+                            managedAccounts.stream()
+                                .sorted(Comparator.comparing(Account::getApplicantName))
+                                .collect(Collectors.toList()),
+                            account -> renderApplicantRow(account)))))
+            .withClasses(Styles.MB_16);
+    return main.with(
+        renderPaginationDiv(
+            page,
+            totalPageCount,
+            pageNumber ->
+                routes.TrustedIntermediaryController.dashboard(search, Optional.of(pageNumber))));
   }
 
   private ContainerTag renderTIMembersTable(TrustedIntermediaryGroup tiGroup) {

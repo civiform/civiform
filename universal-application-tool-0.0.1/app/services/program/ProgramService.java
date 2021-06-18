@@ -3,10 +3,13 @@ package services.program;
 import com.google.common.collect.ImmutableList;
 import forms.BlockForm;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Application;
+import models.Program;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.program.predicate.PredicateDefinition;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 
@@ -21,6 +24,10 @@ public interface ProgramService {
 
   /**
    * Get the definition for a given program.
+   *
+   * <p>This method loads question definitions for all block definitions from a version the program
+   * is in. If the program contains a question that is not in any versions associated with the
+   * program, a `RuntimeException` is thrown caused by an unexpected QuestionNotFoundException.
    *
    * @param id the ID of the program to retrieve
    * @return the {@link ProgramDefinition} for the given ID if it exists
@@ -49,6 +56,7 @@ public interface ProgramService {
    * @param adminDescription a description of this program for use by admins
    * @param defaultDisplayName the name of this program to display to applicants
    * @param defaultDisplayDescription a description for this program to display to applicants
+   * @param externalLink A link to an external page containing additional program details
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
    */
@@ -56,7 +64,8 @@ public interface ProgramService {
       String adminName,
       String adminDescription,
       String defaultDisplayName,
-      String defaultDisplayDescription);
+      String defaultDisplayDescription,
+      String externalLink);
 
   /**
    * Update a program's mutable fields: admin description, display name and description for
@@ -68,6 +77,7 @@ public interface ProgramService {
    * @param adminDescription the description of this program - visible only to admins
    * @param displayName a name for this program
    * @param displayDescription the description of what the program provides
+   * @param externalLink A link to an external page containing additional program details
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
@@ -77,7 +87,8 @@ public interface ProgramService {
       Locale locale,
       String adminDescription,
       String displayName,
-      String displayDescription)
+      String displayDescription,
+      String externalLink)
       throws ProgramNotFoundException;
 
   /**
@@ -96,7 +107,7 @@ public interface ProgramService {
       throws ProgramNotFoundException;
 
   /**
-   * Adds an empty {@link BlockDefinition} to the given program.
+   * Adds an empty {@link BlockDefinition} to the end of a given program.
    *
    * @param programId the ID of the program to update
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors with
@@ -107,7 +118,9 @@ public interface ProgramService {
       throws ProgramNotFoundException;
 
   /**
-   * Adds an empty repeated {@link BlockDefinition} to the given program.
+   * Adds an empty repeated {@link BlockDefinition} to the given program. The block should be added
+   * after the last repeated or nested repeated block with the same ancestor. See {@link
+   * ProgramDefinition#orderBlockDefinitions()} for more details about block positioning.
    *
    * @param programId the ID of the program to update
    * @param enumeratorBlockId ID of the enumerator block
@@ -120,6 +133,25 @@ public interface ProgramService {
   ErrorAnd<ProgramDefinition, CiviFormError> addRepeatedBlockToProgram(
       long programId, long enumeratorBlockId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
+
+  /**
+   * Move the block definition one position in the direction specified. If the movement is not
+   * allowed, then it is not moved.
+   *
+   * <p>Movement is not allowed if:
+   *
+   * <ul>
+   *   <li>it would move the block past the ends of the list
+   *   <li>it would move a repeated block such that it is not contiguous with its enumerator block's
+   *       repeated and nested repeated blocks.
+   * </ul>
+   *
+   * @param programId the ID of the program to update
+   * @param blockId the ID of the block to move
+   * @return the program definition, with the block moved if it is allowed.
+   */
+  ProgramDefinition moveBlock(long programId, long blockId, ProgramDefinition.Direction direction)
+      throws ProgramNotFoundException, IllegalBlockMoveException;
 
   /**
    * Update a {@link BlockDefinition}'s attributes.
@@ -190,35 +222,19 @@ public interface ProgramService {
           QuestionNotFoundException;
 
   /**
-   * Set the hide {@link Predicate} for a block. This predicate describes under what conditions the
-   * block should be hidden from an applicant filling out the program form.
+   * Set the hide {@link PredicateDefinition} for a block. This predicate describes under what
+   * conditions the block should be hidden from an applicant filling out the program form.
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
-   * @param predicate the {@link Predicate} for hiding the block
+   * @param predicate the {@link PredicateDefinition} for hiding the block
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
    *     real Block.
    */
-  ProgramDefinition setBlockHidePredicate(
-      long programId, long blockDefinitionId, Predicate predicate)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
-
-  /**
-   * Set the optional {@link Predicate} for a block. This predicate describes under what conditions
-   * the block should be optional when filling out the program form.
-   *
-   * @param programId the ID of the program to update
-   * @param blockDefinitionId the ID of the block to update
-   * @param predicate the {@link Predicate} for making the block optional
-   * @return the updated {@link ProgramDefinition}
-   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
-   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
-   *     real Block.
-   */
-  ProgramDefinition setBlockOptionalPredicate(
-      long programId, long blockDefinitionId, Predicate predicate)
+  ProgramDefinition setBlockPredicate(
+      long programId, long blockDefinitionId, PredicateDefinition predicate)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
 
   /**
@@ -232,6 +248,26 @@ public interface ProgramService {
       throws ProgramNotFoundException, ProgramNeedsABlockException;
 
   /**
+   * Set a program question definition to optional or required. If the question definition ID is not
+   * present in the program's block, then nothing is changed.
+   *
+   * @param programId the ID of the program to update
+   * @param blockDefinitionId the ID of the block to update
+   * @param questionDefinitionId the ID of the question to update
+   * @param optional boolean representing whether the question is optional or required
+   * @return the updated program definition
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
+   *     real Block
+   * @throws ProgramQuestionDefinitionNotFoundException when questionDefinitionId does not
+   *     correspond to a real question in the block
+   */
+  ProgramDefinition setProgramQuestionDefinitionOptionality(
+      long programId, long blockDefinitionId, long questionDefinitionId, boolean optional)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException;
+
+  /**
    * Get all the program's applications.
    *
    * @param programId the program id.
@@ -239,6 +275,9 @@ public interface ProgramService {
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ImmutableList<Application> getProgramApplications(long programId) throws ProgramNotFoundException;
+
+  ImmutableList<Application> getProgramApplications(long programId, Optional<String> search)
+      throws ProgramNotFoundException;
 
   /** Create a new draft starting from the program specified by `id`. */
   ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException;
@@ -248,4 +287,7 @@ public interface ProgramService {
    * global admins if none.
    */
   ImmutableList<String> getNotificationEmailAddresses(String programName);
+
+  /** Get all other programs with the same name. */
+  ImmutableList<Program> getOtherProgramVersions(long programId);
 }

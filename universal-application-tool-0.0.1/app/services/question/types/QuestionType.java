@@ -7,6 +7,7 @@ public enum QuestionType {
   CHECKBOX(true),
   DATE(false),
   DROPDOWN(true),
+  EMAIL(false),
   ENUMERATOR(false),
   FILEUPLOAD(false),
   NAME(false),

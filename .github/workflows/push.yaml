@@ -60,6 +60,6 @@ jobs:
       - name: Run prober test
         run: bin/run-prober
         env:
-          TEST_USER_LOGIN: ${{ secrets.IDCS_TEST_USER_LOGIN }}
-          TEST_USER_PASSWORD: ${{ secrets.IDCS_TEST_USER_PASSWORD }}
+          TEST_USER_LOGIN: ${{ secrets.TEST_USER_LOGIN }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
 

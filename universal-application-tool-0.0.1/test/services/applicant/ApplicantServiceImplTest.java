@@ -4,17 +4,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import auth.UatProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import models.Account;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
+import models.Program;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import repository.ApplicationRepository;
 import repository.UserRepository;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
@@ -39,15 +45,25 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   private QuestionService questionService;
   private QuestionDefinition questionDefinition;
   private ProgramDefinition programDefinition;
+  private ApplicationRepository applicationRepository;
   private UserRepository userRepository;
+  private UatProfile trustedIntermediaryProfile;
 
   @Before
   public void setUp() throws Exception {
     subject = instanceOf(ApplicantServiceImpl.class);
     questionService = instanceOf(QuestionService.class);
+    applicationRepository = instanceOf(ApplicationRepository.class);
     userRepository = instanceOf(UserRepository.class);
     createQuestions();
     createProgram();
+
+    trustedIntermediaryProfile = Mockito.mock(UatProfile.class);
+    Account account = new Account();
+    account.setEmailAddress("test@example.com");
+    Mockito.when(trustedIntermediaryProfile.isTrustedIntermediary()).thenReturn(true);
+    Mockito.when(trustedIntermediaryProfile.getAccount())
+        .thenReturn(CompletableFuture.completedFuture(account));
   }
 
   @Test
@@ -383,6 +399,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   @Test
   public void submitApplication_returnsSavedApplication() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(Path.create("applicant.name").join(Scalar.FIRST_NAME).toString(), "Alice")
@@ -395,7 +413,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     Application application =
         subject
-            .submitApplication(applicant.id, programDefinition.id())
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 
@@ -409,6 +427,8 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   @Test
   public void submitApplication_obsoletesOldApplication() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(Path.create("applicant.name").join(Scalar.FIRST_NAME).toString(), "Alice")
@@ -421,7 +441,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     Application oldApplication =
         subject
-            .submitApplication(applicant.id, programDefinition.id())
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 
@@ -437,7 +457,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     Application newApplication =
         subject
-            .submitApplication(applicant.id, programDefinition.id())
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 
@@ -458,9 +478,84 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   @Test
   public void submitApplication_failsWithApplicationSubmissionException() {
     assertThatExceptionOfType(CompletionException.class)
-        .isThrownBy(() -> subject.submitApplication(9999L, 9999L).toCompletableFuture().join())
+        .isThrownBy(
+            () ->
+                subject
+                    .submitApplication(9999L, 9999L, trustedIntermediaryProfile)
+                    .toCompletableFuture()
+                    .join())
         .withCauseInstanceOf(ApplicationSubmissionException.class)
         .withMessageContaining("Application", "failed to save");
+  }
+
+  @Test
+  public void getName_invalidApplicantId_doesNotFail() {
+    subject.getName(9999L).toCompletableFuture().join();
+  }
+
+  @Test
+  public void getName_anonymousApplicant() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    String name = subject.getName(applicant.id).toCompletableFuture().join();
+    assertThat(name).isEqualTo("<Anonymous Applicant>");
+  }
+
+  @Test
+  public void getName_namedApplicantId() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    applicant.getApplicantData().setUserName("Hello World");
+    applicant.save();
+    String name = subject.getName(applicant.id).toCompletableFuture().join();
+    assertThat(name).isEqualTo("World, Hello");
+  }
+
+  @Test
+  public void getEmail_invalidApplicantId_doesNotFail() {
+    subject.getEmail(9999L).toCompletableFuture().join();
+  }
+
+  @Test
+  public void getEmail_applicantWithNoEmail_returnsEmpty() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    Account account = resourceCreator.insertAccount();
+    applicant.setAccount(account);
+    applicant.save();
+    Optional<String> email = subject.getEmail(applicant.id).toCompletableFuture().join();
+    assertThat(email).isEmpty();
+  }
+
+  @Test
+  public void getEmail_applicantWithEmail() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    applicant.setAccount(account);
+    applicant.save();
+    Optional<String> email = subject.getEmail(applicant.id).toCompletableFuture().join();
+    assertThat(email).hasValue("test@example.com");
+  }
+
+  @Test
+  public void relevantPrograms() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Program p1 =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantName())
+            .build();
+    Program p2 =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    applicationRepository.createOrUpdateDraft(applicant.id, p1.id).toCompletableFuture().join();
+
+    ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>> programs =
+        subject.relevantPrograms(applicant.id).toCompletableFuture().join();
+
+    assertThat(programs.get(LifecycleStage.DRAFT).stream().map(ProgramDefinition::id))
+        .containsExactly(p1.id);
+    assertThat(programs.get(LifecycleStage.ACTIVE).stream().map(ProgramDefinition::id))
+        .containsExactly(p1.id, p2.id);
   }
 
   private void createQuestions() {

@@ -40,6 +40,9 @@ public abstract class AnswerData {
   /** The applicant's response to the question. */
   public abstract String answerText();
 
+  /** The identifier of the applicant's uploaded file if applicable. */
+  public abstract Optional<String> fileKey();
+
   /** The timestamp of when the answer was saved. */
   public abstract Long timestamp();
 
@@ -67,6 +70,8 @@ public abstract class AnswerData {
     public abstract Builder setQuestionText(String questionText);
 
     public abstract Builder setAnswerText(String answerText);
+
+    public abstract Builder setFileKey(Optional<String> fileKey);
 
     public abstract Builder setTimestamp(Long timestamp);
 

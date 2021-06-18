@@ -18,28 +18,50 @@ import services.question.types.ScalarType;
  * <p>EXISTING SCALARS SHOULD NOT BE MODIFIED. The Scalar enum should be treated as append-only.
  */
 public enum Scalar {
-  CITY,
-  DATE,
-  FILE_KEY,
-  FIRST_NAME,
-  LAST_NAME,
-  LINE2,
-  MIDDLE_NAME,
-  NUMBER,
-  PHONE_NUMBER,
-  SELECTION,
-  STATE,
-  STREET,
-  TEXT,
-  ZIP,
+  CITY("city", ScalarType.STRING),
+  DATE("date", ScalarType.DATE),
+  EMAIL("email", ScalarType.STRING),
+  FILE_KEY("file key", ScalarType.STRING),
+  FIRST_NAME("first name", ScalarType.STRING),
+  LAST_NAME("last name", ScalarType.STRING),
+  LINE2("address line 2", ScalarType.STRING),
+  MIDDLE_NAME("middle name", ScalarType.STRING),
+  NUMBER("number", ScalarType.LONG),
+  PHONE_NUMBER("phone number", ScalarType.STRING),
+  SELECTION("selection", ScalarType.LIST_OF_STRINGS),
+  STATE("state", ScalarType.STRING),
+  STREET("street", ScalarType.STRING),
+  TEXT("text", ScalarType.STRING),
+  ZIP("ZIP code", ScalarType.STRING),
 
   // Special scalars for Enumerator updates
-  DELETE_ENTITY, // This is used for deleting enumerator entries
-  ENTITY_NAME, // This is used for adding/updating enumerator entries
+  DELETE_ENTITY("delete entity", ScalarType.STRING), // This is used for deleting enumerator entries
+  ENTITY_NAME(
+      "entity name", ScalarType.STRING), // This is used for adding/updating enumerator entries
 
   // Metadata scalars
-  UPDATED_AT,
-  PROGRAM_UPDATED_IN;
+  UPDATED_AT("updated at", ScalarType.LONG),
+  PROGRAM_UPDATED_IN("program updated in", ScalarType.LONG);
+
+  private final String displayString;
+  private final ScalarType scalarType;
+
+  /** The displayString should only be used in the Admin UI, since it is not localized. */
+  Scalar(String displayString, ScalarType scalarType) {
+    this.displayString = displayString;
+    this.scalarType = scalarType;
+  }
+
+  public String toDisplayString() {
+    return this.displayString;
+  }
+
+  public ScalarType toScalarType() {
+    return this.scalarType;
+  }
+
+  // TODO(natsid): Refactor the following (ADDRESS_SCALARS, etc) to take advantage of the fact that
+  //  the scalar type is now stored on the scalar itself.
 
   private static final ImmutableMap<Scalar, ScalarType> ADDRESS_SCALARS =
       ImmutableMap.of(
@@ -52,11 +74,14 @@ public enum Scalar {
   private static final ImmutableMap<Scalar, ScalarType> DATE_SCALARS =
       ImmutableMap.of(DATE, ScalarType.DATE);
 
+  private static final ImmutableMap<Scalar, ScalarType> EMAIL_SCALARS =
+      ImmutableMap.of(EMAIL, ScalarType.STRING);
+
   private static final ImmutableMap<Scalar, ScalarType> FILE_UPLOAD_SCALARS =
       ImmutableMap.of(FILE_KEY, ScalarType.STRING);
 
   private static final ImmutableMap<Scalar, ScalarType> MULTI_SELECT_SCALARS =
-      ImmutableMap.of(SELECTION, ScalarType.STRING);
+      ImmutableMap.of(SELECTION, ScalarType.LIST_OF_STRINGS);
 
   private static final ImmutableMap<Scalar, ScalarType> NAME_SCALARS =
       ImmutableMap.of(
@@ -96,6 +121,8 @@ public enum Scalar {
         return ADDRESS_SCALARS;
       case DATE:
         return DATE_SCALARS;
+      case EMAIL:
+        return EMAIL_SCALARS;
       case FILEUPLOAD:
         return FILE_UPLOAD_SCALARS;
       case NAME:

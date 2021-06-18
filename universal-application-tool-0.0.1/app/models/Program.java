@@ -9,6 +9,7 @@ import io.ebean.annotation.DbJson;
 import io.ebean.annotation.DbJsonB;
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import javax.persistence.Entity;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -23,8 +24,21 @@ import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ExportDefinition;
 import services.program.ProgramDefinition;
+import services.question.types.QuestionDefinition;
 
-/** The ebeans mapped class for the program object. */
+/**
+ * An EBean mapped class that stores configuration for a specific benefits program.
+ *
+ * <p>A program contains a list of {@code BlockDefinition}s, each of which contains {@code
+ * ProgramQuestionDefinition}s that reference a given {@code Question}. All questions referenced by
+ * a program must be present in every {@code Version} which contains the program.
+ *
+ * <p>When an application is submitted, an immutable snapshot of the applicant's answers for the
+ * program application are stored for that program and applicant in an {@code Application}.
+ *
+ * <p>Programs that aren't updated between versions are associated with multiple versions. I.e. A
+ * program that is not updated will be carried over to a new version.
+ */
 @Entity
 @Table(name = "programs")
 public class Program extends BaseModel {
@@ -35,6 +49,9 @@ public class Program extends BaseModel {
   @Constraints.Required private String name;
 
   @Constraints.Required private String description;
+
+  /** Link to external site for this program. */
+  @Constraints.Required private String externalLink;
 
   // Not required - will be autofilled if not present.
   private String slug;
@@ -79,10 +96,13 @@ public class Program extends BaseModel {
     this.id = definition.id();
     this.name = definition.adminName();
     this.description = definition.adminDescription();
+    this.externalLink = definition.externalLink();
     this.localizedName = definition.localizedName();
     this.localizedDescription = definition.localizedDescription();
     this.blockDefinitions = definition.blockDefinitions();
     this.exportDefinitions = definition.exportDefinitions();
+
+    orderBlockDefinitionsBeforeUpdate();
   }
 
   /**
@@ -93,12 +113,14 @@ public class Program extends BaseModel {
       String adminName,
       String adminDescription,
       String defaultDisplayName,
-      String defaultDisplayDescription) {
+      String defaultDisplayDescription,
+      String externalLink) {
     this.name = adminName;
     this.description = adminDescription;
     // A program is always created with the default CiviForm locale first, then localized.
     this.localizedName = LocalizedStrings.withDefaultValue(defaultDisplayName);
     this.localizedDescription = LocalizedStrings.withDefaultValue(defaultDisplayDescription);
+    this.externalLink = externalLink;
     BlockDefinition emptyBlock =
         BlockDefinition.builder()
             .setId(1L)
@@ -115,12 +137,15 @@ public class Program extends BaseModel {
   public void persistChangesToProgramDefinition() {
     id = programDefinition.id();
     name = programDefinition.adminName();
+    externalLink = programDefinition.externalLink();
     description = programDefinition.adminDescription();
     localizedName = programDefinition.localizedName();
     localizedDescription = programDefinition.localizedDescription();
     blockDefinitions = programDefinition.blockDefinitions();
     exportDefinitions = programDefinition.exportDefinitions();
     slug = programDefinition.slug();
+
+    orderBlockDefinitionsBeforeUpdate();
   }
 
   /** Populates {@link ProgramDefinition} from column values. */
@@ -134,7 +159,8 @@ public class Program extends BaseModel {
             .setAdminName(name)
             .setAdminDescription(description)
             .setBlockDefinitions(blockDefinitions)
-            .setExportDefinitions(exportDefinitions);
+            .setExportDefinitions(exportDefinitions)
+            .setExternalLink(externalLink);
 
     setLocalizedName(builder);
     setLocalizedDescription(builder);
@@ -175,5 +201,23 @@ public class Program extends BaseModel {
       this.slug = this.programDefinition.slug();
     }
     return this.slug;
+  }
+
+  /**
+   * See {@link ProgramDefinition#orderBlockDefinitions} for why we need to order blocks.
+   *
+   * <p>This is used in {@link PreUpdate} but cannot be used when reading from storage because
+   * {@link QuestionDefinition}s may not be present in the {@link ProgramDefinition}'s {@link
+   * BlockDefinition}'s {@link services.program.ProgramQuestionDefinition}s.
+   */
+  private void orderBlockDefinitionsBeforeUpdate() {
+    try {
+      programDefinition = checkNotNull(programDefinition).orderBlockDefinitions();
+      blockDefinitions = programDefinition.blockDefinitions();
+    } catch (NoSuchElementException e) {
+      // We are not able to check block order if the question definitions have not been
+      // added to the program question definitions. If we can't check order, we don't
+      // really need to make sure they're ordered, so this is a no-op.
+    }
   }
 }

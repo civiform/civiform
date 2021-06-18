@@ -24,7 +24,7 @@ import views.style.Styles;
 
 public class FieldWithLabel {
   private static final ImmutableSet<String> STRING_TYPES =
-      ImmutableSet.of("text", "checkbox", "date", "email", "tel");
+      ImmutableSet.of("text", "checkbox", "radio", "date", "email", "tel");
 
   protected Tag fieldTag;
   protected String fieldName = "";
@@ -40,9 +40,10 @@ public class FieldWithLabel {
   protected String placeholderText = "";
   protected Messages messages;
   protected ImmutableSet<ValidationErrorMessage> fieldErrors = ImmutableSet.of();
+  protected boolean showFieldErrors = true;
   protected boolean checked = false;
   protected boolean disabled = false;
-  protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.<String>builder();
+  protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
 
   public FieldWithLabel(Tag fieldTag) {
     this.fieldTag = checkNotNull(fieldTag);
@@ -51,6 +52,11 @@ public class FieldWithLabel {
   public static FieldWithLabel checkbox() {
     Tag fieldTag = TagCreator.input();
     return new FieldWithLabel(fieldTag).setFieldType("checkbox");
+  }
+
+  public static FieldWithLabel radio() {
+    Tag fieldTag = TagCreator.input();
+    return new FieldWithLabel(fieldTag).setFieldType("radio");
   }
 
   public static FieldWithLabel input() {
@@ -173,6 +179,11 @@ public class FieldWithLabel {
     return this;
   }
 
+  public FieldWithLabel showFieldErrors(boolean showFieldErrors) {
+    this.showFieldErrors = showFieldErrors;
+    return this;
+  }
+
   public ContainerTag getContainer() {
     if (fieldTag.getTagName().equals("textarea")) {
       // Have to recreate the field here in case the value is modified.
@@ -188,18 +199,18 @@ public class FieldWithLabel {
       fieldTag.withValue(this.fieldValue);
     }
 
+    boolean hasFieldErrors = !fieldErrors.isEmpty() && showFieldErrors;
     fieldTag
         .withClasses(
             StyleUtils.joinStyles(
-                BaseStyles.INPUT,
-                fieldErrors.isEmpty() ? "" : BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR))
+                BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
         .withCondId(!this.id.isEmpty(), this.id)
         .withName(this.fieldName)
         .condAttr(this.disabled, Attr.DISABLED, "true")
         .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
 
-    if (this.fieldType.equals("checkbox")) {
+    if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
       return getCheckboxContainer();
     }
 
@@ -236,10 +247,12 @@ public class FieldWithLabel {
   }
 
   private Tag buildFieldErrorsTag() {
+    String[] referenceClasses =
+        referenceClassesBuilder.build().stream().map(ref -> ref + "-error").toArray(String[]::new);
     return div(each(fieldErrors, error -> div(error.getMessage(messages))))
         .withClasses(
-            fieldErrors.isEmpty()
-                ? ""
-                : StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, Styles.P_1));
+            StyleUtils.joinStyles(referenceClasses),
+            StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, Styles.P_1),
+            fieldErrors.isEmpty() || !showFieldErrors ? Styles.HIDDEN : "");
   }
 }

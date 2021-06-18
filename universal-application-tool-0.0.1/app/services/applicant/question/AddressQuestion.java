@@ -79,30 +79,42 @@ public class AddressQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getStreetErrors() {
     if (isStreetAnswered() && getStreetValue().isEmpty()) {
-      return ImmutableSet.of(
-          ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED));
+      return getStreetErrorMessage();
     }
 
     return ImmutableSet.of();
   }
 
+  public ImmutableSet<ValidationErrorMessage> getStreetErrorMessage() {
+    return ImmutableSet.of(
+        ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED));
+  }
+
   public ImmutableSet<ValidationErrorMessage> getCityErrors() {
     if (isCityAnswered() && getCityValue().isEmpty()) {
-      return ImmutableSet.of(
-          ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_CITY_REQUIRED));
+      return getCityErrorMessage();
     }
 
     return ImmutableSet.of();
+  }
+
+  public ImmutableSet<ValidationErrorMessage> getCityErrorMessage() {
+    return ImmutableSet.of(
+        ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_CITY_REQUIRED));
   }
 
   public ImmutableSet<ValidationErrorMessage> getStateErrors() {
     // TODO: Validate state further.
     if (isStateAnswered() && getStateValue().isEmpty()) {
-      return ImmutableSet.of(
-          ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STATE_REQUIRED));
+      return getStateErrorMessage();
     }
 
     return ImmutableSet.of();
+  }
+
+  public ImmutableSet<ValidationErrorMessage> getStateErrorMessage() {
+    return ImmutableSet.of(
+        ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STATE_REQUIRED));
   }
 
   public ImmutableSet<ValidationErrorMessage> getZipErrors() {
@@ -116,12 +128,16 @@ public class AddressQuestion implements PresentsErrors {
       Pattern pattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
       Matcher matcher = pattern.matcher(zipValue.get());
       if (!matcher.matches()) {
-        return ImmutableSet.of(
-            ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE));
+        return getZipErrorMessage();
       }
     }
 
     return ImmutableSet.of();
+  }
+
+  public ImmutableSet<ValidationErrorMessage> getZipErrorMessage() {
+    return ImmutableSet.of(
+        ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE));
   }
 
   public Optional<String> getStreetValue() {
@@ -254,5 +270,11 @@ public class AddressQuestion implements PresentsErrors {
     return ImmutableList.of(displayLine1, displayLine2, displayLine3).stream()
         .filter(line -> line.length() > 0)
         .collect(Collectors.joining("\n"));
+  }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    return ImmutableList.of(
+        getStreetPath(), getLine2Path(), getCityPath(), getStatePath(), getZipPath());
   }
 }

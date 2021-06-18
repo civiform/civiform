@@ -29,7 +29,7 @@ describe('End to end enumerator test', () => {
     expect(await page.innerText('id=question-bank-questions')).toBe('Question bank');
 
     // Remove the enumerator question and add a non-enumerator question, and the enumerator option should not be in the bank.
-    await page.click('button:text("enumerator-ete-householdmembers")');
+    await page.click('.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button');
     await page.click('button:text("enumerator-ete-name")');
     expect(await page.innerText('id=question-bank-questions')).not.toContain('enumerator-ete-householdmembers');
 
@@ -40,8 +40,14 @@ describe('End to end enumerator test', () => {
     expect(await page.innerText('id=question-bank-questions')).toContain('enumerator-ete-repeated-name');
     expect(await page.innerText('id=question-bank-questions')).toContain('enumerator-ete-repeated-jobs');
 
+    // Go back to the enumerator block, and with a repeated block, it cannot be deleted now. The enumerator question cannot be removed, either.
+    await page.click('p:text("Block 2")');
+    expect(await page.getAttribute('#delete-block-button', 'disabled')).not.toBeNull();
+    expect(await page.getAttribute('.cf-program-question:has-text("enumerator-ete-householdmembers") >> .cf-remove-question-button', 'disabled')).not.toBeNull();
+
     // Create the rest of the program.
     // Add repeated name question
+    await page.click('p:text("Block 3")');
     await page.click('button:text("enumerator-ete-repeated-name")');
 
     // Create another repeated block and add the nested enumerator question
@@ -96,6 +102,16 @@ describe('End to end enumerator test', () => {
 
     // Put two things in the nested enumerator for enum two
     await applicantQuestions.addEnumeratorAnswer("Banker");
+    await applicantQuestions.addEnumeratorAnswer("Banker");
+    await applicantQuestions.clickNext();
+
+    // Oops! Can't have duplicates.
+    // Verify that the error message is visible.
+    expect(await page.innerText('.cf-enumerator-error:visible')).toEqual('Please enter a unique value for each line.');
+
+    // Remove one of the 'Banker' entries and add 'Painter'.
+    // the value attribute of the inputs isn't set, so we're clicking the second one.
+    await page.click(':nth-match(:text("Remove Entity"), 2)');
     await applicantQuestions.addEnumeratorAnswer("Painter");
     await applicantQuestions.clickNext();
 
@@ -152,6 +168,27 @@ describe('End to end enumerator test', () => {
     expect(await page.innerText("#application-summary")).not.toContain("Painter");
     expect(await page.innerText("#application-summary")).not.toContain("31");
     expect(await page.innerText("#application-summary")).not.toContain("12");
+
+    await endSession(browser);
+  });
+
+  it('Create new version of enumerator and update repeated questions and programs', async () => {
+    const { browser, page } = await startSession();
+    page.setDefaultTimeout(4000);
+
+    await loginAsAdmin(page);
+    const adminQuestions = new AdminQuestions(page);
+    const adminPrograms = new AdminPrograms(page);
+
+    await adminQuestions.createNewVersion('enumerator-ete-householdmembers');
+
+    // Repeated questions are updated.
+    await adminQuestions.expectDraftQuestionExist('enumerator-ete-repeated-name');
+    await adminQuestions.expectDraftQuestionExist('enumerator-ete-repeated-jobs');
+    await adminQuestions.expectDraftQuestionExist('enumerator-ete-repeated-jobs-income');
+
+    // Assert publish does not cause problem, i.e. no program refers to old questions.
+    await adminPrograms.publishProgram(programName);
 
     await endSession(browser);
   });
