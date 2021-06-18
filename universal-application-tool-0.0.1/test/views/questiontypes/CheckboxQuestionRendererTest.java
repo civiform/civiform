@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
+
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
@@ -25,6 +27,7 @@ public class CheckboxQuestionRendererTest extends WithPostgresContainer {
 
   private static final CheckboxQuestionDefinition CHECKBOX_QUESTION =
       new CheckboxQuestionDefinition(
+          OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",

@@ -13,7 +13,6 @@ import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.PresentsErrors;
 import services.program.BlockDefinition;
-import services.program.ProgramQuestionDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.ScalarType;
 
@@ -108,7 +107,8 @@ public final class Block {
               blockDefinition.programQuestionDefinitions().stream()
                   .map(
                       programQuestionDefinition ->
-                          new ApplicantQuestion(programQuestionDefinition, applicantData, repeatedEntity))
+                          new ApplicantQuestion(
+                              programQuestionDefinition, applicantData, repeatedEntity))
                   .collect(toImmutableList()));
     }
     return questionsMemo.get();

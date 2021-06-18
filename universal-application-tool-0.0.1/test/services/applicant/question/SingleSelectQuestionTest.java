@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +20,7 @@ public class SingleSelectQuestionTest {
 
   private static final DropdownQuestionDefinition dropdownQuestionDefinition =
       new DropdownQuestionDefinition(
+          OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",

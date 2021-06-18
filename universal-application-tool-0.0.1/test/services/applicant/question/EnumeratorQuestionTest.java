@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Applicant;
@@ -27,6 +28,7 @@ import support.TestQuestionBank;
 public class EnumeratorQuestionTest extends WithPostgresContainer {
   private static final EnumeratorQuestionDefinition enumeratorQuestionDefinition =
       new EnumeratorQuestionDefinition(
+          OptionalLong.of(1),
           "household members",
           Optional.empty(),
           "description",

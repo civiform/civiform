@@ -40,7 +40,8 @@ public class ApplicantQuestion {
       QuestionDefinition questionDefinition,
       ApplicantData applicantData,
       Optional<RepeatedEntity> repeatedEntity) {
-    this.programQuestionDefinition = ProgramQuestionDefinition.create(checkNotNull(questionDefinition));
+    this.programQuestionDefinition =
+        ProgramQuestionDefinition.create(checkNotNull(questionDefinition));
     this.applicantData = checkNotNull(applicantData);
     this.repeatedEntity = checkNotNull(repeatedEntity);
   }
@@ -100,7 +101,8 @@ public class ApplicantQuestion {
    * "applicant.household_member[3].name".
    */
   public Path getContextualizedPath() {
-    return getQuestionDefinition().getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
+    return getQuestionDefinition()
+        .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
   }
 
   /**

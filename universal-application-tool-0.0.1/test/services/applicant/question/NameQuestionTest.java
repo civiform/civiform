@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Applicant;
@@ -19,11 +20,13 @@ import support.QuestionAnswerer;
 public class NameQuestionTest {
   private static final NameQuestionDefinition nameQuestionDefinition =
       new NameQuestionDefinition(
+          OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"));
+          LocalizedStrings.of(Locale.US, "help text"),
+          NameQuestionDefinition.NameValidationPredicates.create());
 
   private Applicant applicant;
   private ApplicantData applicantData;
