@@ -8,6 +8,8 @@ describe('create dropdown question with options', () => {
 
     const adminQuestions = new AdminQuestions(page);
     await page.click('text=Questions');
+    // Wait for dropdown event listener to be attached
+    await page.waitForLoadState('load');
     await page.click('#create-question-button');
     await page.click('#create-dropdown-question');
 
