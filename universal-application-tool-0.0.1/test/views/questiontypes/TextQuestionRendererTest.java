@@ -7,7 +7,6 @@ import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
-
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
