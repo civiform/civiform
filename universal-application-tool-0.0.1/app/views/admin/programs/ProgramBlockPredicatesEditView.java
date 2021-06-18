@@ -38,6 +38,7 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.LinkElement;
 import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
@@ -94,10 +95,23 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                     .attr(Attr.FORM, removePredicateFormId)
                     .attr(blockDefinition.visibilityPredicate().isEmpty() ? Attr.DISABLED : ""));
 
+    String editBlockUrl =
+        routes.AdminProgramBlocksController.edit(programDefinition.id(), blockDefinition.id())
+            .url();
+
     ContainerTag content =
         div()
             .withClasses(Styles.MX_6, Styles.MY_10, Styles.FLEX, Styles.FLEX_COL, Styles.GAP_6)
-            .with(h1(title).withClasses(Styles.FONT_BOLD, Styles.TEXT_XL))
+            .with(
+                div()
+                    .withClasses(Styles.FLEX, Styles.FLEX_ROW)
+                    .with(h1(title).withClasses(Styles.FONT_BOLD, Styles.TEXT_XL))
+                    .with(div().withClasses(Styles.FLEX_GROW))
+                    .with(
+                        new LinkElement()
+                            .setHref(editBlockUrl)
+                            .setText(String.format("Return to edit %s", blockDefinition.name()))
+                            .asAnchorText()))
             .with(
                 div()
                     .with(
