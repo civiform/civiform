@@ -40,11 +40,18 @@ public final class ApplicantStyles {
   public static final String H2_PROGRAM_TITLE =
       StyleUtils.joinStyles(BaseStyles.TEXT_SEATTLE_BLUE, Styles.TEXT_LG, Styles.FONT_BOLD);
 
-  public static final String PROGRAM_CARDS_CONTAINER =
-      StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_WRAP, Styles.GAP_4, Styles.MB_16);
+  public static final String PROGRAM_CARDS_SUBTITLE =
+      StyleUtils.joinStyles(Styles.MY_4, Styles.TEXT_LG);
+  public static final String PROGRAM_CARDS_CONTAINER_BASE =
+      StyleUtils.joinStyles(
+          Styles.GRID,
+          Styles.GRID_COLS_1,
+          Styles.GAP_4,
+          Styles.PLACE_ITEMS_CENTER,
+          StyleUtils.responsiveSmall(Styles.GRID_COLS_1),
+          StyleUtils.responsiveLarge(Styles.GAP_8));
   public static final String PROGRAM_CARD =
       StyleUtils.joinStyles(
-          Styles.INLINE_BLOCK,
           Styles.W_FULL,
           StyleUtils.responsiveSmall(Styles.W_72),
           Styles.H_72,

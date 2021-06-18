@@ -122,19 +122,27 @@ public class ProgramIndexView extends BaseHtmlView {
     ContainerTag content =
         div()
             .withId("main-content")
-            .withClasses(
-                Styles.MX_AUTO, Styles.MY_4, Styles.W_3_5, StyleUtils.responsiveSmall(Styles.M_10))
+            .withClasses(Styles.MX_AUTO, Styles.MY_4, StyleUtils.responsiveSmall(Styles.M_10))
             .with(
                 h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
-                    .withClasses(Styles.BLOCK, Styles.MB_4, Styles.TEXT_XL, Styles.FONT_SEMIBOLD));
+                    .withClasses(Styles.MB_4, Styles.TEXT_XL, Styles.FONT_SEMIBOLD));
+
+    // The different program card containers should have the same styling, by using the program
+    // count of the larger set of programs
+    String cardContainerStyles =
+        programCardsContainerStyles(
+            draftPrograms.size() > activePrograms.size()
+                ? draftPrograms.size()
+                : activePrograms.size());
+
     if (!draftPrograms.isEmpty()) {
       content
           .with(
               h2().withText(messages.at(MessageKey.TITLE_PROGRAMS_IN_PROGRESS.getKeyName()))
-                  .withClasses(Styles.MT_10, Styles.MB_4, Styles.TEXT_LG))
+                  .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE))
           .with(
               div()
-                  .withClasses(ApplicantStyles.PROGRAM_CARDS_CONTAINER)
+                  .withClasses(cardContainerStyles)
                   .with(
                       each(
                           draftPrograms,
@@ -142,16 +150,16 @@ public class ProgramIndexView extends BaseHtmlView {
                               programCard(messages, program, applicantId, preferredLocale, true))));
     }
     if (!draftPrograms.isEmpty() && !activePrograms.isEmpty()) {
-      content.with(hr());
+      content.with(hr().withClass(Styles.MY_16));
     }
     if (!activePrograms.isEmpty()) {
       content
           .with(
               h2().withText(messages.at(MessageKey.TITLE_PROGRAMS_ACTIVE.getKeyName()))
-                  .withClasses(Styles.MT_10, Styles.MB_4, Styles.TEXT_LG))
+                  .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE))
           .with(
               div()
-                  .withClasses(ApplicantStyles.PROGRAM_CARDS_CONTAINER)
+                  .withClasses(cardContainerStyles)
                   .with(
                       each(
                           activePrograms,
@@ -160,7 +168,21 @@ public class ProgramIndexView extends BaseHtmlView {
                                   messages, program, applicantId, preferredLocale, false))));
     }
 
-    return div().withClasses(Styles.FLEX, Styles.JUSTIFY_CENTER).with(content);
+    return div().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.PLACE_ITEMS_CENTER).with(content);
+  }
+
+  /**
+   * This method generates a list of style classes with responsive column counts. The number of
+   * columns should not exceed the number of programs, or the program card container will not be
+   * centered.
+   */
+  private String programCardsContainerStyles(int numPrograms) {
+    return StyleUtils.joinStyles(
+        ApplicantStyles.PROGRAM_CARDS_CONTAINER_BASE,
+        numPrograms >= 2 ? StyleUtils.responsiveMedium(Styles.GRID_COLS_2) : "",
+        numPrograms >= 3 ? StyleUtils.responsiveLarge(Styles.GRID_COLS_3) : "",
+        numPrograms >= 4 ? StyleUtils.responsiveXLarge(Styles.GRID_COLS_4) : "",
+        numPrograms >= 5 ? StyleUtils.responsive2XLarge(Styles.GRID_COLS_5) : "");
   }
 
   private ContainerTag programCard(
