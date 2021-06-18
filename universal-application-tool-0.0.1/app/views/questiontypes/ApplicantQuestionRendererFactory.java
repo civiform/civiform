@@ -56,6 +56,7 @@ public class ApplicantQuestionRendererFactory {
       throws UnsupportedQuestionTypeException {
     QuestionDefinitionBuilder builder =
         new QuestionDefinitionBuilder()
+            .setId(1L)
             .setName("")
             .setDescription("")
             .setQuestionText(LocalizedStrings.of(Locale.US, "Sample question text"))
