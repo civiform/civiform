@@ -106,10 +106,9 @@ public final class Block {
       this.questionsMemo =
           Optional.of(
               blockDefinition.programQuestionDefinitions().stream()
-                  .map(ProgramQuestionDefinition::getQuestionDefinition)
                   .map(
-                      questionDefinition ->
-                          new ApplicantQuestion(questionDefinition, applicantData, repeatedEntity))
+                      programQuestionDefinition ->
+                          new ApplicantQuestion(programQuestionDefinition, applicantData, repeatedEntity))
                   .collect(toImmutableList()));
     }
     return questionsMemo.get();
