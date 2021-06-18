@@ -47,6 +47,6 @@ public class QuestionPreview {
     ContainerTag contentContainer = div(innerContentContainer).withId("sample-question");
 
     return div(titleContainer, contentContainer)
-        .withClasses(Styles.W_3_5, ApplicantStyles.BODY_BG_COLOR);
+        .withClasses(Styles.W_3_5, ApplicantStyles.BODY_BG_COLOR, Styles.OVERFLOW_HIDDEN, Styles.OVERFLOW_Y_AUTO);
   }
 }

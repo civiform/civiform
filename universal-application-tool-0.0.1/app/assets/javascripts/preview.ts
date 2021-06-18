@@ -19,6 +19,17 @@ class PreviewController {
   // highlight them in the question preview.
   static readonly THIS_REGEX = /(\$this(?:\.parent)*)/g;
 
+  private static accordionClasses = [
+    'cf-accordion', 'bg-white', 'my-4', 'p-4', 'rounded-lg', 'shadow-md', 'border', 'border-gray-300'
+  ];
+  private static accordionContentClasses = ['cf-accordion-content', 'h-0', 'overflow-hidden'];
+  private static accordionHeaderClasses = ['cf-accordion-header', 'relative'];
+  private static accordionTitleClasses = ['text-xl', 'font-light'];
+  
+  static accordionContent = '>';
+  static accordionHeader = '### ';
+  static bulletedItem = '* ';
+
   constructor() {
     const textInput =
       document.getElementById(PreviewController.QUESTION_TEXT_INPUT_ID);
@@ -67,9 +78,16 @@ class PreviewController {
       text = PreviewController.DEFAULT_QUESTION_TEXT;
     }
 
-    PreviewController.setTextAndHighlightEnumeratorReferences(
-      PreviewController.QUESTION_TEXT_CLASS,
-      text);
+    let contentElement = PreviewController.formatText(text, false);
+    contentElement.classList.add('text-sm');
+    contentElement.classList.add('font-normal');
+    contentElement.classList.add('pr-16');
+    
+    let contentParent = document.querySelector(PreviewController.QUESTION_TEXT_CLASS) as Element;
+    if (contentParent) {
+      contentParent.innerHTML = '';
+      contentParent.appendChild(contentElement);
+    }
   }
 
   static onHelpTextChanged(e: Event) {
@@ -138,6 +156,86 @@ class PreviewController {
     const inputFields = document.querySelectorAll(selector);
     Array.from(inputFields).forEach(function(inputField) { (<HTMLInputElement>inputField).placeholder = text });
   }
+
+  static formatText(text: string, preserveEmptyLines: boolean): Element {
+      const ret = document.createElement('div');
+      const lines = text.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+          let currentLine = lines[i].trim();
+          if (currentLine.startsWith(this.accordionHeader)) {
+              let title = currentLine.substring(4);
+              let content = '';
+              let next = i + 1;
+              while (next < lines.length && lines[next].startsWith(this.accordionContent)) {
+                  content += lines[next].substring(1) + '\n';
+                  next++;
+              }
+              i = next - 1;
+              ret.appendChild(PreviewController.buildAccordion(title, content));
+          } else if (currentLine.startsWith(this.bulletedItem)) {
+              let listItems = [currentLine.substring(2).trim()];
+              let next = i + 1;
+              while (next < lines.length && lines[next].startsWith(this.bulletedItem)) {
+                  listItems.push(lines[next].substring(2).trim());
+                  next++;
+              }
+              i = next - 1;
+              ret.appendChild(PreviewController.buildList(listItems));
+          } else if (currentLine.length > 0) {
+              const content = document.createElement('div');
+              content.textContent = currentLine;
+              ret.appendChild(content);
+          } else if (preserveEmptyLines) {
+              const emptyLine = document.createElement('div');
+              emptyLine.classList.add('h-6');
+              ret.appendChild(emptyLine);
+          }
+      }
+      return ret;
+  }
+
+  static buildAccordion(title: string, content: string): Element {
+    let childContent = 
+          PreviewController.formatText(content, /* preserveEmptyLines = */ true);
+    let accordion = document.createElement('div');
+    this.accordionClasses.forEach(accordionClass => accordion.classList.add(accordionClass));
+    
+    let accordionHeader = document.createElement('div');
+    accordionHeader.addEventListener('click', (event: Event) => {
+      const parentAccordion = (event.target as Element).closest('.cf-accordion');
+      if (parentAccordion) {
+        parentAccordion.classList.toggle('cf-accordion-visible');
+      }
+    });
+    this.accordionHeaderClasses.forEach(headerClass => accordionHeader.classList.add(headerClass));
+
+    let accordionTitle = document.createElement('div');
+    this.accordionTitleClasses.forEach(titleClass => accordionHeader.classList.add(titleClass));
+    accordionTitle.textContent = title;
+    accordionHeader.appendChild(accordionTitle);
+
+    let accordionButton = document.createElement('div');
+    accordionHeader.appendChild(accordionButton);
+
+    accordion.appendChild(accordionHeader);
+
+    this.accordionContentClasses.forEach(contentClass => childContent.classList.add(contentClass));
+    accordion.appendChild(childContent);
+    return accordion;
+  }
+
+  static buildList(items: string[]): Element {
+      const listTag = document.createElement('ul');
+      listTag.classList.add('list-disc');
+      listTag.classList.add('mx-8');
+
+      items.forEach(item => {
+          const listItem = document.createElement('li');
+          listItem.textContent = item;
+          listTag.appendChild(listItem);
+      });
+      return listTag;
+  }
 }
 
-new PreviewController();
+let previewController = new PreviewController();
