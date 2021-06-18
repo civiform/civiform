@@ -16,6 +16,7 @@ import services.CiviFormError;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.RepeatedEntity;
+import services.question.QuestionOption;
 
 /** Defines a single question. */
 public abstract class QuestionDefinition {
@@ -239,6 +240,16 @@ public abstract class QuestionDefinition {
       if (multiOptionQuestionDefinition.getOptions().stream()
           .anyMatch(option -> option.optionText().hasEmptyTranslation())) {
         errors.add(CiviFormError.of("Multi-option questions cannot have blank options"));
+      }
+      int numUniqueOptionDefaultValues =
+          multiOptionQuestionDefinition.getOptions().stream()
+              .map(QuestionOption::optionText)
+              .map(LocalizedStrings::getDefault)
+              .distinct()
+              .mapToInt(s -> 1)
+              .sum();
+      if (numUniqueOptionDefaultValues != multiOptionQuestionDefinition.getOptions().size()) {
+        errors.add(CiviFormError.of("Multi-option question options must be unique"));
       }
     }
     return errors.build();

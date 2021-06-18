@@ -111,4 +111,19 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               "success", String.format("Saved visibility condition: %s", predicateDefinition));
     }
   }
+
+  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  public Result destroy(long programId, long blockDefinitionId) {
+    try {
+      programService.removeBlockPredicate(programId, blockDefinitionId);
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(
+          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+    }
+
+    return redirect(routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
+        .flashing("success", "Removed the visibility condition for this block.");
+  }
 }

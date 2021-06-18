@@ -447,6 +447,23 @@ public class QuestionDefinitionTest {
   }
 
   @Test
+  public void validate_multiOptionQuestion_withDuplicateOptions_returnsError() {
+    QuestionDefinition question =
+        new CheckboxQuestionDefinition(
+            "test",
+            Optional.empty(),
+            "test",
+            LocalizedStrings.withDefaultValue("test"),
+            LocalizedStrings.empty(),
+            ImmutableList.of(
+                QuestionOption.create(1L, LocalizedStrings.withDefaultValue("a")),
+                QuestionOption.create(2L, LocalizedStrings.withDefaultValue("a"))),
+            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
+    assertThat(question.validate())
+        .containsOnly(CiviFormError.of("Multi-option question options must be unique"));
+  }
+
+  @Test
   public void getSupportedLocales_onlyReturnsFullySupportedLocales() {
     QuestionDefinition definition =
         new TextQuestionDefinition(
