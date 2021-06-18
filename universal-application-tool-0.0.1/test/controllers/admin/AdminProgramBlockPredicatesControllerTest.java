@@ -170,7 +170,7 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
                     "predicateAction",
                     "HIDE_BLOCK",
                     "questionId",
-                    "1",
+                    String.valueOf(testQuestionBank.applicantName().id),
                     "scalar",
                     "FIRST_NAME",
                     "operator",

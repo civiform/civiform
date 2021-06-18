@@ -711,26 +711,34 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void removeBlockPredicate() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withQuestionDefinition(addressQuestion)
+            .withBlock()
+            .build();
 
     // First set the predicate and assert its presence.
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
                 LeafOperationExpressionNode.create(
-                    1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                    addressQuestion.getId(),
+                    Scalar.CITY,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of(""))),
             PredicateAction.HIDE_BLOCK);
-    ps.setBlockPredicate(program.id, 1L, predicate);
+    ps.setBlockPredicate(program.id, 2L, predicate);
 
     ProgramDefinition foundWithPredicate = ps.getProgramDefinition(program.id);
-    assertThat(foundWithPredicate.blockDefinitions().get(0).visibilityPredicate())
+    assertThat(foundWithPredicate.blockDefinitions().get(1).visibilityPredicate())
         .hasValue(predicate);
 
     // Then remove that predicate and assert its absence.
-    ps.removeBlockPredicate(program.id, 1L);
+    ps.removeBlockPredicate(program.id, 2L);
 
     ProgramDefinition foundWithoutPredicate = ps.getProgramDefinition(program.id);
-    assertThat(foundWithoutPredicate.blockDefinitions().get(0).visibilityPredicate()).isEmpty();
+    assertThat(foundWithoutPredicate.blockDefinitions().get(1).visibilityPredicate()).isEmpty();
   }
 
   @Test
