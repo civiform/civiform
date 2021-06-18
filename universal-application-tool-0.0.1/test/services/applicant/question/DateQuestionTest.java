@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import models.Applicant;
 import org.junit.Before;
@@ -19,6 +20,7 @@ import support.QuestionAnswerer;
 public class DateQuestionTest extends WithPostgresContainer {
   private static final DateQuestionDefinition dateQuestionDefinition =
       new DateQuestionDefinition(
+          OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",

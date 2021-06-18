@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
@@ -23,6 +24,7 @@ public class RadioButtonQuestionRendererTest {
 
   private static final RadioButtonQuestionDefinition QUESTION =
       new RadioButtonQuestionDefinition(
+          OptionalLong.of(1),
           "favorite ice cream",
           Optional.empty(),
           "description",

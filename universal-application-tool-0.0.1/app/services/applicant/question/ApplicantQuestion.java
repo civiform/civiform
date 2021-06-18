@@ -12,6 +12,7 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.RepeatedEntity;
 import services.applicant.ValidationErrorMessage;
+import services.program.ProgramQuestionDefinition;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -26,7 +27,7 @@ import services.question.types.ScalarType;
  */
 public class ApplicantQuestion {
 
-  private final QuestionDefinition questionDefinition;
+  private final ProgramQuestionDefinition programQuestionDefinition;
   private final ApplicantData applicantData;
   private final Optional<RepeatedEntity> repeatedEntity;
 
@@ -39,7 +40,22 @@ public class ApplicantQuestion {
       QuestionDefinition questionDefinition,
       ApplicantData applicantData,
       Optional<RepeatedEntity> repeatedEntity) {
-    this.questionDefinition = checkNotNull(questionDefinition);
+    this.programQuestionDefinition =
+        ProgramQuestionDefinition.create(checkNotNull(questionDefinition));
+    this.applicantData = checkNotNull(applicantData);
+    this.repeatedEntity = checkNotNull(repeatedEntity);
+  }
+
+  /**
+   * If this is a repeated question, it should be created with the repeated entity associated with
+   * this question. If this is not a repeated question, then it should be created with an {@code
+   * Optional.empty()} repeated entity.
+   */
+  public ApplicantQuestion(
+      ProgramQuestionDefinition programQuestionDefinition,
+      ApplicantData applicantData,
+      Optional<RepeatedEntity> repeatedEntity) {
+    this.programQuestionDefinition = checkNotNull(programQuestionDefinition);
     this.applicantData = checkNotNull(applicantData);
     this.repeatedEntity = checkNotNull(repeatedEntity);
   }
@@ -49,11 +65,11 @@ public class ApplicantQuestion {
   }
 
   public QuestionDefinition getQuestionDefinition() {
-    return this.questionDefinition;
+    return this.programQuestionDefinition.getQuestionDefinition();
   }
 
   public QuestionType getType() {
-    return questionDefinition.getQuestionType();
+    return getQuestionDefinition().getQuestionType();
   }
 
   /**
@@ -62,7 +78,7 @@ public class ApplicantQuestion {
    */
   public String getQuestionText() {
     String text =
-        questionDefinition.getQuestionText().getOrDefault(applicantData.preferredLocale());
+        getQuestionDefinition().getQuestionText().getOrDefault(applicantData.preferredLocale());
     return repeatedEntity.map(r -> r.contextualize(text)).orElse(text);
   }
 
@@ -72,7 +88,7 @@ public class ApplicantQuestion {
    */
   public String getQuestionHelpText() {
     String helpText =
-        questionDefinition.getQuestionHelpText().getOrDefault(applicantData.preferredLocale());
+        getQuestionDefinition().getQuestionHelpText().getOrDefault(applicantData.preferredLocale());
     return repeatedEntity.map(r -> r.contextualize(helpText)).orElse(helpText);
   }
 
@@ -85,7 +101,8 @@ public class ApplicantQuestion {
    * "applicant.household_member[3].name".
    */
   public Path getContextualizedPath() {
-    return questionDefinition.getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
+    return getQuestionDefinition()
+        .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
   }
 
   /**
@@ -123,7 +140,7 @@ public class ApplicantQuestion {
 
     // Metadata for enumerators is stored for each JSON array element, but we rely on metadata for
     // the first one.
-    if (questionDefinition.isEnumerator()) {
+    if (getQuestionDefinition().isEnumerator()) {
       contextualizedMetadataPath =
           getContextualizedPath().atIndex(0).join(Scalar.PROGRAM_UPDATED_IN);
     }
@@ -136,7 +153,7 @@ public class ApplicantQuestion {
 
     // Metadata for enumerators are stored for each JSON array element, but we rely on metadata for
     // the first one.
-    if (questionDefinition.isEnumerator()) {
+    if (getQuestionDefinition().isEnumerator()) {
       contextualizedMetadataPath = getContextualizedPath().atIndex(0).join(Scalar.UPDATED_AT);
     }
 
@@ -215,7 +232,7 @@ public class ApplicantQuestion {
   public boolean equals(@Nullable Object object) {
     if (object instanceof ApplicantQuestion) {
       ApplicantQuestion that = (ApplicantQuestion) object;
-      return this.questionDefinition.equals(that.questionDefinition)
+      return this.getQuestionDefinition().equals(that.getQuestionDefinition())
           && this.applicantData.equals(that.applicantData);
     }
     return false;
@@ -223,6 +240,6 @@ public class ApplicantQuestion {
 
   @Override
   public int hashCode() {
-    return Objects.hash(questionDefinition, applicantData);
+    return Objects.hash(getQuestionDefinition(), applicantData);
   }
 }
