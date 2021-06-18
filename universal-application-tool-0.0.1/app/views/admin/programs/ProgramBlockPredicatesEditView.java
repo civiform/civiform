@@ -38,6 +38,7 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.LinkElement;
 import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
@@ -70,30 +71,20 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
 
     String title = String.format("Visibility condition for %s", blockDefinition.name());
 
-    String predicateUpdateAction =
+    String predicateUpdateUrl =
         routes.AdminProgramBlockPredicatesController.update(
                 programDefinition.id(), blockDefinition.id())
             .url();
     Tag csrfTag = makeCsrfTokenInputTag(request);
     ImmutableList<Modal> modals =
         predicateFormModals(
-            blockDefinition.name(), potentialPredicateQuestions, predicateUpdateAction, csrfTag);
+            blockDefinition.name(), potentialPredicateQuestions, predicateUpdateUrl, csrfTag);
 
     ContainerTag content =
         div()
             .withClasses(Styles.MX_6, Styles.MY_10)
             .with(h1(title).withClasses(Styles.MY_4, Styles.FONT_BOLD, Styles.TEXT_XL))
-            .with(
-                div()
-                    .withClasses(Styles.MB_4)
-                    .with(
-                        h2(H2_CURRENT_VISIBILITY_CONDITION)
-                            .withClasses(Styles.FONT_SEMIBOLD, Styles.TEXT_LG))
-                    .with(
-                        div(
-                            blockDefinition.visibilityPredicate().isPresent()
-                                ? blockDefinition.visibilityPredicate().get().toString()
-                                : TEXT_NO_VISIBILITY_CONDITIONS)))
+            .with(renderCurrentVisibilityCondition(programDefinition.id(), blockDefinition))
             .with(
                 div()
                     .with(
@@ -125,14 +116,33 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
+  private Tag renderCurrentVisibilityCondition(long programId, BlockDefinition blockDefinition) {
+    String removePredicateUrl =
+        routes.AdminProgramBlockPredicatesController.update(programId, blockDefinition.id()).url();
+
+    return div()
+        .withClasses(Styles.MB_4)
+        .with(h2(H2_CURRENT_VISIBILITY_CONDITION).withClasses(Styles.FONT_SEMIBOLD, Styles.TEXT_LG))
+        .with(
+            div(
+                blockDefinition.visibilityPredicate().isPresent()
+                    ? blockDefinition.visibilityPredicate().get().toString()
+                    : TEXT_NO_VISIBILITY_CONDITIONS))
+        .with(
+            new LinkElement()
+                .setText("Remove visibility condition")
+                .setHref(removePredicateUrl)
+                .asButton());
+  }
+
   private ImmutableList<Modal> predicateFormModals(
       String blockName,
       ImmutableList<QuestionDefinition> questionDefinitions,
-      String predicateUpdateAction,
+      String predicateUpdateUrl,
       Tag csrfTag) {
     ImmutableList.Builder<Modal> builder = ImmutableList.builder();
     for (QuestionDefinition qd : questionDefinitions) {
-      builder.add(predicateFormModal(blockName, qd, predicateUpdateAction, csrfTag));
+      builder.add(predicateFormModal(blockName, qd, predicateUpdateUrl, csrfTag));
     }
     return builder.build();
   }
@@ -140,7 +150,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
   private Modal predicateFormModal(
       String blockName,
       QuestionDefinition questionDefinition,
-      String predicateUpdateAction,
+      String predicateUpdateUrl,
       Tag csrfTag) {
     Tag triggerButtonContent =
         div()
@@ -160,7 +170,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         div()
             .withClasses(Styles.M_4)
             .with(
-                renderPredicateForm(blockName, questionDefinition, predicateUpdateAction, csrfTag));
+                renderPredicateForm(blockName, questionDefinition, predicateUpdateUrl, csrfTag));
 
     return Modal.builder(
             String.format("predicate-modal-%s", questionDefinition.getId()), modalContent)
@@ -173,14 +183,14 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
   private Tag renderPredicateForm(
       String blockName,
       QuestionDefinition questionDefinition,
-      String predicateUpdateAction,
+      String predicateUpdateUrl,
       Tag csrfTag) {
     String formId = String.format("visibility-predicate-form-%s", questionDefinition.getId());
 
     return form(csrfTag)
         .withId(formId)
         .withMethod(POST)
-        .withAction(predicateUpdateAction)
+        .withAction(predicateUpdateUrl)
         .with(createActionDropdown(blockName))
         .with(renderQuestionDefinitionBox(questionDefinition))
         // Need to pass in the question ID with the rest of the form data in order to save the
