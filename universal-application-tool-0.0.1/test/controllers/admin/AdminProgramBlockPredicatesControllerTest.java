@@ -101,7 +101,7 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
                     "predicateAction",
                     "HIDE_BLOCK",
                     "questionId",
-                    "1",
+                    String.valueOf(testQuestionBank.applicantName().id),
                     "scalar",
                     "FIRST_NAME",
                     "operator",
@@ -116,8 +116,8 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
     assertThat(result.redirectLocation())
         .hasValue(
             routes.AdminProgramBlockPredicatesController.edit(programWithThreeBlocks.id, 3L).url());
-    assertThat(result.flash().get("success").get()).contains("Saved visibility condition");
     assertThat(result.flash().get("error")).isEmpty();
+    assertThat(result.flash().get("success").get()).contains("Saved visibility condition");
 
     // For some reason the above result has an empty contents. So we test the new content of the
     // edit page manually.

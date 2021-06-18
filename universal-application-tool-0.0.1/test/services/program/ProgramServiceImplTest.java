@@ -15,6 +15,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import models.Account;
 import models.Program;
+import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
@@ -572,19 +573,21 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void setBlockPredicate_updatesBlock() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    Question question = testQuestionBank.applicantAddress();
+    Program program =
+        ProgramBuilder.newDraftProgram().withBlock().withQuestion(question).withBlock().build();
 
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
                 LeafOperationExpressionNode.create(
-                    1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                    question.id, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
             PredicateAction.HIDE_BLOCK);
-    ps.setBlockPredicate(program.id, 1L, predicate);
+    ps.setBlockPredicate(program.id, 2L, predicate);
 
     ProgramDefinition found = ps.getProgramDefinition(program.id);
 
-    assertThat(found.blockDefinitions().get(0).visibilityPredicate()).hasValue(predicate);
+    assertThat(found.blockDefinitions().get(1).visibilityPredicate()).hasValue(predicate);
   }
 
   @Test
@@ -613,17 +616,18 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withQuestionDefinition(question)
+            .withBlock()
             .buildDefinition();
     Long programId = programDefinition.id();
 
     ProgramDefinition found =
         ps.setBlockPredicate(
             programId,
-            1L,
+            2L,
             PredicateDefinition.create(
                 PredicateExpressionNode.create(
                     LeafOperationExpressionNode.create(
-                        1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                        question.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
                 PredicateAction.HIDE_BLOCK));
 
     QuestionDefinition foundQuestion =
