@@ -1,6 +1,7 @@
 package services.program;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import models.Account;
 import models.Program;
+import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
@@ -503,6 +505,34 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void setBlockQuestions_overwritesPredicateQuestion_throwsException() {
+    QuestionDefinition question = nameQuestion;
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    question.getId(), Scalar.FIRST_NAME, Operator.EQUAL_TO, PredicateValue.of(""))),
+            PredicateAction.HIDE_BLOCK);
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withQuestionDefinition(question)
+            .withBlock()
+            .withPredicate(predicate)
+            .buildDefinition();
+
+    // Overwriting the question in the first block invalidates the predicate in the second block.
+    assertThatExceptionOfType(IllegalPredicateOrderingException.class)
+        .isThrownBy(
+            () ->
+                ps.setBlockQuestions(
+                    program.id(),
+                    1L,
+                    ImmutableList.of(ProgramQuestionDefinition.create(addressQuestion))))
+        .withMessage("This action would invalidate a block condition");
+  }
+
+  @Test
   public void
       addQuestionsToBlock_withDuplicatedQuestions_throwsDuplicateProgramQuestionException() {
     QuestionDefinition questionA = nameQuestion;
@@ -571,20 +601,45 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void removeQuestionsFromBlock_invalidatesPredicate_throwsException() {
+    QuestionDefinition question = nameQuestion;
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    question.getId(), Scalar.FIRST_NAME, Operator.EQUAL_TO, PredicateValue.of(""))),
+            PredicateAction.HIDE_BLOCK);
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withQuestionDefinition(question)
+            .withBlock()
+            .withPredicate(predicate)
+            .buildDefinition();
+
+    assertThatExceptionOfType(IllegalPredicateOrderingException.class)
+        .isThrownBy(
+            () -> ps.removeQuestionsFromBlock(program.id(), 1L, ImmutableList.of(question.getId())))
+        .withMessage("This action would invalidate a block condition");
+  }
+
+  @Test
   public void setBlockPredicate_updatesBlock() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    Question question = testQuestionBank.applicantAddress();
+    Program program =
+        ProgramBuilder.newDraftProgram().withBlock().withQuestion(question).withBlock().build();
 
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
                 LeafOperationExpressionNode.create(
-                    1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                    question.id, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
             PredicateAction.HIDE_BLOCK);
-    ps.setBlockPredicate(program.id, 1L, predicate);
+    ps.setBlockPredicate(program.id, 2L, predicate);
 
     ProgramDefinition found = ps.getProgramDefinition(program.id);
 
-    assertThat(found.blockDefinitions().get(0).visibilityPredicate()).hasValue(predicate);
+    assertThat(found.blockDefinitions().get(1).visibilityPredicate()).hasValue(predicate);
   }
 
   @Test
@@ -613,17 +668,18 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withQuestionDefinition(question)
+            .withBlock()
             .buildDefinition();
     Long programId = programDefinition.id();
 
     ProgramDefinition found =
         ps.setBlockPredicate(
             programId,
-            1L,
+            2L,
             PredicateDefinition.create(
                 PredicateExpressionNode.create(
                     LeafOperationExpressionNode.create(
-                        1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                        question.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
                 PredicateAction.HIDE_BLOCK));
 
     QuestionDefinition foundQuestion =
@@ -632,27 +688,57 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void setBlockPredicate_illegalPredicate_throwsException() {
+    QuestionDefinition question = nameQuestion;
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    question.getId(), Scalar.FIRST_NAME, Operator.EQUAL_TO, PredicateValue.of(""))),
+            PredicateAction.HIDE_BLOCK);
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withQuestionDefinition(addressQuestion)
+            .withBlock()
+            .buildDefinition();
+
+    // This predicate depends on a question that doesn't exist in a prior block.
+    assertThatExceptionOfType(IllegalPredicateOrderingException.class)
+        .isThrownBy(() -> ps.setBlockPredicate(program.id(), 2L, predicate))
+        .withMessage("This action would invalidate a block condition");
+  }
+
+  @Test
   public void removeBlockPredicate() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withQuestionDefinition(addressQuestion)
+            .withBlock()
+            .build();
 
     // First set the predicate and assert its presence.
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
                 LeafOperationExpressionNode.create(
-                    1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                    addressQuestion.getId(),
+                    Scalar.CITY,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of(""))),
             PredicateAction.HIDE_BLOCK);
-    ps.setBlockPredicate(program.id, 1L, predicate);
+    ps.setBlockPredicate(program.id, 2L, predicate);
 
     ProgramDefinition foundWithPredicate = ps.getProgramDefinition(program.id);
-    assertThat(foundWithPredicate.blockDefinitions().get(0).visibilityPredicate())
+    assertThat(foundWithPredicate.blockDefinitions().get(1).visibilityPredicate())
         .hasValue(predicate);
 
     // Then remove that predicate and assert its absence.
-    ps.removeBlockPredicate(program.id, 1L);
+    ps.removeBlockPredicate(program.id, 2L);
 
     ProgramDefinition foundWithoutPredicate = ps.getProgramDefinition(program.id);
-    assertThat(foundWithoutPredicate.blockDefinitions().get(0).visibilityPredicate()).isEmpty();
+    assertThat(foundWithoutPredicate.blockDefinitions().get(1).visibilityPredicate()).isEmpty();
   }
 
   @Test
@@ -717,6 +803,29 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     assertThatThrownBy(() -> ps.deleteBlock(program.id, 1L))
         .isInstanceOf(ProgramNeedsABlockException.class);
+  }
+
+  @Test
+  public void deleteBlock_removesPredicateQuestion_throwsException() {
+    QuestionDefinition question = nameQuestion;
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    question.getId(), Scalar.FIRST_NAME, Operator.EQUAL_TO, PredicateValue.of(""))),
+            PredicateAction.HIDE_BLOCK);
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withQuestionDefinition(addressQuestion)
+            .withBlock()
+            .withPredicate(predicate)
+            .buildDefinition();
+
+    // This predicate depends on a question that doesn't exist in a prior block.
+    assertThatExceptionOfType(IllegalPredicateOrderingException.class)
+        .isThrownBy(() -> ps.deleteBlock(program.id(), 1L))
+        .withMessage("This action would invalidate a block condition");
   }
 
   @Test

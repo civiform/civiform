@@ -186,7 +186,7 @@ public abstract class ProgramDefinition {
    * beyond the contiguous slice of repeated and nested repeated blocks of their enumerator.
    */
   public ProgramDefinition moveBlock(long blockId, Direction direction)
-      throws ProgramBlockDefinitionNotFoundException, IllegalBlockMoveException {
+      throws ProgramBlockDefinitionNotFoundException, IllegalPredicateOrderingException {
     // Precondition: blocks have to be ordered
     if (!hasOrderedBlockDefinitions()) {
       return orderBlockDefinitions().moveBlock(blockId, direction);
@@ -224,7 +224,7 @@ public abstract class ProgramDefinition {
     ProgramDefinition newProgram = toBuilder().setBlockDefinitions(blocksBuilder.build()).build();
 
     if (!newProgram.hasValidPredicateOrdering()) {
-      throw new IllegalBlockMoveException(
+      throw new IllegalPredicateOrderingException(
           "This move is not possible - it would move a block condition before the question it"
               + " depends on");
     }
