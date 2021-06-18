@@ -220,7 +220,6 @@ export class AdminPrograms {
   }
 
   async getCsv() {
-    await this.page.screenshot({path: 'tmp/download.png', fullPage: true});
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.page.click('text="Download all (CSV)"')

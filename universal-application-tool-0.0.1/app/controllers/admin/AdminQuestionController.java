@@ -366,13 +366,11 @@ public class AdminQuestionController extends CiviFormController {
               == updatedOption.id()) {
         QuestionOption existingOption =
             existingTranslations.get(updatedOption.optionText().getDefault());
-        if (existingOption.id() == updatedOption.id()) {
-          updatedOptionsBuilder.add(
-              existingOption.toBuilder()
-                  .setId(updatedOption.id())
-                  .setDisplayOrder(updatedOption.displayOrder())
-                  .build());
-        }
+        updatedOptionsBuilder.add(
+            existingOption.toBuilder()
+                .setId(updatedOption.id())
+                .setDisplayOrder(updatedOption.displayOrder())
+                .build());
       } else {
         updatedOptionsBuilder.add(updatedOption);
       }
