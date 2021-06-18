@@ -93,6 +93,22 @@ public class StyleUtils {
     return applyUtilityClass(RESPONSIVE_LG, styles);
   }
 
+  public static String responsiveXLarge(String... styles) {
+    return applyUtilityClass(RESPONSIVE_XL, styles);
+  }
+
+  public static String responsiveXLarge(ImmutableList<String> styles) {
+    return applyUtilityClass(RESPONSIVE_XL, styles);
+  }
+
+  public static String responsive2XLarge(String... styles) {
+    return applyUtilityClass(RESPONSIVE_2XL, styles);
+  }
+
+  public static String responsive2XLarge(ImmutableList<String> styles) {
+    return applyUtilityClass(RESPONSIVE_2XL, styles);
+  }
+
   public static String joinStyles(String... styles) {
     return String.join(" ", styles);
   }
