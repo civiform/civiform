@@ -191,9 +191,9 @@ function filterOperators(scalarDropdown: HTMLSelectElement, selectedScalarType: 
 }
 
 function configurePredicateValueInput(
-    scalarDropdown: HTMLSelectElement,
-    selectedScalarType: string,
-    selectedScalarValue: string) {
+  scalarDropdown: HTMLSelectElement,
+  selectedScalarType: string,
+  selectedScalarValue: string) {
   // If the scalar is from a multi-option question, there is not an input box for the 'Value'
   // field (there's a set of checkboxes instead), so return immediately.
   if (selectedScalarValue.toUpperCase() === 'SELECTION') {
