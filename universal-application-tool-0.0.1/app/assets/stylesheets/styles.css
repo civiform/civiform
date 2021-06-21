@@ -24,6 +24,10 @@
     @apply bg-blue-700;
   }
 
+  button:disabled {
+    @apply bg-white text-gray-400 border border-gray-400;
+  }
+
   .cf-accordion-visible > .cf-accordion-header > .cf-accordion-button {
     @apply rotate-180;
   }
