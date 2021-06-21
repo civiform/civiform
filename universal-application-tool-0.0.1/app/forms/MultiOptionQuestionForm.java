@@ -1,10 +1,12 @@
 package forms;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.OptionalInt;
-import java.util.stream.Collectors;
+import java.util.OptionalLong;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
@@ -17,14 +19,21 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   // the list. This means the constructors MUST set this field to a mutable List type, NOT
   // ImmutableList.
   private List<String> options;
+  // Options added to the list during the edit.
+  private List<String> newOptions;
+  private List<Long> optionIds;
+  private OptionalLong nextAvailableId;
   private OptionalInt minChoicesRequired;
   private OptionalInt maxChoicesAllowed;
 
   protected MultiOptionQuestionForm() {
     super();
     this.options = new ArrayList<>();
+    this.newOptions = new ArrayList<>();
+    this.optionIds = new ArrayList<>();
     this.minChoicesRequired = OptionalInt.empty();
     this.maxChoicesAllowed = OptionalInt.empty();
+    this.nextAvailableId = OptionalLong.empty();
   }
 
   protected MultiOptionQuestionForm(MultiOptionQuestionDefinition qd) {
@@ -33,16 +42,27 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.maxChoicesAllowed = qd.getMultiOptionValidationPredicates().maxChoicesAllowed();
 
     this.options = new ArrayList<>();
+    this.newOptions = new ArrayList<>();
+    this.optionIds = new ArrayList<>();
 
     try {
       // The first time a question is created, we only create for the default locale. The admin can
       // localize the options later.
       if (qd.getSupportedLocales().contains(LocalizedStrings.DEFAULT_LOCALE)) {
-        List<String> optionStrings =
-            qd.getOptionsForLocale(LocalizedStrings.DEFAULT_LOCALE).stream()
-                .map(LocalizedQuestionOption::optionText)
-                .collect(Collectors.toList());
-        this.options.addAll(optionStrings);
+        qd.getOptionsForLocale(LocalizedStrings.DEFAULT_LOCALE).stream()
+            .sorted(Comparator.comparing(LocalizedQuestionOption::order))
+            .forEachOrdered(
+                option -> {
+                  options.add(option.optionText());
+                  optionIds.add(option.id());
+                });
+        this.nextAvailableId =
+            OptionalLong.of(
+                qd.getOptionsForLocale(LocalizedStrings.DEFAULT_LOCALE).stream()
+                        .mapToLong(LocalizedQuestionOption::id)
+                        .max()
+                        .getAsLong()
+                    + 1);
       }
     } catch (TranslationNotFoundException e) {
       throw new RuntimeException(e);
@@ -51,6 +71,22 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
   public List<String> getOptions() {
     return this.options;
+  }
+
+  public List<String> getNewOptions() {
+    return this.newOptions;
+  }
+
+  public List<Long> getOptionIds() {
+    return this.optionIds;
+  }
+
+  public void setOptionIds(List<Long> optionIds) {
+    this.optionIds = optionIds;
+  }
+
+  public void setNewOptions(List<String> options) {
+    this.newOptions = options;
   }
 
   public void setOptions(List<String> options) {
@@ -107,16 +143,34 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     }
 
     ImmutableList.Builder<QuestionOption> questionOptions = ImmutableList.builder();
-    long optionIndex = 0L;
+    Preconditions.checkState(
+        this.optionIds.size() == this.options.size(),
+        "Option ids and options are not the same size.");
 
     // Note: the question edit form only sets or updates the default locale.
-    for (String optionText : getOptions()) {
+    for (int i = 0; i < options.size(); i++) {
       questionOptions.add(
-          QuestionOption.create(optionIndex++, LocalizedStrings.withDefaultValue(optionText)));
+          QuestionOption.create(
+              optionIds.get(i), i, LocalizedStrings.withDefaultValue(options.get(i))));
+    }
+    for (int i = 0; i < newOptions.size(); i++) {
+      questionOptions.add(
+          QuestionOption.create(
+              nextAvailableId.orElse(0L) + i,
+              options.size() + i,
+              LocalizedStrings.withDefaultValue(newOptions.get(i))));
     }
 
     return super.getBuilder()
         .setQuestionOptions(questionOptions.build())
         .setValidationPredicates(predicateBuilder.build());
+  }
+
+  public OptionalLong getNextAvailableId() {
+    return nextAvailableId;
+  }
+
+  public void setNextAvailableId(long nextAvailableId) {
+    this.nextAvailableId = OptionalLong.of(nextAvailableId);
   }
 }

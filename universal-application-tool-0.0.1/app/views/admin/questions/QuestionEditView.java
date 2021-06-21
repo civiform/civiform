@@ -9,6 +9,7 @@ import static j2html.TagCreator.input;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import j2html.tags.ContainerTag;
@@ -80,7 +81,7 @@ public final class QuestionEditView extends BaseHtmlView {
     String title = String.format("New %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
-        buildQuestionContainer(title)
+        buildQuestionContainer(title, questionForm)
             .with(
                 buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions)
                     .with(makeCsrfTokenInputTag(request)));
@@ -129,7 +130,7 @@ public final class QuestionEditView extends BaseHtmlView {
     String title = String.format("Edit %s question", questionType.toString().toLowerCase());
 
     ContainerTag formContent =
-        buildQuestionContainer(title)
+        buildQuestionContainer(title, questionForm)
             .with(
                 buildEditQuestionForm(id, questionForm, maybeEnumerationQuestionDefinition)
                     .with(makeCsrfTokenInputTag(request)));
@@ -153,7 +154,7 @@ public final class QuestionEditView extends BaseHtmlView {
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
     ContainerTag formContent =
-        buildQuestionContainer(title)
+        buildQuestionContainer(title, QuestionFormBuilder.create(questionDefinition))
             .with(buildViewOnlyQuestionForm(questionForm, enumeratorOption));
 
     return renderWithPreview(formContent, questionType, title);
@@ -177,7 +178,7 @@ public final class QuestionEditView extends BaseHtmlView {
     return buildQuestionForm(questionForm, enumeratorOptions, false, false);
   }
 
-  private ContainerTag buildQuestionContainer(String title) {
+  private ContainerTag buildQuestionContainer(String title, QuestionForm questionForm) {
     return div()
         .withId("question-form")
         .withClasses(
@@ -192,15 +193,27 @@ public final class QuestionEditView extends BaseHtmlView {
             Styles.RELATIVE,
             Styles.W_2_5)
         .with(renderHeader(title))
-        .with(multiOptionQuestionField());
+        .with(multiOptionQuestionField(questionForm));
   }
 
   // A hidden template for multi-option questions.
-  private ContainerTag multiOptionQuestionField() {
-    return QuestionConfig.multiOptionQuestionField(Optional.empty())
-        .withId("multi-option-question-answer-template")
-        // Add "hidden" to other classes, so that the template is not shown
-        .withClasses(Styles.HIDDEN, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4);
+  private ContainerTag multiOptionQuestionField(QuestionForm questionForm) {
+    ContainerTag multiOptionQuestionField =
+        div()
+            .with(
+                QuestionConfig.multiOptionQuestionField(Optional.empty())
+                    .withId("multi-option-question-answer-template")
+                    // Add "hidden" to other classes, so that the template is not shown
+                    .withClasses(Styles.HIDDEN, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4));
+    if (questionForm instanceof MultiOptionQuestionForm) {
+      multiOptionQuestionField.with(
+          FieldWithLabel.number()
+              .setFieldName("nextAvailableId")
+              .setValue(((MultiOptionQuestionForm) questionForm).getNextAvailableId())
+              .getContainer()
+              .withClasses(Styles.HIDDEN));
+    }
+    return multiOptionQuestionField;
   }
 
   private ContainerTag buildNewQuestionForm(

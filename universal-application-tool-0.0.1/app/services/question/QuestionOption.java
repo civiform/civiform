@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
+import java.util.OptionalLong;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 
@@ -24,6 +25,10 @@ public abstract class QuestionOption {
   @JsonProperty("localizedOptionText")
   public abstract LocalizedStrings optionText();
 
+  /** The display ordering of this option - if empty, do not display. */
+  @JsonProperty("displayOrder")
+  public abstract OptionalLong displayOrder();
+
   /**
    * Create a QuestionOption, used for JSON mapping to account for the legacy `optionText`.
    *
@@ -32,17 +37,34 @@ public abstract class QuestionOption {
   @JsonCreator
   public static QuestionOption jsonCreator(
       @JsonProperty("id") long id,
+      @JsonProperty(value = "displayOrder", defaultValue = "-1L") long displayOrder,
       @JsonProperty("localizedOptionText") LocalizedStrings localizedOptionText,
       @JsonProperty("optionText") ImmutableMap<Locale, String> legacyOptionText) {
-    if (localizedOptionText != null) {
-      return QuestionOption.create(id, localizedOptionText);
+    if (displayOrder == -1) {
+      displayOrder = id;
     }
-    return QuestionOption.create(id, LocalizedStrings.create(legacyOptionText));
+    if (localizedOptionText != null) {
+      return QuestionOption.create(id, displayOrder, localizedOptionText);
+    }
+    return QuestionOption.create(id, displayOrder, LocalizedStrings.create(legacyOptionText));
+  }
+
+  /** Create a QuestionOption. */
+  public static QuestionOption create(long id, long displayOrder, LocalizedStrings optionText) {
+    return QuestionOption.builder()
+        .setId(id)
+        .setOptionText(optionText)
+        .setDisplayOrder(OptionalLong.of(displayOrder))
+        .build();
   }
 
   /** Create a QuestionOption. */
   public static QuestionOption create(long id, LocalizedStrings optionText) {
-    return QuestionOption.builder().setId(id).setOptionText(optionText).build();
+    return QuestionOption.builder()
+        .setId(id)
+        .setOptionText(optionText)
+        .setDisplayOrder(OptionalLong.empty())
+        .build();
   }
 
   public LocalizedQuestionOption localize(Locale locale) {
@@ -61,10 +83,14 @@ public abstract class QuestionOption {
   public LocalizedQuestionOption localizeOrDefault(Locale locale) {
     try {
       String localizedText = optionText().get(locale);
-      return LocalizedQuestionOption.create(id(), localizedText, locale);
+      return LocalizedQuestionOption.create(
+          id(), displayOrder().orElse(id()), localizedText, locale);
     } catch (TranslationNotFoundException e) {
       return LocalizedQuestionOption.create(
-          id(), optionText().getDefault(), LocalizedStrings.DEFAULT_LOCALE);
+          id(),
+          displayOrder().orElse(id()),
+          optionText().getDefault(),
+          LocalizedStrings.DEFAULT_LOCALE);
     }
   }
 
@@ -82,6 +108,9 @@ public abstract class QuestionOption {
 
     @JsonProperty("localizedOptionText")
     public abstract Builder setOptionText(LocalizedStrings optionText);
+
+    @JsonProperty("displayOrder")
+    public abstract Builder setDisplayOrder(OptionalLong displayOrder);
 
     public abstract QuestionOption build();
   }

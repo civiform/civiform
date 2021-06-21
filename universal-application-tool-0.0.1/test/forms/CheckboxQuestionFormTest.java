@@ -23,6 +23,7 @@ public class CheckboxQuestionFormTest {
     form.setQuestionHelpText("help text");
     // Unique field
     form.setOptions(ImmutableList.of("cat", "dog", "rabbit"));
+    form.setOptionIds(ImmutableList.of(1L, 2L, 3L));
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     CheckboxQuestionDefinition expected =
