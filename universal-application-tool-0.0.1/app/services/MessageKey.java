@@ -26,6 +26,7 @@ public enum MessageKey {
   BUTTON_SKIP_FILEUPLOAD("button.skipFileUpload"),
   BUTTON_SUBMIT("button.submit"),
   BUTTON_UNTRANSLATED_SUBMIT("button.untranslatedSubmit"),
+  BUTTON_UPLOAD("button.upload"),
   CONTENT_CIVIFORM_DESCRIPTION_1("content.description1"),
   CONTENT_CIVIFORM_DESCRIPTION_2("content.description2"),
   CONTENT_CONFIRMED("content.confirmed"),

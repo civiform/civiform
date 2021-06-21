@@ -157,7 +157,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             each(
                 params.block().getQuestions(),
                 question -> renderQuestion(question, rendererParams)))
-        .with(renderBottomNavButtons(params, /* renderSkipFileUpload = */ true));
+        .with(renderFileUploadBottomNavButtons(params));
   }
 
   private Tag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
@@ -165,21 +165,22 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   private Tag renderBottomNavButtons(Params params) {
-    return renderBottomNavButtons(params, /* renderSkipFileUpload = */ false);
+    return div()
+        .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
+        // An empty div to take up the space to the left of the buttons.
+        .with(div().withClasses(Styles.FLEX_GROW))
+        .with(renderReviewButton(params))
+        .with(renderNextButton(params));
   }
 
-  private Tag renderBottomNavButtons(Params params, boolean renderSkipFileUpload) {
-    ContainerTag buttons =
-        div()
-            .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
-            // An empty div to take up the space to the left of the buttons.
-            .with(div().withClasses(Styles.FLEX_GROW))
-            .with(renderReviewButton(params));
-    if (renderSkipFileUpload) {
-      buttons.with(renderSkipFileUploadButton(params));
-    }
-    buttons.with(renderNextButton(params));
-    return buttons;
+  private Tag renderFileUploadBottomNavButtons(Params params) {
+    return div()
+        .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
+        // An empty div to take up the space to the left of the buttons.
+        .with(div().withClasses(Styles.FLEX_GROW))
+        .with(renderReviewButton(params))
+        .with(renderSkipFileUploadButton(params))
+        .with(renderUploadButton(params));
   }
 
   private Tag renderReviewButton(Params params) {
@@ -205,6 +206,12 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   private Tag renderNextButton(Params params) {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName()))
+        .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
+        .withId("cf-block-submit");
+  }
+
+  private Tag renderUploadButton(Params params) {
+    return submitButton(params.messages().at(MessageKey.BUTTON_UPLOAD.getKeyName()))
         .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
         .withId("cf-block-submit");
   }
