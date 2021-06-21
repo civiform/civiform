@@ -155,9 +155,7 @@ public class LoginForm extends BaseHtmlView {
   private Tag guestButton() {
     String msg = "CONTINUE AS GUEST";
     return redirectButton(
-            "guest",
-            msg,
-            routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
+            "guest", msg, routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
   }
 
