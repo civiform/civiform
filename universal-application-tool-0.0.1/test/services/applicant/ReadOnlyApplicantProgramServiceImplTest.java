@@ -531,6 +531,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
         testQuestionBank.applicantSeason().getQuestionDefinition();
     QuestionDefinition multiSelectQuestionDefinition =
         testQuestionBank.applicantKitchenTools().getQuestionDefinition();
+    QuestionDefinition fileQuestionDefinition =
+        testQuestionBank.applicantFile().getQuestionDefinition();
     QuestionDefinition enumeratorQuestionDefinition =
         testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition repeatedQuestionDefinition =
@@ -546,6 +548,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                     addressQuestion,
                     singleSelectQuestionDefinition,
                     multiSelectQuestionDefinition))
+            .withBlock("file")
+            .withQuestionDefinition(fileQuestionDefinition)
             .withBlock("enumerator")
             .withQuestionDefinition(enumeratorQuestionDefinition)
             .withRepeatedBlock("repeated")
@@ -570,6 +574,10 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
         ApplicantData.APPLICANT_PATH.join(multiSelectQuestionDefinition.getQuestionPathSegment()),
         1,
         2L);
+    QuestionAnswerer.answerFileQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
+        "file-key");
     Path enumeratorPath =
         ApplicantData.APPLICANT_PATH.join(enumeratorQuestionDefinition.getQuestionPathSegment());
     QuestionAnswerer.answerEnumeratorQuestion(
@@ -592,7 +600,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
     ImmutableList<AnswerData> result = subject.getSummaryData();
 
-    assertEquals(8, result.size());
+    assertEquals(9, result.size());
     assertThat(result.get(0).answerText()).isEqualTo("Alice Middle Last");
     assertThat(result.get(1).answerText()).isEqualTo("mauve");
     assertThat(result.get(2).answerText()).isEqualTo("123 Rhode St.\nSeattle, WA 12345");
@@ -615,12 +623,24 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                     .join(Scalar.SELECTION),
                 "[toaster, pepper grinder]"));
 
-    // check enumerator and repeated answers
+    // check file answer
     assertThat(result.get(5).questionIndex()).isEqualTo(0);
     assertThat(result.get(5).scalarAnswersInDefaultLocale())
-        .containsExactly(new AbstractMap.SimpleEntry<>(enumeratorPath, "enum one\nenum two"));
+        .containsExactly(
+            new AbstractMap.SimpleEntry<>(
+                ApplicantData.APPLICANT_PATH
+                    .join(fileQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.FILE_KEY),
+                String.format(
+                    "%s/admin/programs/%d/files/%s",
+                    FAKE_BASE_URL, programDefinition.id(), "file-key")));
+
+    // check enumerator and repeated answers
     assertThat(result.get(6).questionIndex()).isEqualTo(0);
     assertThat(result.get(6).scalarAnswersInDefaultLocale())
+        .containsExactly(new AbstractMap.SimpleEntry<>(enumeratorPath, "enum one\nenum two"));
+    assertThat(result.get(7).questionIndex()).isEqualTo(0);
+    assertThat(result.get(7).scalarAnswersInDefaultLocale())
         .containsExactlyEntriesOf(
             ImmutableMap.of(
                 enumeratorPath
@@ -638,8 +658,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                     .join(repeatedQuestionDefinition.getQuestionPathSegment())
                     .join(Scalar.LAST_NAME),
                 "last"));
-    assertThat(result.get(7).questionIndex()).isEqualTo(0);
-    assertThat(result.get(7).scalarAnswersInDefaultLocale())
+    assertThat(result.get(8).questionIndex()).isEqualTo(0);
+    assertThat(result.get(8).scalarAnswersInDefaultLocale())
         .containsExactlyEntriesOf(
             ImmutableMap.of(
                 enumeratorPath
