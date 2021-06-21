@@ -5,6 +5,7 @@ import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
 import auth.Authorizers;
+import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import forms.BlockVisibilityPredicateForm;
 import javax.inject.Inject;
@@ -82,14 +83,15 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       //  question). In the future we should support logical statements that combine multiple "leaf
       //  node" predicates with ANDs and ORs.
       BlockVisibilityPredicateForm predicateForm = predicateFormWrapper.get();
+      LeafOperationExpressionNode leafExpression =
+          LeafOperationExpressionNode.create(
+              predicateForm.getQuestionId(),
+              Scalar.valueOf(predicateForm.getScalar()),
+              Operator.valueOf(predicateForm.getOperator()),
+              PredicateValue.of(predicateForm.getPredicateValue()));
       PredicateDefinition predicateDefinition =
           PredicateDefinition.create(
-              PredicateExpressionNode.create(
-                  LeafOperationExpressionNode.create(
-                      predicateForm.getQuestionId(),
-                      Scalar.valueOf(predicateForm.getScalar()),
-                      Operator.valueOf(predicateForm.getOperator()),
-                      PredicateValue.of(predicateForm.getPredicateValue()))),
+              PredicateExpressionNode.create(leafExpression),
               PredicateAction.valueOf(predicateForm.getPredicateAction()));
 
       try {
@@ -108,7 +110,10 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       return redirect(
               routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
           .flashing(
-              "success", String.format("Saved visibility condition: %s", predicateDefinition));
+              "success",
+              String.format(
+                  "Saved visibility condition: %s",
+                  leafExpression.toDisplayString(ImmutableList.of())));
     }
   }
 
