@@ -29,6 +29,8 @@ public abstract class PredicateDefinition {
     return rootNode().getQuestions();
   }
 
-  // TODO(https://github.com/seattle-uat/civiform/issues/322): Override toString method and/or add a
-  //  different getDisplayString method to pretty print a predicate definition for an admin.
+  @Memoized
+  public String toDisplayString() {
+    return action().toDisplayString() + " " + rootNode().toDisplayString();
+  }
 }

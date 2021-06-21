@@ -9,4 +9,7 @@ public interface ConcretePredicateExpressionNode {
 
   /** Returns the type of this node, as a {@link PredicateExpressionNodeType}. */
   PredicateExpressionNodeType getType();
+
+  /** Returns a human-readable interpretation of this node. */
+  String toDisplayString();
 }

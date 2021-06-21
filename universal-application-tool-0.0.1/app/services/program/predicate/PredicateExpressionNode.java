@@ -79,4 +79,9 @@ public abstract class PredicateExpressionNode {
         return ImmutableSet.of();
     }
   }
+
+  @Memoized
+  public String toDisplayString() {
+    return node().toDisplayString();
+  }
 }

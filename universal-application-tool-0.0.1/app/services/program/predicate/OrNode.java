@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.auto.value.AutoValue;
+import com.google.auto.value.extension.memoized.Memoized;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -27,5 +29,12 @@ public abstract class OrNode implements ConcretePredicateExpressionNode {
   @JsonIgnore
   public PredicateExpressionNodeType getType() {
     return PredicateExpressionNodeType.OR;
+  }
+
+  @Override
+  @Memoized
+  public String toDisplayString() {
+    return Joiner.on(" or ")
+        .join(children().stream().map(c -> c.node().toDisplayString()).toArray());
   }
 }

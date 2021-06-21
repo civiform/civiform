@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.auto.value.AutoValue;
+import com.google.auto.value.extension.memoized.Memoized;
+import com.google.common.base.Joiner;
 import services.applicant.question.Scalar;
 
 /**
@@ -52,6 +54,16 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
   @JsonIgnore
   public PredicateExpressionNodeType getType() {
     return PredicateExpressionNodeType.LEAF_OPERATION;
+  }
+
+  @Override
+  @Memoized
+  public String toDisplayString() {
+    return Joiner.on(" ")
+        .join(
+            scalar().toDisplayString(),
+            operator().toDisplayString(),
+            comparedValue().toDisplayString());
   }
 
   public static Builder builder() {
