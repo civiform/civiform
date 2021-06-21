@@ -11,6 +11,7 @@ import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.ApplicantStyles;
 import views.style.Styles;
+import views.style.ReferenceClasses;
 
 public class QuestionPreview {
 
@@ -33,7 +34,8 @@ public class QuestionPreview {
                 Styles.W_MAX,
                 Styles.MY_4)
             .withText("Sample Question of type: ")
-            .with(span().withText(type.toString()).withClasses(Styles.FONT_SEMIBOLD));
+            .with(span().withText(type.toString())
+                .withClasses(ReferenceClasses.QUESTION_TYPE, Styles.FONT_SEMIBOLD));
 
     ContainerTag renderedQuestion = div();
     try {

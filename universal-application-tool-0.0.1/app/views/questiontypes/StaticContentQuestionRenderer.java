@@ -30,7 +30,7 @@ public class StaticContentQuestionRenderer extends ApplicantQuestionRenderer {
     ContainerTag questionTextDiv =
     div()
         .withClasses(
-            ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
+            ReferenceClasses.APPLICANT_QUESTION_TEXT, Styles.MB_2, Styles.TEXT_SM, Styles.FONT_NORMAL)
         .with(
             TextFormatter.formatText(question.getQuestionText(), false)
         );

@@ -37,7 +37,7 @@ class PreviewController {
       textInput.addEventListener('input', PreviewController.onTextChanged, false);
       let text = (<HTMLInputElement>textInput).value;
       if (text.length > 0) {
-        PreviewController.setTextAndHighlightEnumeratorReferences(PreviewController.QUESTION_TEXT_CLASS, text);
+        PreviewController.updateQuestionText(text);
       }
     }
     const helpTextInput =
@@ -74,19 +74,31 @@ class PreviewController {
 
   static onTextChanged(e: Event) {
     let text = (<HTMLInputElement>e.target).value;
+    PreviewController.updateQuestionText(text);
+  }
+
+  static updateQuestionText(text: string) {
     if (text.length === 0) {
       text = PreviewController.DEFAULT_QUESTION_TEXT;
     }
-
-    let contentElement = PreviewController.formatText(text, false);
-    contentElement.classList.add('text-sm');
-    contentElement.classList.add('font-normal');
-    contentElement.classList.add('pr-16');
     
-    let contentParent = document.querySelector(PreviewController.QUESTION_TEXT_CLASS) as Element;
-    if (contentParent) {
-      contentParent.innerHTML = '';
-      contentParent.appendChild(contentElement);
+    const questionType = document.querySelector('.cf-question-type');
+    const useAdvancedFormatting = questionType && questionType.textContent === 'STATIC';
+    if (useAdvancedFormatting) {
+      let contentElement = PreviewController.formatText(text, false);
+      contentElement.classList.add('text-sm');
+      contentElement.classList.add('font-normal');
+      contentElement.classList.add('pr-16');
+      
+      let contentParent = document.querySelector(PreviewController.QUESTION_TEXT_CLASS) as Element;
+      if (contentParent) {
+        contentParent.innerHTML = '';
+        contentParent.appendChild(contentElement);
+      }
+    } else {
+      PreviewController.setTextAndHighlightEnumeratorReferences(
+        PreviewController.QUESTION_HELP_TEXT_CLASS,
+        text);
     }
   }
 
