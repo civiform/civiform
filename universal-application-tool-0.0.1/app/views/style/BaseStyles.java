@@ -148,7 +148,6 @@ public final class BaseStyles {
           Styles.TRANSFORM,
           Styles._TRANSLATE_X_1_2,
           Styles._TRANSLATE_Y_1_2,
-          Styles.W_1_3,
           Styles.BORDER,
           Styles.BORDER_GRAY_200,
           Styles.ROUNDED_LG,
