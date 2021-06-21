@@ -32,6 +32,11 @@ public abstract class PredicateDefinition {
     return rootNode().getQuestions();
   }
 
+  /**
+   * Formats this predicate definition as a human-readable sentence, in the format "[block name] is
+   * [hidden or shown if] [predicate expression]" - ex: "My Block is hidden if applicant address's
+   * city is equal to 'Seattle'".
+   */
   public String toDisplayString(String blockName, ImmutableList<QuestionDefinition> questions) {
     return Joiner.on(' ')
         .join(blockName, "is", action().toDisplayString(), rootNode().toDisplayString(questions));

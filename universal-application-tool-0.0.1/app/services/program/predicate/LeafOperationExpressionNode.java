@@ -58,6 +58,11 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
     return PredicateExpressionNodeType.LEAF_OPERATION;
   }
 
+  /**
+   * Displays a human-readable representation of this expression, in the format "[question name]'s
+   * [scalar] [operator] [value]". For example: "home address's city is one of ["Seattle",
+   * "Tacoma"]"
+   */
   @Override
   public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
     Optional<QuestionDefinition> question =
