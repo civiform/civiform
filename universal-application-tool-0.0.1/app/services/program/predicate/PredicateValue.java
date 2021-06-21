@@ -49,9 +49,14 @@ public abstract class PredicateValue {
         ScalarType.LIST_OF_STRINGS);
   }
 
+  /**
+   * Default to STRING type for values added before 2021-06-21 (this is before predicates were
+   * launched publicly, so no prod predicates were affected).
+   */
   @JsonCreator
   private static PredicateValue create(
-      @JsonProperty("value") String value, @JsonProperty("type") ScalarType type) {
+      @JsonProperty("value") String value,
+      @JsonProperty(value = "type", defaultValue = "STRING") ScalarType type) {
     return new AutoValue_PredicateValue(value, type);
   }
 
