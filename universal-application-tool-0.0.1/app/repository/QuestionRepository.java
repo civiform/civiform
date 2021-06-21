@@ -8,6 +8,7 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -156,6 +157,7 @@ public class QuestionRepository {
             question ->
                 active.getQuestions().stream()
                     .anyMatch(activeQuestion -> activeQuestion.id.equals(question.id)))
+        .sorted(Comparator.comparing(question -> question.getQuestionDefinition().getName()))
         .map(Question::getQuestionDefinition)
         .collect(ImmutableList.toImmutableList());
   }
