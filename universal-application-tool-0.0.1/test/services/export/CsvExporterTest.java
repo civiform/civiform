@@ -219,7 +219,7 @@ public class CsvExporterTest extends WithPostgresContainer {
     String fileKeyHeader =
         ExporterService.pathToHeader(fileuploadApplicantQuestion.getFileKeyPath());
     assertThat(records.get(0).get(fileKeyHeader))
-        .isEqualTo(
+        .contains(
             String.format("/admin/programs/%d/files/my-file-key", fakeProgramWithCsvExport.id));
   }
 
