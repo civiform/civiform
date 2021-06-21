@@ -169,7 +169,7 @@ public class QuestionConfig {
     ContainerTag optionIndexInput =
         existingOption.isPresent()
             ? FieldWithLabel.input()
-                .setFieldName("optionIndexes[]")
+                .setFieldName("optionIds[]")
                 .setValue(String.valueOf(existingOption.get().id()))
                 .getContainer()
                 .withClasses(Styles.HIDDEN)

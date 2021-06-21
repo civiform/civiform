@@ -276,8 +276,8 @@ public class AdminQuestionControllerTest extends WithPostgresContainer {
             .put("options[0]", "coffee") // Unchanged but out of order
             .put("options[1]", "vanilla") // Unchanged and in order
             .put("newOptions[0]", "lavender") // New flavor
-            .put("optionIndexes[0]", "4")
-            .put("optionIndexes[1]", "3")
+            .put("optionIds[0]", "4")
+            .put("optionIds[1]", "3")
             .put("nextAvailableId", "5")
             .put("questionExportState", "NON_DEMOGRAPHIC")
             // Has one fewer than the original question

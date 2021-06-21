@@ -145,7 +145,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     ImmutableList.Builder<QuestionOption> questionOptions = ImmutableList.builder();
     Preconditions.checkState(
         this.optionIds.size() == this.options.size(),
-        "Option indexes and options are not the same size.");
+        "Option ids and options are not the same size.");
 
     // Note: the question edit form only sets or updates the default locale.
     for (int i = 0; i < options.size(); i++) {
