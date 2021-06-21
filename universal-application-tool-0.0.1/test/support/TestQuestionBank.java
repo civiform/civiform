@@ -168,8 +168,7 @@ public class TestQuestionBank {
 
   // Text
   public Question applicantStatic() {
-    return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_STATIC, this::applicantStatic);
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_STATIC, this::applicantStatic);
   }
 
   // Address
