@@ -25,7 +25,7 @@ public class MultiOptionQuestionFormTest {
     form.setMinChoicesRequired("1");
     form.setMaxChoicesAllowed("10");
     form.setOptions(ImmutableList.of("one", "two"));
-    form.setOptionIndexes(ImmutableList.of(4L, 1L));
+    form.setOptionIds(ImmutableList.of(4L, 1L));
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     CheckboxQuestionDefinition expected =
@@ -74,7 +74,7 @@ public class MultiOptionQuestionFormTest {
     form.setMinChoicesRequired("");
     form.setMaxChoicesAllowed("");
     form.setOptions(ImmutableList.of("one", "two"));
-    form.setOptionIndexes(ImmutableList.of(4L, 1L));
+    form.setOptionIds(ImmutableList.of(4L, 1L));
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     CheckboxQuestionDefinition expected =

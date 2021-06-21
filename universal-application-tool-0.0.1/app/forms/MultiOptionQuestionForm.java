@@ -21,7 +21,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   private List<String> options;
   // Options added to the list during the edit.
   private List<String> newOptions;
-  private List<Long> optionIndexes;
+  private List<Long> optionIds;
   private OptionalLong nextAvailableId;
   private OptionalInt minChoicesRequired;
   private OptionalInt maxChoicesAllowed;
@@ -30,7 +30,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     super();
     this.options = new ArrayList<>();
     this.newOptions = new ArrayList<>();
-    this.optionIndexes = new ArrayList<>();
+    this.optionIds = new ArrayList<>();
     this.minChoicesRequired = OptionalInt.empty();
     this.maxChoicesAllowed = OptionalInt.empty();
     this.nextAvailableId = OptionalLong.empty();
@@ -43,7 +43,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
     this.options = new ArrayList<>();
     this.newOptions = new ArrayList<>();
-    this.optionIndexes = new ArrayList<>();
+    this.optionIds = new ArrayList<>();
 
     try {
       // The first time a question is created, we only create for the default locale. The admin can
@@ -54,14 +54,14 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
             .forEachOrdered(
                 option -> {
                   options.add(option.optionText());
-                  optionIndexes.add(option.id());
+                  optionIds.add(option.id());
                 });
         this.nextAvailableId =
             OptionalLong.of(
                 qd.getOptionsForLocale(LocalizedStrings.DEFAULT_LOCALE).stream()
-                        .max(Comparator.comparing(LocalizedQuestionOption::id))
-                        .get()
-                        .id()
+                        .mapToLong(LocalizedQuestionOption::id)
+                        .max()
+                        .getAsLong()
                     + 1);
       }
     } catch (TranslationNotFoundException e) {
@@ -77,12 +77,12 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     return this.newOptions;
   }
 
-  public List<Long> getOptionIndexes() {
-    return this.optionIndexes;
+  public List<Long> getOptionIds() {
+    return this.optionIds;
   }
 
-  public void setOptionIndexes(List<Long> optionIndexes) {
-    this.optionIndexes = optionIndexes;
+  public void setOptionIds(List<Long> optionIds) {
+    this.optionIds = optionIds;
   }
 
   public void setNewOptions(List<String> options) {
@@ -144,14 +144,14 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
     ImmutableList.Builder<QuestionOption> questionOptions = ImmutableList.builder();
     Preconditions.checkState(
-        this.optionIndexes.size() == this.options.size(),
+        this.optionIds.size() == this.options.size(),
         "Option indexes and options are not the same size.");
 
     // Note: the question edit form only sets or updates the default locale.
     for (int i = 0; i < options.size(); i++) {
       questionOptions.add(
           QuestionOption.create(
-              optionIndexes.get(i), i, LocalizedStrings.withDefaultValue(options.get(i))));
+              optionIds.get(i), i, LocalizedStrings.withDefaultValue(options.get(i))));
     }
     for (int i = 0; i < newOptions.size(); i++) {
       questionOptions.add(

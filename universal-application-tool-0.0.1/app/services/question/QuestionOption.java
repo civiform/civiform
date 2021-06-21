@@ -37,9 +37,12 @@ public abstract class QuestionOption {
   @JsonCreator
   public static QuestionOption jsonCreator(
       @JsonProperty("id") long id,
-      @JsonProperty("displayOrder") long displayOrder,
+      @JsonProperty(value = "displayOrder", defaultValue = "-1L") long displayOrder,
       @JsonProperty("localizedOptionText") LocalizedStrings localizedOptionText,
       @JsonProperty("optionText") ImmutableMap<Locale, String> legacyOptionText) {
+    if (displayOrder == -1) {
+      displayOrder = id;
+    }
     if (localizedOptionText != null) {
       return QuestionOption.create(id, displayOrder, localizedOptionText);
     }

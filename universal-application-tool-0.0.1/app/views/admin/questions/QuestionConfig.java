@@ -4,6 +4,7 @@ import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.label;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -166,13 +167,13 @@ public class QuestionConfig {
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2);
     ContainerTag optionIndexInput =
-        existingOption.isEmpty()
-            ? div()
-            : FieldWithLabel.input()
+        existingOption.isPresent()
+            ? FieldWithLabel.input()
                 .setFieldName("optionIndexes[]")
                 .setValue(String.valueOf(existingOption.get().id()))
                 .getContainer()
-                .withClasses(Styles.HIDDEN);
+                .withClasses(Styles.HIDDEN)
+            : div();
     Tag removeOptionButton =
         button("Remove")
             .withType("button")
@@ -185,14 +186,18 @@ public class QuestionConfig {
 
   private QuestionConfig addMultiOptionQuestionFields(
       MultiOptionQuestionForm multiOptionQuestionForm) {
+    Preconditions.checkState(
+        multiOptionQuestionForm.getOptionIds().size()
+            == multiOptionQuestionForm.getOptions().size(),
+        "Options and Option Indexes need to be the same size.");
     ImmutableList.Builder<ContainerTag> existingOptionsBuilder = ImmutableList.builder();
     for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
       existingOptionsBuilder.add(
           multiOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      multiOptionQuestionForm.getOptionIndexes().get(i),
-                      0L,
+                      multiOptionQuestionForm.getOptionIds().get(i),
+                      i,
                       multiOptionQuestionForm.getOptions().get(i),
                       LocalizedStrings.DEFAULT_LOCALE))));
     }
