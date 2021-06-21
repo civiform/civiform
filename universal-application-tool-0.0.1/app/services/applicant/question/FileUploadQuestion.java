@@ -82,6 +82,9 @@ public class FileUploadQuestion implements PresentsErrors {
 
   @Override
   public String getAnswerString() {
-    return isAnswered() ? "-- FILE UPLOADED (click to download) --" : "-- NO FILE SELECTED --";
+    if (!isAnswered() || getFileKeyValue().isEmpty()) {
+      return "-- NO FILE SELECTED --";
+    }
+    return "-- FILE UPLOADED (click to download) --";
   }
 }

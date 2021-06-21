@@ -11,6 +11,7 @@ button.continue=Seguir
 button.logout=Cerrar Sesión
 button.nextBlock=Próximo
 button.review=Revisar
+button.skipFileUpload=Saltar
 button.submit=Enviar
 toast.localeNotSupported=Lo siento, este programa no está completamente traducido al español.
 toast.programCompleted=Ya completó esta solicitud

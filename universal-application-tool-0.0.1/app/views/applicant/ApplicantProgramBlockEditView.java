@@ -157,7 +157,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             each(
                 params.block().getQuestions(),
                 question -> renderQuestion(question, rendererParams)))
-        .with(renderBottomNavButtons(params));
+        .with(renderBottomNavButtons(params, /* renderSkipFileUpload = */ true));
   }
 
   private Tag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
@@ -165,12 +165,21 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   private Tag renderBottomNavButtons(Params params) {
-    return div()
-        .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
-        // An empty div to take up the space to the left of the buttons.
-        .with(div().withClasses(Styles.FLEX_GROW))
-        .with(renderReviewButton(params))
-        .with(renderNextButton(params));
+    return renderBottomNavButtons(params, /* renderSkipFileUpload = */ false);
+  }
+
+  private Tag renderBottomNavButtons(Params params, boolean renderSkipFileUpload) {
+    ContainerTag buttons =
+        div()
+            .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
+            // An empty div to take up the space to the left of the buttons.
+            .with(div().withClasses(Styles.FLEX_GROW))
+            .with(renderReviewButton(params));
+    if (renderSkipFileUpload) {
+      buttons.with(renderSkipFileUploadButton(params));
+    }
+    buttons.with(renderNextButton(params));
+    return buttons;
   }
 
   private Tag renderReviewButton(Params params) {
@@ -180,6 +189,17 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     return a().attr(HREF, reviewUrl)
         .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
         .withId("review-application-button")
+        .withClasses(ApplicantStyles.BUTTON_REVIEW);
+  }
+
+  private Tag renderSkipFileUploadButton(Params params) {
+    String skipUrl =
+        routes.ApplicantProgramBlocksController.skipFile(
+                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
+            .url();
+    return a().attr(HREF, skipUrl)
+        .withText(params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName()))
+        .withId("skip-fileupload-button")
         .withClasses(ApplicantStyles.BUTTON_REVIEW);
   }
 

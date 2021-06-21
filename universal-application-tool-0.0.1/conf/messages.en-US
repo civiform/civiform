@@ -12,6 +12,7 @@ button.continue=Continue
 button.logout=Logout
 button.nextBlock=Next
 button.review=Review
+button.skipFileUpload=Skip
 button.submit=Submit
 footer.supportLinkDescription=For technical support, contact
 toast.localeNotSupported=We''re sorry, this program is not fully translated to English.
