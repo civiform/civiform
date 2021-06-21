@@ -5,11 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.auto.value.AutoValue;
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import java.util.Optional;
 import services.applicant.question.Scalar;
-import services.question.types.QuestionDefinition;
 
 /**
  * Represents a JsonPath (https://github.com/json-path/JsonPath) expression for a single scalar in
@@ -56,24 +52,6 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
   @JsonIgnore
   public PredicateExpressionNodeType getType() {
     return PredicateExpressionNodeType.LEAF_OPERATION;
-  }
-
-  /**
-   * Displays a human-readable representation of this expression, in the format "[question name]'s
-   * [scalar] [operator] [value]". For example: "home address's city is one of ["Seattle",
-   * "Tacoma"]"
-   */
-  @Override
-  public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
-    Optional<QuestionDefinition> question =
-        questions.stream().filter(q -> q.getId() == questionId()).findFirst();
-    String phrase =
-        Joiner.on(' ')
-            .join(
-                scalar().toDisplayString(),
-                operator().toDisplayString(),
-                comparedValue().toDisplayString(question));
-    return question.isEmpty() ? phrase : question.get().getName() + "'s " + phrase;
   }
 
   public static Builder builder() {
