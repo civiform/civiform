@@ -66,6 +66,7 @@ public class LoginForm extends BaseHtmlView {
             .with(p("Seattle").withClasses(Styles.FONT_BOLD))
             .with(p("CiviForm")));
 
+    String loginMessage = "Please log in with your City of Seattle account";
     content.with(
         div()
             .withClasses(
@@ -77,10 +78,12 @@ public class LoginForm extends BaseHtmlView {
                 Styles.TEXT_LG,
                 Styles.W_FULL,
                 Styles.PLACE_ITEMS_CENTER)
-            .with(p("Please log in with your City of Seattle account"))
+            .with(p(loginMessage))
             .with(loginButton()));
 
-    content.with(p("Don't have an account?").withClasses(Styles.TEXT_LG));
+    String alternativeMessage = "Don't have an account?";
+    String or = "or";
+    content.with(p(alternativeMessage).withClasses(Styles.TEXT_LG));
     ContainerTag alternativeLoginButtons =
         div()
             .withClasses(
@@ -91,17 +94,18 @@ public class LoginForm extends BaseHtmlView {
                 Styles.ITEMS_CENTER,
                 Styles.TEXT_LG);
     if (config.hasPath("idcs.register_uri")) {
-      alternativeLoginButtons.with(createAccountButton()).with(p("or")).with(guestButton());
+      alternativeLoginButtons.with(createAccountButton()).with(p(or)).with(guestButton());
     } else {
       alternativeLoginButtons.with(guestButton());
     }
     content.with(alternativeLoginButtons);
 
+    String somethingElse = "Looking for something else?";
     content.with(
         div()
             .withClasses(
                 Styles.BG_GRAY_100,
-                Styles.PY_2,
+                Styles.PY_4,
                 Styles.PX_8,
                 Styles.W_FULL,
                 Styles.FLEX,
@@ -109,7 +113,7 @@ public class LoginForm extends BaseHtmlView {
                 Styles.JUSTIFY_CENTER,
                 Styles.ITEMS_CENTER,
                 Styles.TEXT_BASE)
-            .with(p("Looking for something else?").with(text(" ")).with(adminButton())));
+            .with(p(somethingElse).with(text(" ")).with(adminButton())));
 
     return div()
         .withClasses(Styles.FIXED, Styles.W_SCREEN, Styles.H_SCREEN, Styles.BG_GRAY_200)
@@ -136,26 +140,30 @@ public class LoginForm extends BaseHtmlView {
   }
 
   private Tag loginButton() {
+    String msg = "LOG IN";
     return redirectButton(
-            "idcs", "LOG IN", routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url())
+            "idcs", msg, routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
   }
 
   private Tag createAccountButton() {
-    return redirectButton("register", "CREATE ACCOUNT", routes.LoginController.register().url())
+    String msg = "CREATE ACCOUNT";
+    return redirectButton("register", msg, routes.LoginController.register().url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
   }
 
   private Tag guestButton() {
+    String msg = "CONTINUE AS GUEST";
     return redirectButton(
             "guest",
-            "CONTINUE AS GUEST",
+            msg,
             routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
   }
 
   private Tag adminButton() {
-    return a("Admin login")
+    String msg = "Admin login";
+    return a(msg)
         .withHref(routes.LoginController.adfsLogin().url())
         .withClasses(BaseStyles.ADMIN_LOGIN);
   }
