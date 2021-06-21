@@ -63,7 +63,7 @@ public abstract class LeafOperationExpressionNode implements ConcretePredicateEx
     Optional<QuestionDefinition> question =
         questions.stream().filter(q -> q.getId() == questionId()).findFirst();
     String phrase =
-        Joiner.on(" ")
+        Joiner.on(' ')
             .join(
                 scalar().toDisplayString(),
                 operator().toDisplayString(),

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import services.question.types.QuestionDefinition;
@@ -31,7 +32,8 @@ public abstract class PredicateDefinition {
     return rootNode().getQuestions();
   }
 
-  public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
-    return action().toDisplayString() + " " + rootNode().toDisplayString(questions);
+  public String toDisplayString(String blockName, ImmutableList<QuestionDefinition> questions) {
+    return Joiner.on(' ')
+        .join(blockName, "is", action().toDisplayString(), rootNode().toDisplayString(questions));
   }
 }

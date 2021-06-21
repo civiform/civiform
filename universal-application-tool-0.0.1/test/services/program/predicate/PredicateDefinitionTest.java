@@ -17,7 +17,7 @@ public class PredicateDefinitionTest {
                     1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Phoenix"))),
             PredicateAction.HIDE_BLOCK);
 
-    assertThat(predicate.toDisplayString(ImmutableList.of()))
-        .isEqualTo("hidden if city is equal to \"Phoenix\"");
+    assertThat(predicate.toDisplayString("My Block", ImmutableList.of()))
+        .isEqualTo("My Block is hidden if city is equal to \"Phoenix\"");
   }
 }

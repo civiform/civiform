@@ -95,7 +95,8 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                                 ? blockDefinition
                                     .visibilityPredicate()
                                     .get()
-                                    .toDisplayString(potentialPredicateQuestions)
+                                    .toDisplayString(
+                                        blockDefinition.name(), potentialPredicateQuestions)
                                 : TEXT_NO_VISIBILITY_CONDITIONS)))
             .with(
                 div()
