@@ -34,6 +34,13 @@ public class PredicateValueTest {
   }
 
   @Test
+  public void toDisplayString_simpleList() {
+    PredicateValue value = PredicateValue.of(ImmutableList.of("kangaroo", "turtle"));
+
+    assertThat(value.toDisplayString(Optional.empty())).isEqualTo("[\"kangaroo\", \"turtle\"]");
+  }
+
+  @Test
   public void toDisplayString_multiOptionList() {
     QuestionDefinition multiOption = testQuestionBank.applicantIceCream().getQuestionDefinition();
 
@@ -41,5 +48,15 @@ public class PredicateValueTest {
 
     assertThat(value.toDisplayString(Optional.of(multiOption)))
         .isEqualTo("[chocolate, strawberry]");
+  }
+
+  @Test
+  public void toDisplayString_multiOptionList_missingIdDefaultsToObsolete() {
+    QuestionDefinition multiOption = testQuestionBank.applicantIceCream().getQuestionDefinition();
+
+    PredicateValue value = PredicateValue.of(ImmutableList.of("1", "100")); // 100 is not a valid ID
+
+    assertThat(value.toDisplayString(Optional.of(multiOption)))
+        .isEqualTo("[chocolate, <obsolete>]");
   }
 }

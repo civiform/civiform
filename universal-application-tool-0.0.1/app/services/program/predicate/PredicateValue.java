@@ -51,7 +51,7 @@ public abstract class PredicateValue {
 
   @JsonCreator
   private static PredicateValue create(
-      @JsonProperty("value") String value, @JsonProperty ScalarType type) {
+      @JsonProperty("value") String value, @JsonProperty("type") ScalarType type) {
     return new AutoValue_PredicateValue(value, type);
   }
 
@@ -77,6 +77,7 @@ public abstract class PredicateValue {
       MultiOptionQuestionDefinition multiOptionQuestion =
           (MultiOptionQuestionDefinition) question.get();
       // Convert the quote-escaped string IDs to their corresponding default option text.
+      // If an ID is not valid, show "<obsolete>". An obsolete ID does not affect evaluation.
       return Splitter.on(", ")
           .splitToStream(value().substring(1, value().length() - 1))
           .map(stringId -> Long.valueOf(stringId.substring(1, stringId.length() - 1)))
