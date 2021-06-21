@@ -1,17 +1,24 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.text;
 
 import auth.FakeAdminClient;
 import auth.GuestClient;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.routes;
+import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import java.util.Optional;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import views.components.ToastMessage;
+import views.style.BaseStyles;
 import views.style.Styles;
 
 public class LoginForm extends BaseHtmlView {
@@ -28,55 +35,128 @@ public class LoginForm extends BaseHtmlView {
   public Content render(Http.Request request, Optional<String> message) {
     String title = "Login";
 
-    HtmlBundle htmlBundle =
-        this.layout
-            .getBundle()
-            .setTitle(title)
-            .addBodyStyles(Styles.P_4)
-            .addMainContent(
-                h1("Log In"),
-                redirectButton(
-                    "idcs",
-                    "Login with IDCS (user)",
-                    routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url()),
-                redirectButton(
-                    "adfs", "Login with ADFS (admin)", routes.LoginController.adfsLogin().url()));
-    if (config.hasPath("idcs.register_uri")) {
-      htmlBundle.addMainContent(
-          h1("Register"),
-          redirectButton("register", "Register", routes.LoginController.register().url()));
+    HtmlBundle htmlBundle = this.layout.getBundle().setTitle(title);
+    htmlBundle.addMainContent(mainContent());
+
+    // "defense in depth", sort of - this client won't be present in production, and this button
+    // won't show up except when running in an acceptable environment.
+    if (FakeAdminClient.canEnable(request.host())) {
+      htmlBundle.addMainContent(debugContent());
     }
-    htmlBundle.addMainContent(
-        h1("Or, continue as guest."),
-        redirectButton(
-            "guest",
-            "Continue",
-            routes.CallbackController.callback(GuestClient.CLIENT_NAME).url()));
 
     if (message.isPresent()) {
       String errorString = "Error: You are not logged in. " + message.get();
       htmlBundle.addToastMessages(ToastMessage.error(errorString));
     }
 
-    // "defense in depth", sort of - this client won't be present in production, and this button
-    // won't show up except when running in an acceptable environment.
-    if (FakeAdminClient.canEnable(request.host())) {
-      htmlBundle.addMainContent(
-          h1("DEBUG MODE: BECOME ADMIN"),
-          redirectButton(
-              "admin",
-              "Global",
-              routes.CallbackController.fakeAdmin(
-                      FakeAdminClient.CLIENT_NAME, FakeAdminClient.GLOBAL_ADMIN)
-                  .url()),
-          redirectButton(
-              "program-admin",
-              "Of All Active Programs",
-              routes.CallbackController.fakeAdmin(
-                      FakeAdminClient.CLIENT_NAME, FakeAdminClient.PROGRAM_ADMIN)
-                  .url()));
-    }
-
     return layout.render(htmlBundle);
+  }
+
+  private ContainerTag mainContent() {
+    ContainerTag content = div().withClasses(BaseStyles.LOGIN_PAGE);
+
+    content.with(
+        this.layout
+            .viewUtils
+            .makeLocalImageTag("ChiefSeattle_Blue")
+            .withClasses(Styles.W_1_4, Styles.PT_4));
+    content.with(
+        div()
+            .withClasses(Styles.FLEX, Styles.TEXT_4XL, Styles.GAP_1, Styles._MT_6, Styles.PX_8)
+            .with(p("Seattle").withClasses(Styles.FONT_BOLD))
+            .with(p("CiviForm")));
+
+    content.with(
+        div()
+            .withClasses(
+                Styles.FLEX,
+                Styles.FLEX_COL,
+                Styles.GAP_2,
+                Styles.PY_6,
+                Styles.PX_8,
+                Styles.TEXT_LG,
+                Styles.W_FULL,
+                Styles.PLACE_ITEMS_CENTER)
+            .with(p("Please log in with your City of Seattle account"))
+            .with(loginButton()));
+
+    content.with(p("Don't have an account?").withClasses(Styles.TEXT_LG));
+    ContainerTag alternativeLoginButtons =
+        div()
+            .withClasses(
+                Styles.PB_12,
+                Styles.PX_8,
+                Styles.FLEX,
+                Styles.GAP_4,
+                Styles.ITEMS_CENTER,
+                Styles.TEXT_LG);
+    if (config.hasPath("idcs.register_uri")) {
+      alternativeLoginButtons.with(createAccountButton()).with(p("or")).with(guestButton());
+    } else {
+      alternativeLoginButtons.with(guestButton());
+    }
+    content.with(alternativeLoginButtons);
+
+    content.with(
+        div()
+            .withClasses(
+                Styles.BG_GRAY_100,
+                Styles.PY_2,
+                Styles.PX_8,
+                Styles.W_FULL,
+                Styles.FLEX,
+                Styles.GAP_2,
+                Styles.JUSTIFY_CENTER,
+                Styles.ITEMS_CENTER,
+                Styles.TEXT_BASE)
+            .with(p("Looking for something else?").with(text(" ")).with(adminButton())));
+
+    return div()
+        .withClasses(Styles.FIXED, Styles.W_SCREEN, Styles.H_SCREEN, Styles.BG_GRAY_200)
+        .with(content);
+  }
+
+  private ContainerTag debugContent() {
+    return div()
+        .withClasses(Styles.ABSOLUTE)
+        .with(
+            h1("DEBUG MODE: BECOME ADMIN"),
+            redirectButton(
+                "admin",
+                "Global",
+                routes.CallbackController.fakeAdmin(
+                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.GLOBAL_ADMIN)
+                    .url()),
+            redirectButton(
+                "program-admin",
+                "Of All Active Programs",
+                routes.CallbackController.fakeAdmin(
+                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.PROGRAM_ADMIN)
+                    .url()));
+  }
+
+  private Tag loginButton() {
+    return redirectButton(
+            "idcs", "LOG IN", routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url())
+        .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
+  }
+
+  private Tag createAccountButton() {
+    return redirectButton("register", "CREATE ACCOUNT", routes.LoginController.register().url())
+        .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
+  }
+
+  private Tag guestButton() {
+    return redirectButton(
+            "guest",
+            "CONTINUE AS GUEST",
+            routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
+        .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
+  }
+
+  private Tag adminButton() {
+    return a("Admin login")
+        .withHref(routes.LoginController.adfsLogin().url())
+        .withClasses(BaseStyles.ADMIN_LOGIN);
   }
 }
