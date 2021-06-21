@@ -17,6 +17,7 @@ public final class ReferenceClasses {
   public static final String PREDICATE_SCALAR_SELECT = "cf-scalar-select";
   public static final String PREDICATE_OPERATOR_SELECT = "cf-operator-select";
   public static final String PREDICATE_OPTIONS = "cf-predicate-options";
+  public static final String PREDICATE_VALUE_INPUT = "cf-predicate-value-input";
 
   public static final String QUESTION_BANK_ELEMENT = "cf-question-bank-element";
 

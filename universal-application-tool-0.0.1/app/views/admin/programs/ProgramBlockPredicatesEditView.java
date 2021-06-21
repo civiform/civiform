@@ -266,9 +266,8 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
 
   private Tag createHiddenQuestionDefinitionInput(QuestionDefinition questionDefinition) {
     return input()
-        .isHidden()
         .withName("questionId")
-        .withType("number")
+        .withType("hidden")
         .withValue(String.valueOf(questionDefinition.getId()));
   }
 
@@ -348,6 +347,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       return FieldWithLabel.input()
           .setFieldName("predicateValue")
           .setLabelText("Value")
+          .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
           .getContainer();
     }
   }
