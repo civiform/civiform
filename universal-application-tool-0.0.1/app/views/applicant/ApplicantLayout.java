@@ -108,7 +108,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(branding())
         .with(maybeRenderTiButton(profile, userName))
         .with(
-            div(getLanguageForm(request, profile), logoutButton(messages))
+            div(getLanguageForm(request, profile), logoutButton(userName, messages))
                 .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
@@ -176,11 +176,13 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div();
   }
 
-  private ContainerTag logoutButton(Messages messages) {
+  private ContainerTag logoutButton(String userName, Messages messages) {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
-    return a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
-        .withHref(logoutLink)
-        .withClasses(ApplicantStyles.LINK_LOGOUT);
+    return div(
+        div(messages.at(MessageKey.NAME.getKeyName(), userName)).withClasses(Styles.TEXT_SM),
+        a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
+            .withHref(logoutLink)
+            .withClasses(ApplicantStyles.LINK_LOGOUT));
   }
 
   /**

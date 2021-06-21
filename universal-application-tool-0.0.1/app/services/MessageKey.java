@@ -78,7 +78,8 @@ public enum MessageKey {
   TITLE_PROGRAM_REVIEW("title.programReview"),
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
-  TOAST_PROGRAM_COMPLETED("toast.programCompleted");
+  TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
+  NAME("header.userName");
 
   private final String keyName;
 
