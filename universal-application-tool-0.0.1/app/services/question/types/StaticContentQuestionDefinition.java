@@ -7,63 +7,66 @@ import java.util.OptionalLong;
 import services.LocalizedStrings;
 
 public class StaticContentQuestionDefinition extends QuestionDefinition {
-  
-    public StaticContentQuestionDefinition(
-        String name,
-        Optional<Long> enumeratorId,
-        String description,
-        LocalizedStrings questionText,
-        LocalizedStrings questionHelpText) {
-      super(
-          name,
-          enumeratorId,
-          description,
-          questionText,
-          questionHelpText,
-          StaticContentQuestionDefinition.StaticContentValidationPredicates.create());
+
+  public StaticContentQuestionDefinition(
+      String name,
+      Optional<Long> enumeratorId,
+      String description,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText) {
+    super(
+        name,
+        enumeratorId,
+        description,
+        questionText,
+        questionHelpText,
+        StaticContentQuestionDefinition.StaticContentValidationPredicates.create());
+  }
+
+  public StaticContentQuestionDefinition(
+      OptionalLong id,
+      String name,
+      Optional<Long> enumeratorId,
+      String description,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText) {
+    super(
+        id,
+        name,
+        enumeratorId,
+        description,
+        questionText,
+        questionHelpText,
+        StaticContentQuestionDefinition.StaticContentValidationPredicates.create());
+  }
+
+  @AutoValue
+  public abstract static class StaticContentValidationPredicates extends ValidationPredicates {
+
+    public static StaticContentQuestionDefinition.StaticContentValidationPredicates parse(
+        String jsonString) {
+      try {
+        return mapper.readValue(
+            jsonString,
+            AutoValue_StaticContentQuestionDefinition_StaticContentValidationPredicates.class);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
     }
 
-    public StaticContentQuestionDefinition(
-        OptionalLong id,
-        String name,
-        Optional<Long> enumeratorId,
-        String description,
-        LocalizedStrings questionText,
-        LocalizedStrings questionHelpText) {
-      super(
-          id,
-          name,
-          enumeratorId,
-          description,
-          questionText,
-          questionHelpText,
-          StaticContentQuestionDefinition.StaticContentValidationPredicates.create());
+    public static StaticContentQuestionDefinition.StaticContentValidationPredicates create() {
+      return new AutoValue_StaticContentQuestionDefinition_StaticContentValidationPredicates();
     }
-  
-    @AutoValue
-    public abstract static class StaticContentValidationPredicates extends ValidationPredicates {
-  
-      public static StaticContentQuestionDefinition.StaticContentValidationPredicates parse(String jsonString) {
-        try {
-          return mapper.readValue(
-              jsonString, AutoValue_StaticContentQuestionDefinition_StaticContentValidationPredicates.class);
-        } catch (JsonProcessingException e) {
-          throw new RuntimeException(e);
-        }
-      }
-  
-      public static StaticContentQuestionDefinition.StaticContentValidationPredicates create() {
-        return new AutoValue_StaticContentQuestionDefinition_StaticContentValidationPredicates();
-      }
-    }
-  
-    public StaticContentQuestionDefinition.StaticContentValidationPredicates getStaticContentValidationPredicates() {
-      return (StaticContentQuestionDefinition.StaticContentValidationPredicates) getValidationPredicates();
-    }
-  
-    @Override
-    public QuestionType getQuestionType() {
-      return QuestionType.STATIC;
-    }
+  }
+
+  public StaticContentQuestionDefinition.StaticContentValidationPredicates
+      getStaticContentValidationPredicates() {
+    return (StaticContentQuestionDefinition.StaticContentValidationPredicates)
+        getValidationPredicates();
+  }
+
+  @Override
+  public QuestionType getQuestionType() {
+    return QuestionType.STATIC;
+  }
 }
-  

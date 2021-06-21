@@ -4,7 +4,7 @@ class AccordionController {
   static accordionButtonSelector = '.cf-accordion-button';
   static accordionHeaderSelector = '.cf-accordion-header';
   static accordionVisibleClass = 'cf-accordion-visible';
-  
+
   constructor() {
     this.init();
   }

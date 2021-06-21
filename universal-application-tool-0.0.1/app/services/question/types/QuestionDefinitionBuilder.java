@@ -250,7 +250,8 @@ public class QuestionDefinitionBuilder {
             id, name, enumeratorId, description, questionText, questionHelpText, entityType);
 
       case STATIC:
-        return new StaticContentQuestionDefinition(id, name, enumeratorId, description, questionText, questionHelpText);
+        return new StaticContentQuestionDefinition(
+            id, name, enumeratorId, description, questionText, questionHelpText);
 
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();

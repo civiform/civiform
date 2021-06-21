@@ -1,5 +1,3 @@
-import {Formatter} from "./formatter";
-
 /** The validation controller provides basic client-side validation of form fields. */
 class ValidationController {
   /** 

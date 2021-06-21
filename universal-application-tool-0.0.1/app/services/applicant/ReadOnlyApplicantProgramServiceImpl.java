@@ -20,8 +20,8 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.LocalizedQuestionOption;
-import services.question.types.QuestionType;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.QuestionType;
 
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
@@ -145,7 +145,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setIsPreviousResponse(isPreviousResponse)
                 .setScalarAnswersInDefaultLocale(
                     getScalarAnswers(question, LocalizedStrings.DEFAULT_LOCALE))
-                .build();        
+                .build();
         builder.add(data);
       }
     }
