@@ -163,7 +163,11 @@ public final class BaseStyles {
 
   public static final String LOGIN_REDIRECT_BUTTON =
       StyleUtils.joinStyles(
-          LOGIN_REDIRECT_BUTTON_BASE, Styles.BG_BLUE_800, Styles.TEXT_WHITE, Styles.W_2_3);
+          LOGIN_REDIRECT_BUTTON_BASE,
+          Styles.BG_BLUE_800,
+          Styles.TEXT_WHITE,
+          Styles.W_3_4,
+          StyleUtils.responsiveMedium(Styles.W_1_3));
 
   public static final String LOGIN_REDIRECT_BUTTON_SECONDARY =
       StyleUtils.joinStyles(
