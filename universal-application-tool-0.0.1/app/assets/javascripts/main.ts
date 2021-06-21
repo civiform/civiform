@@ -1,5 +1,5 @@
 /**
- * We're trying to keep the JS pretty mimimal for CiviForm, so we're only using it
+ * We're trying to keep the JS pretty minimal for CiviForm, so we're only using it
  * where it's necessary to improve the user experience.
  *
  * Appropriate uses include:
@@ -9,22 +9,22 @@
  */
 
 function attachDropdown(elementId: string) {
-  const dropdownId = elementId + "-dropdown";
+  const dropdownId = elementId + '-dropdown';
   const element = document.getElementById(elementId);
   const dropdown = document.getElementById(dropdownId);
   if (dropdown && element) {
     // Attach onclick event to element to toggle dropdown visibility.
-    element.addEventListener("click", () => toggleElementVisibility(dropdownId));
+    element.addEventListener('click', () => toggleElementVisibility(dropdownId));
 
     // Attach onblur event to page to hide dropdown if it wasn't the clicked element.
-    document.addEventListener("click", (e) => maybeHideElement(e, dropdownId, elementId));
+    document.addEventListener('click', (e) => maybeHideElement(e, dropdownId, elementId));
   }
 }
 
 function toggleElementVisibility(id: string) {
   const element = document.getElementById(id);
   if (element) {
-    element.classList.toggle("hidden");
+    element.classList.toggle('hidden');
   }
 }
 
@@ -34,7 +34,7 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
     if (parent && !parent.contains(e.target)) {
       const elementToHide = document.getElementById(id);
       if (elementToHide) {
-        elementToHide.classList.add("hidden");
+        elementToHide.classList.add('hidden');
       }
     }
   }
@@ -42,18 +42,18 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
 
 /** In admin program block edit form - enabling submit button when form is changed or if not empty */
 function changeUpdateBlockButtonState(event: Event) {
-  const blockEditForm = document.getElementById("block-edit-form");
-  const submitButton = document.getElementById("update-block-button");
+  const blockEditForm = document.getElementById('block-edit-form');
+  const submitButton = document.getElementById('update-block-button');
 
-  const formNameInput = blockEditForm["block-name-input"];
-  const formDescriptionText = blockEditForm["block-description-textarea"];
+  const formNameInput = blockEditForm['block-name-input'];
+  const formDescriptionText = blockEditForm['block-description-textarea'];
 
   if ((formNameInput.value !== formNameInput.defaultValue ||
     formDescriptionText.value !== formDescriptionText.defaultValue) &&
-    (formNameInput.value !== "" && formDescriptionText.value !== "")) {
-    submitButton.removeAttribute("disabled");
+    (formNameInput.value !== '' && formDescriptionText.value !== '')) {
+    submitButton.removeAttribute('disabled');
   } else {
-    submitButton.setAttribute("disabled", "");
+    submitButton.setAttribute('disabled', '');
   }
 }
 
@@ -64,11 +64,11 @@ function changeUpdateBlockButtonState(event: Event) {
 function addNewInput(inputTemplateId: string, addButtonId: string, divContainerId: string) {
   // Copy the answer template and remove ID and hidden properties.
   const newField = document.getElementById(inputTemplateId).cloneNode(true) as HTMLElement;
-  newField.classList.remove("hidden");
-  newField.removeAttribute("id");
+  newField.classList.remove('hidden');
+  newField.removeAttribute('id');
 
   // Register the click event handler for the remove button.
-  newField.querySelector("[type=button]").addEventListener("click", removeInput);
+  newField.querySelector('[type=button]').addEventListener('click', removeInput);
 
   // Find the add option button and insert the new option input field before it.
   const button = document.getElementById(addButtonId);
@@ -93,23 +93,23 @@ function removeInput(event: Event) {
 function hideInput(event: Event) {
   const inputDiv = (event.target as Element).parentElement;
   // Remove 'disabled' so the field is submitted with the form
-  inputDiv.querySelector("input").disabled = false;
+  inputDiv.querySelector('input').disabled = false;
   // Hide the entire div from the user
-  inputDiv.classList.add("hidden");
+  inputDiv.classList.add('hidden');
 }
 
 /** In the enumerator form - add a new input field for a repeated entity. */
 function addNewEnumeratorField(event: Event) {
   // Copy the enumerator field template
-  const newField = document.getElementById("enumerator-field-template").cloneNode(true) as HTMLElement;
-  newField.classList.remove("hidden");
-  newField.removeAttribute("id");
+  const newField = document.getElementById('enumerator-field-template').cloneNode(true) as HTMLElement;
+  newField.classList.remove('hidden');
+  newField.removeAttribute('id');
 
   // Add the remove enumerator field event listener to the delete button
-  newField.querySelector("[type=button]").addEventListener("click", removeEnumeratorField);
+  newField.querySelector('[type=button]').addEventListener('click', removeEnumeratorField);
 
   // Add to the end of enumerator-fields div.
-  const enumeratorFields = document.getElementById("enumerator-fields");
+  const enumeratorFields = document.getElementById('enumerator-fields');
   enumeratorFields.appendChild(newField);
 }
 
@@ -130,14 +130,14 @@ function removeExistingEnumeratorField(event: Event) {
   // Hide the field that was removed. We cannot remove it completely, as we need to
   // submit the input to maintain entity ordering.
   const enumeratorFieldDiv = removeButton.parentElement;
-  enumeratorFieldDiv.classList.add("hidden");
+  enumeratorFieldDiv.classList.add('hidden');
 
   // Create a copy of the hidden deleted entity template. Set the value to this
   // button's ID, and set disabled to false so the data is submitted with the form.
-  const deletedEntityInput = document.getElementById("enumerator-delete-template").cloneNode(true) as HTMLInputElement;
+  const deletedEntityInput = document.getElementById('enumerator-delete-template').cloneNode(true) as HTMLInputElement;
   deletedEntityInput.disabled = false;
-  deletedEntityInput.setAttribute("value", removeButton.id);
-  deletedEntityInput.removeAttribute("id");
+  deletedEntityInput.setAttribute('value', removeButton.id);
+  deletedEntityInput.removeAttribute('id');
 
   // Add the hidden deleted entity input to the page.
   enumeratorFieldDiv.appendChild(deletedEntityInput);
@@ -151,86 +151,119 @@ function removeExistingEnumeratorField(event: Event) {
  */
 function removeLineClamp(event: Event) {
   const target = event.target as HTMLElement;
-  target.classList.add("line-clamp-none");
+  target.classList.add('line-clamp-none');
 }
 
 function attachLineClampListeners() {
   const applicationCardDescriptions = Array.from(document.querySelectorAll('.cf-application-card-description'));
-  applicationCardDescriptions.forEach(el => el.addEventListener("click", removeLineClamp));
+  applicationCardDescriptions.forEach(el => el.addEventListener('click', removeLineClamp));
+}
+
+function configurePredicateForm(event: Event) {
+  // Get the type of scalar currently selected.
+  const scalarDropdown = event.target as HTMLSelectElement;
+  const selectedScalarType = scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type;
+  const selectedScalarValue = scalarDropdown.options[scalarDropdown.options.selectedIndex].value;
+
+  filterOperators(scalarDropdown, selectedScalarType);
+  configurePredicateValueInput(scalarDropdown, selectedScalarType, selectedScalarValue);
 }
 
 /**
  * Filter the operators available for each scalar type based on the current scalar selected.
  */
-function filterOperators(event: Event) {
-  // Get the type of scalar currently selected.
-  const scalarDropdown = event.target as HTMLSelectElement;
-  const selectedScalarType = scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type;
-
+function filterOperators(scalarDropdown: HTMLSelectElement, selectedScalarType: string) {
   // Filter the operators available for the given selected scalar type.
   const operatorDropdown =
     scalarDropdown
-      .closest(".cf-predicate-options") // div containing all predicate builder dropdowns
-      .querySelector(".cf-operator-select") // div containing the operator dropdown
-      .querySelector("select") as HTMLSelectElement;
+      .closest('.cf-predicate-options') // div containing all predicate builder form fields
+      .querySelector('.cf-operator-select') // div containing the operator dropdown
+      .querySelector('select') as HTMLSelectElement;
 
   Array.from(operatorDropdown.options).forEach(option => {
     // Remove any existing hidden class from previous filtering.
-    option.classList.remove("hidden");
+    option.classList.remove('hidden');
     // If this operator is not for the currently selected type, hide it.
     if (!(selectedScalarType in option.dataset)) {
-      option.classList.add("hidden");
+      option.classList.add('hidden');
     }
   });
 }
 
+function configurePredicateValueInput(
+    scalarDropdown: HTMLSelectElement,
+    selectedScalarType: string,
+    selectedScalarValue: string) {
+  // If the scalar is from a multi-option question, there is not an input box for the 'Value'
+  // field (there's a set of checkboxes instead), so return immediately.
+  if (selectedScalarValue.toUpperCase() === 'SELECTION') {
+    return;
+  }
+
+  const valueInput =
+    scalarDropdown
+      .closest('.cf-predicate-options') // div containing all predicate builder form fields
+      .querySelector('.cf-predicate-value-input') // div containing the predicate value input
+      .querySelector('input') as HTMLInputElement;
+
+  if (selectedScalarValue.toUpperCase() === 'EMAIL') {
+    valueInput.setAttribute('type', 'email');
+  } else if (selectedScalarType.toUpperCase() === 'STRING') {
+    valueInput.setAttribute('type', 'text');
+  } else if (selectedScalarType.toUpperCase() === 'LONG') {
+    valueInput.setAttribute('type', 'number');
+  } else if (selectedScalarType.toUpperCase() === 'DATE') {
+    valueInput.setAttribute('type', 'date');
+  }
+}
+
 window.addEventListener('load', (event) => {
-  attachDropdown("create-question-button");
+  attachDropdown('create-question-button');
 
   attachLineClampListeners();
 
-  // Configure the admin predicate builder to filter available operators based on
+  // Configure the admin predicate builder to show the appropriate options based on
   // the type of scalar selected.
   Array.from(document.querySelectorAll('.cf-scalar-select')).forEach(
-    el => el.addEventListener("input", filterOperators));
+    el => el.addEventListener('input', configurePredicateForm));
 
   // Submit button is disabled by default until program block edit form is changed
-  const blockEditForm = document.getElementById("block-edit-form");
+  const blockEditForm = document.getElementById('block-edit-form');
   if (blockEditForm) {
-    blockEditForm.addEventListener("input", changeUpdateBlockButtonState);
+    blockEditForm.addEventListener('input', changeUpdateBlockButtonState);
   }
 
   // Configure the button on the admin question form to add more answer options
-  const questionOptionButton = document.getElementById("add-new-option");
+  const questionOptionButton = document.getElementById('add-new-option');
   if (questionOptionButton) {
-    questionOptionButton.addEventListener("click", function() {
-      addNewInput("multi-option-question-answer-template", "add-new-option", "question-settings");
+    questionOptionButton.addEventListener('click', function() {
+      addNewInput('multi-option-question-answer-template', 'add-new-option', 'question-settings');
     });
   }
 
   // Bind click handler for remove options in multi-option edit view
   Array.from(document.querySelectorAll('.multi-option-question-field-remove-button')).forEach(
-    el => el.addEventListener("click", removeInput));
+    el => el.addEventListener('click', removeInput));
 
   // Configure the button on the manage program admins form to add more email inputs
-  const adminEmailButton = document.getElementById("add-program-admin-button");
+  const adminEmailButton = document.getElementById('add-program-admin-button');
   if (adminEmailButton) {
-    adminEmailButton.addEventListener("click", function() {
-      addNewInput("program-admin-email-template", "add-program-admin-button", "program-admin-emails");
+    adminEmailButton.addEventListener('click', function() {
+      addNewInput('program-admin-email-template', 'add-program-admin-button', 'program-admin-emails');
     });
   }
 
   // Bind click handler for removing program admins in the program admin management view
   Array.from(document.querySelectorAll('.cf-program-admin-remove-button')).forEach(
-    el => el.addEventListener("click", hideInput));
+    el => el.addEventListener('click', hideInput));
 
   // Configure the button on the enumerator question form to add more enumerator field options
-  const enumeratorOptionButton = document.getElementById("enumerator-field-add-button");
+  const enumeratorOptionButton = document.getElementById('enumerator-field-add-button');
   if (enumeratorOptionButton) {
-    enumeratorOptionButton.addEventListener("click", addNewEnumeratorField);
+    enumeratorOptionButton.addEventListener('click', addNewEnumeratorField);
   }
 
   // Configure existing enumerator entity remove buttons
   Array.from(document.querySelectorAll('.cf-enumerator-delete-button')).forEach(
-    el => el.addEventListener("click", removeExistingEnumeratorField));
+    el => el.addEventListener('click', removeExistingEnumeratorField));
 });
