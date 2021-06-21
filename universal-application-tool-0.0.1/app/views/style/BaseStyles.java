@@ -159,7 +159,7 @@ public final class BaseStyles {
           Styles.PLACE_ITEMS_CENTER);
 
   private static final String LOGIN_REDIRECT_BUTTON_BASE =
-      StyleUtils.joinStyles(Styles.ROUNDED_3XL);
+      StyleUtils.joinStyles(Styles.ROUNDED_3XL, Styles.UPPERCASE);
 
   public static final String LOGIN_REDIRECT_BUTTON =
       StyleUtils.joinStyles(

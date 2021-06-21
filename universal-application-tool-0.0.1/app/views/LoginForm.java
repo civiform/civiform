@@ -140,20 +140,20 @@ public class LoginForm extends BaseHtmlView {
   }
 
   private Tag loginButton() {
-    String msg = "LOG IN";
+    String msg = "Log in";
     return redirectButton(
             "idcs", msg, routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
   }
 
   private Tag createAccountButton() {
-    String msg = "CREATE ACCOUNT";
+    String msg = "Create account";
     return redirectButton("register", msg, routes.LoginController.register().url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
   }
 
   private Tag guestButton() {
-    String msg = "CONTINUE AS GUEST";
+    String msg = "Continue as guest";
     return redirectButton(
             "guest", msg, routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
