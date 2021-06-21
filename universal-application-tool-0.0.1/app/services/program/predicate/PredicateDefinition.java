@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import services.question.types.QuestionDefinition;
 
 @AutoValue
 public abstract class PredicateDefinition {
@@ -29,8 +31,7 @@ public abstract class PredicateDefinition {
     return rootNode().getQuestions();
   }
 
-  @Memoized
-  public String toDisplayString() {
-    return action().toDisplayString() + " " + rootNode().toDisplayString();
+  public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
+    return action().toDisplayString() + " " + rootNode().toDisplayString(questions);
   }
 }

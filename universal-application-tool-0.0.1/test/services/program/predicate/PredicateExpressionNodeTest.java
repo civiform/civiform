@@ -8,8 +8,12 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import org.junit.Test;
 import services.applicant.question.Scalar;
+import services.question.types.QuestionDefinition;
+import support.TestQuestionBank;
 
 public class PredicateExpressionNodeTest {
+
+  private final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
   @Test
   public void getQuestions_leaf() {
@@ -60,22 +64,25 @@ public class PredicateExpressionNodeTest {
 
   @Test
   public void toDisplayString_leafNodeOnly() {
+    QuestionDefinition question = testQuestionBank.applicantAddress().getQuestionDefinition();
     LeafOperationExpressionNode leaf =
         LeafOperationExpressionNode.create(
-            123L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
+            question.getId(), Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("Seattle"));
 
-    assertThat(PredicateExpressionNode.create(leaf).toDisplayString())
-        .isEqualTo("city is equal to \"Seattle\"");
+    assertThat(PredicateExpressionNode.create(leaf).toDisplayString(ImmutableList.of(question)))
+        .isEqualTo(question.getName() + "'s city is equal to \"Seattle\"");
   }
 
   @Test
   public void toDisplayString_andNode() {
+    QuestionDefinition question =
+        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
     LeafOperationExpressionNode leaf1 =
         LeafOperationExpressionNode.create(
-            123L, Scalar.NUMBER, Operator.GREATER_THAN, PredicateValue.of(45));
+            question.getId(), Scalar.NUMBER, Operator.GREATER_THAN, PredicateValue.of(45));
     LeafOperationExpressionNode leaf2 =
         LeafOperationExpressionNode.create(
-            456L, Scalar.NUMBER, Operator.LESS_THAN_OR_EQUAL_TO, PredicateValue.of(72));
+            question.getId(), Scalar.NUMBER, Operator.LESS_THAN_OR_EQUAL_TO, PredicateValue.of(72));
     AndNode and =
         AndNode.create(
             ImmutableSet.of(
@@ -83,18 +90,27 @@ public class PredicateExpressionNodeTest {
 
     PredicateExpressionNode node = PredicateExpressionNode.create(and);
 
-    assertThat(node.toDisplayString())
-        .isEqualTo("number is greater than 45 and number is less than or equal to 72");
+    assertThat(node.toDisplayString(ImmutableList.of(question)))
+        .isEqualTo(
+            question.getName()
+                + "'s number is greater than 45 and "
+                + question.getName()
+                + "'s number is less than or equal to 72");
   }
 
   @Test
   public void toDisplayString_orNode() {
+    QuestionDefinition multiOption = testQuestionBank.applicantIceCream().getQuestionDefinition();
+    QuestionDefinition date = testQuestionBank.applicantDate().getQuestionDefinition();
     LeafOperationExpressionNode leaf1 =
         LeafOperationExpressionNode.create(
-            123L, Scalar.SELECTION, Operator.ANY_OF, PredicateValue.of(ImmutableList.of("a", "b")));
+            multiOption.getId(),
+            Scalar.SELECTION,
+            Operator.IN,
+            PredicateValue.of(ImmutableList.of("1", "2")));
     LeafOperationExpressionNode leaf2 =
         LeafOperationExpressionNode.create(
-            456L,
+            date.getId(),
             Scalar.DATE,
             Operator.IS_BEFORE,
             PredicateValue.of(
@@ -106,8 +122,11 @@ public class PredicateExpressionNodeTest {
 
     PredicateExpressionNode node = PredicateExpressionNode.create(or);
 
-    assertThat(node.toDisplayString())
+    assertThat(node.toDisplayString(ImmutableList.of(multiOption, date)))
         .isEqualTo(
-            "selection contains any of [\"a\", \"b\"] or date is earlier than 2021-01-01");
+            multiOption.getName()
+                + "'s selection is one of [chocolate, strawberry] or "
+                + date.getName()
+                + "'s date is earlier than 2021-01-01");
   }
 }

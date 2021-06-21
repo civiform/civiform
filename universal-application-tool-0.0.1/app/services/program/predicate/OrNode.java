@@ -4,9 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.auto.value.AutoValue;
-import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import services.question.types.QuestionDefinition;
 
 /**
  * Represents the boolean operator OR. At least one of the child predicates must evaluate to true
@@ -32,9 +33,8 @@ public abstract class OrNode implements ConcretePredicateExpressionNode {
   }
 
   @Override
-  @Memoized
-  public String toDisplayString() {
+  public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
     return Joiner.on(" or ")
-        .join(children().stream().map(c -> c.node().toDisplayString()).toArray());
+        .join(children().stream().map(c -> c.node().toDisplayString(questions)).toArray());
   }
 }

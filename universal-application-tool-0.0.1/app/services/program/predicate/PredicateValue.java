@@ -5,13 +5,16 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
-import com.google.auto.value.extension.memoized.Memoized;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
 
 /**
@@ -58,14 +61,31 @@ public abstract class PredicateValue {
   @JsonProperty("type")
   public abstract ScalarType type();
 
-  @Memoized
-  public String toDisplayString() {
+  public String toDisplayString(Optional<QuestionDefinition> question) {
+    // Convert to a human-readable date.
     if (type() == ScalarType.DATE) {
       return Instant.ofEpochMilli(Long.parseLong(value()))
-              .atZone(ZoneId.systemDefault())
-              .toLocalDate()
-              .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+          .atZone(ZoneId.systemDefault())
+          .toLocalDate()
+          .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
+
+    // We store the multi-option IDs, rather than the human-readable option text.
+    if (type() == ScalarType.LIST_OF_STRINGS
+        && question.isPresent()
+        && question.get().getQuestionType().isMultiOptionType()) {
+      MultiOptionQuestionDefinition multiOptionQuestion =
+          (MultiOptionQuestionDefinition) question.get();
+      // Convert the quote-escaped string IDs to their corresponding default option text.
+      return Splitter.on(", ")
+          .splitToStream(value().substring(1, value().length() - 1))
+          .map(stringId -> Long.valueOf(stringId.substring(1, stringId.length() - 1)))
+          .map(multiOptionQuestion::getDefaultLocaleOptionForId)
+          .map(option -> option.orElse("<obsolete>"))
+          .collect(toImmutableList())
+          .toString();
+    }
+
     return value();
   }
 
