@@ -155,14 +155,6 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  /** Get the default locale representation of the option with the given ID. */
-  public Optional<String> getDefaultLocaleOptionForId(long id) {
-    return getOptionsForDefaultLocale().stream()
-        .filter(o -> o.id() == id)
-        .map(LocalizedQuestionOption::optionText)
-        .findFirst();
-  }
-
   public MultiOptionValidationPredicates getMultiOptionValidationPredicates() {
     return (MultiOptionValidationPredicates) getValidationPredicates();
   }
