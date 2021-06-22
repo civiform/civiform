@@ -97,7 +97,7 @@ class PreviewController {
       }
     } else {
       PreviewController.setTextAndHighlightEnumeratorReferences(
-        PreviewController.QUESTION_HELP_TEXT_CLASS,
+        PreviewController.QUESTION_TEXT_CLASS,
         text);
     }
   }

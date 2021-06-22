@@ -287,6 +287,20 @@ public final class QuestionEditView extends BaseHtmlView {
                       .map(String::valueOf)
                       .orElse(NO_ENUMERATOR_ID_STRING)));
     }
+    boolean isStaticQuestionType = questionForm.getQuestionType() == QuestionType.STATIC;
+
+    ContainerTag questionHelpTextField = 
+        FieldWithLabel.textArea()
+            .setId("question-help-text-textarea")
+            .setFieldName("questionHelpText")
+            .setLabelText("Question help text")
+            .setPlaceholderText("The question help text displayed to the applicant")
+            .setDisabled(!submittable)
+            .setValue(questionForm.getQuestionHelpText())
+            .getContainer();
+    if (isStaticQuestionType) { // Hide help text for static questions.
+        questionHelpTextField.withClasses(Styles.HIDDEN);
+    }      
 
     formTag
         .with(
@@ -306,21 +320,13 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionText())
                 .getContainer(),
-            FieldWithLabel.textArea()
-                .setId("question-help-text-textarea")
-                .setFieldName("questionHelpText")
-                .setLabelText("Question help text")
-                .setPlaceholderText("The question help text displayed to the applicant")
-                .setDisabled(!submittable)
-                .setValue(questionForm.getQuestionHelpText())
-                .getContainer())
+            questionHelpTextField)
         .with(formQuestionTypeSelect(questionType));
 
-    boolean demographicFieldsHidden = questionForm.getQuestionType() == QuestionType.STATIC;
     formTag.with(QuestionConfig.buildQuestionConfig(questionForm));
     formTag.with(
         div()
-            .withClasses(demographicFieldsHidden ? "hidden" : "")
+            .withClasses(isStaticQuestionType ? "hidden" : "")
             .withId("demographic-field-content")
             .with(buildDemographicFields(questionForm)));
     return formTag;
