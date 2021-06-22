@@ -54,7 +54,7 @@ public class ProfileMergeTest extends WithPostgresContainer {
 
     assertThat(
             profileAdapter
-                .mergeUatProfile(profileFactory.wrapProfileData(profileData), oidcProfile)
+                .mergeCiviFormProfile(profileFactory.wrapProfileData(profileData), oidcProfile)
                 .getEmail())
         .isEqualTo("foo@example.com");
   }
@@ -70,7 +70,7 @@ public class ProfileMergeTest extends WithPostgresContainer {
 
     assertThatThrownBy(
             () ->
-                profileAdapter.mergeUatProfile(
+                profileAdapter.mergeCiviFormProfile(
                     profileFactory.wrapProfileData(profileData), conflictingProfile))
         .hasCauseInstanceOf(ProfileMergeConflictException.class);
   }

@@ -49,7 +49,7 @@ public abstract class CiviFormProfileAdapter extends OidcProfileCreator {
   protected abstract void adaptForRole(CiviFormProfile profile, ImmutableSet<Roles> roles);
 
   /** Merge the two provided profiles into a new CiviFormProfileData. */
-  public CiviFormProfileData mergeUatProfile(
+  public CiviFormProfileData mergeCiviFormProfile(
       CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
     String emailAddress = oidcProfile.getAttribute(emailAttributeName(), String.class);
     civiformProfile.setEmailAddress(emailAddress).join();
@@ -125,7 +125,7 @@ public abstract class CiviFormProfileAdapter extends OidcProfileCreator {
       LOG.debug("Found no existing profile in session cookie.");
       return Optional.of(civiformProfileFromOidcProfile(profile));
     } else {
-      return Optional.of(mergeUatProfile(existingProfile.get(), profile));
+      return Optional.of(mergeCiviFormProfile(existingProfile.get(), profile));
     }
   }
 
