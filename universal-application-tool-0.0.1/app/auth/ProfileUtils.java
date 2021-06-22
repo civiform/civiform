@@ -43,7 +43,7 @@ public class ProfileUtils {
   }
 
   /** Return true if the account referenced by the profile exists. */
-  public boolean validUatProfile(CiviFormProfile profile) {
+  public boolean validCiviFormProfile(CiviFormProfile profile) {
     try {
       profile.getAccount().join();
       return true;

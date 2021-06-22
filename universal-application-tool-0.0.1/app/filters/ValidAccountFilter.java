@@ -28,7 +28,7 @@ public class ValidAccountFilter extends EssentialFilter {
     return EssentialAction.of(
         request -> {
           Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
-          if (profile.isPresent() && !profileUtils.validUatProfile(profile.get())) {
+          if (profile.isPresent() && !profileUtils.validCiviFormProfile(profile.get())) {
             // The cookie is present but the profile is not valid, redirect to logout and clear the
             // cookie.
             if (!allowedEndpoint(request.uri())) {
