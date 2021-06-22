@@ -120,7 +120,11 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                     .with(
                         div(
                             blockDefinition.visibilityPredicate().isPresent()
-                                ? blockDefinition.visibilityPredicate().get().toString()
+                                ? blockDefinition
+                                    .visibilityPredicate()
+                                    .get()
+                                    .toDisplayString(
+                                        blockDefinition.name(), potentialPredicateQuestions)
                                 : TEXT_NO_VISIBILITY_CONDITIONS)))
             .with(removePredicateForm)
             .with(
