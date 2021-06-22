@@ -102,6 +102,22 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void edit_withMessages_returnsCorrectButtonText() {
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1"))
+                    .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
+            .build();
+
+    Result result =
+        subject.edit(request, applicant.id, program.id, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Próximo");
+  }
+
+  @Test
   public void update_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
     Request request =
@@ -293,22 +309,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_withMessages_returnsCorrectButtonText() {
-    Request request =
-        addCSRFToken(
-                fakeRequest(
-                        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1"))
-                    .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
-            .build();
-
-    Result result =
-        subject.edit(request, applicant.id, program.id, "1").toCompletableFuture().join();
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Próximo");
-  }
-
-  @Test
   public void updateFile_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
     RequestBuilder request =
@@ -463,6 +463,148 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Result result =
         subject
             .updateFile(
+                request.build(),
+                applicant.id,
+                program.id,
+                /* blockId = */ "1",
+                /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(applicant.id, program.id).url();
+
+    assertThat(result.redirectLocation()).hasValue(reviewRoute);
+  }
+
+  @Test
+  public void skipFile_invalidApplicant_returnsUnauthorized() {
+    long badApplicantId = applicant.id + 1000;
+    RequestBuilder request =
+        fakeRequest(
+            routes.ApplicantProgramBlocksController.skipFile(
+                badApplicantId, program.id, /* blockId = */ "2", /* inReview = */ false));
+
+    Result result =
+        subject
+            .skipFile(
+                request.build(),
+                badApplicantId,
+                program.id,
+                /* blockId = */ "2",
+                /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void skipFile_invalidProgram_returnsBadRequest() {
+    long badProgramId = program.id + 1000;
+    RequestBuilder request =
+        fakeRequest(
+            routes.ApplicantProgramBlocksController.skipFile(
+                applicant.id, badProgramId, /* blockId = */ "2", /* inReview = */ false));
+
+    Result result =
+        subject
+            .skipFile(
+                request.build(),
+                applicant.id,
+                badProgramId,
+                /* blockId = */ "2",
+                /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void skipFile_invalidBlock_returnsBadRequest() {
+    String badBlockId = "1000";
+    RequestBuilder request =
+        fakeRequest(
+            routes.ApplicantProgramBlocksController.skipFile(
+                applicant.id, program.id, badBlockId, /* inReview = */ false));
+
+    Result result =
+        subject
+            .skipFile(request.build(), applicant.id, program.id, badBlockId, /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void skipFile_notFileUploadBlock_returnsBadRequest() {
+    String badBlockId = "1";
+    RequestBuilder request =
+        fakeRequest(
+            routes.ApplicantProgramBlocksController.skipFile(
+                applicant.id, program.id, badBlockId, /* inReview = */ false));
+
+    Result result =
+        subject
+            .skipFile(request.build(), applicant.id, program.id, badBlockId, /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void skipFile_withNextBlock_redirectsToEdit() {
+    program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock("block 1")
+            .withQuestion(testQuestionBank().applicantFile())
+            .withBlock("block 2")
+            .withQuestion(testQuestionBank().applicantAddress())
+            .build();
+    RequestBuilder request =
+        fakeRequest(
+            routes.ApplicantProgramBlocksController.skipFile(
+                applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false));
+
+    Result result =
+        subject
+            .skipFile(
+                request.build(),
+                applicant.id,
+                program.id,
+                /* blockId = */ "1",
+                /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    String nextBlockEditRoute =
+        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, /* blockId = */ "2")
+            .url();
+    assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
+  }
+
+  @Test
+  public void skipFile_completedProgram_redirectsToReviewPage() {
+    program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock("block 1")
+            .withQuestion(testQuestionBank().applicantFile())
+            .build();
+
+    RequestBuilder request =
+        fakeRequest(
+            routes.ApplicantProgramBlocksController.skipFile(
+                applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false));
+
+    Result result =
+        subject
+            .skipFile(
                 request.build(),
                 applicant.id,
                 program.id,
