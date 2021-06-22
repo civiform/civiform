@@ -146,9 +146,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         //  probably require some work in BlockVisibilityPredicateForm as well.
       case DATE:
         LocalDate localDate = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        System.out.println("HELLO NATALIE");
-        System.out.println(localDate);
-        System.out.println("HELLO NATALIE");
         return PredicateValue.of(localDate);
       case LONG:
         return PredicateValue.of(Long.parseLong(value));
