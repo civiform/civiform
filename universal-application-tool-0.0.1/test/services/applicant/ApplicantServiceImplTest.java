@@ -147,7 +147,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
-    Path checkboxPath = Path.create("applicant.checkbox").join(Scalar.SELECTION).asArrayElement();
+    Path checkboxPath = Path.create("applicant.checkbox").join(Scalar.SELECTIONS).asArrayElement();
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(checkboxPath.atIndex(0).toString(), "1")
@@ -164,7 +164,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(
-            applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTION)))
+            applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTIONS)))
         .hasValue(ImmutableList.of(1L, 2L, 3L));
 
     // Ensure that we can successfully overwrite the array.
@@ -181,7 +181,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     applicantDataAfter = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(
-            applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTION)))
+            applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTIONS)))
         .hasValue(ImmutableList.of(3L, 1L));
 
     // Clear values by sending an empty item.
@@ -195,7 +195,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     applicantDataAfter = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(
-            applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTION)))
+            applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTIONS)))
         .hasValue(ImmutableList.of());
   }
 
