@@ -195,6 +195,8 @@ public class FieldWithLabel {
       if (this.fieldValueNumber.isPresent()) {
         fieldTag.withValue(String.valueOf(this.fieldValueNumber.getAsLong()));
       }
+      // We only allow integer input.
+      fieldTag.attr("oninput", "this.value=(parseInt(this.value)||0)");
     } else {
       fieldTag.withValue(this.fieldValue);
     }

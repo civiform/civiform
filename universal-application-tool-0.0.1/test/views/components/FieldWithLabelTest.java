@@ -38,7 +38,7 @@ public class FieldWithLabelTest {
   @Test
   public void number_setsNoValueByDefault() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.number();
-    assertThat(fieldWithLabel.getContainer().render()).doesNotContain("value");
+    assertThat(fieldWithLabel.getContainer().render()).doesNotContain(" value");
   }
 
   @Test
