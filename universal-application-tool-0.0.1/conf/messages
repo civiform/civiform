@@ -29,14 +29,16 @@ footer.supportLinkDescription=For technical support, contact
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
-#
+# Prompt for applicant to log in
 content.loginPrompt=Please log in with your City of Seattle account
 
 # The text on the button an applicant clicks to log in to their session.
 button.login=Log in
 
+# Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=Don''t have an account?
 
+# The text between creating a new account, and becoming a guest
 content.or=or
 
 # The text on the button for applicants to create a new account.
