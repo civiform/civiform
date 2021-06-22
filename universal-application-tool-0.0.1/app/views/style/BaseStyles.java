@@ -136,4 +136,54 @@ public final class BaseStyles {
    * and sizing.
    */
   public static final String MODAL_CONTENT = StyleUtils.joinStyles(Styles.MY_4);
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Login style classes
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  public static final String LOGIN_PAGE =
+      StyleUtils.joinStyles(
+          Styles.ABSOLUTE,
+          Styles.LEFT_1_2,
+          Styles.TOP_1_2,
+          Styles.TRANSFORM,
+          Styles._TRANSLATE_X_1_2,
+          Styles._TRANSLATE_Y_1_2,
+          Styles.BORDER,
+          Styles.BORDER_GRAY_200,
+          Styles.ROUNDED_LG,
+          Styles.SHADOW_XL,
+          Styles.BG_WHITE,
+          Styles.FLEX,
+          Styles.FLEX_COL,
+          Styles.GAP_2,
+          Styles.PLACE_ITEMS_CENTER);
+
+  private static final String LOGIN_REDIRECT_BUTTON_BASE =
+      StyleUtils.joinStyles(Styles.ROUNDED_3XL, Styles.UPPERCASE);
+
+  public static final String LOGIN_REDIRECT_BUTTON =
+      StyleUtils.joinStyles(
+          LOGIN_REDIRECT_BUTTON_BASE,
+          Styles.BG_BLUE_800,
+          Styles.TEXT_WHITE,
+          Styles.W_3_4,
+          StyleUtils.responsiveMedium(Styles.W_1_3));
+
+  public static final String LOGIN_REDIRECT_BUTTON_SECONDARY =
+      StyleUtils.joinStyles(
+          LOGIN_REDIRECT_BUTTON_BASE,
+          Styles.BORDER,
+          Styles.BORDER_BLUE_800,
+          Styles.TEXT_BLUE_800,
+          Styles.TEXT_BASE,
+          Styles.BG_WHITE,
+          StyleUtils.hover(Styles.BG_BLUE_100, Styles.OPACITY_90));
+
+  public static final String ADMIN_LOGIN =
+      StyleUtils.joinStyles(
+          Styles.BG_TRANSPARENT,
+          Styles.TEXT_BLACK,
+          Styles.UNDERLINE,
+          Styles.FONT_BOLD,
+          StyleUtils.hover(Styles.BG_GRAY_200, Styles.OPACITY_90));
 }

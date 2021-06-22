@@ -78,7 +78,7 @@ public class HomeController extends Controller {
 
   public Result loginForm(Http.Request request, Optional<String> message)
       throws TechnicalException {
-    return ok(loginForm.render(request, message));
+    return ok(loginForm.render(request, messagesApi.preferred(request), message));
   }
 
   public Result playIndex() {
