@@ -1,5 +1,6 @@
 package forms;
 
+import com.google.common.collect.Sets;
 import play.data.validation.Constraints;
 import play.data.validation.Constraints.Validatable;
 import play.data.validation.Constraints.Validate;
@@ -54,7 +55,7 @@ public class BlockVisibilityPredicateForm implements Validatable<String> {
     Scalar scalar = Scalar.valueOf(getScalar());
 
     // This should never happen since we only expose the usable operators for the given scalar.
-    if (!operator.getOperableTypes().contains(scalar.toScalarType())) {
+    if (Sets.intersection(operator.getOperableTypes(), scalar.toScalarType()).isEmpty()) {
       return String.format(
           "Cannot use operator \"%s\" on scalar \"%s\".",
           operator.toDisplayString(), scalar.toDisplayString());

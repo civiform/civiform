@@ -27,7 +27,8 @@ public enum Scalar {
   LINE2("address line 2", ScalarType.STRING),
   MIDDLE_NAME("middle name", ScalarType.STRING),
   NUMBER("number", ScalarType.LONG),
-  SELECTION("selection", ScalarType.LIST_OF_STRINGS),
+  // Selection may be either STRING (single-select) or LIST_OF_STRINGS (multi-select)
+  SELECTION("selection", ScalarType.LIST_OF_STRINGS, ScalarType.STRING),
   STATE("state", ScalarType.STRING),
   STREET("street", ScalarType.STRING),
   TEXT("text", ScalarType.STRING),
@@ -43,19 +44,19 @@ public enum Scalar {
   PROGRAM_UPDATED_IN("program updated in", ScalarType.LONG);
 
   private final String displayString;
-  private final ScalarType scalarType;
+  private final ImmutableSet<ScalarType> scalarType;
 
   /** The displayString should only be used in the Admin UI, since it is not localized. */
-  Scalar(String displayString, ScalarType scalarType) {
+  Scalar(String displayString, ScalarType... scalarType) {
     this.displayString = displayString;
-    this.scalarType = scalarType;
+    this.scalarType = ImmutableSet.copyOf(scalarType);
   }
 
   public String toDisplayString() {
     return this.displayString;
   }
 
-  public ScalarType toScalarType() {
+  public ImmutableSet<ScalarType> toScalarType() {
     return this.scalarType;
   }
 
