@@ -38,6 +38,7 @@ public class FieldWithLabelTest {
   @Test
   public void number_setsNoValueByDefault() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.number();
+    // No "value"="some-value" attribute. But allow "this.value" in script.
     assertThat(fieldWithLabel.getContainer().render()).doesNotContain(" value");
   }
 
