@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
 /**
- * This class takes an existing UAT profile and augments it with the information from an IDCS
+ * This class takes an existing CiviForm profile and augments it with the information from an IDCS
  * profile.
  */
 public class IdcsProfileAdapter extends CiviFormProfileAdapter {

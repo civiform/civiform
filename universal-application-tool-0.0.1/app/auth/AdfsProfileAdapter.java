@@ -11,9 +11,9 @@ import org.pac4j.oidc.profile.OidcProfile;
 import repository.UserRepository;
 
 /**
- * This class takes an existing UAT profile and augments it with the information from an AD profile.
- * Right now this is only extracting the email address, since that is all that AD provides right
- * now.
+ * This class takes an existing CiviForm profile and augments it with the information from an AD
+ * profile. Right now this is only extracting the email address, since that is all that AD provides
+ * right now.
  */
 public class AdfsProfileAdapter extends CiviFormProfileAdapter {
   private final String adminGroupName;

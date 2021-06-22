@@ -47,7 +47,7 @@ public class HomeController extends Controller {
 
     CiviFormProfile profile = maybeProfile.get();
 
-    if (profile.isUatAdmin()) {
+    if (profile.isCiviFormAdmin()) {
       return CompletableFuture.completedFuture(
           redirect(controllers.admin.routes.AdminProgramController.index()));
     } else if (profile.isProgramAdmin()) {
