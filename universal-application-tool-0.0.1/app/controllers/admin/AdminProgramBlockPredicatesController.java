@@ -151,8 +151,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
       case LONG:
         switch (operator) {
-          case ANY_OF:
-          case NONE_OF:
+          case IN:
+          case NOT_IN:
             ImmutableList<Long> listOfLongs =
                 Splitter.on(",")
                     .splitToStream(value)
