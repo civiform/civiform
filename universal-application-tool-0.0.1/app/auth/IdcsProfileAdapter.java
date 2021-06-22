@@ -26,7 +26,7 @@ import repository.UserRepository;
  * This class takes an existing UAT profile and augments it with the information from an IDCS
  * profile.
  */
-public class IdcsProfileAdapter extends UatProfileAdapter {
+public class IdcsProfileAdapter extends CiviFormProfileAdapter {
   public static final Logger LOG = LoggerFactory.getLogger(IdcsProfileAdapter.class);
 
   public IdcsProfileAdapter(

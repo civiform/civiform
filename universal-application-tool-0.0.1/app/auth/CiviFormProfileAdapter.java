@@ -26,13 +26,13 @@ import repository.UserRepository;
  * - pac4j doesn't come with it. It's abstract because AD and IDCS need slightly different
  * implementations of the two abstract methods.
  */
-public abstract class UatProfileAdapter extends OidcProfileCreator {
+public abstract class CiviFormProfileAdapter extends OidcProfileCreator {
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
 
-  private static Logger LOG = LoggerFactory.getLogger(UatProfileAdapter.class);
+  private static Logger LOG = LoggerFactory.getLogger(CiviFormProfileAdapter.class);
 
-  public UatProfileAdapter(
+  public CiviFormProfileAdapter(
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
