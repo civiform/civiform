@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
 
-public class UatProfileTest extends WithPostgresContainer {
+public class CiviFormProfileTest extends WithPostgresContainer {
 
   private ProfileFactory profileFactory;
 
@@ -23,7 +23,7 @@ public class UatProfileTest extends WithPostgresContainer {
   @Test
   public void checkAuthorization_admin_failsForApplicantId() {
     CiviFormProfileData data = profileFactory.createNewAdmin();
-    UatProfile profile = profileFactory.wrapProfileData(data);
+    CiviFormProfile profile = profileFactory.wrapProfileData(data);
 
     try {
       profile.checkAuthorization(1234L).join();
@@ -36,7 +36,7 @@ public class UatProfileTest extends WithPostgresContainer {
   @Test
   public void checkAuthorization_applicant_passesForOwnId() throws Exception {
     CiviFormProfileData data = profileFactory.createNewApplicant();
-    UatProfile profile = profileFactory.wrapProfileData(data);
+    CiviFormProfile profile = profileFactory.wrapProfileData(data);
 
     profile.checkAuthorization(profile.getApplicant().get().id).join();
   }
@@ -59,7 +59,7 @@ public class UatProfileTest extends WithPostgresContainer {
     account.setApplicants(ImmutableList.of(one, two, three));
     account.save();
 
-    UatProfile profile = profileFactory.wrap(account);
+    CiviFormProfile profile = profileFactory.wrap(account);
 
     profile.checkAuthorization(two.id).join();
   }
@@ -67,7 +67,7 @@ public class UatProfileTest extends WithPostgresContainer {
   @Test
   public void checkAuthorization_fails() {
     CiviFormProfileData data = profileFactory.createNewApplicant();
-    UatProfile profile = profileFactory.wrapProfileData(data);
+    CiviFormProfile profile = profileFactory.wrapProfileData(data);
 
     assertThatThrownBy(() -> profile.checkAuthorization(1234L).join())
         .hasCauseInstanceOf(SecurityException.class);

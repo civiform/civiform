@@ -21,10 +21,10 @@ import repository.UserRepository;
 
 /**
  * This class ensures that the OidcProfileCreator that both the AD and IDCS clients use will
- * generate a UatProfile object. This is necessary for merging those accounts with existing accounts
- * - that's not usually needed in web applications which is why we have to write this class - pac4j
- * doesn't come with it. It's abstract because AD and IDCS need slightly different implementations
- * of the two abstract methods.
+ * generate a CiviFormProfile object. This is necessary for merging those accounts with existing
+ * accounts - that's not usually needed in web applications which is why we have to write this class
+ * - pac4j doesn't come with it. It's abstract because AD and IDCS need slightly different
+ * implementations of the two abstract methods.
  */
 public abstract class UatProfileAdapter extends OidcProfileCreator {
   protected final ProfileFactory profileFactory;
@@ -44,25 +44,26 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
 
   protected abstract String emailAttributeName();
 
-  protected abstract ImmutableSet<Roles> roles(UatProfile profile, OidcProfile oidcProfile);
+  protected abstract ImmutableSet<Roles> roles(CiviFormProfile profile, OidcProfile oidcProfile);
 
-  protected abstract void adaptForRole(UatProfile profile, ImmutableSet<Roles> roles);
+  protected abstract void adaptForRole(CiviFormProfile profile, ImmutableSet<Roles> roles);
 
   /** Merge the two provided profiles into a new CiviFormProfileData. */
-  public CiviFormProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
+  public CiviFormProfileData mergeUatProfile(
+      CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
     String emailAddress = oidcProfile.getAttribute(emailAttributeName(), String.class);
-    uatProfile.setEmailAddress(emailAddress).join();
-    uatProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
+    civiformProfile.setEmailAddress(emailAddress).join();
+    civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
     // Meaning: whatever you signed in with most recently is the role you have.
-    ImmutableSet<Roles> roles = roles(uatProfile, oidcProfile);
+    ImmutableSet<Roles> roles = roles(civiformProfile, oidcProfile);
     for (Roles role : roles) {
-      uatProfile.getProfileData().addRole(role.toString());
+      civiformProfile.getProfileData().addRole(role.toString());
     }
-    adaptForRole(uatProfile, roles);
-    return uatProfile.getProfileData();
+    adaptForRole(civiformProfile, roles);
+    return civiformProfile.getProfileData();
   }
 
-  /** Create a totally new UAT profile from the provided OidcProfile. */
+  /** Create a totally new CiviForm profile from the provided OidcProfile. */
   public abstract CiviFormProfileData uatProfileFromOidcProfile(OidcProfile oidcProfile);
 
   @Override
@@ -98,7 +99,7 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
     // 3) an OIDC account in the callback from the OIDC server (`profile`).
     // We will merge 1 and 2, if present, into `existingProfile`, then merge in `profile`.
 
-    Optional<UatProfile> existingProfile = profileUtils.currentUserProfile(context);
+    Optional<CiviFormProfile> existingProfile = profileUtils.currentUserProfile(context);
     if (existingApplicant.isPresent()) {
       if (existingProfile.isEmpty()) {
         // Easy merge case - we have an existing applicant, but no guest profile.

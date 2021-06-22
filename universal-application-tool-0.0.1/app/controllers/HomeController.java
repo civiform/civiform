@@ -2,8 +2,8 @@ package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.UatProfile;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -38,14 +38,14 @@ public class HomeController extends Controller {
   }
 
   public CompletionStage<Result> index(Http.Request request) {
-    Optional<UatProfile> maybeProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> maybeProfile = profileUtils.currentUserProfile(request);
 
     if (maybeProfile.isEmpty()) {
       return CompletableFuture.completedFuture(
           redirect(controllers.routes.HomeController.loginForm(Optional.empty())));
     }
 
-    UatProfile profile = maybeProfile.get();
+    CiviFormProfile profile = maybeProfile.get();
 
     if (profile.isUatAdmin()) {
       return CompletableFuture.completedFuture(

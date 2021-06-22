@@ -39,7 +39,7 @@ public class ProfileMergeTest extends WithPostgresContainer {
     oidcProfile.addAttribute("user_emailid", "foo@example.com");
 
     CiviFormProfileData profileData = profileAdapter.uatProfileFromOidcProfile(oidcProfile);
-    UatProfile profile = profileFactory.wrapProfileData(profileData);
+    CiviFormProfile profile = profileFactory.wrapProfileData(profileData);
 
     assertThat(profileData.getEmail()).isEqualTo("foo@example.com");
     assertThat(profile.getEmailAddress().get()).isEqualTo("foo@example.com");

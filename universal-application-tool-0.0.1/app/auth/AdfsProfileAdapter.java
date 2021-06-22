@@ -34,7 +34,7 @@ public class AdfsProfileAdapter extends UatProfileAdapter {
   }
 
   @Override
-  protected ImmutableSet<Roles> roles(UatProfile profile, OidcProfile oidcProfile) {
+  protected ImmutableSet<Roles> roles(CiviFormProfile profile, OidcProfile oidcProfile) {
     if (this.isGlobalAdmin(oidcProfile)) {
       return ImmutableSet.of(Roles.ROLE_UAT_ADMIN);
     }
@@ -42,7 +42,7 @@ public class AdfsProfileAdapter extends UatProfileAdapter {
   }
 
   @Override
-  protected void adaptForRole(UatProfile profile, ImmutableSet<Roles> roles) {
+  protected void adaptForRole(CiviFormProfile profile, ImmutableSet<Roles> roles) {
     if (roles.contains(Roles.ROLE_UAT_ADMIN)) {
       profile
           .getAccount()

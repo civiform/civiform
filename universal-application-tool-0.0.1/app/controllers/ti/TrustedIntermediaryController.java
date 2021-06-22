@@ -6,8 +6,8 @@ import static play.mvc.Results.redirect;
 import static play.mvc.Results.unauthorized;
 
 import auth.Authorizers;
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.UatProfile;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -55,12 +55,12 @@ public class TrustedIntermediaryController {
     if (page.isEmpty()) {
       return redirect(routes.TrustedIntermediaryController.dashboard(search, Optional.of(1)));
     }
-    Optional<UatProfile> uatProfile = profileUtils.currentUserProfile(request);
-    if (uatProfile.isEmpty()) {
+    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+    if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
     Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
-        userRepository.getTrustedIntermediaryGroup(uatProfile.get());
+        userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
@@ -71,7 +71,7 @@ public class TrustedIntermediaryController {
     return ok(
         tiDashboardView.render(
             trustedIntermediaryGroup.get(),
-            uatProfile.get().getApplicant().join().getApplicantData().getApplicantName(),
+            civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName(),
             pageInfo.getPageItems(),
             pageInfo.getPageCount(),
             pageInfo.getPage(),
@@ -82,12 +82,12 @@ public class TrustedIntermediaryController {
 
   @Secure(authorizers = Authorizers.Labels.TI)
   public Result addApplicant(Long id, Http.Request request) {
-    Optional<UatProfile> uatProfile = profileUtils.currentUserProfile(request);
-    if (uatProfile.isEmpty()) {
+    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+    if (civiformProfile.isEmpty()) {
       return unauthorized();
     }
     Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
-        userRepository.getTrustedIntermediaryGroup(uatProfile.get());
+        userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }

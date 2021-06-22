@@ -43,7 +43,7 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
   }
 
   @Override
-  protected ImmutableSet<Roles> roles(UatProfile profile, OidcProfile oidcProfile) {
+  protected ImmutableSet<Roles> roles(CiviFormProfile profile, OidcProfile oidcProfile) {
     if (profile.getAccount().join().getMemberOfGroup().isPresent()) {
       return ImmutableSet.of(Roles.ROLE_APPLICANT, Roles.ROLE_TI);
     }
@@ -51,18 +51,19 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
   }
 
   @Override
-  protected void adaptForRole(UatProfile profile, ImmutableSet<Roles> roles) {
+  protected void adaptForRole(CiviFormProfile profile, ImmutableSet<Roles> roles) {
     // not needed
   }
 
   @Override
-  public CiviFormProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
+  public CiviFormProfileData mergeUatProfile(
+      CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
     final String locale = oidcProfile.getAttribute("user_locale", String.class);
     final boolean hasLocale = locale != null && !locale.isEmpty();
     final String displayName = oidcProfile.getAttribute("user_displayname", String.class);
     final boolean hasDisplayName = displayName != null && !displayName.isEmpty();
     if (hasLocale || hasDisplayName) {
-      uatProfile
+      civiformProfile
           .getApplicant()
           .thenApplyAsync(
               applicant -> {
@@ -79,7 +80,7 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
           .join();
     }
 
-    return super.mergeUatProfile(uatProfile, oidcProfile);
+    return super.mergeUatProfile(civiformProfile, oidcProfile);
   }
 
   @Override

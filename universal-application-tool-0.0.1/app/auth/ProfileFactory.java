@@ -46,8 +46,8 @@ public class ProfileFactory {
     return p;
   }
 
-  public UatProfile wrapProfileData(CiviFormProfileData p) {
-    return new UatProfile(dbContext, httpContext, p, programRepositoryProvider.get());
+  public CiviFormProfile wrapProfileData(CiviFormProfileData p) {
+    return new CiviFormProfile(dbContext, httpContext, p, programRepositoryProvider.get());
   }
 
   private CiviFormProfileData create(Roles role) {
@@ -57,11 +57,11 @@ public class ProfileFactory {
     return p;
   }
 
-  public UatProfile wrap(Account account) {
+  public CiviFormProfile wrap(Account account) {
     return wrapProfileData(new CiviFormProfileData(account.id));
   }
 
-  public UatProfile wrap(Applicant applicant) {
+  public CiviFormProfile wrap(Applicant applicant) {
     return wrapProfileData(new CiviFormProfileData(applicant.getAccount().id));
   }
 

@@ -22,14 +22,14 @@ import repository.ProgramRepository;
  * about a profile, this class should not store any data that should be serialized. It should
  * contain only server-local information, like execution contexts, database connections, etc.
  */
-public class UatProfile {
+public class CiviFormProfile {
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
   private CiviFormProfileData profileData;
   private ProgramRepository programRepository;
 
   @Inject
-  public UatProfile(
+  public CiviFormProfile(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
       CiviFormProfileData profileData,

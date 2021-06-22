@@ -8,7 +8,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.p;
 
-import auth.UatProfile;
+import auth.CiviFormProfile;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.Tag;
@@ -40,8 +40,8 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
   public Content render(
       ActiveAndDraftPrograms programs,
       List<String> authorizedPrograms,
-      Optional<UatProfile> uatProfile) {
-    if (uatProfile.isPresent() && uatProfile.get().isProgramAdmin()) {
+      Optional<CiviFormProfile> civiformProfile) {
+    if (civiformProfile.isPresent() && civiformProfile.get().isProgramAdmin()) {
       layout.setProgramAdminType();
     }
 

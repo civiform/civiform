@@ -3,8 +3,8 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.UatProfile;
 import controllers.CiviFormController;
 import forms.ProgramForm;
 import java.util.Optional;
@@ -56,7 +56,7 @@ public class AdminProgramController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
   public Result index(Request request) {
-    Optional<UatProfile> profileMaybe = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
     return ok(listView.render(this.service.getActiveAndDraftPrograms(), request, profileMaybe));
   }
 
