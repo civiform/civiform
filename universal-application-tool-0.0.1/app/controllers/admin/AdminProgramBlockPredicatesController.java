@@ -5,6 +5,7 @@ import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
 import auth.Authorizers;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import forms.BlockVisibilityPredicateForm;
@@ -87,15 +88,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       BlockVisibilityPredicateForm predicateForm = predicateFormWrapper.get();
 
       Scalar scalar = Scalar.valueOf(predicateForm.getScalar());
+      Operator operator = Operator.valueOf(predicateForm.getOperator());
       PredicateValue predicateValue =
-          parsePredicateValue(scalar, predicateForm.getPredicateValue());
+          parsePredicateValue(scalar, operator, predicateForm.getPredicateValue());
 
       LeafOperationExpressionNode leafExpression =
           LeafOperationExpressionNode.create(
-              predicateForm.getQuestionId(),
-              scalar,
-              Operator.valueOf(predicateForm.getOperator()),
-              predicateValue);
+              predicateForm.getQuestionId(), scalar, operator, predicateValue);
       PredicateDefinition predicateDefinition =
           PredicateDefinition.create(
               PredicateExpressionNode.create(leafExpression),
@@ -139,18 +138,48 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         .flashing("success", "Removed the visibility condition for this block.");
   }
 
-  private PredicateValue parsePredicateValue(Scalar scalar, String value) {
+  /**
+   * Parses the given value based on the given scalar type and operator. For example, if the scalar
+   * is of type LONG and the operator is of type ANY_OF, the value will be parsed as a list of
+   * comma-separated longs.
+   */
+  private PredicateValue parsePredicateValue(Scalar scalar, Operator operator, String value) {
     switch (scalar.toScalarType()) {
-        // TODO(https://github.com/seattle-uat/civiform/issues/322): Add a case for LIST_OF_STRINGS.
-        //  Should use the PredicateValue `of` method that takes a ImmutableList<String>. This will
-        //  probably require some work in BlockVisibilityPredicateForm as well.
       case DATE:
         LocalDate localDate = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         return PredicateValue.of(localDate);
+
       case LONG:
-        return PredicateValue.of(Long.parseLong(value));
+        switch (operator) {
+          case ANY_OF:
+          case NONE_OF:
+            ImmutableList<Long> listOfLongs =
+                Splitter.on(",")
+                    .splitToStream(value)
+                    .map(s -> Long.parseLong(s))
+                    .collect(ImmutableList.toImmutableList());
+            return PredicateValue.ofListOfLongs(listOfLongs);
+          default: // EQUAL_TO, NOT_EQUAL_TO, GREATER_THAN, GREATER_THAN_OR_EQUAL_TO, LESS_THAN,
+            // LESS_THAN_OR_EQUAL_TO
+            return PredicateValue.of(Long.parseLong(value));
+        }
+
       default: // STRING, LIST_OF_STRINGS
-        return PredicateValue.of(value);
+        switch (operator) {
+          case ANY_OF:
+          case NONE_OF:
+          case IN:
+          case NOT_IN:
+          case SUBSET_OF:
+            ImmutableList<String> listOfStrings =
+                Splitter.on(",")
+                    .splitToStream(value)
+                    .map(s -> s.trim())
+                    .collect(ImmutableList.toImmutableList());
+            return PredicateValue.of(listOfStrings);
+          default: // EQUAL_TO, NOT_EQUAL_TO
+            return PredicateValue.of(value);
+        }
     }
   }
 }
