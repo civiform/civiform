@@ -139,28 +139,32 @@ public class ApplicantQuestion {
   }
 
   public Optional<Long> getUpdatedInProgramMetadata() {
-    Path contextualizedMetadataPath = getContextualizedPath().join(Scalar.PROGRAM_UPDATED_IN);
-
-    // Metadata for enumerators is stored for each JSON array element, but we rely on metadata for
-    // the first one.
-    if (getQuestionDefinition().isEnumerator()) {
-      contextualizedMetadataPath =
-          getContextualizedPath().atIndex(0).join(Scalar.PROGRAM_UPDATED_IN);
-    }
-
-    return applicantData.readLong(contextualizedMetadataPath);
+    return getMetadata(Scalar.PROGRAM_UPDATED_IN);
   }
 
   public Optional<Long> getLastUpdatedTimeMetadata() {
-    Path contextualizedMetadataPath = getContextualizedPath().join(Scalar.UPDATED_AT);
+    return getMetadata(Scalar.UPDATED_AT);
+  }
 
-    // Metadata for enumerators are stored for each JSON array element, but we rely on metadata for
-    // the first one.
+  private Optional<Long> getMetadata(Scalar metadataScalar) {
+    Path contextualizedMetadataPath = getMetadataPath(metadataScalar);
+    return applicantData.readLong(contextualizedMetadataPath);
+  }
+
+  private Path getMetadataPath(Scalar metadataScalar) {
+    Path contextualizedMetadataPath = getContextualizedPath().join(metadataScalar);
+
+    // For enumerator questions, rely on the metadata at the first repeated entity if it exists.
+    // If it doesn't exist, check for metadata stored when there are no repeated entities.
     if (getQuestionDefinition().isEnumerator()) {
-      contextualizedMetadataPath = getContextualizedPath().atIndex(0).join(Scalar.UPDATED_AT);
+      Path firstEntity = getContextualizedPath().atIndex(0);
+      contextualizedMetadataPath =
+          applicantData.hasPath(firstEntity)
+              ? firstEntity.join(metadataScalar)
+              : getContextualizedPath().withoutArrayReference().join(metadataScalar);
     }
 
-    return applicantData.readLong(contextualizedMetadataPath);
+    return contextualizedMetadataPath;
   }
 
   public AddressQuestion createAddressQuestion() {

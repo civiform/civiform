@@ -271,4 +271,19 @@ public class ApplicantQuestionTest {
     assertThat(applicantQuestion.getQuestionHelpText())
         .isEqualTo("What is the monthly income of Jonathan at JonCo?");
   }
+
+  @Test
+  public void getMetadata_forEnumerator_withNoRepeatedEntities() {
+    ApplicantData applicantData = new ApplicantData();
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+            applicantData,
+            Optional.empty());
+    QuestionAnswerer.addMetadata(
+        applicantData, applicantQuestion.getContextualizedPath().withoutArrayReference(), 1L, 2L);
+
+    assertThat(applicantQuestion.getUpdatedInProgramMetadata()).contains(1L);
+    assertThat(applicantQuestion.getLastUpdatedTimeMetadata()).contains(2L);
+  }
 }

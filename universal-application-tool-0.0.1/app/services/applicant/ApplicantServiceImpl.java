@@ -410,6 +410,13 @@ public class ApplicantServiceImpl implements ApplicantService {
             .map(Integer::valueOf)
             .collect(ImmutableList.toImmutableList());
     applicantData.deleteRepeatedEntities(enumeratorPath, deleteIndices);
+
+    // If there are no repeated entities at this point, we still need to save metadata for this
+    // question.
+    if (applicantData.readRepeatedEntities(enumeratorPath).isEmpty()) {
+      applicantData.maybeClearRepeatedEntities(enumeratorPath);
+      writeMetadataForPath(enumeratorPath.withoutArrayReference(), applicantData, updateMetadata);
+    }
   }
 
   /**
@@ -468,7 +475,7 @@ public class ApplicantServiceImpl implements ApplicantService {
     for (Update update : updates) {
       Path currentPath = update.path();
 
-      // If we're updating an array we need to clear it first.
+      // If we're updating an array we need to clear it the first time it is visited
       if (currentPath.isArrayElement()
           && !visitedPaths.contains(currentPath.withoutArrayReference())) {
         visitedPaths.add(currentPath.withoutArrayReference());
@@ -480,22 +487,25 @@ public class ApplicantServiceImpl implements ApplicantService {
               .getScalarType(currentPath)
               .orElseThrow(() -> new PathNotInBlockException(block.getId(), currentPath));
       questionPaths.add(currentPath.parentPath());
-      switch (type) {
-        case DATE:
-          applicantData.putDate(currentPath, update.value());
-          break;
-        case LIST_OF_STRINGS:
-        case STRING:
-          applicantData.putString(currentPath, update.value());
-          break;
-        case LONG:
-          applicantData.putLong(currentPath, update.value());
-          break;
-        default:
-          throw new UnsupportedScalarTypeException(type);
+      if (!update.value().isBlank()) {
+        switch (type) {
+          case DATE:
+            applicantData.putDate(currentPath, update.value());
+            break;
+          case LIST_OF_STRINGS:
+          case STRING:
+            applicantData.putString(currentPath, update.value());
+            break;
+          case LONG:
+            applicantData.putLong(currentPath, update.value());
+            break;
+          default:
+            throw new UnsupportedScalarTypeException(type);
+        }
       }
     }
 
+    // Write metadata for all paths, regardless of whether they were blank or not.
     questionPaths
         .build()
         .forEach(path -> writeMetadataForPath(path, applicantData, updateMetadata));

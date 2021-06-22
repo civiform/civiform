@@ -236,11 +236,15 @@ public class ApplicantData {
     }
   }
 
-  /** Clears an array in preparation of updates. */
+  /**
+   * Clears an array in preparation of updates, regardless of whether there are anything values
+   * present.
+   */
   public void maybeClearArray(Path path) {
+    checkLocked();
     if (path.isArrayElement()) {
       putParentIfMissing(path);
-      putAt(path.withoutArrayReference(), new ArrayList<>());
+      jsonData.delete(path.withoutArrayReference().toString());
     }
   }
 
@@ -364,6 +368,14 @@ public class ApplicantData {
       index++;
     }
     return listBuilder.build();
+  }
+
+  /** If there are no repeated entities at the path, remove the array entirely. */
+  public void maybeClearRepeatedEntities(Path path) {
+    checkLocked();
+    if (readRepeatedEntities(path).isEmpty()) {
+      jsonData.delete(path.withoutArrayReference().toString());
+    }
   }
 
   /**

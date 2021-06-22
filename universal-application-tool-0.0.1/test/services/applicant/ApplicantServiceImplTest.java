@@ -196,7 +196,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
 
     assertThat(
             applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTIONS)))
-        .hasValue(ImmutableList.of());
+        .isEmpty();
   }
 
   @Test
