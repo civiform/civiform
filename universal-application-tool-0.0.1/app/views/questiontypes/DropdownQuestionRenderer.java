@@ -4,6 +4,7 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static j2html.TagCreator.div;
 
 import j2html.tags.Tag;
+import java.util.Comparator;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
@@ -34,6 +35,7 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRenderer {
             .setPlaceholderText(messages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
             .setOptions(
                 singleSelectQuestion.getOptions().stream()
+                    .sorted(Comparator.comparing(LocalizedQuestionOption::order))
                     .collect(
                         toImmutableMap(
                             LocalizedQuestionOption::optionText,

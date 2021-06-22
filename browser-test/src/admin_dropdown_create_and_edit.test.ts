@@ -58,7 +58,7 @@ describe('create dropdown question with options', () => {
     // Edit the question
     await adminQuestions.gotoQuestionEditPage(questionName);
     var questionSettingsDiv = await page.innerHTML('#question-settings');
-    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(2);
+    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(4);
 
     await endSession(browser);
   })

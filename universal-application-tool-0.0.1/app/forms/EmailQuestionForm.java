@@ -1,6 +1,6 @@
 package forms;
 
-import services.question.types.QuestionDefinition;
+import services.question.types.EmailQuestionDefinition;
 import services.question.types.QuestionType;
 
 public class EmailQuestionForm extends QuestionForm {
@@ -9,7 +9,7 @@ public class EmailQuestionForm extends QuestionForm {
     super();
   }
 
-  public EmailQuestionForm(QuestionDefinition qd) {
+  public EmailQuestionForm(EmailQuestionDefinition qd) {
     super(qd);
   }
 

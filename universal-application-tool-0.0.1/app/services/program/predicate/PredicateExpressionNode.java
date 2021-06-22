@@ -7,7 +7,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import services.question.types.QuestionDefinition;
 
 /** Represents a predicate that can be evaluated over {@link services.applicant.ApplicantData}. */
 @AutoValue
@@ -78,5 +80,9 @@ public abstract class PredicateExpressionNode {
       default:
         return ImmutableSet.of();
     }
+  }
+
+  public String toDisplayString(ImmutableList<QuestionDefinition> questions) {
+    return node().toDisplayString(questions);
   }
 }

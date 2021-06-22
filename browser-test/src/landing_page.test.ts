@@ -5,7 +5,7 @@ describe('the landing page', () => {
 
     const { browser, page } = await startSession();
 
-    expect(await page.textContent('html')).toContain('continue as guest');
+    expect(await page.textContent('html')).toContain('Continue as guest');
 
     await endSession(browser);
   })
