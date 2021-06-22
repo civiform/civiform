@@ -345,8 +345,8 @@ public class ApplicantQuestionTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
-                Optional.of(programId))
+            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+            Optional.of(programId))
             .setOptional(true);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, applicantData, Optional.empty());
@@ -354,5 +354,67 @@ public class ApplicantQuestionTest {
         applicantData, applicantQuestion.getContextualizedPath(), programId, 1L);
 
     assertThat(applicantQuestion.isRequiredButWasUnansweredInCurrentProgram()).isFalse();
+  }
+
+  public void isAnsweredOrLeftUnansweredInProgram_forOptionalUnanswered_isTrue() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank
+                .applicantJugglingNumber()
+                .getQuestionDefinition()
+                .getQuestionPathSegment());
+    QuestionAnswerer.addMetadata(applicantData, questionPath, programId, 0L);
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(), true);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
+
+    assertThat(applicantQuestion.isAnsweredOrLeftUnansweredInProgram(programId)).isTrue();
+  }
+
+  @Test
+  public void isAnsweredOrLeftUnansweredInProgram_forOptionalUnansweredInDifferentProgram_isFalse() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank
+                .applicantJugglingNumber()
+                .getQuestionDefinition()
+                .getQuestionPathSegment());
+    QuestionAnswerer.addMetadata(applicantData, questionPath, programId + 1, 0L);
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(), true);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
+
+    assertThat(applicantQuestion.isAnsweredOrLeftUnansweredInProgram(programId)).isFalse();
+  }
+
+  @Test
+  public void isAnsweredOrLeftUnansweredInProgram_forRequiredUnanswered_isFalse() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank
+                .applicantJugglingNumber()
+                .getQuestionDefinition()
+                .getQuestionPathSegment());
+    QuestionAnswerer.addMetadata(applicantData, questionPath, programId, 0L);
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(), false);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
+
+    assertThat(applicantQuestion.isAnsweredOrLeftUnansweredInProgram(programId)).isFalse();
   }
 }
