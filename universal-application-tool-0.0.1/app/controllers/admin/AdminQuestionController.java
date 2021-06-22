@@ -12,7 +12,6 @@ import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -324,11 +323,16 @@ public class AdminQuestionController extends CiviFormController {
           ((EnumeratorQuestionForm) questionForm).getEntityType());
     }
 
-    if (existing.getQuestionType().isMultiOptionType()) {
+    if (questionForm instanceof MultiOptionQuestionForm) {
+      MultiOptionQuestionDefinition definition = null;
+      try {
+        definition = (MultiOptionQuestionDefinition) questionForm.getBuilder().build();
+      } catch (UnsupportedQuestionTypeException e) {
+        // Impossible - we checked the type above.
+        throw new RuntimeException(e);
+      }
       updateDefaultLocalizationForOptions(
-          updated,
-          (MultiOptionQuestionDefinition) existing,
-          ((MultiOptionQuestionForm) questionForm).getOptions());
+          updated, (MultiOptionQuestionDefinition) existing, definition.getOptions());
     }
   }
 
@@ -347,7 +351,7 @@ public class AdminQuestionController extends CiviFormController {
   private void updateDefaultLocalizationForOptions(
       QuestionDefinitionBuilder updated,
       MultiOptionQuestionDefinition existing,
-      List<String> updatedDefaultOptions) {
+      ImmutableList<QuestionOption> updatedOptions) {
 
     ImmutableMap<String, QuestionOption> existingTranslations =
         existing.getOptions().stream()
@@ -356,14 +360,19 @@ public class AdminQuestionController extends CiviFormController {
     // translations. If we do not have existing translations for a given string, create
     // a new, empty set of translations.
     ImmutableList.Builder<QuestionOption> updatedOptionsBuilder = ImmutableList.builder();
-    for (int i = 0; i < updatedDefaultOptions.size(); i++) {
-      String updatedDefaultOption = updatedDefaultOptions.get(i);
-      if (existingTranslations.containsKey(updatedDefaultOption)) {
+    for (QuestionOption updatedOption : updatedOptions) {
+      if (existingTranslations.containsKey(updatedOption.optionText().getDefault())
+          && existingTranslations.get(updatedOption.optionText().getDefault()).id()
+              == updatedOption.id()) {
+        QuestionOption existingOption =
+            existingTranslations.get(updatedOption.optionText().getDefault());
         updatedOptionsBuilder.add(
-            existingTranslations.get(updatedDefaultOption).toBuilder().setId(i).build());
+            existingOption.toBuilder()
+                .setId(updatedOption.id())
+                .setDisplayOrder(updatedOption.displayOrder())
+                .build());
       } else {
-        updatedOptionsBuilder.add(
-            QuestionOption.create(i, LocalizedStrings.withDefaultValue(updatedDefaultOption)));
+        updatedOptionsBuilder.add(updatedOption);
       }
     }
     updated.setQuestionOptions(updatedOptionsBuilder.build());

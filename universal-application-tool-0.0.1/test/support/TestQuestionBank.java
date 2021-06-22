@@ -194,9 +194,9 @@ public class TestQuestionBank {
                 Locale.US, "Which of the following kitchen instruments do you own?"),
             LocalizedStrings.of(Locale.US, "This is sample help text."),
             ImmutableList.of(
-                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "toaster")),
-                QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "pepper grinder")),
-                QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "garlic press"))));
+                QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "toaster")),
+                QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "pepper grinder")),
+                QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "garlic press"))));
     return maybeSave(definition);
   }
 
@@ -211,10 +211,10 @@ public class TestQuestionBank {
                 Locale.US, "Select your favorite ice cream flavor from the following"),
             LocalizedStrings.of(Locale.US, "This is sample help text."),
             ImmutableList.of(
-                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "chocolate")),
-                QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "strawberry")),
-                QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "vanilla")),
-                QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "coffee"))));
+                QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "chocolate")),
+                QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "strawberry")),
+                QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "vanilla")),
+                QuestionOption.create(4L, 4L, LocalizedStrings.of(Locale.US, "coffee"))));
     return maybeSave(definition);
   }
 
@@ -342,10 +342,10 @@ public class TestQuestionBank {
             LocalizedStrings.of(Locale.US, "What is your favorite season?"),
             LocalizedStrings.of(Locale.US, "This is sample help text."),
             ImmutableList.of(
-                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "winter")),
-                QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "spring")),
-                QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "summer")),
-                QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "fall"))));
+                QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "winter")),
+                QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "spring")),
+                QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "summer")),
+                QuestionOption.create(4L, 4L, LocalizedStrings.of(Locale.US, "fall"))));
     return maybeSave(definition);
   }
 

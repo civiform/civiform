@@ -118,6 +118,19 @@ describe('normal application flow', () => {
     await adminPrograms.expectApplicationAnswers('Block 2', 'number-q', '42');
     await adminPrograms.expectApplicationAnswers('Block 2', 'text-q', 'some text');
     await adminPrograms.expectApplicationAnswerLinks('Block 3', 'fileupload-q');
+
+    await logout(page);
+    await loginAsAdmin(page);
+    await adminQuestions.createNewVersion('favorite-trees-q');
+    await adminQuestions.gotoQuestionEditPage('favorite-trees-q');
+    await page.click('button:text("Remove"):visible')
+    await page.click('text=Update');
+    await adminPrograms.publishProgram(programName);
+
+    await adminPrograms.viewApplicationsForOldVersion(programName);
+    await adminPrograms.viewApplicationForApplicant(userDisplayName());
+    await adminPrograms.expectApplicationAnswers('Block 2', 'favorite-trees-q', 'pine cherry');
+
     await endSession(browser);
   })
 })

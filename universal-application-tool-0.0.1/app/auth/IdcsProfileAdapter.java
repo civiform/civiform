@@ -1,6 +1,5 @@
 package auth;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.nimbusds.jose.util.DefaultResourceRetriever;
@@ -13,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.CompletionStage;
 import javax.inject.Provider;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.oidc.client.OidcClient;
@@ -59,34 +57,26 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
 
   @Override
   public UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
-    String locale = oidcProfile.getAttribute("user_locale", String.class);
-    ImmutableList.Builder<CompletionStage<Void>> dbOperations =
-        new ImmutableList.Builder<CompletionStage<Void>>();
-    if (locale != null && !locale.isEmpty()) {
-      dbOperations.add(
-          uatProfile
-              .getApplicant()
-              .thenApplyAsync(
-                  applicant -> {
-                    applicant.getApplicantData().setPreferredLocale(Locale.forLanguageTag(locale));
-                    applicant.save();
-                    return null;
-                  }));
-    }
-    String displayName = oidcProfile.getAttribute("user_displayname", String.class);
-    if (displayName != null && !displayName.isEmpty()) {
-      dbOperations.add(
-          uatProfile
-              .getApplicant()
-              .thenApplyAsync(
-                  applicant -> {
-                    applicant.getApplicantData().setUserName(displayName);
-                    applicant.save();
-                    return null;
-                  }));
-    }
-    for (CompletionStage<Void> dbOp : dbOperations.build()) {
-      dbOp.toCompletableFuture().join();
+    final String locale = oidcProfile.getAttribute("user_locale", String.class);
+    final boolean hasLocale = locale != null && !locale.isEmpty();
+    final String displayName = oidcProfile.getAttribute("user_displayname", String.class);
+    final boolean hasDisplayName = displayName != null && !displayName.isEmpty();
+    if (hasLocale || hasDisplayName) {
+      uatProfile
+          .getApplicant()
+          .thenApplyAsync(
+              applicant -> {
+                if (hasLocale) {
+                  applicant.getApplicantData().setPreferredLocale(Locale.forLanguageTag(locale));
+                }
+                if (hasDisplayName) {
+                  applicant.getApplicantData().setUserName(displayName);
+                }
+                applicant.save();
+                return null;
+              })
+          .toCompletableFuture()
+          .join();
     }
 
     return super.mergeUatProfile(uatProfile, oidcProfile);

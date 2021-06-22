@@ -13,6 +13,7 @@ import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.program.DuplicateProgramQuestionException;
+import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
@@ -62,6 +63,11 @@ public class AdminProgramBlockQuestionsController extends Controller {
     try {
       programService.removeQuestionsFromBlock(
           programId, blockDefinitionId, ImmutableList.of(questionDefinitionId));
+    } catch (IllegalPredicateOrderingException e) {
+      return redirect(
+              controllers.admin.routes.AdminProgramBlocksController.edit(
+                  programId, blockDefinitionId))
+          .flashing("error", e.getLocalizedMessage());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {

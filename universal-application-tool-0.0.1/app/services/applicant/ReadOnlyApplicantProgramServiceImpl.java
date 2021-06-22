@@ -34,15 +34,17 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   private final ApplicantData applicantData;
 
   private final ProgramDefinition programDefinition;
+  private final String baseUrl;
   private ImmutableList<Block> allBlockList;
   private ImmutableList<Block> currentBlockList;
 
   protected ReadOnlyApplicantProgramServiceImpl(
-      ApplicantData applicantData, ProgramDefinition programDefinition) {
+      ApplicantData applicantData, ProgramDefinition programDefinition, String baseUrl) {
     this.applicantData = new ApplicantData(checkNotNull(applicantData).asJsonString());
     this.applicantData.setPreferredLocale(applicantData.preferredLocale());
     this.applicantData.lock();
     this.programDefinition = checkNotNull(programDefinition);
+    this.baseUrl = checkNotNull(baseUrl);
   }
 
   @Override
@@ -295,8 +297,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .getFileKeyValue()
                 .map(
                     fileKey ->
-                        controllers.routes.FileController.adminShow(programDefinition.id(), fileKey)
-                            .url())
+                        baseUrl
+                            + controllers.routes.FileController.adminShow(
+                                    programDefinition.id(), fileKey)
+                                .url())
                 .orElse(""));
       case ENUMERATOR:
         return ImmutableMap.of(

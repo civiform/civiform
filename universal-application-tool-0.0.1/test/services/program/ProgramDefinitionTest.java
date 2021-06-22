@@ -494,7 +494,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .build()
             .getProgramDefinition();
 
-    assertThatExceptionOfType(IllegalBlockMoveException.class)
+    assertThatExceptionOfType(IllegalPredicateOrderingException.class)
         .isThrownBy(() -> programDefinition.moveBlock(2L, ProgramDefinition.Direction.UP))
         .withMessage(
             "This move is not possible - it would move a block condition before the question it"
@@ -524,7 +524,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .build()
             .getProgramDefinition();
 
-    assertThatExceptionOfType(IllegalBlockMoveException.class)
+    assertThatExceptionOfType(IllegalPredicateOrderingException.class)
         .isThrownBy(() -> programDefinition.moveBlock(1L, ProgramDefinition.Direction.DOWN))
         .withMessage(
             "This move is not possible - it would move a block condition before the question it"

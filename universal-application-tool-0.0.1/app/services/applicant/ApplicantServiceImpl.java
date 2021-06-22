@@ -96,7 +96,7 @@ public class ApplicantServiceImpl implements ApplicantService {
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               return new ReadOnlyApplicantProgramServiceImpl(
-                  applicant.getApplicantData(), programDefinition);
+                  applicant.getApplicantData(), programDefinition, baseUrl);
             },
             httpExecutionContext.current());
   }
@@ -108,7 +108,8 @@ public class ApplicantServiceImpl implements ApplicantService {
       return CompletableFuture.completedFuture(
           new ReadOnlyApplicantProgramServiceImpl(
               application.getApplicantData(),
-              programService.getProgramDefinition(application.getProgram().id)));
+              programService.getProgramDefinition(application.getProgram().id),
+              baseUrl));
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException("Cannot find a program that has applications for it.", e);
     }
@@ -157,7 +158,7 @@ public class ApplicantServiceImpl implements ApplicantService {
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
               ReadOnlyApplicantProgramService readOnlyApplicantProgramServiceBeforeUpdate =
                   new ReadOnlyApplicantProgramServiceImpl(
-                      applicant.getApplicantData(), programDefinition);
+                      applicant.getApplicantData(), programDefinition, baseUrl);
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramServiceBeforeUpdate.getBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
@@ -176,7 +177,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   new ReadOnlyApplicantProgramServiceImpl(
-                      applicant.getApplicantData(), programDefinition);
+                      applicant.getApplicantData(), programDefinition, baseUrl);
 
               Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
               if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {

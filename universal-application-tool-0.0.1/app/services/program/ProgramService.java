@@ -149,9 +149,10 @@ public interface ProgramService {
    * @param programId the ID of the program to update
    * @param blockId the ID of the block to move
    * @return the program definition, with the block moved if it is allowed.
+   * @throws IllegalPredicateOrderingException if moving this block violates a program predicate
    */
   ProgramDefinition moveBlock(long programId, long blockId, ProgramDefinition.Direction direction)
-      throws ProgramNotFoundException, IllegalBlockMoveException;
+      throws ProgramNotFoundException, IllegalPredicateOrderingException;
 
   /**
    * Update a {@link BlockDefinition}'s attributes.
@@ -179,12 +180,15 @@ public interface ProgramService {
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
    *     real Block.
+   * @throws IllegalPredicateOrderingException if changing this block's questions invalidates a
+   *     program predicate
    */
   ProgramDefinition setBlockQuestions(
       long programId,
       long blockDefinitionId,
       ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException;
 
   /**
    * Update a {@link BlockDefinition} to include additional questions.
@@ -215,11 +219,14 @@ public interface ProgramService {
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
    *     real Block.
    * @throws QuestionNotFoundException when questionIds does not correspond to real Questions.
+   * @throws IllegalPredicateOrderingException if removing one or more of the questions invalidates
+   *     a predicate - that is, there exists a predicate in this program that depends on at least
+   *     one question to remove
    */
   ProgramDefinition removeQuestionsFromBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
-          QuestionNotFoundException;
+          QuestionNotFoundException, IllegalPredicateOrderingException;
 
   /**
    * Set the visibility {@link PredicateDefinition} for a block. This predicate describes under what
@@ -232,10 +239,12 @@ public interface ProgramService {
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
    *     real Block.
+   * @throws IllegalPredicateOrderingException if this predicate cannot be added to this block
    */
   ProgramDefinition setBlockPredicate(
       long programId, long blockDefinitionId, PredicateDefinition predicate)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException;
 
   /**
    * Remove the visibility {@link PredicateDefinition} for a block.
@@ -256,9 +265,12 @@ public interface ProgramService {
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramNeedsABlockException when trying to delete the last block of a Program.
+   * @throws IllegalPredicateOrderingException if deleting this block invalidates a predicate in
+   *     this program
    */
   ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
-      throws ProgramNotFoundException, ProgramNeedsABlockException;
+      throws ProgramNotFoundException, ProgramNeedsABlockException,
+          IllegalPredicateOrderingException;
 
   /**
    * Set a program question definition to optional or required. If the question definition ID is not
