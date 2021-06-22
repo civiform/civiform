@@ -40,7 +40,7 @@ public class QuestionAnswerer {
   public static void answerMultiSelectQuestion(
       ApplicantData applicantData, Path contextualizedPath, int index, long value) {
     applicantData.putLong(
-        contextualizedPath.join(Scalar.SELECTION + Path.ARRAY_SUFFIX).atIndex(index), value);
+        contextualizedPath.join(Scalar.SELECTIONS + Path.ARRAY_SUFFIX).atIndex(index), value);
   }
 
   public static void answerNameQuestion(

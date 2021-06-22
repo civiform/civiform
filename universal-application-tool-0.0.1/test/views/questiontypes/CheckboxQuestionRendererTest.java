@@ -57,7 +57,7 @@ public class CheckboxQuestionRendererTest extends WithPostgresContainer {
   public void render_usesCorrectInputName() {
     Tag result = renderer.render(params);
 
-    assertThat(result.render()).contains("applicant.question_name.selection[]");
+    assertThat(result.render()).contains("applicant.question_name.selections[]");
   }
 
   @Test
