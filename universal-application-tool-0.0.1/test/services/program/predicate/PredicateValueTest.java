@@ -2,6 +2,8 @@ package services.program.predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableList;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -12,6 +14,15 @@ import support.TestQuestionBank;
 public class PredicateValueTest {
 
   private final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
+
+  @Test
+  public void oldValue_parsesCorrectly() throws Exception {
+    String valueWithoutType = "{\"value\":\"\\\"hello\\\"\"}";
+    ObjectMapper mapper = new ObjectMapper().registerModule(new GuavaModule());
+
+    assertThat(mapper.readValue(valueWithoutType, PredicateValue.class))
+        .isEqualTo(PredicateValue.of("hello"));
+  }
 
   @Test
   public void stringValue_escapedProperly() {
