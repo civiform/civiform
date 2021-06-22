@@ -72,6 +72,10 @@ public class ApplicantQuestion {
     return getQuestionDefinition().getQuestionType();
   }
 
+  public boolean isOptional() {
+    return programQuestionDefinition.optional();
+  }
+
   /**
    * Get the question text localized to the applicant's preferred locale, contextualized with {@link
    * RepeatedEntity}.
