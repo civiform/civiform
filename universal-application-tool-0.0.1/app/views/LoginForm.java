@@ -15,8 +15,10 @@ import controllers.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
+import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.MessageKey;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.Styles;
@@ -29,14 +31,14 @@ public class LoginForm extends BaseHtmlView {
   @Inject
   public LoginForm(BaseHtmlLayout layout, Config config) {
     this.layout = checkNotNull(layout);
-    this.config = config;
+    this.config = checkNotNull(config);
   }
 
-  public Content render(Http.Request request, Optional<String> message) {
+  public Content render(Http.Request request, Messages messages, Optional<String> message) {
     String title = "Login";
 
     HtmlBundle htmlBundle = this.layout.getBundle().setTitle(title);
-    htmlBundle.addMainContent(mainContent());
+    htmlBundle.addMainContent(mainContent(messages));
 
     // "defense in depth", sort of - this client won't be present in production, and this button
     // won't show up except when running in an acceptable environment.
@@ -52,7 +54,7 @@ public class LoginForm extends BaseHtmlView {
     return layout.render(htmlBundle);
   }
 
-  private ContainerTag mainContent() {
+  private ContainerTag mainContent(Messages messages) {
     ContainerTag content = div().withClasses(BaseStyles.LOGIN_PAGE);
 
     content.with(
@@ -66,7 +68,7 @@ public class LoginForm extends BaseHtmlView {
             .with(p("Seattle").withClasses(Styles.FONT_BOLD))
             .with(p("CiviForm")));
 
-    String loginMessage = "Please log in with your City of Seattle account";
+    String loginMessage = messages.at(MessageKey.CONTENT_LOGIN_PROMPT.getKeyName());
     content.with(
         div()
             .withClasses(
@@ -79,10 +81,11 @@ public class LoginForm extends BaseHtmlView {
                 Styles.W_FULL,
                 Styles.PLACE_ITEMS_CENTER)
             .with(p(loginMessage))
-            .with(loginButton()));
+            .with(loginButton(messages)));
 
-    String alternativeMessage = "Don't have an account?";
-    String or = "or";
+    String alternativeMessage =
+        messages.at(MessageKey.CONTENT_LOGIN_PROMPT_ALTERNATIVE.getKeyName());
+    String or = messages.at(MessageKey.CONTENT_OR.getKeyName());
     content.with(p(alternativeMessage).withClasses(Styles.TEXT_LG));
     ContainerTag alternativeLoginButtons =
         div()
@@ -94,13 +97,16 @@ public class LoginForm extends BaseHtmlView {
                 Styles.ITEMS_CENTER,
                 Styles.TEXT_LG);
     if (config.hasPath("idcs.register_uri")) {
-      alternativeLoginButtons.with(createAccountButton()).with(p(or)).with(guestButton());
+      alternativeLoginButtons
+          .with(createAccountButton(messages))
+          .with(p(or))
+          .with(guestButton(messages));
     } else {
-      alternativeLoginButtons.with(guestButton());
+      alternativeLoginButtons.with(guestButton(messages));
     }
     content.with(alternativeLoginButtons);
 
-    String somethingElse = "Looking for something else?";
+    String somethingElse = messages.at(MessageKey.CONTENT_ADMIN_LOGIN_PROMPT.getKeyName());
     content.with(
         div()
             .withClasses(
@@ -113,7 +119,7 @@ public class LoginForm extends BaseHtmlView {
                 Styles.JUSTIFY_CENTER,
                 Styles.ITEMS_CENTER,
                 Styles.TEXT_BASE)
-            .with(p(somethingElse).with(text(" ")).with(adminButton())));
+            .with(p(somethingElse).with(text(" ")).with(adminLink(messages))));
 
     return div()
         .withClasses(Styles.FIXED, Styles.W_SCREEN, Styles.H_SCREEN, Styles.BG_GRAY_200)
@@ -139,28 +145,28 @@ public class LoginForm extends BaseHtmlView {
                     .url()));
   }
 
-  private Tag loginButton() {
-    String msg = "Log in";
+  private Tag loginButton(Messages messages) {
+    String msg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
     return redirectButton(
             "idcs", msg, routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
   }
 
-  private Tag createAccountButton() {
-    String msg = "Create account";
+  private Tag createAccountButton(Messages messages) {
+    String msg = messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName());
     return redirectButton("register", msg, routes.LoginController.register().url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
   }
 
-  private Tag guestButton() {
-    String msg = "Continue as guest";
+  private Tag guestButton(Messages messages) {
+    String msg = messages.at(MessageKey.BUTTON_LOGIN_GUEST.getKeyName());
     return redirectButton(
             "guest", msg, routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
   }
 
-  private Tag adminButton() {
-    String msg = "Admin login";
+  private Tag adminLink(Messages messages) {
+    String msg = messages.at(MessageKey.LINK_ADMIN_LOGIN.getKeyName());
     return a(msg)
         .withHref(routes.LoginController.adfsLogin().url())
         .withClasses(BaseStyles.ADMIN_LOGIN);
