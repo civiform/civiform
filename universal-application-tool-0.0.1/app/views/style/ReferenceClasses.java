@@ -49,6 +49,8 @@ public final class ReferenceClasses {
   // Question reference classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
+  public static final String REQUIRED_QUESTION = "cf-question-required";
+
   public static final String ADDRESS_QUESTION = "cf-question-address";
   public static final String ADDRESS_CITY = "cf-address-city";
   public static final String ADDRESS_STREET_1 = "cf-address-street-1";
