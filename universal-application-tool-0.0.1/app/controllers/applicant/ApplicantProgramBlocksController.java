@@ -97,7 +97,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+        .thenComposeAsync(
+            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
+            httpExecutionContext.current())
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
@@ -158,7 +160,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+        .thenComposeAsync(
+            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
+            httpExecutionContext.current())
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
@@ -220,7 +224,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+        .thenComposeAsync(
+            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
+            httpExecutionContext.current())
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
@@ -268,7 +274,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+        .thenComposeAsync(
+            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
+            httpExecutionContext.current())
         .thenComposeAsync(
             v -> {
               DynamicForm form = formFactory.form().bindFromRequest(request);
