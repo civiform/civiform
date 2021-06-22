@@ -79,7 +79,7 @@ public class CiviFormProfile {
   }
 
   public boolean isUatAdmin() {
-    return profileData.getRoles().contains(Roles.ROLE_UAT_ADMIN.toString());
+    return profileData.getRoles().contains(Roles.ROLE_CIVIFORM_ADMIN.toString());
   }
 
   public boolean isProgramAdmin() {

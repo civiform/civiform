@@ -207,7 +207,7 @@ public class SecurityModule extends AbstractModule {
         new RequireAllRolesAuthorizer(Roles.ROLE_PROGRAM_ADMIN.toString()));
     config.addAuthorizer(
         Authorizers.CIVIFORM_ADMIN.toString(),
-        new RequireAllRolesAuthorizer(Roles.ROLE_UAT_ADMIN.toString()));
+        new RequireAllRolesAuthorizer(Roles.ROLE_CIVIFORM_ADMIN.toString()));
     config.addAuthorizer(
         Authorizers.APPLICANT.toString(),
         new RequireAllRolesAuthorizer(Roles.ROLE_APPLICANT.toString()));
@@ -216,7 +216,7 @@ public class SecurityModule extends AbstractModule {
     config.addAuthorizer(
         Authorizers.ANY_ADMIN.toString(),
         new RequireAnyRoleAuthorizer(
-            Roles.ROLE_UAT_ADMIN.toString(), Roles.ROLE_PROGRAM_ADMIN.toString()));
+            Roles.ROLE_CIVIFORM_ADMIN.toString(), Roles.ROLE_PROGRAM_ADMIN.toString()));
 
     config.setHttpActionAdapter(PlayHttpActionAdapter.INSTANCE);
     return config;

@@ -34,7 +34,7 @@ public class ProfileFactory {
   }
 
   public CiviFormProfileData createNewAdmin() {
-    CiviFormProfileData p = create(Roles.ROLE_UAT_ADMIN);
+    CiviFormProfileData p = create(Roles.ROLE_CIVIFORM_ADMIN);
     wrapProfileData(p)
         .getAccount()
         .thenAccept(

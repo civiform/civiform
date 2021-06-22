@@ -27,7 +27,7 @@ public class RoleService {
   }
 
   /**
-   * Get a set of {@link Account}s that have the role {@link auth.Roles#ROLE_UAT_ADMIN}.
+   * Get a set of {@link Account}s that have the role {@link auth.Roles#ROLE_CIVIFORM_ADMIN}.
    *
    * @return an {@link ImmutableSet} of {@link Account}s that are UAT admins.
    */
@@ -38,7 +38,7 @@ public class RoleService {
   /**
    * Promotes the set of accounts (identified by email) to the role of {@link
    * auth.Roles#ROLE_PROGRAM_ADMIN} for the given program. If an account is currently a {@link
-   * auth.Roles#ROLE_UAT_ADMIN}, they will not be promoted, since UAT admins cannot be program
+   * auth.Roles#ROLE_CIVIFORM_ADMIN}, they will not be promoted, since UAT admins cannot be program
    * admins. Instead, we return a {@link CiviFormError} listing the admin accounts that could not be
    * promoted to program admins.
    *

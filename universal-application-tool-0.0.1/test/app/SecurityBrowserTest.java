@@ -156,7 +156,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
 
     goTo(routes.ProfileController.myProfile());
     assertThat(browser.pageSource()).contains("FakeAdminClient");
-    assertThat(browser.pageSource()).contains(Roles.ROLE_UAT_ADMIN.toString());
+    assertThat(browser.pageSource()).contains(Roles.ROLE_CIVIFORM_ADMIN.toString());
 
     goTo(controllers.admin.routes.AdminProgramController.index());
     assertThat(browser.pageSource()).contains("Programs");
