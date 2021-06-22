@@ -25,6 +25,10 @@ public abstract class ApplicantQuestionRenderer {
 
   public abstract Tag render(ApplicantQuestionRendererParams params);
 
+  private String getRequiredClass() {
+    return question.isOptional() ? "" : ReferenceClasses.REQUIRED_QUESTION;
+  }
+
   Tag renderInternal(Messages messages, Tag questionFormContent) {
     return renderInternal(messages, questionFormContent, true);
   }
@@ -63,7 +67,7 @@ public abstract class ApplicantQuestionRenderer {
 
     return div()
         .withId(question.getContextualizedPath().toString())
-        .withClasses(Styles.MX_AUTO, Styles.MB_8, this.getReferenceClass())
+        .withClasses(Styles.MX_AUTO, Styles.MB_8, this.getReferenceClass(), this.getRequiredClass())
         .with(questionTextDiv)
         .with(questionFormContent);
   }
