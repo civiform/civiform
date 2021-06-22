@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -117,15 +116,14 @@ public class ApplicantQuestion {
    */
   public ImmutableMap<Path, ScalarType> getContextualizedScalars() {
     try {
-      return ImmutableMap.<Scalar, ScalarType>builder()
-          .putAll(Scalar.getScalars(getType()))
-          .putAll(Scalar.getMetadataScalars())
+      return ImmutableSet.<Scalar>builder()
+          .addAll(Scalar.getScalars(getType()))
+          .addAll(Scalar.getMetadataScalars())
           .build()
-          .entrySet()
           .stream()
           .collect(
               ImmutableMap.toImmutableMap(
-                  entry -> getContextualizedPath().join(entry.getKey()), Map.Entry::getValue));
+                  scalar -> getContextualizedPath().join(scalar), scalar -> scalar.toScalarType()));
     } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }

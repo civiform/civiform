@@ -198,7 +198,7 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
   }
 
   @Test
-  public void destroy_removesPredicate() throws Exception {
+  public void destroy_removesPredicate() {
     // First add a predicate and assert its presence.
     Http.Request request =
         fakeRequest()

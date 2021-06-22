@@ -1,6 +1,5 @@
 package services.applicant.question;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -59,48 +58,28 @@ public enum Scalar {
     return this.scalarType;
   }
 
-  // TODO(natsid): Refactor the following (ADDRESS_SCALARS, etc) to take advantage of the fact that
-  //  the scalar type is now stored on the scalar itself.
+  private static final ImmutableSet<Scalar> ADDRESS_SCALARS =
+      ImmutableSet.of(STREET, LINE2, CITY, STATE, ZIP);
 
-  private static final ImmutableMap<Scalar, ScalarType> ADDRESS_SCALARS =
-      ImmutableMap.of(
-          STREET, ScalarType.STRING,
-          LINE2, ScalarType.STRING,
-          CITY, ScalarType.STRING,
-          STATE, ScalarType.STRING,
-          ZIP, ScalarType.STRING);
+  private static final ImmutableSet<Scalar> DATE_SCALARS = ImmutableSet.of(DATE);
 
-  private static final ImmutableMap<Scalar, ScalarType> DATE_SCALARS =
-      ImmutableMap.of(DATE, ScalarType.DATE);
+  private static final ImmutableSet<Scalar> EMAIL_SCALARS = ImmutableSet.of(EMAIL);
 
-  private static final ImmutableMap<Scalar, ScalarType> EMAIL_SCALARS =
-      ImmutableMap.of(EMAIL, ScalarType.STRING);
+  private static final ImmutableSet<Scalar> FILE_UPLOAD_SCALARS = ImmutableSet.of(FILE_KEY);
 
-  private static final ImmutableMap<Scalar, ScalarType> FILE_UPLOAD_SCALARS =
-      ImmutableMap.of(FILE_KEY, ScalarType.STRING);
+  private static final ImmutableSet<Scalar> MULTI_SELECT_SCALARS = ImmutableSet.of(SELECTION);
 
-  private static final ImmutableMap<Scalar, ScalarType> MULTI_SELECT_SCALARS =
-      ImmutableMap.of(SELECTION, ScalarType.LIST_OF_STRINGS);
+  private static final ImmutableSet<Scalar> NAME_SCALARS =
+      ImmutableSet.of(FIRST_NAME, MIDDLE_NAME, LAST_NAME);
 
-  private static final ImmutableMap<Scalar, ScalarType> NAME_SCALARS =
-      ImmutableMap.of(
-          FIRST_NAME, ScalarType.STRING,
-          MIDDLE_NAME, ScalarType.STRING,
-          LAST_NAME, ScalarType.STRING);
+  private static final ImmutableSet<Scalar> NUMBER_SCALARS = ImmutableSet.of(NUMBER);
 
-  private static final ImmutableMap<Scalar, ScalarType> NUMBER_SCALARS =
-      ImmutableMap.of(NUMBER, ScalarType.LONG);
+  private static final ImmutableSet<Scalar> SINGLE_SELECT_SCALARS = ImmutableSet.of(SELECTION);
 
-  private static final ImmutableMap<Scalar, ScalarType> SINGLE_SELECT_SCALARS =
-      ImmutableMap.of(SELECTION, ScalarType.STRING);
+  private static final ImmutableSet<Scalar> TEXT_SCALARS = ImmutableSet.of(TEXT);
 
-  private static final ImmutableMap<Scalar, ScalarType> TEXT_SCALARS =
-      ImmutableMap.of(TEXT, ScalarType.STRING);
-
-  private static final ImmutableMap<Scalar, ScalarType> METADATA_SCALARS =
-      ImmutableMap.of(
-          UPDATED_AT, ScalarType.LONG,
-          PROGRAM_UPDATED_IN, ScalarType.LONG);
+  private static final ImmutableSet<Scalar> METADATA_SCALARS =
+      ImmutableSet.of(UPDATED_AT, PROGRAM_UPDATED_IN);
 
   private static ImmutableSet<String> metadataScalarKeys;
 
@@ -110,7 +89,7 @@ public enum Scalar {
    * <p>The {@link QuestionType#ENUMERATOR} does not have scalars. Use {@link Scalar#ENTITY_NAME}
    * instead.
    */
-  public static ImmutableMap<Scalar, ScalarType> getScalars(QuestionType questionType)
+  public static ImmutableSet<Scalar> getScalars(QuestionType questionType)
       throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
     switch (questionType) {
       case ADDRESS:
@@ -144,7 +123,7 @@ public enum Scalar {
     }
   }
 
-  public static ImmutableMap<Scalar, ScalarType> getMetadataScalars() {
+  public static ImmutableSet<Scalar> getMetadataScalars() {
     return METADATA_SCALARS;
   }
 
@@ -152,7 +131,7 @@ public enum Scalar {
   public static ImmutableSet<String> getMetadataScalarKeys() {
     if (metadataScalarKeys == null) {
       metadataScalarKeys =
-          METADATA_SCALARS.keySet().stream()
+          METADATA_SCALARS.stream()
               .map(Scalar::name)
               .map(String::toLowerCase)
               .collect(ImmutableSet.toImmutableSet());
