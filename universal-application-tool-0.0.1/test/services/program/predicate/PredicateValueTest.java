@@ -16,7 +16,7 @@ public class PredicateValueTest {
   private final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
   @Test
-  public void oldValue_parsesCorrectly() throws Exception {
+  public void oldValue_withoutTypeField_parsesCorrectly() throws Exception {
     String valueWithoutType = "{\"value\":\"\\\"hello\\\"\"}";
     ObjectMapper mapper = new ObjectMapper().registerModule(new GuavaModule());
 
