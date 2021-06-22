@@ -15,13 +15,13 @@ import repository.DatabaseExecutionContext;
  *
  * <p>It is wrapped by UatProfile, which is what we should use server-side.
  */
-public class UatProfileData extends CommonProfile {
+public class CiviFormProfileData extends CommonProfile {
 
-  public UatProfileData() {
+  public CiviFormProfileData() {
     super();
   }
 
-  public UatProfileData(Long accountId) {
+  public CiviFormProfileData(Long accountId) {
     this();
     this.setId(accountId.toString());
   }

@@ -56,7 +56,7 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
   }
 
   @Override
-  public UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
+  public CiviFormProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
     final String locale = oidcProfile.getAttribute("user_locale", String.class);
     final boolean hasLocale = locale != null && !locale.isEmpty();
     final String displayName = oidcProfile.getAttribute("user_displayname", String.class);
@@ -83,7 +83,7 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
   }
 
   @Override
-  public UatProfileData uatProfileFromOidcProfile(OidcProfile profile) {
+  public CiviFormProfileData uatProfileFromOidcProfile(OidcProfile profile) {
     return mergeUatProfile(
         profileFactory.wrapProfileData(profileFactory.createNewApplicant()), profile);
   }

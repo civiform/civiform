@@ -22,7 +22,7 @@ public class UatProfileTest extends WithPostgresContainer {
 
   @Test
   public void checkAuthorization_admin_failsForApplicantId() {
-    UatProfileData data = profileFactory.createNewAdmin();
+    CiviFormProfileData data = profileFactory.createNewAdmin();
     UatProfile profile = profileFactory.wrapProfileData(data);
 
     try {
@@ -35,7 +35,7 @@ public class UatProfileTest extends WithPostgresContainer {
 
   @Test
   public void checkAuthorization_applicant_passesForOwnId() throws Exception {
-    UatProfileData data = profileFactory.createNewApplicant();
+    CiviFormProfileData data = profileFactory.createNewApplicant();
     UatProfile profile = profileFactory.wrapProfileData(data);
 
     profile.checkAuthorization(profile.getApplicant().get().id).join();
@@ -66,7 +66,7 @@ public class UatProfileTest extends WithPostgresContainer {
 
   @Test
   public void checkAuthorization_fails() {
-    UatProfileData data = profileFactory.createNewApplicant();
+    CiviFormProfileData data = profileFactory.createNewApplicant();
     UatProfile profile = profileFactory.wrapProfileData(data);
 
     assertThatThrownBy(() -> profile.checkAuthorization(1234L).join())

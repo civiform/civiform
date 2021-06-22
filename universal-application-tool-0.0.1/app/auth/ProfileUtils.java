@@ -35,7 +35,7 @@ public class ProfileUtils {
    */
   public Optional<UatProfile> currentUserProfile(WebContext webContext) {
     ProfileManager profileManager = new ProfileManager(webContext, sessionStore);
-    Optional<UatProfileData> p = profileManager.getProfile(UatProfileData.class);
+    Optional<CiviFormProfileData> p = profileManager.getProfile(CiviFormProfileData.class);
     if (p.isEmpty()) {
       return Optional.empty();
     }

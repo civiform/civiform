@@ -38,7 +38,7 @@ public class ProfileMergeTest extends WithPostgresContainer {
     OidcProfile oidcProfile = new OidcProfile();
     oidcProfile.addAttribute("user_emailid", "foo@example.com");
 
-    UatProfileData profileData = profileAdapter.uatProfileFromOidcProfile(oidcProfile);
+    CiviFormProfileData profileData = profileAdapter.uatProfileFromOidcProfile(oidcProfile);
     UatProfile profile = profileFactory.wrapProfileData(profileData);
 
     assertThat(profileData.getEmail()).isEqualTo("foo@example.com");
@@ -50,7 +50,7 @@ public class ProfileMergeTest extends WithPostgresContainer {
     OidcProfile oidcProfile = new OidcProfile();
     oidcProfile.addAttribute("user_emailid", "foo@example.com");
 
-    UatProfileData profileData = profileAdapter.uatProfileFromOidcProfile(oidcProfile);
+    CiviFormProfileData profileData = profileAdapter.uatProfileFromOidcProfile(oidcProfile);
 
     assertThat(
             profileAdapter
@@ -66,7 +66,7 @@ public class ProfileMergeTest extends WithPostgresContainer {
     OidcProfile conflictingProfile = new OidcProfile();
     oidcProfile.addAttribute("user_emailid", "bar@example.com");
 
-    UatProfileData profileData = profileAdapter.uatProfileFromOidcProfile(oidcProfile);
+    CiviFormProfileData profileData = profileAdapter.uatProfileFromOidcProfile(oidcProfile);
 
     assertThatThrownBy(
             () ->

@@ -48,8 +48,8 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
 
   protected abstract void adaptForRole(UatProfile profile, ImmutableSet<Roles> roles);
 
-  /** Merge the two provided profiles into a new UatProfileData. */
-  public UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
+  /** Merge the two provided profiles into a new CiviFormProfileData. */
+  public CiviFormProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
     String emailAddress = oidcProfile.getAttribute(emailAttributeName(), String.class);
     uatProfile.setEmailAddress(emailAddress).join();
     uatProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
@@ -63,7 +63,7 @@ public abstract class UatProfileAdapter extends OidcProfileCreator {
   }
 
   /** Create a totally new UAT profile from the provided OidcProfile. */
-  public abstract UatProfileData uatProfileFromOidcProfile(OidcProfile oidcProfile);
+  public abstract CiviFormProfileData uatProfileFromOidcProfile(OidcProfile oidcProfile);
 
   @Override
   public Optional<UserProfile> create(
