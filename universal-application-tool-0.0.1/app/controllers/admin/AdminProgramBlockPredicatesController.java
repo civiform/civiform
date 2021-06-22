@@ -8,6 +8,8 @@ import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import forms.BlockVisibilityPredicateForm;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -83,12 +85,17 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       //  question). In the future we should support logical statements that combine multiple "leaf
       //  node" predicates with ANDs and ORs.
       BlockVisibilityPredicateForm predicateForm = predicateFormWrapper.get();
+
+      Scalar scalar = Scalar.valueOf(predicateForm.getScalar());
+      PredicateValue predicateValue =
+          parsePredicateValue(scalar, predicateForm.getPredicateValue());
+
       LeafOperationExpressionNode leafExpression =
           LeafOperationExpressionNode.create(
               predicateForm.getQuestionId(),
-              Scalar.valueOf(predicateForm.getScalar()),
+              scalar,
               Operator.valueOf(predicateForm.getOperator()),
-              PredicateValue.of(predicateForm.getPredicateValue()));
+              predicateValue);
       PredicateDefinition predicateDefinition =
           PredicateDefinition.create(
               PredicateExpressionNode.create(leafExpression),
@@ -130,5 +137,23 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
     return redirect(routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
         .flashing("success", "Removed the visibility condition for this block.");
+  }
+
+  private PredicateValue parsePredicateValue(Scalar scalar, String value) {
+    switch (scalar.toScalarType()) {
+        // TODO(https://github.com/seattle-uat/civiform/issues/322): Add a case for LIST_OF_STRINGS.
+        //  Should use the PredicateValue `of` method that takes a ImmutableList<String>. This will
+        //  probably require some work in BlockVisibilityPredicateForm as well.
+      case DATE:
+        LocalDate localDate = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        System.out.println("HELLO NATALIE");
+        System.out.println(localDate);
+        System.out.println("HELLO NATALIE");
+        return PredicateValue.of(localDate);
+      case LONG:
+        return PredicateValue.of(Long.parseLong(value));
+      default: // STRING, LIST_OF_STRINGS
+        return PredicateValue.of(value);
+    }
   }
 }
