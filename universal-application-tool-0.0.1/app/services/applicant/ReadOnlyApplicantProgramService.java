@@ -32,6 +32,19 @@ public interface ReadOnlyApplicantProgramService {
    */
   ImmutableList<Block> getInProgressBlocks();
 
+  /**
+   * Get the count of blocks that:
+   *
+   * <ul>
+   *   <li>the applicant should see
+   *   <li>and have all their questions either answered, or for optional questions, left unanswered
+   *       in this program.
+   * </ul>
+   *
+   * @return the count of active blocks completed in this program.
+   */
+  int getActiveAndCompletedInProgramBlockCount();
+
   /** Get the block with the given block ID */
   Optional<Block> getBlock(String blockId);
 

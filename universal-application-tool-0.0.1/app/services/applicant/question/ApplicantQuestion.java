@@ -152,6 +152,22 @@ public class ApplicantQuestion {
     return errorsPresenter().hasQuestionErrors() || errorsPresenter().hasTypeSpecificErrors();
   }
 
+  /**
+   * Return true if this question is answered, or left unanswered in the program specified.
+   * Questions can only be left unanswered if they are optional.
+   *
+   * @return true if this question is answered, or left unanswered in the program specified.
+   */
+  public boolean isAnsweredOrLeftUnansweredInProgram(long programId) {
+    return errorsPresenter().isAnswered() || (isOptional() && wasVisitedInProgram(programId));
+  }
+
+  /** Returns true if this question was visited by the specified program. */
+  private boolean wasVisitedInProgram(long programId) {
+    // Use anyMatch, not allMatch, because anyMatch will be false for empty streams.
+    return getUpdatedInProgramMetadata().stream().anyMatch(pid -> pid.equals(programId));
+  }
+
   public Optional<Long> getUpdatedInProgramMetadata() {
     return getMetadata(Scalar.PROGRAM_UPDATED_IN);
   }
