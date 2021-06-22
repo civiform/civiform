@@ -33,7 +33,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
     super(environment, config, sourceMapper, routes);
   }
 
-  protected CompletionStage<Result> onHandlerNotFound(Http.RequestHeader request, String message) {
+  protected CompletionStage<Result> onNotFound(Http.RequestHeader request, String message) {
     return CompletableFuture.completedFuture(
         Results.forbidden("Page not found. Check URL is correct"));
   }
