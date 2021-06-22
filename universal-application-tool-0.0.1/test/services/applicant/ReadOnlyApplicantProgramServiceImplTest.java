@@ -620,7 +620,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             new AbstractMap.SimpleEntry<>(
                 ApplicantData.APPLICANT_PATH
                     .join(multiSelectQuestionDefinition.getQuestionPathSegment())
-                    .join(Scalar.SELECTION),
+                    .join(Scalar.SELECTIONS),
                 "[toaster, pepper grinder]"));
 
     // check file answer
