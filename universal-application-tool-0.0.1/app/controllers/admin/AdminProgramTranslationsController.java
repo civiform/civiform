@@ -42,7 +42,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
    * @return a rendered {@link ProgramTranslationView} pre-populated with any existing translations
    *     for the given locale
    */
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Http.Request request, long id, String locale) {
     try {
       ProgramDefinition program = service.getProgramDefinition(id);
@@ -69,7 +69,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
    * @return redirects to the admin's home page if updates were successful; otherwise, renders the
    *     same {@link ProgramTranslationView} with error messages
    */
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Http.Request request, long id, String locale) {
     Form<ProgramTranslationForm> translationForm = formFactory.form(ProgramTranslationForm.class);
     if (translationForm.hasErrors()) {

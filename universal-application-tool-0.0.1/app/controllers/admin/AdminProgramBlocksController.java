@@ -46,7 +46,7 @@ public class AdminProgramBlocksController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(long programId) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
@@ -57,7 +57,7 @@ public class AdminProgramBlocksController extends CiviFormController {
     }
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Request request, long programId) {
     Optional<Long> enumeratorId =
         Optional.ofNullable(
@@ -85,7 +85,7 @@ public class AdminProgramBlocksController extends CiviFormController {
     }
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long programId, long blockId) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
@@ -96,7 +96,7 @@ public class AdminProgramBlocksController extends CiviFormController {
     }
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId, long blockId) {
     Form<BlockForm> blockFormWrapper = formFactory.form(BlockForm.class);
     BlockForm blockForm = blockFormWrapper.bindFromRequest(request).get();
@@ -116,7 +116,7 @@ public class AdminProgramBlocksController extends CiviFormController {
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result move(Request request, long programId, long blockId) {
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     Direction direction = Direction.valueOf(requestData.get("direction"));
@@ -131,7 +131,7 @@ public class AdminProgramBlocksController extends CiviFormController {
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result destroy(long programId, long blockId) {
     try {
       programService.deleteBlock(programId, blockId);

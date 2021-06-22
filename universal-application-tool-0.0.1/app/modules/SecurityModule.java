@@ -206,7 +206,7 @@ public class SecurityModule extends AbstractModule {
         Authorizers.PROGRAM_ADMIN.toString(),
         new RequireAllRolesAuthorizer(Roles.ROLE_PROGRAM_ADMIN.toString()));
     config.addAuthorizer(
-        Authorizers.UAT_ADMIN.toString(),
+        Authorizers.CIVIFORM_ADMIN.toString(),
         new RequireAllRolesAuthorizer(Roles.ROLE_UAT_ADMIN.toString()));
     config.addAuthorizer(
         Authorizers.APPLICANT.toString(),

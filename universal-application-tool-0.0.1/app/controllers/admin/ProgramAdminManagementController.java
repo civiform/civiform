@@ -45,7 +45,7 @@ public class ProgramAdminManagementController {
   }
 
   /** Displays a form for managing program admins of a given program. */
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Http.Request request, long programId) {
     Optional<Program> program =
         programRepository.lookupProgram(programId).toCompletableFuture().join();
@@ -69,7 +69,7 @@ public class ProgramAdminManagementController {
    * Promotes the given account emails to the role of PROGRAM_ADMIN. If there are errors, return a
    * redirect with flashing error message.
    */
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Http.Request request, long programId) {
     Form<ManageProgramAdminsForm> form = formFactory.form(ManageProgramAdminsForm.class);
     if (form.hasErrors()) {
