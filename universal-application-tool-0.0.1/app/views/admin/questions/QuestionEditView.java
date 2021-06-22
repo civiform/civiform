@@ -289,7 +289,7 @@ public final class QuestionEditView extends BaseHtmlView {
     }
     boolean isStaticQuestionType = questionForm.getQuestionType() == QuestionType.STATIC;
 
-    ContainerTag questionHelpTextField = 
+    ContainerTag questionHelpTextField =
         FieldWithLabel.textArea()
             .setId("question-help-text-textarea")
             .setFieldName("questionHelpText")
@@ -299,8 +299,8 @@ public final class QuestionEditView extends BaseHtmlView {
             .setValue(questionForm.getQuestionHelpText())
             .getContainer();
     if (isStaticQuestionType) { // Hide help text for static questions.
-        questionHelpTextField.withClasses(Styles.HIDDEN);
-    }      
+      questionHelpTextField.withClasses(Styles.HIDDEN);
+    }
 
     formTag
         .with(

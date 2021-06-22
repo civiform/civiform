@@ -85,7 +85,7 @@ class PreviewController {
     const questionType = document.querySelector('.cf-question-type');
     const useAdvancedFormatting = questionType && questionType.textContent === 'STATIC';
     if (useAdvancedFormatting) {
-      let contentElement = PreviewController.formatText(text, false);
+      let contentElement = PreviewController.formatText(text, true);
       contentElement.classList.add('text-sm');
       contentElement.classList.add('font-normal');
       contentElement.classList.add('pr-16');
