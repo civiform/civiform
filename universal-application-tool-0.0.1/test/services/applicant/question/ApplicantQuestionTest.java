@@ -345,8 +345,8 @@ public class ApplicantQuestionTest {
     long programId = 5L;
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
-            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
-            Optional.of(programId))
+                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                Optional.of(programId))
             .setOptional(true);
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, applicantData, Optional.empty());
@@ -377,7 +377,8 @@ public class ApplicantQuestionTest {
   }
 
   @Test
-  public void isAnsweredOrLeftUnansweredInProgram_forOptionalUnansweredInDifferentProgram_isFalse() {
+  public void
+      isAnsweredOrLeftUnansweredInProgram_forOptionalUnansweredInDifferentProgram_isFalse() {
     ApplicantData applicantData = new ApplicantData();
     long programId = 5L;
     Path questionPath =

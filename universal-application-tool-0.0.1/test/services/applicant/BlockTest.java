@@ -424,6 +424,35 @@ public class BlockTest {
   }
 
   @Test
+  public void isCompleteInProgramWithoutErrors_withOptionalUnansweredQuestions_isTrue() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank
+                .applicantJugglingNumber()
+                .getQuestionDefinition()
+                .getQuestionPathSegment());
+    QuestionAnswerer.addMetadata(applicantData, questionPath, programId, 0L);
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(true);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .addQuestion(pqd)
+            .build();
+
+    Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
+
+    assertThat(block.isCompleteInProgramWithoutErrors(programId)).isTrue();
+  }
+
+  @Test
   public void
       hasRequiredQuestionsThatAreUnansweredInCurrentProgram_withOptionalQuestions_returnsFalse() {
     long programId = 5L;
@@ -476,6 +505,64 @@ public class BlockTest {
         applicantData, block.getQuestions().get(1).getContextualizedPath(), "brown");
 
     assertThat(block.hasRequiredQuestionsThatAreUnansweredInCurrentProgram()).isFalse();
+  }
+
+  @Test
+  public void
+      isCompleteInProgramWithoutErrors_withOptionalUnansweredQuestionsInWrongProgram_isFalse() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank
+                .applicantJugglingNumber()
+                .getQuestionDefinition()
+                .getQuestionPathSegment());
+    QuestionAnswerer.addMetadata(applicantData, questionPath, programId + 1, 0L);
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(true);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .addQuestion(pqd)
+            .build();
+
+    Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
+
+    assertThat(block.isCompleteInProgramWithoutErrors(programId)).isFalse();
+  }
+
+  @Test
+  public void isCompleteInProgramWithoutErrors_withRequiredUnansweredQuestions_isFalse() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank
+                .applicantJugglingNumber()
+                .getQuestionDefinition()
+                .getQuestionPathSegment());
+    QuestionAnswerer.addMetadata(applicantData, questionPath, programId, 0L);
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+            Optional.of(programId));
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .addQuestion(pqd)
+            .build();
+
+    Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
+
+    assertThat(block.isCompleteInProgramWithoutErrors(programId)).isFalse();
   }
 
   private static BlockDefinition setUpBlockWithQuestions() {
