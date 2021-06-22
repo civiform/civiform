@@ -24,6 +24,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramDefinition.Direction;
 import services.program.ProgramQuestionDefinition;
+import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -102,9 +103,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     .with(
                         blockEditPanel(
                             programDefinition,
+                            blockDefinition,
                             blockId,
                             blockForm,
                             blockQuestions,
+                            questions,
                             blockDefinition.isEnumerator(),
                             csrfTag,
                             blockDescriptionEditModal.getButton()))
@@ -277,9 +280,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   private ContainerTag blockEditPanel(
       ProgramDefinition program,
+      BlockDefinition blockDefinition,
       long blockId,
       BlockForm blockForm,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
+      ImmutableList<QuestionDefinition> allQuestions,
       boolean blockDefinitionIsEnumerator,
       Tag csrfTag,
       Tag blockDescriptionModalButton) {
@@ -293,6 +298,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 div(blockForm.getName()).withClasses(Styles.TEXT_XL, Styles.FONT_BOLD, Styles.PY_2))
             .with(div(blockForm.getDescription()).withClasses(Styles.TEXT_LG, Styles.MAX_W_PROSE))
             .withClasses(Styles.M_4);
+
+    ContainerTag predicateDisplay =
+        blockDefinition.visibilityPredicate().isEmpty()
+            ? div()
+            : renderPredicate(
+                blockDefinition.visibilityPredicate().get(), blockDefinition.name(), allQuestions);
 
     // Add buttons to change the block.
     ContainerTag buttons =
@@ -340,7 +351,19 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
     return div()
         .withClasses(Styles.FLEX_AUTO, Styles.PY_6)
-        .with(blockInfoDisplay, buttons, programQuestions);
+        .with(blockInfoDisplay, buttons, predicateDisplay, programQuestions);
+  }
+
+  private ContainerTag renderPredicate(
+      PredicateDefinition predicate,
+      String blockName,
+      ImmutableList<QuestionDefinition> questions) {
+    return div()
+        .withClasses(Styles.M_4)
+        .with(div("Block Condition").withClasses(Styles.TEXT_LG, Styles.FONT_BOLD, Styles.PY_2))
+        .with(
+            div(predicate.toDisplayString(blockName, questions))
+                .withClasses(Styles.TEXT_LG, Styles.MAX_W_PROSE));
   }
 
   private ContainerTag renderQuestion(
