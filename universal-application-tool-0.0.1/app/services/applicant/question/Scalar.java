@@ -68,7 +68,7 @@ public enum Scalar {
 
   private static final ImmutableSet<Scalar> FILE_UPLOAD_SCALARS = ImmutableSet.of(FILE_KEY);
 
-  private static final ImmutableSet<Scalar> MULTI_SELECT_SCALARS = ImmutableSet.of(SELECTION);
+  private static final ImmutableSet<Scalar> MULTI_SELECT_SCALARS = ImmutableSet.of(SELECTIONS);
 
   private static final ImmutableSet<Scalar> NAME_SCALARS =
       ImmutableSet.of(FIRST_NAME, MIDDLE_NAME, LAST_NAME);
