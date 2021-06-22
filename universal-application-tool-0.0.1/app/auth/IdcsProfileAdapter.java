@@ -84,7 +84,7 @@ public class IdcsProfileAdapter extends CiviFormProfileAdapter {
   }
 
   @Override
-  public CiviFormProfileData uatProfileFromOidcProfile(OidcProfile profile) {
+  public CiviFormProfileData civiformProfileFromOidcProfile(OidcProfile profile) {
     return mergeUatProfile(
         profileFactory.wrapProfileData(profileFactory.createNewApplicant()), profile);
   }

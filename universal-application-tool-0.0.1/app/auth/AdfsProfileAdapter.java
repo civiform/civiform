@@ -61,7 +61,7 @@ public class AdfsProfileAdapter extends CiviFormProfileAdapter {
   }
 
   @Override
-  public CiviFormProfileData uatProfileFromOidcProfile(OidcProfile profile) {
+  public CiviFormProfileData civiformProfileFromOidcProfile(OidcProfile profile) {
     if (this.isGlobalAdmin(profile)) {
       return mergeUatProfile(
           profileFactory.wrapProfileData(profileFactory.createNewAdmin()), profile);

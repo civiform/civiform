@@ -64,7 +64,7 @@ public abstract class CiviFormProfileAdapter extends OidcProfileCreator {
   }
 
   /** Create a totally new CiviForm profile from the provided OidcProfile. */
-  public abstract CiviFormProfileData uatProfileFromOidcProfile(OidcProfile oidcProfile);
+  public abstract CiviFormProfileData civiformProfileFromOidcProfile(OidcProfile oidcProfile);
 
   @Override
   public Optional<UserProfile> create(
@@ -123,7 +123,7 @@ public abstract class CiviFormProfileAdapter extends OidcProfileCreator {
     // Now merge in the information sent to us by the OIDC server.
     if (existingProfile.isEmpty()) {
       LOG.debug("Found no existing profile in session cookie.");
-      return Optional.of(uatProfileFromOidcProfile(profile));
+      return Optional.of(civiformProfileFromOidcProfile(profile));
     } else {
       return Optional.of(mergeUatProfile(existingProfile.get(), profile));
     }
