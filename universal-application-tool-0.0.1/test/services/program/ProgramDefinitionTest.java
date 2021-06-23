@@ -238,8 +238,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
       throws ProgramBlockDefinitionNotFoundException {
     QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition questionB = testQuestionBank.applicantAddress().getQuestionDefinition();
-    QuestionDefinition questionC =
-        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+    QuestionDefinition questionC = testQuestionBank.applicantFile().getQuestionDefinition();
     QuestionDefinition questionD = testQuestionBank.applicantSeason().getQuestionDefinition();
 
     BlockDefinition blockA =
@@ -248,13 +247,13 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .setName("Block Name")
             .setDescription("Block Description")
             .addQuestion(ProgramQuestionDefinition.create(questionA))
+            .addQuestion(ProgramQuestionDefinition.create(questionB))
             .build();
     BlockDefinition blockB =
         BlockDefinition.builder()
             .setId(2L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(ProgramQuestionDefinition.create(questionB))
             .addQuestion(ProgramQuestionDefinition.create(questionC))
             .build();
     BlockDefinition blockC =
@@ -284,10 +283,11 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(1L)).isEmpty();
     // blockB
     assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(2L))
-        .containsExactly(questionA);
+        .containsExactly(questionA, questionB);
     // blockC
+    // Doesn't include the file upload question.
     assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(3L))
-        .containsExactly(questionA, questionB, questionC);
+        .containsExactly(questionA, questionB);
   }
 
   @Test
