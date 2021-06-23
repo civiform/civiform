@@ -377,7 +377,21 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .with(p(questionDefinition.getName()))
             .with(p(questionDefinition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM));
 
-    Tag optionalToggle;
+    return ret.with(
+        icon,
+        content,
+        optionalToggle(
+            csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, isOptional),
+        deleteQuestionForm(
+            csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, canRemove));
+  }
+
+  private Tag optionalToggle(
+      Tag csrfTag,
+      long programDefinitionId,
+      long blockDefinitionId,
+      QuestionDefinition questionDefinition,
+      boolean isOptional) {
     if (config.hasPath("cf.optional_questions")) {
       ContainerTag optionalButton =
           TagCreator.button()
@@ -416,17 +430,21 @@ public class ProgramBlockEditView extends BaseHtmlView {
           controllers.admin.routes.AdminProgramBlockQuestionsController.setOptional(
                   programDefinitionId, blockDefinitionId, questionDefinition.getId())
               .url();
-      optionalToggle =
-          form(csrfTag)
-              .withMethod(HttpVerbs.POST)
-              .withAction(toggleOptionalAction)
-              .with(
-                  input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
-              .with(optionalButton);
-    } else {
-      optionalToggle = div();
+      return form(csrfTag)
+          .withMethod(HttpVerbs.POST)
+          .withAction(toggleOptionalAction)
+          .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
+          .with(optionalButton);
     }
+    return null;
+  }
 
+  private Tag deleteQuestionForm(
+      Tag csrfTag,
+      long programDefinitionId,
+      long blockDefinitionId,
+      QuestionDefinition questionDefinition,
+      boolean canRemove) {
     Tag removeButton =
         TagCreator.button(text("DELETE"))
             .withType("submit")
@@ -445,14 +463,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
         controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
             .url();
-    ContainerTag questionDeleteForm =
-        form(csrfTag)
-            .withId("block-questions-form")
-            .withMethod(HttpVerbs.POST)
-            .withAction(deleteQuestionAction)
-            .with(removeButton);
-
-    return ret.with(icon, content, optionalToggle, questionDeleteForm);
+    return form(csrfTag)
+        .withId("block-questions-form")
+        .withMethod(HttpVerbs.POST)
+        .withAction(deleteQuestionAction)
+        .with(removeButton);
   }
 
   private ContainerTag questionBankPanel(
