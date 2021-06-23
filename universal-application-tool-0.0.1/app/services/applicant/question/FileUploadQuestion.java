@@ -3,6 +3,7 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.FileUploadQuestionDefinition;
@@ -49,6 +50,10 @@ public class FileUploadQuestion implements PresentsErrors {
   @Override
   public boolean isAnswered() {
     return applicantQuestion.getApplicantData().hasPath(getFileKeyPath());
+  }
+
+  public ValidationErrorMessage fileRequiredMessage() {
+    return ValidationErrorMessage.create(MessageKey.FILEUPLOAD_VALIDATION_FILE_REQUIRED);
   }
 
   public Optional<String> getFileKeyValue() {
