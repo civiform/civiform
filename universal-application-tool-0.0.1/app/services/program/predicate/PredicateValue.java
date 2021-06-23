@@ -39,7 +39,7 @@ public abstract class PredicateValue {
         OperatorRightHandType.DATE);
   }
 
-  public static PredicateValue of(ImmutableList<String> value) {
+  public static PredicateValue listOfStrings(ImmutableList<String> value) {
     return create(
         value.stream()
             .map(PredicateValue::surroundWithQuotes)
@@ -48,9 +48,8 @@ public abstract class PredicateValue {
         OperatorRightHandType.LIST_OF_STRINGS);
   }
 
-  public static PredicateValue ofListOfLongs(ImmutableList<Long> value) {
-    return create(
-        value.stream().collect(toImmutableList()).toString(), OperatorRightHandType.LIST_OF_LONGS);
+  public static PredicateValue listOfLongs(ImmutableList<Long> value) {
+    return create(value.toString(), OperatorRightHandType.LIST_OF_LONGS);
   }
 
   @JsonCreator

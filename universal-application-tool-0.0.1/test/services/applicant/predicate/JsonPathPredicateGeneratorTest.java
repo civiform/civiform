@@ -51,7 +51,7 @@ public class JsonPathPredicateGeneratorTest {
             question.getId(),
             Scalar.CITY,
             Operator.IN,
-            PredicateValue.of(ImmutableList.of("Seattle", "Portland")));
+            PredicateValue.listOfStrings(ImmutableList.of("Seattle", "Portland")));
 
     JsonPathPredicate predicate =
         JsonPathPredicate.create(

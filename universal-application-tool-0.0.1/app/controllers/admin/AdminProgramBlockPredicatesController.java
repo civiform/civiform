@@ -157,7 +157,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                     .splitToStream(value)
                     .map(s -> Long.parseLong(s))
                     .collect(ImmutableList.toImmutableList());
-            return PredicateValue.ofListOfLongs(listOfLongs);
+            return PredicateValue.listOfLongs(listOfLongs);
           default: // EQUAL_TO, NOT_EQUAL_TO, GREATER_THAN, GREATER_THAN_OR_EQUAL_TO, LESS_THAN,
             // LESS_THAN_OR_EQUAL_TO
             return PredicateValue.of(Long.parseLong(value));
@@ -175,7 +175,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
                     .splitToStream(value)
                     .map(s -> s.trim())
                     .collect(ImmutableList.toImmutableList());
-            return PredicateValue.of(listOfStrings);
+            return PredicateValue.listOfStrings(listOfStrings);
           default: // EQUAL_TO, NOT_EQUAL_TO
             return PredicateValue.of(value);
         }

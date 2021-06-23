@@ -32,7 +32,7 @@ public class PredicateValueTest {
 
   @Test
   public void listOfStringsValue_escapedProperly() {
-    PredicateValue value = PredicateValue.of(ImmutableList.of("hello", "world"));
+    PredicateValue value = PredicateValue.listOfStrings(ImmutableList.of("hello", "world"));
     assertThat(value.value()).isEqualTo("[\"hello\", \"world\"]");
   }
 
@@ -45,8 +45,16 @@ public class PredicateValueTest {
   }
 
   @Test
+  public void toDisplayString_listOfLongs() {
+    PredicateValue value = PredicateValue.listOfLongs(ImmutableList.of(1L, 2L, 3L));
+
+    assertThat(value.value()).isEqualTo("[1, 2, 3]");
+    assertThat(value.toDisplayString(Optional.empty())).isEqualTo("[1, 2, 3]");
+  }
+
+  @Test
   public void toDisplayString_simpleList() {
-    PredicateValue value = PredicateValue.of(ImmutableList.of("kangaroo", "turtle"));
+    PredicateValue value = PredicateValue.listOfStrings(ImmutableList.of("kangaroo", "turtle"));
 
     assertThat(value.toDisplayString(Optional.empty())).isEqualTo("[\"kangaroo\", \"turtle\"]");
   }
@@ -55,7 +63,7 @@ public class PredicateValueTest {
   public void toDisplayString_multiOptionList() {
     QuestionDefinition multiOption = testQuestionBank.applicantIceCream().getQuestionDefinition();
 
-    PredicateValue value = PredicateValue.of(ImmutableList.of("1", "2"));
+    PredicateValue value = PredicateValue.listOfStrings(ImmutableList.of("1", "2"));
 
     assertThat(value.toDisplayString(Optional.of(multiOption)))
         .isEqualTo("[chocolate, strawberry]");
@@ -75,7 +83,8 @@ public class PredicateValueTest {
   public void toDisplayString_multiOptionList_missingIdDefaultsToObsolete() {
     QuestionDefinition multiOption = testQuestionBank.applicantIceCream().getQuestionDefinition();
 
-    PredicateValue value = PredicateValue.of(ImmutableList.of("1", "100")); // 100 is not a valid ID
+    PredicateValue value =
+        PredicateValue.listOfStrings(ImmutableList.of("1", "100")); // 100 is not a valid ID
 
     assertThat(value.toDisplayString(Optional.of(multiOption)))
         .isEqualTo("[chocolate, <obsolete>]");
