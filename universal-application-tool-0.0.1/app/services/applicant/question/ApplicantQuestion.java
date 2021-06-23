@@ -77,6 +77,20 @@ public class ApplicantQuestion {
   }
 
   /**
+   * Return true this question is required but was left unanswered while filling out the current
+   * program.
+   */
+  public boolean isRequiredButWasUnansweredInCurrentProgram() {
+    return !isOptional() && !errorsPresenter().isAnswered() && wasRecentlyUpdated();
+  }
+
+  /** Returns true if this question was most recently updated in this program. */
+  private boolean wasRecentlyUpdated() {
+    return getUpdatedInProgramMetadata().stream()
+        .anyMatch(pid -> pid.equals(programQuestionDefinition.getProgramDefinitionId()));
+  }
+
+  /**
    * Get the question text localized to the applicant's preferred locale, contextualized with {@link
    * RepeatedEntity}.
    */

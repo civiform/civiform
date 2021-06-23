@@ -29,6 +29,7 @@ import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
+import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.aws.SimpleEmail;
 import services.program.PathNotInBlockException;
@@ -469,7 +470,6 @@ public class ApplicantServiceImpl implements ApplicantService {
       UpdateMetadata updateMetadata,
       ImmutableSet<Update> updates)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
-    ImmutableSet.Builder<Path> questionPaths = ImmutableSet.builder();
     ArrayList<Path> visitedPaths = new ArrayList<>();
     for (Update update : updates) {
       Path currentPath = update.path();
@@ -485,7 +485,6 @@ public class ApplicantServiceImpl implements ApplicantService {
           block
               .getScalarType(currentPath)
               .orElseThrow(() -> new PathNotInBlockException(block.getId(), currentPath));
-      questionPaths.add(currentPath.parentPath());
       if (!update.value().isBlank()) {
         switch (type) {
           case DATE:
@@ -504,9 +503,9 @@ public class ApplicantServiceImpl implements ApplicantService {
       }
     }
 
-    // Write metadata for all paths, regardless of whether they were blank or not.
-    questionPaths
-        .build()
+    // Write metadata for all questions in the block, regardless of whether they were blank or not.
+    block.getQuestions().stream()
+        .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> writeMetadataForPath(path, applicantData, updateMetadata));
   }
 

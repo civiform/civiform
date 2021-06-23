@@ -67,19 +67,23 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void stageAndUpdateIfValid_emptySetOfUpdates_doesNotChangeApplicant() {
+  public void stageAndUpdateIfValid_emptySetOfUpdates_leavesQuestionsUnansweredAndUpdatesMetadata()
+      throws Exception {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
-    ApplicantData applicantDataBefore = applicant.getApplicantData();
-
     subject
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", ImmutableMap.of())
         .toCompletableFuture()
         .join();
-
-    ApplicantData applicantDataAfter =
+    ApplicantData applicantData =
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
-    assertThat(applicantDataAfter).isEqualTo(applicantDataBefore);
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    Scalar.getScalars(questionDefinition.getQuestionType()).stream()
+        .map(scalar -> questionPath.join(scalar))
+        .forEach(path -> assertThat(applicantData.hasPath(path)).isFalse());
+    assertThat(applicantData.readLong(questionPath.join(Scalar.PROGRAM_UPDATED_IN)))
+        .contains(programDefinition.id());
   }
 
   @Test

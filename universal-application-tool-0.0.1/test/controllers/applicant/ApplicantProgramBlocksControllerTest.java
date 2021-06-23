@@ -562,7 +562,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newDraftProgram()
             .withBlock("block 1")
-            .withQuestion(testQuestionBank().applicantFile())
+            .withQuestion(testQuestionBank().applicantFile(), true)
             .withBlock("block 2")
             .withQuestion(testQuestionBank().applicantAddress())
             .build();
@@ -594,7 +594,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newDraftProgram()
             .withBlock("block 1")
-            .withQuestion(testQuestionBank().applicantFile())
+            .withQuestion(testQuestionBank().applicantFile(), true)
             .build();
 
     RequestBuilder request =

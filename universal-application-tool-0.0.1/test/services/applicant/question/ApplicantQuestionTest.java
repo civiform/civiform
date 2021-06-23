@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.RepeatedEntity;
+import services.program.ProgramQuestionDefinition;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -285,5 +286,73 @@ public class ApplicantQuestionTest {
 
     assertThat(applicantQuestion.getUpdatedInProgramMetadata()).contains(1L);
     assertThat(applicantQuestion.getLastUpdatedTimeMetadata()).contains(2L);
+  }
+
+  @Test
+  public void isRequiredButWasUnansweredInCurrentProgram_returnsTrue() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+            Optional.of(programId));
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
+    QuestionAnswerer.addMetadata(
+        applicantData, applicantQuestion.getContextualizedPath(), programId, 1L);
+
+    assertThat(applicantQuestion.isRequiredButWasUnansweredInCurrentProgram()).isTrue();
+  }
+
+  @Test
+  public void
+      isRequiredButWasUnansweredInCurrentProgram_leftUnansweredInDifferentProgram_returnsFalse() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+            Optional.of(programId));
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
+    QuestionAnswerer.addMetadata(
+        applicantData, applicantQuestion.getContextualizedPath(), programId + 1, 1L);
+
+    assertThat(applicantQuestion.isRequiredButWasUnansweredInCurrentProgram()).isFalse();
+  }
+
+  @Test
+  public void isRequiredButWasUnansweredInCurrentProgram_isAnswered_returnsFalse() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+            Optional.of(programId));
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "5");
+    QuestionAnswerer.addMetadata(
+        applicantData, applicantQuestion.getContextualizedPath(), programId, 1L);
+
+    assertThat(applicantQuestion.isRequiredButWasUnansweredInCurrentProgram()).isFalse();
+  }
+
+  @Test
+  public void isRequiredButWasUnansweredInCurrentProgram_isOptional_returnsFalse() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(true);
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
+    QuestionAnswerer.addMetadata(
+        applicantData, applicantQuestion.getContextualizedPath(), programId, 1L);
+
+    assertThat(applicantQuestion.isRequiredButWasUnansweredInCurrentProgram()).isFalse();
   }
 }

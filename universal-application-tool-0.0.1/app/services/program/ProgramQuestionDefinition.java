@@ -41,6 +41,11 @@ public abstract class ProgramQuestionDefinition {
   abstract Optional<QuestionDefinition> questionDefinition();
 
   @JsonIgnore
+  public long getProgramDefinitionId() {
+    return programDefinitionId().get();
+  }
+
+  @JsonIgnore
   public QuestionDefinition getQuestionDefinition() {
     return questionDefinition().get();
   }
