@@ -76,23 +76,29 @@ public abstract class PredicateValue {
     }
 
     // We store the multi-option IDs, rather than the human-readable option text.
-    if (type() == ScalarType.LIST_OF_STRINGS
-        && question.isPresent()
-        && question.get().getQuestionType().isMultiOptionType()) {
+    if (question.isPresent() && question.get().getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOptionQuestion =
           (MultiOptionQuestionDefinition) question.get();
       // Convert the quote-escaped string IDs to their corresponding default option text.
       // If an ID is not valid, show "<obsolete>". An obsolete ID does not affect evaluation.
-      return Splitter.on(", ")
-          .splitToStream(value().substring(1, value().length() - 1))
-          .map(stringId -> Long.valueOf(stringId.substring(1, stringId.length() - 1)))
-          .map(multiOptionQuestion::getDefaultLocaleOptionForId)
-          .map(option -> option.orElse("<obsolete>"))
-          .collect(toImmutableList())
-          .toString();
+      if (type() == ScalarType.LIST_OF_STRINGS) {
+        return Splitter.on(", ")
+            .splitToStream(value().substring(1, value().length() - 1))
+            .map(id -> parseMultiOptionIdToText(multiOptionQuestion, id))
+            .collect(toImmutableList())
+            .toString();
+      }
+      return parseMultiOptionIdToText(multiOptionQuestion, value());
     }
 
     return value();
+  }
+
+  private static String parseMultiOptionIdToText(
+      MultiOptionQuestionDefinition question, String id) {
+    return question
+        .getDefaultLocaleOptionForId(Long.parseLong(id.substring(1, id.length() - 1)))
+        .orElse("<obsolete>");
   }
 
   private static String surroundWithQuotes(String s) {
