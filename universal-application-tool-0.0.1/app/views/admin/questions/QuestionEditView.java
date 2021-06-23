@@ -324,11 +324,12 @@ public final class QuestionEditView extends BaseHtmlView {
         .with(formQuestionTypeSelect(questionType));
 
     formTag.with(QuestionConfig.buildQuestionConfig(questionForm));
-    formTag.with(
-        div()
-            .withClasses(isStaticQuestionType ? "hidden" : "")
-            .withId("demographic-field-content")
-            .with(buildDemographicFields(questionForm)));
+
+    if (!isStaticQuestionType) {
+      formTag.with(
+          div().withId("demographic-field-content").with(buildDemographicFields(questionForm)));
+    }
+
     return formTag;
   }
 
