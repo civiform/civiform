@@ -2,7 +2,7 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import auth.UatProfile;
+import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -200,7 +200,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
   @Override
   public CompletionStage<Application> submitApplication(
-      long applicantId, long programId, UatProfile submitterProfile) {
+      long applicantId, long programId, CiviFormProfile submitterProfile) {
     if (submitterProfile.isTrustedIntermediary()) {
       return submitterProfile
           .getAccount()

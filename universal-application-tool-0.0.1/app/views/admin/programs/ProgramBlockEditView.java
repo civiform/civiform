@@ -10,6 +10,7 @@ import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import controllers.admin.routes;
 import forms.BlockForm;
 import j2html.TagCreator;
@@ -24,6 +25,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramDefinition.Direction;
 import services.program.ProgramQuestionDefinition;
+import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -41,6 +43,7 @@ import views.style.Styles;
 public class ProgramBlockEditView extends BaseHtmlView {
 
   private final AdminLayout layout;
+  private final boolean featureFlagOptionalQuestions;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
@@ -48,8 +51,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
 
   @Inject
-  public ProgramBlockEditView(AdminLayout layout) {
+  public ProgramBlockEditView(AdminLayout layout, Config config) {
     this.layout = checkNotNull(layout);
+    this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
   }
 
   public Content render(
@@ -102,9 +106,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     .with(
                         blockEditPanel(
                             programDefinition,
+                            blockDefinition,
                             blockId,
                             blockForm,
                             blockQuestions,
+                            questions,
                             blockDefinition.isEnumerator(),
                             csrfTag,
                             blockDescriptionEditModal.getButton()))
@@ -277,9 +283,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   private ContainerTag blockEditPanel(
       ProgramDefinition program,
+      BlockDefinition blockDefinition,
       long blockId,
       BlockForm blockForm,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
+      ImmutableList<QuestionDefinition> allQuestions,
       boolean blockDefinitionIsEnumerator,
       Tag csrfTag,
       Tag blockDescriptionModalButton) {
@@ -293,6 +301,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 div(blockForm.getName()).withClasses(Styles.TEXT_XL, Styles.FONT_BOLD, Styles.PY_2))
             .with(div(blockForm.getDescription()).withClasses(Styles.TEXT_LG, Styles.MAX_W_PROSE))
             .withClasses(Styles.M_4);
+
+    ContainerTag predicateDisplay =
+        blockDefinition.visibilityPredicate().isEmpty()
+            ? div()
+            : renderPredicate(
+                blockDefinition.visibilityPredicate().get(), blockDefinition.name(), allQuestions);
 
     // Add buttons to change the block.
     ContainerTag buttons =
@@ -340,7 +354,20 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
     return div()
         .withClasses(Styles.FLEX_AUTO, Styles.PY_6)
-        .with(blockInfoDisplay, buttons, programQuestions);
+        .with(blockInfoDisplay, buttons, predicateDisplay, programQuestions);
+  }
+
+  private ContainerTag renderPredicate(
+      PredicateDefinition predicate,
+      String blockName,
+      ImmutableList<QuestionDefinition> questions) {
+    return div()
+        .withClasses(Styles.M_4)
+        .with(
+            div("Visibility Condition").withClasses(Styles.TEXT_LG, Styles.FONT_BOLD, Styles.PY_2))
+        .with(
+            div(predicate.toDisplayString(blockName, questions))
+                .withClasses(Styles.TEXT_LG, Styles.MAX_W_PROSE));
   }
 
   private ContainerTag renderQuestion(
@@ -374,6 +401,24 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .with(p(questionDefinition.getName()))
             .with(p(questionDefinition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM));
 
+    return ret.with(
+        icon,
+        content,
+        optionalToggle(
+            csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, isOptional),
+        deleteQuestionForm(
+            csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, canRemove));
+  }
+
+  private Tag optionalToggle(
+      Tag csrfTag,
+      long programDefinitionId,
+      long blockDefinitionId,
+      QuestionDefinition questionDefinition,
+      boolean isOptional) {
+    if (!featureFlagOptionalQuestions) {
+      return null;
+    }
     ContainerTag optionalButton =
         TagCreator.button()
             .withClasses(
@@ -411,13 +456,19 @@ public class ProgramBlockEditView extends BaseHtmlView {
         controllers.admin.routes.AdminProgramBlockQuestionsController.setOptional(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
             .url();
-    ContainerTag optionalToggle =
-        form(csrfTag)
-            .withMethod(HttpVerbs.POST)
-            .withAction(toggleOptionalAction)
-            .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
-            .with(optionalButton);
+    return form(csrfTag)
+        .withMethod(HttpVerbs.POST)
+        .withAction(toggleOptionalAction)
+        .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
+        .with(optionalButton);
+  }
 
+  private Tag deleteQuestionForm(
+      Tag csrfTag,
+      long programDefinitionId,
+      long blockDefinitionId,
+      QuestionDefinition questionDefinition,
+      boolean canRemove) {
     Tag removeButton =
         TagCreator.button(text("DELETE"))
             .withType("submit")
@@ -436,14 +487,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
         controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
             .url();
-    ContainerTag questionDeleteForm =
-        form(csrfTag)
-            .withId("block-questions-form")
-            .withMethod(HttpVerbs.POST)
-            .withAction(deleteQuestionAction)
-            .with(removeButton);
-
-    return ret.with(icon, content, optionalToggle, questionDeleteForm);
+    return form(csrfTag)
+        .withId("block-questions-form")
+        .withMethod(HttpVerbs.POST)
+        .withAction(deleteQuestionAction)
+        .with(removeButton);
   }
 
   private ContainerTag questionBankPanel(

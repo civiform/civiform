@@ -5,7 +5,7 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
-import auth.UatProfile;
+import auth.CiviFormProfile;
 import j2html.tags.Tag;
 import javax.inject.Inject;
 import models.Applicant;
@@ -20,7 +20,7 @@ public class ProfileView extends BaseHtmlView {
     this.layout = checkNotNull(layout);
   }
 
-  public Content render(UatProfile profile, Applicant applicant) {
+  public Content render(CiviFormProfile profile, Applicant applicant) {
     Tag applicantIdTag =
         span(String.valueOf(applicant.id))
             .withId("applicant-id")

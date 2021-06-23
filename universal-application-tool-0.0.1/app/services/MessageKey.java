@@ -26,8 +26,10 @@ public enum MessageKey {
   BUTTON_LOGOUT("button.logout"),
   BUTTON_NEXT_BLOCK("button.nextBlock"),
   BUTTON_REVIEW("button.review"),
+  BUTTON_SKIP_FILEUPLOAD("button.skipFileUpload"),
   BUTTON_SUBMIT("button.submit"),
   BUTTON_UNTRANSLATED_SUBMIT("button.untranslatedSubmit"),
+  BUTTON_UPLOAD("button.upload"),
   CONTENT_ADMIN_LOGIN_PROMPT("content.adminLoginPrompt"),
   CONTENT_CIVIFORM_DESCRIPTION_1("content.description1"),
   CONTENT_CIVIFORM_DESCRIPTION_2("content.description2"),
@@ -76,7 +78,8 @@ public enum MessageKey {
   TITLE_PROGRAM_REVIEW("title.programReview"),
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
-  TOAST_PROGRAM_COMPLETED("toast.programCompleted");
+  TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
+  USER_NAME("header.userName");
 
   private final String keyName;
 

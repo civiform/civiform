@@ -3,7 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
-import auth.UatProfile;
+import auth.CiviFormProfile;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -251,8 +251,9 @@ public class UserRepository {
     return ebeanServer.find(Account.class).setId(accountId).findOneOrEmpty();
   }
 
-  public Optional<TrustedIntermediaryGroup> getTrustedIntermediaryGroup(UatProfile uatProfile) {
-    return uatProfile.getAccount().join().getMemberOfGroup();
+  public Optional<TrustedIntermediaryGroup> getTrustedIntermediaryGroup(
+      CiviFormProfile civiformProfile) {
+    return civiformProfile.getAccount().join().getMemberOfGroup();
   }
 
   /**

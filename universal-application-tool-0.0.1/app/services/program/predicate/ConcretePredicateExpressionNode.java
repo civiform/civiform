@@ -21,6 +21,9 @@ public interface ConcretePredicateExpressionNode {
    * <p>We pass in a list rather than a single question, since some nodes (such as AND/OR) may use
    * several different questions.
    *
+   * <p>If the list of questions does not contain the predicate questions, then we cannot display
+   * the human-readable text for multi-option answers. Instead, the ID for the option is shown.
+   *
    * @param questions the list of questions this predicate may use
    * @return a human-readable representation of this node
    */

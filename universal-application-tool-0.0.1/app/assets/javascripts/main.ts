@@ -207,6 +207,7 @@ function configurePredicateValueInput(
       .querySelector('input') as HTMLInputElement;
 
   if (selectedScalarValue.toUpperCase() === 'EMAIL') {
+    // Need to look at the selected scalar *value* for email rather than the *type*, since the type is just a string, but emails have a special type in HTML inputs.
     valueInput.setAttribute('type', 'email');
   } else if (selectedScalarType.toUpperCase() === 'STRING') {
     valueInput.setAttribute('type', 'text');

@@ -9,9 +9,9 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.text;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.Roles;
-import auth.UatProfile;
 import com.typesafe.config.Config;
 import controllers.routes;
 import j2html.TagCreator;
@@ -95,7 +95,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private ContainerTag renderNavBar(Http.Request request, String userName, Messages messages) {
-    Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     return nav()
         .withClasses(
@@ -108,11 +108,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(branding())
         .with(maybeRenderTiButton(profile, userName))
         .with(
-            div(getLanguageForm(request, profile), logoutButton(messages))
+            div(getLanguageForm(request, profile), logoutButton(userName, messages))
                 .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
-  private ContainerTag getLanguageForm(Http.Request request, Optional<UatProfile> profile) {
+  private ContainerTag getLanguageForm(Http.Request request, Optional<CiviFormProfile> profile) {
     ContainerTag languageForm = div();
     if (profile.isPresent()) { // Show language switcher.
       long userId = profile.get().getApplicant().join().id;
@@ -155,7 +155,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withText("CiviForm"));
   }
 
-  private ContainerTag maybeRenderTiButton(Optional<UatProfile> profile, String userName) {
+  private ContainerTag maybeRenderTiButton(Optional<CiviFormProfile> profile, String userName) {
     if (profile.isPresent() && profile.get().getRoles().contains(Roles.ROLE_TI.toString())) {
       String tiDashboardText = "Trusted intermediary dashboard";
       String tiDashboardLink =
@@ -176,11 +176,13 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div();
   }
 
-  private ContainerTag logoutButton(Messages messages) {
+  private ContainerTag logoutButton(String userName, Messages messages) {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
-    return a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
-        .withHref(logoutLink)
-        .withClasses(ApplicantStyles.LINK_LOGOUT);
+    return div(
+        div(messages.at(MessageKey.USER_NAME.getKeyName(), userName)).withClasses(Styles.TEXT_SM),
+        a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
+            .withHref(logoutLink)
+            .withClasses(ApplicantStyles.LINK_LOGOUT));
   }
 
   /**

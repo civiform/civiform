@@ -32,7 +32,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     this.formFactory = checkNotNull(formFactory);
   }
 
-  @Secure(authorizers = Labels.UAT_ADMIN)
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result create(Request request, long programId, long blockId) {
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     ImmutableList<Long> questionIds =
@@ -58,7 +58,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId));
   }
 
-  @Secure(authorizers = Labels.UAT_ADMIN)
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result destroy(long programId, long blockDefinitionId, long questionDefinitionId) {
     try {
       programService.removeQuestionsFromBlock(
@@ -81,7 +81,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
         controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockDefinitionId));
   }
 
-  @Secure(authorizers = Labels.UAT_ADMIN)
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result setOptional(
       Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
     ProgramQuestionDefinitionOptionalityForm programQuestionDefinitionOptionalityForm =

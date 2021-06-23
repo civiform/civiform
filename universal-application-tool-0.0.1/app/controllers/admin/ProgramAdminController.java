@@ -1,8 +1,8 @@
 package controllers.admin;
 
 import auth.Authorizers;
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.UatProfile;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
@@ -32,7 +32,7 @@ public class ProgramAdminController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.PROGRAM_ADMIN)
   public Result index(Http.Request request) {
-    Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     if (!profile.isPresent()) {
       throw new RuntimeException("No profile found for program admin");

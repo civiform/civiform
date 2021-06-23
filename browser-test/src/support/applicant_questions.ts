@@ -76,6 +76,10 @@ export class ApplicantQuestions {
     await this.page.click('text="Next"');
   }
 
+  async clickUpload() {
+    await this.page.click('text="Upload"');
+  }
+
   async deleteEnumeratorEntity(entityName: string) {
     await this.page.click(`.cf-enumerator-field:has(input[value="${entityName}"]) button`);
   }

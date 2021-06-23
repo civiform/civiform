@@ -79,7 +79,7 @@ public class AdminApplicationController extends CiviFormController {
     }
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result downloadDemographics() {
     String filename = String.format("demographics-%s.csv", clock.instant().toString());
     String csv = exporterService.getDemographicsCsv();

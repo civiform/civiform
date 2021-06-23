@@ -15,7 +15,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import services.question.types.ScalarType;
 
 /**
  * Represents the value on the right side of a JsonPath (https://github.com/json-path/JsonPath)
@@ -26,36 +25,40 @@ import services.question.types.ScalarType;
 public abstract class PredicateValue {
 
   public static PredicateValue of(long value) {
-    return create(String.valueOf(value), ScalarType.LONG);
+    return create(String.valueOf(value), OperatorRightHandType.LONG);
   }
 
   public static PredicateValue of(String value) {
     // Escape the string value
-    return create(surroundWithQuotes(value), ScalarType.STRING);
+    return create(surroundWithQuotes(value), OperatorRightHandType.STRING);
   }
 
   public static PredicateValue of(LocalDate value) {
     return create(
         String.valueOf(value.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()),
-        ScalarType.DATE);
+        OperatorRightHandType.DATE);
   }
 
-  public static PredicateValue of(ImmutableList<String> value) {
+  public static PredicateValue listOfStrings(ImmutableList<String> value) {
     return create(
         value.stream()
             .map(PredicateValue::surroundWithQuotes)
             .collect(toImmutableList())
             .toString(),
-        ScalarType.LIST_OF_STRINGS);
+        OperatorRightHandType.LIST_OF_STRINGS);
+  }
+
+  public static PredicateValue listOfLongs(ImmutableList<Long> value) {
+    return create(value.toString(), OperatorRightHandType.LIST_OF_LONGS);
   }
 
   @JsonCreator
   private static PredicateValue create(
-      @JsonProperty("value") String value, @JsonProperty("type") ScalarType type) {
+      @JsonProperty("value") String value, @JsonProperty("type") OperatorRightHandType type) {
     // Default to STRING type for values added before 2021-06-21 (this is before predicates were
     // launched publicly, so no prod predicates were affected).
     if (type == null) {
-      type = ScalarType.STRING;
+      type = OperatorRightHandType.STRING;
     }
     return new AutoValue_PredicateValue(value, type);
   }
@@ -64,11 +67,11 @@ public abstract class PredicateValue {
   public abstract String value();
 
   @JsonProperty("type")
-  public abstract ScalarType type();
+  public abstract OperatorRightHandType type();
 
   public String toDisplayString(Optional<QuestionDefinition> question) {
     // Convert to a human-readable date.
-    if (type() == ScalarType.DATE) {
+    if (type() == OperatorRightHandType.DATE) {
       return Instant.ofEpochMilli(Long.parseLong(value()))
           .atZone(ZoneId.systemDefault())
           .toLocalDate()
@@ -76,23 +79,29 @@ public abstract class PredicateValue {
     }
 
     // We store the multi-option IDs, rather than the human-readable option text.
-    if (type() == ScalarType.LIST_OF_STRINGS
-        && question.isPresent()
-        && question.get().getQuestionType().isMultiOptionType()) {
+    if (question.isPresent() && question.get().getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOptionQuestion =
           (MultiOptionQuestionDefinition) question.get();
       // Convert the quote-escaped string IDs to their corresponding default option text.
       // If an ID is not valid, show "<obsolete>". An obsolete ID does not affect evaluation.
-      return Splitter.on(", ")
-          .splitToStream(value().substring(1, value().length() - 1))
-          .map(stringId -> Long.valueOf(stringId.substring(1, stringId.length() - 1)))
-          .map(multiOptionQuestion::getDefaultLocaleOptionForId)
-          .map(option -> option.orElse("<obsolete>"))
-          .collect(toImmutableList())
-          .toString();
+      if (type() == OperatorRightHandType.LIST_OF_STRINGS) {
+        return Splitter.on(", ")
+            .splitToStream(value().substring(1, value().length() - 1))
+            .map(id -> parseMultiOptionIdToText(multiOptionQuestion, id))
+            .collect(toImmutableList())
+            .toString();
+      }
+      return parseMultiOptionIdToText(multiOptionQuestion, value());
     }
 
     return value();
+  }
+
+  private static String parseMultiOptionIdToText(
+      MultiOptionQuestionDefinition question, String id) {
+    return question
+        .getDefaultLocaleOptionForId(Long.parseLong(id.substring(1, id.length() - 1)))
+        .orElse("<obsolete>");
   }
 
   private static String surroundWithQuotes(String s) {

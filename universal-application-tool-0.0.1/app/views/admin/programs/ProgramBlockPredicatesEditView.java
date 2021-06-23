@@ -15,6 +15,7 @@ import static play.mvc.Http.HttpVerbs.POST;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import controllers.admin.routes;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
@@ -32,7 +33,6 @@ import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import services.question.types.ScalarType;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -276,7 +276,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
   }
 
   private ContainerTag createScalarDropdown(QuestionDefinition questionDefinition) {
-    ImmutableMap<Scalar, ScalarType> scalars;
+    ImmutableSet<Scalar> scalars;
     try {
       scalars = Scalar.getScalars(questionDefinition.getQuestionType());
     } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
@@ -286,13 +286,13 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
     }
 
     ImmutableList<ContainerTag> options =
-        scalars.entrySet().stream()
+        scalars.stream()
             .map(
-                e ->
-                    option(e.getKey().toDisplayString())
-                        .withValue(e.getKey().name())
+                scalar ->
+                    option(scalar.toDisplayString())
+                        .withValue(scalar.name())
                         // Add the scalar type as data so we can determine which operators to allow.
-                        .withData("type", e.getValue().name().toLowerCase()))
+                        .withData("type", scalar.toScalarType().name().toLowerCase()))
             .collect(toImmutableList());
 
     return new SelectWithLabel()

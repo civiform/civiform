@@ -3,8 +3,8 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.UatProfile;
 import controllers.CiviFormController;
 import forms.ProgramForm;
 import java.util.Optional;
@@ -54,18 +54,18 @@ public class AdminProgramController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
-    Optional<UatProfile> profileMaybe = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
     return ok(listView.render(this.service.getActiveAndDraftPrograms(), request, profileMaybe));
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Request request) {
     return ok(newOneView.render(request));
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Request request) {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();
@@ -83,7 +83,7 @@ public class AdminProgramController extends CiviFormController {
     return redirect(routes.AdminProgramController.index().url());
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long id) {
     try {
       ProgramDefinition program = service.getProgramDefinition(id);
@@ -93,7 +93,7 @@ public class AdminProgramController extends CiviFormController {
     }
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result publish() {
     try {
       versionRepository.publishNewSynchronizedVersion();
@@ -103,7 +103,7 @@ public class AdminProgramController extends CiviFormController {
     }
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newVersionFrom(Request request, long id) {
     try {
       return redirect(routes.AdminProgramController.edit(service.newDraftOf(id).id()));
@@ -114,7 +114,7 @@ public class AdminProgramController extends CiviFormController {
     }
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long id) {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();

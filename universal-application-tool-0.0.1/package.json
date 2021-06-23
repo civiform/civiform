@@ -1,7 +1,7 @@
 {
   "name": "universal-application-tool-0.0.1",
   "version": "0.0.1",
-  "description": "Universal Application Tool (UAT) that aims to simplify the application process for benefits programs.",
+  "description": "Universal Application Tool (UAT aka CiviForm) that aims to simplify the application process for benefits programs.",
   "directories": {
     "test": "test"
   },

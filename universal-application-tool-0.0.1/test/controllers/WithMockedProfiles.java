@@ -4,9 +4,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
+import auth.CiviFormProfile;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
-import auth.UatProfile;
 import java.util.Optional;
 import models.Account;
 import models.Applicant;
@@ -90,7 +90,7 @@ public class WithMockedProfiles {
 
   protected Applicant createApplicantWithMockedProfile() {
     Applicant applicant = createApplicant();
-    UatProfile profile = profileFactory.wrap(applicant);
+    CiviFormProfile profile = profileFactory.wrap(applicant);
     mockProfile(profile);
     return applicant;
   }
@@ -105,7 +105,7 @@ public class WithMockedProfiles {
     ti.setMemberOfGroup(group);
     ti.save();
 
-    UatProfile profile = profileFactory.wrap(ti);
+    CiviFormProfile profile = profileFactory.wrap(ti);
     mockProfile(profile);
     return ti;
   }
@@ -116,7 +116,7 @@ public class WithMockedProfiles {
     programAdmin.addAdministeredProgram(program.getProgramDefinition());
     programAdmin.save();
 
-    UatProfile profile = profileFactory.wrap(programAdmin);
+    CiviFormProfile profile = profileFactory.wrap(programAdmin);
     mockProfile(profile);
     return programAdmin;
   }
@@ -127,12 +127,12 @@ public class WithMockedProfiles {
     globalAdmin.setGlobalAdmin(true);
     globalAdmin.save();
 
-    UatProfile profile = profileFactory.wrap(globalAdmin);
+    CiviFormProfile profile = profileFactory.wrap(globalAdmin);
     mockProfile(profile);
     return globalAdmin;
   }
 
-  private void mockProfile(UatProfile profile) {
+  private void mockProfile(CiviFormProfile profile) {
     when(MOCK_UTILS.currentUserProfile(any(Http.Request.class))).thenReturn(Optional.of(profile));
   }
 }

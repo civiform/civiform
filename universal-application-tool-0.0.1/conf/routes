@@ -19,7 +19,7 @@ POST    /admin/programs                                         controllers.admi
 POST    /admin/programs/publish                                 controllers.admin.AdminProgramController.publish()
 POST    /admin/programs/:programId                              controllers.admin.AdminProgramController.update(request: Request, programId: Long)
 
-# Routes for a UAT admin to manage program admins for a given program.
+# Routes for a CiviForm admin to manage program admins for a given program.
 GET     /admin/programs/:programId/admins/edit  controllers.admin.ProgramAdminManagementController.edit(request: Request, programId: Long)
 POST    /admin/programs/:programId/admins       controllers.admin.ProgramAdminManagementController.update(request: Request, programId: Long)
 
@@ -104,6 +104,7 @@ POST    /applicants/:applicantId/programs/:programId/submit                     
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit                      controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: String)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review                    controllers.applicant.ApplicantProgramBlocksController.review(request: Request, applicantId: Long, programId: Long, blockId: String)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/skipFile/:inReview        controllers.applicant.ApplicantProgramBlocksController.skipFile(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview                 controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 
 # Methods for program admins
