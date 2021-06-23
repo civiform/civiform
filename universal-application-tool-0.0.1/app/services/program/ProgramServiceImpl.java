@@ -370,7 +370,8 @@ public class ProgramServiceImpl implements ProgramService {
 
     for (long qid : questionIds) {
       newQuestionListBuilder.add(
-          ProgramQuestionDefinition.create(roQuestionService.getQuestionDefinition(qid)));
+          ProgramQuestionDefinition.create(
+              roQuestionService.getQuestionDefinition(qid), Optional.of(programId)));
     }
 
     ImmutableList<ProgramQuestionDefinition> newProgramQuestionDefinitions =
@@ -619,7 +620,8 @@ public class ProgramServiceImpl implements ProgramService {
 
     ImmutableList.Builder<BlockDefinition> blockListBuilder = ImmutableList.builder();
     for (BlockDefinition block : programDefinition.blockDefinitions()) {
-      BlockDefinition syncedBlock = syncBlockDefinitionQuestions(block, roQuestionService);
+      BlockDefinition syncedBlock =
+          syncBlockDefinitionQuestions(programDefinition.id(), block, roQuestionService);
       blockListBuilder.add(syncedBlock);
     }
 
@@ -628,12 +630,15 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   private BlockDefinition syncBlockDefinitionQuestions(
-      BlockDefinition blockDefinition, ReadOnlyQuestionService roQuestionService) {
+      long programDefinitionId,
+      BlockDefinition blockDefinition,
+      ReadOnlyQuestionService roQuestionService) {
     BlockDefinition.Builder blockBuilder = blockDefinition.toBuilder();
 
     ImmutableList.Builder<ProgramQuestionDefinition> pqdListBuilder = ImmutableList.builder();
     for (ProgramQuestionDefinition pqd : blockDefinition.programQuestionDefinitions()) {
-      ProgramQuestionDefinition syncedPqd = syncProgramQuestionDefinition(pqd, roQuestionService);
+      ProgramQuestionDefinition syncedPqd =
+          syncProgramQuestionDefinition(programDefinitionId, pqd, roQuestionService);
       pqdListBuilder.add(syncedPqd);
     }
 
@@ -642,10 +647,12 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   private ProgramQuestionDefinition syncProgramQuestionDefinition(
-      ProgramQuestionDefinition pqd, ReadOnlyQuestionService roQuestionService) {
+      long programDefinitionId,
+      ProgramQuestionDefinition pqd,
+      ReadOnlyQuestionService roQuestionService) {
     try {
       QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
-      return pqd.setQuestionDefinition(questionDefinition);
+      return pqd.loadCompletely(programDefinitionId, questionDefinition);
     } catch (QuestionNotFoundException e) {
       throw new RuntimeException(e);
     }

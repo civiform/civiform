@@ -3,6 +3,7 @@ package views.questiontypes;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 
+import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import play.i18n.Messages;
@@ -67,7 +68,7 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
         .with(input().withType("hidden").withName("X-Amz-Date").withValue(request.date()))
         .with(input().withType("hidden").withName("Policy").withValue(request.policy()))
         .with(input().withType("hidden").withName("X-Amz-Signature").withValue(request.signature()))
-        .with(input().withType("file").withName("file"))
+        .with(input().withType("file").withName("file").attr(Attr.ACCEPT, "image/*,.pdf"))
         .with(errorDiv(params.messages()));
   }
 
