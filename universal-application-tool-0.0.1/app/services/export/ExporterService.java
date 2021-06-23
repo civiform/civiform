@@ -32,6 +32,7 @@ import services.program.ColumnType;
 import services.program.CsvExportConfig;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
@@ -261,9 +262,11 @@ public class ExporterService {
         if (questionDefinition.isEnumerator()) {
           continue; // Do not include Enumerator answers in CSVs.
         }
+        // Use a program question definition that doesn't have a program associated with it,
+        // which is okay because this should be program agnostic.
+        ProgramQuestionDefinition pqd = ProgramQuestionDefinition.create(questionDefinition, 0L);
         PresentsErrors applicantQuestion =
-            new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty())
-                .errorsPresenter();
+            new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty()).errorsPresenter();
         for (Path path : applicantQuestion.getAllPaths()) {
           columnsBuilder.add(
               Column.builder()

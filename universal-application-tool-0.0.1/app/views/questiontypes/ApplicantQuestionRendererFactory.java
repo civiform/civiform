@@ -6,6 +6,7 @@ import java.util.Optional;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
+import services.program.ProgramQuestionDefinition;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -17,8 +18,9 @@ public class ApplicantQuestionRendererFactory {
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
     QuestionDefinition questionDefinition = questionDefinitionSample(questionType);
+    ProgramQuestionDefinition pqd = ProgramQuestionDefinition.create(questionDefinition, 0L);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty());
+        new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty());
     return getRenderer(applicantQuestion);
   }
 

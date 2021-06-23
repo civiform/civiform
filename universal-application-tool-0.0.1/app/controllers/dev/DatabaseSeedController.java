@@ -219,8 +219,8 @@ public class DatabaseSeedController extends DevController {
           programId,
           blockId,
           ImmutableList.of(
-              ProgramQuestionDefinition.create(insertNameQuestionDefinition()),
-              ProgramQuestionDefinition.create(insertColorQuestionDefinition())));
+              ProgramQuestionDefinition.create(insertNameQuestionDefinition(), programId),
+              ProgramQuestionDefinition.create(insertColorQuestionDefinition(), programId)));
 
       blockId =
           programService.addBlockToProgram(programId).getResult().getLastBlockDefinition().id();

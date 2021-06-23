@@ -464,7 +464,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     Long programId = programDefinition.id();
 
     ps.setBlockQuestions(
-        programId, 1L, ImmutableList.of(ProgramQuestionDefinition.create(question)));
+        programId, 1L, ImmutableList.of(ProgramQuestionDefinition.create(question, programId)));
     ProgramDefinition found = ps.getProgramDefinition(programId);
 
     assertThat(found.blockDefinitions()).hasSize(1);
@@ -498,7 +498,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     ProgramDefinition found =
         ps.setBlockQuestions(
-            programId, 1L, ImmutableList.of(ProgramQuestionDefinition.create(question)));
+            programId, 1L, ImmutableList.of(ProgramQuestionDefinition.create(question, programId)));
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
@@ -528,7 +528,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                 ps.setBlockQuestions(
                     program.id(),
                     1L,
-                    ImmutableList.of(ProgramQuestionDefinition.create(addressQuestion))))
+                    ImmutableList.of(
+                        ProgramQuestionDefinition.create(addressQuestion, program.id()))))
         .withMessage("This action would invalidate a block condition");
   }
 
@@ -957,7 +958,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     .setDescription("description")
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
+                            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                            programId))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -966,7 +968,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     .setDescription("description")
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantEmail().getQuestionDefinition()))
+                            testQuestionBank.applicantEmail().getQuestionDefinition(), programId))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -976,9 +978,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     .setEnumeratorId(Optional.of(1L))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank
-                                .applicantHouseholdMemberJobs()
-                                .getQuestionDefinition()))
+                            testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
+                            programId))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -988,9 +989,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     .setEnumeratorId(Optional.of(1L))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank
-                                .applicantHouseholdMemberName()
-                                .getQuestionDefinition()))
+                            testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition(),
+                            programId))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -1002,7 +1002,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                         ProgramQuestionDefinition.create(
                             testQuestionBank
                                 .applicantHouseholdMemberJobIncome()
-                                .getQuestionDefinition()))
+                                .getQuestionDefinition(),
+                            programId))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -1011,7 +1012,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     .setDescription("description")
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantName().getQuestionDefinition()))
+                            testQuestionBank.applicantName().getQuestionDefinition(), programId))
                     .build())
             .build();
     ObjectMapper mapper =
