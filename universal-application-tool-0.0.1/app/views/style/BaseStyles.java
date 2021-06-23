@@ -1,5 +1,12 @@
 package views.style;
 
+/**
+ * Constant class containing the names of styles that we have added to tailwind.
+ *
+ * <p>This file is special - strings in this file, within double quotes, are *not* stripped from the
+ * tailwind CSS during production optimization. If you add a string here, run bin/refresh-styles or
+ * restart bin/run-dev.
+ */
 public final class BaseStyles {
 
   public static final String LINK_TEXT = Styles.TEXT_BLUE_400;
