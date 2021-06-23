@@ -36,25 +36,26 @@ public class ApplicantQuestion {
    * Optional.empty()} repeated entity.
    */
   public ApplicantQuestion(
-      QuestionDefinition questionDefinition,
+      ProgramQuestionDefinition programQuestionDefinition,
       ApplicantData applicantData,
       Optional<RepeatedEntity> repeatedEntity) {
-    this.programQuestionDefinition =
-        ProgramQuestionDefinition.create(checkNotNull(questionDefinition));
+    this.programQuestionDefinition = checkNotNull(programQuestionDefinition);
     this.applicantData = checkNotNull(applicantData);
     this.repeatedEntity = checkNotNull(repeatedEntity);
   }
 
   /**
-   * If this is a repeated question, it should be created with the repeated entity associated with
-   * this question. If this is not a repeated question, then it should be created with an {@code
-   * Optional.empty()} repeated entity.
+   * DEPRECATED.
+   *
+   * <p>This constructor is only used in tests, which should eventually be converted to use the
+   * constructor that uses {@link ProgramQuestionDefinition}.
    */
   public ApplicantQuestion(
-      ProgramQuestionDefinition programQuestionDefinition,
+      QuestionDefinition questionDefinition,
       ApplicantData applicantData,
       Optional<RepeatedEntity> repeatedEntity) {
-    this.programQuestionDefinition = checkNotNull(programQuestionDefinition);
+    this.programQuestionDefinition =
+        ProgramQuestionDefinition.create(checkNotNull(questionDefinition), Optional.empty());
     this.applicantData = checkNotNull(applicantData);
     this.repeatedEntity = checkNotNull(repeatedEntity);
   }

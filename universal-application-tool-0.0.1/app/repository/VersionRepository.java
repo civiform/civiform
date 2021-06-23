@@ -195,7 +195,7 @@ public class VersionRepository {
         draftProgram.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
     for (BlockDefinition block : draftProgram.getProgramDefinition().blockDefinitions()) {
       LOG.trace("Updating block {}.", block.id());
-      updatedDefinition.addBlockDefinition(updateQuestionVersions(block));
+      updatedDefinition.addBlockDefinition(updateQuestionVersions(draftProgram.id, block));
     }
     draftProgram = new Program(updatedDefinition.build());
     LOG.trace("Submitting update.");
@@ -223,7 +223,7 @@ public class VersionRepository {
         .anyMatch(draftProgram -> draftProgram.id.equals(program.id));
   }
 
-  private BlockDefinition updateQuestionVersions(BlockDefinition block) {
+  private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {
     BlockDefinition.Builder updatedBlock =
         block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of());
     // Update questions contained in this block.
@@ -232,7 +232,8 @@ public class VersionRepository {
       LOG.trace(
           "Updating question ID {} to new ID {}.", question.id(), updatedQuestion.orElseThrow().id);
       updatedBlock.addQuestion(
-          question.setQuestionDefinition(updatedQuestion.orElseThrow().getQuestionDefinition()));
+          question.loadCompletely(
+              programDefinitionId, updatedQuestion.orElseThrow().getQuestionDefinition()));
     }
     // Update questions referenced in this block's predicate(s)
     if (block.visibilityPredicate().isPresent()) {
