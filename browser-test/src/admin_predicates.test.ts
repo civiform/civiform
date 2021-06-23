@@ -1,7 +1,7 @@
-import { AdminPredicates, AdminPrograms, AdminQuestions, endSession, loginAsAdmin, logout, startSession } from './support'
+import { AdminPredicates, AdminPrograms, AdminQuestions, ApplicantQuestions, endSession, loginAsAdmin, loginAsTestUser, logout, selectApplicantLanguage, startSession, userDisplayName } from './support'
 
 describe('create and edit predicates', () => {
-  it('add a predicate', async () => {
+  it('add a hide predicate', async () => {
     const { browser, page } = await startSession();
 
     await loginAsAdmin(page);
@@ -10,7 +10,7 @@ describe('create and edit predicates', () => {
 
     // Add a program with two blocks
     await adminQuestions.addTextQuestion('predicate-q');
-    await adminQuestions.addTextQuestion('other-q');
+    await adminQuestions.addTextQuestion('other-q', 'conditional question');
 
     const programName = 'create predicate';
     await adminPrograms.addProgram(programName);
@@ -22,5 +22,32 @@ describe('create and edit predicates', () => {
     const adminPredicates = new AdminPredicates(page);
     await adminPredicates.addPredicate('predicate-q', 'hidden if', 'text', 'is equal to', 'hide me');
     await adminPredicates.expectVisibilityConditionEquals('Block 2 is hidden if predicate-q\'s text is equal to "hide me"');
+
+    // Publish the program
+    await adminPrograms.publishProgram(programName);
+
+    // Switch to the applicant view and apply to the program
+    await logout(page);
+    await loginAsTestUser(page);
+    await selectApplicantLanguage(page, 'English');
+    const applicant = new ApplicantQuestions(page);
+    await applicant.applyProgram(programName);
+
+    // Fill out the first block so that the next block will be hidden
+    await applicant.answerTextQuestion('hide me');
+    await applicant.clickNext();
+
+    // We should be on the review page
+    expect(await page.innerText('#application-summary')).not.toContain('conditional question');
+    await applicant.submitFromReviewPage(programName);
+
+    // Visit the program admin page and assert the hidden question does not show
+    await logout(page);
+    await loginAsAdmin(page);
+    await adminPrograms.viewApplications(programName);
+    await adminPrograms.viewApplicationForApplicant(userDisplayName());
+    expect(await page.innerText('#application-view')).not.toContain('Block 2');
+
+    await endSession(browser);
   })
 })
