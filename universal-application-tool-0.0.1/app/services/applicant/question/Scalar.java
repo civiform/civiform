@@ -80,8 +80,8 @@ public enum Scalar {
 
   private static final ImmutableSet<Scalar> TEXT_SCALARS = ImmutableSet.of(TEXT);
 
-  private static final ImmutableMap<Scalar, ScalarType> STATIC_SCALARS =
-      ImmutableMap.of(EMPTY, ScalarType.EMPTY);
+  private static final ImmutableSet<Scalar> STATIC_SCALARS =
+      ImmutableSet.of(EMPTY);
 
   private static final ImmutableSet<Scalar> METADATA_SCALARS =
       ImmutableSet.of(UPDATED_AT, PROGRAM_UPDATED_IN);
