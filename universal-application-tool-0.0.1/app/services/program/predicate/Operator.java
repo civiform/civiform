@@ -17,7 +17,8 @@ public enum Operator {
   LESS_THAN_OR_EQUAL_TO("<=", "is less than or equal to", ImmutableSet.of(ScalarType.LONG)),
   NONE_OF("noneof", "is none of", ImmutableSet.of(ScalarType.LIST_OF_STRINGS)),
   NOT_EQUAL_TO("!=", "is not equal to", ImmutableSet.of(ScalarType.LONG, ScalarType.STRING)),
-  // TODO(https://github.com/seattle-uat/civiform/issues/322): Add ScalarType.LONG to the NOT_IN set.
+  // TODO(https://github.com/seattle-uat/civiform/issues/322): Add ScalarType.LONG to the NOT_IN
+  //  set.
   NOT_IN("nin", "is not one of", ImmutableSet.of(ScalarType.STRING)),
   SUBSET_OF("subsetof", "is a subset of", ImmutableSet.of(ScalarType.LIST_OF_STRINGS));
 
