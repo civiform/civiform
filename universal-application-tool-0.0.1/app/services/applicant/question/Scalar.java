@@ -20,7 +20,6 @@ public enum Scalar {
   CITY("city", ScalarType.STRING),
   DATE("date", ScalarType.DATE),
   EMAIL("email", ScalarType.STRING),
-  EMPTY("empty", ScalarType.EMPTY),
   FILE_KEY("file key", ScalarType.STRING),
   FIRST_NAME("first name", ScalarType.STRING),
   LAST_NAME("last name", ScalarType.STRING),
@@ -80,7 +79,7 @@ public enum Scalar {
 
   private static final ImmutableSet<Scalar> TEXT_SCALARS = ImmutableSet.of(TEXT);
 
-  private static final ImmutableSet<Scalar> STATIC_SCALARS = ImmutableSet.of(EMPTY);
+  private static final ImmutableSet<Scalar> STATIC_SCALARS = ImmutableSet.of();
 
   private static final ImmutableSet<Scalar> METADATA_SCALARS =
       ImmutableSet.of(UPDATED_AT, PROGRAM_UPDATED_IN);
