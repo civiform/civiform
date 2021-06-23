@@ -20,7 +20,7 @@ Mappings:
     prod:
       uri: https://login.seattle.gov/#/registration
     staging:
-      uri: ''
+      uri: https://qalogin.seattle.gov:12443/#/registration?appName=CIVIFORM_STAGE
 Parameters:
   Environment:
     Type: String
