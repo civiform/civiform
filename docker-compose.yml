@@ -40,5 +40,6 @@ services:
       - IDCS_SECRET
       - ADFS_CLIENT_ID
       - ADFS_SECRET
+      - CF_OPTIONAL_QUESTIONS
 
     command: -jvm-debug "*:8457" ~run -Dconfig.file=conf/application.dev.conf
