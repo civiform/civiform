@@ -10,6 +10,7 @@ import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import controllers.admin.routes;
 import forms.BlockForm;
 import j2html.TagCreator;
@@ -42,6 +43,7 @@ import views.style.Styles;
 public class ProgramBlockEditView extends BaseHtmlView {
 
   private final AdminLayout layout;
+  private final boolean featureFlagOptionalQuestions;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
@@ -49,8 +51,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
 
   @Inject
-  public ProgramBlockEditView(AdminLayout layout) {
+  public ProgramBlockEditView(AdminLayout layout, Config config) {
     this.layout = checkNotNull(layout);
+    this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
   }
 
   public Content render(
@@ -398,6 +401,24 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .with(p(questionDefinition.getName()))
             .with(p(questionDefinition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM));
 
+    return ret.with(
+        icon,
+        content,
+        optionalToggle(
+            csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, isOptional),
+        deleteQuestionForm(
+            csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, canRemove));
+  }
+
+  private Tag optionalToggle(
+      Tag csrfTag,
+      long programDefinitionId,
+      long blockDefinitionId,
+      QuestionDefinition questionDefinition,
+      boolean isOptional) {
+    if (!featureFlagOptionalQuestions) {
+      return null;
+    }
     ContainerTag optionalButton =
         TagCreator.button()
             .withClasses(
@@ -435,13 +456,19 @@ public class ProgramBlockEditView extends BaseHtmlView {
         controllers.admin.routes.AdminProgramBlockQuestionsController.setOptional(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
             .url();
-    ContainerTag optionalToggle =
-        form(csrfTag)
-            .withMethod(HttpVerbs.POST)
-            .withAction(toggleOptionalAction)
-            .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
-            .with(optionalButton);
+    return form(csrfTag)
+        .withMethod(HttpVerbs.POST)
+        .withAction(toggleOptionalAction)
+        .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
+        .with(optionalButton);
+  }
 
+  private Tag deleteQuestionForm(
+      Tag csrfTag,
+      long programDefinitionId,
+      long blockDefinitionId,
+      QuestionDefinition questionDefinition,
+      boolean canRemove) {
     Tag removeButton =
         TagCreator.button(text("DELETE"))
             .withType("submit")
@@ -460,14 +487,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
         controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
             .url();
-    ContainerTag questionDeleteForm =
-        form(csrfTag)
-            .withId("block-questions-form")
-            .withMethod(HttpVerbs.POST)
-            .withAction(deleteQuestionAction)
-            .with(removeButton);
-
-    return ret.with(icon, content, optionalToggle, questionDeleteForm);
+    return form(csrfTag)
+        .withId("block-questions-form")
+        .withMethod(HttpVerbs.POST)
+        .withAction(deleteQuestionAction)
+        .with(removeButton);
   }
 
   private ContainerTag questionBankPanel(
