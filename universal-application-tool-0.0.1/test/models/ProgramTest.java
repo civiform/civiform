@@ -54,7 +54,8 @@ public class ProgramTest extends WithPostgresContainer {
             .setDescription("basic info")
             .setProgramQuestionDefinitions(
                 ImmutableList.of(
-                    ProgramQuestionDefinition.create(questionDefinition, programDefinitionId)))
+                    ProgramQuestionDefinition.create(
+                        questionDefinition, Optional.of(programDefinitionId))))
             .build();
 
     ProgramDefinition definition =
@@ -120,8 +121,9 @@ public class ProgramTest extends WithPostgresContainer {
             .setProgramQuestionDefinitions(
                 ImmutableList.of(
                     ProgramQuestionDefinition.create(
-                        addressQuestionDefinition, programDefinitionId),
-                    ProgramQuestionDefinition.create(nameQuestionDefinition, programDefinitionId)))
+                        addressQuestionDefinition, Optional.of(programDefinitionId)),
+                    ProgramQuestionDefinition.create(
+                        nameQuestionDefinition, Optional.of(programDefinitionId))))
             .build();
 
     ProgramDefinition definition =
@@ -199,7 +201,7 @@ public class ProgramTest extends WithPostgresContainer {
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
-                            programDefinitionId))
+                            Optional.of(programDefinitionId)))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -209,7 +211,7 @@ public class ProgramTest extends WithPostgresContainer {
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank.applicantEmail().getQuestionDefinition(),
-                            programDefinitionId))
+                            Optional.of(programDefinitionId)))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -220,7 +222,7 @@ public class ProgramTest extends WithPostgresContainer {
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
-                            programDefinitionId))
+                            Optional.of(programDefinitionId)))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -231,7 +233,7 @@ public class ProgramTest extends WithPostgresContainer {
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition(),
-                            programDefinitionId))
+                            Optional.of(programDefinitionId)))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -244,7 +246,7 @@ public class ProgramTest extends WithPostgresContainer {
                             testQuestionBank
                                 .applicantHouseholdMemberJobIncome()
                                 .getQuestionDefinition(),
-                            programDefinitionId))
+                            Optional.of(programDefinitionId)))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -254,7 +256,7 @@ public class ProgramTest extends WithPostgresContainer {
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank.applicantName().getQuestionDefinition(),
-                            programDefinitionId))
+                            Optional.of(programDefinitionId)))
                     .build())
             .build();
 

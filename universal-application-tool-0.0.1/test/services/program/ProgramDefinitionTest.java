@@ -95,7 +95,8 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .setId(123L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(ProgramQuestionDefinition.create(questionA, programDefinitionId))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .build();
 
     BlockDefinition blockB =
@@ -103,7 +104,8 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .setId(321L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(ProgramQuestionDefinition.create(questionB, programDefinitionId))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
             .build();
 
     ProgramDefinition program =
@@ -207,15 +209,18 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .setId(123L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(ProgramQuestionDefinition.create(questionA, programDefinitionId))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .build();
     BlockDefinition blockB =
         BlockDefinition.builder()
             .setId(123L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(ProgramQuestionDefinition.create(questionB, programDefinitionId))
-            .addQuestion(ProgramQuestionDefinition.create(questionC, programDefinitionId))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionC, Optional.of(programDefinitionId)))
             .build();
     ProgramDefinition definition =
         ProgramDefinition.builder()
@@ -250,22 +255,26 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .setId(1L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(ProgramQuestionDefinition.create(questionA, programDefinitionId))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .build();
     BlockDefinition blockB =
         BlockDefinition.builder()
             .setId(2L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(ProgramQuestionDefinition.create(questionB, programDefinitionId))
-            .addQuestion(ProgramQuestionDefinition.create(questionC, programDefinitionId))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionC, Optional.of(programDefinitionId)))
             .build();
     BlockDefinition blockC =
         BlockDefinition.builder()
             .setId(3L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(ProgramQuestionDefinition.create(questionD, programDefinitionId))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionD, Optional.of(programDefinitionId)))
             .build();
     ProgramDefinition programDefinition =
         ProgramDefinition.builder()
@@ -313,21 +322,24 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .setId(1L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(ProgramQuestionDefinition.create(questionA, programDefinitionId))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .build();
     BlockDefinition blockB =
         BlockDefinition.builder()
             .setId(2L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(ProgramQuestionDefinition.create(questionB, programDefinitionId))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
             .build();
     BlockDefinition blockC =
         BlockDefinition.builder()
             .setId(3L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(ProgramQuestionDefinition.create(questionC, programDefinitionId))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionC, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(2L))
             .build();
     BlockDefinition blockD =
@@ -335,7 +347,8 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .setId(4L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(ProgramQuestionDefinition.create(questionD, programDefinitionId))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionD, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(2L))
             .build();
     BlockDefinition blockE =
@@ -343,7 +356,8 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .setId(5L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(ProgramQuestionDefinition.create(questionE, programDefinitionId))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionE, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(4L))
             .build();
     ProgramDefinition programDefinition =

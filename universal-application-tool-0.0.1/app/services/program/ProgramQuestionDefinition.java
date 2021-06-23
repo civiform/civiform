@@ -22,7 +22,7 @@ public abstract class ProgramQuestionDefinition {
    * A reference to the program this is a question of. Program question definitions are not stored
    * with this reference and this should be set upon load.
    */
-  abstract long programDefinitionId();
+  abstract Optional<Long> programDefinitionId();
 
   /**
    * True if this program question definition is optional. Otherwise it is required.
@@ -53,18 +53,19 @@ public abstract class ProgramQuestionDefinition {
   @JsonCreator
   static ProgramQuestionDefinition create(
       @JsonProperty("id") long id, @JsonProperty("optional") boolean optional) {
-    return new AutoValue_ProgramQuestionDefinition(id, 0L, optional, Optional.empty());
+    return new AutoValue_ProgramQuestionDefinition(
+        id, Optional.empty(), optional, Optional.empty());
   }
 
   /** Create a required program question definition. */
   public static ProgramQuestionDefinition create(
-      QuestionDefinition questionDefinition, long programDefinitionId) {
+      QuestionDefinition questionDefinition, Optional<Long> programDefinitionId) {
     return create(questionDefinition, programDefinitionId, false);
   }
 
   /** Create a program question definition. */
   private static ProgramQuestionDefinition create(
-      QuestionDefinition questionDefinition, long programDefinitionId, boolean optional) {
+      QuestionDefinition questionDefinition, Optional<Long> programDefinitionId, boolean optional) {
     return new AutoValue_ProgramQuestionDefinition(
         questionDefinition.getId(), programDefinitionId, optional, Optional.of(questionDefinition));
   }
@@ -77,7 +78,7 @@ public abstract class ProgramQuestionDefinition {
       long programDefinitionId, QuestionDefinition questionDefinition) {
     return new AutoValue_ProgramQuestionDefinition(
         questionDefinition.getId(),
-        programDefinitionId,
+        Optional.of(programDefinitionId),
         optional(),
         Optional.of(questionDefinition));
   }

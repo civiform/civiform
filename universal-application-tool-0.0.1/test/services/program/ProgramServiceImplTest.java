@@ -464,7 +464,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     Long programId = programDefinition.id();
 
     ps.setBlockQuestions(
-        programId, 1L, ImmutableList.of(ProgramQuestionDefinition.create(question, programId)));
+        programId,
+        1L,
+        ImmutableList.of(ProgramQuestionDefinition.create(question, Optional.of(programId))));
     ProgramDefinition found = ps.getProgramDefinition(programId);
 
     assertThat(found.blockDefinitions()).hasSize(1);
@@ -498,7 +500,9 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     ProgramDefinition found =
         ps.setBlockQuestions(
-            programId, 1L, ImmutableList.of(ProgramQuestionDefinition.create(question, programId)));
+            programId,
+            1L,
+            ImmutableList.of(ProgramQuestionDefinition.create(question, Optional.of(programId))));
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
     assertThat(foundQuestion).isInstanceOf(NameQuestionDefinition.class);
@@ -529,7 +533,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     program.id(),
                     1L,
                     ImmutableList.of(
-                        ProgramQuestionDefinition.create(addressQuestion, program.id()))))
+                        ProgramQuestionDefinition.create(
+                            addressQuestion, Optional.of(program.id())))))
         .withMessage("This action would invalidate a block condition");
   }
 
@@ -959,7 +964,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
-                            programId))
+                            Optional.of(programId)))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -968,7 +973,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     .setDescription("description")
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantEmail().getQuestionDefinition(), programId))
+                            testQuestionBank.applicantEmail().getQuestionDefinition(),
+                            Optional.of(programId)))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -979,7 +985,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
-                            programId))
+                            Optional.of(programId)))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -990,7 +996,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition(),
-                            programId))
+                            Optional.of(programId)))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -1003,7 +1009,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                             testQuestionBank
                                 .applicantHouseholdMemberJobIncome()
                                 .getQuestionDefinition(),
-                            programId))
+                            Optional.of(programId)))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -1012,7 +1018,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     .setDescription("description")
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantName().getQuestionDefinition(), programId))
+                            testQuestionBank.applicantName().getQuestionDefinition(),
+                            Optional.of(programId)))
                     .build())
             .build();
     ObjectMapper mapper =

@@ -18,7 +18,8 @@ public class ApplicantQuestionRendererFactory {
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
     QuestionDefinition questionDefinition = questionDefinitionSample(questionType);
-    ProgramQuestionDefinition pqd = ProgramQuestionDefinition.create(questionDefinition, 0L);
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty());
     return getRenderer(applicantQuestion);

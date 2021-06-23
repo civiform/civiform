@@ -205,13 +205,14 @@ public class ProgramBuilder {
     public BlockBuilder withQuestion(Question question) {
       blockDefBuilder.addQuestion(
           ProgramQuestionDefinition.create(
-              question.getQuestionDefinition(), programBuilder.programDefinitionId));
+              question.getQuestionDefinition(), Optional.of(programBuilder.programDefinitionId)));
       return this;
     }
 
     public BlockBuilder withQuestionDefinition(QuestionDefinition question) {
       blockDefBuilder.addQuestion(
-          ProgramQuestionDefinition.create(question, programBuilder.programDefinitionId));
+          ProgramQuestionDefinition.create(
+              question, Optional.of(programBuilder.programDefinitionId)));
       return this;
     }
 
@@ -226,7 +227,7 @@ public class ProgramBuilder {
               .map(
                   questionDefinition ->
                       ProgramQuestionDefinition.create(
-                          questionDefinition, programBuilder.programDefinitionId))
+                          questionDefinition, Optional.of(programBuilder.programDefinitionId)))
               .collect(ImmutableList.toImmutableList());
       blockDefBuilder.setProgramQuestionDefinitions(pqds);
       return this;
@@ -238,7 +239,7 @@ public class ProgramBuilder {
               .map(
                   questionDefinition ->
                       ProgramQuestionDefinition.create(
-                          questionDefinition, programBuilder.programDefinitionId))
+                          questionDefinition, Optional.of(programBuilder.programDefinitionId)))
               .collect(ImmutableList.toImmutableList());
       blockDefBuilder.setProgramQuestionDefinitions(pqds);
       return this;

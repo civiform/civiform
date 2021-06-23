@@ -55,7 +55,7 @@ public class ApplicantQuestion {
       ApplicantData applicantData,
       Optional<RepeatedEntity> repeatedEntity) {
     this.programQuestionDefinition =
-        ProgramQuestionDefinition.create(checkNotNull(questionDefinition), 0L);
+        ProgramQuestionDefinition.create(checkNotNull(questionDefinition), Optional.empty());
     this.applicantData = checkNotNull(applicantData);
     this.repeatedEntity = checkNotNull(repeatedEntity);
   }

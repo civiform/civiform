@@ -264,7 +264,8 @@ public class ExporterService {
         }
         // Use a program question definition that doesn't have a program associated with it,
         // which is okay because this should be program agnostic.
-        ProgramQuestionDefinition pqd = ProgramQuestionDefinition.create(questionDefinition, 0L);
+        ProgramQuestionDefinition pqd =
+            ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
         PresentsErrors applicantQuestion =
             new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty()).errorsPresenter();
         for (Path path : applicantQuestion.getAllPaths()) {

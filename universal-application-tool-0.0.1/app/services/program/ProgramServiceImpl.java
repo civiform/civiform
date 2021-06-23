@@ -371,7 +371,7 @@ public class ProgramServiceImpl implements ProgramService {
     for (long qid : questionIds) {
       newQuestionListBuilder.add(
           ProgramQuestionDefinition.create(
-              roQuestionService.getQuestionDefinition(qid), programId));
+              roQuestionService.getQuestionDefinition(qid), Optional.of(programId)));
     }
 
     ImmutableList<ProgramQuestionDefinition> newProgramQuestionDefinitions =
