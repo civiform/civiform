@@ -79,7 +79,7 @@ public enum MessageKey {
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
   TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
-  NAME("header.userName");
+  USER_NAME("header.userName");
 
   private final String keyName;
 

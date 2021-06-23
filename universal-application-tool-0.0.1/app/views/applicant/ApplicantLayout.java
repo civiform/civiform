@@ -179,7 +179,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private ContainerTag logoutButton(String userName, Messages messages) {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     return div(
-        div(messages.at(MessageKey.NAME.getKeyName(), userName)).withClasses(Styles.TEXT_SM),
+        div(messages.at(MessageKey.USER_NAME.getKeyName(), userName)).withClasses(Styles.TEXT_SM),
         a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
             .withHref(logoutLink)
             .withClasses(ApplicantStyles.LINK_LOGOUT));
