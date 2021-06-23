@@ -370,12 +370,17 @@ public class ApplicantData {
     return listBuilder.build();
   }
 
-  /** If there are no repeated entities at the path, remove the array entirely. */
-  public void maybeClearRepeatedEntities(Path path) {
+  /**
+   * If there are no repeated entities at the path, remove the array entirely. Returns true if it
+   * was deleted.
+   */
+  public boolean maybeClearRepeatedEntities(Path path) {
     checkLocked();
     if (readRepeatedEntities(path).isEmpty()) {
       jsonData.delete(path.withoutArrayReference().toString());
+      return true;
     }
+    return false;
   }
 
   /**

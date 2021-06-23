@@ -413,8 +413,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
     // If there are no repeated entities at this point, we still need to save metadata for this
     // question.
-    if (applicantData.readRepeatedEntities(enumeratorPath).isEmpty()) {
-      applicantData.maybeClearRepeatedEntities(enumeratorPath);
+    if (applicantData.maybeClearRepeatedEntities(enumeratorPath)) {
       writeMetadataForPath(enumeratorPath.withoutArrayReference(), applicantData, updateMetadata);
     }
   }
