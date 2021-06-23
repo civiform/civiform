@@ -25,6 +25,9 @@ button.untranslatedSubmit=Submit
 # Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=For technical support, contact
 
+# Message with user's name to show who you are logged in as.
+header.userName=Logged in as {0}
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
