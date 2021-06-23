@@ -360,7 +360,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
       ImmutableList<QuestionDefinition> questions) {
     return div()
         .withClasses(Styles.M_4)
-        .with(div("Block Condition").withClasses(Styles.TEXT_LG, Styles.FONT_BOLD, Styles.PY_2))
+        .with(
+            div("Visibility Condition").withClasses(Styles.TEXT_LG, Styles.FONT_BOLD, Styles.PY_2))
         .with(
             div(predicate.toDisplayString(blockName, questions))
                 .withClasses(Styles.TEXT_LG, Styles.MAX_W_PROSE));
