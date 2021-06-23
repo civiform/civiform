@@ -9,6 +9,7 @@ import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.aws.SignedS3UploadRequest;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
@@ -73,6 +74,7 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
   private ContainerTag errorDiv(Messages messages) {
     FileUploadQuestion fileuploadQuestion = question.createFileUploadQuestion();
     return div(fileuploadQuestion.fileRequiredMessage().getMessage(messages))
-        .withClasses(ReferenceClasses.FILEUPLOAD_ERROR, Styles.TEXT_RED_600, Styles.HIDDEN);
+        .withClasses(
+            ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, Styles.HIDDEN);
   }
 }
