@@ -16,6 +16,7 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Optional;
 import java.util.OptionalLong;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
@@ -104,7 +105,6 @@ public class ProgramBlockEditView extends BaseHtmlView {
                         blockEditPanel(
                             programDefinition,
                             blockDefinition,
-                            blockId,
                             blockForm,
                             blockQuestions,
                             questions,
@@ -281,7 +281,6 @@ public class ProgramBlockEditView extends BaseHtmlView {
   private ContainerTag blockEditPanel(
       ProgramDefinition program,
       BlockDefinition blockDefinition,
-      long blockId,
       BlockForm blockForm,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
       ImmutableList<QuestionDefinition> allQuestions,
@@ -290,7 +289,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
       Tag blockDescriptionModalButton) {
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
-    final boolean canDelete = !blockDefinitionIsEnumerator || hasNoRepeatedBlocks(program, blockId);
+    final boolean canDelete =
+        !blockDefinitionIsEnumerator || hasNoRepeatedBlocks(program, blockDefinition.id());
 
     ContainerTag blockInfoDisplay =
         div()
@@ -300,10 +300,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withClasses(Styles.M_4);
 
     ContainerTag predicateDisplay =
-        blockDefinition.visibilityPredicate().isEmpty()
-            ? div()
-            : renderPredicate(
-                blockDefinition.visibilityPredicate().get(), blockDefinition.name(), allQuestions);
+        renderPredicate(
+            program.id(),
+            blockDefinition.id(),
+            blockDefinition.visibilityPredicate(),
+            blockDefinition.name(),
+            allQuestions);
 
     // Add buttons to change the block.
     ContainerTag buttons =
@@ -344,7 +346,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 renderQuestion(
                     csrfTag,
                     program.id(),
-                    blockId,
+                    blockDefinition.id(),
                     pqd.getQuestionDefinition(),
                     canDelete,
                     pqd.optional())));
@@ -355,16 +357,25 @@ public class ProgramBlockEditView extends BaseHtmlView {
   }
 
   private ContainerTag renderPredicate(
-      PredicateDefinition predicate,
+      long programId,
+      long blockId,
+      Optional<PredicateDefinition> predicate,
       String blockName,
       ImmutableList<QuestionDefinition> questions) {
+    String currentBlockStatus =
+        predicate.isEmpty()
+            ? "This screen is always shown."
+            : predicate.get().toDisplayString(blockName, questions);
     return div()
         .withClasses(Styles.M_4)
         .with(
             div("Visibility Condition").withClasses(Styles.TEXT_LG, Styles.FONT_BOLD, Styles.PY_2))
+        .with(div(currentBlockStatus).withClasses(Styles.TEXT_LG, Styles.MAX_W_PROSE))
         .with(
-            div(predicate.toDisplayString(blockName, questions))
-                .withClasses(Styles.TEXT_LG, Styles.MAX_W_PROSE));
+            redirectButton(
+                ReferenceClasses.EDIT_PREDICATE_BUTTON,
+                "Edit Visibility Condition",
+                routes.AdminProgramBlockPredicatesController.edit(programId, blockId).url()));
   }
 
   private ContainerTag renderQuestion(
