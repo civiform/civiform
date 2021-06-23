@@ -71,6 +71,19 @@ export class AdminPrograms {
     await this.expectManageProgramAdminsPage();
   }
 
+  async goToEditBlockPredicatePage(programName: string, blockName: string) {
+    await this.gotoDraftProgramEditPage(programName);
+    await this.page.click('text=Manage Questions');
+    await this.expectProgramBlockEditPage(programName);
+
+    // Click on the block to edit
+    await this.page.click(`a:has-text("${blockName}")`);
+
+    // Click on the edit predicate button
+    await this.page.click('#cf-edit-predicate');
+    await this.expectEditPredicatePage(blockName);
+  }
+
   async expectDraftProgram(programName: string) {
     expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("DRAFT"))`)).not.toContain('New Version');
   }
@@ -93,6 +106,10 @@ export class AdminPrograms {
 
   async expectManageProgramAdminsPage() {
     expect(await this.page.innerText('h1')).toContain('Manage Admins for Program');
+  }
+
+  async expectEditPredicatePage(blockName: string) {
+    expect(await this.page.innerText('h1')).toContain('Visibility condition for ' + blockName);
   }
 
   async expectProgramBlockEditPage(programName: string = '') {
