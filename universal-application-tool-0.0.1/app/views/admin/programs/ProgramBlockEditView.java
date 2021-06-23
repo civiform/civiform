@@ -42,7 +42,7 @@ import views.style.Styles;
 public class ProgramBlockEditView extends BaseHtmlView {
 
   private final AdminLayout layout;
-  private final Config config;
+  private final boolean featureFlagOptionalQuestions;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
@@ -52,7 +52,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
   @Inject
   public ProgramBlockEditView(AdminLayout layout, Config config) {
     this.layout = checkNotNull(layout);
-    this.config = checkNotNull(config);
+    this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
   }
 
   public Content render(
@@ -392,51 +392,51 @@ public class ProgramBlockEditView extends BaseHtmlView {
       long blockDefinitionId,
       QuestionDefinition questionDefinition,
       boolean isOptional) {
-    if (config.hasPath("cf.optional_questions")) {
-      ContainerTag optionalButton =
-          TagCreator.button()
-              .withClasses(
-                  Styles.FLEX,
-                  Styles.GAP_2,
-                  Styles.ITEMS_CENTER,
-                  isOptional ? Styles.TEXT_BLACK : Styles.TEXT_GRAY_400,
-                  Styles.FONT_MEDIUM,
-                  Styles.BG_TRANSPARENT,
-                  Styles.ROUNDED_FULL,
-                  StyleUtils.hover(Styles.BG_GRAY_400, Styles.TEXT_GRAY_300))
-              .withType("submit")
-              .with(p("optional").withClasses("hover-group:text-white"))
-              .with(
-                  div()
-                      .withClasses(Styles.RELATIVE)
-                      .with(
-                          div()
-                              .withClasses(
-                                  isOptional ? Styles.BG_BLUE_600 : Styles.BG_GRAY_600,
-                                  Styles.W_14,
-                                  Styles.H_8,
-                                  Styles.ROUNDED_FULL))
-                      .with(
-                          div()
-                              .withClasses(
-                                  Styles.ABSOLUTE,
-                                  Styles.BG_WHITE,
-                                  isOptional ? Styles.RIGHT_1 : Styles.LEFT_1,
-                                  Styles.TOP_1,
-                                  Styles.W_6,
-                                  Styles.H_6,
-                                  Styles.ROUNDED_FULL)));
-      String toggleOptionalAction =
-          controllers.admin.routes.AdminProgramBlockQuestionsController.setOptional(
-                  programDefinitionId, blockDefinitionId, questionDefinition.getId())
-              .url();
-      return form(csrfTag)
-          .withMethod(HttpVerbs.POST)
-          .withAction(toggleOptionalAction)
-          .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
-          .with(optionalButton);
+    if (!featureFlagOptionalQuestions) {
+      return null;
     }
-    return null;
+    ContainerTag optionalButton =
+        TagCreator.button()
+            .withClasses(
+                Styles.FLEX,
+                Styles.GAP_2,
+                Styles.ITEMS_CENTER,
+                isOptional ? Styles.TEXT_BLACK : Styles.TEXT_GRAY_400,
+                Styles.FONT_MEDIUM,
+                Styles.BG_TRANSPARENT,
+                Styles.ROUNDED_FULL,
+                StyleUtils.hover(Styles.BG_GRAY_400, Styles.TEXT_GRAY_300))
+            .withType("submit")
+            .with(p("optional").withClasses("hover-group:text-white"))
+            .with(
+                div()
+                    .withClasses(Styles.RELATIVE)
+                    .with(
+                        div()
+                            .withClasses(
+                                isOptional ? Styles.BG_BLUE_600 : Styles.BG_GRAY_600,
+                                Styles.W_14,
+                                Styles.H_8,
+                                Styles.ROUNDED_FULL))
+                    .with(
+                        div()
+                            .withClasses(
+                                Styles.ABSOLUTE,
+                                Styles.BG_WHITE,
+                                isOptional ? Styles.RIGHT_1 : Styles.LEFT_1,
+                                Styles.TOP_1,
+                                Styles.W_6,
+                                Styles.H_6,
+                                Styles.ROUNDED_FULL)));
+    String toggleOptionalAction =
+        controllers.admin.routes.AdminProgramBlockQuestionsController.setOptional(
+                programDefinitionId, blockDefinitionId, questionDefinition.getId())
+            .url();
+    return form(csrfTag)
+        .withMethod(HttpVerbs.POST)
+        .withAction(toggleOptionalAction)
+        .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
+        .with(optionalButton);
   }
 
   private Tag deleteQuestionForm(
