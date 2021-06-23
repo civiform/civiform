@@ -519,7 +519,10 @@ public abstract class ProgramDefinition {
       // Stop adding block definitions once we reach this block.
       if (siblingBlockDefinition.id() == blockDefinition.id()) break;
 
-      builder.add(siblingBlockDefinition);
+      // TODO(natsid): Add a test for this.
+      if (!blockDefinition.isFileUpload()) {
+        builder.add(siblingBlockDefinition);
+      }
     }
 
     return builder.build();
