@@ -195,6 +195,10 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   private Tag renderSkipFileUploadButton(Params params) {
+    // Cannot skip required file questions.
+    if (!params.block().getQuestions().get(0).isOptional()) {
+      return null;
+    }
     String skipUrl =
         routes.ApplicantProgramBlocksController.skipFile(
                 params.applicantId(), params.programId(), params.block().getId(), params.inReview())
