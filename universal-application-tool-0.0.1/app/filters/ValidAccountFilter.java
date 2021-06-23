@@ -2,8 +2,8 @@ package filters;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.UatProfile;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.libs.streams.Accumulator;
@@ -27,8 +27,8 @@ public class ValidAccountFilter extends EssentialFilter {
   public EssentialAction apply(EssentialAction next) {
     return EssentialAction.of(
         request -> {
-          Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
-          if (profile.isPresent() && !profileUtils.validUatProfile(profile.get())) {
+          Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+          if (profile.isPresent() && !profileUtils.validCiviFormProfile(profile.get())) {
             // The cookie is present but the profile is not valid, redirect to logout and clear the
             // cookie.
             if (!allowedEndpoint(request.uri())) {

@@ -1,6 +1,6 @@
 package services.applicant;
 
-import auth.UatProfile;
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
@@ -59,7 +59,7 @@ public interface ApplicantService {
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   CompletionStage<Application> submitApplication(
-      long applicantId, long programId, UatProfile submittingProfile);
+      long applicantId, long programId, CiviFormProfile submittingProfile);
 
   /** Create a new {@link Applicant} for a given user. */
   CompletionStage<Applicant> createApplicant(long userId);

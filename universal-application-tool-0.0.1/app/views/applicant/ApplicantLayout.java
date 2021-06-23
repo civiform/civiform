@@ -9,9 +9,9 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.text;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.Roles;
-import auth.UatProfile;
 import com.typesafe.config.Config;
 import controllers.routes;
 import j2html.TagCreator;
@@ -95,7 +95,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private ContainerTag renderNavBar(Http.Request request, String userName, Messages messages) {
-    Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     return nav()
         .withClasses(
@@ -112,7 +112,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
-  private ContainerTag getLanguageForm(Http.Request request, Optional<UatProfile> profile) {
+  private ContainerTag getLanguageForm(Http.Request request, Optional<CiviFormProfile> profile) {
     ContainerTag languageForm = div();
     if (profile.isPresent()) { // Show language switcher.
       long userId = profile.get().getApplicant().join().id;
@@ -155,7 +155,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withText("CiviForm"));
   }
 
-  private ContainerTag maybeRenderTiButton(Optional<UatProfile> profile, String userName) {
+  private ContainerTag maybeRenderTiButton(Optional<CiviFormProfile> profile, String userName) {
     if (profile.isPresent() && profile.get().getRoles().contains(Roles.ROLE_TI.toString())) {
       String tiDashboardText = "Trusted intermediary dashboard";
       String tiDashboardLink =

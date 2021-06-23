@@ -44,7 +44,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long programId, long blockDefinitionId) {
     try {
       ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
@@ -63,7 +63,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId, long blockDefinitionId) {
     Form<BlockVisibilityPredicateForm> predicateFormWrapper =
         formFactory.form(BlockVisibilityPredicateForm.class).bindFromRequest(request);
@@ -116,7 +116,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result destroy(long programId, long blockDefinitionId) {
     try {
       programService.removeBlockPredicate(programId, blockDefinitionId);

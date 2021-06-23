@@ -24,7 +24,7 @@ public class ProfileUtils {
    * Fetch the current profile from the session cookie, which the ProfileManager will fetch from the
    * request's cookies, using the injected session store to decrypt it.
    */
-  public Optional<UatProfile> currentUserProfile(Http.RequestHeader request) {
+  public Optional<CiviFormProfile> currentUserProfile(Http.RequestHeader request) {
     PlayWebContext webContext = new PlayWebContext(request);
     return currentUserProfile(webContext);
   }
@@ -33,9 +33,9 @@ public class ProfileUtils {
    * Fetch the current profile from the session cookie, which the ProfileManager will fetch from the
    * context's cookies, using the injected session store to decrypt it.
    */
-  public Optional<UatProfile> currentUserProfile(WebContext webContext) {
+  public Optional<CiviFormProfile> currentUserProfile(WebContext webContext) {
     ProfileManager profileManager = new ProfileManager(webContext, sessionStore);
-    Optional<UatProfileData> p = profileManager.getProfile(UatProfileData.class);
+    Optional<CiviFormProfileData> p = profileManager.getProfile(CiviFormProfileData.class);
     if (p.isEmpty()) {
       return Optional.empty();
     }
@@ -43,7 +43,7 @@ public class ProfileUtils {
   }
 
   /** Return true if the account referenced by the profile exists. */
-  public boolean validUatProfile(UatProfile profile) {
+  public boolean validCiviFormProfile(CiviFormProfile profile) {
     try {
       profile.getAccount().join();
       return true;

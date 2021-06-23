@@ -23,10 +23,10 @@ import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
 /**
- * This class takes an existing UAT profile and augments it with the information from an IDCS
+ * This class takes an existing CiviForm profile and augments it with the information from an IDCS
  * profile.
  */
-public class IdcsProfileAdapter extends UatProfileAdapter {
+public class IdcsProfileAdapter extends CiviFormProfileAdapter {
   public static final Logger LOG = LoggerFactory.getLogger(IdcsProfileAdapter.class);
 
   public IdcsProfileAdapter(
@@ -43,7 +43,7 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
   }
 
   @Override
-  protected ImmutableSet<Roles> roles(UatProfile profile, OidcProfile oidcProfile) {
+  protected ImmutableSet<Roles> roles(CiviFormProfile profile, OidcProfile oidcProfile) {
     if (profile.getAccount().join().getMemberOfGroup().isPresent()) {
       return ImmutableSet.of(Roles.ROLE_APPLICANT, Roles.ROLE_TI);
     }
@@ -51,18 +51,19 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
   }
 
   @Override
-  protected void adaptForRole(UatProfile profile, ImmutableSet<Roles> roles) {
+  protected void adaptForRole(CiviFormProfile profile, ImmutableSet<Roles> roles) {
     // not needed
   }
 
   @Override
-  public UatProfileData mergeUatProfile(UatProfile uatProfile, OidcProfile oidcProfile) {
+  public CiviFormProfileData mergeCiviFormProfile(
+      CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
     final String locale = oidcProfile.getAttribute("user_locale", String.class);
     final boolean hasLocale = locale != null && !locale.isEmpty();
     final String displayName = oidcProfile.getAttribute("user_displayname", String.class);
     final boolean hasDisplayName = displayName != null && !displayName.isEmpty();
     if (hasLocale || hasDisplayName) {
-      uatProfile
+      civiformProfile
           .getApplicant()
           .thenApplyAsync(
               applicant -> {
@@ -79,12 +80,12 @@ public class IdcsProfileAdapter extends UatProfileAdapter {
           .join();
     }
 
-    return super.mergeUatProfile(uatProfile, oidcProfile);
+    return super.mergeCiviFormProfile(civiformProfile, oidcProfile);
   }
 
   @Override
-  public UatProfileData uatProfileFromOidcProfile(OidcProfile profile) {
-    return mergeUatProfile(
+  public CiviFormProfileData civiformProfileFromOidcProfile(OidcProfile profile) {
+    return mergeCiviFormProfile(
         profileFactory.wrapProfileData(profileFactory.createNewApplicant()), profile);
   }
 

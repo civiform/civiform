@@ -18,21 +18,21 @@ import repository.DatabaseExecutionContext;
 import repository.ProgramRepository;
 
 /**
- * This is a "pure" wrapper of UatProfileData. Since UatProfileData is the serialized data about a
- * profile, this class should not store any data that should be serialized. It should contain only
- * server-local information, like execution contexts, database connections, etc.
+ * This is a "pure" wrapper of CiviFormProfileData. Since CiviFormProfileData is the serialized data
+ * about a profile, this class should not store any data that should be serialized. It should
+ * contain only server-local information, like execution contexts, database connections, etc.
  */
-public class UatProfile {
+public class CiviFormProfile {
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
-  private UatProfileData profileData;
+  private CiviFormProfileData profileData;
   private ProgramRepository programRepository;
 
   @Inject
-  public UatProfile(
+  public CiviFormProfile(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
-      UatProfileData profileData,
+      CiviFormProfileData profileData,
       ProgramRepository programRepository) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
@@ -78,8 +78,8 @@ public class UatProfile {
     return getRoles().contains(Roles.ROLE_TI.toString());
   }
 
-  public boolean isUatAdmin() {
-    return profileData.getRoles().contains(Roles.ROLE_UAT_ADMIN.toString());
+  public boolean isCiviFormAdmin() {
+    return profileData.getRoles().contains(Roles.ROLE_CIVIFORM_ADMIN.toString());
   }
 
   public boolean isProgramAdmin() {
@@ -114,7 +114,7 @@ public class UatProfile {
     return this.getAccount().thenApplyAsync(Account::getEmailAddress, httpContext.current());
   }
 
-  public UatProfileData getProfileData() {
+  public CiviFormProfileData getProfileData() {
     return this.profileData;
   }
 
