@@ -369,12 +369,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return div()
         .withClasses(Styles.M_4)
         .with(
-            div("Visibility Condition").withClasses(Styles.TEXT_LG, Styles.FONT_BOLD, Styles.PY_2))
+            div("Visibility condition").withClasses(Styles.TEXT_LG, Styles.FONT_BOLD, Styles.PY_2))
         .with(div(currentBlockStatus).withClasses(Styles.TEXT_LG, Styles.MAX_W_PROSE))
         .with(
             redirectButton(
                 ReferenceClasses.EDIT_PREDICATE_BUTTON,
-                "Edit Visibility Condition",
+                "Edit visibility condition",
                 routes.AdminProgramBlockPredicatesController.edit(programId, blockId).url()));
   }
 
