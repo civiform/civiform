@@ -26,7 +26,8 @@ public enum Scalar {
   LINE2("address line 2", ScalarType.STRING),
   MIDDLE_NAME("middle name", ScalarType.STRING),
   NUMBER("number", ScalarType.LONG),
-  SELECTION("selection", ScalarType.LIST_OF_STRINGS),
+  SELECTION("selection", ScalarType.STRING),
+  SELECTIONS("selections", ScalarType.LIST_OF_STRINGS),
   STATE("state", ScalarType.STRING),
   STREET("street", ScalarType.STRING),
   TEXT("text", ScalarType.STRING),
@@ -67,7 +68,7 @@ public enum Scalar {
 
   private static final ImmutableSet<Scalar> FILE_UPLOAD_SCALARS = ImmutableSet.of(FILE_KEY);
 
-  private static final ImmutableSet<Scalar> MULTI_SELECT_SCALARS = ImmutableSet.of(SELECTION);
+  private static final ImmutableSet<Scalar> MULTI_SELECT_SCALARS = ImmutableSet.of(SELECTIONS);
 
   private static final ImmutableSet<Scalar> NAME_SCALARS =
       ImmutableSet.of(FIRST_NAME, MIDDLE_NAME, LAST_NAME);

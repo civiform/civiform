@@ -62,6 +62,16 @@ public class PredicateValueTest {
   }
 
   @Test
+  public void toDisplayString_multiOptionSingleValue_convertsIdToString() {
+    QuestionDefinition multiOption =
+        testQuestionBank.applicantKitchenTools().getQuestionDefinition();
+
+    PredicateValue value = PredicateValue.of("1");
+
+    assertThat(value.toDisplayString(Optional.of(multiOption))).isEqualTo("toaster");
+  }
+
+  @Test
   public void toDisplayString_multiOptionList_missingIdDefaultsToObsolete() {
     QuestionDefinition multiOption = testQuestionBank.applicantIceCream().getQuestionDefinition();
 

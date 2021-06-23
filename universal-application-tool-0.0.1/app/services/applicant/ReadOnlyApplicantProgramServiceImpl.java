@@ -274,7 +274,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .orElse(""));
       case CHECKBOX:
         return ImmutableMap.of(
-            question.getContextualizedPath().join(Scalar.SELECTION),
+            question.getContextualizedPath().join(Scalar.SELECTIONS),
             question
                 .createMultiSelectQuestion()
                 .getSelectedOptionsValue(locale)

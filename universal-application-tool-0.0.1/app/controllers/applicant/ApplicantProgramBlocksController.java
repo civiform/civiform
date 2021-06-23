@@ -97,7 +97,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+        .thenComposeAsync(
+            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
+            httpExecutionContext.current())
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
@@ -158,7 +160,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+        .thenComposeAsync(
+            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
+            httpExecutionContext.current())
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
@@ -208,13 +212,71 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .exceptionally(ex -> handleUpdateExceptions(ex));
   }
 
+  /**
+   * This method is used by the file upload question. If an user chooses to skip uploading a file,
+   * they click the skip button on the page which takes them to this endpoint. This method puts an
+   * empty file key which marks the file quesiton as seen but not answered and redirects the user to
+   * the next incomplete block.
+   */
+  @Secure
+  public CompletionStage<Result> skipFile(
+      Request request, long applicantId, long programId, String blockId, boolean inReview) {
+    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+
+    return applicantStage
+        .thenComposeAsync(
+            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
+            httpExecutionContext.current())
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            httpExecutionContext.current())
+        .thenComposeAsync(
+            (roApplicantProgramService) -> {
+              Optional<Block> block = roApplicantProgramService.getBlock(blockId);
+
+              if (!block.isPresent() || !block.get().isFileUpload()) {
+                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              String applicantFileUploadQuestionKeyPath =
+                  block.get().getQuestions().stream()
+                      .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
+                      .findAny()
+                      .get()
+                      .createFileUploadQuestion()
+                      .getFileKeyPath()
+                      .toString();
+              ImmutableMap<String, String> formData =
+                  ImmutableMap.of(applicantFileUploadQuestionKeyPath, "");
+
+              return applicantService.stageAndUpdateIfValid(
+                  applicantId, programId, blockId, formData);
+            },
+            httpExecutionContext.current())
+        .thenComposeAsync(
+            (roApplicantProgramService) -> {
+              return update(
+                  request,
+                  applicantId,
+                  programId,
+                  blockId,
+                  applicantStage.toCompletableFuture().join(),
+                  inReview,
+                  roApplicantProgramService);
+            },
+            httpExecutionContext.current())
+        .exceptionally(ex -> handleUpdateExceptions(ex));
+  }
+
   @Secure
   public CompletionStage<Result> update(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
     CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+        .thenComposeAsync(
+            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
+            httpExecutionContext.current())
         .thenComposeAsync(
             v -> {
               DynamicForm form = formFactory.form().bindFromRequest(request);

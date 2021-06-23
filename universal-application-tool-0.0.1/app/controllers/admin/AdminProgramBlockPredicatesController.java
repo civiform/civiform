@@ -95,10 +95,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       LeafOperationExpressionNode leafExpression =
           LeafOperationExpressionNode.create(
               predicateForm.getQuestionId(), scalar, operator, predicateValue);
+      PredicateAction action = PredicateAction.valueOf(predicateForm.getPredicateAction());
       PredicateDefinition predicateDefinition =
-          PredicateDefinition.create(
-              PredicateExpressionNode.create(leafExpression),
-              PredicateAction.valueOf(predicateForm.getPredicateAction()));
+          PredicateDefinition.create(PredicateExpressionNode.create(leafExpression), action);
 
       try {
         programService.setBlockPredicate(programId, blockDefinitionId, predicateDefinition);
@@ -118,8 +117,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           .flashing(
               "success",
               String.format(
-                  "Saved visibility condition: %s",
-                  leafExpression.toDisplayString(ImmutableList.of())));
+                  "Saved visibility condition: %s %s",
+                  action.toDisplayString(), leafExpression.toDisplayString(ImmutableList.of())));
     }
   }
 
