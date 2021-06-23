@@ -261,7 +261,7 @@ public class DatabaseSeedController extends DevController {
               radioButtonQuestionId,
               Scalar.SELECTION,
               Operator.IN,
-              PredicateValue.of(ImmutableList.of("2", "3")));
+              PredicateValue.listOfStrings(ImmutableList.of("2", "3")));
       PredicateDefinition predicate =
           PredicateDefinition.create(
               PredicateExpressionNode.create(operation), PredicateAction.SHOW_BLOCK);
