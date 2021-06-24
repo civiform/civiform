@@ -199,6 +199,10 @@ public class ApplicantQuestion {
     return new SingleSelectQuestion(this);
   }
 
+  public StaticContentQuestion createStaticContentQuestion() {
+    return new StaticContentQuestion(this);
+  }
+
   public TextQuestion createTextQuestion() {
     return new TextQuestion(this);
   }
@@ -226,6 +230,8 @@ public class ApplicantQuestion {
         return createEnumeratorQuestion();
       case TEXT:
         return createTextQuestion();
+      case STATIC:
+        return createStaticContentQuestion();
       default:
         throw new RuntimeException("Unrecognized question type: " + getType());
     }

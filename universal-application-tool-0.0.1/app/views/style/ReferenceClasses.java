@@ -79,6 +79,7 @@ public final class ReferenceClasses {
   public static final String ACCORDION_CONTENT = "cf-accordion-content";
   public static final String ACCORDION_HEADER = "cf-accordion-header";
 
+  public static final String QUESTION_TYPE = "cf-question-type";
   public static final String TOAST_MESSAGE = "cf-toast-data";
   public static final String ENTITY_NAME_INPUT = "cf-entity-name-input";
   public static final String ENUMERATOR_FIELD = "cf-enumerator-field";

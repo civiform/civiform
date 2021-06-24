@@ -13,6 +13,7 @@ public enum QuestionType {
   NAME(false),
   NUMBER(false),
   RADIO_BUTTON(true),
+  STATIC(false),
   TEXT(false);
 
   private final boolean isMultiOptionType;

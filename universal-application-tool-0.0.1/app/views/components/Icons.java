@@ -7,6 +7,8 @@ public class Icons {
   public static final String ADDRESS_SVG_PATH =
       "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38"
           + " 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z";
+  public static final String ANNOTATION_SVG_PATH =
+      "M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z";
   // Check
   public static final String CHECKBOX_SVG_PATH = "M5 13l4 4L19 7";
   public static final String DATE_SVG_PATH =
@@ -111,6 +113,12 @@ public class Icons {
       case ENUMERATOR:
         iconPath = Icons.ENUMERATOR_SVG_PATH;
         return svg(iconPath, width, height).attr("fill", "transparent").attr("stroke-width", "2");
+      case STATIC:
+        return svg(Icons.ANNOTATION_SVG_PATH, width, height)
+            .attr("fill", "none")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2");
       case TEXT:
       default:
         iconPath = Icons.TEXT_SVG_PATH;

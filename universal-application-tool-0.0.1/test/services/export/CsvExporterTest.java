@@ -144,6 +144,9 @@ public class CsvExporterTest extends WithPostgresContainer {
             applicantDataOne, answerPath, "Some Value \" containing ,,, special characters");
         // applicant two did not answer this question.
         break;
+      case STATIC:
+        // Do nothing.
+        break;
     }
   }
 
