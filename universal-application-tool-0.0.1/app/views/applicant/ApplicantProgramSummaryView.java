@@ -178,9 +178,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     if (isAnswered || isFirstUnanswered) {
       String editText = messages.at(MessageKey.LINK_EDIT.getKeyName());
       if (!isAnswered) {
-        editText = inReview ?
-            messages.at(MessageKey.BUTTON_CONTINUE.getKeyName()) 
-            : messages.at(MessageKey.LINK_BEGIN.getKeyName());
+        editText =
+            inReview
+                ? messages.at(MessageKey.BUTTON_CONTINUE.getKeyName())
+                : messages.at(MessageKey.LINK_BEGIN.getKeyName());
       }
       String editLink =
           (!isAnswered && !inReview)

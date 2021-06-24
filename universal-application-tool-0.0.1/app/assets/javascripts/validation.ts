@@ -309,7 +309,7 @@ class ValidationController {
 
       // If this question isn't required then it's also valid if it is empty.
       const emptyOptional = false;
-      
+
       isValid = firstNameValid && lastNameValid;
     }
     return isValid;

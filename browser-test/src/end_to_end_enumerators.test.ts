@@ -150,7 +150,7 @@ describe('End to end enumerator test', () => {
     expect(await page.innerText("#application-summary")).not.toContain("12");
 
     // Go back and add an enumerator answer.
-    await page.click('.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Edit")');
+    await page.click('.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Continue")');
     await applicantQuestions.addEnumeratorAnswer("Tweety");
     await applicantQuestions.clickNext();
     await applicantQuestions.answerNameQuestion("Tweety", "Bird");
