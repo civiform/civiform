@@ -7,25 +7,21 @@ import models.Account;
 import models.Applicant;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
-import repository.ProgramRepository;
 import repository.VersionRepository;
 
 public class ProfileFactory {
 
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
-  private Provider<ProgramRepository> programRepositoryProvider;
   private Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
   public ProfileFactory(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
-      Provider<ProgramRepository> programRepositoryProvider,
       Provider<VersionRepository> versionRepositoryProvider) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
-    this.programRepositoryProvider = Preconditions.checkNotNull(programRepositoryProvider);
     this.versionRepositoryProvider = Preconditions.checkNotNull(versionRepositoryProvider);
   }
 
@@ -47,7 +43,7 @@ public class ProfileFactory {
   }
 
   public CiviFormProfile wrapProfileData(CiviFormProfileData p) {
-    return new CiviFormProfile(dbContext, httpContext, p, programRepositoryProvider.get());
+    return new CiviFormProfile(dbContext, httpContext, p);
   }
 
   private CiviFormProfileData create(Roles role) {
