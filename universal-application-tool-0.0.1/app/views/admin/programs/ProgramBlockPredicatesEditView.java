@@ -345,6 +345,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         ContainerTag optionCheckbox =
             FieldWithLabel.checkbox()
                 .setFieldName("predicateValues[]")
+                .setValue(String.valueOf(option.id()))
                 .setLabelText(option.optionText().getDefault())
                 .getContainer();
         valueOptionsDiv.with(optionCheckbox);
