@@ -131,7 +131,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     // cautious if you want to change the format.
     String key =
         String.format(
-            "applicant-%d/program-%d/block-%s",
+            "applicant-%d/program-%d/block-%s/${filename}",
             params.applicantId(), params.programId(), params.block().getId());
     String onSuccessRedirectUrl =
         params.baseUrl()
