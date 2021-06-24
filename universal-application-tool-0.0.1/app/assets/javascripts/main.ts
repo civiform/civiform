@@ -206,8 +206,8 @@ function shouldHideOperator(
     // inputs for values for multi-option question predicates, which works well for list
     // operators such as ANY_OF and NONE_OF. Because you can achieve the same functionality
     // of EQUAL_TO with ANY_OF and NOT_EQUAL_TO with NONE_OF, we made a technical choice to
-    // exclude these operators from single-select predicates to simplify the code on the
-    // form processing side.
+    // exclude these operators from single-select predicates to simplify the code on both
+    // the form processing side and on the admin user side.
     (selectedScalarValue.toUpperCase() === 'SELECTION' &&
       (operatorOption.value === 'EQUAL_TO' ||
         operatorOption.value === 'NOT_EQUAL_TO'))
