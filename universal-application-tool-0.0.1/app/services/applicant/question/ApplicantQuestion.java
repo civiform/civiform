@@ -77,7 +77,7 @@ public class ApplicantQuestion {
   }
 
   /**
-   * Return true this question is required but was left unanswered while filling out the current
+   * Return true if this question is required but was left unanswered while filling out the current
    * program.
    */
   public boolean isRequiredButWasUnansweredInCurrentProgram() {
