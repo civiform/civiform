@@ -10,7 +10,7 @@ describe('create and edit predicates', () => {
 
     // Add a program with two blocks
     await adminQuestions.addTextQuestion('predicate-q');
-    await adminQuestions.addTextQuestion('other-q', 'conditional question');
+    await adminQuestions.addTextQuestion('other-q', 'desc', 'conditional question');
 
     const programName = 'create predicate';
     await adminPrograms.addProgram(programName);
@@ -33,7 +33,19 @@ describe('create and edit predicates', () => {
     const applicant = new ApplicantQuestions(page);
     await applicant.applyProgram(programName);
 
-    // Fill out the first block so that the next block will be hidden
+    // Initially fill out the first block so that the next block will be shown
+    await applicant.answerTextQuestion('show me');
+    await applicant.clickNext();
+
+    // Fill out the second block
+    await applicant.answerTextQuestion('will be hidden and not submitted');
+    await applicant.clickNext();
+
+    // We should be on the review page, with an answer to Block 2's question
+    expect(await page.innerText('#application-summary')).toContain('conditional question');
+
+    // Return to the first block and answer it so that the second block is hidden
+    page.click('text=Edit'); // first block edit
     await applicant.answerTextQuestion('hide me');
     await applicant.clickNext();
 
