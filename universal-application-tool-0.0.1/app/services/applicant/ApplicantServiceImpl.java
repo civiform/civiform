@@ -29,6 +29,7 @@ import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
+import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.aws.SimpleEmail;
 import services.program.PathNotInBlockException;
@@ -374,12 +375,6 @@ public class ApplicantServiceImpl implements ApplicantService {
       throws PathNotInBlockException {
     Path enumeratorPath = block.getEnumeratorQuestion().getContextualizedPath();
 
-    // The applicant has seen this question, but has not supplied any entities.
-    // We need to still write this path so we can tell they have seen this question.
-    if (!applicantData.hasPath(enumeratorPath.withoutArrayReference())) {
-      applicantData.putRepeatedEntities(enumeratorPath.withoutArrayReference(), ImmutableList.of());
-    }
-
     ImmutableSet<Update> addsAndChanges = validateEnumeratorAddsAndChanges(block, updates);
     ImmutableSet<Update> deletes =
         updates.stream()
@@ -397,6 +392,13 @@ public class ApplicantServiceImpl implements ApplicantService {
       throw new PathNotInBlockException(block.getId(), unknownUpdates.iterator().next().path());
     }
 
+    // Before adding anything, if only metadata is being stored then delete it. We cannot put an
+    // array of entities at the question path if a JSON object with metadata is already at that
+    // path.
+    if (applicantData.readRepeatedEntities(enumeratorPath).isEmpty()) {
+      applicantData.maybeDelete(enumeratorPath.withoutArrayReference());
+    }
+
     // Add and change entity names BEFORE deleting, because if deletes happened first, then changed
     // entity names may not match the intended entities.
     for (Update update : addsAndChanges) {
@@ -410,6 +412,12 @@ public class ApplicantServiceImpl implements ApplicantService {
             .map(Integer::valueOf)
             .collect(ImmutableList.toImmutableList());
     applicantData.deleteRepeatedEntities(enumeratorPath, deleteIndices);
+
+    // If there are no repeated entities at this point, we still need to save metadata for this
+    // question.
+    if (applicantData.maybeClearRepeatedEntities(enumeratorPath)) {
+      writeMetadataForPath(enumeratorPath.withoutArrayReference(), applicantData, updateMetadata);
+    }
   }
 
   /**
@@ -463,12 +471,11 @@ public class ApplicantServiceImpl implements ApplicantService {
       UpdateMetadata updateMetadata,
       ImmutableSet<Update> updates)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
-    ImmutableSet.Builder<Path> questionPaths = ImmutableSet.builder();
     ArrayList<Path> visitedPaths = new ArrayList<>();
     for (Update update : updates) {
       Path currentPath = update.path();
 
-      // If we're updating an array we need to clear it first.
+      // If we're updating an array we need to clear it the first time it is visited
       if (currentPath.isArrayElement()
           && !visitedPaths.contains(currentPath.withoutArrayReference())) {
         visitedPaths.add(currentPath.withoutArrayReference());
@@ -479,25 +486,31 @@ public class ApplicantServiceImpl implements ApplicantService {
           block
               .getScalarType(currentPath)
               .orElseThrow(() -> new PathNotInBlockException(block.getId(), currentPath));
-      questionPaths.add(currentPath.parentPath());
-      switch (type) {
-        case DATE:
-          applicantData.putDate(currentPath, update.value());
-          break;
-        case LIST_OF_STRINGS:
-        case STRING:
-          applicantData.putString(currentPath, update.value());
-          break;
-        case LONG:
-          applicantData.putLong(currentPath, update.value());
-          break;
-        default:
-          throw new UnsupportedScalarTypeException(type);
+      // An empty update means the applicant doesn't want to store anything. We already cleared the
+      // multi-select array above in preparation for updates, so do not remove the path.
+      if (!update.path().isArrayElement() && update.value().isBlank()) {
+        applicantData.maybeDelete(update.path());
+      } else {
+        switch (type) {
+          case DATE:
+            applicantData.putDate(currentPath, update.value());
+            break;
+          case LIST_OF_STRINGS:
+          case STRING:
+            applicantData.putString(currentPath, update.value());
+            break;
+          case LONG:
+            applicantData.putLong(currentPath, update.value());
+            break;
+          default:
+            throw new UnsupportedScalarTypeException(type);
+        }
       }
     }
 
-    questionPaths
-        .build()
+    // Write metadata for all questions in the block, regardless of whether they were blank or not.
+    block.getQuestions().stream()
+        .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> writeMetadataForPath(path, applicantData, updateMetadata));
   }
 

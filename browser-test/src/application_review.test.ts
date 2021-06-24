@@ -90,9 +90,9 @@ describe('normal application flow', () => {
     await applicantQuestions.answerFileUploadQuestion('file key');
     await applicantQuestions.clickUpload();
 
-    // fill 4th application block. 
-    // skip one checkbox question.
+    // fill 4th application block.
     await applicantQuestions.answerCheckboxQuestion(['clowns']);
+    await applicantQuestions.answerCheckboxQuestion(['sewage']);
     await applicantQuestions.clickNext();
 
     // submit

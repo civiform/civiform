@@ -59,4 +59,5 @@ placeholder.entityName=Apodo para {0}
 button.addEntity=Agrega otro {0}
 button.removeEntity=Eliminar {0}
 
+validation.isRequired=Esta pregunta es requerida.
 validation.entityNameRequired=Ingrese un valor para cada línea.

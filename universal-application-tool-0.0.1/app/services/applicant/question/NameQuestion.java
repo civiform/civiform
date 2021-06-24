@@ -53,7 +53,7 @@ public class NameQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getFirstNameErrors() {
-    if (isFirstNameAnswered() && getFirstNameValue().isEmpty()) {
+    if (isAnswered() && getFirstNameValue().isEmpty()) {
       return getFirstNameErrorMessage();
     }
 
@@ -66,7 +66,7 @@ public class NameQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getLastNameErrors() {
-    if (isLastNameAnswered() && getLastNameValue().isEmpty()) {
+    if (isAnswered() && getLastNameValue().isEmpty()) {
       return getLastNameErrorMessage();
     }
 

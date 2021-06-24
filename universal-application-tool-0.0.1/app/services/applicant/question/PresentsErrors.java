@@ -26,8 +26,8 @@ public interface PresentsErrors {
   ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors();
 
   /**
-   * Returns true if the question has been answered by the applicant, even if that answer was blank.
-   * In general, if a question is not answered, it cannot have errors associated with it.
+   * Returns true any part of the question has been answered by the applicant. Blank answers should
+   * not count. In general, if a question is not answered, it cannot have errors associated with it.
    */
   boolean isAnswered();
 
