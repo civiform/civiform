@@ -176,7 +176,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     // Maybe link to block containing specific question.
     if (isAnswered || isFirstUnanswered) {
-      String editText = !isAnswered
+      String editText =
+          !isAnswered
               ? messages.at(MessageKey.LINK_BEGIN.getKeyName())
               : messages.at(MessageKey.LINK_EDIT.getKeyName());
 
