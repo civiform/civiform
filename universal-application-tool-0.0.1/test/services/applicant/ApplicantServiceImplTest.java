@@ -166,7 +166,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
             .withBlock()
-            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .buildDefinition();
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     Path enumeratorPath =
@@ -235,7 +235,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
             .withBlock()
-            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .buildDefinition();
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     Path enumeratorPath =
@@ -749,12 +749,12 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     Program p1 =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.applicantName())
             .build();
     Program p2 =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
     applicationRepository.createOrUpdateDraft(applicant.id, p1.id).toCompletableFuture().join();
 
@@ -788,7 +788,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
             .withBlock()
-            .withQuestionDefinitions(ImmutableList.copyOf(questions))
+            .withRequiredQuestionDefinitions(ImmutableList.copyOf(questions))
             .buildDefinition();
   }
 }

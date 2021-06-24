@@ -399,11 +399,11 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .withRepeatedBlock()
-            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
             .withBlock()
-            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build()
             .getProgramDefinition();
     BlockDefinition blockDefinition =
@@ -438,11 +438,11 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .withRepeatedBlock()
-            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
             .withBlock()
-            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build()
             .getProgramDefinition();
 
@@ -466,11 +466,11 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .withRepeatedBlock()
-            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
             .withBlock()
-            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build()
             .getProgramDefinition();
 
@@ -506,7 +506,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(predicateQuestion)
+            .withRequiredQuestion(predicateQuestion)
             .withBlock()
             .withPredicate(predicate)
             .build()
@@ -536,7 +536,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(predicateQuestion)
+            .withRequiredQuestion(predicateQuestion)
             .withBlock()
             .withPredicate(predicate)
             .build()
@@ -565,7 +565,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(predicateQuestion)
+            .withRequiredQuestion(predicateQuestion)
             .withBlock()
             .withPredicate(predicate)
             .build()
@@ -578,7 +578,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .withBlock()
             .withPredicate(predicate)
             .withBlock()
-            .withQuestion(predicateQuestion)
+            .withRequiredQuestion(predicateQuestion)
             .build()
             .getProgramDefinition();
 
@@ -601,7 +601,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(predicateQuestion)
+            .withRequiredQuestion(predicateQuestion)
             .withPredicate(predicate)
             .build()
             .getProgramDefinition();

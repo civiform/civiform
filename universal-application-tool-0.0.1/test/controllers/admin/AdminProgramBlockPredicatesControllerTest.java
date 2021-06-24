@@ -28,12 +28,12 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
     programWithThreeBlocks =
         ProgramBuilder.newDraftProgram()
             .withBlock("Block 1")
-            .withQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.applicantName())
             .withBlock("Block 2")
-            .withQuestion(testQuestionBank.applicantAddress())
-            .withQuestion(testQuestionBank.applicantIceCream())
+            .withRequiredQuestion(testQuestionBank.applicantAddress())
+            .withRequiredQuestion(testQuestionBank.applicantIceCream())
             .withBlock("Block 3")
-            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
   }
 

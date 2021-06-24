@@ -76,7 +76,7 @@ public class ProgramBuilderTest extends WithPostgresContainer {
             .withBlock()
             .withName("block 1")
             .withDescription("block 1 description")
-            .withQuestionDefinition(nameQuestionDefinition)
+            .withRequiredQuestionDefinition(nameQuestionDefinition)
             .buildDefinition();
 
     assertThat(programDefinition.id()).isGreaterThan(0);
