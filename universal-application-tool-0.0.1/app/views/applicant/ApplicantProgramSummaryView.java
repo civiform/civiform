@@ -176,11 +176,12 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     // Maybe link to block containing specific question.
     if (isAnswered || isFirstUnanswered) {
-      String editText =
-          !isAnswered
-              ? messages.at(MessageKey.LINK_BEGIN.getKeyName())
-              : messages.at(MessageKey.LINK_EDIT.getKeyName());
-
+      String editText = messages.at(MessageKey.LINK_EDIT.getKeyName());
+      if (!isAnswered) {
+        editText = inReview ?
+            messages.at(MessageKey.BUTTON_CONTINUE.getKeyName()) 
+            : messages.at(MessageKey.LINK_BEGIN.getKeyName());
+      }
       String editLink =
           (!isAnswered && !inReview)
               ? routes.ApplicantProgramBlocksController.edit(
