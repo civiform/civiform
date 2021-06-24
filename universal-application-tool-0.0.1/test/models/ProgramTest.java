@@ -46,19 +46,21 @@ public class ProgramTest extends WithPostgresContainer {
             .setDescription("applicant's name")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
             .build();
-
+    long programDefinitionId = 1L;
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(1L)
             .setName("First Block")
             .setDescription("basic info")
             .setProgramQuestionDefinitions(
-                ImmutableList.of(ProgramQuestionDefinition.create(questionDefinition)))
+                ImmutableList.of(
+                    ProgramQuestionDefinition.create(
+                        questionDefinition, Optional.of(programDefinitionId))))
             .build();
 
     ProgramDefinition definition =
         ProgramDefinition.builder()
-            .setId(1L)
+            .setId(programDefinitionId)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
@@ -110,6 +112,7 @@ public class ProgramTest extends WithPostgresContainer {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
                 .build();
 
+    long programDefinitionId = 1L;
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(1L)
@@ -117,13 +120,15 @@ public class ProgramTest extends WithPostgresContainer {
             .setDescription("basic info")
             .setProgramQuestionDefinitions(
                 ImmutableList.of(
-                    ProgramQuestionDefinition.create(addressQuestionDefinition),
-                    ProgramQuestionDefinition.create(nameQuestionDefinition)))
+                    ProgramQuestionDefinition.create(
+                        addressQuestionDefinition, Optional.of(programDefinitionId)),
+                    ProgramQuestionDefinition.create(
+                        nameQuestionDefinition, Optional.of(programDefinitionId))))
             .build();
 
     ProgramDefinition definition =
         ProgramDefinition.builder()
-            .setId(1L)
+            .setId(programDefinitionId)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
@@ -185,6 +190,7 @@ public class ProgramTest extends WithPostgresContainer {
 
   @Test
   public void unorderedBlockDefinitions_getOrderedBlockDefinitionsOnSave() {
+    long programDefinitionId = 45832L;
     ImmutableList<BlockDefinition> unorderedBlocks =
         ImmutableList.<BlockDefinition>builder()
             .add(
@@ -194,7 +200,8 @@ public class ProgramTest extends WithPostgresContainer {
                     .setDescription("description")
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
+                            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                            Optional.of(programDefinitionId)))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -203,7 +210,8 @@ public class ProgramTest extends WithPostgresContainer {
                     .setDescription("description")
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantEmail().getQuestionDefinition()))
+                            testQuestionBank.applicantEmail().getQuestionDefinition(),
+                            Optional.of(programDefinitionId)))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -213,9 +221,8 @@ public class ProgramTest extends WithPostgresContainer {
                     .setEnumeratorId(Optional.of(1L))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank
-                                .applicantHouseholdMemberJobs()
-                                .getQuestionDefinition()))
+                            testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
+                            Optional.of(programDefinitionId)))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -225,9 +232,8 @@ public class ProgramTest extends WithPostgresContainer {
                     .setEnumeratorId(Optional.of(1L))
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank
-                                .applicantHouseholdMemberName()
-                                .getQuestionDefinition()))
+                            testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition(),
+                            Optional.of(programDefinitionId)))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -239,7 +245,8 @@ public class ProgramTest extends WithPostgresContainer {
                         ProgramQuestionDefinition.create(
                             testQuestionBank
                                 .applicantHouseholdMemberJobIncome()
-                                .getQuestionDefinition()))
+                                .getQuestionDefinition(),
+                            Optional.of(programDefinitionId)))
                     .build())
             .add(
                 BlockDefinition.builder()
@@ -248,13 +255,14 @@ public class ProgramTest extends WithPostgresContainer {
                     .setDescription("description")
                     .addQuestion(
                         ProgramQuestionDefinition.create(
-                            testQuestionBank.applicantName().getQuestionDefinition()))
+                            testQuestionBank.applicantName().getQuestionDefinition(),
+                            Optional.of(programDefinitionId)))
                     .build())
             .build();
 
     ProgramDefinition programDefinition =
         ProgramDefinition.builder()
-            .setId(45832L)
+            .setId(programDefinitionId)
             .setAdminName("test program")
             .setAdminDescription("test description")
             .setExternalLink("")

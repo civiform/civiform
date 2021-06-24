@@ -49,6 +49,7 @@ public class BlockTest {
     QuestionDefinition question = NAME_QUESTION;
     ApplicantData applicant = new ApplicantData();
     applicant.putString(Path.create("applicant.hello"), "world");
+    long programDefinitionId = 1L;
 
     new EqualsTester()
         .addEqualityGroup(
@@ -61,14 +62,18 @@ public class BlockTest {
             new Block(
                 "1",
                 definition.toBuilder()
-                    .addQuestion(ProgramQuestionDefinition.create(question))
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            question, Optional.of(programDefinitionId)))
                     .build(),
                 new ApplicantData(),
                 Optional.empty()),
             new Block(
                 "1",
                 definition.toBuilder()
-                    .addQuestion(ProgramQuestionDefinition.create(question))
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            question, Optional.of(programDefinitionId)))
                     .build(),
                 new ApplicantData(),
                 Optional.empty()))
@@ -296,7 +301,8 @@ public class BlockTest {
             .setDescription("")
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    testQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
+                    testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                    Optional.empty()))
             .build();
 
     Block block = new Block("1", definition, applicantData, Optional.empty());
@@ -324,7 +330,8 @@ public class BlockTest {
             .setId(1L)
             .setName("")
             .setDescription("")
-            .addQuestion(ProgramQuestionDefinition.create(enumeratorQuestionDefinition))
+            .addQuestion(
+                ProgramQuestionDefinition.create(enumeratorQuestionDefinition, Optional.empty()))
             .build();
     Block block = new Block("1", definition, applicantData, Optional.empty());
 
@@ -343,7 +350,7 @@ public class BlockTest {
             .setDescription("")
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    testQuestionBank.applicantFile().getQuestionDefinition()))
+                    testQuestionBank.applicantFile().getQuestionDefinition(), Optional.empty()))
             .build();
 
     Block block = new Block("1", definition, applicantData, Optional.empty());
@@ -366,8 +373,8 @@ public class BlockTest {
         .setId(20L)
         .setName("")
         .setDescription("")
-        .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION))
-        .addQuestion(ProgramQuestionDefinition.create(COLOR_QUESTION))
+        .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION, Optional.empty()))
+        .addQuestion(ProgramQuestionDefinition.create(COLOR_QUESTION, Optional.empty()))
         .build();
   }
 
