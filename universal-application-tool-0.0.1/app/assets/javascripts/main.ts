@@ -206,15 +206,24 @@ function configurePredicateValueInput(
       .querySelector('.cf-predicate-value-input') // div containing the predicate value input
       .querySelector('input') as HTMLInputElement;
 
-  if (selectedScalarValue.toUpperCase() === 'EMAIL') {
-    // Need to look at the selected scalar *value* for email rather than the *type*, since the type is just a string, but emails have a special type in HTML inputs.
-    valueInput.setAttribute('type', 'email');
-  } else if (selectedScalarType.toUpperCase() === 'STRING') {
-    valueInput.setAttribute('type', 'text');
-  } else if (selectedScalarType.toUpperCase() === 'LONG') {
-    valueInput.setAttribute('type', 'number');
-  } else if (selectedScalarType.toUpperCase() === 'DATE') {
-    valueInput.setAttribute('type', 'date');
+  switch (selectedScalarType.toUpperCase()) {
+    case 'STRING':
+      if (selectedScalarValue.toUpperCase() === 'EMAIL') {
+        // Need to look at the selected scalar *value* for email since the type is just a
+        // string, but emails have a special type in HTML inputs.
+        valueInput.setAttribute('type', 'email');
+        break;
+      }
+      valueInput.setAttribute('type', 'text');
+      break;
+    case 'LONG':
+      valueInput.setAttribute('type', 'number');
+      break;
+    case 'DATE':
+      valueInput.setAttribute('type', 'date');
+      break;
+    default:
+      valueInput.setAttribute('type', 'text');
   }
 }
 
