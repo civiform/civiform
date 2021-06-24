@@ -383,6 +383,10 @@ public class ApplicantData {
   /**
    * If there are no repeated entities at the path, remove the array entirely. Returns true if it
    * was deleted.
+   *
+   * <p>This method needs to check that there are no repeated entity data stored before deleting
+   * because we do not want to delete repeated entity data via this method. To delete data for
+   * repeated entities, use {@link #deleteRepeatedEntities(Path, ImmutableList)};
    */
   public boolean maybeClearRepeatedEntities(Path path) {
     checkLocked();
