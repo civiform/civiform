@@ -82,7 +82,7 @@ public class TestQuestionBank {
         .put(QuestionType.RADIO_BUTTON, applicantSeason())
         .put(QuestionType.ENUMERATOR, applicantHouseholdMembers())
         .put(QuestionType.TEXT, applicantFavoriteColor())
-        .put(QuestionType.STATIC, applicantStatic())
+        .put(QuestionType.STATIC, staticContent())
         .build();
   }
 
@@ -167,8 +167,8 @@ public class TestQuestionBank {
   }
 
   // Text
-  public Question applicantStatic() {
-    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_STATIC, this::applicantStatic);
+  public Question staticContent() {
+    return questionCache.computeIfAbsent(QuestionEnum.STATIC_CONTENT, this::staticContent);
   }
 
   // Address
@@ -350,12 +350,12 @@ public class TestQuestionBank {
   }
 
   // Static
-  private Question applicantStatic(QuestionEnum ignore) {
+  private Question staticContent(QuestionEnum ignore) {
     QuestionDefinition definition =
         new TextQuestionDefinition(
             "more info about something",
             Optional.empty(),
-            "Shows more info to the applicantt",
+            "Shows more info to the applicant",
             LocalizedStrings.of(Locale.US, "This is more info"),
             LocalizedStrings.of(Locale.US, ""));
     return maybeSave(definition);
@@ -424,7 +424,7 @@ public class TestQuestionBank {
     APPLICANT_NAME,
     APPLICANT_BIRTHDATE,
     APPLICANT_SEASON,
-    APPLICANT_STATIC,
-    APPLICANT_EMAIL
+    APPLICANT_EMAIL,
+    STATIC_CONTENT,
   }
 }
