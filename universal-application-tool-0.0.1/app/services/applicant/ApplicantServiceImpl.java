@@ -375,12 +375,6 @@ public class ApplicantServiceImpl implements ApplicantService {
       throws PathNotInBlockException {
     Path enumeratorPath = block.getEnumeratorQuestion().getContextualizedPath();
 
-    // The applicant has seen this question, but has not supplied any entities.
-    // We need to still write this path so we can tell they have seen this question.
-    if (!applicantData.hasPath(enumeratorPath.withoutArrayReference())) {
-      applicantData.putRepeatedEntities(enumeratorPath.withoutArrayReference(), ImmutableList.of());
-    }
-
     ImmutableSet<Update> addsAndChanges = validateEnumeratorAddsAndChanges(block, updates);
     ImmutableSet<Update> deletes =
         updates.stream()
@@ -396,6 +390,11 @@ public class ApplicantServiceImpl implements ApplicantService {
     Set<Update> unknownUpdates = Sets.difference(updates, Sets.union(addsAndChanges, deletes));
     if (!unknownUpdates.isEmpty()) {
       throw new PathNotInBlockException(block.getId(), unknownUpdates.iterator().next().path());
+    }
+
+    // Before adding anything, if only metadata is being stored then delete it
+    if (applicantData.hasPath(enumeratorPath.withoutArrayReference())) {
+      applicantData.delete(enumeratorPath.withoutArrayReference());
     }
 
     // Add and change entity names BEFORE deleting, because if deletes happened first, then changed

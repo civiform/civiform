@@ -237,8 +237,8 @@ public class ApplicantData {
   }
 
   /**
-   * Clears an array in preparation of updates, regardless of whether there are anything values
-   * present.
+   * Clears an array in preparation of updates if the path is pointing to an array element,
+   * regardless of whether there are any values present.
    */
   public void maybeClearArray(Path path) {
     checkLocked();
@@ -246,6 +246,12 @@ public class ApplicantData {
       putParentIfMissing(path);
       jsonData.delete(path.withoutArrayReference().toString());
     }
+  }
+
+  /** Delete whatever is there. */
+  public boolean delete(Path path) {
+    checkLocked();
+    jsonData.delete(path.toString());
   }
 
   private void putAt(Path path, Object value) {
