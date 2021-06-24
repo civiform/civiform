@@ -6,6 +6,7 @@ import static j2html.TagCreator.input;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Optional;
 import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
@@ -16,8 +17,11 @@ import views.style.Styles;
 
 public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
 
+  private final FileUploadQuestion fileuploadQuestion;
+
   public FileUploadQuestionRenderer(ApplicantQuestion question) {
     super(question);
+    this.fileuploadQuestion = question.createFileUploadQuestion();
   }
 
   @Override
@@ -38,13 +42,17 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   private ContainerTag fileUploadFieldsPreview() {
-    return div().with(input().withType("file").withName("file"));
+    return div()
+        .with(input().withType("file").withName("file").attr(Attr.ACCEPT, acceptFileType()));
   }
 
   private ContainerTag signedFileUploadFields(ApplicantQuestionRendererParams params) {
     SignedS3UploadRequest request = params.signedFileUploadRequest().get();
+    Optional<String> uploaded =
+        fileuploadQuestion.getFilename().map(f -> String.format("File uploaded: %s", f));
     ContainerTag fieldsTag =
         div()
+            .with(div().withText(uploaded.orElse("")))
             .with(input().withType("hidden").withName("key").withValue(request.key()))
             .with(
                 input()
@@ -68,12 +76,15 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
         .with(input().withType("hidden").withName("X-Amz-Date").withValue(request.date()))
         .with(input().withType("hidden").withName("Policy").withValue(request.policy()))
         .with(input().withType("hidden").withName("X-Amz-Signature").withValue(request.signature()))
-        .with(input().withType("file").withName("file").attr(Attr.ACCEPT, "image/*,.pdf"))
+        .with(input().withType("file").withName("file").attr(Attr.ACCEPT, acceptFileType()))
         .with(errorDiv(params.messages()));
   }
 
+  private String acceptFileType() {
+    return "image/*,.pdf";
+  }
+
   private ContainerTag errorDiv(Messages messages) {
-    FileUploadQuestion fileuploadQuestion = question.createFileUploadQuestion();
     return div(fileuploadQuestion.fileRequiredMessage().getMessage(messages))
         .withClasses(
             ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, Styles.HIDDEN);
