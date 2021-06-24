@@ -406,11 +406,13 @@ public class ProgramBlockEditView extends BaseHtmlView {
         optionalToggle(
             csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, isOptional);
 
-    return ret.with(icon, content)
-        .condWith(maybeOptionalToggle.isPresent(), maybeOptionalToggle.get())
-        .with(
-            deleteQuestionForm(
-                csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, canRemove));
+    ret.with(icon, content);
+    if (maybeOptionalToggle.isPresent()) {
+      ret.with(maybeOptionalToggle.get());
+    }
+    return ret.with(
+        deleteQuestionForm(
+            csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, canRemove));
   }
 
   private Optional<Tag> optionalToggle(

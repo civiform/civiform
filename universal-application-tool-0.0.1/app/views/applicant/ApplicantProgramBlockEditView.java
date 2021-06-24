@@ -177,13 +177,16 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   private Tag renderFileUploadBottomNavButtons(Params params) {
     Optional<Tag> maybeSkipFileUploadButton = renderSkipFileUploadButton(params);
-    return div()
-        .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-        // An empty div to take up the space to the left of the buttons.
-        .with(div().withClasses(Styles.FLEX_GROW))
-        .with(renderReviewButton(params))
-        .condWith(maybeSkipFileUploadButton.isPresent(), maybeSkipFileUploadButton.get())
-        .with(renderUploadButton(params));
+    ContainerTag ret =
+        div()
+            .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
+            // An empty div to take up the space to the left of the buttons.
+            .with(div().withClasses(Styles.FLEX_GROW))
+            .with(renderReviewButton(params));
+    if (maybeSkipFileUploadButton.isPresent()) {
+      ret.with(maybeSkipFileUploadButton.get());
+    }
+    return ret.with(renderUploadButton(params));
   }
 
   private Tag renderReviewButton(Params params) {
