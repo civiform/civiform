@@ -45,8 +45,16 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   /**
    * Renders a summary of all of the applicant's data for a specific application. Data includes:
-   * Program Id, Applicant Id - Needed for link context (submit & edit) Question Data for each
-   * question: - question text - answer text - block id (for edit link)
+   *
+   * <p>Program Id, Applicant Id - Needed for link context (submit & edit)
+   *
+   * <p>Question Data for each question:
+   *
+   * <ul>
+   *   <li>question text
+   *   <li>answer text
+   *   <li>block id (for edit link)
+   * </ul>
    */
   public Content render(Params params) {
     Messages messages = params.messages();
@@ -167,9 +175,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         div(answerContent).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
 
     // Maybe link to block containing specific question.
-    if (inReview || isAnswered || isFirstUnanswered) {
-      String editText =
-          (!isAnswered && !inReview)
+    if (isAnswered || isFirstUnanswered) {
+      String editText = !isAnswered
               ? messages.at(MessageKey.LINK_BEGIN.getKeyName())
               : messages.at(MessageKey.LINK_EDIT.getKeyName());
 
