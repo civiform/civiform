@@ -13,7 +13,7 @@ export const isLocalDevEnvironment = () => {
 }
 
 export const startSession = async () => {
-  const browser = await chromium.launch({ headless: false, slowMo: 300 });
+  const browser = await chromium.launch();
   const page = await browser.newPage({ acceptDownloads: true });
 
   await page.goto(BASE_URL);

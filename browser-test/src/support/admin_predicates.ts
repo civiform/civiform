@@ -8,14 +8,15 @@ export class AdminPredicates {
   }
 
   async addPredicate(questionName: string, action: string, scalar: string, operator: string, value: string) {
+    await this.page.waitForLoadState('load');
     await this.page.click(`text="${questionName}"`);
-    await this.page.selectOption('.cf-predicate-action select', { label: action });
-    await this.page.selectOption('.cf-scalar-select select', { label: scalar });
-    await this.page.selectOption('.cf-operator-select select', { label: operator });
+    await this.page.selectOption('.cf-predicate-action:visible select', { label: action });
+    await this.page.selectOption('.cf-scalar-select:visible select', { label: scalar });
+    await this.page.selectOption('.cf-operator-select:visible select', { label: operator });
 
     // TODO: determine whether the value is an input or select
-    await this.page.fill('.cf-predicate-value-input input', value);
-    await this.page.click('text=Submit');
+    await this.page.fill('.cf-predicate-value-input:visible input', value);
+    await this.page.click('button:visible:has-text("Submit")');
   }
 
   async expectVisibilityConditionEquals(condition: string) {
