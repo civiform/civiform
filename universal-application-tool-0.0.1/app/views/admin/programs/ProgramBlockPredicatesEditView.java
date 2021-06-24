@@ -29,6 +29,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
+import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -334,19 +335,20 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       // choose from instead of a freeform text field. Not only is it a better UX, but we store the
       // ID of the options rather than the display strings since the option display strings are
       // localized.
-      ImmutableMap<String, String> valueOptions =
-          ((MultiOptionQuestionDefinition) questionDefinition)
-              .getOptions().stream()
-                  .collect(
-                      toImmutableMap(
-                          option -> option.optionText().getDefault(),
-                          option -> String.valueOf(option.id())));
-
-      return new SelectWithLabel()
-          .setFieldName("predicateValue")
-          .setLabelText("Value")
-          .setOptions(valueOptions)
-          .getContainer();
+      ImmutableList<QuestionOption> options =
+          ((MultiOptionQuestionDefinition) questionDefinition).getOptions();
+      ContainerTag valueOptionsDiv = div();
+      for (QuestionOption option : options) {
+        // TODO(natsid): Figure out how to do multi-option checkboxes! Probably need to update field
+        //  name to something else for an array.
+        ContainerTag optionCheckbox =
+            FieldWithLabel.checkbox()
+                .setFieldName("predicateValue")
+                .setLabelText(option.optionText().getDefault())
+                .getContainer();
+        valueOptionsDiv.with(optionCheckbox);
+      }
+      return valueOptionsDiv;
     } else {
       return FieldWithLabel.input()
           .setFieldName("predicateValue")
