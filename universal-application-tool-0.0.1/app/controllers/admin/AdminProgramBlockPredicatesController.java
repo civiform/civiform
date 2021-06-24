@@ -11,6 +11,7 @@ import controllers.CiviFormController;
 import forms.BlockVisibilityPredicateForm;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -90,7 +91,11 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       Scalar scalar = Scalar.valueOf(predicateForm.getScalar());
       Operator operator = Operator.valueOf(predicateForm.getOperator());
       PredicateValue predicateValue =
-          parsePredicateValue(scalar, operator, predicateForm.getPredicateValue());
+          parsePredicateValue(
+              scalar,
+              operator,
+              predicateForm.getPredicateValue(),
+              predicateForm.getPredicateValues());
 
       LeafOperationExpressionNode leafExpression =
           LeafOperationExpressionNode.create(
@@ -142,7 +147,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    * is of type LONG and the operator is of type ANY_OF, the value will be parsed as a list of
    * comma-separated longs.
    */
-  private PredicateValue parsePredicateValue(Scalar scalar, Operator operator, String value) {
+  private PredicateValue parsePredicateValue(
+      Scalar scalar, Operator operator, String value, List<String> values) {
     switch (scalar.toScalarType()) {
       case DATE:
         LocalDate localDate = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -163,13 +169,14 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             return PredicateValue.of(Long.parseLong(value));
         }
 
-      default: // STRING, LIST_OF_STRINGS
+      case LIST_OF_STRINGS:
+        ImmutableList.Builder<String> builder = ImmutableList.builder();
+        return PredicateValue.listOfStrings(builder.addAll(values).build());
+
+      default: // STRING
         switch (operator) {
           case ANY_OF:
           case NONE_OF:
-          case IN:
-          case NOT_IN:
-          case SUBSET_OF:
             ImmutableList<String> listOfStrings =
                 Splitter.on(",")
                     .splitToStream(value)
