@@ -392,7 +392,9 @@ public class ApplicantServiceImpl implements ApplicantService {
       throw new PathNotInBlockException(block.getId(), unknownUpdates.iterator().next().path());
     }
 
-    // Before adding anything, if only metadata is being stored then delete it
+    // Before adding anything, if only metadata is being stored then delete it. We cannot put an
+    // array of entities at the question path if a JSON object with metadata is already at that
+    // path.
     if (applicantData.readRepeatedEntities(enumeratorPath).isEmpty()) {
       applicantData.maybeDelete(enumeratorPath.withoutArrayReference());
     }
@@ -484,7 +486,8 @@ public class ApplicantServiceImpl implements ApplicantService {
           block
               .getScalarType(currentPath)
               .orElseThrow(() -> new PathNotInBlockException(block.getId(), currentPath));
-      // An empty update means the applicant doesn't want to store anything. We already cleared the multi-select array above in preparation for updates, so do not remove the path.
+      // An empty update means the applicant doesn't want to store anything. We already cleared the
+      // multi-select array above in preparation for updates, so do not remove the path.
       if (!update.path().isArrayElement() && update.value().isBlank()) {
         applicantData.maybeDelete(update.path());
       } else {

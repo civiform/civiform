@@ -81,11 +81,11 @@ public class ApplicantQuestion {
    * program.
    */
   public boolean isRequiredButWasUnansweredInCurrentProgram() {
-    return !isOptional() && !errorsPresenter().isAnswered() && wasRecentlyUpdated();
+    return !isOptional() && !errorsPresenter().isAnswered() && wasRecentlyUpdatedInThisProgram();
   }
 
   /** Returns true if this question was most recently updated in this program. */
-  private boolean wasRecentlyUpdated() {
+  private boolean wasRecentlyUpdatedInThisProgram() {
     return getUpdatedInProgramMetadata().stream()
         .anyMatch(pid -> pid.equals(programQuestionDefinition.getProgramDefinitionId()));
   }
@@ -166,19 +166,15 @@ public class ApplicantQuestion {
   }
 
   private Path getMetadataPath(Scalar metadataScalar) {
-    Path contextualizedMetadataPath = getContextualizedPath().join(metadataScalar);
-
     // For enumerator questions, rely on the metadata at the first repeated entity if it exists.
     // If it doesn't exist, check for metadata stored when there are no repeated entities.
     if (getQuestionDefinition().isEnumerator()) {
       Path firstEntity = getContextualizedPath().atIndex(0);
-      contextualizedMetadataPath =
-          applicantData.hasPath(firstEntity)
-              ? firstEntity.join(metadataScalar)
-              : getContextualizedPath().withoutArrayReference().join(metadataScalar);
+      return applicantData.hasPath(firstEntity)
+          ? firstEntity.join(metadataScalar)
+          : getContextualizedPath().withoutArrayReference().join(metadataScalar);
     }
-
-    return contextualizedMetadataPath;
+    return getContextualizedPath().join(metadataScalar);
   }
 
   public AddressQuestion createAddressQuestion() {
