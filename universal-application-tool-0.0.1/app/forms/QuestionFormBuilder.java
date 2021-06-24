@@ -16,6 +16,7 @@ import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.RadioButtonQuestionDefinition;
+import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 public class QuestionFormBuilder {
@@ -43,6 +44,8 @@ public class QuestionFormBuilder {
         return formFactory.form(RadioButtonQuestionForm.class).bindFromRequest(request).get();
       case ENUMERATOR:
         return formFactory.form(EnumeratorQuestionForm.class).bindFromRequest(request).get();
+      case STATIC:
+        return formFactory.form(StaticContentQuestionForm.class).bindFromRequest(request).get();
       case TEXT:
         return formFactory.form(TextQuestionForm.class).bindFromRequest(request).get();
       default:
@@ -73,6 +76,8 @@ public class QuestionFormBuilder {
         return new RadioButtonQuestionForm();
       case ENUMERATOR:
         return new EnumeratorQuestionForm();
+      case STATIC:
+        return new StaticContentQuestionForm();
       case TEXT:
         return new TextQuestionForm();
       default:
@@ -104,6 +109,8 @@ public class QuestionFormBuilder {
         return new RadioButtonQuestionForm((RadioButtonQuestionDefinition) questionDefinition);
       case ENUMERATOR:
         return new EnumeratorQuestionForm((EnumeratorQuestionDefinition) questionDefinition);
+      case STATIC:
+        return new StaticContentQuestionForm((StaticContentQuestionDefinition) questionDefinition);
       case TEXT:
         return new TextQuestionForm((TextQuestionDefinition) questionDefinition);
       default:
