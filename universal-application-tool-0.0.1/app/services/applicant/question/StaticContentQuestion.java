@@ -61,6 +61,6 @@ public class StaticContentQuestion implements PresentsErrors {
   }
 
   public Path getPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.EMPTY);
+    return applicantQuestion.getContextualizedPath();
   }
 }
