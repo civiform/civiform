@@ -342,8 +342,6 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       ContainerTag valueOptionsDiv =
           div().with(div("Values").withClasses(BaseStyles.CHECKBOX_GROUP_LABEL));
       for (QuestionOption option : options) {
-        // TODO(natsid): Figure out how to do multi-option checkboxes! Probably need to update field
-        //  name to something else for an array.
         ContainerTag optionCheckbox =
             FieldWithLabel.checkbox()
                 .setFieldName("predicateValues[]")
