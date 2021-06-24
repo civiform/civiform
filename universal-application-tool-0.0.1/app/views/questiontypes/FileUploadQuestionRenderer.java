@@ -16,6 +16,7 @@ import views.style.ReferenceClasses;
 import views.style.Styles;
 
 public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
+  private static final String IMAGES_AND_PDF = "image/*,.pdf";
 
   private final FileUploadQuestion fileuploadQuestion;
 
@@ -43,7 +44,7 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
 
   private ContainerTag fileUploadFieldsPreview() {
     return div()
-        .with(input().withType("file").withName("file").attr(Attr.ACCEPT, acceptFileType()));
+        .with(input().withType("file").withName("file").attr(Attr.ACCEPT, acceptFileTypes()));
   }
 
   private ContainerTag signedFileUploadFields(ApplicantQuestionRendererParams params) {
@@ -76,12 +77,12 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
         .with(input().withType("hidden").withName("X-Amz-Date").withValue(request.date()))
         .with(input().withType("hidden").withName("Policy").withValue(request.policy()))
         .with(input().withType("hidden").withName("X-Amz-Signature").withValue(request.signature()))
-        .with(input().withType("file").withName("file").attr(Attr.ACCEPT, acceptFileType()))
+        .with(input().withType("file").withName("file").attr(Attr.ACCEPT, acceptFileTypes()))
         .with(errorDiv(params.messages()));
   }
 
-  private String acceptFileType() {
-    return "image/*,.pdf";
+  private String acceptFileTypes() {
+    return IMAGES_AND_PDF;
   }
 
   private ContainerTag errorDiv(Messages messages) {

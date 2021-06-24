@@ -89,7 +89,7 @@ public class FileUploadQuestion implements PresentsErrors {
     if (!isAnswered() || getFileKeyValue().isEmpty()) {
       return Optional.empty();
     }
-    return getFileKeyValue().map(key -> key.split("/")).map(arr -> arr[arr.length - 1]);
+    return getFileKeyValue().map(key -> key.split("/", 4)).map(arr -> arr[arr.length - 1]);
   }
 
   @Override
