@@ -88,9 +88,10 @@ public class BlockVisibilityPredicateForm implements Validatable<List<Validation
       }
     }
 
-    if ((scalarEnum == Scalar.SELECTION || scalarEnum == Scalar.SELECTIONS)
-        && predicateValues.isEmpty()) {
-      errors.add(new ValidationError("predicateValues", "Must select at least one value."));
+    if ((scalarEnum == Scalar.SELECTION || scalarEnum == Scalar.SELECTIONS)) {
+      if (predicateValues.isEmpty()) {
+        errors.add(new ValidationError("predicateValues", "Must select at least one value."));
+      }
     } else if (predicateValue.isEmpty()) {
       errors.add(new ValidationError("predicateValue", "Value is required."));
     }
