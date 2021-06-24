@@ -166,7 +166,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   private Tag renderBottomNavButtons(Params params) {
     return div()
-        .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
+        .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
         // An empty div to take up the space to the left of the buttons.
         .with(div().withClasses(Styles.FLEX_GROW))
         .with(renderReviewButton(params))
@@ -175,7 +175,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   private Tag renderFileUploadBottomNavButtons(Params params) {
     return div()
-        .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
+        .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
         // An empty div to take up the space to the left of the buttons.
         .with(div().withClasses(Styles.FLEX_GROW))
         .with(renderReviewButton(params))
