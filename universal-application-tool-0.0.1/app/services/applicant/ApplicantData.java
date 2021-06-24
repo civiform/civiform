@@ -249,7 +249,7 @@ public class ApplicantData {
   }
 
   /** Delete whatever is there. */
-  public boolean delete(Path path) {
+  public void delete(Path path) {
     checkLocked();
     jsonData.delete(path.toString());
   }

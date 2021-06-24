@@ -484,7 +484,10 @@ public class ApplicantServiceImpl implements ApplicantService {
           block
               .getScalarType(currentPath)
               .orElseThrow(() -> new PathNotInBlockException(block.getId(), currentPath));
-      if (!update.value().isBlank()) {
+      // An empty update means the applicant doesn't want to store anything.
+      if (update.value().isBlank()) {
+        applicantData.delete(update.path());
+      } else {
         switch (type) {
           case DATE:
             applicantData.putDate(currentPath, update.value());
