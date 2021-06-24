@@ -44,6 +44,7 @@ import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
@@ -244,6 +245,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
             Styles.GAP_4,
             Styles.PX_4,
             Styles.PY_2,
+            Styles.MY_2,
             Styles.BORDER,
             Styles.BORDER_GRAY_200)
         .with(
@@ -337,13 +339,14 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       // localized.
       ImmutableList<QuestionOption> options =
           ((MultiOptionQuestionDefinition) questionDefinition).getOptions();
-      ContainerTag valueOptionsDiv = div();
+      ContainerTag valueOptionsDiv =
+          div().with(div("Values").withClasses(BaseStyles.CHECKBOX_GROUP_LABEL));
       for (QuestionOption option : options) {
         // TODO(natsid): Figure out how to do multi-option checkboxes! Probably need to update field
         //  name to something else for an array.
         ContainerTag optionCheckbox =
             FieldWithLabel.checkbox()
-                .setFieldName("predicateValue")
+                .setFieldName("predicateValues[]")
                 .setLabelText(option.optionText().getDefault())
                 .getContainer();
         valueOptionsDiv.with(optionCheckbox);

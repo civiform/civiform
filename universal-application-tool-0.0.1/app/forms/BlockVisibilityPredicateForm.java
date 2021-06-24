@@ -1,5 +1,7 @@
 package forms;
 
+import java.util.ArrayList;
+import java.util.List;
 import play.data.validation.Constraints;
 import play.data.validation.Constraints.Validatable;
 import play.data.validation.Constraints.Validate;
@@ -20,20 +22,31 @@ public class BlockVisibilityPredicateForm implements Validatable<String> {
   @Constraints.Required(message = "Operator is required.")
   private String operator;
 
+  // TODO(natsid): probably need to add this to our custom validate method
+  //  since it's not as straightforward "required" anymore.
+  //  Specifically: need ONE OF value or values.
   @Constraints.Required(message = "Value is required.")
   private String predicateValue;
+
+  // This value is used when the question ID is for a multi-option question.
+  // Caution: This must be a mutable list type, or else Play's form binding cannot add elements to
+  // the list. This means the constructors MUST set this field to a mutable List type, NOT
+  // ImmutableList.
+  private List<String> predicateValues;
 
   public BlockVisibilityPredicateForm(
       String predicateAction,
       long questionId,
       String scalar,
       String operator,
-      String predicateValue) {
+      String predicateValue,
+      List<String> predicateValues) {
     this.predicateAction = predicateAction;
     this.questionId = questionId;
     this.scalar = scalar;
     this.operator = operator;
     this.predicateValue = predicateValue;
+    this.predicateValues = predicateValues;
   }
 
   public BlockVisibilityPredicateForm() {
@@ -43,6 +56,7 @@ public class BlockVisibilityPredicateForm implements Validatable<String> {
     scalar = "";
     operator = "";
     predicateValue = "";
+    predicateValues = new ArrayList<>();
   }
 
   @Override
@@ -100,5 +114,13 @@ public class BlockVisibilityPredicateForm implements Validatable<String> {
 
   public void setPredicateValue(String predicateValue) {
     this.predicateValue = predicateValue;
+  }
+
+  public List<String> getPredicateValues() {
+    return predicateValues;
+  }
+
+  public void setPredicateValues(List<String> predicateValues) {
+    this.predicateValues = predicateValues;
   }
 }
