@@ -146,9 +146,18 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    * Parses the given value based on the given scalar type and operator. For example, if the scalar
    * is of type LONG and the operator is of type ANY_OF, the value will be parsed as a list of
    * comma-separated longs.
+   *
+   * <p>If value is the empty string, then parses the list of values instead.
    */
   private PredicateValue parsePredicateValue(
       Scalar scalar, Operator operator, String value, List<String> values) {
+
+    // If no value, then parse the list of values.
+    if (value.isEmpty()) {
+      ImmutableList.Builder<String> builder = ImmutableList.builder();
+      return PredicateValue.listOfStrings(builder.addAll(values).build());
+    }
+
     switch (scalar.toScalarType()) {
       case DATE:
         LocalDate localDate = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -169,11 +178,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             return PredicateValue.of(Long.parseLong(value));
         }
 
-      case LIST_OF_STRINGS:
-        ImmutableList.Builder<String> builder = ImmutableList.builder();
-        return PredicateValue.listOfStrings(builder.addAll(values).build());
-
-      default: // STRING
+      default: // STRING, should not include LIST_OF_STRINGS since that should be covered at the top
+        // of the method with `values`.
         switch (operator) {
           case ANY_OF:
           case NONE_OF:
