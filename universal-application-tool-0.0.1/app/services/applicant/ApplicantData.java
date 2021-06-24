@@ -248,10 +248,14 @@ public class ApplicantData {
     }
   }
 
-  /** Delete whatever is there. */
-  public void delete(Path path) {
+  /** Delete whatever is there if it exists. Returns whether a delete actually happened. */
+  public boolean maybeDelete(Path path) {
     checkLocked();
-    jsonData.delete(path.toString());
+    if (hasPath(path)) {
+      jsonData.delete(path.toString());
+      return true;
+    }
+    return false;
   }
 
   private void putAt(Path path, Object value) {

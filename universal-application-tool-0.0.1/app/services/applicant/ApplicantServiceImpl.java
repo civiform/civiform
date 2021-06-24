@@ -393,8 +393,8 @@ public class ApplicantServiceImpl implements ApplicantService {
     }
 
     // Before adding anything, if only metadata is being stored then delete it
-    if (applicantData.hasPath(enumeratorPath.withoutArrayReference())) {
-      applicantData.delete(enumeratorPath.withoutArrayReference());
+    if (applicantData.readRepeatedEntities(enumeratorPath).isEmpty()) {
+      applicantData.maybeDelete(enumeratorPath.withoutArrayReference());
     }
 
     // Add and change entity names BEFORE deleting, because if deletes happened first, then changed
@@ -486,7 +486,7 @@ public class ApplicantServiceImpl implements ApplicantService {
               .orElseThrow(() -> new PathNotInBlockException(block.getId(), currentPath));
       // An empty update means the applicant doesn't want to store anything.
       if (update.value().isBlank()) {
-        applicantData.delete(update.path());
+        applicantData.maybeDelete(update.path());
       } else {
         switch (type) {
           case DATE:
