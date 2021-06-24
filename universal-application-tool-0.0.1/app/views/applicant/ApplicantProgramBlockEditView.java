@@ -13,6 +13,7 @@ import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
@@ -175,12 +176,13 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   private Tag renderFileUploadBottomNavButtons(Params params) {
+    Optional<Tag> maybeSkipFileUploadButton = renderSkipFileUploadButton(params);
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
         // An empty div to take up the space to the left of the buttons.
         .with(div().withClasses(Styles.FLEX_GROW))
         .with(renderReviewButton(params))
-        .with(renderSkipFileUploadButton(params))
+        .condWith(maybeSkipFileUploadButton.isPresent(), maybeSkipFileUploadButton.get())
         .with(renderUploadButton(params));
   }
 
@@ -194,19 +196,20 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         .withClasses(ApplicantStyles.BUTTON_REVIEW);
   }
 
-  private Tag renderSkipFileUploadButton(Params params) {
+  private Optional<Tag> renderSkipFileUploadButton(Params params) {
     // Cannot skip required file questions.
     if (!params.block().getQuestions().get(0).isOptional()) {
-      return null;
+      return Optional.empty();
     }
     String skipUrl =
         routes.ApplicantProgramBlocksController.skipFile(
                 params.applicantId(), params.programId(), params.block().getId(), params.inReview())
             .url();
-    return a().attr(HREF, skipUrl)
-        .withText(params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName()))
-        .withId("skip-fileupload-button")
-        .withClasses(ApplicantStyles.BUTTON_REVIEW);
+    return Optional.of(
+        a().attr(HREF, skipUrl)
+            .withText(params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName()))
+            .withId("skip-fileupload-button")
+            .withClasses(ApplicantStyles.BUTTON_REVIEW));
   }
 
   private Tag renderNextButton(Params params) {
