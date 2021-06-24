@@ -10,6 +10,7 @@ class ValidationController {
 
   static readonly ADDRESS_QUESTION_CLASS = '.cf-question-address';
   static readonly ENUMERATOR_QUESTION_CLASS = '.cf-question-enumerator';
+  static readonly FILEUPLOAD_QUESTION_CLASS = '.cf-question-fileupload';
   static readonly NAME_QUESTION_CLASS = '.cf-question-name';
 
   static readonly ENUMERATOR_DELETE_TEMPLATE = 'enumerator-delete-template';
@@ -17,6 +18,7 @@ class ValidationController {
 
   isAddressValid = true;
   isEnumeratorValid = true;
+  isFileUploadValid = true;
   isNameValid = true;
 
 
@@ -38,6 +40,7 @@ class ValidationController {
 
     if (ValidationController.VALIDATE_ON_INPUT) {
       this.addAddressListeners();
+      this.addFileUploadListener();
       this.addNameListeners();
     }
   }
@@ -119,15 +122,29 @@ class ValidationController {
     }
   }
 
+  /** Add listeners to file input to update validation on changes. */
+  private addFileUploadListener() {
+    // Assumption: There is only ever zero or one file input per block.
+    const fileQuestion = document.querySelector(ValidationController.FILEUPLOAD_QUESTION_CLASS);
+    if (fileQuestion) {
+      const fileInput = fileQuestion.querySelector('input[type=file]');
+      // Whenever the input changes we need to revalidate.
+      if (fileInput) {
+        fileInput.addEventListener("input", () => { this.onFileChanged(); });
+      }
+    }
+  }
+
   checkAllQuestionTypes() {
     this.isAddressValid = this.validateAddressQuestion();
     this.isEnumeratorValid = this.validateEnumeratorQuestion();
+    this.isFileUploadValid = this.validateFileUploadQuestion();
     this.isNameValid = this.validateNameQuestion();
     this.updateSubmitButton();
   }
 
   isValid() {
-    return this.isAddressValid && this.isEnumeratorValid && this.isNameValid;
+    return this.isAddressValid && this.isEnumeratorValid && this.isFileUploadValid && this.isNameValid;
   }
 
   onAddressChanged() {
@@ -137,6 +154,11 @@ class ValidationController {
 
   onEnumeratorChanged() {
     this.isEnumeratorValid = this.validateEnumeratorQuestion();
+    this.updateSubmitButton();
+  }
+
+  onFileChanged() {
+    this.isFileUploadValid = this.validateFileUploadQuestion();
     this.updateSubmitButton();
   }
 
@@ -242,6 +264,24 @@ class ValidationController {
 
 
       const errorDiv = enumeratorQuestion.querySelector('.cf-enumerator-error');
+      if (errorDiv) {
+        errorDiv.classList.toggle('hidden', isValid);
+      }
+    }
+    return isValid;
+  }
+
+  /** Validates that a file is selected. */
+  validateFileUploadQuestion(): boolean {
+    let isValid = true;
+    const fileUploadQuestion = document.querySelector(ValidationController.FILEUPLOAD_QUESTION_CLASS);
+    if (fileUploadQuestion) {
+      // validate a file is selected.
+      const fileInput = <HTMLInputElement>fileUploadQuestion.querySelector("input[type=file]");
+      isValid = fileInput.value != '';
+
+      // Toggle the error div if invalid.
+      const errorDiv = fileUploadQuestion.querySelector('.cf-fileupload-error');
       if (errorDiv) {
         errorDiv.classList.toggle('hidden', isValid);
       }

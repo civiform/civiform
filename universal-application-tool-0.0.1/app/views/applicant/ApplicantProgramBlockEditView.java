@@ -150,6 +150,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             .build();
 
     return form()
+        .withId("cf-block-form")
         .attr(ENCTYPE, "multipart/form-data")
         .withAction(signedRequest.actionLink())
         .withMethod(HttpVerbs.POST)

@@ -211,6 +211,13 @@ validation.duplicateEntityName=Please enter a unique value for each line.
 # The placeholder text for enumerator fields
 placeholder.entityName=Nickname for {0}
 
+#---------------------------------------------------------------------------------#
+# FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
+#---------------------------------------------------------------------------------#
+
+# Validation error that shows when an applicant does not select a file to upload
+validation.fileRequired=Please select a file.
+
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
 #----------------------------------------------------------------------------------------------------------#
