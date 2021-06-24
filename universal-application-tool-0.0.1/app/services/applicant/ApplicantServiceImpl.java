@@ -485,7 +485,7 @@ public class ApplicantServiceImpl implements ApplicantService {
               .getScalarType(currentPath)
               .orElseThrow(() -> new PathNotInBlockException(block.getId(), currentPath));
       // An empty update means the applicant doesn't want to store anything.
-      if (update.value().isBlank()) {
+      if (!update.path().isArrayElement() && update.value().isBlank()) {
         applicantData.maybeDelete(update.path());
       } else {
         switch (type) {

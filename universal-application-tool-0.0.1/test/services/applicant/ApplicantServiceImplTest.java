@@ -87,6 +87,211 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void stageAndUpdateIfValid_withUpdatesWithEmptyStrings_deletesJsonData() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Path questionPath = Path.create("applicant.name");
+
+    // Put something in there
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Alice")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "Doe")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
+    ApplicantData applicantDataMiddle =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    assertThat(applicantDataMiddle.asJsonString()).contains("Alice", "Doe");
+
+    // Now put empty updates
+    updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(applicantDataAfter.hasPath(questionPath.join(Scalar.FIRST_NAME))).isFalse();
+    assertThat(applicantDataAfter.hasPath(questionPath.join(Scalar.LAST_NAME))).isFalse();
+    assertThat(applicantDataAfter.readLong(questionPath.join(Scalar.PROGRAM_UPDATED_IN)))
+        .contains(programDefinition.id());
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_withEmptyUpdatesForMultiSelect_deletesMultiSelectJsonData() {
+    createProgram(testQuestionBank.applicantKitchenTools().getQuestionDefinition());
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Path questionPath = Path.create("applicant.kitchen_tools");
+
+    // Put checkbox answer in
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.SELECTIONS).asArrayElement().atIndex(0).toString(), "1")
+            .put(questionPath.join(Scalar.SELECTIONS).asArrayElement().atIndex(1).toString(), "2")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
+    ApplicantData applicantDataMiddle =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    assertThat(applicantDataMiddle.readList(questionPath.join(Scalar.SELECTIONS))).isNotEmpty();
+
+    // Now put empty updates
+    updates = ImmutableMap.of(questionPath.join(Scalar.SELECTIONS).asArrayElement().toString(), "");
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(applicantDataAfter.hasPath(questionPath.join(Scalar.SELECTIONS))).isFalse();
+    assertThat(applicantDataAfter.readLong(questionPath.join(Scalar.PROGRAM_UPDATED_IN)))
+        .contains(programDefinition.id());
+  }
+
+  @Test
+  public void
+      stageAndUpdateIfValid_forEnumeratorBlock_putsMetadataWithEmptyUpdate_andCanPutRealRepeatedEntitiesInAfter() {
+    programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .buildDefinition();
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank
+                .applicantHouseholdMembers()
+                .getQuestionDefinition()
+                .getQuestionPathSegment());
+
+    // Empty update should put metadata in
+    ImmutableMap<String, String> updates = ImmutableMap.of();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
+    ApplicantData applicantDataMiddle =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    assertThat(
+            applicantDataMiddle.readLong(
+                enumeratorPath.withoutArrayReference().join(Scalar.PROGRAM_UPDATED_IN)))
+        .contains(programDefinition.id());
+
+    // Put enumerators in
+    updates =
+        ImmutableMap.of(
+            enumeratorPath.atIndex(0).toString(), "first",
+            enumeratorPath.atIndex(1).toString(), "second");
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
+    ApplicantData applicantDataAfter =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath)).hasSize(2);
+    assertThat(applicantDataAfter.readString(enumeratorPath.atIndex(0).join(Scalar.ENTITY_NAME)))
+        .contains("first");
+    assertThat(
+            applicantDataAfter.readLong(enumeratorPath.atIndex(0).join(Scalar.PROGRAM_UPDATED_IN)))
+        .contains(programDefinition.id());
+    assertThat(applicantDataAfter.readString(enumeratorPath.atIndex(1).join(Scalar.ENTITY_NAME)))
+        .contains("second");
+    assertThat(
+            applicantDataAfter.readLong(enumeratorPath.atIndex(1).join(Scalar.PROGRAM_UPDATED_IN)))
+        .contains(programDefinition.id());
+
+    // Deleting should result in just having metadata again
+    Path deletionPath = Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement();
+    updates =
+        ImmutableMap.of(
+            deletionPath.atIndex(0).toString(), "0",
+            deletionPath.atIndex(1).toString(), "1");
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
+    ApplicantData applicantDataAfterDeletion =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    assertThat(
+            applicantDataAfterDeletion.readLong(
+                enumeratorPath.withoutArrayReference().join(Scalar.PROGRAM_UPDATED_IN)))
+        .contains(programDefinition.id());
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_forEnumeratorBlock_withEmptyUpdates_doesNotDeleteRealData() {
+    programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .buildDefinition();
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank
+                .applicantHouseholdMembers()
+                .getQuestionDefinition()
+                .getQuestionPathSegment());
+
+    // Put enumerators in
+    ImmutableMap<String, String> updates =
+        ImmutableMap.of(
+            enumeratorPath.atIndex(0).toString(), "first",
+            enumeratorPath.atIndex(1).toString(), "second");
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
+    ApplicantData applicantDataBefore =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    assertThat(applicantDataBefore.readRepeatedEntities(enumeratorPath)).hasSize(2);
+    assertThat(applicantDataBefore.readString(enumeratorPath.atIndex(0).join(Scalar.ENTITY_NAME)))
+        .contains("first");
+    assertThat(
+            applicantDataBefore.readLong(enumeratorPath.atIndex(0).join(Scalar.PROGRAM_UPDATED_IN)))
+        .contains(programDefinition.id());
+    assertThat(applicantDataBefore.readString(enumeratorPath.atIndex(1).join(Scalar.ENTITY_NAME)))
+        .contains("second");
+    assertThat(
+            applicantDataBefore.readLong(enumeratorPath.atIndex(1).join(Scalar.PROGRAM_UPDATED_IN)))
+        .contains(programDefinition.id());
+
+    // Empty update SHOULD NOT DELETE enumerator data. This case shouldn't normally happen in
+    // normal flow of code, but just a sanity check that data for repeated entities won't just
+    // get deleted.
+    updates = ImmutableMap.of();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .toCompletableFuture()
+        .join();
+    ApplicantData applicantDataAfter =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath)).hasSize(2);
+    assertThat(applicantDataAfter.readString(enumeratorPath.atIndex(0).join(Scalar.ENTITY_NAME)))
+        .contains("first");
+    assertThat(
+            applicantDataAfter.readLong(enumeratorPath.atIndex(0).join(Scalar.PROGRAM_UPDATED_IN)))
+        .contains(programDefinition.id());
+    assertThat(applicantDataAfter.readString(enumeratorPath.atIndex(1).join(Scalar.ENTITY_NAME)))
+        .contains("second");
+    assertThat(
+            applicantDataAfter.readLong(enumeratorPath.atIndex(1).join(Scalar.PROGRAM_UPDATED_IN)))
+        .contains(programDefinition.id());
+  }
+
+  @Test
   public void stageAndUpdateIfValid_withUpdates_isOk() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
