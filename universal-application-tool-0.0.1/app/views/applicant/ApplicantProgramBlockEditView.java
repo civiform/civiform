@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.attributes.Attr.ENCTYPE;
+import static j2html.attributes.Attr.FORM;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.auto.value.AutoValue;
@@ -20,6 +21,7 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.Block;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.FileUploadQuestion;
 import services.aws.SignedS3UploadRequest;
 import services.aws.SimpleStorage;
 import views.BaseHtmlView;
@@ -28,10 +30,14 @@ import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.EnumeratorQuestionRenderer;
+import views.questiontypes.FileUploadQuestionRenderer;
 import views.style.ApplicantStyles;
 import views.style.Styles;
 
 public final class ApplicantProgramBlockEditView extends BaseHtmlView {
+  private final String BLOCK_FORM_ID = "cf-block-form";
+  private final String FILEUPLOAD_CONTINUE_FORM_ID = "cf-fileupload-continue-form";
+  private final String FILEUPLOAD_DELETE_FORM_ID = "cf-fileupload-delete-form";
 
   private final ApplicantLayout layout;
   private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
@@ -103,7 +109,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   private Tag renderBlockWithSubmitForm(Params params) {
     if (params.block().isFileUpload()) {
-      return renderFileUploadBlockSubmitForm(params);
+      return renderFileUploadBlockSubmitForms(params);
     }
     String formAction =
         routes.ApplicantProgramBlocksController.update(
@@ -113,7 +119,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         ApplicantQuestionRendererParams.builder().setMessages(params.messages()).build();
 
     return form()
-        .withId("cf-block-form")
+        .withId(BLOCK_FORM_ID)
         .withAction(formAction)
         .withMethod(HttpVerbs.POST)
         .with(makeCsrfTokenInputTag(params.request()))
@@ -124,7 +130,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         .with(renderBottomNavButtons(params));
   }
 
-  private Tag renderFileUploadBlockSubmitForm(Params params) {
+  private Tag renderFileUploadBlockSubmitForms(Params params) {
     // Note: This key uniquely identifies the file to be uploaded by the applicant and will be
     // persisted in DB. Other parts of the system rely on the format of the key, e.g. in
     // FileController.java we check if a file can be accessed based on the key content, so be extra
@@ -149,20 +155,64 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
             .setSignedFileUploadRequest(signedRequest)
             .build();
 
-    return form()
-        .withId("cf-block-form")
-        .attr(ENCTYPE, "multipart/form-data")
-        .withAction(signedRequest.actionLink())
-        .withMethod(HttpVerbs.POST)
-        .with(
-            each(
-                params.block().getQuestions(),
-                question -> renderQuestion(question, rendererParams)))
-        .with(renderFileUploadBottomNavButtons(params));
+    Tag uploadForm =
+        form()
+            .withId(BLOCK_FORM_ID)
+            .attr(ENCTYPE, "multipart/form-data")
+            .withAction(signedRequest.actionLink())
+            .withMethod(HttpVerbs.POST)
+            .with(
+                each(
+                    params.block().getQuestions(),
+                    question -> renderQuestion(question, rendererParams)));
+    Tag skipForms = renderSkipFileUploadForms(params);
+    Tag buttons = renderFileUploadBottomNavButtons(params);
+    return div(uploadForm, skipForms, buttons);
+  }
+
+  private Tag renderSkipFileUploadForms(Params params) {
+    String formAction =
+        routes.ApplicantProgramBlocksController.update(
+                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
+            .url();
+    ApplicantQuestionRendererParams rendererParams =
+        ApplicantQuestionRendererParams.builder().setMessages(params.messages()).build();
+
+    Tag continueForm =
+        form()
+            .withId(FILEUPLOAD_CONTINUE_FORM_ID)
+            .withAction(formAction)
+            .withMethod(HttpVerbs.POST)
+            .with(makeCsrfTokenInputTag(params.request()))
+            .with(
+                each(
+                    params.block().getQuestions(),
+                    question -> renderFileKeyField(question, rendererParams)));
+    Tag deleteForm =
+        form()
+            .withId(FILEUPLOAD_DELETE_FORM_ID)
+            .withAction(formAction)
+            .withMethod(HttpVerbs.POST)
+            .with(makeCsrfTokenInputTag(params.request()))
+            .with(
+                each(
+                    params.block().getQuestions(),
+                    question -> renderEmptyFileKeyField(question, rendererParams)));
+    return div(continueForm, deleteForm).withClasses(Styles.HIDDEN);
   }
 
   private Tag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return applicantQuestionRendererFactory.getRenderer(question).render(params);
+  }
+
+  private Tag renderFileKeyField(
+      ApplicantQuestion question, ApplicantQuestionRendererParams params) {
+    return FileUploadQuestionRenderer.renderFileKeyField(question, params, false);
+  }
+
+  private Tag renderEmptyFileKeyField(
+      ApplicantQuestion question, ApplicantQuestionRendererParams params) {
+    return FileUploadQuestionRenderer.renderFileKeyField(question, params, true);
   }
 
   private Tag renderBottomNavButtons(Params params) {
@@ -180,8 +230,9 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         // An empty div to take up the space to the left of the buttons.
         .with(div().withClasses(Styles.FLEX_GROW))
         .with(renderReviewButton(params))
-        .with(renderSkipFileUploadButton(params))
-        .with(renderUploadButton(params));
+        .with(renderDeleteButton(params))
+        .with(renderUploadButton(params))
+        .with(renderContinueButton(params));
   }
 
   private Tag renderReviewButton(Params params) {
@@ -194,27 +245,49 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         .withClasses(ApplicantStyles.BUTTON_REVIEW);
   }
 
-  private Tag renderSkipFileUploadButton(Params params) {
-    String skipUrl =
-        routes.ApplicantProgramBlocksController.skipFile(
-                params.applicantId(), params.programId(), params.block().getId(), params.inReview())
-            .url();
-    return a().attr(HREF, skipUrl)
-        .withText(params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName()))
-        .withId("skip-fileupload-button")
-        .withClasses(ApplicantStyles.BUTTON_REVIEW);
-  }
-
   private Tag renderNextButton(Params params) {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName()))
         .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
         .withId("cf-block-submit");
   }
 
-  private Tag renderUploadButton(Params params) {
-    return submitButton(params.messages().at(MessageKey.BUTTON_UPLOAD.getKeyName()))
+  private Tag renderContinueButton(Params params) {
+    if (!hasUploadedFile(params)) {
+      return null;
+    }
+    return submitButton(params.messages().at(MessageKey.BUTTON_KEEP_FILE.getKeyName()))
+        .attr(FORM, FILEUPLOAD_CONTINUE_FORM_ID)
         .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
+        .withId("fileupload-continue-button");
+  }
+
+  private Tag renderDeleteButton(Params params) {
+    String buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
+    if (hasUploadedFile(params)) {
+      buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
+    }
+    return submitButton(buttonText)
+        .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
+        .withClasses(ApplicantStyles.BUTTON_REVIEW)
+        .withId("fileupload-delete-button");
+  }
+
+  private Tag renderUploadButton(Params params) {
+    String styles = ApplicantStyles.BUTTON_BLOCK_NEXT;
+    if (hasUploadedFile(params)) {
+      styles = ApplicantStyles.BUTTON_REVIEW;
+    }
+    return submitButton(params.messages().at(MessageKey.BUTTON_UPLOAD.getKeyName()))
+        .attr(FORM, BLOCK_FORM_ID)
+        .withClasses(styles)
         .withId("cf-block-submit");
+  }
+
+  private boolean hasUploadedFile(Params params) {
+    return params.block().getQuestions().stream()
+        .map(ApplicantQuestion::createFileUploadQuestion)
+        .map(FileUploadQuestion::getFileKeyValue)
+        .anyMatch(maybeValue -> maybeValue.isPresent());
   }
 
   @AutoValue

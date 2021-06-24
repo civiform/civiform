@@ -9,6 +9,8 @@
 
 button.apply=Apply
 button.continue=Continue
+button.deleteFile=Delete
+button.keepFile=Continue
 button.logout=Logout
 button.nextBlock=Next
 button.review=Review

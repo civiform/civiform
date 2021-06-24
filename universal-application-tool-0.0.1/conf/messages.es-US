@@ -8,6 +8,8 @@
 
 button.apply=Solicitar
 button.continue=Seguir
+button.deleteFile=Eliminar
+button.keepFile=Seguir
 button.logout=Cerrar Sesión
 button.nextBlock=Próximo
 button.review=Revisar
