@@ -15,7 +15,6 @@ import models.Account;
 import models.Applicant;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
-import repository.ProgramRepository;
 
 /**
  * This is a "pure" wrapper of CiviFormProfileData. Since CiviFormProfileData is the serialized data
