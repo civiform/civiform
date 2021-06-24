@@ -26,18 +26,15 @@ public class CiviFormProfile {
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
   private CiviFormProfileData profileData;
-  private ProgramRepository programRepository;
 
   @Inject
   public CiviFormProfile(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
-      CiviFormProfileData profileData,
-      ProgramRepository programRepository) {
+      CiviFormProfileData profileData) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
     this.profileData = Preconditions.checkNotNull(profileData);
-    this.programRepository = Preconditions.checkNotNull(programRepository);
   }
 
   public CompletableFuture<Applicant> getApplicant() {
@@ -152,13 +149,6 @@ public class CiviFormProfile {
               if (account.getAdministeredProgramNames().stream()
                   .anyMatch(program -> program.equals(programName))) {
                 return null;
-              }
-              if (account.getGlobalAdmin()) {
-                // If there are no administrators for this program, then all global
-                // admins count as administrators.
-                if (this.programRepository.getProgramAdministrators(programName).isEmpty()) {
-                  return null;
-                }
               }
               throw new SecurityException(
                   String.format(
