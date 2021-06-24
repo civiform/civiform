@@ -7,13 +7,13 @@ import static play.mvc.Results.redirect;
 import auth.AdOidcClient;
 import auth.AdfsProfileAdapter;
 import auth.Authorizers;
+import auth.CiviFormProfileData;
 import auth.FakeAdminClient;
 import auth.GuestClient;
 import auth.IdcsOidcClient;
 import auth.IdcsProfileAdapter;
 import auth.ProfileFactory;
 import auth.Roles;
-import auth.UatProfileData;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -74,15 +74,15 @@ public class SecurityModule extends AbstractModule {
     // sbt's autoreload, so we have a little workaround here.  configure() gets called on every
     // startup,
     // but the JAVA_SERIALIZER object is only initialized on initial startup.
-    // So, on a second startup, we'll add the UatProfileData a second time.  The
-    // trusted classes set should dedupe UatProfileData against the old UatProfileData,
+    // So, on a second startup, we'll add the CiviFormProfileData a second time.  The
+    // trusted classes set should dedupe CiviFormProfileData against the old CiviFormProfileData,
     // but it's technically a different class with the same name at that point,
     // which triggers the bug.  So, we just clear the classes, which will be empty
     // on first startup and will contain the profile on subsequent startups,
     // so that it's always safe to add the profile.
     // We will need to do this for every class we want to store in the cookie.
     PlayCookieSessionStore.JAVA_SERIALIZER.clearTrustedClasses();
-    PlayCookieSessionStore.JAVA_SERIALIZER.addTrustedClass(UatProfileData.class);
+    PlayCookieSessionStore.JAVA_SERIALIZER.addTrustedClass(CiviFormProfileData.class);
 
     // We need to use the secret key to generate the encrypter / decrypter for the
     // session store, so that cookies from version n of the application can be
@@ -206,8 +206,8 @@ public class SecurityModule extends AbstractModule {
         Authorizers.PROGRAM_ADMIN.toString(),
         new RequireAllRolesAuthorizer(Roles.ROLE_PROGRAM_ADMIN.toString()));
     config.addAuthorizer(
-        Authorizers.UAT_ADMIN.toString(),
-        new RequireAllRolesAuthorizer(Roles.ROLE_UAT_ADMIN.toString()));
+        Authorizers.CIVIFORM_ADMIN.toString(),
+        new RequireAllRolesAuthorizer(Roles.ROLE_CIVIFORM_ADMIN.toString()));
     config.addAuthorizer(
         Authorizers.APPLICANT.toString(),
         new RequireAllRolesAuthorizer(Roles.ROLE_APPLICANT.toString()));
@@ -216,7 +216,7 @@ public class SecurityModule extends AbstractModule {
     config.addAuthorizer(
         Authorizers.ANY_ADMIN.toString(),
         new RequireAnyRoleAuthorizer(
-            Roles.ROLE_UAT_ADMIN.toString(), Roles.ROLE_PROGRAM_ADMIN.toString()));
+            Roles.ROLE_CIVIFORM_ADMIN.toString(), Roles.ROLE_PROGRAM_ADMIN.toString()));
 
     config.setHttpActionAdapter(PlayHttpActionAdapter.INSTANCE);
     return config;

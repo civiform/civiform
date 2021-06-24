@@ -60,7 +60,7 @@ public class AdminQuestionController extends CiviFormController {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> index(Request request) {
     Optional<String> maybeFlash = request.flash().get("message");
     return service
@@ -73,7 +73,7 @@ public class AdminQuestionController extends CiviFormController {
             httpExecutionContext.current());
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> show(long id) {
     return service
         .getReadOnlyQuestionService()
@@ -99,7 +99,7 @@ public class AdminQuestionController extends CiviFormController {
             httpExecutionContext.current());
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Request request, String type) {
     QuestionType questionType;
     try {
@@ -123,7 +123,7 @@ public class AdminQuestionController extends CiviFormController {
     }
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Request request, String questionType) {
     QuestionForm questionForm;
     try {
@@ -158,7 +158,7 @@ public class AdminQuestionController extends CiviFormController {
     return withMessage(redirect(routes.AdminQuestionController.index()), successMessage);
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result restore(Request request, Long id) {
     try {
       service.restoreQuestion(id);
@@ -168,7 +168,7 @@ public class AdminQuestionController extends CiviFormController {
     return redirect(routes.AdminQuestionController.index());
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result archive(Request request, Long id) {
     try {
       service.archiveQuestion(id);
@@ -178,7 +178,7 @@ public class AdminQuestionController extends CiviFormController {
     return redirect(routes.AdminQuestionController.index());
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result discardDraft(Request request, Long id) {
     try {
       service.discardDraft(id);
@@ -188,7 +188,7 @@ public class AdminQuestionController extends CiviFormController {
     return redirect(routes.AdminQuestionController.index());
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> edit(Request request, Long id) {
     return service
         .getReadOnlyQuestionService()
@@ -215,7 +215,7 @@ public class AdminQuestionController extends CiviFormController {
             httpExecutionContext.current());
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, Long id, String questionType) {
     QuestionForm questionForm;
     try {

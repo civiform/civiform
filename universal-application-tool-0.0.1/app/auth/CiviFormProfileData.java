@@ -13,15 +13,15 @@ import repository.DatabaseExecutionContext;
  * cookie. It cannot contain anything that's not serializable - this includes database connections,
  * thread pools, etc.
  *
- * <p>It is wrapped by UatProfile, which is what we should use server-side.
+ * <p>It is wrapped by CiviFormProfile, which is what we should use server-side.
  */
-public class UatProfileData extends CommonProfile {
+public class CiviFormProfileData extends CommonProfile {
 
-  public UatProfileData() {
+  public CiviFormProfileData() {
     super();
   }
 
-  public UatProfileData(Long accountId) {
+  public CiviFormProfileData(Long accountId) {
     this();
     this.setId(accountId.toString());
   }

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import auth.UatProfile;
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
@@ -47,7 +47,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
   private ProgramDefinition programDefinition;
   private ApplicationRepository applicationRepository;
   private UserRepository userRepository;
-  private UatProfile trustedIntermediaryProfile;
+  private CiviFormProfile trustedIntermediaryProfile;
 
   @Before
   public void setUp() throws Exception {
@@ -58,7 +58,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     createQuestions();
     createProgram();
 
-    trustedIntermediaryProfile = Mockito.mock(UatProfile.class);
+    trustedIntermediaryProfile = Mockito.mock(CiviFormProfile.class);
     Account account = new Account();
     account.setEmailAddress("test@example.com");
     Mockito.when(trustedIntermediaryProfile.isTrustedIntermediary()).thenReturn(true);

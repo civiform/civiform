@@ -2,8 +2,8 @@ package controllers.applicant;
 
 import static autovalue.shaded.com.google$.common.base.$Preconditions.checkNotNull;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.UatProfile;
 import controllers.CiviFormController;
 import controllers.routes;
 import java.util.Optional;
@@ -50,7 +50,7 @@ public class RedirectController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> programByName(Http.Request request, String programName) {
-    Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
     if (profile.isEmpty()) {
       return CompletableFuture.completedFuture(
           redirect(routes.CallbackController.callback("GuestClient")));
@@ -79,7 +79,7 @@ public class RedirectController extends CiviFormController {
       long programId,
       long applicationId,
       String redirectTo) {
-    Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
     if (profile.isEmpty()) {
       // should definitely never happen.
       return CompletableFuture.completedFuture(

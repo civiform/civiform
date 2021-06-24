@@ -107,7 +107,7 @@ public class PredicateExpressionNodeTest {
             multiOption.getId(),
             Scalar.SELECTION,
             Operator.IN,
-            PredicateValue.of(ImmutableList.of("1", "2")));
+            PredicateValue.listOfStrings(ImmutableList.of("1", "2")));
     LeafOperationExpressionNode leaf2 =
         LeafOperationExpressionNode.create(
             date.getId(),

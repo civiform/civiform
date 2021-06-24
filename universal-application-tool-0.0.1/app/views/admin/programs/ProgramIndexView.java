@@ -8,7 +8,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.p;
 
-import auth.UatProfile;
+import auth.CiviFormProfile;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
@@ -40,7 +40,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   public Content render(
-      ActiveAndDraftPrograms programs, Http.Request request, Optional<UatProfile> profile) {
+      ActiveAndDraftPrograms programs, Http.Request request, Optional<CiviFormProfile> profile) {
     if (profile.isPresent() && profile.get().isProgramAdmin()) {
       layout.setProgramAdminType();
     }
@@ -111,7 +111,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
-      Optional<UatProfile> profile) {
+      Optional<CiviFormProfile> profile) {
     String programStatusText = extractProgramStatusText(draftProgram, activeProgram);
     String lastEditText = "Last updated 2 hours ago."; // TODO: Need to generate this.
 
@@ -242,7 +242,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Tag maybeRenderViewApplicationsLink(
-      Optional<ProgramDefinition> activeProgram, Optional<UatProfile> userProfile) {
+      Optional<ProgramDefinition> activeProgram, Optional<CiviFormProfile> userProfile) {
     if (activeProgram.isPresent() && userProfile.isPresent()) {
       boolean userIsAuthorized = true;
       try {

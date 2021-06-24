@@ -20,12 +20,12 @@ public class AdminVersionController extends Controller {
     this.versionListView = versionListView;
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request) {
     return ok(versionListView.render(versionRepository.listAllVersions(), request));
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result setVersionLive(long versionId, Http.Request request) {
     versionRepository.setLive(versionId);
     return redirect(routes.AdminVersionController.index());

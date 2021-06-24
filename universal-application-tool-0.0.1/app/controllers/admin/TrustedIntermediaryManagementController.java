@@ -40,14 +40,14 @@ public class TrustedIntermediaryManagementController extends Controller {
     this.editView = Preconditions.checkNotNull(editView);
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request) {
     LoggerFactory.getLogger(TrustedIntermediaryManagementController.class)
         .info(request.flash().data().toString());
     return ok(listView.render(userRepository.listTrustedIntermediaryGroups(), request));
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Http.Request request) {
     Form<CreateTrustedIntermediaryGroupForm> form =
         formFactory.form(CreateTrustedIntermediaryGroupForm.class).bindFromRequest(request);
@@ -87,7 +87,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     return result;
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(long id, Http.Request request) {
     Optional<TrustedIntermediaryGroup> tiGroup = userRepository.getTrustedIntermediaryGroup(id);
     if (tiGroup.isEmpty()) {
@@ -96,7 +96,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     return ok(editView.render(tiGroup.get(), request));
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result delete(long id, Http.Request request) {
     try {
       userRepository.deleteTrustedIntermediaryGroup(id);
@@ -106,7 +106,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     return redirect(routes.TrustedIntermediaryManagementController.index());
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result addIntermediary(long id, Http.Request request) {
     Form<AddTrustedIntermediaryForm> form =
         formFactory.form(AddTrustedIntermediaryForm.class).bindFromRequest(request);
@@ -122,7 +122,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     return redirect(routes.TrustedIntermediaryManagementController.edit(id));
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result removeIntermediary(long id, Http.Request request) {
     try {
       Form<RemoveTrustedIntermediaryForm> form =

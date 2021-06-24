@@ -219,8 +219,10 @@ public class DatabaseSeedController extends DevController {
           programId,
           blockId,
           ImmutableList.of(
-              ProgramQuestionDefinition.create(insertNameQuestionDefinition()),
-              ProgramQuestionDefinition.create(insertColorQuestionDefinition())));
+              ProgramQuestionDefinition.create(
+                  insertNameQuestionDefinition(), Optional.of(programId)),
+              ProgramQuestionDefinition.create(
+                  insertColorQuestionDefinition(), Optional.of(programId))));
 
       blockId =
           programService.addBlockToProgram(programId).getResult().getLastBlockDefinition().id();
@@ -261,7 +263,7 @@ public class DatabaseSeedController extends DevController {
               radioButtonQuestionId,
               Scalar.SELECTION,
               Operator.IN,
-              PredicateValue.of(ImmutableList.of("2", "3")));
+              PredicateValue.listOfStrings(ImmutableList.of("2", "3")));
       PredicateDefinition predicate =
           PredicateDefinition.create(
               PredicateExpressionNode.create(operation), PredicateAction.SHOW_BLOCK);

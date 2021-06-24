@@ -71,7 +71,7 @@ public abstract class BaseHtmlView {
 
   /**
    * Generates a hidden HTML input tag containing a signed CSRF token. The token and tag must be
-   * present in all UAT forms.
+   * present in all CiviForm forms.
    */
   protected static Tag makeCsrfTokenInputTag(Http.Request request) {
     return input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken");
