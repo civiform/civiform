@@ -220,7 +220,10 @@ class ValidationController {
 
       const hasEmptyInputs = !(addressLine1Valid && cityValid && stateValid && zipCode.value.length > 0);
 
-      isValid = !hasEmptyInputs && hasValidZip;
+      // If this question isn't required then it's also valid if it is empty.
+      const emptyOptional = false;
+
+      isValid = emptyOptional || (!hasEmptyInputs && hasValidZip);
     }
     return isValid;
   }
@@ -304,6 +307,9 @@ class ValidationController {
       const lastNameValid = lastNameInput.value.length > 0;
       this.updateFieldErrorState(question, '.cf-name-last', lastNameValid);
 
+      // If this question isn't required then it's also valid if it is empty.
+      const emptyOptional = false;
+      
       isValid = firstNameValid && lastNameValid;
     }
     return isValid;
