@@ -100,7 +100,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * <p>The difference between `edit` and `review` is the next block the applicant will see after
    * submitting the answers.
    *
-   * <p>`review` takes the applicant to the first imcomplete block. If there are no more blocks,
+   * <p>`review` takes the applicant to the first incomplete block. If there are no more blocks,
    * summary page is shown.
    */
   @Secure
