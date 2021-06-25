@@ -46,6 +46,7 @@ public enum MessageKey {
   DROPDOWN_PLACEHOLDER("placeholder.noDropdownSelection"),
   ENUMERATOR_BUTTON_ADD_ENTITY("button.addEntity"),
   ENUMERATOR_BUTTON_REMOVE_ENTITY("button.removeEntity"),
+  ENUMERATOR_DIALOG_CONFIRM_DELETE("dialog.confirmDelete"),
   ENUMERATOR_PLACEHOLDER_ENTITY_NAME("placeholder.entityName"),
   ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME("validation.duplicateEntityName"),
   ENUMERATOR_VALIDATION_ENTITY_REQUIRED("validation.entityNameRequired"),

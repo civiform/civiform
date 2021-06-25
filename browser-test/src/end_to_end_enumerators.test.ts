@@ -111,7 +111,7 @@ describe('End to end enumerator test', () => {
 
     // Remove one of the 'Banker' entries and add 'Painter'.
     // the value attribute of the inputs isn't set, so we're clicking the second one.
-    await page.click(':nth-match(:text("Remove Entity"), 2)');
+    await applicantQuestions.deleteEnumeratorEntityByIndex(2);
     await applicantQuestions.addEnumeratorAnswer("Painter");
     await applicantQuestions.clickNext();
 
