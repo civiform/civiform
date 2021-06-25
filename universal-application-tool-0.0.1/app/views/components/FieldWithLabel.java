@@ -6,7 +6,6 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.textarea;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -236,9 +235,7 @@ public class FieldWithLabel {
             // If the text is screen-reader text, then we want the label to be screen-reader
             // only.
             .withCondClass(labelText.isEmpty(), Styles.SR_ONLY)
-            .withText(
-                Preconditions.checkNotNull(
-                    Strings.emptyToNull(labelText.isEmpty() ? screenReaderText : labelText)));
+            .withText(labelText.isEmpty() ? screenReaderText : labelText);
 
     return div(labelTag, fieldTag, buildFieldErrorsTag())
         .withClasses(
