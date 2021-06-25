@@ -165,14 +165,17 @@ function configurePredicateForm(event: Event) {
   const selectedScalarType = scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type;
   const selectedScalarValue = scalarDropdown.options[scalarDropdown.options.selectedIndex].value;
 
-  filterOperators(scalarDropdown, selectedScalarType);
+  filterOperators(scalarDropdown, selectedScalarType, selectedScalarValue);
   configurePredicateValueInput(scalarDropdown, selectedScalarType, selectedScalarValue);
 }
 
 /**
  * Filter the operators available for each scalar type based on the current scalar selected.
  */
-function filterOperators(scalarDropdown: HTMLSelectElement, selectedScalarType: string) {
+function filterOperators(
+  scalarDropdown: HTMLSelectElement,
+  selectedScalarType: string,
+  selectedScalarValue: string) {
   // Filter the operators available for the given selected scalar type.
   const operatorDropdown =
     scalarDropdown
@@ -180,14 +183,35 @@ function filterOperators(scalarDropdown: HTMLSelectElement, selectedScalarType: 
       .querySelector('.cf-operator-select') // div containing the operator dropdown
       .querySelector('select') as HTMLSelectElement;
 
-  Array.from(operatorDropdown.options).forEach(option => {
+  Array.from(operatorDropdown.options).forEach(operatorOption => {
     // Remove any existing hidden class from previous filtering.
-    option.classList.remove('hidden');
-    // If this operator is not for the currently selected type, hide it.
-    if (!(selectedScalarType in option.dataset)) {
-      option.classList.add('hidden');
+    operatorOption.classList.remove('hidden');
+
+    if (shouldHideOperator(selectedScalarType, selectedScalarValue, operatorOption)) {
+      operatorOption.classList.add('hidden');
     }
   });
+}
+
+function shouldHideOperator(
+  selectedScalarType: string,
+  selectedScalarValue: string,
+  operatorOption: HTMLOptionElement
+): boolean {
+  // If this operator is not for the currently selected type, hide it.
+  return (
+    !(selectedScalarType in operatorOption.dataset) ||
+    // Special case for SELECTION scalars (which are of type STRING):
+    // do not include EQUAL_TO or NOT_EQUAL_TO. This is because we use a set of checkbox
+    // inputs for values for multi-option question predicates, which works well for list
+    // operators such as ANY_OF and NONE_OF. Because you can achieve the same functionality
+    // of EQUAL_TO with ANY_OF and NOT_EQUAL_TO with NONE_OF, we made a technical choice to
+    // exclude these operators from single-select predicates to simplify the code on both
+    // the form processing side and on the admin user side.
+    (selectedScalarValue.toUpperCase() === 'SELECTION' &&
+      (operatorOption.value === 'EQUAL_TO' ||
+        operatorOption.value === 'NOT_EQUAL_TO'))
+  );
 }
 
 function configurePredicateValueInput(
@@ -206,15 +230,24 @@ function configurePredicateValueInput(
       .querySelector('.cf-predicate-value-input') // div containing the predicate value input
       .querySelector('input') as HTMLInputElement;
 
-  if (selectedScalarValue.toUpperCase() === 'EMAIL') {
-    // Need to look at the selected scalar *value* for email rather than the *type*, since the type is just a string, but emails have a special type in HTML inputs.
-    valueInput.setAttribute('type', 'email');
-  } else if (selectedScalarType.toUpperCase() === 'STRING') {
-    valueInput.setAttribute('type', 'text');
-  } else if (selectedScalarType.toUpperCase() === 'LONG') {
-    valueInput.setAttribute('type', 'number');
-  } else if (selectedScalarType.toUpperCase() === 'DATE') {
-    valueInput.setAttribute('type', 'date');
+  switch (selectedScalarType.toUpperCase()) {
+    case 'STRING':
+      if (selectedScalarValue.toUpperCase() === 'EMAIL') {
+        // Need to look at the selected scalar *value* for email since the type is just a
+        // string, but emails have a special type in HTML inputs.
+        valueInput.setAttribute('type', 'email');
+        break;
+      }
+      valueInput.setAttribute('type', 'text');
+      break;
+    case 'LONG':
+      valueInput.setAttribute('type', 'number');
+      break;
+    case 'DATE':
+      valueInput.setAttribute('type', 'date');
+      break;
+    default:
+      valueInput.setAttribute('type', 'text');
   }
 }
 

@@ -136,7 +136,9 @@ describe('End to end enumerator test', () => {
     await page.click('.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Edit")');
     await applicantQuestions.deleteEnumeratorEntity("Bugs");
     await applicantQuestions.deleteEnumeratorEntity("Daffy");
+    // Submit the answers by clicking next, and then go to review page.
     await applicantQuestions.clickNext();
+    await applicantQuestions.clickReview();
 
     // Make sure there are no enumerators or repeated things in the review page
     expect(await page.innerText("#application-summary")).toContain("Porky Pig");
@@ -155,7 +157,7 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.clickNext();
     await applicantQuestions.answerNameQuestion("Tweety", "Bird");
     await applicantQuestions.clickNext();
-    await applicantQuestions.clickNext();
+    await applicantQuestions.clickReview();
 
     // Make sure there are no enumerators or repeated things in the review page
     expect(await page.innerText("#application-summary")).toContain("Porky Pig");

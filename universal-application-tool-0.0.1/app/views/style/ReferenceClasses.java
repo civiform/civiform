@@ -14,6 +14,9 @@ public final class ReferenceClasses {
   public static final String ADMIN_TI_GROUP_ROW = "cf-ti-row";
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
   public static final String QUESTION_CONFIG = "cf-question-config";
+  public static final String EDIT_PREDICATE_BUTTON = "cf-edit-predicate";
+  public static final String PREDICATE_DISPLAY = "cf-display-predicate";
+  public static final String PREDICATE_ACTION = "cf-predicate-action";
   public static final String PREDICATE_SCALAR_SELECT = "cf-scalar-select";
   public static final String PREDICATE_OPERATOR_SELECT = "cf-operator-select";
   public static final String PREDICATE_OPTIONS = "cf-predicate-options";
