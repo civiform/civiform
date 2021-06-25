@@ -1313,6 +1313,7 @@ public final class Styles {
   public static final String MAX_H_FULL = "max-h-full";
   public static final String MAX_H_SCREEN = "max-h-screen";
   public static final String MAX_W_0 = "max-w-0";
+  public static final String MAX_W_24 = "max-w-24";
   public static final String MAX_W_NONE = "max-w-none";
   public static final String MAX_W_XS = "max-w-xs";
   public static final String MAX_W_SM = "max-w-sm";

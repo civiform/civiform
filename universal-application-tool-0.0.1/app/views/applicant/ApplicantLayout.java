@@ -160,7 +160,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return languageForm;
   }
 
-  private ContainerTag branding() {
+  public ContainerTag branding() {
     return a().withHref(routes.HomeController.index().url())
         .with(
             div()
