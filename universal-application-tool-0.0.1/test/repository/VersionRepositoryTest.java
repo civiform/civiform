@@ -189,9 +189,9 @@ public class VersionRepositoryTest extends WithPostgresContainer {
     Program program =
         ProgramBuilder.newDraftProgram("questions-need-updating")
             .withBlock()
-            .withQuestion(oldOne)
+            .withRequiredQuestion(oldOne)
             .withBlock()
-            .withQuestion(oldTwo)
+            .withRequiredQuestion(oldTwo)
             .withPredicate(predicate)
             .build();
     program.save();
