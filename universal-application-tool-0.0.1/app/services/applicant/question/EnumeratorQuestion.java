@@ -84,7 +84,7 @@ public class EnumeratorQuestion implements PresentsErrors {
   public boolean isAnswered() {
     return applicantQuestion
         .getApplicantData()
-        .hasPath(applicantQuestion.getContextualizedPath().withoutArrayReference());
+        .hasPath(applicantQuestion.getContextualizedPath().atIndex(0));
   }
 
   /** Return the repeated entity names associated with this enumerator question. */

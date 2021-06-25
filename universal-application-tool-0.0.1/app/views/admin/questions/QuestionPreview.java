@@ -10,6 +10,7 @@ import services.question.types.QuestionType;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.ApplicantStyles;
+import views.style.ReferenceClasses;
 import views.style.Styles;
 
 public class QuestionPreview {
@@ -33,7 +34,10 @@ public class QuestionPreview {
                 Styles.W_MAX,
                 Styles.MY_4)
             .withText("Sample Question of type: ")
-            .with(span().withText(type.toString()).withClasses(Styles.FONT_SEMIBOLD));
+            .with(
+                span()
+                    .withText(type.toString())
+                    .withClasses(ReferenceClasses.QUESTION_TYPE, Styles.FONT_SEMIBOLD));
 
     ContainerTag renderedQuestion = div();
     try {
@@ -47,6 +51,10 @@ public class QuestionPreview {
     ContainerTag contentContainer = div(innerContentContainer).withId("sample-question");
 
     return div(titleContainer, contentContainer)
-        .withClasses(Styles.W_3_5, ApplicantStyles.BODY_BG_COLOR);
+        .withClasses(
+            Styles.W_3_5,
+            ApplicantStyles.BODY_BG_COLOR,
+            Styles.OVERFLOW_HIDDEN,
+            Styles.OVERFLOW_Y_AUTO);
   }
 }

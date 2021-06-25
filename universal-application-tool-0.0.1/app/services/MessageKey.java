@@ -26,6 +26,8 @@ public enum MessageKey {
   BUTTON_LOGOUT("button.logout"),
   BUTTON_NEXT_BLOCK("button.nextBlock"),
   BUTTON_REVIEW("button.review"),
+  BUTTON_DELETE_FILE("button.deleteFile"),
+  BUTTON_KEEP_FILE("button.keepFile"),
   BUTTON_SKIP_FILEUPLOAD("button.skipFileUpload"),
   BUTTON_SUBMIT("button.submit"),
   BUTTON_UNTRANSLATED_SUBMIT("button.untranslatedSubmit"),
@@ -47,6 +49,7 @@ public enum MessageKey {
   ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME("validation.duplicateEntityName"),
   ENUMERATOR_VALIDATION_ENTITY_REQUIRED("validation.entityNameRequired"),
   EXTERNAL_LINK("link.externalLink"),
+  FILEUPLOAD_VALIDATION_FILE_REQUIRED("validation.fileRequired"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
   LINK_ADMIN_LOGIN("link.adminLogin"),
   LINK_ALL_DONE("link.allDone"),
@@ -79,7 +82,8 @@ public enum MessageKey {
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
   TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
-  USER_NAME("header.userName");
+  USER_NAME("header.userName"),
+  VALIDATION_REQUIRED("validation.isRequired");
 
   private final String keyName;
 

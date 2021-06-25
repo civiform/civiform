@@ -202,25 +202,34 @@ public class ProgramBuilder {
       return this;
     }
 
-    public BlockBuilder withQuestion(Question question) {
+    /** Add a required question to the block. */
+    public BlockBuilder withRequiredQuestion(Question question) {
       blockDefBuilder.addQuestion(
           ProgramQuestionDefinition.create(
               question.getQuestionDefinition(), Optional.of(programBuilder.programDefinitionId)));
       return this;
     }
 
-    public BlockBuilder withQuestionDefinition(QuestionDefinition question) {
+    public BlockBuilder withOptionalQuestion(Question question) {
+      blockDefBuilder.addQuestion(
+          ProgramQuestionDefinition.create(
+                  question.getQuestionDefinition(), Optional.of(programBuilder.programDefinitionId))
+              .setOptional(true));
+      return this;
+    }
+
+    public BlockBuilder withRequiredQuestionDefinition(QuestionDefinition question) {
       blockDefBuilder.addQuestion(
           ProgramQuestionDefinition.create(
               question, Optional.of(programBuilder.programDefinitionId)));
       return this;
     }
 
-    public BlockBuilder withQuestions(Question... questions) {
-      return withQuestions(ImmutableList.copyOf(questions));
+    public BlockBuilder withRequiredQuestions(Question... questions) {
+      return withRequiredQuestions(ImmutableList.copyOf(questions));
     }
 
-    public BlockBuilder withQuestions(ImmutableList<Question> questions) {
+    public BlockBuilder withRequiredQuestions(ImmutableList<Question> questions) {
       ImmutableList<ProgramQuestionDefinition> pqds =
           questions.stream()
               .map(Question::getQuestionDefinition)
@@ -233,7 +242,8 @@ public class ProgramBuilder {
       return this;
     }
 
-    public BlockBuilder withQuestionDefinitions(ImmutableList<QuestionDefinition> questions) {
+    public BlockBuilder withRequiredQuestionDefinitions(
+        ImmutableList<QuestionDefinition> questions) {
       ImmutableList<ProgramQuestionDefinition> pqds =
           questions.stream()
               .map(

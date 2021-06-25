@@ -78,7 +78,7 @@ public class AddressQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getStreetErrors() {
-    if (isStreetAnswered() && getStreetValue().isEmpty()) {
+    if (isAnswered() && getStreetValue().isEmpty()) {
       return getStreetErrorMessage();
     }
 
@@ -91,7 +91,7 @@ public class AddressQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getCityErrors() {
-    if (isCityAnswered() && getCityValue().isEmpty()) {
+    if (isAnswered() && getCityValue().isEmpty()) {
       return getCityErrorMessage();
     }
 
@@ -105,7 +105,7 @@ public class AddressQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getStateErrors() {
     // TODO: Validate state further.
-    if (isStateAnswered() && getStateValue().isEmpty()) {
+    if (isAnswered() && getStateValue().isEmpty()) {
       return getStateErrorMessage();
     }
 
@@ -118,7 +118,7 @@ public class AddressQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getZipErrors() {
-    if (isZipAnswered()) {
+    if (isAnswered()) {
       Optional<String> zipValue = getZipValue();
       if (zipValue.isEmpty()) {
         return ImmutableSet.of(
@@ -240,10 +240,7 @@ public class AddressQuestion implements PresentsErrors {
     return applicantQuestion.getApplicantData().hasPath(getZipPath());
   }
 
-  /**
-   * Returns true if any one of the address fields is answered. Returns false if all are not
-   * answered.
-   */
+  /** Returns true if any field is answered. Returns false if all are not. */
   @Override
   public boolean isAnswered() {
     return isStreetAnswered()

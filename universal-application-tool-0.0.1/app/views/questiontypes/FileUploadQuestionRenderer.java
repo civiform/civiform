@@ -6,13 +6,38 @@ import static j2html.TagCreator.input;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Optional;
+import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.FileUploadQuestion;
 import services.aws.SignedS3UploadRequest;
+import views.components.FieldWithLabel;
+import views.style.BaseStyles;
+import views.style.ReferenceClasses;
+import views.style.Styles;
 
 public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
+  private static final String IMAGES_AND_PDF = "image/*,.pdf";
+
+  private final FileUploadQuestion fileuploadQuestion;
+
+  public static Tag renderFileKeyField(
+      ApplicantQuestion question, ApplicantQuestionRendererParams params, boolean clearData) {
+    FileUploadQuestion fileuploadQuestion = question.createFileUploadQuestion();
+    String value = fileuploadQuestion.getFileKeyValue().orElse("");
+    if (clearData) {
+      value = "";
+    }
+    return FieldWithLabel.input()
+        .setFieldName(fileuploadQuestion.getFileKeyPath().toString())
+        .setValue(value)
+        .setFieldErrors(params.messages(), fileuploadQuestion.getQuestionErrors())
+        .getContainer();
+  }
 
   public FileUploadQuestionRenderer(ApplicantQuestion question) {
     super(question);
+    this.fileuploadQuestion = question.createFileUploadQuestion();
   }
 
   @Override
@@ -22,23 +47,28 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
 
   @Override
   public String getReferenceClass() {
-    return "cf-question-file";
+    return ReferenceClasses.FILEUPLOAD_QUESTION;
   }
 
   private ContainerTag fileUploadFields(ApplicantQuestionRendererParams params) {
     if (params.isSample()) {
       return fileUploadFieldsPreview();
     }
-    return signedFileUploadFields(params.signedFileUploadRequest().get());
+    return signedFileUploadFields(params);
   }
 
   private ContainerTag fileUploadFieldsPreview() {
-    return div().with(input().withType("file").withName("file"));
+    return div()
+        .with(input().withType("file").withName("file").attr(Attr.ACCEPT, acceptFileTypes()));
   }
 
-  private ContainerTag signedFileUploadFields(SignedS3UploadRequest request) {
+  private ContainerTag signedFileUploadFields(ApplicantQuestionRendererParams params) {
+    SignedS3UploadRequest request = params.signedFileUploadRequest().get();
+    Optional<String> uploaded =
+        fileuploadQuestion.getFilename().map(f -> String.format("File uploaded: %s", f));
     ContainerTag fieldsTag =
         div()
+            .with(div().withText(uploaded.orElse("")))
             .with(input().withType("hidden").withName("key").withValue(request.key()))
             .with(
                 input()
@@ -62,6 +92,17 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
         .with(input().withType("hidden").withName("X-Amz-Date").withValue(request.date()))
         .with(input().withType("hidden").withName("Policy").withValue(request.policy()))
         .with(input().withType("hidden").withName("X-Amz-Signature").withValue(request.signature()))
-        .with(input().withType("file").withName("file").attr(Attr.ACCEPT, "image/*,.pdf"));
+        .with(input().withType("file").withName("file").attr(Attr.ACCEPT, acceptFileTypes()))
+        .with(errorDiv(params.messages()));
+  }
+
+  private String acceptFileTypes() {
+    return IMAGES_AND_PDF;
+  }
+
+  private ContainerTag errorDiv(Messages messages) {
+    return div(fileuploadQuestion.fileRequiredMessage().getMessage(messages))
+        .withClasses(
+            ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, Styles.HIDDEN);
   }
 }

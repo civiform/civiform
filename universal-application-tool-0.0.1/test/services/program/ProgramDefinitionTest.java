@@ -245,8 +245,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
       throws ProgramBlockDefinitionNotFoundException {
     QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
     QuestionDefinition questionB = testQuestionBank.applicantAddress().getQuestionDefinition();
-    QuestionDefinition questionC =
-        testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+    QuestionDefinition questionC = testQuestionBank.applicantFile().getQuestionDefinition();
     QuestionDefinition questionD = testQuestionBank.applicantSeason().getQuestionDefinition();
 
     long programDefinitionId = 123L;
@@ -257,14 +256,14 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .setDescription("Block Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
             .build();
     BlockDefinition blockB =
         BlockDefinition.builder()
             .setId(2L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(
-                ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
             .addQuestion(
                 ProgramQuestionDefinition.create(questionC, Optional.of(programDefinitionId)))
             .build();
@@ -296,10 +295,11 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(1L)).isEmpty();
     // blockB
     assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(2L))
-        .containsExactly(questionA);
+        .containsExactly(questionA, questionB);
     // blockC
+    // Doesn't include the file upload question.
     assertThat(programDefinition.getAvailablePredicateQuestionDefinitions(3L))
-        .containsExactly(questionA, questionB, questionC);
+        .containsExactly(questionA, questionB);
   }
 
   @Test
@@ -399,11 +399,11 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .withRepeatedBlock()
-            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
             .withBlock()
-            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build()
             .getProgramDefinition();
     BlockDefinition blockDefinition =
@@ -438,11 +438,11 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .withRepeatedBlock()
-            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
             .withBlock()
-            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build()
             .getProgramDefinition();
 
@@ -466,11 +466,11 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .withRepeatedBlock()
-            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
             .withBlock()
-            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build()
             .getProgramDefinition();
 
@@ -506,7 +506,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(predicateQuestion)
+            .withRequiredQuestion(predicateQuestion)
             .withBlock()
             .withPredicate(predicate)
             .build()
@@ -536,7 +536,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(predicateQuestion)
+            .withRequiredQuestion(predicateQuestion)
             .withBlock()
             .withPredicate(predicate)
             .build()
@@ -565,7 +565,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(predicateQuestion)
+            .withRequiredQuestion(predicateQuestion)
             .withBlock()
             .withPredicate(predicate)
             .build()
@@ -578,7 +578,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .withBlock()
             .withPredicate(predicate)
             .withBlock()
-            .withQuestion(predicateQuestion)
+            .withRequiredQuestion(predicateQuestion)
             .build()
             .getProgramDefinition();
 
@@ -601,7 +601,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestion(predicateQuestion)
+            .withRequiredQuestion(predicateQuestion)
             .withPredicate(predicate)
             .build()
             .getProgramDefinition();

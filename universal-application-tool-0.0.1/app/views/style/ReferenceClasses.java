@@ -68,6 +68,9 @@ public final class ReferenceClasses {
   public static final String ENUMERATOR_QUESTION = "cf-question-enumerator";
   public static final String ENUMERATOR_ERROR = "cf-enumerator-error";
 
+  public static final String FILEUPLOAD_QUESTION = "cf-question-fileupload";
+  public static final String FILEUPLOAD_ERROR = "cf-fileupload-error";
+
   public static final String NAME_QUESTION = "cf-question-name";
   public static final String NAME_FIRST = "cf-name-first";
   public static final String NAME_MIDDLE = "cf-name-middle";
@@ -82,6 +85,7 @@ public final class ReferenceClasses {
   public static final String ACCORDION_CONTENT = "cf-accordion-content";
   public static final String ACCORDION_HEADER = "cf-accordion-header";
 
+  public static final String QUESTION_TYPE = "cf-question-type";
   public static final String TOAST_MESSAGE = "cf-toast-data";
   public static final String ENTITY_NAME_INPUT = "cf-entity-name-input";
   public static final String ENUMERATOR_FIELD = "cf-enumerator-field";

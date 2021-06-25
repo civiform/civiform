@@ -74,7 +74,8 @@ public class CsvExporterTest extends WithPostgresContainer {
   private void createFakeProgram() {
     ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram();
     createFakeQuestions();
-    fakeQuestions.forEach(question -> fakeProgram.withBlock().withQuestion(question).build());
+    fakeQuestions.forEach(
+        question -> fakeProgram.withBlock().withRequiredQuestion(question).build());
 
     this.fakeProgramWithCsvExport =
         fakeProgram
@@ -143,6 +144,9 @@ public class CsvExporterTest extends WithPostgresContainer {
         QuestionAnswerer.answerTextQuestion(
             applicantDataOne, answerPath, "Some Value \" containing ,,, special characters");
         // applicant two did not answer this question.
+        break;
+      case STATIC:
+        // Do nothing.
         break;
     }
   }
@@ -235,15 +239,15 @@ public class CsvExporterTest extends WithPostgresContainer {
     Program program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestions(nameQuestion, colorQuestion)
+            .withRequiredQuestions(nameQuestion, colorQuestion)
             .withBlock()
-            .withQuestion(householdMembersQuestion)
+            .withRequiredQuestion(householdMembersQuestion)
             .withRepeatedBlock()
-            .withQuestion(hmNameQuestion)
+            .withRequiredQuestion(hmNameQuestion)
             .withAnotherRepeatedBlock()
-            .withQuestion(hmJobsQuestion)
+            .withRequiredQuestion(hmJobsQuestion)
             .withRepeatedBlock()
-            .withQuestion(hmJobIncomeQuestion)
+            .withRequiredQuestion(hmJobIncomeQuestion)
             .build();
 
     // First applicant has two household members, and the second one has one job.

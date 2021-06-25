@@ -152,6 +152,15 @@ public final class Block {
   }
 
   /**
+   * Return true if any of this blocks questions are required but were left unanswered while filling
+   * out the current program.
+   */
+  public boolean hasRequiredQuestionsThatAreUnansweredInCurrentProgram() {
+    return getQuestions().stream()
+        .anyMatch(ApplicantQuestion::isRequiredButWasUnansweredInCurrentProgram);
+  }
+
+  /**
    * Checks whether the block is complete - that is, {@link ApplicantData} has values at all the
    * paths for all required questions in this block and there are no errors. Note: this cannot be
    * memoized, since we need to reflect internal changes to ApplicantData.

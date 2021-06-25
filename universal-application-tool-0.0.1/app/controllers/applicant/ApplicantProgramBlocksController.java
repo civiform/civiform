@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
-import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
@@ -79,12 +78,31 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.baseUrl = checkNotNull(configuration).getString("base_url");
   }
 
+  /**
+   * This method renders all questions in the block of the program and presents to the applicant.
+   *
+   * <p>The difference between `edit` and `review` is the next block the applicant will see after
+   * submitting the answers.
+   *
+   * <p>`edit` takes the applicant to the next in-progress block, see {@link
+   * ReadOnlyApplicantProgramService#getInProgressBlocks()}. If there are no more blocks, summary
+   * page is shown.
+   */
   @Secure
   public CompletionStage<Result> edit(
       Request request, long applicantId, long programId, String blockId) {
     return editOrReview(request, applicantId, programId, blockId, false);
   }
 
+  /**
+   * This method renders all questions in the block of the program and presents to the applicant.
+   *
+   * <p>The difference between `edit` and `review` is the next block the applicant will see after
+   * submitting the answers.
+   *
+   * <p>`review` takes the applicant to the first incomplete block. If there are no more blocks,
+   * summary page is shown.
+   */
   @Secure
   public CompletionStage<Result> review(
       Request request, long applicantId, long programId, String blockId) {
@@ -108,25 +126,18 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
 
               if (block.isPresent()) {
+                String applicantName = applicantStage.toCompletableFuture().join();
                 return ok(
                     editView.render(
-                        ApplicantProgramBlockEditView.Params.builder()
-                            .setRequest(request)
-                            .setMessages(messagesApi.preferred(request))
-                            .setApplicantId(applicantId)
-                            .setProgramTitle(roApplicantProgramService.getProgramTitle())
-                            .setProgramId(programId)
-                            .setBlock(block.get())
-                            .setInReview(inReview)
-                            .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
-                            .setTotalBlockCount(
-                                roApplicantProgramService.getAllActiveBlocks().size())
-                            .setApplicantName(applicantStage.toCompletableFuture().join())
-                            .setPreferredLanguageSupported(
-                                roApplicantProgramService.preferredLanguageSupported())
-                            .setAmazonS3Client(amazonS3Client)
-                            .setBaseUrl(baseUrl)
-                            .build()));
+                        buildApplicantProgramBlockEditViewParams(
+                            request,
+                            applicantId,
+                            programId,
+                            blockId,
+                            inReview,
+                            roApplicantProgramService,
+                            block.get(),
+                            applicantName)));
               } else {
                 return notFound();
               }
@@ -199,63 +210,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             httpExecutionContext.current())
         .thenComposeAsync(
             (roApplicantProgramService) -> {
-              return update(
-                  request,
-                  applicantId,
-                  programId,
-                  blockId,
-                  applicantStage.toCompletableFuture().join(),
-                  inReview,
-                  roApplicantProgramService);
-            },
-            httpExecutionContext.current())
-        .exceptionally(ex -> handleUpdateExceptions(ex));
-  }
-
-  /**
-   * This method is used by the file upload question. If an user chooses to skip uploading a file,
-   * they click the skip button on the page which takes them to this endpoint. This method puts an
-   * empty file key which marks the file quesiton as seen but not answered and redirects the user to
-   * the next incomplete block.
-   */
-  @Secure
-  public CompletionStage<Result> skipFile(
-      Request request, long applicantId, long programId, String blockId, boolean inReview) {
-    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
-
-    return applicantStage
-        .thenComposeAsync(
-            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
-            httpExecutionContext.current())
-        .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-            httpExecutionContext.current())
-        .thenComposeAsync(
-            (roApplicantProgramService) -> {
-              Optional<Block> block = roApplicantProgramService.getBlock(blockId);
-
-              if (!block.isPresent() || !block.get().isFileUpload()) {
-                return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
-              }
-
-              String applicantFileUploadQuestionKeyPath =
-                  block.get().getQuestions().stream()
-                      .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
-                      .findAny()
-                      .get()
-                      .createFileUploadQuestion()
-                      .getFileKeyPath()
-                      .toString();
-              ImmutableMap<String, String> formData =
-                  ImmutableMap.of(applicantFileUploadQuestionKeyPath, "");
-
-              return applicantService.stageAndUpdateIfValid(
-                  applicantId, programId, blockId, formData);
-            },
-            httpExecutionContext.current())
-        .thenComposeAsync(
-            (roApplicantProgramService) -> {
-              return update(
+              return renderErrorOrRedirectToNextBlock(
                   request,
                   applicantId,
                   programId,
@@ -287,21 +242,20 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             },
             httpExecutionContext.current())
         .thenComposeAsync(
-            (roApplicantProgramService) -> {
-              return update(
-                  request,
-                  applicantId,
-                  programId,
-                  blockId,
-                  applicantStage.toCompletableFuture().join(),
-                  inReview,
-                  roApplicantProgramService);
-            },
+            roApplicantProgramService ->
+                renderErrorOrRedirectToNextBlock(
+                    request,
+                    applicantId,
+                    programId,
+                    blockId,
+                    applicantStage.toCompletableFuture().join(),
+                    inReview,
+                    roApplicantProgramService),
             httpExecutionContext.current())
         .exceptionally(ex -> handleUpdateExceptions(ex));
   }
 
-  private CompletionStage<Result> update(
+  private CompletionStage<Result> renderErrorOrRedirectToNextBlock(
       Request request,
       long applicantId,
       long programId,
@@ -314,30 +268,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       return failedFuture(new ProgramBlockNotFoundException(programId, blockId));
     }
     Block thisBlockUpdated = thisBlockUpdatedMaybe.get();
-    Messages applicantMessages = messagesApi.preferred(request);
 
     // Validation errors: re-render this block with errors and previously entered data.
-    if (thisBlockUpdated.hasErrors()) {
+    if (thisBlockUpdated.hasErrors()
+        || thisBlockUpdated.hasRequiredQuestionsThatAreUnansweredInCurrentProgram()) {
       return supplyAsync(
           () ->
               ok(
                   editView.render(
-                      ApplicantProgramBlockEditView.Params.builder()
-                          .setRequest(request)
-                          .setMessages(applicantMessages)
-                          .setApplicantId(applicantId)
-                          .setProgramTitle(roApplicantProgramService.getProgramTitle())
-                          .setProgramId(programId)
-                          .setBlock(thisBlockUpdated)
-                          .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
-                          .setTotalBlockCount(roApplicantProgramService.getAllActiveBlocks().size())
-                          .setApplicantName(applicantName)
-                          .setInReview(inReview)
-                          .setPreferredLanguageSupported(
-                              roApplicantProgramService.preferredLanguageSupported())
-                          .setAmazonS3Client(amazonS3Client)
-                          .setBaseUrl(baseUrl)
-                          .build())));
+                      buildApplicantProgramBlockEditViewParams(
+                          request,
+                          applicantId,
+                          programId,
+                          blockId,
+                          inReview,
+                          roApplicantProgramService,
+                          thisBlockUpdated,
+                          applicantName))));
     }
 
     if (inReview) {
@@ -371,6 +318,32 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return formData.entrySet().stream()
         .filter(entry -> !STRIPPED_FORM_FIELDS.contains(entry.getKey()))
         .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
+
+  private ApplicantProgramBlockEditView.Params buildApplicantProgramBlockEditViewParams(
+      Request request,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      Block block,
+      String applicantName) {
+    return ApplicantProgramBlockEditView.Params.builder()
+        .setRequest(request)
+        .setMessages(messagesApi.preferred(request))
+        .setApplicantId(applicantId)
+        .setProgramTitle(roApplicantProgramService.getProgramTitle())
+        .setProgramId(programId)
+        .setBlock(block)
+        .setInReview(inReview)
+        .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
+        .setTotalBlockCount(roApplicantProgramService.getAllActiveBlocks().size())
+        .setApplicantName(applicantName)
+        .setPreferredLanguageSupported(roApplicantProgramService.preferredLanguageSupported())
+        .setAmazonS3Client(amazonS3Client)
+        .setBaseUrl(baseUrl)
+        .build();
   }
 
   private void updateFileRecord(String key) {

@@ -3,6 +3,7 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.FileUploadQuestionDefinition;
@@ -51,6 +52,10 @@ public class FileUploadQuestion implements PresentsErrors {
     return applicantQuestion.getApplicantData().hasPath(getFileKeyPath());
   }
 
+  public ValidationErrorMessage fileRequiredMessage() {
+    return ValidationErrorMessage.create(MessageKey.FILEUPLOAD_VALIDATION_FILE_REQUIRED);
+  }
+
   public Optional<String> getFileKeyValue() {
     if (fileKeyValue != null) {
       return fileKeyValue;
@@ -80,11 +85,18 @@ public class FileUploadQuestion implements PresentsErrors {
     return applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY);
   }
 
+  public Optional<String> getFilename() {
+    if (!isAnswered() || getFileKeyValue().isEmpty()) {
+      return Optional.empty();
+    }
+    return getFileKeyValue().map(key -> key.split("/", 4)).map(arr -> arr[arr.length - 1]);
+  }
+
   @Override
   public String getAnswerString() {
-    if (!isAnswered() || getFileKeyValue().isEmpty()) {
+    if (getFilename().isEmpty()) {
       return "-- NO FILE SELECTED --";
     }
-    return "-- FILE UPLOADED (click to download) --";
+    return String.format("-- %s UPLOADED (click to download) --", getFilename().get());
   }
 }

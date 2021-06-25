@@ -147,6 +147,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .with(
                 FieldWithLabel.number()
                     .setFieldName(ENUMERATOR_ID_FORM_FIELD)
+                    .setScreenReaderText(ENUMERATOR_ID_FORM_FIELD)
                     .setValue(OptionalLong.of(blockId))
                     .getContainer());
 
@@ -412,23 +413,27 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .with(p(questionDefinition.getName()))
             .with(p(questionDefinition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM));
 
-    return ret.with(
-        icon,
-        content,
+    Optional<Tag> maybeOptionalToggle =
         optionalToggle(
-            csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, isOptional),
+            csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, isOptional);
+
+    ret.with(icon, content);
+    if (maybeOptionalToggle.isPresent()) {
+      ret.with(maybeOptionalToggle.get());
+    }
+    return ret.with(
         deleteQuestionForm(
             csrfTag, programDefinitionId, blockDefinitionId, questionDefinition, canRemove));
   }
 
-  private Tag optionalToggle(
+  private Optional<Tag> optionalToggle(
       Tag csrfTag,
       long programDefinitionId,
       long blockDefinitionId,
       QuestionDefinition questionDefinition,
       boolean isOptional) {
     if (!featureFlagOptionalQuestions) {
-      return null;
+      return Optional.empty();
     }
     ContainerTag optionalButton =
         TagCreator.button()
@@ -467,11 +472,12 @@ public class ProgramBlockEditView extends BaseHtmlView {
         controllers.admin.routes.AdminProgramBlockQuestionsController.setOptional(
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
             .url();
-    return form(csrfTag)
-        .withMethod(HttpVerbs.POST)
-        .withAction(toggleOptionalAction)
-        .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
-        .with(optionalButton);
+    return Optional.of(
+        form(csrfTag)
+            .withMethod(HttpVerbs.POST)
+            .withAction(toggleOptionalAction)
+            .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
+            .with(optionalButton));
   }
 
   private Tag deleteQuestionForm(

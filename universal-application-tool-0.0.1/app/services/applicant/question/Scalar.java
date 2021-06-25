@@ -79,6 +79,8 @@ public enum Scalar {
 
   private static final ImmutableSet<Scalar> TEXT_SCALARS = ImmutableSet.of(TEXT);
 
+  private static final ImmutableSet<Scalar> STATIC_SCALARS = ImmutableSet.of();
+
   private static final ImmutableSet<Scalar> METADATA_SCALARS =
       ImmutableSet.of(UPDATED_AT, PROGRAM_UPDATED_IN);
 
@@ -114,6 +116,9 @@ public enum Scalar {
       case DROPDOWN: // QuestionTypes with single-selection
       case RADIO_BUTTON:
         return SINGLE_SELECT_SCALARS;
+
+      case STATIC:
+        return STATIC_SCALARS;
 
       case ENUMERATOR: // Enumerator Question does not have scalars like the other question types
         // do.

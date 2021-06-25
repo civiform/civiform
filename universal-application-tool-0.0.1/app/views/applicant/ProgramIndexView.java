@@ -103,6 +103,8 @@ public class ProgramIndexView extends BaseHtmlView {
                 this.layout
                     .viewUtils
                     .makeLocalImageTag("Seattle-logo_horizontal_blue-white_small")
+                    .withAlt("City of Seattle logo")
+                    .attr("aria-hidden", "true")
                     .attr("width", 175)
                     .attr("height", 70))
             .withClasses(Styles.ABSOLUTE, Styles.TOP_2, Styles.LEFT_2);

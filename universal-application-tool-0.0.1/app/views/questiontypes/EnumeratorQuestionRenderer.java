@@ -19,6 +19,7 @@ import services.applicant.question.Scalar;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.ApplicantStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -69,7 +70,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
         div(enumeratorQuestion.getQuestionErrorMessage().getMessage(messages))
             .withClasses(
                 ReferenceClasses.ENUMERATOR_ERROR,
-                Styles.TEXT_RED_600,
+                BaseStyles.FORM_ERROR_TEXT_BASE,
                 enumeratorQuestion.hasQuestionErrors() ? "" : Styles.HIDDEN);
 
     Tag enumeratorQuestionFormContent =
@@ -107,6 +108,10 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
             .setValue(existingEntity)
+            .setScreenReaderText(
+                messages.at(
+                    MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
+                    localizedEntityType))
             .setPlaceholderText(
                 messages.at(
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),

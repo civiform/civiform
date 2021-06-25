@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 import models.Program;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 
 @AutoValue
 public abstract class ProgramDefinition {
@@ -489,7 +490,7 @@ public abstract class ProgramDefinition {
       builder.addAll(
           blockDefinition.programQuestionDefinitions().stream()
               .map(ProgramQuestionDefinition::getQuestionDefinition)
-              .filter(qd -> !qd.isEnumerator())
+              .filter(ProgramDefinition::isPotentialPredicateQuestionDefinition)
               .collect(Collectors.toList()));
     }
 
@@ -523,6 +524,13 @@ public abstract class ProgramDefinition {
     }
 
     return builder.build();
+  }
+
+  private static boolean isPotentialPredicateQuestionDefinition(QuestionDefinition qd) {
+    // TODO(https://github.com/seattle-uat/civiform/issues/322): Add the following once STATIC
+    //  questions are implemented.
+    //  && qd.getQuestionTyp() != QuestionType.STATIC
+    return !qd.isEnumerator() && qd.getQuestionType() != QuestionType.FILEUPLOAD;
   }
 
   public Program toProgram() {

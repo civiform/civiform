@@ -106,13 +106,13 @@ public class FileControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void adminShow_globalAdminWhenNoProgramAdmin_redirects() {
+  public void adminShow_globalAdminWhenNoProgramAdmin_returnsUnauthorizedResult() {
     Program program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
     String fileKey = fakeFileKey(1L, program.id);
     Request request = fakeRequest().build();
     Result result = controller.adminShow(request, program.id, fileKey);
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test

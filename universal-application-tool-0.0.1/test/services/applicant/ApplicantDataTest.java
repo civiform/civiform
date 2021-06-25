@@ -489,7 +489,7 @@ public class ApplicantDataTest {
 
     data.maybeClearArray(Path.create("applicant.things[0]"));
 
-    String nextExpected = "{\"applicant\":{\"things\":[],\"stuff\":\"cars\"}}";
+    String nextExpected = "{\"applicant\":{\"stuff\":\"cars\"}}";
     assertThat(data.asJsonString()).isEqualTo(nextExpected);
   }
 

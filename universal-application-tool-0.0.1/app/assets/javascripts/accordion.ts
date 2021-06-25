@@ -1,4 +1,3 @@
-
 /** This class is a simple controller for accordion elements. */
 class AccordionController {
   static accordionSelector = '.cf-accordion';
@@ -16,12 +15,12 @@ class AccordionController {
 
     items.forEach(
       (item) => {
-        item.addEventListener('click', this.toggleAccordion);
+        item.addEventListener('click', AccordionController.toggleAccordion);
       }
     );
   }
 
-  toggleAccordion(event: Event) {
+  static toggleAccordion(event: Event) {
     const target = event.target as Element;
     const parentAccordion = target.closest(AccordionController.accordionSelector);
     if (parentAccordion) {

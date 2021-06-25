@@ -1,4 +1,4 @@
-import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, logout, loginAsTestUser, selectApplicantLanguage, ApplicantQuestions, userDisplayName } from './support'
+import { startSession, loginAsProgramAdmin, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, logout, loginAsTestUser, selectApplicantLanguage, ApplicantQuestions, userDisplayName } from './support'
 
 describe('normal application flow', () => {
   it('all major steps', async () => {
@@ -90,16 +90,16 @@ describe('normal application flow', () => {
     await applicantQuestions.answerFileUploadQuestion('file key');
     await applicantQuestions.clickUpload();
 
-    // fill 4th application block. 
-    // skip one checkbox question.
+    // fill 4th application block.
     await applicantQuestions.answerCheckboxQuestion(['clowns']);
+    await applicantQuestions.answerCheckboxQuestion(['sewage']);
     await applicantQuestions.clickNext();
 
     // submit
     await applicantQuestions.submitFromReviewPage(programName);
 
     await logout(page);
-    await loginAsAdmin(page);
+    await loginAsProgramAdmin(page);
 
     await adminPrograms.viewApplications(programName);
     await adminPrograms.viewApplicationForApplicant(userDisplayName());
@@ -126,6 +126,9 @@ describe('normal application flow', () => {
     await page.click('button:text("Remove"):visible')
     await page.click('text=Update');
     await adminPrograms.publishProgram(programName);
+
+    await logout(page);
+    await loginAsProgramAdmin(page);
 
     await adminPrograms.viewApplicationsForOldVersion(programName);
     await adminPrograms.viewApplicationForApplicant(userDisplayName());

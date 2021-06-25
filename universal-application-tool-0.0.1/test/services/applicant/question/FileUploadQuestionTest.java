@@ -59,4 +59,53 @@ public class FileUploadQuestionTest {
     assertThat(fileUploadQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(fileUploadQuestion.hasQuestionErrors()).isFalse();
   }
+
+  @Test
+  public void getFilename_notAnswered_returnsEmpty() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
+
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
+
+    assertThat(fileUploadQuestion.getFilename()).isEmpty();
+  }
+
+  @Test
+  public void getFilename_emptyAnswer_returnsEmpty() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
+    QuestionAnswerer.answerFileQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "");
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
+
+    assertThat(fileUploadQuestion.getFilename()).isEmpty();
+  }
+
+  @Test
+  public void getFilename() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
+    QuestionAnswerer.answerFileQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        "applicant-123/program-456/block-789/filename");
+
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
+
+    assertThat(fileUploadQuestion.getFilename().get()).isEqualTo("filename");
+  }
+
+  @Test
+  public void getFilename_specialCharacters() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
+    QuestionAnswerer.answerFileQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        "applicant-123/program-456/block-789/file%?\\/^&!@");
+
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
+
+    assertThat(fileUploadQuestion.getFilename().get()).isEqualTo("file%?\\/^&!@");
+  }
 }
