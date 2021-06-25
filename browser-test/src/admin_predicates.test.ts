@@ -14,13 +14,13 @@ describe('create and edit predicates', () => {
 
     const programName = 'create predicate';
     await adminPrograms.addProgram(programName);
-    await adminPrograms.editProgramBlock(programName, 'first block', ['predicate-q']);
-    await adminPrograms.addProgramBlock(programName, 'block with predicate', ['other-q']);
+    await adminPrograms.editProgramBlock(programName, 'first screen', ['predicate-q']);
+    await adminPrograms.addProgramBlock(programName, 'screen with predicate', ['other-q']);
 
     // Edit predicate for second block
-    await adminPrograms.goToEditBlockPredicatePage(programName, 'Block 2');
+    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 2');
     const adminPredicates = new AdminPredicates(page);
     await adminPredicates.addPredicate('predicate-q', 'hidden if', 'text', 'is equal to', 'hide me');
-    await adminPredicates.expectVisibilityConditionEquals('Block 2 is hidden if predicate-q\'s text is equal to "hide me"');
+    await adminPredicates.expectVisibilityConditionEquals('Screen 2 is hidden if predicate-q\'s text is equal to "hide me"');
   })
 })
