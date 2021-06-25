@@ -25,6 +25,7 @@ public class TextQuestionRenderer extends ApplicantQuestionRenderer {
             .setFieldName(textQuestion.getTextPath().toString())
             .setValue(textQuestion.getTextValue().orElse(""))
             .setFieldErrors(params.messages(), textQuestion.getQuestionErrors())
+            .setScreenReaderText(question.getQuestionText())
             .getContainer();
 
     return renderInternal(params.messages(), questionFormContent, false);
