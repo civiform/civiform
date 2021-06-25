@@ -210,7 +210,6 @@ public final class QuestionEditView extends BaseHtmlView {
           FieldWithLabel.number()
               .setFieldName("nextAvailableId")
               .setValue(((MultiOptionQuestionForm) questionForm).getNextAvailableId())
-              .setScreenReaderText("next id, hidden")
               .getContainer()
               .withClasses(Styles.HIDDEN));
     }

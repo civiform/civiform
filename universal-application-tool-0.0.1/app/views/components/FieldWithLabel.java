@@ -231,10 +231,9 @@ public class FieldWithLabel {
     ContainerTag labelTag =
         label()
             .attr(Attr.FOR, this.id)
-            .withCondClass(!labelText.isEmpty(), BaseStyles.INPUT_LABEL)
             // If the text is screen-reader text, then we want the label to be screen-reader
             // only.
-            .withCondClass(labelText.isEmpty(), Styles.SR_ONLY)
+            .withClass(labelText.isEmpty() ? Styles.SR_ONLY : BaseStyles.INPUT_LABEL)
             .withText(labelText.isEmpty() ? screenReaderText : labelText);
 
     return div(labelTag, fieldTag, buildFieldErrorsTag())
