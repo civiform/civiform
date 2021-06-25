@@ -32,6 +32,7 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
             .withBlock("Block 2")
             .withQuestion(testQuestionBank.applicantAddress())
             .withQuestion(testQuestionBank.applicantIceCream())
+            .withQuestion(testQuestionBank.applicantKitchenTools())
             .withBlock("Block 3")
             .withQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
@@ -108,6 +109,69 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
                     "EQUAL_TO",
                     "predicateValue",
                     "Hello"))
+            .build();
+
+    Result result = controller.update(request, programWithThreeBlocks.id, 3L);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlockPredicatesController.edit(programWithThreeBlocks.id, 3L).url());
+    assertThat(result.flash().get("error")).isEmpty();
+    assertThat(result.flash().get("success").get()).contains("Saved visibility condition");
+
+    // For some reason the above result has an empty contents. So we test the new content of the
+    // edit page manually.
+    Result redirectResult =
+        controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
+    assertThat(Helpers.contentAsString(redirectResult))
+        .doesNotContain("This block is always shown.");
+  }
+
+  @Test
+  public void update_withSingleSelectQuestion() {
+    Http.Request request =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.of(
+                    "predicateAction",
+                    "HIDE_BLOCK",
+                    "questionId",
+                    String.valueOf(testQuestionBank.applicantIceCream().id),
+                    "scalar",
+                    "SELECTION",
+                    "operator",
+                    "IN",
+                    "predicateValues[]",
+                    "1"))
+            .build();
+
+    Result result = controller.update(request, programWithThreeBlocks.id, 3L);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlockPredicatesController.edit(programWithThreeBlocks.id, 3L).url());
+    assertThat(result.flash().get("error")).isEmpty();
+    assertThat(result.flash().get("success").get()).contains("Saved visibility condition");
+  }
+
+  @Test
+  public void update_withMultiSelectQuestion() {
+    Http.Request request =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.of(
+                    "predicateAction",
+                    "SHOW_BLOCK",
+                    "questionId",
+                    String.valueOf(testQuestionBank.applicantKitchenTools().id),
+                    "scalar",
+                    "SELECTIONS",
+                    "operator",
+                    "ANY_OF",
+                    "predicateValues[]",
+                    "1"))
             .build();
 
     Result result = controller.update(request, programWithThreeBlocks.id, 3L);
