@@ -31,8 +31,8 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     BlockDefinition blockA =
         BlockDefinition.builder()
             .setId(123L)
-            .setName("Block Name")
-            .setDescription("Block Description")
+            .setName("Screen Name")
+            .setDescription("Screen Description")
             .build();
     ProgramDefinition.builder()
         .setId(123L)
@@ -50,8 +50,8 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     BlockDefinition blockA =
         BlockDefinition.builder()
             .setId(123L)
-            .setName("Block Name")
-            .setDescription("Block Description")
+            .setName("Screen Name")
+            .setDescription("Screen Description")
             .build();
     ProgramDefinition program =
         ProgramDefinition.builder()
@@ -93,8 +93,8 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     BlockDefinition blockA =
         BlockDefinition.builder()
             .setId(123L)
-            .setName("Block Name")
-            .setDescription("Block Description")
+            .setName("Screen Name")
+            .setDescription("Screen Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .build();
@@ -102,8 +102,8 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     BlockDefinition blockB =
         BlockDefinition.builder()
             .setId(321L)
-            .setName("Block Name")
-            .setDescription("Block Description")
+            .setName("Screen Name")
+            .setDescription("Screen Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
             .build();
@@ -207,16 +207,16 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     BlockDefinition blockA =
         BlockDefinition.builder()
             .setId(123L)
-            .setName("Block Name")
-            .setDescription("Block Description")
+            .setName("Screen Name")
+            .setDescription("Screen Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .build();
     BlockDefinition blockB =
         BlockDefinition.builder()
             .setId(123L)
-            .setName("Block Name")
-            .setDescription("Block Description")
+            .setName("Screen Name")
+            .setDescription("Screen Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
             .addQuestion(
@@ -252,8 +252,8 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     BlockDefinition blockA =
         BlockDefinition.builder()
             .setId(1L)
-            .setName("Block Name")
-            .setDescription("Block Description")
+            .setName("Screen Name")
+            .setDescription("Screen Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .addQuestion(
@@ -262,16 +262,16 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     BlockDefinition blockB =
         BlockDefinition.builder()
             .setId(2L)
-            .setName("Block Name")
-            .setDescription("Block Description")
+            .setName("Screen Name")
+            .setDescription("Screen Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(questionC, Optional.of(programDefinitionId)))
             .build();
     BlockDefinition blockC =
         BlockDefinition.builder()
             .setId(3L)
-            .setName("Block Name")
-            .setDescription("Block Description")
+            .setName("Screen Name")
+            .setDescription("Screen Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(questionD, Optional.of(programDefinitionId)))
             .build();
@@ -320,24 +320,24 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     BlockDefinition blockA =
         BlockDefinition.builder()
             .setId(1L)
-            .setName("Block Name")
-            .setDescription("Block Description")
+            .setName("Screen Name")
+            .setDescription("Screen Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
             .build();
     BlockDefinition blockB =
         BlockDefinition.builder()
             .setId(2L)
-            .setName("Block Name")
-            .setDescription("Block Description")
+            .setName("Screen Name")
+            .setDescription("Screen Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(questionB, Optional.of(programDefinitionId)))
             .build();
     BlockDefinition blockC =
         BlockDefinition.builder()
             .setId(3L)
-            .setName("Block Name")
-            .setDescription("Block Description")
+            .setName("Screen Name")
+            .setDescription("Screen Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(questionC, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(2L))
@@ -345,8 +345,8 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     BlockDefinition blockD =
         BlockDefinition.builder()
             .setId(4L)
-            .setName("Block Name")
-            .setDescription("Block Description")
+            .setName("Screen Name")
+            .setDescription("Screen Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(questionD, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(2L))
@@ -354,8 +354,8 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     BlockDefinition blockE =
         BlockDefinition.builder()
             .setId(5L)
-            .setName("Block Name")
-            .setDescription("Block Description")
+            .setName("Screen Name")
+            .setDescription("Screen Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(questionE, Optional.of(programDefinitionId)))
             .setEnumeratorId(Optional.of(4L))
@@ -408,8 +408,8 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .getProgramDefinition();
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
-            .setName("new block")
-            .setDescription("new block")
+            .setName("new screen")
+            .setDescription("new screen")
             .setId(100L)
             .setEnumeratorId(Optional.of(1L))
             .build();
@@ -515,7 +515,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     assertThatExceptionOfType(IllegalPredicateOrderingException.class)
         .isThrownBy(() -> programDefinition.moveBlock(2L, ProgramDefinition.Direction.UP))
         .withMessage(
-            "This move is not possible - it would move a block condition before the question it"
+            "This move is not possible - it would move a screen condition before the question it"
                 + " depends on");
   }
 
@@ -545,7 +545,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     assertThatExceptionOfType(IllegalPredicateOrderingException.class)
         .isThrownBy(() -> programDefinition.moveBlock(1L, ProgramDefinition.Direction.DOWN))
         .withMessage(
-            "This move is not possible - it would move a block condition before the question it"
+            "This move is not possible - it would move a screen condition before the question it"
                 + " depends on");
   }
 

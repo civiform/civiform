@@ -226,7 +226,7 @@ public abstract class ProgramDefinition {
 
     if (!newProgram.hasValidPredicateOrdering()) {
       throw new IllegalPredicateOrderingException(
-          "This move is not possible - it would move a block condition before the question it"
+          "This move is not possible - it would move a screen condition before the question it"
               + " depends on");
     }
 

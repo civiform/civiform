@@ -46,7 +46,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
-      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
+      return notFound(String.format("Screen ID %d not found for Program %d", blockId, programId));
     } catch (QuestionNotFoundException e) {
       return notFound(String.format("Question IDs %s not found", questionIds));
     } catch (DuplicateProgramQuestionException e) {
@@ -72,7 +72,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(
-          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+          String.format("Screen ID %d not found for Program %d", blockDefinitionId, programId));
     } catch (QuestionNotFoundException e) {
       return notFound(String.format("Question ID %s not found", questionDefinitionId));
     }
@@ -100,11 +100,11 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(
-          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+          String.format("Screen ID %d not found for Program %d", blockDefinitionId, programId));
     } catch (ProgramQuestionDefinitionNotFoundException e) {
       return notFound(
           String.format(
-              "Question ID %d not found in Block %d for program %d",
+              "Question ID %d not found in Screen %d for program %d",
               questionDefinitionId, blockDefinitionId, programId));
     }
 

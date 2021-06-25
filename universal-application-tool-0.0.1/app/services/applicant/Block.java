@@ -89,7 +89,7 @@ public final class Block {
       return getQuestions().get(0);
     }
     throw new RuntimeException(
-        "Only an enumerator block can have an enumeration question definition.");
+        "Only an enumerator screen can have an enumeration question definition.");
   }
 
   /**
@@ -219,6 +219,6 @@ public final class Block {
 
   @Override
   public String toString() {
-    return "Block [id: " + this.id + "]";
+    return "Screen [id: " + this.id + "]";
   }
 }

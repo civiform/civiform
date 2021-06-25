@@ -124,8 +124,8 @@ public class Program extends BaseModel {
     BlockDefinition emptyBlock =
         BlockDefinition.builder()
             .setId(1L)
-            .setName("Block 1")
-            .setDescription("Block 1 Description")
+            .setName("Screen 1")
+            .setDescription("Screen 1 Description")
             .setProgramQuestionDefinitions(ImmutableList.of())
             .build();
     this.exportDefinitions = ImmutableList.of();
