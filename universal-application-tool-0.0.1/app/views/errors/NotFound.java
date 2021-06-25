@@ -16,7 +16,7 @@ import play.mvc.Http;
 import views.BaseHtmlView;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
-import views.style.ApplicantStyles;
+import views.style.ErrorStyles;
 import views.applicant.ApplicantLayout;
 import play.i18n.MessagesApi;
 import services.MessageKey;
@@ -101,7 +101,7 @@ public class NotFound extends BaseHtmlView {
 
     return div(branding, div()
         .withId("top-content")
-        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, Styles.RELATIVE)
+        .withClasses(ErrorStyles.NOT_FOUND_TOP_CONTENT, Styles.RELATIVE)
         .with(seattleLogoDiv, programIndexH1, infoLine1Div));
   }
 

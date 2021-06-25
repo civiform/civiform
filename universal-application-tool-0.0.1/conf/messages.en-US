@@ -46,7 +46,7 @@ content.description1=CiviForm lets you apply for many benefits at once by reusin
 content.description2=Get started by choosing an application below.
 
 error.not_found=This page doesn't seem to exist
-error.not_found_description1=Please check the URL or go back
+error.not_found_description=Please check the URL or go back
 
 label.street=Address line 1
 placeholder.street=Street address
