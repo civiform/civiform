@@ -1,5 +1,6 @@
 import { Browser, chromium, Page } from 'playwright'
 export { AdminQuestions } from './admin_questions'
+export { AdminPredicates } from './admin_predicates'
 export { AdminPrograms } from './admin_programs'
 export { AdminTranslations } from './admin_translations'
 export { AdminTIGroups } from './admin_ti_groups'

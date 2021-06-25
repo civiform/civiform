@@ -120,14 +120,14 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                         h2(H2_CURRENT_VISIBILITY_CONDITION)
                             .withClasses(Styles.FONT_SEMIBOLD, Styles.TEXT_LG))
                     .with(
-                        div(
-                            blockDefinition.visibilityPredicate().isPresent()
+                        div(blockDefinition.visibilityPredicate().isPresent()
                                 ? blockDefinition
                                     .visibilityPredicate()
                                     .get()
                                     .toDisplayString(
                                         blockDefinition.name(), potentialPredicateQuestions)
-                                : TEXT_NO_VISIBILITY_CONDITIONS)))
+                                : TEXT_NO_VISIBILITY_CONDITIONS)
+                            .withClasses(ReferenceClasses.PREDICATE_DISPLAY)))
             .with(removePredicateForm)
             .with(
                 div()
@@ -268,6 +268,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .setFieldName("predicateAction")
         .setLabelText(String.format("%s should be", blockName))
         .setOptions(actionOptions)
+        .addReferenceClass(ReferenceClasses.PREDICATE_ACTION)
         .getContainer();
   }
 
