@@ -307,3 +307,11 @@ validation.textTooShort=Debe contener al menos {0} caracteres.
 
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=Las preguntas de opción múltiple no pueden quedar en blanco.
+
+
+#-------------------------------------------------------#
+# 404 PAGE ERROR - error messages displayed on 404 page #
+#-------------------------------------------------------#
+
+error.not_found=Esta página no parece existir 
+error.not_found_description1=Por favor revise la URL o regrese 

@@ -9,34 +9,40 @@ import com.google.inject.Inject;
 import play.twirl.api.Content;
 import views.style.BaseStyles;
 import views.style.Styles;
+import views.style.StyleUtils;
 import play.i18n.Messages;
 import j2html.tags.ContainerTag;
+import play.mvc.Http;
 import views.BaseHtmlView;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.style.ApplicantStyles;
 import views.applicant.ApplicantLayout;
+import play.i18n.MessagesApi;
+import services.MessageKey;
 
 public class NotFound extends BaseHtmlView {
 
   //private final BaseHtmlLayout layout;
   private final ApplicantLayout layout;
+  private final MessagesApi messagesApi;
 
   @Inject
-  public NotFound(ApplicantLayout layout) {
+  public NotFound(ApplicantLayout layout, MessagesApi messagesApi) {
     this.layout = layout;
+    this.messagesApi = messagesApi;
   }
 
-  public Content render() {
+  /*public Content render() {
     String title = "Not Found";
 
     HtmlBundle htmlBundle = this.layout.getBundle().setTitle(title);
     htmlBundle.addMainContent(mainContent());
 
     return layout.render(htmlBundle);
-  }
+  }*/
 
-  private ContainerTag mainContent() {
+  /*private ContainerTag mainContent() {
     ContainerTag content = layout.branding();
     
     content.with(div(
@@ -51,6 +57,52 @@ public class NotFound extends BaseHtmlView {
     ).withClasses(Styles.BG_GRAY_300, Styles.GRID, Styles.GRID_COLS_2, Styles.CONTENT_CENTER, Styles.PL_4, Styles.PT_2));
 
     return content;
+  }*/
+
+  public Content render(
+      Http.Request request,
+      Messages messages) {
+    HtmlBundle bundle = layout.getBundle();
+    bundle.addMainContent(
+        topContent(
+            messages.at(MessageKey.ERROR_NOT_FOUND.getKeyName()),
+            messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION.getKeyName())));
+
+    return layout.render(bundle);
+  }
+
+  private ContainerTag topContent(String titleText, String infoTextLine) {
+    // "Get benefits"
+    ContainerTag branding = layout.branding();
+
+    ContainerTag programIndexH1 =
+        h1().withText(titleText)
+            .withClasses(
+                Styles.TEXT_4XL,
+                StyleUtils.responsiveSmall(Styles.TEXT_5XL),
+                Styles.FONT_SEMIBOLD,
+                Styles.MB_2,
+                StyleUtils.responsiveSmall(Styles.MB_6));
+
+    ContainerTag infoLine1Div =
+        div()
+            .withText(infoTextLine)
+            .withClasses(Styles.TEXT_SM, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
+
+    ContainerTag seattleLogoDiv =
+        div()
+            .with(
+                this.layout
+                    .viewUtils
+                    .makeLocalImageTag("Seattle-logo_horizontal_blue-white_small")
+                    .attr("width", 175)
+                    .attr("height", 70))
+            .withClasses(Styles.ABSOLUTE, Styles.TOP_2, Styles.LEFT_2);
+
+    return div(branding, div()
+        .withId("top-content")
+        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, Styles.RELATIVE)
+        .with(seattleLogoDiv, programIndexH1, infoLine1Div));
   }
 
   /*public Content render() {
