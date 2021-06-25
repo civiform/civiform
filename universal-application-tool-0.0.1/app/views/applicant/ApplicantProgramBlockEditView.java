@@ -166,12 +166,23 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
                 each(
                     params.block().getQuestions(),
                     question -> renderQuestion(question, rendererParams)));
-    Tag skipForms = renderSkipFileUploadForms(params);
+    Tag skipForms = renderDeleteAndContinueFileUploadForms(params);
     Tag buttons = renderFileUploadBottomNavButtons(params);
     return div(uploadForm, skipForms, buttons);
   }
 
-  private Tag renderSkipFileUploadForms(Params params) {
+  /**
+   * Returns two hidden forms for navigating through a file upload block without uploading a file.
+   *
+   * <p>Delete form sends an update with an empty file key. An empty file key erases the existing
+   * file key if one is present. In either case, the file upload question is marked as seen but
+   * unanswered, namely skipping the file upload. This is only allowed for an optional question.
+   *
+   * <p>Continue form sends an update with the currently stored file key, the same behavior as an
+   * applicant re-submits a form without changing their answer. Continue form is only used when an
+   * existing file (and file key) is present.
+   */
+  private Tag renderDeleteAndContinueFileUploadForms(Params params) {
     String formAction =
         routes.ApplicantProgramBlocksController.update(
                 params.applicantId(), params.programId(), params.block().getId(), params.inReview())
@@ -226,16 +237,16 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   private Tag renderFileUploadBottomNavButtons(Params params) {
-    Optional<Tag> maybeContinueButton = renderContinueButton(params);
-    Optional<Tag> maybeDeleteButton = renderDeleteButton(params);
+    Optional<Tag> maybeContinueButton = maybeRenderContinueButton(params);
+    Optional<Tag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
     ContainerTag ret =
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
             // An empty div to take up the space to the left of the buttons.
             .with(div().withClasses(Styles.FLEX_GROW))
             .with(renderReviewButton(params));
-    if (maybeDeleteButton.isPresent()) {
-      ret.with(maybeDeleteButton.get());
+    if (maybeSkipOrDeleteButton.isPresent()) {
+      ret.with(maybeSkipOrDeleteButton.get());
     }
     ret.with(renderUploadButton(params));
     if (maybeContinueButton.isPresent()) {
@@ -260,7 +271,12 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         .withId("cf-block-submit");
   }
 
-  private Optional<Tag> renderContinueButton(Params params) {
+  /**
+   * Renders a form submit button for continue form if an uploaded file is present.
+   *
+   * <p>See {@link renderDeleteAndContinueFileUploadForms}.
+   */
+  private Optional<Tag> maybeRenderContinueButton(Params params) {
     if (!hasUploadedFile(params)) {
       return Optional.empty();
     }
@@ -272,18 +288,23 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     return Optional.of(button);
   }
 
-  private Optional<Tag> renderDeleteButton(Params params) {
-    String buttonText;
-    String buttonId;
+  /**
+   * Renders a form submit button for delete form if the file upload question is optional.
+   *
+   * <p>If an uploaded file is present, render the button text as delete. Otherwise, skip.
+   *
+   * <p>See {@link renderDeleteAndContinueFileUploadForms}.
+   */
+  private Optional<Tag> maybeRenderSkipOrDeleteButton(Params params) {
+    if (hasAtLeastOneRequiredQuestion(params)) {
+      // If the file question is required, skip or delete is not allowed.
+      return Optional.empty();
+    }
+    String buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
+    String buttonId = "fileupload-skip-button";
     if (hasUploadedFile(params)) {
       buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
       buttonId = "fileupload-delete-button";
-    } else if (!hasRequiredQuestion(params)) {
-      buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
-      buttonId = "fileupload-skip-button";
-    } else {
-      // Cannot skip required file questions.
-      return Optional.empty();
     }
     Tag button =
         submitButton(buttonText)
@@ -311,7 +332,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         .anyMatch(maybeValue -> maybeValue.isPresent());
   }
 
-  private boolean hasRequiredQuestion(Params params) {
+  private boolean hasAtLeastOneRequiredQuestion(Params params) {
     return params.block().getQuestions().stream().anyMatch(question -> !question.isOptional());
   }
 
