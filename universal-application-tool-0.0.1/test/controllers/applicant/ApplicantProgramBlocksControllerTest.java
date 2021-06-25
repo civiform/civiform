@@ -40,9 +40,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().applicantName())
             .withBlock()
-            .withQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().applicantFile())
             .build();
     applicant = createApplicantWithMockedProfile();
   }
@@ -245,9 +245,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newDraftProgram()
             .withBlock("block 1")
-            .withQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().applicantName())
             .withBlock("block 2")
-            .withQuestion(testQuestionBank().applicantAddress())
+            .withRequiredQuestion(testQuestionBank().applicantAddress())
             .build();
     Request request =
         fakeRequest(
@@ -279,7 +279,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newDraftProgram()
             .withBlock("block 1")
-            .withQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
 
     Request request =
@@ -418,9 +418,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newDraftProgram()
             .withBlock("block 1")
-            .withQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().applicantFile())
             .withBlock("block 2")
-            .withQuestion(testQuestionBank().applicantAddress())
+            .withRequiredQuestion(testQuestionBank().applicantAddress())
             .build();
     RequestBuilder request =
         fakeRequest(
@@ -451,7 +451,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newDraftProgram()
             .withBlock("block 1")
-            .withQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().applicantFile())
             .build();
 
     RequestBuilder request =
