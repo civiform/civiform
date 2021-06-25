@@ -26,6 +26,7 @@ public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
     FieldWithLabel numberField =
         FieldWithLabel.number()
             .setFieldName(numberQuestion.getNumberPath().toString())
+            .setScreenReaderText(question.getQuestionText())
             .setFieldErrors(params.messages(), numberQuestion.getQuestionErrors());
     if (numberQuestion.getNumberValue().isPresent()) {
       // TODO: [Refactor] Oof! Converting Optional<Long> to OptionalLong.

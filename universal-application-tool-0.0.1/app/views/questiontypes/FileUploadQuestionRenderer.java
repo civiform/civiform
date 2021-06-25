@@ -11,6 +11,7 @@ import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.aws.SignedS3UploadRequest;
+import views.components.FieldWithLabel;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -19,6 +20,20 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
   private static final String IMAGES_AND_PDF = "image/*,.pdf";
 
   private final FileUploadQuestion fileuploadQuestion;
+
+  public static Tag renderFileKeyField(
+      ApplicantQuestion question, ApplicantQuestionRendererParams params, boolean clearData) {
+    FileUploadQuestion fileuploadQuestion = question.createFileUploadQuestion();
+    String value = fileuploadQuestion.getFileKeyValue().orElse("");
+    if (clearData) {
+      value = "";
+    }
+    return FieldWithLabel.input()
+        .setFieldName(fileuploadQuestion.getFileKeyPath().toString())
+        .setValue(value)
+        .setFieldErrors(params.messages(), fileuploadQuestion.getQuestionErrors())
+        .getContainer();
+  }
 
   public FileUploadQuestionRenderer(ApplicantQuestion question) {
     super(question);

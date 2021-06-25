@@ -26,6 +26,8 @@ public enum MessageKey {
   BUTTON_LOGOUT("button.logout"),
   BUTTON_NEXT_SCREEN("button.nextScreen"),
   BUTTON_REVIEW("button.review"),
+  BUTTON_DELETE_FILE("button.deleteFile"),
+  BUTTON_KEEP_FILE("button.keepFile"),
   BUTTON_SKIP_FILEUPLOAD("button.skipFileUpload"),
   BUTTON_SUBMIT("button.submit"),
   BUTTON_UNTRANSLATED_SUBMIT("button.untranslatedSubmit"),

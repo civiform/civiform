@@ -171,6 +171,7 @@ public class QuestionConfig {
             ? FieldWithLabel.input()
                 .setFieldName("optionIds[]")
                 .setValue(String.valueOf(existingOption.get().id()))
+                .setScreenReaderText("option ids")
                 .getContainer()
                 .withClasses(Styles.HIDDEN)
             : div();
