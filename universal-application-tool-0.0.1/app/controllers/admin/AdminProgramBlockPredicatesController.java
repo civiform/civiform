@@ -152,8 +152,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private PredicateValue parsePredicateValue(
       Scalar scalar, Operator operator, String value, List<String> values) {
 
-    // If no value, then parse the list of values.
-    if (value.isEmpty()) {
+    // If the scalar is SELECTION or SELECTIONS then this is a multi-option question predicate, and
+    // the right hand side values are in the `values` list rather than the `value` string.
+    if (scalar == Scalar.SELECTION || scalar == Scalar.SELECTIONS) {
       ImmutableList.Builder<String> builder = ImmutableList.builder();
       return PredicateValue.listOfStrings(builder.addAll(values).build());
     }

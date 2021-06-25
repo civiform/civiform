@@ -153,7 +153,7 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
         .hasValue(
             routes.AdminProgramBlockPredicatesController.edit(programWithThreeBlocks.id, 3L).url());
     assertThat(result.flash().get("error")).isEmpty();
-    assertThat(result.flash().get("success").get()).contains("Saved visibility condition blah");
+    assertThat(result.flash().get("success").get()).contains("Saved visibility condition");
   }
 
   @Test
@@ -170,7 +170,7 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
                     "SELECTIONS",
                     "operator",
                     "ANY_OF",
-                    "predicateValue[]",
+                    "predicateValues[]",
                     "1"))
             .build();
 
