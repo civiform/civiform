@@ -83,7 +83,7 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
 
     String programTitleText = displayProgram.adminName();
     String programDescriptionText = displayProgram.adminDescription();
-    String blockCountText = "Blocks: " + displayProgram.getBlockCount();
+    String blockCountText = "Screens: " + displayProgram.getBlockCount();
     String questionCountText = "Questions: " + displayProgram.getQuestionCount();
 
     Tag topContent =

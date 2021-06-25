@@ -116,12 +116,12 @@ export class AdminPrograms {
     expect(await this.page.innerText('id=program-title')).toContain(programName);
     expect(await this.page.innerText('id=block-edit-form')).not.toBeNull();
     // Compare string case insensitively because style may not have been computed.
-    expect((await this.page.innerText('[for=block-name-input]')).toUpperCase()).toEqual('BLOCK NAME');
-    expect((await this.page.innerText('[for=block-description-textarea]')).toUpperCase()).toEqual('BLOCK DESCRIPTION');
+    expect((await this.page.innerText('[for=block-name-input]')).toUpperCase()).toEqual('SCREEN NAME');
+    expect((await this.page.innerText('[for=block-description-textarea]')).toUpperCase()).toEqual('SCREEN DESCRIPTION');
     expect(await this.page.innerText('h1')).toContain('Question bank');
   }
 
-  async editProgramBlock(programName: string, blockDescription = 'block description', questionNames: string[] = []) {
+  async editProgramBlock(programName: string, blockDescription = 'screen description', questionNames: string[] = []) {
     await this.gotoDraftProgramEditPage(programName);
 
     await this.page.click('text=Manage Questions');
@@ -136,7 +136,7 @@ export class AdminPrograms {
     }
   }
 
-  async addProgramBlock(programName: string, blockDescription = 'block description', questionNames: string[] = []) {
+  async addProgramBlock(programName: string, blockDescription = 'screen description', questionNames: string[] = []) {
     await this.gotoDraftProgramEditPage(programName);
 
     await this.page.click('text=Manage Questions');
@@ -156,7 +156,7 @@ export class AdminPrograms {
 
   async addProgramRepeatedBlock(programName: string,
     enumeratorBlockName: string,
-    blockDescription = 'block description',
+    blockDescription = 'screen description',
     questionNames: string[] = []) {
     await this.gotoDraftProgramEditPage(programName);
     await this.page.click('text=Manage Questions');

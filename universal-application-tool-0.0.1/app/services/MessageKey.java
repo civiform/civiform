@@ -24,7 +24,7 @@ public enum MessageKey {
   BUTTON_LOGIN("button.login"),
   BUTTON_LOGIN_GUEST("button.guestLogin"),
   BUTTON_LOGOUT("button.logout"),
-  BUTTON_NEXT_BLOCK("button.nextBlock"),
+  BUTTON_NEXT_SCREEN("button.nextScreen"),
   BUTTON_REVIEW("button.review"),
   BUTTON_DELETE_FILE("button.deleteFile"),
   BUTTON_KEEP_FILE("button.keepFile"),

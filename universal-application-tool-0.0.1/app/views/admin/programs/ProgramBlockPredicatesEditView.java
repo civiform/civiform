@@ -51,9 +51,9 @@ import views.style.Styles;
 public class ProgramBlockPredicatesEditView extends BaseHtmlView {
   private static final String H2_CURRENT_VISIBILITY_CONDITION = "Current visibility condition";
   private static final String H2_NEW_VISIBILITY_CONDITION = "New visibility condition";
-  private static final String TEXT_NO_VISIBILITY_CONDITIONS = "This block is always shown.";
+  private static final String TEXT_NO_VISIBILITY_CONDITIONS = "This screen is always shown.";
   private static final String TEXT_NO_AVAILABLE_QUESTIONS =
-      "There are no available questions with which to set a visibility condition for this block.";
+      "There are no available questions with which to set a visibility condition for this screen.";
   private static final String TEXT_NEW_VISIBILITY_CONDITION =
       "Apply a visibility condition using a question below. When you create a visibility"
           + " condition, it replaces the present one.";

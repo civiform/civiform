@@ -177,7 +177,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
         renderBlockList(
             request, program, program.getNonRepeatedBlockDefinitions(), focusedBlockId, 0));
     ret.with(
-        submitButton("Add Block")
+        submitButton("Add Screen")
             .withId("add-block-button")
             .attr(Attr.FORM, CREATE_BLOCK_FORM_ID)
             .withClasses(Styles.M_4));
@@ -317,7 +317,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     buttons.with(blockDescriptionModalButton);
     if (blockDefinitionIsEnumerator) {
       buttons.with(
-          submitButton("Create Repeated Block")
+          submitButton("Create Repeated Screen")
               .withId("create-repeated-block-button")
               .attr(Attr.FORM, CREATE_REPEATED_BLOCK_FORM_ID));
     }
@@ -326,14 +326,14 @@ public class ProgramBlockEditView extends BaseHtmlView {
     if (program.blockDefinitions().size() > 1) {
       buttons.with(div().withClass(Styles.FLEX_GROW));
       buttons.with(
-          submitButton("Delete Block")
+          submitButton("Delete Screen")
               .withId("delete-block-button")
               .attr(Attr.FORM, DELETE_BLOCK_FORM_ID)
               .condAttr(!canDelete, Attr.DISABLED, "")
               .condAttr(
                   !canDelete,
                   Attr.TITLE,
-                  "A block can only be deleted when it has no repeated blocks.")
+                  "A screen can only be deleted when it has no repeated screens.")
               .withClasses(
                   Styles.MX_4,
                   Styles.MY_1,
@@ -496,8 +496,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .condAttr(
                 !canRemove,
                 Attr.TITLE,
-                "An enumerator question can only be removed from the block when the block has no"
-                    + " repeated blocks.")
+                "An enumerator question can only be removed from the screen when the screen has no"
+                    + " repeated screens.")
             .withClasses(
                 ReferenceClasses.REMOVE_QUESTION_BUTTON, canRemove ? "" : Styles.OPACITY_50);
     String deleteQuestionAction =
@@ -532,7 +532,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
   }
 
   private Modal blockDescriptionModal(Tag csrfTag, BlockForm blockForm, String blockUpdateAction) {
-    String modalTitle = "Block Name and Description";
+    String modalTitle = "Screen Name and Description";
     String modalButtonText = "Edit Name and Description";
     ContainerTag blockDescriptionForm =
         form(csrfTag).withMethod(HttpVerbs.POST).withAction(blockUpdateAction);
@@ -543,13 +543,13 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     FieldWithLabel.input()
                         .setId("block-name-input")
                         .setFieldName("name")
-                        .setLabelText("Block name")
+                        .setLabelText("Screen name")
                         .setValue(blockForm.getName())
                         .getContainer(),
                     FieldWithLabel.textArea()
                         .setId("block-description-textarea")
                         .setFieldName("description")
-                        .setLabelText("Block description")
+                        .setLabelText("Screen description")
                         .setValue(blockForm.getDescription())
                         .getContainer())
                 .withClasses(Styles.MX_4),
