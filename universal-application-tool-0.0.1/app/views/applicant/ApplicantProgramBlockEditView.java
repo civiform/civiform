@@ -274,10 +274,13 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   private Optional<Tag> renderDeleteButton(Params params) {
     String buttonText;
+    String buttonId;
     if (hasUploadedFile(params)) {
       buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
-    } else if (params.block().getQuestions().get(0).isOptional()) {
+      buttonId = "fileupload-delete-button";
+    } else if (!hasRequiredQuestion(params)) {
       buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
+      buttonId = "fileupload-skip-button";
     } else {
       // Cannot skip required file questions.
       return Optional.empty();
@@ -286,7 +289,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         submitButton(buttonText)
             .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
             .withClasses(ApplicantStyles.BUTTON_REVIEW)
-            .withId("fileupload-delete-button");
+            .withId(buttonId);
     return Optional.of(button);
   }
 
@@ -306,6 +309,10 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         .map(ApplicantQuestion::createFileUploadQuestion)
         .map(FileUploadQuestion::getFileKeyValue)
         .anyMatch(maybeValue -> maybeValue.isPresent());
+  }
+
+  private boolean hasRequiredQuestion(Params params) {
+    return params.block().getQuestions().stream().anyMatch(question -> !question.isOptional());
   }
 
   @AutoValue
