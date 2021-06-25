@@ -63,8 +63,8 @@ link.adminLogin=Admin login
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
 
-# The button text for saving the current applicant-entered data and continuing to the next block in the form.
-button.nextBlock=Next
+# The button text for saving the current applicant-entered data and continuing to the next screen in the form.
+button.nextScreen=Next
 
 # The text on the button an applicant clicks to jump to the review page.
 button.review=Review
@@ -72,7 +72,7 @@ button.review=Review
 # The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Skip
 
-# The text on the button an applicant clicks to upload a file and continue to the next block.
+# The text on the button an applicant clicks to upload a file and continue to the next screen.
 button.upload=Upload
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
