@@ -30,6 +30,8 @@ public class LinkElement {
           Styles.ROUNDED_MD,
           Styles.RING_BLUE_200,
           Styles.RING_OFFSET_2,
+          Styles.BORDER,
+          Styles.BORDER_TRANSPARENT,
           Styles.BG_BLUE_400,
           Styles.TEXT_WHITE,
           StyleUtils.hover(Styles.BG_BLUE_500),
