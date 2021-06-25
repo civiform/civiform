@@ -53,6 +53,7 @@ public class LinkElement {
   private String text = "";
   private String href = "";
   private String styles = "";
+  private String confirmationMessage = "";
 
   public LinkElement setId(String id) {
     this.id = id;
@@ -71,6 +72,16 @@ public class LinkElement {
 
   public LinkElement setStyles(String... styles) {
     this.styles = StyleUtils.joinStyles(styles);
+    return this;
+  }
+
+  public LinkElement enableConfirmation(String confirmationMessage) {
+    this.confirmationMessage = confirmationMessage;
+    return this;
+  }
+
+  public LinkElement disableConfirmation() {
+    this.confirmationMessage = "";
     return this;
   }
 
@@ -105,6 +116,10 @@ public class LinkElement {
                 input().isHidden().withValue(csrfToken).withName("csrfToken"),
                 button(TagCreator.text(text))
                     .withClasses(DEFAULT_LINK_BUTTON_STYLES)
+                    .condAttr(
+                        !confirmationMessage.isBlank(),
+                        "onclick",
+                        confirmationScript(confirmationMessage))
                     .withType("submit"))
             .withMethod("POST")
             .withAction(href)
@@ -128,11 +143,22 @@ public class LinkElement {
                 input().isHidden().withValue(csrfToken).withName("csrfToken"),
                 button(TagCreator.text(text))
                     .withClasses(BUTTON_LOOKS_LIKE_LINK_STYLES)
+                    .condAttr(
+                        !confirmationMessage.isBlank(),
+                        "onclick",
+                        confirmationScript(confirmationMessage))
                     .withType("submit"))
             .withClasses(Styles.INLINE)
             .withMethod("POST")
             .withAction(href)
             .withCondId(!Strings.isNullOrEmpty(id), id);
     return form;
+  }
+
+  private String confirmationScript(String message) {
+    return String.format(
+        "if(confirm('%s')){ return true; } else { var e = arguments[0] || window.event;"
+            + " e.stopImmediatePropagation(); return false; }",
+        message);
   }
 }

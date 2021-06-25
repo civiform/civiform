@@ -84,6 +84,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           .setId("publish-programs-button")
           .setHref(link)
           .setText("Publish all drafts")
+          .enableConfirmation("Are you sure you want to publish all program drafts?")
           .asHiddenForm(request);
     } else {
       return div();

@@ -182,6 +182,10 @@ export class AdminPrograms {
   }
 
   async publishAllPrograms() {
+    this.page.once("dialog", async dialog => {
+      expect(await dialog.type()).toEqual("confirm");
+      await dialog.accept();
+    });
     await this.page.click(`#publish-programs-button > button`);
   }
 
