@@ -111,6 +111,9 @@ function addNewEnumeratorField(event: Event) {
   // Add to the end of enumerator-fields div.
   const enumeratorFields = document.getElementById('enumerator-fields');
   enumeratorFields.appendChild(newField);
+
+  // Set focus to the new input
+  newField.querySelector('input').focus();
 }
 
 function removeEnumeratorField(event: Event) {
