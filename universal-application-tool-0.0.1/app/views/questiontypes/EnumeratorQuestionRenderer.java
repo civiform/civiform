@@ -108,6 +108,10 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
             .setValue(existingEntity)
+            .setScreenReaderText(
+                messages.at(
+                    MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
+                    localizedEntityType))
             .setPlaceholderText(
                 messages.at(
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),

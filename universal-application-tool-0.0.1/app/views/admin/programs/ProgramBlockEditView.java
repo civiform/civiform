@@ -147,6 +147,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .with(
                 FieldWithLabel.number()
                     .setFieldName(ENUMERATOR_ID_FORM_FIELD)
+                    .setScreenReaderText(ENUMERATOR_ID_FORM_FIELD)
                     .setValue(OptionalLong.of(blockId))
                     .getContainer());
 

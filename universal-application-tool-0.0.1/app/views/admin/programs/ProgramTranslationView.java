@@ -83,11 +83,13 @@ public class ProgramTranslationView extends TranslationFormView {
             .setId("localize-display-name")
             .setFieldName("displayName")
             .setPlaceholderText("Program display name")
+            .setScreenReaderText("Program display name")
             .setValue(localizedName),
         FieldWithLabel.input()
             .setId("localize-display-description")
             .setFieldName("displayDescription")
             .setPlaceholderText("Program description")
+            .setScreenReaderText("Program description")
             .setValue(localizedDescription));
   }
 }

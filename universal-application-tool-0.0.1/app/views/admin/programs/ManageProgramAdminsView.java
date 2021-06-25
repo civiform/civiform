@@ -94,6 +94,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
         FieldWithLabel.email()
             .setFieldName(inputFieldName)
             .setPlaceholderText(INPUT_PLACEHOLDER)
+            .setScreenReaderText(INPUT_PLACEHOLDER)
             .setValue(existing)
             // If there is an existing value, do not allow changes in the input field.
             .setDisabled(existing.isPresent())
