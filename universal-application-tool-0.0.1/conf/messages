@@ -28,6 +28,9 @@ footer.supportLinkDescription=For technical support, contact
 # Message with user's name to show who you are logged in as.
 header.userName=Logged in as {0}
 
+# Error message to answer a required question
+validation.isRequired=This question is required.
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#

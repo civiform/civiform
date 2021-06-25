@@ -14,6 +14,7 @@ import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
@@ -225,14 +226,22 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   private Tag renderFileUploadBottomNavButtons(Params params) {
-    return div()
-        .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-        // An empty div to take up the space to the left of the buttons.
-        .with(div().withClasses(Styles.FLEX_GROW))
-        .with(renderReviewButton(params))
-        .with(renderDeleteButton(params))
-        .with(renderUploadButton(params))
-        .with(renderContinueButton(params));
+    Optional<Tag> maybeContinueButton = renderContinueButton(params);
+    Optional<Tag> maybeDeleteButton = renderDeleteButton(params);
+    ContainerTag ret =
+        div()
+            .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
+            // An empty div to take up the space to the left of the buttons.
+            .with(div().withClasses(Styles.FLEX_GROW))
+            .with(renderReviewButton(params));
+    if (maybeDeleteButton.isPresent()) {
+      ret.with(maybeDeleteButton.get());
+    }
+    ret.with(renderUploadButton(params));
+    if (maybeContinueButton.isPresent()) {
+      ret.with(maybeContinueButton.get());
+    }
+    return ret;
   }
 
   private Tag renderReviewButton(Params params) {
@@ -251,25 +260,34 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         .withId("cf-block-submit");
   }
 
-  private Tag renderContinueButton(Params params) {
+  private Optional<Tag> renderContinueButton(Params params) {
     if (!hasUploadedFile(params)) {
-      return null;
+      return Optional.empty();
     }
-    return submitButton(params.messages().at(MessageKey.BUTTON_KEEP_FILE.getKeyName()))
-        .attr(FORM, FILEUPLOAD_CONTINUE_FORM_ID)
-        .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
-        .withId("fileupload-continue-button");
+    Tag button =
+        submitButton(params.messages().at(MessageKey.BUTTON_KEEP_FILE.getKeyName()))
+            .attr(FORM, FILEUPLOAD_CONTINUE_FORM_ID)
+            .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
+            .withId("fileupload-continue-button");
+    return Optional.of(button);
   }
 
-  private Tag renderDeleteButton(Params params) {
-    String buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
+  private Optional<Tag> renderDeleteButton(Params params) {
+    String buttonText;
     if (hasUploadedFile(params)) {
       buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
+    } else if (params.block().getQuestions().get(0).isOptional()) {
+      buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
+    } else {
+      // Cannot skip required file questions.
+      return Optional.empty();
     }
-    return submitButton(buttonText)
-        .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
-        .withClasses(ApplicantStyles.BUTTON_REVIEW)
-        .withId("fileupload-delete-button");
+    Tag button =
+        submitButton(buttonText)
+            .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
+            .withClasses(ApplicantStyles.BUTTON_REVIEW)
+            .withId("fileupload-delete-button");
+    return Optional.of(button);
   }
 
   private Tag renderUploadButton(Params params) {

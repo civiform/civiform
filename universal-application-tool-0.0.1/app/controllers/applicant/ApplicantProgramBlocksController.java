@@ -242,16 +242,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             },
             httpExecutionContext.current())
         .thenComposeAsync(
-            (roApplicantProgramService) -> {
-              return renderErrorOrRedirectToNextBlock(
-                  request,
-                  applicantId,
-                  programId,
-                  blockId,
-                  applicantStage.toCompletableFuture().join(),
-                  inReview,
-                  roApplicantProgramService);
-            },
+            roApplicantProgramService ->
+                renderErrorOrRedirectToNextBlock(
+                    request,
+                    applicantId,
+                    programId,
+                    blockId,
+                    applicantStage.toCompletableFuture().join(),
+                    inReview,
+                    roApplicantProgramService),
             httpExecutionContext.current())
         .exceptionally(ex -> handleUpdateExceptions(ex));
   }
@@ -271,7 +270,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     Block thisBlockUpdated = thisBlockUpdatedMaybe.get();
 
     // Validation errors: re-render this block with errors and previously entered data.
-    if (thisBlockUpdated.hasErrors()) {
+    if (thisBlockUpdated.hasErrors()
+        || thisBlockUpdated.hasRequiredQuestionsThatAreUnansweredInCurrentProgram()) {
       return supplyAsync(
           () ->
               ok(
