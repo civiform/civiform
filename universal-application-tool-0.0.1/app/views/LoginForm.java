@@ -61,6 +61,8 @@ public class LoginForm extends BaseHtmlView {
         this.layout
             .viewUtils
             .makeLocalImageTag("ChiefSeattle_Blue")
+            .withAlt("City of Seattle Logo")
+            .attr("aria-hidden", "true")
             .withClasses(Styles.W_1_4, Styles.PT_4));
     content.with(
         div()
