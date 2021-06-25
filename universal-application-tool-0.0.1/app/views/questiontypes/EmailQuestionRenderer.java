@@ -26,6 +26,7 @@ public class EmailQuestionRenderer extends ApplicantQuestionRenderer {
             .setFieldName(emailQuestion.getEmailPath().toString())
             .setValue(emailQuestion.getEmailValue().orElse(""))
             .setFieldErrors(params.messages(), emailQuestion.getQuestionErrors())
+            .setScreenReaderText(question.getQuestionText())
             .getContainer();
 
     return renderInternal(params.messages(), questionFormContent, false);
