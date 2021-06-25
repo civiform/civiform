@@ -99,6 +99,8 @@ link.createAccountOrSignIn=Create account or sign in
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Apply
+# The text read for screen readers.
+button.applySr=Apply to {0}
 
 # "Get benefits" floating text
 content.benefits=Get benefits
@@ -111,6 +113,8 @@ content.description2=Get started by choosing an application below.
 
 # Link text to read more about a program.
 link.programDetails=Program details
+# The same text, read for screen readers.
+link.programDetailsSr=Program details for {0}
 
 # Link text to an external site to read more about a program.
 link.externalLink=External site
