@@ -29,6 +29,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
+import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -43,6 +44,7 @@ import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
@@ -118,14 +120,14 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                         h2(H2_CURRENT_VISIBILITY_CONDITION)
                             .withClasses(Styles.FONT_SEMIBOLD, Styles.TEXT_LG))
                     .with(
-                        div(
-                            blockDefinition.visibilityPredicate().isPresent()
+                        div(blockDefinition.visibilityPredicate().isPresent()
                                 ? blockDefinition
                                     .visibilityPredicate()
                                     .get()
                                     .toDisplayString(
                                         blockDefinition.name(), potentialPredicateQuestions)
-                                : TEXT_NO_VISIBILITY_CONDITIONS)))
+                                : TEXT_NO_VISIBILITY_CONDITIONS)
+                            .withClasses(ReferenceClasses.PREDICATE_DISPLAY)))
             .with(removePredicateForm)
             .with(
                 div()
@@ -243,6 +245,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
             Styles.GAP_4,
             Styles.PX_4,
             Styles.PY_2,
+            Styles.MY_2,
             Styles.BORDER,
             Styles.BORDER_GRAY_200)
         .with(
@@ -265,6 +268,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .setFieldName("predicateAction")
         .setLabelText(String.format("%s should be", blockName))
         .setOptions(actionOptions)
+        .addReferenceClass(ReferenceClasses.PREDICATE_ACTION)
         .getContainer();
   }
 
@@ -334,19 +338,20 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       // choose from instead of a freeform text field. Not only is it a better UX, but we store the
       // ID of the options rather than the display strings since the option display strings are
       // localized.
-      ImmutableMap<String, String> valueOptions =
-          ((MultiOptionQuestionDefinition) questionDefinition)
-              .getOptions().stream()
-                  .collect(
-                      toImmutableMap(
-                          option -> option.optionText().getDefault(),
-                          option -> String.valueOf(option.id())));
-
-      return new SelectWithLabel()
-          .setFieldName("predicateValue")
-          .setLabelText("Value")
-          .setOptions(valueOptions)
-          .getContainer();
+      ImmutableList<QuestionOption> options =
+          ((MultiOptionQuestionDefinition) questionDefinition).getOptions();
+      ContainerTag valueOptionsDiv =
+          div().with(div("Values").withClasses(BaseStyles.CHECKBOX_GROUP_LABEL));
+      for (QuestionOption option : options) {
+        ContainerTag optionCheckbox =
+            FieldWithLabel.checkbox()
+                .setFieldName("predicateValues[]")
+                .setValue(String.valueOf(option.id()))
+                .setLabelText(option.optionText().getDefault())
+                .getContainer();
+        valueOptionsDiv.with(optionCheckbox);
+      }
+      return valueOptionsDiv;
     } else {
       return FieldWithLabel.input()
           .setFieldName("predicateValue")
