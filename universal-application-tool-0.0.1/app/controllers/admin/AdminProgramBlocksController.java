@@ -81,7 +81,7 @@ public class AdminProgramBlocksController extends CiviFormController {
       return notFound(e.toString());
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
-          "Something happened to the enumerator screen while creating a repeated screen", e);
+          "Something happened to the enumerator block while creating a repeated block", e);
     }
   }
 

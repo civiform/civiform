@@ -5,7 +5,7 @@ public class ProgramQuestionDefinitionNotFoundException extends Exception {
       long programId, long blockDefinitionId, long questionDefinitionId) {
     super(
         String.format(
-            "Question not found in Program (ID %d) Screen (ID %d) for question (ID %d)",
+            "Question not found in Program (ID %d) Block (ID %d) for question (ID %d)",
             programId, blockDefinitionId, questionDefinitionId));
   }
 }

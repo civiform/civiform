@@ -489,7 +489,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
         .hasMessage(
             String.format(
-                "Screen not found in Program (ID %d) for screen definition ID 100", p.id()));
+                "Block not found in Program (ID %d) for block definition ID 100", p.id()));
   }
 
   @Test
@@ -535,7 +535,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
                     ImmutableList.of(
                         ProgramQuestionDefinition.create(
                             addressQuestion, Optional.of(program.id())))))
-        .withMessage("This action would invalidate a screen condition");
+        .withMessage("This action would invalidate a block condition");
   }
 
   @Test
@@ -629,7 +629,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThatExceptionOfType(IllegalPredicateOrderingException.class)
         .isThrownBy(
             () -> ps.removeQuestionsFromBlock(program.id(), 1L, ImmutableList.of(question.getId())))
-        .withMessage("This action would invalidate a screen condition");
+        .withMessage("This action would invalidate a block condition");
   }
 
   @Test
@@ -671,7 +671,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
         .hasMessage(
             String.format(
-                "Screen not found in Program (ID %d) for screen definition ID 100", p.id()));
+                "Block not found in Program (ID %d) for block definition ID 100", p.id()));
   }
 
   @Test
@@ -719,7 +719,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     // This predicate depends on a question that doesn't exist in a prior block.
     assertThatExceptionOfType(IllegalPredicateOrderingException.class)
         .isThrownBy(() -> ps.setBlockPredicate(program.id(), 2L, predicate))
-        .withMessage("This action would invalidate a screen condition");
+        .withMessage("This action would invalidate a block condition");
   }
 
   @Test
@@ -838,7 +838,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     // This predicate depends on a question that doesn't exist in a prior block.
     assertThatExceptionOfType(IllegalPredicateOrderingException.class)
         .isThrownBy(() -> ps.deleteBlock(program.id(), 1L))
-        .withMessage("This action would invalidate a screen condition");
+        .withMessage("This action would invalidate a block condition");
   }
 
   @Test

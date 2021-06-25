@@ -94,7 +94,7 @@ public final class Block {
       return getQuestions().get(0);
     }
     throw new RuntimeException(
-        "Only an enumerator screen can have an enumeration question definition.");
+        "Only an enumerator block can have an enumeration question definition.");
   }
 
   /**
@@ -222,6 +222,7 @@ public final class Block {
     return Objects.hash(id, blockDefinition, applicantData);
   }
 
+  /** Blocks are called "Screen"s in user facing UI. */
   @Override
   public String toString() {
     return "Screen [id: " + this.id + "]";

@@ -228,7 +228,7 @@ public class QuestionBank {
         } catch (ProgramBlockDefinitionNotFoundException e) {
           String errorMessage =
               String.format(
-                  "BlockDefinition %d has a broken enumerator screen reference to id %d",
+                  "BlockDefinition %d has a broken enumerator block reference to id %d",
                   blockDefinition.id(), enumeratorBlockId.get());
           throw new RuntimeException(errorMessage, e);
         }

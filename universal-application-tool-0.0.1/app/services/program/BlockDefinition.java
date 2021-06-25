@@ -101,7 +101,7 @@ public abstract class BlockDefinition {
       return (EnumeratorQuestionDefinition) getQuestionDefinition(0);
     }
     throw new RuntimeException(
-        "Only an enumerator screen can have an enumeration question definition.");
+        "Only an enumerator block can have an enumeration question definition.");
   }
 
   @JsonIgnore

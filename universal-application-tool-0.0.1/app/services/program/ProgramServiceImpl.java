@@ -277,7 +277,7 @@ public class ProgramServiceImpl implements ProgramService {
       program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
-          "Something happened to the program's screen while trying to move it", e);
+          "Something happened to the program's block while trying to move it", e);
     }
     return syncProgramDefinitionQuestions(
             programRepository.updateProgramSync(program).getProgramDefinition())
@@ -309,7 +309,7 @@ public class ProgramServiceImpl implements ProgramService {
     } catch (IllegalPredicateOrderingException e) {
       // Updating a block's metadata should never invalidate a predicate.
       throw new RuntimeException(
-          "Unexpected error: updating this screen invalidated a screen condition");
+          "Unexpected error: updating this block invalidated a block condition");
     }
   }
 
@@ -387,7 +387,7 @@ public class ProgramServiceImpl implements ProgramService {
       // This should never happen
       throw new RuntimeException(
           String.format(
-              "Unexpected error: Adding a question to screen %s invalidated a predicate",
+              "Unexpected error: Adding a question to block %s invalidated a predicate",
               blockDefinition.name()));
     }
   }
@@ -479,7 +479,7 @@ public class ProgramServiceImpl implements ProgramService {
       // Changing a question between required and optional should not affect predicates. If a
       // question is optional and a predicate depends on its answer, the predicate will be false.
       throw new RuntimeException(
-          "Unexpected error: updating this question invalidated a screen condition");
+          "Unexpected error: updating this question invalidated a block condition");
     }
   }
 
@@ -562,8 +562,7 @@ public class ProgramServiceImpl implements ProgramService {
     ProgramDefinition program = programDefinition.toBuilder().setBlockDefinitions(blocks).build();
 
     if (!program.hasValidPredicateOrdering()) {
-      throw new IllegalPredicateOrderingException(
-          "This action would invalidate a screen condition");
+      throw new IllegalPredicateOrderingException("This action would invalidate a block condition");
     }
 
     return syncProgramDefinitionQuestions(

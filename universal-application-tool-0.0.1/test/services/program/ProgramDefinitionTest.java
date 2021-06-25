@@ -515,7 +515,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     assertThatExceptionOfType(IllegalPredicateOrderingException.class)
         .isThrownBy(() -> programDefinition.moveBlock(2L, ProgramDefinition.Direction.UP))
         .withMessage(
-            "This move is not possible - it would move a screen condition before the question it"
+            "This move is not possible - it would move a block condition before the question it"
                 + " depends on");
   }
 
@@ -545,7 +545,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     assertThatExceptionOfType(IllegalPredicateOrderingException.class)
         .isThrownBy(() -> programDefinition.moveBlock(1L, ProgramDefinition.Direction.DOWN))
         .withMessage(
-            "This move is not possible - it would move a screen condition before the question it"
+            "This move is not possible - it would move a block condition before the question it"
                 + " depends on");
   }
 
