@@ -21,6 +21,10 @@ import views.applicant.ApplicantLayout;
 import play.i18n.MessagesApi;
 import services.MessageKey;
 
+/* Get rid of this pg doesn't seem to exist
+   Use a text link
+*/
+
 public class NotFound extends BaseHtmlView {
 
   //private final BaseHtmlLayout layout;
@@ -94,7 +98,7 @@ public class NotFound extends BaseHtmlView {
             .with(
                 this.layout
                     .viewUtils
-                    .makeLocalImageTag("Seattle-logo_horizontal_blue-white_small")
+                    .makeLocalImageTag("Seattle-logo_horizontal_gray-white_small")
                     .attr("width", 175)
                     .attr("height", 70))
             .withClasses(Styles.ABSOLUTE, Styles.TOP_2, Styles.LEFT_2);
@@ -125,3 +129,4 @@ public class NotFound extends BaseHtmlView {
                 //.with(
 
                 //)
+
