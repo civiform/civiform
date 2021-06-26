@@ -27,6 +27,7 @@ import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockEditView;
 
+/** Controller for admins editting screens (blocks) of a program. */
 public class AdminProgramBlocksController extends CiviFormController {
 
   private final ProgramService programService;
@@ -46,6 +47,7 @@ public class AdminProgramBlocksController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
   }
 
+  /** Return a HTML page displaying all configurations of the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(long programId) {
     try {
@@ -57,6 +59,7 @@ public class AdminProgramBlocksController extends CiviFormController {
     }
   }
 
+  /** POST endpoint for creating a new screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Request request, long programId) {
     Optional<Long> enumeratorId =
@@ -85,6 +88,7 @@ public class AdminProgramBlocksController extends CiviFormController {
     }
   }
 
+  /** Return a HTML page displaying all configurations of the program and forms to update them. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long programId, long blockId) {
     try {
@@ -96,6 +100,7 @@ public class AdminProgramBlocksController extends CiviFormController {
     }
   }
 
+  /** POST endpoint for updating a screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId, long blockId) {
     Form<BlockForm> blockFormWrapper = formFactory.form(BlockForm.class);
@@ -116,6 +121,7 @@ public class AdminProgramBlocksController extends CiviFormController {
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
   }
 
+  /** POST endpoint for moving a screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result move(Request request, long programId, long blockId) {
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
@@ -131,6 +137,7 @@ public class AdminProgramBlocksController extends CiviFormController {
     return redirect(routes.AdminProgramBlocksController.edit(programId, blockId));
   }
 
+  /** POST endpoint for deleting a screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result destroy(long programId, long blockId) {
     try {

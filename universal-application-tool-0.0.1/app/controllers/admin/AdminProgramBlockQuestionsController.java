@@ -20,6 +20,7 @@ import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.QuestionNotFoundException;
 
+/** Controller for admins editting questions on a screen (block) of a program. */
 public class AdminProgramBlockQuestionsController extends Controller {
 
   private final ProgramService programService;
@@ -32,6 +33,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     this.formFactory = checkNotNull(formFactory);
   }
 
+  /** POST endpoint for adding a question to a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result create(Request request, long programId, long blockId) {
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
@@ -58,6 +60,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId));
   }
 
+  /** POST endpoint for removing a question from a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result destroy(long programId, long blockDefinitionId, long questionDefinitionId) {
     try {
@@ -81,6 +84,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
         controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockDefinitionId));
   }
 
+  /** POST endpoint for editting optionalness of a question on a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result setOptional(
       Request request, long programId, long blockDefinitionId, long questionDefinitionId) {

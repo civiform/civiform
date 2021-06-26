@@ -54,17 +54,20 @@ public class AdminProgramController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
   }
 
+  /** Return a HTML page displaying all programs of current live version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
     return ok(listView.render(this.service.getActiveAndDraftPrograms(), request, profileMaybe));
   }
 
+  /** Return a HTML page containing a form to create a new program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Request request) {
     return ok(newOneView.render(request));
   }
 
+  /** POST endpoint for creating a new program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Request request) {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
@@ -93,6 +96,7 @@ public class AdminProgramController extends CiviFormController {
     }
   }
 
+  /** POST endpoint for publishing a new version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result publish() {
     try {
@@ -103,6 +107,7 @@ public class AdminProgramController extends CiviFormController {
     }
   }
 
+  /** POST endpoint for creating a new version of the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newVersionFrom(Request request, long id) {
     try {
@@ -114,6 +119,7 @@ public class AdminProgramController extends CiviFormController {
     }
   }
 
+  /** POST endpoint for updating the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long id) {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);

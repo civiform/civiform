@@ -22,6 +22,7 @@ import services.ti.NoSuchTrustedIntermediaryGroupError;
 import views.admin.ti.EditTrustedIntermediaryGroupView;
 import views.admin.ti.TrustedIntermediaryGroupListView;
 
+/** Controller for admins to manage trusted intermediaries of programs. */
 public class TrustedIntermediaryManagementController extends Controller {
   private final TrustedIntermediaryGroupListView listView;
   private final UserRepository userRepository;
@@ -40,6 +41,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     this.editView = Preconditions.checkNotNull(editView);
   }
 
+  /** Return a HTML page displaying all trusted intermediary groups. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request) {
     LoggerFactory.getLogger(TrustedIntermediaryManagementController.class)
@@ -47,6 +49,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     return ok(listView.render(userRepository.listTrustedIntermediaryGroups(), request));
   }
 
+  /** POST endpoint for creating a new trusted intermediary group. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Http.Request request) {
     Form<CreateTrustedIntermediaryGroupForm> form =
