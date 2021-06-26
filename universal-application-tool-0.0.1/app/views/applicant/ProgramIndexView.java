@@ -230,7 +230,12 @@ public class ProgramIndexView extends BaseHtmlView {
             .setStyles(Styles.BLOCK, Styles.TEXT_XS, Styles.UNDERLINE)
             .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
             .setHref(infoUrl)
-            .asAnchorText();
+            .asAnchorText()
+            .attr(
+                "aria-label",
+                messages.at(
+                    MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName(),
+                    program.localizedName().getOrDefault(preferredLocale)));
     programData.with(infoLink);
 
     // Add external link if it is set.
@@ -251,6 +256,11 @@ public class ProgramIndexView extends BaseHtmlView {
             .url();
     ContainerTag applyButton =
         a().attr(HREF, applyUrl)
+            .attr(
+                "aria-label",
+                messages.at(
+                    MessageKey.BUTTON_APPLY_SR.getKeyName(),
+                    program.localizedName().getOrDefault(preferredLocale)))
             .withText(
                 isDraft
                     ? messages.at(MessageKey.BUTTON_CONTINUE.getKeyName())
