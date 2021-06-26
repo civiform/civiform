@@ -3,6 +3,7 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 
 import controllers.applicant.routes;
@@ -17,6 +18,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
+import views.style.Styles;
 
 /**
  * Provides a form for selecting an applicant's preferred language. Note that we cannot use Play's
@@ -62,6 +64,7 @@ public class ApplicantInformationView extends BaseHtmlView {
             .setTitle("Applicant information")
             .addMainStyles(ApplicantStyles.MAIN_APPLICANT_INFO)
             .addMainContent(formContent);
+    bundle.addMainContent(h1("Applicant information").withClasses(Styles.SR_ONLY));
 
     // We probably don't want the nav bar here (or we need it somewhat different - no dropdown.)
     return layout.renderWithNav(request, userName, messages, bundle);

@@ -5,6 +5,7 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h1;
 import static j2html.attributes.Attr.ENCTYPE;
 import static j2html.attributes.Attr.FORM;
 import static j2html.attributes.Attr.HREF;
@@ -60,6 +61,13 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         layout
             .getBundle()
             .setTitle(params.programTitle())
+            .addMainContent(
+                h1(params.programTitle()
+                        + " "
+                        + params.blockIndex()
+                        + "/"
+                        + params.totalBlockCount())
+                    .withClasses(Styles.SR_ONLY))
             .addMainContent(
                 layout.renderProgramApplicationTitleAndProgressIndicator(
                     params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
