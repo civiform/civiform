@@ -1,5 +1,6 @@
 package services.applicant.question;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.Path;
@@ -85,7 +86,6 @@ public class PhoneNumberQuestion implements PresentsErrors {
     return getPhoneNumberValue().orElse("-");
   }
 
-//  private boolean isPhoneNumberAnswered() {
-//    return applicantQuestion.getApplicantData().hasPath(getPhoneNumberPath());
-//  }
+  @Override
+  public ImmutableList<Path> getAllPaths() { return ImmutableList.of(getPhoneNumberPath()); }
 }

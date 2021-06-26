@@ -12,6 +12,11 @@ public class PhoneNumberQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
+  public String getReferenceClass() {
+    return "cf-phone-number-text";
+  }
+
+  @Override
   public Tag render(ApplicantQuestionRendererParams params) {
     PhoneNumberQuestion phoneNumberQuestion = question.createPhoneNumberQuestion();
 
