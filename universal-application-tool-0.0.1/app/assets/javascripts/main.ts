@@ -225,35 +225,35 @@ function configurePredicateValueInput(
   // If the scalar is from a multi-option question, there is not an input box for the 'Value'
   // field (there's a set of checkboxes instead), so return immediately.
   if (
-    selectedScalarValue.toUpperCase() === "SELECTION" ||
-    selectedScalarValue.toUpperCase() === "SELECTIONS"
+    selectedScalarValue.toUpperCase() === 'SELECTION' ||
+    selectedScalarValue.toUpperCase() === 'SELECTIONS'
   ) {
     return;
   }
 
   const valueInput = scalarDropdown
-    .closest(".cf-predicate-options") // div containing all predicate builder form fields
-    .querySelector(".cf-predicate-value-input") // div containing the predicate value input
-    .querySelector("input");
+    .closest('.cf-predicate-options') // div containing all predicate builder form fields
+    .querySelector('.cf-predicate-value-input') // div containing the predicate value input
+    .querySelector('input');
 
   switch (selectedScalarType.toUpperCase()) {
-    case "STRING":
-      if (selectedScalarValue.toUpperCase() === "EMAIL") {
+    case 'STRING':
+      if (selectedScalarValue.toUpperCase() === 'EMAIL') {
         // Need to look at the selected scalar *value* for email since the type is just a
         // string, but emails have a special type in HTML inputs.
-        valueInput.setAttribute("type", "email");
+        valueInput.setAttribute('type', 'email');
         break;
       }
-      valueInput.setAttribute("type", "text");
+      valueInput.setAttribute('type', 'text');
       break;
-    case "LONG":
-      valueInput.setAttribute("type", "number");
+    case 'LONG':
+      valueInput.setAttribute('type', 'number');
       break;
-    case "DATE":
-      valueInput.setAttribute("type", "date");
+    case 'DATE':
+      valueInput.setAttribute('type', 'date');
       break;
     default:
-      valueInput.setAttribute("type", "text");
+      valueInput.setAttribute('type', 'text');
   }
 }
 
@@ -263,8 +263,8 @@ function configurePredicateFormOnOperatorChange(event: Event) {
     operatorDropdown.options[operatorDropdown.options.selectedIndex].value;
 
   const commaSeparatedHelpText = operatorDropdown
-    .closest(".cf-predicate-options")
-    .querySelector(".cf-predicate-value-comma-help-text");
+    .closest('.cf-predicate-options')
+    .querySelector('.cf-predicate-value-comma-help-text');
 
   // This help text div isn't present at all in some cases.
   if (!commaSeparatedHelpText) {
@@ -272,13 +272,13 @@ function configurePredicateFormOnOperatorChange(event: Event) {
   }
 
   // Remove any existing hidden class.
-  commaSeparatedHelpText.classList.remove("hidden");
+  commaSeparatedHelpText.classList.remove('hidden');
 
   if (
-    selectedOperatorValue.toUpperCase() !== "IN" &&
-    selectedOperatorValue.toUpperCase() !== "NOT_IN"
+    selectedOperatorValue.toUpperCase() !== 'IN' &&
+    selectedOperatorValue.toUpperCase() !== 'NOT_IN'
   ) {
-    commaSeparatedHelpText.classList.add("hidden");
+    commaSeparatedHelpText.classList.add('hidden');
   }
 }
 
