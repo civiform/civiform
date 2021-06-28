@@ -14,8 +14,8 @@ describe('create and edit predicates', () => {
 
     const programName = 'create hide predicate';
     await adminPrograms.addProgram(programName);
-    await adminPrograms.editProgramBlock(programName, 'first screen', ['show-predicate-q']);
-    await adminPrograms.addProgramBlock(programName, 'screen with predicate', ['show-other-q']);
+    await adminPrograms.editProgramBlock(programName, 'first screen', ['hide-predicate-q']);
+    await adminPrograms.addProgramBlock(programName, 'screen with predicate', ['hide-other-q']);
 
     // Edit predicate for second block
     await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 2');
