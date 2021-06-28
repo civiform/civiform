@@ -23,7 +23,7 @@ export class AdminPredicates {
       // We have a checkbox select.
       const valueArray = value.split(',');
       for (var index in valueArray) {
-        await this.page.check(`select:visible:has-text${value[index]}`);
+        await this.page.check(`label:has-text("${valueArray[index]}")`);
       }
     }
     
