@@ -156,7 +156,7 @@ describe('create and edit predicates', () => {
     const adminPredicates = new AdminPredicates(page);
     await adminPredicates.addPredicate('single-string', 'shown if', 'first name', 'is not equal to', 'hidden');
 
-    // Single string one of a list of strings (as an input)
+    // Single string one of a list of strings
     await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 3');
     await adminPredicates.addPredicate('list of strings', 'shown if', 'text', 'is one of', 'blue, green');
 

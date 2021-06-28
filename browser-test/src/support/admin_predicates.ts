@@ -20,7 +20,7 @@ export class AdminPredicates {
     if (valueInput) {
       await valueInput.fill(value);
     } else {
-      // We have a checkbox select.
+      // We have a checkbox for the value.
       const valueArray = value.split(',');
       for (var index in valueArray) {
         await this.page.check(`label:has-text("${valueArray[index]}")`);
