@@ -117,7 +117,7 @@ describe('create and edit predicates', () => {
     expect(await page.innerText('#application-summary')).toContain('conditional question');
     await applicant.submitFromReviewPage(programName);
 
-    // Visit the program admin page and assert the hidden question does not show
+    // Visit the program admin page and assert the conditional question is shown
     await logout(page);
     await loginAsProgramAdmin(page);
     await adminPrograms.viewApplications(programName);
