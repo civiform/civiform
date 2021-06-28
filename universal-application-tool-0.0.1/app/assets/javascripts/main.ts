@@ -162,7 +162,7 @@ function attachLineClampListeners() {
   applicationCardDescriptions.forEach(el => el.addEventListener('click', removeLineClamp));
 }
 
-function configurePredicateForm(event: Event) {
+function configurePredicateFormOnScalarChange(event: Event) {
   // Get the type of scalar currently selected.
   const scalarDropdown = event.target as HTMLSelectElement;
   const selectedScalarType = scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type;
@@ -220,37 +220,65 @@ function shouldHideOperator(
 function configurePredicateValueInput(
   scalarDropdown: HTMLSelectElement,
   selectedScalarType: string,
-  selectedScalarValue: string) {
+  selectedScalarValue: string
+) {
   // If the scalar is from a multi-option question, there is not an input box for the 'Value'
   // field (there's a set of checkboxes instead), so return immediately.
-  if (selectedScalarValue.toUpperCase() === 'SELECTION') {
+  if (
+    selectedScalarValue.toUpperCase() === "SELECTION" ||
+    selectedScalarValue.toUpperCase() === "SELECTIONS"
+  ) {
     return;
   }
 
-  const valueInput =
-    scalarDropdown
-      .closest('.cf-predicate-options') // div containing all predicate builder form fields
-      .querySelector('.cf-predicate-value-input') // div containing the predicate value input
-      .querySelector('input') as HTMLInputElement;
+  const valueInput = scalarDropdown
+    .closest(".cf-predicate-options") // div containing all predicate builder form fields
+    .querySelector(".cf-predicate-value-input") // div containing the predicate value input
+    .querySelector("input");
 
   switch (selectedScalarType.toUpperCase()) {
-    case 'STRING':
-      if (selectedScalarValue.toUpperCase() === 'EMAIL') {
+    case "STRING":
+      if (selectedScalarValue.toUpperCase() === "EMAIL") {
         // Need to look at the selected scalar *value* for email since the type is just a
         // string, but emails have a special type in HTML inputs.
-        valueInput.setAttribute('type', 'email');
+        valueInput.setAttribute("type", "email");
         break;
       }
-      valueInput.setAttribute('type', 'text');
+      valueInput.setAttribute("type", "text");
       break;
-    case 'LONG':
-      valueInput.setAttribute('type', 'number');
+    case "LONG":
+      valueInput.setAttribute("type", "number");
       break;
-    case 'DATE':
-      valueInput.setAttribute('type', 'date');
+    case "DATE":
+      valueInput.setAttribute("type", "date");
       break;
     default:
-      valueInput.setAttribute('type', 'text');
+      valueInput.setAttribute("type", "text");
+  }
+}
+
+function configurePredicateFormOnOperatorChange(event: Event) {
+  const operatorDropdown = event.target as HTMLSelectElement;
+  const selectedOperatorValue =
+    operatorDropdown.options[operatorDropdown.options.selectedIndex].value;
+
+  const commaSeparatedHelpText = operatorDropdown
+    .closest(".cf-predicate-options")
+    .querySelector(".cf-predicate-value-comma-help-text");
+
+  // This help text div isn't present at all in some cases.
+  if (!commaSeparatedHelpText) {
+    return;
+  }
+
+  // Remove any existing hidden class.
+  commaSeparatedHelpText.classList.remove("hidden");
+
+  if (
+    selectedOperatorValue.toUpperCase() !== "IN" &&
+    selectedOperatorValue.toUpperCase() !== "NOT_IN"
+  ) {
+    commaSeparatedHelpText.classList.add("hidden");
   }
 }
 
@@ -262,7 +290,10 @@ window.addEventListener('load', (event) => {
   // Configure the admin predicate builder to show the appropriate options based on
   // the type of scalar selected.
   Array.from(document.querySelectorAll('.cf-scalar-select')).forEach(
-    el => el.addEventListener('input', configurePredicateForm));
+    el => el.addEventListener('input', configurePredicateFormOnScalarChange));
+
+  Array.from(document.querySelectorAll('.cf-operator-select')).forEach(
+    el => el.addEventListener('input', configurePredicateFormOnOperatorChange));
 
   // Submit button is disabled by default until program block edit form is changed
   const blockEditForm = document.getElementById('block-edit-form');
