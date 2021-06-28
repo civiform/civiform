@@ -30,9 +30,11 @@ public class LinkElement {
           Styles.ROUNDED_MD,
           Styles.RING_BLUE_200,
           Styles.RING_OFFSET_2,
-          Styles.BG_BLUE_400,
+          Styles.BORDER,
+          Styles.BORDER_TRANSPARENT,
+          BaseStyles.BG_SEATTLE_BLUE,
           Styles.TEXT_WHITE,
-          StyleUtils.hover(Styles.BG_BLUE_500),
+          StyleUtils.hover(Styles.BG_BLUE_700),
           StyleUtils.focus(Styles.OUTLINE_NONE, Styles.RING_2));
 
   private static final String DEFAULT_LINK_STYLES =

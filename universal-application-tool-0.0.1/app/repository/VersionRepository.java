@@ -194,7 +194,7 @@ public class VersionRepository {
     ProgramDefinition.Builder updatedDefinition =
         draftProgram.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
     for (BlockDefinition block : draftProgram.getProgramDefinition().blockDefinitions()) {
-      LOG.trace("Updating block {}.", block.id());
+      LOG.trace("Updating screen (block) {}.", block.id());
       updatedDefinition.addBlockDefinition(updateQuestionVersions(draftProgram.id, block));
     }
     draftProgram = new Program(updatedDefinition.build());

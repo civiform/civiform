@@ -187,7 +187,7 @@ public class BaseBrowserTest extends WithBrowser {
   protected void addQuestionsToProgramNewBlock(String programName, String... questionNames) {
     manageExistingProgramQuestions(programName);
 
-    browser.$("button", withText("Add Block")).click();
+    browser.$("button", withText("Add Screen")).click();
     addQuestionsToBlock(questionNames);
   }
 

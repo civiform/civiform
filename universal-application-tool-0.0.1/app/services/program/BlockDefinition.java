@@ -16,6 +16,9 @@ import services.question.types.QuestionType;
  * Defines a single program block, which contains a list of questions and data about the block.
  * Blocks are displayed to applicants one per-page, and are the primary means by which applicants
  * navigate within a program form.
+ *
+ * <p>"Block" is synonymous to "screen", which is what we show in the admin UI. At some point, it
+ * would be nice to rename the classes and methods to reflect the more desired name "screen".
  */
 @JsonDeserialize(builder = AutoValue_BlockDefinition.Builder.class)
 @AutoValue
