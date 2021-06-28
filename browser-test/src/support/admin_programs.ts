@@ -127,6 +127,9 @@ export class AdminPrograms {
     await this.page.click('text=Manage Questions');
     await this.expectProgramBlockEditPage(programName);
 
+    // Make sure the JS loads so the edit block modal appears when expected.
+    await this.page.waitForLoadState('load');
+
     await this.page.click('#block-description-modal-button');
     await this.page.fill('textarea', blockDescription);
     await this.page.click('#update-block-button');
@@ -141,6 +144,9 @@ export class AdminPrograms {
 
     await this.page.click('text=Manage Questions');
     await this.expectProgramBlockEditPage(programName);
+
+    // Make sure the JS loads so the edit block modal appears when expected.
+    await this.page.waitForLoadState('load');
 
     await this.page.click('#add-block-button');
 
