@@ -1,4 +1,4 @@
-import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, logout, loginAsTestUser, selectApplicantLanguage, ApplicantQuestions, userDisplayName } from './support'
+import { startSession, loginAsProgramAdmin, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, logout, loginAsTestUser, selectApplicantLanguage, ApplicantQuestions, userDisplayName } from './support'
 
 describe('view an application in an older version', () => {
   it('create an application, and create a new version of the program, and view the application in the old version of the program', async () => {
@@ -28,12 +28,12 @@ describe('view an application in an older version', () => {
     await applicantQuestions.submitFromReviewPage(programName);
 
     await logout(page);
-    await loginAsAdmin(page);
+    await loginAsProgramAdmin(page);
 
     // See the application in admin page
     await adminPrograms.viewApplications(programName);
     await adminPrograms.viewApplicationForApplicant(userDisplayName());
-    await adminPrograms.expectApplicationAnswers('Block 1', questionName, 'some text');
+    await adminPrograms.expectApplicationAnswers('Screen 1', questionName, 'some text');
 
     await logout(page);
     await loginAsAdmin(page);
@@ -42,11 +42,14 @@ describe('view an application in an older version', () => {
     await adminQuestions.createNewVersion(questionName);
     await adminPrograms.publishProgram(programName);
 
+    await logout(page);
+    await loginAsProgramAdmin(page);
+
     // See the application in admin page in the old version
     await adminPrograms.viewApplications(programName);
     await adminPrograms.viewApplicationsInOldVersion();
     await adminPrograms.viewApplicationForApplicant(userDisplayName());
-    await adminPrograms.expectApplicationAnswers('Block 1', questionName, 'some text');
+    await adminPrograms.expectApplicationAnswers('Screen 1', questionName, 'some text');
 
     await endSession(browser);
   })

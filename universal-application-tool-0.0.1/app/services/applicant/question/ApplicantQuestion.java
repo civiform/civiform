@@ -77,6 +77,20 @@ public class ApplicantQuestion {
   }
 
   /**
+   * Return true if this question is required but was left unanswered while filling out the current
+   * program.
+   */
+  public boolean isRequiredButWasUnansweredInCurrentProgram() {
+    return !isOptional() && !errorsPresenter().isAnswered() && wasRecentlyUpdatedInThisProgram();
+  }
+
+  /** Returns true if this question was most recently updated in this program. */
+  private boolean wasRecentlyUpdatedInThisProgram() {
+    return getUpdatedInProgramMetadata().stream()
+        .anyMatch(pid -> pid.equals(programQuestionDefinition.getProgramDefinitionId()));
+  }
+
+  /**
    * Get the question text localized to the applicant's preferred locale, contextualized with {@link
    * RepeatedEntity}.
    */
@@ -139,28 +153,28 @@ public class ApplicantQuestion {
   }
 
   public Optional<Long> getUpdatedInProgramMetadata() {
-    Path contextualizedMetadataPath = getContextualizedPath().join(Scalar.PROGRAM_UPDATED_IN);
-
-    // Metadata for enumerators is stored for each JSON array element, but we rely on metadata for
-    // the first one.
-    if (getQuestionDefinition().isEnumerator()) {
-      contextualizedMetadataPath =
-          getContextualizedPath().atIndex(0).join(Scalar.PROGRAM_UPDATED_IN);
-    }
-
-    return applicantData.readLong(contextualizedMetadataPath);
+    return getMetadata(Scalar.PROGRAM_UPDATED_IN);
   }
 
   public Optional<Long> getLastUpdatedTimeMetadata() {
-    Path contextualizedMetadataPath = getContextualizedPath().join(Scalar.UPDATED_AT);
+    return getMetadata(Scalar.UPDATED_AT);
+  }
 
-    // Metadata for enumerators are stored for each JSON array element, but we rely on metadata for
-    // the first one.
-    if (getQuestionDefinition().isEnumerator()) {
-      contextualizedMetadataPath = getContextualizedPath().atIndex(0).join(Scalar.UPDATED_AT);
-    }
-
+  private Optional<Long> getMetadata(Scalar metadataScalar) {
+    Path contextualizedMetadataPath = getMetadataPath(metadataScalar);
     return applicantData.readLong(contextualizedMetadataPath);
+  }
+
+  private Path getMetadataPath(Scalar metadataScalar) {
+    // For enumerator questions, rely on the metadata at the first repeated entity if it exists.
+    // If it doesn't exist, check for metadata stored when there are no repeated entities.
+    if (getQuestionDefinition().isEnumerator()) {
+      Path firstEntity = getContextualizedPath().atIndex(0);
+      return applicantData.hasPath(firstEntity)
+          ? firstEntity.join(metadataScalar)
+          : getContextualizedPath().withoutArrayReference().join(metadataScalar);
+    }
+    return getContextualizedPath().join(metadataScalar);
   }
 
   public AddressQuestion createAddressQuestion() {

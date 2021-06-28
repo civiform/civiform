@@ -9,8 +9,10 @@
 
 button.apply=Apply
 button.continue=Continue
+button.deleteFile=Delete
+button.keepFile=Continue
 button.logout=Logout
-button.nextBlock=Next
+button.nextScreen=Next
 button.review=Review
 button.skipFileUpload=Skip
 button.submit=Submit
@@ -60,6 +62,7 @@ placeholder.lastName=Last name
 placeholder.entityName=Nickname for {0}
 button.addEntity=Add {0}
 button.removeEntity=Remove {0}
+validation.isRequired=This question is required.
 validation.duplicateEntityName=Please enter a unique value for each line.
 validation.firstNameRequired=Please enter your first name.
 validation.lastNameRequired=Please enter your last name.
@@ -76,3 +79,4 @@ validation.zipcodeRequired=Please enter valid ZIP code.
 validation.invalidZipcode=Please enter valid 5-digit ZIP code.
 validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 validation.entityNameRequired=Please enter a value for each line.
+validation.fileRequired=Please select a file.

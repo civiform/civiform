@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import play.i18n.Messages;
+import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
 import views.components.TextFormatter;
@@ -65,9 +66,17 @@ public abstract class ApplicantQuestionRenderer {
       questionTextDiv.with(BaseHtmlView.fieldErrors(messages, question.getQuestionErrors()));
     }
 
+    if (question.isRequiredButWasUnansweredInCurrentProgram()) {
+      String requiredQuestionMessage = messages.at(MessageKey.VALIDATION_REQUIRED.getKeyName());
+      questionTextDiv.with(
+          div()
+              .withClasses(Styles.P_1, Styles.TEXT_RED_600)
+              .withText("*" + requiredQuestionMessage));
+    }
+
     return div()
         .withId(question.getContextualizedPath().toString())
-        .withClasses(Styles.MX_AUTO, Styles.MB_8, this.getReferenceClass(), this.getRequiredClass())
+        .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
         .with(questionTextDiv)
         .with(questionFormContent);
   }

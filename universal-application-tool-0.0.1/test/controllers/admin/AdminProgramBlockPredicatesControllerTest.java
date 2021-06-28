@@ -27,13 +27,14 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
     controller = instanceOf(AdminProgramBlockPredicatesController.class);
     programWithThreeBlocks =
         ProgramBuilder.newDraftProgram()
-            .withBlock("Block 1")
-            .withQuestion(testQuestionBank.applicantName())
-            .withBlock("Block 2")
-            .withQuestion(testQuestionBank.applicantAddress())
-            .withQuestion(testQuestionBank.applicantIceCream())
-            .withBlock("Block 3")
-            .withQuestion(testQuestionBank.applicantFavoriteColor())
+            .withBlock("Screen 1")
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .withBlock("Screen 2")
+            .withRequiredQuestion(testQuestionBank.applicantAddress())
+            .withRequiredQuestion(testQuestionBank.applicantIceCream())
+            .withRequiredQuestion(testQuestionBank.applicantKitchenTools())
+            .withBlock("Screen 3")
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
   }
 
@@ -64,12 +65,12 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
-    assertThat(content).contains("Visibility condition for Block 1");
-    assertThat(content).contains("This block is always shown.");
+    assertThat(content).contains("Visibility condition for Screen 1");
+    assertThat(content).contains("This screen is always shown.");
     assertThat(content)
         .contains(
             "There are no available questions with which to set a visibility condition for this"
-                + " block.");
+                + " screen.");
   }
 
   @Test
@@ -80,7 +81,7 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
 
     assertThat(result.status()).isEqualTo(OK);
     String content = Helpers.contentAsString(result);
-    assertThat(content).contains("Visibility condition for Block 3");
+    assertThat(content).contains("Visibility condition for Screen 3");
     assertThat(content).contains("applicant name");
     assertThat(content).contains("applicant address");
     assertThat(content).contains("applicant ice cream");
@@ -92,7 +93,7 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
     // Test that the edit page does not display a saved predicate beforehand.
     Result editBeforeResult =
         controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
-    assertThat(Helpers.contentAsString(editBeforeResult)).contains("This block is always shown.");
+    assertThat(Helpers.contentAsString(editBeforeResult)).contains("This screen is always shown.");
 
     Http.Request request =
         fakeRequest()
@@ -124,7 +125,70 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
     Result redirectResult =
         controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
     assertThat(Helpers.contentAsString(redirectResult))
-        .doesNotContain("This block is always shown.");
+        .doesNotContain("This screen is always shown.");
+  }
+
+  @Test
+  public void update_withSingleSelectQuestion() {
+    Http.Request request =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.of(
+                    "predicateAction",
+                    "HIDE_BLOCK",
+                    "questionId",
+                    String.valueOf(testQuestionBank.applicantIceCream().id),
+                    "scalar",
+                    "SELECTION",
+                    "operator",
+                    "IN",
+                    "predicateValues[]",
+                    "1"))
+            .build();
+
+    Result result = controller.update(request, programWithThreeBlocks.id, 3L);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlockPredicatesController.edit(programWithThreeBlocks.id, 3L).url());
+    assertThat(result.flash().get("error")).isEmpty();
+    assertThat(result.flash().get("success").get()).contains("Saved visibility condition");
+  }
+
+  @Test
+  public void update_withMultiSelectQuestion() {
+    Http.Request request =
+        fakeRequest()
+            .bodyForm(
+                ImmutableMap.of(
+                    "predicateAction",
+                    "SHOW_BLOCK",
+                    "questionId",
+                    String.valueOf(testQuestionBank.applicantKitchenTools().id),
+                    "scalar",
+                    "SELECTIONS",
+                    "operator",
+                    "ANY_OF",
+                    "predicateValues[]",
+                    "1"))
+            .build();
+
+    Result result = controller.update(request, programWithThreeBlocks.id, 3L);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlockPredicatesController.edit(programWithThreeBlocks.id, 3L).url());
+    assertThat(result.flash().get("error")).isEmpty();
+    assertThat(result.flash().get("success").get()).contains("Saved visibility condition");
+
+    // For some reason the above result has an empty contents. So we test the new content of the
+    // edit page manually.
+    Result redirectResult =
+        controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
+    assertThat(Helpers.contentAsString(redirectResult))
+        .doesNotContain("This screen is always shown.");
   }
 
   @Test
@@ -158,7 +222,7 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
     // edit page manually.
     Result redirectResult =
         controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
-    assertThat(Helpers.contentAsString(redirectResult)).contains("This block is always shown.");
+    assertThat(Helpers.contentAsString(redirectResult)).contains("This screen is always shown.");
   }
 
   @Test
@@ -194,7 +258,7 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
     // edit page manually.
     Result redirectResult =
         controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
-    assertThat(Helpers.contentAsString(redirectResult)).contains("This block is always shown.");
+    assertThat(Helpers.contentAsString(redirectResult)).contains("This screen is always shown.");
   }
 
   @Test
@@ -224,12 +288,12 @@ public class AdminProgramBlockPredicatesControllerTest extends WithPostgresConta
 
     assertThat(resultWithoutPredicate.status()).isEqualTo(SEE_OTHER);
     assertThat(resultWithoutPredicate.flash().get("success").get())
-        .contains("Removed the visibility condition for this block.");
+        .contains("Removed the visibility condition for this screen.");
 
     // For some reason the above result has an empty contents. So we test the new content of the
     // edit page manually.
     Result redirectResult =
         controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
-    assertThat(Helpers.contentAsString(redirectResult)).contains("This block is always shown.");
+    assertThat(Helpers.contentAsString(redirectResult)).contains("This screen is always shown.");
   }
 }

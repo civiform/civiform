@@ -1,4 +1,4 @@
-import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, logout, loginAsTestUser, selectApplicantLanguage, ApplicantQuestions, userDisplayName } from './support'
+import { startSession, loginAsProgramAdmin, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, logout, loginAsTestUser, selectApplicantLanguage, ApplicantQuestions, userDisplayName } from './support'
 
 describe('normal application flow', () => {
   it('all major steps', async () => {
@@ -90,34 +90,34 @@ describe('normal application flow', () => {
     await applicantQuestions.answerFileUploadQuestion('file key');
     await applicantQuestions.clickUpload();
 
-    // fill 4th application block. 
-    // skip one checkbox question.
+    // fill 4th application block.
     await applicantQuestions.answerCheckboxQuestion(['clowns']);
+    await applicantQuestions.answerCheckboxQuestion(['sewage']);
     await applicantQuestions.clickNext();
 
     // submit
     await applicantQuestions.submitFromReviewPage(programName);
 
     await logout(page);
-    await loginAsAdmin(page);
+    await loginAsProgramAdmin(page);
 
     await adminPrograms.viewApplications(programName);
     await adminPrograms.viewApplicationForApplicant(userDisplayName());
-    await adminPrograms.expectApplicationAnswers('Block 1', 'address-q', '1234 St');
-    await adminPrograms.expectApplicationAnswers('Block 1', 'name-q', 'Queen');
+    await adminPrograms.expectApplicationAnswers('Screen 1', 'address-q', '1234 St');
+    await adminPrograms.expectApplicationAnswers('Screen 1', 'name-q', 'Queen');
 
     // TODO: display the string values of selects instead of integer IDs
     // https://github.com/seattle-uat/civiform/issues/778
-    await adminPrograms.expectApplicationAnswers('Block 1', 'radio-q', '2');
-    await adminPrograms.expectApplicationAnswers('Block 1', 'date-q', '05/10/2021');
-    await adminPrograms.expectApplicationAnswers('Block 1', 'email-q', 'test1@gmail.com');
+    await adminPrograms.expectApplicationAnswers('Screen 1', 'radio-q', '2');
+    await adminPrograms.expectApplicationAnswers('Screen 1', 'date-q', '05/10/2021');
+    await adminPrograms.expectApplicationAnswers('Screen 1', 'email-q', 'test1@gmail.com');
 
-    await adminPrograms.expectApplicationAnswers('Block 2', 'ice-cream-q', '2');
-    await adminPrograms.expectApplicationAnswers('Block 2', 'favorite-trees-q', 'pine cherry');
+    await adminPrograms.expectApplicationAnswers('Screen 2', 'ice-cream-q', '2');
+    await adminPrograms.expectApplicationAnswers('Screen 2', 'favorite-trees-q', 'pine cherry');
 
-    await adminPrograms.expectApplicationAnswers('Block 2', 'number-q', '42');
-    await adminPrograms.expectApplicationAnswers('Block 2', 'text-q', 'some text');
-    await adminPrograms.expectApplicationAnswerLinks('Block 3', 'fileupload-q');
+    await adminPrograms.expectApplicationAnswers('Screen 2', 'number-q', '42');
+    await adminPrograms.expectApplicationAnswers('Screen 2', 'text-q', 'some text');
+    await adminPrograms.expectApplicationAnswerLinks('Screen 3', 'fileupload-q');
 
     await logout(page);
     await loginAsAdmin(page);
@@ -127,9 +127,12 @@ describe('normal application flow', () => {
     await page.click('text=Update');
     await adminPrograms.publishProgram(programName);
 
+    await logout(page);
+    await loginAsProgramAdmin(page);
+
     await adminPrograms.viewApplicationsForOldVersion(programName);
     await adminPrograms.viewApplicationForApplicant(userDisplayName());
-    await adminPrograms.expectApplicationAnswers('Block 2', 'favorite-trees-q', 'pine cherry');
+    await adminPrograms.expectApplicationAnswers('Screen 2', 'favorite-trees-q', 'pine cherry');
 
     await endSession(browser);
   })

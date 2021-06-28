@@ -76,6 +76,10 @@ export class ApplicantQuestions {
     await this.page.click('text="Next"');
   }
 
+  async clickReview() {
+    await this.page.click('text="Review"');
+  }
+
   async clickUpload() {
     await this.page.click('text="Upload"');
   }

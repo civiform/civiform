@@ -93,5 +93,4 @@ describe('create and edit predicates', () => {
     // We should now be on the summary page
     await applicant.submitFromReviewPage(programName);
     await endSession(browser);
-  });
 })

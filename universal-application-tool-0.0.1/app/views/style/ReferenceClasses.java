@@ -68,6 +68,9 @@ public final class ReferenceClasses {
   public static final String ENUMERATOR_QUESTION = "cf-question-enumerator";
   public static final String ENUMERATOR_ERROR = "cf-enumerator-error";
 
+  public static final String FILEUPLOAD_QUESTION = "cf-question-fileupload";
+  public static final String FILEUPLOAD_ERROR = "cf-fileupload-error";
+
   public static final String NAME_QUESTION = "cf-question-name";
   public static final String NAME_FIRST = "cf-name-first";
   public static final String NAME_MIDDLE = "cf-name-middle";

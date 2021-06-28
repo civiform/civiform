@@ -16,6 +16,7 @@ import j2html.tags.Tag;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
 import services.applicant.ValidationErrorMessage;
 import views.style.BaseStyles;
@@ -38,6 +39,7 @@ public class FieldWithLabel {
   protected String id = "";
   protected String labelText = "";
   protected String placeholderText = "";
+  protected String screenReaderText = "";
   protected Messages messages;
   protected ImmutableSet<ValidationErrorMessage> fieldErrors = ImmutableSet.of();
   protected boolean showFieldErrors = true;
@@ -172,6 +174,11 @@ public class FieldWithLabel {
     return this;
   }
 
+  public FieldWithLabel setScreenReaderText(String screenReaderText) {
+    this.screenReaderText = screenReaderText;
+    return this;
+  }
+
   public FieldWithLabel setFieldErrors(
       Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
     this.messages = messages;
@@ -185,6 +192,11 @@ public class FieldWithLabel {
   }
 
   public ContainerTag getContainer() {
+    // In order for the labels to be associated with the fields (mandatory for screen readers)
+    // we need an id.  Generate a reasonable one if none is provided.
+    if (this.id.isEmpty()) {
+      this.id = RandomStringUtils.randomAlphabetic(8);
+    }
     if (fieldTag.getTagName().equals("textarea")) {
       // Have to recreate the field here in case the value is modified.
       ContainerTag textAreaTag = textarea().withType("text").withText(this.fieldValue);
@@ -206,7 +218,7 @@ public class FieldWithLabel {
         .withClasses(
             StyleUtils.joinStyles(
                 BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
-        .withCondId(!this.id.isEmpty(), this.id)
+        .withId(this.id)
         .withName(this.fieldName)
         .condAttr(this.disabled, Attr.DISABLED, "true")
         .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
@@ -218,9 +230,11 @@ public class FieldWithLabel {
 
     ContainerTag labelTag =
         label()
-            .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
-            .withClasses(labelText.isEmpty() ? "" : BaseStyles.INPUT_LABEL)
-            .withText(labelText);
+            .attr(Attr.FOR, this.id)
+            // If the text is screen-reader text, then we want the label to be screen-reader
+            // only.
+            .withClass(labelText.isEmpty() ? Styles.SR_ONLY : BaseStyles.INPUT_LABEL)
+            .withText(labelText.isEmpty() ? screenReaderText : labelText);
 
     return div(labelTag, fieldTag, buildFieldErrorsTag())
         .withClasses(

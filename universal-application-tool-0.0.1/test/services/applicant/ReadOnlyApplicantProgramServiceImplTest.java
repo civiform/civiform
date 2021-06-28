@@ -46,10 +46,10 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
         ProgramBuilder.newDraftProgram("My Program")
             .withLocalizedName(Locale.GERMAN, "Mein Programm")
             .withBlock("Block one")
-            .withQuestionDefinition(nameQuestion)
+            .withRequiredQuestionDefinition(nameQuestion)
             .withBlock("Block two")
-            .withQuestionDefinition(colorQuestion)
-            .withQuestionDefinition(addressQuestion)
+            .withRequiredQuestionDefinition(colorQuestion)
+            .withRequiredQuestionDefinition(addressQuestion)
             .buildDefinition();
   }
 
@@ -98,10 +98,10 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
             .withBlock() // Previous block with color question
-            .withQuestionDefinition(colorQuestion)
+            .withRequiredQuestionDefinition(colorQuestion)
             .withBlock() // Block with predicate
             .withPredicate(predicate)
-            .withQuestionDefinition(
+            .withRequiredQuestionDefinition(
                 addressQuestion) // Include a question that has not been answered
             .buildDefinition();
 
@@ -120,17 +120,17 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock("name")
-            .withQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.applicantName())
             .withBlock("address")
-            .withQuestion(testQuestionBank.applicantAddress())
+            .withRequiredQuestion(testQuestionBank.applicantAddress())
             .withBlock("enumeration - household members")
-            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .withRepeatedBlock("repeated - household members name")
-            .withQuestion(testQuestionBank.applicantHouseholdMemberName())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberName())
             .withAnotherRepeatedBlock("repeated - household members jobs")
-            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
             .withRepeatedBlock("deeply repeated - household members jobs income")
-            .withQuestion(testQuestionBank.applicantHouseholdMemberJobIncome())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobIncome())
             .buildDefinition();
 
     // Add repeated entities to applicant data
@@ -334,10 +334,10 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
             .withBlock() // Previous block with color question
-            .withQuestionDefinition(colorQuestion)
+            .withRequiredQuestionDefinition(colorQuestion)
             .withBlock() // Block with predicate
             .withPredicate(predicate)
-            .withQuestionDefinition(
+            .withRequiredQuestionDefinition(
                 addressQuestion) // Include a question that has not been answered
             .buildDefinition();
 
@@ -367,10 +367,10 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withQuestionDefinition(colorQuestion)
+            .withRequiredQuestionDefinition(colorQuestion)
             .withBlock()
             .withPredicate(predicate)
-            .withQuestionDefinition(
+            .withRequiredQuestionDefinition(
                 addressQuestion) // Include an unanswered question so the block is incomplete
             .buildDefinition();
 
@@ -400,12 +400,12 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
             .withBlock() // Block is completed
-            .withQuestionDefinition(nameQuestion)
+            .withRequiredQuestionDefinition(nameQuestion)
             .withBlock() // Block incomplete; this is what predicate is based on
-            .withQuestionDefinition(colorQuestion)
+            .withRequiredQuestionDefinition(colorQuestion)
             .withBlock()
             .withPredicate(predicate)
-            .withQuestionDefinition(
+            .withRequiredQuestionDefinition(
                 addressQuestion) // Include an unanswered question so the block is incomplete
             .buildDefinition();
 
@@ -541,7 +541,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
         ProgramBuilder.newDraftProgram("My Program")
             .withLocalizedName(Locale.GERMAN, "Mein Programm")
             .withBlock("Block one")
-            .withQuestionDefinitions(
+            .withRequiredQuestionDefinitions(
                 ImmutableList.of(
                     nameQuestion,
                     colorQuestion,
@@ -549,11 +549,11 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                     singleSelectQuestionDefinition,
                     multiSelectQuestionDefinition))
             .withBlock("file")
-            .withQuestionDefinition(fileQuestionDefinition)
+            .withRequiredQuestionDefinition(fileQuestionDefinition)
             .withBlock("enumerator")
-            .withQuestionDefinition(enumeratorQuestionDefinition)
+            .withRequiredQuestionDefinition(enumeratorQuestionDefinition)
             .withRepeatedBlock("repeated")
-            .withQuestionDefinition(repeatedQuestionDefinition)
+            .withRequiredQuestionDefinition(repeatedQuestionDefinition)
             .buildDefinition();
     answerNameQuestion(programDefinition.id());
     answerColorQuestion(programDefinition.id());
@@ -687,8 +687,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     programDefinition =
         ProgramBuilder.newDraftProgram("My Program")
             .withBlock("Block one")
-            .withQuestionDefinition(nameQuestion)
-            .withQuestionDefinition(fileUploadQuestionDefinition)
+            .withRequiredQuestionDefinition(nameQuestion)
+            .withRequiredQuestionDefinition(fileUploadQuestionDefinition)
             .buildDefinition();
     // Answer the questions
     answerNameQuestion(programDefinition.id());

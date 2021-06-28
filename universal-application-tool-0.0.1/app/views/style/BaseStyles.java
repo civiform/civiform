@@ -81,6 +81,10 @@ public final class BaseStyles {
   /** Same as the above but for radio buttons. */
   public static final String RADIO_LABEL = CHECKBOX_LABEL;
 
+  /** For labelling a *group* of checkboxes that are related to the same thing. */
+  public static final String CHECKBOX_GROUP_LABEL =
+      StyleUtils.joinStyles(BaseStyles.FORM_LABEL_TEXT_COLOR, Styles.TEXT_BASE);
+
   /** For use on an `input` of type "checkbox". */
   public static final String CHECKBOX =
       StyleUtils.joinStyles(Styles.H_4, Styles.W_4, Styles.MR_4, Styles.ALIGN_MIDDLE);

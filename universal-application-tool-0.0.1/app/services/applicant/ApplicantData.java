@@ -236,11 +236,23 @@ public class ApplicantData {
     }
   }
 
-  /** Clears an array in preparation of updates. */
+  /**
+   * Clears an array in preparation of updates if the path is pointing to an array element,
+   * regardless of whether there are any values present.
+   */
   public void maybeClearArray(Path path) {
+    checkLocked();
     if (path.isArrayElement()) {
       putParentIfMissing(path);
-      putAt(path.withoutArrayReference(), new ArrayList<>());
+      maybeDelete(path.withoutArrayReference());
+    }
+  }
+
+  /** Delete whatever is there if it exists. Returns whether a delete actually happened. */
+  public void maybeDelete(Path path) {
+    checkLocked();
+    if (hasPath(path)) {
+      jsonData.delete(path.toString());
     }
   }
 
@@ -364,6 +376,23 @@ public class ApplicantData {
       index++;
     }
     return listBuilder.build();
+  }
+
+  /**
+   * If there are no repeated entities at the path, remove the array entirely. Returns true if there
+   * are no repeated entities anymore.
+   *
+   * <p>This method needs to check that there are no repeated entity data stored before deleting
+   * because we do not want to delete repeated entity data via this method. To delete data for
+   * repeated entities, use {@link #deleteRepeatedEntities(Path, ImmutableList)};
+   */
+  public boolean maybeClearRepeatedEntities(Path path) {
+    checkLocked();
+    if (readRepeatedEntities(path).isEmpty()) {
+      maybeDelete(path.withoutArrayReference());
+      return true;
+    }
+    return false;
   }
 
   /**

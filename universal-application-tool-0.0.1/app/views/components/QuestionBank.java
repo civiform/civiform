@@ -130,6 +130,8 @@ public class QuestionBank {
                 Styles.FLEX,
                 Styles.ITEMS_START,
                 Styles.ROUNDED_LG,
+                Styles.BORDER,
+                Styles.BORDER_TRANSPARENT,
                 Styles.TRANSITION_ALL,
                 Styles.TRANSFORM,
                 StyleUtils.hover(

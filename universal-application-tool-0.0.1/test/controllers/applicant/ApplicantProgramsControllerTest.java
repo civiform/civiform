@@ -164,7 +164,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Program program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
 
     Request request = addCSRFToken(fakeRequest()).build();
@@ -185,9 +185,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Program program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withQuestionDefinition(colorQuestion)
+            .withRequiredQuestionDefinition(colorQuestion)
             .withBlock()
-            .withQuestion(testQuestionBank().applicantAddress())
+            .withRequiredQuestion(testQuestionBank().applicantAddress())
             .build();
     // Answer the color question
     Path colorPath = ApplicantData.APPLICANT_PATH.join("applicant_favorite_color");

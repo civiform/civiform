@@ -62,6 +62,7 @@ public class ProgramIndexView extends BaseHtmlView {
       ImmutableList<ProgramDefinition> activePrograms,
       Optional<String> banner) {
     HtmlBundle bundle = layout.getBundle();
+    bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()) + " - CiviForm");
     if (banner.isPresent()) {
       bundle.addToastMessages(ToastMessage.alert(banner.get()));
     }
@@ -103,6 +104,8 @@ public class ProgramIndexView extends BaseHtmlView {
                 this.layout
                     .viewUtils
                     .makeLocalImageTag("Seattle-logo_horizontal_blue-white_small")
+                    .withAlt("City of Seattle logo")
+                    .attr("aria-hidden", "true")
                     .attr("width", 175)
                     .attr("height", 70))
             .withClasses(Styles.ABSOLUTE, Styles.TOP_2, Styles.LEFT_2);
@@ -227,7 +230,12 @@ public class ProgramIndexView extends BaseHtmlView {
             .setStyles(Styles.BLOCK, Styles.TEXT_XS, Styles.UNDERLINE)
             .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
             .setHref(infoUrl)
-            .asAnchorText();
+            .asAnchorText()
+            .attr(
+                "aria-label",
+                messages.at(
+                    MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName(),
+                    program.localizedName().getOrDefault(preferredLocale)));
     programData.with(infoLink);
 
     // Add external link if it is set.
@@ -248,6 +256,11 @@ public class ProgramIndexView extends BaseHtmlView {
             .url();
     ContainerTag applyButton =
         a().attr(HREF, applyUrl)
+            .attr(
+                "aria-label",
+                messages.at(
+                    MessageKey.BUTTON_APPLY_SR.getKeyName(),
+                    program.localizedName().getOrDefault(preferredLocale)))
             .withText(
                 isDraft
                     ? messages.at(MessageKey.BUTTON_CONTINUE.getKeyName())
