@@ -138,7 +138,7 @@ describe('create and edit predicates', () => {
     await adminQuestions.addNameQuestion('single-string');
     await adminQuestions.addTextQuestion('list of strings');
     await adminQuestions.addNumberQuestion('single-long');
-    await adminQuestions.addDateQuestion('date');
+    await adminQuestions.addDateQuestion('predicate-date');
     await adminQuestions.addCheckboxQuestion('both sides are lists', ['dog', 'rabbit', 'cat']);
     await adminQuestions.addTextQuestion('depends on previous');
 
@@ -147,7 +147,7 @@ describe('create and edit predicates', () => {
     await adminPrograms.editProgramBlock(programName, 'string', ['single-string']);
     await adminPrograms.addProgramBlock(programName, 'list of strings', ['list of strings']);
     await adminPrograms.addProgramBlock(programName, 'long', ['single-long']);
-    await adminPrograms.addProgramBlock(programName, 'date', ['date']);
+    await adminPrograms.addProgramBlock(programName, 'date', ['predicate-date']);
     await adminPrograms.addProgramBlock(programName, 'two lists', ['both sides are lists']);
     await adminPrograms.addProgramBlock(programName, 'last', ['depends on previous']);
 
@@ -166,7 +166,7 @@ describe('create and edit predicates', () => {
 
     // Date predicate
     await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 5');
-    await adminPredicates.addPredicate('date', 'shown if', 'date', 'is earlier than', '2021-01-01');
+    await adminPredicates.addPredicate('predicate-date', 'shown if', 'date', 'is earlier than', '2021-01-01');
 
     // Lists of strings on both sides (multi-option question checkbox)
     await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 6');
