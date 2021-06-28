@@ -139,7 +139,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
 
     return redirect(routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
-        .flashing("success", "Removed the visibility condition for this block.");
+        .flashing("success", "Removed the visibility condition for this screen.");
   }
 
   /**

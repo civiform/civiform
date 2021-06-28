@@ -33,7 +33,7 @@ describe('view an application in an older version', () => {
     // See the application in admin page
     await adminPrograms.viewApplications(programName);
     await adminPrograms.viewApplicationForApplicant(userDisplayName());
-    await adminPrograms.expectApplicationAnswers('Block 1', questionName, 'some text');
+    await adminPrograms.expectApplicationAnswers('Screen 1', questionName, 'some text');
 
     await logout(page);
     await loginAsAdmin(page);
@@ -49,7 +49,7 @@ describe('view an application in an older version', () => {
     await adminPrograms.viewApplications(programName);
     await adminPrograms.viewApplicationsInOldVersion();
     await adminPrograms.viewApplicationForApplicant(userDisplayName());
-    await adminPrograms.expectApplicationAnswers('Block 1', questionName, 'some text');
+    await adminPrograms.expectApplicationAnswers('Screen 1', questionName, 'some text');
 
     await endSession(browser);
   })

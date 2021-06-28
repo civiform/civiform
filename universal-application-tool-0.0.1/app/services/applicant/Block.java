@@ -16,7 +16,12 @@ import services.program.BlockDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.ScalarType;
 
-/** Represents a block in the context of a specific user's application. */
+/**
+ * Represents a block in the context of a specific user's application.
+ *
+ * <p>"Block" is synonymous to "screen", which is what we show in the admin UI. At some point, it
+ * would be nice to rename the classes and methods to reflect the more desired name "screen".
+ */
 public final class Block {
 
   /**
@@ -217,8 +222,9 @@ public final class Block {
     return Objects.hash(id, blockDefinition, applicantData);
   }
 
+  /** Blocks are called "Screen"s in user facing UI. */
   @Override
   public String toString() {
-    return "Block [id: " + this.id + "]";
+    return "Screen [id: " + this.id + "]";
   }
 }

@@ -78,7 +78,13 @@ public final class ApplicantStyles {
    * should be added by other button style constants that use this as a base.
    */
   private static final String BUTTON_BASE =
-      StyleUtils.joinStyles(Styles.BLOCK, Styles.PY_2, Styles.TEXT_CENTER, Styles.ROUNDED_FULL);
+      StyleUtils.joinStyles(
+          Styles.BLOCK,
+          Styles.PY_2,
+          Styles.TEXT_CENTER,
+          Styles.ROUNDED_FULL,
+          Styles.BORDER,
+          Styles.BORDER_TRANSPARENT);
 
   /** Base styles for buttons with a solid background color. */
   private static final String BUTTON_BASE_SOLID =

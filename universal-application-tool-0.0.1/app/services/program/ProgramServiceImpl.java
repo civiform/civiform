@@ -238,12 +238,12 @@ public class ProgramServiceImpl implements ProgramService {
     long blockId = getNextBlockId(programDefinition);
     String blockName;
     if (enumeratorBlockId.isPresent()) {
-      blockName = String.format("Block %d (repeated from %d)", blockId, enumeratorBlockId.get());
+      blockName = String.format("Screen %d (repeated from %d)", blockId, enumeratorBlockId.get());
     } else {
-      blockName = String.format("Block %d", blockId);
+      blockName = String.format("Screen %d", blockId);
     }
     String blockDescription =
-        "What is the purpose of this block? Add a description that summarizes the information"
+        "What is the purpose of this screen? Add a description that summarizes the information"
             + " collected.";
 
     ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockName, blockDescription);
@@ -316,10 +316,10 @@ public class ProgramServiceImpl implements ProgramService {
   private ImmutableSet<CiviFormError> validateBlockDefinition(String name, String description) {
     ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
     if (name.isBlank()) {
-      errors.add(CiviFormError.of("block name cannot be blank"));
+      errors.add(CiviFormError.of("screen name cannot be blank"));
     }
     if (description.isBlank()) {
-      errors.add(CiviFormError.of("block description cannot be blank"));
+      errors.add(CiviFormError.of("screen description cannot be blank"));
     }
     return errors.build();
   }

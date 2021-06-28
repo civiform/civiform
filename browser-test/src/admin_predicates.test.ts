@@ -14,14 +14,14 @@ describe('create and edit predicates', () => {
 
     const programName = 'create hide predicate';
     await adminPrograms.addProgram(programName);
-    await adminPrograms.editProgramBlock(programName, 'first block', ['hide-predicate-q']);
-    await adminPrograms.addProgramBlock(programName, 'block with predicate', ['hide-other-q']);
+    await adminPrograms.editProgramBlock(programName, 'first screen', ['predicate-q']);
+    await adminPrograms.addProgramBlock(programName, 'screen with predicate', ['other-q']);
 
     // Edit predicate for second block
-    await adminPrograms.goToEditBlockPredicatePage(programName, 'Block 2');
+    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 2');
     const adminPredicates = new AdminPredicates(page);
     await adminPredicates.addPredicate('hide-predicate-q', 'hidden if', 'text', 'is equal to', 'hide me');
-    await adminPredicates.expectVisibilityConditionEquals('Block 2 is hidden if hide-predicate-q\'s text is equal to "hide me"');
+    await adminPredicates.expectVisibilityConditionEquals('Screen 2 is hidden if hide-predicate-q\'s text is equal to "hide me"');
 
     // Publish the program
     await adminPrograms.publishProgram(programName);
@@ -76,14 +76,14 @@ describe('create and edit predicates', () => {
 
     const programName = 'create show predicate';
     await adminPrograms.addProgram(programName);
-    await adminPrograms.editProgramBlock(programName, 'first block', ['show-predicate-q']);
-    await adminPrograms.addProgramBlock(programName, 'block with predicate', ['show-other-q']);
+    await adminPrograms.editProgramBlock(programName, 'first screen', ['show-predicate-q']);
+    await adminPrograms.addProgramBlock(programName, 'screen with predicate', ['show-other-q']);
 
     // Edit predicate for second block
-    await adminPrograms.goToEditBlockPredicatePage(programName, 'Block 2');
+    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 2');
     const adminPredicates = new AdminPredicates(page);
     await adminPredicates.addPredicate('show-predicate-q', 'shown if', 'text', 'is equal to', 'show me');
-    await adminPredicates.expectVisibilityConditionEquals('Block 2 is shown if show-predicate-q\'s text is equal to "show me"');
+    await adminPredicates.expectVisibilityConditionEquals('Screen 2 is shown if show-predicate-q\'s text is equal to "show me"');
 
     // Publish the program
     await adminPrograms.publishProgram(programName);
