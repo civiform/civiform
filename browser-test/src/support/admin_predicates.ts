@@ -26,7 +26,7 @@ export class AdminPredicates {
         await this.page.check(`label:has-text("${valueArray[index]}")`);
       }
     }
-    
+
     await this.page.click('button:visible:has-text("Submit")');
   }
 

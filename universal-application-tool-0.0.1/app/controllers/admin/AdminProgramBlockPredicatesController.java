@@ -183,7 +183,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         // of the method with `values`.
         switch (operator) {
           case ANY_OF:
+          case IN:
           case NONE_OF:
+          case NOT_IN:
             ImmutableList<String> listOfStrings =
                 Splitter.on(",")
                     .splitToStream(value)
