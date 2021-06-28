@@ -7,6 +7,8 @@ export class AdminPredicates {
     this.page = page;
   }
 
+  // For multi-option questions where the value is a checkbox of options, provide a comma-separated
+  // list of the options you would like to check as the value. Ex: blue,red,green
   async addPredicate(questionName: string, action: string, scalar: string, operator: string, value: string) {
     await this.page.waitForLoadState('load');
     await this.page.click(`text="${questionName}"`);
@@ -14,8 +16,17 @@ export class AdminPredicates {
     await this.page.selectOption('.cf-scalar-select:visible select', { label: scalar });
     await this.page.selectOption('.cf-operator-select:visible select', { label: operator });
 
-    // TODO: determine whether the value is an input or select
-    await this.page.fill('.cf-predicate-value-input:visible input', value);
+    const valueInput = await this.page.$('.cf-predicate-value-input:visible input');
+    if (valueInput) {
+      await valueInput.fill(value);
+    } else {
+      // We have a checkbox for the value.
+      const valueArray = value.split(',');
+      for (var index in valueArray) {
+        await this.page.check(`label:has-text("${valueArray[index]}")`);
+      }
+    }
+
     await this.page.click('button:visible:has-text("Submit")');
   }
 
