@@ -9,7 +9,7 @@ package views.style;
  */
 public final class BaseStyles {
 
-  public static final String LINK_TEXT = Styles.TEXT_BLUE_400;
+  public static final String LINK_TEXT = Styles.TEXT_BLUE_600;
   public static final String LINK_HOVER_TEXT = StyleUtils.hover(Styles.TEXT_BLUE_500);
 
   public static final String TABLE_CELL_STYLES = StyleUtils.joinStyles(Styles.PX_4, Styles.PY_2);
