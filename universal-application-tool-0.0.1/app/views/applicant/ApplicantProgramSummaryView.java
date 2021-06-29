@@ -193,7 +193,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                   Styles.PR_2,
                   Styles.TEXT_BLUE_600,
                   StyleUtils.hover(Styles.TEXT_BLUE_700))
-              .asAnchorText();
+              .asAnchorText()
+              .attr(
+                  "aria-label",
+                  messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName(), data.questionText()));
       ContainerTag editContent =
           div(editAction)
               .withClasses(
