@@ -64,13 +64,13 @@ public class AdminProgramController extends CiviFormController {
     return ok(listView.render(this.service.getActiveAndDraftPrograms(), request, profileMaybe));
   }
 
-  /** Return a HTML page containing a form to create a new program. */
+  /** Return a HTML page containing a form to create a new program in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Request request) {
     return ok(newOneView.render(request));
   }
 
-  /** POST endpoint for creating a new program. */
+  /** POST endpoint for creating a new program in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Request request) {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
@@ -89,6 +89,7 @@ public class AdminProgramController extends CiviFormController {
     return redirect(routes.AdminProgramController.index().url());
   }
 
+  /** Return a HTML page containing a form to edit a draft program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long id) {
     try {
@@ -99,7 +100,7 @@ public class AdminProgramController extends CiviFormController {
     }
   }
 
-  /** POST endpoint for publishing a new version. */
+  /** POST endpoint for publishing all programs in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result publish() {
     try {
@@ -110,7 +111,7 @@ public class AdminProgramController extends CiviFormController {
     }
   }
 
-  /** POST endpoint for creating a new version of the program. */
+  /** POST endpoint for creating a new draft version of the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newVersionFrom(Request request, long id) {
     try {
@@ -122,7 +123,7 @@ public class AdminProgramController extends CiviFormController {
     }
   }
 
-  /** POST endpoint for updating the program. */
+  /** POST endpoint for updating the program in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long id) {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);

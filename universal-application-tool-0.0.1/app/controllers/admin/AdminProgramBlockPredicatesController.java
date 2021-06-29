@@ -33,7 +33,7 @@ import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import views.admin.programs.ProgramBlockPredicatesEditView;
 
-/** Controller for admins editting and viewing program show-hide logic. */
+/** Controller for admins editing and viewing program show-hide logic. */
 public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final ProgramService programService;
   private final ProgramBlockPredicatesEditView predicatesEditView;
@@ -50,8 +50,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   }
 
   /**
-   * Return a HTML page containing current show-hide configuration and forms to edit the
-   * configuration.
+   * Return a HTML page containing current show-hide configurations and forms to edit the
+   * configurations.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long programId, long blockDefinitionId) {
@@ -72,7 +72,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
   }
 
-  /** POST endpoint for updating show-hide logic. */
+  /** POST endpoint for updating show-hide configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId, long blockDefinitionId) {
     Form<BlockVisibilityPredicateForm> predicateFormWrapper =
@@ -133,7 +133,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     }
   }
 
-  /** POST endpoint for deleting show-hide logic. */
+  /** POST endpoint for deleting show-hide configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result destroy(long programId, long blockDefinitionId) {
     try {

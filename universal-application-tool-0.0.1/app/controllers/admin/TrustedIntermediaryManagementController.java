@@ -90,6 +90,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     return result;
   }
 
+  /** Return a HTML page displaying all trusted intermediaries in the specified group. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(long id, Http.Request request) {
     Optional<TrustedIntermediaryGroup> tiGroup = userRepository.getTrustedIntermediaryGroup(id);
@@ -99,6 +100,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     return ok(editView.render(tiGroup.get(), request));
   }
 
+  /** POST endpoint for deleting a trusted intermediary group. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result delete(long id, Http.Request request) {
     try {
@@ -109,6 +111,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     return redirect(routes.TrustedIntermediaryManagementController.index());
   }
 
+  /** POST endpoint for adding an email to a trusted intermediary group. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result addIntermediary(long id, Http.Request request) {
     Form<AddTrustedIntermediaryForm> form =
@@ -125,6 +128,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     return redirect(routes.TrustedIntermediaryManagementController.edit(id));
   }
 
+  /** POST endpoint for removing an account from a trusted intermediary group. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result removeIntermediary(long id, Http.Request request) {
     try {
