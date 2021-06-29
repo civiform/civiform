@@ -20,7 +20,7 @@ import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.QuestionNotFoundException;
 
-/** Controller for admins editting questions on a screen (block) of a program. */
+/** Controller for admins editing questions on a screen (block) of a program. */
 public class AdminProgramBlockQuestionsController extends Controller {
 
   private final ProgramService programService;
