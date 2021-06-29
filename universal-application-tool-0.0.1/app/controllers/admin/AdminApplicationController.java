@@ -28,7 +28,7 @@ import services.program.ProgramService;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationView;
 
-/** Controller for admins viewing responses to programs. */
+/** Controller for admins viewing applications to programs. */
 public class AdminApplicationController extends CiviFormController {
 
   private final ProgramService programService;
@@ -61,6 +61,7 @@ public class AdminApplicationController extends CiviFormController {
     this.exporterService = checkNotNull(exporterService);
   }
 
+  /** Download a CSV file containing all applications to the specified program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result downloadAll(Http.Request request, long programId) {
     try {
@@ -79,6 +80,11 @@ public class AdminApplicationController extends CiviFormController {
     }
   }
 
+  /**
+   * Download a CSV file containing demographics information of the current live version.
+   * Demographics information is collected from answers to a collection of questions specially
+   * marked by CiviForm admins.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result downloadDemographics() {
     String filename = String.format("demographics-%s.csv", clock.instant().toString());
@@ -88,6 +94,7 @@ public class AdminApplicationController extends CiviFormController {
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
   }
 
+  /** Download a PDF file of the application to the program. This feature is not implemented yet. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result download(Http.Request request, long programId, long applicationId) {
     try {
@@ -99,6 +106,7 @@ public class AdminApplicationController extends CiviFormController {
     }
   }
 
+  /** Return a HTML page displaying the summary of the specified application. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result show(Http.Request request, long programId, long applicationId) {
     String programName;
@@ -134,6 +142,7 @@ public class AdminApplicationController extends CiviFormController {
             programId, programName, applicationId, applicantNameWithId, blocks, answers));
   }
 
+  /** Return a paginated HTML page displaying (part of) all applications to the program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result index(
       Http.Request request, long programId, Optional<String> search, Optional<Integer> page) {

@@ -25,6 +25,7 @@ import services.program.ProgramNotFoundException;
 import services.role.RoleService;
 import views.admin.programs.ManageProgramAdminsView;
 
+/** Controller for admins to manage program admins of programs. */
 public class ProgramAdminManagementController {
 
   private final ManageProgramAdminsView manageAdminsView;

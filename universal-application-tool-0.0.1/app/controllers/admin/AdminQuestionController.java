@@ -39,6 +39,7 @@ import services.question.types.QuestionType;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 
+/** Controller for handling methods for admins managing questions. */
 public class AdminQuestionController extends CiviFormController {
   private final QuestionService service;
   private final QuestionsListView listView;
@@ -60,6 +61,10 @@ public class AdminQuestionController extends CiviFormController {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
+  /**
+   * Return a HTML page displaying all questions of the current live version and all questions of
+   * the current draft version if any.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> index(Request request) {
     Optional<String> maybeFlash = request.flash().get("message");
@@ -73,6 +78,10 @@ public class AdminQuestionController extends CiviFormController {
             httpExecutionContext.current());
   }
 
+  /**
+   * Return a HTML page displaying all configurations of a question without the ability to update
+   * it.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> show(long id) {
     return service
@@ -99,6 +108,7 @@ public class AdminQuestionController extends CiviFormController {
             httpExecutionContext.current());
   }
 
+  /** Return a HTML page containing a form to create a new question in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Request request, String type) {
     QuestionType questionType;
@@ -123,6 +133,7 @@ public class AdminQuestionController extends CiviFormController {
     }
   }
 
+  /** POST endpoint for creating a new question in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Request request, String questionType) {
     QuestionForm questionForm;
@@ -158,6 +169,7 @@ public class AdminQuestionController extends CiviFormController {
     return withMessage(redirect(routes.AdminQuestionController.index()), successMessage);
   }
 
+  /** POST endpoint for un-archiving a question. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result restore(Request request, Long id) {
     try {
@@ -168,6 +180,7 @@ public class AdminQuestionController extends CiviFormController {
     return redirect(routes.AdminQuestionController.index());
   }
 
+  /** POST endpoint for archiving a question so it will not be carried over to a new version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result archive(Request request, Long id) {
     try {
@@ -178,6 +191,7 @@ public class AdminQuestionController extends CiviFormController {
     return redirect(routes.AdminQuestionController.index());
   }
 
+  /** POST endpoint for discarding a draft for a question. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result discardDraft(Request request, Long id) {
     try {
@@ -188,6 +202,10 @@ public class AdminQuestionController extends CiviFormController {
     return redirect(routes.AdminQuestionController.index());
   }
 
+  /**
+   * Return a HTML page containing all configurations of a question in the draft version and forms
+   * to edit them.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> edit(Request request, Long id) {
     return service
@@ -215,6 +233,7 @@ public class AdminQuestionController extends CiviFormController {
             httpExecutionContext.current());
   }
 
+  /** POST endpoint for updating a question in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, Long id, String questionType) {
     QuestionForm questionForm;
