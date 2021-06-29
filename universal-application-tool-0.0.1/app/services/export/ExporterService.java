@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -36,6 +37,7 @@ import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 
 public class ExporterService {
   private final ExporterFactory exporterFactory;
@@ -45,6 +47,9 @@ public class ExporterService {
 
   private static final String HEADER_SPACER_ENUM = " - ";
   private static final String HEADER_SPACER_SCALAR = " ";
+
+  public static final ImmutableSet<QuestionType> NON_EXPORTED_QUESTION_TYPES =
+      ImmutableSet.of(QuestionType.ENUMERATOR, QuestionType.STATIC);
 
   @Inject
   public ExporterService(
@@ -259,7 +264,7 @@ public class ExporterService {
         ImmutableList.of(QuestionTag.DEMOGRAPHIC, QuestionTag.DEMOGRAPHIC_PII)) {
       for (QuestionDefinition questionDefinition :
           this.questionService.getQuestionsForTag(tagType)) {
-        if (questionDefinition.isEnumerator()) {
+        if (NON_EXPORTED_QUESTION_TYPES.contains(questionDefinition.getQuestionType())) {
           continue; // Do not include Enumerator answers in CSVs.
         }
         // Use a program question definition that doesn't have a program associated with it,

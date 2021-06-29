@@ -22,6 +22,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.export.ExporterService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -287,7 +288,6 @@ public final class QuestionEditView extends BaseHtmlView {
                       .map(String::valueOf)
                       .orElse(NO_ENUMERATOR_ID_STRING)));
     }
-    boolean isStaticQuestionType = questionForm.getQuestionType() == QuestionType.STATIC;
 
     ContainerTag questionHelpTextField =
         FieldWithLabel.textArea()
@@ -298,7 +298,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionHelpText())
             .getContainer();
-    if (isStaticQuestionType) { // Hide help text for static questions.
+    if (questionType.equals(QuestionType.STATIC)) { // Hide help text for static questions.
       questionHelpTextField.withClasses(Styles.HIDDEN);
     }
 
@@ -325,7 +325,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
     formTag.with(QuestionConfig.buildQuestionConfig(questionForm));
 
-    if (!isStaticQuestionType) {
+    if (!ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
       formTag.with(
           div().withId("demographic-field-content").with(buildDemographicFields(questionForm)));
     }
