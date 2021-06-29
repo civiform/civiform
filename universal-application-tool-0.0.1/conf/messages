@@ -152,7 +152,7 @@ link.edit=Edit
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
-aria-label.edit=Edit {0}
+ariaLabel.edit=Edit {0}
 
 # Program Preview Title
 title.programPreview=Program application preview
