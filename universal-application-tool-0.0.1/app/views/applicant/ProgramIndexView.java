@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h3;
 import static j2html.TagCreator.hr;
 import static j2html.attributes.Attr.HREF;
 
@@ -141,7 +142,7 @@ public class ProgramIndexView extends BaseHtmlView {
     if (!draftPrograms.isEmpty()) {
       content
           .with(
-              h2().withText(messages.at(MessageKey.TITLE_PROGRAMS_IN_PROGRESS.getKeyName()))
+              h3().withText(messages.at(MessageKey.TITLE_PROGRAMS_IN_PROGRESS.getKeyName()))
                   .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE))
           .with(
               div()
@@ -158,7 +159,7 @@ public class ProgramIndexView extends BaseHtmlView {
     if (!activePrograms.isEmpty()) {
       content
           .with(
-              h2().withText(messages.at(MessageKey.TITLE_PROGRAMS_ACTIVE.getKeyName()))
+              h3().withText(messages.at(MessageKey.TITLE_PROGRAMS_ACTIVE.getKeyName()))
                   .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE))
           .with(
               div()
