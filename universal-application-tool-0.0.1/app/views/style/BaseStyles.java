@@ -120,7 +120,14 @@ public final class BaseStyles {
           Styles.OVERFLOW_Y_AUTO);
 
   public static final String MODAL_HEADER =
-      StyleUtils.joinStyles(Styles.STICKY, Styles.TOP_0, Styles.BG_GRAY_200, Styles.P_2);
+      StyleUtils.joinStyles(
+          Styles.STICKY,
+          Styles.TOP_0,
+          Styles.BG_GRAY_200,
+          Styles.P_2,
+          Styles.FLEX,
+          Styles.GAP_4,
+          Styles.PLACE_ITEMS_CENTER);
   /** Generic style for for the button for the modal. */
   public static final String MODAL_BUTTON =
       StyleUtils.joinStyles(
@@ -135,12 +142,10 @@ public final class BaseStyles {
   /** Generic styles for the button to close the modal. This is shared across all modals. */
   public static final String MODAL_CLOSE_BUTTON =
       StyleUtils.joinStyles(
-          Styles.ABSOLUTE,
-          Styles.TOP_2,
-          Styles.RIGHT_4,
           Styles.FONT_BOLD,
           Styles.CURSOR_POINTER,
           Styles.OPACITY_60,
+          Styles.PX_2,
           StyleUtils.hover(Styles.OPACITY_100));
   /**
    * Simple styling for the div that holds the custom modal content. Should just have decent margins
