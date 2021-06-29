@@ -36,6 +36,7 @@ public class CiviFormProfile {
     this.profileData = Preconditions.checkNotNull(profileData);
   }
 
+  /** Get the latest {@link Applicant} associated with the profile. */
   public CompletableFuture<Applicant> getApplicant() {
     return this.getAccount()
         .thenApplyAsync(
@@ -47,6 +48,7 @@ public class CiviFormProfile {
             httpContext.current());
   }
 
+  /** Look up the {@link Account} associated with the profile from database. */
   public CompletableFuture<Account> getAccount() {
     return supplyAsync(
         () -> {
@@ -62,30 +64,53 @@ public class CiviFormProfile {
         dbContext);
   }
 
+  /**
+   * Get the client name associated with the profile.
+   *
+   * <p>This is the class name of pac4j client used to create this profile.
+   */
   public String getClientName() {
     return profileData.getClientName();
   }
 
+  /**
+   * Get the roles associated with the profile.
+   *
+   * <p>The roles are decided on sign-in and not persisted in database.
+   */
   public Set<String> getRoles() {
     return profileData.getRoles();
   }
 
+  /** Returns true if the profile has TI role. */
   public boolean isTrustedIntermediary() {
     return getRoles().contains(Roles.ROLE_TI.toString());
   }
 
+  /** Returns true if the profile has CiviForm Admin role. */
   public boolean isCiviFormAdmin() {
     return profileData.getRoles().contains(Roles.ROLE_CIVIFORM_ADMIN.toString());
   }
 
+  /** Returns true if the profile has Program Admin role. */
   public boolean isProgramAdmin() {
-    return this.getRoles().contains(Roles.ROLE_PROGRAM_ADMIN.name());
+    return this.getRoles().contains(Roles.ROLE_PROGRAM_ADMIN.toString());
   }
 
+  /** Returns the account ID associated with the profile. */
   public String getId() {
     return profileData.getId();
   }
 
+  /**
+   * Set email address for the associated {@link Account} if none is set.
+   *
+   * <p>If email address is present and different from the address to be set, a
+   * `CompletionException` is thrown caused by a `ProfileMergeConflictException`.
+   *
+   * @param emailAddress email address to be set for the account
+   * @return the future of the database operation
+   */
   public CompletableFuture<Void> setEmailAddress(String emailAddress) {
     return this.getAccount()
         .thenApplyAsync(
@@ -106,14 +131,31 @@ public class CiviFormProfile {
             dbContext);
   }
 
+  /**
+   * Get the email address from the {@link Account} associated with the profile.
+   *
+   * <p>This value could be null.
+   *
+   * @return the future of the address to be retrieved.
+   */
   public CompletableFuture<String> getEmailAddress() {
     return this.getAccount().thenApplyAsync(Account::getEmailAddress, httpContext.current());
   }
 
+  /** Get the profile data. */
   public CiviFormProfileData getProfileData() {
     return this.profileData;
   }
 
+  /**
+   * Check if the profile is authorized to access the applicant's data.
+   *
+   * <p>If the check does not pass, a `CompletionException` is thrown caused by a
+   * `SecurityException`.
+   *
+   * @param applicantId id of the applicant whose data is requested to be accessed
+   * @return the future of the check
+   */
   public CompletableFuture<Void> checkAuthorization(long applicantId) {
     return getAccount()
         .thenApplyAsync(
@@ -141,6 +183,15 @@ public class CiviFormProfile {
             });
   }
 
+  /**
+   * Check if the profile is authorized to access all applications of the program.
+   *
+   * <p>If the check does not pass, a `CompletionException` is thrown caused by a
+   * `SecurityException`.
+   *
+   * @param programName name of the program whose data is requested to be accessed
+   * @return the future of the check
+   */
   public CompletableFuture<Void> checkProgramAuthorization(String programName) {
     return this.getAccount()
         .thenApply(

@@ -44,6 +44,7 @@ import org.pac4j.play.store.ShiroAesDataEncrypter;
 import play.Environment;
 import repository.UserRepository;
 
+/** SecurityModule configures and initializes all authentication and authorization classes. */
 public class SecurityModule extends AbstractModule {
 
   private final com.typesafe.config.Config configuration;
@@ -109,6 +110,7 @@ public class SecurityModule extends AbstractModule {
     return new FakeAdminClient(profileFactory);
   }
 
+  /** Creates a singleton object of OidcClient configured for IDCS and initializes it on startup. */
   @Provides
   @Nullable
   @Singleton
@@ -142,6 +144,7 @@ public class SecurityModule extends AbstractModule {
     return client;
   }
 
+  /** Creates a singleton object of OidcClient configured for AD and initializes it on startup. */
   @Provides
   @Nullable
   @Singleton
