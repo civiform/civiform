@@ -134,7 +134,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             languageSelector
                 .renderDropdown(preferredLanguage)
                 .attr("onchange", "this.form.submit()")
-                .attr("aria-label", messages.at(MessageKey.LANGUAGE_LABEL.getKeyName()));
+                .attr("aria-label", messages.at(MessageKey.LANGUAGE_LABEL_SR.getKeyName()));
         languageForm =
             form()
                 .withAction(updateLanguageAction)
