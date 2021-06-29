@@ -33,7 +33,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     this.formFactory = checkNotNull(formFactory);
   }
 
-  /** POST endpoint for adding a question to a screen. */
+  /** POST endpoint for adding one or more questions to a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result create(Request request, long programId, long blockId) {
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
