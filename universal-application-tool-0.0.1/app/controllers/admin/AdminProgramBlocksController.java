@@ -27,7 +27,7 @@ import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockEditView;
 
-/** Controller for admins editting screens (blocks) of a program. */
+/** Controller for admins editing screens (blocks) of a program. */
 public class AdminProgramBlocksController extends CiviFormController {
 
   private final ProgramService programService;
