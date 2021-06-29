@@ -353,11 +353,21 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       }
       return valueOptionsDiv;
     } else {
-      return FieldWithLabel.input()
-          .setFieldName("predicateValue")
-          .setLabelText("Value")
-          .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
-          .getContainer();
+      return div()
+          .with(
+              FieldWithLabel.input()
+                  .setFieldName("predicateValue")
+                  .setLabelText("Value")
+                  .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
+                  .getContainer())
+          .with(
+              div()
+                  .withClasses(
+                      ReferenceClasses.PREDICATE_VALUE_COMMA_HELP_TEXT,
+                      Styles.HIDDEN,
+                      Styles.TEXT_XS,
+                      BaseStyles.FORM_LABEL_TEXT_COLOR)
+                  .withText("Enter a list of comma-separated values. For example, \"v1,v2,v3\"."));
     }
   }
 }

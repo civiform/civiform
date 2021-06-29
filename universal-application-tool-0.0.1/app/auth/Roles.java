@@ -1,5 +1,6 @@
 package auth;
 
+/** Enum class of all roles a civiform profile can have. */
 public enum Roles {
   ROLE_APPLICANT("ROLE_APPLICANT"),
   ROLE_TI("ROLE_TI"),

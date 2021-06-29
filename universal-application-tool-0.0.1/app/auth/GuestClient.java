@@ -8,6 +8,7 @@ import org.pac4j.core.client.IndirectClient;
 import org.pac4j.core.credentials.AnonymousCredentials;
 import org.pac4j.core.util.HttpActionHelper;
 
+/** This class implements a guest client that allows logging in without an IDCS account. */
 public class GuestClient extends IndirectClient {
 
   public static final String CLIENT_NAME = "GuestClient";

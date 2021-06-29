@@ -99,6 +99,8 @@ link.createAccountOrSignIn=Create account or sign in
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Apply
+# The text read for screen readers.
+button.applySr=Apply to {0}
 
 # "Get benefits" floating text
 content.benefits=Get benefits
@@ -111,6 +113,8 @@ content.description2=Get started by choosing an application below.
 
 # Link text to read more about a program.
 link.programDetails=Program details
+# The same text, read for screen readers.
+link.programDetailsSr=Program details for {0}
 
 # Link text to an external site to read more about a program.
 link.externalLink=External site
@@ -210,6 +214,9 @@ button.addEntity=Add {0}
 
 # Text on a button an applicant would click to delete an entity
 button.removeEntity=Remove {0}
+
+# The confirmation dialog when an applicant deletes an enumerator entry.
+dialog.confirmDelete=Are you sure you want to remove this {0}? This change will be saved after you click "Next" and all data associated with this {0} will be lost.
 
 # Validation error that shows when an applicant does not enter a value.
 validation.entityNameRequired=Please enter a value for each line.

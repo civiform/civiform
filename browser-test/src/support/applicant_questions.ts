@@ -23,7 +23,7 @@ export class ApplicantQuestions {
 
   async answerCheckboxQuestion(checked: Array<string>) {
     for (var index in checked) {
-      await this.page.check(`text=${checked[index]}`);
+      await this.page.check(`label:has-text("${checked[index]}")`);
     }
   }
 
@@ -85,7 +85,17 @@ export class ApplicantQuestions {
   }
 
   async deleteEnumeratorEntity(entityName: string) {
+    this.page.once('dialog', async dialog => {
+      await dialog.accept();
+    });
     await this.page.click(`.cf-enumerator-field:has(input[value="${entityName}"]) button`);
+  }
+
+  async deleteEnumeratorEntityByIndex(entityIndex: number) {
+    this.page.once('dialog', async dialog => {
+      await dialog.accept();
+    });
+    await this.page.click(`:nth-match(:text("Remove Entity"), ${entityIndex})`);
   }
 
   async submitFromReviewPage(programName: string) {

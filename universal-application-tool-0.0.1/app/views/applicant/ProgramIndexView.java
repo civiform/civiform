@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h3;
 import static j2html.TagCreator.hr;
 import static j2html.attributes.Attr.HREF;
 
@@ -62,6 +63,7 @@ public class ProgramIndexView extends BaseHtmlView {
       ImmutableList<ProgramDefinition> activePrograms,
       Optional<String> banner) {
     HtmlBundle bundle = layout.getBundle();
+    bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()) + " - CiviForm");
     if (banner.isPresent()) {
       bundle.addToastMessages(ToastMessage.alert(banner.get()));
     }
@@ -140,7 +142,7 @@ public class ProgramIndexView extends BaseHtmlView {
     if (!draftPrograms.isEmpty()) {
       content
           .with(
-              h2().withText(messages.at(MessageKey.TITLE_PROGRAMS_IN_PROGRESS.getKeyName()))
+              h3().withText(messages.at(MessageKey.TITLE_PROGRAMS_IN_PROGRESS.getKeyName()))
                   .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE))
           .with(
               div()
@@ -157,7 +159,7 @@ public class ProgramIndexView extends BaseHtmlView {
     if (!activePrograms.isEmpty()) {
       content
           .with(
-              h2().withText(messages.at(MessageKey.TITLE_PROGRAMS_ACTIVE.getKeyName()))
+              h3().withText(messages.at(MessageKey.TITLE_PROGRAMS_ACTIVE.getKeyName()))
                   .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE))
           .with(
               div()
@@ -229,7 +231,12 @@ public class ProgramIndexView extends BaseHtmlView {
             .setStyles(Styles.BLOCK, Styles.TEXT_XS, Styles.UNDERLINE)
             .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
             .setHref(infoUrl)
-            .asAnchorText();
+            .asAnchorText()
+            .attr(
+                "aria-label",
+                messages.at(
+                    MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName(),
+                    program.localizedName().getOrDefault(preferredLocale)));
     programData.with(infoLink);
 
     // Add external link if it is set.
@@ -250,6 +257,11 @@ public class ProgramIndexView extends BaseHtmlView {
             .url();
     ContainerTag applyButton =
         a().attr(HREF, applyUrl)
+            .attr(
+                "aria-label",
+                messages.at(
+                    MessageKey.BUTTON_APPLY_SR.getKeyName(),
+                    program.localizedName().getOrDefault(preferredLocale)))
             .withText(
                 isDraft
                     ? messages.at(MessageKey.BUTTON_CONTINUE.getKeyName())

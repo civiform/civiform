@@ -9,6 +9,10 @@ import org.pac4j.core.client.IndirectClient;
 import org.pac4j.core.credentials.AnonymousCredentials;
 import org.pac4j.core.util.HttpActionHelper;
 
+/**
+ * This class implements a special client that allows logging in without logging in to a real AD
+ * account. The feature is only enabled in development environment.
+ */
 public class FakeAdminClient extends IndirectClient {
 
   public static final String CLIENT_NAME = "FakeAdminClient";

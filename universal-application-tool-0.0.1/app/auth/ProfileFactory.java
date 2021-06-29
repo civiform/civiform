@@ -9,6 +9,10 @@ import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
 import repository.VersionRepository;
 
+/**
+ * This class helps create {@link CiviFormProfile} and {@link CiviFormProfileData} objects for
+ * existing and new accounts. New accounts are persisted in database.
+ */
 public class ProfileFactory {
 
   private DatabaseExecutionContext dbContext;
