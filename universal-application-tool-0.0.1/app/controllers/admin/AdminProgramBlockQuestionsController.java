@@ -84,7 +84,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
         controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockDefinitionId));
   }
 
-  /** POST endpoint for editting optionalness of a question on a screen. */
+  /** POST endpoint for editing whether or not a question is optional on a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result setOptional(
       Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
