@@ -16,6 +16,7 @@ import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.export.ExporterService;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
@@ -146,6 +147,11 @@ public final class QuestionServiceImpl implements QuestionService {
   @Override
   public void setExportState(QuestionDefinition questionDefinition, QuestionTag questionExportState)
       throws QuestionNotFoundException, InvalidUpdateException {
+    if (ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(
+        questionDefinition.getQuestionType())) {
+      return;
+    }
+
     Optional<Question> questionMaybe =
         questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
     if (questionMaybe.isEmpty()) {

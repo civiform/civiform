@@ -9,6 +9,7 @@ import models.Question;
 import models.QuestionTag;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
+import services.export.ExporterService;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
@@ -130,6 +131,10 @@ public abstract class QuestionForm {
   }
 
   public String getQuestionExportState() {
+    if (ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(this.getQuestionType())) {
+      return QuestionTag.NON_DEMOGRAPHIC.getValue();
+    }
+
     if (this.questionExportState == null) {
       Question q = new Question(this.qd);
       q.refresh();
