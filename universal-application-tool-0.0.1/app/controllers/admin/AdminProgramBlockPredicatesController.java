@@ -179,11 +179,14 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             return PredicateValue.of(Long.parseLong(value));
         }
 
-      default: // STRING, should not include LIST_OF_STRINGS since that should be covered at the top
-        // of the method with `values`.
+      default: // STRING - we list all operators here, but in reality only IN and NOT_IN are
+        // expected. The others are handled using the "values" field in the predicate form
         switch (operator) {
           case ANY_OF:
+          case IN:
           case NONE_OF:
+          case NOT_IN:
+          case SUBSET_OF:
             ImmutableList<String> listOfStrings =
                 Splitter.on(",")
                     .splitToStream(value)

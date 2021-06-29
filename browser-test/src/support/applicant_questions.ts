@@ -23,7 +23,7 @@ export class ApplicantQuestions {
 
   async answerCheckboxQuestion(checked: Array<string>) {
     for (var index in checked) {
-      await this.page.check(`text=${checked[index]}`);
+      await this.page.check(`label:has-text("${checked[index]}")`);
     }
   }
 
