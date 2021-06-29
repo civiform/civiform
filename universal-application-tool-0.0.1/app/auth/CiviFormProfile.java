@@ -67,8 +67,7 @@ public class CiviFormProfile {
   /**
    * Get the client name associated with the profile.
    *
-   * <p>This is the name set for the client object, more close to a class name, not the name of a
-   * person.
+   * <p>This is the class name of pac4j client used to create this profile.
    */
   public String getClientName() {
     return profileData.getClientName();
@@ -151,7 +150,7 @@ public class CiviFormProfile {
   /**
    * Check if the profile is authorized to access the applicant's data.
    *
-   * <p>If the pass does not pass, a `CompletionException` is thrown caused by a
+   * <p>If the check does not pass, a `CompletionException` is thrown caused by a
    * `SecurityException`.
    *
    * @param applicantId id of the applicant whose data is requested to be accessed
@@ -187,7 +186,7 @@ public class CiviFormProfile {
   /**
    * Check if the profile is authorized to access all applications of the program.
    *
-   * <p>If the pass does not pass, a `CompletionException` is thrown caused by a
+   * <p>If the check does not pass, a `CompletionException` is thrown caused by a
    * `SecurityException`.
    *
    * @param programName name of the program whose data is requested to be accessed
