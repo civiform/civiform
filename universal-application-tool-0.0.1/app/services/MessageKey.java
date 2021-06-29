@@ -53,6 +53,7 @@ public enum MessageKey {
   EXTERNAL_LINK("link.externalLink"),
   FILEUPLOAD_VALIDATION_FILE_REQUIRED("validation.fileRequired"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
+  LANGUAGE_LABEL("label.language"),
   LINK_ADMIN_LOGIN("link.adminLogin"),
   LINK_ALL_DONE("link.allDone"),
   LINK_APPLY_TO_ANOTHER_PROGRAM("link.applyToAnotherProgram"),

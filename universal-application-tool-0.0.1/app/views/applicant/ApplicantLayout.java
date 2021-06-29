@@ -108,11 +108,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(branding())
         .with(maybeRenderTiButton(profile, userName))
         .with(
-            div(getLanguageForm(request, profile), logoutButton(userName, messages))
+            div(getLanguageForm(request, profile, messages), logoutButton(userName, messages))
                 .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
-  private ContainerTag getLanguageForm(Http.Request request, Optional<CiviFormProfile> profile) {
+  private ContainerTag getLanguageForm(
+      Http.Request request, Optional<CiviFormProfile> profile, Messages messages) {
     ContainerTag languageForm = div();
     if (profile.isPresent()) { // Show language switcher.
       long userId = profile.get().getApplicant().join().id;
@@ -132,7 +133,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
         ContainerTag languageDropdown =
             languageSelector
                 .renderDropdown(preferredLanguage)
-                .attr("onchange", "this.form.submit()");
+                .attr("onchange", "this.form.submit()")
+                .attr("aria-label", messages.at(MessageKey.LANGUAGE_LABEL.getKeyName()));
         languageForm =
             form()
                 .withAction(updateLanguageAction)
