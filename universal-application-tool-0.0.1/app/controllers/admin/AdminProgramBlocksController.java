@@ -47,7 +47,12 @@ public class AdminProgramBlocksController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
   }
 
-  /** Return a HTML page displaying all configurations of the program. */
+  /**
+   * Return a HTML page displaying all configurations of the specified program.
+   *
+   * <p>By default, the last program screen (block) is shown. Admins can navigate to other screens
+   * (blocks) if applicable through links on the page.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(long programId) {
     try {
@@ -88,7 +93,10 @@ public class AdminProgramBlocksController extends CiviFormController {
     }
   }
 
-  /** Return a HTML page displaying all configurations of the program and forms to update them. */
+  /**
+   * Return a HTML page displaying all configurations of the specified program screen (block) and
+   * forms to update them.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long programId, long blockId) {
     try {

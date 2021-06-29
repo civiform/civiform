@@ -54,7 +54,10 @@ public class AdminProgramController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
   }
 
-  /** Return a HTML page displaying all programs of current live version. */
+  /**
+   * Return a HTML page displaying all programs of the current live version and all programs of the
+   * current draft version if any.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);

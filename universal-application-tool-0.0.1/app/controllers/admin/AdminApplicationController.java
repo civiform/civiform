@@ -61,7 +61,7 @@ public class AdminApplicationController extends CiviFormController {
     this.exporterService = checkNotNull(exporterService);
   }
 
-  /** Download a CSV file containing all applications to the program. */
+  /** Download a CSV file containing all applications to the specified program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result downloadAll(Http.Request request, long programId) {
     try {
@@ -81,7 +81,7 @@ public class AdminApplicationController extends CiviFormController {
   }
 
   /**
-   * Download a CSV file containing demographics information of the current live verion.
+   * Download a CSV file containing demographics information of the current live version.
    * Demographics information is collected from answers to a collection of questions specially
    * marked by CiviForm admins.
    */
