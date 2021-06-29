@@ -31,19 +31,24 @@ import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
+import services.question.QuestionService;
+import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockPredicatesEditView;
 
 public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final ProgramService programService;
+  private final QuestionService questionService;
   private final ProgramBlockPredicatesEditView predicatesEditView;
   private final FormFactory formFactory;
 
   @Inject
   public AdminProgramBlockPredicatesController(
       ProgramService programService,
+      QuestionService questionService,
       ProgramBlockPredicatesEditView predicatesEditView,
       FormFactory formFactory) {
     this.programService = checkNotNull(programService);
+    this.questionService = checkNotNull(questionService);
     this.predicatesEditView = checkNotNull(predicatesEditView);
     this.formFactory = checkNotNull(formFactory);
   }
@@ -117,13 +122,17 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
             .flashing("error", e.getLocalizedMessage());
       }
 
+      ReadOnlyQuestionService roQuestionService =
+          questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+
       return redirect(
               routes.AdminProgramBlockPredicatesController.edit(programId, blockDefinitionId))
           .flashing(
               "success",
               String.format(
                   "Saved visibility condition: %s %s",
-                  action.toDisplayString(), leafExpression.toDisplayString(ImmutableList.of())));
+                  action.toDisplayString(),
+                  leafExpression.toDisplayString(roQuestionService.getUpToDateQuestions())));
     }
   }
 
