@@ -85,7 +85,7 @@ export class AdminPrograms {
   }
 
   async expectDraftProgram(programName: string) {
-    expect(await this.page.innerText(`div.border:has(:text("${programName}"), :text("DRAFT"))`)).not.toContain('New Version');
+    expect(await this.page.innerText(this.selectProgramCard(programName, 'DRAFT'))).not.toContain('New Version');
   }
 
   async expectActiveProgram(programName: string) {
