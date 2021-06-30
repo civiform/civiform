@@ -37,6 +37,7 @@ title.programReview=Program application review
 title.programs=Programs & services
 title.inProgressPrograms=Continue
 title.activePrograms=New Programs
+title.programCard=Program {0} of {1} -- {2}
 link.programDetails=Program details
 link.externalLink=External site
 content.benefits=Get benefits

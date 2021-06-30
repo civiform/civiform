@@ -129,10 +129,13 @@ link.externalLink=External site
 title.programs=Programs & services
 
 # Subtitle for the list of programs with draft applications
-titles.inProgressPrograms=Continue
+title.inProgressPrograms=Continue
 
 # Subtitle for the list of programs for which the applicant has no draft applications
-titles.activePrograms=New Programs
+title.activePrograms=New Programs
+
+# Screen reader format string for program cards
+title.programCard=Program {0} of {1} -- {2}
 
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Successfully saved application: application ID {0}
