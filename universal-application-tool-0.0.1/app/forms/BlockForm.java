@@ -1,5 +1,6 @@
 package forms;
 
+/** Form for updating a screen (block) of a program. */
 public class BlockForm {
   private String name;
   private String description;

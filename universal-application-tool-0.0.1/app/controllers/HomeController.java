@@ -18,6 +18,7 @@ import play.mvc.Result;
 import services.applicant.ApplicantData;
 import views.LoginForm;
 
+/** Controller for handling methods for the landing pages. */
 public class HomeController extends Controller {
 
   private final LoginForm loginForm;

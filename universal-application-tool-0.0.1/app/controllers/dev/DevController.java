@@ -7,6 +7,7 @@ import java.net.URI;
 import play.Environment;
 import play.mvc.Controller;
 
+/** Superclass for dev controllers. */
 public class DevController extends Controller {
   private final Environment environment;
   private final String hostName;

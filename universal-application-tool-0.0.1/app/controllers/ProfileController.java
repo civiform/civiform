@@ -14,6 +14,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import views.ProfileView;
 
+/** Controller for handling methods for user profile pages. */
 public class ProfileController extends Controller {
 
   private final ProfileView profileView;

@@ -16,6 +16,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
+/** Controller for handling methods for admins and applicants accessing uploaded files. */
 public class FileController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final ProgramService programService;
