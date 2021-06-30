@@ -61,10 +61,12 @@ public class ApplicantInformationView extends BaseHtmlView {
     HtmlBundle bundle =
         layout
             .getBundle()
-            .setTitle("Applicant information")
+            .setTitle(messages.at(MessageKey.CONTENT_APPLICANT_INFORMATION.getKeyName()))
             .addMainStyles(ApplicantStyles.MAIN_APPLICANT_INFO)
             .addMainContent(formContent);
-    bundle.addMainContent(h1("Applicant information").withClasses(Styles.SR_ONLY));
+    bundle.addMainContent(
+        h1(messages.at(MessageKey.CONTENT_APPLICANT_INFORMATION.getKeyName()))
+            .withClasses(Styles.SR_ONLY));
 
     // We probably don't want the nav bar here (or we need it somewhat different - no dropdown.)
     return layout.renderWithNav(request, userName, messages, bundle);
