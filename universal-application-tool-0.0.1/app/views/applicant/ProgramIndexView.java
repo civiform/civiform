@@ -7,6 +7,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
+import static j2html.TagCreator.h4;
 import static j2html.TagCreator.hr;
 import static j2html.attributes.Attr.HREF;
 
@@ -15,6 +16,8 @@ import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -134,10 +137,7 @@ public class ProgramIndexView extends BaseHtmlView {
     // The different program card containers should have the same styling, by using the program
     // count of the larger set of programs
     String cardContainerStyles =
-        programCardsContainerStyles(
-            draftPrograms.size() > activePrograms.size()
-                ? draftPrograms.size()
-                : activePrograms.size());
+        programCardsContainerStyles(Math.max(draftPrograms.size(), activePrograms.size()));
 
     if (!draftPrograms.isEmpty()) {
       content
@@ -149,9 +149,18 @@ public class ProgramIndexView extends BaseHtmlView {
                   .withClasses(cardContainerStyles)
                   .with(
                       each(
-                          draftPrograms,
-                          program ->
-                              programCard(messages, program, applicantId, preferredLocale, true))));
+                          IntStream.range(0, draftPrograms.size())
+                              .boxed()
+                              .collect(Collectors.toList()),
+                          index ->
+                              programCard(
+                                  messages,
+                                  draftPrograms.get(index),
+                                  index,
+                                  draftPrograms.size(),
+                                  applicantId,
+                                  preferredLocale,
+                                  true))));
     }
     if (!draftPrograms.isEmpty() && !activePrograms.isEmpty()) {
       content.with(hr().withClass(Styles.MY_16));
@@ -166,10 +175,18 @@ public class ProgramIndexView extends BaseHtmlView {
                   .withClasses(cardContainerStyles)
                   .with(
                       each(
-                          activePrograms,
-                          program ->
+                          IntStream.range(0, activePrograms.size())
+                              .boxed()
+                              .collect(Collectors.toList()),
+                          index ->
                               programCard(
-                                  messages, program, applicantId, preferredLocale, false))));
+                                  messages,
+                                  activePrograms.get(index),
+                                  index,
+                                  activePrograms.size(),
+                                  applicantId,
+                                  preferredLocale,
+                                  false))));
     }
 
     return div().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.PLACE_ITEMS_CENTER).with(content);
@@ -192,6 +209,8 @@ public class ProgramIndexView extends BaseHtmlView {
   private ContainerTag programCard(
       Messages messages,
       ProgramDefinition program,
+      int programIndex,
+      int totalProgramCount,
       Long applicantId,
       Locale preferredLocale,
       boolean isDraft) {
@@ -273,9 +292,16 @@ public class ProgramIndexView extends BaseHtmlView {
         div(applyButton)
             .withClasses(
                 Styles.W_FULL, Styles.MB_6, Styles.FLEX_GROW, Styles.FLEX, Styles.ITEMS_END);
+    String srProgramCardTitle =
+        messages.at(
+            MessageKey.TITLE_PROGRAM_CARD.getKeyName(),
+            programIndex + 1,
+            totalProgramCount,
+            program.localizedName().getOrDefault(preferredLocale));
     return div()
         .withId(baseId)
         .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
+        .with(h4(srProgramCardTitle).withClass(Styles.SR_ONLY))
         .with(
             // The visual bar at the top of each program card.
             div()

@@ -35,6 +35,7 @@ title.programReview=Revisión del programa
 title.programs=Programas y servicios
 title.inProgressPrograms=Seguir
 title.activePrograms=Nuevos Programas
+title.programCard=Programa {0} de {1} -- {2}
 link.programDetails=Detalles del programa
 link.externalLink=Sitio externo
 content.benefits=Obtener beneficios

@@ -81,6 +81,7 @@ public enum MessageKey {
   TITLE_CREATE_AN_ACCOUNT("title.createAnAccount"),
   TITLE_PROGRAMS("title.programs"),
   TITLE_PROGRAMS_ACTIVE("title.activePrograms"),
+  TITLE_PROGRAM_CARD("title.programCard"),
   TITLE_PROGRAMS_IN_PROGRESS("title.inProgressPrograms"),
   TITLE_PROGRAM_PREVIEW("title.programPreview"),
   TITLE_PROGRAM_REVIEW("title.programReview"),
