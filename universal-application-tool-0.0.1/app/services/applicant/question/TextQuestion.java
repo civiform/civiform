@@ -9,6 +9,11 @@ import services.applicant.ValidationErrorMessage;
 import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
 
+/**
+ * Represents a text question in the context of a specific applicant.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
 public class TextQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;

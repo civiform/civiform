@@ -39,6 +39,7 @@ import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 
+/** Implementation class for ApplicantService interface. */
 public class ApplicantServiceImpl implements ApplicantService {
 
   private static final String STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST =

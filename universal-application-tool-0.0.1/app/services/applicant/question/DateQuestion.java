@@ -10,6 +10,11 @@ import services.applicant.ValidationErrorMessage;
 import services.question.types.DateQuestionDefinition;
 import services.question.types.QuestionType;
 
+/**
+ * Represents a date question in the context of a specific applicant.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
 public class DateQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;

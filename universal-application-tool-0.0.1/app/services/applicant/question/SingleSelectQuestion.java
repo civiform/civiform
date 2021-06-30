@@ -9,6 +9,13 @@ import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 
+/**
+ * Represents a single-select question in the context of a specific applicant.
+ *
+ * <p>All single-select question types share this class, e.g. dropdown and radio button questions.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
 public class SingleSelectQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;

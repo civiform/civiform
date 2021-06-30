@@ -9,6 +9,11 @@ import services.applicant.ValidationErrorMessage;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.QuestionType;
 
+/**
+ * Represents a file upload question in the context of a specific applicant.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
 public class FileUploadQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;

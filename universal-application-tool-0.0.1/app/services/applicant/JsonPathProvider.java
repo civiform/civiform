@@ -12,6 +12,7 @@ import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import java.util.EnumSet;
 import javax.inject.Singleton;
 
+/** Custom JsonPathProvider used to parse applicant data in JSON format. */
 @Singleton
 public class JsonPathProvider {
 
