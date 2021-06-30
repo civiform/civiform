@@ -88,7 +88,8 @@ public enum MessageKey {
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
   TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
   USER_NAME("header.userName"),
-  VALIDATION_REQUIRED("validation.isRequired");
+  VALIDATION_REQUIRED("validation.isRequired"),
+  CONTENT_APPLICANT_INFORMATION("content.applicantInformation");
 
   private final String keyName;
 
