@@ -231,6 +231,12 @@ function configurePredicateValueInput(
     return;
   }
 
+  const operatorDropdown = scalarDropdown
+    .closest('.cf-predicate-options') // div containing all predicate builder form fields
+    .querySelector('.cf-operator-select') // div containing the operator dropdown
+    .querySelector('select');
+  const operatorValue = operatorDropdown.options[operatorDropdown.options.selectedIndex].value;
+
   const valueInput = scalarDropdown
     .closest('.cf-predicate-options') // div containing all predicate builder form fields
     .querySelector('.cf-predicate-value-input') // div containing the predicate value input
@@ -247,7 +253,12 @@ function configurePredicateValueInput(
       valueInput.setAttribute('type', 'text');
       break;
     case 'LONG':
-      valueInput.setAttribute('type', 'number');
+      if (operatorValue.toUpperCase() === 'IN' || operatorValue.toUpperCase() === 'NOT_IN') {
+        // IN and NOT_IN operate on lists of longs, which must be entered as a comma-separated list
+        valueInput.setAttribute('type', 'text');
+      } else {
+        valueInput.setAttribute('type', 'number');
+      }
       break;
     case 'DATE':
       valueInput.setAttribute('type', 'date');
@@ -280,6 +291,15 @@ function configurePredicateFormOnOperatorChange(event: Event) {
   ) {
     commaSeparatedHelpText.classList.add('hidden');
   }
+
+  // The type of the value field may need to change based on the current operator
+  const scalarDropdown = operatorDropdown
+    .closest('.cf-predicate-options') // div containing all predicate builder form fields
+    .querySelector('.cf-scalar-select') // div containing the scalar dropdown
+    .querySelector('select');
+  const selectedScalarType = scalarDropdown.options[scalarDropdown.options.selectedIndex].dataset.type;
+  const selectedScalarValue = scalarDropdown.options[scalarDropdown.options.selectedIndex].value;
+  configurePredicateValueInput(scalarDropdown, selectedScalarType, selectedScalarValue);
 }
 
 window.addEventListener('load', (event) => {
