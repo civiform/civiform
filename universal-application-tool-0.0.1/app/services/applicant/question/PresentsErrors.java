@@ -5,6 +5,10 @@ import com.google.common.collect.ImmutableSet;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 
+/**
+ * All specific applicant question types implement this interface. It provides necessary methods to
+ * validate the applicant's answer to the question and present validation errors if any.
+ */
 public interface PresentsErrors {
   /** Returns true if values do not meet conditions defined by admins. */
   boolean hasQuestionErrors();

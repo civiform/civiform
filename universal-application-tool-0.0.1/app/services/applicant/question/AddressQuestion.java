@@ -12,6 +12,11 @@ import services.applicant.ValidationErrorMessage;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionType;
 
+/**
+ * Represents an address question in the context of a specific applicant.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
 public class AddressQuestion implements PresentsErrors {
   private static final String PO_BOX_REGEX =
       "(?i)(.*(P(OST|.)?\\s*((O(FF(ICE)?)?)?.?\\s*(B(IN|OX|.?)))+)).*";

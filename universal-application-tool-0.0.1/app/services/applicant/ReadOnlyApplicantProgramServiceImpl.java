@@ -23,6 +23,7 @@ import services.question.LocalizedQuestionOption;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionType;
 
+/** Implementation class for ReadOnlyApplicantProgramService interface. */
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
   /**

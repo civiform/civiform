@@ -13,6 +13,14 @@ import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 
+/**
+ * Represents a multi-select question in the context of a specific applicant.
+ *
+ * <p>All multi-select question types are meant to share this class, although there is only checkbox
+ * question type in this category as of June 30, 2021.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
 public class MultiSelectQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;

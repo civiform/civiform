@@ -9,6 +9,11 @@ import services.applicant.ValidationErrorMessage;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionType;
 
+/**
+ * Represents a number question in the context of a specific applicant.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
 public class NumberQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;
