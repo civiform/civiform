@@ -27,6 +27,10 @@ import services.PaginationInfo;
 import services.ti.EmailAddressExistsException;
 import views.applicant.TrustedIntermediaryDashboardView;
 
+/**
+ * Controller for handling methods for an trusted intermediary managing their clients and applying
+ * to programs on behalf of them.
+ */
 public class TrustedIntermediaryController {
 
   private static final int PAGE_SIZE = 10;

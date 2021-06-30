@@ -12,6 +12,10 @@ import javax.inject.Inject;
 import models.StoredFile;
 import play.db.ebean.EbeanConfig;
 
+/**
+ * StoredFileRepository performs complicated operations on {@link StoredFile} that involve
+ * asynchronous handling.
+ */
 public class StoredFileRepository {
 
   private final EbeanServer ebeanServer;

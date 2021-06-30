@@ -9,6 +9,7 @@ import play.data.validation.ValidationError;
 import services.applicant.question.Scalar;
 import services.program.predicate.Operator;
 
+/** Form for updating visibility configurations of a screen (block) of a program. */
 @Validate
 public class BlockVisibilityPredicateForm implements Validatable<List<ValidationError>> {
   @Constraints.Required(message = "Must select 'hidden if' or 'shown if'.")

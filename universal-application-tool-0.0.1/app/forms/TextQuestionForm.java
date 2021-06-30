@@ -5,6 +5,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
 
+/** Form for updating a text question. */
 public class TextQuestionForm extends QuestionForm {
   private OptionalInt minLength;
   private OptionalInt maxLength;

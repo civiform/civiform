@@ -22,6 +22,10 @@ import models.Version;
 import play.db.ebean.EbeanConfig;
 import services.program.ProgramNotFoundException;
 
+/**
+ * ProgramRepository performs complicated operations on {@link Program} that often involve other
+ * EBean models or asynchronous handling.
+ */
 public class ProgramRepository {
 
   private final EbeanServer ebeanServer;

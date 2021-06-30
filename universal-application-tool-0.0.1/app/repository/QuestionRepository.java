@@ -23,6 +23,10 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
+/**
+ * QuestionRepository performs complicated operations on {@link Question} that often involve other
+ * EBean models or asynchronous handling.
+ */
 public class QuestionRepository {
 
   private final EbeanServer ebeanServer;

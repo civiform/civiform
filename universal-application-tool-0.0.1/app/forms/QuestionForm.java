@@ -14,6 +14,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
+/** Superclass for all forms updating a question. */
 public abstract class QuestionForm {
   private String questionName;
   private String questionDescription;

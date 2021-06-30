@@ -1,5 +1,6 @@
 package forms;
 
+/** Form for removing a trusted intermediary from a trusted intermediary group. */
 public class RemoveTrustedIntermediaryForm {
   private Long accountId;
 

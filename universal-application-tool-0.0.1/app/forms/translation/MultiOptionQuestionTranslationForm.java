@@ -11,6 +11,7 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
+/** Form for updating translation for multi-option questions. */
 public class MultiOptionQuestionTranslationForm extends QuestionTranslationForm {
 
   // These will be in the same order as the default translations.
