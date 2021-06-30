@@ -57,6 +57,7 @@ public class Modal {
     return div()
         .withClasses(BaseStyles.MODAL_HEADER)
         .with(div(modalTitle).withClasses(Styles.TEXT_LG))
+        .with(div().withClasses(Styles.FLEX_GROW))
         .with(div("x").withId(modalId + "-close").withClasses(BaseStyles.MODAL_CLOSE_BUTTON));
   }
 
