@@ -565,6 +565,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return Modal.builder("block-description-modal", blockDescriptionForm)
         .setModalTitle(modalTitle)
         .setTriggerButtonText(modalButtonText)
+        .setWidth(Modal.Width.THIRD)
         .build();
   }
 

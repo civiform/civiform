@@ -18,6 +18,7 @@ public class Modal {
   private String triggerButtonText;
   private Optional<Tag> triggerButtonContent;
   private String buttonStyles;
+  private Width width;
 
   private Modal(ModalBuilder builder) {
     this.modalId = builder.modalId;
@@ -26,12 +27,13 @@ public class Modal {
     this.triggerButtonText = builder.triggerButtonText;
     this.triggerButtonContent = builder.triggerButtonContent;
     this.buttonStyles = builder.buttonStyles;
+    this.width = builder.width;
   }
 
   public Tag getContainerTag() {
     return div()
         .withId(modalId)
-        .withClasses(ReferenceClasses.MODAL, BaseStyles.MODAL)
+        .withClasses(ReferenceClasses.MODAL, BaseStyles.MODAL, width.getStyle())
         .with(getModalHeader())
         .with(getContent());
   }
@@ -76,6 +78,7 @@ public class Modal {
     private String triggerButtonText;
 
     private Optional<Tag> triggerButtonContent = Optional.empty();
+    private Width width = Width.DEFAULT;
 
     public ModalBuilder(String modalId, Tag content) {
       this.modalId = modalId;
@@ -102,6 +105,11 @@ public class Modal {
       return this;
     }
 
+    public ModalBuilder setWidth(Width width) {
+      this.width = width;
+      return this;
+    }
+
     public Modal build() {
       setOptionalFields();
       return new Modal(this);
@@ -110,6 +118,23 @@ public class Modal {
     private void setOptionalFields() {
       modalTitle = Optional.ofNullable(modalTitle).orElse(modalId);
       triggerButtonText = Optional.ofNullable(triggerButtonText).orElse(modalTitle);
+    }
+  }
+
+  public enum Width {
+    DEFAULT(Styles.W_AUTO),
+    HALF(Styles.W_1_2),
+    THIRD(Styles.W_1_3),
+    FOURTH(Styles.W_1_4);
+
+    private final String width;
+
+    Width(String width) {
+      this.width = width;
+    }
+
+    public String getStyle() {
+      return this.width;
     }
   }
 }
