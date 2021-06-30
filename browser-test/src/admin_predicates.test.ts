@@ -138,6 +138,7 @@ describe('create and edit predicates', () => {
     await adminQuestions.addNameQuestion('single-string');
     await adminQuestions.addTextQuestion('list of strings');
     await adminQuestions.addNumberQuestion('single-long');
+    await adminQuestions.addNumberQuestion('list of longs');
     await adminQuestions.addDateQuestion('predicate-date');
     await adminQuestions.addCheckboxQuestion('both sides are lists', ['dog', 'rabbit', 'cat']);
     await adminQuestions.addTextQuestion('depends on previous');
@@ -147,6 +148,7 @@ describe('create and edit predicates', () => {
     await adminPrograms.editProgramBlock(programName, 'string', ['single-string']);
     await adminPrograms.addProgramBlock(programName, 'list of strings', ['list of strings']);
     await adminPrograms.addProgramBlock(programName, 'long', ['single-long']);
+    await adminPrograms.addProgramBlock(programName, 'list of longs', ['list of longs']);
     await adminPrograms.addProgramBlock(programName, 'date', ['predicate-date']);
     await adminPrograms.addProgramBlock(programName, 'two lists', ['both sides are lists']);
     await adminPrograms.addProgramBlock(programName, 'last', ['depends on previous']);
@@ -164,12 +166,16 @@ describe('create and edit predicates', () => {
     await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 4');
     await adminPredicates.addPredicate('single-long', 'shown if', 'number', 'is equal to', '42');
 
-    // Date predicate
+    // Single long one of a list of longs
     await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 5');
+    await adminPredicates.addPredicate('list of longs', 'shown if', 'number', 'is one of', '123, 456');
+
+    // Date predicate
+    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 6');
     await adminPredicates.addPredicate('predicate-date', 'shown if', 'date', 'is earlier than', '2021-01-01');
 
     // Lists of strings on both sides (multi-option question checkbox)
-    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 6');
+    await adminPrograms.goToEditBlockPredicatePage(programName, 'Screen 7');
     await adminPredicates.addPredicate('both sides are lists', 'shown if', 'selections', 'contains any of', 'dog,cat');
 
     await adminPrograms.publishProgram(programName);
@@ -187,6 +193,8 @@ describe('create and edit predicates', () => {
     await applicant.answerTextQuestion('blue');
     await applicant.clickNext();
     await applicant.answerNumberQuestion('42');
+    await applicant.clickNext();
+    await applicant.answerNumberQuestion('123');
     await applicant.clickNext();
     await applicant.answerDateQuestion('1998-09-04');
     await applicant.clickNext();
