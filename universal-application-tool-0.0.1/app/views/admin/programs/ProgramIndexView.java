@@ -25,6 +25,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
+import views.components.Modal;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -46,14 +47,27 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
 
     String pageTitle = "All programs";
+    ContainerTag publishAllModalContent =
+        div()
+            .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
+            .with(p("Are you sure you want to publish all programs?").withClasses(Styles.P_2))
+            .with(maybeRenderPublishButton(programs, request));
+    Modal publishAllModal =
+        Modal.builder("publish-all-programs-modal", publishAllModalContent)
+            .setModalTitle("Confirmation")
+            .setTriggerButtonText("Publish all programs")
+            .build();
+
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(
                 h1(pageTitle).withClasses(Styles.MY_4),
                 div()
-                    .withClasses(Styles.INLINE_BLOCK)
-                    .with(renderNewProgramButton(), maybeRenderPublishButton(programs, request)),
+                    .withClasses(Styles.FLEX, Styles.ITEMS_CENTER)
+                    .with(renderNewProgramButton())
+                    .with(div().withClass(Styles.FLEX_GROW))
+                    .condWith(programs.anyDraft(), publishAllModal.getButton()),
                 each(
                     programs.getProgramNames(),
                     name ->
@@ -64,7 +78,12 @@ public final class ProgramIndexView extends BaseHtmlView {
                             profile)))
             .with(renderDownloadExportCsvButton());
 
-    HtmlBundle htmlBundle = layout.getBundle().setTitle(pageTitle).addMainContent(contentDiv);
+    HtmlBundle htmlBundle =
+        layout
+            .getBundle()
+            .setTitle(pageTitle)
+            .addMainContent(contentDiv)
+            .addModals(publishAllModal);
     return layout.renderCentered(htmlBundle);
   }
 

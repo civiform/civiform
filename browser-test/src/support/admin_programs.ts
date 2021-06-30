@@ -188,6 +188,7 @@ export class AdminPrograms {
   }
 
   async publishAllPrograms() {
+    await this.page.click(`#publish-all-programs-modal-button`);
     await this.page.click(`#publish-programs-button > button`);
   }
 
