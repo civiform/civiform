@@ -48,7 +48,7 @@ describe('normal application flow', () => {
 
     await adminQuestions.createNewVersion('dropdown-csv-download');
     await adminQuestions.gotoQuestionEditPage('dropdown-csv-download');
-    await page.click('button:text("Remove"):visible')
+    await page.click('#question-settings button:text("Remove"):visible')
     await page.click('text=Update');
     await adminPrograms.publishProgram(programName);
 
