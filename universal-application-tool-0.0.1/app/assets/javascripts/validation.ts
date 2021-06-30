@@ -308,7 +308,7 @@ class ValidationController {
     for (const question of nameQuestions) {
       // validate first name is not empty.
       const firstNameInput = <HTMLInputElement>question.querySelector(".cf-name-first input");
-      const firstNameEmpty = firstNameInput.value.length > 0;
+      const firstNameEmpty = firstNameInput.value.length == 0;
       this.updateFieldErrorState(question, '.cf-name-first', !firstNameEmpty);
 
       // validate last name is not empty.
@@ -316,15 +316,15 @@ class ValidationController {
       const lastNameEmpty = lastNameInput.value.length == 0;
       this.updateFieldErrorState(question, '.cf-name-last', !lastNameEmpty);
 
-      // validate last name is not empty.
+      // check if middle name is empty.
       const middleNameInput = <HTMLInputElement>question.querySelector(".cf-name-middle input");
       const middleNameEmpty = middleNameInput.value.length == 0;
 
       // If this question isn't required then it's also valid if it is empty.
       const isOptional = !question.classList.contains(ValidationController.REQUIRED_QUESTION_CLASS);
-      const emptyOptional = isOptional && (!firstNameEmpty && !lastNameEmpty && middleNameEmpty);
+      const emptyOptional = isOptional && firstNameEmpty && lastNameEmpty && middleNameEmpty;
 
-      isValid = emptyOptional || !(firstNameEmpty || lastNameEmpty);
+      isValid = emptyOptional || (!firstNameEmpty && !lastNameEmpty);
     }
     return isValid;
   }
