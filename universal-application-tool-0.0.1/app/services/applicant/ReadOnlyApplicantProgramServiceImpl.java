@@ -61,13 +61,21 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public int getActiveAndCompletedInProgramBlockCount() {
+    return getAllActiveBlocks().stream()
+        .filter(block -> block.isCompletedInProgramWithoutErrors())
+        .mapToInt(b -> 1)
+        .sum();
+  }
+
+  @Override
   public ImmutableList<Block> getInProgressBlocks() {
     if (currentBlockList == null) {
       currentBlockList =
           getBlocks(
               block ->
-                  (!block.isCompleteWithoutErrors()
-                          || block.wasCompletedInProgram(programDefinition.id()))
+                  (!block.isAnsweredWithoutErrors()
+                          || block.wasAnsweredInProgram(programDefinition.id()))
                       && showBlock(block));
     }
     return currentBlockList;
@@ -105,7 +113,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public Optional<Block> getFirstIncompleteBlock() {
     return getInProgressBlocks().stream()
-        .filter(block -> !block.isCompleteWithoutErrors())
+        .filter(block -> !block.isCompletedInProgramWithoutErrors())
         .findFirst();
   }
 

@@ -218,10 +218,16 @@ public class ProgramBuilder {
       return this;
     }
 
+    /** Add a required question definition to the block. */
     public BlockBuilder withRequiredQuestionDefinition(QuestionDefinition question) {
+      return withQuestionDefinition(question, false);
+    }
+
+    public BlockBuilder withQuestionDefinition(QuestionDefinition question, boolean optional) {
       blockDefBuilder.addQuestion(
           ProgramQuestionDefinition.create(
-              question, Optional.of(programBuilder.programDefinitionId)));
+                  question, Optional.of(programBuilder.programDefinitionId))
+              .setOptional(optional));
       return this;
     }
 

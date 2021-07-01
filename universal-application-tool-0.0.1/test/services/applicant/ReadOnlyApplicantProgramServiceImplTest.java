@@ -418,6 +418,69 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
+  public void getActiveAndCompletedInProgramBlockCount_withOptionalUnanswered() {
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock() // Block is completed
+            .withQuestionDefinition(nameQuestion, true)
+            .withBlock() // Block incomplete; this is what predicate is based on
+            .withQuestionDefinition(colorQuestion, false)
+            .buildDefinition();
+    QuestionAnswerer.addMetadata(
+        applicantData,
+        nameQuestion.getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH),
+        program.id(),
+        0L);
+
+    ReadOnlyApplicantProgramServiceImpl service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+
+    assertThat(service.getActiveAndCompletedInProgramBlockCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void getActiveAndCompletedInProgramBlockCount_withOptionalUnansweredInDifferentProgram() {
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock() // Block is completed
+            .withQuestionDefinition(nameQuestion, true)
+            .withBlock() // Block incomplete; this is what predicate is based on
+            .withQuestionDefinition(colorQuestion, false)
+            .buildDefinition();
+    QuestionAnswerer.addMetadata(
+        applicantData,
+        nameQuestion.getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH),
+        program.id() + 1,
+        0L);
+
+    ReadOnlyApplicantProgramServiceImpl service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+
+    assertThat(service.getActiveAndCompletedInProgramBlockCount()).isEqualTo(0);
+  }
+
+  @Test
+  public void getActiveAndCompletedInProgramBlockCount_withRequiredUnanswered() {
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock() // Block is completed
+            .withQuestionDefinition(nameQuestion, false)
+            .withBlock() // Block incomplete; this is what predicate is based on
+            .withQuestionDefinition(colorQuestion, false)
+            .buildDefinition();
+    QuestionAnswerer.addMetadata(
+        applicantData,
+        nameQuestion.getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH),
+        program.id(),
+        0L);
+
+    ReadOnlyApplicantProgramServiceImpl service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+
+    assertThat(service.getActiveAndCompletedInProgramBlockCount()).isEqualTo(0);
+  }
+
+  @Test
   public void getBlock_blockExists_returnsTheBlock() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
