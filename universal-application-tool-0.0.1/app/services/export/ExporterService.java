@@ -39,6 +39,10 @@ import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
+/**
+ * ExporterService generates CSV files for applications to a program or demographic information
+ * across all programs.
+ */
 public class ExporterService {
   private final ExporterFactory exporterFactory;
   private final ProgramService programService;

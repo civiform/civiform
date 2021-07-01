@@ -1,5 +1,6 @@
 package services;
 
+/** WellKnownPaths are paths commonly referenced, e.g. the applicant's name. */
 public class WellKnownPaths {
   // These need to stay in sync with the correct paths for a top-level question
   // asking the applicant their name.  We currently assume that question is called

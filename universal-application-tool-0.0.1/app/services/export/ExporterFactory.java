@@ -10,6 +10,7 @@ import repository.ProgramRepository;
 import services.program.CsvExportConfig;
 import services.program.PdfExportConfig;
 
+/** ExporterFactory helps create {@link CsvExporter} and {@link PdfExporter} objects. */
 public class ExporterFactory {
   private final Config config;
   private final ProgramRepository programRepository;
