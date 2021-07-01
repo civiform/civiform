@@ -37,6 +37,9 @@ public abstract class AnswerData {
   /** The localized question text */
   public abstract String questionText();
 
+  /** True if this answer represents an answer, or false for a skipped question. */
+  public abstract boolean isAnswered();
+
   /** The applicant's response to the question. */
   public abstract String answerText();
 
@@ -68,6 +71,8 @@ public abstract class AnswerData {
     public abstract Builder setQuestionIndex(int questionIndex);
 
     public abstract Builder setQuestionText(String questionText);
+
+    public abstract Builder setIsAnswered(boolean isAnswered);
 
     public abstract Builder setAnswerText(String answerText);
 
