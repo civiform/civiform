@@ -51,7 +51,7 @@ public class BlockTest {
     assertThat(block.getDescription()).isEqualTo("description");
     assertThat(block.getQuestions()).isEmpty();
     assertThat(block.hasErrors()).isFalse();
-    assertThat(block.isCompleteWithoutErrors()).isTrue();
+    assertThat(block.isAnsweredWithoutErrors()).isTrue();
   }
 
   @Test
@@ -186,29 +186,29 @@ public class BlockTest {
   }
 
   @Test
-  public void isComplete_returnsTrueForBlockWithNoQuestions() {
+  public void isAnswered_returnsTrueForBlockWithNoQuestions() {
     BlockDefinition definition =
         BlockDefinition.builder().setId(123L).setName("name").setDescription("description").build();
     Block block = new Block("1", definition, new ApplicantData(), Optional.empty());
 
-    assertThat(block.isCompleteWithoutErrors()).isTrue();
+    assertThat(block.isAnsweredWithoutErrors()).isTrue();
     assertThat(block.containsStatic()).isFalse();
   }
 
   @Test
-  public void isComplete_returnsFalseIfMultipleQuestionsNotAnswered() {
+  public void isAnswered_returnsFalseIfMultipleQuestionsNotAnswered() {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block = new Block("1", definition, applicantData, Optional.empty());
 
     // No questions filled in yet.
-    assertThat(block.isCompleteWithoutErrors()).isFalse();
+    assertThat(block.isAnsweredWithoutErrors()).isFalse();
     assertThat(block.containsStatic()).isFalse();
   }
 
   @Test
-  public void isComplete_returnsFalseIfOneQuestionNotAnswered() {
+  public void isAnswered_returnsFalseIfOneQuestionNotAnswered() {
     ApplicantData applicantData = new ApplicantData();
     // Fill in one of the questions.
     answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
@@ -216,11 +216,11 @@ public class BlockTest {
 
     Block block = new Block("1", definition, applicantData, Optional.empty());
 
-    assertThat(block.isCompleteWithoutErrors()).isFalse();
+    assertThat(block.isAnsweredWithoutErrors()).isFalse();
   }
 
   @Test
-  public void isComplete_returnsTrueIfAllQuestionsAnswered() {
+  public void isAnswered_returnsTrueIfAllQuestionsAnswered() {
     ApplicantData applicantData = new ApplicantData();
     // Fill in all questions.
     answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
@@ -229,11 +229,11 @@ public class BlockTest {
 
     Block block = new Block("1", definition, applicantData, Optional.empty());
 
-    assertThat(block.isCompleteWithoutErrors()).isTrue();
+    assertThat(block.isAnsweredWithoutErrors()).isTrue();
   }
 
   @Test
-  public void isComplete_returnsTrueIsAllQuestionsAnswered_includesStatic() {
+  public void isAnswered_returnsTrueIsAllQuestionsAnswered_includesStatic() {
     ApplicantData applicantData = new ApplicantData();
     // Fill in all questions.
     answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
@@ -250,12 +250,12 @@ public class BlockTest {
 
     Block block = new Block("1", definition, applicantData, Optional.empty());
 
-    assertThat(block.isCompleteWithoutErrors()).isTrue();
+    assertThat(block.isAnsweredWithoutErrors()).isTrue();
     assertThat(block.containsStatic()).isTrue();
   }
 
   @Test
-  public void isComplete_onlyStatic() {
+  public void isAnswered_onlyStatic() {
     ApplicantData applicantData = new ApplicantData();
     // Fill in all questions.
     answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
@@ -270,37 +270,36 @@ public class BlockTest {
 
     Block block = new Block("1", definition, applicantData, Optional.empty());
 
-    assertThat(block.isCompleteWithoutErrors()).isTrue();
+    assertThat(block.isAnsweredWithoutErrors()).isTrue();
     assertThat(block.containsStatic()).isTrue();
   }
 
-  @Test
-  public void isComplete_outsideChangesToApplicantData_updatesCompletionCheck() {
+  public void isAnswered_outsideChangesToApplicantData_updatesCompletionCheck() {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block = new Block("1", definition, applicantData, Optional.empty());
 
-    assertThat(block.isCompleteWithoutErrors()).isFalse();
+    assertThat(block.isAnsweredWithoutErrors()).isFalse();
 
     // Complete the block.
     answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
     answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
-    assertThat(block.isCompleteWithoutErrors()).isTrue();
+    assertThat(block.isAnsweredWithoutErrors()).isTrue();
   }
 
   @Test
-  public void wasCompletedInProgram_returnsFalse() {
+  public void wasAnsweredInProgram_returnsFalse() {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block = new Block("1", definition, applicantData, Optional.empty());
 
-    assertThat(block.wasCompletedInProgram(1L)).isFalse();
+    assertThat(block.wasAnsweredInProgram(1L)).isFalse();
   }
 
   @Test
-  public void wasCompletedInProgram_returnsFalseIfQuestionsCompletedInDifferentProgram() {
+  public void wasAnsweredInProgram_returnsFalseIfQuestionsCompletedInDifferentProgram() {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
@@ -309,22 +308,22 @@ public class BlockTest {
     answerNameQuestion(applicantData, 567L);
     answerColorQuestion(applicantData, 567L);
 
-    assertThat(block.wasCompletedInProgram(1L)).isFalse();
+    assertThat(block.wasAnsweredInProgram(1L)).isFalse();
   }
 
   @Test
-  public void wasCompletedInProgram_returnsFalseIfOnlyOneQuestionAnswered() {
+  public void wasAnsweredInProgram_returnsFalseIfOnlyOneQuestionAnswered() {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
     Block block = new Block("1", definition, applicantData, Optional.empty());
     answerNameQuestion(applicantData, 1L);
 
-    assertThat(block.wasCompletedInProgram(1L)).isFalse();
+    assertThat(block.wasAnsweredInProgram(1L)).isFalse();
   }
 
   @Test
-  public void wasCompletedInProgram_returnsTrueIfQuestionsCompletedInGivenProgram() {
+  public void wasAnsweredInProgram_returnsTrueIfQuestionsCompletedInGivenProgram() {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
@@ -332,11 +331,11 @@ public class BlockTest {
     answerNameQuestion(applicantData, 22L);
     answerColorQuestion(applicantData, 22L);
 
-    assertThat(block.wasCompletedInProgram(22L)).isTrue();
+    assertThat(block.wasAnsweredInProgram(22L)).isTrue();
   }
 
   @Test
-  public void wasCompletedInProgram_returnsTrueIfSomeQuestionsCompletedInGivenProgram() {
+  public void wasAnsweredInProgram_returnsTrueIfSomeQuestionsCompletedInGivenProgram() {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
 
@@ -344,7 +343,7 @@ public class BlockTest {
     answerNameQuestion(applicantData, 100L);
     answerColorQuestion(applicantData, 200L);
 
-    assertThat(block.wasCompletedInProgram(200L)).isTrue();
+    assertThat(block.wasAnsweredInProgram(200L)).isTrue();
   }
 
   @Test
@@ -480,6 +479,35 @@ public class BlockTest {
   }
 
   @Test
+  public void isCompleteInProgramWithoutErrors_withOptionalUnansweredQuestions_isTrue() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank
+                .applicantJugglingNumber()
+                .getQuestionDefinition()
+                .getQuestionPathSegment());
+    QuestionAnswerer.addMetadata(applicantData, questionPath, programId, 0L);
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(true);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .addQuestion(pqd)
+            .build();
+
+    Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
+
+    assertThat(block.isCompletedInProgramWithoutErrors()).isTrue();
+  }
+
+  @Test
   public void
       hasRequiredQuestionsThatAreUnansweredInCurrentProgram_withOptionalQuestions_returnsFalse() {
     long programId = 5L;
@@ -532,6 +560,64 @@ public class BlockTest {
         applicantData, block.getQuestions().get(1).getContextualizedPath(), "brown");
 
     assertThat(block.hasRequiredQuestionsThatAreUnansweredInCurrentProgram()).isFalse();
+  }
+
+  @Test
+  public void
+      isCompleteInProgramWithoutErrors_withOptionalUnansweredQuestionsInWrongProgram_isFalse() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank
+                .applicantJugglingNumber()
+                .getQuestionDefinition()
+                .getQuestionPathSegment());
+    QuestionAnswerer.addMetadata(applicantData, questionPath, programId + 1, 0L);
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+                Optional.of(programId))
+            .setOptional(true);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .addQuestion(pqd)
+            .build();
+
+    Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
+
+    assertThat(block.isCompletedInProgramWithoutErrors()).isFalse();
+  }
+
+  @Test
+  public void isCompleteInProgramWithoutErrors_withRequiredUnansweredQuestions_isFalse() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(
+            testQuestionBank
+                .applicantJugglingNumber()
+                .getQuestionDefinition()
+                .getQuestionPathSegment());
+    QuestionAnswerer.addMetadata(applicantData, questionPath, programId, 0L);
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+            testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
+            Optional.of(programId));
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .addQuestion(pqd)
+            .build();
+
+    Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
+
+    assertThat(block.isCompletedInProgramWithoutErrors()).isFalse();
   }
 
   private static BlockDefinition setUpBlockWithQuestions() {

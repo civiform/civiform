@@ -77,6 +77,29 @@ public class ApplicantQuestion {
   }
 
   /**
+   * Return true if this question is answered, or left unanswered in the program specified.
+   * Questions can only be left unanswered if they are optional.
+   *
+   * <p>For every applicant question, there are three possible states:
+   *
+   * <ol>
+   *   <li>unvisited - the applicant has not seen this question yet
+   *   <li>unanswered - the applicant has visited the question but chose to leave it unanswered.
+   *       Only optional questions can be left unanswered
+   *   <li>answered - the applicant has visited and provided an answer to the question
+   * </ol>
+   *
+   * For unanswered optional questions, we care in which program it was left unanswered. For the
+   * program which the optional question was left unanswered, it counts as "completed" for that
+   * program.
+   *
+   * @return true if this question is answered, or left unanswered in the program specified.
+   */
+  public boolean isAnsweredOrLeftUnansweredInProgram() {
+    return errorsPresenter().isAnswered() || (isOptional() && wasRecentlyUpdatedInThisProgram());
+  }
+
+  /**
    * Return true if this question is required but was left unanswered while filling out the current
    * program.
    */
