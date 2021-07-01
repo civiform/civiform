@@ -21,6 +21,14 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import software.amazon.awssdk.utils.BinaryUtils;
 
+/**
+ * SignedS3UploadRequest holds all necessary information to be included in a HTML form for users to
+ * upload a file directly from their browsers to CiviForm S3 bucket.
+ *
+ * <p>SignedS3UploadRequest provides a builder to construct an object from necessary information.
+ * That said, users of this class most likely want to obtain an constructed object from {@link
+ * SimpleStorage#getSignedUploadRequest}.
+ */
 @AutoValue
 public abstract class SignedS3UploadRequest {
 

@@ -23,6 +23,10 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
+/**
+ * SimpleStorage provides methods to create federated links for users of CiviForm to upload and
+ * download files directly to and from AWS Simple Storage Service (S3).
+ */
 @Singleton
 public class SimpleStorage {
   public static final String AWS_S3_BUCKET_CONF_PATH = "aws.s3.bucket";

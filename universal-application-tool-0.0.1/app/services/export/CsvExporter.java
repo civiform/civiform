@@ -19,6 +19,11 @@ import services.Path;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.Column;
 
+/**
+ * CsvExporter takes a list of {@link Column}s and exports the data specified. A column contains a
+ * {@link Path} indexing into an applicant's data, and CsvExporter takes the path and reads the
+ * answer from {@link ReadOnlyApplicantProgramService} if present.
+ */
 public class CsvExporter {
   private final String EMPTY_VALUE = "";
 
