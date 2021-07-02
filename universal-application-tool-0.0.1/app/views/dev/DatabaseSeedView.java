@@ -24,7 +24,10 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.style.Styles;
 
-/** Renders a page for a developer to seed the database. This is only available in non-prod environments. */
+/**
+ * Renders a page for a developer to seed the database. This is only available in non-prod
+ * environments.
+ */
 public class DatabaseSeedView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final ObjectMapper objectMapper;
