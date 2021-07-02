@@ -17,7 +17,7 @@ import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
- * Implementation class for ReadOnlyQuestionService interface. It contains all questions that are in
+ * Implementation class for {@link ReadOnlyQuestionService} interface. It contains all questions that are in
  * the current active version and the current draft version.
  *
  * <p>See {@link QuestionService#getReadOnlyQuestionService}.
