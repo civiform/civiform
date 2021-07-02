@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import services.question.types.QuestionDefinition;
 
-/** Visibility configuration of a program screen (block). */
+/** Conditional logic associated with a single program screen (block). This may be used to (for example) show or hide a block based on the answers an applicant provides. */
 @AutoValue
 public abstract class PredicateDefinition {
 
