@@ -3,6 +3,7 @@ package views.components;
 import j2html.tags.ContainerTag;
 import services.question.types.QuestionType;
 
+/** Class to hold constants for icons and provide methods for rendering SVG components. */
 public class Icons {
   public static final String ADDRESS_SVG_PATH =
       "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38"

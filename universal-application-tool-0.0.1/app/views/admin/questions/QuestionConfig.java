@@ -25,6 +25,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Contains methods for rendering type-specific question settings components. */
 public class QuestionConfig {
   private String id = "";
   private String headerText = "Question settings";

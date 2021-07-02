@@ -12,6 +12,7 @@ import services.applicant.question.SingleSelectQuestion;
 import services.question.LocalizedQuestionOption;
 import views.components.SelectWithLabel;
 
+/** Renders a dropdown question. */
 public class DropdownQuestionRenderer extends ApplicantQuestionRenderer {
 
   public DropdownQuestionRenderer(ApplicantQuestion question) {

@@ -1,5 +1,6 @@
 package views.style;
 
+/** Styles for applicant pages. */
 public final class ApplicantStyles {
   public static final String BODY_BG_COLOR = BaseStyles.BG_CIVIFORM_WHITE;
   public static final String BODY =

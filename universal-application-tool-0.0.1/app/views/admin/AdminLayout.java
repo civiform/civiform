@@ -19,6 +19,7 @@ import views.style.AdminStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Contains methods rendering common compoments used across admin pages. */
 public class AdminLayout extends BaseHtmlLayout {
 
   public enum AdminType {

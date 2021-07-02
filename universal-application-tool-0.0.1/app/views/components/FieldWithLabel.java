@@ -23,6 +23,7 @@ import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Utility class for rendering an input field with an optional label. */
 public class FieldWithLabel {
   private static final ImmutableSet<String> STRING_TYPES =
       ImmutableSet.of("text", "checkbox", "radio", "date", "email");

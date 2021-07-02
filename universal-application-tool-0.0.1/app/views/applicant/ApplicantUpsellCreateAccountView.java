@@ -23,6 +23,7 @@ import views.style.ApplicantStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Renders a confirmation page after application submission. */
 public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
 
   private final ApplicantLayout layout;

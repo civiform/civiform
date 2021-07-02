@@ -16,6 +16,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Renders a checkbox question. */
 public class CheckboxQuestionRenderer extends ApplicantQuestionRenderer {
 
   @Override

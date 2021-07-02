@@ -23,6 +23,7 @@ import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.Styles;
 
+/** Renders a page for login. */
 public class LoginForm extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;

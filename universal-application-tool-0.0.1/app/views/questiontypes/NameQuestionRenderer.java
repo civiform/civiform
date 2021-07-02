@@ -10,6 +10,7 @@ import services.applicant.question.NameQuestion;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
+/** Renders a name question. */
 public class NameQuestionRenderer extends ApplicantQuestionRenderer {
 
   public NameQuestionRenderer(ApplicantQuestion question) {
