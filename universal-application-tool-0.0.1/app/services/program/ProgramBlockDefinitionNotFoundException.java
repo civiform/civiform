@@ -1,8 +1,7 @@
 package services.program;
 
 /**
- * ProgramBlockDefinitionNotFoundException is thrown when the block definition is not found by the
- * specified ID.
+ * ProgramBlockDefinitionNotFoundException is thrown when the specified block definition is not found in this program.
  */
 public class ProgramBlockDefinitionNotFoundException extends Exception {
   public ProgramBlockDefinitionNotFoundException(long programId, long blockDefinitionId) {
