@@ -1,5 +1,8 @@
 package services.program;
 
+/**
+ * Defines types of columns that will be handled differently in {@link services.export.CsvExporter}.
+ */
 public enum ColumnType {
   APPLICANT,
   ID,

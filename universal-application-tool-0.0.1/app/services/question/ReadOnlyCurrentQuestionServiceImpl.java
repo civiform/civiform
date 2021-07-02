@@ -16,6 +16,12 @@ import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
+/**
+ * Implementation class for ReadOnlyQuestionService interface. It contains all questions that are in
+ * the current active version and the current draft version.
+ *
+ * <p>See {@link QuestionService#getReadOnlyQuestionService}.
+ */
 public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestionService {
 
   private final ImmutableMap<Long, QuestionDefinition> questionsById;

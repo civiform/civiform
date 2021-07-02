@@ -13,6 +13,7 @@ import services.question.types.NameQuestionDefinition.NameValidationPredicates;
 import services.question.types.QuestionDefinition.ValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
+/** Provides helper functions to build a QuestionDefinition. */
 public class QuestionDefinitionBuilder {
 
   private OptionalLong id = OptionalLong.empty();

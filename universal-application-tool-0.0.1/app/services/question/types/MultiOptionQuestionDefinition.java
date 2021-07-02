@@ -20,6 +20,7 @@ import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
 
+/** Superclass for all multi-option questions. */
 public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
 
   protected static final MultiOptionValidationPredicates SINGLE_SELECT_PREDICATE =

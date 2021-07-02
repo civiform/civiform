@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 
+/** Defines a name question. */
 public class NameQuestionDefinition extends QuestionDefinition {
 
   public NameQuestionDefinition(

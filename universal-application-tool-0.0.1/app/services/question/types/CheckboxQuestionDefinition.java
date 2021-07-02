@@ -6,6 +6,7 @@ import java.util.OptionalLong;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
 
+/** Defines a checkbox question. */
 public class CheckboxQuestionDefinition extends MultiOptionQuestionDefinition {
 
   public CheckboxQuestionDefinition(

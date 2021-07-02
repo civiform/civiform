@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import services.question.types.QuestionDefinition;
 
+/** Visibility configuration of a program screen (block). */
 @AutoValue
 public abstract class PredicateDefinition {
 

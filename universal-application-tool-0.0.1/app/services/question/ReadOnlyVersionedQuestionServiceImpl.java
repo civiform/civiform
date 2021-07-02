@@ -8,6 +8,12 @@ import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
+/**
+ * Implementation class for ReadOnlyQuestionService interface. It contains all questions that are in
+ * the specified version.
+ *
+ * <p>See {@link QuestionService#getReadOnlyVersionedQuestionService(Version)}.
+ */
 public final class ReadOnlyVersionedQuestionServiceImpl implements ReadOnlyQuestionService {
 
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
