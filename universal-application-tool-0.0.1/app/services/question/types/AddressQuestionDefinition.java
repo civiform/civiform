@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 
+/** Defines an address question. */
 public class AddressQuestionDefinition extends QuestionDefinition {
 
   public AddressQuestionDefinition(

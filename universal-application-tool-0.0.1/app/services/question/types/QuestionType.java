@@ -2,6 +2,7 @@ package services.question.types;
 
 import services.question.exceptions.InvalidQuestionTypeException;
 
+/** Defines types of questions supported. */
 public enum QuestionType {
   ADDRESS(false),
   CHECKBOX(true),

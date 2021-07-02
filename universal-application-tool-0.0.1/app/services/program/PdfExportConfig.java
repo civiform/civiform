@@ -4,6 +4,10 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.net.URI;
 
+/**
+ * Contains all information needed to export a PDF file for a program. PDF export is not fully
+ * implemented yet.
+ */
 @AutoValue
 public abstract class PdfExportConfig {
   public abstract URI baseDocument();

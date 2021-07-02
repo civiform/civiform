@@ -21,6 +21,7 @@ import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 
+/** Implementation class for {@link QuestionService} interface. */
 public final class QuestionServiceImpl implements QuestionService {
 
   private final QuestionRepository questionRepository;

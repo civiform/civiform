@@ -24,6 +24,7 @@ import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
+/** Defines configuration of a program. */
 @AutoValue
 public abstract class ProgramDefinition {
 

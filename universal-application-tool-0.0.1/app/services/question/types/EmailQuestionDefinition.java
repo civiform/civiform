@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 
+/** Defines an email question. */
 public class EmailQuestionDefinition extends QuestionDefinition {
 
   public EmailQuestionDefinition(

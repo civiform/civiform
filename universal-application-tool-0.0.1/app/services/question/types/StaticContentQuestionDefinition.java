@@ -6,6 +6,10 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 
+/**
+ * Defines a static content question. A static content question displays static content without
+ * asking for an answer.
+ */
 public class StaticContentQuestionDefinition extends QuestionDefinition {
 
   public StaticContentQuestionDefinition(
