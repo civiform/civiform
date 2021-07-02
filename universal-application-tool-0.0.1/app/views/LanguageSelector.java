@@ -22,6 +22,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Contains functions for rendering language-related components. */
 public class LanguageSelector {
 
   public final ImmutableList<Locale> supportedLanguages;

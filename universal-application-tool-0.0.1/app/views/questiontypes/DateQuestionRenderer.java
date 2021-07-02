@@ -8,6 +8,7 @@ import services.applicant.question.DateQuestion;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
+/** Renders a date question. */
 public class DateQuestionRenderer extends ApplicantQuestionRenderer {
 
   public DateQuestionRenderer(ApplicantQuestion question) {

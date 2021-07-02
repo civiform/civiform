@@ -36,6 +36,7 @@ import views.questiontypes.FileUploadQuestionRenderer;
 import views.style.ApplicantStyles;
 import views.style.Styles;
 
+/** Renders a page for answering questions in a program screen (block). */
 public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   private final String BLOCK_FORM_ID = "cf-block-form";
   private final String FILEUPLOAD_CONTINUE_FORM_ID = "cf-fileupload-continue-form";

@@ -5,6 +5,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.TextQuestion;
 import views.components.FieldWithLabel;
 
+/** Renders a text question. */
 public class TextQuestionRenderer extends ApplicantQuestionRenderer {
 
   public TextQuestionRenderer(ApplicantQuestion question) {

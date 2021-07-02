@@ -13,6 +13,7 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.ToastMessage;
 
+/** Renders a page for adding a new program. */
 public final class ProgramNewOneView extends BaseHtmlView {
   private final AdminLayout layout;
 

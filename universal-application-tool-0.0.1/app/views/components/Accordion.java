@@ -9,6 +9,11 @@ import java.util.Arrays;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
+/**
+ * Utility class for rendering an accordion.
+ *
+ * <p>See {@link TextFormatter}.
+ */
 public class Accordion {
   protected String title = "";
   protected ArrayList<DomContent> content = new ArrayList<>();

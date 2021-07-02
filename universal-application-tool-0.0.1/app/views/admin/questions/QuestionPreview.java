@@ -13,6 +13,7 @@ import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
+/** Contains methods for rendering preview of a question. */
 public class QuestionPreview {
 
   private static ContainerTag buildQuestionRenderer(QuestionType type, Messages messages)

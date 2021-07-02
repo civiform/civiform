@@ -13,6 +13,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
+/** A helper class for constructing type-specific applicant question renderers. */
 public class ApplicantQuestionRendererFactory {
 
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)

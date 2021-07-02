@@ -27,6 +27,7 @@ import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
+/** Renders a page for viewing one application. */
 public final class ProgramApplicationView extends BaseHtmlView {
   private final AdminLayout layout;
 

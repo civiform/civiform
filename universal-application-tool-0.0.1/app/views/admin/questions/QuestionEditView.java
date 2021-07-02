@@ -36,6 +36,7 @@ import views.components.SelectWithLabel;
 import views.components.ToastMessage;
 import views.style.Styles;
 
+/** Renders a page for editing a question. */
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages messages;

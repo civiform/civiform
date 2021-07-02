@@ -24,6 +24,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Renders an enumerator question. */
 public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
 
   private static final String ENUMERATOR_FIELDS_ID = "enumerator-fields";

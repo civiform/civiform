@@ -6,6 +6,7 @@ import services.applicant.question.EmailQuestion;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
+/** Renders an email question. */
 public class EmailQuestionRenderer extends ApplicantQuestionRenderer {
 
   public EmailQuestionRenderer(ApplicantQuestion question) {

@@ -28,6 +28,7 @@ import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
+/** Renders a page for viewing applications to a program. */
 public final class ProgramApplicationListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);

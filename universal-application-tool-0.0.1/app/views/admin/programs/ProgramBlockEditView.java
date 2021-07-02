@@ -41,6 +41,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Renders a page for editing a block of a program. */
 public class ProgramBlockEditView extends BaseHtmlView {
 
   private final AdminLayout layout;

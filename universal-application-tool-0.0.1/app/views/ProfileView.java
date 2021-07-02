@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import models.Applicant;
 import play.twirl.api.Content;
 
+/** Renders a page for viewing user profile. */
 public class ProfileView extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
