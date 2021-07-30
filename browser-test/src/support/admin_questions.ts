@@ -14,6 +14,13 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPage();
   }
 
+  async clickSubmitButtonAndNavigate(buttonText: string) {
+    await Promise.all([
+      this.page.waitForNavigation(),
+      this.page.click('button:has-text("' + buttonText + '")'),
+    ]);
+  }
+
   async expectAdminQuestionsPage() {
     expect(await this.page.innerText('h1')).toEqual('All Questions');
   }
@@ -116,28 +123,28 @@ export class AdminQuestions {
   async updateQuestion(questionName: string) {
     await this.gotoQuestionEditPage(questionName);
     const newQuestionText = await this.updateQuestionText(' updated');
-    await this.page.click('button:text("Update")');
+    await this.clickSubmitButtonAndNavigate('Update');
     await this.expectDraftQuestionExist(questionName, newQuestionText);
   }
 
   async changeQuestionHelpText(questionName: string, questionHelpText: string) {
     await this.gotoQuestionEditPage(questionName);
     await this.page.fill('text=Question Help Text', questionHelpText);
-    await this.page.click('button:text("Update")');
+    await this.clickSubmitButtonAndNavigate('Update');
     await this.expectDraftQuestionExist(questionName);
   }
 
   async exportQuestion(questionName: string) {
     await this.gotoQuestionEditPage(questionName);
     await this.page.click('text="Export Value"');
-    await this.page.click('button:text("Update")');
+    await this.clickSubmitButtonAndNavigate('Update');
     await this.expectDraftQuestionExist(questionName);
   }
 
   async exportQuestionOpaque(questionName: string) {
     await this.gotoQuestionEditPage(questionName);
     await this.page.click('text="Export Obfuscated"');
-    await this.page.click('button:text("Update")');
+    await this.clickSubmitButtonAndNavigate('Update');
     await this.expectDraftQuestionExist(questionName);
   }
 
@@ -146,7 +153,7 @@ export class AdminQuestions {
     await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("New Version")'));
     await this.expectQuestionEditPage(questionName);
     const newQuestionText = await this.updateQuestionText(' new version');
-    await this.page.click('button:text("Update")');
+    await this.clickSubmitButtonAndNavigate('Update');
     await this.expectDraftQuestionExist(questionName, newQuestionText);
   }
 
@@ -218,7 +225,7 @@ export class AdminQuestions {
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('button:has-text("Create")');
+    await this.clickSubmitButtonAndNavigate('Create');
 
     await this.expectAdminQuestionsPage();
 
@@ -239,7 +246,7 @@ export class AdminQuestions {
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('button:has-text("Create")');
+    await this.clickSubmitButtonAndNavigate('Create');
 
     await this.expectAdminQuestionsPage();
 
@@ -267,7 +274,7 @@ export class AdminQuestions {
       await this.page.fill(`:nth-match(#question-settings div.flex-row, ${matchIndex}) input`, options[index]);
     }
 
-    await this.page.click('button:has-text("Create")');
+    await this.clickSubmitButtonAndNavigate('Create');
 
     await this.expectAdminQuestionsPage();
 
@@ -295,7 +302,7 @@ export class AdminQuestions {
       await this.page.fill(`:nth-match(#question-settings div.flex-row, ${matchIndex}) input`, options[index]);
     }
 
-    await this.page.click('button:has-text("Create")');
+    await this.clickSubmitButtonAndNavigate('Create');
 
     await this.expectAdminQuestionsPage();
 
@@ -316,7 +323,7 @@ export class AdminQuestions {
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('button:has-text("Create")');
+    await this.clickSubmitButtonAndNavigate('Create');
 
     await this.expectAdminQuestionsPage();
 
@@ -337,7 +344,7 @@ export class AdminQuestions {
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('button:has-text("Create")');
+    await this.clickSubmitButtonAndNavigate('Create');
 
     await this.expectAdminQuestionsPage();
 
@@ -358,7 +365,7 @@ export class AdminQuestions {
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('button:has-text("Create")');
+    await this.clickSubmitButtonAndNavigate('Create');
 
     await this.expectAdminQuestionsPage();
 
@@ -386,7 +393,7 @@ export class AdminQuestions {
       await this.page.fill(`:nth-match(#question-settings div.flex-row, ${matchIndex}) input`, options[index]);
     }
 
-    await this.page.click('button:has-text("Create")')
+    await this.clickSubmitButtonAndNavigate('Create');
 
     await this.expectAdminQuestionsPage();
 
@@ -407,7 +414,7 @@ export class AdminQuestions {
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('button:has-text("Create")');
+    await this.clickSubmitButtonAndNavigate('Create');
 
     await this.expectAdminQuestionsPage();
 
@@ -428,7 +435,7 @@ export class AdminQuestions {
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-    await this.page.click('button:has-text("Create")');
+    await this.clickSubmitButtonAndNavigate('Create');
 
     await this.expectAdminQuestionsPage();
 
@@ -454,7 +461,7 @@ export class AdminQuestions {
 
     await this.page.fill('text=Repeated Entity Type', 'Entity');
 
-    await this.page.click('button:has-text("Create")');
+    await this.clickSubmitButtonAndNavigate('Create');
 
     await this.expectAdminQuestionsPage();
 
