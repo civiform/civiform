@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import services.Path;
+import services.question.types.QuestionType;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.PresentsErrors;
 import services.program.BlockDefinition;
@@ -174,6 +175,15 @@ public final class Block {
     // TODO(https://github.com/seattle-uat/civiform/issues/551): Stream only required scalar paths
     //  instead of all scalar paths.
     return isComplete() && !hasErrors();
+  }
+
+  /**
+   * Checks whether the block contains any static question types
+   */
+  public boolean containsStatic() {
+    return getQuestions().stream()
+            .map(ApplicantQuestion::getType)
+            .anyMatch(type -> type.equals(QuestionType.STATIC));
   }
 
   /**
