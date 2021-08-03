@@ -12,7 +12,11 @@ import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
+import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.LocalizedStrings;
+import java.util.Locale;
+import java.util.OptionalLong;
 import services.question.types.ScalarType;
 import services.question.types.TextQuestionDefinition;
 import support.QuestionAnswerer;
@@ -28,6 +32,13 @@ public class BlockTest {
       (NameQuestionDefinition) testQuestionBank.applicantName().getQuestionDefinition();
   private static final TextQuestionDefinition COLOR_QUESTION =
       (TextQuestionDefinition) testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+  private static final StaticContentQuestionDefinition STATIC_QUESTION = new StaticContentQuestionDefinition(
+          OptionalLong.of(123L),
+                  "more info about something",
+                  Optional.empty(),
+                  "Shows more info to the applicant",
+                  LocalizedStrings.of(Locale.US, "This is more info"),
+                  LocalizedStrings.of(Locale.US, ""));
 
   @Test
   public void createNewBlock() {
@@ -180,6 +191,7 @@ public class BlockTest {
     Block block = new Block("1", definition, new ApplicantData(), Optional.empty());
 
     assertThat(block.isCompleteWithoutErrors()).isTrue();
+    assertThat(block.containsStatic()).isFalse();
   }
 
   @Test
@@ -191,6 +203,7 @@ public class BlockTest {
 
     // No questions filled in yet.
     assertThat(block.isCompleteWithoutErrors()).isFalse();
+    assertThat(block.containsStatic()).isFalse();
   }
 
   @Test
@@ -216,6 +229,46 @@ public class BlockTest {
     Block block = new Block("1", definition, applicantData, Optional.empty());
 
     assertThat(block.isCompleteWithoutErrors()).isTrue();
+  }
+
+  @Test
+  public void isComplete_returnsTrueIsAllQuestionsAnswered_includesStatic() {
+    ApplicantData applicantData = new ApplicantData();
+    // Fill in all questions.
+    answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
+    answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
+    BlockDefinition definition = BlockDefinition.builder()
+            .setId(20L)
+            .setName("")
+            .setDescription("")
+            .addQuestion(ProgramQuestionDefinition.create(NAME_QUESTION, Optional.empty()))
+            .addQuestion(ProgramQuestionDefinition.create(COLOR_QUESTION, Optional.empty()))
+            .addQuestion(ProgramQuestionDefinition.create(STATIC_QUESTION, Optional.empty()))
+            .build();
+
+    Block block = new Block("1", definition, applicantData, Optional.empty());
+
+    assertThat(block.isCompleteWithoutErrors()).isTrue();
+    assertThat(block.containsStatic()).isTrue();
+  }
+
+  @Test
+  public void isComplete_onlyStatic() {
+    ApplicantData applicantData = new ApplicantData();
+    // Fill in all questions.
+    answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
+    answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
+    BlockDefinition definition = BlockDefinition.builder()
+            .setId(20L)
+            .setName("")
+            .setDescription("")
+            .addQuestion(ProgramQuestionDefinition.create(STATIC_QUESTION, Optional.empty()))
+            .build();
+
+    Block block = new Block("1", definition, applicantData, Optional.empty());
+
+    assertThat(block.isCompleteWithoutErrors()).isTrue();
+    assertThat(block.containsStatic()).isTrue();
   }
 
   @Test
