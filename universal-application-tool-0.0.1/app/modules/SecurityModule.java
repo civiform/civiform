@@ -107,7 +107,7 @@ public class SecurityModule extends AbstractModule {
   @Provides
   @Singleton
   protected FakeAdminClient fakeAdminClient(ProfileFactory profileFactory) {
-    return new FakeAdminClient(profileFactory);
+    return new FakeAdminClient(profileFactory, this.configuration);
   }
 
   /** Creates a singleton object of OidcClient configured for IDCS and initializes it on startup. */
@@ -190,7 +190,7 @@ public class SecurityModule extends AbstractModule {
     if (adClient != null) {
       clientList.add(adClient);
     }
-    if (FakeAdminClient.canEnable(URI.create(baseUrl).getHost())) {
+    if (fakeAdminClient.canEnable(URI.create(baseUrl).getHost())) {
       clientList.add(fakeAdminClient);
     }
     Clients clients = new Clients(baseUrl + "/callback");

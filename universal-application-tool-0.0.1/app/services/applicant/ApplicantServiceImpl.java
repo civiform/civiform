@@ -42,13 +42,6 @@ import services.question.types.ScalarType;
 /** Implementation class for ApplicantService interface. */
 public class ApplicantServiceImpl implements ApplicantService {
 
-  private static final String STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST =
-      "seattle-civiform-program-admins-notify@google.com";
-  private static final String STAGING_TI_NOTIFICATION_MAILING_LIST =
-      "seattle-civiform-trusted-intermediaries-notify@google.com";
-  private static final String STAGING_APPLICANT_NOTIFICATION_MAILING_LIST =
-      "seattle-civiform-applicants-notify@google.com";
-
   private final ApplicationRepository applicationRepository;
   private final UserRepository userRepository;
   private final ProgramService programService;
@@ -57,6 +50,10 @@ public class ApplicantServiceImpl implements ApplicantService {
   private final String baseUrl;
   private final boolean isStaging;
   private final HttpExecutionContext httpExecutionContext;
+  private final String stagingProgramAdminNotificationMailingList;
+  private final String stagingTiNotificationMailingList;
+  private final String stagingApplicantNotificationMailingList;
+
 
   @Inject
   public ApplicantServiceImpl(
@@ -72,9 +69,14 @@ public class ApplicantServiceImpl implements ApplicantService {
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
-    this.baseUrl = checkNotNull(configuration).getString("base_url");
-    this.isStaging = URI.create(baseUrl).getHost().equals("staging.seattle.civiform.com");
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
+
+    String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
+    this.baseUrl = checkNotNull(configuration).getString("base_url");
+    this.isStaging = URI.create(baseUrl).getHost().equals(stagingHostname);
+    this.stagingProgramAdminNotificationMailingList = checkNotNull(configuration).getString("staging_program_admin_notification_mailing_list");
+    this.stagingTiNotificationMailingList = checkNotNull(configuration).getString("staging_ti_notification_mailing_list");
+    this.stagingApplicantNotificationMailingList = checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
   }
 
   @Override
@@ -255,7 +257,7 @@ public class ApplicantServiceImpl implements ApplicantService {
             "Applicant %d submitted a new application to program %s.\nView the application at %s.",
             applicantId, programName, viewLink);
     if (isStaging) {
-      amazonSESClient.send(STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST, subject, message);
+      amazonSESClient.send(stagingProgramAdminNotificationMailingList, subject, message);
     } else {
       amazonSESClient.send(
           programService.getNotificationEmailAddresses(programName), subject, message);
@@ -280,7 +282,7 @@ public class ApplicantServiceImpl implements ApplicantService {
                 + "Manage your clients at %s.",
             programName, applicantId, applicationId, tiDashLink);
     if (isStaging) {
-      amazonSESClient.send(STAGING_TI_NOTIFICATION_MAILING_LIST, subject, message);
+      amazonSESClient.send(stagingTiNotificationMailingList, subject, message);
     } else {
       amazonSESClient.send(submitter, subject, message);
     }
@@ -300,7 +302,7 @@ public class ApplicantServiceImpl implements ApplicantService {
                 + "Log in to CiviForm at %s.",
             programName, applicantId, applicationId, civiformLink);
     if (isStaging) {
-      amazonSESClient.send(STAGING_APPLICANT_NOTIFICATION_MAILING_LIST, subject, message);
+      amazonSESClient.send(stagingApplicantNotificationMailingList, subject, message);
     } else {
       amazonSESClient.send(email.get(), subject, message);
     }

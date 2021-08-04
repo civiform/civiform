@@ -11,6 +11,7 @@ import auth.ProfileUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.typesafe.config.Config;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -39,6 +40,7 @@ public class TrustedIntermediaryController {
   private final UserRepository userRepository;
   private final MessagesApi messagesApi;
   private final FormFactory formFactory;
+  private final String baseUrl;
 
   @Inject
   public TrustedIntermediaryController(
@@ -46,12 +48,14 @@ public class TrustedIntermediaryController {
       UserRepository userRepository,
       FormFactory formFactory,
       MessagesApi messagesApi,
-      TrustedIntermediaryDashboardView trustedIntermediaryDashboardView) {
+      TrustedIntermediaryDashboardView trustedIntermediaryDashboardView,
+      Config config) {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
     this.tiDashboardView = Preconditions.checkNotNull(trustedIntermediaryDashboardView);
     this.userRepository = Preconditions.checkNotNull(userRepository);
     this.formFactory = Preconditions.checkNotNull(formFactory);
     this.messagesApi = Preconditions.checkNotNull(messagesApi);
+    this.baseUrl = Preconditions.checkNotNull(config).getString("base_url");
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -115,10 +119,12 @@ public class TrustedIntermediaryController {
       return redirect(
           routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty()));
     } catch (EmailAddressExistsException e) {
+      String tiUrl = baseUrl + "/trustedIntermediaries";
+
       return redirectToDashboardWithError(
           "Email address already in use.  Cannot create applicant if an account already exists. "
               + " Direct applicant to sign in and go to"
-              + " https://civiform.seattle.gov/trustedIntermediaries.",
+              + " " + tiUrl,
           form);
     }
   }
