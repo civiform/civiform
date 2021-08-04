@@ -124,7 +124,8 @@ public class TrustedIntermediaryController {
       return redirectToDashboardWithError(
           "Email address already in use.  Cannot create applicant if an account already exists. "
               + " Direct applicant to sign in and go to"
-              + " " + tiUrl,
+              + " "
+              + tiUrl,
           form);
     }
   }

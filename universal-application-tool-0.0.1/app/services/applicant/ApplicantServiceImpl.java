@@ -54,7 +54,6 @@ public class ApplicantServiceImpl implements ApplicantService {
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
 
-
   @Inject
   public ApplicantServiceImpl(
       ApplicationRepository applicationRepository,
@@ -74,9 +73,12 @@ public class ApplicantServiceImpl implements ApplicantService {
     String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = URI.create(baseUrl).getHost().equals(stagingHostname);
-    this.stagingProgramAdminNotificationMailingList = checkNotNull(configuration).getString("staging_program_admin_notification_mailing_list");
-    this.stagingTiNotificationMailingList = checkNotNull(configuration).getString("staging_ti_notification_mailing_list");
-    this.stagingApplicantNotificationMailingList = checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
+    this.stagingProgramAdminNotificationMailingList =
+        checkNotNull(configuration).getString("staging_program_admin_notification_mailing_list");
+    this.stagingTiNotificationMailingList =
+        checkNotNull(configuration).getString("staging_ti_notification_mailing_list");
+    this.stagingApplicantNotificationMailingList =
+        checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
   }
 
   @Override
