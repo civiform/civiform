@@ -19,8 +19,6 @@ describe('normal application flow', () => {
     await adminQuestions.addFileUploadQuestion('fileupload-q');
     await adminQuestions.addNameQuestion('name-q');
     await adminQuestions.addNumberQuestion('number-q');
-    await adminQuestions.addStaticQuestion('static-q');
-    await adminQuestions.addStaticQuestion('static-q-2');
     await adminQuestions.addTextQuestion('text-q');
     await adminQuestions.addRadioButtonQuestion('radio-q', ['one', 'two', 'three']);
 
@@ -28,9 +26,8 @@ describe('normal application flow', () => {
     await adminPrograms.addProgram(programName);
     await adminPrograms.editProgramBlock(programName, 'block description', ['date-q', 'address-q', 'name-q', 'radio-q', 'email-q']);
     await adminPrograms.addProgramBlock(programName, 'another description', ['ice-cream-q', 'favorite-trees-q', 'number-q', 'text-q']);
-    await adminPrograms.addProgramBlock(programName, 'third description', ['fileupload-q', 'static-q']);
+    await adminPrograms.addProgramBlock(programName, 'third description', ['fileupload-q']);
     await adminPrograms.addProgramBlock(programName, 'fourth description', ['scared-of-q', 'favorite-rats-q']);
-    await adminPrograms.addProgramBlock(programName, 'fifth description', ['static-q-2']);
 
     await adminPrograms.gotoAdminProgramsPage();
     await adminPrograms.expectDraftProgram(programName);
@@ -47,8 +44,6 @@ describe('normal application flow', () => {
     await adminQuestions.expectActiveQuestionExist('date-q');
     await adminQuestions.expectActiveQuestionExist('number-q');
     await adminQuestions.expectActiveQuestionExist('text-q');
-    await adminQuestions.expectActiveQuestionExist('static-q');
-    await adminQuestions.expectActiveQuestionExist('static-q-2');
     await adminQuestions.expectActiveQuestionExist('radio-q');
     await adminQuestions.expectActiveQuestionExist('email-q');
 
@@ -93,16 +88,11 @@ describe('normal application flow', () => {
 
     // fill 3rd application block.
     await applicantQuestions.answerFileUploadQuestion('file key');
-    // Verify static q ?
     await applicantQuestions.clickUpload();
 
     // fill 4th application block.
     await applicantQuestions.answerCheckboxQuestion(['clowns']);
     await applicantQuestions.answerCheckboxQuestion(['sewage']);
-    await applicantQuestions.clickNext();
-
-    // fill 5th application block.
-    // Verify static q?
     await applicantQuestions.clickNext();
 
     // submit
