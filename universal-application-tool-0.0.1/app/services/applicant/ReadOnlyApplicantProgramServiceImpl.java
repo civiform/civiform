@@ -68,8 +68,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
           getBlocks(
               block ->
                   (!block.isCompleteWithoutErrors()
-                          || block.wasCompletedInProgram(programDefinition.id())
-                          || block.containsStatic())
+                          || block.wasCompletedInProgram(programDefinition.id()))
                       && showBlock(block));
     }
     return currentBlockList;
@@ -107,7 +106,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public Optional<Block> getFirstIncompleteBlock() {
     return getInProgressBlocks().stream()
-        .filter(block -> (!block.isCompleteWithoutErrors() || block.containsStatic()))
+        .filter(block -> !block.isCompleteWithoutErrors())
         .findFirst();
   }
 
