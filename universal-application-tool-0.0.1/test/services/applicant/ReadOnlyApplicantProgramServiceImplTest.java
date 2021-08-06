@@ -75,6 +75,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getAllBlocks_includesPreviouslyCompletedBlocks() {
     ProgramDefinition programDefinitionWithStatic =
+<<<<<<< HEAD
         ProgramBuilder.newDraftProgram("My Program")
             .withLocalizedName(Locale.GERMAN, "Mein Programm")
             .withBlock("Block one")
@@ -85,12 +86,28 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withBlock("Block three")
             .withRequiredQuestionDefinition(staticQuestion)
             .buildDefinition();
+=======
+            ProgramBuilder.newDraftProgram("My Program")
+                    .withLocalizedName(Locale.GERMAN, "Mein Programm")
+                    .withBlock("Block one")
+                    .withRequiredQuestionDefinition(nameQuestion)
+                    .withBlock("Block two")
+                    .withRequiredQuestionDefinition(colorQuestion)
+                    .withRequiredQuestionDefinition(addressQuestion)
+                    .withBlock("Block three")
+                    .withRequiredQuestionDefinition(staticQuestion)
+                    .buildDefinition();
+>>>>>>> 4e43f30f947bc9e6af675b5572dfabaa14fd6b36
     // Answer first block in a separate program
     answerNameQuestion(programDefinitionWithStatic.id() + 1);
 
     ReadOnlyApplicantProgramService subject =
+<<<<<<< HEAD
         new ReadOnlyApplicantProgramServiceImpl(
             applicantData, programDefinitionWithStatic, FAKE_BASE_URL);
+=======
+            new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinitionWithStatic, FAKE_BASE_URL);
+>>>>>>> 4e43f30f947bc9e6af675b5572dfabaa14fd6b36
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
 
     assertThat(allBlocks).hasSize(3);
@@ -102,6 +119,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getAllBlocks_onlyStaticBlock() {
     ProgramDefinition programDefinitionWithStatic =
+<<<<<<< HEAD
         ProgramBuilder.newDraftProgram("My Program")
             .withLocalizedName(Locale.GERMAN, "Mein Programm")
             .withBlock("Block one")
@@ -111,6 +129,16 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             applicantData, programDefinitionWithStatic, FAKE_BASE_URL);
+=======
+            ProgramBuilder.newDraftProgram("My Program")
+                    .withLocalizedName(Locale.GERMAN, "Mein Programm")
+                    .withBlock("Block one")
+                    .withRequiredQuestionDefinition(staticQuestion)
+                    .buildDefinition();
+
+    ReadOnlyApplicantProgramService subject =
+            new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinitionWithStatic, FAKE_BASE_URL);
+>>>>>>> 4e43f30f947bc9e6af675b5572dfabaa14fd6b36
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
 
     assertThat(allBlocks).hasSize(1);
@@ -161,6 +189,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getAllBlocks_includesBlockWithStaticEvenWhenOthersAreAnswered() {
     ProgramDefinition program =
+<<<<<<< HEAD
         ProgramBuilder.newActiveProgram()
             .withBlock("Block one") // Previous block with color question
             .withRequiredQuestionDefinition(colorQuestion)
@@ -168,12 +197,25 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withBlock("Block two") // Block required unanswered question
             .withRequiredQuestionDefinition(addressQuestion)
             .buildDefinition();
+=======
+            ProgramBuilder.newActiveProgram()
+                    .withBlock("Block one") // Previous block with color question
+                    .withRequiredQuestionDefinition(colorQuestion)
+                    .withRequiredQuestionDefinition(staticQuestion)
+                    .withBlock("Block two") // Block required unanswered question
+                    .withRequiredQuestionDefinition(addressQuestion)
+                    .buildDefinition();
+>>>>>>> 4e43f30f947bc9e6af675b5572dfabaa14fd6b36
 
     // Answer color question
     answerColorQuestion(program.id(), "blue");
 
     ReadOnlyApplicantProgramService subject =
+<<<<<<< HEAD
         new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+=======
+            new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+>>>>>>> 4e43f30f947bc9e6af675b5572dfabaa14fd6b36
 
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
     Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();

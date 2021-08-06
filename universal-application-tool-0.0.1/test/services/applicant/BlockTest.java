@@ -16,6 +16,10 @@ import services.program.BlockDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.StaticContentQuestionDefinition;
+import services.LocalizedStrings;
+import java.util.Locale;
+import java.util.OptionalLong;
 import services.question.types.ScalarType;
 import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
@@ -32,8 +36,12 @@ public class BlockTest {
       (NameQuestionDefinition) testQuestionBank.applicantName().getQuestionDefinition();
   private static final TextQuestionDefinition COLOR_QUESTION =
       (TextQuestionDefinition) testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
+<<<<<<< HEAD
   private static final StaticContentQuestionDefinition STATIC_QUESTION =
       new StaticContentQuestionDefinition(
+=======
+  private static final StaticContentQuestionDefinition STATIC_QUESTION = new StaticContentQuestionDefinition(
+>>>>>>> 4e43f30f947bc9e6af675b5572dfabaa14fd6b36
           OptionalLong.of(123L),
           "more info about something",
           Optional.empty(),
@@ -238,8 +246,12 @@ public class BlockTest {
     // Fill in all questions.
     answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
     answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
+<<<<<<< HEAD
     BlockDefinition definition =
         BlockDefinition.builder()
+=======
+    BlockDefinition definition = BlockDefinition.builder()
+>>>>>>> 4e43f30f947bc9e6af675b5572dfabaa14fd6b36
             .setId(20L)
             .setName("")
             .setDescription("")
@@ -260,8 +272,12 @@ public class BlockTest {
     // Fill in all questions.
     answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
     answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
+<<<<<<< HEAD
     BlockDefinition definition =
         BlockDefinition.builder()
+=======
+    BlockDefinition definition = BlockDefinition.builder()
+>>>>>>> 4e43f30f947bc9e6af675b5572dfabaa14fd6b36
             .setId(20L)
             .setName("")
             .setDescription("")

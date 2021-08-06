@@ -13,6 +13,7 @@ import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.PresentsErrors;
 import services.program.BlockDefinition;
+import services.question.types.QuestionType;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
@@ -138,6 +139,7 @@ public final class Block {
   }
 
   /**
+<<<<<<< HEAD
    * Returns whether the block contains any static questions regardless of what other questions are
    * present and whether they are answered or not.
    */
@@ -145,6 +147,15 @@ public final class Block {
     return getQuestions().stream()
         .map(ApplicantQuestion::getType)
         .anyMatch(type -> type.equals(QuestionType.STATIC));
+=======
+   * Returns whether the block contains any static questions regardless of what other questions are present and whether
+   * they are answered or not.
+   */
+  public boolean containsStatic() {
+    return getQuestions().stream()
+            .map(ApplicantQuestion::getType)
+            .anyMatch(type -> type.equals(QuestionType.STATIC));
+>>>>>>> 4e43f30f947bc9e6af675b5572dfabaa14fd6b36
   }
 
   /**
