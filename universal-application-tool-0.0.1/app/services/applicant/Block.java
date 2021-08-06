@@ -13,7 +13,6 @@ import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.PresentsErrors;
 import services.program.BlockDefinition;
-import services.question.types.QuestionType;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
