@@ -111,6 +111,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(
             applicantData, programDefinitionWithStatic, FAKE_BASE_URL);
+
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
 
     assertThat(allBlocks).hasSize(1);
