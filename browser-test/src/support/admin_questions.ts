@@ -330,6 +330,29 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
+  async addStaticQuestion(questionName: string,
+      description = 'static description',
+      questionText = 'static question text',
+      enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
+      await this.gotoAdminQuestionsPage();
+      // Wait for dropdown event listener to be attached
+      await this.page.waitForLoadState('load');
+      await this.page.click('#create-question-button');
+
+      await this.page.click('#create-static-question');
+
+     await this.page.fill('label:has-text("Name")', questionName);
+     await this.page.fill('label:has-text("Description")', description);
+     await this.page.fill('label:has-text("Question Text")', questionText);
+     await this.page.selectOption('#question-enumerator-select', { label: enumeratorName });
+
+      await this.clickSubmitButtonAndNavigate('Create');
+
+      await this.expectAdminQuestionsPage();
+
+      await this.expectDraftQuestionExist(questionName, questionText);
+    }
+
   async addNameQuestion(questionName: string,
     description = 'name description',
     questionText = 'name question text',
