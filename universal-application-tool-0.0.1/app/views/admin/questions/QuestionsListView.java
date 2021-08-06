@@ -63,7 +63,9 @@ public final class QuestionsListView extends BaseHtmlView {
                 renderSummary(activeAndDraftQuestions));
 
     if (maybeFlash.isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.error(maybeFlash.get()).setDismissible(false));
+      // Right now, we only show success messages when this page is rendered with maybeFlash set,
+      // so we use the success ToastMessage type by default.
+      htmlBundle.addToastMessages(ToastMessage.success(maybeFlash.get()).setDismissible(false));
     }
 
     return layout.renderCentered(htmlBundle);

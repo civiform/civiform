@@ -25,6 +25,22 @@ export class AdminQuestions {
     expect(await this.page.innerText('h1')).toEqual('All Questions');
   }
 
+  async expectAdminQuestionsPageWithSuccessToast(successText: string) {
+    const toastContainer = await this.page.innerHTML('#toast-container');
+
+    expect(toastContainer).toContain('bg-green-200');
+    expect(toastContainer).toContain(successText);
+    await this.expectAdminQuestionsPage();
+  }
+
+  async expectAdminQuestionsPageWithUpdateSuccessToast() {
+    await this.expectAdminQuestionsPageWithSuccessToast('updated');
+  }
+
+  async expectAdminQuestionsPageWithCreateSuccessToast() {
+    await this.expectAdminQuestionsPageWithSuccessToast('created');
+  }
+
   async fillInQuestionBasics(questionName: string,
     description: string,
     questionText: string,
@@ -42,6 +58,7 @@ export class AdminQuestions {
     // This function should only be called on question create/edit page.
     const questionText = await this.page.textContent('#question-text-textarea');
     const updatedText = questionText + updateText;
+
     await this.page.fill('text=Question Text', updatedText);
     return updatedText;
   }
@@ -123,7 +140,9 @@ export class AdminQuestions {
   async updateQuestion(questionName: string) {
     await this.gotoQuestionEditPage(questionName);
     const newQuestionText = await this.updateQuestionText(' updated');
+
     await this.clickSubmitButtonAndNavigate('Update');
+    await this.expectAdminQuestionsPageWithUpdateSuccessToast();
     await this.expectDraftQuestionExist(questionName, newQuestionText);
   }
 
@@ -131,6 +150,7 @@ export class AdminQuestions {
     await this.gotoQuestionEditPage(questionName);
     await this.page.fill('text=Question Help Text', questionHelpText);
     await this.clickSubmitButtonAndNavigate('Update');
+    await this.expectAdminQuestionsPageWithUpdateSuccessToast();
     await this.expectDraftQuestionExist(questionName);
   }
 
@@ -138,6 +158,7 @@ export class AdminQuestions {
     await this.gotoQuestionEditPage(questionName);
     await this.page.click('text="Export Value"');
     await this.clickSubmitButtonAndNavigate('Update');
+    await this.expectAdminQuestionsPageWithUpdateSuccessToast();
     await this.expectDraftQuestionExist(questionName);
   }
 
@@ -145,6 +166,7 @@ export class AdminQuestions {
     await this.gotoQuestionEditPage(questionName);
     await this.page.click('text="Export Obfuscated"');
     await this.clickSubmitButtonAndNavigate('Update');
+    await this.expectAdminQuestionsPageWithUpdateSuccessToast();
     await this.expectDraftQuestionExist(questionName);
   }
 
@@ -153,7 +175,9 @@ export class AdminQuestions {
     await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("New Version")'));
     await this.expectQuestionEditPage(questionName);
     const newQuestionText = await this.updateQuestionText(' new version');
+
     await this.clickSubmitButtonAndNavigate('Update');
+    await this.expectAdminQuestionsPageWithUpdateSuccessToast();
     await this.expectDraftQuestionExist(questionName, newQuestionText);
   }
 
@@ -227,7 +251,7 @@ export class AdminQuestions {
 
     await this.clickSubmitButtonAndNavigate('Create');
 
-    await this.expectAdminQuestionsPage();
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
   }
@@ -248,7 +272,7 @@ export class AdminQuestions {
 
     await this.clickSubmitButtonAndNavigate('Create');
 
-    await this.expectAdminQuestionsPage();
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
   }
@@ -276,7 +300,7 @@ export class AdminQuestions {
 
     await this.clickSubmitButtonAndNavigate('Create');
 
-    await this.expectAdminQuestionsPage();
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
   }
@@ -304,7 +328,7 @@ export class AdminQuestions {
 
     await this.clickSubmitButtonAndNavigate('Create');
 
-    await this.expectAdminQuestionsPage();
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
   }
@@ -325,7 +349,7 @@ export class AdminQuestions {
 
     await this.clickSubmitButtonAndNavigate('Create');
 
-    await this.expectAdminQuestionsPage();
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
   }
@@ -346,7 +370,7 @@ export class AdminQuestions {
 
     await this.clickSubmitButtonAndNavigate('Create');
 
-    await this.expectAdminQuestionsPage();
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
   }
@@ -367,7 +391,7 @@ export class AdminQuestions {
 
     await this.clickSubmitButtonAndNavigate('Create');
 
-    await this.expectAdminQuestionsPage();
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
   }
@@ -395,7 +419,7 @@ export class AdminQuestions {
 
     await this.clickSubmitButtonAndNavigate('Create');
 
-    await this.expectAdminQuestionsPage();
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
   }
@@ -416,7 +440,7 @@ export class AdminQuestions {
 
     await this.clickSubmitButtonAndNavigate('Create');
 
-    await this.expectAdminQuestionsPage();
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
   }
@@ -437,7 +461,7 @@ export class AdminQuestions {
 
     await this.clickSubmitButtonAndNavigate('Create');
 
-    await this.expectAdminQuestionsPage();
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
   }
@@ -463,7 +487,7 @@ export class AdminQuestions {
 
     await this.clickSubmitButtonAndNavigate('Create');
 
-    await this.expectAdminQuestionsPage();
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
   }
