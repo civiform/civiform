@@ -67,6 +67,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       currentBlockList =
           getBlocks(
               block ->
+                  // Return all blocks that contain errors, were completed in this program, or
+                  // contain a static question.
                   (!block.isCompleteWithoutErrors()
                           || block.wasCompletedInProgram(programDefinition.id())
                           || block.containsStatic())
