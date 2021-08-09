@@ -34,6 +34,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Shows all questions in the applying program and answers to the questions if present. */
 public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
@@ -77,7 +78,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       applicationSummary.with(
           renderQuestionSummary(
               answerData, messages, params.applicantId(), params.inReview(), isFirstUnanswered));
-      isFirstUnanswered = isFirstUnanswered && answerData.timestamp() > 0;
+      isFirstUnanswered = isFirstUnanswered && answerData.isAnswered();
       previousRepeatedEntity = currentRepeatedEntity;
     }
 
@@ -134,8 +135,6 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       long applicantId,
       boolean inReview,
       boolean isFirstUnanswered) {
-    boolean isAnswered = data.timestamp() > 0;
-
     ContainerTag questionPrompt =
         div(data.questionText()).withClasses(Styles.FLEX_AUTO, Styles.FONT_SEMIBOLD);
     ContainerTag questionContent =
@@ -175,16 +174,16 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         div(answerContent).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
 
     // Maybe link to block containing specific question.
-    if (isAnswered || isFirstUnanswered) {
+    if (data.isAnswered() || isFirstUnanswered) {
       String editText = messages.at(MessageKey.LINK_EDIT.getKeyName());
-      if (!isAnswered) {
+      if (!data.isAnswered()) {
         editText =
             inReview
                 ? messages.at(MessageKey.BUTTON_CONTINUE.getKeyName())
                 : messages.at(MessageKey.LINK_BEGIN.getKeyName());
       }
       String editLink =
-          (!isAnswered && !inReview)
+          (!data.isAnswered() && !inReview)
               ? routes.ApplicantProgramBlocksController.edit(
                       applicantId, data.programId(), data.blockId())
                   .url()
@@ -219,7 +218,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .withClasses(
             ReferenceClasses.APPLICANT_SUMMARY_ROW,
             marginIndentClass(data.repeatedEntity().map(RepeatedEntity::depth).orElse(0)),
-            isAnswered ? "" : Styles.BG_YELLOW_50,
+            data.isAnswered() ? "" : Styles.BG_YELLOW_50,
             Styles.MY_0,
             Styles.P_2,
             Styles.PT_4,

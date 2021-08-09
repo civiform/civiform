@@ -30,6 +30,10 @@ import services.ti.EmailAddressExistsException;
 import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
 
+/**
+ * UserRepository performs complicated operations on {@link Account} and {@link Applicant} that
+ * often involve other EBean models or asynchronous handling.
+ */
 public class UserRepository {
 
   private final EbeanServer ebeanServer;

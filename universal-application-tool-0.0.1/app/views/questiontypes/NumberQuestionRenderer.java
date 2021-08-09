@@ -8,6 +8,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NumberQuestion;
 import views.components.FieldWithLabel;
 
+/** Renders a number question. */
 public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
 
   public NumberQuestionRenderer(ApplicantQuestion question) {

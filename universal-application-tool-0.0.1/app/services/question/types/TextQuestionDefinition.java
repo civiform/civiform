@@ -9,6 +9,7 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 
+/** Defines a text question. */
 public class TextQuestionDefinition extends QuestionDefinition {
 
   public TextQuestionDefinition(

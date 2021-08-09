@@ -11,6 +11,7 @@ import org.apache.pdfbox.cos.COSString;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 
+/** Provides helper functions for PDF export. PDF export is not fully implemented yet. */
 public class PdfMapAssistant {
   // the bit to set for requiredness in a PDF form.
   private static int REQUIRED = 0x2;

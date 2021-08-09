@@ -6,6 +6,7 @@ import com.google.auto.value.AutoValue;
 import java.util.Optional;
 import services.Path;
 
+/** Represents a data column in a CSV export file. */
 @AutoValue
 @JsonDeserialize(builder = AutoValue_Column.Builder.class)
 public abstract class Column {

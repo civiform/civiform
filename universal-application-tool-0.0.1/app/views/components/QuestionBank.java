@@ -26,6 +26,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Contains methods for rendering question bank for an admin to add questions to a program. */
 public class QuestionBank {
   private ProgramDefinition program;
   private BlockDefinition blockDefinition;

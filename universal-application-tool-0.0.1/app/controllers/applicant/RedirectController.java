@@ -24,6 +24,10 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramNotFoundException;
 import views.applicant.ApplicantUpsellCreateAccountView;
 
+/**
+ * Controller for handling methods for deep links. Applicants will be asked to sign-in before they
+ * can access the page.
+ */
 public class RedirectController extends CiviFormController {
   private final HttpExecutionContext httpContext;
   private final ApplicantService applicantService;

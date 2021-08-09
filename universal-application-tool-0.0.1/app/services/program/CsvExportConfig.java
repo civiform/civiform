@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
+/** Contains all information needed to export a CSV file for a program. */
 @AutoValue
 @JsonDeserialize(builder = AutoValue_CsvExportConfig.Builder.class)
 public abstract class CsvExportConfig {

@@ -1,5 +1,6 @@
 package forms.translation;
 
+/** Form for updating translation for programs. */
 public class ProgramTranslationForm {
 
   private String displayName;

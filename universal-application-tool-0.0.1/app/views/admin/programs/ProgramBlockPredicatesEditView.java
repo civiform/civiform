@@ -48,6 +48,7 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
+/** Renders a page for editing predicates of a block in a program. */
 public class ProgramBlockPredicatesEditView extends BaseHtmlView {
   private static final String H2_CURRENT_VISIBILITY_CONDITION = "Current visibility condition";
   private static final String H2_NEW_VISIBILITY_CONDITION = "New visibility condition";

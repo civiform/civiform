@@ -19,6 +19,7 @@ import services.question.types.RadioButtonQuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
+/** This class helps create question forms for various question types. */
 public class QuestionFormBuilder {
   public static QuestionForm createFromRequest(
       Request request, FormFactory formFactory, QuestionType questionType)

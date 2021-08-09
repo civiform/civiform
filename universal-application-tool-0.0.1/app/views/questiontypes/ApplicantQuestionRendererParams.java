@@ -5,6 +5,7 @@ import java.util.Optional;
 import play.i18n.Messages;
 import services.aws.SignedS3UploadRequest;
 
+/** Contains necessary parameters for an applicant question renderer to render a question. */
 @AutoValue
 public abstract class ApplicantQuestionRendererParams {
 

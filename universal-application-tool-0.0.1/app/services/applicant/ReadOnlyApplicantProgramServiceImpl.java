@@ -23,6 +23,7 @@ import services.question.LocalizedQuestionOption;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionType;
 
+/** Implementation class for ReadOnlyApplicantProgramService interface. */
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
   /**
@@ -67,7 +68,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
           getBlocks(
               block ->
                   (!block.isCompleteWithoutErrors()
-                          || block.wasCompletedInProgram(programDefinition.id()))
+                          || block.wasCompletedInProgram(programDefinition.id())
+                          || block.containsStatic())
                       && showBlock(block));
     }
     return currentBlockList;
@@ -105,7 +107,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public Optional<Block> getFirstIncompleteBlock() {
     return getInProgressBlocks().stream()
-        .filter(block -> !block.isCompleteWithoutErrors())
+        .filter(block -> !block.isCompleteWithoutErrors() || block.containsStatic())
         .findFirst();
   }
 
@@ -124,9 +126,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
         ApplicantQuestion question = questions.get(questionIndex);
         // Don't include static content in summary data.
-        if (question.getType() == QuestionType.STATIC) {
+        if (question.getType().equals(QuestionType.STATIC)) {
           continue;
         }
+        boolean isAnswered = question.errorsPresenter().isAnswered();
         String questionText = question.getQuestionText();
         String answerText = question.errorsPresenter().getAnswerString();
         Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
@@ -141,6 +144,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setRepeatedEntity(block.getRepeatedEntity())
                 .setQuestionIndex(questionIndex)
                 .setQuestionText(questionText)
+                .setIsAnswered(isAnswered)
                 .setAnswerText(answerText)
                 .setFileKey(getFileKey(question))
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))

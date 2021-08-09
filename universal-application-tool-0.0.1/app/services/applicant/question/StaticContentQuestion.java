@@ -6,6 +6,14 @@ import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.QuestionType;
 
+/**
+ * Represents a static content question in the context of a specific applicant.
+ *
+ * <p>Static content question doesn't have an answer. This class is the boilerplate needed to fit
+ * static content in the question framework.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
 public class StaticContentQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;

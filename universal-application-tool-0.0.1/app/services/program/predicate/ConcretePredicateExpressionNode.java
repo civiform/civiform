@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.ImmutableList;
 import services.question.types.QuestionDefinition;
 
+/** Common methods that all predicate node types need to implement. */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = LeafOperationExpressionNode.class, name = "leaf")})
 public interface ConcretePredicateExpressionNode {

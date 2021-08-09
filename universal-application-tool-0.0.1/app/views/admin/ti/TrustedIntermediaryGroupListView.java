@@ -31,6 +31,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Renders a page for viewing trusted intermediary groups. */
 public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   private final AdminLayout layout;
 

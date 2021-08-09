@@ -16,6 +16,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Renders a radio button question. */
 public class RadioButtonQuestionRenderer extends ApplicantQuestionRenderer {
 
   public RadioButtonQuestionRenderer(ApplicantQuestion question) {

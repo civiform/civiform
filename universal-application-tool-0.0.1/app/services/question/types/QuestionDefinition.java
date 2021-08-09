@@ -18,7 +18,7 @@ import services.Path;
 import services.applicant.RepeatedEntity;
 import services.question.QuestionOption;
 
-/** Defines a single question. */
+/** Superclass for all question types. */
 public abstract class QuestionDefinition {
   private final OptionalLong id;
   private final String name;

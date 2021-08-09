@@ -29,6 +29,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.style.Styles;
 
+/** Renders a page for a developer to test uploading files. */
 public class FileUploadView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final SimpleStorage s3Client;

@@ -36,6 +36,7 @@ import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Contains methods rendering common compoments used across applicant pages. */
 public class ApplicantLayout extends BaseHtmlLayout {
 
   private static final String CIVIFORM_TITLE = "CiviForm";

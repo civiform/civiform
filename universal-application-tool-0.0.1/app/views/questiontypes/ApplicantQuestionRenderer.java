@@ -14,6 +14,11 @@ import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
+/**
+ * Superclass for all applicant question renderers. An applicant question renderer renders a
+ * question to be seen by an applicant, including the input field(s) for the applicant to answer the
+ * question.
+ */
 public abstract class ApplicantQuestionRenderer {
 
   final ApplicantQuestion question;
