@@ -21,7 +21,6 @@ import views.components.ToastMessage;
  * #render(HtmlBundle)} method.
  */
 public class BaseHtmlLayout {
-  private static final String STAGING_HOST_NAME = "staging.seattle.civiform.com";
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
   private static final String[] FOOTER_SCRIPTS = {"main", "accordion", "modal", "radio", "toast"};
   private static final String BANNER_TEXT =
@@ -30,6 +29,7 @@ public class BaseHtmlLayout {
   public final ViewUtils viewUtils;
   private final String measurementId;
   private final String hostName;
+  private final boolean isStaging;
 
   @Inject
   public BaseHtmlLayout(ViewUtils viewUtils, Config configuration) {
@@ -38,6 +38,8 @@ public class BaseHtmlLayout {
 
     String baseUrl = checkNotNull(configuration).getString("base_url");
     this.hostName = URI.create(baseUrl).getHost();
+    String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
+    this.isStaging = hostName.equals(stagingHostname);
   }
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
@@ -66,7 +68,7 @@ public class BaseHtmlLayout {
         meta().attr("name", "viewport").attr("content", "width=device-width, initial-scale=1"));
 
     // Add the warning toast, only for staging
-    if (STAGING_HOST_NAME.equals(hostName)) {
+    if (isStaging) {
       ToastMessage privacyBanner =
           ToastMessage.error(BANNER_TEXT)
               .setId("warning-message")

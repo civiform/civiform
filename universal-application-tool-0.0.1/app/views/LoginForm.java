@@ -28,11 +28,13 @@ public class LoginForm extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
   private final Config config;
+  private final FakeAdminClient fakeAdminClient;
 
   @Inject
-  public LoginForm(BaseHtmlLayout layout, Config config) {
+  public LoginForm(BaseHtmlLayout layout, Config config, FakeAdminClient fakeAdminClient) {
     this.layout = checkNotNull(layout);
     this.config = checkNotNull(config);
+    this.fakeAdminClient = checkNotNull(fakeAdminClient);
   }
 
   public Content render(Http.Request request, Messages messages, Optional<String> message) {
@@ -43,7 +45,7 @@ public class LoginForm extends BaseHtmlView {
 
     // "defense in depth", sort of - this client won't be present in production, and this button
     // won't show up except when running in an acceptable environment.
-    if (FakeAdminClient.canEnable(request.host())) {
+    if (fakeAdminClient.canEnable(request.host())) {
       htmlBundle.addMainContent(debugContent());
     }
 
