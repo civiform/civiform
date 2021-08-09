@@ -21,15 +21,15 @@ describe('normal application flow', () => {
     await adminQuestions.addNumberQuestion('number-q');
     await adminQuestions.addTextQuestion('text-q');
     await adminQuestions.addRadioButtonQuestion('radio-q', ['one', 'two', 'three']);
-    await adminQuestions.addStaticQuestion('static-q');
+    await adminQuestions.addStaticQuestion('q-static');
     await adminQuestions.addStaticQuestion('second-static-q');
 
     const programName = 'a shiny new program';
     await adminPrograms.addProgram(programName);
     await adminPrograms.editProgramBlock(programName, 'block description', ['date-q', 'address-q', 'name-q', 'radio-q', 'email-q']);
     await adminPrograms.addProgramBlock(programName, 'another description', ['ice-cream-q', 'favorite-trees-q', 'number-q', 'text-q']);
-    await adminPrograms.addProgramBlock(programName, 'third description', ['fileupload-q', 'static-q']);
-    await adminPrograms.addProgramBlock(programName, 'fourth description', ['scared-of-q', 'favorite-rats-q']);
+    await adminPrograms.addProgramBlock(programName, 'third description', ['fileupload-q']);
+    await adminPrograms.addProgramBlock(programName, 'fourth description', ['scared-of-q', 'favorite-rats-q', 'q-static']);
     await adminPrograms.addProgramBlock(programName, 'fifth description', ['second-static-q']);
 
     await adminPrograms.gotoAdminProgramsPage();
@@ -49,7 +49,7 @@ describe('normal application flow', () => {
     await adminQuestions.expectActiveQuestionExist('text-q');
     await adminQuestions.expectActiveQuestionExist('radio-q');
     await adminQuestions.expectActiveQuestionExist('email-q');
-    await adminQuestions.expectActiveQuestionExist('static-q');
+    await adminQuestions.expectActiveQuestionExist('q-static');
     await adminQuestions.expectActiveQuestionExist('second-static-q');
 
     await logout(page);
@@ -93,12 +93,12 @@ describe('normal application flow', () => {
 
     // fill 3rd application block.
     await applicantQuestions.answerFileUploadQuestion('file key');
-    await applicantQuestions.seeStaticQuestion('static question text');
     await applicantQuestions.clickUpload();
 
     // fill 4th application block.
     await applicantQuestions.answerCheckboxQuestion(['clowns']);
     await applicantQuestions.answerCheckboxQuestion(['sewage']);
+    await applicantQuestions.seeStaticQuestion('static question text');
     await applicantQuestions.clickNext();
 
     // verify we can see static question on 5th block.
