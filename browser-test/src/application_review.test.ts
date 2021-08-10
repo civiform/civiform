@@ -21,7 +21,7 @@ describe('normal application flow', () => {
     await adminQuestions.addNumberQuestion('number-q');
     await adminQuestions.addTextQuestion('text-q');
     await adminQuestions.addRadioButtonQuestion('radio-q', ['one', 'two', 'three']);
-    await adminQuestions.addStaticQuestion('q-static');
+    await adminQuestions.addStaticQuestion('first-static-q');
     await adminQuestions.addStaticQuestion('second-static-q');
 
     const programName = 'a shiny new program';
@@ -29,7 +29,7 @@ describe('normal application flow', () => {
     await adminPrograms.editProgramBlock(programName, 'block description', ['date-q', 'address-q', 'name-q', 'radio-q', 'email-q']);
     await adminPrograms.addProgramBlock(programName, 'another description', ['ice-cream-q', 'favorite-trees-q', 'number-q', 'text-q']);
     await adminPrograms.addProgramBlock(programName, 'third description', ['fileupload-q']);
-    await adminPrograms.addProgramBlock(programName, 'fourth description', ['scared-of-q', 'favorite-rats-q', 'q-static']);
+    await adminPrograms.addProgramBlock(programName, 'fourth description', ['scared-of-q', 'favorite-rats-q', 'first-static-q']);
     await adminPrograms.addProgramBlock(programName, 'fifth description', ['second-static-q']);
 
     await adminPrograms.gotoAdminProgramsPage();
@@ -49,7 +49,7 @@ describe('normal application flow', () => {
     await adminQuestions.expectActiveQuestionExist('text-q');
     await adminQuestions.expectActiveQuestionExist('radio-q');
     await adminQuestions.expectActiveQuestionExist('email-q');
-    await adminQuestions.expectActiveQuestionExist('q-static');
+    await adminQuestions.expectActiveQuestionExist('first-static-q');
     await adminQuestions.expectActiveQuestionExist('second-static-q');
 
     await logout(page);
