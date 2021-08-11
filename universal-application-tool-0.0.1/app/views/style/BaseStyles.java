@@ -46,7 +46,6 @@ public final class BaseStyles {
           Styles.BLOCK,
           Styles.OUTLINE_NONE,
           Styles.BOX_BORDER,
-          Styles.H_12,
           Styles.M_AUTO,
           Styles.PX_3,
           Styles.PY_2,
