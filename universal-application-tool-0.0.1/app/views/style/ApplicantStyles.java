@@ -21,9 +21,7 @@ public final class ApplicantStyles {
           BaseStyles.BG_SEATTLE_BLUE,
           Styles.TEXT_WHITE,
           Styles.TEXT_CENTER,
-          Styles.W_FULL,
-          Styles.P_6,
-          StyleUtils.responsiveSmall(Styles.P_10));
+          Styles.W_FULL);
 
   public static final String CIVIFORM_LOGO =
       StyleUtils.joinStyles(

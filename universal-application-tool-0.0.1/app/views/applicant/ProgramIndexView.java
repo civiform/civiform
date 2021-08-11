@@ -90,17 +90,18 @@ public class ProgramIndexView extends BaseHtmlView {
                 StyleUtils.responsiveSmall(Styles.TEXT_5XL),
                 Styles.FONT_SEMIBOLD,
                 Styles.MB_2,
+                Styles.PX_6,
                 StyleUtils.responsiveSmall(Styles.MB_6));
 
     ContainerTag infoLine1Div =
         div()
             .withText(infoTextLine1)
-            .withClasses(Styles.TEXT_SM, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
+            .withClasses(Styles.TEXT_SM, Styles.PX_6, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
 
     ContainerTag infoLine2Div =
         div()
             .withText(infoTextLine2)
-            .withClasses(Styles.TEXT_SM, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
+            .withClasses(Styles.TEXT_SM, Styles.PX_6, Styles.PB_6, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
 
     ContainerTag seattleLogoDiv =
         div()
@@ -112,7 +113,7 @@ public class ProgramIndexView extends BaseHtmlView {
                     .attr("aria-hidden", "true")
                     .attr("width", 175)
                     .attr("height", 70))
-            .withClasses(Styles.ABSOLUTE, Styles.TOP_2, Styles.LEFT_2);
+            .withClasses(Styles.TOP_2, Styles.LEFT_2);
 
     return div()
         .withId("top-content")
