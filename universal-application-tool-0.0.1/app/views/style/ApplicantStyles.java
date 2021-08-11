@@ -16,7 +16,7 @@ public final class ApplicantStyles {
           Styles.MY_8,
           StyleUtils.responsiveSmall(Styles.MY_12));
 
-  public static final String PROGRAM_INDEX_TOP_CONTENT = 
+  public static final String PROGRAM_INDEX_TOP_CONTENT =
       StyleUtils.joinStyles(
           BaseStyles.BG_SEATTLE_BLUE, Styles.TEXT_WHITE, Styles.TEXT_CENTER, Styles.W_FULL);
 
