@@ -101,7 +101,11 @@ public class ProgramIndexView extends BaseHtmlView {
     ContainerTag infoLine2Div =
         div()
             .withText(infoTextLine2)
-            .withClasses(Styles.TEXT_SM, Styles.PX_6, Styles.PB_6, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
+            .withClasses(
+                Styles.TEXT_SM,
+                Styles.PX_6,
+                Styles.PB_6,
+                StyleUtils.responsiveSmall(Styles.TEXT_BASE));
 
     ContainerTag seattleLogoDiv =
         div()
