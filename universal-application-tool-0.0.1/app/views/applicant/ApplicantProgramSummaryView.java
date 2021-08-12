@@ -223,7 +223,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             Styles.P_2,
             Styles.PT_4,
             Styles.BORDER_B,
-            Styles.BORDER_GRAY_300);
+            Styles.BORDER_GRAY_300)
+        .attr("style", "word-break:break-word"); 
   }
 
   private ContainerTag renderRepeatedEntitySection(
