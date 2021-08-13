@@ -26,6 +26,7 @@ import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.RadioButtonQuestionDefinition;
+import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 /**
@@ -352,7 +353,7 @@ public class TestQuestionBank {
   // Static
   private Question staticContent(QuestionEnum ignore) {
     QuestionDefinition definition =
-        new TextQuestionDefinition(
+        new StaticContentQuestionDefinition(
             "more info about something",
             Optional.empty(),
             "Shows more info to the applicant",
