@@ -18,12 +18,7 @@ public final class ApplicantStyles {
 
   public static final String PROGRAM_INDEX_TOP_CONTENT =
       StyleUtils.joinStyles(
-          BaseStyles.BG_SEATTLE_BLUE,
-          Styles.TEXT_WHITE,
-          Styles.TEXT_CENTER,
-          Styles.W_FULL,
-          Styles.P_6,
-          StyleUtils.responsiveSmall(Styles.P_10));
+          BaseStyles.BG_SEATTLE_BLUE, Styles.TEXT_WHITE, Styles.TEXT_CENTER, Styles.W_FULL);
 
   public static final String CIVIFORM_LOGO =
       StyleUtils.joinStyles(
