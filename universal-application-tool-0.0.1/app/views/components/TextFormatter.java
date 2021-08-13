@@ -15,9 +15,11 @@ import com.linkedin.urls.detection.UrlDetector;
 import com.linkedin.urls.detection.UrlDetectorOptions;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import views.style.Styles;
@@ -43,9 +45,22 @@ public class TextFormatter {
   private static final String BULLETED_ITEM = "* ";
 
   public static ImmutableList<DomContent> createLinksAndEscapeText(String content) {
-    List<Url> urls = new UrlDetector(content, UrlDetectorOptions.Default).detect();
+    // JAVASCRIPT option avoids including surrounding quotes or brackets in the URL.
+    List<Url> urls = new UrlDetector(content, UrlDetectorOptions.JAVASCRIPT).detect();
+
     ImmutableList.Builder<DomContent> contentBuilder = ImmutableList.builder();
     for (Url url : urls) {
+      try {
+        // While technically they could be part of the URL, trailing punctuation
+        // is more likely to be part of the surrounding text, so we strip.
+        url = Url.create(StringUtils.stripEnd(url.getOriginalUrl(), ".?!,:;"));
+      } catch (MalformedURLException e) {
+        LOG.error(
+            String.format(
+                "Failed to parse URL %s after stripping trailing punctuation",
+                url.getOriginalUrl()));
+      }
+
       int index = content.indexOf(url.getOriginalUrl());
       // Find where this URL is in the text.
       if (index == -1) {
