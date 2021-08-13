@@ -28,6 +28,7 @@ import services.program.ProgramDefinition.Direction;
 import services.program.ProgramQuestionDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.StaticContentQuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -434,6 +435,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
       QuestionDefinition questionDefinition,
       boolean isOptional) {
     if (!featureFlagOptionalQuestions) {
+      return Optional.empty();
+    }
+    if (questionDefinition instanceof StaticContentQuestionDefinition) {
       return Optional.empty();
     }
     ContainerTag optionalButton =

@@ -274,6 +274,7 @@ public class BlockTest {
     assertThat(block.containsStatic()).isTrue();
   }
 
+  @Test
   public void isAnswered_outsideChangesToApplicantData_updatesCompletionCheck() {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();

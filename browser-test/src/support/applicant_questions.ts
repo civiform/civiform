@@ -76,6 +76,10 @@ export class ApplicantQuestions {
     await this.page.click('text="Next"');
   }
 
+  async clickSkip() {
+    await this.page.click('text="Skip"');
+  }
+
   async clickReview() {
     await this.page.click('text="Review"');
   }
