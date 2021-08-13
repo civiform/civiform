@@ -12,17 +12,22 @@ public class TextFormatterTest {
   @Test
   public void urlsRenderCorrectly() {
     ImmutableList<DomContent> content =
-        TextFormatter.createLinksAndEscapeText("hello google.com http://internet.website");
+        TextFormatter.createLinksAndEscapeText(
+            "Hello google.com (http://internet.website), http://mysite.com...!");
 
-    assertThat(content).hasSize(4);
-    assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
+    assertThat(content).hasSize(7);
+    assertThat(content.get(0).render()).isEqualTo(new Text("Hello ").render());
     assertThat(content.get(1).render())
         .isEqualTo("<a href=\"http://google.com/\" class=\"opacity-75\">google.com</a>");
-    assertThat(content.get(2).render()).isEqualTo(new Text(" ").render());
+    assertThat(content.get(2).render()).isEqualTo(new Text(" (").render());
     assertThat(content.get(3).render())
         .isEqualTo(
             "<a href=\"http://internet.website/\""
                 + " class=\"opacity-75\">http://internet.website</a>");
+    assertThat(content.get(4).render()).isEqualTo(new Text("), ").render());
+    assertThat(content.get(5).render())
+        .isEqualTo("<a href=\"http://mysite.com/\" class=\"opacity-75\">http://mysite.com</a>");
+    assertThat(content.get(6).render()).isEqualTo(new Text("...!").render());
   }
 
   @Test
