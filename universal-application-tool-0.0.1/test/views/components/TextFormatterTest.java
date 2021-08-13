@@ -37,9 +37,7 @@ public class TextFormatterTest {
         .isEqualTo("<a href=\"http://google.com/\" class=\"opacity-75\">google.com</a>");
     assertThat(content.get(2).render()).isEqualTo(new Text(", crawl (").render());
     assertThat(content.get(3).render())
-        .isEqualTo(
-            "<a href=\"http://seattle.gov/\""
-                + " class=\"opacity-75\">http://seattle.gov/</a>");
+        .isEqualTo("<a href=\"http://seattle.gov/\" class=\"opacity-75\">http://seattle.gov/</a>");
     assertThat(content.get(4).render()).isEqualTo(new Text("); and ").render());
     assertThat(content.get(5).render())
         .isEqualTo("<a href=\"http://mysite.com/\" class=\"opacity-75\">http://mysite.com</a>");
