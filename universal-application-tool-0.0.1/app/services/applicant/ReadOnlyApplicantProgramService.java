@@ -43,8 +43,13 @@ public interface ReadOnlyApplicantProgramService {
   /** Returns the index of the given block in the context of all blocks of the program. */
   int getBlockIndex(String blockId);
 
-  /** Get the program block with the lowest index that has missing answer data if there is one. */
+  /** Get the program block with the lowest index that has missing answer data if there is one. Static questions are
+   * marked as incomplete. */
   Optional<Block> getFirstIncompleteBlock();
+
+  /** Get the program block with the lowest index that has missing answer data if there is one. Static questions are
+   * marked as complete. */
+  Optional<Block> getFirstIncompleteBlockExcludingStatic();
 
   /** Returns summary data for each question in this application. */
   ImmutableList<AnswerData> getSummaryData();
