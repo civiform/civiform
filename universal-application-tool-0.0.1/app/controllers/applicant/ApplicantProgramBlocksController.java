@@ -289,7 +289,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     if (inReview) {
       Optional<String> nextBlockIdMaybe =
-          roApplicantProgramService.getFirstIncompleteBlock().map(Block::getId);
+          roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId);
       return nextBlockIdMaybe.isEmpty()
           ? supplyAsync(
               () ->
