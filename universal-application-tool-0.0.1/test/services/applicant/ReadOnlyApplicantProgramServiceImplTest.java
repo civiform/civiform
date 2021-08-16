@@ -122,7 +122,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     assertThat(inProgressBlocks.get(0).getName()).isEqualTo("Block one");
 
     Optional<Block> firstIncompleteBlock = subject.getFirstIncompleteBlock();
-    Optional<Block> firstIncompleteExcludingStatic = subject.getFirstIncompleteBlockExcludingStatic();
+    Optional<Block> firstIncompleteExcludingStatic =
+        subject.getFirstIncompleteBlockExcludingStatic();
 
     assertThat(firstIncompleteBlock.isPresent()).isTrue();
     assertThat(firstIncompleteBlock.get().getName()).isEqualTo("Block one");
