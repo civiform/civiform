@@ -26,6 +26,25 @@ public class TextFormatterTest {
   }
 
   @Test
+  public void urlParserSkipsTrailingPunctuation() {
+    ImmutableList<DomContent> content =
+        TextFormatter.createLinksAndEscapeText(
+            "Hello google.com, crawl (http://seattle.gov/); and http://mysite.com...!");
+
+    assertThat(content).hasSize(7);
+    assertThat(content.get(0).render()).isEqualTo(new Text("Hello ").render());
+    assertThat(content.get(1).render())
+        .isEqualTo("<a href=\"http://google.com/\" class=\"opacity-75\">google.com</a>");
+    assertThat(content.get(2).render()).isEqualTo(new Text(", crawl (").render());
+    assertThat(content.get(3).render())
+        .isEqualTo("<a href=\"http://seattle.gov/\" class=\"opacity-75\">http://seattle.gov/</a>");
+    assertThat(content.get(4).render()).isEqualTo(new Text("); and ").render());
+    assertThat(content.get(5).render())
+        .isEqualTo("<a href=\"http://mysite.com/\" class=\"opacity-75\">http://mysite.com</a>");
+    assertThat(content.get(6).render()).isEqualTo(new Text("...!").render());
+  }
+
+  @Test
   public void accordionRendersCorrectly() {
 
     String withList =
