@@ -9,34 +9,36 @@ describe('normal application flow', () => {
     const adminQuestions = new AdminQuestions(page);
     const adminPrograms = new AdminPrograms(page);
 
-    await adminQuestions.addDateQuestion('date-q');
-    await adminQuestions.addEmailQuestion('email-q');
-    await adminQuestions.addDropdownQuestion('ice-cream-q', ['chocolate', 'banana', 'black raspberry']);
-    await adminQuestions.addCheckboxQuestion('favorite-trees-q', ['oak', 'maple', 'pine', 'cherry']);
-    await adminQuestions.addAddressQuestion('address-q');
-    await adminQuestions.addFileUploadQuestion('fileupload-q');
-    await adminQuestions.addNameQuestion('name-q');
-    await adminQuestions.addNumberQuestion('number-q');
-    await adminQuestions.addTextQuestion('text-q');
-    await adminQuestions.addRadioButtonQuestion('radio-q', ['one', 'two', 'three']);
-    await adminQuestions.addStaticQuestion('first-static-q');
+    await adminQuestions.addDateQuestion('date-optional-q');
+    await adminQuestions.addEmailQuestion('email-optional-q');
+    await adminQuestions.addDropdownQuestion('ice-cream-optional-q', ['chocolate', 'banana', 'black raspberry']);
+    await adminQuestions.addCheckboxQuestion('favorite-trees-optional-q', ['oak', 'maple', 'pine', 'cherry']);
+    await adminQuestions.addAddressQuestion('address-optional-q');
+    await adminQuestions.addFileUploadQuestion('fileupload-optional-q');
+    await adminQuestions.addNameQuestion('name-optional-q');
+    await adminQuestions.addNumberQuestion('number-optional-q');
+    await adminQuestions.addTextQuestion('text-optional-q');
+    await adminQuestions.addRadioButtonQuestion('radio-optional-q', ['one', 'two', 'three']);
+    await adminQuestions.addStaticQuestion('static-optional-q');
 
     const programName = 'Optional Questions Program';
     await adminPrograms.addProgram(programName);
-    await adminPrograms.editProgramBlockWithOptional(programName, 'first description', [], 'date-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'second description', [], 'address-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'third description', [], 'name-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'fourth description', [], 'radio-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'fifth description', [], 'email-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'sixth description', ['first-static-q'], 'ice-cream-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'seventh description', [], 'favorite-trees-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'eighth description', [], 'number-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'ninth description', [], 'text-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'tenth description', [], 'fileupload-q');
+    await adminPrograms.editProgramBlockWithOptional(programName, 'first description', [], 'date-optional-q');
+    await adminPrograms.addProgramBlockWithOptional(programName, 'second description', [], 'address-optional-q');
+    await adminPrograms.addProgramBlockWithOptional(programName, 'third description', [], 'name-optional-q');
+    await adminPrograms.addProgramBlockWithOptional(programName, 'fourth description', [], 'radio-optional-q');
+    await adminPrograms.addProgramBlockWithOptional(programName, 'fifth description', [], 'email-optional-q');
+    await adminPrograms.addProgramBlockWithOptional(programName, 'sixth description', ['static-optional-q'],
+    'ice-cream-optional-q');
+    await adminPrograms.addProgramBlockWithOptional(programName, 'seventh description', [],
+    'favorite-trees-optional-q');
+    await adminPrograms.addProgramBlockWithOptional(programName, 'eighth description', [], 'number-optional-q');
+    await adminPrograms.addProgramBlockWithOptional(programName, 'ninth description', [], 'text-optional-q');
+    await adminPrograms.addProgramBlockWithOptional(programName, 'tenth description', [], 'fileupload-optional-q');
 
     const programName2 = 'Second Optional Questions Program';
     await adminPrograms.addProgram(programName2);
-    await adminPrograms.editProgramBlockWithOptional(programName2, 'first description', [], 'date-q');
+    await adminPrograms.editProgramBlockWithOptional(programName2, 'first description', [], 'date-optional-q');
 
     await adminPrograms.gotoAdminProgramsPage();
     await adminPrograms.expectDraftProgram(programName);
