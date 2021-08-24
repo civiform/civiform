@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# DOC: Find missing translations in the hard-coded i18n system.
+
 # Without any arguments, this script will generate a diff of each localized message
 # file with the default `messages` file. Missing translations will be presented
 # first, followed by weird stuff. The weird stuff may be

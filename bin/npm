@@ -1,4 +1,7 @@
 #! /bin/bash
+
+# DOC: Run npm in the dev environment's docker container.
+
 pushd $(git rev-parse --show-toplevel)
 
 # allocate a tty for better test output even though not strictly needed.
