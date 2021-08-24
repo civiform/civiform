@@ -27,6 +27,6 @@ jobs:
         run: git add .; git diff --exit-code HEAD
 
       - name: Check bin scripts have docstrings.
-        if: contains(toJSON(steps.file_changes.outputs.files), 'infra/')
+        if: contains(toJSON(steps.file_changes.outputs.files), 'bin/')
         id: check_bin_script_docs
         run: bin/help
