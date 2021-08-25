@@ -7,13 +7,12 @@ set -e
 pushd $(git rev-parse --show-toplevel) > /dev/null
 
 missing=""
-FILES="bin/*"
 
 column_print () {
-  printf "%-30s %s\n" "$1" "$2"
+  printf "%-40s %s\n" "$1" "$2"
 }
 
-for f in $FILES
+for f in bin/* bin/**/*
 do
   if [[ -d $f ]]; then
     continue
