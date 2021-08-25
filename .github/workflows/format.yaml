@@ -1,4 +1,4 @@
-name: Format (Java)
+name: Format
 
 on:
   # code review question: this commits directly to PR branches.
