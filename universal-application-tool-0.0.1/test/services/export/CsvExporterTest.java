@@ -205,8 +205,9 @@ public class CsvExporterTest extends WithPostgresContainer {
         getApplicantQuestion(nameQuestion.getQuestionDefinition()).createNameQuestion();
     String firstNameHeader = ExporterService.pathToHeader(nameApplicantQuestion.getFirstNamePath());
     String lastNameHeader = ExporterService.pathToHeader(nameApplicantQuestion.getLastNamePath());
-    assertThat(records.get(0).get(firstNameHeader)).isEqualTo("Alice");
-    assertThat(records.get(1).get(lastNameHeader)).isEqualTo("Baker");
+    // Applications should appear most recent first.
+    assertThat(records.get(0).get(firstNameHeader)).isEqualTo("Bob");
+    assertThat(records.get(1).get(lastNameHeader)).isEqualTo("Appleton");
     // Check list for multiselect in default locale
     Question checkboxQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.CHECKBOX);
@@ -214,7 +215,7 @@ public class CsvExporterTest extends WithPostgresContainer {
         getApplicantQuestion(checkboxQuestion.getQuestionDefinition()).createMultiSelectQuestion();
     String multiSelectHeader =
         ExporterService.pathToHeader(multiSelectApplicantQuestion.getSelectionPath());
-    assertThat(records.get(0).get(multiSelectHeader)).isEqualTo("[toaster, pepper grinder]");
+    assertThat(records.get(1).get(multiSelectHeader)).isEqualTo("[toaster, pepper grinder]");
     // Check link for uploaded file
     Question fileuploadQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.FILEUPLOAD);
@@ -222,7 +223,7 @@ public class CsvExporterTest extends WithPostgresContainer {
         getApplicantQuestion(fileuploadQuestion.getQuestionDefinition()).createFileUploadQuestion();
     String fileKeyHeader =
         ExporterService.pathToHeader(fileuploadApplicantQuestion.getFileKeyPath());
-    assertThat(records.get(0).get(fileKeyHeader))
+    assertThat(records.get(1).get(fileKeyHeader))
         .contains(
             String.format("/admin/programs/%d/files/my-file-key", fakeProgramWithCsvExport.id));
   }
@@ -396,33 +397,35 @@ public class CsvExporterTest extends WithPostgresContainer {
 
     List<CSVRecord> records = parser.getRecords();
     assertThat(records).hasSize(2);
+
+    // Records should be ordered most recent first.
     assertThat(
             records
                 .get(0)
-                .get(
-                    "applicant household members[0] - household members jobs[2] - household"
-                        + " members jobs income (number)"))
-        .isEqualTo("");
-    assertThat(
-            records
-                .get(0)
-                .get(
-                    "applicant household members[1] - household members jobs[0] - household"
-                        + " members jobs income (number)"))
-        .isEqualTo("100");
-    assertThat(
-            records
-                .get(1)
                 .get(
                     "applicant household members[0] - household members jobs[2] - household"
                         + " members jobs income (number)"))
         .isEqualTo("333");
     assertThat(
             records
-                .get(1)
+                .get(0)
                 .get(
                     "applicant household members[1] - household members jobs[0] - household"
                         + " members jobs income (number)"))
         .isEqualTo("");
+    assertThat(
+            records
+                .get(1)
+                .get(
+                    "applicant household members[0] - household members jobs[2] - household"
+                        + " members jobs income (number)"))
+        .isEqualTo("");
+    assertThat(
+            records
+                .get(1)
+                .get(
+                    "applicant household members[1] - household members jobs[0] - household"
+                        + " members jobs income (number)"))
+        .isEqualTo("100");
   }
 }
