@@ -1,4 +1,4 @@
-import { startSession, loginAsProgramAdmin, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, logout, loginAsTestUser, selectApplicantLanguage, ApplicantQuestions, userDisplayName } from './support'
+import { startSession, loginAsAdmin, loginAsGuest, loginAsProgramAdmin, loginAsTestUser, AdminQuestions, AdminPrograms, endSession, logout, selectApplicantLanguage, ApplicantQuestions, userDisplayName } from './support'
 
 describe('normal application flow', () => {
   it('all major steps', async () => {
@@ -165,7 +165,7 @@ describe('normal application flow', () => {
     // Submit applications from different users.
     const answers = ['apple', 'banana', 'cherry', 'durian'];
     for (const answer of answers) {
-      await loginAsTestUser(page);
+      await loginAsGuest(page);
       await selectApplicantLanguage(page, 'English');
 
       const applicantQuestions = new ApplicantQuestions(page);
