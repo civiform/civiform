@@ -1,4 +1,7 @@
 #! /bin/bash
+
+# DOC: Run the Java test suite in Docker.
+
 pushd $(git rev-parse --show-toplevel)
 
 bin/pull-image

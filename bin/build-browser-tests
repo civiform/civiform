@@ -1,4 +1,7 @@
 #! /bin/bash
+
+# DOC: Build a new docker image for running the browser tests, optionally push to AWS.
+
 pushd $(git rev-parse --show-toplevel)
 
 set -e

@@ -1,4 +1,7 @@
 #! /usr/bin/env bash
+
+# DOC: Connect to dev environment PostgreSQL database.
+
 pushd $(git rev-parse --show-toplevel)
 
 set -e
