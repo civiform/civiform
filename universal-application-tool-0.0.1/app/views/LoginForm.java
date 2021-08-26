@@ -49,11 +49,6 @@ public class LoginForm extends BaseHtmlView {
       htmlBundle.addMainContent(debugContent());
     }
 
-    if (message.isPresent()) {
-      String errorString = "Error: You are not logged in. " + message.get();
-      htmlBundle.addToastMessages(ToastMessage.error(errorString));
-    }
-
     return layout.render(htmlBundle);
   }
 
