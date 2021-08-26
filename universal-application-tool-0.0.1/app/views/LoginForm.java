@@ -19,7 +19,6 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
-import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.Styles;
 
