@@ -152,7 +152,7 @@ public class LoginForm extends BaseHtmlView {
                 "dual-admin",
                 "Program and Civiform Admin",
                 routes.CallbackController.fakeAdmin(
-                         FakeAdminClient.CLIENT_NAME, FakeAdminClient.DUAL_ADMIN)
+                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.DUAL_ADMIN)
                     .url()));
   }
 
