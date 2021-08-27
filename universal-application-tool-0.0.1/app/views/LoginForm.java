@@ -19,7 +19,6 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
-import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.Styles;
 
@@ -47,11 +46,6 @@ public class LoginForm extends BaseHtmlView {
     // won't show up except when running in an acceptable environment.
     if (fakeAdminClient.canEnable(request.host())) {
       htmlBundle.addMainContent(debugContent());
-    }
-
-    if (message.isPresent()) {
-      String errorString = "Error: You are not logged in. " + message.get();
-      htmlBundle.addToastMessages(ToastMessage.error(errorString));
     }
 
     return layout.render(htmlBundle);
