@@ -53,7 +53,7 @@ public class ProfileFactory {
   private CiviFormProfileData create(Roles[] roleList) {
     CiviFormProfileData p = new CiviFormProfileData();
     p.init(dbContext);
-    for(Roles role : roleList) {
+    for (Roles role : roleList) {
       p.addRole(role.toString());
     }
     return p;
