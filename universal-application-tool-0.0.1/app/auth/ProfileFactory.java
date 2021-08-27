@@ -30,11 +30,11 @@ public class ProfileFactory {
   }
 
   public CiviFormProfileData createNewApplicant() {
-    return create(Roles.ROLE_APPLICANT);
+    return create(new Roles[]{Roles.ROLE_APPLICANT});
   }
 
   public CiviFormProfileData createNewAdmin() {
-    CiviFormProfileData p = create(Roles.ROLE_CIVIFORM_ADMIN);
+    CiviFormProfileData p = create(new Roles[]{Roles.ROLE_CIVIFORM_ADMIN});
     wrapProfileData(p)
         .getAccount()
         .thenAccept(
@@ -50,10 +50,12 @@ public class ProfileFactory {
     return new CiviFormProfile(dbContext, httpContext, p);
   }
 
-  private CiviFormProfileData create(Roles role) {
+  private CiviFormProfileData create(Roles[] roleList) {
     CiviFormProfileData p = new CiviFormProfileData();
     p.init(dbContext);
-    p.addRole(role.toString());
+    for(Roles role: roleList) {
+      p.addRole(role.toString());
+    }
     return p;
   }
 
@@ -66,7 +68,7 @@ public class ProfileFactory {
   }
 
   public CiviFormProfileData createNewProgramAdmin() {
-    return create(Roles.ROLE_PROGRAM_ADMIN);
+    return create(new Roles[]{Roles.ROLE_PROGRAM_ADMIN});
   }
 
   /**
@@ -74,7 +76,7 @@ public class ProfileFactory {
    * with a fake email address.
    */
   public CiviFormProfileData createFakeProgramAdmin() {
-    CiviFormProfileData p = create(Roles.ROLE_PROGRAM_ADMIN);
+    CiviFormProfileData p = create(new Roles[]{Roles.ROLE_PROGRAM_ADMIN});
     wrapProfileData(p)
         .getAccount()
         .thenAccept(
@@ -89,6 +91,30 @@ public class ProfileFactory {
               account.save();
             })
         .join();
+    return p;
+  }
+
+  /**
+   * This creates an admin who is both a civiform admin and a program admin of all currently live programs,
+   * with a fake email address.
+   */
+  public CiviFormProfileData createFakeDualAdmin() {
+    CiviFormProfileData p = create(new Roles[]{Roles.ROLE_PROGRAM_ADMIN, Roles.ROLE_CIVIFORM_ADMIN});
+    wrapProfileData(p)
+            .getAccount()
+            .thenAccept(
+                    account -> {
+                      account.setGlobalAdmin(true);
+                      versionRepositoryProvider
+                              .get()
+                              .getActiveVersion()
+                              .getPrograms()
+                              .forEach(
+                                      program -> account.addAdministeredProgram(program.getProgramDefinition()));
+                      account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));
+                      account.save();
+                    })
+            .join();
     return p;
   }
 }
