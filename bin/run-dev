@@ -1,4 +1,7 @@
-#!/bin/bash
+#! /bin/bash
+
+# DOC: Run the app locally using Docker. Useful for manual testing.
+
 pushd $(git rev-parse --show-toplevel) > /dev/null
 
 set -e

@@ -1,4 +1,4 @@
-import { startSession, loginAsProgramAdmin, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, logout, loginAsTestUser, selectApplicantLanguage, ApplicantQuestions, userDisplayName } from './support'
+import { startSession, loginAsAdmin, loginAsGuest, loginAsProgramAdmin, loginAsTestUser, AdminQuestions, AdminPrograms, endSession, logout, selectApplicantLanguage, ApplicantQuestions, userDisplayName } from './support'
 
 describe('normal application flow', () => {
   it('all major steps', async () => {
@@ -143,6 +143,51 @@ describe('normal application flow', () => {
     await adminPrograms.viewApplicationsForOldVersion(programName);
     await adminPrograms.viewApplicationForApplicant(userDisplayName());
     await adminPrograms.expectApplicationAnswers('Screen 2', 'favorite-trees-q', 'pine cherry');
+
+    await endSession(browser);
+  })
+
+  it('program applications listed most recent first', async () => {
+    const { browser, page } = await startSession();
+    page.setDefaultTimeout(5000);
+
+    // Create a simple one question program application.
+    await loginAsAdmin(page);
+    const adminQuestions = new AdminQuestions(page);
+    const adminPrograms = new AdminPrograms(page);
+
+    await adminQuestions.addTextQuestion('fruit-text-q');
+    const programName = 'fruit program';
+    await adminPrograms.addAndPublishProgramWithQuestions(['fruit-text-q'], programName);
+
+    await logout(page);
+
+    // Submit applications from different users.
+    const answers = ['apple', 'banana', 'cherry', 'durian'];
+    for (const answer of answers) {
+      await loginAsGuest(page);
+      await selectApplicantLanguage(page, 'English');
+
+      const applicantQuestions = new ApplicantQuestions(page);
+      await applicantQuestions.applyProgram(programName);
+      await applicantQuestions.answerTextQuestion(answer);
+      await applicantQuestions.clickNext();
+      await applicantQuestions.submitFromReviewPage(programName);
+
+      await logout(page);
+    }
+
+    // Expect applications to be presented in reverse chronological order to program admin.
+    await loginAsProgramAdmin(page);
+
+    await adminPrograms.viewApplications(programName);
+    for (let i = 0; i < answers.length; i++) {
+      await page.click(`:nth-match(.cf-admin-application-card, ${i + 1}) a:text("View")`);
+      await adminPrograms.expectApplicationAnswers('Screen 1', 'fruit-text-q', answers[answers.length - i - 1]);
+      await page.goBack();
+    }
+
+    await logout(page);
 
     await endSession(browser);
   })

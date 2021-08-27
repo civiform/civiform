@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# DOC: Pull the latest development environment docker image from AWS.
+
 if [ -z "$USE_LOCAL_CIVIFORM" ]; then
   echo "Making sure we're up to date with the latest dev... set environment variable USE_LOCAL_CIVIFORM=1 to skip"
   if ! docker pull public.ecr.aws/t1q6b4h2/civiform-dev:latest; then

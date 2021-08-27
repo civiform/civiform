@@ -1,4 +1,7 @@
 #! /bin/bash
+
+# DOC: Run the browser tests in CI mode.
+
 pushd $(git rev-parse --show-toplevel)
 
 set -e

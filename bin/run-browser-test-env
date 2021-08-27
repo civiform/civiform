@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# DOC: Run the app locally using Docker for use with running browser tests.
+
 pushd $(git rev-parse --show-toplevel)
 
 set -e
