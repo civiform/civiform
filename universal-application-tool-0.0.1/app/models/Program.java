@@ -190,9 +190,11 @@ public class Program extends BaseModel {
     builder.setLocalizedDescription(LocalizedStrings.create(legacyLocalizedDescription));
   }
 
-  /** Returns program applications sorted by descending application id. */
-  public ImmutableList<Application> getApplications() {
-    return ImmutableList.copyOf(applications);
+  /** Returns submitted program applications sorted by descending application id. */
+  public ImmutableList<Application> getSubmittedApplications() {
+    return applications.stream()
+        .filter(application -> application.getLifecycleStage().equals(LifecycleStage.ACTIVE))
+        .collect(ImmutableList.toImmutableList());
   }
 
   public void addVersion(Version version) {
