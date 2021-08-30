@@ -82,7 +82,7 @@ public class ExporterService {
       csvExporter = exporterFactory.csvExporter(generateDefaultCsvConfig(programId));
     }
     ImmutableList<Application> applications =
-            programService.getSubmittedProgramApplications(programId);
+        programService.getSubmittedProgramApplications(programId);
     return exportCsv(csvExporter, applications);
   }
 
