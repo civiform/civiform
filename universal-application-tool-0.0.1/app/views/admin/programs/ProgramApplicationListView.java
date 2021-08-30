@@ -97,7 +97,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                         .withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                     p().withClasses(Styles.FLEX_GROW),
                     renderApplicationsLink(
-                        String.format("Applications (%d) →", program.getApplications().size()),
+                        String.format(
+                            "Applications (%d) →", program.getSubmittedApplications().size()),
                         program.id))
                 .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL))
         .withClasses(

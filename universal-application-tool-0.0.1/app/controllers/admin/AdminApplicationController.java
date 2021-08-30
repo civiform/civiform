@@ -159,7 +159,7 @@ public class AdminApplicationController extends CiviFormController {
     }
     try {
       ImmutableList<Application> applications =
-          programService.getProgramApplications(programId, search);
+          programService.getSubmittedProgramApplications(programId, search);
       PaginationInfo<Application> pageInfo =
           PaginationInfo.paginate(applications, PAGE_SIZE, page.get());
       ImmutableList<Program> previousVersions = programService.getOtherProgramVersions(programId);
