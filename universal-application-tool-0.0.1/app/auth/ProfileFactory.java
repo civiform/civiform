@@ -50,6 +50,7 @@ public class ProfileFactory {
     return new CiviFormProfile(dbContext, httpContext, p);
   }
 
+  /* One admin can have multiple roles; they can be both a program admin and a civiform admin. */
   private CiviFormProfileData create(Roles[] roleList) {
     CiviFormProfileData p = new CiviFormProfileData();
     p.init(dbContext);
