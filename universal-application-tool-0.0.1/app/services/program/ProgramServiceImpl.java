@@ -514,8 +514,8 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public ImmutableList<Application> getSubmittedProgramApplications(long programId, Optional<String> search)
-      throws ProgramNotFoundException {
+  public ImmutableList<Application> getSubmittedProgramApplications(
+      long programId, Optional<String> search) throws ProgramNotFoundException {
     return getSubmittedProgramApplications(programId).stream()
         .filter(
             application ->

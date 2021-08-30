@@ -73,7 +73,8 @@ public class ExporterService {
    * @throws ProgramNotFoundException If the program ID refers to a program that does not exist.
    */
   public String getProgramCsv(long programId) throws ProgramNotFoundException {
-    ImmutableList<Application> applications = programService.getSubmittedProgramApplications(programId);
+    ImmutableList<Application> applications =
+        programService.getSubmittedProgramApplications(programId);
     ProgramDefinition program = programService.getProgramDefinition(programId);
     CsvExporter csvExporter;
     if (program.exportDefinitions().stream()
