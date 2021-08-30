@@ -300,7 +300,7 @@ public interface ProgramService {
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ImmutableList<Application> getSubmittedProgramApplications(long programId)
-          throws ProgramNotFoundException;
+      throws ProgramNotFoundException;
 
   ImmutableList<Application> getSubmittedProgramApplications(
       long programId, Optional<String> search) throws ProgramNotFoundException;
