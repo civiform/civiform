@@ -20,6 +20,7 @@ public class FakeAdminClient extends IndirectClient {
   public static final String CLIENT_NAME = "FakeAdminClient";
   public static final String GLOBAL_ADMIN = "GLOBAL";
   public static final String PROGRAM_ADMIN = "PROGRAM";
+  public static final String DUAL_ADMIN = "DUAL";
 
   private ImmutableSet<String> acceptedHosts;
   private ProfileFactory profileFactory;
@@ -58,6 +59,8 @@ public class FakeAdminClient extends IndirectClient {
             cred.setUserProfile(profileFactory.createNewAdmin());
           } else if (adminType.get().equals(PROGRAM_ADMIN)) {
             cred.setUserProfile(profileFactory.createFakeProgramAdmin());
+          } else if (adminType.get().equals(DUAL_ADMIN)) {
+            cred.setUserProfile(profileFactory.createFakeDualAdmin());
           } else {
             throw new IllegalArgumentException(
                 String.format("admin type %s not recognized", adminType.get()));

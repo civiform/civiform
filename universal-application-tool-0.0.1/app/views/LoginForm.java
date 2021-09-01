@@ -141,6 +141,12 @@ public class LoginForm extends BaseHtmlView {
                 "Of All Active Programs",
                 routes.CallbackController.fakeAdmin(
                         FakeAdminClient.CLIENT_NAME, FakeAdminClient.PROGRAM_ADMIN)
+                    .url()),
+            redirectButton(
+                "dual-admin",
+                "Program and Civiform Admin",
+                routes.CallbackController.fakeAdmin(
+                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.DUAL_ADMIN)
                     .url()));
   }
 
