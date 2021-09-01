@@ -125,10 +125,8 @@ public class AdminApplicationController extends CiviFormController {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
     Application application = applicationMaybe.get();
-    String applicantNameWithId =
-        String.format(
-            "%s (%d)",
-            application.getApplicantData().getApplicantName(), application.getApplicant().id);
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
 
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
@@ -139,7 +137,12 @@ public class AdminApplicationController extends CiviFormController {
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
     return ok(
         applicationView.render(
-            programId, programName, applicationId, applicantNameWithId, blocks, answers));
+            programId,
+            programName,
+            applicationId,
+            applicantNameWithApplicationId,
+            blocks,
+            answers));
   }
 
   /** Return a paginated HTML page displaying (part of) all applications to the program. */

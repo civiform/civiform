@@ -253,11 +253,12 @@ public class ApplicantServiceImpl implements ApplicantService {
         baseUrl
             + controllers.admin.routes.AdminApplicationController.show(programId, applicationId)
                 .url();
-    String subject = String.format("Applicant %d submitted a new application", applicantId);
+    String subject = String.format("New application %d submitted", applicationId);
     String message =
         String.format(
-            "Applicant %d submitted a new application to program %s.\nView the application at %s.",
-            applicantId, programName, viewLink);
+            "Applicant %d submitted a new application %d to program %s.\n"
+                + "View the application at %s.",
+            applicantId, applicationId, programName, viewLink);
     if (isStaging) {
       amazonSESClient.send(stagingProgramAdminNotificationMailingList, subject, message);
     } else {
