@@ -43,8 +43,8 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   public Content render(
       ActiveAndDraftPrograms programs, Http.Request request, Optional<CiviFormProfile> profile) {
-    if (profile.isPresent() && profile.get().isProgramAdmin()) {
-      layout.setProgramAdminType();
+    if (profile.isPresent() && profile.get().isProgramAdmin() && !profile.get().isCiviFormAdmin()) {
+      layout.setOnlyProgramAdminType();
     }
 
     String pageTitle = "All programs";

@@ -29,7 +29,7 @@ public class AdminLayout extends BaseHtmlLayout {
 
   private static final String[] FOOTER_SCRIPTS = {"preview", "questionBank"};
 
-  private AdminType adminType = AdminType.CIVI_FORM_ADMIN;
+  private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
 
   @Inject
   public AdminLayout(ViewUtils viewUtils, Config configuration) {
@@ -39,8 +39,8 @@ public class AdminLayout extends BaseHtmlLayout {
   /**
    * Sets this layout's admin type to PROGRAM_ADMIN, used to determine which navigation to include.
    */
-  public AdminLayout setProgramAdminType() {
-    adminType = AdminType.PROGRAM_ADMIN;
+  public AdminLayout setOnlyProgramAdminType() {
+    primaryAdminType = AdminType.PROGRAM_ADMIN;
     return this;
   }
 
@@ -91,7 +91,7 @@ public class AdminLayout extends BaseHtmlLayout {
         nav().with(headerIcon, headerTitle).withClasses(AdminStyles.NAV_STYLES);
 
     // Don't include nav links for program admin.
-    if (adminType.equals(AdminType.PROGRAM_ADMIN)) {
+    if (primaryAdminType.equals(AdminType.PROGRAM_ADMIN)) {
       return adminHeader.with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT));
     }
 
