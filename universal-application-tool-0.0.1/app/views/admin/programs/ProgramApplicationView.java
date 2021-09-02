@@ -33,7 +33,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
   @Inject
   public ProgramApplicationView(AdminLayout layout) {
-    this.layout = checkNotNull(layout).setProgramAdminType();
+    this.layout = checkNotNull(layout).setOnlyProgramAdminType();
   }
 
   public Content render(

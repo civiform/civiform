@@ -117,7 +117,7 @@ export class ApplicantQuestions {
       .toContain('<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">');
   }
 
-  async seeStaticQuestion(questionText: string){
-      expect(await this.page.textContent('html')).toContain(questionText);
-    }
+  async seeStaticQuestion(questionText: string) {
+    expect(await this.page.textContent('html')).toContain(questionText);
+  }
 }
