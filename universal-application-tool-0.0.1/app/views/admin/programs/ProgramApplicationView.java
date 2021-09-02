@@ -40,7 +40,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       long programId,
       String programName,
       long applicationId,
-      String applicantNameWithId,
+      String applicantNameWithApplicationId,
       ImmutableList<Block> blocks,
       ImmutableList<AnswerData> answers) {
     String title = "Program Application View";
@@ -60,7 +60,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withClasses(Styles.PX_20)
             .with(
                 h2("Program: " + programName).withClasses(Styles.MY_4),
-                h1(applicantNameWithId).withClasses(Styles.MY_4),
+                h1(applicantNameWithApplicationId).withClasses(Styles.MY_4),
                 each(
                     blocks,
                     block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))),
