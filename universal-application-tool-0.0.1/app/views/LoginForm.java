@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.img;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
@@ -26,13 +27,23 @@ import views.style.Styles;
 public class LoginForm extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
-  private final Config config;
+  private final boolean idcsIsAvailable;
+  private final Optional<String> maybeLogoUrl;
+  private final String civicEntityFullName;
+  private final String civicEntityShortName;
   private final FakeAdminClient fakeAdminClient;
 
   @Inject
   public LoginForm(BaseHtmlLayout layout, Config config, FakeAdminClient fakeAdminClient) {
     this.layout = checkNotNull(layout);
-    this.config = checkNotNull(config);
+    this.idcsIsAvailable = checkNotNull(config).hasPath("idcs.register_uri");
+    this.maybeLogoUrl =
+        checkNotNull(config).hasPath("whitelabel.small_logo_url")
+            ? Optional.of(config.getString("whitelabel.small_logo_url"))
+            : Optional.empty();
+    this.civicEntityFullName = checkNotNull(config).getString("whitelabel.civic_entity_full_name");
+    this.civicEntityShortName =
+        checkNotNull(config).getString("whitelabel.civic_entity_short_name");
     this.fakeAdminClient = checkNotNull(fakeAdminClient);
   }
 
@@ -54,17 +65,27 @@ public class LoginForm extends BaseHtmlView {
   private ContainerTag mainContent(Messages messages) {
     ContainerTag content = div().withClasses(BaseStyles.LOGIN_PAGE);
 
-    content.with(
-        this.layout
-            .viewUtils
-            .makeLocalImageTag("ChiefSeattle_Blue")
-            .withAlt("City of Seattle Logo")
-            .attr("aria-hidden", "true")
-            .withClasses(Styles.W_1_4, Styles.PT_4));
+    if (maybeLogoUrl.isPresent()) {
+      content.with(
+          img()
+              .withSrc(maybeLogoUrl.get())
+              .withAlt(civicEntityFullName + "logo")
+              .attr("aria-hidden", "true")
+              .withClasses(Styles.W_1_4, Styles.PT_4));
+    } else {
+      content.with(
+          this.layout
+              .viewUtils
+              .makeLocalImageTag("ChiefSeattle_Blue")
+              .withAlt(civicEntityFullName + " Logo")
+              .attr("aria-hidden", "true")
+              .withClasses(Styles.W_1_4, Styles.PT_4));
+    }
+
     content.with(
         div()
             .withClasses(Styles.FLEX, Styles.TEXT_4XL, Styles.GAP_1, Styles._MT_6, Styles.PX_8)
-            .with(p("Seattle").withClasses(Styles.FONT_BOLD))
+            .with(p(civicEntityShortName).withClasses(Styles.FONT_BOLD))
             .with(p("CiviForm")));
 
     String loginMessage = messages.at(MessageKey.CONTENT_LOGIN_PROMPT.getKeyName());
@@ -95,7 +116,7 @@ public class LoginForm extends BaseHtmlView {
                 Styles.GAP_4,
                 Styles.ITEMS_CENTER,
                 Styles.TEXT_LG);
-    if (config.hasPath("idcs.register_uri")) {
+    if (idcsIsAvailable) {
       alternativeLoginButtons
           .with(createAccountButton(messages))
           .with(p(or))
