@@ -9,11 +9,14 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.hr;
+import static j2html.TagCreator.img;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
+import com.typesafe.config.Config;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,10 +42,17 @@ import views.style.Styles;
 public class ProgramIndexView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
+  private final Optional<String> maybeLogoUrl;
+  private final String civicEntityFullName;
 
   @Inject
-  public ProgramIndexView(ApplicantLayout layout) {
+  public ProgramIndexView(ApplicantLayout layout, Config config) {
     this.layout = checkNotNull(layout);
+    this.maybeLogoUrl =
+        checkNotNull(config).hasPath("whitelabel.logo_with_name_url")
+            ? Optional.of(config.getString("whitelabel.logo_with_name_url"))
+            : Optional.empty();
+    this.civicEntityFullName = checkNotNull(config).getString("whitelabel.civic_entity_full_name");
   }
 
   /**
@@ -107,13 +117,16 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.PB_6,
                 StyleUtils.responsiveSmall(Styles.TEXT_BASE));
 
-    ContainerTag seattleLogoDiv =
+    Tag logoImg =
+        maybeLogoUrl.isPresent()
+            ? img().withSrc(maybeLogoUrl.get())
+            : this.layout.viewUtils.makeLocalImageTag("Seattle-logo_horizontal_blue-white_small");
+
+    ContainerTag logoDiv =
         div()
             .with(
-                this.layout
-                    .viewUtils
-                    .makeLocalImageTag("Seattle-logo_horizontal_blue-white_small")
-                    .withAlt("City of Seattle logo")
+                logoImg
+                    .withAlt(civicEntityFullName + " logo")
                     .attr("aria-hidden", "true")
                     .attr("width", 175)
                     .attr("height", 70))
@@ -122,7 +135,7 @@ public class ProgramIndexView extends BaseHtmlView {
     return div()
         .withId("top-content")
         .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, Styles.RELATIVE)
-        .with(seattleLogoDiv, programIndexH1, infoLine1Div, infoLine2Div);
+        .with(logoDiv, programIndexH1, infoLine1Div, infoLine2Div);
   }
 
   private ContainerTag mainContent(
