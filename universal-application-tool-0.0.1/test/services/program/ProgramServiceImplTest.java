@@ -96,7 +96,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThat(ps.getActiveAndDraftPrograms().getDraftSize()).isEqualTo(0);
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.createProgramDefinition("ProgramService", "description", "name", "description", "", false);
+        ps.createProgramDefinition(
+            "ProgramService", "description", "name", "description", "", false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().id()).isNotNull();
@@ -105,7 +106,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   @Test
   public void createProgram_hasEmptyBlock() {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.createProgramDefinition("ProgramService", "description", "name", "description", "", false);
+        ps.createProgramDefinition(
+            "ProgramService", "description", "name", "description", "", false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().blockDefinitions()).hasSize(1);
@@ -130,7 +132,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void createProgram_protectsAgainstProgramNameCollisions() {
-    ps.createProgramDefinition("name", "description", "display name", "display description", "", false);
+    ps.createProgramDefinition(
+        "name", "description", "display name", "display description", "", false);
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
@@ -484,7 +487,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   @Test
   public void setBlockQuestions_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
     ProgramDefinition p =
-        ps.createProgramDefinition("name", "description", "name", "description", "", false).getResult();
+        ps.createProgramDefinition("name", "description", "name", "description", "", false)
+            .getResult();
     assertThatThrownBy(() -> ps.setBlockQuestions(p.id(), 100L, ImmutableList.of()))
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
         .hasMessage(

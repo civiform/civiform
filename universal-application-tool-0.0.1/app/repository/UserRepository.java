@@ -60,8 +60,8 @@ public class UserRepository {
   }
 
   /**
-   * Returns all programs that are appropriate to serve to an applicant - which is any program
-   * where they have an application in the draft stage, and any active program that is not hidden.
+   * Returns all programs that are appropriate to serve to an applicant - which is any program where
+   * they have an application in the draft stage, and any active program that is not hidden.
    */
   public CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>>
       programsForApplicant(long applicantId) {
