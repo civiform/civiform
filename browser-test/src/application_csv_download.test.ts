@@ -18,9 +18,11 @@ describe('normal application flow', () => {
     const programName = 'test program for csv export';
     await adminQuestions.addNameQuestion('name-csv-download');
     await adminQuestions.addDropdownQuestion('dropdown-csv-download', ['op1', 'op2', 'op3']);
+    await adminQuestions.addDateQuestion('predicate-date');
     await adminQuestions.exportQuestion('name-csv-download');
     await adminQuestions.exportQuestion('dropdown-csv-download');
-    await adminPrograms.addAndPublishProgramWithQuestions(['name-csv-download', 'dropdown-csv-download'], programName);
+    await adminQuestions.exportQuestion('predicate-date');
+    await adminPrograms.addAndPublishProgramWithQuestions(['name-csv-download', 'dropdown-csv-download', 'predicate-date'], programName);
 
     await logout(page);
     await loginAsTestUser(page);
@@ -31,6 +33,7 @@ describe('normal application flow', () => {
     // Applicant fills out first application block.
     await applicantQuestions.answerNameQuestion('sarah', 'smith');
     await applicantQuestions.answerDropdownQuestion('op2');
+    await applicantQuestions.answerDateQuestion('2021-05-10');
     await applicantQuestions.clickNext();
 
     // Application submits answers from review page.
@@ -41,7 +44,7 @@ describe('normal application flow', () => {
 
     await adminPrograms.viewApplications(programName);
     const csvContent = await adminPrograms.getCsv();
-    expect(csvContent).toContain('sarah,,smith,op2');
+    expect(csvContent).toContain('sarah,,smith,op2,05/10/2021');
 
     await logout(page);
     await loginAsAdmin(page)
@@ -58,15 +61,15 @@ describe('normal application flow', () => {
     await adminPrograms.viewApplications(programName);
     await adminPrograms.viewApplicationsInOldVersion();
     const postEditCsvContent = await adminPrograms.getCsv();
-    expect(postEditCsvContent).toContain('sarah,,smith,op2');
+    expect(postEditCsvContent).toContain('sarah,,smith,op2,05/10/2021');
 
     await logout(page);
     await loginAsAdmin(page)
 
     await adminPrograms.gotoAdminProgramsPage();
     const demographicsCsvContent = await adminPrograms.getDemographicsCsv();
-    expect(demographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,dropdowncsvdownload (selection),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)');
-    expect(demographicsCsvContent).toContain('op2,sarah,,smith');
+    expect(demographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,dropdowncsvdownload (selection),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name),predicatedate (date)');
+    expect(demographicsCsvContent).toContain('op2,sarah,,smith,05/10/2021');
 
     await adminQuestions.createNewVersion('name-csv-download');
     await adminQuestions.exportQuestionOpaque('name-csv-download');
@@ -74,7 +77,7 @@ describe('normal application flow', () => {
 
     await adminPrograms.gotoAdminProgramsPage();
     const newDemographicsCsvContent = await adminPrograms.getDemographicsCsv();
-    expect(newDemographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,dropdowncsvdownload (selection),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)');
+    expect(newDemographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,dropdowncsvdownload (selection),predicatedate (date),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)');
     expect(newDemographicsCsvContent).not.toContain(',sarah,,smith');
     expect(newDemographicsCsvContent).toContain(',op2,');
     if (isLocalDevEnvironment()) {
