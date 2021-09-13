@@ -24,6 +24,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         program.getLocalizedDisplayName(),
         program.getLocalizedDisplayDescription(),
         program.getExternalLink(),
+        program.getHideFromView(),
         editExistingProgram);
   }
 
@@ -36,6 +37,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         program.localizedName().getDefault(),
         program.localizedDescription().getDefault(),
         program.externalLink(),
+        program.hideFromView(),
         editExistingProgram);
   }
 
@@ -45,6 +47,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
       String displayName,
       String displayDescription,
       String externalLink,
+      boolean hideFromView,
       boolean editExistingProgram) {
     ContainerTag formTag = form().withMethod("POST");
     formTag.with(
@@ -62,6 +65,13 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .setFieldName("adminDescription")
             .setLabelText("Describe this program for administrative use")
             .setValue(adminDescription)
+            .getContainer(),
+        FieldWithLabel.checkbox()
+            .setId("program-hide-from-view-checkbox")
+            .setFieldName("hideFromView")
+            .setLabelText("Hide this program")
+            .setValue("true")
+            .setChecked(hideFromView)
             .getContainer(),
         h2("Public program information"),
         h3("This will be visible to the public"),

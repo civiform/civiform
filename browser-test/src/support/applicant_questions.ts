@@ -72,6 +72,19 @@ export class ApplicantQuestions {
     await this.page.click(`#continue-application-button`);
   }
 
+  async expectProgramExist(programName: string, description: string) {
+    const tableInnerText = await this.page.innerText('main');
+
+    expect(tableInnerText).toContain(programName);
+    expect(tableInnerText).toContain(description);
+  }
+
+  async expectProgramNotExist(programName: string) {
+    const tableInnerText = await this.page.innerText('main');
+
+    expect(tableInnerText).not.toContain(programName);
+    }
+
   async clickNext() {
     await this.page.click('text="Next"');
   }

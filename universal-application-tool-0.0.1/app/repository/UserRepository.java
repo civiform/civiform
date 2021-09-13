@@ -61,7 +61,7 @@ public class UserRepository {
 
   /**
    * Returns all programs that are appropriate to serve to an applicant - which is any program
-   * program where they have an application in the draft stage, and any active program.
+   * where they have an application in the draft stage, and any active program that is not hidden.
    */
   public CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>>
       programsForApplicant(long applicantId) {
@@ -88,6 +88,7 @@ public class UserRepository {
           ImmutableList<ProgramDefinition> activePrograms =
               versionRepositoryProvider.get().getActiveVersion().getPrograms().stream()
                   .map(Program::getProgramDefinition)
+                  .filter(pdef -> !pdef.hideFromView())
                   .collect(ImmutableList.toImmutableList());
           return ImmutableMap.of(
               LifecycleStage.DRAFT, inProgressPrograms,

@@ -41,6 +41,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
         .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
         .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
         .setExternalLink("")
+        .setHideFromView(false)
         .addBlockDefinition(blockA)
         .build();
   }
@@ -61,6 +62,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
+            .setHideFromView(false)
             .addBlockDefinition(blockA)
             .build();
 
@@ -77,6 +79,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
+            .setHideFromView(false)
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
@@ -116,6 +119,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
+            .setHideFromView(false)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             .build();
@@ -135,6 +139,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "Applicant friendly name"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "English description"))
             .setExternalLink("")
+            .setHideFromView(false)
             .build();
 
     assertThat(program.adminName()).isEqualTo("Admin name");
@@ -163,6 +168,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "existing name"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "existing description"))
             .setExternalLink("")
+            .setHideFromView(false)
             .build();
 
     program =
@@ -191,6 +197,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .setLocalizedDescription(
                 LocalizedStrings.of(Locale.US, "English description", Locale.GERMAN, "test"))
             .setExternalLink("")
+            .setHideFromView(false)
             .build();
 
     assertThat(definition.getSupportedLocales()).containsExactly(Locale.US);
@@ -233,6 +240,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
             .setExternalLink("")
+            .setHideFromView(false)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             .build();
@@ -289,6 +297,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
             .addBlockDefinition(blockB)
             .addBlockDefinition(blockC)
             .setExternalLink("")
+            .setHideFromView(false)
             .build();
 
     // blockA
@@ -371,6 +380,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
                 LocalizedStrings.of(
                     Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
             .setExternalLink("")
+            .setHideFromView(false)
             .addBlockDefinition(blockA)
             .addBlockDefinition(blockB)
             .addBlockDefinition(blockC)

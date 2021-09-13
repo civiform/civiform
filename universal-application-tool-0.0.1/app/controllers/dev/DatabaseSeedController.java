@@ -206,7 +206,8 @@ public class DatabaseSeedController extends DevController {
                   "desc",
                   name,
                   "display description",
-                  "https://github.com/seattle-uat/civiform")
+                  "https://github.com/seattle-uat/civiform",
+                  false)
               .getResult();
       long programId = programDefinition.id();
 

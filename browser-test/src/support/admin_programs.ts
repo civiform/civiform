@@ -25,7 +25,7 @@ export class AdminPrograms {
     expect(tableInnerText).toContain(description);
   }
 
-  async addProgram(programName: string, description = 'program description', externalLink = '') {
+  async addProgram(programName: string, description = 'program description', externalLink = '', hidden = false) {
     await this.gotoAdminProgramsPage();
     await this.page.click('#new-program-button');
 
@@ -34,6 +34,10 @@ export class AdminPrograms {
     await this.page.fill('#program-display-name-input', programName);
     await this.page.fill('#program-display-description-textarea', description);
     await this.page.fill('#program-external-link-input', externalLink);
+
+    if (hidden) {
+      await this.page.check(`label:has-text("Hide this program")`);
+    }
 
     await this.page.click('#program-update-button');
 
@@ -199,6 +203,16 @@ export class AdminPrograms {
     await this.page.click('#program-update-button');
     await this.expectDraftProgram(programName);
   }
+
+  async createUnhiddenVersion(programName: string) {
+    await this.gotoAdminProgramsPage();
+    await this.expectActiveProgram(programName);
+    await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', ':text("New Version")'));
+    await this.page.uncheck(`label:has-text("Hide this program")`);
+    //await this.page.pause();
+    await this.page.click('#program-update-button');
+    await this.expectDraftProgram(programName);
+    }
 
   async viewApplications(programName: string) {
     await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', 'a:text("Applications")'));

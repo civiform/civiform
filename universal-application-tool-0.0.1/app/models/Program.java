@@ -54,6 +54,9 @@ public class Program extends BaseModel {
   /** Link to external site for this program. */
   @Constraints.Required private String externalLink;
 
+  /** Whether the Program should be hidden from the home page. */
+  @Constraints.Required private boolean hideFromView;
+
   // Not required - will be autofilled if not present.
   private String slug;
 
@@ -103,6 +106,7 @@ public class Program extends BaseModel {
     this.localizedDescription = definition.localizedDescription();
     this.blockDefinitions = definition.blockDefinitions();
     this.exportDefinitions = definition.exportDefinitions();
+    this.hideFromView = definition.hideFromView();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -116,13 +120,15 @@ public class Program extends BaseModel {
       String adminDescription,
       String defaultDisplayName,
       String defaultDisplayDescription,
-      String externalLink) {
+      String externalLink,
+      boolean hideFromView) {
     this.name = adminName;
     this.description = adminDescription;
     // A program is always created with the default CiviForm locale first, then localized.
     this.localizedName = LocalizedStrings.withDefaultValue(defaultDisplayName);
     this.localizedDescription = LocalizedStrings.withDefaultValue(defaultDisplayDescription);
     this.externalLink = externalLink;
+    this.hideFromView = hideFromView;
     BlockDefinition emptyBlock =
         BlockDefinition.builder()
             .setId(1L)
@@ -146,6 +152,7 @@ public class Program extends BaseModel {
     blockDefinitions = programDefinition.blockDefinitions();
     exportDefinitions = programDefinition.exportDefinitions();
     slug = programDefinition.slug();
+    hideFromView = programDefinition.hideFromView();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -162,7 +169,8 @@ public class Program extends BaseModel {
             .setAdminDescription(description)
             .setBlockDefinitions(blockDefinitions)
             .setExportDefinitions(exportDefinitions)
-            .setExternalLink(externalLink);
+            .setExternalLink(externalLink)
+            .setHideFromView(hideFromView);
 
     setLocalizedName(builder);
     setLocalizedDescription(builder);

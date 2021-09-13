@@ -76,7 +76,7 @@ public class ApplicationRepositoryTest extends WithPostgresContainer {
   }
 
   private Program saveProgram(String name) {
-    Program program = new Program(name, "desc", name, "desc", "");
+    Program program = new Program(name, "desc", name, "desc", "", false);
     program.save();
     return program;
   }

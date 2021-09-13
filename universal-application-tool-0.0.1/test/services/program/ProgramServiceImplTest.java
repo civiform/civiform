@@ -96,7 +96,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThat(ps.getActiveAndDraftPrograms().getDraftSize()).isEqualTo(0);
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.createProgramDefinition("ProgramService", "description", "name", "description", "");
+        ps.createProgramDefinition("ProgramService", "description", "name", "description", "", false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().id()).isNotNull();
@@ -105,7 +105,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   @Test
   public void createProgram_hasEmptyBlock() {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.createProgramDefinition("ProgramService", "description", "name", "description", "");
+        ps.createProgramDefinition("ProgramService", "description", "name", "description", "", false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().blockDefinitions()).hasSize(1);
@@ -116,7 +116,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   @Test
   public void createProgram_returnsErrors() {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.createProgramDefinition("", "", "", "", "");
+        ps.createProgramDefinition("", "", "", "", "", false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -130,11 +130,11 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void createProgram_protectsAgainstProgramNameCollisions() {
-    ps.createProgramDefinition("name", "description", "display name", "display description", "");
+    ps.createProgramDefinition("name", "description", "display name", "display description", "", false);
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
-            "name", "description", "display name", "display description", "");
+            "name", "description", "display name", "display description", "", false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -147,7 +147,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     assertThatThrownBy(
             () ->
                 ps.updateProgramDefinition(
-                    1L, Locale.US, "new description", "name", "description", ""))
+                    1L, Locale.US, "new description", "name", "description", "", false))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
   }
@@ -158,7 +158,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
         ProgramBuilder.newDraftProgram("original", "original description").buildDefinition();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
-            originalProgram.id(), Locale.US, "new description", "name", "description", "");
+            originalProgram.id(), Locale.US, "new description", "name", "description", "", false);
 
     assertThat(result.hasResult()).isTrue();
     ProgramDefinition updatedProgram = result.getResult();
@@ -177,7 +177,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     ProgramDefinition found =
         ps.updateProgramDefinition(
-                program.id(), Locale.US, "new description", "name", "description", "")
+                program.id(), Locale.US, "new description", "name", "description", "", false)
             .getResult();
 
     QuestionDefinition foundQuestion =
@@ -190,7 +190,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.updateProgramDefinition(program.id(), Locale.US, "", "", "", "");
+        ps.updateProgramDefinition(program.id(), Locale.US, "", "", "", "", false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -484,7 +484,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   @Test
   public void setBlockQuestions_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
     ProgramDefinition p =
-        ps.createProgramDefinition("name", "description", "name", "description", "").getResult();
+        ps.createProgramDefinition("name", "description", "name", "description", "", false).getResult();
     assertThatThrownBy(() -> ps.setBlockQuestions(p.id(), 100L, ImmutableList.of()))
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
         .hasMessage(
