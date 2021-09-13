@@ -69,7 +69,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         FieldWithLabel.checkbox()
             .setId("program-hide-from-view-checkbox")
             .setFieldName("hideFromView")
-            .setLabelText("Hide this program")
+            .setLabelText("Hide this program on public index page")
             .setValue("true")
             .setChecked(hideFromView)
             .getContainer(),

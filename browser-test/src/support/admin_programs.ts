@@ -36,7 +36,7 @@ export class AdminPrograms {
     await this.page.fill('#program-external-link-input', externalLink);
 
     if (hidden) {
-      await this.page.check(`label:has-text("Hide this program")`);
+      await this.page.check(`label:has-text("Hide this program on public index page")`);
     }
 
     await this.page.click('#program-update-button');
@@ -208,7 +208,7 @@ export class AdminPrograms {
     await this.gotoAdminProgramsPage();
     await this.expectActiveProgram(programName);
     await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', ':text("New Version")'));
-    await this.page.uncheck(`label:has-text("Hide this program")`);
+    await this.page.uncheck(`label:has-text("Hide this program on public index page")`);
     //await this.page.pause();
     await this.page.click('#program-update-button');
     await this.expectDraftProgram(programName);
