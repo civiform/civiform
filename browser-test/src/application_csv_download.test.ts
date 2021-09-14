@@ -18,11 +18,11 @@ describe('normal application flow', () => {
     const programName = 'test program for csv export';
     await adminQuestions.addNameQuestion('name-csv-download');
     await adminQuestions.addDropdownQuestion('dropdown-csv-download', ['op1', 'op2', 'op3']);
-    await adminQuestions.addDateQuestion('predicate-date');
+    await adminQuestions.addDateQuestion('csv-date');
     await adminQuestions.exportQuestion('name-csv-download');
     await adminQuestions.exportQuestion('dropdown-csv-download');
-    await adminQuestions.exportQuestion('predicate-date');
-    await adminPrograms.addAndPublishProgramWithQuestions(['name-csv-download', 'dropdown-csv-download', 'predicate-date'], programName);
+    await adminQuestions.exportQuestion('csv-date');
+    await adminPrograms.addAndPublishProgramWithQuestions(['name-csv-download', 'dropdown-csv-download', 'csv-date'], programName);
 
     await logout(page);
     await loginAsTestUser(page);
@@ -68,8 +68,8 @@ describe('normal application flow', () => {
 
     await adminPrograms.gotoAdminProgramsPage();
     const demographicsCsvContent = await adminPrograms.getDemographicsCsv();
-    expect(demographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,dropdowncsvdownload (selection),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name),predicatedate (date)');
-    expect(demographicsCsvContent).toContain('op2,sarah,,smith,05/10/2021');
+    expect(demographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvdate (date),dropdowncsvdownload (selection),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)');
+    expect(demographicsCsvContent).toContain('05/10/2021,op2,sarah,,smith');
 
     await adminQuestions.createNewVersion('name-csv-download');
     await adminQuestions.exportQuestionOpaque('name-csv-download');
@@ -77,7 +77,7 @@ describe('normal application flow', () => {
 
     await adminPrograms.gotoAdminProgramsPage();
     const newDemographicsCsvContent = await adminPrograms.getDemographicsCsv();
-    expect(newDemographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,dropdowncsvdownload (selection),predicatedate (date),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)');
+    expect(newDemographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvdate (date),dropdowncsvdownload (selection),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)');
     expect(newDemographicsCsvContent).not.toContain(',sarah,,smith');
     expect(newDemographicsCsvContent).toContain(',op2,');
     if (isLocalDevEnvironment()) {
