@@ -1,4 +1,5 @@
 import { Page } from 'playwright'
+import { waitForPageJsLoad } from './wait';
 
 export class ApplicantQuestions {
   public page!: Page
@@ -61,27 +62,33 @@ export class ApplicantQuestions {
 
   async addEnumeratorAnswer(entityName: string) {
     await this.page.click('button:text("add entity")');
+    // TODO(leonwong): may need to specify row index to wait for newly added row.
     await this.page.fill('#enumerator-fields .cf-enumerator-field:last-of-type input', entityName)
   }
 
   async applyProgram(programName: string) {
     // User clicks the apply button on an application card. It takes them to the application info page.
     await this.page.click(`.cf-application-card:has-text("${programName}") .cf-apply-button`);
+    await waitForPageJsLoad(this.page);
 
     // The user can see the application preview page. Clicking on apply sends them to the first unanswered question.
     await this.page.click(`#continue-application-button`);
+    await waitForPageJsLoad(this.page);
   }
 
   async clickNext() {
     await this.page.click('text="Next"');
+    await waitForPageJsLoad(this.page);
   }
 
   async clickReview() {
     await this.page.click('text="Review"');
+    await waitForPageJsLoad(this.page);
   }
 
   async clickUpload() {
     await this.page.click('text="Upload"');
+    await waitForPageJsLoad(this.page);
   }
 
   async deleteEnumeratorEntity(entityName: string) {
@@ -104,8 +111,10 @@ export class ApplicantQuestions {
 
     // Click on submit button.
     await this.page.click('text="Submit"');
+    await waitForPageJsLoad(this.page);
 
     await this.page.click('text="Apply to another program"');
+    await waitForPageJsLoad(this.page);
 
     // Ensure that we redirected to the programs list page.
     expect(await this.page.url().split('/').pop()).toEqual('programs');

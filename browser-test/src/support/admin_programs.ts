@@ -1,5 +1,6 @@
 import { Page } from 'playwright'
 import { readFileSync } from 'fs'
+import { clickAndWaitForModal, waitForPageJsLoad } from './wait';
 
 export class AdminPrograms {
   public page!: Page
@@ -11,6 +12,7 @@ export class AdminPrograms {
   async gotoAdminProgramsPage() {
     await this.page.click('nav :text("Programs")');
     await this.expectAdminProgramsPage();
+    await waitForPageJsLoad(this.page);
   }
 
   async expectAdminProgramsPage() {
@@ -28,6 +30,7 @@ export class AdminPrograms {
   async addProgram(programName: string, description = 'program description', externalLink = '') {
     await this.gotoAdminProgramsPage();
     await this.page.click('#new-program-button');
+    await waitForPageJsLoad(this.page);
 
     await this.page.fill('#program-name-input', programName);
     await this.page.fill('#program-description-textarea', description);
@@ -36,6 +39,7 @@ export class AdminPrograms {
     await this.page.fill('#program-external-link-input', externalLink);
 
     await this.page.click('#program-update-button');
+    await waitForPageJsLoad(this.page);
 
     await this.expectAdminProgramsPage();
 
@@ -54,6 +58,7 @@ export class AdminPrograms {
     await this.gotoAdminProgramsPage();
     await this.expectDraftProgram(programName);
     await this.page.click(this.selectWithinProgramCard(programName, 'DRAFT', ':text("Edit")'));
+    await waitForPageJsLoad(this.page);
     await this.expectProgramEditPage(programName);
   }
 
@@ -61,6 +66,7 @@ export class AdminPrograms {
     await this.gotoAdminProgramsPage();
     await this.expectDraftProgram(programName);
     await this.page.click(this.selectWithinProgramCard(programName, 'DRAFT', ':text("Manage Translations")'));
+    await waitForPageJsLoad(this.page);
     await this.expectProgramManageTranslationsPage();
   }
 
@@ -68,19 +74,23 @@ export class AdminPrograms {
     await this.gotoAdminProgramsPage();
     await this.expectDraftProgram(programName);
     await this.page.click(this.selectWithinProgramCard(programName, 'DRAFT', ':text("Manage Admins")'));
+    await waitForPageJsLoad(this.page);
     await this.expectManageProgramAdminsPage();
   }
 
   async goToEditBlockPredicatePage(programName: string, blockName: string) {
     await this.gotoDraftProgramEditPage(programName);
     await this.page.click('text=Manage Questions');
+    await waitForPageJsLoad(this.page);
     await this.expectProgramBlockEditPage(programName);
 
     // Click on the block to edit
     await this.page.click(`a:has-text("${blockName}")`);
+    await waitForPageJsLoad(this.page);
 
     // Click on the edit predicate button
     await this.page.click('#cf-edit-predicate');
+    await waitForPageJsLoad(this.page);
     await this.expectEditPredicatePage(blockName);
   }
 
@@ -125,14 +135,13 @@ export class AdminPrograms {
     await this.gotoDraftProgramEditPage(programName);
 
     await this.page.click('text=Manage Questions');
+    await waitForPageJsLoad(this.page);
     await this.expectProgramBlockEditPage(programName);
 
-    // Make sure the JS loads so the edit block modal appears when expected.
-    await this.page.waitForLoadState('load');
-
-    await this.page.click('#block-description-modal-button');
+    await clickAndWaitForModal(this.page, 'block-description-modal');
     await this.page.fill('textarea', blockDescription);
-    await this.page.click('#update-block-button');
+    // Make sure input validation enables the button before clicking.
+    await this.page.click('#update-block-button:not([disabled])');
 
     for (const questionName of questionNames) {
       await this.page.click(`button:text("${questionName}")`);
@@ -143,16 +152,15 @@ export class AdminPrograms {
     await this.gotoDraftProgramEditPage(programName);
 
     await this.page.click('text=Manage Questions');
+    await waitForPageJsLoad(this.page);
     await this.expectProgramBlockEditPage(programName);
 
-    // Make sure the JS loads so the edit block modal appears when expected.
-    await this.page.waitForLoadState('load');
-
     await this.page.click('#add-block-button');
+    await waitForPageJsLoad(this.page);
 
-    await this.page.click('#block-description-modal-button');
+    await clickAndWaitForModal(this.page, 'block-description-modal');
     await this.page.type('textarea', blockDescription);
-    await this.page.click('#update-block-button');
+    await this.page.click('#update-block-button:not([disabled])');
 
     for (const questionName of questionNames) {
       await this.page.click(`button:text("${questionName}")`);
@@ -165,15 +173,19 @@ export class AdminPrograms {
     blockDescription = 'screen description',
     questionNames: string[] = []) {
     await this.gotoDraftProgramEditPage(programName);
+
     await this.page.click('text=Manage Questions');
+    await waitForPageJsLoad(this.page);
     await this.expectProgramBlockEditPage(programName);
 
     await this.page.click(`text=${enumeratorBlockName}`);
+    await waitForPageJsLoad(this.page);
     await this.page.click('#create-repeated-block-button');
+    await waitForPageJsLoad(this.page);
 
-    await this.page.click('#block-description-modal-button');
+    await clickAndWaitForModal(this.page, 'block-description-modal');
     await this.page.fill('#block-description-textarea', blockDescription);
-    await this.page.click('#update-block-button');
+    await this.page.click('#update-block-button:not([disabled])');
 
     for (const questionName of questionNames) {
       await this.page.click(`button:text("${questionName}")`);
@@ -188,29 +200,37 @@ export class AdminPrograms {
   }
 
   async publishAllPrograms() {
-    await this.page.click(`#publish-all-programs-modal-button`);
+    await clickAndWaitForModal(this.page, 'publish-all-programs-modal');
     await this.page.click(`#publish-programs-button > button`);
+    await waitForPageJsLoad(this.page);
   }
 
   async createNewVersion(programName: string) {
     await this.gotoAdminProgramsPage();
     await this.expectActiveProgram(programName);
+
     await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', ':text("New Version")'));
+    await waitForPageJsLoad(this.page);
     await this.page.click('#program-update-button');
+    await waitForPageJsLoad(this.page);
     await this.expectDraftProgram(programName);
   }
 
   async viewApplications(programName: string) {
     await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', 'a:text("Applications")'));
+    await waitForPageJsLoad(this.page);
   }
 
   async viewApplicationsInOldVersion() {
     await this.page.click('a:text("Applications")');
+    await waitForPageJsLoad(this.page);
   }
 
   async viewApplicationsForOldVersion(programName: string) {
     await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', ':text("Applications")'));
+    await waitForPageJsLoad(this.page);
     await this.page.click("a:has-text(\"Applications\")");
+    await waitForPageJsLoad(this.page);
   }
 
   selectApplicationCardForApplicant(applicantName: string) {
@@ -231,6 +251,7 @@ export class AdminPrograms {
 
   async viewApplicationForApplicant(applicantName: string) {
     await this.page.click(this.selectWithinApplicationForApplicant(applicantName, 'a:text("View")'));
+    await waitForPageJsLoad(this.page);
   }
 
   async expectApplicationAnswers(blockName: string, questionName: string, answer: string) {
