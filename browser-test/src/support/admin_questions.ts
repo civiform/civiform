@@ -17,7 +17,7 @@ export class AdminQuestions {
   }
 
   async clickSubmitButtonAndNavigate(buttonText: string) {
-    await this.page.click('button:has-text("' + buttonText + '")');
+    await this.page.click(`button:has-text("${buttonText}")`);
     await waitForPageJsLoad(this.page);
   }
 

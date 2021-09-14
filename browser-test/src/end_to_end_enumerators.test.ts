@@ -1,4 +1,3 @@
-import { waitForDebugger } from 'inspector';
 import { startSession, loginAsAdmin, loginAsGuest, AdminQuestions, AdminPrograms, ApplicantQuestions, selectApplicantLanguage, endSession, waitForPageJsLoad } from './support'
 
 describe('End to end enumerator test', () => {
