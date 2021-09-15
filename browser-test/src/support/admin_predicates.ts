@@ -1,4 +1,5 @@
 import { Page } from 'playwright'
+import { waitForPageJsLoad } from './wait';
 
 export class AdminPredicates {
   public page!: Page
@@ -10,8 +11,8 @@ export class AdminPredicates {
   // For multi-option questions where the value is a checkbox of options, provide a comma-separated
   // list of the options you would like to check as the value. Ex: blue,red,green
   async addPredicate(questionName: string, action: string, scalar: string, operator: string, value: string) {
-    await this.page.waitForLoadState('load');
     await this.page.click(`text="${questionName}"`);
+
     await this.page.selectOption('.cf-predicate-action:visible select', { label: action });
     await this.page.selectOption('.cf-scalar-select:visible select', { label: scalar });
     await this.page.selectOption('.cf-operator-select:visible select', { label: operator });
@@ -28,6 +29,7 @@ export class AdminPredicates {
     }
 
     await this.page.click('button:visible:has-text("Submit")');
+    await waitForPageJsLoad(this.page);
   }
 
   async expectVisibilityConditionEquals(condition: string) {
