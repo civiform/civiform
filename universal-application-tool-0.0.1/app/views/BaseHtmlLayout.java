@@ -22,7 +22,8 @@ import views.components.ToastMessage;
  */
 public class BaseHtmlLayout {
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
-  private static final String[] FOOTER_SCRIPTS = {"main", "accordion", "modal", "radio", "toast"};
+  //private static final String ADMIN_FOOTER_SCRIPT = "admin_validation";
+  private static final String[] FOOTER_SCRIPTS = {"main", "accordion", "modal", "radio", "toast", "admin_validation"};
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
 
@@ -30,6 +31,7 @@ public class BaseHtmlLayout {
   private final String measurementId;
   private final String hostName;
   private final boolean isStaging;
+ // private final boolean isAdminPage;
 
   @Inject
   public BaseHtmlLayout(ViewUtils viewUtils, Config configuration) {
@@ -37,9 +39,11 @@ public class BaseHtmlLayout {
     this.measurementId = checkNotNull(configuration).getString("measurement_id");
 
     String baseUrl = checkNotNull(configuration).getString("base_url");
+    System.out.println("BASE URL: " + baseUrl);
     this.hostName = URI.create(baseUrl).getHost();
     String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
     this.isStaging = hostName.equals(stagingHostname);
+ //   this.isAdminPage = baseUrl.contains("admin");
   }
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
@@ -87,6 +91,11 @@ public class BaseHtmlLayout {
     for (String source : FOOTER_SCRIPTS) {
       bundle.addFooterScripts(viewUtils.makeLocalJsTag(source));
     }
+
+    //ADD THIS BACK IN
+    // if (this.isAdminPage){
+    //   bundle.addFooterScripts(viewUtils.makeLocalJsTag(ADMIN_FOOTER_SCRIPT));
+    // }
 
     return bundle;
   }
