@@ -1,7 +1,8 @@
 /** The validation controller provides basic client-side validation of admin form fields. */
 class AdminValidationController {
 
-    static readonly MULTI_OPTION_QUESTION_FIELD_NAME = '[name="newOptions[]"]';
+    static readonly MULTI_OPTION_QUESTION_FIELD_NAME = '#question-settings input[name="newOptions[]"]';
+    //'[name="newOptions[]"]';
     static readonly BLOCK_SUBMIT_BUTTON_ID = 'cf-block-submit';
 
     isMultiOptionValid = true;
