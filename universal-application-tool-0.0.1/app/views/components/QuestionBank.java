@@ -28,6 +28,14 @@ import views.style.Styles;
 
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
 public class QuestionBank {
+  private static final ContainerTag PLUS_ICON =
+      Icons.svg(Icons.PLUS_SVG_PATH, 24)
+          .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6)
+          .attr("fill", "currentColor")
+          .attr("stroke-width", "2")
+          .attr("stroke-linecap", "round")
+          .attr("stroke-linejoin", "round");
+
   private ProgramDefinition program;
   private BlockDefinition blockDefinition;
   private Optional<Long> enumeratorQuestionId;
@@ -104,7 +112,6 @@ public class QuestionBank {
         div().withClasses(Styles.ABSOLUTE, Styles.ML_4, Styles.MT_3, Styles.MR_4).with(filterIcon);
     ContainerTag filterDiv =
         div().withClasses(Styles.RELATIVE).with(filterIconDiv).with(filterInput);
-
     contentDiv.with(filterDiv);
 
     ImmutableList<QuestionDefinition> filteredQuestions = filterQuestions();
@@ -156,7 +163,7 @@ public class QuestionBank {
                 p(definition.getName()),
                 p(definition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM),
                 addButton);
-    return questionDiv.with(icon, content);
+    return questionDiv.with(PLUS_ICON, icon, content);
   }
 
   /**
