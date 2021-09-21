@@ -81,3 +81,4 @@ validation.invalidZipcode=Please enter valid 5-digit ZIP code.
 validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 validation.entityNameRequired=Please enter a value for each line.
 validation.fileRequired=Please select a file.
+adminValidation.multiOptionEmpty=Multi option questions cannot have blank options.

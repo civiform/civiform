@@ -4,10 +4,18 @@ import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.label;
 
+import static autovalue.shaded.com.google$.common.base.$Preconditions.checkNotNull;
+
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
+import play.i18n.Lang;
+
+import com.google.inject.Inject;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import forms.AddressQuestionForm;
 import forms.EnumeratorQuestionForm;
 import forms.MultiOptionQuestionForm;
@@ -18,6 +26,8 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import services.LocalizedStrings;
+import services.MessageKey;
+import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
@@ -27,6 +37,9 @@ import views.style.Styles;
 
 /** Contains methods for rendering type-specific question settings components. */
 public class QuestionConfig {
+  private static final Messages messages;
+  // private final MessagesApi messagesApi;
+
   private String id = "";
   private String headerText = "Question settings";
   private ContainerTag content = div();
@@ -50,6 +63,13 @@ public class QuestionConfig {
   private static final String OUTER_DIV_CLASSES =
       StyleUtils.joinStyles(Styles.W_FULL, Styles.PT_0, Styles._MT_4);
 
+    // @Inject
+    // public QuestionConfig(MessagesApi messagesApi) {
+    //   // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
+    //   this.messagesApi = checkNotNull(messagesApi);
+    //   this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
+    // }
+
   public QuestionConfig setId(String id) {
     this.id = id;
     return this;
@@ -60,7 +80,7 @@ public class QuestionConfig {
     return this;
   }
 
-  public static ContainerTag buildQuestionConfig(QuestionForm questionForm) {
+  public static ContainerTag buildQuestionConfig(QuestionForm questionForm, Messages messages) {
     QuestionConfig config = new QuestionConfig();
     switch (questionForm.getQuestionType()) {
       case ADDRESS:
@@ -165,6 +185,8 @@ public class QuestionConfig {
             .setFieldName(existingOption.isPresent() ? "options[]" : "newOptions[]")
             .setLabelText("Question option")
             .setValue(existingOption.map(LocalizedQuestionOption::optionText))
+            .setFieldErrors(messages, ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
+            .showFieldErrors(false)
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2);
     ContainerTag optionIndexInput =

@@ -324,7 +324,7 @@ public final class QuestionEditView extends BaseHtmlView {
             questionHelpTextField)
         .with(formQuestionTypeSelect(questionType));
 
-    formTag.with(QuestionConfig.buildQuestionConfig(questionForm));
+    formTag.with(QuestionConfig.buildQuestionConfig(questionForm, messages));
 
     if (!ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
       formTag.with(
