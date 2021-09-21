@@ -62,6 +62,8 @@ public final class ReferenceClasses {
   public static final String ADDRESS_STATE = "cf-address-state";
   public static final String ADDRESS_ZIP = "cf-address-zip";
 
+  public static final String MULTI_OPTION_INPUT = "cf-multi-option-input";
+
   public static final String CHECKBOX_QUESTION = "cf-question-checkbox";
   public static final String DATE_QUESTION = "cf-question-date";
   public static final String EMAIL_QUESTION = "cf-question-email";

@@ -34,8 +34,28 @@ class AdminValidationController {
     private checkFields(){
         this.isMultiOptionCreateValid = this.validateMultiOptionQuestionCreate();
         this.isMultiOptionEditValid = this.validateMultiOptionQuestionEdit();
+        
+        // const createOptions = Array.from(<NodeListOf<HTMLInputElement>>document.querySelectorAll(AdminValidationController.MULTI_OPTION_QUESTION_FIELD_NAME_CREATE));
+        // for (const createOption of createOptions) {
+        //   this.updateFieldErrorState(createOption, ".cf-multi-option-input", this.isMultiOptionCreateValid);
+        // }
+        // this.updateFieldErrorState(question, "", this.isMultiOptionCreateValid);
+        // this.updateFieldErrorState(question, "", this.isMultiOptionEditValid);
         // Option to add this back in. 
         // this.updateSubmitButton();
+    }
+
+    updateFieldErrorState(element: Element, fieldName: string, isValid: boolean) {
+      const errorDiv = element.parentElement ? element.parentElement.querySelector(fieldName + '-error') : element.querySelector(fieldName + '-error');
+      if (errorDiv) {
+        errorDiv.classList.toggle('hidden', isValid);
+      }
+  
+      // Also toggle the border on error inputs (if applicable).
+      const field = element.querySelector(fieldName + ' input');
+      if (field) {
+        field.classList.toggle('border-red-600', !isValid);
+      }
     }
 
     isValid() {
@@ -56,12 +76,24 @@ class AdminValidationController {
     /** Validates that there are no empty options. Returns true if all fields are valid.  */
     validateMultiOptionQuestionCreate(): boolean {
       const options = Array.from(<NodeListOf<HTMLInputElement>>document.querySelectorAll(AdminValidationController.MULTI_OPTION_QUESTION_FIELD_NAME_CREATE));
-      return !options.some(option =>  option.value === '');    }
+      const isValid = !options.some(option =>  option.value === '');    
+      for (const option of options) {
+        const isInputValid = option.value !== '';
+        this.updateFieldErrorState(option, ".cf-multi-option-input", isInputValid);
+      }
+      return isValid;
+    }
 
     /** Validates that there are no empty options. Returns true if all fields are valid.  */
     validateMultiOptionQuestionEdit(): boolean {
       const options = Array.from(<NodeListOf<HTMLInputElement>>document.querySelectorAll(AdminValidationController.MULTI_OPTION_QUESTION_FIELD_NAME_EDIT));
-      return !options.some(option =>  option.value === '');   }
+      const isValid = !options.some(option =>  option.value === '');    
+      for (const option of options) {
+        const isInputValid = option.value !== '';
+        this.updateFieldErrorState(option, ".cf-multi-option-input", isInputValid);
+      }
+      return isValid;
+    }
 
     /** Add listeners to all multi option inputs to update validation on changes. */
   private addMultiOptionListeners() {

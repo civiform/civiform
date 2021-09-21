@@ -203,7 +203,7 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag multiOptionQuestionField =
         div()
             .with(
-                QuestionConfig.multiOptionQuestionField(Optional.empty())
+                QuestionConfig.multiOptionQuestionField(Optional.empty(), messages)
                     .withId("multi-option-question-answer-template")
                     // Add "hidden" to other classes, so that the template is not shown
                     .withClasses(Styles.HIDDEN, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4));

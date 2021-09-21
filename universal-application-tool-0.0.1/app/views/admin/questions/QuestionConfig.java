@@ -37,7 +37,7 @@ import views.style.Styles;
 
 /** Contains methods for rendering type-specific question settings components. */
 public class QuestionConfig {
-  private static final Messages messages;
+  // private static final Messages messages;
   // private final MessagesApi messagesApi;
 
   private String id = "";
@@ -92,7 +92,7 @@ public class QuestionConfig {
         MultiOptionQuestionForm form = (MultiOptionQuestionForm) questionForm;
         return config
             .setId("multi-select-question-config")
-            .addMultiOptionQuestionFields(form)
+            .addMultiOptionQuestionFields(form, messages)
             .addMultiSelectQuestionValidation(form)
             .getContainer();
       case ENUMERATOR:
@@ -114,7 +114,7 @@ public class QuestionConfig {
       case RADIO_BUTTON:
         return config
             .setId("single-select-question-config")
-            .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm)
+            .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm, messages)
             .getContainer();
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended - no options
@@ -179,11 +179,12 @@ public class QuestionConfig {
    * answer, along with a button to remove the option.
    */
   public static ContainerTag multiOptionQuestionField(
-      Optional<LocalizedQuestionOption> existingOption) {
+      Optional<LocalizedQuestionOption> existingOption, Messages messages) {
     ContainerTag optionInput =
         FieldWithLabel.input()
             .setFieldName(existingOption.isPresent() ? "options[]" : "newOptions[]")
             .setLabelText("Question option")
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
             .setValue(existingOption.map(LocalizedQuestionOption::optionText))
             .setFieldErrors(messages, ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
             .showFieldErrors(false)
@@ -209,7 +210,7 @@ public class QuestionConfig {
   }
 
   private QuestionConfig addMultiOptionQuestionFields(
-      MultiOptionQuestionForm multiOptionQuestionForm) {
+      MultiOptionQuestionForm multiOptionQuestionForm, Messages messages) {
     Preconditions.checkState(
         multiOptionQuestionForm.getOptionIds().size()
             == multiOptionQuestionForm.getOptions().size(),
@@ -223,7 +224,7 @@ public class QuestionConfig {
                       multiOptionQuestionForm.getOptionIds().get(i),
                       i,
                       multiOptionQuestionForm.getOptions().get(i),
-                      LocalizedStrings.DEFAULT_LOCALE))));
+                      LocalizedStrings.DEFAULT_LOCALE)), messages));
     }
 
     content
