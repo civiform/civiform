@@ -189,7 +189,7 @@ public class QuestionConfig {
             .setFieldErrors(messages, ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
             .showFieldErrors(false)
             .getContainer()
-            .withClasses(Styles.FLEX, Styles.ML_2);
+            .withClasses(Styles.FLEX, Styles.ML_2, Styles.GAP_X_3);
     ContainerTag optionIndexInput =
         existingOption.isPresent()
             ? FieldWithLabel.input()
