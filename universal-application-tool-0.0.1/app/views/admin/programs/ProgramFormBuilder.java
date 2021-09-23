@@ -6,8 +6,8 @@ import static j2html.TagCreator.h3;
 
 import forms.ProgramForm;
 import j2html.tags.ContainerTag;
-import services.program.ProgramDefinition;
 import models.DisplayMode;
+import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 

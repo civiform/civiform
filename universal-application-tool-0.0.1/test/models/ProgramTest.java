@@ -7,7 +7,6 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import models.DisplayMode;
 import repository.ProgramRepository;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
