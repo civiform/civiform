@@ -7,6 +7,7 @@ import static j2html.TagCreator.h3;
 import forms.ProgramForm;
 import j2html.tags.ContainerTag;
 import services.program.ProgramDefinition;
+import models.DisplayMode;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 
@@ -24,7 +25,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         program.getLocalizedDisplayName(),
         program.getLocalizedDisplayDescription(),
         program.getExternalLink(),
-        program.getHideFromView(),
+        program.getDisplayMode(),
         editExistingProgram);
   }
 
@@ -37,7 +38,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         program.localizedName().getDefault(),
         program.localizedDescription().getDefault(),
         program.externalLink(),
-        program.hideFromView(),
+        program.displayMode(),
         editExistingProgram);
   }
 
@@ -47,7 +48,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
       String displayName,
       String displayDescription,
       String externalLink,
-      boolean hideFromView,
+      String displayMode,
       boolean editExistingProgram) {
     ContainerTag formTag = form().withMethod("POST");
     formTag.with(
@@ -66,12 +67,19 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Describe this program for administrative use")
             .setValue(adminDescription)
             .getContainer(),
-        FieldWithLabel.checkbox()
-            .setId("program-hide-from-view-checkbox")
-            .setFieldName("hideFromView")
-            .setLabelText("Hide this program on public index page")
-            .setValue("true")
-            .setChecked(hideFromView)
+        FieldWithLabel.radio()
+            .setId("program-display-mode-public")
+            .setFieldName("displayMode")
+            .setLabelText("Public")
+            .setValue(DisplayMode.PUBLIC.getValue())
+            .setChecked(displayMode.equals(DisplayMode.PUBLIC.getValue()))
+            .getContainer(),
+        FieldWithLabel.radio()
+            .setId("program-display-mode-hidden")
+            .setFieldName("displayMode")
+            .setLabelText("Hidden in Index")
+            .setValue(DisplayMode.HIDDEN_IN_INDEX.getValue())
+            .setChecked(displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()))
             .getContainer(),
         h2("Public program information"),
         h3("This will be visible to the public"),

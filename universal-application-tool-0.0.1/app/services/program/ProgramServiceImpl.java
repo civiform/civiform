@@ -102,7 +102,7 @@ public class ProgramServiceImpl implements ProgramService {
       String defaultDisplayName,
       String defaultDisplayDescription,
       String externalLink,
-      boolean hideFromView) {
+      String displayMode) {
 
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     if (hasProgramNameCollision(adminName)) {
@@ -124,7 +124,7 @@ public class ProgramServiceImpl implements ProgramService {
             defaultDisplayName,
             defaultDisplayDescription,
             externalLink,
-            hideFromView);
+            displayMode);
     program.addVersion(versionRepository.getDraftVersion());
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
@@ -137,7 +137,7 @@ public class ProgramServiceImpl implements ProgramService {
       String displayName,
       String displayDescription,
       String externalLink,
-      boolean hideFromView)
+      String displayMode)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
@@ -159,7 +159,7 @@ public class ProgramServiceImpl implements ProgramService {
                     .localizedDescription()
                     .updateTranslation(locale, displayDescription))
             .setExternalLink(externalLink)
-            .setHideFromView(hideFromView)
+            .setDisplayMode(displayMode)
             .build()
             .toProgram();
     return ErrorAnd.of(

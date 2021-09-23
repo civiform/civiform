@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.Optional;
 import models.Applicant;
 import models.Application;
+import models.DisplayMode;
 import models.LifecycleStage;
 import models.Program;
 import org.junit.Before;
@@ -76,7 +77,7 @@ public class ApplicationRepositoryTest extends WithPostgresContainer {
   }
 
   private Program saveProgram(String name) {
-    Program program = new Program(name, "desc", name, "desc", "", false);
+    Program program = new Program(name, "desc", name, "desc", "", DisplayMode.PUBLIC.getValue());
     program.save();
     return program;
   }

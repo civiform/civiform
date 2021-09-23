@@ -50,8 +50,8 @@ public abstract class ProgramDefinition {
   /** An external link to a page containing more details for this program. */
   public abstract String externalLink();
 
-  /** Whether the program should be hidden from the Applicant's program overview page. */
-  public abstract boolean hideFromView();
+  /** The program's display mode. */
+  public abstract String displayMode();
 
   /**
    * Descriptive name of a Program, e.g. Car Tab Rebate Program, localized for each supported
@@ -560,7 +560,7 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setExternalLink(String externalLink);
 
-    public abstract Builder setHideFromView(boolean hideFromView);
+    public abstract Builder setDisplayMode(String displayMode);
 
     public abstract Builder setAdminDescription(String adminDescription);
 

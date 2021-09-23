@@ -21,6 +21,7 @@ import javax.inject.Provider;
 import models.Account;
 import models.Applicant;
 import models.Application;
+import models.DisplayMode;
 import models.LifecycleStage;
 import models.Program;
 import models.TrustedIntermediaryGroup;
@@ -61,7 +62,7 @@ public class UserRepository {
 
   /**
    * Returns all programs that are appropriate to serve to an applicant - which is any program where
-   * they have an application in the draft stage, and any active program that is not hidden.
+   * they have an application in the draft stage, and any active program that is public.
    */
   public CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>>
       programsForApplicant(long applicantId) {
@@ -88,7 +89,7 @@ public class UserRepository {
           ImmutableList<ProgramDefinition> activePrograms =
               versionRepositoryProvider.get().getActiveVersion().getPrograms().stream()
                   .map(Program::getProgramDefinition)
-                  .filter(pdef -> !pdef.hideFromView())
+                  .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC.getValue()))
                   .collect(ImmutableList.toImmutableList());
           return ImmutableMap.of(
               LifecycleStage.DRAFT, inProgressPrograms,

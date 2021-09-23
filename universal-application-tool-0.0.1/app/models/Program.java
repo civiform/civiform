@@ -54,8 +54,8 @@ public class Program extends BaseModel {
   /** Link to external site for this program. */
   @Constraints.Required private String externalLink;
 
-  /** Whether the Program should be hidden from the home page. */
-  @Constraints.Required private boolean hideFromView;
+  /** The program's display mode. */
+  @Constraints.Required private String displayMode;
 
   // Not required - will be autofilled if not present.
   private String slug;
@@ -106,7 +106,7 @@ public class Program extends BaseModel {
     this.localizedDescription = definition.localizedDescription();
     this.blockDefinitions = definition.blockDefinitions();
     this.exportDefinitions = definition.exportDefinitions();
-    this.hideFromView = definition.hideFromView();
+    this.displayMode = definition.displayMode();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -121,14 +121,14 @@ public class Program extends BaseModel {
       String defaultDisplayName,
       String defaultDisplayDescription,
       String externalLink,
-      boolean hideFromView) {
+      String displayMode) {
     this.name = adminName;
     this.description = adminDescription;
     // A program is always created with the default CiviForm locale first, then localized.
     this.localizedName = LocalizedStrings.withDefaultValue(defaultDisplayName);
     this.localizedDescription = LocalizedStrings.withDefaultValue(defaultDisplayDescription);
     this.externalLink = externalLink;
-    this.hideFromView = hideFromView;
+    this.displayMode = displayMode;
     BlockDefinition emptyBlock =
         BlockDefinition.builder()
             .setId(1L)
@@ -152,7 +152,7 @@ public class Program extends BaseModel {
     blockDefinitions = programDefinition.blockDefinitions();
     exportDefinitions = programDefinition.exportDefinitions();
     slug = programDefinition.slug();
-    hideFromView = programDefinition.hideFromView();
+    displayMode = programDefinition.displayMode();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -170,7 +170,7 @@ public class Program extends BaseModel {
             .setBlockDefinitions(blockDefinitions)
             .setExportDefinitions(exportDefinitions)
             .setExternalLink(externalLink)
-            .setHideFromView(hideFromView);
+            .setDisplayMode(displayMode);
 
     setLocalizedName(builder);
     setLocalizedDescription(builder);

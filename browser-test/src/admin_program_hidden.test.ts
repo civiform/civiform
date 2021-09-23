@@ -12,7 +12,7 @@ describe('Hide a program that should not be public yet', () => {
     // Create a hidden program
     const programName = 'Hidden Program';
     const programDescription = 'Description';
-    await adminPrograms.addProgram(programName, programDescription, "", true); // Will this work? lol
+    await adminPrograms.addProgram(programName, programDescription, "", true);
     await adminPrograms.publishAllPrograms();
 
     // Login as applicant
@@ -23,13 +23,13 @@ describe('Hide a program that should not be public yet', () => {
     await applicantQuestions.validateHeader('en-US');
 
     // Verify the program cannot be seen
-    await applicantQuestions.expectProgramNotExist(programName);
+    await applicantQuestions.expectProgramHidden(programName);
 
     await logout(page);
     await loginAsAdmin(page);
 
     // Unhide the program and publish
-    await adminPrograms.createUnhiddenVersion(programName);
+    await adminPrograms.createPublicVersion(programName);
     await adminPrograms.publishAllPrograms();
 
     await logout(page);
@@ -37,7 +37,7 @@ describe('Hide a program that should not be public yet', () => {
     // Verify applicants can now see the program
     await loginAsTestUser(page);
     await selectApplicantLanguage(page, 'English');
-    await applicantQuestions.expectProgramExist(programName, programDescription);
+    await applicantQuestions.expectProgramPublic(programName, programDescription);
 
     await endSession(browser);
   })

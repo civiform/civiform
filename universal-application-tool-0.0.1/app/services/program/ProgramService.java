@@ -57,7 +57,7 @@ public interface ProgramService {
    * @param defaultDisplayName the name of this program to display to applicants
    * @param defaultDisplayDescription a description for this program to display to applicants
    * @param externalLink A link to an external page containing additional program details
-   * @param hideFromView Control whether the program should be hidden from applicants
+   * @param displayMode The display mode for the program
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
    */
@@ -67,7 +67,7 @@ public interface ProgramService {
       String defaultDisplayName,
       String defaultDisplayDescription,
       String externalLink,
-      boolean hideFromView);
+      String displayMode);
 
   /**
    * Update a program's mutable fields: admin description, display name and description for
@@ -80,7 +80,7 @@ public interface ProgramService {
    * @param displayName a name for this program
    * @param displayDescription the description of what the program provides
    * @param externalLink A link to an external page containing additional program details
-   * @param hideFromView Control whether the program should be hidden from applicants
+   * @param displayMode The display mode for the program
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
@@ -92,7 +92,7 @@ public interface ProgramService {
       String displayName,
       String displayDescription,
       String externalLink,
-      boolean hideFromView)
+      String displayMode)
       throws ProgramNotFoundException;
 
   /**

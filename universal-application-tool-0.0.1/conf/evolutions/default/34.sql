@@ -1,7 +1,7 @@
-# --- Allow programs to be hidden from the applicant home view
+# --- Allow programs to specify their display mode
 
 # --- !Ups
-alter table programs add column hide_from_view boolean default false not null;
+alter table programs add column display_mode varchar default 'PUBLIC' not null;
 
 # --- !Downs
-alter table programs drop column hide_from_view;
+alter table programs drop column display_mode;

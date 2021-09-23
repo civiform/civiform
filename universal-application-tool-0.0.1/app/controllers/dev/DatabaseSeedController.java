@@ -17,6 +17,7 @@ import play.Environment;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import models.DisplayMode;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.ActiveAndDraftPrograms;
@@ -207,7 +208,7 @@ public class DatabaseSeedController extends DevController {
                   name,
                   "display description",
                   "https://github.com/seattle-uat/civiform",
-                  false)
+                  DisplayMode.PUBLIC.getValue())
               .getResult();
       long programId = programDefinition.id();
 

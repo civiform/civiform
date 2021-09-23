@@ -7,7 +7,7 @@ public class ProgramForm {
   private String localizedDisplayName;
   private String localizedDisplayDescription;
   private String externalLink;
-  private boolean hideFromView;
+  private String displayMode;
 
   public ProgramForm() {
     adminName = "";
@@ -15,7 +15,7 @@ public class ProgramForm {
     localizedDisplayName = "";
     localizedDisplayDescription = "";
     externalLink = "";
-    hideFromView = false;
+    displayMode = "";
   }
 
   public String getAdminName() {
@@ -42,12 +42,12 @@ public class ProgramForm {
     this.externalLink = externalLink;
   }
 
-  public boolean getHideFromView() {
-    return hideFromView;
+  public String getDisplayMode() {
+    return displayMode;
   }
 
-  public void setHideFromView(boolean hideFromView) {
-    this.hideFromView = hideFromView;
+  public void setDisplayMode(String displayMode) {
+    this.displayMode = displayMode;
   }
 
   public String getLocalizedDisplayName() {

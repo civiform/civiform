@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import models.DisplayMode;
 import repository.ProgramRepository;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
@@ -67,7 +68,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
-            .setHideFromView(false)
+            .setDisplayMode(DisplayMode.PUBLIC.getValue())
             .build();
     Program program = new Program(definition);
 
@@ -136,7 +137,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
-            .setHideFromView(false)
+            .setDisplayMode(DisplayMode.PUBLIC.getValue())
             .build();
     Program program = new Program(definition);
     program.save();
@@ -178,7 +179,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
-            .setHideFromView(false)
+            .setDisplayMode(DisplayMode.PUBLIC.getValue())
             .build();
     Program program = new Program(definition);
     program.save();
@@ -269,7 +270,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setAdminName("test program")
             .setAdminDescription("test description")
             .setExternalLink("")
-            .setHideFromView(false)
+            .setDisplayMode(DisplayMode.PUBLIC.getValue())
             .setLocalizedName(LocalizedStrings.withDefaultValue("test name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("test description"))
             .setBlockDefinitions(unorderedBlocks)
