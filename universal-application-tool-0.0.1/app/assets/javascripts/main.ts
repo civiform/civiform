@@ -148,7 +148,7 @@ function removeExistingEnumeratorField(event: Event) {
 
 /**
  * Remove line-clamp from div on click.
- * 
+ *
  * NOTE: This is in no way discoverable, but it's just a temporary fix until we have a program
  * landing page.
  */
@@ -354,4 +354,7 @@ window.addEventListener('load', (event) => {
   // Configure existing enumerator entity remove buttons
   Array.from(document.querySelectorAll('.cf-enumerator-delete-button')).forEach(
     el => el.addEventListener('click', removeExistingEnumeratorField));
+
+  // Advertise (e.g., for browser tests) that main.ts initialization is done
+  document.body.dataset.loadMain = 'true';
 });

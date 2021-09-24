@@ -1,10 +1,12 @@
 import { Browser, chromium, Page } from 'playwright'
+import { waitForPageJsLoad } from './wait'
 export { AdminQuestions } from './admin_questions'
 export { AdminPredicates } from './admin_predicates'
 export { AdminPrograms } from './admin_programs'
 export { AdminTranslations } from './admin_translations'
 export { AdminTIGroups } from './admin_ti_groups'
 export { ApplicantQuestions } from './applicant_questions'
+export { clickAndWaitForModal, waitForPageJsLoad } from './wait'
 
 const { BASE_URL = 'http://civiform:9000', TEST_USER_LOGIN = '', TEST_USER_PASSWORD = '' } = process.env
 
@@ -31,18 +33,24 @@ export const gotoEndpoint = async (page: Page, endpoint: string) => {
 
 export const logout = async (page: Page) => {
   await page.click('text=Logout');
+  // Logout is handled by the play framework so it doesn't land on a
+  // page with civiform js where we need to waitForPageJsLoad.
+  await page.waitForLoadState();
 }
 
 export const loginAsAdmin = async (page: Page) => {
   await page.click('#admin');
+  await waitForPageJsLoad(page);
 }
 
 export const loginAsProgramAdmin = async (page: Page) => {
   await page.click('#program-admin');
+  await waitForPageJsLoad(page);
 }
 
 export const loginAsGuest = async (page: Page) => {
   await page.click('#guest');
+  await waitForPageJsLoad(page);
 }
 
 export const loginAsTestUser = async (page: Page) => {
@@ -55,6 +63,7 @@ export const loginAsTestUser = async (page: Page) => {
   } else {
     await page.click('#guest');
   }
+  await waitForPageJsLoad(page);
 }
 
 function isTestUser() {
@@ -82,6 +91,7 @@ export const selectApplicantLanguage = async (page: Page, language: string) => {
     await page.click(languageOption + ' input');
     await page.click('button:visible');
   }
+  await waitForPageJsLoad(page);
 
   const programIndexRegex = /applicants\/\d+\/programs/;
   const maybeProgramIndexPage = await page.url();
