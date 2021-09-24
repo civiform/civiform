@@ -347,7 +347,11 @@ export class AdminQuestions {
       }
       
       await this.clickSubmitButtonAndNavigate('Create');
-    }
+  }
+
+  async changeDropdownAnswer(index: number, text: string) {
+    await this.page.fill(`:nth-match(#question-settings div.flex-row, ${index}) input`, text);
+  }
 
   /** Fills out the form for a dropdown question, clicks submit, and verifies the new question exists.  */
   async addDropdownQuestion(questionName: string,

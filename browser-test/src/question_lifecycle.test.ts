@@ -65,11 +65,43 @@ describe('normal question lifecycle', () => {
     await waitForPageJsLoad(page);
 
     await adminQuestions.expectMultiOptionBlankOptionError(options);
+
+    // Correct error
+    await adminQuestions.changeDropdownAnswer(3, "option3");
+
+    await adminQuestions.clickSubmitButtonAndNavigate('Create');
+
+    await waitForPageJsLoad(page);
     
+    await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast();
+
+   
+  });
+
+
+  it('shows error when editing a dropdown question and admin left an option field blank', async () => {
+    // const { page } = await startSession();
+    // page.setDefaultTimeout(4000);
+
+    // await loginAsAdmin(page);
+    // const adminQuestions = new AdminQuestions(page);
+
+    // const options = ['option1', 'option2', ''];
+    // const questionName = 'dropdownWithEmptyOptions';
+
+    // await adminQuestions.createDropdownQuestion(questionName, options);
+   
+    // await waitForPageJsLoad(page);
+
+    // await adminQuestions.expectMultiOptionBlankOptionError(options);
+    
+    // await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast();
+
+    // await adminQuestions.expectDraftQuestionExist(questionName);
   });
 
   // TODO: Add tests for other multi questions
-  it.only('shows error when creating a radio question and admin left an option field blank', async () => {
+  it('shows error when creating a radio question and admin left an option field blank', async () => {
     const { page } = await startSession();
     page.setDefaultTimeout(4000);
 
