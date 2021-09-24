@@ -1,4 +1,7 @@
 #! /bin/bash
+
+# DOC: Build a new production docker image and push it to the AWS container registry.
+
 pushd $(git rev-parse --show-toplevel)
 
 set -e
@@ -7,7 +10,7 @@ export AWS_DEFAULT_REGION=us-west-2
 REGION=us-west-2
 STACK=civiform-staging
 if [ ! -z "$1" ]; then
-	STACK="$1"
+  STACK="$1"
 fi
 
 aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/t1q6b4h2

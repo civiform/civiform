@@ -14,6 +14,7 @@ import services.Path;
 import services.applicant.predicate.JsonPathPredicateGenerator;
 import services.applicant.predicate.PredicateEvaluator;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.DateQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
@@ -118,6 +119,13 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   public Optional<Block> getFirstIncompleteBlock() {
     return getInProgressBlocks().stream()
         .filter(block -> !block.isCompletedInProgramWithoutErrors() || block.containsStatic())
+        .findFirst();
+  }
+
+  @Override
+  public Optional<Block> getFirstIncompleteBlockExcludingStatic() {
+    return getInProgressBlocks().stream()
+        .filter(block -> !block.isCompleteWithoutErrors())
         .findFirst();
   }
 
@@ -320,6 +328,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         return ImmutableMap.of(
             question.getContextualizedPath(),
             question.createEnumeratorQuestion().getAnswerString());
+      case DATE:
+        DateQuestion dateQuestion = question.createDateQuestion();
+        return ImmutableMap.of(dateQuestion.getDatePath(), dateQuestion.getAnswerString());
       default:
         return question.getContextualizedScalars().keySet().stream()
             .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))

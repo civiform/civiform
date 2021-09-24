@@ -1,5 +1,7 @@
 #! /bin/bash
 
+# DOC: Run browser tests multiple times to find flakes. Run with -h flag for more info.
+
 pushd $(git rev-parse --show-toplevel) > /dev/null
 
 set +x

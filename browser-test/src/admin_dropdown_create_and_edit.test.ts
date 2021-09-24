@@ -1,4 +1,4 @@
-import { startSession, loginAsAdmin, AdminQuestions, endSession } from './support'
+import { startSession, loginAsAdmin, waitForPageJsLoad, AdminQuestions, endSession } from './support'
 
 describe('create dropdown question with options', () => {
   it('add remove buttons work correctly', async () => {
@@ -8,10 +8,11 @@ describe('create dropdown question with options', () => {
 
     const adminQuestions = new AdminQuestions(page);
     await page.click('text=Questions');
-    // Wait for dropdown event listener to be attached
-    await page.waitForLoadState('load');
+    await waitForPageJsLoad(page);
+
     await page.click('#create-question-button');
     await page.click('#create-dropdown-question');
+    await waitForPageJsLoad(page);
 
     // Verify question preview has default text.
     expect(await page.innerText('.cf-applicant-question-text'))
@@ -28,11 +29,11 @@ describe('create dropdown question with options', () => {
 
     // Add three options
     await page.click('#add-new-option');
-    await page.fill('#question-settings div.flex-row:last-of-type input', 'chocolate');
+    await page.fill('#question-settings div.flex-row:nth-of-type(1) input', 'chocolate');
     await page.click('#add-new-option');
-    await page.fill('#question-settings div.flex-row:last-of-type input', 'vanilla');
+    await page.fill('#question-settings div.flex-row:nth-of-type(2) input', 'vanilla');
     await page.click('#add-new-option');
-    await page.fill('#question-settings div.flex-row:last-of-type input', 'strawberry');
+    await page.fill('#question-settings div.flex-row:nth-of-type(3) input', 'strawberry');
 
     // Assert there are three options present
     var questionSettingsDiv = await page.innerHTML('#question-settings');
@@ -63,4 +64,3 @@ describe('create dropdown question with options', () => {
     await endSession(browser);
   })
 })
-

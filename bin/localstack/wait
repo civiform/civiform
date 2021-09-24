@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# DOC: Poll localstack and block until it is healthy.
+
 pushd $(git rev-parse --show-toplevel) > /dev/null
 
 set -e

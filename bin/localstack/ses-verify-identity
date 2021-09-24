@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# DOC: Verify SES email identity in localstack.
+
 pushd $(git rev-parse --show-toplevel) > /dev/null
 
 set -e

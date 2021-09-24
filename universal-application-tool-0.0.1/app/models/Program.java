@@ -14,6 +14,7 @@ import javax.persistence.Entity;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
 import javax.persistence.PostUpdate;
@@ -81,6 +82,7 @@ public class Program extends BaseModel {
   private List<Version> versions;
 
   @OneToMany(mappedBy = "program")
+  @OrderBy("id desc")
   private List<Application> applications;
 
   public ImmutableList<Version> getVersions() {
@@ -188,8 +190,11 @@ public class Program extends BaseModel {
     builder.setLocalizedDescription(LocalizedStrings.create(legacyLocalizedDescription));
   }
 
-  public ImmutableList<Application> getApplications() {
-    return ImmutableList.copyOf(applications);
+  /** Returns submitted program applications sorted by descending application id. */
+  public ImmutableList<Application> getSubmittedApplications() {
+    return applications.stream()
+        .filter(application -> application.getLifecycleStage().equals(LifecycleStage.ACTIVE))
+        .collect(ImmutableList.toImmutableList());
   }
 
   public void addVersion(Version version) {

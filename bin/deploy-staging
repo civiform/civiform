@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# DOC: Deploy the most recently registered production image to staging along with cloudformation stack changes.
+
 set -e
 set +x
 export AWS_DEFAULT_REGION=us-west-2

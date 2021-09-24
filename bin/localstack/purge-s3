@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# DOC: Purge S3 bucket in localstack.
+
 pushd $(git rev-parse --show-toplevel) > /dev/null
 
 set -e

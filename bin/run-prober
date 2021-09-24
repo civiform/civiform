@@ -1,4 +1,7 @@
 #! /bin/bash
+
+# DOC: Run the browser test suite in Docker against the staging environment.
+
 pushd $(git rev-parse --show-toplevel)
 
 set -e

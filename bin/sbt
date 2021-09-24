@@ -1,4 +1,7 @@
 #! /bin/bash
+
+# DOC: Open an sbt CLI in the dev environment container.
+
 pushd $(git rev-parse --show-toplevel)
 
 bin/pull-image

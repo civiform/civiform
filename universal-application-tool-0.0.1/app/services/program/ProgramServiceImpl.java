@@ -503,20 +503,20 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public ImmutableList<Application> getProgramApplications(long programId)
+  public ImmutableList<Application> getSubmittedProgramApplications(long programId)
       throws ProgramNotFoundException {
     Optional<Program> programMaybe =
         programRepository.lookupProgram(programId).toCompletableFuture().join();
     if (programMaybe.isEmpty()) {
       throw new ProgramNotFoundException(programId);
     }
-    return programMaybe.get().getApplications();
+    return programMaybe.get().getSubmittedApplications();
   }
 
   @Override
-  public ImmutableList<Application> getProgramApplications(long programId, Optional<String> search)
-      throws ProgramNotFoundException {
-    return getProgramApplications(programId).stream()
+  public ImmutableList<Application> getSubmittedProgramApplications(
+      long programId, Optional<String> search) throws ProgramNotFoundException {
+    return getSubmittedProgramApplications(programId).stream()
         .filter(
             application ->
                 application

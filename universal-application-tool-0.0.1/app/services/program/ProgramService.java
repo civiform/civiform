@@ -293,16 +293,17 @@ public interface ProgramService {
           ProgramQuestionDefinitionNotFoundException;
 
   /**
-   * Get all the program's applications.
+   * Get all the program's submitted applications. Does not include drafts or deleted applications.
    *
    * @param programId the program id.
    * @return A list of Application objects for the specified program.
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
-  ImmutableList<Application> getProgramApplications(long programId) throws ProgramNotFoundException;
-
-  ImmutableList<Application> getProgramApplications(long programId, Optional<String> search)
+  ImmutableList<Application> getSubmittedProgramApplications(long programId)
       throws ProgramNotFoundException;
+
+  ImmutableList<Application> getSubmittedProgramApplications(
+      long programId, Optional<String> search) throws ProgramNotFoundException;
 
   /** Create a new draft starting from the program specified by `id`. */
   ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException;

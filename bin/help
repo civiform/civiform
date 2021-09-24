@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# DOC: Print descriptions of each bin script.
+
+set -e
+
+pushd $(git rev-parse --show-toplevel) > /dev/null
+
+missing=""
+
+column_print () {
+  printf "%-40s %s\n" "$1" "$2"
+}
+
+for f in bin/* bin/**/*
+do
+  if [[ -d $f ]]; then
+    continue
+  fi
+
+  help=$(cat $f | { grep "DOC\:" || true; })
+
+  if [[ -z $help ]]; then
+    column_print "$f" "MISSING DOCSTRING"
+    missing=$f
+    continue
+  fi
+
+  help_without_prefix=$(echo "$help" | sed -e "s/^\# DOC\: //")
+
+  column_print "$f" "$help_without_prefix"
+done
+
+if [[ -z $missing ]]; then
+  exit 0
+fi
+
+echo
+>&2 echo "$missing is missing a docstring. Please fix."
+
+exit 1

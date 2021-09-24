@@ -1,4 +1,4 @@
-import { startSession, loginAsAdmin, loginAsGuest, AdminQuestions, AdminPrograms, ApplicantQuestions, selectApplicantLanguage, endSession } from './support'
+import { startSession, loginAsAdmin, loginAsGuest, AdminQuestions, AdminPrograms, ApplicantQuestions, selectApplicantLanguage, endSession, waitForPageJsLoad } from './support'
 
 describe('End to end enumerator test', () => {
   const programName = 'ete enumerator program';
@@ -134,6 +134,8 @@ describe('End to end enumerator test', () => {
 
     // Go back to delete enumerator answers
     await page.click('.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Edit")');
+    await waitForPageJsLoad(page);
+
     await applicantQuestions.deleteEnumeratorEntity("Bugs");
     await applicantQuestions.deleteEnumeratorEntity("Daffy");
     // Submit the answers by clicking next, and then go to review page.
@@ -153,6 +155,7 @@ describe('End to end enumerator test', () => {
 
     // Go back and add an enumerator answer.
     await page.click('.cf-applicant-summary-row:has(div:has-text("Household members")) a:has-text("Continue")');
+    await waitForPageJsLoad(page);
     await applicantQuestions.addEnumeratorAnswer("Tweety");
     await applicantQuestions.clickNext();
     await applicantQuestions.answerNameQuestion("Tweety", "Bird");
