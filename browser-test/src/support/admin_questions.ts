@@ -43,15 +43,15 @@ export class AdminQuestions {
 
   async expectMultiOptionBlankOptionError(options: String[]) {  
     const questionSettings = await this.page.$("#question-settings");
-    const allInputsAndErrors = await questionSettings.$$('#test-input-and-error');
-    console.log("length: " + allInputsAndErrors.length);
-    for(let inputAndError of allInputsAndErrors){
-      const error = await inputAndError.$('.cf-multi-option-input-error');
-      const input = await inputAndError.$('input');
-      console.log("inputAndError: " + inputAndError);
-      console.log("error: " + error);
-      console.log("isHidden: " + await error.isHidden());
-      console.log("input value: " + await input.inputValue());
+    const errors = await questionSettings.$$('.cf-multi-option-input-error');
+    // Checks that the error is not hidden when it's corresponding option is empty. The order of the options array corresponds to the order of the errors array.
+    for(var i in errors){
+      if(options[i] === ""){
+        expect(await errors[i].isHidden()).toEqual(false);
+      }
+      else{
+        expect(await errors[i].isHidden()).toEqual(true);
+      }
     }
   }
 
@@ -451,6 +451,19 @@ export class AdminQuestions {
     questionText = 'radio button question text',
     helpText = 'radio button question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
+    await this.createRadioButtonQuestion(questionName, options, description, questionText, helpText, enumeratorName);
+
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
+
+    await this.expectDraftQuestionExist(questionName, questionText);
+  }
+
+  async createRadioButtonQuestion(questionName: string,
+    options: Array<string>,
+    description = 'radio button description',
+    questionText = 'radio button question text',
+    helpText = 'radio button question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION){
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');
@@ -466,10 +479,6 @@ export class AdminQuestions {
     }
 
     await this.clickSubmitButtonAndNavigate('Create');
-
-    await this.expectAdminQuestionsPageWithCreateSuccessToast();
-
-    await this.expectDraftQuestionExist(questionName, questionText);
   }
 
   async addTextQuestion(questionName: string,
