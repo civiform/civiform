@@ -24,11 +24,15 @@ class ModalController {
           modal.classList.toggle('hidden');
         });
       }
+
     });
   }
 
   constructor() {
     this.attachModalListeners();
+
+    // Advertise (e.g., for browser tests) that modal.ts initialization is done
+    document.body.dataset.loadModal = 'true';
   }
 }
 

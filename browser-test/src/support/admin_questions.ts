@@ -1,4 +1,5 @@
 import { Page } from 'playwright'
+import { waitForPageJsLoad } from './wait';
 
 export class AdminQuestions {
   public page!: Page
@@ -11,14 +12,13 @@ export class AdminQuestions {
 
   async gotoAdminQuestionsPage() {
     await this.page.click('nav :text("Questions")');
+    await waitForPageJsLoad(this.page);
     await this.expectAdminQuestionsPage();
   }
 
   async clickSubmitButtonAndNavigate(buttonText: string) {
-    await Promise.all([
-     // this.page.waitForNavigation(),
-      this.page.click('button:has-text("' + buttonText + '")'),
-    ]);
+    await this.page.click(`button:has-text("${buttonText}")`);
+    //await waitForPageJsLoad(this.page);
   }
 
   async expectAdminQuestionsPage() {
@@ -106,8 +106,8 @@ export class AdminQuestions {
 
   async expectActiveQuestionNotExist(questionName: string) {
     await this.gotoAdminQuestionsPage();
+    await waitForPageJsLoad(this.page);
     const tableInnerText = await this.page.innerText('table');
-
     expect(tableInnerText).not.toContain(questionName);
   }
 
@@ -115,30 +115,35 @@ export class AdminQuestions {
   async gotoQuestionEditPage(questionName: string) {
     await this.gotoAdminQuestionsPage();
     await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("Edit")'));
+    await waitForPageJsLoad(this.page);
     await this.expectQuestionEditPage(questionName);
   }
 
   async undeleteQuestion(questionName: string) {
     await this.gotoAdminQuestionsPage();
     await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("Restore")'));
+    await waitForPageJsLoad(this.page);
     await this.expectAdminQuestionsPage();
   }
 
   async discardDraft(questionName: string) {
     await this.gotoAdminQuestionsPage();
     await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("Discard Draft")'));
+    await waitForPageJsLoad(this.page);
     await this.expectAdminQuestionsPage();
   }
 
   async archiveQuestion(questionName: string) {
     await this.gotoAdminQuestionsPage();
     await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("Archive")'));
+    await waitForPageJsLoad(this.page);
     await this.expectAdminQuestionsPage();
   }
 
   async goToQuestionTranslationPage(questionName: string) {
     await this.gotoAdminQuestionsPage();
     await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("Manage Translations")'));
+    await waitForPageJsLoad(this.page);
     await this.expectQuestionTranslationPage();
   }
 
@@ -187,6 +192,7 @@ export class AdminQuestions {
   async createNewVersion(questionName: string) {
     await this.gotoAdminQuestionsPage();
     await this.page.click(this.selectWithinQuestionTableRow(questionName, ':text("New Version")'));
+    await waitForPageJsLoad(this.page);
     await this.expectQuestionEditPage(questionName);
     const newQuestionText = await this.updateQuestionText(' new version');
 
@@ -255,11 +261,10 @@ export class AdminQuestions {
     helpText = 'address question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
-    // Wait for dropdown event listener to be attached
-    await this.page.waitForLoadState('load');
-    await this.page.click('#create-question-button');
 
+    await this.page.click('#create-question-button');
     await this.page.click('#create-address-question');
+    await waitForPageJsLoad(this.page);
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
@@ -276,11 +281,10 @@ export class AdminQuestions {
     helpText = 'date question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
-    // Wait for dropdown event listener to be attached
-    await this.page.waitForLoadState('load');
-    await this.page.click('#create-question-button');
 
+    await this.page.click('#create-question-button');
     await this.page.click('#create-date-question');
+    await waitForPageJsLoad(this.page);
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
@@ -298,11 +302,10 @@ export class AdminQuestions {
     helpText = 'checkbox question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
-    // Wait for dropdown event listener to be attached
-    await this.page.waitForLoadState('load');
-    await this.page.click('#create-question-button');
 
+    await this.page.click('#create-question-button');
     await this.page.click('#create-checkbox-question');
+    await waitForPageJsLoad(this.page);
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
@@ -332,6 +335,8 @@ export class AdminQuestions {
       await this.page.click('#create-question-button');
   
       await this.page.click('#create-dropdown-question');
+
+      waitForPageJsLoad(this.page);
   
       await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
   
@@ -364,11 +369,10 @@ export class AdminQuestions {
     helpText = 'fileupload question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
-    // Wait for dropdown event listener to be attached
-    await this.page.waitForLoadState('load');
-    await this.page.click('#create-question-button');
 
+    await this.page.click('#create-question-button');
     await this.page.click('#create-fileupload-question');
+    await waitForPageJsLoad(this.page);
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
@@ -384,11 +388,10 @@ export class AdminQuestions {
     questionText = 'static question text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
-    // Wait for dropdown event listener to be attached
-    await this.page.waitForLoadState('load');
-    await this.page.click('#create-question-button');
 
+    await this.page.click('#create-question-button');
     await this.page.click('#create-static-question');
+    await waitForPageJsLoad(this.page);
 
     await this.page.fill('label:has-text("Name")', questionName);
     await this.page.fill('label:has-text("Description")', description);
@@ -408,11 +411,10 @@ export class AdminQuestions {
     helpText = 'name question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
-    // Wait for dropdown event listener to be attached
-    await this.page.waitForLoadState('load');
-    await this.page.click('#create-question-button');
 
+    await this.page.click('#create-question-button');
     await this.page.click('#create-name-question');
+    await waitForPageJsLoad(this.page);
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
@@ -429,11 +431,10 @@ export class AdminQuestions {
     helpText = 'number question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
-    // Wait for dropdown event listener to be attached
-    await this.page.waitForLoadState('load');
-    await this.page.click('#create-question-button');
 
+    await this.page.click('#create-question-button');
     await this.page.click('#create-number-question');
+    await waitForPageJsLoad(this.page);
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
@@ -451,11 +452,10 @@ export class AdminQuestions {
     helpText = 'radio button question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
-    // Wait for dropdown event listener to be attached
-    await this.page.waitForLoadState('load');
-    await this.page.click('#create-question-button');
 
+    await this.page.click('#create-question-button');
     await this.page.click('#create-radio_button-question');
+    await waitForPageJsLoad(this.page);
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
@@ -478,11 +478,10 @@ export class AdminQuestions {
     helpText = 'text question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
-    // Wait for dropdown event listener to be attached
-    await this.page.waitForLoadState('load');
-    await this.page.click('#create-question-button');
 
+    await this.page.click('#create-question-button');
     await this.page.click('#create-text-question');
+    await waitForPageJsLoad(this.page);
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
@@ -499,11 +498,10 @@ export class AdminQuestions {
     helpText = 'email question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
-    // Wait for dropdown event listener to be attached
-    await this.page.waitForLoadState('load');
-    await this.page.click('#create-question-button');
 
+    await this.page.click('#create-question-button');
     await this.page.click('#create-email-question');
+    await waitForPageJsLoad(this.page);
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
@@ -523,11 +521,10 @@ export class AdminQuestions {
     helpText = 'enumerator question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
     await this.gotoAdminQuestionsPage();
-    // Wait for dropdown event listener to be attached
-    await this.page.waitForLoadState('load');
-    await this.page.click('#create-question-button');
 
+    await this.page.click('#create-question-button');
     await this.page.click('#create-enumerator-question');
+    await waitForPageJsLoad(this.page);
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
