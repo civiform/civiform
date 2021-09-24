@@ -16,7 +16,7 @@ export class AdminQuestions {
 
   async clickSubmitButtonAndNavigate(buttonText: string) {
     await Promise.all([
-      this.page.waitForNavigation(),
+     // this.page.waitForNavigation(),
       this.page.click('button:has-text("' + buttonText + '")'),
     ]);
   }
@@ -41,15 +41,17 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPageWithSuccessToast('created');
   }
 
-  async expectMultiOptionBlankOptionError(options: String[]) {
-    for(let option of options){
-      const error = this.page.innerHTML('.cf-multi-option-input-error');
-      if(option == ''){
-        expect(window.getComputedStyle(error).visibility).toEqual("hidden");
-      }
-      else{
-        expect(window.getComputedStyle(error).visibility).not.toEqual("hidden");
-      }
+  async expectMultiOptionBlankOptionError(options: String[]) {  
+    const questionSettings = await this.page.$("#question-settings");
+    const allInputsAndErrors = await questionSettings.$$('#test-input-and-error');
+    console.log("length: " + allInputsAndErrors.length);
+    for(let inputAndError of allInputsAndErrors){
+      const error = await inputAndError.$('.cf-multi-option-input-error');
+      const input = await inputAndError.$('input');
+      console.log("inputAndError: " + inputAndError);
+      console.log("error: " + error);
+      console.log("isHidden: " + await error.isHidden());
+      console.log("input value: " + await input.inputValue());
     }
   }
 

@@ -1,4 +1,4 @@
-import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession } from './support'
+import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, waitForPageJsLoad } from './support'
 
 describe('normal question lifecycle', () => {
   it('create, update, publish, create a new version, and update all questions', async () => {
@@ -51,18 +51,19 @@ describe('normal question lifecycle', () => {
     await endSession(browser);
   })
 
-  it('shows error when creating a dropdown question and admin left an option field blank', async () => {
+  it.only('shows error when creating a dropdown question and admin left an option field blank', async () => {
     const { browser, page } = await startSession();
     page.setDefaultTimeout(4000);
 
     await loginAsAdmin(page);
     const adminQuestions = new AdminQuestions(page);
 
-    const options = ['option1', '', 'option2'];
+    const options = ['option1', 'option2', ''];
 
-    await adminQuestions.createDropdownQuestion('emptyDropdownPrefix dropdown', ['option1', '', 'option2']);
+    await adminQuestions.createDropdownQuestion('emptyDropdownPrefix dropdown', options);
+   
+    await waitForPageJsLoad(page);
 
-    //expect error
     await adminQuestions.expectMultiOptionBlankOptionError(options);
     
   });
