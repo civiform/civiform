@@ -63,13 +63,6 @@ public class QuestionConfig {
   private static final String OUTER_DIV_CLASSES =
       StyleUtils.joinStyles(Styles.W_FULL, Styles.PT_0, Styles._MT_4);
 
-    // @Inject
-    // public QuestionConfig(MessagesApi messagesApi) {
-    //   // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
-    //   this.messagesApi = checkNotNull(messagesApi);
-    //   this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
-    // }
-
   public QuestionConfig setId(String id) {
     this.id = id;
     return this;

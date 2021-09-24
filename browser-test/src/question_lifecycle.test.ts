@@ -50,4 +50,36 @@ describe('normal question lifecycle', () => {
 
     await endSession(browser);
   })
+
+  it('shows error when creating a dropdown question and admin left an option field blank', async () => {
+    const { browser, page } = await startSession();
+    page.setDefaultTimeout(4000);
+
+    await loginAsAdmin(page);
+    const adminQuestions = new AdminQuestions(page);
+
+    const options = ['option1', '', 'option2'];
+
+    await adminQuestions.createDropdownQuestion('emptyDropdownPrefix dropdown', ['option1', '', 'option2']);
+
+    //expect error
+    await adminQuestions.expectMultiOptionBlankOptionError(options);
+    
+  });
+
+  // TODO: Add tests for other multi questions
+  // it('shows error when creating a radio question and admin left an option field blank', async () => {
+
+
+  // });
+
+  // it('shows error when updating a dropdown question and admin left an option field blank', async () => {
+
+
+  // });
+
+  // it('shows error when updating a radio question and admin left an option field blank', async () => {
+
+
+  // });
 })

@@ -35,7 +35,7 @@ class AdminValidationController {
     }
 
     // Also toggle the border on error inputs (if applicable).
-    const field = element.querySelector(fieldName + ' input');
+    const field = element.parentElement ? element.parentElement.querySelector('input') : element.querySelector(fieldName + ' input');
     if (field) {
       field.classList.toggle('border-red-600', !isValid);
     }

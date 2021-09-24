@@ -41,6 +41,18 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPageWithSuccessToast('created');
   }
 
+  async expectMultiOptionBlankOptionError(options: String[]) {
+    for(let option of options){
+      const error = this.page.innerHTML('.cf-multi-option-input-error');
+      if(option == ''){
+        expect(window.getComputedStyle(error).visibility).toEqual("hidden");
+      }
+      else{
+        expect(window.getComputedStyle(error).visibility).not.toEqual("hidden");
+      }
+    }
+  }
+
   async fillInQuestionBasics(questionName: string,
     description: string,
     questionText: string,
@@ -305,28 +317,39 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
+  /** Fills out the form for a dropdown question and clicks submit.  */
+  async createDropdownQuestion(questionName: string,
+    options: Array<string>,
+    description = 'dropdown description',
+    questionText = 'dropdown question text',
+    helpText = 'dropdown question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION){
+      await this.gotoAdminQuestionsPage();
+      // Wait for dropdown event listener to be attached
+      await this.page.waitForLoadState('load');
+      await this.page.click('#create-question-button');
+  
+      await this.page.click('#create-dropdown-question');
+  
+      await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
+  
+      for (var index in options) {
+        await this.page.click('#add-new-option');
+        var matchIndex = Number(index) + 1;
+        await this.page.fill(`:nth-match(#question-settings div.flex-row, ${matchIndex}) input`, options[index]);
+      }
+      
+      await this.clickSubmitButtonAndNavigate('Create');
+    }
+
+  /** Fills out the form for a dropdown question, clicks submit, and verifies the new question exists.  */
   async addDropdownQuestion(questionName: string,
     options: Array<string>,
     description = 'dropdown description',
     questionText = 'dropdown question text',
     helpText = 'dropdown question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
-    await this.gotoAdminQuestionsPage();
-    // Wait for dropdown event listener to be attached
-    await this.page.waitForLoadState('load');
-    await this.page.click('#create-question-button');
-
-    await this.page.click('#create-dropdown-question');
-
-    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
-
-    for (var index in options) {
-      await this.page.click('#add-new-option');
-      var matchIndex = Number(index) + 1;
-      await this.page.fill(`:nth-match(#question-settings div.flex-row, ${matchIndex}) input`, options[index]);
-    }
-
-    await this.clickSubmitButtonAndNavigate('Create');
+    this.createDropdownQuestion(questionName, options, description, helpText, enumeratorName);
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
