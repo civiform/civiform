@@ -83,6 +83,7 @@ export class ApplicantQuestions {
 
   async clickSkip() {
     await this.page.click('text="Skip"');
+    await waitForPageJsLoad(this.page);
   }
 
   async clickReview() {

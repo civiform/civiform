@@ -125,7 +125,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public Optional<Block> getFirstIncompleteBlockExcludingStatic() {
     return getInProgressBlocks().stream()
-        .filter(block -> !block.isCompleteWithoutErrors())
+        .filter(block -> !block.isCompletedInProgramWithoutErrors())
         .findFirst();
   }
 
