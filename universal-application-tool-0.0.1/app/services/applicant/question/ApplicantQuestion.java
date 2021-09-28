@@ -84,8 +84,8 @@ public class ApplicantQuestion {
    *
    * <ol>
    *   <li>unvisited - the applicant has not seen this question yet
-   *   <li>skipped - the applicant has visited the question but chose to leave it unanswered.
-   *       Only optional questions can be skipped and left unanswered.
+   *   <li>skipped - the applicant has visited the question but chose to leave it unanswered. Only
+   *       optional questions can be skipped and left unanswered.
    *   <li>answered - the applicant has visited and provided an answer to the question
    * </ol>
    *
@@ -93,10 +93,10 @@ public class ApplicantQuestion {
    * the optional question was skipped and left unanswered, it counts as "completed" for that
    * program.
    *
-   * Static questions evaluate as answered since they are not awaiting a response.
+   * <p>Static questions evaluate as answered since they are not awaiting a response.
    *
-   * @return true if this question is answered or it is an optional question that was skipped in
-   * the program specified.
+   * @return true if this question is answered or it is an optional question that was skipped in the
+   *     program specified.
    */
   public boolean isAnsweredOrSkippedOptionalInProgram() {
     return errorsPresenter().isAnswered() || (isOptional() && wasRecentlyUpdatedInThisProgram());

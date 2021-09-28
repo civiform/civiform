@@ -305,8 +305,7 @@ public class ApplicantQuestionTest {
   }
 
   @Test
-  public void
-      isRequiredButWasSkippedInCurrentProgram_leftSkippedInDifferentProgram_returnsFalse() {
+  public void isRequiredButWasSkippedInCurrentProgram_leftSkippedInDifferentProgram_returnsFalse() {
     ApplicantData applicantData = new ApplicantData();
     long programId = 5L;
     ProgramQuestionDefinition pqd =
@@ -380,8 +379,7 @@ public class ApplicantQuestionTest {
   }
 
   @Test
-  public void
-      isAnsweredOrSkippedOptionalInProgram_forSkippedOptionalInDifferentProgram_isFalse() {
+  public void isAnsweredOrSkippedOptionalInProgram_forSkippedOptionalInDifferentProgram_isFalse() {
     ApplicantData applicantData = new ApplicantData();
     long programId = 5L;
     Path questionPath =
