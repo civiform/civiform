@@ -15,12 +15,12 @@ class AdminValidationController {
       }
 
   private attemptSubmit(event: Event): boolean {
-      // this.checkFields();
-      // if (!this.isValid()) {
-      //     event.preventDefault();
-      //     return false;
-      // }
-      // return true;
+      this.checkFields();
+      if (!this.isValid()) {
+          event.preventDefault();
+          return false;
+      }
+      return true;
   }
 
   private checkFields(){

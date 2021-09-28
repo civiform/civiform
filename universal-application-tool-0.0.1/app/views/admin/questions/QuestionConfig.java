@@ -37,8 +37,6 @@ import views.style.Styles;
 
 /** Contains methods for rendering type-specific question settings components. */
 public class QuestionConfig {
-  // private static final Messages messages;
-  // private final MessagesApi messagesApi;
 
   private String id = "";
   private String headerText = "Question settings";

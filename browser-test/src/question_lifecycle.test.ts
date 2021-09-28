@@ -66,15 +66,14 @@ describe('normal question lifecycle', () => {
 
     await adminQuestions.expectMultiOptionBlankOptionError(options);
 
-    //TODO: This commented code is failing.
-    // Correct the error and expect success
-    // await adminQuestions.changeMultiOptionAnswer(3, "option3");
+    // Correct error
+    await adminQuestions.changeMultiOptionAnswer(3, "option3");
 
-    // await adminQuestions.clickSubmitButtonAndNavigate('Create');
+    await adminQuestions.clickSubmitButtonAndNavigate('Create');
 
-    // await waitForPageJsLoad(page);
+    await waitForPageJsLoad(page);
 
-    // await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast();
+    await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast();
   });
 
   it('shows error when creating a radio question and admin left an option field blank', async () => {
@@ -124,6 +123,7 @@ describe('normal question lifecycle', () => {
 
     // Add an empty option
     await page.click('#add-new-option');
+    options.push('');
     
     await adminQuestions.clickSubmitButtonAndNavigate('Update');
 
@@ -152,6 +152,7 @@ describe('normal question lifecycle', () => {
 
     // Add an empty option
     await page.click('#add-new-option');
+    options.push('');
     
     await adminQuestions.clickSubmitButtonAndNavigate('Update');
 
