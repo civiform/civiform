@@ -346,7 +346,11 @@ export class AdminQuestions {
       }
       
       await this.clickSubmitButtonAndNavigate('Create');
-    }
+  }
+
+  async changeDropdownAnswer(index: number, text: string) {
+    await this.page.fill(`:nth-match(#question-settings div.flex-row, ${index}) input`, text);
+  }
 
   /** Changes the input field of a multi option answer. */
   async changeMultiOptionAnswer(index: number, text: string) {

@@ -91,6 +91,15 @@ describe('normal question lifecycle', () => {
     await waitForPageJsLoad(page);
 
     await adminQuestions.expectMultiOptionBlankOptionError(options);
+    
+    // Correct error
+    await adminQuestions.changeDropdownAnswer(3, "option3");
+
+    await adminQuestions.clickSubmitButtonAndNavigate('Create');
+
+    await waitForPageJsLoad(page);
+    
+    await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await waitForPageJsLoad(page);
   });
