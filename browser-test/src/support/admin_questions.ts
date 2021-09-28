@@ -18,7 +18,7 @@ export class AdminQuestions {
 
   async clickSubmitButtonAndNavigate(buttonText: string) {
     await this.page.click(`button:has-text("${buttonText}")`);
-    //await waitForPageJsLoad(this.page);
+    await waitForPageJsLoad(this.page);
   }
 
   async expectAdminQuestionsPage() {
@@ -333,7 +333,6 @@ export class AdminQuestions {
       // Wait for dropdown event listener to be attached
       await this.page.waitForLoadState('load');
       await this.page.click('#create-question-button');
-  
       await this.page.click('#create-dropdown-question');
 
       waitForPageJsLoad(this.page);
@@ -349,6 +348,11 @@ export class AdminQuestions {
       await this.clickSubmitButtonAndNavigate('Create');
     }
 
+  /** Changes the input field of a multi option answer. */
+  async changeMultiOptionAnswer(index: number, text: string) {
+    await this.page.fill(`:nth-match(#question-settings div.flex-row, ${index}) input`, text);
+  }
+
   /** Fills out the form for a dropdown question, clicks submit, and verifies the new question exists.  */
   async addDropdownQuestion(questionName: string,
     options: Array<string>,
@@ -356,8 +360,25 @@ export class AdminQuestions {
     questionText = 'dropdown question text',
     helpText = 'dropdown question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
-    this.createDropdownQuestion(questionName, options, description, helpText, enumeratorName);
+    //  this.createDropdownQuestion(questionName, options, description, helpText, enumeratorName);
+    
+    // This is createDropwdownQuestion copied and pasted. For some reason, when I call the function directly, the 1st & 4th test in question_lifecycle.test.ts fails. When I copy and paste the function content directly into this function, it passes.
+    await this.gotoAdminQuestionsPage();
 
+    await this.page.click('#create-question-button');
+    await this.page.click('#create-dropdown-question');
+    await waitForPageJsLoad(this.page);
+
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
+
+    for (var index in options) {
+      await this.page.click('#add-new-option');
+      var matchIndex = Number(index) + 1;
+      await this.page.fill(`:nth-match(#question-settings div.flex-row, ${matchIndex}) input`, options[index]);
+    }
+
+    await this.clickSubmitButtonAndNavigate('Create');
+    
     await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
