@@ -45,7 +45,7 @@ public class PdfExporterTest extends WithPostgresContainer {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "fake program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "fake program description"))
             .setExternalLink("")
-            .setDisplayMode(DisplayMode.PUBLIC.getValue())
+            .setDisplayMode(DisplayMode.PUBLIC)
             .addExportDefinition(
                 ExportDefinition.builder()
                     .setEngine(ExportEngine.PDF)

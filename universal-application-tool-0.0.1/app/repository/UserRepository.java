@@ -89,7 +89,7 @@ public class UserRepository {
           ImmutableList<ProgramDefinition> activePrograms =
               versionRepositoryProvider.get().getActiveVersion().getPrograms().stream()
                   .map(Program::getProgramDefinition)
-                  .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC.getValue()))
+                  .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
                   .collect(ImmutableList.toImmutableList());
           return ImmutableMap.of(
               LifecycleStage.DRAFT, inProgressPrograms,

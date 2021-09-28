@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import models.DisplayMode;
 import models.Program;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
@@ -51,7 +52,7 @@ public abstract class ProgramDefinition {
   public abstract String externalLink();
 
   /** The program's display mode. */
-  public abstract String displayMode();
+  public abstract DisplayMode displayMode();
 
   /**
    * Descriptive name of a Program, e.g. Car Tab Rebate Program, localized for each supported
@@ -560,7 +561,7 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setExternalLink(String externalLink);
 
-    public abstract Builder setDisplayMode(String displayMode);
+    public abstract Builder setDisplayMode(DisplayMode displayMode);
 
     public abstract Builder setAdminDescription(String adminDescription);
 

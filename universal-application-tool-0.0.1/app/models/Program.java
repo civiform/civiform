@@ -106,7 +106,7 @@ public class Program extends BaseModel {
     this.localizedDescription = definition.localizedDescription();
     this.blockDefinitions = definition.blockDefinitions();
     this.exportDefinitions = definition.exportDefinitions();
-    this.displayMode = definition.displayMode();
+    this.displayMode = definition.displayMode().getValue();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -152,7 +152,7 @@ public class Program extends BaseModel {
     blockDefinitions = programDefinition.blockDefinitions();
     exportDefinitions = programDefinition.exportDefinitions();
     slug = programDefinition.slug();
-    displayMode = programDefinition.displayMode();
+    displayMode = programDefinition.displayMode().getValue();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -170,7 +170,7 @@ public class Program extends BaseModel {
             .setBlockDefinitions(blockDefinitions)
             .setExportDefinitions(exportDefinitions)
             .setExternalLink(externalLink)
-            .setDisplayMode(displayMode);
+            .setDisplayMode(DisplayMode.valueOf(displayMode));
 
     setLocalizedName(builder);
     setLocalizedDescription(builder);

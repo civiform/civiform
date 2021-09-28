@@ -224,12 +224,15 @@ export class AdminPrograms {
 
   async createPublicVersion(programName: string) {
     await this.gotoAdminProgramsPage();
+
     await this.expectActiveProgram(programName);
+
     await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', ':text("New Version")'));
     await waitForPageJsLoad(this.page);
     await this.page.check(`label:has-text("Public")`);
     await this.page.click('#program-update-button');
     await waitForPageJsLoad(this.page);
+
     await this.expectDraftProgram(programName);
     }
 

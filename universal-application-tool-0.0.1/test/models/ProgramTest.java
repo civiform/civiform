@@ -67,7 +67,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
-            .setDisplayMode(DisplayMode.PUBLIC.getValue())
+            .setDisplayMode(DisplayMode.PUBLIC)
             .build();
     Program program = new Program(definition);
 
@@ -136,7 +136,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
-            .setDisplayMode(DisplayMode.PUBLIC.getValue())
+            .setDisplayMode(DisplayMode.PUBLIC)
             .build();
     Program program = new Program(definition);
     program.save();
@@ -178,7 +178,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
-            .setDisplayMode(DisplayMode.PUBLIC.getValue())
+            .setDisplayMode(DisplayMode.PUBLIC)
             .build();
     Program program = new Program(definition);
     program.save();
@@ -269,7 +269,7 @@ public class ProgramTest extends WithPostgresContainer {
             .setAdminName("test program")
             .setAdminDescription("test description")
             .setExternalLink("")
-            .setDisplayMode(DisplayMode.PUBLIC.getValue())
+            .setDisplayMode(DisplayMode.PUBLIC)
             .setLocalizedName(LocalizedStrings.withDefaultValue("test name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("test description"))
             .setBlockDefinitions(unorderedBlocks)

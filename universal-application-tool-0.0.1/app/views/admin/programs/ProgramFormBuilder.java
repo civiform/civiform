@@ -38,7 +38,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         program.localizedName().getDefault(),
         program.localizedDescription().getDefault(),
         program.externalLink(),
-        program.displayMode(),
+        program.displayMode().getValue(),
         editExistingProgram);
   }
 

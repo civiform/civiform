@@ -16,6 +16,7 @@ import java.util.concurrent.CompletionStage;
 import javax.annotation.Nullable;
 import models.Account;
 import models.Application;
+import models.DisplayMode;
 import models.Program;
 import models.Version;
 import play.db.ebean.Transactional;
@@ -159,7 +160,7 @@ public class ProgramServiceImpl implements ProgramService {
                     .localizedDescription()
                     .updateTranslation(locale, displayDescription))
             .setExternalLink(externalLink)
-            .setDisplayMode(displayMode)
+            .setDisplayMode(DisplayMode.valueOf(displayMode))
             .build()
             .toProgram();
     return ErrorAnd.of(

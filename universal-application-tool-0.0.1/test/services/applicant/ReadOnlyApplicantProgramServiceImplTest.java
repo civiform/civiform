@@ -547,7 +547,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 .setLocalizedDescription(
                     LocalizedStrings.of(Locale.US, "This program is for testing."))
                 .setExternalLink("")
-                .setDisplayMode(DisplayMode.PUBLIC.getValue())
+                .setDisplayMode(DisplayMode.PUBLIC)
                 .build(),
             FAKE_BASE_URL);
 
