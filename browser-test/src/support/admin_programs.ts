@@ -149,27 +149,22 @@ export class AdminPrograms {
   }
 
   async editProgramBlockWithOptional(programName: string, blockDescription = 'screen description', questionNames:
-  string[], optionalQuestionName: string) {
+    string[], optionalQuestionName: string) {
     await this.gotoDraftProgramEditPage(programName);
 
     await this.page.click('text=Manage Questions');
     await waitForPageJsLoad(this.page);
     await this.expectProgramBlockEditPage(programName);
-    await waitForPageJsLoad(this.page);
 
-    await this.page.click('#block-description-modal-button');
-    await waitForPageJsLoad(this.page);
+    await clickAndWaitForModal(this.page, 'block-description-modal');
     await this.page.fill('textarea', blockDescription);
-    await this.page.click('#update-block-button');
-    await waitForPageJsLoad(this.page);
+    await this.page.click('#update-block-button:not([disabled])');
 
     // Add the optional question
     await this.page.click(`button:text("${optionalQuestionName}")`);
-    await waitForPageJsLoad(this.page);
     // Only allow one optional question per block; this selector will always toggle the first optional button.  It
     // cannot tell the difference between multiple option buttons
     await this.page.click(`:is(button:has-text("optional"))`);
-    await waitForPageJsLoad(this.page);
 
     for (const questionName of questionNames) {
       await this.page.click(`button:text("${questionName}")`);
@@ -198,24 +193,20 @@ export class AdminPrograms {
   }
 
   async addProgramBlockWithOptional(programName: string, blockDescription = 'screen description', questionNames:
-  string[], optionalQuestionName: string) {
+    string[], optionalQuestionName: string) {
     await this.page.click('#add-block-button');
     await waitForPageJsLoad(this.page);
 
-    await this.page.click('#block-description-modal-button');
-    await waitForPageJsLoad(this.page);
+    await clickAndWaitForModal(this.page, 'block-description-modal');
 
     await this.page.type('textarea', blockDescription);
-    await this.page.click('#update-block-button');
-    await waitForPageJsLoad(this.page);
+    await this.page.click('#update-block-button:not([disabled])');
 
     // Add the optional question
     await this.page.click(`button:text("${optionalQuestionName}")`);
-    await waitForPageJsLoad(this.page);
     // Only allow one optional question per block; this selector will always toggle the first optional button.  It
     // cannot tell the difference between multiple option buttons
     await this.page.click(`:is(button:has-text("optional"))`);
-    await waitForPageJsLoad(this.page);
 
     for (const questionName of questionNames) {
       await this.page.click(`button:text("${questionName}")`);

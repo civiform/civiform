@@ -3,23 +3,17 @@ import { startSession, loginAsProgramAdmin, loginAsAdmin, AdminQuestions, AdminP
 describe('normal application flow', () => {
   it('all major steps', async () => {
     const { browser, page } = await startSession()
-    page.setDefaultTimeout(50000);
+    page.setDefaultTimeout(5000);
 
     await loginAsAdmin(page);
     const adminQuestions = new AdminQuestions(page);
     const adminPrograms = new AdminPrograms(page);
 
-    await adminQuestions.addDateQuestion('date-optional-q');
-    await adminQuestions.addEmailQuestion('email-optional-q');
-    await adminQuestions.addDropdownQuestion('ice-cream-optional-q', ['chocolate', 'banana', 'black raspberry']);
-    await adminQuestions.addCheckboxQuestion('favorite-trees-optional-q', ['oak', 'maple', 'pine', 'cherry']);
-    await adminQuestions.addAddressQuestion('address-optional-q');
-    await adminQuestions.addFileUploadQuestion('fileupload-optional-q');
-    await adminQuestions.addNameQuestion('name-optional-q');
-    await adminQuestions.addNumberQuestion('number-optional-q');
-    await adminQuestions.addTextQuestion('text-optional-q');
-    await adminQuestions.addRadioButtonQuestion('radio-optional-q', ['one', 'two', 'three']);
-    await adminQuestions.addStaticQuestion('static-optional-q');
+    const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes('optional-');
+    await adminQuestions.addFileUploadQuestion('optional-file-upload');
+    await adminQuestions.addStaticQuestion('optional-static');
+    questions.push('optional-file-upload');
+    questions.push('optional-static');
 
     const programName = 'Optional Questions Program';
     await adminPrograms.addProgram(programName);
@@ -29,9 +23,9 @@ describe('normal application flow', () => {
     await adminPrograms.addProgramBlockWithOptional(programName, 'fourth description', [], 'radio-optional-q');
     await adminPrograms.addProgramBlockWithOptional(programName, 'fifth description', [], 'email-optional-q');
     await adminPrograms.addProgramBlockWithOptional(programName, 'sixth description', ['static-optional-q'],
-    'ice-cream-optional-q');
+      'ice-cream-optional-q');
     await adminPrograms.addProgramBlockWithOptional(programName, 'seventh description', [],
-    'favorite-trees-optional-q');
+      'favorite-trees-optional-q');
     await adminPrograms.addProgramBlockWithOptional(programName, 'eighth description', [], 'number-optional-q');
     await adminPrograms.addProgramBlockWithOptional(programName, 'ninth description', [], 'text-optional-q');
     await adminPrograms.addProgramBlockWithOptional(programName, 'tenth description', [], 'fileupload-optional-q');
