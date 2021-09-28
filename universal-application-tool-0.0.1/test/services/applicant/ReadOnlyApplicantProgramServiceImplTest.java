@@ -168,7 +168,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withBlock("Block one") // Previous block with color question
             .withRequiredQuestionDefinition(colorQuestion)
             .withRequiredQuestionDefinition(staticQuestion)
-            .withBlock("Block two") // Block required unanswered question
+            .withBlock("Block two") // Block required skipped question
             .withRequiredQuestionDefinition(addressQuestion)
             .buildDefinition();
 
@@ -445,7 +445,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withBlock()
             .withPredicate(predicate)
             .withRequiredQuestionDefinition(
-                addressQuestion) // Include an unanswered question so the block is incomplete
+                addressQuestion) // Include a skipped question so the block is incomplete
             .buildDefinition();
 
     // Answer "blue" to the question - the predicate is true, so we should hide the block.
@@ -480,7 +480,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withBlock()
             .withPredicate(predicate)
             .withRequiredQuestionDefinition(
-                addressQuestion) // Include an unanswered question so the block is incomplete
+                addressQuestion) // Include a skipped question so the block is incomplete
             .buildDefinition();
 
     // The color question is not answered yet - we should default to show the block that uses the
@@ -492,7 +492,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
-  public void getActiveAndCompletedInProgramBlockCount_withOptionalUnanswered() {
+  public void getActiveAndCompletedInProgramBlockCount_withSkippedOptional() {
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
             .withBlock() // Block is completed
@@ -513,7 +513,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
-  public void getActiveAndCompletedInProgramBlockCount_withOptionalUnansweredInDifferentProgram() {
+  public void getActiveAndCompletedInProgramBlockCount_withSkippedOptionalInDifferentProgram() {
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
             .withBlock() // Block is completed
@@ -534,7 +534,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
-  public void getActiveAndCompletedInProgramBlockCount_withRequiredUnanswered() {
+  public void getActiveAndCompletedInProgramBlockCount_withRequiredSkipped() {
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
             .withBlock() // Block is completed

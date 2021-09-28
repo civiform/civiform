@@ -289,7 +289,7 @@ public class ApplicantQuestionTest {
   }
 
   @Test
-  public void isRequiredButWasUnansweredInCurrentProgram_returnsTrue() {
+  public void isRequiredButWasSkippedInCurrentProgram_returnsTrue() {
     ApplicantData applicantData = new ApplicantData();
     long programId = 5L;
     ProgramQuestionDefinition pqd =
@@ -301,12 +301,12 @@ public class ApplicantQuestionTest {
     QuestionAnswerer.addMetadata(
         applicantData, applicantQuestion.getContextualizedPath(), programId, 1L);
 
-    assertThat(applicantQuestion.isRequiredButWasUnansweredInCurrentProgram()).isTrue();
+    assertThat(applicantQuestion.isRequiredButWasSkippedInCurrentProgram()).isTrue();
   }
 
   @Test
   public void
-      isRequiredButWasUnansweredInCurrentProgram_leftUnansweredInDifferentProgram_returnsFalse() {
+      isRequiredButWasSkippedInCurrentProgram_leftSkippedInDifferentProgram_returnsFalse() {
     ApplicantData applicantData = new ApplicantData();
     long programId = 5L;
     ProgramQuestionDefinition pqd =
@@ -318,11 +318,11 @@ public class ApplicantQuestionTest {
     QuestionAnswerer.addMetadata(
         applicantData, applicantQuestion.getContextualizedPath(), programId + 1, 1L);
 
-    assertThat(applicantQuestion.isRequiredButWasUnansweredInCurrentProgram()).isFalse();
+    assertThat(applicantQuestion.isRequiredButWasSkippedInCurrentProgram()).isFalse();
   }
 
   @Test
-  public void isRequiredButWasUnansweredInCurrentProgram_isAnswered_returnsFalse() {
+  public void isRequiredButWasSkippedInCurrentProgram_isAnswered_returnsFalse() {
     ApplicantData applicantData = new ApplicantData();
     long programId = 5L;
     ProgramQuestionDefinition pqd =
@@ -336,11 +336,11 @@ public class ApplicantQuestionTest {
     QuestionAnswerer.addMetadata(
         applicantData, applicantQuestion.getContextualizedPath(), programId, 1L);
 
-    assertThat(applicantQuestion.isRequiredButWasUnansweredInCurrentProgram()).isFalse();
+    assertThat(applicantQuestion.isRequiredButWasSkippedInCurrentProgram()).isFalse();
   }
 
   @Test
-  public void isRequiredButWasUnansweredInCurrentProgram_isOptional_returnsFalse() {
+  public void isRequiredButWasSkippedInCurrentProgram_isOptional_returnsFalse() {
     ApplicantData applicantData = new ApplicantData();
     long programId = 5L;
     ProgramQuestionDefinition pqd =
@@ -353,11 +353,11 @@ public class ApplicantQuestionTest {
     QuestionAnswerer.addMetadata(
         applicantData, applicantQuestion.getContextualizedPath(), programId, 1L);
 
-    assertThat(applicantQuestion.isRequiredButWasUnansweredInCurrentProgram()).isFalse();
+    assertThat(applicantQuestion.isRequiredButWasSkippedInCurrentProgram()).isFalse();
   }
 
   @Test
-  public void isAnsweredOrLeftUnansweredInProgram_forOptionalUnanswered_isTrue() {
+  public void isAnsweredOrSkippedInProgram_forSkippedOptional_isTrue() {
     ApplicantData applicantData = new ApplicantData();
     long programId = 5L;
     Path questionPath =
@@ -376,12 +376,12 @@ public class ApplicantQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, applicantData, Optional.empty());
 
-    assertThat(applicantQuestion.isAnsweredOrLeftUnansweredInProgram()).isTrue();
+    assertThat(applicantQuestion.isAnsweredOrSkippedOptionalInProgram()).isTrue();
   }
 
   @Test
   public void
-      isAnsweredOrLeftUnansweredInProgram_forOptionalUnansweredInDifferentProgram_isFalse() {
+      isAnsweredOrSkippedOptionalInProgram_forSkippedOptionalInDifferentProgram_isFalse() {
     ApplicantData applicantData = new ApplicantData();
     long programId = 5L;
     Path questionPath =
@@ -400,11 +400,11 @@ public class ApplicantQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, applicantData, Optional.empty());
 
-    assertThat(applicantQuestion.isAnsweredOrLeftUnansweredInProgram()).isFalse();
+    assertThat(applicantQuestion.isAnsweredOrSkippedOptionalInProgram()).isFalse();
   }
 
   @Test
-  public void isAnsweredOrLeftUnansweredInProgram_forRequiredUnanswered_isFalse() {
+  public void isAnsweredOrSkippedOptionalInProgram_forRequiredSkipped_isFalse() {
     ApplicantData applicantData = new ApplicantData();
     long programId = 5L;
     Path questionPath =
@@ -422,6 +422,6 @@ public class ApplicantQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(pqd, applicantData, Optional.empty());
 
-    assertThat(applicantQuestion.isAnsweredOrLeftUnansweredInProgram()).isFalse();
+    assertThat(applicantQuestion.isAnsweredOrSkippedOptionalInProgram()).isFalse();
   }
 }

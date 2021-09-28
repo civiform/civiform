@@ -77,33 +77,36 @@ public class ApplicantQuestion {
   }
 
   /**
-   * Return true if this question is answered, or left unanswered in the program specified.
-   * Questions can only be left unanswered if they are optional.
+   * Return true if this question is answered or a skipped optional question in the program
+   * specified. Questions can only be skipped and left unanswered if they are optional.
    *
    * <p>For every applicant question, there are three possible states:
    *
    * <ol>
    *   <li>unvisited - the applicant has not seen this question yet
-   *   <li>unanswered - the applicant has visited the question but chose to leave it unanswered.
-   *       Only optional questions can be left unanswered
+   *   <li>skipped - the applicant has visited the question but chose to leave it unanswered.
+   *       Only optional questions can be skipped and left unanswered.
    *   <li>answered - the applicant has visited and provided an answer to the question
    * </ol>
    *
-   * For unanswered optional questions, we care in which program it was left unanswered. For the
-   * program which the optional question was left unanswered, it counts as "completed" for that
+   * For skipped optional questions, we care in which program it was skipped. For the program which
+   * the optional question was skipped and left unanswered, it counts as "completed" for that
    * program.
    *
-   * @return true if this question is answered, or left unanswered in the program specified.
+   * Static questions evaluate as answered since they are not awaiting a response.
+   *
+   * @return true if this question is answered or it is an optional question that was skipped in
+   * the program specified.
    */
-  public boolean isAnsweredOrLeftUnansweredInProgram() {
+  public boolean isAnsweredOrSkippedOptionalInProgram() {
     return errorsPresenter().isAnswered() || (isOptional() && wasRecentlyUpdatedInThisProgram());
   }
 
   /**
-   * Return true if this question is required but was left unanswered while filling out the current
-   * program.
+   * Return true if this question is required but was skipped and left unanswered while filling out
+   * the current program.
    */
-  public boolean isRequiredButWasUnansweredInCurrentProgram() {
+  public boolean isRequiredButWasSkippedInCurrentProgram() {
     return !isOptional() && !errorsPresenter().isAnswered() && wasRecentlyUpdatedInThisProgram();
   }
 

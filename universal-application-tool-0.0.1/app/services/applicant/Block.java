@@ -168,12 +168,12 @@ public final class Block {
   }
 
   /**
-   * Return true if any of this blocks questions are required but were left unanswered while filling
-   * out the current program.
+   * Return true if any of this blocks questions are required but were skipped and left unanswered
+   * while filling out the current program.
    */
-  public boolean hasRequiredQuestionsThatAreUnansweredInCurrentProgram() {
+  public boolean hasRequiredQuestionsThatAreSkippedInCurrentProgram() {
     return getQuestions().stream()
-        .anyMatch(ApplicantQuestion::isRequiredButWasUnansweredInCurrentProgram);
+        .anyMatch(ApplicantQuestion::isRequiredButWasSkippedInCurrentProgram);
   }
 
   /**
@@ -201,7 +201,7 @@ public final class Block {
 
   /**
    * A block is complete with respect to a specific program if all of its questions are answered, or
-   * are optional and left unanswered in the program.
+   * are optional questions that were skipped in the program.
    */
   public boolean isCompletedInProgramWithoutErrors() {
     return isCompleteInProgram() && !hasErrors();
@@ -209,7 +209,7 @@ public final class Block {
 
   private boolean isCompleteInProgram() {
     return getQuestions().stream()
-        .anyMatch(question -> question.isAnsweredOrLeftUnansweredInProgram());
+        .anyMatch(question -> question.isAnsweredOrSkippedOptionalInProgram());
   }
 
   /**

@@ -1,7 +1,7 @@
 import { startSession, loginAsProgramAdmin, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, logout, loginAsTestUser, selectApplicantLanguage, ApplicantQuestions, userDisplayName } from './support'
 
-describe('normal application flow', () => {
-  it('all major steps', async () => {
+describe('optional application flow', () => {
+  it('program with all question types', async () => {
     const { browser, page } = await startSession()
     page.setDefaultTimeout(5000);
 
@@ -11,28 +11,18 @@ describe('normal application flow', () => {
 
     const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes('optional-');
     await adminQuestions.addFileUploadQuestion('optional-file-upload');
-    await adminQuestions.addStaticQuestion('optional-static');
-    questions.push('optional-file-upload');
-    questions.push('optional-static');
 
     const programName = 'Optional Questions Program';
     await adminPrograms.addProgram(programName);
-    await adminPrograms.editProgramBlockWithOptional(programName, 'first description', [], 'date-optional-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'second description', [], 'address-optional-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'third description', [], 'name-optional-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'fourth description', [], 'radio-optional-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'fifth description', [], 'email-optional-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'sixth description', ['static-optional-q'],
-      'ice-cream-optional-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'seventh description', [],
-      'favorite-trees-optional-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'eighth description', [], 'number-optional-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'ninth description', [], 'text-optional-q');
-    await adminPrograms.addProgramBlockWithOptional(programName, 'tenth description', [], 'fileupload-optional-q');
+    await adminPrograms.editProgramBlockWithOptional(programName, 'first description', [], 'optional-file-upload');
+
+    for (let i = 0; i < questions.length; i++) {
+      await adminPrograms.addProgramBlockWithOptional(programName, 'description', [], questions[i]);
+    }
 
     const programName2 = 'Second Optional Questions Program';
     await adminPrograms.addProgram(programName2);
-    await adminPrograms.editProgramBlockWithOptional(programName2, 'first description', [], 'date-optional-q');
+    await adminPrograms.editProgramBlockWithOptional(programName2, 'first description', [], 'optional-file-upload');
 
     await adminPrograms.gotoAdminProgramsPage();
     await adminPrograms.expectDraftProgram(programName);
@@ -49,21 +39,20 @@ describe('normal application flow', () => {
     const applicantQuestions = new ApplicantQuestions(page);
     await applicantQuestions.applyProgram(programName);
 
-    // Skip blocks 1-5 without answering any questions
-    await applicantQuestions.clickNext();
+    // Skip first block without uploading a file
+    await applicantQuestions.clickSkip();
+    // Skip blocks 2-5 without answering any questions
     await applicantQuestions.clickNext();
     await applicantQuestions.clickNext();
     await applicantQuestions.clickNext();
     await applicantQuestions.clickNext();
 
     //Skip blocks 6-10 without answering any questions
-    await applicantQuestions.seeStaticQuestion('static question text');
     await applicantQuestions.clickNext();
     await applicantQuestions.clickNext();
     await applicantQuestions.clickNext();
     await applicantQuestions.clickNext();
-    // Skip file upload
-    await applicantQuestions.clickSkip();
+    await applicantQuestions.clickNext();
 
     // Submit the first program
     await applicantQuestions.submitFromReviewPage(programName);
@@ -72,7 +61,8 @@ describe('normal application flow', () => {
     await applicantQuestions.applyProgram(programName2);
 
     // Skip Screen 1 when it pops up to be answered again
-    await applicantQuestions.clickNext();
+    await applicantQuestions.clickSkip();
+
     // Submit from review page
     await applicantQuestions.submitFromReviewPage(programName2);
     await endSession(browser);
