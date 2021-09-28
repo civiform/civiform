@@ -4,13 +4,6 @@ import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.label;
 
-import static autovalue.shaded.com.google$.common.base.$Preconditions.checkNotNull;
-
-import play.i18n.Messages;
-import play.i18n.MessagesApi;
-import play.i18n.Lang;
-
-import com.google.inject.Inject;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -25,6 +18,7 @@ import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
+import play.i18n.Messages;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
@@ -177,7 +171,9 @@ public class QuestionConfig {
             .setLabelText("Question option")
             .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
             .setValue(existingOption.map(LocalizedQuestionOption::optionText))
-            .setFieldErrors(messages, ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
+            .setFieldErrors(
+                messages,
+                ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
             .showFieldErrors(false)
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2, Styles.GAP_X_3);
@@ -215,7 +211,8 @@ public class QuestionConfig {
                       multiOptionQuestionForm.getOptionIds().get(i),
                       i,
                       multiOptionQuestionForm.getOptions().get(i),
-                      LocalizedStrings.DEFAULT_LOCALE)), messages));
+                      LocalizedStrings.DEFAULT_LOCALE)),
+              messages));
     }
 
     content

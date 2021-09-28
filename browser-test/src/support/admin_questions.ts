@@ -364,9 +364,7 @@ export class AdminQuestions {
     questionText = 'dropdown question text',
     helpText = 'dropdown question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
-    //  this.createDropdownQuestion(questionName, options, description, helpText, enumeratorName);
-    
-    // This is createDropwdownQuestion copied and pasted. For some reason, when I call the function directly, the 1st & 4th test in question_lifecycle.test.ts fails. When I copy and paste the function content directly into this function, it passes.
+   
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');

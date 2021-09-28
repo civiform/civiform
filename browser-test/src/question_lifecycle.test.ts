@@ -123,6 +123,7 @@ describe('normal question lifecycle', () => {
 
     // Add an empty option
     await page.click('#add-new-option');
+    // Add the empty option to the options array
     options.push('');
     
     await adminQuestions.clickSubmitButtonAndNavigate('Update');
@@ -152,6 +153,7 @@ describe('normal question lifecycle', () => {
 
     // Add an empty option
     await page.click('#add-new-option');
+    // Add the empty option to the options array
     options.push('');
     
     await adminQuestions.clickSubmitButtonAndNavigate('Update');

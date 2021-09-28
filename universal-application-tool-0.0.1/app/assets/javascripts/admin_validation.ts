@@ -7,25 +7,25 @@ class AdminValidationController {
   isMultiOptionEditValid = true;
 
   constructor() {
-      // Attach listener to admin program edit form.
-      const adminProgramEditForm = document.getElementById("question-form");
-      if (adminProgramEditForm) {
-          adminProgramEditForm.addEventListener("submit", (event) => { return this.attemptSubmit(event); });
-      }
-      }
-
-  private attemptSubmit(event: Event): boolean {
-      this.checkFields();
-      if (!this.isValid()) {
-          event.preventDefault();
-          return false;
-      }
-      return true;
+    // Attach listener to admin program edit form.
+    const adminProgramEditForm = document.getElementById("question-form");
+    if (adminProgramEditForm) {
+      adminProgramEditForm.addEventListener("submit", (event) => { return this.attemptSubmit(event); });
+    }
   }
 
-  private checkFields(){
-      this.isMultiOptionCreateValid = this.validateMultiOptionQuestionCreate();
-      this.isMultiOptionEditValid = this.validateMultiOptionQuestionEdit();
+  private attemptSubmit(event: Event): boolean {
+    this.checkFields();
+    if (!this.isValid()) {
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  }
+
+  private checkFields() {
+    this.isMultiOptionCreateValid = this.validateMultiOptionQuestionCreate();
+    this.isMultiOptionEditValid = this.validateMultiOptionQuestionEdit();
   }
 
   updateFieldErrorState(element: Element, fieldName: string, isValid: boolean) {
@@ -46,20 +46,20 @@ class AdminValidationController {
   }
 
   /** Validates that there are no empty options. Returns true if all fields are valid.  */
-  validateMultiOptionQuestionOptions(options: HTMLInputElement[]){
-    let multiOptionIsValid = true;    
+  validateMultiOptionQuestionOptions(options: HTMLInputElement[]) {
+    let multiOptionIsValid = true;
     for (const option of options) {
       const inputIsValid = option.value !== '';
       this.updateFieldErrorState(option, ".cf-multi-option-input", inputIsValid);
-      if(!inputIsValid){
+      if (!inputIsValid) {
         multiOptionIsValid = inputIsValid;
       }
     }
     return multiOptionIsValid;
   }
 
-   /** Validates multi option question options when creating a multi option question.  */
-   validateMultiOptionQuestionCreate(): boolean {
+  /** Validates multi option question options when creating a multi option question.  */
+  validateMultiOptionQuestionCreate(): boolean {
     const options = Array.from(<NodeListOf<HTMLInputElement>>document.querySelectorAll(AdminValidationController.MULTI_OPTION_QUESTION_FIELD_NAME_CREATE));
     return this.validateMultiOptionQuestionOptions(options);
   }
