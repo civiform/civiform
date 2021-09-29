@@ -27,7 +27,7 @@ export class AdminPrograms {
     expect(tableInnerText).toContain(description);
   }
 
-  async addProgram(programName: string, description = 'program description', externalLink = '') {
+  async addProgram(programName: string, description = 'program description', externalLink = '', hidden = false) {
     await this.gotoAdminProgramsPage();
     await this.page.click('#new-program-button');
     await waitForPageJsLoad(this.page);
@@ -37,6 +37,12 @@ export class AdminPrograms {
     await this.page.fill('#program-display-name-input', programName);
     await this.page.fill('#program-display-description-textarea', description);
     await this.page.fill('#program-external-link-input', externalLink);
+
+    if (hidden) {
+      await this.page.check(`label:has-text("Hidden in Index")`);
+    } else {
+      await this.page.check(`label:has-text("Public")`);
+    }
 
     await this.page.click('#program-update-button');
     await waitForPageJsLoad(this.page);
@@ -215,6 +221,20 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page);
     await this.expectDraftProgram(programName);
   }
+
+  async createPublicVersion(programName: string) {
+    await this.gotoAdminProgramsPage();
+
+    await this.expectActiveProgram(programName);
+
+    await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', ':text("New Version")'));
+    await waitForPageJsLoad(this.page);
+    await this.page.check(`label:has-text("Public")`);
+    await this.page.click('#program-update-button');
+    await waitForPageJsLoad(this.page);
+
+    await this.expectDraftProgram(programName);
+    }
 
   async viewApplications(programName: string) {
     await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', 'a:text("Applications")'));

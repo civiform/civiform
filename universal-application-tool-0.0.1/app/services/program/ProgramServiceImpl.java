@@ -16,6 +16,7 @@ import java.util.concurrent.CompletionStage;
 import javax.annotation.Nullable;
 import models.Account;
 import models.Application;
+import models.DisplayMode;
 import models.Program;
 import models.Version;
 import play.db.ebean.Transactional;
@@ -101,7 +102,8 @@ public class ProgramServiceImpl implements ProgramService {
       String adminDescription,
       String defaultDisplayName,
       String defaultDisplayDescription,
-      String externalLink) {
+      String externalLink,
+      String displayMode) {
 
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     if (hasProgramNameCollision(adminName)) {
@@ -122,7 +124,8 @@ public class ProgramServiceImpl implements ProgramService {
             adminDescription,
             defaultDisplayName,
             defaultDisplayDescription,
-            externalLink);
+            externalLink,
+            displayMode);
     program.addVersion(versionRepository.getDraftVersion());
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
@@ -134,7 +137,8 @@ public class ProgramServiceImpl implements ProgramService {
       String adminDescription,
       String displayName,
       String displayDescription,
-      String externalLink)
+      String externalLink,
+      String displayMode)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
@@ -156,6 +160,7 @@ public class ProgramServiceImpl implements ProgramService {
                     .localizedDescription()
                     .updateTranslation(locale, displayDescription))
             .setExternalLink(externalLink)
+            .setDisplayMode(DisplayMode.valueOf(displayMode))
             .build()
             .toProgram();
     return ErrorAnd.of(

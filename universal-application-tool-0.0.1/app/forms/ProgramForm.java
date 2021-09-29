@@ -7,6 +7,7 @@ public class ProgramForm {
   private String localizedDisplayName;
   private String localizedDisplayDescription;
   private String externalLink;
+  private String displayMode;
 
   public ProgramForm() {
     adminName = "";
@@ -14,6 +15,7 @@ public class ProgramForm {
     localizedDisplayName = "";
     localizedDisplayDescription = "";
     externalLink = "";
+    displayMode = "";
   }
 
   public String getAdminName() {
@@ -38,6 +40,14 @@ public class ProgramForm {
 
   public void setExternalLink(String externalLink) {
     this.externalLink = externalLink;
+  }
+
+  public String getDisplayMode() {
+    return displayMode;
+  }
+
+  public void setDisplayMode(String displayMode) {
+    this.displayMode = displayMode;
   }
 
   public String getLocalizedDisplayName() {

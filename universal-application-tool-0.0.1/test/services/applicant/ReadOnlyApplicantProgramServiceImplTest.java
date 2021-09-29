@@ -9,6 +9,7 @@ import java.util.AbstractMap;
 import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
+import models.DisplayMode;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
@@ -546,6 +547,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 .setLocalizedDescription(
                     LocalizedStrings.of(Locale.US, "This program is for testing."))
                 .setExternalLink("")
+                .setDisplayMode(DisplayMode.PUBLIC)
                 .build(),
             FAKE_BASE_URL);
 
