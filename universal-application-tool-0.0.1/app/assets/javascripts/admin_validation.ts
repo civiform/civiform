@@ -2,55 +2,46 @@
 class AdminValidationController {
   static readonly MULTI_OPTION_QUESTION_FIELD_NAME_CREATE = '#question-settings input[name="newOptions[]"]';
   static readonly MULTI_OPTION_QUESTION_FIELD_NAME_EDIT = '#question-settings input[name="options[]"]';
-
-  isMultiOptionCreateValid = true;
-  isMultiOptionEditValid = true;
+  static readonly MULTI_OPTION_QUESTION_OPTION_CLASS = ".cf-multi-option-input";
 
   constructor() {
     // Attach listener to admin program edit form.
     const adminProgramEditForm = document.getElementById("question-form");
     if (adminProgramEditForm) {
-      adminProgramEditForm.addEventListener("submit", (event) => { return this.attemptSubmit(event); });
+      adminProgramEditForm.addEventListener("submit", (event) => this.attemptSubmit(event));
     }
   }
 
-  private attemptSubmit(event: Event): boolean {
-    this.checkFields();
-    if (!this.isValid()) {
+  private attemptSubmit(event: Event) {
+    this.validateForm();
+    if (!this.validateForm()) {
       event.preventDefault();
-      return false;
     }
-    return true;
   }
 
-  private checkFields() {
-    this.isMultiOptionCreateValid = this.validateMultiOptionQuestionCreate();
-    this.isMultiOptionEditValid = this.validateMultiOptionQuestionEdit();
+  private validateForm(): boolean {
+    return this.validateMultiOptionQuestionCreate() && this.validateMultiOptionQuestionEdit();
   }
 
-  updateFieldErrorState(element: Element, fieldName: string, isValid: boolean) {
-    const errorDiv = element.parentElement ? element.parentElement.querySelector(fieldName + '-error') : element.querySelector(fieldName + '-error');
+  private updateFieldErrorState(element: Element, fieldName: string, isValid: boolean) {
+    const errorDiv = element.parentElement!.querySelector(fieldName + '-error');
     if (errorDiv) {
       errorDiv.classList.toggle('hidden', isValid);
     }
 
     // Also toggle the border on error inputs (if applicable).
-    const field = element.parentElement ? element.parentElement.querySelector('input') : element.querySelector(fieldName + ' input');
+    const field = element.parentElement!.querySelector('input');
     if (field) {
       field.classList.toggle('border-red-600', !isValid);
     }
   }
 
-  isValid() {
-    return this.isMultiOptionCreateValid && this.isMultiOptionEditValid;
-  }
-
   /** Validates that there are no empty options. Returns true if all fields are valid.  */
-  validateMultiOptionQuestionOptions(options: HTMLInputElement[]) {
+  private validateMultiOptionQuestionOptions(options: HTMLInputElement[]) {
     let multiOptionIsValid = true;
     for (const option of options) {
       const inputIsValid = option.value !== '';
-      this.updateFieldErrorState(option, ".cf-multi-option-input", inputIsValid);
+      this.updateFieldErrorState(option, AdminValidationController.MULTI_OPTION_QUESTION_OPTION_CLASS, inputIsValid);
       if (!inputIsValid) {
         multiOptionIsValid = inputIsValid;
       }
@@ -59,13 +50,13 @@ class AdminValidationController {
   }
 
   /** Validates multi option question options when creating a multi option question.  */
-  validateMultiOptionQuestionCreate(): boolean {
+  private validateMultiOptionQuestionCreate(): boolean {
     const options = Array.from(<NodeListOf<HTMLInputElement>>document.querySelectorAll(AdminValidationController.MULTI_OPTION_QUESTION_FIELD_NAME_CREATE));
     return this.validateMultiOptionQuestionOptions(options);
   }
 
   /** Validates multi option question options when editing a multi option question.  */
-  validateMultiOptionQuestionEdit(): boolean {
+  private validateMultiOptionQuestionEdit(): boolean {
     const options = Array.from(<NodeListOf<HTMLInputElement>>document.querySelectorAll(AdminValidationController.MULTI_OPTION_QUESTION_FIELD_NAME_EDIT));
     return this.validateMultiOptionQuestionOptions(options);
   }
