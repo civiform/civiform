@@ -330,8 +330,7 @@ export class AdminQuestions {
     helpText = 'dropdown question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION){
       await this.gotoAdminQuestionsPage();
-      // Wait for dropdown event listener to be attached
-      await this.page.waitForLoadState('load');
+
       await this.page.click('#create-question-button');
       await this.page.click('#create-dropdown-question');
 
@@ -348,10 +347,6 @@ export class AdminQuestions {
       await this.clickSubmitButtonAndNavigate('Create');
   }
 
-  async changeDropdownAnswer(index: number, text: string) {
-    await this.page.fill(`:nth-match(#question-settings div.flex-row, ${index}) input`, text);
-  }
-
   /** Changes the input field of a multi option answer. */
   async changeMultiOptionAnswer(index: number, text: string) {
     await this.page.fill(`:nth-match(#question-settings div.flex-row, ${index}) input`, text);
@@ -365,21 +360,7 @@ export class AdminQuestions {
     helpText = 'dropdown question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
    
-    await this.gotoAdminQuestionsPage();
-
-    await this.page.click('#create-question-button');
-    await this.page.click('#create-dropdown-question');
-    await waitForPageJsLoad(this.page);
-
-    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
-
-    for (var index in options) {
-      await this.page.click('#add-new-option');
-      var matchIndex = Number(index) + 1;
-      await this.page.fill(`:nth-match(#question-settings div.flex-row, ${matchIndex}) input`, options[index]);
-    }
-
-    await this.clickSubmitButtonAndNavigate('Create');
+    await this.createDropdownQuestion(questionName, options, description, questionText, helpText, enumeratorName);
     
     await this.expectAdminQuestionsPageWithCreateSuccessToast();
 

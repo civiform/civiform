@@ -1,4 +1,4 @@
-import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession, waitForPageJsLoad } from './support'
+import { startSession, loginAsAdmin, AdminQuestions, AdminPrograms, endSession } from './support'
 
 describe('normal question lifecycle', () => {
   it('create, update, publish, create a new version, and update all questions', async () => {
@@ -61,17 +61,13 @@ describe('normal question lifecycle', () => {
     const options = ['option1', 'option2', ''];
 
     await adminQuestions.createDropdownQuestion('dropdownWithEmptyOptions', options);
-   
-    await waitForPageJsLoad(page);
 
     await adminQuestions.expectMultiOptionBlankOptionError(options);
 
-    // Correct error
+    // Update empty option to have a value
     await adminQuestions.changeMultiOptionAnswer(3, "option3");
 
     await adminQuestions.clickSubmitButtonAndNavigate('Create');
-
-    await waitForPageJsLoad(page);
 
     await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast();
   });
@@ -86,21 +82,15 @@ describe('normal question lifecycle', () => {
     const options = ['option1', 'option2', ''];
 
     await adminQuestions.createRadioButtonQuestion('radioButtonWithEmptyOptions', options);
-   
-    await waitForPageJsLoad(page);
 
     await adminQuestions.expectMultiOptionBlankOptionError(options);
     
-    // Correct error
-    await adminQuestions.changeDropdownAnswer(3, "option3");
+    // Update empty option to have a value
+    await adminQuestions.changeMultiOptionAnswer(3, "option3");
 
     await adminQuestions.clickSubmitButtonAndNavigate('Create');
-
-    await waitForPageJsLoad(page);
     
     await adminQuestions.expectAdminQuestionsPageWithCreateSuccessToast();
-
-    await waitForPageJsLoad(page);
   });
 
   it('shows error when updating a dropdown question and admin left an option field blank', async () => {
@@ -115,9 +105,6 @@ describe('normal question lifecycle', () => {
 
     // Add a new valid dropdown question
     await adminQuestions.addDropdownQuestion(questionName, options);
-    
-    await waitForPageJsLoad(page);
-
     // Edit the newly created question
     await page.click(adminQuestions.selectWithinQuestionTableRow(questionName, ':text("Edit")'));
 
@@ -125,10 +112,7 @@ describe('normal question lifecycle', () => {
     await page.click('#add-new-option');
     // Add the empty option to the options array
     options.push('');
-    
     await adminQuestions.clickSubmitButtonAndNavigate('Update');
-
-    await waitForPageJsLoad(page);
 
     await adminQuestions.expectMultiOptionBlankOptionError(options);
   });
@@ -145,8 +129,6 @@ describe('normal question lifecycle', () => {
 
     // Add a new valid radio question
     await adminQuestions.addRadioButtonQuestion(questionName, options);
-    
-    await waitForPageJsLoad(page);
 
     // Edit the newly created question
     await page.click(adminQuestions.selectWithinQuestionTableRow(questionName, ':text("Edit")'));
@@ -157,8 +139,6 @@ describe('normal question lifecycle', () => {
     options.push('');
     
     await adminQuestions.clickSubmitButtonAndNavigate('Update');
-
-    await waitForPageJsLoad(page);
 
     await adminQuestions.expectMultiOptionBlankOptionError(options);
   });
