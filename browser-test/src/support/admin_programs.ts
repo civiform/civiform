@@ -162,6 +162,7 @@ export class AdminPrograms {
 
     // Add the optional question
     await this.page.click(`button:text("${optionalQuestionName}")`);
+    await waitForPageJsLoad(this.page);
     // Only allow one optional question per block; this selector will always toggle the first optional button.  It
     // cannot tell the difference between multiple option buttons
     await this.page.click(`:is(button:has-text("optional"))`);
@@ -204,6 +205,7 @@ export class AdminPrograms {
 
     // Add the optional question
     await this.page.click(`button:text("${optionalQuestionName}")`);
+    await waitForPageJsLoad(this.page);
     // Only allow one optional question per block; this selector will always toggle the first optional button.  It
     // cannot tell the difference between multiple option buttons
     await this.page.click(`:is(button:has-text("optional"))`);
