@@ -168,46 +168,61 @@ public final class Block {
   }
 
   /**
-   * Return true if any of this blocks questions are required but were left unanswered while filling
-   * out the current program.
+   * Return true if any of this blocks questions are required but were skipped and left unanswered
+   * while filling out the current program.
    */
-  public boolean hasRequiredQuestionsThatAreUnansweredInCurrentProgram() {
+  public boolean hasRequiredQuestionsThatAreSkippedInCurrentProgram() {
     return getQuestions().stream()
-        .anyMatch(ApplicantQuestion::isRequiredButWasUnansweredInCurrentProgram);
+        .anyMatch(ApplicantQuestion::isRequiredButWasSkippedInCurrentProgram);
   }
 
   /**
-   * Checks whether the block is complete - that is, {@link ApplicantData} has values at all the
-   * paths for all required questions in this block and there are no errors. Note: this cannot be
-   * memoized, since we need to reflect internal changes to ApplicantData.
+   * Checks whether the block is answered - that is, {@link ApplicantData} has values at all the
+   * paths for all questions in this block and there are no errors. Note: this cannot be memoized,
+   * since we need to reflect internal changes to ApplicantData.
+   *
+   * <p>A block with optional questions that are not answered is not answered.
    */
-  public boolean isCompleteWithoutErrors() {
+  public boolean isAnsweredWithoutErrors() {
     // TODO(https://github.com/seattle-uat/civiform/issues/551): Stream only required scalar paths
     //  instead of all scalar paths.
-    return isComplete() && !hasErrors();
+    return isAnswered() && !hasErrors();
   }
 
   /**
-   * A block is complete if all of its {@link ApplicantQuestion}s {@link
+   * A block is answered if all of its {@link ApplicantQuestion}s {@link
    * PresentsErrors#isAnswered()}.
    */
-  private boolean isComplete() {
+  private boolean isAnswered() {
     return getQuestions().stream()
         .map(ApplicantQuestion::errorsPresenter)
         .allMatch(PresentsErrors::isAnswered);
   }
 
   /**
-   * Checks that this block is complete and that at least one of the questions was answered during
+   * A block is complete with respect to a specific program if all of its questions are answered, or
+   * are optional questions that were skipped in the program.
+   */
+  public boolean isCompletedInProgramWithoutErrors() {
+    return isCompleteInProgram() && !hasErrors();
+  }
+
+  private boolean isCompleteInProgram() {
+    return getQuestions().stream()
+        .anyMatch(question -> question.isAnsweredOrSkippedOptionalInProgram());
+  }
+
+  /**
+   * Checks that this block is answered and that at least one of the questions was answered during
    * the program.
    *
    * @param programId the program ID to check
    * @return true if this block is complete at least one question was updated while filling out the
-   *     program with the given ID; false if this block is incomplete; if it is complete with
-   *     errors; or it is complete and all questions were answered in a different program.
+   *     program with the given ID; false if this block has unanswered questions, has errors, or if
+   *     all of its questions were answered in a different program.
    */
-  public boolean wasCompletedInProgram(long programId) {
-    return isCompleteWithoutErrors()
+  public boolean wasAnsweredInProgram(long programId) {
+    return isAnsweredWithoutErrors()
         && getQuestions().stream()
             .anyMatch(
                 q -> {

@@ -71,7 +71,7 @@ public abstract class ApplicantQuestionRenderer {
       questionTextDiv.with(BaseHtmlView.fieldErrors(messages, question.getQuestionErrors()));
     }
 
-    if (question.isRequiredButWasUnansweredInCurrentProgram()) {
+    if (question.isRequiredButWasSkippedInCurrentProgram()) {
       String requiredQuestionMessage = messages.at(MessageKey.VALIDATION_REQUIRED.getKeyName());
       questionTextDiv.with(
           div()
