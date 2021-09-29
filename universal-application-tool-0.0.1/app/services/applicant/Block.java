@@ -218,8 +218,8 @@ public final class Block {
    *
    * @param programId the program ID to check
    * @return true if this block is complete at least one question was updated while filling out the
-   *     program with the given ID; false if this block is not answered; if it is answered with
-   *     errors; or it is answered and all questions were answered in a different program.
+   *     program with the given ID; false if this block has unanswered questions, has errors, or if
+   *     all of its questions were answered in a different program.
    */
   public boolean wasAnsweredInProgram(long programId) {
     return isAnsweredWithoutErrors()
