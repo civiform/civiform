@@ -46,7 +46,7 @@ content.description2=Get started by choosing an application below.
 
 label.street=Address line 1
 placeholder.street=Street address
-label.addressLine2=Address line 2
+label.addressLine2=Unit/Apartment Number
 placeholder.line2=Apartment, suite, unit, building, floor, etc.
 label.city=City
 placeholder.city=City
