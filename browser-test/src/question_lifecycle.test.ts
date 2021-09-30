@@ -60,7 +60,7 @@ describe('normal question lifecycle', () => {
 
     const options = ['option1', 'option2', ''];
 
-    await adminQuestions.createDropdownQuestion('dropdownWithEmptyOptions', options);
+    await adminQuestions.createDropdownQuestion({questionName: 'dropdownWithEmptyOptions', options});
 
     await adminQuestions.expectMultiOptionBlankOptionError(options);
 
@@ -81,7 +81,7 @@ describe('normal question lifecycle', () => {
 
     const options = ['option1', 'option2', ''];
 
-    await adminQuestions.createRadioButtonQuestion('radioButtonWithEmptyOptions', options);
+    await adminQuestions.createRadioButtonQuestion({questionName: 'radioButtonWithEmptyOptions', options});
 
     await adminQuestions.expectMultiOptionBlankOptionError(options);
     

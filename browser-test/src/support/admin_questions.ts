@@ -1,6 +1,15 @@
 import { Page } from 'playwright'
 import { waitForPageJsLoad } from './wait';
 
+type QuestionParams = {
+  questionName: string,
+  options: Array<string>,
+  description?: string,
+  questionText?: string,
+  helpText?: string,
+  enumeratorName?: string
+}
+
 export class AdminQuestions {
   public page!: Page
 
@@ -323,12 +332,12 @@ export class AdminQuestions {
   }
 
   /** Fills out the form for a dropdown question and clicks submit.  */
-  async createDropdownQuestion(questionName: string,
-    options: Array<string>,
+  async createDropdownQuestion({questionName,
+    options,
     description = 'dropdown description',
     questionText = 'dropdown question text',
     helpText = 'dropdown question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION){
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams){
       await this.gotoAdminQuestionsPage();
 
       await this.page.click('#create-question-button');
@@ -360,7 +369,7 @@ export class AdminQuestions {
     helpText = 'dropdown question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
    
-    await this.createDropdownQuestion(questionName, options, description, questionText, helpText, enumeratorName);
+    await this.createDropdownQuestion({questionName, options, description, questionText, helpText, enumeratorName});
     
     await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
@@ -455,19 +464,19 @@ export class AdminQuestions {
     questionText = 'radio button question text',
     helpText = 'radio button question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
-    await this.createRadioButtonQuestion(questionName, options, description, questionText, helpText, enumeratorName);
+    await this.createRadioButtonQuestion({questionName, options, description, questionText, helpText, enumeratorName});
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async createRadioButtonQuestion(questionName: string,
-    options: Array<string>,
+  async createRadioButtonQuestion({questionName,
+    options,
     description = 'radio button description',
     questionText = 'radio button question text',
     helpText = 'radio button question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION){
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams){
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');
