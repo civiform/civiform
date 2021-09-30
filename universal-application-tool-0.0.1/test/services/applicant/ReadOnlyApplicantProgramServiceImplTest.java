@@ -9,6 +9,7 @@ import java.util.AbstractMap;
 import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
+import models.DisplayMode;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
@@ -168,7 +169,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withBlock("Block one") // Previous block with color question
             .withRequiredQuestionDefinition(colorQuestion)
             .withRequiredQuestionDefinition(staticQuestion)
-            .withBlock("Block two") // Block required unanswered question
+            .withBlock("Block two") // Block required skipped question
             .withRequiredQuestionDefinition(addressQuestion)
             .buildDefinition();
 
@@ -445,7 +446,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withBlock()
             .withPredicate(predicate)
             .withRequiredQuestionDefinition(
-                addressQuestion) // Include an unanswered question so the block is incomplete
+                addressQuestion) // Include a skipped question so the block is incomplete
             .buildDefinition();
 
     // Answer "blue" to the question - the predicate is true, so we should hide the block.
@@ -480,7 +481,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withBlock()
             .withPredicate(predicate)
             .withRequiredQuestionDefinition(
-                addressQuestion) // Include an unanswered question so the block is incomplete
+                addressQuestion) // Include a skipped question so the block is incomplete
             .buildDefinition();
 
     // The color question is not answered yet - we should default to show the block that uses the
@@ -489,6 +490,69 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     ReadOnlyApplicantProgramServiceImpl service =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
     assertThat(service.getInProgressBlocks()).hasSize(3);
+  }
+
+  @Test
+  public void getActiveAndCompletedInProgramBlockCount_withSkippedOptional() {
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock() // Block is completed
+            .withQuestionDefinition(nameQuestion, true)
+            .withBlock() // Block incomplete; this is what predicate is based on
+            .withQuestionDefinition(colorQuestion, false)
+            .buildDefinition();
+    QuestionAnswerer.addMetadata(
+        applicantData,
+        nameQuestion.getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH),
+        program.id(),
+        0L);
+
+    ReadOnlyApplicantProgramServiceImpl service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+
+    assertThat(service.getActiveAndCompletedInProgramBlockCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void getActiveAndCompletedInProgramBlockCount_withSkippedOptionalInDifferentProgram() {
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock() // Block is completed
+            .withQuestionDefinition(nameQuestion, true)
+            .withBlock() // Block incomplete; this is what predicate is based on
+            .withQuestionDefinition(colorQuestion, false)
+            .buildDefinition();
+    QuestionAnswerer.addMetadata(
+        applicantData,
+        nameQuestion.getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH),
+        program.id() + 1,
+        0L);
+
+    ReadOnlyApplicantProgramServiceImpl service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+
+    assertThat(service.getActiveAndCompletedInProgramBlockCount()).isEqualTo(0);
+  }
+
+  @Test
+  public void getActiveAndCompletedInProgramBlockCount_withRequiredSkipped() {
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock() // Block is completed
+            .withQuestionDefinition(nameQuestion, false)
+            .withBlock() // Block incomplete; this is what predicate is based on
+            .withQuestionDefinition(colorQuestion, false)
+            .buildDefinition();
+    QuestionAnswerer.addMetadata(
+        applicantData,
+        nameQuestion.getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH),
+        program.id(),
+        0L);
+
+    ReadOnlyApplicantProgramServiceImpl service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+
+    assertThat(service.getActiveAndCompletedInProgramBlockCount()).isEqualTo(0);
   }
 
   @Test
@@ -546,6 +610,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 .setLocalizedDescription(
                     LocalizedStrings.of(Locale.US, "This program is for testing."))
                 .setExternalLink("")
+                .setDisplayMode(DisplayMode.PUBLIC)
                 .build(),
             FAKE_BASE_URL);
 

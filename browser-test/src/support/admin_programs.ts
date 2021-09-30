@@ -27,7 +27,7 @@ export class AdminPrograms {
     expect(tableInnerText).toContain(description);
   }
 
-  async addProgram(programName: string, description = 'program description', externalLink = '') {
+  async addProgram(programName: string, description = 'program description', externalLink = '', hidden = false) {
     await this.gotoAdminProgramsPage();
     await this.page.click('#new-program-button');
     await waitForPageJsLoad(this.page);
@@ -37,6 +37,12 @@ export class AdminPrograms {
     await this.page.fill('#program-display-name-input', programName);
     await this.page.fill('#program-display-description-textarea', description);
     await this.page.fill('#program-external-link-input', externalLink);
+
+    if (hidden) {
+      await this.page.check(`label:has-text("Hidden in Index")`);
+    } else {
+      await this.page.check(`label:has-text("Public")`);
+    }
 
     await this.page.click('#program-update-button');
     await waitForPageJsLoad(this.page);
@@ -148,6 +154,31 @@ export class AdminPrograms {
     }
   }
 
+  async editProgramBlockWithOptional(programName: string, blockDescription = 'screen description', questionNames:
+    string[], optionalQuestionName: string) {
+    await this.gotoDraftProgramEditPage(programName);
+
+    await this.page.click('text=Manage Questions');
+    await waitForPageJsLoad(this.page);
+    await this.expectProgramBlockEditPage(programName);
+
+    await clickAndWaitForModal(this.page, 'block-description-modal');
+    await this.page.fill('textarea', blockDescription);
+    await this.page.click('#update-block-button:not([disabled])');
+
+    // Add the optional question
+    await this.page.click(`button:text("${optionalQuestionName}")`);
+    await waitForPageJsLoad(this.page);
+    // Only allow one optional question per block; this selector will always toggle the first optional button.  It
+    // cannot tell the difference between multiple option buttons
+    await this.page.click(`:is(button:has-text("optional"))`);
+
+    for (const questionName of questionNames) {
+      await this.page.click(`button:text("${questionName}")`);
+      await waitForPageJsLoad(this.page);
+    }
+  }
+
   async addProgramBlock(programName: string, blockDescription = 'screen description', questionNames: string[] = []) {
     await this.gotoDraftProgramEditPage(programName);
 
@@ -165,6 +196,31 @@ export class AdminPrograms {
     for (const questionName of questionNames) {
       await this.page.click(`button:text("${questionName}")`);
     }
+    return await this.page.$eval('#block-name-input', el => (el as HTMLInputElement).value);
+  }
+
+  async addProgramBlockWithOptional(programName: string, blockDescription = 'screen description', questionNames:
+    string[], optionalQuestionName: string) {
+    await this.page.click('#add-block-button');
+    await waitForPageJsLoad(this.page);
+
+    await clickAndWaitForModal(this.page, 'block-description-modal');
+
+    await this.page.type('textarea', blockDescription);
+    await this.page.click('#update-block-button:not([disabled])');
+
+    // Add the optional question
+    await this.page.click(`button:text("${optionalQuestionName}")`);
+    await waitForPageJsLoad(this.page);
+    // Only allow one optional question per block; this selector will always toggle the first optional button.  It
+    // cannot tell the difference between multiple option buttons
+    await this.page.click(`:is(button:has-text("optional"))`);
+
+    for (const questionName of questionNames) {
+      await this.page.click(`button:text("${questionName}")`);
+      await waitForPageJsLoad(this.page);
+    }
+
     return await this.page.$eval('#block-name-input', el => (el as HTMLInputElement).value);
   }
 
@@ -215,6 +271,20 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page);
     await this.expectDraftProgram(programName);
   }
+
+  async createPublicVersion(programName: string) {
+    await this.gotoAdminProgramsPage();
+
+    await this.expectActiveProgram(programName);
+
+    await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', ':text("New Version")'));
+    await waitForPageJsLoad(this.page);
+    await this.page.check(`label:has-text("Public")`);
+    await this.page.click('#program-update-button');
+    await waitForPageJsLoad(this.page);
+
+    await this.expectDraftProgram(programName);
+    }
 
   async viewApplications(programName: string) {
     await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', 'a:text("Applications")'));

@@ -271,7 +271,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     // Validation errors: re-render this block with errors and previously entered data.
     if (thisBlockUpdated.hasErrors()
-        || thisBlockUpdated.hasRequiredQuestionsThatAreUnansweredInCurrentProgram()) {
+        || thisBlockUpdated.hasRequiredQuestionsThatAreSkippedInCurrentProgram()) {
       return supplyAsync(
           () ->
               ok(

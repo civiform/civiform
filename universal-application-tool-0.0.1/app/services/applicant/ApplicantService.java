@@ -79,8 +79,8 @@ public interface ApplicantService {
       Application application);
 
   /**
-   * Return all programs that are appropriate to serve to an applicant - which is any active
-   * program, plus any program where they have an application in the draft stage.
+   * Return all programs that are appropriate to serve to an applicant - which is any active program
+   * that is public and any program where they have an application in the draft stage.
    *
    * <p>The programs do not have question definitions loaded into its program question definitions.
    */

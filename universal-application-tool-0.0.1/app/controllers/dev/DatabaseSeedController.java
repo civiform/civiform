@@ -10,6 +10,7 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Locale;
 import java.util.Optional;
+import models.DisplayMode;
 import models.LifecycleStage;
 import models.Models;
 import models.Version;
@@ -206,7 +207,8 @@ public class DatabaseSeedController extends DevController {
                   "desc",
                   name,
                   "display description",
-                  "https://github.com/seattle-uat/civiform")
+                  "https://github.com/seattle-uat/civiform",
+                  DisplayMode.PUBLIC.getValue())
               .getResult();
       long programId = programDefinition.id();
 

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import models.DisplayMode;
 import models.Program;
 import models.Question;
 import play.inject.Injector;
@@ -59,7 +60,8 @@ public class ProgramBuilder {
   /** Creates a {@link ProgramBuilder} with a new {@link Program} in draft state. */
   public static ProgramBuilder newDraftProgram(String name, String description) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
-    Program program = new Program(name, description, name, description, "");
+    Program program =
+        new Program(name, description, name, description, "", DisplayMode.PUBLIC.getValue());
     program.addVersion(versionRepository.getDraftVersion());
     program.save();
     ProgramDefinition.Builder builder =
@@ -88,7 +90,8 @@ public class ProgramBuilder {
   /** Creates a {@link ProgramBuilder} with a new {@link Program} in active state. */
   public static ProgramBuilder newActiveProgram(String name, String description) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
-    Program program = new Program(name, description, name, description, "");
+    Program program =
+        new Program(name, description, name, description, "", DisplayMode.PUBLIC.getValue());
     program.addVersion(versionRepository.getActiveVersion());
     program.save();
     ProgramDefinition.Builder builder =
@@ -218,10 +221,16 @@ public class ProgramBuilder {
       return this;
     }
 
+    /** Add a required question definition to the block. */
     public BlockBuilder withRequiredQuestionDefinition(QuestionDefinition question) {
+      return withQuestionDefinition(question, false);
+    }
+
+    public BlockBuilder withQuestionDefinition(QuestionDefinition question, boolean optional) {
       blockDefBuilder.addQuestion(
           ProgramQuestionDefinition.create(
-              question, Optional.of(programBuilder.programDefinitionId)));
+                  question, Optional.of(programBuilder.programDefinitionId))
+              .setOptional(optional));
       return this;
     }
 
