@@ -12,8 +12,8 @@ describe('normal question lifecycle', () => {
     const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes('qlc-');
     const singleBlockQuestions = await adminQuestions.addAllSingleBlockQuestionTypes('qlc-');
     const repeatedQuestion = 'qlc-repeated-number';
-    await adminQuestions.addNumberQuestion(
-      repeatedQuestion, 'description', '$this\'s favorite number', '', 'qlc-enumerator');
+    await adminQuestions.addNumberQuestion({
+      questionName: repeatedQuestion, description: 'description', questionText: '$this\'s favorite number', helpText: '', enumeratorName: 'qlc-enumerator'});
 
     // Combine all the questions that were made so we can update them all together.
     const allQuestions = questions.concat(singleBlockQuestions);
@@ -104,7 +104,7 @@ describe('normal question lifecycle', () => {
     const questionName = 'updateEmptyDropdown';
 
     // Add a new valid dropdown question
-    await adminQuestions.addDropdownQuestion(questionName, options);
+    await adminQuestions.addDropdownQuestion({questionName, options});
     // Edit the newly created question
     await page.click(adminQuestions.selectWithinQuestionTableRow(questionName, ':text("Edit")'));
 
@@ -128,7 +128,7 @@ describe('normal question lifecycle', () => {
     const questionName = 'updateEmptyRadio';
 
     // Add a new valid radio question
-    await adminQuestions.addRadioButtonQuestion(questionName, options);
+    await adminQuestions.addRadioButtonQuestion({questionName, options});
 
     // Edit the newly created question
     await page.click(adminQuestions.selectWithinQuestionTableRow(questionName, ':text("Edit")'));
