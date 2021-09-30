@@ -22,7 +22,7 @@ import views.admin.questions.QuestionConfig;
 public class QuestionConfigTest {
 
   private static final ContainerTag DEFAULT_CONFIG = div();
-  
+
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
 
