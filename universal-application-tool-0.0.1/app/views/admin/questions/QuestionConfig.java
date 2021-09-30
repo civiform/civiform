@@ -192,7 +192,7 @@ public class QuestionConfig {
             .withClasses(Styles.FLEX, Styles.ML_4, "multi-option-question-field-remove-button");
 
     return div()
-        .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4)
+        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4)
         .with(optionInput, optionIndexInput, removeOptionButton);
   }
 

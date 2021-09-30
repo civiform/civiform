@@ -2,7 +2,7 @@
 class AdminValidationController {
   static readonly MULTI_OPTION_QUESTION_FIELD_NAME_CREATE = '#question-settings input[name="newOptions[]"]';
   static readonly MULTI_OPTION_QUESTION_FIELD_NAME_EDIT = '#question-settings input[name="options[]"]';
-  static readonly MULTI_OPTION_QUESTION_OPTION_CLASS = ".cf-multi-option-input";
+  static readonly MULTI_OPTION_QUESTION_ERROR_CLASS = ".cf-multi-option-input-error";
 
   constructor() {
     // Attach listener to admin program edit form.
@@ -13,7 +13,6 @@ class AdminValidationController {
   }
 
   private attemptSubmit(event: Event) {
-    this.validateForm();
     if (!this.validateForm()) {
       event.preventDefault();
     }
@@ -23,8 +22,8 @@ class AdminValidationController {
     return this.validateMultiOptionQuestionCreate() && this.validateMultiOptionQuestionEdit();
   }
 
-  private updateFieldErrorState(element: Element, fieldName: string, isValid: boolean) {
-    const errorDiv = element.parentElement!.querySelector(fieldName + '-error');
+  private updateFieldErrorState(element: Element, fieldErrorName: string, isValid: boolean) {
+    const errorDiv = element.parentElement!.querySelector(fieldErrorName);
     if (errorDiv) {
       errorDiv.classList.toggle('hidden', isValid);
     }
@@ -41,7 +40,7 @@ class AdminValidationController {
     let multiOptionIsValid = true;
     for (const option of options) {
       const inputIsValid = option.value !== '';
-      this.updateFieldErrorState(option, AdminValidationController.MULTI_OPTION_QUESTION_OPTION_CLASS, inputIsValid);
+      this.updateFieldErrorState(option, AdminValidationController.MULTI_OPTION_QUESTION_ERROR_CLASS, inputIsValid);
       if (!inputIsValid) {
         multiOptionIsValid = inputIsValid;
       }

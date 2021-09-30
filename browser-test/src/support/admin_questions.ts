@@ -350,7 +350,7 @@ export class AdminQuestions {
       for (var index in options) {
         await this.page.click('#add-new-option');
         var matchIndex = Number(index) + 1;
-        await this.page.fill(`:nth-match(#question-settings div.flex-row, ${matchIndex}) input`, options[index]);
+        await this.changeMultiOptionAnswer(matchIndex, options[index]);
       }
       
       await this.clickSubmitButtonAndNavigate('Create');
@@ -358,7 +358,7 @@ export class AdminQuestions {
 
   /** Changes the input field of a multi option answer. */
   async changeMultiOptionAnswer(index: number, text: string) {
-    await this.page.fill(`:nth-match(#question-settings div.flex-row, ${index}) input`, text);
+    await this.page.fill(`:nth-match(#question-settings div.cf-multi-option-question-option, ${index}) input`, text);
   }
 
   /** Fills out the form for a dropdown question, clicks submit, and verifies the new question exists.  */
