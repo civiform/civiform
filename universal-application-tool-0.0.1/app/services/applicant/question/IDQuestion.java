@@ -59,7 +59,7 @@ public class IDQuestion implements PresentsErrors {
     }
 
     // Make sure the entered id is an int
-    if (idLength !=0 && !getIDValue().get().matches("^[0-9]*$")) {
+    if (idLength != 0 && !getIDValue().get().matches("^[0-9]*$")) {
       errors.add(ValidationErrorMessage.create(MessageKey.ID_VALIDATION_NUMBER_REQUIRED));
     }
 
