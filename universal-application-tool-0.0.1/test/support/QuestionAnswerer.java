@@ -70,6 +70,11 @@ public class QuestionAnswerer {
     applicantData.putLong(contextualizedPath.join(Scalar.SELECTION), value);
   }
 
+  public static void answerIDQuestion(
+          ApplicantData applicantData, Path contextualizedPath, String value) {
+    applicantData.putString(contextualizedPath.join(Scalar.ID), value);
+  }
+
   public static void answerTextQuestion(
       ApplicantData applicantData, Path contextualizedPath, String value) {
     applicantData.putString(contextualizedPath.join(Scalar.TEXT), value);

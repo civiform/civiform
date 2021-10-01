@@ -284,7 +284,7 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page);
 
     await this.expectDraftProgram(programName);
-    }
+  }
 
   async viewApplications(programName: string) {
     await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', 'a:text("Applications")'));

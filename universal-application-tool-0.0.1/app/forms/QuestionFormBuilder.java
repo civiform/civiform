@@ -11,6 +11,7 @@ import services.question.types.DropdownQuestionDefinition;
 import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
+import services.question.types.IDQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -37,6 +38,8 @@ public class QuestionFormBuilder {
         return formFactory.form(EmailQuestionForm.class).bindFromRequest(request).get();
       case FILEUPLOAD:
         return formFactory.form(FileUploadQuestionForm.class).bindFromRequest(request).get();
+      case ID:
+        return formFactory.form(IDQuestionForm.class).bindFromRequest(request).get();
       case NAME:
         return formFactory.form(NameQuestionForm.class).bindFromRequest(request).get();
       case NUMBER:
@@ -69,6 +72,8 @@ public class QuestionFormBuilder {
         return new EmailQuestionForm();
       case FILEUPLOAD:
         return new FileUploadQuestionForm();
+      case ID:
+        return new IDQuestionForm();
       case NAME:
         return new NameQuestionForm();
       case NUMBER:
@@ -102,6 +107,8 @@ public class QuestionFormBuilder {
         return new EmailQuestionForm((EmailQuestionDefinition) questionDefinition);
       case FILEUPLOAD:
         return new FileUploadQuestionForm((FileUploadQuestionDefinition) questionDefinition);
+      case ID:
+        return new IDQuestionForm((IDQuestionDefinition) questionDefinition);
       case NAME:
         return new NameQuestionForm((NameQuestionDefinition) questionDefinition);
       case NUMBER:

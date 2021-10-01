@@ -36,6 +36,10 @@ export class ApplicantQuestions {
     });
   }
 
+  async answerIDQuestion(id: string) {
+    await this.page.fill('input[type="id"]', id);
+  }
+
   async answerRadioButtonQuestion(checked: string) {
     await this.page.check(`text=${checked}`);
   }
@@ -87,7 +91,7 @@ export class ApplicantQuestions {
     const tableInnerText = await this.page.innerText('main');
 
     expect(tableInnerText).not.toContain(programName);
-    }
+  }
 
   async clickNext() {
     await this.page.click('text="Next"');

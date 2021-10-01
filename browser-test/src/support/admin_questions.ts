@@ -193,6 +193,7 @@ export class AdminQuestions {
     await this.addDateQuestion(questionNamePrefix + 'date');
     await this.addDropdownQuestion(questionNamePrefix + 'dropdown', ['op1', 'op2', 'op3']);
     await this.addEmailQuestion(questionNamePrefix + 'email');
+    await this.addIDQuestion(questionNamePrefix + 'id');
     await this.addNameQuestion(questionNamePrefix + 'name');
     await this.addNumberQuestion(questionNamePrefix + 'number');
     await this.addRadioButtonQuestion(questionNamePrefix + 'radio', ['one', 'two', 'three']);
@@ -202,6 +203,7 @@ export class AdminQuestions {
     questionNamePrefix + 'date',
     questionNamePrefix + 'dropdown',
     questionNamePrefix + 'email',
+    questionNamePrefix + 'id',
     questionNamePrefix + 'name',
     questionNamePrefix + 'number',
     questionNamePrefix + 'radio',
@@ -453,6 +455,26 @@ export class AdminQuestions {
 
     await this.page.click('#create-question-button');
     await this.page.click('#create-text-question');
+    await waitForPageJsLoad(this.page);
+
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
+
+    await this.clickSubmitButtonAndNavigate('Create');
+
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
+
+    await this.expectDraftQuestionExist(questionName, questionText);
+  }
+
+  async addIDQuestion(questionName: string,
+    description = 'id description',
+    questionText = 'id question text',
+    helpText = 'id question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
+    await this.gotoAdminQuestionsPage();
+
+    await this.page.click('#create-question-button');
+    await this.page.click('#create-id-question');
     await waitForPageJsLoad(this.page);
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);

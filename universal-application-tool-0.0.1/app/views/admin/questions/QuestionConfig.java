@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import forms.AddressQuestionForm;
 import forms.EnumeratorQuestionForm;
+import forms.IDQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.NumberQuestionForm;
 import forms.QuestionForm;
@@ -80,6 +81,11 @@ public class QuestionConfig {
             .setId("enumerator-question-config")
             .addEnumeratorQuestionConfig((EnumeratorQuestionForm) questionForm)
             .getContainer();
+      case ID:
+        return config
+            .setId("id-question-config")
+            .addIDQuestionConfig((IDQuestionForm) questionForm)
+            .getContainer();
       case NUMBER:
         return config
             .setId("number-question-config")
@@ -121,6 +127,23 @@ public class QuestionConfig {
             .setValue("true")
             .setChecked(addressQuestionForm.getDisallowPoBox())
             .getContainer());
+    return this;
+  }
+
+  private QuestionConfig addIDQuestionConfig(IDQuestionForm idQuestionForm) {
+    content.with(
+            FieldWithLabel.number()
+                    .setId("id-question-min-length-input")
+                    .setFieldName("minLength")
+                    .setLabelText("Min length")
+                    .setValue(idQuestionForm.getMinLength())
+                    .getContainer(),
+            FieldWithLabel.number()
+                    .setId("id-question-max-length-input")
+                    .setFieldName("maxLength")
+                    .setLabelText("Maximum length")
+                    .setValue(idQuestionForm.getMaxLength())
+                    .getContainer());
     return this;
   }
 

@@ -82,6 +82,14 @@ public class QuestionAnswererTest {
   }
 
   @Test
+  public void answerIDQuestion() {
+    Path path = Path.create("applicant.id");
+    QuestionAnswerer.answerIDQuestion(applicantData, path, "123");
+
+    assertThat(applicantData.readString(path.join(Scalar.ID))).contains("123");
+  }
+
+  @Test
   public void answerTextQuestion() {
     Path path = Path.create("applicant.text");
     QuestionAnswerer.answerTextQuestion(applicantData, path, "text");
