@@ -23,101 +23,101 @@ import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class IDQuestionTest extends WithPostgresContainer {
-    private static final IDQuestionDefinition idQuestionDefinition =
-            new IDQuestionDefinition(
-                    OptionalLong.of(1),
-                    "question name",
-                    Optional.empty(),
-                    "description",
-                    LocalizedStrings.of(Locale.US, "question?"),
-                    LocalizedStrings.of(Locale.US, "help text"),
-                    IDQuestionDefinition.IDValidationPredicates.create());
+  private static final IDQuestionDefinition idQuestionDefinition =
+      new IDQuestionDefinition(
+          OptionalLong.of(1),
+          "question name",
+          Optional.empty(),
+          "description",
+          LocalizedStrings.of(Locale.US, "question?"),
+          LocalizedStrings.of(Locale.US, "help text"),
+          IDQuestionDefinition.IDValidationPredicates.create());
 
-    private static final IDQuestionDefinition minAndMaxLengthIDQuestionDefinition =
-            new IDQuestionDefinition(
-                    OptionalLong.of(1),
-                    "question name",
-                    Optional.empty(),
-                    "description",
-                    LocalizedStrings.of(Locale.US, "question?"),
-                    LocalizedStrings.of(Locale.US, "help text"),
-                    IDQuestionDefinition.IDValidationPredicates.create(3, 4));
+  private static final IDQuestionDefinition minAndMaxLengthIDQuestionDefinition =
+      new IDQuestionDefinition(
+          OptionalLong.of(1),
+          "question name",
+          Optional.empty(),
+          "description",
+          LocalizedStrings.of(Locale.US, "question?"),
+          LocalizedStrings.of(Locale.US, "help text"),
+          IDQuestionDefinition.IDValidationPredicates.create(3, 4));
 
-    private Applicant applicant;
-    private ApplicantData applicantData;
-    private Messages messages;
+  private Applicant applicant;
+  private ApplicantData applicantData;
+  private Messages messages;
 
-    @Before
-    public void setUp() {
-        applicant = new Applicant();
-        applicantData = applicant.getApplicantData();
-        messages = instanceOf(MessagesApi.class).preferred(ImmutableList.of(Lang.defaultLang()));
+  @Before
+  public void setUp() {
+    applicant = new Applicant();
+    applicantData = applicant.getApplicantData();
+    messages = instanceOf(MessagesApi.class).preferred(ImmutableList.of(Lang.defaultLang()));
+  }
+
+  @Test
+  public void withEmptyApplicantData() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(idQuestionDefinition, applicantData, Optional.empty());
+
+    IDQuestion idQuestion = new IDQuestion(applicantQuestion);
+
+    assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(idQuestion.hasQuestionErrors()).isFalse();
+  }
+
+  @Test
+  public void withApplicantData_passesValidation() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(idQuestionDefinition, applicantData, Optional.empty());
+    QuestionAnswerer.answerIDQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "12345");
+
+    IDQuestion idQuestion = new IDQuestion(applicantQuestion);
+
+    assertThat(idQuestion.getIDValue().get()).isEqualTo("12345");
+    assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(idQuestion.hasQuestionErrors()).isFalse();
+  }
+
+  @Test
+  @Parameters({"123", "1234"})
+  public void withMinAndMaxLength_withValidApplicantData_passesValidation(String value) {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            minAndMaxLengthIDQuestionDefinition, applicantData, Optional.empty());
+    QuestionAnswerer.answerIDQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), value);
+
+    IDQuestion idQuestion = new IDQuestion(applicantQuestion);
+
+    assertThat(idQuestion.getIDValue().get()).isEqualTo(value);
+    assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(idQuestion.hasQuestionErrors()).isFalse();
+  }
+
+  @Test
+  @Parameters({
+    ",Must contain at least 3 characters.",
+    "1,Must contain at least 3 characters.",
+    "12334,Must contain at most 4 characters.",
+    "abc,Must contain only numbers."
+  })
+  public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
+      String value, String expectedErrorMessage) {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            minAndMaxLengthIDQuestionDefinition, applicantData, Optional.empty());
+    QuestionAnswerer.answerIDQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), value);
+
+    IDQuestion idQuestion = new IDQuestion(applicantQuestion);
+
+    if (idQuestion.getIDValue().isPresent()) {
+      assertThat(idQuestion.getIDValue().get()).isEqualTo(value);
     }
-
-    @Test
-    public void withEmptyApplicantData() {
-        ApplicantQuestion applicantQuestion =
-                new ApplicantQuestion(idQuestionDefinition, applicantData, Optional.empty());
-
-        IDQuestion idQuestion = new IDQuestion(applicantQuestion);
-
-        assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
-        assertThat(idQuestion.hasQuestionErrors()).isFalse();
-    }
-
-    @Test
-    public void withApplicantData_passesValidation() {
-        ApplicantQuestion applicantQuestion =
-                new ApplicantQuestion(idQuestionDefinition, applicantData, Optional.empty());
-        QuestionAnswerer.answerIDQuestion(
-                applicantData, applicantQuestion.getContextualizedPath(), "12345");
-
-        IDQuestion idQuestion = new IDQuestion(applicantQuestion);
-
-        assertThat(idQuestion.getIDValue().get()).isEqualTo("12345");
-        assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
-        assertThat(idQuestion.hasQuestionErrors()).isFalse();
-    }
-
-    @Test
-    @Parameters({"123", "1234"})
-    public void withMinAndMaxLength_withValidApplicantData_passesValidation(String value) {
-        ApplicantQuestion applicantQuestion =
-                new ApplicantQuestion(
-                        minAndMaxLengthIDQuestionDefinition, applicantData, Optional.empty());
-        QuestionAnswerer.answerIDQuestion(
-                applicantData, applicantQuestion.getContextualizedPath(), value);
-
-        IDQuestion idQuestion = new IDQuestion(applicantQuestion);
-
-        assertThat(idQuestion.getIDValue().get()).isEqualTo(value);
-        assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
-        assertThat(idQuestion.hasQuestionErrors()).isFalse();
-    }
-
-    @Test
-    @Parameters({
-            ",Must contain at least 3 characters.",
-            "1,Must contain at least 3 characters.",
-            "12334,Must contain at most 4 characters.",
-            "abc,Must contain only numbers."
-    })
-    public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
-            String value, String expectedErrorMessage) {
-        ApplicantQuestion applicantQuestion =
-                new ApplicantQuestion(
-                        minAndMaxLengthIDQuestionDefinition, applicantData, Optional.empty());
-        QuestionAnswerer.answerIDQuestion(
-                applicantData, applicantQuestion.getContextualizedPath(), value);
-
-        IDQuestion idQuestion = new IDQuestion(applicantQuestion);
-
-        if (idQuestion.getIDValue().isPresent()) {
-            assertThat(idQuestion.getIDValue().get()).isEqualTo(value);
-        }
-        assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
-        assertThat(idQuestion.getQuestionErrors()).hasSize(1);
-        String errorMessage = idQuestion.getQuestionErrors().iterator().next().getMessage(messages);
-        assertThat(errorMessage).isEqualTo(expectedErrorMessage);
-    }
+    assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(idQuestion.getQuestionErrors()).hasSize(1);
+    String errorMessage = idQuestion.getQuestionErrors().iterator().next().getMessage(messages);
+    assertThat(errorMessage).isEqualTo(expectedErrorMessage);
+  }
 }

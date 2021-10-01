@@ -132,18 +132,18 @@ public class QuestionConfig {
 
   private QuestionConfig addIDQuestionConfig(IDQuestionForm idQuestionForm) {
     content.with(
-            FieldWithLabel.number()
-                    .setId("id-question-min-length-input")
-                    .setFieldName("minLength")
-                    .setLabelText("Min length")
-                    .setValue(idQuestionForm.getMinLength())
-                    .getContainer(),
-            FieldWithLabel.number()
-                    .setId("id-question-max-length-input")
-                    .setFieldName("maxLength")
-                    .setLabelText("Maximum length")
-                    .setValue(idQuestionForm.getMaxLength())
-                    .getContainer());
+        FieldWithLabel.number()
+            .setId("id-question-min-length-input")
+            .setFieldName("minLength")
+            .setLabelText("Min length")
+            .setValue(idQuestionForm.getMinLength())
+            .getContainer(),
+        FieldWithLabel.number()
+            .setId("id-question-max-length-input")
+            .setFieldName("maxLength")
+            .setLabelText("Maximum length")
+            .setValue(idQuestionForm.getMaxLength())
+            .getContainer());
     return this;
   }
 

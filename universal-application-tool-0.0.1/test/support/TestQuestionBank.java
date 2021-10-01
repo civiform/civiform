@@ -21,6 +21,7 @@ import services.question.types.DropdownQuestionDefinition;
 import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
+import services.question.types.IDQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -78,6 +79,7 @@ public class TestQuestionBank {
         .put(QuestionType.DROPDOWN, applicantIceCream())
         .put(QuestionType.EMAIL, applicantEmail())
         .put(QuestionType.FILEUPLOAD, applicantFile())
+        .put(QuestionType.ID, applicantID())
         .put(QuestionType.NAME, applicantName())
         .put(QuestionType.NUMBER, applicantJugglingNumber())
         .put(QuestionType.RADIO_BUTTON, applicantSeason())
@@ -128,6 +130,11 @@ public class TestQuestionBank {
   // File upload
   public Question applicantFile() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_FILE, this::applicantFile);
+  }
+
+  // Id
+  public Question applicantID() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ID, this::applicantID);
   }
 
   // Name
@@ -254,6 +261,18 @@ public class TestQuestionBank {
             Optional.empty(),
             "The file to be uploaded",
             LocalizedStrings.of(Locale.US, "What is the file you want to upload?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
+    return maybeSave(definition);
+  }
+
+  // Id
+  private Question applicantID(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new IDQuestionDefinition(
+            "applicant id",
+            Optional.empty(),
+            "1234",
+            LocalizedStrings.of(Locale.US, "What is the the id?"),
             LocalizedStrings.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
@@ -415,6 +434,7 @@ public class TestQuestionBank {
     APPLICANT_ADDRESS,
     APPLICANT_FAVORITE_COLOR,
     APPLICANT_FILE,
+    APPLICANT_ID,
     APPLICANT_HOUSEHOLD_MEMBERS,
     APPLICANT_HOUSEHOLD_MEMBER_NAME,
     APPLICANT_HOUSEHOLD_MEMBER_JOBS,

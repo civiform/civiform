@@ -6,8 +6,8 @@ import java.util.Optional;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
-import services.question.types.QuestionType;
 import services.question.types.IDQuestionDefinition;
+import services.question.types.QuestionType;
 
 /**
  * Represents an id question in the context of a specific applicant.
@@ -16,106 +16,106 @@ import services.question.types.IDQuestionDefinition;
  */
 public class IDQuestion implements PresentsErrors {
 
-    private final ApplicantQuestion applicantQuestion;
-    private Optional<String> idValue;
+  private final ApplicantQuestion applicantQuestion;
+  private Optional<String> idValue;
 
-    public IDQuestion(ApplicantQuestion applicantQuestion) {
-        this.applicantQuestion = applicantQuestion;
-        assertQuestionType();
-    }
+  public IDQuestion(ApplicantQuestion applicantQuestion) {
+    this.applicantQuestion = applicantQuestion;
+    assertQuestionType();
+  }
 
-    @Override
-    public ImmutableList<Path> getAllPaths() {
+  @Override
+  public ImmutableList<Path> getAllPaths() {
         return ImmutableList.of(getIDPath());
     }
 
-    @Override
-    public boolean hasQuestionErrors() {
-        return !getQuestionErrors().isEmpty();
+  @Override
+  public boolean hasQuestionErrors() {
+    return !getQuestionErrors().isEmpty();
+  }
+
+  @Override
+  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+    if (!isAnswered()) {
+      return ImmutableSet.of();
     }
 
-    @Override
-    public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-        if (!isAnswered()) {
-            return ImmutableSet.of();
-        }
+    IDQuestionDefinition definition = getQuestionDefinition();
+    int idLength = getIDValue().map(s -> s.length()).orElse(0);
+    ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
-        IDQuestionDefinition definition = getQuestionDefinition();
-        int idLength = getIDValue().map(s -> s.length()).orElse(0);
-        ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
-
-        if (definition.getMinLength().isPresent()) {
-            int minLength = definition.getMinLength().getAsInt();
-            if (idLength < minLength) {
-                errors.add(ValidationErrorMessage.create(MessageKey.ID_VALIDATION_TOO_SHORT, minLength));
-            }
-        }
-
-        if (definition.getMaxLength().isPresent()) {
-            int maxLength = definition.getMaxLength().getAsInt();
-            if (idLength > maxLength) {
-                errors.add(ValidationErrorMessage.create(MessageKey.ID_VALIDATION_TOO_LONG, maxLength));
-            }
-        }
-
-        // Make sure the entered id is an int
-        if(idLength!=0 && !getIDValue().get().matches("^[0-9]*$")) {
-            errors.add(ValidationErrorMessage.create(MessageKey.ID_VALIDATION_NUMBER_REQUIRED));
-        }
-
-        return errors.build();
+    if (definition.getMinLength().isPresent()) {
+      int minLength = definition.getMinLength().getAsInt();
+      if (idLength < minLength) {
+        errors.add(ValidationErrorMessage.create(MessageKey.ID_VALIDATION_TOO_SHORT, minLength));
+      }
     }
 
-    @Override
-    public boolean hasTypeSpecificErrors() {
-        return !getAllTypeSpecificErrors().isEmpty();
+    if (definition.getMaxLength().isPresent()) {
+      int maxLength = definition.getMaxLength().getAsInt();
+      if (idLength > maxLength) {
+        errors.add(ValidationErrorMessage.create(MessageKey.ID_VALIDATION_TOO_LONG, maxLength));
+      }
     }
 
-    @Override
-    public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-        // Add id specific errors
-        return ImmutableSet.of();
+    // Make sure the entered id is an int
+    if (idLength!=0 && !getIDValue().get().matches("^[0-9]*$")) {
+       errors.add(ValidationErrorMessage.create(MessageKey.ID_VALIDATION_NUMBER_REQUIRED));
     }
 
-    public ImmutableSet<ValidationErrorMessage> getNumberErrorMessage() {
-        return ImmutableSet.of(
-                ValidationErrorMessage.create(MessageKey.ID_VALIDATION_NUMBER_REQUIRED));
-    }
+    return errors.build();
+  }
 
-    @Override
-    public boolean isAnswered() {
-        return applicantQuestion.getApplicantData().hasPath(getIDPath());
-    }
+  @Override
+  public boolean hasTypeSpecificErrors() {
+    return !getAllTypeSpecificErrors().isEmpty();
+  }
 
-    public Optional<String> getIDValue() {
-        if (idValue != null) {
-            return idValue;
-        }
-        idValue = applicantQuestion.getApplicantData().readString(getIDPath());
-        return idValue;
-    }
+  @Override
+  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
+    // Add id specific errors
+    return ImmutableSet.of();
+  }
 
-    public void assertQuestionType() {
-        if (!applicantQuestion.getType().equals(QuestionType.ID)) {
-            throw new RuntimeException(
-                    String.format(
-                            "Question is not an ID question: %s (type: %s)",
-                            applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-                            applicantQuestion.getQuestionDefinition().getQuestionType()));
-        }
-    }
+  public ImmutableSet<ValidationErrorMessage> getNumberErrorMessage() {
+    return ImmutableSet.of(
+      ValidationErrorMessage.create(MessageKey.ID_VALIDATION_NUMBER_REQUIRED));
+  }
 
-    public IDQuestionDefinition getQuestionDefinition() {
-        assertQuestionType();
-        return (IDQuestionDefinition) applicantQuestion.getQuestionDefinition();
-    }
+  @Override
+  public boolean isAnswered() {
+    return applicantQuestion.getApplicantData().hasPath(getIDPath());
+  }
 
-    public Path getIDPath() {
-        return applicantQuestion.getContextualizedPath().join(Scalar.ID);
+  public Optional<String> getIDValue() {
+    if (idValue != null) {
+      return idValue;
     }
+    idValue = applicantQuestion.getApplicantData().readString(getIDPath());
+    return idValue;
+  }
 
-    @Override
-    public String getAnswerString() {
-        return getIDValue().orElse("-");
+  public void assertQuestionType() {
+    if (!applicantQuestion.getType().equals(QuestionType.ID)) {
+      throw new RuntimeException(
+        String.format(
+          "Question is not an ID question: %s (type: %s)",
+          applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
+          applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
+  }
+
+  public IDQuestionDefinition getQuestionDefinition() {
+    assertQuestionType();
+    return (IDQuestionDefinition) applicantQuestion.getQuestionDefinition();
+  }
+
+  public Path getIDPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.ID);
+  }
+
+  @Override
+  public String getAnswerString() {
+    return getIDValue().orElse("-");
+  }
 }

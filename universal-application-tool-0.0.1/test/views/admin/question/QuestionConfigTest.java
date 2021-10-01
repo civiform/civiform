@@ -6,8 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import forms.AddressQuestionForm;
 import forms.DropdownQuestionForm;
 import forms.EnumeratorQuestionForm;
-import forms.IDQuestionForm;
 import forms.FileUploadQuestionForm;
+import forms.IDQuestionForm;
 import forms.NameQuestionForm;
 import forms.NumberQuestionForm;
 import forms.RadioButtonQuestionForm;
@@ -39,8 +39,8 @@ public class QuestionConfigTest {
         .contains("single-select-question-config");
 
     assertThat(QuestionConfig.buildQuestionConfig(new IDQuestionForm()))
-            .toString()
-            .contains("id-question-min-length-input");
+        .toString()
+        .contains("id-question-min-length-input");
 
     assertThat(QuestionConfig.buildQuestionConfig(new NumberQuestionForm()))
         .toString()

@@ -211,16 +211,16 @@ public class QuestionDefinitionBuilder {
       case ID:
         IDValidationPredicates idValidationPredicates = IDValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
-         idValidationPredicates = IDValidationPredicates.parse(validationPredicatesString);
+          idValidationPredicates = IDValidationPredicates.parse(validationPredicatesString);
         }
         return new IDQuestionDefinition(
-                id,
-                name,
-                enumeratorId,
-                description,
-                questionText,
-                questionHelpText,
-                idValidationPredicates);
+            id,
+            name,
+            enumeratorId,
+            description,
+            questionText,
+            questionHelpText,
+            idValidationPredicates);
 
       case NAME:
         NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();

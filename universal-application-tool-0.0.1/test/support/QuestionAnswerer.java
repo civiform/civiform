@@ -71,7 +71,7 @@ public class QuestionAnswerer {
   }
 
   public static void answerIDQuestion(
-          ApplicantData applicantData, Path contextualizedPath, String value) {
+      ApplicantData applicantData, Path contextualizedPath, String value) {
     applicantData.putString(contextualizedPath.join(Scalar.ID), value);
   }
 

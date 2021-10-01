@@ -12,106 +12,106 @@ import services.LocalizedStrings;
 /** Defines an id question. */
 public class IDQuestionDefinition extends QuestionDefinition {
 
-    public IDQuestionDefinition(
-            OptionalLong id,
-            String name,
-            Optional<Long> enumeratorId,
-            String description,
-            LocalizedStrings questionText,
-            LocalizedStrings questionHelpText,
-            IDValidationPredicates validationPredicates) {
-        super(
-                id, name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+  public IDQuestionDefinition(
+    OptionalLong id,
+    String name,
+    Optional<Long> enumeratorId,
+    String description,
+    LocalizedStrings questionText,
+    LocalizedStrings questionHelpText,
+    IDValidationPredicates validationPredicates) {
+      super(
+        id, name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+  }
+
+  public IDQuestionDefinition(
+    String name,
+    Optional<Long> enumeratorId,
+    String description,
+    LocalizedStrings questionText,
+    LocalizedStrings questionHelpText,
+    IDValidationPredicates validationPredicates) {
+      super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+  }
+
+  public IDQuestionDefinition(
+    String name,
+    Optional<Long> enumeratorId,
+    String description,
+    LocalizedStrings questionText,
+    LocalizedStrings questionHelpText) {
+      super(
+        name,
+        enumeratorId,
+        description,
+        questionText,
+        questionHelpText,
+        IDValidationPredicates.create());
+  }
+
+  @JsonDeserialize(
+    builder = AutoValue_IDQuestionDefinition_IDValidationPredicates.Builder.class)
+  @AutoValue
+  public abstract static class IDValidationPredicates extends ValidationPredicates {
+
+    public static IDValidationPredicates parse(String jsonString) {
+      try {
+        return mapper.readValue(
+          jsonString, AutoValue_IDQuestionDefinition_IDValidationPredicates.class);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
     }
 
-    public IDQuestionDefinition(
-            String name,
-            Optional<Long> enumeratorId,
-            String description,
-            LocalizedStrings questionText,
-            LocalizedStrings questionHelpText,
-            IDValidationPredicates validationPredicates) {
-        super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+    public static IDValidationPredicates create() {
+      return builder().build();
     }
 
-    public IDQuestionDefinition(
-            String name,
-            Optional<Long> enumeratorId,
-            String description,
-            LocalizedStrings questionText,
-            LocalizedStrings questionHelpText) {
-        super(
-                name,
-                enumeratorId,
-                description,
-                questionText,
-                questionHelpText,
-                IDValidationPredicates.create());
+    public static IDValidationPredicates create(int minLength, int maxLength) {
+      return builder().setMinLength(minLength).setMaxLength(maxLength).build();
     }
 
-    @JsonDeserialize(
-            builder = AutoValue_IDQuestionDefinition_IDValidationPredicates.Builder.class)
-    @AutoValue
-    public abstract static class IDValidationPredicates extends ValidationPredicates {
+    @JsonProperty("minLength")
+    public abstract OptionalInt minLength();
 
-        public static IDValidationPredicates parse(String jsonString) {
-            try {
-                return mapper.readValue(
-                        jsonString, AutoValue_IDQuestionDefinition_IDValidationPredicates.class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        }
+    @JsonProperty("maxLength")
+    public abstract OptionalInt maxLength();
 
-        public static IDValidationPredicates create() {
-            return builder().build();
-        }
-
-        public static IDValidationPredicates create(int minLength, int maxLength) {
-            return builder().setMinLength(minLength).setMaxLength(maxLength).build();
-        }
-
-        @JsonProperty("minLength")
-        public abstract OptionalInt minLength();
-
-        @JsonProperty("maxLength")
-        public abstract OptionalInt maxLength();
-
-        public static Builder builder() {
-            return new AutoValue_IDQuestionDefinition_IDValidationPredicates.Builder();
-        }
-
-        @AutoValue.Builder
-        public abstract static class Builder {
-
-            @JsonProperty("minLength")
-            public abstract Builder setMinLength(OptionalInt minLength);
-
-            public abstract Builder setMinLength(int minLength);
-
-            @JsonProperty("maxLength")
-            public abstract Builder setMaxLength(OptionalInt maxLength);
-
-            public abstract Builder setMaxLength(int maxLength);
-
-            public abstract IDValidationPredicates build();
-        }
+    public static Builder builder() {
+      return new AutoValue_IDQuestionDefinition_IDValidationPredicates.Builder();
     }
 
-    public IDValidationPredicates getIDValidationPredicates() {
-        return (IDValidationPredicates) getValidationPredicates();
-    }
+    @AutoValue.Builder
+    public abstract static class Builder {
 
-    @Override
-    public QuestionType getQuestionType() {
-        return QuestionType.ID;
-    }
+      @JsonProperty("minLength")
+      public abstract Builder setMinLength(OptionalInt minLength);
 
-    public OptionalInt getMinLength() {
-        return getIDValidationPredicates().minLength();
-    }
+      public abstract Builder setMinLength(int minLength);
 
-    public OptionalInt getMaxLength() {
-        return getIDValidationPredicates().maxLength();
+      @JsonProperty("maxLength")
+      public abstract Builder setMaxLength(OptionalInt maxLength);
+
+      public abstract Builder setMaxLength(int maxLength);
+
+      public abstract IDValidationPredicates build();
     }
+  }
+
+  public IDValidationPredicates getIDValidationPredicates() {
+    return (IDValidationPredicates) getValidationPredicates();
+  }
+
+  @Override
+  public QuestionType getQuestionType() {
+    return QuestionType.ID;
+  }
+
+  public OptionalInt getMinLength() {
+    return getIDValidationPredicates().minLength();
+  }
+
+  public OptionalInt getMaxLength() {
+    return getIDValidationPredicates().maxLength();
+  }
 }
