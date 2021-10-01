@@ -26,8 +26,8 @@ public class IDQuestion implements PresentsErrors {
 
   @Override
   public ImmutableList<Path> getAllPaths() {
-        return ImmutableList.of(getIDPath());
-    }
+    return ImmutableList.of(getIDPath());
+  }
 
   @Override
   public boolean hasQuestionErrors() {
@@ -59,8 +59,8 @@ public class IDQuestion implements PresentsErrors {
     }
 
     // Make sure the entered id is an int
-    if (idLength!=0 && !getIDValue().get().matches("^[0-9]*$")) {
-       errors.add(ValidationErrorMessage.create(MessageKey.ID_VALIDATION_NUMBER_REQUIRED));
+    if (idLength !=0 && !getIDValue().get().matches("^[0-9]*$")) {
+      errors.add(ValidationErrorMessage.create(MessageKey.ID_VALIDATION_NUMBER_REQUIRED));
     }
 
     return errors.build();
@@ -78,8 +78,7 @@ public class IDQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getNumberErrorMessage() {
-    return ImmutableSet.of(
-      ValidationErrorMessage.create(MessageKey.ID_VALIDATION_NUMBER_REQUIRED));
+    return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.ID_VALIDATION_NUMBER_REQUIRED));
   }
 
   @Override
@@ -98,10 +97,10 @@ public class IDQuestion implements PresentsErrors {
   public void assertQuestionType() {
     if (!applicantQuestion.getType().equals(QuestionType.ID)) {
       throw new RuntimeException(
-        String.format(
-          "Question is not an ID question: %s (type: %s)",
-          applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-          applicantQuestion.getQuestionDefinition().getQuestionType()));
+          String.format(
+              "Question is not an ID question: %s (type: %s)",
+              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
+              applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
   }
 

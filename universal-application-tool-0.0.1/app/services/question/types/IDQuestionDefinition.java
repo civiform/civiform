@@ -13,34 +13,34 @@ import services.LocalizedStrings;
 public class IDQuestionDefinition extends QuestionDefinition {
 
   public IDQuestionDefinition(
-    OptionalLong id,
-    String name,
-    Optional<Long> enumeratorId,
-    String description,
-    LocalizedStrings questionText,
-    LocalizedStrings questionHelpText,
-    IDValidationPredicates validationPredicates) {
-      super(
+      OptionalLong id,
+      String name,
+      Optional<Long> enumeratorId,
+      String description,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
+      IDValidationPredicates validationPredicates) {
+    super(
         id, name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
   }
 
   public IDQuestionDefinition(
-    String name,
-    Optional<Long> enumeratorId,
-    String description,
-    LocalizedStrings questionText,
-    LocalizedStrings questionHelpText,
-    IDValidationPredicates validationPredicates) {
-      super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+      String name,
+      Optional<Long> enumeratorId,
+      String description,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText,
+      IDValidationPredicates validationPredicates) {
+    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
   }
 
   public IDQuestionDefinition(
-    String name,
-    Optional<Long> enumeratorId,
-    String description,
-    LocalizedStrings questionText,
-    LocalizedStrings questionHelpText) {
-      super(
+      String name,
+      Optional<Long> enumeratorId,
+      String description,
+      LocalizedStrings questionText,
+      LocalizedStrings questionHelpText) {
+    super(
         name,
         enumeratorId,
         description,
@@ -49,15 +49,14 @@ public class IDQuestionDefinition extends QuestionDefinition {
         IDValidationPredicates.create());
   }
 
-  @JsonDeserialize(
-    builder = AutoValue_IDQuestionDefinition_IDValidationPredicates.Builder.class)
+  @JsonDeserialize(builder = AutoValue_IDQuestionDefinition_IDValidationPredicates.Builder.class)
   @AutoValue
   public abstract static class IDValidationPredicates extends ValidationPredicates {
 
     public static IDValidationPredicates parse(String jsonString) {
       try {
         return mapper.readValue(
-          jsonString, AutoValue_IDQuestionDefinition_IDValidationPredicates.class);
+            jsonString, AutoValue_IDQuestionDefinition_IDValidationPredicates.class);
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }

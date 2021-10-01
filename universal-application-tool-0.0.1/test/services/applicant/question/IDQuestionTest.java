@@ -83,8 +83,7 @@ public class IDQuestionTest extends WithPostgresContainer {
   @Parameters({"123", "1234"})
   public void withMinAndMaxLength_withValidApplicantData_passesValidation(String value) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            minAndMaxLengthIDQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(minAndMaxLengthIDQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerIDQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
@@ -105,8 +104,7 @@ public class IDQuestionTest extends WithPostgresContainer {
   public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
       String value, String expectedErrorMessage) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            minAndMaxLengthIDQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(minAndMaxLengthIDQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerIDQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
