@@ -190,7 +190,7 @@ content.pleaseCreateAccount=If you sign into a city account now, your informatio
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=Address line 2
+label.addressLine2=Unit/Apartment Number
 label.city=City
 label.state=State
 label.street=Address line 1
