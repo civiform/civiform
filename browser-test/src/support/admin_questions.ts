@@ -54,7 +54,7 @@ export class AdminQuestions {
     const questionSettings = await this.page.$("#question-settings");
     const errors = await questionSettings.$$('.cf-multi-option-input-error');
     // Checks that the error is not hidden when it's corresponding option is empty. The order of the options array corresponds to the order of the errors array.
-    for(var i in errors){
+    for(let i in errors) {
       if(options[i] === ""){
         expect(await errors[i].isHidden()).toEqual(false);
       }
