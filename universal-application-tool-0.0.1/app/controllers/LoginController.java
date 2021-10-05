@@ -58,7 +58,8 @@ public class LoginController extends Controller {
     if (redirectTo.isEmpty()) {
       return idcsLogin(request);
     }
-    return login(request, idcsClient).addingToSession(request, REDIRECT_TO_SESSION_KEY, redirectTo.get());
+    return login(request, idcsClient)
+        .addingToSession(request, REDIRECT_TO_SESSION_KEY, redirectTo.get());
   }
 
   public Result register(Http.Request request) {
