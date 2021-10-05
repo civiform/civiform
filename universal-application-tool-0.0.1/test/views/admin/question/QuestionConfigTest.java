@@ -45,15 +45,11 @@ public class QuestionConfigTest {
         .toString()
         .contains("single-select-question-config");
 
-<<<<<<< HEAD
     assertThat(QuestionConfig.buildQuestionConfig(new IdQuestionForm()))
         .toString()
         .contains("id-question-min-length-input");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new NumberQuestionForm()))
-=======
     assertThat(QuestionConfig.buildQuestionConfig(new NumberQuestionForm(), messages))
->>>>>>> main
         .toString()
         .contains("number-question-min-value-input");
 
