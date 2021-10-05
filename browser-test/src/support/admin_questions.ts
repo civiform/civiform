@@ -211,16 +211,16 @@ export class AdminQuestions {
   }
 
   async addAllNonSingleBlockQuestionTypes(questionNamePrefix: string) {
-    await this.addAddressQuestion(questionNamePrefix + 'address');
-    await this.addCheckboxQuestion(questionNamePrefix + 'checkbox', ['op1', 'op2', 'op3', 'op4']);
-    await this.addDateQuestion(questionNamePrefix + 'date');
-    await this.addDropdownQuestion(questionNamePrefix + 'dropdown', ['op1', 'op2', 'op3']);
-    await this.addEmailQuestion(questionNamePrefix + 'email');
-    await this.addIdQuestion(questionNamePrefix + 'id');
-    await this.addNameQuestion(questionNamePrefix + 'name');
-    await this.addNumberQuestion(questionNamePrefix + 'number');
-    await this.addRadioButtonQuestion(questionNamePrefix + 'radio', ['one', 'two', 'three']);
-    await this.addTextQuestion(questionNamePrefix + 'text');
+    await this.addAddressQuestion({questionName: questionNamePrefix + 'address'});
+    await this.addCheckboxQuestion({questionName: questionNamePrefix + 'checkbox', options: ['op1', 'op2', 'op3', 'op4']});
+    await this.addDateQuestion({questionName: questionNamePrefix + 'date'});
+    await this.addDropdownQuestion({questionName: questionNamePrefix + 'dropdown', options: ['op1', 'op2', 'op3']});
+    await this.addEmailQuestion({questionName: questionNamePrefix + 'email'});
+    await this.addIdQuestion({questionName: questionNamePrefix + 'id'});
+    await this.addNameQuestion({questionName: questionNamePrefix + 'name'});
+    await this.addNumberQuestion({questionName: questionNamePrefix + 'number'});
+    await this.addRadioButtonQuestion({questionName: questionNamePrefix + 'radio', options: ['one', 'two', 'three']});
+    await this.addTextQuestion({questionName: questionNamePrefix + 'text'});
     return [questionNamePrefix + 'address',
     questionNamePrefix + 'checkbox',
     questionNamePrefix + 'date',
@@ -519,11 +519,11 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async addIdQuestion(questionName: string,
+  async addIdQuestion({questionName,
     description = 'id description',
     questionText = 'id question text',
     helpText = 'id question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION) {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');
@@ -539,7 +539,7 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async addEmailQuestion(questionName: string,
+  async addEmailQuestion({}questionName: string,
     description = 'email description',
     questionText = 'email question text',
     helpText = 'email question help text',
