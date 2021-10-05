@@ -216,7 +216,7 @@ export class AdminQuestions {
     await this.addDateQuestion(questionNamePrefix + 'date');
     await this.addDropdownQuestion(questionNamePrefix + 'dropdown', ['op1', 'op2', 'op3']);
     await this.addEmailQuestion(questionNamePrefix + 'email');
-    await this.addIDQuestion(questionNamePrefix + 'id');
+    await this.addIdQuestion(questionNamePrefix + 'id');
     await this.addNameQuestion(questionNamePrefix + 'name');
     await this.addNumberQuestion(questionNamePrefix + 'number');
     await this.addRadioButtonQuestion(questionNamePrefix + 'radio', ['one', 'two', 'three']);
@@ -518,7 +518,7 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async addIDQuestion(questionName: string,
+  async addIdQuestion(questionName: string,
     description = 'id description',
     questionText = 'id question text',
     helpText = 'id question help text',

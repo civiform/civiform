@@ -219,8 +219,8 @@ public class ApplicantQuestion {
     return new FileUploadQuestion(this);
   }
 
-  public IDQuestion createIDQuestion() {
-    return new IDQuestion(this);
+  public IdQuestion createIdQuestion() {
+    return new IdQuestion(this);
   }
 
   public MultiSelectQuestion createMultiSelectQuestion() {
@@ -264,7 +264,7 @@ public class ApplicantQuestion {
       case FILEUPLOAD:
         return createFileUploadQuestion();
       case ID:
-        return createIDQuestion();
+        return createIdQuestion();
       case NAME:
         return createNameQuestion();
       case NUMBER:

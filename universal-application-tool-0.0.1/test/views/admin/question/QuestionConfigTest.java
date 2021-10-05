@@ -9,7 +9,7 @@ import forms.AddressQuestionForm;
 import forms.DropdownQuestionForm;
 import forms.EnumeratorQuestionForm;
 import forms.FileUploadQuestionForm;
-import forms.IDQuestionForm;
+import forms.IdQuestionForm;
 import forms.NameQuestionForm;
 import forms.NumberQuestionForm;
 import forms.RadioButtonQuestionForm;
@@ -46,7 +46,7 @@ public class QuestionConfigTest {
         .contains("single-select-question-config");
 
 <<<<<<< HEAD
-    assertThat(QuestionConfig.buildQuestionConfig(new IDQuestionForm()))
+    assertThat(QuestionConfig.buildQuestionConfig(new IdQuestionForm()))
         .toString()
         .contains("id-question-min-length-input");
 

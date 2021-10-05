@@ -18,30 +18,30 @@ import play.i18n.MessagesApi;
 import repository.WithPostgresContainer;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
-import services.question.types.IDQuestionDefinition;
+import services.question.types.IdQuestionDefinition;
 import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
-public class IDQuestionTest extends WithPostgresContainer {
-  private static final IDQuestionDefinition idQuestionDefinition =
-      new IDQuestionDefinition(
+public class IdQuestionTest extends WithPostgresContainer {
+  private static final IdQuestionDefinition idQuestionDefinition =
+      new IdQuestionDefinition(
           OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          IDQuestionDefinition.IDValidationPredicates.create());
+          IdQuestionDefinition.IdValidationPredicates.create());
 
-  private static final IDQuestionDefinition minAndMaxLengthIDQuestionDefinition =
-      new IDQuestionDefinition(
+  private static final IdQuestionDefinition minAndMaxLengthIdQuestionDefinition =
+      new IdQuestionDefinition(
           OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          IDQuestionDefinition.IDValidationPredicates.create(3, 4));
+          IdQuestionDefinition.IdValidationPredicates.create(3, 4));
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -59,7 +59,7 @@ public class IDQuestionTest extends WithPostgresContainer {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(idQuestionDefinition, applicantData, Optional.empty());
 
-    IDQuestion idQuestion = new IDQuestion(applicantQuestion);
+    IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
     assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(idQuestion.hasQuestionErrors()).isFalse();
@@ -69,27 +69,27 @@ public class IDQuestionTest extends WithPostgresContainer {
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(idQuestionDefinition, applicantData, Optional.empty());
-    QuestionAnswerer.answerIDQuestion(
+    QuestionAnswerer.answerIdQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "12345");
 
-    IDQuestion idQuestion = new IDQuestion(applicantQuestion);
+    IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
-    assertThat(idQuestion.getIDValue().get()).isEqualTo("12345");
+    assertThat(idQuestion.getIdValue().get()).isEqualTo("12345");
     assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(idQuestion.hasQuestionErrors()).isFalse();
   }
 
   @Test
-  @Parameters({"123", "1234"})
+  @Parameters({"012", "0123"})
   public void withMinAndMaxLength_withValidApplicantData_passesValidation(String value) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxLengthIDQuestionDefinition, applicantData, Optional.empty());
-    QuestionAnswerer.answerIDQuestion(
+        new ApplicantQuestion(minAndMaxLengthIdQuestionDefinition, applicantData, Optional.empty());
+    QuestionAnswerer.answerIdQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
-    IDQuestion idQuestion = new IDQuestion(applicantQuestion);
+    IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
-    assertThat(idQuestion.getIDValue().get()).isEqualTo(value);
+    assertThat(idQuestion.getIdValue().get()).isEqualTo(value);
     assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(idQuestion.hasQuestionErrors()).isFalse();
   }
@@ -104,14 +104,14 @@ public class IDQuestionTest extends WithPostgresContainer {
   public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
       String value, String expectedErrorMessage) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(minAndMaxLengthIDQuestionDefinition, applicantData, Optional.empty());
-    QuestionAnswerer.answerIDQuestion(
+        new ApplicantQuestion(minAndMaxLengthIdQuestionDefinition, applicantData, Optional.empty());
+    QuestionAnswerer.answerIdQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
-    IDQuestion idQuestion = new IDQuestion(applicantQuestion);
+    IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
-    if (idQuestion.getIDValue().isPresent()) {
-      assertThat(idQuestion.getIDValue().get()).isEqualTo(value);
+    if (idQuestion.getIdValue().isPresent()) {
+      assertThat(idQuestion.getIdValue().get()).isEqualTo(value);
     }
     assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(idQuestion.getQuestionErrors()).hasSize(1);

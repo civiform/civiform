@@ -41,7 +41,7 @@ public class ApplicantQuestionRendererFactory {
       case FILEUPLOAD:
         return new FileUploadQuestionRenderer(question);
       case ID:
-        return new IDQuestionRenderer(question);
+        return new IdQuestionRenderer(question);
       case NAME:
         return new NameQuestionRenderer(question);
       case NUMBER:

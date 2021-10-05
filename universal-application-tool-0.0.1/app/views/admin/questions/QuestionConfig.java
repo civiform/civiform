@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import forms.AddressQuestionForm;
 import forms.EnumeratorQuestionForm;
-import forms.IDQuestionForm;
+import forms.IdQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.NumberQuestionForm;
 import forms.QuestionForm;
@@ -89,7 +89,7 @@ public class QuestionConfig {
       case ID:
         return config
             .setId("id-question-config")
-            .addIDQuestionConfig((IDQuestionForm) questionForm)
+            .addIdQuestionConfig((IdQuestionForm) questionForm)
             .getContainer();
       case NUMBER:
         return config
@@ -135,12 +135,12 @@ public class QuestionConfig {
     return this;
   }
 
-  private QuestionConfig addIDQuestionConfig(IDQuestionForm idQuestionForm) {
+  private QuestionConfig addIdQuestionConfig(IdQuestionForm idQuestionForm) {
     content.with(
         FieldWithLabel.number()
             .setId("id-question-min-length-input")
             .setFieldName("minLength")
-            .setLabelText("Min length")
+            .setLabelText("Minimum length")
             .setValue(idQuestionForm.getMinLength())
             .getContainer(),
         FieldWithLabel.number()
@@ -157,7 +157,7 @@ public class QuestionConfig {
         FieldWithLabel.number()
             .setId("text-question-min-length-input")
             .setFieldName("minLength")
-            .setLabelText("Min length")
+            .setLabelText("Minimum length")
             .setValue(textQuestionForm.getMinLength())
             .getContainer(),
         FieldWithLabel.number()

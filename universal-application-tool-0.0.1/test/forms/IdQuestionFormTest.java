@@ -6,15 +6,15 @@ import java.util.Locale;
 import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
-import services.question.types.IDQuestionDefinition;
+import services.question.types.IdQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
-public class IDQuestionFormTest {
+public class IdQuestionFormTest {
 
   @Test
   public void getBuilder_returnsCompleteBuilder() throws Exception {
-    IDQuestionForm form = new IDQuestionForm();
+    IdQuestionForm form = new IdQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
@@ -23,14 +23,14 @@ public class IDQuestionFormTest {
     form.setMaxLength("6");
     QuestionDefinitionBuilder builder = form.getBuilder();
 
-    IDQuestionDefinition expected =
-        new IDQuestionDefinition(
+    IdQuestionDefinition expected =
+        new IdQuestionDefinition(
             "name",
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
             LocalizedStrings.empty(),
-            IDQuestionDefinition.IDValidationPredicates.create(4, 6));
+            IdQuestionDefinition.IdValidationPredicates.create(4, 6));
 
     QuestionDefinition actual = builder.build();
 
@@ -39,16 +39,16 @@ public class IDQuestionFormTest {
 
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
-    IDQuestionDefinition originalQd =
-        new IDQuestionDefinition(
+    IdQuestionDefinition originalQd =
+        new IdQuestionDefinition(
             "name",
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
             LocalizedStrings.empty(),
-            IDQuestionDefinition.IDValidationPredicates.create(4, 6));
+            IdQuestionDefinition.IdValidationPredicates.create(4, 6));
 
-    IDQuestionForm form = new IDQuestionForm(originalQd);
+    IdQuestionForm form = new IdQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     QuestionDefinition actual = builder.build();
@@ -58,7 +58,7 @@ public class IDQuestionFormTest {
 
   @Test
   public void getBuilder_emptyStringMinMax_noPredicateSet() throws Exception {
-    IDQuestionForm form = new IDQuestionForm();
+    IdQuestionForm form = new IdQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
     form.setQuestionText("What is the question text?");
@@ -67,14 +67,14 @@ public class IDQuestionFormTest {
     form.setMaxLength("");
     QuestionDefinitionBuilder builder = form.getBuilder();
 
-    IDQuestionDefinition expected =
-        new IDQuestionDefinition(
+    IdQuestionDefinition expected =
+        new IdQuestionDefinition(
             "name",
             Optional.empty(),
             "description",
             LocalizedStrings.of(Locale.US, "What is the question text?"),
             LocalizedStrings.empty(),
-            IDQuestionDefinition.IDValidationPredicates.create());
+            IdQuestionDefinition.IdValidationPredicates.create());
 
     QuestionDefinition actual = builder.build();
 

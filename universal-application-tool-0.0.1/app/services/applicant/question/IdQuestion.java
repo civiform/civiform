@@ -6,27 +6,28 @@ import java.util.Optional;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
-import services.question.types.IDQuestionDefinition;
+import services.question.types.IdQuestionDefinition;
 import services.question.types.QuestionType;
 
 /**
- * Represents an id question in the context of a specific applicant.
+ * Represents an id question in the context of a specific applicant.  For example, this could be a
+ * library account number or a bank account number.
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class IDQuestion implements PresentsErrors {
+public class IdQuestion implements PresentsErrors {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<String> idValue;
 
-  public IDQuestion(ApplicantQuestion applicantQuestion) {
+  public IdQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
     assertQuestionType();
   }
 
   @Override
   public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of(getIDPath());
+    return ImmutableList.of(getIdPath());
   }
 
   @Override
@@ -40,8 +41,8 @@ public class IDQuestion implements PresentsErrors {
       return ImmutableSet.of();
     }
 
-    IDQuestionDefinition definition = getQuestionDefinition();
-    int idLength = getIDValue().map(s -> s.length()).orElse(0);
+    IdQuestionDefinition definition = getQuestionDefinition();
+    int idLength = getIdValue().map(s -> s.length()).orElse(0);
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
     if (definition.getMinLength().isPresent()) {
@@ -59,7 +60,7 @@ public class IDQuestion implements PresentsErrors {
     }
 
     // Make sure the entered id is an int
-    if (idLength != 0 && !getIDValue().get().matches("^[0-9]*$")) {
+    if (idLength != 0 && !getIdValue().get().matches("^[0-9]*$")) {
       errors.add(ValidationErrorMessage.create(MessageKey.ID_VALIDATION_NUMBER_REQUIRED));
     }
 
@@ -77,20 +78,16 @@ public class IDQuestion implements PresentsErrors {
     return ImmutableSet.of();
   }
 
-  public ImmutableSet<ValidationErrorMessage> getNumberErrorMessage() {
-    return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.ID_VALIDATION_NUMBER_REQUIRED));
-  }
-
   @Override
   public boolean isAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getIDPath());
+    return applicantQuestion.getApplicantData().hasPath(getIdPath());
   }
 
-  public Optional<String> getIDValue() {
+  public Optional<String> getIdValue() {
     if (idValue != null) {
       return idValue;
     }
-    idValue = applicantQuestion.getApplicantData().readString(getIDPath());
+    idValue = applicantQuestion.getApplicantData().readString(getIdPath());
     return idValue;
   }
 
@@ -98,23 +95,23 @@ public class IDQuestion implements PresentsErrors {
     if (!applicantQuestion.getType().equals(QuestionType.ID)) {
       throw new RuntimeException(
           String.format(
-              "Question is not an ID question: %s (type: %s)",
+              "Question is not an Id question: %s (type: %s)",
               applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
               applicantQuestion.getQuestionDefinition().getQuestionType()));
     }
   }
 
-  public IDQuestionDefinition getQuestionDefinition() {
+  public IdQuestionDefinition getQuestionDefinition() {
     assertQuestionType();
-    return (IDQuestionDefinition) applicantQuestion.getQuestionDefinition();
+    return (IdQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
-  public Path getIDPath() {
+  public Path getIdPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.ID);
   }
 
   @Override
   public String getAnswerString() {
-    return getIDValue().orElse("-");
+    return getIdValue().orElse("-");
   }
 }

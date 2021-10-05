@@ -16,46 +16,46 @@ import repository.WithPostgresContainer;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
-import services.question.types.IDQuestionDefinition;
-import services.question.types.IDQuestionDefinition.IDValidationPredicates;
+import services.question.types.IdQuestionDefinition;
+import services.question.types.IdQuestionDefinition.IdValidationPredicates;
 import support.QuestionAnswerer;
 
-public class IDQuestionRendererTest extends WithPostgresContainer {
-  private static final IDQuestionDefinition ID_QUESTION_DEFINITION =
-      new IDQuestionDefinition(
+public class IdQuestionRendererTest extends WithPostgresContainer {
+  private static final IdQuestionDefinition ID_QUESTION_DEFINITION =
+      new IdQuestionDefinition(
           OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
-          IDValidationPredicates.create(2, 3));
+          IdValidationPredicates.create(2, 3));
 
   private final ApplicantData applicantData = new ApplicantData();
 
   private ApplicantQuestion question;
   private Messages messages;
   private ApplicantQuestionRendererParams params;
-  private IDQuestionRenderer renderer;
+  private IdQuestionRenderer renderer;
 
   @Before
   public void setUp() {
     question = new ApplicantQuestion(ID_QUESTION_DEFINITION, applicantData, Optional.empty());
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
     params = ApplicantQuestionRendererParams.sample(messages);
-    renderer = new IDQuestionRenderer(question);
+    renderer = new IdQuestionRenderer(question);
   }
 
   @Test
   public void render_withoutQuestionErrors() {
     Tag result = renderer.render(params);
 
-    assertThat(result.render()).doesNotContain("Must contain at");
+    assertThat(result.render()).doesNotContain("Must contain");
   }
 
   @Test
   public void render_withMinLengthError() {
-    QuestionAnswerer.answerIDQuestion(applicantData, question.getContextualizedPath(), "1");
+    QuestionAnswerer.answerIdQuestion(applicantData, question.getContextualizedPath(), "1");
 
     Tag result = renderer.render(params);
 
@@ -64,7 +64,7 @@ public class IDQuestionRendererTest extends WithPostgresContainer {
 
   @Test
   public void render_withMaxLengthError() {
-    QuestionAnswerer.answerIDQuestion(applicantData, question.getContextualizedPath(), "1234");
+    QuestionAnswerer.answerIdQuestion(applicantData, question.getContextualizedPath(), "1234");
 
     Tag result = renderer.render(params);
 
@@ -73,7 +73,7 @@ public class IDQuestionRendererTest extends WithPostgresContainer {
 
   @Test
   public void render_withInvalidCharactersError() {
-    QuestionAnswerer.answerIDQuestion(applicantData, question.getContextualizedPath(), "ab");
+    QuestionAnswerer.answerIdQuestion(applicantData, question.getContextualizedPath(), "ab");
 
     Tag result = renderer.render(params);
 

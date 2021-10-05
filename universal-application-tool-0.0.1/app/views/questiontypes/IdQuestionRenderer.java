@@ -2,13 +2,13 @@ package views.questiontypes;
 
 import j2html.tags.Tag;
 import services.applicant.question.ApplicantQuestion;
-import services.applicant.question.IDQuestion;
+import services.applicant.question.IdQuestion;
 import views.components.FieldWithLabel;
 
 /** Renders an id question. */
-public class IDQuestionRenderer extends ApplicantQuestionRenderer {
+public class IdQuestionRenderer extends ApplicantQuestionRenderer {
 
-  public IDQuestionRenderer(ApplicantQuestion question) {
+  public IdQuestionRenderer(ApplicantQuestion question) {
     super(question);
   }
 
@@ -19,12 +19,12 @@ public class IDQuestionRenderer extends ApplicantQuestionRenderer {
 
   @Override
   public Tag render(ApplicantQuestionRendererParams params) {
-    IDQuestion idQuestion = question.createIDQuestion();
+    IdQuestion idQuestion = question.createIdQuestion();
 
     Tag questionFormContent =
         FieldWithLabel.input()
-            .setFieldName(idQuestion.getIDPath().toString())
-            .setValue(idQuestion.getIDValue().orElse(""))
+            .setFieldName(idQuestion.getIdPath().toString())
+            .setValue(idQuestion.getIdValue().orElse(""))
             .setFieldErrors(params.messages(), idQuestion.getQuestionErrors())
             .setScreenReaderText(question.getQuestionText())
             .getContainer();

@@ -1,22 +1,22 @@
 package forms;
 
 import java.util.OptionalInt;
-import services.question.types.IDQuestionDefinition;
+import services.question.types.IdQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /** Form for updating an id question. */
-public class IDQuestionForm extends QuestionForm {
+public class IdQuestionForm extends QuestionForm {
   private OptionalInt minLength;
   private OptionalInt maxLength;
 
-  public IDQuestionForm() {
+  public IdQuestionForm() {
     super();
     this.minLength = OptionalInt.empty();
     this.maxLength = OptionalInt.empty();
   }
 
-  public IDQuestionForm(IDQuestionDefinition qd) {
+  public IdQuestionForm(IdQuestionDefinition qd) {
     super(qd);
     this.minLength = qd.getMinLength();
     this.maxLength = qd.getMaxLength();
@@ -65,8 +65,8 @@ public class IDQuestionForm extends QuestionForm {
 
   @Override
   public QuestionDefinitionBuilder getBuilder() {
-    IDQuestionDefinition.IDValidationPredicates.Builder idValidationPredicatesBuilder =
-        IDQuestionDefinition.IDValidationPredicates.builder();
+    IdQuestionDefinition.IdValidationPredicates.Builder idValidationPredicatesBuilder =
+        IdQuestionDefinition.IdValidationPredicates.builder();
 
     idValidationPredicatesBuilder.setMinLength(getMinLength());
     idValidationPredicatesBuilder.setMaxLength(getMaxLength());

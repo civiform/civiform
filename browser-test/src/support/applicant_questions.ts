@@ -36,7 +36,7 @@ export class ApplicantQuestions {
     });
   }
 
-  async answerIDQuestion(id: string) {
+  async answerIdQuestion(id: string) {
     await this.page.fill('input[type="id"]', id);
   }
 

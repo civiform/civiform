@@ -10,31 +10,31 @@ import java.util.OptionalLong;
 import services.LocalizedStrings;
 
 /** Defines an id question. */
-public class IDQuestionDefinition extends QuestionDefinition {
+public class IdQuestionDefinition extends QuestionDefinition {
 
-  public IDQuestionDefinition(
+  public IdQuestionDefinition(
       OptionalLong id,
       String name,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
-      IDValidationPredicates validationPredicates) {
+      IdValidationPredicates validationPredicates) {
     super(
         id, name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
   }
 
-  public IDQuestionDefinition(
+  public IdQuestionDefinition(
       String name,
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
-      IDValidationPredicates validationPredicates) {
+      IdValidationPredicates validationPredicates) {
     super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
   }
 
-  public IDQuestionDefinition(
+  public IdQuestionDefinition(
       String name,
       Optional<Long> enumeratorId,
       String description,
@@ -46,27 +46,27 @@ public class IDQuestionDefinition extends QuestionDefinition {
         description,
         questionText,
         questionHelpText,
-        IDValidationPredicates.create());
+        IdValidationPredicates.create());
   }
 
-  @JsonDeserialize(builder = AutoValue_IDQuestionDefinition_IDValidationPredicates.Builder.class)
+  @JsonDeserialize(builder = AutoValue_IdQuestionDefinition_IdValidationPredicates.Builder.class)
   @AutoValue
-  public abstract static class IDValidationPredicates extends ValidationPredicates {
+  public abstract static class IdValidationPredicates extends ValidationPredicates {
 
-    public static IDValidationPredicates parse(String jsonString) {
+    public static IdValidationPredicates parse(String jsonString) {
       try {
         return mapper.readValue(
-            jsonString, AutoValue_IDQuestionDefinition_IDValidationPredicates.class);
+            jsonString, AutoValue_IdQuestionDefinition_IdValidationPredicates.class);
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }
     }
 
-    public static IDValidationPredicates create() {
+    public static IdValidationPredicates create() {
       return builder().build();
     }
 
-    public static IDValidationPredicates create(int minLength, int maxLength) {
+    public static IdValidationPredicates create(int minLength, int maxLength) {
       return builder().setMinLength(minLength).setMaxLength(maxLength).build();
     }
 
@@ -77,7 +77,7 @@ public class IDQuestionDefinition extends QuestionDefinition {
     public abstract OptionalInt maxLength();
 
     public static Builder builder() {
-      return new AutoValue_IDQuestionDefinition_IDValidationPredicates.Builder();
+      return new AutoValue_IdQuestionDefinition_IdValidationPredicates.Builder();
     }
 
     @AutoValue.Builder
@@ -93,12 +93,12 @@ public class IDQuestionDefinition extends QuestionDefinition {
 
       public abstract Builder setMaxLength(int maxLength);
 
-      public abstract IDValidationPredicates build();
+      public abstract IdValidationPredicates build();
     }
   }
 
-  public IDValidationPredicates getIDValidationPredicates() {
-    return (IDValidationPredicates) getValidationPredicates();
+  public IdValidationPredicates getIdValidationPredicates() {
+    return (IdValidationPredicates) getValidationPredicates();
   }
 
   @Override
@@ -107,10 +107,10 @@ public class IDQuestionDefinition extends QuestionDefinition {
   }
 
   public OptionalInt getMinLength() {
-    return getIDValidationPredicates().minLength();
+    return getIdValidationPredicates().minLength();
   }
 
   public OptionalInt getMaxLength() {
-    return getIDValidationPredicates().maxLength();
+    return getIdValidationPredicates().maxLength();
   }
 }

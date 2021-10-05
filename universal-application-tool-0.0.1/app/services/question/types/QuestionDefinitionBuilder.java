@@ -8,7 +8,7 @@ import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
-import services.question.types.IDQuestionDefinition.IDValidationPredicates;
+import services.question.types.IdQuestionDefinition.IdValidationPredicates;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 import services.question.types.NameQuestionDefinition.NameValidationPredicates;
 import services.question.types.QuestionDefinition.ValidationPredicates;
@@ -209,11 +209,11 @@ public class QuestionDefinitionBuilder {
             id, name, enumeratorId, description, questionText, questionHelpText);
 
       case ID:
-        IDValidationPredicates idValidationPredicates = IDValidationPredicates.create();
+        IdValidationPredicates idValidationPredicates = IdValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
-          idValidationPredicates = IDValidationPredicates.parse(validationPredicatesString);
+          idValidationPredicates = IdValidationPredicates.parse(validationPredicatesString);
         }
-        return new IDQuestionDefinition(
+        return new IdQuestionDefinition(
             id,
             name,
             enumeratorId,

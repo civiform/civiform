@@ -124,8 +124,8 @@ public class CsvExporterTest extends WithPostgresContainer {
         // applicant two did not answer this question.
         break;
       case ID:
-        QuestionAnswerer.answerIDQuestion(applicantDataOne, answerPath, "123");
-        QuestionAnswerer.answerIDQuestion(applicantDataTwo, answerPath, "234");
+        QuestionAnswerer.answerIdQuestion(applicantDataOne, answerPath, "012");
+        QuestionAnswerer.answerIdQuestion(applicantDataTwo, answerPath, "123");
         break;
       case NAME:
         QuestionAnswerer.answerNameQuestion(applicantDataOne, answerPath, "Alice", "", "Appleton");

@@ -21,7 +21,7 @@ import services.question.types.DropdownQuestionDefinition;
 import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
-import services.question.types.IDQuestionDefinition;
+import services.question.types.IdQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -79,7 +79,7 @@ public class TestQuestionBank {
         .put(QuestionType.DROPDOWN, applicantIceCream())
         .put(QuestionType.EMAIL, applicantEmail())
         .put(QuestionType.FILEUPLOAD, applicantFile())
-        .put(QuestionType.ID, applicantID())
+        .put(QuestionType.ID, applicantId())
         .put(QuestionType.NAME, applicantName())
         .put(QuestionType.NUMBER, applicantJugglingNumber())
         .put(QuestionType.RADIO_BUTTON, applicantSeason())
@@ -133,8 +133,8 @@ public class TestQuestionBank {
   }
 
   // Id
-  public Question applicantID() {
-    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ID, this::applicantID);
+  public Question applicantId() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ID, this::applicantId);
   }
 
   // Name
@@ -266,9 +266,9 @@ public class TestQuestionBank {
   }
 
   // Id
-  private Question applicantID(QuestionEnum ignore) {
+  private Question applicantId(QuestionEnum ignore) {
     QuestionDefinition definition =
-        new IDQuestionDefinition(
+        new IdQuestionDefinition(
             "applicant id",
             Optional.empty(),
             "1234",
