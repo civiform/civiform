@@ -349,6 +349,7 @@ export class AdminQuestions {
 
       for (let index in options) {
         await this.page.click('#add-new-option');
+        await waitForPageJsLoad(this.page);
         let matchIndex = Number(index) + 1;
         await this.changeMultiOptionAnswer(matchIndex, options[index]);
       }
