@@ -48,6 +48,7 @@ describe('Hide a program that should not be public yet', () => {
 
     // Verify applicants can now see the program
     await loginAsGuest(page);
+    const applicantQuestions = new ApplicantQuestions(page);
     await selectApplicantLanguage(page, 'English');
     await applicantQuestions.expectProgramPublic(programName, programDescription);
 
