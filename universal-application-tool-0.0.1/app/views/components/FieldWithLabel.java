@@ -237,7 +237,9 @@ public class FieldWithLabel {
             .withClass(labelText.isEmpty() ? Styles.SR_ONLY : BaseStyles.INPUT_LABEL)
             .withText(labelText.isEmpty() ? screenReaderText : labelText);
 
-    return div(labelTag, fieldTag, buildFieldErrorsTag())
+    return div(
+            labelTag,
+            div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);

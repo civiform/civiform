@@ -39,7 +39,7 @@ describe('Admin can manage translations', () => {
 
     // Add a new question to be translated
     const questionName = 'name-translated';
-    await adminQuestions.addNameQuestion(questionName);
+    await adminQuestions.addNameQuestion({questionName});
 
     // Go to the question translation page and add a translation for Spanish
     await adminQuestions.goToQuestionTranslationPage(questionName);
@@ -80,7 +80,7 @@ describe('Admin can manage translations', () => {
 
     // Add a new question to be translated
     const questionName = 'multi-option-translated';
-    await adminQuestions.addRadioButtonQuestion(questionName, ['one', 'two', 'three']);
+    await adminQuestions.addRadioButtonQuestion({questionName, options: ['one', 'two', 'three']});
 
     // Go to the question translation page and add a translation for Spanish
     await adminQuestions.goToQuestionTranslationPage(questionName);
@@ -116,7 +116,7 @@ describe('Admin can manage translations', () => {
 
     // Add a new question to be translated
     const questionName = 'enumerator-translated';
-    await adminQuestions.addEnumeratorQuestion(questionName);
+    await adminQuestions.addEnumeratorQuestion({questionName});
 
     // Go to the question translation page and add a translation for Spanish
     await adminQuestions.goToQuestionTranslationPage(questionName);
@@ -150,7 +150,7 @@ describe('Admin can manage translations', () => {
 
     // Add a new question.
     const questionName = 'translate-no-clobber';
-    await adminQuestions.addNumberQuestion(questionName);
+    await adminQuestions.addNumberQuestion({questionName});
 
     // Add a translation for a non-English language.
     await adminQuestions.goToQuestionTranslationPage(questionName);
@@ -176,7 +176,7 @@ describe('Admin can manage translations', () => {
 
     // Add a new question with help text
     const questionName = 'translate-help-text-deletion';
-    await adminQuestions.addNumberQuestion(questionName);
+    await adminQuestions.addNumberQuestion({questionName});
 
     // Add a translation for a non-English language.
     await adminQuestions.goToQuestionTranslationPage(questionName);
@@ -211,7 +211,7 @@ describe('Admin can manage translations', () => {
     const programName = 'toast';
     await adminPrograms.addProgram(programName);
 
-    await adminQuestions.addNameQuestion('name-english');
+    await adminQuestions.addNameQuestion({questionName: 'name-english'});
     await adminPrograms.editProgramBlock(programName, 'not translated', ['name-english']);
 
     await adminPrograms.publishProgram(programName);

@@ -27,7 +27,7 @@ public class AdminLayout extends BaseHtmlLayout {
     PROGRAM_ADMIN
   }
 
-  private static final String[] FOOTER_SCRIPTS = {"preview", "questionBank"};
+  private static final String[] FOOTER_SCRIPTS = {"preview", "questionBank", "admin_validation"};
 
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
 

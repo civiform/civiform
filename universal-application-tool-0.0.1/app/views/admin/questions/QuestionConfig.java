@@ -8,6 +8,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import forms.AddressQuestionForm;
 import forms.EnumeratorQuestionForm;
 import forms.MultiOptionQuestionForm;
@@ -17,7 +18,10 @@ import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
+import play.i18n.Messages;
 import services.LocalizedStrings;
+import services.MessageKey;
+import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
@@ -27,6 +31,7 @@ import views.style.Styles;
 
 /** Contains methods for rendering type-specific question settings components. */
 public class QuestionConfig {
+
   private String id = "";
   private String headerText = "Question settings";
   private ContainerTag content = div();
@@ -60,7 +65,7 @@ public class QuestionConfig {
     return this;
   }
 
-  public static ContainerTag buildQuestionConfig(QuestionForm questionForm) {
+  public static ContainerTag buildQuestionConfig(QuestionForm questionForm, Messages messages) {
     QuestionConfig config = new QuestionConfig();
     switch (questionForm.getQuestionType()) {
       case ADDRESS:
@@ -72,7 +77,7 @@ public class QuestionConfig {
         MultiOptionQuestionForm form = (MultiOptionQuestionForm) questionForm;
         return config
             .setId("multi-select-question-config")
-            .addMultiOptionQuestionFields(form)
+            .addMultiOptionQuestionFields(form, messages)
             .addMultiSelectQuestionValidation(form)
             .getContainer();
       case ENUMERATOR:
@@ -94,7 +99,7 @@ public class QuestionConfig {
       case RADIO_BUTTON:
         return config
             .setId("single-select-question-config")
-            .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm)
+            .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm, messages)
             .getContainer();
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended - no options
@@ -159,14 +164,19 @@ public class QuestionConfig {
    * answer, along with a button to remove the option.
    */
   public static ContainerTag multiOptionQuestionField(
-      Optional<LocalizedQuestionOption> existingOption) {
+      Optional<LocalizedQuestionOption> existingOption, Messages messages) {
     ContainerTag optionInput =
         FieldWithLabel.input()
             .setFieldName(existingOption.isPresent() ? "options[]" : "newOptions[]")
             .setLabelText("Question option")
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
             .setValue(existingOption.map(LocalizedQuestionOption::optionText))
+            .setFieldErrors(
+                messages,
+                ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
+            .showFieldErrors(false)
             .getContainer()
-            .withClasses(Styles.FLEX, Styles.ML_2);
+            .withClasses(Styles.FLEX, Styles.ML_2, Styles.GAP_X_3);
     ContainerTag optionIndexInput =
         existingOption.isPresent()
             ? FieldWithLabel.input()
@@ -182,12 +192,16 @@ public class QuestionConfig {
             .withClasses(Styles.FLEX, Styles.ML_4, "multi-option-question-field-remove-button");
 
     return div()
-        .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4)
+        .withClasses(
+            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
+            Styles.FLEX,
+            Styles.FLEX_ROW,
+            Styles.MB_4)
         .with(optionInput, optionIndexInput, removeOptionButton);
   }
 
   private QuestionConfig addMultiOptionQuestionFields(
-      MultiOptionQuestionForm multiOptionQuestionForm) {
+      MultiOptionQuestionForm multiOptionQuestionForm, Messages messages) {
     Preconditions.checkState(
         multiOptionQuestionForm.getOptionIds().size()
             == multiOptionQuestionForm.getOptions().size(),
@@ -201,7 +215,8 @@ public class QuestionConfig {
                       multiOptionQuestionForm.getOptionIds().get(i),
                       i,
                       multiOptionQuestionForm.getOptions().get(i),
-                      LocalizedStrings.DEFAULT_LOCALE))));
+                      LocalizedStrings.DEFAULT_LOCALE)),
+              messages));
     }
 
     content

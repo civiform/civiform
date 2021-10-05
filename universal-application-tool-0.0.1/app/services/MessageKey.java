@@ -63,6 +63,7 @@ public enum MessageKey {
   LINK_EDIT("link.edit"),
   LINK_PROGRAM_DETAILS("link.programDetails"),
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
+  MULTI_OPTION_VALIDATION("adminValidation.multiOptionEmpty"),
   MULTI_SELECT_VALIDATION_TOO_FEW("validation.tooFewSelections"),
   MULTI_SELECT_VALIDATION_TOO_MANY("validation.tooManySelections"),
   NAME_LABEL_FIRST("label.firstName"),

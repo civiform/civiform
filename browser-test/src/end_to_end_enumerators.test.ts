@@ -11,11 +11,11 @@ describe('End to end enumerator test', () => {
     const adminQuestions = new AdminQuestions(page);
     const adminPrograms = new AdminPrograms(page);
 
-    await adminQuestions.addNameQuestion('enumerator-ete-name');
-    await adminQuestions.addEnumeratorQuestion('enumerator-ete-householdmembers', 'desc', 'Household members', 'list household members');
-    await adminQuestions.addNameQuestion('enumerator-ete-repeated-name', 'desc', 'Name for \$this', 'full name for \$this', 'enumerator-ete-householdmembers');
-    await adminQuestions.addEnumeratorQuestion('enumerator-ete-repeated-jobs', 'desc', 'Jobs for \$this', '\$this\'s jobs', 'enumerator-ete-householdmembers');
-    await adminQuestions.addNumberQuestion('enumerator-ete-repeated-jobs-income', 'desc', 'Income for \$this.parent\'s job at \$this', 'Monthly income at \$this', 'enumerator-ete-repeated-jobs');
+    await adminQuestions.addNameQuestion({questionName: 'enumerator-ete-name'});
+    await adminQuestions.addEnumeratorQuestion({questionName: 'enumerator-ete-householdmembers', description: 'desc', questionText: 'Household members', helpText: 'list household members'});
+    await adminQuestions.addNameQuestion({questionName: 'enumerator-ete-repeated-name', description: 'desc', questionText: 'Name for \$this', helpText: 'full name for \$this', enumeratorName: 'enumerator-ete-householdmembers'});
+    await adminQuestions.addEnumeratorQuestion({questionName: 'enumerator-ete-repeated-jobs', description: 'desc', questionText: 'Jobs for \$this', helpText: '\$this\'s jobs', enumeratorName: 'enumerator-ete-householdmembers'});
+    await adminQuestions.addNumberQuestion({questionName: 'enumerator-ete-repeated-jobs-income', description: 'desc', questionText: 'Income for \$this.parent\'s job at \$this', helpText: 'Monthly income at \$this', enumeratorName: 'enumerator-ete-repeated-jobs'});
 
     await adminPrograms.addProgram(programName);
     await adminPrograms.editProgramBlock(programName, 'ete enumerator program description');
