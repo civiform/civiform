@@ -1,6 +1,7 @@
 package controllers.applicant;
 
 import static autovalue.shaded.com.google$.common.base.$Preconditions.checkNotNull;
+import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -59,7 +60,7 @@ public class RedirectController extends CiviFormController {
 
     if (profile.isEmpty()) {
       Result result = redirect(routes.HomeController.loginForm(Optional.of("login")));
-      result = result.withSession(ImmutableMap.of("redirectTo", request.uri()));
+      result = result.withSession(ImmutableMap.of(REDIRECT_TO_SESSION_KEY, request.uri()));
 
       return CompletableFuture.completedFuture(result);
     }
@@ -82,7 +83,7 @@ public class RedirectController extends CiviFormController {
                 return redirect(
                         controllers.applicant.routes.ApplicantInformationController.edit(
                             applicant.id))
-                    .withSession(request.session().adding("redirectTo", request.uri()));
+                    .withSession(request.session().adding(REDIRECT_TO_SESSION_KEY, request.uri()));
               }
 
               return redirect(

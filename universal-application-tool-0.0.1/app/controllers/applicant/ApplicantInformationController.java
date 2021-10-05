@@ -1,5 +1,6 @@
 package controllers.applicant;
 
+import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.ProfileUtils;
@@ -64,8 +65,8 @@ public final class ApplicantInformationController extends CiviFormController {
   @Secure
   public CompletionStage<Result> edit(Http.Request request, long applicantId) {
     Optional<String> redirectTo =
-        request.session().data().containsKey("redirectTo")
-            ? Optional.of(request.session().data().get("redirectTo"))
+        request.session().data().containsKey(REDIRECT_TO_SESSION_KEY)
+            ? Optional.of(request.session().data().get(REDIRECT_TO_SESSION_KEY))
             : Optional.empty();
 
     CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
@@ -113,7 +114,7 @@ public final class ApplicantInformationController extends CiviFormController {
       session = request.session();
     } else {
       redirectLocation = infoForm.getRedirectLink();
-      session = request.session().removing("redirectTo");
+      session = request.session().removing(REDIRECT_TO_SESSION_KEY);
     }
 
     return checkApplicantAuthorization(profileUtils, request, applicantId)
