@@ -10,7 +10,7 @@ describe('optional application flow', () => {
     const adminPrograms = new AdminPrograms(page);
 
     const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes('optional-');
-    await adminQuestions.addFileUploadQuestion('optional-file-upload');
+    await adminQuestions.addFileUploadQuestion({questionName: 'optional-file-upload'});
 
     const programName = 'Optional Questions Program';
     await adminPrograms.addProgram(programName);

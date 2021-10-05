@@ -34,6 +34,7 @@ import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
+import views.style.ReferenceClasses;
 import views.style.Styles;
 
 /** Renders a page for editing a question. */
@@ -203,10 +204,15 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag multiOptionQuestionField =
         div()
             .with(
-                QuestionConfig.multiOptionQuestionField(Optional.empty())
+                QuestionConfig.multiOptionQuestionField(Optional.empty(), messages)
                     .withId("multi-option-question-answer-template")
                     // Add "hidden" to other classes, so that the template is not shown
-                    .withClasses(Styles.HIDDEN, Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4));
+                    .withClasses(
+                        ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
+                        Styles.HIDDEN,
+                        Styles.FLEX,
+                        Styles.FLEX_ROW,
+                        Styles.MB_4));
     if (questionForm instanceof MultiOptionQuestionForm) {
       multiOptionQuestionField.with(
           FieldWithLabel.number()
@@ -324,7 +330,7 @@ public final class QuestionEditView extends BaseHtmlView {
             questionHelpTextField)
         .with(formQuestionTypeSelect(questionType));
 
-    formTag.with(QuestionConfig.buildQuestionConfig(questionForm));
+    formTag.with(QuestionConfig.buildQuestionConfig(questionForm, messages));
 
     if (!ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
       formTag.with(

@@ -190,7 +190,7 @@ content.pleaseCreateAccount=If you sign into a city account now, your informatio
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=Address line 2
+label.addressLine2=Unit/Apartment Number
 label.city=City
 label.state=State
 label.street=Address line 1
@@ -297,3 +297,11 @@ validation.numberTooSmall=Must be at least {0}.
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.textTooLong=Must contain at most {0} characters.
 validation.textTooShort=Must contain at least {0} characters.
+
+
+#---------------------------------------------------------------------#
+# MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if an admin leaves a multi option question blank.
+adminValidation.multiOptionEmpty=Multi option questions cannot have blank options.

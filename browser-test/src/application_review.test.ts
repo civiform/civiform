@@ -9,20 +9,20 @@ describe('normal application flow', () => {
     const adminQuestions = new AdminQuestions(page);
     const adminPrograms = new AdminPrograms(page);
 
-    await adminQuestions.addDateQuestion('date-q');
-    await adminQuestions.addEmailQuestion('email-q');
-    await adminQuestions.addDropdownQuestion('ice-cream-q', ['chocolate', 'banana', 'black raspberry']);
-    await adminQuestions.addCheckboxQuestion('favorite-trees-q', ['oak', 'maple', 'pine', 'cherry']);
-    await adminQuestions.addCheckboxQuestion('favorite-rats-q', ['sewage', 'laboratory', 'bubonic', 'giant']);
-    await adminQuestions.addCheckboxQuestion('scared-of-q', ['dogs', 'bees', 'spiders', 'the dark', 'clowns']);
-    await adminQuestions.addAddressQuestion('address-q');
-    await adminQuestions.addFileUploadQuestion('fileupload-q');
-    await adminQuestions.addNameQuestion('name-q');
-    await adminQuestions.addNumberQuestion('number-q');
-    await adminQuestions.addTextQuestion('text-q');
-    await adminQuestions.addRadioButtonQuestion('radio-q', ['one', 'two', 'three']);
-    await adminQuestions.addStaticQuestion('first-static-q');
-    await adminQuestions.addStaticQuestion('second-static-q');
+    await adminQuestions.addDateQuestion({questionName: 'date-q'});
+    await adminQuestions.addEmailQuestion({questionName: 'email-q'});
+    await adminQuestions.addDropdownQuestion({questionName: 'ice-cream-q', options: ['chocolate', 'banana', 'black raspberry']});
+    await adminQuestions.addCheckboxQuestion({questionName: 'favorite-trees-q', options: ['oak', 'maple', 'pine', 'cherry']});
+    await adminQuestions.addCheckboxQuestion({questionName: 'favorite-rats-q', options: ['sewage', 'laboratory', 'bubonic', 'giant']});
+    await adminQuestions.addCheckboxQuestion({questionName: 'scared-of-q', options: ['dogs', 'bees', 'spiders', 'the dark', 'clowns']});
+    await adminQuestions.addAddressQuestion({questionName: 'address-q'});
+    await adminQuestions.addFileUploadQuestion({questionName: 'fileupload-q'});
+    await adminQuestions.addNameQuestion({questionName: 'name-q'});
+    await adminQuestions.addNumberQuestion({questionName: 'number-q'});
+    await adminQuestions.addTextQuestion({questionName: 'text-q'});
+    await adminQuestions.addRadioButtonQuestion({questionName: 'radio-q', options: ['one', 'two', 'three']});
+    await adminQuestions.addStaticQuestion({questionName: 'first-static-q'});
+    await adminQuestions.addStaticQuestion({questionName: 'second-static-q'});
 
     const programName = 'a shiny new program';
     await adminPrograms.addProgram(programName);
@@ -156,7 +156,7 @@ describe('normal application flow', () => {
     const adminQuestions = new AdminQuestions(page);
     const adminPrograms = new AdminPrograms(page);
 
-    await adminQuestions.addTextQuestion('fruit-text-q');
+    await adminQuestions.addTextQuestion({questionName: 'fruit-text-q'});
     const programName = 'fruit program';
     await adminPrograms.addAndPublishProgramWithQuestions(['fruit-text-q'], programName);
 

@@ -9,8 +9,8 @@ describe('create and edit predicates', () => {
     const adminPrograms = new AdminPrograms(page);
 
     // Add a program with two screens
-    await adminQuestions.addTextQuestion('hide-predicate-q');
-    await adminQuestions.addTextQuestion('hide-other-q', 'desc', 'conditional question');
+    await adminQuestions.addTextQuestion({questionName: 'hide-predicate-q'});
+    await adminQuestions.addTextQuestion({questionName: 'hide-other-q', description: 'desc', questionText: 'conditional question'});
 
     const programName = 'create hide predicate';
     await adminPrograms.addProgram(programName);
@@ -71,8 +71,8 @@ describe('create and edit predicates', () => {
     const adminPrograms = new AdminPrograms(page);
 
     // Add a program with two screens
-    await adminQuestions.addTextQuestion('show-predicate-q');
-    await adminQuestions.addTextQuestion('show-other-q', 'desc', 'conditional question');
+    await adminQuestions.addTextQuestion({questionName: 'show-predicate-q'});
+    await adminQuestions.addTextQuestion({questionName: 'show-other-q', description: 'desc', questionText: 'conditional question'});
 
     const programName = 'create show predicate';
     await adminPrograms.addProgram(programName);
@@ -135,13 +135,13 @@ describe('create and edit predicates', () => {
     const adminPrograms = new AdminPrograms(page);
 
     // DATE, STRING, LONG, LIST_OF_STRINGS, LIST_OF_LONGS
-    await adminQuestions.addNameQuestion('single-string');
-    await adminQuestions.addTextQuestion('list of strings');
-    await adminQuestions.addNumberQuestion('single-long');
-    await adminQuestions.addNumberQuestion('list of longs');
-    await adminQuestions.addDateQuestion('predicate-date');
-    await adminQuestions.addCheckboxQuestion('both sides are lists', ['dog', 'rabbit', 'cat']);
-    await adminQuestions.addTextQuestion('depends on previous');
+    await adminQuestions.addNameQuestion({questionName: 'single-string'});
+    await adminQuestions.addTextQuestion({questionName: 'list of strings'});
+    await adminQuestions.addNumberQuestion({questionName: 'single-long'});
+    await adminQuestions.addNumberQuestion({questionName: 'list of longs'});
+    await adminQuestions.addDateQuestion({questionName: 'predicate-date'});
+    await adminQuestions.addCheckboxQuestion({questionName: 'both sides are lists', options: ['dog', 'rabbit', 'cat']});
+    await adminQuestions.addTextQuestion({questionName: 'depends on previous'});
 
     const programName = 'test all predicate types';
     await adminPrograms.addProgram(programName);
