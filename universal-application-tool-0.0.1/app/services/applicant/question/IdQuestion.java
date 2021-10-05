@@ -10,7 +10,7 @@ import services.question.types.IdQuestionDefinition;
 import services.question.types.QuestionType;
 
 /**
- * Represents an id question in the context of a specific applicant.  For example, this could be a
+ * Represents an id question in the context of a specific applicant. For example, this could be a
  * library account number or a bank account number.
  *
  * <p>See {@link ApplicantQuestion} for details.

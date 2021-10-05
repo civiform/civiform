@@ -45,7 +45,7 @@ public class QuestionConfigTest {
         .toString()
         .contains("single-select-question-config");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new IdQuestionForm()))
+    assertThat(QuestionConfig.buildQuestionConfig(new IdQuestionForm(), messages))
         .toString()
         .contains("id-question-min-length-input");
 
