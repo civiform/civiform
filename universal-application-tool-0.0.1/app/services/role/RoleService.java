@@ -59,21 +59,18 @@ public class RoleService {
     // admin.
     ImmutableSet<String> sysAdminEmails =
         getGlobalAdmins().stream()
-            .map(Account::getEmailAddress)
+            .map(account -> account.getEmailAddress().toLowerCase())
             .filter(address -> !Strings.isNullOrEmpty(address))
             .collect(toImmutableSet());
     ImmutableSet.Builder<String> invalidEmailBuilder = ImmutableSet.builder();
-    // Make all emails lowercase so that email comparison is case insensitive.
-    ImmutableSet<String> sysAdminEmailsLowerCase = sysAdminEmails.stream().map(String::toLowerCase).collect(toImmutableSet());
+    // Make all email strings lowercase so that email comparison is case insensitive.
     ImmutableSet<String> accountEmailsLowerCase = accountEmails.stream().map(String::toLowerCase).collect(toImmutableSet());
     accountEmailsLowerCase.forEach(
         email -> {
-          if (sysAdminEmailsLowerCase.contains(email)) {
+          if (sysAdminEmails.contains(email)) {
             invalidEmailBuilder.add(email);
-            System.out.println("EMAIL 1: " + email);
           } else {
             userRepository.addAdministeredProgram(email, program);
-            System.out.println("EMAIL 2: " + email);
           }
         });
 
