@@ -54,6 +54,30 @@ public class RoleServiceTest extends WithPostgresContainer {
   }
 
   @Test
+  public void makeProgramAdmins_emailsAreCaseInsensitive() throws ProgramNotFoundException {
+    String emailUpperCase = "Fake.Two@email.com";
+    String emailLowerCase = "fake.two@email.com";
+    Account account1 = new Account();
+    account1.setEmailAddress(email1);
+    account1.save();
+    Account account2 = new Account();
+    account2.setEmailAddress(email2);
+    account2.save();
+
+    String programName = "test program";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    Optional<CiviFormError> result =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(eemailLowerCase));
+
+    assertThat(result).isEmpty();
+
+    account = userRepository.lookupAccount(emailUpperCase).get();
+
+    assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
+  }
+
+  @Test
   public void makeProgramAdmins_emptyList_returnsEmptyOptional() throws ProgramNotFoundException {
     assertThat(service.makeProgramAdmins(1L, ImmutableSet.of())).isEmpty();
   }
