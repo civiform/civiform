@@ -191,6 +191,11 @@ public class QuestionDefinitionBuilder {
             questionOptions,
             multiOptionValidationPredicates);
 
+      case CURRENCY:
+        return new CurrencyQuestionDefinition(
+            id, name, enumeratorId, description, questionText, questionHelpText);
+
+
       case DATE:
         return new DateQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText);

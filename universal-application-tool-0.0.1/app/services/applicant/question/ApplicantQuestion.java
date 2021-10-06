@@ -207,6 +207,10 @@ public class ApplicantQuestion {
     return new AddressQuestion(this);
   }
 
+  public CurrencyQuestion createCurrencyQuestion() {
+    return new CurrencyQuestion(this);
+  }
+
   public DateQuestion createDateQuestion() {
     return new DateQuestion(this);
   }
@@ -253,6 +257,8 @@ public class ApplicantQuestion {
         return createAddressQuestion();
       case CHECKBOX:
         return createMultiSelectQuestion();
+      case CURRENCY:
+        return createCurrencyQuestion();
       case DATE:
         return createDateQuestion();
       case EMAIL:

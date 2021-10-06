@@ -14,6 +14,7 @@ import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -36,6 +37,10 @@ public class FieldWithLabel {
   /** For use with fields of type `number`. */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
 
+  /** For use with fields of type `currency`. */
+  protected OptionalDouble fieldValueDouble = OptionalDouble.empty();
+
+
   protected String formId = "";
   protected String id = "";
   protected String labelText = "";
@@ -55,6 +60,11 @@ public class FieldWithLabel {
   public static FieldWithLabel checkbox() {
     Tag fieldTag = TagCreator.input();
     return new FieldWithLabel(fieldTag).setFieldType("checkbox");
+  }
+
+  public static FieldWithLabel currency() {
+    Tag fieldTag = TagCreator.input();
+    return new FieldWithLabel(fieldTag).setFieldType("currency");
   }
 
   public static FieldWithLabel radio() {
@@ -152,7 +162,7 @@ public class FieldWithLabel {
   public FieldWithLabel setValue(OptionalInt value) {
     if (!this.fieldType.equals("number")) {
       throw new RuntimeException(
-          "setting an Optional<Integer> value is only available on fields of type `number`");
+          "setting an OptionalInt value is only available on fields of type `number`");
     }
 
     this.fieldValueNumber =
@@ -167,6 +177,16 @@ public class FieldWithLabel {
     }
 
     this.fieldValueNumber = value;
+    return this;
+  }
+
+  public FieldWithLabel setValue(OptionalDouble value) {
+    if (!this.fieldType.equals("currency")) {
+      throw new RuntimeException(
+          "setting an OptionalDouble value is only available on fields of type `currency`");
+    }
+
+    this.fieldValueDouble = value;
     return this;
   }
 
@@ -202,6 +222,14 @@ public class FieldWithLabel {
       // Have to recreate the field here in case the value is modified.
       ContainerTag textAreaTag = textarea().withType("text").withText(this.fieldValue);
       fieldTag = textAreaTag;
+    } else if (this.fieldType.equals("currency")) {
+      // For number types, only set the value if it's present since there is no empty string
+      // equivalent for numbers.
+      if (this.fieldValueNumber.isPresent()) {
+        fieldTag.withValue(String.valueOf(this.fieldValueNumber.getAsLong()));
+      }
+      // We only allow integer input.
+      fieldTag.attr("oninput", "n=parseInt(this.value);this.value=Number.isNaN(n)?'':n;");
     } else if (this.fieldType.equals("number")) {
       // For number types, only set the value if it's present since there is no empty string
       // equivalent for numbers.
@@ -210,6 +238,7 @@ public class FieldWithLabel {
       }
       // We only allow integer input.
       fieldTag.attr("oninput", "n=parseInt(this.value);this.value=Number.isNaN(n)?'':n;");
+
     } else {
       fieldTag.withValue(this.fieldValue);
     }

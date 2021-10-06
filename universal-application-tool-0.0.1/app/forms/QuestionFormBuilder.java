@@ -6,6 +6,7 @@ import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.CurrencyQuestionDefinition;
 import services.question.types.DateQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
 import services.question.types.EmailQuestionDefinition;
@@ -29,6 +30,8 @@ public class QuestionFormBuilder {
         return formFactory.form(AddressQuestionForm.class).bindFromRequest(request).get();
       case CHECKBOX:
         return formFactory.form(CheckboxQuestionForm.class).bindFromRequest(request).get();
+      case CURRENCY:
+        return formFactory.form(CurrencyQuestionForm.class).bindFromRequest(request).get();
       case DATE:
         return formFactory.form(DateQuestionForm.class).bindFromRequest(request).get();
       case DROPDOWN:
@@ -61,6 +64,8 @@ public class QuestionFormBuilder {
         return new AddressQuestionForm();
       case CHECKBOX:
         return new CheckboxQuestionForm();
+      case CURRENCY:
+        return new CurrencyQuestionForm();
       case DATE:
         return new DateQuestionForm();
       case DROPDOWN:
@@ -94,6 +99,8 @@ public class QuestionFormBuilder {
         return new AddressQuestionForm((AddressQuestionDefinition) questionDefinition);
       case CHECKBOX:
         return new CheckboxQuestionForm((CheckboxQuestionDefinition) questionDefinition);
+      case CURRENCY:
+        return new CurrencyQuestionForm((CurrencyQuestionDefinition) questionDefinition);
       case DATE:
         return new DateQuestionForm((DateQuestionDefinition) questionDefinition);
       case DROPDOWN:

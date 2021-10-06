@@ -107,6 +107,9 @@ public class CsvExporterTest extends WithPostgresContainer {
         QuestionAnswerer.answerMultiSelectQuestion(applicantDataOne, answerPath, 1, 2L);
         // applicant two did not answer this question.
         break;
+      case CURRENCY:
+        // TODo
+        break;
       case DATE:
         QuestionAnswerer.answerDateQuestion(applicantDataOne, answerPath, "1980-01-01");
         // applicant two did not answer this question.

@@ -9,6 +9,7 @@ class ValidationController {
   static readonly VALIDATE_ON_INPUT = false;
 
   static readonly ADDRESS_QUESTION_CLASS = '.cf-question-address';
+  static readonly CURRENCY_QUESTION_CLASS = '.cf-question-currency';
   static readonly ENUMERATOR_QUESTION_CLASS = '.cf-question-enumerator';
   static readonly FILEUPLOAD_QUESTION_CLASS = '.cf-question-fileupload';
   static readonly NAME_QUESTION_CLASS = '.cf-question-name';
@@ -18,6 +19,7 @@ class ValidationController {
   static readonly BLOCK_SUBMIT_BUTTON_ID = 'cf-block-submit';
 
   isAddressValid = true;
+  isCurrencyValid = true;
   isEnumeratorValid = true;
   isFileUploadValid = true;
   isNameValid = true;
@@ -67,6 +69,17 @@ class ValidationController {
     }
   }
 
+  /** Add listeners to all currency inputs to update validation on changes. */
+  private addCurrencyListeners() {
+    const currencyQuestions = Array.from(document.querySelectorAll(ValidationController.CURRENCY_QUESTION_CLASS));
+    for (const question of currencyQuestions) {
+      const currencyInputs = Array.from(question.querySelectorAll('input'));
+      // Whenever an input changes we need to revalidate.
+      currencyInputs.forEach(currencyInput => {
+        currencyInput.addEventListener("input", () => { this.onCurrencyChanged(); });
+      });
+    }
+  }
   /** Add listeners to all enumerator inputs to update validation on changes. */
   private addEnumeratorListeners() {
     // Assumption: There is only ever zero or one enumerators per block.
