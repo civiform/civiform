@@ -71,7 +71,7 @@ public class RoleServiceTest extends WithPostgresContainer {
 
     account = userRepository.lookupAccount(emailLowerCase).get();
 
-   assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
+    assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
   }
 
   @Test
@@ -92,7 +92,7 @@ public class RoleServiceTest extends WithPostgresContainer {
 
     account = userRepository.lookupAccount(emailLowerCase).get();
 
-   assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
+    assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
   }
 
   @Test
