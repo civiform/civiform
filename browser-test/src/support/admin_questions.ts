@@ -539,7 +539,7 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async addEmailQuestion({questionName: string,
+  async addEmailQuestion({questionName,
     description = 'email description',
     questionText = 'email question text',
     helpText = 'email question help text',
