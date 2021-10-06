@@ -195,6 +195,7 @@ export class AdminPrograms {
 
     for (const questionName of questionNames) {
       await this.page.click(`button:text("${questionName}")`);
+      await waitForPageJsLoad(this.page);
     }
     return await this.page.$eval('#block-name-input', el => (el as HTMLInputElement).value);
   }
