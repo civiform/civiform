@@ -1,9 +1,11 @@
 package controllers.applicant;
 
 import static autovalue.shaded.com.google$.common.base.$Preconditions.checkNotNull;
+import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import controllers.routes;
 import java.util.Optional;
@@ -29,6 +31,7 @@ import views.applicant.ApplicantUpsellCreateAccountView;
  * can access the page.
  */
 public class RedirectController extends CiviFormController {
+
   private final HttpExecutionContext httpContext;
   private final ApplicantService applicantService;
   private final ProfileUtils profileUtils;
@@ -52,26 +55,40 @@ public class RedirectController extends CiviFormController {
     this.messagesApi = checkNotNull(messagesApi);
   }
 
-  @Secure
   public CompletionStage<Result> programByName(Http.Request request, String programName) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+
     if (profile.isEmpty()) {
-      return CompletableFuture.completedFuture(
-          redirect(routes.CallbackController.callback("GuestClient")));
+      Result result = redirect(routes.HomeController.loginForm(Optional.of("login")));
+      result = result.withSession(ImmutableMap.of(REDIRECT_TO_SESSION_KEY, request.uri()));
+
+      return CompletableFuture.completedFuture(result);
     }
-    CompletableFuture<Applicant> applicant = profile.get().getApplicant();
-    CompletableFuture<Program> program = programRepository.getForSlug(programName);
-    return CompletableFuture.allOf(applicant, program)
+
+    CompletableFuture<Applicant> applicantFuture = profile.get().getApplicant();
+    CompletableFuture<Program> programFuture = programRepository.getForSlug(programName);
+
+    return CompletableFuture.allOf(applicantFuture, programFuture)
         .thenApplyAsync(
             empty -> {
-              if (applicant.isCompletedExceptionally()) {
+              if (applicantFuture.isCompletedExceptionally()) {
                 return notFound();
-              } else if (program.isCompletedExceptionally()) {
+              } else if (programFuture.isCompletedExceptionally()) {
                 return notFound();
               }
+
+              Applicant applicant = applicantFuture.join();
+
+              if (!applicant.getApplicantData().hasPreferredLocale()) {
+                return redirect(
+                        controllers.applicant.routes.ApplicantInformationController.edit(
+                            applicant.id))
+                    .withSession(request.session().adding(REDIRECT_TO_SESSION_KEY, request.uri()));
+              }
+
               return redirect(
                   controllers.applicant.routes.ApplicantProgramsController.edit(
-                      applicant.join().id, program.join().id));
+                      applicant.id, programFuture.join().id));
             },
             httpContext.current());
   }

@@ -50,7 +50,7 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPageWithSuccessToast('created');
   }
 
-  async expectMultiOptionBlankOptionError(options: String[]) {  
+  async expectMultiOptionBlankOptionError(options: String[]) {
     const questionSettings = await this.page.$("#question-settings");
     const errors = await questionSettings.$$('.cf-multi-option-input-error');
     // Checks that the error is not hidden when it's corresponding option is empty. The order of the options array corresponds to the order of the errors array.
@@ -344,16 +344,16 @@ export class AdminQuestions {
       await this.page.click('#create-dropdown-question');
 
       waitForPageJsLoad(this.page);
-  
+
       await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
-  
+
       for (let index in options) {
         await this.page.click('#add-new-option');
         await waitForPageJsLoad(this.page);
         let matchIndex = Number(index) + 1;
         await this.changeMultiOptionAnswer(matchIndex, options[index]);
       }
-      
+
       await this.clickSubmitButtonAndNavigate('Create');
   }
 
@@ -369,9 +369,9 @@ export class AdminQuestions {
     questionText = 'dropdown question text',
     helpText = 'dropdown question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
-   
+
     await this.createDropdownQuestion({questionName, options, description, questionText, helpText, enumeratorName});
-    
+
     await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
@@ -466,9 +466,9 @@ export class AdminQuestions {
     helpText = 'radio button question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
     await this.createRadioButtonQuestion({questionName, options, description, questionText, helpText, enumeratorName});
-    
+
     await this.expectAdminQuestionsPageWithCreateSuccessToast();
-    
+
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
