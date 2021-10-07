@@ -59,8 +59,9 @@ public class RoleService {
     // admin.
     ImmutableSet<String> sysAdminEmails =
         getGlobalAdmins().stream()
-            .map(account -> account.getEmailAddress().toLowerCase())
+            .map(Account::getEmailAddress)
             .filter(address -> !Strings.isNullOrEmpty(address))
+            .map(String::toLowerCase)
             .collect(toImmutableSet());
     ImmutableSet.Builder<String> invalidEmailBuilder = ImmutableSet.builder();
     // Make all email strings lowercase so that email comparison is case insensitive.
