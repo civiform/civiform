@@ -30,7 +30,7 @@ public class RoleServiceTest extends WithPostgresContainer {
   @Test
   public void makeProgramAdmins_allPromoted() throws ProgramNotFoundException {
     String email1 = "fake@email.com";
-    String email2 = "fake2@email.com";
+    String email2 = "fake2.com";
     Account account1 = new Account();
     account1.setEmailAddress(email1);
     account1.save();
@@ -51,6 +51,49 @@ public class RoleServiceTest extends WithPostgresContainer {
 
     assertThat(account1.getAdministeredProgramNames()).containsOnly(programName);
     assertThat(account2.getAdministeredProgramNames()).containsOnly(programName);
+  }
+
+  @Test
+  public void makeProgramAdmins_emailsAreCaseInsensitive() throws ProgramNotFoundException {
+    String emailUpperCase = "Fake.Person@email.com";
+    String emailLowerCase = "fake.person@email.com";
+    Account account = new Account();
+    account.setEmailAddress(emailLowerCase);
+    account.save();
+
+    String programName = "test program";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    Optional<CiviFormError> result =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(emailUpperCase));
+
+    assertThat(result).isEmpty();
+
+    account = userRepository.lookupAccount(emailLowerCase).get();
+
+    assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
+  }
+
+  @Test
+  public void makeProgramAdmins_emailsAreCaseInsensitive_accountHasUpperCaseEmail()
+      throws ProgramNotFoundException {
+    String emailUpperCase = "Fake.Person@email.com";
+    String emailLowerCase = "fake.person@email.com";
+    Account account = new Account();
+    account.setEmailAddress(emailUpperCase);
+    account.save();
+
+    String programName = "test program";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    Optional<CiviFormError> result =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(emailLowerCase));
+
+    assertThat(result).isEmpty();
+
+    account = userRepository.lookupAccount(emailLowerCase).get();
+
+    assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
   }
 
   @Test
