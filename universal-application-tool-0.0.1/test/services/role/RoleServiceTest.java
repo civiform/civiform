@@ -75,7 +75,8 @@ public class RoleServiceTest extends WithPostgresContainer {
   }
 
   @Test
-  public void makeProgramAdmins_emailsAreCaseInsensitive_accountHasUpperCaseEmail() throws ProgramNotFoundException {
+  public void makeProgramAdmins_emailsAreCaseInsensitive_accountHasUpperCaseEmail()
+      throws ProgramNotFoundException {
     String emailUpperCase = "Fake.Person@email.com";
     String emailLowerCase = "fake.person@email.com";
     Account account = new Account();
