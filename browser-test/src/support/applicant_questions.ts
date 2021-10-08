@@ -37,7 +37,7 @@ export class ApplicantQuestions {
   }
 
   async answerIdQuestion(id: string) {
-    await this.page.fill('input[type="id"]', id);
+    await this.page.fill('input[type="text"]', id);
   }
 
   async answerRadioButtonQuestion(checked: string) {
