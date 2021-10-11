@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
+import models.Program;
 import models.QuestionTag;
 import services.Path;
 import services.applicant.AnswerData;
@@ -44,6 +45,7 @@ import services.question.types.QuestionType;
  * across all programs.
  */
 public class ExporterService {
+
   private final ExporterFactory exporterFactory;
   private final ProgramService programService;
   private final QuestionService questionService;
@@ -67,8 +69,64 @@ public class ExporterService {
     this.applicantService = checkNotNull(applicantService);
   }
 
+  /** Return a string containing a CSV of all applications at all versions of particular program. */
+  public String getProgramAllVersionsCsv(long programId) throws ProgramNotFoundException {
+    ImmutableList<ProgramDefinition> allProgramVersions =
+        programService.getAllProgramVersions(programId).stream()
+            .map(Program::getProgramDefinition)
+            .collect(ImmutableList.toImmutableList());
+
+    CsvExportConfig exportConfig = generateDefaultCsvExportConfig(allProgramVersions);
+    CsvExporter csvExporter = exporterFactory.csvExporter(exportConfig);
+
+    ImmutableList<Application> applications =
+        allProgramVersions.stream()
+            .map(ProgramDefinition::id)
+            .flatMap(
+                (programVersionId) -> {
+                  try {
+                    return programService
+                        .getSubmittedProgramApplications(programVersionId)
+                        .stream();
+                  } catch (ProgramNotFoundException e) {
+                    throw new RuntimeException(
+                        "Cannot find a program we are trying to generate CSVs for.", e);
+                  }
+                })
+            .collect(ImmutableList.toImmutableList());
+
+    return exportCsv(csvExporter, applications);
+  }
+
+  private CsvExportConfig generateDefaultCsvExportConfig(
+      ImmutableList<ProgramDefinition> programDefinitions) throws ProgramNotFoundException {
+    Map<Path, AnswerData> answerMap = new HashMap<>();
+
+    for (ProgramDefinition programDefinition : programDefinitions) {
+      for (Application application :
+          programService.getSubmittedProgramApplications(programDefinition.id())) {
+        applicantService
+            .getReadOnlyApplicantProgramService(application, programDefinition)
+            .getSummaryData()
+            .forEach(data -> answerMap.putIfAbsent(data.contextualizedPath(), data));
+      }
+    }
+
+    // Get the list of all answers, sorted by block ID, then question index, and finally
+    // contextualized path in string form.
+    ImmutableList<AnswerData> answers =
+        answerMap.values().stream()
+            .sorted(
+                Comparator.comparing(AnswerData::blockId)
+                    .thenComparing(AnswerData::questionIndex)
+                    .thenComparing(answerData -> answerData.contextualizedPath().toString()))
+            .collect(ImmutableList.toImmutableList());
+
+    return generateDefaultCsvConfig(answers);
+  }
+
   /**
-   * Return a string containing the CSV of all the applicantions for a particular program.
+   * Return a string containing a CSV of all applications for a specific program version.
    *
    * @throws ProgramNotFoundException If the program ID refers to a program that does not exist.
    */
@@ -115,6 +173,7 @@ public class ExporterService {
    */
   CsvExportConfig generateDefaultCsvConfig(long programId) {
     ImmutableList<Application> applications;
+
     try {
       applications = programService.getSubmittedProgramApplications(programId);
     } catch (ProgramNotFoundException e) {

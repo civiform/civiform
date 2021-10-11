@@ -306,6 +306,15 @@ public interface ProgramService {
   ImmutableList<Application> getSubmittedProgramApplications(long programId)
       throws ProgramNotFoundException;
 
+  /**
+   * Get the program's submitted applications where the applicant's name contains the search query.
+   * Does not include drafts or deleted applications.
+   *
+   * @param programId the program id.
+   * @param search an applicant's name or fragment of an applicant's name.
+   * @return A list of Application objects for the specified program.
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   */
   ImmutableList<Application> getSubmittedProgramApplications(
       long programId, Optional<String> search) throws ProgramNotFoundException;
 
@@ -320,4 +329,7 @@ public interface ProgramService {
 
   /** Get all other programs with the same name. */
   ImmutableList<Program> getOtherProgramVersions(long programId);
+
+  /** Get all versions of the program with a version matching programId, including that one */
+  ImmutableList<Program> getAllProgramVersions(long programId);
 }

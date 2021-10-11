@@ -82,18 +82,24 @@ public class ProgramServiceImpl implements ProgramService {
               if (programMaybe.isEmpty()) {
                 return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
               }
-              Program program = programMaybe.get();
-              if (isActiveOrDraftProgram(program)) {
-                return syncProgramDefinitionQuestions(program.getProgramDefinition())
-                    .thenApply(programDefinition -> programDefinition.orderBlockDefinitions());
-              }
-              // Any version that the program is in has all the questions the program has.
-              Version version = program.getVersions().stream().findAny().get();
-              ProgramDefinition programDefinition =
-                  syncProgramDefinitionQuestions(program.getProgramDefinition(), version);
-              return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
+
+              return syncProgramAssociations(programMaybe.get());
             },
             httpExecutionContext.current());
+  }
+
+  private CompletionStage<ProgramDefinition> syncProgramAssociations(Program program) {
+    if (isActiveOrDraftProgram(program)) {
+      return syncProgramDefinitionQuestions(program.getProgramDefinition())
+          .thenApply(programDefinition -> programDefinition.orderBlockDefinitions());
+    }
+
+    // Any version that the program is in has all the questions the program has.
+    Version version = program.getVersions().stream().findAny().get();
+    ProgramDefinition programDefinition =
+        syncProgramDefinitionQuestions(program.getProgramDefinition(), version);
+
+    return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
   }
 
   @Override
@@ -559,7 +565,16 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ImmutableList<Program> getOtherProgramVersions(long programId) {
-    return programRepository.getOtherProgramVersions(programId);
+    return getAllProgramVersions(programId).stream()
+        .filter(program -> program.id != programId)
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
+  public ImmutableList<Program> getAllProgramVersions(long programId) {
+    return programRepository.getAllProgramVersions(programId).stream()
+        .map(program -> syncProgramAssociations(program).toCompletableFuture().join().toProgram())
+        .collect(ImmutableList.toImmutableList());
   }
 
   private ProgramDefinition updateProgramDefinitionWithBlockDefinitions(

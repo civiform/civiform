@@ -159,14 +159,13 @@ public class ProgramRepository {
     return getProgramAdministrators(program.get().getProgramDefinition().adminName());
   }
 
-  public ImmutableList<Program> getOtherProgramVersions(long programId) {
+  public ImmutableList<Program> getAllProgramVersions(long programId) {
     return ebeanServer
         .find(Program.class)
         .where()
         .eq(
             "name",
             ebeanServer.find(Program.class).setId(programId).select("name").findSingleAttribute())
-        .ne("id", programId)
         .findList()
         .stream()
         .collect(ImmutableList.toImmutableList());
