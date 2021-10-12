@@ -16,17 +16,19 @@ import play.mvc.Result;
 public class CallbackController extends Controller {
   @Inject private org.pac4j.play.CallbackController wrappedController;
 
+  public static final String REDIRECT_TO_SESSION_KEY = "redirectTo";
+
   public CompletionStage<Result> callback(Http.Request request, String clientName) {
     return wrappedController
         .callback(request)
         .thenApplyAsync(
             result -> {
-              Optional<String> redirectTo = request.session().get("redirectTo");
+              Optional<String> redirectTo = request.session().get(REDIRECT_TO_SESSION_KEY);
               if (redirectTo.isPresent()) {
                 Result redirect = redirect(redirectTo.get());
                 if (result.session() != null) {
                   redirect = redirect.withSession(result.session());
-                  redirect = redirect.removingFromSession(request, "redirectTo");
+                  redirect = redirect.removingFromSession(request, REDIRECT_TO_SESSION_KEY);
                 }
                 if (result.flash() != null) {
                   redirect = redirect.withFlash(result.flash());
