@@ -2,13 +2,15 @@ package services.applicant.question;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.CurrencyQuestionDefinition;
 import services.question.types.QuestionType;
-import services.question.types.CurrencyQuestionDefinition;
 
 /**
  * Represents a currency question in the context of a specific applicant.
@@ -19,7 +21,7 @@ import services.question.types.CurrencyQuestionDefinition;
  */
 public class CurrencyQuestion implements PresentsErrors {
   private final ApplicantQuestion applicantQuestion;
-  private Optional<Long> centsValue;
+  private Optional<Long> centsValue = Optional.empty();
 
   public CurrencyQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
@@ -38,7 +40,6 @@ public class CurrencyQuestion implements PresentsErrors {
 
   @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    // No errors are possible currently.
     return ImmutableSet.of();
   }
 
@@ -59,11 +60,11 @@ public class CurrencyQuestion implements PresentsErrors {
   }
 
   public Optional<Long> getCurrencyValue() {
-    if (centsValue != null) {
+    if (centsValue.isPresent()) {
       return centsValue;
     }
 
-    centsValue = applicantQuestion.getApplicantData().readLong(getCurrencyPath());
+    centsValue = applicantQuestion.getApplicantData().readCurrencyCents(getCurrencyPath());
 
     return centsValue;
   }
@@ -84,11 +85,19 @@ public class CurrencyQuestion implements PresentsErrors {
   }
 
   public Path getCurrencyPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.NUMBER);
+    return applicantQuestion.getContextualizedPath().join(Scalar.CURRENCY_CENTS);
   }
 
   @Override
   public String getAnswerString() {
-    return getCurrencyValue().map(Object::toString).orElse("-");
+    if(!getCurrencyValue().isPresent()) {
+      return "-";
+    }
+    double cents = getCurrencyValue().get() / 100.0;
+    // Format with commas and 2 decimal cents always.
+    NumberFormat formatter = NumberFormat.getInstance(Locale.US);
+    formatter.setMinimumFractionDigits(2);
+    formatter.setMaximumFractionDigits(2);
+    return "$" + formatter.format(cents);
   }
 }

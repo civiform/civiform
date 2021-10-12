@@ -30,8 +30,10 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRenderer {
     FieldWithLabel currencyField =
         FieldWithLabel.currency()
             .setFieldName(currencyQuestion.getCurrencyPath().toString())
+            .addReferenceClass(ReferenceClasses.CURRENCY_QUESTION)
             .setScreenReaderText(question.getQuestionText())
-            .setFieldErrors(params.messages(), currencyQuestion.getQuestionErrors());
+            .setFieldErrors(params.messages(), currencyQuestion.getQuestionErrors())
+            .showFieldErrors(false);
     if (currencyQuestion.getCurrencyValue().isPresent()) {
       // Convert currency cents to dollars.
       OptionalDouble value = OptionalDouble.of(currencyQuestion.getCurrencyValue().orElse(0L) / 100.0);

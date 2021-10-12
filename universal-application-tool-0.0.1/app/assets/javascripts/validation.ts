@@ -18,6 +18,13 @@ class ValidationController {
   static readonly ENUMERATOR_DELETE_TEMPLATE = 'enumerator-delete-template';
   static readonly BLOCK_SUBMIT_BUTTON_ID = 'cf-block-submit';
 
+  // Currency containing only numbers, without leading 0s and optional 2 digit cents.
+  static readonly CURRENCY_NO_COMMAS = /^[1-9]\d*(?:\.\d\d)?$/;
+  // Same as CURRENCY_NO_COMMAS but commas followed by 3 digits are allowed.
+  static readonly CURRENCY_WITH_COMMAS = /^[1-9]\d{0,2}(?:,\d\d\d)*(?:\.\d\d)?$/;
+  // Currency of 0 dollars with optional 2 digit cents.
+  static readonly CURRENCY_ZERO_DOLLARS = /^0(?:\.\d\d)?$/;
+
   isAddressValid = true;
   isCurrencyValid = true;
   isEnumeratorValid = true;
@@ -43,6 +50,7 @@ class ValidationController {
 
     if (ValidationController.VALIDATE_ON_INPUT) {
       this.addAddressListeners();
+      this.addCurrencyListeners();
       this.addFileUploadListener();
       this.addNameListeners();
     }
@@ -151,6 +159,7 @@ class ValidationController {
 
   checkAllQuestionTypes() {
     this.isAddressValid = this.validateAddressQuestion();
+    this.isCurrencyValid = this.validateCurrencyQuestion();
     this.isEnumeratorValid = this.validateEnumeratorQuestion();
     this.isFileUploadValid = this.validateFileUploadQuestion();
     this.isNameValid = this.validateNameQuestion();
@@ -158,11 +167,17 @@ class ValidationController {
   }
 
   isValid() {
-    return this.isAddressValid && this.isEnumeratorValid && this.isFileUploadValid && this.isNameValid;
+    return this.isAddressValid && this.isCurrencyValid && this.isEnumeratorValid
+        && this.isFileUploadValid && this.isNameValid;
   }
 
   onAddressChanged() {
     this.isAddressValid = this.validateAddressQuestion();
+    this.updateSubmitButton();
+  }
+
+  onCurrencyChanged() {
+    this.isCurrencyValid = this.validateCurrencyQuestion();
     this.updateSubmitButton();
   }
 
@@ -250,6 +265,30 @@ class ValidationController {
     return isValid;
   }
 
+  /** Validates that the value is present and in integer or integer with 2 decimals format. */
+  validateCurrencyQuestion(): boolean {
+    let isValid = true;
+    const question = document.querySelector(ValidationController.CURRENCY_QUESTION_CLASS);
+    if(question) {
+      const currencyInput = <HTMLInputElement>question.querySelector("input[type=currency]");
+      const currencyValue = currencyInput.value;
+
+      const isEmpty = currencyValue.length == 0;
+      this.updateFieldErrorState(question, ValidationController.CURRENCY_QUESTION_CLASS, !isEmpty);
+
+      const isValidCurrency = ValidationController.CURRENCY_NO_COMMAS.test(currencyValue) ||
+          ValidationController.CURRENCY_WITH_COMMAS.test(currencyValue) ||
+          ValidationController.CURRENCY_ZERO_DOLLARS.test(currencyValue);
+      this.updateFieldErrorState(question, ValidationController.CURRENCY_QUESTION_CLASS, isValidCurrency);
+
+      // If this question isn't required then it's also valid if it is empty.
+      const isOptional = !question.classList.contains(ValidationController.REQUIRED_QUESTION_CLASS);
+      const emptyOptional = isOptional && isEmpty;
+
+      isValid = emptyOptional || isValidCurrency;
+    }
+    return isValid;
+  }
   /** if we have empty inputs then disable the add input button. (We don't need two blank inputs.) */
   maybeHideEnumeratorAddButton(): boolean {
     let hasEmptyInputs = false;

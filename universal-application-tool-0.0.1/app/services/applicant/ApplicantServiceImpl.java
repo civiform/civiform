@@ -498,6 +498,9 @@ public class ApplicantServiceImpl implements ApplicantService {
         applicantData.maybeDelete(update.path());
       } else {
         switch (type) {
+          case CURRENCY_CENTS:
+            applicantData.putCurrency(currentPath, update.value());
+            break;
           case DATE:
             applicantData.putDate(currentPath, update.value());
             break;

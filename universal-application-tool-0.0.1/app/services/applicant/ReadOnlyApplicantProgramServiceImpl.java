@@ -14,6 +14,7 @@ import services.Path;
 import services.applicant.predicate.JsonPathPredicateGenerator;
 import services.applicant.predicate.PredicateEvaluator;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.Scalar;
@@ -24,7 +25,9 @@ import services.question.LocalizedQuestionOption;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionType;
 
-/** Implementation class for ReadOnlyApplicantProgramService interface. */
+/**
+ * Implementation class for ReadOnlyApplicantProgramService interface.
+ */
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
   /**
@@ -79,8 +82,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                   // Return all blocks that contain errors, were answered in this program, or
                   // contain a static question.
                   (!block.isAnsweredWithoutErrors()
-                          || block.wasAnsweredInProgram(programDefinition.id())
-                          || block.containsStatic())
+                      || block.wasAnsweredInProgram(programDefinition.id())
+                      || block.containsStatic())
                       && showBlock(block));
     }
     return currentBlockList;
@@ -109,7 +112,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     ImmutableList<Block> allBlocks = getAllActiveBlocks();
 
     for (int i = 0; i < allBlocks.size(); i++) {
-      if (allBlocks.get(i).getId().equals(blockId)) return i;
+      if (allBlocks.get(i).getId().equals(blockId)) {
+        return i;
+      }
     }
 
     return -1;
@@ -222,8 +227,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         ImmutableList<RepeatedEntity> repeatedEntities =
             maybeRepeatedEntity.isPresent()
                 ? maybeRepeatedEntity
-                    .get()
-                    .createNestedRepeatedEntities(enumeratorQuestionDefinition, applicantData)
+                .get()
+                .createNestedRepeatedEntities(enumeratorQuestionDefinition, applicantData)
                 : RepeatedEntity.createRepeatedEntities(
                     enumeratorQuestionDefinition, applicantData);
 
@@ -270,7 +275,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     }
   }
 
-  /** Returns the identifier of uploaded file if applicable. */
+  /**
+   * Returns the identifier of uploaded file if applicable.
+   */
   private Optional<String> getFileKey(ApplicantQuestion question) {
     switch (question.getType()) {
       case FILEUPLOAD:
@@ -299,6 +306,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .getSelectedOptionValue(locale)
                 .map(LocalizedQuestionOption::optionText)
                 .orElse(""));
+      case CURRENCY:
+        CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
+        return ImmutableMap
+            .of(currencyQuestion.getCurrencyPath(), currencyQuestion.getAnswerString());
       case CHECKBOX:
         return ImmutableMap.of(
             question.getContextualizedPath().join(Scalar.SELECTIONS),
@@ -321,8 +332,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                     fileKey ->
                         baseUrl
                             + controllers.routes.FileController.adminShow(
-                                    programDefinition.id(), fileKey)
-                                .url())
+                            programDefinition.id(), fileKey)
+                            .url())
                 .orElse(""));
       case ENUMERATOR:
         return ImmutableMap.of(

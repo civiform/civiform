@@ -8,6 +8,8 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.mapper.MappingException;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -22,6 +24,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +34,7 @@ import services.WellKnownPaths;
 import services.applicant.exception.JsonPathTypeMismatchException;
 import services.applicant.predicate.JsonPathPredicate;
 import services.applicant.question.Scalar;
+import software.amazon.awssdk.services.pi.model.InvalidArgumentException;
 
 /**
  * Brokers access to the answer data for a specific applicant across versions.
@@ -50,8 +54,17 @@ public class ApplicantData {
   public static final Path APPLICANT_PATH = Path.create(APPLICANT);
   private static final String EMPTY_APPLICANT_DATA_JSON =
       String.format("{ \"%s\": {} }", APPLICANT);
-  private static final TypeRef<List<Object>> LIST_OF_OBJECTS_TYPE = new TypeRef<>() {};
-  private static final TypeRef<ImmutableList<Long>> IMMUTABLE_LIST_LONG_TYPE = new TypeRef<>() {};
+  private static final TypeRef<List<Object>> LIST_OF_OBJECTS_TYPE = new TypeRef<>() {
+  };
+  private static final TypeRef<ImmutableList<Long>> IMMUTABLE_LIST_LONG_TYPE = new TypeRef<>() {
+  };
+  // Currency containing only numbers, without leading 0s and optional 2 digit cents.
+  private static Pattern CURRENCY_NO_COMMAS = Pattern.compile("^[1-9]\\d*(?:\\.\\d\\d)?$");
+  // Same as CURRENCY_NO_COMMAS but commas followed by 3 digits are allowed.
+  private static Pattern CURRENCY_WITH_COMMAS = Pattern
+      .compile("^[1-9]\\d{0,2}(?:,\\d\\d\\d)*(?:\\.\\d\\d)?$");
+  // Currency of 0 dollars with optional 2 digit cents.
+  private static Pattern CURRENCY_ZERO_DOLLARS = Pattern.compile("^0(?:\\.\\d\\d)?$");
   private final DocumentContext jsonData;
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
   private boolean locked = false;
@@ -70,17 +83,23 @@ public class ApplicantData {
     this.jsonData = JsonPathProvider.getJsonPath().parse(checkNotNull(jsonData));
   }
 
-  /** Makes this ApplicantData immutable. A locked ApplicantData cannot be unlocked. */
+  /**
+   * Makes this ApplicantData immutable. A locked ApplicantData cannot be unlocked.
+   */
   public void lock() {
     locked = true;
   }
 
-  /** Returns true if this applicant has set their preferred locale, and false otherwise. */
+  /**
+   * Returns true if this applicant has set their preferred locale, and false otherwise.
+   */
   public boolean hasPreferredLocale() {
     return this.preferredLocale.isPresent();
   }
 
-  /** Returns this applicant's preferred locale if it is set, or the default locale if not set. */
+  /**
+   * Returns this applicant's preferred locale if it is set, or the default locale if not set.
+   */
   public Locale preferredLocale() {
     return this.preferredLocale.orElse(LocalizedStrings.DEFAULT_LOCALE);
   }
@@ -134,6 +153,35 @@ public class ApplicantData {
   }
 
   /**
+   * Stores the dollars currency string as a long of the currency cents at the given {@link Path}.
+   *
+   * <p>This method requires the input string to be a number, optionally with commas and optionally
+   * with exactly 2 decimal points.
+   */
+  public void putCurrency(Path path, String dollarsString) {
+    if (dollarsString.isEmpty()) {
+      putNull(path);
+      return;
+    }
+    // Verify the correct format.
+    boolean isVaLid =
+        CURRENCY_NO_COMMAS.matcher(dollarsString).matches()
+            || CURRENCY_WITH_COMMAS.matcher(dollarsString).matches()
+            || CURRENCY_ZERO_DOLLARS.matcher(dollarsString).matches();
+    if (!isVaLid) {
+      throw new IllegalArgumentException(
+          String.format("Currency is misformatted: %s", dollarsString));
+    }
+    try {
+      double dollars = NumberFormat.getNumberInstance(Locale.US).parse(dollarsString).doubleValue();
+      Double cents = dollars * 100;
+      put(path, cents.longValue());
+    } catch (ParseException e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
+
+  /**
    * Stores the date string as a millisecond timestamp at the given {@link Path}.
    *
    * <p>This method requires the input string to be in "yyyy-MM-dd" format.
@@ -159,7 +207,9 @@ public class ApplicantData {
     }
   }
 
-  /** Parses and writes a long value */
+  /**
+   * Parses and writes a long value
+   */
   public void putLong(Path path, long value) {
     put(path, value);
   }
@@ -207,11 +257,11 @@ public class ApplicantData {
    * structure along the way, i.e., creates parent objects where necessary.
    *
    * <p>If the path ends in an array (i.e. we are trying to add an element to a JSON array), this
-   * will check to make sure the array is there, then add the given element to the end of the array.
+   * will check to make sure the array is there, then add the given element to the end of the
+   * array.
    *
    * @param path the {@link Path} with the fully specified path, e.g.,
-   *     "applicant.children[3].favorite_color.text" or the equivalent
-   *     "$.applicant.children[3].favorite_color.text".
+   * "applicant.children[3].favorite_color.text" or the equivalent "$.applicant.children[3].favorite_color.text".
    * @param value the value to place; values of type Map will create the equivalent JSON structure
    */
   private void put(Path path, Object value) {
@@ -248,7 +298,9 @@ public class ApplicantData {
     }
   }
 
-  /** Delete whatever is there if it exists. Returns whether a delete actually happened. */
+  /**
+   * Delete whatever is there if it exists. Returns whether a delete actually happened.
+   */
   public void maybeDelete(Path path) {
     checkLocked();
     if (hasPath(path)) {
@@ -270,7 +322,8 @@ public class ApplicantData {
    * Put parent of path if it doesn't already exist. There are two types of parents: JSON objects
    * and JSON arrays.
    *
-   * <p>For JSON object parents, if it doesn't already exist an empty map is put in the right place.
+   * <p>For JSON object parents, if it doesn't already exist an empty map is put in the right
+   * place.
    *
    * <p>For JSON array parents, if the array (e.g. applicant.children[]) doesn't already exist an
    * empty array is put in the right place, and then if the array element (e.g.
@@ -338,6 +391,22 @@ public class ApplicantData {
   }
 
   /**
+   * Attempt to read a currency value at the given path. validating the value.
+   *
+   * Validates the value is of an expected format and converts to the number of cents.
+   *
+   * Returns {@code Optional#empty} if the path does not exist or a value other than Integer is
+   * found.
+   */
+  public Optional<Long> readCurrencyCents(Path path) {
+    try {
+      return this.read(path, Long.class);
+    } catch (JsonPathTypeMismatchException e) {
+      return Optional.empty();
+    }
+  }
+
+  /**
    * Attempt to read a integer at the given path. Returns {@code Optional#empty} if the path does
    * not exist or a value other than Integer is found.
    */
@@ -366,7 +435,7 @@ public class ApplicantData {
    *
    * @param path the {@link Path} to the repeated entities list.
    * @return a list of the names of the repeated entities. This is an empty list if there are no
-   *     repeated entities at path.
+   * repeated entities at path.
    */
   public ImmutableList<String> readRepeatedEntities(Path path) {
     int index = 0;
@@ -482,7 +551,9 @@ public class ApplicantData {
     return true;
   }
 
-  /** Returns true if the value at the path is a JSON array of longs, and false otherwise. */
+  /**
+   * Returns true if the value at the path is a JSON array of longs, and false otherwise.
+   */
   private boolean isJsonArray(Path path) {
     try {
       this.read(path, IMMUTABLE_LIST_LONG_TYPE);

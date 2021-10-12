@@ -13,6 +13,8 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -225,11 +227,13 @@ public class FieldWithLabel {
     } else if (this.fieldType.equals("currency")) {
       // For number types, only set the value if it's present since there is no empty string
       // equivalent for numbers.
-      if (this.fieldValueNumber.isPresent()) {
-        fieldTag.withValue(String.valueOf(this.fieldValueNumber.getAsLong()));
+      if (this.fieldValueDouble.isPresent()) {
+        // Format with commas and 2 decimal cents always.
+        NumberFormat formatter = NumberFormat.getInstance(Locale.US);
+        formatter.setMinimumFractionDigits(2);
+        formatter.setMaximumFractionDigits(2);
+        fieldTag.withValue(formatter.format(this.fieldValueDouble.getAsDouble()));
       }
-      // We only allow integer input.
-      fieldTag.attr("oninput", "n=parseInt(this.value);this.value=Number.isNaN(n)?'':n;");
     } else if (this.fieldType.equals("number")) {
       // For number types, only set the value if it's present since there is no empty string
       // equivalent for numbers.
