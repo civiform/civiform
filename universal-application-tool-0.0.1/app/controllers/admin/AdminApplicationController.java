@@ -80,7 +80,11 @@ public class AdminApplicationController extends CiviFormController {
     }
   }
 
-  /** Download a CSV file containing all applications to the specified program version. */
+  /**
+   * Download a CSV file containing all applications to the specified program version.
+   * This was the original behavior for the program admin CSV download but is currently unused
+   * as of 10/13/2021.
+   * */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result downloadSingleVersion(Http.Request request, long programId) {
     try {
