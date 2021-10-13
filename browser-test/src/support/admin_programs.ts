@@ -192,9 +192,15 @@ export class AdminPrograms {
     await clickAndWaitForModal(this.page, 'block-description-modal');
     await this.page.type('textarea', blockDescription);
     await this.page.click('#update-block-button:not([disabled])');
+    // Wait for submit and redirect back to this page.
+    await this.page.waitForURL(this.page.url());
+    waitForPageJsLoad(this.page);
 
     for (const questionName of questionNames) {
       await this.page.click(`button:text("${questionName}")`);
+      waitForPageJsLoad(this.page);
+      // Make sure the question is successfully added to the screen.
+      await this.page.waitForSelector(`div.cf-program-question p:text("${questionName}")`);
     }
     return await this.page.$eval('#block-name-input', el => (el as HTMLInputElement).value);
   }
@@ -284,7 +290,7 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page);
 
     await this.expectDraftProgram(programName);
-    }
+  }
 
   async viewApplications(programName: string) {
     await this.page.click(this.selectWithinProgramCard(programName, 'ACTIVE', 'a:text("Applications")'));
