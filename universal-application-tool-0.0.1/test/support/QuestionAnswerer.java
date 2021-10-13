@@ -24,6 +24,11 @@ public class QuestionAnswerer {
     applicantData.putString(contextualizedPath.join(Scalar.ZIP), zip);
   }
 
+  public static void answerCurrencyQuestion(
+      ApplicantData applicantData, Path contextualizedPath, String value) {
+    applicantData.putCurrency(contextualizedPath.join(Scalar.CURRENCY_CENTS), value);
+  }
+
   public static void answerEnumeratorQuestion(
       ApplicantData applicantData, Path contextualizedPath, ImmutableList<String> entityNames) {
     for (int i = 0; i < entityNames.size(); i++) {

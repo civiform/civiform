@@ -16,6 +16,7 @@ import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.CurrencyQuestionDefinition;
 import services.question.types.DateQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
 import services.question.types.EmailQuestionDefinition;
@@ -74,6 +75,7 @@ public class TestQuestionBank {
     return new ImmutableMap.Builder<QuestionType, Question>()
         .put(QuestionType.ADDRESS, applicantAddress())
         .put(QuestionType.CHECKBOX, applicantKitchenTools())
+        .put(QuestionType.CURRENCY, applicantMonthlyIncome())
         .put(QuestionType.DATE, applicantDate())
         .put(QuestionType.DROPDOWN, applicantIceCream())
         .put(QuestionType.EMAIL, applicantEmail())
@@ -128,6 +130,11 @@ public class TestQuestionBank {
   // File upload
   public Question applicantFile() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_FILE, this::applicantFile);
+  }
+
+  // Currency
+  public Question applicantMonthlyIncome() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_MONTHLY_INCOME, this::applicantMonthlyIncome);
   }
 
   // Name
@@ -255,6 +262,18 @@ public class TestQuestionBank {
             "The file to be uploaded",
             LocalizedStrings.of(Locale.US, "What is the file you want to upload?"),
             LocalizedStrings.of(Locale.US, "This is sample help text."));
+    return maybeSave(definition);
+  }
+
+  // Currency
+  private Question applicantMonthlyIncome(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new CurrencyQuestionDefinition(
+            "applicant monthly income",
+            Optional.empty(),
+            "monthly income of applicant",
+            LocalizedStrings.of(Locale.US, "what is your monthly income?"),
+            LocalizedStrings.of(Locale.US, "help text"));
     return maybeSave(definition);
   }
 
@@ -419,6 +438,7 @@ public class TestQuestionBank {
     APPLICANT_HOUSEHOLD_MEMBER_NAME,
     APPLICANT_HOUSEHOLD_MEMBER_JOBS,
     APPLICANT_HOUSEHOLD_MEMBER_JOB_INCOME,
+    APPLICANT_MONTHLY_INCOME,
     APPLICANT_ICE_CREAM,
     APPLICANT_JUGGLING_NUMBER,
     APPLICANT_KITCHEN_TOOLS,
