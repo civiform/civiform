@@ -34,8 +34,10 @@ export const gotoEndpoint = async (page: Page, endpoint: string) => {
 export const logout = async (page: Page) => {
   await page.click('text=Logout');
   // Logout is handled by the play framework so it doesn't land on a
-  // page with civiform js where we need to waitForPageJsLoad.
-  await page.waitForLoadState();
+  // page with civiform js where we should waitForPageJsLoad. Because
+  // the process goes through a sequence of redirects we need to wait
+  // for the final destination URL to make tests reliable.
+  await page.waitForURL("**/loginForm");
 }
 
 export const loginAsAdmin = async (page: Page) => {
