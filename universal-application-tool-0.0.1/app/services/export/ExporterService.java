@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
-import models.Program;
 import models.QuestionTag;
 import services.Path;
 import services.applicant.AnswerData;
@@ -72,8 +71,7 @@ public class ExporterService {
   /** Return a string containing a CSV of all applications at all versions of particular program. */
   public String getProgramAllVersionsCsv(long programId) throws ProgramNotFoundException {
     ImmutableList<ProgramDefinition> allProgramVersions =
-        programService.getAllProgramVersions(programId).stream()
-            .map(Program::getProgramDefinition)
+        programService.getAllProgramDefinitionVersions(programId).stream()
             .collect(ImmutableList.toImmutableList());
 
     CsvExportConfig exportConfig = generateDefaultCsvExportConfig(allProgramVersions);

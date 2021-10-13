@@ -331,5 +331,5 @@ public interface ProgramService {
   ImmutableList<Program> getOtherProgramVersions(long programId);
 
   /** Get all versions of the program with a version matching programId, including that one */
-  ImmutableList<Program> getAllProgramVersions(long programId);
+  ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId);
 }

@@ -565,15 +565,15 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ImmutableList<Program> getOtherProgramVersions(long programId) {
-    return getAllProgramVersions(programId).stream()
+    return programRepository.getAllProgramVersions(programId).stream()
         .filter(program -> program.id != programId)
         .collect(ImmutableList.toImmutableList());
   }
 
   @Override
-  public ImmutableList<Program> getAllProgramVersions(long programId) {
+  public ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId) {
     return programRepository.getAllProgramVersions(programId).stream()
-        .map(program -> syncProgramAssociations(program).toCompletableFuture().join().toProgram())
+        .map(program -> syncProgramAssociations(program).toCompletableFuture().join())
         .collect(ImmutableList.toImmutableList());
   }
 
