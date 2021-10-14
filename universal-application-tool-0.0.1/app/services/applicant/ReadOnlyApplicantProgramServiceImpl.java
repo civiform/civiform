@@ -158,6 +158,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
             AnswerData.builder()
                 .setProgramId(programDefinition.id())
                 .setBlockId(block.getId())
+                .setContextualizedPath(question.getContextualizedPath())
                 .setQuestionDefinition(question.getQuestionDefinition())
                 .setRepeatedEntity(block.getRepeatedEntity())
                 .setQuestionIndex(questionIndex)

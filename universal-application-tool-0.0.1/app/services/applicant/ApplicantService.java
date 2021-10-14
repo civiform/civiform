@@ -78,6 +78,10 @@ public interface ApplicantService {
   CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
       Application application);
 
+  /** Get a {@link ReadOnlyApplicantProgramService} from an application and program definition. */
+  ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
+      Application application, ProgramDefinition programDefinition);
+
   /**
    * Return all programs that are appropriate to serve to an applicant - which is any active program
    * that is public and any program where they have an application in the draft stage.

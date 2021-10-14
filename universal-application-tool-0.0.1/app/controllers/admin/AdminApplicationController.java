@@ -61,9 +61,31 @@ public class AdminApplicationController extends CiviFormController {
     this.exporterService = checkNotNull(exporterService);
   }
 
-  /** Download a CSV file containing all applications to the specified program. */
+  /** Download a CSV file containing all applications to all versions of the specified program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result downloadAll(Http.Request request, long programId) {
+    try {
+      ProgramDefinition program = programService.getProgramDefinition(programId);
+      checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
+      String filename = String.format("%s-%s.csv", program.adminName(), clock.instant().toString());
+      String csv = exporterService.getProgramAllVersionsCsv(programId);
+      return ok(csv)
+          .as(Http.MimeTypes.BINARY)
+          .withHeader(
+              "Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
+    } catch (CompletionException e) {
+      return unauthorized();
+    }
+  }
+
+  /**
+   * Download a CSV file containing all applications to the specified program version. This was the
+   * original behavior for the program admin CSV download but is currently unused as of 10/13/2021.
+   */
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
+  public Result downloadSingleVersion(Http.Request request, long programId) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
@@ -110,6 +132,7 @@ public class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result show(Http.Request request, long programId, long applicationId) {
     String programName;
+
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       programName = program.adminName();
@@ -119,11 +142,14 @@ public class AdminApplicationController extends CiviFormController {
     } catch (CompletionException e) {
       return unauthorized();
     }
+
     Optional<Application> applicationMaybe =
         this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
+
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
+
     Application application = applicationMaybe.get();
     String applicantNameWithApplicationId =
         String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
@@ -135,6 +161,7 @@ public class AdminApplicationController extends CiviFormController {
             .join();
     ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+
     return ok(
         applicationView.render(
             programId,
@@ -152,6 +179,7 @@ public class AdminApplicationController extends CiviFormController {
     if (page.isEmpty()) {
       return redirect(routes.AdminApplicationController.index(programId, search, Optional.of(1)));
     }
+
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
@@ -160,12 +188,14 @@ public class AdminApplicationController extends CiviFormController {
     } catch (CompletionException e) {
       return unauthorized();
     }
+
     try {
       ImmutableList<Application> applications =
           programService.getSubmittedProgramApplications(programId, search);
       PaginationInfo<Application> pageInfo =
           PaginationInfo.paginate(applications, PAGE_SIZE, page.get());
       ImmutableList<Program> previousVersions = programService.getOtherProgramVersions(programId);
+
       return ok(
           applicationListView.render(
               request,

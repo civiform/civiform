@@ -343,7 +343,7 @@ export class AdminPrograms {
   async getCsv() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('text="Download all (CSV)"')
+      this.page.click('text="Download all versions (CSV)"')
     ]);
     const path = await downloadEvent.path();
     if (path === null) {
