@@ -3,9 +3,12 @@ package views.questiontypes;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 
+import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 import java.util.OptionalDouble;
 import java.util.OptionalLong;
+import services.MessageKey;
+import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.CurrencyQuestion;
 import views.components.FieldWithLabel;
@@ -32,11 +35,11 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRenderer {
             .setFieldName(currencyQuestion.getCurrencyPath().toString())
             .addReferenceClass(ReferenceClasses.CURRENCY_QUESTION)
             .setScreenReaderText(question.getQuestionText())
-            .setFieldErrors(params.messages(), currencyQuestion.getQuestionErrors())
+            .setFieldErrors(params.messages(), ImmutableSet.of(ValidationErrorMessage.create(MessageKey.CURRENCY_VALIDATION_MISFORMATTED)))
             .showFieldErrors(false);
-    if (currencyQuestion.getCurrencyValue().isPresent()) {
+    if (currencyQuestion.getValue().isPresent()) {
       // Convert currency cents to dollars.
-      OptionalDouble value = OptionalDouble.of(currencyQuestion.getCurrencyValue().orElse(0L) / 100.0);
+      OptionalDouble value = OptionalDouble.of(currencyQuestion.getValue().get().getDollars());
       currencyField.setValue(value);
     }
 

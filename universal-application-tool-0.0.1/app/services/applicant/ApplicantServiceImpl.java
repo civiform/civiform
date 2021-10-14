@@ -499,7 +499,7 @@ public class ApplicantServiceImpl implements ApplicantService {
       } else {
         switch (type) {
           case CURRENCY_CENTS:
-            applicantData.putCurrency(currentPath, update.value());
+            applicantData.putCurrencyDollars(currentPath, update.value());
             break;
           case DATE:
             applicantData.putDate(currentPath, update.value());

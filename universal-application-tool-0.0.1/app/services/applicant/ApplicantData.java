@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import services.LocalizedStrings;
 import services.Path;
 import services.WellKnownPaths;
+import services.applicant.Currency;
 import services.applicant.exception.JsonPathTypeMismatchException;
 import services.applicant.predicate.JsonPathPredicate;
 import services.applicant.question.Scalar;
@@ -54,17 +55,8 @@ public class ApplicantData {
   public static final Path APPLICANT_PATH = Path.create(APPLICANT);
   private static final String EMPTY_APPLICANT_DATA_JSON =
       String.format("{ \"%s\": {} }", APPLICANT);
-  private static final TypeRef<List<Object>> LIST_OF_OBJECTS_TYPE = new TypeRef<>() {
-  };
-  private static final TypeRef<ImmutableList<Long>> IMMUTABLE_LIST_LONG_TYPE = new TypeRef<>() {
-  };
-  // Currency containing only numbers, without leading 0s and optional 2 digit cents.
-  private static Pattern CURRENCY_NO_COMMAS = Pattern.compile("^[1-9]\\d*(?:\\.\\d\\d)?$");
-  // Same as CURRENCY_NO_COMMAS but commas followed by 3 digits are allowed.
-  private static Pattern CURRENCY_WITH_COMMAS = Pattern
-      .compile("^[1-9]\\d{0,2}(?:,\\d\\d\\d)*(?:\\.\\d\\d)?$");
-  // Currency of 0 dollars with optional 2 digit cents.
-  private static Pattern CURRENCY_ZERO_DOLLARS = Pattern.compile("^0(?:\\.\\d\\d)?$");
+  private static final TypeRef<List<Object>> LIST_OF_OBJECTS_TYPE = new TypeRef<>() {};
+  private static final TypeRef<ImmutableList<Long>> IMMUTABLE_LIST_LONG_TYPE = new TypeRef<>() {};
   private final DocumentContext jsonData;
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
   private boolean locked = false;
@@ -158,27 +150,13 @@ public class ApplicantData {
    * <p>This method requires the input string to be a number, optionally with commas and optionally
    * with exactly 2 decimal points.
    */
-  public void putCurrency(Path path, String dollarsString) {
-    if (dollarsString.isEmpty()) {
+  public void putCurrencyDollars(Path path, String dollars) {
+    if (dollars.isEmpty()) {
       putNull(path);
       return;
     }
-    // Verify the correct format.
-    boolean isVaLid =
-        CURRENCY_NO_COMMAS.matcher(dollarsString).matches()
-            || CURRENCY_WITH_COMMAS.matcher(dollarsString).matches()
-            || CURRENCY_ZERO_DOLLARS.matcher(dollarsString).matches();
-    if (!isVaLid) {
-      throw new IllegalArgumentException(
-          String.format("Currency is misformatted: %s", dollarsString));
-    }
-    try {
-      double dollars = NumberFormat.getNumberInstance(Locale.US).parse(dollarsString).doubleValue();
-      Double cents = dollars * 100;
-      put(path, cents.longValue());
-    } catch (ParseException e) {
-      throw new IllegalArgumentException(e);
-    }
+    Currency currency = Currency.parse(dollars);
+    put(path, currency.getCents());
   }
 
   /**

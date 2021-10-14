@@ -27,7 +27,7 @@ public class Currency {
   // The database storage is a long, so use a long here too.
   private Long cents = 0L;
 
-  private Currency(Long cents) {
+  public Currency(Long cents) {
     this.cents = cents;
   }
 
@@ -57,12 +57,16 @@ public class Currency {
     return cents;
   }
 
+  public Double getDollars() {
+    return cents.doubleValue() / 100.0;
+  }
+
   /**
    * Returns the currency number as a US formatted human readable string.
    *
    * The string will always have 2 decimals, and commas, but not a dollar sign.
    */
-  public String getPrettyPrint() {
+  public String prettyPrint() {
     // Format with commas and 2 decimal cents always.
     NumberFormat formatter = NumberFormat.getInstance(Locale.US);
     formatter.setMinimumFractionDigits(2);

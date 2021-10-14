@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import services.MessageKey;
 import services.Path;
+import services.applicant.Currency;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.CurrencyQuestionDefinition;
 import services.question.types.QuestionType;
@@ -21,7 +22,7 @@ import services.question.types.QuestionType;
  */
 public class CurrencyQuestion implements PresentsErrors {
   private final ApplicantQuestion applicantQuestion;
-  private Optional<Long> centsValue = Optional.empty();
+  private Optional<Currency> currency = Optional.empty();
 
   public CurrencyQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
@@ -59,14 +60,18 @@ public class CurrencyQuestion implements PresentsErrors {
     return applicantQuestion.getApplicantData().hasPath(getCurrencyPath());
   }
 
-  public Optional<Long> getCurrencyValue() {
-    if (centsValue.isPresent()) {
-      return centsValue;
+  public Optional<Currency> getValue() {
+    if (this.currency.isPresent()) {
+      return this.currency;
     }
 
-    centsValue = applicantQuestion.getApplicantData().readCurrencyCents(getCurrencyPath());
+    Optional<Long> cents = applicantQuestion.getApplicantData().readCurrencyCents(getCurrencyPath());
+    if(cents.isEmpty()) {
+      return Optional.empty();
+    }
 
-    return centsValue;
+    this.currency = Optional.of(new Currency(cents.get()));
+    return this.currency;
   }
 
   public void assertQuestionType() {
@@ -90,14 +95,10 @@ public class CurrencyQuestion implements PresentsErrors {
 
   @Override
   public String getAnswerString() {
-    if(!getCurrencyValue().isPresent()) {
+    Optional<Currency> currency = getValue();
+    if(!currency.isPresent()) {
       return "-";
     }
-    double cents = getCurrencyValue().get() / 100.0;
-    // Format with commas and 2 decimal cents always.
-    NumberFormat formatter = NumberFormat.getInstance(Locale.US);
-    formatter.setMinimumFractionDigits(2);
-    formatter.setMaximumFractionDigits(2);
-    return "$" + formatter.format(cents);
+    return "$" + currency.get().prettyPrint();
   }
 }

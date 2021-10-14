@@ -59,6 +59,6 @@ public class CurrencyQuestionRendererTest  extends WithPostgresContainer {
 
     Tag result = renderer.render(params);
 
-    assertThat(result.render()).contains("Must contain at least 2 characters.");
+    assertThat(result.render()).contains("Currency must be one of the following formats");
   }
 }
