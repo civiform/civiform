@@ -1,7 +1,7 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -62,7 +62,7 @@ public class CurrencyTest {
       "01" // Leading 0
   })
   public void parse_invalidValuesFail(String currency) {
-    assertThrows(IllegalArgumentException.class, () -> Currency.parse(currency));
+    assertThatThrownBy(() -> Currency.parse(currency)).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
