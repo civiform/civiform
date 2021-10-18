@@ -182,7 +182,7 @@ public class SecurityModule extends AbstractModule {
       @AdOidcClient @Nullable OidcClient adClient,
       @IdcsOidcClient @Nullable OidcClient idcsClient,
       FakeAdminClient fakeAdminClient) {
-    List<Client> clientList = new ArrayList<Client>();
+    List<Client> clientList = new ArrayList<>();
     clientList.add(guestClient);
     if (idcsClient != null) {
       clientList.add(idcsClient);

@@ -30,4 +30,3 @@ if (( $debug == 1 )); then
 else
     BASE_URL=$server_url yarn test $@
 fi
-

@@ -12,7 +12,7 @@ describe('optional application flow', () => {
     const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes('optional-');
     await adminQuestions.addFileUploadQuestion({questionName: 'optional-file-upload'});
 
-    const programName = 'Optional Questions Program';
+    const programName = 'Optional Questions Program 1';
     await adminPrograms.addProgram(programName);
     await adminPrograms.editProgramBlockWithOptional(programName, 'first description', [], 'optional-file-upload');
 
@@ -20,7 +20,9 @@ describe('optional application flow', () => {
       await adminPrograms.addProgramBlockWithOptional(programName, 'description', [], questions[i]);
     }
 
-    const programName2 = 'Second Optional Questions Program';
+    // Program names cannot be substrings of each other otherwise our text
+    // selectors can match the wrong one.
+    const programName2 = 'Optional Questions Program 2';
     await adminPrograms.addProgram(programName2);
     await adminPrograms.editProgramBlockWithOptional(programName2, 'first description', [], 'optional-file-upload');
 

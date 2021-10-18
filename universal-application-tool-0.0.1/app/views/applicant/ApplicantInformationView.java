@@ -9,6 +9,7 @@ import static j2html.TagCreator.input;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -35,9 +36,14 @@ public class ApplicantInformationView extends BaseHtmlView {
   }
 
   public Content render(
-      Http.Request request, String userName, Messages messages, long applicantId) {
+      Http.Request request,
+      String userName,
+      Messages messages,
+      long applicantId,
+      Optional<String> redirectTo) {
     String formAction = routes.ApplicantInformationController.update(applicantId).url();
-    String redirectLink = routes.ApplicantProgramsController.index(applicantId).url();
+    String redirectLink =
+        redirectTo.orElse(routes.ApplicantProgramsController.index(applicantId).url());
     Tag redirectInput = input().isHidden().withValue(redirectLink).withName("redirectLink");
 
     String questionText = messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName());
