@@ -40,6 +40,8 @@ public class ApplicantQuestionRendererFactory {
         return new EmailQuestionRenderer(question);
       case FILEUPLOAD:
         return new FileUploadQuestionRenderer(question);
+      case ID:
+        return new IdQuestionRenderer(question);
       case NAME:
         return new NameQuestionRenderer(question);
       case NUMBER:

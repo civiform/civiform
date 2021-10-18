@@ -96,7 +96,7 @@ public final class QuestionsListView extends BaseHtmlView {
               .withId(String.format("create-%s-question", typeString))
               .withClasses(
                   Styles.BLOCK,
-                  Styles.P_4,
+                  Styles.P_3,
                   Styles.BG_WHITE,
                   Styles.TEXT_GRAY_600,
                   StyleUtils.hover(Styles.BG_GRAY_100, Styles.TEXT_GRAY_800))

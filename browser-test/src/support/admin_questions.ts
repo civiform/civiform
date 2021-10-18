@@ -211,20 +211,22 @@ export class AdminQuestions {
   }
 
   async addAllNonSingleBlockQuestionTypes(questionNamePrefix: string) {
-    await this.addAddressQuestion({ questionName: questionNamePrefix + 'address' });
-    await this.addCheckboxQuestion({ questionName: questionNamePrefix + 'checkbox', options: ['op1', 'op2', 'op3', 'op4'] });
-    await this.addDateQuestion({ questionName: questionNamePrefix + 'date' });
-    await this.addDropdownQuestion({ questionName: questionNamePrefix + 'dropdown', options: ['op1', 'op2', 'op3'] });
-    await this.addEmailQuestion({ questionName: questionNamePrefix + 'email' });
-    await this.addNameQuestion({ questionName: questionNamePrefix + 'name' });
-    await this.addNumberQuestion({ questionName: questionNamePrefix + 'number' });
-    await this.addRadioButtonQuestion({ questionName: questionNamePrefix + 'radio', options: ['one', 'two', 'three'] });
-    await this.addTextQuestion({ questionName: questionNamePrefix + 'text' });
+    await this.addAddressQuestion({questionName: questionNamePrefix + 'address'});
+    await this.addCheckboxQuestion({questionName: questionNamePrefix + 'checkbox', options: ['op1', 'op2', 'op3', 'op4']});
+    await this.addDateQuestion({questionName: questionNamePrefix + 'date'});
+    await this.addDropdownQuestion({questionName: questionNamePrefix + 'dropdown', options: ['op1', 'op2', 'op3']});
+    await this.addEmailQuestion({questionName: questionNamePrefix + 'email'});
+    await this.addIdQuestion({questionName: questionNamePrefix + 'id'});
+    await this.addNameQuestion({questionName: questionNamePrefix + 'name'});
+    await this.addNumberQuestion({questionName: questionNamePrefix + 'number'});
+    await this.addRadioButtonQuestion({questionName: questionNamePrefix + 'radio', options: ['one', 'two', 'three']});
+    await this.addTextQuestion({questionName: questionNamePrefix + 'text'});
     return [questionNamePrefix + 'address',
     questionNamePrefix + 'checkbox',
     questionNamePrefix + 'date',
     questionNamePrefix + 'dropdown',
     questionNamePrefix + 'email',
+    questionNamePrefix + 'id',
     questionNamePrefix + 'name',
     questionNamePrefix + 'number',
     questionNamePrefix + 'radio',
@@ -505,6 +507,26 @@ export class AdminQuestions {
 
     await this.page.click('#create-question-button');
     await this.page.click('#create-text-question');
+    await waitForPageJsLoad(this.page);
+
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
+
+    await this.clickSubmitButtonAndNavigate('Create');
+
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
+
+    await this.expectDraftQuestionExist(questionName, questionText);
+  }
+
+  async addIdQuestion({questionName,
+    description = 'id description',
+    questionText = 'id question text',
+    helpText = 'id question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
+    await this.gotoAdminQuestionsPage();
+
+    await this.page.click('#create-question-button');
+    await this.page.click('#create-id-question');
     await waitForPageJsLoad(this.page);
 
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);

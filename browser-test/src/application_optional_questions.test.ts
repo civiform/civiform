@@ -49,7 +49,8 @@ describe('optional application flow', () => {
     await applicantQuestions.clickNext();
     await applicantQuestions.clickNext();
 
-    //Skip blocks 6-10 without answering any questions
+    //Skip blocks 6-11 without answering any questions
+    await applicantQuestions.clickNext();
     await applicantQuestions.clickNext();
     await applicantQuestions.clickNext();
     await applicantQuestions.clickNext();

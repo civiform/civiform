@@ -247,6 +247,15 @@ placeholder.entityName=Nickname for {0}
 # Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=Please select a file.
 
+#---------------------------------------------------------------------#
+# ID QUESTION - id specific to filling out a question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
+validation.idTooLong=Must contain at most {0} characters.
+validation.idTooShort=Must contain at least {0} characters.
+validation.numberRequired=Must contain only numbers.
+
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
 #----------------------------------------------------------------------------------------------------------#
