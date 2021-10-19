@@ -213,6 +213,7 @@ export class AdminQuestions {
   async addAllNonSingleBlockQuestionTypes(questionNamePrefix: string) {
     await this.addAddressQuestion({questionName: questionNamePrefix + 'address'});
     await this.addCheckboxQuestion({questionName: questionNamePrefix + 'checkbox', options: ['op1', 'op2', 'op3', 'op4']});
+    await this.addCurrencyQuestion({questionName: questionNamePrefix + 'currency'});
     await this.addDateQuestion({questionName: questionNamePrefix + 'date'});
     await this.addDropdownQuestion({questionName: questionNamePrefix + 'dropdown', options: ['op1', 'op2', 'op3']});
     await this.addEmailQuestion({questionName: questionNamePrefix + 'email'});
@@ -222,6 +223,7 @@ export class AdminQuestions {
     await this.addTextQuestion({questionName: questionNamePrefix + 'text'});
     return [questionNamePrefix + 'address',
     questionNamePrefix + 'checkbox',
+    questionNamePrefix + 'currency',
     questionNamePrefix + 'date',
     questionNamePrefix + 'dropdown',
     questionNamePrefix + 'email',
@@ -362,6 +364,25 @@ export class AdminQuestions {
     await this.page.fill(`:nth-match(#question-settings div.cf-multi-option-question-option, ${index}) input`, text);
   }
 
+  async addCurrencyQuestion({questionName,
+                          description = 'currency description',
+                          questionText = 'currency question text',
+                          helpText = 'currency question help text',
+                          enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
+    await this.gotoAdminQuestionsPage();
+
+    await this.page.click('#create-question-button');
+    await this.page.click('#create-currency-question');
+    await waitForPageJsLoad(this.page);
+
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
+
+    await this.clickSubmitButtonAndNavigate('Create');
+
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
+
+    await this.expectDraftQuestionExist(questionName, questionText);
+  }
   /** Fills out the form for a dropdown question, clicks submit, and verifies the new question exists.  */
   async addDropdownQuestion({questionName,
     options,

@@ -15,6 +15,7 @@ describe('normal application flow', () => {
     await adminQuestions.addCheckboxQuestion({questionName: 'favorite-trees-q', options: ['oak', 'maple', 'pine', 'cherry']});
     await adminQuestions.addCheckboxQuestion({questionName: 'favorite-rats-q', options: ['sewage', 'laboratory', 'bubonic', 'giant']});
     await adminQuestions.addCheckboxQuestion({questionName: 'scared-of-q', options: ['dogs', 'bees', 'spiders', 'the dark', 'clowns']});
+    await adminQuestions.addCurrencyQuestion({questionName: 'monthly-income-q'});
     await adminQuestions.addAddressQuestion({questionName: 'address-q'});
     await adminQuestions.addFileUploadQuestion({questionName: 'fileupload-q'});
     await adminQuestions.addNameQuestion({questionName: 'name-q'});
@@ -30,7 +31,7 @@ describe('normal application flow', () => {
     await adminPrograms.addProgramBlock(programName, 'another description', ['ice-cream-q', 'favorite-trees-q', 'number-q', 'text-q']);
     await adminPrograms.addProgramBlock(programName, 'third description', ['fileupload-q']);
     await adminPrograms.addProgramBlock(programName, 'fourth description', ['scared-of-q', 'favorite-rats-q', 'first-static-q']);
-    await adminPrograms.addProgramBlock(programName, 'fifth description', ['second-static-q']);
+    await adminPrograms.addProgramBlock(programName, 'fifth description', ['second-static-q', 'monthly-income-q']);
 
     await adminPrograms.gotoAdminProgramsPage();
     await adminPrograms.expectDraftProgram(programName);
@@ -51,6 +52,7 @@ describe('normal application flow', () => {
     await adminQuestions.expectActiveQuestionExist('email-q');
     await adminQuestions.expectActiveQuestionExist('first-static-q');
     await adminQuestions.expectActiveQuestionExist('second-static-q');
+    await adminQuestions.expectActiveQuestionExist('monthly-income-q');
 
     await logout(page);
     await loginAsTestUser(page);
@@ -103,6 +105,7 @@ describe('normal application flow', () => {
 
     // verify we can see static question on 5th block.
     await applicantQuestions.seeStaticQuestion('static question text');
+    await applicantQuestions.answerCurrencyQuestion("1234.56")
     await applicantQuestions.clickNext();
 
     // submit
