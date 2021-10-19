@@ -1,7 +1,6 @@
 package views.questiontypes;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
@@ -18,7 +17,6 @@ import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.CurrencyQuestionDefinition;
-import services.question.types.CurrencyQuestionDefinition.CurrencyValidationPredicates;
 import support.QuestionAnswerer;
 
 public class CurrencyQuestionRendererTest  extends WithPostgresContainer {
@@ -50,15 +48,17 @@ public class CurrencyQuestionRendererTest  extends WithPostgresContainer {
   public void render_withoutQuestionErrors() {
     Tag result = renderer.render(params);
 
-    assertThat(result.render()).doesNotContain("Must contain at");
+    // Error message is hidden.
+    assertThat(result.render()).contains("hidden");
   }
 
   @Test
-  public void render_withMisformatError() {
-    QuestionAnswerer.answerCurrencyQuestion(applicantData, question.getContextualizedPath(), "a");
+  public void render_withValue_withoutQuestionErrors() {
+    QuestionAnswerer.answerCurrencyQuestion(applicantData, question.getContextualizedPath(), "1,234.56");
 
     Tag result = renderer.render(params);
 
-    assertThat(result.render()).contains("Currency must be one of the following formats");
+    // Error message is hidden.
+    assertThat(result.render()).contains("hidden");
   }
 }
