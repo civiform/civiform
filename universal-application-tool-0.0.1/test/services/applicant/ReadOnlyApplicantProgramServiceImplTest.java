@@ -204,6 +204,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberName())
             .withAnotherRepeatedBlock("repeated - household members jobs")
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRepeatedBlock("deeply repeated - household members number days worked")
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberDaysWorked())
             .withRepeatedBlock("deeply repeated - household members jobs income")
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobIncome())
             .buildDefinition();

@@ -247,7 +247,7 @@ public class ProgramTest extends WithPostgresContainer {
                     .addQuestion(
                         ProgramQuestionDefinition.create(
                             testQuestionBank
-                                .applicantHouseholdMemberJobIncome()
+                                .applicantHouseholdMemberDaysWorked()
                                 .getQuestionDefinition(),
                             Optional.of(programDefinitionId)))
                     .build())

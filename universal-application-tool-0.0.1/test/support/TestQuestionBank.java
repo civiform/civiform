@@ -157,10 +157,10 @@ public class TestQuestionBank {
   }
 
   // Deeply nested Number
-  public Question applicantHouseholdMemberJobIncome() {
+  public Question applicantHouseholdMemberDaysWorked() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_JOB_INCOME,
-        this::applicantHouseholdMemberJobIncome);
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_DAYS_WORKED,
+        this::applicantHouseholdMemberDaysWorked);
   }
 
   // Radio button
@@ -338,16 +338,17 @@ public class TestQuestionBank {
             LocalizedStrings.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
+
   // Deeply Nested Number
-  private Question applicantHouseholdMemberJobIncome(QuestionEnum ignore) {
+  private Question applicantHouseholdMemberDaysWorked(QuestionEnum ignore) {
     Question householdMemberJobs = applicantHouseholdMemberJobs();
     QuestionDefinition definition =
         new NumberQuestionDefinition(
-            "household members jobs income",
+            "household members days worked",
             Optional.of(householdMemberJobs.id),
-            "The applicant's household member's job's income",
-            LocalizedStrings.of(Locale.US, "What is $this.parent's income at $this?"),
-            LocalizedStrings.of(Locale.US, "What is the monthly income of $this.parent at $this?"));
+            "The applicant's household member's number of days worked",
+            LocalizedStrings.of(Locale.US, "What is $this.parent's number of days worked at $this?"),
+            LocalizedStrings.of(Locale.US, "What is the number of days worked of $this.parent at $this?"));
 
     return maybeSave(definition);
   }
@@ -435,9 +436,9 @@ public class TestQuestionBank {
     APPLICANT_FAVORITE_COLOR,
     APPLICANT_FILE,
     APPLICANT_HOUSEHOLD_MEMBERS,
+    APPLICANT_HOUSEHOLD_MEMBER_DAYS_WORKED,
     APPLICANT_HOUSEHOLD_MEMBER_NAME,
     APPLICANT_HOUSEHOLD_MEMBER_JOBS,
-    APPLICANT_HOUSEHOLD_MEMBER_JOB_INCOME,
     APPLICANT_MONTHLY_INCOME,
     APPLICANT_ICE_CREAM,
     APPLICANT_JUGGLING_NUMBER,
