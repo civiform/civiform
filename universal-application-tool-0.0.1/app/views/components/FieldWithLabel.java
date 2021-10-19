@@ -13,14 +13,12 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.text.NumberFormat;
-import java.util.Locale;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
+import services.applicant.Currency;
 import services.applicant.ValidationErrorMessage;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
@@ -28,6 +26,7 @@ import views.style.Styles;
 
 /** Utility class for rendering an input field with an optional label. */
 public class FieldWithLabel {
+
   private static final ImmutableSet<String> STRING_TYPES =
       ImmutableSet.of("text", "checkbox", "radio", "date", "email");
 
@@ -39,8 +38,10 @@ public class FieldWithLabel {
   /** For use with fields of type `number`. */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
 
-  /** For use with fields of type `currency`. */
-  protected OptionalDouble fieldValueDouble = OptionalDouble.empty();
+  /**
+   * For use with fields that have isCurrency true`.
+   */
+  protected Optional<Currency> fieldValueCurrency = Optional.empty();
 
 
   protected String formId = "";
@@ -53,6 +54,7 @@ public class FieldWithLabel {
   protected boolean showFieldErrors = true;
   protected boolean checked = false;
   protected boolean disabled = false;
+  protected boolean isCurrency = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
 
   public FieldWithLabel(Tag fieldTag) {
@@ -66,7 +68,7 @@ public class FieldWithLabel {
 
   public static FieldWithLabel currency() {
     Tag fieldTag = TagCreator.input();
-    return new FieldWithLabel(fieldTag).setFieldType("currency");
+    return new FieldWithLabel(fieldTag).setFieldType("text").setIsCurrency();
   }
 
   public static FieldWithLabel radio() {
@@ -131,6 +133,12 @@ public class FieldWithLabel {
     return this;
   }
 
+  FieldWithLabel setIsCurrency() {
+    this.isCurrency = true;
+    this.setAttribute("currency");
+    return this;
+  }
+
   public FieldWithLabel setLabelText(String labelText) {
     this.labelText = labelText;
     return this;
@@ -138,6 +146,11 @@ public class FieldWithLabel {
 
   public FieldWithLabel setPlaceholderText(String placeholder) {
     this.placeholderText = placeholder;
+    return this;
+  }
+
+  public FieldWithLabel setAttribute(String attribute) {
+    this.fieldTag.attr(attribute, null);
     return this;
   }
 
@@ -182,13 +195,13 @@ public class FieldWithLabel {
     return this;
   }
 
-  public FieldWithLabel setValue(OptionalDouble value) {
-    if (!this.fieldType.equals("currency")) {
+  public FieldWithLabel setValue(Currency value) {
+    if (!isCurrency) {
       throw new RuntimeException(
-          "setting an OptionalDouble value is only available on fields of type `currency`");
+          "setting a Currency value is only available on fields for currency");
     }
 
-    this.fieldValueDouble = value;
+    this.fieldValueCurrency = Optional.of(value);
     return this;
   }
 
@@ -220,20 +233,14 @@ public class FieldWithLabel {
     if (this.id.isEmpty()) {
       this.id = RandomStringUtils.randomAlphabetic(8);
     }
-    if (fieldTag.getTagName().equals("textarea")) {
+    if (this.isCurrency) {
+      if (this.fieldValueCurrency.isPresent()) {
+        fieldTag.withValue(this.fieldValueCurrency.get().prettyPrint());
+      }
+    } else if (fieldTag.getTagName().equals("textarea")) {
       // Have to recreate the field here in case the value is modified.
       ContainerTag textAreaTag = textarea().withType("text").withText(this.fieldValue);
       fieldTag = textAreaTag;
-    } else if (this.fieldType.equals("currency")) {
-      // For number types, only set the value if it's present since there is no empty string
-      // equivalent for numbers.
-      if (this.fieldValueDouble.isPresent()) {
-        // Format with commas and 2 decimal cents always.
-        NumberFormat formatter = NumberFormat.getInstance(Locale.US);
-        formatter.setMinimumFractionDigits(2);
-        formatter.setMaximumFractionDigits(2);
-        fieldTag.withValue(formatter.format(this.fieldValueDouble.getAsDouble()));
-      }
     } else if (this.fieldType.equals("number")) {
       // For number types, only set the value if it's present since there is no empty string
       // equivalent for numbers.
@@ -271,8 +278,8 @@ public class FieldWithLabel {
             .withText(labelText.isEmpty() ? screenReaderText : labelText);
 
     return div(
-            labelTag,
-            div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
+        labelTag,
+        div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);

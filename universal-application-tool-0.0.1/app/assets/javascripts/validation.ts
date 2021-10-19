@@ -1,9 +1,9 @@
 /** The validation controller provides basic client-side validation of form fields. */
 class ValidationController {
-  /** 
+  /**
    * Validating on input will call the validators whenever a field is updated.
    * The default behavior is to only attempt to validate on submit.
-   * 
+   *
    * Validate on input will also disable the submit button when errors are detected.
    */
   static readonly VALIDATE_ON_INPUT = false;
@@ -88,6 +88,7 @@ class ValidationController {
       });
     }
   }
+
   /** Add listeners to all enumerator inputs to update validation on changes. */
   private addEnumeratorListeners() {
     // Assumption: There is only ever zero or one enumerators per block.
@@ -265,12 +266,15 @@ class ValidationController {
     return isValid;
   }
 
-  /** Validates that the value is present and in integer or integer with 2 decimals format. */
+  /**
+   * Validates that the value is present and in integer format (optionally with
+   * commas), optionally with exactly 2 decimals.
+   */
   validateCurrencyQuestion(): boolean {
     let isValid = true;
     const question = document.querySelector(ValidationController.CURRENCY_QUESTION_CLASS);
-    if(question) {
-      const currencyInput = <HTMLInputElement>question.querySelector("input[type=currency]");
+    if (question) {
+      const currencyInput = <HTMLInputElement>question.querySelector("input[currency]");
       const currencyValue = currencyInput.value;
 
       const isEmpty = currencyValue.length == 0;
@@ -289,6 +293,7 @@ class ValidationController {
     }
     return isValid;
   }
+
   /** if we have empty inputs then disable the add input button. (We don't need two blank inputs.) */
   maybeHideEnumeratorAddButton(): boolean {
     let hasEmptyInputs = false;
