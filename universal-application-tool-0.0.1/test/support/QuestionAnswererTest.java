@@ -3,16 +3,12 @@ package support;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.Scalar;
 
-@RunWith(JUnitParamsRunner.class)
 public class QuestionAnswererTest {
 
   ApplicantData applicantData;
@@ -34,24 +30,13 @@ public class QuestionAnswererTest {
   }
 
   @Test
-  @Parameters({
-      // Single digit dollars.
-      "0, 0", // Zero
-      "0.00, 0", // Zero with cents
-      "0.45, 45", // Only cents
-      "1, 100", // Single dollars
-      "1.23, 123", // Single dollars with cents.
-      // Large values
-      "12345, 1234500",
-      "12\\,345, 1234500", // With comma
-      "12345.67, 1234567", // With cents.
-      "12\\,345.67, 1234567" // With comma and cents.
-  })
-  public void answerCurrencyQuestion(String dollars, Long cents) {
+  public void answerCurrencyQuestion() {
     Path path = Path.create("applicant.currency_cents");
-    QuestionAnswerer.answerFileQuestion(applicantData, path, "file key");
+    QuestionAnswerer.answerCurrencyQuestion(applicantData, path, "2.33");
 
-    assertThat(applicantData.readString(path.join(Scalar.FILE_KEY))).contains("file key");
+    assertThat(applicantData.readCurrency(path.join(Scalar.CURRENCY_CENTS))).isPresent();
+    assertThat(applicantData.readCurrency(path.join(Scalar.CURRENCY_CENTS)).get().getCents())
+        .isEqualTo(233);
   }
 
   @Test

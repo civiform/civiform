@@ -8,8 +8,6 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.mapper.MappingException;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -24,18 +22,15 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.LocalizedStrings;
 import services.Path;
 import services.WellKnownPaths;
-import services.applicant.Currency;
 import services.applicant.exception.JsonPathTypeMismatchException;
 import services.applicant.predicate.JsonPathPredicate;
 import services.applicant.question.Scalar;
-import software.amazon.awssdk.services.pi.model.InvalidArgumentException;
 
 /**
  * Brokers access to the answer data for a specific applicant across versions.
@@ -376,9 +371,9 @@ public class ApplicantData {
    * Returns {@code Optional#empty} if the path does not exist or a value other than Integer is
    * found.
    */
-  public Optional<Long> readCurrencyCents(Path path) {
+  public Optional<Currency> readCurrency(Path path) {
     try {
-      return this.read(path, Long.class);
+      return this.read(path, Long.class).map(cents -> new Currency(cents));
     } catch (JsonPathTypeMismatchException e) {
       return Optional.empty();
     }

@@ -2,11 +2,7 @@ package services.applicant.question;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import java.text.NumberFormat;
-import java.util.Locale;
 import java.util.Optional;
-import java.util.regex.Pattern;
-import services.MessageKey;
 import services.Path;
 import services.applicant.Currency;
 import services.applicant.ValidationErrorMessage;
@@ -16,13 +12,12 @@ import services.question.types.QuestionType;
 /**
  * Represents a currency question in the context of a specific applicant.
  *
- * Currency is handled as USD cents.
- *
  * <p>See {@link ApplicantQuestion} for details.
  */
 public class CurrencyQuestion implements PresentsErrors {
+
   private final ApplicantQuestion applicantQuestion;
-  private Optional<Currency> currency = Optional.empty();
+  private Optional<Currency> currency;
 
   public CurrencyQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
@@ -61,17 +56,12 @@ public class CurrencyQuestion implements PresentsErrors {
   }
 
   public Optional<Currency> getValue() {
-    if (this.currency.isPresent()) {
-      return this.currency;
+    if (currency != null) {
+      return currency;
     }
 
-    Optional<Long> cents = applicantQuestion.getApplicantData().readCurrencyCents(getCurrencyPath());
-    if(cents.isEmpty()) {
-      return Optional.empty();
-    }
-
-    this.currency = Optional.of(new Currency(cents.get()));
-    return this.currency;
+    currency = applicantQuestion.getApplicantData().readCurrency(getCurrencyPath());
+    return currency;
   }
 
   public void assertQuestionType() {
@@ -93,10 +83,14 @@ public class CurrencyQuestion implements PresentsErrors {
     return applicantQuestion.getContextualizedPath().join(Scalar.CURRENCY_CENTS);
   }
 
+  /**
+   * Returns the currency value as USD formatted string (commas and decimals) with leading dollar
+   * sign. E.G.: $1,234.56
+   */
   @Override
   public String getAnswerString() {
     Optional<Currency> currency = getValue();
-    if(!currency.isPresent()) {
+    if (!currency.isPresent()) {
       return "-";
     }
     return "$" + currency.get().prettyPrint();

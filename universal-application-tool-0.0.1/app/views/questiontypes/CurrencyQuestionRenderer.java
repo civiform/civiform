@@ -8,6 +8,7 @@ import j2html.tags.Tag;
 import java.util.OptionalDouble;
 import java.util.OptionalLong;
 import services.MessageKey;
+import services.applicant.Currency;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.CurrencyQuestion;
@@ -38,9 +39,7 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRenderer {
             .setFieldErrors(params.messages(), ImmutableSet.of(ValidationErrorMessage.create(MessageKey.CURRENCY_VALIDATION_MISFORMATTED)))
             .showFieldErrors(false);
     if (currencyQuestion.getValue().isPresent()) {
-      // Convert currency cents to dollars.
-      OptionalDouble value = OptionalDouble.of(currencyQuestion.getValue().get().getDollars());
-      currencyField.setValue(value);
+      currencyField.setValue(currencyQuestion.getValue().get());
     }
 
     Tag currencyQuestionFormContent = div().withClasses(Styles.FLEX)

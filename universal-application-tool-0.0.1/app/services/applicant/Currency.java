@@ -8,31 +8,41 @@ import java.util.regex.Pattern;
 /**
  * Represents a US currency amount.
  *
- * Accepts various string formats with a required dollars value with no leading 0, unless the value is 0.
- * Optionally:
- *   May contain commas in the dollars: 12,345
- *   May contain exactly 2 decimal points for cents.
+ * Accepts various string formats with a required dollars value with no leading 0, unless the value
+ * is 0.
  *
- * and returns
+ * Optionally:
+ * <ul>
+ *   <li>May contain commas in the dollars: 12,345
+ *   <li>May contain exactly 2 decimal points for cents: 34.56
+ * </ul
  */
 public class Currency {
+
   // Currency containing only numbers, without leading 0s and optional 2 digit cents.
-  private static Pattern CURRENCY_NO_COMMAS = Pattern.compile("^[1-9]\\d*(?:\\.\\d\\d)?$");
+  private static final Pattern CURRENCY_NO_COMMAS = Pattern.compile("^[1-9]\\d*(?:\\.\\d\\d)?$");
   // Same as CURRENCY_NO_COMMAS but commas followed by 3 digits are allowed.
-  private static Pattern CURRENCY_WITH_COMMAS = Pattern
+  private static final Pattern CURRENCY_WITH_COMMAS = Pattern
       .compile("^[1-9]\\d{0,2}(?:,\\d\\d\\d)*(?:\\.\\d\\d)?$");
   // Currency of 0 dollars with optional 2 digit cents.
-  private static Pattern CURRENCY_ZERO_DOLLARS = Pattern.compile("^0(?:\\.\\d\\d)?$");
+  private static final Pattern CURRENCY_ZERO_DOLLARS = Pattern.compile("^0(?:\\.\\d\\d)?$");
 
   // The database storage is a long, so use a long here too.
   private Long cents = 0L;
 
+  /**
+   * Constructs a new Currency of the specified cents.
+   */
   public Currency(Long cents) {
     this.cents = cents;
   }
 
+  /**
+   * Validates and creates a new Currency based on a dollars and optional cents string.  See class
+   * comment for more on the valid formats.
+   */
   public static Currency parse(String currency) {
-    if(!validate(currency)) {
+    if (!validate(currency)) {
       throw new IllegalArgumentException(
           String.format("Currency is misformatted: %s", currency));
     }
@@ -74,7 +84,4 @@ public class Currency {
     Double dollars = cents.doubleValue() / 100.0;
     return formatter.format(dollars);
   }
-
-
-
 }
