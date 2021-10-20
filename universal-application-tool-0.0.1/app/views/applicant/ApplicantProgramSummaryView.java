@@ -209,7 +209,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       ContainerTag editContent =
           div(editAction)
               .withClasses(
-                  Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_MEDIUM, Styles.RELATIVE, Styles.BREAK_NORMAL);
+                  Styles.FLEX_AUTO,
+                  Styles.TEXT_RIGHT,
+                  Styles.FONT_MEDIUM,
+                  Styles.RELATIVE,
+                  Styles.BREAK_NORMAL);
 
       answerDiv.with(editContent);
     }
