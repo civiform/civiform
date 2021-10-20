@@ -154,7 +154,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     if (data.fileKey().isPresent()) {
       String fileLink =
           controllers.routes.FileController.show(applicantId, data.fileKey().get()).url();
-      answerContent = a().withHref(fileLink);
+      answerContent = a().withHref(fileLink).withClasses(Styles.W_2_3);
     } else {
       answerContent = div();
     }
@@ -209,7 +209,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       ContainerTag editContent =
           div(editAction)
               .withClasses(
-                  Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_MEDIUM, Styles.RELATIVE);
+                  Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_MEDIUM, Styles.RELATIVE, Styles.BREAK_NORMAL);
 
       answerDiv.with(editContent);
     }
