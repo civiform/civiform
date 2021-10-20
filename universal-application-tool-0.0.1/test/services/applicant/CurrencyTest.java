@@ -94,5 +94,4 @@ public class CurrencyTest {
 
     abstract Long cents();
   }
-
 }
