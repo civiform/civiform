@@ -1,5 +1,6 @@
 package services.applicant;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
@@ -68,6 +69,16 @@ public class Currency {
 
   public Double getDollars() {
     return cents.doubleValue() / 100.0;
+  }
+
+  /**
+   * Returns the currency number as a string of numbers. There will always be at least one dollar
+   * and exactly 2 cents digits.
+   */
+  public String getDollarsString() {
+    Double dollars = cents.doubleValue() / 100.0;
+    DecimalFormat myFormatter = new DecimalFormat("#.##");
+    return myFormatter.format(dollars);
   }
 
   /**

@@ -17,18 +17,18 @@ public class CurrencyTest {
   private static ImmutableList<Object[]> getTestData() {
     return ImmutableList.of(
         // Zero dollars
-        new Object[]{TestData.create("0", "0.00", 0, 0)}, // Zero
-        new Object[]{TestData.create("0.00", "0.00", 0, 0)}, // Zero with cents
+        new Object[]{TestData.create("0", "0.00", 0, "0.00", 0)}, // Zero
+        new Object[]{TestData.create("0.00", "0.00", 0, "0.00", 0)}, // Zero with cents
         // Non zero Single dollars.
-        new Object[]{TestData.create("1", "1.00", 1, 100)}, // Single dollars
-        new Object[]{TestData.create("0.45", "0.45", 0.45, 45)}, // Only cents
-        new Object[]{TestData.create("1.23", "1.23", 1.23, 123)},
+        new Object[]{TestData.create("1", "1.00", 1, "1.00", 100)}, // Single dollars
+        new Object[]{TestData.create("0.45", "0.45", 0.45, "0.45", 45)}, // Only cents
+        new Object[]{TestData.create("1.23", "1.23", 1.23,"1.23", 123)},
         // Large values
-        new Object[]{TestData.create("12345", "12,345.00", 12345, 12345 * 100)},
-        new Object[]{TestData.create("12,345", "12,345.00", 12345, 12345 * 100)}, // With comma
-        new Object[]{TestData.create("12345.67", "12,345.67", 12345.67, 1234567)}, // With cents.
+        new Object[]{TestData.create("12345", "12,345.00", 12345,"12345.00", 12345 * 100)},
+        new Object[]{TestData.create("12,345", "12,345.00", 12345,"12345.00", 12345 * 100)}, // With comma
+        new Object[]{TestData.create("12345.67", "12,345.67", 12345.67,"12345.67", 1234567)}, // With cents.
         new Object[]{
-            TestData.create("12,345.67", "12,345.67", 12345.67, 1234567)}); // With comma and cents.
+            TestData.create("12,345.67", "12,345.67", 12345.67,"12345.67", 1234567)}); // With comma and cents.
   }
 
   @Test
@@ -43,6 +43,13 @@ public class CurrencyTest {
   public void parse_validValuesParse(TestData testData) {
     Currency currency = Currency.parse(testData.userInput());
     assertThat(currency.getCents()).isEqualTo(testData.cents());
+  }
+
+  @Test
+  @Parameters(method = "getTestData")
+  public void getDollarsString(TestData testData) {
+    Currency currency = Currency.parse(testData.userInput());
+    assertThat(currency.getDollarsString()).isEqualTo(testData.dollarsString());
   }
 
   @Test
@@ -81,8 +88,9 @@ public class CurrencyTest {
   @AutoValue
   abstract static class TestData {
 
-    static TestData create(String userInput, String prettyString, double dollars, long cents) {
-      return new AutoValue_CurrencyTest_TestData(userInput, prettyString, dollars,
+    static TestData create(String userInput, String prettyString, double dollars,
+        String dollarsString, long cents) {
+      return new AutoValue_CurrencyTest_TestData(userInput, prettyString, dollars, dollarsString,
           Long.valueOf(cents));
     }
 
@@ -91,6 +99,8 @@ public class CurrencyTest {
     abstract String prettyString();
 
     abstract double dollars();
+
+    abstract String dollarsString();
 
     abstract Long cents();
   }

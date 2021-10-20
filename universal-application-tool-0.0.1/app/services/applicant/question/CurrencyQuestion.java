@@ -84,8 +84,10 @@ public class CurrencyQuestion implements PresentsErrors {
   }
 
   /**
-   * Returns the currency value as USD formatted string (commas and decimals) with leading dollar
-   * sign. E.G.: $1,234.56
+   * Returns the currency value as decimal string with at least 1 dollars digit and always 2 cents
+   * digits.
+   *
+   * Returns "-" if there is no answer.
    */
   @Override
   public String getAnswerString() {
@@ -93,6 +95,6 @@ public class CurrencyQuestion implements PresentsErrors {
     if (!currency.isPresent()) {
       return "-";
     }
-    return "$" + currency.get().prettyPrint();
+    return currency.get().getDollarsString();
   }
 }
