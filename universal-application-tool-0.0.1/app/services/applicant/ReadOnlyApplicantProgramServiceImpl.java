@@ -25,9 +25,7 @@ import services.question.LocalizedQuestionOption;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionType;
 
-/**
- * Implementation class for ReadOnlyApplicantProgramService interface.
- */
+/** Implementation class for ReadOnlyApplicantProgramService interface. */
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
   /**
@@ -276,9 +274,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     }
   }
 
-  /**
-   * Returns the identifier of uploaded file if applicable.
-   */
+  /** Returns the identifier of uploaded file if applicable. */
   private Optional<String> getFileKey(ApplicantQuestion question) {
     switch (question.getType()) {
       case FILEUPLOAD:
@@ -333,8 +329,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                     fileKey ->
                         baseUrl
                             + controllers.routes.FileController.adminShow(
-                            programDefinition.id(), fileKey)
-                            .url())
+                                    programDefinition.id(), fileKey)
+                                .url())
                 .orElse(""));
       case ENUMERATOR:
         return ImmutableMap.of(

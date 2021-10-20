@@ -206,7 +206,7 @@ placeholder.zipcode=ZIP Code
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Please enter valid street name and number.
 validation.cityRequired=Please enter city.
-validation.currencyMisformatted=Currency must be one of the following formats: 1000, 1,000, 1000.30, 1,000.30
+validation.currencyMisformatted=Currency must be one of the following formats: 1000 1,000 1000.30 1,000.30
 validation.stateRequired=Please enter state.
 validation.zipcodeRequired=Please enter valid ZIP code.
 validation.invalidZipcode=Please enter valid 5-digit ZIP code.

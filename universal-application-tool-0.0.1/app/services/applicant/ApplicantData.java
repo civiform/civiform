@@ -70,23 +70,17 @@ public class ApplicantData {
     this.jsonData = JsonPathProvider.getJsonPath().parse(checkNotNull(jsonData));
   }
 
-  /**
-   * Makes this ApplicantData immutable. A locked ApplicantData cannot be unlocked.
-   */
+  /** Makes this ApplicantData immutable. A locked ApplicantData cannot be unlocked. */
   public void lock() {
     locked = true;
   }
 
-  /**
-   * Returns true if this applicant has set their preferred locale, and false otherwise.
-   */
+  /** Returns true if this applicant has set their preferred locale, and false otherwise. */
   public boolean hasPreferredLocale() {
     return this.preferredLocale.isPresent();
   }
 
-  /**
-   * Returns this applicant's preferred locale if it is set, or the default locale if not set.
-   */
+  /** Returns this applicant's preferred locale if it is set, or the default locale if not set. */
   public Locale preferredLocale() {
     return this.preferredLocale.orElse(LocalizedStrings.DEFAULT_LOCALE);
   }
@@ -180,9 +174,7 @@ public class ApplicantData {
     }
   }
 
-  /**
-   * Parses and writes a long value
-   */
+  /** Parses and writes a long value. */
   public void putLong(Path path, long value) {
     put(path, value);
   }
@@ -230,11 +222,11 @@ public class ApplicantData {
    * structure along the way, i.e., creates parent objects where necessary.
    *
    * <p>If the path ends in an array (i.e. we are trying to add an element to a JSON array), this
-   * will check to make sure the array is there, then add the given element to the end of the
-   * array.
+   * will check to make sure the array is there, then add the given element to the end of the array.
    *
    * @param path the {@link Path} with the fully specified path, e.g.,
-   * "applicant.children[3].favorite_color.text" or the equivalent "$.applicant.children[3].favorite_color.text".
+   *     "applicant.children[3].favorite_color.text" or the equivalent
+   *     "$.applicant.children[3].favorite_color.text".
    * @param value the value to place; values of type Map will create the equivalent JSON structure
    */
   private void put(Path path, Object value) {
@@ -271,9 +263,7 @@ public class ApplicantData {
     }
   }
 
-  /**
-   * Delete whatever is there if it exists. Returns whether a delete actually happened.
-   */
+  /** Delete whatever is there if it exists. Returns whether a delete actually happened. */
   public void maybeDelete(Path path) {
     checkLocked();
     if (hasPath(path)) {
@@ -295,8 +285,7 @@ public class ApplicantData {
    * Put parent of path if it doesn't already exist. There are two types of parents: JSON objects
    * and JSON arrays.
    *
-   * <p>For JSON object parents, if it doesn't already exist an empty map is put in the right
-   * place.
+   * <p>For JSON object parents, if it doesn't already exist an empty map is put in the right place.
    *
    * <p>For JSON array parents, if the array (e.g. applicant.children[]) doesn't already exist an
    * empty array is put in the right place, and then if the array element (e.g.
@@ -368,8 +357,7 @@ public class ApplicantData {
    *
    * Validates the value is of an expected format and converts to the number of cents.
    *
-   * Returns {@code Optional#empty} if the path does not exist or a value other than Integer is
-   * found.
+   * Returns {@code Optional#empty} if the path does not exist or a value other than Long is found.
    */
   public Optional<Currency> readCurrency(Path path) {
     try {
@@ -408,7 +396,7 @@ public class ApplicantData {
    *
    * @param path the {@link Path} to the repeated entities list.
    * @return a list of the names of the repeated entities. This is an empty list if there are no
-   * repeated entities at path.
+   *     repeated entities at path.
    */
   public ImmutableList<String> readRepeatedEntities(Path path) {
     int index = 0;
@@ -524,9 +512,7 @@ public class ApplicantData {
     return true;
   }
 
-  /**
-   * Returns true if the value at the path is a JSON array of longs, and false otherwise.
-   */
+  /** Returns true if the value at the path is a JSON array of longs, and false otherwise. */
   private boolean isJsonArray(Path path) {
     try {
       this.read(path, IMMUTABLE_LIST_LONG_TYPE);

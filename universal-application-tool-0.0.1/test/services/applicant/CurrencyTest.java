@@ -28,8 +28,7 @@ public class CurrencyTest {
         new Object[]{TestData.create("12,345", "12,345.00", 12345, 12345 * 100)}, // With comma
         new Object[]{TestData.create("12345.67", "12,345.67", 12345.67, 1234567)}, // With cents.
         new Object[]{
-            TestData.create("12,345.67", "12,345.67", 12345.67,
-                1234567)}); // With comma and cents.
+            TestData.create("12,345.67", "12,345.67", 12345.67, 1234567)}); // With comma and cents.
   }
 
   @Test
@@ -48,7 +47,7 @@ public class CurrencyTest {
 
   @Test
   @Parameters(method = "getTestData")
-  public void parse_prettyPrint(TestData testData) {
+  public void prettyPrint(TestData testData) {
     Currency currency = Currency.parse(testData.userInput());
     assertThat(currency.prettyPrint()).isEqualTo(testData.prettyString());
   }

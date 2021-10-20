@@ -27,7 +27,6 @@ public class Currency {
   // Currency of 0 dollars with optional 2 digit cents.
   private static final Pattern CURRENCY_ZERO_DOLLARS = Pattern.compile("^0(?:\\.\\d\\d)?$");
 
-  // The database storage is a long, so use a long here too.
   private Long cents = 0L;
 
   /**

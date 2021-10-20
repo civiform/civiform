@@ -135,6 +135,7 @@ public class FieldWithLabel {
 
   FieldWithLabel setIsCurrency() {
     this.isCurrency = true;
+    // There is no HTML currency input so we identify these with a custom attribute.
     this.setAttribute("currency");
     return this;
   }
@@ -149,6 +150,7 @@ public class FieldWithLabel {
     return this;
   }
 
+  /** Sets a valueless attribute. */
   public FieldWithLabel setAttribute(String attribute) {
     this.fieldTag.attr(attribute, null);
     return this;
@@ -249,7 +251,6 @@ public class FieldWithLabel {
       }
       // We only allow integer input.
       fieldTag.attr("oninput", "n=parseInt(this.value);this.value=Number.isNaN(n)?'':n;");
-
     } else {
       fieldTag.withValue(this.fieldValue);
     }
@@ -278,8 +279,8 @@ public class FieldWithLabel {
             .withText(labelText.isEmpty() ? screenReaderText : labelText);
 
     return div(
-        labelTag,
-        div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
+            labelTag,
+            div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
