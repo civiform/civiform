@@ -38,6 +38,7 @@ import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import services.question.types.ScalarType;
 
 /**
  * ExporterService generates CSV files for applications to a program or demographic information
@@ -52,6 +53,9 @@ public class ExporterService {
 
   private static final String HEADER_SPACER_ENUM = " - ";
   private static final String HEADER_SPACER_SCALAR = " ";
+
+  private static final String CURRENCY_CENTS_TYPE_STRING =
+      ScalarType.CURRENCY_CENTS.toString().toLowerCase();
 
   public static final ImmutableSet<QuestionType> NON_EXPORTED_QUESTION_TYPES =
       ImmutableSet.of(QuestionType.ENUMERATOR, QuestionType.STATIC);
@@ -263,7 +267,7 @@ public class ExporterService {
   static String pathToHeader(Path path) {
     String scalarComponent = String.format("(%s)", path.keyName());
     // Remove "cents" from the currency string as the value will be dollars.
-    if (path.keyName().equals("currency_cents")) {
+    if (path.keyName().equals(CURRENCY_CENTS_TYPE_STRING)) {
       scalarComponent = "(currency)";
     }
 
