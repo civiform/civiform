@@ -21,8 +21,10 @@ import views.components.ToastMessage;
  * #render(HtmlBundle)} method.
  */
 public class BaseHtmlLayout {
+
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
-  private static final String[] FOOTER_SCRIPTS = {"main", "accordion", "modal", "radio", "toast"};
+  private static final String[] FOOTER_SCRIPTS = {"main", "accordion", "modal", "number", "radio",
+      "toast"};
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
 
@@ -42,7 +44,9 @@ public class BaseHtmlLayout {
     this.isStaging = hostName.equals(stagingHostname);
   }
 
-  /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
+  /**
+   * Creates a new {@link HtmlBundle} with default css, scripts, and toast messages.
+   */
   public HtmlBundle getBundle() {
     return getBundle(new HtmlBundle());
   }
@@ -99,7 +103,9 @@ public class BaseHtmlLayout {
     return bundle.render();
   }
 
-  /** Creates Google Analytics scripts for the site. */
+  /**
+   * Creates Google Analytics scripts for the site.
+   */
   private ImmutableList<Tag> getAnalyticsScripts(String trackingTag) {
     Tag scriptImport =
         script()
