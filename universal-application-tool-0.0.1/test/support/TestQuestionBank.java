@@ -136,8 +136,8 @@ public class TestQuestionBank {
 
   // Currency
   public Question applicantMonthlyIncome() {
-    return questionCache
-        .computeIfAbsent(QuestionEnum.APPLICANT_MONTHLY_INCOME, this::applicantMonthlyIncome);
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_MONTHLY_INCOME, this::applicantMonthlyIncome);
   }
 
   // Id

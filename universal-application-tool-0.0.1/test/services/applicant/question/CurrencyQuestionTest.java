@@ -52,20 +52,19 @@ public class CurrencyQuestionTest {
 
   @Test
   @Parameters({
-      // Single digit dollars.
-      "0, 0", // Zero
-      "0.00, 0", // Zero with cents
-      "0.45, 45", // Only cents
-      "1, 100", // Single dollars
-      "1.23, 123", // Single dollars with cents.
-      // Large values
-      "12345, 1234500",
-      "12\\,345, 1234500", // With comma
-      "12345.67, 1234567", // With cents.
-      "12\\,345.67, 1234567" // With comma and cents.
+    // Single digit dollars.
+    "0, 0", // Zero
+    "0.00, 0", // Zero with cents
+    "0.45, 45", // Only cents
+    "1, 100", // Single dollars
+    "1.23, 123", // Single dollars with cents.
+    // Large values
+    "12345, 1234500",
+    "12\\,345, 1234500", // With comma
+    "12345.67, 1234567", // With cents.
+    "12\\,345.67, 1234567" // With comma and cents.
   })
-  public void withValidApplicantData_passesValidation(
-      String dollars, Long cents) {
+  public void withValidApplicantData_passesValidation(String dollars, Long cents) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(currencyQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerCurrencyQuestion(

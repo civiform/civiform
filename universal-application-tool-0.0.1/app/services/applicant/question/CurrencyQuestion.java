@@ -87,7 +87,7 @@ public class CurrencyQuestion implements PresentsErrors {
    * Returns the currency value as decimal string with at least 1 dollars digit and always 2 cents
    * digits.
    *
-   * Returns "-" if there is no answer.
+   * <p>Returns "-" if there is no answer.
    */
   @Override
   public String getAnswerString() {

@@ -38,11 +38,8 @@ public class FieldWithLabel {
   /** For use with fields of type `number`. */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
 
-  /**
-   * For use with fields that have isCurrency true`.
-   */
+  /** For use with fields that have isCurrency true`. */
   protected Optional<Currency> fieldValueCurrency = Optional.empty();
-
 
   protected String formId = "";
   protected String id = "";

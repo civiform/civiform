@@ -169,7 +169,7 @@ class ValidationController {
 
   isValid() {
     return this.isAddressValid && this.isCurrencyValid && this.isEnumeratorValid
-        && this.isFileUploadValid && this.isNameValid;
+      && this.isFileUploadValid && this.isNameValid;
   }
 
   onAddressChanged() {
@@ -281,8 +281,8 @@ class ValidationController {
       this.updateFieldErrorState(question, ValidationController.CURRENCY_QUESTION_CLASS, !isEmpty);
 
       const isValidCurrency = ValidationController.CURRENCY_NO_COMMAS.test(currencyValue) ||
-          ValidationController.CURRENCY_WITH_COMMAS.test(currencyValue) ||
-          ValidationController.CURRENCY_ZERO_DOLLARS.test(currencyValue);
+        ValidationController.CURRENCY_WITH_COMMAS.test(currencyValue) ||
+        ValidationController.CURRENCY_ZERO_DOLLARS.test(currencyValue);
       this.updateFieldErrorState(question, ValidationController.CURRENCY_QUESTION_CLASS, isValidCurrency);
 
       // If this question isn't required then it's also valid if it is empty.

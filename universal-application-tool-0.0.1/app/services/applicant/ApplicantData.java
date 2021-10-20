@@ -355,9 +355,10 @@ public class ApplicantData {
   /**
    * Attempt to read a currency value at the given path. validating the value.
    *
-   * Validates the value is of an expected format and converts to the number of cents.
+   * <p>Validates the value is of an expected format and converts to the number of cents.
    *
-   * Returns {@code Optional#empty} if the path does not exist or a value other than Long is found.
+   * <p>Returns {@code Optional#empty} if the path does not exist or a value other than Long is
+   * found.
    */
   public Optional<Currency> readCurrency(Path path) {
     try {

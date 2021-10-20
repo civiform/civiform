@@ -19,7 +19,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.question.types.CurrencyQuestionDefinition;
 import support.QuestionAnswerer;
 
-public class CurrencyQuestionRendererTest  extends WithPostgresContainer {
+public class CurrencyQuestionRendererTest extends WithPostgresContainer {
   private static final CurrencyQuestionDefinition CURRENCY_QUESTION_DEFINITION =
       new CurrencyQuestionDefinition(
           OptionalLong.of(1),
@@ -54,7 +54,8 @@ public class CurrencyQuestionRendererTest  extends WithPostgresContainer {
 
   @Test
   public void render_withValue_withoutQuestionErrors() {
-    QuestionAnswerer.answerCurrencyQuestion(applicantData, question.getContextualizedPath(), "1,234.56");
+    QuestionAnswerer.answerCurrencyQuestion(
+        applicantData, question.getContextualizedPath(), "1,234.56");
 
     Tag result = renderer.render(params);
 

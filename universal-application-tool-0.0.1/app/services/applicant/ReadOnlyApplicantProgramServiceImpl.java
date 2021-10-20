@@ -80,8 +80,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                   // Return all blocks that contain errors, were answered in this program, or
                   // contain a static question.
                   (!block.isAnsweredWithoutErrors()
-                      || block.wasAnsweredInProgram(programDefinition.id())
-                      || block.containsStatic())
+                          || block.wasAnsweredInProgram(programDefinition.id())
+                          || block.containsStatic())
                       && showBlock(block));
     }
     return currentBlockList;
@@ -226,8 +226,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         ImmutableList<RepeatedEntity> repeatedEntities =
             maybeRepeatedEntity.isPresent()
                 ? maybeRepeatedEntity
-                .get()
-                .createNestedRepeatedEntities(enumeratorQuestionDefinition, applicantData)
+                    .get()
+                    .createNestedRepeatedEntities(enumeratorQuestionDefinition, applicantData)
                 : RepeatedEntity.createRepeatedEntities(
                     enumeratorQuestionDefinition, applicantData);
 
@@ -305,8 +305,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .orElse(""));
       case CURRENCY:
         CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
-        return ImmutableMap
-            .of(currencyQuestion.getCurrencyPath(), currencyQuestion.getAnswerString());
+        return ImmutableMap.of(
+            currencyQuestion.getCurrencyPath(), currencyQuestion.getAnswerString());
       case CHECKBOX:
         return ImmutableMap.of(
             question.getContextualizedPath().join(Scalar.SELECTIONS),

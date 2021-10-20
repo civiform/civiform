@@ -9,42 +9,39 @@ import java.util.regex.Pattern;
 /**
  * Represents a US currency amount.
  *
- * Accepts various string formats with a required dollars value with no leading 0, unless the value
- * is 0.
+ * <p>Accepts various string formats with a required dollars value with no leading 0, unless the
+ * value is 0.
  *
- * Optionally:
+ * <p>Optionally:
+ *
  * <ul>
  *   <li>May contain commas in the dollars: 12,345
- *   <li>May contain exactly 2 decimal points for cents: 34.56
- * </ul
+ *   <li>May contain exactly 2 decimal points for cents: 34.56 </ul
  */
 public class Currency {
 
   // Currency containing only numbers, without leading 0s and optional 2 digit cents.
   private static final Pattern CURRENCY_NO_COMMAS = Pattern.compile("^[1-9]\\d*(?:\\.\\d\\d)?$");
   // Same as CURRENCY_NO_COMMAS but commas followed by 3 digits are allowed.
-  private static final Pattern CURRENCY_WITH_COMMAS = Pattern
-      .compile("^[1-9]\\d{0,2}(?:,\\d\\d\\d)*(?:\\.\\d\\d)?$");
+  private static final Pattern CURRENCY_WITH_COMMAS =
+      Pattern.compile("^[1-9]\\d{0,2}(?:,\\d\\d\\d)*(?:\\.\\d\\d)?$");
   // Currency of 0 dollars with optional 2 digit cents.
   private static final Pattern CURRENCY_ZERO_DOLLARS = Pattern.compile("^0(?:\\.\\d\\d)?$");
 
   private Long cents = 0L;
 
-  /**
-   * Constructs a new Currency of the specified cents.
-   */
+  /** Constructs a new Currency of the specified cents. */
   public Currency(Long cents) {
     this.cents = cents;
   }
 
   /**
-   * Validates and creates a new Currency based on a dollars and optional cents string.  See class
+   * Validates and creates a new Currency based on a dollars and optional cents string. See class
    * comment for more on the valid formats.
    */
   public static Currency parse(String currency) {
     if (!validate(currency)) {
-      throw new IllegalArgumentException(
-          String.format("Currency is misformatted: %s", currency));
+      throw new IllegalArgumentException(String.format("Currency is misformatted: %s", currency));
     }
     try {
       double dollars = NumberFormat.getNumberInstance(Locale.US).parse(currency).doubleValue();
@@ -60,7 +57,6 @@ public class Currency {
     return CURRENCY_NO_COMMAS.matcher(currency).matches()
         || CURRENCY_WITH_COMMAS.matcher(currency).matches()
         || CURRENCY_ZERO_DOLLARS.matcher(currency).matches();
-
   }
 
   public Long getCents() {
@@ -85,7 +81,7 @@ public class Currency {
   /**
    * Returns the currency number as a US formatted human readable string.
    *
-   * The string will always have 2 decimals, and commas, but not a dollar sign.
+   * <p>The string will always have 2 decimals, and commas, but not a dollar sign.
    */
   public String prettyPrint() {
     // Format with commas and 2 decimal cents always.

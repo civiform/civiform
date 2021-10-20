@@ -3,7 +3,6 @@ package support;
 import com.google.common.collect.ImmutableList;
 import services.Path;
 import services.applicant.ApplicantData;
-import services.applicant.Currency;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 

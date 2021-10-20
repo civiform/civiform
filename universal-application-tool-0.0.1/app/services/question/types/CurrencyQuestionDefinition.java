@@ -1,4 +1,3 @@
-
 package services.question.types;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -7,9 +6,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 
-/**
- * Defines a currency question.
- */
+/** Defines a currency question. */
 public class CurrencyQuestionDefinition extends QuestionDefinition {
 
   public CurrencyQuestionDefinition(
@@ -18,10 +15,15 @@ public class CurrencyQuestionDefinition extends QuestionDefinition {
       Optional<Long> enumeratorId,
       String description,
       LocalizedStrings questionText,
-      LocalizedStrings questionHelpText
-      ) {
+      LocalizedStrings questionHelpText) {
     super(
-        id, name, enumeratorId, description, questionText, questionHelpText, CurrencyValidationPredicates.create());
+        id,
+        name,
+        enumeratorId,
+        description,
+        questionText,
+        questionHelpText,
+        CurrencyValidationPredicates.create());
   }
 
   public CurrencyQuestionDefinition(
