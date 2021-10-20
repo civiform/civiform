@@ -47,8 +47,8 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRenderer {
             .withClasses(
                 Styles.FLEX,
                 Styles.ITEMS_CENTER,
-                // Same padding as the input field.
-                Styles.MB_2,
+                // Same height and padding as the input field.
+                Styles.H_12, Styles.MB_2,
                 // Same text as the input field.
                 Styles.TEXT_LG);
 
