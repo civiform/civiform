@@ -380,7 +380,7 @@ public class CsvExporterTest extends WithPostgresContainer {
                 .put("applicant name (middle_name)", id++)
                 .put("applicant name (last_name)", id++)
                 .put("applicant favorite color (text)", id++)
-                .put("applicant monthly income (currency_cents)", id++)
+                .put("applicant monthly income (currency)", id++)
                 .put("applicant household members[0] - household members name (first_name)", id++)
                 .put("applicant household members[0] - household members name (middle_name)", id++)
                 .put("applicant household members[0] - household members name (last_name)", id++)
