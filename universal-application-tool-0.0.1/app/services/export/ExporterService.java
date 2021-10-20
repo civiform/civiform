@@ -255,11 +255,18 @@ public class ExporterService {
    * <p>Example: "applicant.household_members[3].household_member_name.first_name" becomes
    * "household members[3] - household member name (first_name)"
    *
+   * <p>The currency_cents scalar is special cased to be named currency as the data will be dollars.
+   *
    * @param path is a path that ends in a {@link services.applicant.question.Scalar}.
    */
   @VisibleForTesting
   static String pathToHeader(Path path) {
     String scalarComponent = String.format("(%s)", path.keyName());
+    // Remove "cents" from the currency string as the value will be dollars.
+    if (path.keyName().equals("currency_cents")) {
+      scalarComponent = "(currency)";
+    }
+
     List<String> reversedHeaderComponents = new ArrayList<>(Arrays.asList(scalarComponent));
     while (!path.parentPath().isEmpty()
         && !path.parentPath().equals(ApplicantData.APPLICANT_PATH)) {
