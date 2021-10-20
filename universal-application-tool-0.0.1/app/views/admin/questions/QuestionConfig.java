@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import forms.AddressQuestionForm;
 import forms.EnumeratorQuestionForm;
+import forms.IdQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.NumberQuestionForm;
 import forms.QuestionForm;
@@ -85,6 +86,11 @@ public class QuestionConfig {
             .setId("enumerator-question-config")
             .addEnumeratorQuestionConfig((EnumeratorQuestionForm) questionForm)
             .getContainer();
+      case ID:
+        return config
+            .setId("id-question-config")
+            .addIdQuestionConfig((IdQuestionForm) questionForm)
+            .getContainer();
       case NUMBER:
         return config
             .setId("number-question-config")
@@ -130,12 +136,29 @@ public class QuestionConfig {
     return this;
   }
 
+  private QuestionConfig addIdQuestionConfig(IdQuestionForm idQuestionForm) {
+    content.with(
+        FieldWithLabel.number()
+            .setId("id-question-min-length-input")
+            .setFieldName("minLength")
+            .setLabelText("Minimum length")
+            .setValue(idQuestionForm.getMinLength())
+            .getContainer(),
+        FieldWithLabel.number()
+            .setId("id-question-max-length-input")
+            .setFieldName("maxLength")
+            .setLabelText("Maximum length")
+            .setValue(idQuestionForm.getMaxLength())
+            .getContainer());
+    return this;
+  }
+
   private QuestionConfig addTextQuestionConfig(TextQuestionForm textQuestionForm) {
     content.with(
         FieldWithLabel.number()
             .setId("text-question-min-length-input")
             .setFieldName("minLength")
-            .setLabelText("Min length")
+            .setLabelText("Minimum length")
             .setValue(textQuestionForm.getMinLength())
             .getContainer(),
         FieldWithLabel.number()

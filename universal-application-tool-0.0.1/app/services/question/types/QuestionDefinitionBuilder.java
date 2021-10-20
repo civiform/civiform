@@ -8,6 +8,7 @@ import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.types.IdQuestionDefinition.IdValidationPredicates;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 import services.question.types.NameQuestionDefinition.NameValidationPredicates;
 import services.question.types.QuestionDefinition.ValidationPredicates;
@@ -211,6 +212,20 @@ public class QuestionDefinitionBuilder {
       case FILEUPLOAD:
         return new FileUploadQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText);
+
+      case ID:
+        IdValidationPredicates idValidationPredicates = IdValidationPredicates.create();
+        if (!validationPredicatesString.isEmpty()) {
+          idValidationPredicates = IdValidationPredicates.parse(validationPredicatesString);
+        }
+        return new IdQuestionDefinition(
+            id,
+            name,
+            enumeratorId,
+            description,
+            questionText,
+            questionHelpText,
+            idValidationPredicates);
 
       case NAME:
         NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();

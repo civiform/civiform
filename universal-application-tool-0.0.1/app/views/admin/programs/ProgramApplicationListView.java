@@ -110,7 +110,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     return new LinkElement()
         .setId("download-all-button")
         .setHref(link)
-        .setText("Download all (CSV)")
+        .setText("Download all versions (CSV)")
         .setStyles(ReferenceClasses.DOWNLOAD_ALL_BUTTON)
         .asButton();
   }

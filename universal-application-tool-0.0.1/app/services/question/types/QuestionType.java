@@ -12,6 +12,7 @@ public enum QuestionType {
   EMAIL(false),
   ENUMERATOR(false),
   FILEUPLOAD(false),
+  ID(false),
   NAME(false),
   NUMBER(false),
   RADIO_BUTTON(true),

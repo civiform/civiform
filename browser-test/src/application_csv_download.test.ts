@@ -1,4 +1,4 @@
-import { startSession, logout, loginAsTestUser, loginAsProgramAdmin, loginAsAdmin, selectApplicantLanguage, ApplicantQuestions, AdminQuestions, AdminPrograms, endSession, isLocalDevEnvironment } from './support'
+import { startSession, logout, loginAsTestUser, loginAsGuest, loginAsProgramAdmin, loginAsAdmin, selectApplicantLanguage, ApplicantQuestions, AdminQuestions, AdminPrograms, endSession, isLocalDevEnvironment } from './support'
 
 describe('normal application flow', () => {
   it('all major steps', async () => {
@@ -36,7 +36,7 @@ describe('normal application flow', () => {
     await applicantQuestions.answerDateQuestion('2021-05-10');
     await applicantQuestions.clickNext();
 
-    // Application submits answers from review page.
+    // Applicant submits answers from review page.
     await applicantQuestions.submitFromReviewPage(programName);
 
     await logout(page);
@@ -49,25 +49,44 @@ describe('normal application flow', () => {
     await logout(page);
     await loginAsAdmin(page)
 
+    // Change export visibility of a question
     await adminQuestions.createNewVersion('dropdown-csv-download');
     await adminQuestions.gotoQuestionEditPage('dropdown-csv-download');
     await page.click('#question-settings button:text("Remove"):visible')
     await page.click('text=Update');
+
+    // Add a new question so that the program has multiple versions
+    await adminQuestions.addNumberQuestion({ questionName: 'number-csv-download' });
+    await adminQuestions.exportQuestion('number-csv-download');
+    await adminPrograms.editProgramBlock(programName, 'block description', ['number-csv-download']);
     await adminPrograms.publishProgram(programName);
 
     await logout(page);
-    await loginAsProgramAdmin(page);
 
+    // Apply to the program again, this time a different user
+    await loginAsGuest(page);
+    await selectApplicantLanguage(page, 'English');
+    await applicantQuestions.applyProgram(programName);
+    await applicantQuestions.answerNameQuestion('Gus', 'Guest');
+    await applicantQuestions.answerDropdownQuestion('op2');
+    await applicantQuestions.answerDateQuestion('1990-01-01');
+    await applicantQuestions.answerNumberQuestion('1600');
+    await applicantQuestions.clickNext();
+    await applicantQuestions.submitFromReviewPage(programName);
+    await logout(page);
+
+    await loginAsProgramAdmin(page);
     await adminPrograms.viewApplications(programName);
-    await adminPrograms.viewApplicationsInOldVersion();
     const postEditCsvContent = await adminPrograms.getCsv();
+
     expect(postEditCsvContent).toContain('sarah,,smith,op2,05/10/2021');
 
     await logout(page);
-    await loginAsAdmin(page)
 
+    await loginAsAdmin(page)
     await adminPrograms.gotoAdminProgramsPage();
     const demographicsCsvContent = await adminPrograms.getDemographicsCsv();
+
     expect(demographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvdate (date),dropdowncsvdownload (selection),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)');
     expect(demographicsCsvContent).toContain('05/10/2021,op2,sarah,,smith');
 
@@ -77,9 +96,12 @@ describe('normal application flow', () => {
 
     await adminPrograms.gotoAdminProgramsPage();
     const newDemographicsCsvContent = await adminPrograms.getDemographicsCsv();
-    expect(newDemographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvdate (date),dropdowncsvdownload (selection),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)');
+
+    expect(newDemographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)');
     expect(newDemographicsCsvContent).not.toContain(',sarah,,smith');
     expect(newDemographicsCsvContent).toContain(',op2,');
+    expect(newDemographicsCsvContent).toContain(',1600,');
+
     if (isLocalDevEnvironment()) {
       // The hashed values "sarah", empty value, "smith", with the dev secret key.
       expect(newDemographicsCsvContent).toContain('5009769596aa83552389143189cec81abfc8f56abc1bb966715c47ce4078c403,057ba03d6c44104863dc7361fe4578965d1887360f90a0895882e58a6248fc86,6eecddf47b5f7a90d41ccc978c4c785265242ce75fe50be10c824b73a25167ba');

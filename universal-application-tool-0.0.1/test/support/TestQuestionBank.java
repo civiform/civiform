@@ -22,6 +22,7 @@ import services.question.types.DropdownQuestionDefinition;
 import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
+import services.question.types.IdQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -80,6 +81,7 @@ public class TestQuestionBank {
         .put(QuestionType.DROPDOWN, applicantIceCream())
         .put(QuestionType.EMAIL, applicantEmail())
         .put(QuestionType.FILEUPLOAD, applicantFile())
+        .put(QuestionType.ID, applicantId())
         .put(QuestionType.NAME, applicantName())
         .put(QuestionType.NUMBER, applicantJugglingNumber())
         .put(QuestionType.RADIO_BUTTON, applicantSeason())
@@ -134,7 +136,13 @@ public class TestQuestionBank {
 
   // Currency
   public Question applicantMonthlyIncome() {
-    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_MONTHLY_INCOME, this::applicantMonthlyIncome);
+    return questionCache
+        .computeIfAbsent(QuestionEnum.APPLICANT_MONTHLY_INCOME, this::applicantMonthlyIncome);
+  }
+
+  // Id
+  public Question applicantId() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ID, this::applicantId);
   }
 
   // Name
@@ -274,6 +282,18 @@ public class TestQuestionBank {
             "monthly income of applicant",
             LocalizedStrings.of(Locale.US, "what is your monthly income?"),
             LocalizedStrings.of(Locale.US, "help text"));
+    return maybeSave(definition);
+  }
+
+  // Id
+  private Question applicantId(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new IdQuestionDefinition(
+            "applicant id",
+            Optional.empty(),
+            "1234",
+            LocalizedStrings.of(Locale.US, "What is the the id?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
 
@@ -435,6 +455,7 @@ public class TestQuestionBank {
     APPLICANT_ADDRESS,
     APPLICANT_FAVORITE_COLOR,
     APPLICANT_FILE,
+    APPLICANT_ID,
     APPLICANT_HOUSEHOLD_MEMBERS,
     APPLICANT_HOUSEHOLD_MEMBER_DAYS_WORKED,
     APPLICANT_HOUSEHOLD_MEMBER_NAME,

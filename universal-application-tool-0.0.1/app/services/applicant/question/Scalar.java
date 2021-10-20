@@ -23,6 +23,7 @@ public enum Scalar {
   EMAIL("email", ScalarType.STRING),
   FILE_KEY("file key", ScalarType.STRING),
   FIRST_NAME("first name", ScalarType.STRING),
+  ID("id", ScalarType.STRING),
   LAST_NAME("last name", ScalarType.STRING),
   LINE2("address line 2", ScalarType.STRING),
   MIDDLE_NAME("middle name", ScalarType.STRING),
@@ -71,6 +72,8 @@ public enum Scalar {
 
   private static final ImmutableSet<Scalar> FILE_UPLOAD_SCALARS = ImmutableSet.of(FILE_KEY);
 
+  private static final ImmutableSet<Scalar> ID_SCALARS = ImmutableSet.of(ID);
+
   private static final ImmutableSet<Scalar> MULTI_SELECT_SCALARS = ImmutableSet.of(SELECTIONS);
 
   private static final ImmutableSet<Scalar> NAME_SCALARS =
@@ -108,6 +111,8 @@ public enum Scalar {
         return EMAIL_SCALARS;
       case FILEUPLOAD:
         return FILE_UPLOAD_SCALARS;
+      case ID:
+        return ID_SCALARS;
       case NAME:
         return NAME_SCALARS;
       case NUMBER:

@@ -54,7 +54,7 @@ export class AdminQuestions {
     const questionSettings = await this.page.$("#question-settings");
     const errors = await questionSettings.$$('.cf-multi-option-input-error');
     // Checks that the error is not hidden when it's corresponding option is empty. The order of the options array corresponds to the order of the errors array.
-    for(let i in errors) {
+    for (let i in errors) {
       if (options[i] === "") {
         expect(await errors[i].isHidden()).toEqual(false);
       } else {
@@ -217,6 +217,7 @@ export class AdminQuestions {
     await this.addDateQuestion({questionName: questionNamePrefix + 'date'});
     await this.addDropdownQuestion({questionName: questionNamePrefix + 'dropdown', options: ['op1', 'op2', 'op3']});
     await this.addEmailQuestion({questionName: questionNamePrefix + 'email'});
+    await this.addIdQuestion({questionName: questionNamePrefix + 'id'});
     await this.addNameQuestion({questionName: questionNamePrefix + 'name'});
     await this.addNumberQuestion({questionName: questionNamePrefix + 'number'});
     await this.addRadioButtonQuestion({questionName: questionNamePrefix + 'radio', options: ['one', 'two', 'three']});
@@ -227,6 +228,7 @@ export class AdminQuestions {
     questionNamePrefix + 'date',
     questionNamePrefix + 'dropdown',
     questionNamePrefix + 'email',
+    questionNamePrefix + 'id',
     questionNamePrefix + 'name',
     questionNamePrefix + 'number',
     questionNamePrefix + 'radio',
@@ -235,8 +237,8 @@ export class AdminQuestions {
   }
 
   async addAllSingleBlockQuestionTypes(questionNamePrefix: string) {
-    await this.addEnumeratorQuestion({questionName: questionNamePrefix + 'enumerator'});
-    await this.addFileUploadQuestion({questionName: questionNamePrefix + 'fileupload'});
+    await this.addEnumeratorQuestion({ questionName: questionNamePrefix + 'enumerator' });
+    await this.addFileUploadQuestion({ questionName: questionNamePrefix + 'fileupload' });
     return [questionNamePrefix + 'enumerator',
     questionNamePrefix + 'fileupload',
     ];
@@ -266,11 +268,11 @@ export class AdminQuestions {
     }
   }
 
-  async addAddressQuestion({questionName,
+  async addAddressQuestion({ questionName,
     description = 'address description',
     questionText = 'address question text',
     helpText = 'address question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');
@@ -286,11 +288,11 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async addDateQuestion({questionName,
+  async addDateQuestion({ questionName,
     description = 'date description',
     questionText = 'date question text',
     helpText = 'date question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams){
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');
@@ -306,12 +308,12 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async addCheckboxQuestion({questionName,
+  async addCheckboxQuestion({ questionName,
     options,
     description = 'checkbox description',
     questionText = 'checkbox question text',
     helpText = 'checkbox question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams){
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');
@@ -334,29 +336,28 @@ export class AdminQuestions {
   }
 
   /** Fills out the form for a dropdown question and clicks submit.  */
-  async createDropdownQuestion({questionName,
+  async createDropdownQuestion({ questionName,
     options,
     description = 'dropdown description',
     questionText = 'dropdown question text',
     helpText = 'dropdown question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams){
-      await this.gotoAdminQuestionsPage();
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
+    await this.gotoAdminQuestionsPage();
 
-      await this.page.click('#create-question-button');
-      await this.page.click('#create-dropdown-question');
+    await this.page.click('#create-question-button');
+    await this.page.click('#create-dropdown-question');
+    await this.page.waitForURL('**/admin/questions/new?type=dropdown');
+    await waitForPageJsLoad(this.page);
 
-      waitForPageJsLoad(this.page);
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
 
-      await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
+    for (let index in options) {
+      await this.page.click('#add-new-option');
+      let matchIndex = Number(index) + 1;
+      await this.changeMultiOptionAnswer(matchIndex, options[index]);
+    }
 
-      for (let index in options) {
-        await this.page.click('#add-new-option');
-        await waitForPageJsLoad(this.page);
-        let matchIndex = Number(index) + 1;
-        await this.changeMultiOptionAnswer(matchIndex, options[index]);
-      }
-
-      await this.clickSubmitButtonAndNavigate('Create');
+    await this.clickSubmitButtonAndNavigate('Create');
   }
 
   /** Changes the input field of a multi option answer. */
@@ -365,44 +366,40 @@ export class AdminQuestions {
   }
 
   async addCurrencyQuestion({questionName,
-                          description = 'currency description',
-                          questionText = 'currency question text',
-                          helpText = 'currency question help text',
-                          enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
+                              description = 'currency description',
+                              questionText = 'currency question text',
+                              helpText = 'currency question help text',
+                              enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
     await this.gotoAdminQuestionsPage();
-
     await this.page.click('#create-question-button');
     await this.page.click('#create-currency-question');
     await waitForPageJsLoad(this.page);
-
     await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
-
     await this.clickSubmitButtonAndNavigate('Create');
-
     await this.expectAdminQuestionsPageWithCreateSuccessToast();
-
     await this.expectDraftQuestionExist(questionName, questionText);
   }
+
   /** Fills out the form for a dropdown question, clicks submit, and verifies the new question exists.  */
-  async addDropdownQuestion({questionName,
+  async addDropdownQuestion({ questionName,
     options,
     description = 'dropdown description',
     questionText = 'dropdown question text',
     helpText = 'dropdown question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
 
-    await this.createDropdownQuestion({questionName, options, description, questionText, helpText, enumeratorName});
+    await this.createDropdownQuestion({ questionName, options, description, questionText, helpText, enumeratorName });
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async addFileUploadQuestion({questionName,
+  async addFileUploadQuestion({ questionName,
     description = 'fileupload description',
     questionText = 'fileupload question text',
     helpText = 'fileupload question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');
@@ -418,10 +415,10 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async addStaticQuestion({questionName,
+  async addStaticQuestion({ questionName,
     description = 'static description',
     questionText = 'static question text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');
@@ -440,11 +437,11 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async addNameQuestion({questionName,
+  async addNameQuestion({ questionName,
     description = 'name description',
     questionText = 'name question text',
     helpText = 'name question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');
@@ -460,11 +457,11 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async addNumberQuestion({questionName,
+  async addNumberQuestion({ questionName,
     description = 'number description',
     questionText = 'number question text',
     helpText = 'number question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');
@@ -480,25 +477,25 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async addRadioButtonQuestion({questionName,
+  async addRadioButtonQuestion({ questionName,
     options,
     description = 'radio button description',
     questionText = 'radio button question text',
     helpText = 'radio button question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
-    await this.createRadioButtonQuestion({questionName, options, description, questionText, helpText, enumeratorName});
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
+    await this.createRadioButtonQuestion({ questionName, options, description, questionText, helpText, enumeratorName });
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast();
 
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async createRadioButtonQuestion({questionName,
+  async createRadioButtonQuestion({ questionName,
     options,
     description = 'radio button description',
     questionText = 'radio button question text',
     helpText = 'radio button question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams){
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');
@@ -518,11 +515,11 @@ export class AdminQuestions {
     await this.clickSubmitButtonAndNavigate('Create');
   }
 
-  async addTextQuestion({questionName,
+  async addTextQuestion({ questionName,
     description = 'text description',
     questionText = 'text question text',
     helpText = 'text question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');
@@ -538,11 +535,31 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async addEmailQuestion({questionName,
+  async addIdQuestion({questionName,
+    description = 'id description',
+    questionText = 'id question text',
+    helpText = 'id question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
+    await this.gotoAdminQuestionsPage();
+
+    await this.page.click('#create-question-button');
+    await this.page.click('#create-id-question');
+    await waitForPageJsLoad(this.page);
+
+    await this.fillInQuestionBasics(questionName, description, questionText, helpText, enumeratorName);
+
+    await this.clickSubmitButtonAndNavigate('Create');
+
+    await this.expectAdminQuestionsPageWithCreateSuccessToast();
+
+    await this.expectDraftQuestionExist(questionName, questionText);
+  }
+
+  async addEmailQuestion({ questionName,
     description = 'email description',
     questionText = 'email question text',
     helpText = 'email question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');
@@ -561,11 +578,11 @@ export class AdminQuestions {
   /**
    * The `enumeratorName` argument is used to make _this_ enumerator question a repeated question.
    */
-  async addEnumeratorQuestion({questionName,
+  async addEnumeratorQuestion({ questionName,
     description = 'enumerator description',
     questionText = 'enumerator question text',
     helpText = 'enumerator question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');

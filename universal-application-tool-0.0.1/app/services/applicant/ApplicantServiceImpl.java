@@ -122,6 +122,13 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
+  public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
+      Application application, ProgramDefinition programDefinition) {
+    return new ReadOnlyApplicantProgramServiceImpl(
+        application.getApplicantData(), programDefinition, baseUrl);
+  }
+
+  @Override
   public CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
       long applicantId, long programId, String blockId, ImmutableMap<String, String> updateMap) {
     ImmutableSet<Update> updates =

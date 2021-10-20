@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
-import services.question.types.DateQuestionDefinition;
+import services.question.types.EmailQuestionDefinition;
 import services.question.types.QuestionType;
 
 /**
@@ -73,9 +73,9 @@ public class EmailQuestion implements PresentsErrors {
     return emailValue;
   }
 
-  public DateQuestionDefinition getQuestionDefinition() {
+  public EmailQuestionDefinition getQuestionDefinition() {
     assertQuestionType();
-    return (DateQuestionDefinition) applicantQuestion.getQuestionDefinition();
+    return (EmailQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
   public void assertQuestionType() {

@@ -34,8 +34,10 @@ export const gotoEndpoint = async (page: Page, endpoint: string) => {
 export const logout = async (page: Page) => {
   await page.click('text=Logout');
   // Logout is handled by the play framework so it doesn't land on a
-  // page with civiform js where we need to waitForPageJsLoad.
-  await page.waitForLoadState();
+  // page with civiform js where we should waitForPageJsLoad. Because
+  // the process goes through a sequence of redirects we need to wait
+  // for the final destination URL to make tests reliable.
+  await page.waitForURL("**/loginForm");
 }
 
 export const loginAsAdmin = async (page: Page) => {
@@ -56,7 +58,8 @@ export const loginAsGuest = async (page: Page) => {
 export const loginAsTestUser = async (page: Page) => {
   if (isTestUser()) {
     await page.click('#idcs');
-    await page.waitForNavigation({ waitUntil: 'networkidle' });
+    // Wait for the IDCS login page to make sure we've followed all redirects.
+    await page.waitForURL('**/#/login*');
     await page.fill('input[name=userName]', TEST_USER_LOGIN);
     await page.fill('input[name=password]', TEST_USER_PASSWORD);
     await page.click('button:has-text("Login"):not([disabled])');
