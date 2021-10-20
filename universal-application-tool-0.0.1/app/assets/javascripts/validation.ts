@@ -123,8 +123,6 @@ class ValidationController {
     }
   }
 
-
-
   /** Add listeners to file input to update validation on changes. */
   private addFileUploadListener() {
     // Assumption: There is only ever zero or one file input per block.
