@@ -367,8 +367,8 @@ public class TestQuestionBank {
             "household members days worked",
             Optional.of(householdMemberJobs.id),
             "The applicant's household member's number of days worked",
-            LocalizedStrings.of(Locale.US, "What is $this.parent's number of days worked at $this?"),
-            LocalizedStrings.of(Locale.US, "What is the number of days worked of $this.parent at $this?"));
+            LocalizedStrings.of(Locale.US, "How many days has $this.parent worked at $this?"),
+            LocalizedStrings.of(Locale.US, "How many days has $this.parent worked at $this?"));
 
     return maybeSave(definition);
   }

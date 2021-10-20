@@ -263,14 +263,14 @@ public class ApplicantQuestionTest {
 
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            testQuestionBank.applicantHouseholdMemberJobIncome().getQuestionDefinition(),
+            testQuestionBank.applicantHouseholdMemberDaysWorked().getQuestionDefinition(),
             applicantData,
             Optional.of(jonCo));
 
     assertThat(applicantQuestion.getQuestionText())
-        .isEqualTo("What is Jonathan's income at JonCo?");
+        .isEqualTo("How many days has Jonathan worked at JonCo?");
     assertThat(applicantQuestion.getQuestionHelpText())
-        .isEqualTo("What is the monthly income of Jonathan at JonCo?");
+        .isEqualTo("How many days has Jonathan worked at JonCo?");
   }
 
   @Test
