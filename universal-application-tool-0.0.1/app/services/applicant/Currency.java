@@ -77,7 +77,8 @@ public class Currency {
    */
   public String getDollarsString() {
     Double dollars = cents.doubleValue() / 100.0;
-    DecimalFormat myFormatter = new DecimalFormat("#.##");
+    // 0 is the format for minimal required digits.
+    DecimalFormat myFormatter = new DecimalFormat("0.00");
     return myFormatter.format(dollars);
   }
 

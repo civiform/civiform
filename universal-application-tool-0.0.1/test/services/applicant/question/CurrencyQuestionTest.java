@@ -76,6 +76,6 @@ public class CurrencyQuestionTest {
     assertThat(currencyQuestion.hasTypeSpecificErrors()).isFalse();
     assertThat(currencyQuestion.hasQuestionErrors()).isFalse();
     assertThat(currencyQuestion.getValue().isPresent()).isTrue();
-    assertThat(currencyQuestion.getValue().get()).isEqualTo(cents);
+    assertThat(currencyQuestion.getValue().get().getCents()).isEqualTo(cents);
   }
 }

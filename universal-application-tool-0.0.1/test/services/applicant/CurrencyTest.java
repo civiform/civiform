@@ -21,7 +21,7 @@ public class CurrencyTest {
         new Object[]{TestData.create("0.00", "0.00", 0, "0.00", 0)}, // Zero with cents
         // Non zero Single dollars.
         new Object[]{TestData.create("1", "1.00", 1, "1.00", 100)}, // Single dollars
-        new Object[]{TestData.create("0.45", "0.45", 0.45, "0.45", 45)}, // Only cents
+        new Object[]{TestData.create("0.40", "0.40", 0.40, "0.40", 40)}, // Only cents
         new Object[]{TestData.create("1.23", "1.23", 1.23,"1.23", 123)},
         // Large values
         new Object[]{TestData.create("12345", "12,345.00", 12345,"12345.00", 12345 * 100)},
