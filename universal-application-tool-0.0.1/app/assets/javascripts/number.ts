@@ -6,27 +6,23 @@ class NumberController {
   private addNumberListeners() {
     const numberQuestions = Array.from(
       <NodeListOf<HTMLInputElement>>document.querySelectorAll('input[type=number]'));
-    numberQuestions.forEach(numberQuestion =>{
-      numberQuestion.addEventListener("input", () => {
-          // Only allow integer input.
-          const n = parseInt(numberQuestion.value.replace(/[^.\d]/g,''));
-          numberQuestion.value = Number.isNaN(n) ? '' : String(n);
+    numberQuestions.forEach(numberQuestion => {
+      numberQuestion.addEventListener('input', () => {
+        // Only allow integer input.
+        const n = parseInt(numberQuestion.value.replace(/[^.\d]/g, ''));
+        numberQuestion.value = Number.isNaN(n) ? '' : String(n);
       });
-      numberQuestion.addEventListener("keydown", (e) => {
-          // Override default behavior of number input to prevent user from entering
-          // special characters that break validation
-          ['e','E','+','-'].includes(e.key) && e.preventDefault();
+      numberQuestion.addEventListener('keydown', (e) => {
+        // Override default behavior of number input to prevent user from entering
+        // special characters that break validation
+        ['e', 'E', '+', '-'].includes(e.key) && e.preventDefault();
       });
     });
   }
 
-    constructor() {
-      this.addNumberListeners();
-
-      // Advertise (e.g., for browser tests) that number_validation.ts initialization is done
-      document.body.dataset.loadNumberValidation = 'true';
-
-    }
+  constructor() {
+    this.addNumberListeners();
+  }
 }
 
 let numberController = new NumberController();
