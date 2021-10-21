@@ -175,7 +175,7 @@ public class ApplicantQuestion {
   }
 
   public boolean hasErrors() {
-    return errorsPresenter().hasQuestionErrors() || errorsPresenter().hasTypeSpecificErrors();
+    return errorsPresenter().hasConditionErrors() || errorsPresenter().hasTypeSpecificErrors();
   }
 
   public Optional<Long> getUpdatedInProgramMetadata() {

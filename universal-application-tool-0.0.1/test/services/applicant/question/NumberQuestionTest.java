@@ -63,7 +63,7 @@ public class NumberQuestionTest extends WithPostgresContainer {
     NumberQuestion numberQuestion = new NumberQuestion(applicantQuestion);
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(numberQuestion.hasQuestionErrors()).isFalse();
+    assertThat(numberQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -103,7 +103,7 @@ public class NumberQuestionTest extends WithPostgresContainer {
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(numberQuestion.hasQuestionErrors()).isFalse();
+    assertThat(numberQuestion.hasConditionErrors()).isFalse();
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(value);
   }
 
@@ -141,6 +141,6 @@ public class NumberQuestionTest extends WithPostgresContainer {
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(numberQuestion.hasQuestionErrors()).isFalse();
+    assertThat(numberQuestion.hasConditionErrors()).isFalse();
   }
 }

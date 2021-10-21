@@ -34,7 +34,7 @@ public class StaticContentQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public boolean hasConditionErrors() {
     return false;
   }
 

@@ -30,7 +30,7 @@ public class CurrencyQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public boolean hasConditionErrors() {
     return !getQuestionErrors().isEmpty();
   }
 

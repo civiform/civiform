@@ -43,7 +43,7 @@ public class StaticContentQuestionTest extends WithPostgresContainer {
 
     StaticContentQuestion question = new StaticContentQuestion(applicantQuestion);
 
-    assertThat(question.hasQuestionErrors()).isFalse();
+    assertThat(question.hasConditionErrors()).isFalse();
     assertThat(question.hasTypeSpecificErrors()).isFalse();
   }
 }

@@ -65,7 +65,7 @@ public class SingleSelectQuestionTest {
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
     assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(singleSelectQuestion.hasQuestionErrors()).isFalse();
+    assertThat(singleSelectQuestion.hasConditionErrors()).isFalse();
     assertThat(singleSelectQuestion.getSelectedOptionValue())
         .hasValue(LocalizedQuestionOption.create(1L, 1L, "option 1", Locale.US));
   }
@@ -80,7 +80,7 @@ public class SingleSelectQuestionTest {
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
     assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(singleSelectQuestion.hasQuestionErrors()).isFalse();
+    assertThat(singleSelectQuestion.hasConditionErrors()).isFalse();
     assertThat(singleSelectQuestion.getSelectedOptionValue()).isEmpty();
   }
 

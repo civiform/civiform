@@ -11,7 +11,7 @@ import services.applicant.ValidationErrorMessage;
  */
 public interface PresentsErrors {
   /** Returns true if values do not meet conditions defined by admins. */
-  boolean hasQuestionErrors();
+  boolean hasConditionErrors();
 
   /** Returns a set of {@link ValidationErrorMessage}s related to conditions defined by admins. */
   ImmutableSet<ValidationErrorMessage> getQuestionErrors();
