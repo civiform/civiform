@@ -43,7 +43,8 @@ describe('optional application flow', () => {
 
     // Skip first block without uploading a file
     await applicantQuestions.clickSkip();
-    // Skip blocks 2-12 without answering any questions
+    // Skip blocks 2-12 without an
+    // swering any questions
     for (let i = 2; i <= 12; i++) {
       await applicantQuestions.clickNext();
     }

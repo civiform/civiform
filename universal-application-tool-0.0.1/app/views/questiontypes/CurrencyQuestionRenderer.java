@@ -50,6 +50,8 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRenderer {
                 // Same height and padding as the input field.
                 Styles.H_12,
                 Styles.MB_2,
+                // Pad the right side.
+                Styles.MR_2,
                 // Same text as the input field.
                 Styles.TEXT_LG);
 
