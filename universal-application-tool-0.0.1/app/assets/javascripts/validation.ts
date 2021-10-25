@@ -18,6 +18,8 @@ class ValidationController {
   static readonly ENUMERATOR_DELETE_TEMPLATE = 'enumerator-delete-template';
   static readonly BLOCK_SUBMIT_BUTTON_ID = 'cf-block-submit';
 
+  // Currency validation regexs.  Note: there are backend versions that need
+  // to stay in sync in app/services/applicant/Currency.java
   // Currency containing only numbers, without leading 0s and optional 2 digit cents.
   static readonly CURRENCY_NO_COMMAS = /^[1-9]\d*(?:\.\d\d)?$/;
   // Same as CURRENCY_NO_COMMAS but commas followed by 3 digits are allowed.
@@ -220,7 +222,7 @@ class ValidationController {
     for (const question of addressQuestions) {
       // validate address line 1 not empty.
       const addressLine1 = <HTMLInputElement>question.querySelector(".cf-address-street-1 input");
-      const addressLine1Empty = addressLine1.value.length == 0;
+      const addressLine1Empty = addressLine1.value.length === 0;
       const addressLine1Valid = !addressLine1Empty;
       // Change styling of '.cf-address-street-1-error' as necessary.
       this.updateFieldErrorState(question, '.cf-address-street-1', addressLine1Valid);

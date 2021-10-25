@@ -16,10 +16,12 @@ import java.util.regex.Pattern;
  *
  * <ul>
  *   <li>May contain commas in the dollars: 12,345
- *   <li>May contain exactly 2 decimal points for cents: 34.56 </ul
+ *   <li>May contain exactly 2 decimal points for cents: 34.56
  */
 public class Currency {
 
+  // Currency validation regexs.  Note: there are frontend versions that need to stay in sync in
+  // app/assets/javascripts/validation.ts
   // Currency containing only numbers, without leading 0s and optional 2 digit cents.
   private static final Pattern CURRENCY_NO_COMMAS = Pattern.compile("^[1-9]\\d*(?:\\.\\d\\d)?$");
   // Same as CURRENCY_NO_COMMAS but commas followed by 3 digits are allowed.
@@ -31,7 +33,7 @@ public class Currency {
   private Long cents = 0L;
 
   /** Constructs a new Currency of the specified cents. */
-  public Currency(Long cents) {
+  public Currency(long cents) {
     this.cents = cents;
   }
 
@@ -48,7 +50,8 @@ public class Currency {
       Double cents = dollars * 100;
       return new Currency(cents.longValue());
     } catch (ParseException e) {
-      throw new IllegalArgumentException(e);
+      throw new IllegalArgumentException(
+          String.format("Currency is misformatted: %s", currency), e);
     }
   }
 
