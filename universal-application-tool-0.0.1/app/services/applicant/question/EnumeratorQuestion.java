@@ -14,7 +14,7 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class EnumeratorQuestion implements PresentsErrors {
+public class EnumeratorQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
 

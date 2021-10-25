@@ -14,7 +14,7 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class StaticContentQuestion implements PresentsErrors {
+public class StaticContentQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
 

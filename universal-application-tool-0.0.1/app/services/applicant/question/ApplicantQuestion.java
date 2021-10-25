@@ -255,7 +255,7 @@ public class ApplicantQuestion {
     return new TextQuestion(this);
   }
 
-  public PresentsErrors errorsPresenter() {
+  public Question errorsPresenter() {
     switch (getType()) {
       case ADDRESS:
         return createAddressQuestion();

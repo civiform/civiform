@@ -15,7 +15,7 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class IdQuestion implements PresentsErrors {
+public class IdQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<String> idValue;

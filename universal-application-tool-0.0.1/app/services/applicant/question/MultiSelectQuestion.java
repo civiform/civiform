@@ -21,7 +21,7 @@ import services.question.types.MultiOptionQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class MultiSelectQuestion implements PresentsErrors {
+public class MultiSelectQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<ImmutableList<LocalizedQuestionOption>> selectedOptionsValue;

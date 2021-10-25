@@ -16,7 +16,7 @@ import services.question.types.MultiOptionQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class SingleSelectQuestion implements PresentsErrors {
+public class SingleSelectQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<LocalizedQuestionOption> selectedOptionValue;

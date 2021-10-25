@@ -6,8 +6,16 @@ import services.Path;
 import services.applicant.ValidationErrorMessage;
 
 /**
- * All specific applicant question types implement this interface. It provides necessary methods to
- * validate the applicant's answer to the question and present validation errors if any.
+ * All specific applicant question types implement this interface.
+ *
+ * <p>It provides necessary methods to:
+ *
+ * <ul>
+ *   <li>Access question configuration
+ *   <li>Access the applicants response
+ *   <li>Validate the applicant's answer to the question: Conditions and data integrity
+ *   <li>Present validation errors if any
+ * </ul>
  */
 public interface Question {
   /** Returns true if values do not meet conditions defined by admins. */

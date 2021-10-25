@@ -14,7 +14,7 @@ import services.question.types.TextQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class TextQuestion implements PresentsErrors {
+public class TextQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<String> textValue;

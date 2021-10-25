@@ -15,7 +15,7 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class DateQuestion implements PresentsErrors {
+public class DateQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
 
