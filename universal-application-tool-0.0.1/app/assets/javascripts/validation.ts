@@ -79,14 +79,8 @@ class ValidationController {
 
   /** Add listeners to all currency inputs to update validation on changes. */
   private addCurrencyListeners() {
-    const currencyQuestions = Array.from(document.querySelectorAll(ValidationController.CURRENCY_QUESTION_CLASS));
-    for (const question of currencyQuestions) {
-      const currencyInputs = Array.from(question.querySelectorAll('input'));
-      // Whenever an input changes we need to revalidate.
-      currencyInputs.forEach(currencyInput => {
-        currencyInput.addEventListener("input", () => { this.onCurrencyChanged(); });
-      });
-    }
+    document.querySelectorAll(`${ValidationController.CURRENCY_QUESTION_CLASS} input`)
+      .forEach(currencyInput => currencyInput.addEventListener("input", () => { this.onCurrencyChanged(); }));
   }
 
   /** Add listeners to all enumerator inputs to update validation on changes. */
