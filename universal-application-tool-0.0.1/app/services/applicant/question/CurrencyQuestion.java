@@ -91,10 +91,6 @@ public class CurrencyQuestion implements PresentsErrors {
    */
   @Override
   public String getAnswerString() {
-    Optional<Currency> currency = getValue();
-    if (!currency.isPresent()) {
-      return "-";
-    }
-    return currency.get().getDollarsString();
+    return getValue().map(value -> value.getDollarsString()).orElse("-");
   }
 }
