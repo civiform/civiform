@@ -9,7 +9,7 @@ import services.applicant.ValidationErrorMessage;
  * All specific applicant question types implement this interface. It provides necessary methods to
  * validate the applicant's answer to the question and present validation errors if any.
  */
-public interface PresentsErrors {
+public interface Question {
   /** Returns true if values do not meet conditions defined by admins. */
   boolean hasConditionErrors();
 
