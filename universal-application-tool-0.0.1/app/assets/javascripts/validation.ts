@@ -222,7 +222,7 @@ class ValidationController {
     for (const question of addressQuestions) {
       // validate address line 1 not empty.
       const addressLine1 = <HTMLInputElement>question.querySelector(".cf-address-street-1 input");
-      const addressLine1Empty = addressLine1.value.length === 0;
+      const addressLine1Empty = addressLine1.value.length == 0;
       const addressLine1Valid = !addressLine1Empty;
       // Change styling of '.cf-address-street-1-error' as necessary.
       this.updateFieldErrorState(question, '.cf-address-street-1', addressLine1Valid);
@@ -273,7 +273,7 @@ class ValidationController {
       const currencyInput = <HTMLInputElement>question.querySelector("input[currency]");
       const currencyValue = currencyInput.value;
 
-      const isEmpty = currencyValue.length == 0;
+      const isEmpty = currencyValue.length === 0;
       this.updateFieldErrorState(question, ValidationController.CURRENCY_QUESTION_CLASS, !isEmpty);
 
       const isValidCurrency = ValidationController.CURRENCY_NO_COMMAS.test(currencyValue) ||
