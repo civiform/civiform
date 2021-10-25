@@ -35,6 +35,7 @@ describe('navigating to a deep link', () => {
     await selectApplicantLanguage(page, 'English');
 
     // Assert
+    await page.click('#continue-application-button');
     expect(await page.innerText('.cf-applicant-question-text')).toEqual(questionText);
 
     await logout(page);
@@ -46,6 +47,7 @@ describe('navigating to a deep link', () => {
     await selectApplicantLanguage(page, 'English');
 
     // Assert
+    await page.click('#continue-application-button');
     expect(await page.innerText('.cf-applicant-question-text')).toEqual(questionText);
 
     await endSession(browser);
