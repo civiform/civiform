@@ -10,6 +10,7 @@ class ValidationController {
 
   static readonly ADDRESS_QUESTION_CLASS = '.cf-question-address';
   static readonly CURRENCY_QUESTION_CLASS = '.cf-question-currency';
+  static readonly CURRENCY_VALUE_CLASS = '.cf-currency-value';
   static readonly ENUMERATOR_QUESTION_CLASS = '.cf-question-enumerator';
   static readonly FILEUPLOAD_QUESTION_CLASS = '.cf-question-fileupload';
   static readonly NAME_QUESTION_CLASS = '.cf-question-name';
@@ -267,27 +268,26 @@ class ValidationController {
    * commas), optionally with exactly 2 decimals.
    */
   validateCurrencyQuestion(): boolean {
-    let isValid = true;
-    const question = document.querySelector(ValidationController.CURRENCY_QUESTION_CLASS);
-    if (question) {
+    let isAllValid = true;
+    const questions = Array.from(document.querySelectorAll(ValidationController.CURRENCY_QUESTION_CLASS));
+    for( const question of questions) {
       const currencyInput = <HTMLInputElement>question.querySelector("input[currency]");
       const currencyValue = currencyInput.value;
 
-      const isEmpty = currencyValue.length === 0;
-      this.updateFieldErrorState(question, ValidationController.CURRENCY_QUESTION_CLASS, !isEmpty);
-
       const isValidCurrency = ValidationController.CURRENCY_NO_COMMAS.test(currencyValue) ||
-        ValidationController.CURRENCY_WITH_COMMAS.test(currencyValue) ||
-        ValidationController.CURRENCY_ZERO_DOLLARS.test(currencyValue);
-      this.updateFieldErrorState(question, ValidationController.CURRENCY_QUESTION_CLASS, isValidCurrency);
+          ValidationController.CURRENCY_WITH_COMMAS.test(currencyValue) ||
+          ValidationController.CURRENCY_ZERO_DOLLARS.test(currencyValue);
 
       // If this question isn't required then it's also valid if it is empty.
+      const isEmpty = currencyValue.length === 0;
       const isOptional = !question.classList.contains(ValidationController.REQUIRED_QUESTION_CLASS);
       const emptyOptional = isOptional && isEmpty;
 
-      isValid = emptyOptional || isValidCurrency;
+      const isValid = emptyOptional || isValidCurrency;
+      this.updateFieldErrorState(question, ValidationController.CURRENCY_VALUE_CLASS, isValid);
+      isAllValid = isAllValid && isValid;
     }
-    return isValid;
+    return isAllValid;
   }
 
   /** if we have empty inputs then disable the add input button. (We don't need two blank inputs.) */
