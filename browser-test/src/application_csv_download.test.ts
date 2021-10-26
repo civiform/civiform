@@ -3,7 +3,7 @@ import { startSession, logout, loginAsTestUser, loginAsGuest, loginAsProgramAdmi
 describe('normal application flow', () => {
   it('all major steps', async () => {
     const { browser, page } = await startSession();
-    // Timeout for clicks and element fills. If your seletor fails to locate
+    // Timeout for clicks and element fills. If your selector fails to locate
     // the HTML element, the test hangs. If you find the tests time out, you
     // want to verify that your selectors are working as expected first.
     // Because all tests are run concurrently, it could be that your selector
@@ -19,10 +19,12 @@ describe('normal application flow', () => {
     await adminQuestions.addNameQuestion({questionName: 'name-csv-download'});
     await adminQuestions.addDropdownQuestion({questionName: 'dropdown-csv-download', options: ['op1', 'op2', 'op3']});
     await adminQuestions.addDateQuestion({questionName: 'csv-date'});
+    await adminQuestions.addCurrencyQuestion({questionName: 'csv-currency'});
     await adminQuestions.exportQuestion('name-csv-download');
     await adminQuestions.exportQuestion('dropdown-csv-download');
     await adminQuestions.exportQuestion('csv-date');
-    await adminPrograms.addAndPublishProgramWithQuestions(['name-csv-download', 'dropdown-csv-download', 'csv-date'], programName);
+    await adminQuestions.exportQuestion('csv-currency');
+    await adminPrograms.addAndPublishProgramWithQuestions(['name-csv-download', 'dropdown-csv-download', 'csv-date', 'csv-currency'], programName);
 
     await logout(page);
     await loginAsTestUser(page);
@@ -34,6 +36,7 @@ describe('normal application flow', () => {
     await applicantQuestions.answerNameQuestion('sarah', 'smith');
     await applicantQuestions.answerDropdownQuestion('op2');
     await applicantQuestions.answerDateQuestion('2021-05-10');
+    await applicantQuestions.answerCurrencyQuestion('1000');
     await applicantQuestions.clickNext();
 
     // Applicant submits answers from review page.
@@ -44,7 +47,7 @@ describe('normal application flow', () => {
 
     await adminPrograms.viewApplications(programName);
     const csvContent = await adminPrograms.getCsv();
-    expect(csvContent).toContain('sarah,,smith,op2,05/10/2021');
+    expect(csvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00');
 
     await logout(page);
     await loginAsAdmin(page)
@@ -70,6 +73,7 @@ describe('normal application flow', () => {
     await applicantQuestions.answerNameQuestion('Gus', 'Guest');
     await applicantQuestions.answerDropdownQuestion('op2');
     await applicantQuestions.answerDateQuestion('1990-01-01');
+    await applicantQuestions.answerCurrencyQuestion('2000');
     await applicantQuestions.answerNumberQuestion('1600');
     await applicantQuestions.clickNext();
     await applicantQuestions.submitFromReviewPage(programName);
@@ -79,7 +83,7 @@ describe('normal application flow', () => {
     await adminPrograms.viewApplications(programName);
     const postEditCsvContent = await adminPrograms.getCsv();
 
-    expect(postEditCsvContent).toContain('sarah,,smith,op2,05/10/2021');
+    expect(postEditCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00');
 
     await logout(page);
 
@@ -87,8 +91,8 @@ describe('normal application flow', () => {
     await adminPrograms.gotoAdminProgramsPage();
     const demographicsCsvContent = await adminPrograms.getDemographicsCsv();
 
-    expect(demographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvdate (date),dropdowncsvdownload (selection),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)');
-    expect(demographicsCsvContent).toContain('05/10/2021,op2,sarah,,smith');
+    expect(demographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)');
+    expect(demographicsCsvContent).toContain('1000.00,05/10/2021,op2,sarah,,smith');
 
     await adminQuestions.createNewVersion('name-csv-download');
     await adminQuestions.exportQuestionOpaque('name-csv-download');
@@ -97,7 +101,7 @@ describe('normal application flow', () => {
     await adminPrograms.gotoAdminProgramsPage();
     const newDemographicsCsvContent = await adminPrograms.getDemographicsCsv();
 
-    expect(newDemographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)');
+    expect(newDemographicsCsvContent).toContain('Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)');
     expect(newDemographicsCsvContent).not.toContain(',sarah,,smith');
     expect(newDemographicsCsvContent).toContain(',op2,');
     expect(newDemographicsCsvContent).toContain(',1600,');
