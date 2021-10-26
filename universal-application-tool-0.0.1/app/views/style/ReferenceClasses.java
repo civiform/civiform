@@ -67,7 +67,7 @@ public final class ReferenceClasses {
 
   public static final String CHECKBOX_QUESTION = "cf-question-checkbox";
   public static final String CURRENCY_QUESTION = "cf-question-currency";
-  public static final String CURRENCY_VALUE = "cf-question-currency-value";
+  public static final String CURRENCY_VALUE = "cf-currency-value";
   public static final String DATE_QUESTION = "cf-question-date";
   public static final String EMAIL_QUESTION = "cf-question-email";
 
