@@ -204,8 +204,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberName())
             .withAnotherRepeatedBlock("repeated - household members jobs")
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
-            .withRepeatedBlock("deeply repeated - household members jobs income")
-            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobIncome())
+            .withRepeatedBlock("deeply repeated - household members number days worked")
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberDaysWorked())
             .buildDefinition();
 
     // Add repeated entities to applicant data
@@ -291,7 +291,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     assertThat(blocks.get(8).isEnumerator()).isTrue();
 
     assertThat(blocks.get(9).getId()).isEqualTo("6-2-0");
-    questionPath = deepEnumerationPath.atIndex(0).join("household_members_jobs_income");
+    questionPath = deepEnumerationPath.atIndex(0).join("household_members_days_worked");
     assertThat(blocks.get(9).getQuestions().get(0).getContextualizedScalars())
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
@@ -303,7 +303,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 ScalarType.LONG));
 
     assertThat(blocks.get(10).getId()).isEqualTo("6-2-1");
-    questionPath = deepEnumerationPath.atIndex(1).join("household_members_jobs_income");
+    questionPath = deepEnumerationPath.atIndex(1).join("household_members_days_worked");
     assertThat(blocks.get(10).getQuestions().get(0).getContextualizedScalars())
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(

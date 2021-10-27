@@ -28,6 +28,10 @@ export class ApplicantQuestions {
     }
   }
 
+  async answerCurrencyQuestion(currency: string) {
+    await this.page.fill('input[currency]', currency);
+  }
+
   async answerFileUploadQuestion(text: string) {
     await this.page.setInputFiles('input[type=file]', {
       name: 'file.txt',

@@ -178,7 +178,7 @@ public class JsonPathPredicateGeneratorTest {
     ApplicantData applicantData = new ApplicantData();
     // household members
     //  \_ name (target), jobs
-    //                      \_ income (current block)
+    //                      \_ days worked (current block)
     QuestionDefinition topLevelEnumerator =
         questionBank.applicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition targetQuestion =
@@ -186,7 +186,7 @@ public class JsonPathPredicateGeneratorTest {
     QuestionDefinition nestedEnumerator =
         questionBank.applicantHouseholdMemberJobs().getQuestionDefinition();
     QuestionDefinition currentQuestion =
-        questionBank.applicantHouseholdMemberJobIncome().getQuestionDefinition();
+        questionBank.applicantHouseholdMemberDaysWorked().getQuestionDefinition();
 
     // Put an entity at the enumerator path so we can generate repeated contexts.
     ApplicantQuestion applicantEnumerator =

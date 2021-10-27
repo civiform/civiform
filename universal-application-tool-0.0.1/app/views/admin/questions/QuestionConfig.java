@@ -107,6 +107,7 @@ public class QuestionConfig {
             .setId("single-select-question-config")
             .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm, messages)
             .getContainer();
+      case CURRENCY: // fallthrough intended - no options
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended - no options
       case DATE: // fallthrough intended

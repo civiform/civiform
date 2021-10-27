@@ -134,6 +134,21 @@ public class ApplicantData {
   }
 
   /**
+   * Stores the dollars currency string as a long of the currency cents at the given {@link Path}.
+   *
+   * <p>This method requires the input string to be a number, optionally with commas and optionally
+   * with exactly 2 decimal points.
+   */
+  public void putCurrencyDollars(Path path, String dollars) {
+    if (dollars.isEmpty()) {
+      putNull(path);
+      return;
+    }
+    Currency currency = Currency.parse(dollars);
+    put(path, currency.getCents());
+  }
+
+  /**
    * Stores the date string as a millisecond timestamp at the given {@link Path}.
    *
    * <p>This method requires the input string to be in "yyyy-MM-dd" format.
@@ -159,7 +174,7 @@ public class ApplicantData {
     }
   }
 
-  /** Parses and writes a long value */
+  /** Parses and writes a long value. */
   public void putLong(Path path, long value) {
     put(path, value);
   }
@@ -332,6 +347,22 @@ public class ApplicantData {
   public Optional<String> readString(Path path) {
     try {
       return this.read(path, String.class);
+    } catch (JsonPathTypeMismatchException e) {
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Attempt to read a currency value at the given path. validating the value.
+   *
+   * <p>Validates the value is of an expected format and converts to the number of cents.
+   *
+   * <p>Returns {@code Optional#empty} if the path does not exist or a value other than Long is
+   * found.
+   */
+  public Optional<Currency> readCurrency(Path path) {
+    try {
+      return this.read(path, Long.class).map(cents -> new Currency(cents));
     } catch (JsonPathTypeMismatchException e) {
       return Optional.empty();
     }

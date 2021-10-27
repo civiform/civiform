@@ -132,6 +132,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
             .bindFromRequest(request)
             .get();
       case ADDRESS: // fallthrough intended
+      case CURRENCY: // fallthrough intended
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended
       case NUMBER: // fallthrough intended

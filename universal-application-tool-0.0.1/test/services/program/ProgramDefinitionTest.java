@@ -324,7 +324,7 @@ public class ProgramDefinitionTest extends WithPostgresContainer {
     QuestionDefinition questionD =
         testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition();
     QuestionDefinition questionE =
-        testQuestionBank.applicantHouseholdMemberJobIncome().getQuestionDefinition();
+        testQuestionBank.applicantHouseholdMemberDaysWorked().getQuestionDefinition();
 
     long programDefinitionId = 123L;
     BlockDefinition blockA =

@@ -14,6 +14,7 @@ import services.Path;
 import services.applicant.predicate.JsonPathPredicateGenerator;
 import services.applicant.predicate.PredicateEvaluator;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.Scalar;
@@ -109,7 +110,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     ImmutableList<Block> allBlocks = getAllActiveBlocks();
 
     for (int i = 0; i < allBlocks.size(); i++) {
-      if (allBlocks.get(i).getId().equals(blockId)) return i;
+      if (allBlocks.get(i).getId().equals(blockId)) {
+        return i;
+      }
     }
 
     return -1;
@@ -300,6 +303,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .getSelectedOptionValue(locale)
                 .map(LocalizedQuestionOption::optionText)
                 .orElse(""));
+      case CURRENCY:
+        CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
+        return ImmutableMap.of(
+            currencyQuestion.getCurrencyPath(), currencyQuestion.getAnswerString());
       case CHECKBOX:
         return ImmutableMap.of(
             question.getContextualizedPath().join(Scalar.SELECTIONS),

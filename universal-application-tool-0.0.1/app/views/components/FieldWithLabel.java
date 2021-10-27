@@ -18,6 +18,7 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
+import services.applicant.Currency;
 import services.applicant.ValidationErrorMessage;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
@@ -25,6 +26,7 @@ import views.style.Styles;
 
 /** Utility class for rendering an input field with an optional label. */
 public class FieldWithLabel {
+
   private static final ImmutableSet<String> STRING_TYPES =
       ImmutableSet.of("text", "checkbox", "radio", "date", "email");
 
@@ -36,6 +38,9 @@ public class FieldWithLabel {
   /** For use with fields of type `number`. */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
 
+  /** For use with fields that have isCurrency true`. */
+  protected Optional<Currency> fieldValueCurrency = Optional.empty();
+
   protected String formId = "";
   protected String id = "";
   protected String labelText = "";
@@ -46,6 +51,7 @@ public class FieldWithLabel {
   protected boolean showFieldErrors = true;
   protected boolean checked = false;
   protected boolean disabled = false;
+  protected boolean isCurrency = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
 
   public FieldWithLabel(Tag fieldTag) {
@@ -55,6 +61,11 @@ public class FieldWithLabel {
   public static FieldWithLabel checkbox() {
     Tag fieldTag = TagCreator.input();
     return new FieldWithLabel(fieldTag).setFieldType("checkbox");
+  }
+
+  public static FieldWithLabel currency() {
+    Tag fieldTag = TagCreator.input();
+    return new FieldWithLabel(fieldTag).setFieldType("text").setIsCurrency();
   }
 
   public static FieldWithLabel radio() {
@@ -119,6 +130,13 @@ public class FieldWithLabel {
     return this;
   }
 
+  FieldWithLabel setIsCurrency() {
+    this.isCurrency = true;
+    // There is no HTML currency input so we identify these with a custom attribute.
+    this.setAttribute("currency");
+    return this;
+  }
+
   public FieldWithLabel setLabelText(String labelText) {
     this.labelText = labelText;
     return this;
@@ -126,6 +144,12 @@ public class FieldWithLabel {
 
   public FieldWithLabel setPlaceholderText(String placeholder) {
     this.placeholderText = placeholder;
+    return this;
+  }
+
+  /** Sets a valueless attribute. */
+  public FieldWithLabel setAttribute(String attribute) {
+    this.fieldTag.attr(attribute, null);
     return this;
   }
 
@@ -152,7 +176,7 @@ public class FieldWithLabel {
   public FieldWithLabel setValue(OptionalInt value) {
     if (!this.fieldType.equals("number")) {
       throw new RuntimeException(
-          "setting an Optional<Integer> value is only available on fields of type `number`");
+          "setting an OptionalInt value is only available on fields of type `number`");
     }
 
     this.fieldValueNumber =
@@ -167,6 +191,16 @@ public class FieldWithLabel {
     }
 
     this.fieldValueNumber = value;
+    return this;
+  }
+
+  public FieldWithLabel setValue(Currency value) {
+    if (!isCurrency) {
+      throw new RuntimeException(
+          "setting a Currency value is only available on fields for currency");
+    }
+
+    this.fieldValueCurrency = Optional.of(value);
     return this;
   }
 
@@ -198,7 +232,11 @@ public class FieldWithLabel {
     if (this.id.isEmpty()) {
       this.id = RandomStringUtils.randomAlphabetic(8);
     }
-    if (fieldTag.getTagName().equals("textarea")) {
+    if (this.isCurrency) {
+      if (this.fieldValueCurrency.isPresent()) {
+        fieldTag.withValue(this.fieldValueCurrency.get().prettyPrint());
+      }
+    } else if (fieldTag.getTagName().equals("textarea")) {
       // Have to recreate the field here in case the value is modified.
       ContainerTag textAreaTag = textarea().withType("text").withText(this.fieldValue);
       fieldTag = textAreaTag;

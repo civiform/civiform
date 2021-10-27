@@ -43,19 +43,10 @@ describe('optional application flow', () => {
 
     // Skip first block without uploading a file
     await applicantQuestions.clickSkip();
-    // Skip blocks 2-5 without answering any questions
-    await applicantQuestions.clickNext();
-    await applicantQuestions.clickNext();
-    await applicantQuestions.clickNext();
-    await applicantQuestions.clickNext();
-
-    //Skip blocks 6-11 without answering any questions
-    await applicantQuestions.clickNext();
-    await applicantQuestions.clickNext();
-    await applicantQuestions.clickNext();
-    await applicantQuestions.clickNext();
-    await applicantQuestions.clickNext();
-    await applicantQuestions.clickNext();
+    // Skip blocks 2-12 without answering any questions
+    for (let i = 2; i <= 12; i++) {
+      await applicantQuestions.clickNext();
+    }
 
     // Submit the first program
     await applicantQuestions.submitFromReviewPage(programName);

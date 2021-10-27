@@ -18,6 +18,7 @@ import services.question.types.ScalarType;
  */
 public enum Scalar {
   CITY("city", ScalarType.STRING),
+  CURRENCY_CENTS("currency", ScalarType.CURRENCY_CENTS),
   DATE("date", ScalarType.DATE),
   EMAIL("email", ScalarType.STRING),
   FILE_KEY("file key", ScalarType.STRING),
@@ -63,6 +64,8 @@ public enum Scalar {
   private static final ImmutableSet<Scalar> ADDRESS_SCALARS =
       ImmutableSet.of(STREET, LINE2, CITY, STATE, ZIP);
 
+  private static final ImmutableSet<Scalar> CURRENCY_SCALARS = ImmutableSet.of(CURRENCY_CENTS);
+
   private static final ImmutableSet<Scalar> DATE_SCALARS = ImmutableSet.of(DATE);
 
   private static final ImmutableSet<Scalar> EMAIL_SCALARS = ImmutableSet.of(EMAIL);
@@ -100,6 +103,8 @@ public enum Scalar {
     switch (questionType) {
       case ADDRESS:
         return ADDRESS_SCALARS;
+      case CURRENCY:
+        return CURRENCY_SCALARS;
       case DATE:
         return DATE_SCALARS;
       case EMAIL:

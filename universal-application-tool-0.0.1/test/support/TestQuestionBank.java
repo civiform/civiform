@@ -16,6 +16,7 @@ import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.CurrencyQuestionDefinition;
 import services.question.types.DateQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
 import services.question.types.EmailQuestionDefinition;
@@ -75,6 +76,7 @@ public class TestQuestionBank {
     return new ImmutableMap.Builder<QuestionType, Question>()
         .put(QuestionType.ADDRESS, applicantAddress())
         .put(QuestionType.CHECKBOX, applicantKitchenTools())
+        .put(QuestionType.CURRENCY, applicantMonthlyIncome())
         .put(QuestionType.DATE, applicantDate())
         .put(QuestionType.DROPDOWN, applicantIceCream())
         .put(QuestionType.EMAIL, applicantEmail())
@@ -132,6 +134,12 @@ public class TestQuestionBank {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_FILE, this::applicantFile);
   }
 
+  // Currency
+  public Question applicantMonthlyIncome() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_MONTHLY_INCOME, this::applicantMonthlyIncome);
+  }
+
   // Id
   public Question applicantId() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ID, this::applicantId);
@@ -157,10 +165,10 @@ public class TestQuestionBank {
   }
 
   // Deeply nested Number
-  public Question applicantHouseholdMemberJobIncome() {
+  public Question applicantHouseholdMemberDaysWorked() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_JOB_INCOME,
-        this::applicantHouseholdMemberJobIncome);
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_DAYS_WORKED,
+        this::applicantHouseholdMemberDaysWorked);
   }
 
   // Radio button
@@ -265,6 +273,18 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  // Currency
+  private Question applicantMonthlyIncome(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new CurrencyQuestionDefinition(
+            "applicant monthly income",
+            Optional.empty(),
+            "monthly income of applicant",
+            LocalizedStrings.of(Locale.US, "what is your monthly income?"),
+            LocalizedStrings.of(Locale.US, "help text"));
+    return maybeSave(definition);
+  }
+
   // Id
   private Question applicantId(QuestionEnum ignore) {
     QuestionDefinition definition =
@@ -338,16 +358,17 @@ public class TestQuestionBank {
             LocalizedStrings.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
+
   // Deeply Nested Number
-  private Question applicantHouseholdMemberJobIncome(QuestionEnum ignore) {
+  private Question applicantHouseholdMemberDaysWorked(QuestionEnum ignore) {
     Question householdMemberJobs = applicantHouseholdMemberJobs();
     QuestionDefinition definition =
         new NumberQuestionDefinition(
-            "household members jobs income",
+            "household members days worked",
             Optional.of(householdMemberJobs.id),
-            "The applicant's household member's job's income",
-            LocalizedStrings.of(Locale.US, "What is $this.parent's income at $this?"),
-            LocalizedStrings.of(Locale.US, "What is the monthly income of $this.parent at $this?"));
+            "The applicant's household member's number of days worked",
+            LocalizedStrings.of(Locale.US, "How many days has $this.parent worked at $this?"),
+            LocalizedStrings.of(Locale.US, "How many days has $this.parent worked at $this?"));
 
     return maybeSave(definition);
   }
@@ -436,9 +457,10 @@ public class TestQuestionBank {
     APPLICANT_FILE,
     APPLICANT_ID,
     APPLICANT_HOUSEHOLD_MEMBERS,
+    APPLICANT_HOUSEHOLD_MEMBER_DAYS_WORKED,
     APPLICANT_HOUSEHOLD_MEMBER_NAME,
     APPLICANT_HOUSEHOLD_MEMBER_JOBS,
-    APPLICANT_HOUSEHOLD_MEMBER_JOB_INCOME,
+    APPLICANT_MONTHLY_INCOME,
     APPLICANT_ICE_CREAM,
     APPLICANT_JUGGLING_NUMBER,
     APPLICANT_KITCHEN_TOOLS,

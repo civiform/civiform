@@ -107,6 +107,9 @@ public class CsvExporterTest extends WithPostgresContainer {
         QuestionAnswerer.answerMultiSelectQuestion(applicantDataOne, answerPath, 1, 2L);
         // applicant two did not answer this question.
         break;
+      case CURRENCY:
+        QuestionAnswerer.answerCurrencyQuestion(applicantDataOne, answerPath, "1,234.56");
+        break;
       case DATE:
         QuestionAnswerer.answerDateQuestion(applicantDataOne, answerPath, "1980-01-01");
         // applicant two did not answer this question.
@@ -237,14 +240,15 @@ public class CsvExporterTest extends WithPostgresContainer {
     // Define the program
     Question nameQuestion = testQuestionBank.applicantName();
     Question colorQuestion = testQuestionBank.applicantFavoriteColor();
+    Question monthlyIncomeQuestion = testQuestionBank.applicantMonthlyIncome();
     Question householdMembersQuestion = testQuestionBank.applicantHouseholdMembers();
     Question hmNameQuestion = testQuestionBank.applicantHouseholdMemberName();
     Question hmJobsQuestion = testQuestionBank.applicantHouseholdMemberJobs();
-    Question hmJobIncomeQuestion = testQuestionBank.applicantHouseholdMemberJobIncome();
+    Question hmNumberDaysWorksQuestion = testQuestionBank.applicantHouseholdMemberDaysWorked();
     Program program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
-            .withRequiredQuestions(nameQuestion, colorQuestion)
+            .withRequiredQuestions(nameQuestion, colorQuestion, monthlyIncomeQuestion)
             .withBlock()
             .withRequiredQuestion(householdMembersQuestion)
             .withRepeatedBlock()
@@ -252,7 +256,7 @@ public class CsvExporterTest extends WithPostgresContainer {
             .withAnotherRepeatedBlock()
             .withRequiredQuestion(hmJobsQuestion)
             .withRepeatedBlock()
-            .withRequiredQuestion(hmJobIncomeQuestion)
+            .withRequiredQuestion(hmNumberDaysWorksQuestion)
             .build();
 
     // First applicant has two household members, and the second one has one job.
@@ -297,7 +301,7 @@ public class CsvExporterTest extends WithPostgresContainer {
             .atIndex(1)
             .join(hmJobPathSegment)
             .atIndex(0)
-            .join(hmJobIncomeQuestion.getQuestionDefinition().getQuestionPathSegment()),
+            .join(hmNumberDaysWorksQuestion.getQuestionDefinition().getQuestionPathSegment()),
         100);
     firstApplicant.save();
     Application firstApplication = new Application(firstApplicant, program, LifecycleStage.ACTIVE);
@@ -335,7 +339,7 @@ public class CsvExporterTest extends WithPostgresContainer {
             .atIndex(0)
             .join(hmJobPathSegment)
             .atIndex(0)
-            .join(hmJobIncomeQuestion.getQuestionDefinition().getQuestionPathSegment()),
+            .join(hmNumberDaysWorksQuestion.getQuestionDefinition().getQuestionPathSegment()),
         111);
     QuestionAnswerer.answerNumberQuestion(
         secondApplicant.getApplicantData(),
@@ -343,7 +347,7 @@ public class CsvExporterTest extends WithPostgresContainer {
             .atIndex(0)
             .join(hmJobPathSegment)
             .atIndex(1)
-            .join(hmJobIncomeQuestion.getQuestionDefinition().getQuestionPathSegment()),
+            .join(hmNumberDaysWorksQuestion.getQuestionDefinition().getQuestionPathSegment()),
         222);
     QuestionAnswerer.answerNumberQuestion(
         secondApplicant.getApplicantData(),
@@ -351,7 +355,7 @@ public class CsvExporterTest extends WithPostgresContainer {
             .atIndex(0)
             .join(hmJobPathSegment)
             .atIndex(2)
-            .join(hmJobIncomeQuestion.getQuestionDefinition().getQuestionPathSegment()),
+            .join(hmNumberDaysWorksQuestion.getQuestionDefinition().getQuestionPathSegment()),
         333);
     secondApplicant.save();
     Application secondApplication =
@@ -364,39 +368,41 @@ public class CsvExporterTest extends WithPostgresContainer {
         CSVParser.parse(
             exporterService.getProgramCsv(program.id), CSVFormat.DEFAULT.withFirstRecordAsHeader());
 
+    int id = 0;
     assertThat(parser.getHeaderMap())
         .containsExactlyEntriesOf(
             ImmutableMap.<String, Integer>builder()
-                .put("ID", 0)
-                .put("Applicant language", 1)
-                .put("Submit time", 2)
-                .put("Submitted by", 3)
-                .put("applicant name (first_name)", 4)
-                .put("applicant name (middle_name)", 5)
-                .put("applicant name (last_name)", 6)
-                .put("applicant favorite color (text)", 7)
-                .put("applicant household members[0] - household members name (first_name)", 8)
-                .put("applicant household members[0] - household members name (middle_name)", 9)
-                .put("applicant household members[0] - household members name (last_name)", 10)
-                .put("applicant household members[1] - household members name (first_name)", 11)
-                .put("applicant household members[1] - household members name (middle_name)", 12)
-                .put("applicant household members[1] - household members name (last_name)", 13)
+                .put("ID", id++)
+                .put("Applicant language", id++)
+                .put("Submit time", id++)
+                .put("Submitted by", id++)
+                .put("applicant name (first_name)", id++)
+                .put("applicant name (middle_name)", id++)
+                .put("applicant name (last_name)", id++)
+                .put("applicant favorite color (text)", id++)
+                .put("applicant monthly income (currency)", id++)
+                .put("applicant household members[0] - household members name (first_name)", id++)
+                .put("applicant household members[0] - household members name (middle_name)", id++)
+                .put("applicant household members[0] - household members name (last_name)", id++)
+                .put("applicant household members[1] - household members name (first_name)", id++)
+                .put("applicant household members[1] - household members name (middle_name)", id++)
+                .put("applicant household members[1] - household members name (last_name)", id++)
                 .put(
                     "applicant household members[0] - household members jobs[0] - household"
-                        + " members jobs income (number)",
-                    14)
+                        + " members days worked (number)",
+                    id++)
                 .put(
                     "applicant household members[0] - household members jobs[1] - household"
-                        + " members jobs income (number)",
-                    15)
+                        + " members days worked (number)",
+                    id++)
                 .put(
                     "applicant household members[0] - household members jobs[2] - household"
-                        + " members jobs income (number)",
-                    16)
+                        + " members days worked (number)",
+                    id++)
                 .put(
                     "applicant household members[1] - household members jobs[0] - household"
-                        + " members jobs income (number)",
-                    17)
+                        + " members days worked (number)",
+                    id++)
                 .build());
 
     List<CSVRecord> records = parser.getRecords();
@@ -408,28 +414,28 @@ public class CsvExporterTest extends WithPostgresContainer {
                 .get(0)
                 .get(
                     "applicant household members[0] - household members jobs[2] - household"
-                        + " members jobs income (number)"))
+                        + " members days worked (number)"))
         .isEqualTo("333");
     assertThat(
             records
                 .get(0)
                 .get(
                     "applicant household members[1] - household members jobs[0] - household"
-                        + " members jobs income (number)"))
+                        + " members days worked (number)"))
         .isEqualTo("");
     assertThat(
             records
                 .get(1)
                 .get(
                     "applicant household members[0] - household members jobs[2] - household"
-                        + " members jobs income (number)"))
+                        + " members days worked (number)"))
         .isEqualTo("");
     assertThat(
             records
                 .get(1)
                 .get(
                     "applicant household members[1] - household members jobs[0] - household"
-                        + " members jobs income (number)"))
+                        + " members days worked (number)"))
         .isEqualTo("100");
   }
 }

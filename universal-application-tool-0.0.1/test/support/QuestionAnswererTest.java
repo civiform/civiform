@@ -30,6 +30,16 @@ public class QuestionAnswererTest {
   }
 
   @Test
+  public void answerCurrencyQuestion() {
+    Path path = Path.create("applicant.currency_cents");
+    QuestionAnswerer.answerCurrencyQuestion(applicantData, path, "2.33");
+
+    assertThat(applicantData.readCurrency(path.join(Scalar.CURRENCY_CENTS))).isPresent();
+    assertThat(applicantData.readCurrency(path.join(Scalar.CURRENCY_CENTS)).get().getCents())
+        .isEqualTo(233);
+  }
+
+  @Test
   public void answerFileQuestion() {
     Path path = Path.create("applicant.file");
     QuestionAnswerer.answerFileQuestion(applicantData, path, "file key");
