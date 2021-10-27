@@ -87,7 +87,7 @@ public class RedirectController extends CiviFormController {
               }
 
               return redirect(
-                  controllers.applicant.routes.ApplicantProgramsController.edit(
+                  controllers.applicant.routes.ApplicantProgramReviewController.preview(
                       applicant.id, programFuture.join().id));
             },
             httpContext.current());
