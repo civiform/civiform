@@ -5,6 +5,7 @@ describe('currency applicant flow', () => {
   // Not enough decimals.
   const invalidCurrency = "1.0";
   let pageObject;
+
   beforeAll(async () => {
     const {page} = await startSession()
     pageObject = page;
