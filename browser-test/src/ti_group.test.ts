@@ -3,7 +3,6 @@ import { startSession, loginAsAdmin, endSession, AdminTIGroups } from './support
 describe('normal application flow', () => {
   it('all major steps', async () => {
     const { browser, page } = await startSession()
-    page.setDefaultTimeout(4000);
 
     await loginAsAdmin(page);
     const adminGroups = new AdminTIGroups(page);
