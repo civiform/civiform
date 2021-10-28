@@ -3,7 +3,6 @@ import { gotoEndpoint, startSession, loginAsAdmin, AdminQuestions, AdminPrograms
 describe('navigating to a deep link', () => {
   it('as a guest user or registered user', async () => {
     const { browser, page } = await startSession()
-    page.setDefaultTimeout(5000);
 
     // Arrange
     await loginAsAdmin(page);
