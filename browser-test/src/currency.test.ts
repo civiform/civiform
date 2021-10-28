@@ -4,9 +4,10 @@ describe('currency applicant flow', () => {
   const validCurrency = "1000";
   // Not enough decimals.
   const invalidCurrency = "1.0";
+
   describe('single currency question', () => {
     let pageObject, applicantQuestions;
-    let programName = 'test program for single currency';
+    const programName = 'test program for single currency';
 
     beforeAll(async () => {
       const {browser, page} = await startSession()
@@ -57,7 +58,8 @@ describe('currency applicant flow', () => {
 
   describe('multiple currency questions', () => {
     let pageObject, applicantQuestions;
-    let programName = 'test program for multiple currencies';
+    const programName = 'test program for multiple currencies';
+
     beforeAll(async () => {
       const {page} = await startSession()
       pageObject = page;
