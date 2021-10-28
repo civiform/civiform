@@ -211,17 +211,17 @@ export class AdminQuestions {
   }
 
   async addAllNonSingleBlockQuestionTypes(questionNamePrefix: string) {
-    await this.addAddressQuestion({questionName: questionNamePrefix + 'address'});
-    await this.addCheckboxQuestion({questionName: questionNamePrefix + 'checkbox', options: ['op1', 'op2', 'op3', 'op4']});
-    await this.addCurrencyQuestion({questionName: questionNamePrefix + 'currency'});
-    await this.addDateQuestion({questionName: questionNamePrefix + 'date'});
-    await this.addDropdownQuestion({questionName: questionNamePrefix + 'dropdown', options: ['op1', 'op2', 'op3']});
-    await this.addEmailQuestion({questionName: questionNamePrefix + 'email'});
-    await this.addIdQuestion({questionName: questionNamePrefix + 'id'});
-    await this.addNameQuestion({questionName: questionNamePrefix + 'name'});
-    await this.addNumberQuestion({questionName: questionNamePrefix + 'number'});
-    await this.addRadioButtonQuestion({questionName: questionNamePrefix + 'radio', options: ['one', 'two', 'three']});
-    await this.addTextQuestion({questionName: questionNamePrefix + 'text'});
+    await this.addAddressQuestion({ questionName: questionNamePrefix + 'address' });
+    await this.addCheckboxQuestion({ questionName: questionNamePrefix + 'checkbox', options: ['op1', 'op2', 'op3', 'op4'] });
+    await this.addCurrencyQuestion({ questionName: questionNamePrefix + 'currency' });
+    await this.addDateQuestion({ questionName: questionNamePrefix + 'date' });
+    await this.addDropdownQuestion({ questionName: questionNamePrefix + 'dropdown', options: ['op1', 'op2', 'op3'] });
+    await this.addEmailQuestion({ questionName: questionNamePrefix + 'email' });
+    await this.addIdQuestion({ questionName: questionNamePrefix + 'id' });
+    await this.addNameQuestion({ questionName: questionNamePrefix + 'name' });
+    await this.addNumberQuestion({ questionName: questionNamePrefix + 'number' });
+    await this.addRadioButtonQuestion({ questionName: questionNamePrefix + 'radio', options: ['one', 'two', 'three'] });
+    await this.addTextQuestion({ questionName: questionNamePrefix + 'text' });
     return [questionNamePrefix + 'address',
     questionNamePrefix + 'checkbox',
     questionNamePrefix + 'currency',
@@ -365,11 +365,11 @@ export class AdminQuestions {
     await this.page.fill(`:nth-match(#question-settings div.cf-multi-option-question-option, ${index}) input`, text);
   }
 
-  async addCurrencyQuestion({questionName,
-                              description = 'currency description',
-                              questionText = 'currency question text',
-                              helpText = 'currency question help text',
-                              enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
+  async addCurrencyQuestion({ questionName,
+    description = 'currency description',
+    questionText = 'currency question text',
+    helpText = 'currency question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
     await this.gotoAdminQuestionsPage();
     await this.page.click('#create-question-button');
     await this.page.click('#create-currency-question');
@@ -535,11 +535,11 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText);
   }
 
-  async addIdQuestion({questionName,
+  async addIdQuestion({ questionName,
     description = 'id description',
     questionText = 'id question text',
     helpText = 'id question help text',
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION}: QuestionParams) {
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION }: QuestionParams) {
     await this.gotoAdminQuestionsPage();
 
     await this.page.click('#create-question-button');

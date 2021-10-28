@@ -1,4 +1,4 @@
-import {AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsTestUser, logout, selectApplicantLanguage, startSession} from './support'
+import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsTestUser, logout, selectApplicantLanguage, startSession } from './support'
 
 describe('currency applicant flow', () => {
   const validCurrency = "1000";
@@ -7,7 +7,7 @@ describe('currency applicant flow', () => {
   let pageObject;
 
   beforeAll(async () => {
-    const {page} = await startSession()
+    const { page } = await startSession()
     pageObject = page;
   });
 
@@ -23,7 +23,7 @@ describe('currency applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject);
       applicantQuestions = new ApplicantQuestions(pageObject);
 
-      await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'});
+      await adminQuestions.addCurrencyQuestion({ questionName: 'currency-q' });
       await adminPrograms.addAndPublishProgramWithQuestions(['currency-q'], programName);
 
       await logout(pageObject);
@@ -70,8 +70,8 @@ describe('currency applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject);
       applicantQuestions = new ApplicantQuestions(pageObject);
 
-      await adminQuestions.addCurrencyQuestion({questionName: 'currency-a-q'});
-      await adminQuestions.addCurrencyQuestion({questionName: 'currency-b-q'});
+      await adminQuestions.addCurrencyQuestion({ questionName: 'currency-a-q' });
+      await adminQuestions.addCurrencyQuestion({ questionName: 'currency-b-q' });
       await adminPrograms.addAndPublishProgramWithQuestions(['currency-a-q', 'currency-b-q'], programName);
 
       await logout(pageObject);

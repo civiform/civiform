@@ -271,13 +271,13 @@ class ValidationController {
   validateCurrencyQuestion(): boolean {
     let isAllValid = true;
     const questions = Array.from(document.querySelectorAll(ValidationController.CURRENCY_QUESTION_CLASS));
-    for( const question of questions) {
+    for (const question of questions) {
       const currencyInput = <HTMLInputElement>question.querySelector("input[currency]");
       const currencyValue = currencyInput.value;
 
       const isValidCurrency = ValidationController.CURRENCY_NO_COMMAS.test(currencyValue) ||
-          ValidationController.CURRENCY_WITH_COMMAS.test(currencyValue) ||
-          ValidationController.CURRENCY_ZERO_DOLLARS.test(currencyValue);
+        ValidationController.CURRENCY_WITH_COMMAS.test(currencyValue) ||
+        ValidationController.CURRENCY_ZERO_DOLLARS.test(currencyValue);
 
       // If this question isn't required then it's also valid if it is empty.
       const isEmpty = currencyValue.length === 0;

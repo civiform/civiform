@@ -11,7 +11,7 @@ describe('view an application in an older version', () => {
 
     // Create a program with one question
     const questionName = 'text-to-be-obsolete-q';
-    await adminQuestions.addTextQuestion({questionName});
+    await adminQuestions.addTextQuestion({ questionName });
     const programName = 'program with previous applications';
     await adminPrograms.addAndPublishProgramWithQuestions([questionName], programName);
 

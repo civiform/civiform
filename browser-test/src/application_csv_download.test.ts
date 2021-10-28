@@ -16,10 +16,10 @@ describe('normal application flow', () => {
     const applicantQuestions = new ApplicantQuestions(page);
 
     const programName = 'test program for csv export';
-    await adminQuestions.addNameQuestion({questionName: 'name-csv-download'});
-    await adminQuestions.addDropdownQuestion({questionName: 'dropdown-csv-download', options: ['op1', 'op2', 'op3']});
-    await adminQuestions.addDateQuestion({questionName: 'csv-date'});
-    await adminQuestions.addCurrencyQuestion({questionName: 'csv-currency'});
+    await adminQuestions.addNameQuestion({ questionName: 'name-csv-download' });
+    await adminQuestions.addDropdownQuestion({ questionName: 'dropdown-csv-download', options: ['op1', 'op2', 'op3'] });
+    await adminQuestions.addDateQuestion({ questionName: 'csv-date' });
+    await adminQuestions.addCurrencyQuestion({ questionName: 'csv-currency' });
     await adminQuestions.exportQuestion('name-csv-download');
     await adminQuestions.exportQuestion('dropdown-csv-download');
     await adminQuestions.exportQuestion('csv-date');
