@@ -28,8 +28,8 @@ export class ApplicantQuestions {
     }
   }
 
-  async answerCurrencyQuestion(currency: string) {
-    await this.page.fill('input[currency]', currency);
+  async answerCurrencyQuestion(currency: string, index = 0) {
+    await this.page.fill(`input[currency] >> nth=${index}`, currency);
   }
 
   async answerFileUploadQuestion(text: string) {
