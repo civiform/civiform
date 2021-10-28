@@ -4,25 +4,28 @@ describe('currency applicant flow', () => {
   const validCurrency = "1000";
   // Not enough decimals.
   const invalidCurrency = "1.0";
+  let pageObject;
+  beforeAll(async () => {
+    const {page} = await startSession()
+    pageObject = page;
+  });
 
   describe('single currency question', () => {
-    let pageObject, applicantQuestions;
+    let applicantQuestions;
     const programName = 'test program for single currency';
 
     beforeAll(async () => {
-      const {browser, page} = await startSession()
-      pageObject = page;
-      page.setDefaultTimeout(5000);
+      pageObject.setDefaultTimeout(5000);
 
-      await loginAsAdmin(page);
-      const adminQuestions = new AdminQuestions(page);
-      const adminPrograms = new AdminPrograms(page);
-      applicantQuestions = new ApplicantQuestions(page);
+      await loginAsAdmin(pageObject);
+      const adminQuestions = new AdminQuestions(pageObject);
+      const adminPrograms = new AdminPrograms(pageObject);
+      applicantQuestions = new ApplicantQuestions(pageObject);
 
       await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'});
       await adminPrograms.addAndPublishProgramWithQuestions(['currency-q'], programName);
 
-      await logout(page);
+      await logout(pageObject);
     });
 
     it('with valid currency does submit', async () => {
@@ -37,7 +40,7 @@ describe('currency applicant flow', () => {
       await logout(pageObject);
     });
 
-    it('program with invalid currency does not submit', async () => {
+    it('with invalid currency does not submit', async () => {
       await loginAsTestUser(pageObject);
       await selectApplicantLanguage(pageObject, 'English');
 
@@ -57,24 +60,20 @@ describe('currency applicant flow', () => {
   });
 
   describe('multiple currency questions', () => {
-    let pageObject, applicantQuestions;
+    let applicantQuestions;
     const programName = 'test program for multiple currencies';
 
     beforeAll(async () => {
-      const {page} = await startSession()
-      pageObject = page;
-      page.setDefaultTimeout(5000);
-
-      await loginAsAdmin(page);
-      const adminQuestions = new AdminQuestions(page);
-      const adminPrograms = new AdminPrograms(page);
-      applicantQuestions = new ApplicantQuestions(page);
+      await loginAsAdmin(pageObject);
+      const adminQuestions = new AdminQuestions(pageObject);
+      const adminPrograms = new AdminPrograms(pageObject);
+      applicantQuestions = new ApplicantQuestions(pageObject);
 
       await adminQuestions.addCurrencyQuestion({questionName: 'currency-a-q'});
       await adminQuestions.addCurrencyQuestion({questionName: 'currency-b-q'});
       await adminPrograms.addAndPublishProgramWithQuestions(['currency-a-q', 'currency-b-q'], programName);
 
-      await logout(page);
+      await logout(pageObject);
     });
 
     it('with valid currencies does submit', async () => {
