@@ -16,8 +16,6 @@ describe('currency applicant flow', () => {
     const programName = 'test program for single currency';
 
     beforeAll(async () => {
-      pageObject.setDefaultTimeout(5000);
-
       await loginAsAdmin(pageObject);
       const adminQuestions = new AdminQuestions(pageObject);
       const adminPrograms = new AdminPrograms(pageObject);
