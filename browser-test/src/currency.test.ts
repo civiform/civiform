@@ -1,4 +1,4 @@
-import {AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsTestUser, logout, selectApplicantLanguage, startSession} from './support'
+import {AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsTestUser, logout, selectApplicantLanguage, startSession, resetSession} from './support'
 
 describe('currency applicant flow', () => {
   const validCurrency = "1000";
@@ -9,6 +9,10 @@ describe('currency applicant flow', () => {
   beforeAll(async () => {
     const {page} = await startSession()
     pageObject = page;
+  });
+
+  afterEach(async () => {
+    await resetSession(pageObject);
   });
 
   describe('single currency question', () => {
@@ -36,7 +40,6 @@ describe('currency applicant flow', () => {
       await applicantQuestions.clickNext();
 
       await applicantQuestions.submitFromReviewPage(programName);
-      await logout(pageObject);
     });
 
     it('with invalid currency does not submit', async () => {
@@ -53,8 +56,6 @@ describe('currency applicant flow', () => {
 
       // The block should be displayed still with the error shown.
       expect(await error.isHidden()).toEqual(false);
-
-      await logout(pageObject);
     })
   });
 
@@ -85,7 +86,6 @@ describe('currency applicant flow', () => {
       await applicantQuestions.clickNext();
 
       await applicantQuestions.submitFromReviewPage(programName);
-      await logout(pageObject);
     });
 
     it('with first invalid does not submit', async () => {
@@ -101,7 +101,6 @@ describe('currency applicant flow', () => {
       await applicantQuestions.clickNext();
 
       expect(await error.isHidden()).toEqual(false);
-      await logout(pageObject);
     });
 
     it('with second invalid does not submit', async () => {
@@ -117,7 +116,6 @@ describe('currency applicant flow', () => {
       await applicantQuestions.clickNext();
 
       expect(await error.isHidden()).toEqual(false);
-      await logout(pageObject);
     });
   });
 })
