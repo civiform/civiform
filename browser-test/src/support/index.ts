@@ -27,7 +27,7 @@ export const endSession = async (browser: Browser) => {
   await browser.close();
 }
 
-// Logs out the user if they are and goes to the site landing page.
+// Logs out the user if they are logged in and goes to the site landing page.
 export const resetSession = async (page: Page) => {
   const logoutText = await page.$('text=Logout');
   if(logoutText !== null) {
