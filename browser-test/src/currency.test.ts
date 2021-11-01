@@ -1,4 +1,4 @@
-import {AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsTestUser, logout, selectApplicantLanguage, startSession, resetSession} from './support'
+import {AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, selectApplicantLanguage, startSession, resetSession} from './support'
 
 describe('currency applicant flow', () => {
   const validCurrency = "1000";
@@ -32,7 +32,7 @@ describe('currency applicant flow', () => {
     });
 
     it('with valid currency does submit', async () => {
-      await loginAsTestUser(pageObject);
+      await loginAsGuest(pageObject);
       await selectApplicantLanguage(pageObject, 'English');
 
       await applicantQuestions.applyProgram(programName);
@@ -43,7 +43,7 @@ describe('currency applicant flow', () => {
     });
 
     it('with invalid currency does not submit', async () => {
-      await loginAsTestUser(pageObject);
+      await loginAsGuest(pageObject);
       await selectApplicantLanguage(pageObject, 'English');
 
       await applicantQuestions.applyProgram(programName);
@@ -77,7 +77,7 @@ describe('currency applicant flow', () => {
     });
 
     it('with valid currencies does submit', async () => {
-      await loginAsTestUser(pageObject);
+      await loginAsGuest(pageObject);
       await selectApplicantLanguage(pageObject, 'English');
 
       await applicantQuestions.applyProgram(programName);
@@ -89,7 +89,7 @@ describe('currency applicant flow', () => {
     });
 
     it('with first invalid does not submit', async () => {
-      await loginAsTestUser(pageObject);
+      await loginAsGuest(pageObject);
       await selectApplicantLanguage(pageObject, 'English');
 
       await applicantQuestions.applyProgram(programName);
@@ -104,7 +104,7 @@ describe('currency applicant flow', () => {
     });
 
     it('with second invalid does not submit', async () => {
-      await loginAsTestUser(pageObject);
+      await loginAsGuest(pageObject);
       await selectApplicantLanguage(pageObject, 'English');
 
       await applicantQuestions.applyProgram(programName);
