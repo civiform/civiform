@@ -12,7 +12,7 @@ describe('address applicant flow', () => {
     await resetSession(pageObject);
   });
 
-  describe('single address question', () => {
+  describe('single required address question', () => {
     let applicantQuestions;
     const programName = 'test program for single address';
 
@@ -55,7 +55,7 @@ describe('address applicant flow', () => {
       await applicantQuestions.submitFromReviewPage(programName);
     });
 
-    it('with invalid address does not submit', async () => {
+    it('with empty address does not submit', async () => {
       await loginAsGuest(pageObject);
       await selectApplicantLanguage(pageObject, 'English');
 
@@ -70,6 +70,18 @@ describe('address applicant flow', () => {
       error = await pageObject.$('.cf-address-state-error');
       expect(await error.isHidden()).toEqual(false);
       error = await pageObject.$('.cf-address-zip-error');
+      expect(await error.isHidden()).toEqual(false);
+    });
+
+    it('with invalid address does not submit', async () => {
+      await loginAsGuest(pageObject);
+      await selectApplicantLanguage(pageObject, 'English');
+
+      await applicantQuestions.applyProgram(programName);
+      await applicantQuestions.answerAddressQuestion('1234 St', 'Unit B', 'Sim', 'Ames', 'notazipcode');
+      await applicantQuestions.clickNext();
+
+      let error = await pageObject.$('.cf-address-zip-error');
       expect(await error.isHidden()).toEqual(false);
     });
   });
@@ -124,7 +136,7 @@ describe('address applicant flow', () => {
       error = await pageObject.$('.cf-address-zip-error >> nth=0');
       expect(await error.isHidden()).toEqual(false);
 
-      // Second question hos no errors.
+      // Second question has no errors.
       error = await pageObject.$('.cf-address-street-1-error >> nth=1');
       expect(await error.isHidden()).toEqual(true);
       error = await pageObject.$('.cf-address-city-error >> nth=1');
@@ -155,7 +167,7 @@ describe('address applicant flow', () => {
       error = await pageObject.$('.cf-address-zip-error >> nth=0');
       expect(await error.isHidden()).toEqual(true);
 
-      // Second question hos errors.
+      // Second question has errors.
       error = await pageObject.$('.cf-address-street-1-error >> nth=1');
       expect(await error.isHidden()).toEqual(false);
       error = await pageObject.$('.cf-address-city-error >> nth=1');
@@ -211,7 +223,7 @@ describe('address applicant flow', () => {
       });
 
       it('does not submit', async () => {
-        // Second question hos errors.
+        // Second question has errors.
         let error = await pageObject.$('.cf-address-street-1-error >> nth=1');
         expect(await error.isHidden()).toEqual(false);
         error = await pageObject.$('.cf-address-city-error >> nth=1');
