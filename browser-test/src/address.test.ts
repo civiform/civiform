@@ -22,8 +22,8 @@ describe('address applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject);
       applicantQuestions = new ApplicantQuestions(pageObject);
 
-      await adminQuestions.addAddressQuestion({questionName: 'address-q'});
-      await adminPrograms.addAndPublishProgramWithQuestions(['address-q'], programName);
+      await adminQuestions.addAddressQuestion({questionName: 'address-test-q'});
+      await adminPrograms.addAndPublishProgramWithQuestions(['address-test-q'], programName);
 
       await logout(pageObject);
     });
@@ -84,9 +84,9 @@ describe('address applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject);
       applicantQuestions = new ApplicantQuestions(pageObject);
 
-      await adminQuestions.addAddressQuestion({questionName: 'address-a-q'});
-      await adminQuestions.addAddressQuestion({questionName: 'address-b-q'});
-      await adminPrograms.addAndPublishProgramWithQuestions(['address-a-q', 'address-b-q'], programName);
+      await adminQuestions.addAddressQuestion({questionName: 'address-test-a-q'});
+      await adminQuestions.addAddressQuestion({questionName: 'address-test-b-q'});
+      await adminPrograms.addAndPublishProgramWithQuestions(['address-test-a-q', 'address-test-b-q'], programName);
 
       await logout(pageObject);
     });
@@ -178,10 +178,10 @@ describe('address applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject);
       applicantQuestions = new ApplicantQuestions(pageObject);
 
-      await adminQuestions.addAddressQuestion({questionName: 'address-optional-q'});
-      await adminQuestions.addAddressQuestion({questionName: 'address-required-q'});
+      await adminQuestions.addAddressQuestion({questionName: 'address-test-optional-q'});
+      await adminQuestions.addAddressQuestion({questionName: 'address-test-required-q'});
       await adminPrograms.addProgram(programName);
-      await adminPrograms.editProgramBlockWithOptional(programName, 'Optional question block', ['address-required-q'], 'address-optional-q');
+      await adminPrograms.editProgramBlockWithOptional(programName, 'Optional question block', ['address-test-required-q'], 'address-test-optional-q');
       await adminPrograms.gotoAdminProgramsPage();
       await adminPrograms.publishAllPrograms();
 
