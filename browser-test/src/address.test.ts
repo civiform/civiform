@@ -115,8 +115,6 @@ describe('address applicant flow', () => {
       await applicantQuestions.submitFromReviewPage(programName);
     });
 
-    // TODO: Fix code so this test passes. Issue #1656
-    /*
     it('with first invalid does not submit', async () => {
       await loginAsGuest(pageObject);
       await selectApplicantLanguage(pageObject, 'English');
@@ -146,7 +144,6 @@ describe('address applicant flow', () => {
       error = await pageObject.$('.cf-address-zip-error >> nth=1');
       expect(await error.isHidden()).toEqual(true);
     });
-    */
 
     it('with second invalid does not submit', async () => {
       await loginAsGuest(pageObject);
