@@ -115,7 +115,7 @@ describe('address applicant flow', () => {
       await applicantQuestions.submitFromReviewPage(programName);
     });
 
-    // TODO: Fix code so this test passes.
+    // TODO: Fix code so this test passes. Issue #1656
     /*
     it('with first invalid does not submit', async () => {
       await loginAsGuest(pageObject);
@@ -234,7 +234,7 @@ describe('address applicant flow', () => {
         expect(await error.isHidden()).toEqual(false);
       });
 
-      // TODO: Fix code so this test passes.
+      // TODO: Fix code so this test passes. Issue #1652
       /*
       it('optional has no errors', async () => {
         await loginAsGuest(pageObject);
