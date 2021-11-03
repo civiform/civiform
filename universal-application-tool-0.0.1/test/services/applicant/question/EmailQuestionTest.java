@@ -44,7 +44,7 @@ public class EmailQuestionTest extends WithPostgresContainer {
     EmailQuestion emailQuestion = new EmailQuestion(applicantQuestion);
 
     assertThat(emailQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(emailQuestion.hasQuestionErrors()).isFalse();
+    assertThat(emailQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -58,6 +58,6 @@ public class EmailQuestionTest extends WithPostgresContainer {
 
     assertThat(emailQuestion.getEmailValue().get()).isEqualTo("test1@gmail.com");
     assertThat(emailQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(emailQuestion.hasQuestionErrors()).isFalse();
+    assertThat(emailQuestion.hasConditionErrors()).isFalse();
   }
 }

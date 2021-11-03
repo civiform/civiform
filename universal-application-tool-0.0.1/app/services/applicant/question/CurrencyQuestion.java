@@ -14,7 +14,7 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class CurrencyQuestion implements PresentsErrors {
+public class CurrencyQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<Currency> currency;
@@ -30,7 +30,7 @@ public class CurrencyQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public boolean hasConditionErrors() {
     return !getQuestionErrors().isEmpty();
   }
 

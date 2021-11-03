@@ -17,7 +17,7 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class AddressQuestion implements PresentsErrors {
+public class AddressQuestion implements Question {
   private static final String PO_BOX_REGEX =
       "(?i)(.*(P(OST|.)?\\s*((O(FF(ICE)?)?)?.?\\s*(B(IN|OX|.?)))+)).*";
 
@@ -34,7 +34,7 @@ public class AddressQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public boolean hasConditionErrors() {
     return !getQuestionErrors().isEmpty();
   }
 
