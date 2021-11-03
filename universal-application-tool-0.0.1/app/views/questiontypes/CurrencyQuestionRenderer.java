@@ -30,7 +30,7 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRenderer {
     FieldWithLabel currencyField =
         FieldWithLabel.currency()
             .setFieldName(currencyQuestion.getCurrencyPath().toString())
-            .addReferenceClass(ReferenceClasses.CURRENCY_QUESTION)
+            .addReferenceClass(ReferenceClasses.CURRENCY_VALUE)
             .setScreenReaderText(question.getQuestionText())
             .setFieldErrors(
                 params.messages(),

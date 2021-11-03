@@ -3,7 +3,6 @@ import { gotoEndpoint, startSession, loginAsAdmin, AdminQuestions, AdminPrograms
 describe('navigating to a deep link', () => {
   it('as a guest user or registered user', async () => {
     const { browser, page } = await startSession()
-    page.setDefaultTimeout(5000);
 
     // Arrange
     await loginAsAdmin(page);
@@ -35,6 +34,7 @@ describe('navigating to a deep link', () => {
     await selectApplicantLanguage(page, 'English');
 
     // Assert
+    await page.click('#continue-application-button');
     expect(await page.innerText('.cf-applicant-question-text')).toEqual(questionText);
 
     await logout(page);
@@ -46,6 +46,7 @@ describe('navigating to a deep link', () => {
     await selectApplicantLanguage(page, 'English');
 
     // Assert
+    await page.click('#continue-application-button');
     expect(await page.innerText('.cf-applicant-question-text')).toEqual(questionText);
 
     await endSession(browser);

@@ -10,6 +10,7 @@ class ValidationController {
 
   static readonly ADDRESS_QUESTION_CLASS = '.cf-question-address';
   static readonly CURRENCY_QUESTION_CLASS = '.cf-question-currency';
+  static readonly CURRENCY_VALUE_CLASS = '.cf-currency-value';
   static readonly ENUMERATOR_QUESTION_CLASS = '.cf-question-enumerator';
   static readonly FILEUPLOAD_QUESTION_CLASS = '.cf-question-fileupload';
   static readonly NAME_QUESTION_CLASS = '.cf-question-name';
@@ -18,6 +19,8 @@ class ValidationController {
   static readonly ENUMERATOR_DELETE_TEMPLATE = 'enumerator-delete-template';
   static readonly BLOCK_SUBMIT_BUTTON_ID = 'cf-block-submit';
 
+  // Currency validation regexs.  Note: there are backend versions that need
+  // to stay in sync in app/services/applicant/Currency.java
   // Currency containing only numbers, without leading 0s and optional 2 digit cents.
   static readonly CURRENCY_NO_COMMAS = /^[1-9]\d*(?:\.\d\d)?$/;
   // Same as CURRENCY_NO_COMMAS but commas followed by 3 digits are allowed.
@@ -79,14 +82,9 @@ class ValidationController {
 
   /** Add listeners to all currency inputs to update validation on changes. */
   private addCurrencyListeners() {
-    const currencyQuestions = Array.from(document.querySelectorAll(ValidationController.CURRENCY_QUESTION_CLASS));
-    for (const question of currencyQuestions) {
-      const currencyInputs = Array.from(question.querySelectorAll('input'));
-      // Whenever an input changes we need to revalidate.
-      currencyInputs.forEach(currencyInput => {
-        currencyInput.addEventListener("input", () => { this.onCurrencyChanged(); });
-      });
-    }
+    const currencyInputs = Array.from(document.querySelectorAll(`${ValidationController.CURRENCY_QUESTION_CLASS} input`));
+    currencyInputs.forEach(currencyInput => currencyInput.addEventListener("input", () => this.onCurrencyChanged()));
+
   }
 
   /** Add listeners to all enumerator inputs to update validation on changes. */
@@ -221,7 +219,7 @@ class ValidationController {
 
   /** Validates all address questions. */
   validateAddressQuestion(): boolean {
-    let isValid = true;
+    let allValid = true;
     const addressQuestions = Array.from(document.querySelectorAll(ValidationController.ADDRESS_QUESTION_CLASS));
     for (const question of addressQuestions) {
       // validate address line 1 not empty.
@@ -256,14 +254,16 @@ class ValidationController {
       this.updateFieldErrorState(question, '.cf-address-zip', hasValidZip);
 
       const hasEmptyInputs = addressLine1Empty || cityEmpty || stateEmpty || zipEmpty;
+      const hasValidPresentInputs = !hasEmptyInputs && hasValidZip ;
 
       // If this question isn't required then it's also valid if it is empty.
       const isOptional = !question.classList.contains(ValidationController.REQUIRED_QUESTION_CLASS);
       const emptyOptional = isOptional && addressLine1Empty && addressLine2Empty && cityEmpty && stateEmpty && zipEmpty;
 
-      isValid = emptyOptional || (!hasEmptyInputs && hasValidZip);
+      const isValid = emptyOptional || hasValidPresentInputs;
+      allValid = allValid && isValid;
     }
-    return isValid;
+    return allValid;
   }
 
   /**
@@ -271,27 +271,26 @@ class ValidationController {
    * commas), optionally with exactly 2 decimals.
    */
   validateCurrencyQuestion(): boolean {
-    let isValid = true;
-    const question = document.querySelector(ValidationController.CURRENCY_QUESTION_CLASS);
-    if (question) {
+    let isAllValid = true;
+    const questions = Array.from(document.querySelectorAll(ValidationController.CURRENCY_QUESTION_CLASS));
+    for( const question of questions) {
       const currencyInput = <HTMLInputElement>question.querySelector("input[currency]");
       const currencyValue = currencyInput.value;
 
-      const isEmpty = currencyValue.length == 0;
-      this.updateFieldErrorState(question, ValidationController.CURRENCY_QUESTION_CLASS, !isEmpty);
-
       const isValidCurrency = ValidationController.CURRENCY_NO_COMMAS.test(currencyValue) ||
-        ValidationController.CURRENCY_WITH_COMMAS.test(currencyValue) ||
-        ValidationController.CURRENCY_ZERO_DOLLARS.test(currencyValue);
-      this.updateFieldErrorState(question, ValidationController.CURRENCY_QUESTION_CLASS, isValidCurrency);
+          ValidationController.CURRENCY_WITH_COMMAS.test(currencyValue) ||
+          ValidationController.CURRENCY_ZERO_DOLLARS.test(currencyValue);
 
       // If this question isn't required then it's also valid if it is empty.
+      const isEmpty = currencyValue.length === 0;
       const isOptional = !question.classList.contains(ValidationController.REQUIRED_QUESTION_CLASS);
       const emptyOptional = isOptional && isEmpty;
 
-      isValid = emptyOptional || isValidCurrency;
+      const isValid = emptyOptional || isValidCurrency;
+      this.updateFieldErrorState(question, ValidationController.CURRENCY_VALUE_CLASS, isValid);
+      isAllValid = isAllValid && isValid;
     }
-    return isValid;
+    return isAllValid;
   }
 
   /** if we have empty inputs then disable the add input button. (We don't need two blank inputs.) */
@@ -381,6 +380,7 @@ class ValidationController {
       const isOptional = !question.classList.contains(ValidationController.REQUIRED_QUESTION_CLASS);
       const emptyOptional = isOptional && firstNameEmpty && lastNameEmpty && middleNameEmpty;
 
+      // TODO: Fix bug where only the last questions validity is used.
       isValid = emptyOptional || (!firstNameEmpty && !lastNameEmpty);
     }
     return isValid;
