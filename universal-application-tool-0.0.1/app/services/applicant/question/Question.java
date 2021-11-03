@@ -12,7 +12,7 @@ import services.applicant.ValidationErrorMessage;
  *
  * <ul>
  *   <li>Access question configuration
- *   <li>Access the applicants response
+ *   <li>Access the applicant's response
  *   <li>Validate the applicant's answer to the question: Conditions and data integrity
  *   <li>Present validation errors if any
  * </ul>
@@ -43,7 +43,12 @@ public interface Question {
    */
   boolean isAnswered();
 
-  /** Returns the answer as a text string. */
+  /**
+   * Returns the answer as a text string.
+   *
+   * This is the canonical representation to users in static contexts such as the review page and
+   * data export.
+   */
   String getAnswerString();
 
   /** Return every path used by this question. */
