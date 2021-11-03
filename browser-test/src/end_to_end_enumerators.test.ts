@@ -137,8 +137,7 @@ describe('End to end enumerator test', () => {
 
     await applicantQuestions.deleteEnumeratorEntity("Bugs");
     await applicantQuestions.deleteEnumeratorEntity("Daffy");
-    // Submit the answers by clicking next, and then go to review page.
-    await applicantQuestions.clickNext();
+    // Submit the answers and then go to review page.
     await applicantQuestions.clickReview();
 
     // Make sure there are no enumerators or repeated things in the review page
@@ -158,7 +157,6 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.addEnumeratorAnswer("Tweety");
     await applicantQuestions.clickNext();
     await applicantQuestions.answerNameQuestion("Tweety", "Bird");
-    await applicantQuestions.clickNext();
     await applicantQuestions.clickReview();
 
     // Make sure there are no enumerators or repeated things in the review page

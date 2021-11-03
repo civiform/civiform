@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -268,8 +267,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     String reviewUrl =
         routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
             .url();
-    return a().attr(HREF, reviewUrl)
-        .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+    return submitButton(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+        .attr(HREF, reviewUrl)
         .withId("review-application-button")
         .withClasses(ApplicantStyles.BUTTON_REVIEW);
   }
