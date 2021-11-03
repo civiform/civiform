@@ -46,7 +46,7 @@ public interface Question {
   /**
    * Returns the answer as a text string.
    *
-   * This is the canonical representation to users in static contexts such as the review page and
+   * <p>This is the canonical representation to users in static contexts such as the review page and
    * data export.
    */
   String getAnswerString();
