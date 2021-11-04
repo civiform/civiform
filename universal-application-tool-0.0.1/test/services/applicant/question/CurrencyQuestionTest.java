@@ -1,7 +1,6 @@
 package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -47,7 +46,7 @@ public class CurrencyQuestionTest {
 
     assertThat(currencyQuestion.getValue()).isEmpty();
     assertThat(currencyQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(currencyQuestion.hasQuestionErrors()).isFalse();
+    assertThat(currencyQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -73,7 +72,7 @@ public class CurrencyQuestionTest {
     CurrencyQuestion currencyQuestion = applicantQuestion.createCurrencyQuestion();
 
     assertThat(currencyQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(currencyQuestion.hasQuestionErrors()).isFalse();
+    assertThat(currencyQuestion.hasConditionErrors()).isFalse();
     assertThat(currencyQuestion.getValue().isPresent()).isTrue();
     assertThat(currencyQuestion.getValue().get().getCents()).isEqualTo(cents);
   }

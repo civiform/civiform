@@ -58,7 +58,7 @@ public class AddressQuestionTest {
     AddressQuestion addressQuestion = new AddressQuestion(applicantQuestion);
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(addressQuestion.hasQuestionErrors()).isFalse();
+    assertThat(addressQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -77,7 +77,7 @@ public class AddressQuestionTest {
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(addressQuestion.hasQuestionErrors()).isFalse();
+    assertThat(addressQuestion.hasConditionErrors()).isFalse();
     assertThat(addressQuestion.getStreetValue().get()).isEqualTo("PO Box 123");
     assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Line 2");
     assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
@@ -146,7 +146,7 @@ public class AddressQuestionTest {
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(addressQuestion.hasQuestionErrors()).isFalse();
+    assertThat(addressQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test

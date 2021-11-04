@@ -62,7 +62,7 @@ public class IdQuestionTest extends WithPostgresContainer {
     IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
     assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(idQuestion.hasQuestionErrors()).isFalse();
+    assertThat(idQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -76,7 +76,7 @@ public class IdQuestionTest extends WithPostgresContainer {
 
     assertThat(idQuestion.getIdValue().get()).isEqualTo("12345");
     assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(idQuestion.hasQuestionErrors()).isFalse();
+    assertThat(idQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -91,7 +91,7 @@ public class IdQuestionTest extends WithPostgresContainer {
 
     assertThat(idQuestion.getIdValue().get()).isEqualTo(value);
     assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(idQuestion.hasQuestionErrors()).isFalse();
+    assertThat(idQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test

@@ -5,7 +5,6 @@ describe('End to end enumerator test', () => {
 
   it('Create nested enumerator and repeated questions', async () => {
     const { browser, page } = await startSession();
-    page.setDefaultTimeout(4000);
 
     await loginAsAdmin(page);
     const adminQuestions = new AdminQuestions(page);
@@ -69,7 +68,7 @@ describe('End to end enumerator test', () => {
   it('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async () => {
     const { browser, page } = await startSession();
     await loginAsGuest(page);
-    await selectApplicantLanguage(page, 'English');
+    await selectApplicantLanguage(page, 'English', true);
     const applicantQuestions = new ApplicantQuestions(page);
     await applicantQuestions.applyProgram(programName);
 
@@ -179,7 +178,6 @@ describe('End to end enumerator test', () => {
 
   it('Create new version of enumerator and update repeated questions and programs', async () => {
     const { browser, page } = await startSession();
-    page.setDefaultTimeout(4000);
 
     await loginAsAdmin(page);
     const adminQuestions = new AdminQuestions(page);

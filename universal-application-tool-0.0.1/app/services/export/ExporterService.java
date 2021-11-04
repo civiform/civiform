@@ -27,7 +27,7 @@ import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.ApplicantQuestion;
-import services.applicant.question.PresentsErrors;
+import services.applicant.question.Question;
 import services.program.Column;
 import services.program.ColumnType;
 import services.program.CsvExportConfig;
@@ -344,7 +344,7 @@ public class ExporterService {
         // which is okay because this should be program agnostic.
         ProgramQuestionDefinition pqd =
             ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
-        PresentsErrors applicantQuestion =
+        Question applicantQuestion =
             new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty()).errorsPresenter();
         for (Path path : applicantQuestion.getAllPaths()) {
           columnsBuilder.add(

@@ -8,12 +8,12 @@ export class ApplicantQuestions {
     this.page = page
   }
 
-  async answerAddressQuestion(street: string, line2: string, city: string, state: string, zip: string) {
-    await this.page.fill('.cf-address-street-1 input', street);
-    await this.page.fill('.cf-address-street-2 input', line2);
-    await this.page.fill('.cf-address-city input', city);
-    await this.page.fill('.cf-address-state input', state);
-    await this.page.fill('.cf-address-zip input', zip);
+  async answerAddressQuestion(street: string, line2: string, city: string, state: string, zip: string, index = 0) {
+    await this.page.fill(`.cf-address-street-1 input >> nth=${index}`, street);
+    await this.page.fill(`.cf-address-street-2 input >> nth=${index}`, line2);
+    await this.page.fill(`.cf-address-city input >> nth=${index}`, city);
+    await this.page.fill(`.cf-address-state input >> nth=${index}`, state);
+    await this.page.fill(`.cf-address-zip input >> nth=${index}`, zip);
   }
 
   async answerNameQuestion(firstName: string, lastName: string, middleName = '') {
