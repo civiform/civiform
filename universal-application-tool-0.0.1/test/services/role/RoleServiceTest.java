@@ -54,29 +54,7 @@ public class RoleServiceTest extends WithPostgresContainer {
   }
 
   @Test
-  public void makeProgramAdmins_emailsAreCaseInsensitive() throws ProgramNotFoundException {
-    String emailUpperCase = "Fake.Person@email.com";
-    String emailLowerCase = "fake.person@email.com";
-    Account account = new Account();
-    account.setEmailAddress(emailLowerCase);
-    account.save();
-
-    String programName = "test program";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
-
-    Optional<CiviFormError> result =
-        service.makeProgramAdmins(program.id, ImmutableSet.of(emailUpperCase));
-
-    assertThat(result).isEmpty();
-
-    account = userRepository.lookupAccount(emailLowerCase).get();
-
-    assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
-  }
-
-  @Test
-  public void makeProgramAdmins_emailsAreCaseInsensitive_accountHasUpperCaseEmail()
-      throws ProgramNotFoundException {
+  public void makeProgramAdmins_emailsAreCaseSensitive() throws ProgramNotFoundException {
     String emailUpperCase = "Fake.Person@email.com";
     String emailLowerCase = "fake.person@email.com";
     Account account = new Account();
@@ -86,13 +64,23 @@ public class RoleServiceTest extends WithPostgresContainer {
     String programName = "test program";
     Program program = ProgramBuilder.newDraftProgram(programName).build();
 
-    Optional<CiviFormError> result =
+    // Make the lower case email a program admin.
+    Optional<CiviFormError> lowerCaseResult =
         service.makeProgramAdmins(program.id, ImmutableSet.of(emailLowerCase));
 
+    assertThat(lowerCaseResult).isEmpty();
+
+    // Lookup the upper case account. They do not have permission to any programs.
+    account = userRepository.lookupAccount(emailUpperCase).get();
+    assertThat(account.getAdministeredProgramNames()).isEmpty();
+
+    // Now make the upper case Email a program admin.
+    Optional<CiviFormError> result =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(emailUpperCase));
     assertThat(result).isEmpty();
 
-    account = userRepository.lookupAccount(emailLowerCase).get();
-
+    // Lookup the upper case account. They now have permissions to the program.
+    account = userRepository.lookupAccount(emailUpperCase).get();
     assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
   }
 
