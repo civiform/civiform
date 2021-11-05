@@ -53,6 +53,38 @@ public class RoleServiceTest extends WithPostgresContainer {
     assertThat(account2.getAdministeredProgramNames()).containsOnly(programName);
   }
 
+    @Test
+    public void makeProgramAdmins_emailsAreCaseSensitive() throws ProgramNotFoundException {
+    String emailUpperCase = "Fake.Person@email.com";
+    String emailLowerCase = "fake.person@email.com";
+    Account account = new Account();
+    account.setEmailAddress(emailUpperCase);
+    account.save();
+
+    String programName = "test program";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    // Make the lower case email a program admin.
+    Optional<CiviFormError> lowerCaseResult =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(emailLowerCase));
+
+    assertThat(lowerCaseResult).isEmpty();
+
+    // Lookup the upper case account. They do not have permission to any programs.
+    account = userRepository.lookupAccount(emailUpperCase).get();
+    assertThat(account.getAdministeredProgramNames()).isEmpty();
+
+    // Now make the upper case Email a program admin.
+    Optional<CiviFormError> result =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(emailUpperCase));
+    assertThat(result).isEmpty();
+
+    // Lookup the upper case account. They now have permissions to the program.
+    account = userRepository.lookupAccount(emailUpperCase).get();
+    assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
+
+  }
+
   @Test
   public void makeProgramAdmins_emptyList_returnsEmptyOptional() throws ProgramNotFoundException {
     assertThat(service.makeProgramAdmins(1L, ImmutableSet.of())).isEmpty();
