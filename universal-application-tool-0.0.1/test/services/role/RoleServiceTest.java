@@ -53,8 +53,8 @@ public class RoleServiceTest extends WithPostgresContainer {
     assertThat(account2.getAdministeredProgramNames()).containsOnly(programName);
   }
 
-    @Test
-    public void makeProgramAdmins_emailsAreCaseSensitive() throws ProgramNotFoundException {
+  @Test
+  public void makeProgramAdmins_emailsAreCaseSensitive() throws ProgramNotFoundException {
     String emailUpperCase = "Fake.Person@email.com";
     String emailLowerCase = "fake.person@email.com";
     Account account = new Account();
@@ -82,7 +82,6 @@ public class RoleServiceTest extends WithPostgresContainer {
     // Lookup the upper case account. They now have permissions to the program.
     account = userRepository.lookupAccount(emailUpperCase).get();
     assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
-
   }
 
   @Test
