@@ -14,7 +14,7 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class FileUploadQuestion implements PresentsErrors {
+public class FileUploadQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<String> fileKeyValue;
@@ -25,7 +25,7 @@ public class FileUploadQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public boolean hasConditionErrors() {
     return !getQuestionErrors().isEmpty();
   }
 

@@ -43,7 +43,7 @@ public class FileUploadQuestionTest {
     FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
     assertThat(fileUploadQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(fileUploadQuestion.hasQuestionErrors()).isFalse();
+    assertThat(fileUploadQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -57,7 +57,7 @@ public class FileUploadQuestionTest {
 
     assertThat(fileUploadQuestion.getFileKeyValue().get()).isEqualTo("file-key");
     assertThat(fileUploadQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(fileUploadQuestion.hasQuestionErrors()).isFalse();
+    assertThat(fileUploadQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test

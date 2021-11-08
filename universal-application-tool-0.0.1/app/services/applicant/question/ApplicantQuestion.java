@@ -175,7 +175,7 @@ public class ApplicantQuestion {
   }
 
   public boolean hasErrors() {
-    return errorsPresenter().hasQuestionErrors() || errorsPresenter().hasTypeSpecificErrors();
+    return errorsPresenter().hasConditionErrors() || errorsPresenter().hasTypeSpecificErrors();
   }
 
   public Optional<Long> getUpdatedInProgramMetadata() {
@@ -255,7 +255,7 @@ public class ApplicantQuestion {
     return new TextQuestion(this);
   }
 
-  public PresentsErrors errorsPresenter() {
+  public Question errorsPresenter() {
     switch (getType()) {
       case ADDRESS:
         return createAddressQuestion();

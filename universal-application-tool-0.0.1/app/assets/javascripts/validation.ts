@@ -219,7 +219,7 @@ class ValidationController {
 
   /** Validates all address questions. */
   validateAddressQuestion(): boolean {
-    let isValid = true;
+    let allValid = true;
     const addressQuestions = Array.from(document.querySelectorAll(ValidationController.ADDRESS_QUESTION_CLASS));
     for (const question of addressQuestions) {
       // validate address line 1 not empty.
@@ -254,14 +254,16 @@ class ValidationController {
       this.updateFieldErrorState(question, '.cf-address-zip', hasValidZip);
 
       const hasEmptyInputs = addressLine1Empty || cityEmpty || stateEmpty || zipEmpty;
+      const hasValidPresentInputs = !hasEmptyInputs && hasValidZip ;
 
       // If this question isn't required then it's also valid if it is empty.
       const isOptional = !question.classList.contains(ValidationController.REQUIRED_QUESTION_CLASS);
       const emptyOptional = isOptional && addressLine1Empty && addressLine2Empty && cityEmpty && stateEmpty && zipEmpty;
 
-      isValid = emptyOptional || (!hasEmptyInputs && hasValidZip);
+      const isValid = emptyOptional || hasValidPresentInputs;
+      allValid = allValid && isValid;
     }
-    return isValid;
+    return allValid;
   }
 
   /**
@@ -378,6 +380,7 @@ class ValidationController {
       const isOptional = !question.classList.contains(ValidationController.REQUIRED_QUESTION_CLASS);
       const emptyOptional = isOptional && firstNameEmpty && lastNameEmpty && middleNameEmpty;
 
+      // TODO: Fix bug where only the last questions validity is used.
       isValid = emptyOptional || (!firstNameEmpty && !lastNameEmpty);
     }
     return isValid;
