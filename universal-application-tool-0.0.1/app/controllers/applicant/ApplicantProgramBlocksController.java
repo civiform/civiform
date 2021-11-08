@@ -5,6 +5,7 @@ import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
@@ -110,6 +111,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   @Secure
+  public CompletionStage<Result> previous(
+      Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {
+    return goToPreviousPage(request, applicantId, programId, previousBlockIndex, inReview);
+  }
+
+  @Secure
   private CompletionStage<Result> editOrReview(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
     CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
@@ -123,6 +130,58 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             httpExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
+              Optional<Block> block = roApplicantProgramService.getBlock(blockId);
+
+              if (block.isPresent()) {
+                String applicantName = applicantStage.toCompletableFuture().join();
+                return ok(
+                    editView.render(
+                        buildApplicantProgramBlockEditViewParams(
+                            request,
+                            applicantId,
+                            programId,
+                            blockId,
+                            inReview,
+                            roApplicantProgramService,
+                            block.get(),
+                            applicantName)));
+              } else {
+                return notFound();
+              }
+            },
+            httpExecutionContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof SecurityException) {
+                  return unauthorized();
+                }
+                if (cause instanceof ProgramNotFoundException) {
+                  return notFound(cause.toString());
+                }
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
+  }
+
+  @Secure
+  public CompletionStage<Result> goToPreviousPage(
+      Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {
+    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+
+    return applicantStage
+        .thenComposeAsync(
+            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
+            httpExecutionContext.current())
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            httpExecutionContext.current())
+        .thenApplyAsync(
+            (roApplicantProgramService) -> {
+              ImmutableList<Block> blocks = roApplicantProgramService.getAllActiveBlocks();
+              String blockId = blocks.get(previousBlockIndex).getId();
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
 
               if (block.isPresent()) {

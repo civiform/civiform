@@ -479,6 +479,23 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
 
+  @Test
+  public void previous_toAnExistingBlock_rendersTheBlock() {
+
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                        routes.ApplicantProgramBlocksController.previous(
+                            applicant.id, program.id, 1, true))
+                    .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
+            .build();
+
+    Result result =
+        subject.previous(request, applicant.id, program.id, 1, true).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
   private RequestBuilder addQueryString(
       RequestBuilder request, ImmutableMap<String, String> query) {
     String queryString =

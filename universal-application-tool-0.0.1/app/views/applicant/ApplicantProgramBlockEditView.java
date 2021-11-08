@@ -242,6 +242,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         // An empty div to take up the space to the left of the buttons.
         .with(div().withClasses(Styles.FLEX_GROW))
         .with(renderReviewButton(params))
+        .with(renderPreviousButton(params))
         .with(renderNextButton(params));
   }
 
@@ -272,6 +273,27 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
         .withId("review-application-button")
         .withClasses(ApplicantStyles.BUTTON_REVIEW);
+  }
+
+  private Tag renderPreviousButton(Params params) {
+    int previousBlockIndex = params.blockIndex() - 1;
+    String redirectUrl;
+
+    if (previousBlockIndex >= 0) {
+      redirectUrl =
+          routes.ApplicantProgramBlocksController.previous(
+                  params.applicantId(), params.programId(), previousBlockIndex, params.inReview())
+              .url();
+    } else {
+      redirectUrl =
+          routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
+              .url();
+    }
+
+    return a().attr(HREF, redirectUrl)
+        .withText("Previous")
+        .withClasses(ApplicantStyles.BUTTON_BLOCK_PREVIOUS)
+        .withId("cf-block-previous");
   }
 
   private Tag renderNextButton(Params params) {
