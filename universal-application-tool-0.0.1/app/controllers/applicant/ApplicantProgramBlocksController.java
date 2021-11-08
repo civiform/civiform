@@ -110,6 +110,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return editOrReview(request, applicantId, programId, blockId, true);
   }
 
+
+  /**
+   * This method navigates to the previous page of the application.
+   */
   @Secure
   public CompletionStage<Result> previous(
       Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {

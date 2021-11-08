@@ -291,7 +291,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     }
 
     return a().attr(HREF, redirectUrl)
-        .withText("Previous")
+        .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
         .withClasses(ApplicantStyles.BUTTON_BLOCK_PREVIOUS)
         .withId("cf-block-previous");
   }
