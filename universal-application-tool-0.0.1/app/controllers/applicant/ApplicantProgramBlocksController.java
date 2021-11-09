@@ -114,12 +114,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> previous(
       Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {
-    return goToPreviousPage(request, applicantId, programId, previousBlockIndex, inReview);
-  }
-
-  @Secure
-  private CompletionStage<Result> editOrReview(
-      Request request, long applicantId, long programId, String blockId, boolean inReview) {
     CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
@@ -131,6 +125,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             httpExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
+              ImmutableList<Block> blocks = roApplicantProgramService.getAllActiveBlocks();
+              String blockId = blocks.get(previousBlockIndex).getId();
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
 
               if (block.isPresent()) {
@@ -168,8 +164,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> goToPreviousPage(
-      Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {
+  private CompletionStage<Result> editOrReview(
+      Request request, long applicantId, long programId, String blockId, boolean inReview) {
     CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
@@ -181,8 +177,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             httpExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
-              ImmutableList<Block> blocks = roApplicantProgramService.getAllActiveBlocks();
-              String blockId = blocks.get(previousBlockIndex).getId();
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
 
               if (block.isPresent()) {
