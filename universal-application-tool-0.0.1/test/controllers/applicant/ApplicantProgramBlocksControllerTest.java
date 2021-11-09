@@ -119,7 +119,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void previous_toAnExistingBlock_rendersTheBlock() {
-
     Request request =
         addCSRFToken(
                 fakeRequest(
