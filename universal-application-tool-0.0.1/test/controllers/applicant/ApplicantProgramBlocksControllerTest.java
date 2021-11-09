@@ -124,11 +124,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 fakeRequest(
                     routes.ApplicantProgramBlocksController.previous(
-                        applicant.id, program.id, 1, true)))
+                        applicant.id, program.id, 0, true)))
             .build();
 
     Result result =
-        subject.previous(request, applicant.id, program.id, 1, true).toCompletableFuture().join();
+        subject.previous(request, applicant.id, program.id, 0, true).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
   }
