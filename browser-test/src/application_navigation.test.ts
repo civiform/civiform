@@ -48,7 +48,7 @@ describe('applicant navigation flow', () => {
       await applicantQuestions.clickPrevious();
 
       // Assert that we're on the preview page.
-      expect(await pageObject.innerText('h1')).toContain('Program application review');
+      expect(await pageObject.innerText('h1')).toContain('Program application preview');
     });
 
     it('clicking previous on later blocks goes to previous blocks', async () => {
@@ -82,6 +82,9 @@ describe('applicant navigation flow', () => {
       await applicantQuestions.checkDateQuestionValue('2021-11-01');
       await applicantQuestions.checkEmailQuestionValue('test1@gmail.com');
 
+      // Assert that we're on the preview page.
+      await applicantQuestions.clickPrevious();
+      expect(await pageObject.innerText('h1')).toContain('Program application preview');
     })
   });
 

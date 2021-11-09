@@ -286,7 +286,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
               .url();
     } else {
       redirectUrl =
-          routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
+          routes.ApplicantProgramReviewController.preview(params.applicantId(), params.programId())
               .url();
     }
 
