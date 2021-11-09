@@ -8,6 +8,11 @@ export AWS_DEFAULT_REGION=us-west-2
 REGION=us-west-2
 
 aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/t1q6b4h2
+
 docker build -t civiform-dev --cache-from public.ecr.aws/t1q6b4h2/civiform-dev:latest --build-arg BUILDKIT_INLINE_CACHE=1 .
 docker tag civiform-dev:latest public.ecr.aws/t1q6b4h2/civiform-dev:latest
 docker push public.ecr.aws/t1q6b4h2/civiform-dev:latest
+
+echo $DOCKER_HUB_TOKEN | docker login --username civiform --password-stdin
+docker tag civiform-dev:latest civiform/civiform:latest
+docker push civiform/civiform:latest
