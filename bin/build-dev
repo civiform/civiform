@@ -1,25 +1,13 @@
 #! /bin/bash
 
-# DOC: Build a new development docker image and push it to the AWS and Docker Hub container registries.
+# DOC: Build a new development docker image and push it to the AWS container registry.
 
 set -e
 set +x
 export AWS_DEFAULT_REGION=us-west-2
 REGION=us-west-2
 
-# log the docker CLI into the AWS container registry
 aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/t1q6b4h2
-
-# build the new image based
 docker build -t civiform-dev --cache-from public.ecr.aws/t1q6b4h2/civiform-dev:latest --build-arg BUILDKIT_INLINE_CACHE=1 .
-
-# push the new image to the AWS registry
 docker tag civiform-dev:latest public.ecr.aws/t1q6b4h2/civiform-dev:latest
 docker push public.ecr.aws/t1q6b4h2/civiform-dev:latest
-
-# log the docker CLI into the Docker Hub container registry
-echo $DOCKER_HUB_TOKEN | docker login --username civiform --password-stdin
-
-# push the new image to the Docker Hub registry
-docker tag civiform-dev:latest civiform/civiform:latest
-docker push civiform/civiform:latest
