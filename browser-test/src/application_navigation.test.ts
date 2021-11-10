@@ -88,4 +88,6 @@ describe('applicant navigation flow', () => {
     })
   });
 
+  // TODO: Add tests for "next" navigation
+
 })
