@@ -18,10 +18,11 @@ deadline=$(($start_time + 200))
 echo "Waiting for localstack to get set up. This may take a minute or two..."
 
 healthy() {
+    echo $1
     [[ $1 == *'"s3": "running"'* && $1 == *'"ses": "running"'* ]]
 }
 
-until HEALTHCHECK=$(curl --silent --fail --max-time 2 $localstack_endpoint/health) && healthy "$HEALTHCHECK"; do
+until HEALTHCHECK=$(curl --fail --max-time 2 $localstack_endpoint/health) && healthy "$HEALTHCHECK"; do
     if (( $(date +%s) > $deadline )); then
         echo "deadline exceeded waiting for localstack start"
         exit 1
