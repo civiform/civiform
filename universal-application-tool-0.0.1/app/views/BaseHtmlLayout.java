@@ -21,8 +21,11 @@ import views.components.ToastMessage;
  * #render(HtmlBundle)} method.
  */
 public class BaseHtmlLayout {
+
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
-  private static final String[] FOOTER_SCRIPTS = {"main", "accordion", "modal", "radio", "toast"};
+  private static final String[] FOOTER_SCRIPTS = {
+    "main", "accordion", "modal", "number", "radio", "toast"
+  };
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
 

@@ -246,8 +246,6 @@ public class FieldWithLabel {
       if (this.fieldValueNumber.isPresent()) {
         fieldTag.withValue(String.valueOf(this.fieldValueNumber.getAsLong()));
       }
-      // We only allow integer input.
-      fieldTag.attr("oninput", "n=parseInt(this.value);this.value=Number.isNaN(n)?'':n;");
     } else {
       fieldTag.withValue(this.fieldValue);
     }
