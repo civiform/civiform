@@ -17,6 +17,10 @@ docker build -t civiform-dev --cache-from public.ecr.aws/t1q6b4h2/civiform-dev:l
 docker tag civiform-dev:latest public.ecr.aws/t1q6b4h2/civiform-dev:latest
 docker push public.ecr.aws/t1q6b4h2/civiform-dev:latest
 
+# ========================== WORK IN PROGRESS ==========================
+# Logging in and pushing the image to Docker Hub is a work in progress
+# until we figure out why it isn't workign correctly.
+
 # log the docker CLI into the Docker Hub container registry
 # echo $DOCKER_HUB_TOKEN | docker login --username civiform --password-stdin index.docker.io
 
