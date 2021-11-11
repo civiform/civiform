@@ -241,6 +241,7 @@ public class FieldWithLabel {
       ContainerTag textAreaTag = textarea().withType("text").withText(this.fieldValue);
       fieldTag = textAreaTag;
     } else if (this.fieldType.equals("number")) {
+//      fieldTag.attr("inputmode", "decimal");
       // For number types, only set the value if it's present since there is no empty string
       // equivalent for numbers.
       if (this.fieldValueNumber.isPresent()) {
