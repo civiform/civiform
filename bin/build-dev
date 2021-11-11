@@ -18,8 +18,8 @@ docker tag civiform-dev:latest public.ecr.aws/t1q6b4h2/civiform-dev:latest
 docker push public.ecr.aws/t1q6b4h2/civiform-dev:latest
 
 # log the docker CLI into the Docker Hub container registry
-echo $DOCKER_HUB_TOKEN | docker login --username civiform --password-stdin
+echo $DOCKER_HUB_TOKEN | docker login --username civiform --password-stdin index.docker.io
 
 # push the new image to the Docker Hub registry
 docker tag civiform-dev:latest civiform/civiform:latest
-docker push civiform/civiform:latest
+docker push index.docker.io/civiform/civiform:latest
