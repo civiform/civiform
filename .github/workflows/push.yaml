@@ -28,6 +28,8 @@ jobs:
           DOCKER_BUILDKIT: 1
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-dev
 
       - name: Run build-browser-tests.
@@ -62,4 +64,3 @@ jobs:
         env:
           TEST_USER_LOGIN: ${{ secrets.TEST_USER_LOGIN }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-
