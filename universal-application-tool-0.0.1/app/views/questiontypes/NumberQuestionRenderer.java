@@ -28,6 +28,8 @@ public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
         FieldWithLabel.number()
             .setFieldName(numberQuestion.getNumberPath().toString())
             .setScreenReaderText(question.getQuestionText())
+            .setMin(numberQuestion.getQuestionDefinition().getMin())
+            .setMax(numberQuestion.getQuestionDefinition().getMax())
             .setFieldErrors(params.messages(), numberQuestion.getQuestionErrors());
     if (numberQuestion.getNumberValue().isPresent()) {
       // TODO: [Refactor] Oof! Converting Optional<Long> to OptionalLong.

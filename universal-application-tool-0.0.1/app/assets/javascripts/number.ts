@@ -8,8 +8,9 @@ class NumberController {
       <NodeListOf<HTMLInputElement>>document.querySelectorAll('input[type=number]'));
     numberQuestions.forEach(numberQuestion => {
       numberQuestion.addEventListener('input', () => {
-        // Only allow integer input.
-        const n = parseInt(numberQuestion.value.replace(/[^.\d]/g, ''));
+        // Block non-numeric characters like like 'e', 'E', '+', '-'
+        // which will cause problems when parsing to a number
+        const n = parseFloat(numberQuestion.value.replace(/[^.\d]/g, ''));
         numberQuestion.value = Number.isNaN(n) ? '' : String(n);
       });
       numberQuestion.addEventListener('keydown', (e) => {

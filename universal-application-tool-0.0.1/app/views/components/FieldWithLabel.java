@@ -37,6 +37,8 @@ public class FieldWithLabel {
 
   /** For use with fields of type `number`. */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
+  protected OptionalLong minValue = OptionalLong.empty();
+  protected OptionalLong maxValue = OptionalLong.empty();
 
   /** For use with fields that have isCurrency true`. */
   protected Optional<Currency> fieldValueCurrency = Optional.empty();
@@ -153,6 +155,25 @@ public class FieldWithLabel {
     return this;
   }
 
+  public FieldWithLabel setMin(OptionalLong value) {
+    if (!this.fieldType.equals("number")) {
+      throw new RuntimeException(
+          "setting an OptionalLong min value is only available on fields of type `number`");
+    }
+    this.minValue = value;
+    return this;
+  }
+
+  public FieldWithLabel setMax(OptionalLong value) {
+    if (!this.fieldType.equals("number")) {
+      throw new RuntimeException(
+          "setting an OptionalLong max value is only available on fields of type `number`");
+    }
+
+    this.maxValue = value;
+    return this;
+  }
+
   public FieldWithLabel setValue(String value) {
     if (!STRING_TYPES.contains(this.fieldType)) {
       throw new RuntimeException(
@@ -241,7 +262,17 @@ public class FieldWithLabel {
       ContainerTag textAreaTag = textarea().withType("text").withText(this.fieldValue);
       fieldTag = textAreaTag;
     } else if (this.fieldType.equals("number")) {
-//      fieldTag.attr("inputmode", "decimal");
+      // Setting inputmode to decimal gives iOS users a more accessible keyboard
+      fieldTag.attr("inputmode", "decimal");
+
+      // Set min and max values for client-side validation
+      if (this.minValue.isPresent()) {
+        fieldTag.attr("min", minValue.getAsLong());
+      }
+      if (this.maxValue.isPresent()) {
+        fieldTag.attr("max", maxValue.getAsLong());
+      }
+
       // For number types, only set the value if it's present since there is no empty string
       // equivalent for numbers.
       if (this.fieldValueNumber.isPresent()) {
