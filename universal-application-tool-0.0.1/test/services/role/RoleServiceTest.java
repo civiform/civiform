@@ -68,11 +68,13 @@ public class RoleServiceTest extends WithPostgresContainer {
     Optional<CiviFormError> lowerCaseResult =
         service.makeProgramAdmins(program.id, ImmutableSet.of(emailLowerCase));
 
-    assertThat(lowerCaseResult).isEqualTo(Optional.of(
-          CiviFormError.of(
-              String.format(
-                  "%s does not have an admin account and cannot be added as a Program Admin.", emailLowerCase
-                  ))));
+    assertThat(lowerCaseResult)
+        .isEqualTo(
+            Optional.of(
+                CiviFormError.of(
+                    String.format(
+                        "%s does not have an admin account and cannot be added as a Program Admin.",
+                        emailLowerCase))));
 
     // Lookup the upper case account. They do not have permission to any programs.
     account = userRepository.lookupAccount(emailUpperCase).get();
@@ -115,11 +117,13 @@ public class RoleServiceTest extends WithPostgresContainer {
     Optional<CiviFormError> lowerCaseResult =
         service.makeProgramAdmins(program.id, ImmutableSet.of(email));
 
-    assertThat(lowerCaseResult).isEqualTo(Optional.of(
-          CiviFormError.of(
-              String.format(
-                  "%s does not have an admin account and cannot be added as a Program Admin.", email
-                  ))));
+    assertThat(lowerCaseResult)
+        .isEqualTo(
+            Optional.of(
+                CiviFormError.of(
+                    String.format(
+                        "%s does not have an admin account and cannot be added as a Program Admin.",
+                        email))));
   }
 
   @Test
