@@ -48,7 +48,10 @@ public class ManageProgramAdminsView extends BaseHtmlView {
 
   /** Display a form with a list of inputs for adding and removing admins. */
   public Content render(
-      Http.Request request, ProgramDefinition program, ImmutableList<String> existingAdminEmails, String message) {
+      Http.Request request,
+      ProgramDefinition program,
+      ImmutableList<String> existingAdminEmails,
+      String message) {
 
     String fullTitle = PAGE_TITLE + program.adminName();
 

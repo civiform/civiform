@@ -60,7 +60,8 @@ public class ProgramAdminManagementController {
               .map(Account::getEmailAddress)
               .collect(toImmutableList());
       return ok(
-          manageAdminsView.render(request, program.get().getProgramDefinition(), programAdmins, ""));
+          manageAdminsView.render(
+              request, program.get().getProgramDefinition(), programAdmins, ""));
     } catch (ProgramNotFoundException e) {
       return notFound(e.getLocalizedMessage());
     }
@@ -88,17 +89,21 @@ public class ProgramAdminManagementController {
       Result result = redirect(routes.AdminProgramController.index());
 
       if(maybeError.isPresent()){   
-        Optional<Program> program = programRepository.lookupProgram(programId).toCompletableFuture().join();
+        Optional<Program> program =
+            programRepository.lookupProgram(programId).toCompletableFuture().join();
         if (program.isEmpty()) {
           return notFound(String.format("Program with ID %s was not found", programId));
-        }
-        else{
+        } else{
           ImmutableList<String> programAdmins =
-            programRepository.getProgramAdministrators(programId).stream()
-                .map(Account::getEmailAddress)
-                .collect(toImmutableList());
+              programRepository.getProgramAdministrators(programId).stream()
+                  .map(Account::getEmailAddress)
+                  .collect(toImmutableList());
           return ok(
-            manageAdminsView.render(request, program.get().getProgramDefinition(), programAdmins, maybeError.get().message()));
+            manageAdminsView.render(
+                request,
+                program.get().getProgramDefinition(),
+                programAdmins,
+                maybeError.get().message()));
         }     
       }
       return result;

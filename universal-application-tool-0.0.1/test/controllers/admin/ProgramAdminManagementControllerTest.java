@@ -101,9 +101,10 @@ public class ProgramAdminManagementControllerTest extends WithPostgresContainer 
     String programName = "controller test";
     Program program = ProgramBuilder.newDraftProgram(programName).build();
     Http.Request request =
-        addCSRFToken(fakeRequest()
-            .bodyForm(ImmutableMap.of("adminEmails[0]", email1, "adminEmails[1]", email2)))
-            .build();
+        addCSRFToken(
+                fakeRequest()
+                    .bodyForm(ImmutableMap.of("adminEmails[0]", email1, "adminEmails[1]", email2)))
+              .build();
 
     Result result = controller.update(request, program.id);
     account1 = userRepository.lookupAccount(email1).get();
@@ -118,7 +119,8 @@ public class ProgramAdminManagementControllerTest extends WithPostgresContainer 
     account2.save();
     account2 = userRepository.lookupAccount(email2).get();
 
-    // Account 2 should not have any programs because the account was nonexistent when we addded email2 as a program admin.
+    // Account 2 should not have any programs because the account was nonexistent when we addded
+    // email2 as a program admin.
     assertThat(account2.getAdministeredProgramNames()).isEmpty();
   }
 

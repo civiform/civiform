@@ -63,18 +63,17 @@ public class RoleService {
             .filter(address -> !Strings.isNullOrEmpty(address))
             .collect(toImmutableSet());
     ImmutableSet.Builder<String> invalidEmailBuilder = ImmutableSet.builder();
-    for(String email: accountEmails){
+    for (String email: accountEmails){
       if (sysAdminEmails.contains(email)) {
         invalidEmailBuilder.add(email);
-        } else {
-          Optional<CiviFormError> maybeError = userRepository.addAdministeredProgram(email, program);
-          // If there was an error adding the administered program, return the error. 
-          if (maybeError.isPresent()){
-            return maybeError;
-          }
+      } else {
+        Optional<CiviFormError> maybeError = userRepository.addAdministeredProgram(email, program);
+        // If there was an error adding the administered program, return the error. 
+        if (maybeError.isPresent()){
+          return maybeError;
+        }
       }
     }
-
 
     ImmutableSet<String> invalidEmails = invalidEmailBuilder.build();
     if (invalidEmails.isEmpty()) {

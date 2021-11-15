@@ -297,28 +297,27 @@ public class UserRepository {
    * @param accountEmail the email of the account that will administer the given program
    * @param program the {@link ProgramDefinition} to add to this given account
    */
-  public Optional<CiviFormError> addAdministeredProgram(String accountEmail, ProgramDefinition program) {
+  public Optional<CiviFormError> addAdministeredProgram(
+      String accountEmail, ProgramDefinition program) {
     if (accountEmail.isBlank()) {
       return Optional.empty();
     }
 
     Optional<Account> maybeAccount = lookupAccount(accountEmail);
-    if(maybeAccount.isEmpty()){
+    if(maybeAccount.isEmpty()) {
        return Optional.of(
           CiviFormError.of(
               String.format(
                   "%s does not have an admin account and cannot be added as a Program Admin.", accountEmail
                   )));
+    } else {
+      maybeAccount.ifPresent(
+      account -> {
+        account.addAdministeredProgram(program);
+        account.save();
+      });
+      return Optional.empty();
     }
-    else{
-        maybeAccount.ifPresent(
-        account -> {
-          account.addAdministeredProgram(program);
-          account.save();
-        });
-        return Optional.empty();
-    }
-    
   }
 
   /**

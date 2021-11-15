@@ -128,11 +128,13 @@ public class UserRepositoryTest extends WithPostgresContainer {
     Optional<CiviFormError> result = repo.addAdministeredProgram(email, program);
 
     assertThat(repo.lookupAccount(email)).isEqualTo(Optional.empty());
-    assertThat(result).isEqualTo(Optional.of(
-          CiviFormError.of(
-              String.format(
-                  "%s does not have an admin account and cannot be added as a Program Admin.", email
-                  ))));
+    assertThat(result
+        .isEqualTo(
+            Optional.of(
+              CiviFormError.of(
+                String.format(
+                    "%s does not have an admin account and cannot be added as a Program Admin.", email
+                   ))));
   }
 
   @Test
