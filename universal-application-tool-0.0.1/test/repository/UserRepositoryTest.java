@@ -128,7 +128,7 @@ public class UserRepositoryTest extends WithPostgresContainer {
     Optional<CiviFormError> result = repo.addAdministeredProgram(email, program);
 
     assertThat(repo.lookupAccount(email)).isEqualTo(Optional.empty());
-    assertThat(result
+    assertThat(result)
         .isEqualTo(
             Optional.of(
               CiviFormError.of(
