@@ -62,7 +62,7 @@ public class TextQuestionTest extends WithPostgresContainer {
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
     assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.hasQuestionErrors()).isFalse();
+    assertThat(textQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -76,7 +76,7 @@ public class TextQuestionTest extends WithPostgresContainer {
 
     assertThat(textQuestion.getTextValue().get()).isEqualTo("hello");
     assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.hasQuestionErrors()).isFalse();
+    assertThat(textQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -92,7 +92,7 @@ public class TextQuestionTest extends WithPostgresContainer {
 
     assertThat(textQuestion.getTextValue().get()).isEqualTo(value);
     assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.hasQuestionErrors()).isFalse();
+    assertThat(textQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test

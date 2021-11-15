@@ -59,7 +59,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
 
     assertThat(enumeratorQuestion.isAnswered()).isFalse();
     assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(enumeratorQuestion.hasQuestionErrors()).isFalse();
+    assertThat(enumeratorQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -76,7 +76,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).contains("first", "second", "third");
     assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(enumeratorQuestion.hasQuestionErrors()).isFalse();
+    assertThat(enumeratorQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -92,7 +92,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly(value);
     assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(enumeratorQuestion.hasQuestionErrors()).isTrue();
+    assertThat(enumeratorQuestion.hasConditionErrors()).isTrue();
     assertThat(enumeratorQuestion.getQuestionErrors()).hasSize(1);
     assertThat(enumeratorQuestion.getQuestionErrors().asList().get(0).getMessage(messages))
         .isEqualTo("Please enter a value for each line.");
@@ -112,7 +112,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly("hello", "hello");
     assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(enumeratorQuestion.hasQuestionErrors()).isTrue();
+    assertThat(enumeratorQuestion.hasConditionErrors()).isTrue();
     assertThat(enumeratorQuestion.getQuestionErrors()).hasSize(1);
     assertThat(enumeratorQuestion.getQuestionErrors().asList().get(0).getMessage(messages))
         .isEqualTo("Please enter a unique value for each line.");

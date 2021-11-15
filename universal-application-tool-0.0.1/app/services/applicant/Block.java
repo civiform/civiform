@@ -11,7 +11,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
-import services.applicant.question.PresentsErrors;
+import services.applicant.question.Question;
 import services.program.BlockDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionType;
@@ -189,14 +189,11 @@ public final class Block {
     return isAnswered() && !hasErrors();
   }
 
-  /**
-   * A block is answered if all of its {@link ApplicantQuestion}s {@link
-   * PresentsErrors#isAnswered()}.
-   */
+  /** A block is answered if all of its {@link ApplicantQuestion}s {@link Question#isAnswered()}. */
   private boolean isAnswered() {
     return getQuestions().stream()
         .map(ApplicantQuestion::errorsPresenter)
-        .allMatch(PresentsErrors::isAnswered);
+        .allMatch(Question::isAnswered);
   }
 
   /**

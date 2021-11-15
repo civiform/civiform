@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# DOC: Build a new production docker image and push it to the AWS container registry.
+# DOC: Build a new production docker image, push it to the AWS and Docker container registries and deploy to AWS staging.
 
 pushd $(git rev-parse --show-toplevel)
 
@@ -30,5 +30,15 @@ until aws ecs wait services-stable --region=${REGION} --cluster "$ECSCLUSTER" --
         exit 1
     fi
 done
+
+# clear AWS login state
+docker logout public.ecr.aws/t1q6b4h2
+
+# log the docker CLI into the Docker Hub container registry
+echo $DOCKER_HUB_ACCESS_TOKEN | docker login --username $DOCKER_HUB_USERNAME --password-stdin docker.io
+
+# push the new image to the Docker Hub registry
+docker tag universal-application-tool:latest civiform/civiform:latest
+docker push docker.io/civiform/civiform:latest
 
 popd

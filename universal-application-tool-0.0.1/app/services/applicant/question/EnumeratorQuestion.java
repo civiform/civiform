@@ -14,7 +14,7 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class EnumeratorQuestion implements PresentsErrors {
+public class EnumeratorQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
 
@@ -24,7 +24,7 @@ public class EnumeratorQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public boolean hasConditionErrors() {
     return !getQuestionErrors().isEmpty();
   }
 

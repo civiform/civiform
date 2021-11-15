@@ -210,6 +210,7 @@ export class AdminPrograms {
     return await this.page.$eval('#block-name-input', el => (el as HTMLInputElement).value);
   }
 
+  /** Adds a block with a single optional question followed by one or more required ones. */
   async addProgramBlockWithOptional(programName: string, blockDescription = 'screen description', questionNames:
     string[], optionalQuestionName: string) {
     await this.page.click('#add-block-button');
@@ -224,7 +225,7 @@ export class AdminPrograms {
     await this.page.click(`button:text("${optionalQuestionName}")`);
     await waitForPageJsLoad(this.page);
     // Only allow one optional question per block; this selector will always toggle the first optional button.  It
-    // cannot tell the difference between multiple option buttons
+    // cannot tell the difference between multiple optional buttons
     await this.page.click(`:is(button:has-text("optional"))`);
 
     for (const questionName of questionNames) {
