@@ -18,6 +18,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
+import views.components.ToastMessage;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -47,7 +48,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
 
   /** Display a form with a list of inputs for adding and removing admins. */
   public Content render(
-      Http.Request request, ProgramDefinition program, ImmutableList<String> existingAdminEmails) {
+      Http.Request request, ProgramDefinition program, ImmutableList<String> existingAdminEmails, String message) {
 
     String fullTitle = PAGE_TITLE + program.adminName();
 
@@ -59,6 +60,10 @@ public class ManageProgramAdminsView extends BaseHtmlView {
                 renderHeader(fullTitle),
                 adminEmailTemplate(),
                 renderAdminForm(request, program.id(), existingAdminEmails));
+
+    if (!message.isEmpty()) {
+      htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));
+    }
     return layout.renderCentered(htmlBundle);
   }
 

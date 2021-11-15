@@ -8,6 +8,7 @@ import models.Account;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
+import services.CiviFormError;
 import services.Path;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
@@ -111,22 +112,27 @@ public class UserRepositoryTest extends WithPostgresContainer {
     String programName = "name";
     ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
 
-    repo.addAdministeredProgram(email, program);
+    Optional<CiviFormError> result = repo.addAdministeredProgram(email, program);
 
     assertThat(repo.lookupAccount(email).get().getAdministeredProgramNames())
         .containsOnly(programName);
+    assertThat(result).isEqualTo(Optional.empty());
   }
 
   @Test
-  public void addAdministeredProgram_missingAccount_createsNewAccountForEmail() {
+  public void addAdministeredProgram_missingAccount_returnsError() {
     String email = "test@test.com";
     String programName = "name";
     ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
 
-    repo.addAdministeredProgram(email, program);
+    Optional<CiviFormError> result = repo.addAdministeredProgram(email, program);
 
-    assertThat(repo.lookupAccount(email).get().getAdministeredProgramNames())
-        .containsOnly(programName);
+    assertThat(repo.lookupAccount(email)).isEqualTo(Optional.empty());
+    assertThat(result).isEqualTo(Optional.of(
+          CiviFormError.of(
+              String.format(
+                  "%s does not have an admin account and cannot be added as a Program Admin.", email
+                  ))));
   }
 
   @Test

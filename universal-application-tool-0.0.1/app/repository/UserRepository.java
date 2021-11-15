@@ -26,6 +26,7 @@ import models.LifecycleStage;
 import models.Program;
 import models.TrustedIntermediaryGroup;
 import play.db.ebean.EbeanConfig;
+import services.CiviFormError;
 import services.program.ProgramDefinition;
 import services.ti.EmailAddressExistsException;
 import services.ti.NoSuchTrustedIntermediaryError;
@@ -291,27 +292,33 @@ public class UserRepository {
 
   /**
    * Adds the given program as an administered program by the given account. If the account does not
-   * exist, this will create a new account for the given email, so that when a user with that email
-   * signs in for the first time they will be a program admin.
+   * exist, this will return an error.
    *
    * @param accountEmail the email of the account that will administer the given program
    * @param program the {@link ProgramDefinition} to add to this given account
    */
-  public void addAdministeredProgram(String accountEmail, ProgramDefinition program) {
+  public Optional<CiviFormError> addAdministeredProgram(String accountEmail, ProgramDefinition program) {
     if (accountEmail.isBlank()) {
-      return;
+      return Optional.empty();
     }
 
     Optional<Account> maybeAccount = lookupAccount(accountEmail);
-    Account account =
-        maybeAccount.orElseGet(
-            () -> {
-              Account a = new Account();
-              a.setEmailAddress(accountEmail);
-              return a;
-            });
-    account.addAdministeredProgram(program);
-    account.save();
+    if(maybeAccount.isEmpty()){
+       return Optional.of(
+          CiviFormError.of(
+              String.format(
+                  "%s does not have an admin account and cannot be added as a Program Admin.", accountEmail
+                  )));
+    }
+    else{
+        maybeAccount.ifPresent(
+        account -> {
+          account.addAdministeredProgram(program);
+          account.save();
+        });
+        return Optional.empty();
+    }
+    
   }
 
   /**
