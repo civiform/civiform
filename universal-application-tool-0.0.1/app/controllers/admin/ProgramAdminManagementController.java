@@ -88,22 +88,22 @@ public class ProgramAdminManagementController {
               programId, ImmutableSet.copyOf(manageAdminForm.getAdminEmails()));
       Result result = redirect(routes.AdminProgramController.index());
 
-      if(maybeError.isPresent()){   
+      if (maybeError.isPresent()){   
         Optional<Program> program =
             programRepository.lookupProgram(programId).toCompletableFuture().join();
         if (program.isEmpty()) {
           return notFound(String.format("Program with ID %s was not found", programId));
-        } else{
+        } else {
           ImmutableList<String> programAdmins =
               programRepository.getProgramAdministrators(programId).stream()
                   .map(Account::getEmailAddress)
                   .collect(toImmutableList());
           return ok(
-            manageAdminsView.render(
-                request,
-                program.get().getProgramDefinition(),
-                programAdmins,
-                maybeError.get().message()));
+              manageAdminsView.render(
+                  request,
+                  program.get().getProgramDefinition(),
+                  programAdmins,
+                  maybeError.get().message()));
         }     
       }
       return result;

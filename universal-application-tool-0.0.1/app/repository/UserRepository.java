@@ -304,18 +304,18 @@ public class UserRepository {
     }
 
     Optional<Account> maybeAccount = lookupAccount(accountEmail);
-    if(maybeAccount.isEmpty()) {
+    if (maybeAccount.isEmpty()) {
        return Optional.of(
           CiviFormError.of(
               String.format(
-                  "%s does not have an admin account and cannot be added as a Program Admin.", accountEmail
-                  )));
+                  "%s does not have an admin account and cannot be added as a Program Admin.",
+                  accountEmail)));
     } else {
       maybeAccount.ifPresent(
-      account -> {
-        account.addAdministeredProgram(program);
-        account.save();
-      });
+          account -> {
+            account.addAdministeredProgram(program);
+            account.save();
+          });
       return Optional.empty();
     }
   }

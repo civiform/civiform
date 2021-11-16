@@ -104,7 +104,7 @@ public class ProgramAdminManagementControllerTest extends WithPostgresContainer 
         addCSRFToken(
                 fakeRequest()
                     .bodyForm(ImmutableMap.of("adminEmails[0]", email1, "adminEmails[1]", email2)))
-              .build();
+            .build();
 
     Result result = controller.update(request, program.id);
     account1 = userRepository.lookupAccount(email1).get();

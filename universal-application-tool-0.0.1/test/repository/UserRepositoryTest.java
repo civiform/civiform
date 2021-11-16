@@ -131,10 +131,10 @@ public class UserRepositoryTest extends WithPostgresContainer {
     assertThat(result)
         .isEqualTo(
             Optional.of(
-              CiviFormError.of(
-                String.format(
-                    "%s does not have an admin account and cannot be added as a Program Admin.", email
-                   ))));
+               CiviFormError.of(
+                  String.format(
+                      "%s does not have an admin account and cannot be added as a Program Admin.",
+                      email))));
   }
 
   @Test
