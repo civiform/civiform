@@ -37,6 +37,7 @@ public class FieldWithLabel {
 
   /** For use with fields of type `number`. */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
+
   protected OptionalLong minValue = OptionalLong.empty();
   protected OptionalLong maxValue = OptionalLong.empty();
 
