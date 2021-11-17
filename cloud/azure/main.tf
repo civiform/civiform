@@ -66,6 +66,21 @@ resource "azurerm_container_group" "cg" {
       protocol = "TCP"
     }
   }
+
+  diagnostics {
+    log_analytics {
+      workspace_id = azurerm_log_analytics_workspace.civiform_logs.workspace_id
+      workspace_key = azurerm_log_analytics_workspace.civiform_logs.primary_shared_key
+    }
+  }
+}
+
+resource "azurerm_log_analytics_workspace" "civiform_logs" {
+  name                = "civiform-server-logs"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
 }
 
 resource "azurerm_postgresql_server" "civiform" {
