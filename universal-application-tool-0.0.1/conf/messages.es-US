@@ -47,7 +47,6 @@ button.login=Iniciar sesión
 # Prompt for applicant to create a new account or become a guest
 content.alternativeLoginPrompt=¿No tiene cuenta con nosotros?
 
-
 # The text between creating a new account, and becoming a guest
 content.or=o
 
@@ -93,7 +92,6 @@ link.allDone=He terminado
 
 # A link that appears next to the create account button that offers applicants the option to not create an account right now.
 link.applyToAnotherProgram=Solicitar a otro programa
-
 
 # A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=Configurar una cuenta o iniciar sesión
@@ -176,19 +174,14 @@ title.programReview=Revisión de la solicitud del programa
 # Title on the page after the applicant has successfully submitted an application.
 title.applicationConfirmation=Confirmación de la solicitud
 
-
 # A confirmation message that shows after an applicant has submitted their application.
 content.confirmed=Gracias por solicitar al {0}.  Su solicitud ha sido recibida y el ID de su solicitud es {1}.
 
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Crear una cuenta o iniciar sesión
 
-
 # A message urging users to create an account to save their data.
 content.pleaseCreateAccount=Si inicia sesión en una cuenta de la Ciudad, su información será guardada y podrá volver en cualquier momento para llenar otras solicitudes. Si usted no tiene cuenta todavía, la página de inicio de sesión le permitirá registrarse. No perderá los datos que ya haya ingresado.
-
-
-
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -224,7 +217,6 @@ validation.noPoBox=Por favor introduzca una dirección postal válida. No se ace
 # Placeholder text shown in a dropdown selector before the user has made a selection.
 placeholder.noDropdownSelection=Elija una opción:
 
-
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
 #--------------------------------------------------------------------------------------------------------#
@@ -236,8 +228,7 @@ button.addEntity=Agregar {0}
 button.removeEntity=Eliminar {0}
 
 # The confirmation dialog when an applicant deletes an enumerator entry.
-dialog.confirmDelete=¿Está seguro que desea eliminar esto
- {0}? Este cambio será guardado después de hacer clic en "Siguiente" y todos los datos asociados con este {0} se perderán.
+dialog.confirmDelete=¿Está seguro que desea eliminar esto {0}? Este cambio será guardado después de hacer clic en "Siguiente" y todos los datos asociados con este {0} se perderán.
 
 # Validation error that shows when an applicant does not enter a value.
 validation.entityNameRequired=Introduzca un valor para cada línea.
@@ -271,7 +262,6 @@ validation.numberRequired=Solo debe contener números.
 
 # Validation errors that are shown if a user selects too many or too few answers.
 validation.tooFewSelections=Por favor seleccione al menos {0}.
-
 validation.tooManySelections=Por favor seleccione menos de {0}.
 
 #---------------------------------------------------#
@@ -298,7 +288,6 @@ validation.lastNameRequired=Por favor ingrese su apellido.
 
 # Validation errors that are shown when a user enters a number that is too big or too small.
 validation.numberTooBig=Debe ser como máximo {0}.
-
 validation.numberTooSmall=Debe ser al menos {0}.
 
 #---------------------------------------------------------------------#
@@ -308,7 +297,6 @@ validation.numberTooSmall=Debe ser al menos {0}.
 # Validation errors that appear if a user enters an answer that is too long or too short.
 validation.textTooLong=Debe contener un máximo de {0} caracteres.
 validation.textTooShort=Debe contener al menos {0} caracteres.
-
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
