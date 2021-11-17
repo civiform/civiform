@@ -142,6 +142,16 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
+  public void createProgram_withoutDisplayMode_returnsError() {
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition("ProgramService", "description", "name", "description", "", "");
+
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors()).containsExactly(CiviFormError.of("program display mode cannot be blank"));
+  }
+
+  @Test
   public void createProgram_protectsAgainstProgramNameCollisions() {
     ps.createProgramDefinition(
         "name",
