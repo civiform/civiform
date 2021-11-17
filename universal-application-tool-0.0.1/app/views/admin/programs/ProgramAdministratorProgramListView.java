@@ -79,7 +79,8 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
   public Tag renderProgramListItem(
       Optional<ProgramDefinition> activeProgram, Optional<ProgramDefinition> draftProgram) {
     String programStatusText = extractProgramStatusText(draftProgram, activeProgram);
-    //String lastEditText = "Last updated 2 hours ago."; // TODO(Issue #1657): Need to generate this.
+    // String lastEditText = "Last updated 2 hours ago."; // TODO(Issue #1657): Need to generate
+    // this.
     String viewApplicationsLinkText = "Applications →";
 
     ProgramDefinition displayProgram = getDisplayProgram(draftProgram, activeProgram);
@@ -110,15 +111,13 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
         div(programDescriptionText)
             .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, Styles.MB_8, Styles.LINE_CLAMP_3);
 
-    // TODO(Issue #1657): Create accurate lastEditText and readd.
-    /*
     Tag bottomContent =
         div(
-                p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
+                // TODO(Issue #1657): Create accurate lastEditText and readd.
+                // p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
                 maybeRenderViewApplicationsLink(viewApplicationsLinkText, activeProgram))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
-    */
 
     Tag programDeepLink =
         label("Deep link, use this URL to link to this program from outside of CiviForm:")
