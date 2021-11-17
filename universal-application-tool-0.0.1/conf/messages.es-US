@@ -6,61 +6,313 @@
 # https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
 # ------------------------------------------------------------------------------- #
 
-button.apply=Solicitar
-button.continue=Seguir
-button.deleteFile=Eliminar
-button.keepFile=Seguir
+#-------------------------------------------------------------#
+# GENERAL - contains text that corresponds to multiple views. #
+#-------------------------------------------------------------#
+
+# The text on the button an applicant clicks to log out of their session.
 button.logout=Cerrar Sesión
-button.nextScreen=Próximo
+
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+label.selectLanguage=Please select your preferred language.
+
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+content.applicantInformation=Applicant Information
+
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+button.untranslatedSubmit=Submit
+
+# Message displayed before the support email address in the page footer for applicants.
+footer.supportLinkDescription=For technical support, contact
+
+# Label read by screen readers for the language dropdown shown in the page header.
+label.languageSr=Elija un idioma
+
+# Message with user's name to show who you are logged in as.
+header.userName=Conectado como {0}
+
+# Error message to answer a required question
+validation.isRequired=Esta pregunta es obligatoria.
+
+#-------------------------------------------------------------#
+# LOGIN - contains text that for login page.                  #
+#-------------------------------------------------------------#
+
+# Prompt for applicant to log in
+content.loginPrompt=Por favor inicie sesión con su cuenta de la Ciudad de Seattle
+
+# The text on the button an applicant clicks to log in to their session.
+button.login=Iniciar sesión
+
+# Prompt for applicant to create a new account or become a guest
+content.alternativeLoginPrompt=¿No tiene cuenta con nosotros?
+
+
+# The text between creating a new account, and becoming a guest
+content.or=o
+
+# The text on the button for applicants to create a new account.
+button.createAccount=Crear cuenta
+
+# The text on the button for guests to log in to their session.
+button.guestLogin=Continuar como invitado
+
+# The words leading up to the admin login anchor
+content.adminLoginPrompt=¿Está buscando algo más?
+
+# The text on the anchor for admins to log in to their session.
+link.adminLogin=Admin login
+
+#--------------------------------------------------------------------------#
+# PROGRAM FORM - contains text shown when filling out an application form. #
+#--------------------------------------------------------------------------#
+
+# The text on the button an applicant clicks to delete an uploaded file.
+button.deleteFile=Eliminar
+
+# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
+button.keepFile=Continuar
+
+# The button text for saving the current applicant-entered data and continuing to the next screen in the form.
+button.nextScreen=Siguiente
+
+# The text on the button an applicant clicks to jump to the review page.
 button.review=Revisar
+
+# The text on the button an applicant clicks to skip uploading a file.
 button.skipFileUpload=Saltar
-button.submit=Enviar
+
+# The text on the button an applicant clicks to upload a file and continue to the next screen.
 button.upload=Subir
-toast.localeNotSupported=Lo siento, este programa no está completamente traducido al español.
-toast.programCompleted=Ya completó esta solicitud
-toast.applicationSaved=Solicitud guardada con ID: {0}
-title.applicationConfirmation=Confirmación de la solicitud
-title.createAnAccount=Crea una cuenta o inicia sesión
-content.confirmed=Gracias por postularse a {0}. Su solicitud ha sido recibida y su ID de solicitud es {1}.
-content.pleaseCreateAccount=Si inicia sesión en una cuenta de la ciudad ahora, su información se guardará y podrá regresar en cualquier momento para completar solicitudes futuras. Si aún no tiene una cuenta, la página de inicio de sesión le permitirá registrarse. No perderá ningún dato que ya haya ingresado.
-link.allDone=Ya terminé
-link.applyToAnotherProgram=Aplicar a otro programa
-link.createAccountOrSignIn=Crea una cuenta o inicia sesión
 
-link.begin=Empieza aqui
-link.edit=Editar
-title.programPreview=Vista previa del programa
-title.programReview=Revisión del programa
+# A toast message that displays when a program is not fully localized to the applicant's preferred locale.
+toast.localeNotSupported=Lo sentimos, este programa no está totalmente traducido al idioma de su preferencia.
 
-title.programs=Programas y servicios
-title.inProgressPrograms=Seguir
-title.activePrograms=Nuevos Programas
-title.programCard=Programa {0} de {1} -- {2}
-link.programDetails=Detalles del programa
-link.externalLink=Sitio externo
+# A link that logs out a guest user after they submit an application.
+link.allDone=He terminado
+
+# A link that appears next to the create account button that offers applicants the option to not create an account right now.
+link.applyToAnotherProgram=Solicitar a otro programa
+
+
+# A link that offers applicants the option to create an account.
+link.createAccountOrSignIn=Configurar una cuenta o iniciar sesión
+
+#----------------------------------------------------------------------------#
+# APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
+#----------------------------------------------------------------------------#
+
+# The text on the button an applicant clicks to apply to a specific program.
+button.apply=Solicitar
+# The text read for screen readers.
+button.applySr=Solicitar para {0}
+
+# "Get benefits" floating text
 content.benefits=Obtener beneficios
-content.description1=CiviForm le permite solicitar muchos beneficios a la vez reutilizando información.
-content.description2=Comience eligiendo una aplicación a continuación.
 
-label.street=Dirección Línea 1
-placeholder.street=Dirección
-label.addressLine2=Línea de dirección 2
-placeholder.line2=Apartamento, suite, unidad, edificio, piso, etc.
+# Long form description of the CiviForm site shown to the applicant. Line 1.
+content.description1=CiviForm le permite solicitar varios beneficios a la vez volviendo a utilizar la misma información.
+
+# Long form description of the CiviForm site shown to the applicant. Line 2.
+content.description2=Empiece por elegir una solicitud.
+
+# Link text to read more about a program.
+link.programDetails=Detalles del programa
+
+# The same text, read for screen readers.
+link.programDetailsSr=Detalles de programa para {0}
+
+# Link text to an external site to read more about a program.
+link.externalLink=Sitio externo
+
+# The title of the page for the list of programs.
+title.programs=Programas y servicios
+
+# Subtitle for the list of programs with draft applications
+title.inProgressPrograms=Continuar
+
+# Subtitle for the list of programs for which the applicant has no draft applications
+title.activePrograms=Programas nuevos
+
+# Screen reader format string for program cards
+title.programCard=Programa {0} de {1} -- {2}
+
+# A toast message that displays when an applicant submits an application.
+toast.applicationSaved=La solicitud se ha guardado correctamente: ID de la solicitud {0}
+
+# A toast message that displays when an applicant tries to apply to a previously completed program.
+toast.programCompleted=La solicitud ya estaba completa.
+
+#------------------------------------------------------------------------#
+# APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
+#------------------------------------------------------------------------#
+
+# Submit application button
+button.submit=Enviar
+
+# Continue application button
+button.continue=Continuar
+
+# The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
+link.begin=Empiece aquí
+
+# The text that appears next to an answered question that the applicant can click on to modify the response.
+link.edit=Editar
+
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.edit=Editar {0}
+
+# Program Preview Title
+title.programPreview=Vista previa de la solicitud del programa
+
+# Program Review Title
+title.programReview=Revisión de la solicitud del programa
+
+#---------------------------------------------------------------------------------------------#
+# APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
+#---------------------------------------------------------------------------------------------#
+
+# Title on the page after the applicant has successfully submitted an application.
+title.applicationConfirmation=Confirmación de la solicitud
+
+
+# A confirmation message that shows after an applicant has submitted their application.
+content.confirmed=Gracias por solicitar al {0}.  Su solicitud ha sido recibida y el ID de su solicitud es {1}.
+
+# Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
+title.createAnAccount=Crear una cuenta o iniciar sesión
+
+
+# A message urging users to create an account to save their data.
+content.pleaseCreateAccount=Si inicia sesión en una cuenta de la Ciudad, su información será guardada y podrá volver en cualquier momento para llenar otras solicitudes. Si usted no tiene cuenta todavía, la página de inicio de sesión le permitirá registrarse. No perderá los datos que ya haya ingresado.
+
+
+
+
+#----------------------------------------------------------#
+# ADDRESS QUESTION - text when viewing an address question #
+#----------------------------------------------------------#
+
+# Address question labels - these are shown as the field label before an input box.
+label.addressLine2=Número de unidad/departamento
 label.city=Ciudad
-placeholder.city=Ciudad
 label.state=Estado
+label.street=Dirección línea 1
+label.zipcode=Código postal
+
+# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
+placeholder.city=Ciudad
+placeholder.line2=Departamento, suite, unidad, edificio, piso, etc.
 placeholder.state=Estado
-label.zipcode=Códiogo Postal
-placeholder.zipcode=Código Postal
-label.firstName=Nombre
-placeholder.firstName=Nombre
-label.middleName=Segundo nombre
-placeholder.middleName=Segundo nombre
-label.lastName=Apellido
-placeholder.lastName=Apellido
-placeholder.entityName=Apodo para {0}
-button.addEntity=Agrega otro {0}
+placeholder.street=Nombre y número de la calle
+placeholder.zipcode=Código postal
+
+# Validation errors that are shown when a user enters an invalid address.
+validation.streetRequired=Por favor introduzca un nombre de la calle y número válidos.
+validation.cityRequired=Por favor introduzca la ciudad.
+validation.currencyMisformatted=Las cifras monetarias deben estar en uno de los siguientes formatos: 1000 1,000 1000.30 1,000.30
+validation.stateRequired=Por favor introduzca el estado.
+validation.zipcodeRequired=Por favor introduzca un código postal válido.
+validation.invalidZipcode=Por favor introduzca el código postal de 5 dígitos.
+validation.noPoBox=Por favor introduzca una dirección postal válida. No se aceptan PO Boxes.
+
+#----------------------------------------------------------------------------------------------------------#
+# DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
+#----------------------------------------------------------------------------------------------------------#
+
+# Placeholder text shown in a dropdown selector before the user has made a selection.
+placeholder.noDropdownSelection=Elija una opción:
+
+
+#--------------------------------------------------------------------------------------------------------#
+# ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
+#--------------------------------------------------------------------------------------------------------#
+
+# Text on a button an applicant would click to add another entity
+button.addEntity=Agregar {0}
+
+# Text on a button an applicant would click to delete an entity
 button.removeEntity=Eliminar {0}
 
-validation.isRequired=Esta pregunta es requerida.
-validation.entityNameRequired=Ingrese un valor para cada línea.
+# The confirmation dialog when an applicant deletes an enumerator entry.
+dialog.confirmDelete=¿Está seguro que desea eliminar esto
+ {0}? Este cambio será guardado después de hacer clic en "Siguiente" y todos los datos asociados con este {0} se perderán.
+
+# Validation error that shows when an applicant does not enter a value.
+validation.entityNameRequired=Introduzca un valor para cada línea.
+
+# Validation error that shows when an applicant uses a duplicate entity name
+validation.duplicateEntityName=Introduzca un valor único para cada línea.
+
+# The placeholder text for enumerator fields
+placeholder.entityName=Sobrenombre para {0}
+
+#---------------------------------------------------------------------------------#
+# FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
+#---------------------------------------------------------------------------------#
+
+# Validation error that shows when an applicant does not select a file to upload
+validation.fileRequired=Por favor seleccione un archivo.
+
+#---------------------------------------------------------------------#
+# ID QUESTION - id specific to filling out a question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
+validation.idTooLong=Debe contener un máximo de {0} caracteres.
+validation.idTooShort=Debe contener al menos {0} caracteres.
+
+validation.numberRequired=Solo debe contener números.
+
+#----------------------------------------------------------------------------------------------------------#
+# MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
+#----------------------------------------------------------------------------------------------------------#
+
+# Validation errors that are shown if a user selects too many or too few answers.
+validation.tooFewSelections=Por favor seleccione al menos {0}.
+
+validation.tooManySelections=Por favor seleccione menos de {0}.
+
+#---------------------------------------------------#
+# NAME QUESTION - text when viewing a name question #
+#---------------------------------------------------#
+
+# Name question labels - these are shown as the field label before an input box.
+label.firstName=Nombre
+label.lastName=Apellido
+label.middleName=Segundo nombre
+
+# Placeholder text - this is shown inside the input box, before a user enters an answer.
+placeholder.firstName=Nombre
+placeholder.lastName=Apellido
+placeholder.middleName=Segundo nombre
+
+# Validation errors - these are shown if a user enters an invalid name.
+validation.firstNameRequired=Por favor ingrese su nombre.
+validation.lastNameRequired=Por favor ingrese su apellido.
+
+#------------------------------------------------------------------------#
+# NUMBER QUESTION - text specific to answering a question with a number. #
+#------------------------------------------------------------------------#
+
+# Validation errors that are shown when a user enters a number that is too big or too small.
+validation.numberTooBig=Debe ser como máximo {0}.
+
+validation.numberTooSmall=Debe ser al menos {0}.
+
+#---------------------------------------------------------------------#
+# TEXT QUESTION - text specific to filling out a question with words. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
+validation.textTooLong=Debe contener un máximo de {0} caracteres.
+validation.textTooShort=Debe contener al menos {0} caracteres.
+
+
+#---------------------------------------------------------------------#
+# MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if an admin leaves a multi option question blank.
+adminValidation.multiOptionEmpty=Las preguntas de opción múltiple no pueden quedar en blanco.
