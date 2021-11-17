@@ -42,11 +42,11 @@ resource "azurerm_resource_group" "rg" {
 # }
 
 resource "azurerm_container_group" "cg" {
-  name                = "mycontainer"
+  name                = "civiform-container-group"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   ip_address_type     = "public"
-  dns_name_label      = "mydnscontainer"
+  dns_name_label      = "civiform-staging"
   os_type             = "Linux"
 
   container {
@@ -54,19 +54,12 @@ resource "azurerm_container_group" "cg" {
     image  = "civiform/civiform:latest"
     cpu    = "0.5"
     memory = "1.5"
-    # environment_variables {
-    #   DB_JDBC_STRING = "jdbc:postgresql://${azurerm_postgresql_server.civiform.fqdn}:5432/postgres"
-    #   DB_USERNAME    = azurerm_postgresql_server.civiform.administrator_login
-    #   DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
-    # }
-    environment_variables = [
-      { name = "DB_JDBC_STRING"
-      value = "jdbc:postgresql://${azurerm_postgresql_server.civiform.fqdn}:5432/postgres" },
-      { name = "DB_USERNAME"
-      value = azurerm_postgresql_server.civiform.administrator_login },
-      { name = "DB_PASSWORD"
-      value = azurerm_postgresql_server.civiform.administrator_login_password },
-    ]
+
+    environment_variables = {
+      DB_JDBC_STRING = "jdbc:postgresql://${azurerm_postgresql_server.civiform.fqdn}:5432/postgres"
+      DB_USERNAME    = azurerm_postgresql_server.civiform.administrator_login
+      DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
+    }
 
     ports {
       port     = 80
@@ -76,7 +69,7 @@ resource "azurerm_container_group" "cg" {
 }
 
 resource "azurerm_postgresql_server" "civiform" {
-  name                = "civiform-psqlserver"
+  name                = "civiform-db"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
