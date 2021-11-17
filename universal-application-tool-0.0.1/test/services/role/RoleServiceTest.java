@@ -73,7 +73,7 @@ public class RoleServiceTest extends WithPostgresContainer {
             Optional.of(
                 CiviFormError.of(
                     String.format(
-                        "%s does not have an admin account and cannot be added as a Program Admin.",
+                        "%s does not have an admin account and cannot be added as a Program Admin. ",
                         emailLowerCase))));
 
     // Lookup the upper case account. They do not have permission to any programs.
@@ -122,8 +122,28 @@ public class RoleServiceTest extends WithPostgresContainer {
             Optional.of(
                 CiviFormError.of(
                     String.format(
-                        "%s does not have an admin account and cannot be added as a Program Admin.",
+                        "%s does not have an admin account and cannot be added as a Program Admin. ",
                         email))));
+  }
+
+    @Test
+  public void makeProgramAdmins_manyEmailsHaveNoAccountReturnsError() throws ProgramNotFoundException {
+    String email1 = "first_admin_does_not_exist@email.com";
+    String email2 = "second_admin_does_not_exist@email.com";
+
+    String programName = "test program";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    Optional<CiviFormError> lowerCaseResult =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(email1, email2));
+
+    assertThat(lowerCaseResult)
+        .isEqualTo(
+            Optional.of(
+                CiviFormError.of(
+                    String.format(
+                        "%1$s does not have an admin account and cannot be added as a Program Admin. %2$s does not have an admin account and cannot be added as a Program Admin. ",
+                        email1, email2))));
   }
 
   @Test

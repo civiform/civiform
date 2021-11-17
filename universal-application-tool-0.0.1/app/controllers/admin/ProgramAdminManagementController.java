@@ -61,7 +61,7 @@ public class ProgramAdminManagementController {
               .collect(toImmutableList());
       return ok(
           manageAdminsView.render(
-              request, program.get().getProgramDefinition(), programAdmins, ""));
+              request, program.get().getProgramDefinition(), programAdmins));
     } catch (ProgramNotFoundException e) {
       return notFound(e.getLocalizedMessage());
     }
@@ -88,25 +88,28 @@ public class ProgramAdminManagementController {
               programId, ImmutableSet.copyOf(manageAdminForm.getAdminEmails()));
       Result result = redirect(routes.AdminProgramController.index());
 
-      if (maybeError.isPresent()){   
-        Optional<Program> program =
-            programRepository.lookupProgram(programId).toCompletableFuture().join();
-        if (program.isEmpty()) {
-          return notFound(String.format("Program with ID %s was not found", programId));
-        } else {
-          ImmutableList<String> programAdmins =
-              programRepository.getProgramAdministrators(programId).stream()
-                  .map(Account::getEmailAddress)
-                  .collect(toImmutableList());
-          return ok(
-              manageAdminsView.render(
-                  request,
-                  program.get().getProgramDefinition(),
-                  programAdmins,
-                  maybeError.get().message()));
-        }     
+      if (!maybeError.isPresent()){
+        return result;
       }
-      return result;
+
+      Optional<Program> program =
+          programRepository.lookupProgram(programId).toCompletableFuture().join();
+
+      if (program.isEmpty()) {
+        return notFound(String.format("Program with ID %s was not found", programId));
+      } else {
+        ImmutableList<String> programAdmins =
+            programRepository.getProgramAdministrators(programId).stream()
+                .map(Account::getEmailAddress)
+                .collect(toImmutableList());
+
+        return ok(
+            manageAdminsView.render(
+                request,
+                program.get().getProgramDefinition(),
+                programAdmins,
+                Optional.of(maybeError.get().message())));
+      }     
     } catch (ProgramNotFoundException e) {
       return notFound(e.getLocalizedMessage());
     }
