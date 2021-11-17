@@ -142,7 +142,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   }
 
   @Test
-  public void createProgram_withoutDisplayMode_returnsError() {
+  public void createProgramWithoutDisplayMode_returnsError() {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition("ProgramService", "description", "name", "description", "", "");
 
