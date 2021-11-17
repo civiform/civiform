@@ -148,7 +148,8 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
-    assertThat(result.getErrors()).containsExactly(CiviFormError.of("program display mode cannot be blank"));
+    assertThat(result.getErrors()).containsExactly(
+        CiviFormError.of("program display mode cannot be blank"));
   }
 
   @Test
@@ -179,15 +180,15 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   @Test
   public void updateProgram_withNoProgram_throwsProgramNotFoundException() {
     assertThatThrownBy(
-            () ->
-                ps.updateProgramDefinition(
-                    1L,
-                    Locale.US,
-                    "new description",
-                    "name",
-                    "description",
-                    "",
-                    DisplayMode.PUBLIC.getValue()))
+        () ->
+            ps.updateProgramDefinition(
+                1L,
+                Locale.US,
+                "new description",
+                "name",
+                "description",
+                "",
+                DisplayMode.PUBLIC.getValue()))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
   }
@@ -462,7 +463,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void
-      addRepeatedBlockToProgram_invalidEnumeratorId_throwsProgramBlockDefinitionNotFoundException() {
+  addRepeatedBlockToProgram_invalidEnumeratorId_throwsProgramBlockDefinitionNotFoundException() {
     Program program = ProgramBuilder.newActiveProgram().build();
 
     assertThatThrownBy(() -> ps.addRepeatedBlockToProgram(program.id, 5L))
@@ -595,7 +596,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
 
   @Test
   public void
-      addQuestionsToBlock_withDuplicatedQuestions_throwsDuplicateProgramQuestionException() {
+  addQuestionsToBlock_withDuplicatedQuestions_throwsDuplicateProgramQuestionException() {
     QuestionDefinition questionA = nameQuestion;
 
     Program program =
@@ -605,7 +606,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
             .build();
 
     assertThatThrownBy(
-            () -> ps.addQuestionsToBlock(program.id, 1L, ImmutableList.of(questionA.getId())))
+        () -> ps.addQuestionsToBlock(program.id, 1L, ImmutableList.of(questionA.getId())))
         .isInstanceOf(DuplicateProgramQuestionException.class)
         .hasMessage(
             String.format(
@@ -638,7 +639,7 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     Program program = ProgramBuilder.newDraftProgram().withBlock().build();
 
     assertThatThrownBy(
-            () -> ps.removeQuestionsFromBlock(program.id, 1L, ImmutableList.of(questionA.getId())))
+        () -> ps.removeQuestionsFromBlock(program.id, 1L, ImmutableList.of(questionA.getId())))
         .isInstanceOf(QuestionNotFoundException.class)
         .hasMessage(
             String.format(
@@ -714,15 +715,15 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
   public void setBlockPredicate_withBogusBlockId_throwsProgramBlockDefinitionNotFoundException() {
     ProgramDefinition p = ProgramBuilder.newDraftProgram().buildDefinition();
     assertThatThrownBy(
-            () ->
-                ps.setBlockPredicate(
-                    p.id(),
-                    100L,
-                    PredicateDefinition.create(
-                        PredicateExpressionNode.create(
-                            LeafOperationExpressionNode.create(
-                                1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
-                        PredicateAction.HIDE_BLOCK)))
+        () ->
+            ps.setBlockPredicate(
+                p.id(),
+                100L,
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                    PredicateAction.HIDE_BLOCK)))
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
         .hasMessage(
             String.format(
@@ -820,41 +821,41 @@ public class ProgramServiceImplTest extends WithPostgresContainer {
     Long programId = programDefinition.id();
 
     assertThat(
-            programDefinition
-                .getBlockDefinitionByIndex(0)
-                .get()
-                .programQuestionDefinitions()
-                .get(0)
-                .optional())
+        programDefinition
+            .getBlockDefinitionByIndex(0)
+            .get()
+            .programQuestionDefinitions()
+            .get(0)
+            .optional())
         .isFalse();
 
     programDefinition =
         ps.setProgramQuestionDefinitionOptionality(programId, 1L, nameQuestion.getId(), true);
     assertThat(
-            programDefinition
-                .getBlockDefinitionByIndex(0)
-                .get()
-                .programQuestionDefinitions()
-                .get(0)
-                .optional())
+        programDefinition
+            .getBlockDefinitionByIndex(0)
+            .get()
+            .programQuestionDefinitions()
+            .get(0)
+            .optional())
         .isTrue();
 
     programDefinition =
         ps.setProgramQuestionDefinitionOptionality(programId, 1L, nameQuestion.getId(), false);
     assertThat(
-            programDefinition
-                .getBlockDefinitionByIndex(0)
-                .get()
-                .programQuestionDefinitions()
-                .get(0)
-                .optional())
+        programDefinition
+            .getBlockDefinitionByIndex(0)
+            .get()
+            .programQuestionDefinitions()
+            .get(0)
+            .optional())
         .isFalse();
 
     // Checking that there's no problem
     assertThatThrownBy(
-            () ->
-                ps.setProgramQuestionDefinitionOptionality(
-                    programId, 1L, nameQuestion.getId() + 1, false))
+        () ->
+            ps.setProgramQuestionDefinitionOptionality(
+                programId, 1L, nameQuestion.getId() + 1, false))
         .isInstanceOf(ProgramQuestionDefinitionNotFoundException.class);
   }
 
