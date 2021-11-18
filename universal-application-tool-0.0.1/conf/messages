@@ -287,9 +287,10 @@ validation.lastNameRequired=Please enter your last name.
 # NUMBER QUESTION - text specific to answering a question with a number. #
 #------------------------------------------------------------------------#
 
-# Validation errors that are shown when a user enters a number that is too big or too small.
+# Validation errors that are shown when a user enters a number that is too big or too small, or a non-integer.
 validation.numberTooBig=Must be at most {0}.
 validation.numberTooSmall=Must be at least {0}.
+validation.numberNonInteger=Number must be a positive whole number and can only contain numeric characters 0-9.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
