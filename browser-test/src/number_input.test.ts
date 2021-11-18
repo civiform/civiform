@@ -45,16 +45,14 @@ describe('input validation for number questions', () => {
     await applicant.applyProgram(programName);
     await applicant.validateHeader('en-US');
 
-    const testValues = [
-      '12e3', '12E3', '+123', '-123'
-    ]
+    const testValues = ['12e3', '12E3', '-123']
     const numberInput = 'div.cf-question-number input'
     const numberInputError = 'div.cf-question-number-error'
 
     for (const testValue of testValues) {
       await page.type(numberInput, testValue);
       await applicant.clickNext();
-      expect(await page.isHidden(numberInputError)).toBeFalsy();
+      expect([testValue, await page.isHidden(numberInputError)]).toStrictEqual([testValue, false]);
       await page.fill(numberInput, '');
     }
 
