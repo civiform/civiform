@@ -114,7 +114,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         subject.edit(request, applicant.id, program.id, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Próximo");
+    assertThat(contentAsString(result)).contains("Siguiente");
   }
 
   @Test
