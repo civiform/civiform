@@ -10,7 +10,6 @@ import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NumberQuestion;
 import views.components.FieldWithLabel;
-import views.style.ReferenceClasses;
 
 /** Renders a number question. */
 public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
@@ -34,7 +33,10 @@ public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
             .setScreenReaderText(question.getQuestionText())
             .setMin(numberQuestion.getQuestionDefinition().getMin())
             .setMax(numberQuestion.getQuestionDefinition().getMax())
-            .setFieldErrors(params.messages(), ImmutableSet.of(ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER)))
+            .setFieldErrors(
+              params.messages(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER)))
             .showFieldErrors(false)
             .addReferenceClass(getReferenceClass());
     if (numberQuestion.getNumberValue().isPresent()) {

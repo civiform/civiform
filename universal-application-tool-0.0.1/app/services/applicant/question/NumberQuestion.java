@@ -97,8 +97,7 @@ public class NumberQuestion implements Question {
   }
 
   public ImmutableSet<ValidationErrorMessage> getNumberQuestionErrorMessage() {
-    return ImmutableSet.of(
-        ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER));
+    return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER));
   }
 
   public void assertQuestionType() {
