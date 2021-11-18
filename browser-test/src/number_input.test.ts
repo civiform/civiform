@@ -2,24 +2,6 @@ import {
   startSession, loginAsAdmin, loginAsTestUser, logout, selectApplicantLanguage, AdminQuestions, AdminPrograms, ApplicantQuestions, waitForPageJsLoad, endSession
 } from './support'
 
-describe('input type', () => {
-  it('sets the inputmode attribute to decimal', async () => {
-    const { browser, page } = await startSession();
-    page.setDefaultTimeout(4000);
-    // Go to number question preview
-    await loginAsAdmin(page);
-    const adminQuestions = new AdminQuestions(page);
-    adminQuestions.gotoAdminQuestionsPage();
-    await page.click('#create-question-button');
-    await page.click('#create-number-question');
-    await waitForPageJsLoad(page);
-
-    // Confirm that inputmode is set to decimal
-    expect(await page.getAttribute('div.cf-question-number input', 'inputmode')).toEqual('decimal');
-
-  });
-});
-
 describe('input validation for number questions', () => {
   it('displays error message for non-numeric characters in input', async () => {
     const { browser, page } = await startSession();

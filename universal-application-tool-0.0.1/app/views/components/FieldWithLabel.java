@@ -159,7 +159,7 @@ public class FieldWithLabel {
   public FieldWithLabel setMin(OptionalLong value) {
     if (!this.fieldType.equals("number")) {
       throw new RuntimeException(
-          "setting an OptionalLong min value is only available on fields of type `number`");
+          "setting an OptionalLong min value is only available on fields of type 'number'");
     }
     this.minValue = value;
     return this;
@@ -168,7 +168,7 @@ public class FieldWithLabel {
   public FieldWithLabel setMax(OptionalLong value) {
     if (!this.fieldType.equals("number")) {
       throw new RuntimeException(
-          "setting an OptionalLong max value is only available on fields of type `number`");
+          "setting an OptionalLong max value is only available on fields of type 'number'");
     }
 
     this.maxValue = value;
