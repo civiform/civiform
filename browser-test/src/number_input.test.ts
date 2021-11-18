@@ -48,7 +48,7 @@ describe('input validation for number questions', () => {
     const testValues = [
       '12e3', '12E3', '+123', '-123'
     ]
-    const numberInput = 'div.cf-question-number'
+    const numberInput = 'div.cf-question-number input'
     const numberInputError = 'div.cf-question-number-error'
 
     for (const testValue of testValues) {
