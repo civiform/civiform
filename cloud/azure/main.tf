@@ -59,6 +59,7 @@ resource "azurerm_container_group" "cg" {
       DB_JDBC_STRING = "jdbc:postgresql://${azurerm_postgresql_server.civiform.fqdn}:5432/postgres"
       DB_USERNAME    = azurerm_postgresql_server.civiform.administrator_login
       DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
+      SECRET_KEY      = "insecure-secret-key"
     }
 
     ports {
