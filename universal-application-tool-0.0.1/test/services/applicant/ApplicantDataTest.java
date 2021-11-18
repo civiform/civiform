@@ -340,16 +340,6 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void readLong_convertsDoubleToLong() throws Exception {
-    String testData = "{ \"applicant\": { \"age\": 30.5 } }";
-    ApplicantData data = new ApplicantData(testData);
-
-    Optional<Long> found = data.readLong(Path.create("applicant.age"));
-
-    assertThat(found).hasValue(30L);
-  }
-
-  @Test
   public void readLong_pathNotPresent_returnsEmptyOptional() throws Exception {
     ApplicantData data = new ApplicantData();
 

@@ -376,13 +376,7 @@ public class ApplicantData {
     try {
       return this.read(path, Long.class);
     } catch (JsonPathTypeMismatchException e) {
-      try {
-        // check if value is a double/float and cast to long if needed
-        Optional<Double> doubleValue = this.read(path, Double.class);
-        return Optional.of(doubleValue.get().longValue());
-      } catch (JsonPathTypeMismatchException ex) {
-        return Optional.empty();
-      }
+      return Optional.empty();
     }
   }
 

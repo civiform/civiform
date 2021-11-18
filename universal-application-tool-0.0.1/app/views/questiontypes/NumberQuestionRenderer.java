@@ -2,11 +2,15 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 import java.util.OptionalLong;
+import services.MessageKey;
+import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NumberQuestion;
 import views.components.FieldWithLabel;
+import views.style.ReferenceClasses;
 
 /** Renders a number question. */
 public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
@@ -30,7 +34,9 @@ public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
             .setScreenReaderText(question.getQuestionText())
             .setMin(numberQuestion.getQuestionDefinition().getMin())
             .setMax(numberQuestion.getQuestionDefinition().getMax())
-            .setFieldErrors(params.messages(), numberQuestion.getQuestionErrors());
+            .setFieldErrors(params.messages(), ImmutableSet.of(ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER)))
+            .showFieldErrors(false)
+            .addReferenceClass(getReferenceClass());
     if (numberQuestion.getNumberValue().isPresent()) {
       // TODO: [Refactor] Oof! Converting Optional<Long> to OptionalLong.
       OptionalLong value = OptionalLong.of(numberQuestion.getNumberValue().orElse(0L));
