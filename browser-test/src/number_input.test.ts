@@ -50,11 +50,10 @@ describe('input validation for number questions', () => {
     ]
     const numberInput = 'div.cf-question-number'
     const numberInputError = 'div.cf-question-number-error'
-    const submitButton = 'input[type=submit]'
 
     for (const testValue of testValues) {
       await page.type(numberInput, testValue);
-      await page.click(submitButton);
+      await applicant.clickNext();
       expect(await page.isHidden(numberInputError))
         .toBeFalsy();
       await page.fill(numberInput, '');
