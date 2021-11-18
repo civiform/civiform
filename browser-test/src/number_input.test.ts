@@ -48,10 +48,10 @@ describe('input validation for number questions', () => {
     const testValues = [
       'abc123', '123abc', '12!@#$%^&*()3', '12[]3', '12d3', '12e3', '12E3', '12+3', '12-3'
     ]
-    const numberInputError = 'div.cf-question-number'
+    const numberInput = 'div.cf-question-number'
     const numberInputError = 'div.cf-question-number-error'
     const submitButton = 'input[type=submit]'
-    
+
     for (const testValue of testValues) {
       await page.type(numberInput, testValue);
       await page.click(submitButton);
