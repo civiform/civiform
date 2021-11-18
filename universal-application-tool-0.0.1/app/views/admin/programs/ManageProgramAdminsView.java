@@ -46,29 +46,9 @@ public class ManageProgramAdminsView extends BaseHtmlView {
     this.layout = checkNotNull(layout);
   }
 
-   /** Display a form with a list of inputs for adding and removing admins. */
-  public Content render(
-      Http.Request request,
-      ProgramDefinition program,
-      ImmutableList<String> existingAdminEmails) {
-
-    String fullTitle = PAGE_TITLE + program.adminName();
-
-    HtmlBundle htmlBundle =
-        layout
-            .getBundle()
-            .setTitle(fullTitle)
-            .addMainContent(
-                renderHeader(fullTitle),
-                adminEmailTemplate(),
-                renderAdminForm(request, program.id(), existingAdminEmails));
-
-    return layout.renderCentered(htmlBundle);
-  }
-
-  /** 
-   * Display a form with a list of inputs for adding and removing admins.
-   * Adds a toast error message if the message parameter is provided. 
+  /**
+   * Display a form with a list of inputs for adding and removing admins. Adds a toast error message
+   * if the message parameter is provided.
    */
   public Content render(
       Http.Request request,

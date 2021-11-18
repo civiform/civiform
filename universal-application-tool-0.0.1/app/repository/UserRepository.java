@@ -305,7 +305,7 @@ public class UserRepository {
 
     Optional<Account> maybeAccount = lookupAccount(accountEmail);
     if (maybeAccount.isEmpty()) {
-       return Optional.of(
+      return Optional.of(
           CiviFormError.of(
               String.format(
                   "%s does not have an admin account and cannot be added as a Program Admin.",
