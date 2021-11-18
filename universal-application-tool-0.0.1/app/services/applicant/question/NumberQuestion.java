@@ -96,10 +96,6 @@ public class NumberQuestion implements Question {
     return numberValue;
   }
 
-  public ImmutableSet<ValidationErrorMessage> getNumberQuestionErrorMessage() {
-    return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER));
-  }
-
   public void assertQuestionType() {
     if (!applicantQuestion.getType().equals(QuestionType.NUMBER)) {
       throw new RuntimeException(

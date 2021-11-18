@@ -34,7 +34,7 @@ public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
             .setMin(numberQuestion.getQuestionDefinition().getMin())
             .setMax(numberQuestion.getQuestionDefinition().getMax())
             .setFieldErrors(
-              params.messages(),
+                params.messages(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER)))
             .showFieldErrors(false)
