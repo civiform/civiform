@@ -21,7 +21,7 @@ describe('input type', () => {
 });
 
 describe('input validation for number questions', () => {
-  it('blocks non-numeric characters from input', async () => {
+  it('displays error message for non-numeric characters in input', async () => {
     const { browser, page } = await startSession();
     page.setDefaultTimeout(4000);
 
@@ -46,15 +46,17 @@ describe('input validation for number questions', () => {
     await applicant.validateHeader('en-US');
 
     const testValues = [
-      '123', 'abc123', '123abc', '12!@#$%^&*()3', '12[]3', '12d3', '12e3', '12E3', '12+3', '12-3'
+      'abc123', '123abc', '12!@#$%^&*()3', '12[]3', '12d3', '12e3', '12E3', '12+3', '12-3'
     ]
-    const expectedValue = '123';
-    const numberInput = 'div.cf-question-number input'
-
+    const numberInputError = 'div.cf-question-number'
+    const numberInputError = 'div.cf-question-number-error'
+    const submitButton = 'input[type=submit]'
+    
     for (const testValue of testValues) {
       await page.type(numberInput, testValue);
-      expect([testValue, await page.inputValue(numberInput)])
-        .toStrictEqual([testValue, expectedValue]);
+      await page.click(submitButton);
+      expect(await page.isHidden(numberInputError))
+        .toBeFalsy();
       await page.fill(numberInput, '');
     }
 
