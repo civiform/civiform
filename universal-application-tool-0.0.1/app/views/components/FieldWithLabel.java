@@ -266,6 +266,10 @@ public class FieldWithLabel {
       // Setting inputmode to decimal gives iOS users a more accessible keyboard
       fieldTag.attr("inputmode", "decimal");
 
+      // Setting step to any disables the built-in HTML validation so we can use our
+      // custom validation message to enforce integers.
+      fieldTag.attr("step", "any");
+
       // Set min and max values for client-side validation
       if (this.minValue.isPresent()) {
         fieldTag.attr("min", minValue.getAsLong());

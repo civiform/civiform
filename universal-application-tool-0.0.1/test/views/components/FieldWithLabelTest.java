@@ -68,6 +68,12 @@ public class FieldWithLabelTest {
   }
 
   @Test
+  public void number_setsStepAnyDefault() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.number().setMax(OptionalLong.of(5L));
+    assertThat(fieldWithLabel.getContainer().render()).contains("step=\"any\"");
+  }
+
+  @Test
   public void canChangeId() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.textArea().setId("id");
     fieldWithLabel.setId("other_id");

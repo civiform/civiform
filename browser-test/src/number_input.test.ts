@@ -27,7 +27,7 @@ describe('input validation for number questions', () => {
     await applicant.applyProgram(programName);
     await applicant.validateHeader('en-US');
 
-    const testValues = ['12e3', '12E3', '-123']
+    const testValues = ['12e3', '12E3', '-123', '1.23']
     const numberInput = 'div.cf-question-number input'
     const numberInputError = 'div.cf-question-number-error'
 
