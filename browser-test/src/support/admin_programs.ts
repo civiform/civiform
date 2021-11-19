@@ -124,6 +124,11 @@ export class AdminPrograms {
     expect(await this.page.innerText('h1')).toContain('Manage Admins for Program');
   }
 
+  async expectAddProgramAdminErrorToast() {
+    const toastMessages = await this.page.innerText('#toast-container')
+    expect(toastMessages).toContain('does not have an admin account and cannot be added as a Program Admin.');
+  }
+
   async expectEditPredicatePage(blockName: string) {
     expect(await this.page.innerText('h1')).toContain('Visibility condition for ' + blockName);
   }
