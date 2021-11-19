@@ -78,21 +78,24 @@ public class RoleService {
       }
     }
 
-    // If there was an error adding the administered program, return the error.
-    if (!errorMessageString.isEmpty()) {
-      return Optional.of(CiviFormError.of(errorMessageString));
-    }
-
+    String allErrorMessages = "";
     ImmutableSet<String> invalidEmails = invalidEmailBuilder.build();
-    if (invalidEmails.isEmpty()) {
-      return Optional.empty();
+
+    // If there were any errors, return the error message.
+    if (!errorMessageString.isEmpty()) {
+      allErrorMessages = errorMessageString;
+    }
+    if (!invalidEmails.isEmpty()) {
+      allErrorMessages +=
+          String.format(
+              "The following are already CiviForm admins and could not be added as"
+                  + " program admins: %s",
+              Joiner.on(", ").join(invalidEmails));
+    }
+    if (!allErrorMessages.isEmpty()) {
+      return Optional.of(CiviFormError.of(allErrorMessages));
     } else {
-      return Optional.of(
-          CiviFormError.of(
-              String.format(
-                  "The following are already CiviForm admins and could not be added as"
-                      + " program admins: %s",
-                  Joiner.on(", ").join(invalidEmails))));
+      return Optional.empty();
     }
   }
 

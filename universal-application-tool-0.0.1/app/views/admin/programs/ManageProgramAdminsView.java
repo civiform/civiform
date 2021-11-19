@@ -68,7 +68,8 @@ public class ManageProgramAdminsView extends BaseHtmlView {
                 renderAdminForm(request, program.id(), existingAdminEmails));
 
     if (!message.isEmpty()) {
-      htmlBundle.addToastMessages(ToastMessage.error(message.get()).setDismissible(false));
+      htmlBundle.addToastMessages(
+          ToastMessage.error(message.get()).setDuration(6000).setDismissible(false));
     }
     return layout.renderCentered(htmlBundle);
   }
