@@ -416,12 +416,12 @@ public class CsvExporterTest extends WithPostgresContainer {
 
     // Records should be ordered most recent first.
     assertThat(
-        records
-            .get(0)
-            .get(
-                "applicant household members[0] - household members jobs[2] - household"
-                    + " members days worked (number)"))
-    .isEqualTo("333");
+            records
+                .get(0)
+                .get(
+                    "applicant household members[0] - household members jobs[2] - household"
+                        + " members days worked (number)"))
+        .isEqualTo("333");
     assertThat(
             records
                 .get(1)
