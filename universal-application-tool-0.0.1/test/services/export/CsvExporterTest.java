@@ -172,6 +172,8 @@ public class CsvExporterTest extends WithPostgresContainer {
     fakeApplicantOne.save();
     fakeApplicantTwo.save();
     new Application(fakeApplicantOne, fakeProgramWithCsvExport, LifecycleStage.ACTIVE).save();
+    new Application(fakeApplicantOne, fakeProgramWithCsvExport, LifecycleStage.OBSOLETE).save();
+    new Application(fakeApplicantOne, fakeProgramWithCsvExport, LifecycleStage.DRAFT).save();
     new Application(fakeApplicantTwo, fakeProgramWithCsvExport, LifecycleStage.ACTIVE).save();
   }
 
@@ -189,7 +191,7 @@ public class CsvExporterTest extends WithPostgresContainer {
             exporterService.getProgramCsv(fakeProgramWithCsvExport.id),
             CSVFormat.DEFAULT.withFirstRecordAsHeader());
     List<CSVRecord> records = parser.getRecords();
-    assertThat(records).hasSize(2);
+    assertThat(records).hasSize(3);
     Streams.mapWithIndex(
             fakeQuestions.stream()
                 .filter(question -> !question.getQuestionDefinition().isEnumerator())
@@ -362,6 +364,10 @@ public class CsvExporterTest extends WithPostgresContainer {
         new Application(secondApplicant, program, LifecycleStage.ACTIVE);
     secondApplication.save();
 
+    Application thirdApplication =
+        new Application(secondApplicant, program, LifecycleStage.OBSOLETE);
+    thirdApplication.save();
+
     // Generate default CSV
     ExporterService exporterService = instanceOf(ExporterService.class);
     CSVParser parser =
@@ -406,33 +412,40 @@ public class CsvExporterTest extends WithPostgresContainer {
                 .build());
 
     List<CSVRecord> records = parser.getRecords();
-    assertThat(records).hasSize(2);
+    assertThat(records).hasSize(3);
 
     // Records should be ordered most recent first.
     assertThat(
+        records
+            .get(0)
+            .get(
+                "applicant household members[0] - household members jobs[2] - household"
+                    + " members days worked (number)"))
+    .isEqualTo("333");
+    assertThat(
             records
-                .get(0)
+                .get(1)
                 .get(
                     "applicant household members[0] - household members jobs[2] - household"
                         + " members days worked (number)"))
         .isEqualTo("333");
     assertThat(
             records
-                .get(0)
+                .get(1)
                 .get(
                     "applicant household members[1] - household members jobs[0] - household"
                         + " members days worked (number)"))
         .isEqualTo("");
     assertThat(
             records
-                .get(1)
+                .get(2)
                 .get(
                     "applicant household members[0] - household members jobs[2] - household"
                         + " members days worked (number)"))
         .isEqualTo("");
     assertThat(
             records
-                .get(1)
+                .get(2)
                 .get(
                     "applicant household members[1] - household members jobs[0] - household"
                         + " members days worked (number)"))

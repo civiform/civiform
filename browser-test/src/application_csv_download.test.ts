@@ -1,4 +1,4 @@
-import { startSession, logout, loginAsTestUser, loginAsGuest, loginAsProgramAdmin, loginAsAdmin, selectApplicantLanguage, ApplicantQuestions, AdminQuestions, AdminPrograms, endSession, isLocalDevEnvironment } from './support'
+import { applyToAnotherProgram, startSession, logout, loginAsTestUser, loginAsGuest, loginAsProgramAdmin, loginAsAdmin, selectApplicantLanguage, ApplicantQuestions, AdminQuestions, AdminPrograms, endSession, isLocalDevEnvironment } from './support'
 
 describe('normal application flow', () => {
   it('all major steps', async () => {
@@ -76,6 +76,11 @@ describe('normal application flow', () => {
     await applicantQuestions.answerCurrencyQuestion('2000');
     await applicantQuestions.answerNumberQuestion('1600');
     await applicantQuestions.clickNext();
+    await applicantQuestions.submitFromReviewPage(programName);
+
+    // Apply to the program again as the same user
+    await applyToAnotherProgram(page);
+    await applicantQuestions.applyProgram(programName);
     await applicantQuestions.submitFromReviewPage(programName);
     await logout(page);
 
