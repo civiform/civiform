@@ -56,9 +56,12 @@ resource "azurerm_container_group" "cg" {
     memory = "1.5"
 
     environment_variables = {
-      DB_JDBC_STRING = "jdbc:postgresql://${azurerm_postgresql_server.civiform.fqdn}:5432/postgres"
-      DB_USERNAME    = azurerm_postgresql_server.civiform.administrator_login
+      # Azure specifically requires the username to be in password@hostname format. Note
+      # the hostname in this case is not the fully qualified hostname.
+      DB_USERNAME    = "${azurerm_postgresql_server.civiform.administrator_login}@${azurerm_postgresql_server.civiform.name}"
       DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
+      DB_JDBC_STRING = "jdbc:postgresql://${azurerm_postgresql_server.civiform.fqdn}:5432/postgres?ssl=true&sslmode=require"
+
       SECRET_KEY      = "insecure-secret-key"
     }
 
@@ -102,7 +105,25 @@ resource "azurerm_postgresql_server" "civiform" {
   geo_redundant_backup_enabled = false
   auto_grow_enabled            = true
 
-  public_network_access_enabled    = false
+  # TODO: configure a subnet and restrict access only to the application servers.
+  public_network_access_enabled    = true
+
   ssl_enforcement_enabled          = true
   ssl_minimal_tls_version_enforced = "TLS1_2"
+}
+
+resource "azurerm_postgresql_database" "civiform" {
+  name                = "civiform"
+  resource_group_name = azurerm_resource_group.rg.name
+  server_name         = azurerm_postgresql_server.civiform.name
+  charset             = "utf8"
+  collation           = "English_United States.1252"
+}
+
+resource "azurerm_postgresql_firewall_rule" "civiform" {
+  name                = "civiform-db-firewall"
+  resource_group_name = azurerm_resource_group.rg.name
+  server_name         = azurerm_postgresql_server.civiform.name
+  start_ip_address    = azurerm_container_group.cg.ip_address
+  end_ip_address      = azurerm_container_group.cg.ip_address
 }
