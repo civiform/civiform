@@ -83,9 +83,6 @@ describe('normal application flow', () => {
     await applicantQuestions.clickStartHere();
     await applicantQuestions.answerNameQuestion('Gus2', 'Guest');
     await applicantQuestions.clickNext();
-    await applicantQuestions.clickNext();
-    await applicantQuestions.clickNext();
-    await applicantQuestions.clickNext();
     await applicantQuestions.submitFromReviewPage(programName);
     await logout(page);
 
