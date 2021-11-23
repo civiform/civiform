@@ -86,7 +86,6 @@ describe('normal application flow', () => {
     await applicantQuestions.clickNext();
     await applicantQuestions.clickNext();
     await applicantQuestions.clickNext();
-    await applicantQuestions.clickNext();
     await applicantQuestions.submitFromReviewPage(programName);
     await logout(page);
 
