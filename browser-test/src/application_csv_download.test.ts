@@ -1,4 +1,4 @@
-import { applyToAnotherProgram, startSession, logout, loginAsTestUser, loginAsGuest, loginAsProgramAdmin, loginAsAdmin, selectApplicantLanguage, ApplicantQuestions, AdminQuestions, AdminPrograms, endSession, isLocalDevEnvironment } from './support'
+import { startSession, logout, loginAsTestUser, loginAsGuest, loginAsProgramAdmin, loginAsAdmin, selectApplicantLanguage, ApplicantQuestions, AdminQuestions, AdminPrograms, endSession, isLocalDevEnvironment } from './support'
 
 describe('normal application flow', () => {
   it('all major steps', async () => {
@@ -79,7 +79,6 @@ describe('normal application flow', () => {
     await applicantQuestions.submitFromReviewPage(programName);
 
     // Apply to the program again as the same user
-    await applyToAnotherProgram(page);
     await applicantQuestions.applyProgram(programName);
     await applicantQuestions.clickStartHere();
     await applicantQuestions.answerNameQuestion('Gus2', 'Guest');

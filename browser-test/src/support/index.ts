@@ -49,11 +49,6 @@ export const logout = async (page: Page) => {
   await page.waitForURL("**/loginForm");
 }
 
-export const applyToAnotherProgram = async (page: Page) => {
-  await page.click('text="APPLY TO ANOTHER PROGRAM"');
-  await page.waitForURL("**/programs");
-}
-
 export const loginAsAdmin = async (page: Page) => {
   await page.click('#admin');
   await waitForPageJsLoad(page);
