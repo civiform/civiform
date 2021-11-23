@@ -198,10 +198,17 @@ public class Program extends BaseModel {
     builder.setLocalizedDescription(LocalizedStrings.create(legacyLocalizedDescription));
   }
 
-  /** Returns submitted program applications sorted by descending application id. Applications are obsolete if the applicant submitted the application more than once, but are included since all submitted applications should be shown. */
+  /**
+   * Returns submitted program applications sorted by descending application id. Applications are
+   * obsolete if the applicant submitted the application more than once, but are included since all
+   * submitted applications should be shown.
+   */
   public ImmutableList<Application> getSubmittedApplications() {
     return applications.stream()
-        .filter(application -> application.getLifecycleStage().equals(LifecycleStage.ACTIVE) || application.getLifecycleStage().equals(LifecycleStage.OBSOLETE))
+        .filter(
+            application ->
+                application.getLifecycleStage().equals(LifecycleStage.ACTIVE)
+                    || application.getLifecycleStage().equals(LifecycleStage.OBSOLETE))
         .collect(ImmutableList.toImmutableList());
   }
 
