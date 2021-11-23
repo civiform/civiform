@@ -50,7 +50,7 @@ export const logout = async (page: Page) => {
 }
 
 export const applyToAnotherProgram = async (page: Page) => {
-  await page.click('text="Apply to another program"');
+  await page.click('text="APPLY TO ANOTHER PROGRAM"');
   await page.waitForURL("**/programs");
 }
 
