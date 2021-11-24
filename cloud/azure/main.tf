@@ -62,7 +62,7 @@ resource "azurerm_container_group" "cg" {
       DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
       DB_JDBC_STRING = "jdbc:postgresql://${azurerm_postgresql_server.civiform.fqdn}:5432/postgres?ssl=true&sslmode=require"
 
-      SECRET_KEY      = "insecure-secret-key"
+      SECRET_KEY = "insecure-secret-key"
     }
 
     ports {
@@ -73,7 +73,7 @@ resource "azurerm_container_group" "cg" {
 
   diagnostics {
     log_analytics {
-      workspace_id = azurerm_log_analytics_workspace.civiform_logs.workspace_id
+      workspace_id  = azurerm_log_analytics_workspace.civiform_logs.workspace_id
       workspace_key = azurerm_log_analytics_workspace.civiform_logs.primary_shared_key
     }
   }
@@ -106,7 +106,7 @@ resource "azurerm_postgresql_server" "civiform" {
   auto_grow_enabled            = true
 
   # TODO: configure a subnet and restrict access only to the application servers.
-  public_network_access_enabled    = true
+  public_network_access_enabled = true
 
   ssl_enforcement_enabled          = true
   ssl_minimal_tls_version_enforced = "TLS1_2"
@@ -128,6 +128,6 @@ resource "azurerm_postgresql_firewall_rule" "civiform" {
   # TODO: replace with something more specific
   # All zeros here configures the filewall to accept all incoming connections
   # from anywhere inside Azure.
-  start_ip_address    = "0.0.0.0"
-  end_ip_address      = "0.0.0.0"
+  start_ip_address = "0.0.0.0"
+  end_ip_address   = "0.0.0.0"
 }
