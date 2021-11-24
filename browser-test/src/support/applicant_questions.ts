@@ -75,12 +75,16 @@ export class ApplicantQuestions {
   }
 
   async applyProgram(programName: string) {
-    // User clicks the apply button on an application card. It takes them to the application info page.
-    await this.page.click(`.cf-application-card:has-text("${programName}") .cf-apply-button`);
-    await waitForPageJsLoad(this.page);
+    await this.clickApplyButton(programName);
 
     // The user can see the application preview page. Clicking on apply sends them to the first unanswered question.
     await this.page.click(`#continue-application-button`);
+    await waitForPageJsLoad(this.page);
+  }
+
+  async clickApplyButton(programName: string) {
+    // User clicks the apply button on an application card. It takes them to the application info page.
+    await this.page.click(`.cf-application-card:has-text("${programName}") .cf-apply-button`);
     await waitForPageJsLoad(this.page);
   }
 

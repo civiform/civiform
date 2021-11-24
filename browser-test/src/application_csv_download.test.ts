@@ -79,7 +79,7 @@ describe('normal application flow', () => {
     await applicantQuestions.submitFromReviewPage(programName);
 
     // Apply to the program again as the same user
-    await applicantQuestions.clickApplyButton(programName);
+    await applicantQuestions.clickApplyProgramButton(programName);
     await applicantQuestions.clickStartHere();
     await applicantQuestions.answerNameQuestion('Gus2', 'Guest');
     await applicantQuestions.clickNext();
