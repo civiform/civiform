@@ -111,11 +111,6 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page);
   }
 
-  async clickStartHere() {
-    await this.page.click('text="Start here"');
-    await waitForPageJsLoad(this.page);
-  }
-
   async clickReview() {
     await this.page.click('text="Review"');
     await waitForPageJsLoad(this.page);
