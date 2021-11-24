@@ -76,11 +76,15 @@ export class ApplicantQuestions {
 
   async applyProgram(programName: string) {
     // User clicks the apply button on an application card. It takes them to the application info page.
-    await this.page.click(`.cf-application-card:has-text("${programName}") .cf-apply-button`);
-    await waitForPageJsLoad(this.page);
+    await this.clickApplyProgramButton(programName);
 
     // The user can see the application preview page. Clicking on apply sends them to the first unanswered question.
     await this.page.click(`#continue-application-button`);
+    await waitForPageJsLoad(this.page);
+  }
+
+  async clickApplyProgramButton(programName: string) {
+    await this.page.click(`.cf-application-card:has-text("${programName}") .cf-apply-button`);
     await waitForPageJsLoad(this.page);
   }
 
@@ -134,6 +138,21 @@ export class ApplicantQuestions {
   async submitFromReviewPage(programName: string) {
     // Assert that we're on the review page.
     expect(await this.page.innerText('h1')).toContain('Program application review');
+
+    // Click on submit button.
+    await this.page.click('text="Submit"');
+    await waitForPageJsLoad(this.page);
+
+    await this.page.click('text="Apply to another program"');
+    await waitForPageJsLoad(this.page);
+
+    // Ensure that we redirected to the programs list page.
+    expect(await this.page.url().split('/').pop()).toEqual('programs');
+  }
+
+  async submitFromPreviewPage(programName: string) {
+    // Assert that we're on the review page.
+    expect(await this.page.innerText('h1')).toContain('Program application preview');
 
     // Click on submit button.
     await this.page.click('text="Submit"');
