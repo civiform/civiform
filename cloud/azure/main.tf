@@ -65,10 +65,25 @@ resource "azurerm_container_group" "cg" {
       SECRET_KEY = "insecure-secret-key"
     }
 
+    # ports exposed on the individual containers
     ports {
       port     = 80
       protocol = "TCP"
     }
+    ports {
+      port     = 443
+      protocol = "TCP"
+    }
+  }
+
+  # ports exposed on the container group
+  exposed_port {
+    port     = 80
+    protocol = "TCP"
+  }
+  exposed_port {
+    port     = 443
+    protocol = "TCP"
   }
 
   diagnostics {
