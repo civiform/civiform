@@ -124,6 +124,10 @@ resource "azurerm_postgresql_firewall_rule" "civiform" {
   name                = "civiform-db-firewall"
   resource_group_name = azurerm_resource_group.rg.name
   server_name         = azurerm_postgresql_server.civiform.name
-  start_ip_address    = azurerm_container_group.cg.ip_address
-  end_ip_address      = azurerm_container_group.cg.ip_address
+
+  # TODO: replace with something more specific
+  # All zeros here configures the filewall to accept all incoming connections
+  # from anywhere inside Azure.
+  start_ip_address    = "0.0.0.0"
+  end_ip_address      = "0.0.0.0"
 }
