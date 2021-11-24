@@ -90,7 +90,7 @@ describe('normal application flow', () => {
     expect(postEditCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00');
     expect(postEditCsvContent).toContain('Gus,,Guest,op2,01/01/1990,2000.00');
 
-    const numberOfGusEntries = postEditCsvContent.split('Gus,,Guest,op2,01/01/1990,2000.00')
+    const numberOfGusEntries = postEditCsvContent.split('Gus,,Guest,op2,01/01/1990,2000.00').length - 1;
     expect(numberOfGusEntries).toEqual(2);
 
     await logout(page);
