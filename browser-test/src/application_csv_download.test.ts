@@ -82,7 +82,6 @@ describe('normal application flow', () => {
     await applicantQuestions.applyProgram(programName);
     await applicantQuestions.clickStartHere();
     await applicantQuestions.answerNameQuestion('Gus2', 'Guest');
-    await applicantQuestions.clickNext();
     await applicantQuestions.submitFromReviewPage(programName);
     await logout(page);
 
@@ -92,6 +91,7 @@ describe('normal application flow', () => {
 
     expect(postEditCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00');
     expect(postEditCsvContent).toContain('Gus,,Guest,op2,01/01/1990,2000.00');
+    expect(postEditCsvContent).toContain('Gus2,,Guest,op2,01/01/1990,2000.00');
 
     await logout(page);
 
