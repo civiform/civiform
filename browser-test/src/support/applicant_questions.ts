@@ -155,6 +155,21 @@ export class ApplicantQuestions {
     expect(await this.page.url().split('/').pop()).toEqual('programs');
   }
 
+  async submitFromPreviewPage(programName: string) {
+    // Assert that we're on the review page.
+    expect(await this.page.innerText('h1')).toContain('Program application preview');
+
+    // Click on submit button.
+    await this.page.click('text="Submit"');
+    await waitForPageJsLoad(this.page);
+
+    await this.page.click('text="Apply to another program"');
+    await waitForPageJsLoad(this.page);
+
+    // Ensure that we redirected to the programs list page.
+    expect(await this.page.url().split('/').pop()).toEqual('programs');
+  }
+
   async validateHeader(lang: string) {
     expect(await this.page.getAttribute('html', 'lang')).toEqual(lang);
     expect(await this.page.innerHTML('head'))
