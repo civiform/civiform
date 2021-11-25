@@ -41,12 +41,129 @@ resource "azurerm_resource_group" "rg" {
 #   }
 # }
 
+resource "azurerm_virtual_network" "civiform_vnet" {
+  name                = "civiform-vnet"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  address_space       = ["10.0.0.0/16"]
+}
+
+resource "azurerm_subnet" "application_gateway_subnet" {
+  name                 = "GatewaySubnet"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.civiform_vnet.name
+  address_prefixes     = ["10.0.1.0/24"]
+}
+
+resource "azurerm_subnet" "server_subnet" {
+  name                 = "server-subnet"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.civiform_vnet.name
+  address_prefixes     = ["10.0.2.0/24"]
+  service_endpoints    = ["Microsoft.Sql"]
+}
+
+resource "azurerm_postgresql_virtual_network_rule" "civiform" {
+  name                                 = "sqlvnetrule"
+  resource_group_name                  = azurerm_resource_group.rg.name
+  server_name                          = azurerm_postgresql_server.civiform.name
+  subnet_id                            = azurerm_subnet.server_subnet.id
+  ignore_missing_vnet_service_endpoint = true
+}
+
+resource "azurerm_public_ip" "server_container_group_ip" {
+  name                = "server-container-group-ip"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Dynamic"
+}
+
+locals {
+  backend_address_pool_name      = "${azurerm_virtual_network.civiform_vnet.name}-beap"
+  frontend_port_name             = "${azurerm_virtual_network.civiform_vnet.name}-feport"
+  frontend_ip_configuration_name = "${azurerm_virtual_network.civiform_vnet.name}-feip"
+  http_setting_name              = "${azurerm_virtual_network.civiform_vnet.name}-be-htst"
+  listener_name                  = "${azurerm_virtual_network.civiform_vnet.name}-httplstn"
+  request_routing_rule_name      = "${azurerm_virtual_network.civiform_vnet.name}-rqrt"
+  redirect_configuration_name    = "${azurerm_virtual_network.civiform_vnet.name}-rdrcfg"
+}
+
+resource "azurerm_application_gateway" "network" {
+  name                = "civiform-appgateway"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+
+  sku {
+    name     = "Standard_Small"
+    tier     = "Standard"
+    capacity = 2
+  }
+
+  gateway_ip_configuration {
+    name      = "civiform-gateway-ip-configuration"
+    subnet_id = azurerm_subnet.server_subnet.id
+  }
+
+  frontend_port {
+    name = local.frontend_port_name
+    port = 80
+  }
+
+  frontend_ip_configuration {
+    name                 = local.frontend_ip_configuration_name
+    public_ip_address_id = azurerm_public_ip.server_container_group_ip.id
+  }
+
+  backend_address_pool {
+    name = local.backend_address_pool_name
+  }
+
+  backend_http_settings {
+    name                  = local.http_setting_name
+    cookie_based_affinity = "Disabled"
+    path                  = "/path1/"
+    port                  = 80
+    protocol              = "Http"
+    request_timeout       = 60
+  }
+
+  http_listener {
+    name                           = local.listener_name
+    frontend_ip_configuration_name = local.frontend_ip_configuration_name
+    frontend_port_name             = local.frontend_port_name
+    protocol                       = "Http"
+  }
+
+  request_routing_rule {
+    name                       = local.request_routing_rule_name
+    rule_type                  = "Basic"
+    http_listener_name         = local.listener_name
+    backend_address_pool_name  = local.backend_address_pool_name
+    backend_http_settings_name = local.http_setting_name
+  }
+}
+
+resource "azurerm_network_profile" "civiform_network_profile" {
+  name                = "civiform-network-profile"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  container_network_interface {
+    name = "civiform-server-network-interface"
+
+    ip_configuration {
+      name      = "civiform-application-gateway-network-interface-ip-configuration"
+      subnet_id = azurerm_subnet.application_gateway_subnet.id
+    }
+  }
+}
+
 resource "azurerm_container_group" "cg" {
   name                = "civiform-container-group"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  ip_address_type     = "public"
-  dns_name_label      = "civiform-staging"
+  network_profile_id  = azurerm_network_profile.civiform_network_profile.id
+  ip_address_type     = "Private"
   os_type             = "Linux"
 
   container {
