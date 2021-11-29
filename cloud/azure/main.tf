@@ -5,10 +5,6 @@ terraform {
       source  = "azurerm"
       version = ">=2.65"
     }
-    docker = {
-      source  = "kreuzwerker/docker"
-      version = "~> 2.13.0"
-    }
   }
 
   required_version = ">= 0.14.9"
@@ -18,28 +14,10 @@ provider "azurerm" {
   features {}
 }
 
-
-# provider "docker" {
-# }
-#
-# resource "docker_image" "civiform" {
-#   name         = "civiform/civiform:latest"
-#   keep_locally = false
-# }
-
 resource "azurerm_resource_group" "rg" {
   name     = "myTFResourceGroup"
   location = "eastus"
 }
-
-# resource "docker_container" "civiform" {
-#   image = docker_image.civiform.latest
-#   name  = "civiformfoo"
-#   ports {
-#     internal = 80
-#     external = 8000
-#   }
-# }
 
 resource "azurerm_virtual_network" "civiform_vnet" {
   name                = "civiform-vnet"
