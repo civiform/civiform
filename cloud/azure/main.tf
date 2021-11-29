@@ -3,7 +3,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "azurerm"
-      version = "~> 2.65"
+      version = ">=2.65"
     }
     docker = {
       source  = "kreuzwerker/docker"
