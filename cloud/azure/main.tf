@@ -43,18 +43,6 @@ resource "azurerm_subnet" "server_subnet" {
   }
 }
 
-
-
-locals {
-  backend_address_pool_name      = "${azurerm_virtual_network.civiform_vnet.name}-beap"
-  frontend_port_name             = "${azurerm_virtual_network.civiform_vnet.name}-feport"
-  frontend_ip_configuration_name = "${azurerm_virtual_network.civiform_vnet.name}-feip"
-  http_setting_name              = "${azurerm_virtual_network.civiform_vnet.name}-be-htst"
-  listener_name                  = "${azurerm_virtual_network.civiform_vnet.name}-httplstn"
-  request_routing_rule_name      = "${azurerm_virtual_network.civiform_vnet.name}-rqrt"
-  redirect_configuration_name    = "${azurerm_virtual_network.civiform_vnet.name}-rdrcfg"
-}
-
 resource "azurerm_app_service_plan" "plan" {
   name                = "${azurerm_resource_group.rg.name}-plan"
   location            = azurerm_resource_group.rg.location
@@ -72,18 +60,16 @@ resource "azurerm_app_service_plan" "plan" {
   }
 }
 
-resource "azurerm_app_service" "civiform-app" {
+resource "azurerm_app_service" "civiform_app" {
   name                = var.application_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   app_service_plan_id = azurerm_app_service_plan.plan.id
   app_settings = {
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = false
+    PORT = 9000
 
-
-    # Below only necessary if using private Docker repository
-    DOCKER_REGISTRY_SERVER_USERNAME = var.docker_username
-    DOCKER_REGISTRY_SERVER_PASSWORD = var.docker_password
+    DOCKER_REGISTRY_SERVER_URL = "https://index.docker.io"
 
     DB_USERNAME    = "${azurerm_postgresql_server.civiform.administrator_login}@${azurerm_postgresql_server.civiform.name}"
     DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
@@ -93,10 +79,10 @@ resource "azurerm_app_service" "civiform-app" {
   }
   # Configure Docker Image to load on start
   site_config {
-    linux_fx_version                     = "DOCKER|${var.docker_username}/${var.docker_repository_name}:${var.tag_name}"
-    always_on                            = "true"
-    acr_use_managed_identity_credentials = "true"
-    vnet_route_all_enabled               = "true"
+    linux_fx_version                     = "DOCKER|${var.docker_username}/${var.docker_repository_name}:${var.image_tag_name}"
+    always_on                            = true
+    acr_use_managed_identity_credentials = true
+    vnet_route_all_enabled               = true
   }
 
   identity {
@@ -105,9 +91,8 @@ resource "azurerm_app_service" "civiform-app" {
 
 }
 
-
 resource "azurerm_app_service_virtual_network_swift_connection" "appservice_vnet_connection" {
-  app_service_id = azurerm_app_service.civiform-app.id
+  app_service_id = azurerm_app_service.civiform_app.id
   subnet_id      = azurerm_subnet.server_subnet.id
 }
 
@@ -119,13 +104,9 @@ resource "azurerm_log_analytics_workspace" "civiform_logs" {
   retention_in_days   = 30
 }
 
-output "app_service_default_hostname" {
-  value = "https://${azurerm_app_service.civiform-app.default_site_hostname}"
-}
-
 resource "azurerm_monitor_diagnostic_setting" "app_service_log_analytics" {
-  name                       = "app_service_log_analytics"
-  target_resource_id         = azurerm_app_service.civiform-app.id
+  name                       = "${var.application_name}_log_analytics"
+  target_resource_id         = azurerm_app_service.civiform_app.id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.civiform_logs.id
 
   log {
@@ -176,7 +157,7 @@ resource "azurerm_postgresql_server" "civiform" {
   administrator_login          = "psqladmin"
   administrator_login_password = "H@Sh1CoR3!"
 
-  // fqdn civiform-psqlserver.postgres.database.azure.com
+  // fqdn civiform-db.postgres.database.azure.com
 
   sku_name   = "GP_Gen5_4"
   version    = "11"
@@ -201,11 +182,10 @@ resource "azurerm_postgresql_database" "civiform" {
   collation           = "English_United States.1252"
 }
 
-
 resource "azurerm_postgresql_virtual_network_rule" "civiform" {
   name                                 = "sqlvnetrule"
   resource_group_name                  = azurerm_resource_group.rg.name
   server_name                          = azurerm_postgresql_server.civiform.name
   subnet_id                            = azurerm_subnet.server_subnet.id
-  ignore_missing_vnet_service_endpoint = true
+  ignore_missing_vnet_service_endpoint = false
 }
