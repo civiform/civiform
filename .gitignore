@@ -14,3 +14,8 @@ node_modules
 bundle.js
 tailwind.css
 *.pem
+
+*.terraform
+*.terraform.lock.hcl
+**.tfvars
+terraform.tfstate**
