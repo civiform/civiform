@@ -72,7 +72,7 @@ resource "azurerm_app_service" "civiform_app" {
 
     DB_USERNAME    = "${azurerm_postgresql_server.civiform.administrator_login}@${azurerm_postgresql_server.civiform.name}"
     DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
-    DB_JDBC_STRING = "jdbc:postgresql://${azurerm_private_endpoint.endpoint.private_dns_zone_configs[0].record_sets[0].fqdn}:5432/postgres?ssl=true&sslmode=require"
+    DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
 
     SECRET_KEY = "insecure-secret-key"
   }
@@ -166,7 +166,6 @@ resource "azurerm_postgresql_server" "civiform" {
   geo_redundant_backup_enabled = false
   auto_grow_enabled            = true
 
-  # TODO: configure a subnet and restrict access only to the application servers.
   public_network_access_enabled = false
 
   ssl_enforcement_enabled          = true
@@ -197,7 +196,7 @@ resource "azurerm_private_dns_zone" "privatelink" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "vnet_link" {
-  name                  = "vnet_link"
+  name                  = "vnet-link-private-dns"
   resource_group_name   = azurerm_resource_group.rg.name
   private_dns_zone_name = azurerm_private_dns_zone.privatelink.name
   virtual_network_id    = azurerm_virtual_network.civiform_vnet.id
