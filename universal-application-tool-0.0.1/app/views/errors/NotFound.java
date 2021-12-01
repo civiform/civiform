@@ -64,7 +64,6 @@ public class NotFound extends BaseHtmlView {
   }*/
 
   public Content render(
-      Http.Request request,
       Messages messages) {
     HtmlBundle bundle = layout.getBundle();
     bundle.addMainContent(

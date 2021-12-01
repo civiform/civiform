@@ -21,20 +21,27 @@ import views.NotFoundPage;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import views.errors.NotFound;
+
 @Singleton
 public class ErrorHandler extends DefaultHttpErrorHandler {
+  private final NotFound notFoundPage;
+  private final MessagesApi messagesApi;
 
   @Inject
   public ErrorHandler(
       Configuration config,
       Environment environment,
       OptionalSourceMapper sourceMapper,
-      Provider<Router> routes) {
+      Provider<Router> routes,
+      NotFound notFoundPage, MessagesApi messagesApi) {
     super(environment, config, sourceMapper, routes);
+    this.notFoundPage=notFoundPage;
+    this.messagesApi=messagesApi;
   }
 
-  protected CompletionStage<Result> onNotFound(Http.RequestHeader request, String message) {
+  protected CompletionStage<Result> onNotFound(Http.RequestHeader requestHeader, String message) {
     return CompletableFuture.completedFuture(
-        Results.forbidden("Page not found. Check URL is correct"));
+        Results.notFound(notFoundPage.render(messagesApi.preferred(requestHeader))));
   }
 }

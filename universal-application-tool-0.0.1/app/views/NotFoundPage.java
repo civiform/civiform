@@ -33,7 +33,7 @@ public class NotFoundPage extends BaseHtmlView {
   private ContainerTag mainContent() {
     ContainerTag content = div();
 
-    /*content.with(
+    content.with(
         this.layout
             .viewUtils
             .makeLocalImageTag("ChiefSeattle_Blue")
@@ -68,7 +68,7 @@ public class NotFoundPage extends BaseHtmlView {
                 Styles.JUSTIFY_CENTER,
                 Styles.ITEMS_CENTER,
                 Styles.TEXT_BASE)
-            .with(text(" ")));*/
+            .with(text(" ")));
 
     return div()
         .with(content);

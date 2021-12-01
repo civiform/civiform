@@ -19,6 +19,6 @@ public class MockErrorHandler extends Controller {
   }
 
   public Result notFound(Http.Request request) {
-    return ok(notFoundPage.render(request, messagesApi.preferred(request))); 
+    return ok(notFoundPage.render(messagesApi.preferred(request))); 
   }
 }
