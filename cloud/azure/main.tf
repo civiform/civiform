@@ -181,7 +181,6 @@ resource "azurerm_postgresql_database" "civiform" {
   collation           = "English_United States.1252"
 }
 
-
 # Configure private link
 resource "azurerm_subnet" "postgres_subnet" {
   name                 = "postgres_subnet"
