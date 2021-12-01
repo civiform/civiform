@@ -67,7 +67,7 @@ resource "azurerm_app_service" "civiform_app" {
   app_service_plan_id = azurerm_app_service_plan.plan.id
   app_settings = {
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = false
-    PORT = 9000
+    PORT                                = 9000
 
     DOCKER_REGISTRY_SERVER_URL = "https://index.docker.io"
 
