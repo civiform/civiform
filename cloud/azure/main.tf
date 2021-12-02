@@ -31,7 +31,6 @@ resource "azurerm_subnet" "server_subnet" {
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.civiform_vnet.name
   address_prefixes     = ["10.0.2.0/24"]
-  service_endpoints    = ["Microsoft.Sql"]
 
   delegation {
     name = "app-service-delegation"
@@ -73,7 +72,7 @@ resource "azurerm_app_service" "civiform_app" {
 
     DB_USERNAME    = "${azurerm_postgresql_server.civiform.administrator_login}@${azurerm_postgresql_server.civiform.name}"
     DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
-    DB_JDBC_STRING = "jdbc:postgresql://${azurerm_postgresql_server.civiform.fqdn}:5432/postgres?ssl=true&sslmode=require"
+    DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
 
     SECRET_KEY = "insecure-secret-key"
   }
@@ -167,8 +166,7 @@ resource "azurerm_postgresql_server" "civiform" {
   geo_redundant_backup_enabled = false
   auto_grow_enabled            = true
 
-  # TODO: configure a subnet and restrict access only to the application servers.
-  public_network_access_enabled = true
+  public_network_access_enabled = false
 
   ssl_enforcement_enabled          = true
   ssl_minimal_tls_version_enforced = "TLS1_2"
@@ -182,10 +180,43 @@ resource "azurerm_postgresql_database" "civiform" {
   collation           = "English_United States.1252"
 }
 
-resource "azurerm_postgresql_virtual_network_rule" "civiform" {
-  name                                 = "sqlvnetrule"
-  resource_group_name                  = azurerm_resource_group.rg.name
-  server_name                          = azurerm_postgresql_server.civiform.name
-  subnet_id                            = azurerm_subnet.server_subnet.id
-  ignore_missing_vnet_service_endpoint = false
+# Configure private link
+resource "azurerm_subnet" "postgres_subnet" {
+  name                 = "postgres_subnet"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.civiform_vnet.name
+  address_prefixes     = ["10.0.4.0/24"]
+
+  enforce_private_link_endpoint_network_policies = true
+}
+
+resource "azurerm_private_dns_zone" "privatelink" {
+  name                = "privatelink.postgres.database.azure.com"
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "vnet_link" {
+  name                  = "vnet-link-private-dns"
+  resource_group_name   = azurerm_resource_group.rg.name
+  private_dns_zone_name = azurerm_private_dns_zone.privatelink.name
+  virtual_network_id    = azurerm_virtual_network.civiform_vnet.id
+}
+
+resource "azurerm_private_endpoint" "endpoint" {
+  name                = "${azurerm_postgresql_server.civiform.name}-endpoint"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  subnet_id           = azurerm_subnet.postgres_subnet.id
+
+  private_dns_zone_group {
+    name                 = "private-dns-zone-group"
+    private_dns_zone_ids = [azurerm_private_dns_zone.privatelink.id]
+  }
+
+  private_service_connection {
+    name                           = "${azurerm_postgresql_server.civiform.name}-privateserviceconnection"
+    private_connection_resource_id = azurerm_postgresql_server.civiform.id
+    subresource_names              = ["postgresqlServer"]
+    is_manual_connection           = false
+  }
 }
