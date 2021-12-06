@@ -77,7 +77,6 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(contentAsString(result)).doesNotContain("three");
   }
 
-  // VersionRepositoryTest might have good examples
   @Test
   public void test_deduplicate_inProgressPrograms() {
     versionRepository = instanceOf(VersionRepository.class);
