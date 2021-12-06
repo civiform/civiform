@@ -12,7 +12,11 @@ import static play.test.Helpers.stubMessagesApi;
 
 import controllers.WithMockedProfiles;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import models.Applicant;
+import models.Application;
+import models.LifecycleStage;
 import models.Program;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -20,6 +24,7 @@ import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.question.types.QuestionDefinition;
@@ -30,6 +35,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   private Applicant currentApplicant;
   private ApplicantProgramsController controller;
+  private VersionRepository versionRepository;
 
   @Before
   public void setUp() {
@@ -69,6 +75,38 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(contentAsString(result)).contains("one");
     assertThat(contentAsString(result)).contains("two");
     assertThat(contentAsString(result)).doesNotContain("three");
+  }
+
+  // VersionRepositoryTest might have good examples
+  @Test
+  public void test_deduplicate_inProgressPrograms() {
+    versionRepository = instanceOf(VersionRepository.class);
+    String programName = "In Progress Program";
+    Program program = resourceCreator().insertActiveProgram(programName);
+
+    Application app = new Application(currentApplicant, program, LifecycleStage.DRAFT);
+    app.save();
+
+    resourceCreator().insertDraftProgram(programName);
+
+    this.versionRepository.publishNewSynchronizedVersion();
+
+    Request request = addCSRFToken(fakeRequest()).build();
+    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    // A program's name appears in the index view page content 4 times.
+    // If it appeared 8 times, that means there is a duplicate of the program.
+    assertThat(numberOfSubstringsInString(contentAsString(result), programName)).isEqualTo(4);
+  }
+
+  /** Returns the number of times a substring appears in the string. */
+  private int numberOfSubstringsInString(final String s, String substring) {
+    Pattern pattern = Pattern.compile(substring);
+    Matcher matcher = pattern.matcher(s);
+    int count = 0;
+    while (matcher.find()) count++;
+    return count;
   }
 
   @Test
