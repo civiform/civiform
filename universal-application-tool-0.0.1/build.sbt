@@ -21,6 +21,10 @@ lazy val root = (project in file("."))
       // Amazon AWS SDK
       "software.amazon.awssdk" % "aws-sdk-java" % "2.15.81",
 
+      // Microsoft Azure SDK
+      "com.azure" % "azure-identity" % "1.4.2",
+      "com.azure" % "azure-storage-blob" % "12.14.2",
+
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.2.18",
       "org.testcontainers" % "postgresql" % "1.15.1" % Test,
