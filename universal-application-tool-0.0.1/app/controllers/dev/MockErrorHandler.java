@@ -44,7 +44,11 @@ public class MockErrorHandler extends Controller {
     Optional<CiviFormProfile> maybeProfile = profileUtils.currentUserProfile(request);
 
     if (maybeProfile.isEmpty()) {
-      return CompletableFuture.completedFuture(ok(profileView.renderNoProfile()));
+      return CompletableFuture.completedFuture(
+          ok(notFoundPage.render(
+                request,
+                messagesApi.preferred(request)
+              )));
     }
 
     return maybeProfile

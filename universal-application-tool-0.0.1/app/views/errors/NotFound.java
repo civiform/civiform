@@ -78,6 +78,20 @@ public class NotFound extends BaseHtmlView {
     /*return layout.render(bundle);*/
   }
 
+  public Content render(
+        Http.Request request,
+        Messages messages
+      ) {
+    HtmlBundle bundle = layout.getBundle();
+    /*bundle.addMainContent(
+        topContent(
+            messages.at(MessageKey.ERROR_NOT_FOUND.getKeyName()),
+            messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION.getKeyName())));*/
+
+    return layout.renderWithNav(request, messages, bundle);
+    /*return layout.render(bundle);*/
+  }
+
   private ContainerTag topContent(String titleText, String infoTextLine) {
     // "Get benefits"
     ContainerTag branding = layout.branding();

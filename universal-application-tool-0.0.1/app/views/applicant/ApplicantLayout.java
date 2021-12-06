@@ -35,6 +35,7 @@ import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
+import views.BaseHtmlView;
 
 /** Contains methods rendering common compoments used across applicant pages. */
 public class ApplicantLayout extends BaseHtmlLayout {
@@ -98,6 +99,19 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return rendered;
   }
 
+  private ContainerTag renderBaseNavBar(Http.Request request, Messages messages) {
+    return nav()
+        .withClasses(
+            Styles.BG_WHITE,
+            Styles.BORDER_B,
+            Styles.ALIGN_MIDDLE,
+            Styles.P_4,
+            Styles.GRID,
+            Styles.GRID_COLS_3)
+        .with(branding());
+  }
+
+  // Next couple nav bar methods are for when user is logged in
   public Content renderWithNav(
       Http.Request request, String userName, Messages messages, HtmlBundle bundle) {
     String language = languageSelector.getPreferredLangage(request).code();
@@ -109,19 +123,30 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private ContainerTag renderNavBar(Http.Request request, String userName, Messages messages) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
-    return nav()
-        .withClasses(
-            Styles.BG_WHITE,
-            Styles.BORDER_B,
-            Styles.ALIGN_MIDDLE,
-            Styles.P_4,
-            Styles.GRID,
-            Styles.GRID_COLS_3)
-        .with(branding())
-        .with(maybeRenderTiButton(profile, userName))
-        .with(
-            div(getLanguageForm(request, profile, messages), logoutButton(userName, messages))
-                .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
+    return renderBaseNavBar(request, messages)
+            .with(maybeRenderTiButton(profile, userName))
+            .with(
+              div(getLanguageForm(request, profile, messages), logoutButton(userName, messages))
+              .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
+  }
+
+  // Next couple nav bar methods are for when user is not logged in
+  // Needed for 404 page, and possibly other error pages
+  public Content renderWithNav(
+      Http.Request request, Messages messages, HtmlBundle bundle) {
+    String language = languageSelector.getPreferredLangage(request).code();
+    bundle.setLanguage(language);
+    bundle.addHeaderContent(renderNavBar(request, messages));
+    return renderWithSupportFooter(bundle, messages);
+  }
+
+  private ContainerTag renderNavBar(Http.Request request, Messages messages) {
+    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+
+    return renderBaseNavBar(request, messages)
+            .with(
+              div(getLanguageForm(request, profile, messages), loginButton(messages))
+              .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
   private ContainerTag getLanguageForm(
@@ -197,6 +222,13 @@ public class ApplicantLayout extends BaseHtmlLayout {
         a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
             .withHref(logoutLink)
             .withClasses(ApplicantStyles.LINK_LOGOUT));
+  }
+
+  private ContainerTag loginButton(Messages messages) {
+    String loginLink = routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url();
+    String loginMsg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
+    return div()
+        .with(BaseHtmlView.redirectButton("idcs", loginMsg, loginLink)); 
   }
 
   /**
