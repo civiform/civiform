@@ -226,10 +226,18 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   private ContainerTag loginButton(Messages messages) {
     String loginLink = routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url();
+    return div(
+        a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
+            .withHref(loginLink)
+            .withClasses(ApplicantStyles.LINK_LOGOUT));
+  }
+
+  /*private ContainerTag loginButton(Messages messages) {
+    String loginLink = routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url();
     String loginMsg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
     return div()
         .with(BaseHtmlView.redirectButton("idcs", loginMsg, loginLink)); 
-  }
+  }*/
 
   /**
    * The progress indicator is a bit different while an application is being filled out vs for the
