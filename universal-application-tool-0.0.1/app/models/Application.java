@@ -34,7 +34,7 @@ public class Application extends BaseModel {
   @Constraints.Required private LifecycleStage lifecycleStage;
 
   @CreatedTimestamp private Instant createTime;
-  @UpdatedTimestamp private Instant submitTime;
+  @Constraints.Required private Instant submitTime;
 
   @Constraints.Required @DbJson private String object;
 
@@ -46,6 +46,7 @@ public class Application extends BaseModel {
     setApplicantData(applicant.getApplicantData());
     this.program = program;
     this.lifecycleStage = lifecycleStage;
+    setSubmitTimeToNow();
   }
 
   public Optional<String> getSubmitterEmail() {
@@ -94,5 +95,9 @@ public class Application extends BaseModel {
 
   public void setLifecycleStage(LifecycleStage stage) {
     this.lifecycleStage = stage;
+  }
+
+  public void setSubmitTimeToNow() {
+    this.submitTime = Instant.now();
   }
 }

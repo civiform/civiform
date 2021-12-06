@@ -83,6 +83,7 @@ public class ApplicationRepository {
         // Delete any in-progress drafts, and mark obsolete any old applications.
         if (application.getLifecycleStage().equals(LifecycleStage.DRAFT)) {
           application.setLifecycleStage(LifecycleStage.ACTIVE);
+          application.setSubmitTimeToNow();
           completedApplication = Optional.of(application);
         } else {
           application.setLifecycleStage(LifecycleStage.OBSOLETE);
