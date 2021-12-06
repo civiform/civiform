@@ -50,8 +50,9 @@ public class ApplicationRepositoryTest extends WithPostgresContainer {
     assertThat(
             repo.getApplication(appOne.id).toCompletableFuture().join().get().getLifecycleStage())
         .isEqualTo(LifecycleStage.OBSOLETE);
+    // Ensure the second submitted app has a later submit time than the first.
     assertThat(appThree.getSubmitTime()).isAfter(appOne.getSubmitTime());
-    // Ensure the submit time didn't get changed when the application was set as obsolete
+    // Ensure the submit time didn't get changed when the application was set as obsolete.
     assertThat(appOne.getSubmitTime()).isEqualTo(initialSubmitTime);
     // And that the DRAFT is now ACTIVE.
     assertThat(

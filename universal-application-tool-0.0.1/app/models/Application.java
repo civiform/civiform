@@ -33,10 +33,10 @@ public class Application extends BaseModel {
   @Constraints.Required private LifecycleStage lifecycleStage;
 
   @CreatedTimestamp private Instant createTime;
-  @Constraints.Required private Instant submitTime;
 
   @Constraints.Required @DbJson private String object;
 
+  private Instant submitTime;
   private String preferredLocale;
   private String submitterEmail;
 
