@@ -2,7 +2,6 @@ package models;
 
 import io.ebean.annotation.CreatedTimestamp;
 import io.ebean.annotation.DbJson;
-import io.ebean.annotation.UpdatedTimestamp;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
