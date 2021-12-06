@@ -226,7 +226,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   private ContainerTag loginButton(Messages messages) {
     String loginLink = routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url();
-    return div(
+    return div(this.viewUtils.makeLocalImageTag("login_icon"),
         a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
             .withHref(loginLink)
             .withClasses(ApplicantStyles.LINK_LOGOUT));
