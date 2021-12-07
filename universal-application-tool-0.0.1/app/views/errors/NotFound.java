@@ -38,13 +38,14 @@ public class NotFound extends BaseHtmlView {
     this.messagesApi = messagesApi;
   }
 
-  private ContainerTag notFound(Messages messages) {
-
+  private ContainerTag mainContent(Messages messages) {
       return div(
-            h1(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE.getKeyName())),
-            p(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION.getKeyName())),
-            layout.viewUtils.makeLocalImageTag("404")
-          ).withClasses(Styles.BORDER_BLUE_600, Styles.W_FULL, Styles.M_AUTO);
+                div(
+                  h1(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE.getKeyName())),
+                  p(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION.getKeyName())),
+                  layout.viewUtils.makeLocalImageTag("404")
+                )
+              ).withClasses(Styles.MAX_W_SCREEN_SM, Styles.W_FULL, Styles.MX_AUTO);
   }
 
   public Content render(
@@ -53,7 +54,7 @@ public class NotFound extends BaseHtmlView {
         String applicantName
       ) {
     HtmlBundle bundle = layout.getBundle();
-    bundle.addMainContent(notFound(messages));
+    bundle.addMainContent(mainContent(messages));
     return layout.renderWithNav(request, applicantName, messages, bundle);
   }
 
@@ -62,7 +63,7 @@ public class NotFound extends BaseHtmlView {
         Messages messages
       ) {
     HtmlBundle bundle = layout.getBundle();
-    bundle.addMainContent(notFound(messages));
+    bundle.addMainContent(mainContent(messages));
     return layout.renderWithNav(request, messages, bundle);
   }
 }
