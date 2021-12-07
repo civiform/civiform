@@ -111,7 +111,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(branding());
   }
 
-  // Next couple nav bar methods are for when user is logged in
+  // nav bar when logged in
   public Content renderWithNav(
       Http.Request request, String userName, Messages messages, HtmlBundle bundle) {
     String language = languageSelector.getPreferredLangage(request).code();
@@ -130,8 +130,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
                   .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
-  // Next couple nav bar methods are for when user is not logged in
-  // Needed for 404 page, and possibly other error pages
+  // nav bar when not logged in
+  // needed for 404 page, and possibly other error pages
   public Content renderWithNav(
       Http.Request request, Messages messages, HtmlBundle bundle) {
     String language = languageSelector.getPreferredLangage(request).code();
@@ -145,9 +145,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     return renderBaseNavBar(request, messages)
             .with(
-                div(),
-                div(loginButton(messages))
-                  .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW, Styles.FLEX_SHRINK_0));
+              div(),
+              div(
+                div(
+                    div(this.viewUtils.makeLocalImageTag("login_icon"))
+                      .withClasses(Styles.MR_2, Styles.MT_0p5),
+                    div(loginButton(messages))
+                  ).withClasses(Styles.FLEX, Styles.FLEX_ROW)
+                ).withClasses(Styles.JUSTIFY_SELF_END));
   }
 
   private ContainerTag getLanguageForm(
@@ -227,11 +232,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   private ContainerTag loginButton(Messages messages) {
     String loginLink = routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url();
-    return div(this.viewUtils.makeLocalImageTag("login_icon"),
-        a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
+    return div(a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
             .withHref(loginLink)
-            .withClasses(ApplicantStyles.LINK_LOGOUT))
-          .withClasses(Styles.FLEX, Styles.FLEX_ROW);
+            .withClasses(ApplicantStyles.LINK_LOGOUT));
   }
 
   /*private ContainerTag loginButton(Messages messages) {

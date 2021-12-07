@@ -69,6 +69,10 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(
           Styles.GAP_4, Styles.FLEX, Styles.FLEX_COL, StyleUtils.responsiveMedium(Styles.FLEX_ROW));
 
+  public static final String APPLICATION_NAV_BAR_LOGIN =
+      StyleUtils.joinStyles(
+          Styles.GAP_4, Styles.FLEX, Styles.FLEX_COL, StyleUtils.responsiveMedium(Styles.FLEX_ROW));
+
   /**
    * Base styles for buttons in the applicant UI. This is missing a specified text size, so that
    * should be added by other button style constants that use this as a base.

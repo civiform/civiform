@@ -1027,6 +1027,10 @@ public final class Styles {
   public static final String _MX_96 = "-mx-96";
   public static final String _MY_PX = "-my-px";
   public static final String _MX_PX = "-mx-px";
+  public static final String MT_0p5 = "mt-0.5";
+  public static final String MR_0p5 = "mr-0.5";
+  public static final String MB_0p5 = "mb-0.5";
+  public static final String ML_0p5 = "ml-0.5";
   public static final String MT_0 = "mt-0";
   public static final String MR_0 = "mr-0";
   public static final String MB_0 = "mb-0";

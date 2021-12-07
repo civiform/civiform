@@ -44,7 +44,7 @@ public class NotFound extends BaseHtmlView {
             h1(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE.getKeyName())),
             p(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION.getKeyName())),
             layout.viewUtils.makeLocalImageTag("404")
-          );
+          ).withClasses(Styles.BORDER_BLUE_600, Styles.W_FULL, Styles.M_AUTO);
   }
 
   public Content render(
