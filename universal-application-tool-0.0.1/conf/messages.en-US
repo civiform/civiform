@@ -71,6 +71,7 @@ validation.textTooShort=Must contain at least {0} characters.
 validation.textTooLong=Must contain at most {0} characters.
 validation.numberTooSmall=Must be at least {0}.
 validation.numberTooBig=Must be at most {0}.
+validation.numberNonInteger=Number must be a positive whole number and can only contain numeric characters 0-9.
 validation.tooFewSelections=Please select at least {0}.
 validation.tooManySelections=Please select fewer than {0}.
 validation.streetRequired=Please enter valid street name and number.

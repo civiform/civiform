@@ -91,6 +91,40 @@ public class ProgramAdminManagementControllerTest extends WithPostgresContainer 
   }
 
   @Test
+  public void update_addedEmailDoesNotExist_fails() {
+    String email1 = "one";
+    String email2 = "two";
+    Account account1 = new Account();
+    account1.setEmailAddress(email1);
+    account1.save();
+
+    String programName = "controller test";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    Http.Request request =
+        addCSRFToken(
+                fakeRequest()
+                    .bodyForm(ImmutableMap.of("adminEmails[0]", email1, "adminEmails[1]", email2)))
+            .build();
+
+    Result result = controller.update(request, program.id);
+    account1 = userRepository.lookupAccount(email1).get();
+
+    // Assert the update succeeded (for email1)
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(account1.getAdministeredProgramNames()).containsOnly(programName);
+
+    // Add account 2
+    Account account2 = new Account();
+    account2.setEmailAddress(email2);
+    account2.save();
+    account2 = userRepository.lookupAccount(email2).get();
+
+    // Account 2 should not have any programs because the account was nonexistent when we addded
+    // email2 as a program admin.
+    assertThat(account2.getAdministeredProgramNames()).isEmpty();
+  }
+
+  @Test
   public void update_withRemovals_succeeds() {
     String programName = "add remove";
     Program program = ProgramBuilder.newDraftProgram(programName).build();

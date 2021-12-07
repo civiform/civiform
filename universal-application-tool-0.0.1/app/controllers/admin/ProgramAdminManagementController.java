@@ -48,22 +48,7 @@ public class ProgramAdminManagementController {
   /** Displays a form for managing program admins of a given program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Http.Request request, long programId) {
-    Optional<Program> program =
-        programRepository.lookupProgram(programId).toCompletableFuture().join();
-    if (program.isEmpty()) {
-      return notFound(String.format("Program with ID %s was not found", programId));
-    }
-
-    try {
-      ImmutableList<String> programAdmins =
-          programRepository.getProgramAdministrators(programId).stream()
-              .map(Account::getEmailAddress)
-              .collect(toImmutableList());
-      return ok(
-          manageAdminsView.render(request, program.get().getProgramDefinition(), programAdmins));
-    } catch (ProgramNotFoundException e) {
-      return notFound(e.getLocalizedMessage());
-    }
+    return this.loadProgram(request, programId, Optional.empty());
   }
 
   /**
@@ -86,10 +71,39 @@ public class ProgramAdminManagementController {
           roleService.makeProgramAdmins(
               programId, ImmutableSet.copyOf(manageAdminForm.getAdminEmails()));
       Result result = redirect(routes.AdminProgramController.index());
-      if (maybeError.isPresent()) {
-        return result.flashing("error", maybeError.get().message());
+
+      if (!maybeError.isPresent()) {
+        return result;
       }
-      return result;
+
+      return this.loadProgram(request, programId, Optional.of(maybeError.get().message()));
+
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.getLocalizedMessage());
+    }
+  }
+
+  /**
+   * Displays a form for managing program admins of a given program. Displays a message as an error
+   * toast if provided.
+   */
+  private Result loadProgram(Http.Request request, long programId, Optional<String> message) {
+    try {
+      Optional<Program> program =
+          programRepository.lookupProgram(programId).toCompletableFuture().join();
+
+      if (program.isEmpty()) {
+        return notFound(String.format("Program with ID %s was not found", programId));
+      } else {
+        ImmutableList<String> programAdmins =
+            programRepository.getProgramAdministrators(programId).stream()
+                .map(Account::getEmailAddress)
+                .collect(toImmutableList());
+
+        return ok(
+            manageAdminsView.render(
+                request, program.get().getProgramDefinition(), programAdmins, message));
+      }
     } catch (ProgramNotFoundException e) {
       return notFound(e.getLocalizedMessage());
     }
