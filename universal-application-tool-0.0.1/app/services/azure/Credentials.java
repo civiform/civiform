@@ -11,11 +11,11 @@ import com.azure.identity.DefaultAzureCredentialBuilder;
  * for more details.
  */
 public class Credentials {
-    
-    private static final DefaultAzureCredential defaultAzureCredential = new DefaultAzureCredentialBuilder()
-        .build();
 
-    public DefaultAzureCredential getCredentials() {
-        return defaultAzureCredential.getCredentials();
-    }    
+  private static final DefaultAzureCredential defaultAzureCredential = new DefaultAzureCredentialBuilder()
+      .build();
+
+  public DefaultAzureCredential getCredentials() {
+    return defaultAzureCredential;
+  }
 }
