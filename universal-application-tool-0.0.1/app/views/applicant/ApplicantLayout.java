@@ -124,10 +124,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     return renderBaseNavBar(request, messages)
-            .with(maybeRenderTiButton(profile, userName))
             .with(
-              div(getLanguageForm(request, profile, messages), logoutButton(userName, messages))
-              .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
+                maybeRenderTiButton(profile, userName),
+                div(getLanguageForm(request, profile, messages), logoutButton(userName, messages))
+                  .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
   // Next couple nav bar methods are for when user is not logged in
@@ -145,8 +145,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     return renderBaseNavBar(request, messages)
             .with(
-              div(getLanguageForm(request, profile, messages), loginButton(messages))
-              .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
+                div(),
+                div(loginButton(messages))
+                  .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW, Styles.FLEX_SHRINK_0));
   }
 
   private ContainerTag getLanguageForm(
@@ -229,7 +230,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div(this.viewUtils.makeLocalImageTag("login_icon"),
         a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
             .withHref(loginLink)
-            .withClasses(ApplicantStyles.LINK_LOGOUT));
+            .withClasses(ApplicantStyles.LINK_LOGOUT))
+          .withClasses(Styles.FLEX, Styles.FLEX_ROW);
   }
 
   /*private ContainerTag loginButton(Messages messages) {
