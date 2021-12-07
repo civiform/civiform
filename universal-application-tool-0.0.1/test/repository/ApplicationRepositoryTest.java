@@ -70,6 +70,8 @@ public class ApplicationRepositoryTest extends WithPostgresContainer {
         repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
 
     assertThat(application.id).isEqualTo(applicationTwo.id);
+    // Since this is a draft application, it shouldn't have a submit time set.
+    assertThat(applicationTwo.getSubmitTime()).isNull();
   }
 
   private Applicant saveApplicant(String name) {

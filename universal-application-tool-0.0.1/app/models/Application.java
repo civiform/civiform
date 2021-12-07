@@ -45,7 +45,6 @@ public class Application extends BaseModel {
     setApplicantData(applicant.getApplicantData());
     this.program = program;
     this.lifecycleStage = lifecycleStage;
-    setSubmitTimeToNow();
   }
 
   public Optional<String> getSubmitterEmail() {

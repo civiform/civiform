@@ -92,6 +92,7 @@ public class ApplicationRepository {
       }
       Application application =
           completedApplication.orElse(new Application(applicant, program, LifecycleStage.ACTIVE));
+      application.setSubmitTimeToNow();
 
       if (submitterEmail.isPresent()) {
         application.setSubmitterEmail(submitterEmail.get());
