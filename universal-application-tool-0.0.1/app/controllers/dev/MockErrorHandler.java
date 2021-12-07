@@ -39,8 +39,6 @@ public class MockErrorHandler extends Controller {
   }
 
   public CompletionStage<Result> notFound(Http.Request request) {
-    /*return ok(notFoundPage.render(request, messagesApi.preferred(request), profileUtils));*/
-
     Optional<CiviFormProfile> maybeProfile = profileUtils.currentUserProfile(request);
 
     if (maybeProfile.isEmpty()) {
