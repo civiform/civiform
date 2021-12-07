@@ -56,18 +56,13 @@ public class BlobStorage {
   }
 
   public URL getPresignedUrl(String fileName) {
-    BlobClient blobClient = client.getBlobServiceClient()
-        .getBlobContainerClient(container)
-        .getBlobClient(fileName);
-
-    String sas = client.getSasQueryParameters(fileName);
+    String signedUrl = client.getSasQueryParameters(fileName);
 
     try {
-      return new URL(String.format("%s?%s", blobClient.getBlobUrl(), sas));
+      return new URL(signedUrl);
     } catch (java.net.MalformedURLException e) {
       throw new RuntimeException(e);
     }
-
 
   }
 
@@ -117,14 +112,14 @@ public class BlobStorage {
 
       BlobSasPermission blobSasPermission = new BlobSasPermission()
           .setReadPermission(true)
-          .setWritePermission(true)
-          .setListPermission(true);
+          .setWritePermission(true);
 
       BlobServiceSasSignatureValues signatureValues = new BlobServiceSasSignatureValues(
           OffsetDateTime.now().plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
           .setProtocol(SasProtocol.HTTPS_ONLY);
 
-      return blobClient.generateUserDelegationSas(signatureValues, userDelegationKey);
+      String sas = blobClient.generateUserDelegationSas(signatureValues, userDelegationKey);
+      return String.format("%s?%s", blobClient.getBlobUrl(), sas)
     }
 
   }
@@ -138,7 +133,7 @@ public class BlobStorage {
 
     private final String connectionString;
     private final BlobServiceClient blobServiceClient;
-
+    private final BlobContainerClient blobContainerClient;
 
     AzuriteClient(Config config) {
       this.connectionString = checkNotNull(config)
@@ -146,15 +141,15 @@ public class BlobStorage {
       this.blobServiceClient = new BlobServiceClientBuilder()
           .connectionString(connectionString)
           .buildClient();
+      this.blobContainerClient = blobServiceClient.getBlobContainerClient(container);
+      if (!blobContainerClient.exists()) {
+        blobContainerClient.create();
+      }
 
     }
 
     @Override
     public String getSasQueryParameters(String filePath) {
-      BlobContainerClient blobContainerClient = blobServiceClient.getBlobContainerClient(container);
-      if (!blobContainerClient.exists()) {
-        blobContainerClient.create();
-      }
 
       BlobClient blobClient = blobContainerClient.getBlobClient(filePath);
 
@@ -167,7 +162,8 @@ public class BlobStorage {
           OffsetDateTime.now().plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
           .setProtocol(SasProtocol.HTTPS_ONLY);
 
-      return blobClient.generateSas(signatureValues);
+      String sas =  blobClient.generateSas(signatureValues);
+      return String.format("%s?%s", blobClient.getBlobUrl(), sas)
     }
 
     @Override
