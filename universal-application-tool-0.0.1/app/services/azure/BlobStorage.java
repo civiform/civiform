@@ -119,7 +119,7 @@ public class BlobStorage {
           .setProtocol(SasProtocol.HTTPS_ONLY);
 
       String sas = blobClient.generateUserDelegationSas(signatureValues, userDelegationKey);
-      return String.format("%s?%s", blobClient.getBlobUrl(), sas)
+      return String.format("%s?%s", blobClient.getBlobUrl(), sas);
     }
 
   }
@@ -163,7 +163,7 @@ public class BlobStorage {
           .setProtocol(SasProtocol.HTTPS_ONLY);
 
       String sas =  blobClient.generateSas(signatureValues);
-      return String.format("%s?%s", blobClient.getBlobUrl(), sas)
+      return String.format("%s?%s", blobClient.getBlobUrl(), sas);
     }
 
     @Override
