@@ -3,6 +3,12 @@ import { startSession, logout, loginAsTestUser, loginAsGuest, loginAsProgramAdmi
 describe('normal application flow', () => {
   it('all major steps', async () => {
     const { browser, page } = await startSession();
+    // Timeout for clicks and element fills. If your selector fails to locate
+    // the HTML element, the test hangs. If you find the tests time out, you
+    // want to verify that your selectors are working as expected first.
+    // Because all tests are run concurrently, it could be that your selector
+    // selects a different entity from another test.
+    page.setDefaultTimeout(4000);
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page);
