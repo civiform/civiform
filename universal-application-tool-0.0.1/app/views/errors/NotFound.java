@@ -76,7 +76,7 @@ public class NotFound extends BaseHtmlView {
                       )
                     )
                   )
-                ).withClasses(Styles.TEXT_CENTER, Styles.MAX_W_SCREEN_SM, Styles.W_FULL, Styles.MX_AUTO);
+                ).withClasses(Styles.TEXT_CENTER, Styles.MAX_W_SCREEN_SM, Styles.W_5_6, Styles.MX_AUTO);
   }
 
   public Content render(
@@ -86,9 +86,11 @@ public class NotFound extends BaseHtmlView {
       ) {
     HtmlBundle bundle = layout.getBundle();
     String language = languageSelector.getPreferredLangage(request).code();
+    ContainerTag supportLink = layout.getSupportLink(messages).withClasses(Styles.TEXT_CENTER);
     bundle.setLanguage(language);
     bundle.addMainContent(mainContent(messages));
     bundle.addHeaderContent(layout.renderNavBarLoggedIn(request, userName, messages));
+    bundle.addFooterContent(supportLink);
     return layout.render(bundle);
   }
 
@@ -98,9 +100,11 @@ public class NotFound extends BaseHtmlView {
       ) {
     HtmlBundle bundle = layout.getBundle();
     String language = languageSelector.getPreferredLangage(request).code();
+    ContainerTag supportLink = layout.getSupportLink(messages).withClasses(Styles.TEXT_CENTER);
     bundle.setLanguage(language);
     bundle.addMainContent(mainContent(messages));
     bundle.addHeaderContent(layout.renderNavBarLoggedOut(request, messages));
+    bundle.addFooterContent(supportLink);
     return layout.render(bundle);
   }
 }

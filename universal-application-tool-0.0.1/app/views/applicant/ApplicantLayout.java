@@ -59,7 +59,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.supportEmail = checkNotNull(configuration).getString("support_email_address");
   }
 
-  private Content renderWithSupportFooter(HtmlBundle bundle, Messages messages) {
+  public ContainerTag getSupportLink(Messages messages) {
     ContainerTag supportLink =
         div()
             .with(
@@ -71,6 +71,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
                     .withClasses(Styles.TEXT_BLUE_800))
             .withClasses(Styles.MX_AUTO, Styles.MAX_W_SCREEN_SM, Styles.W_5_6);
 
+    return supportLink;
+  }
+
+  private Content renderWithSupportFooter(HtmlBundle bundle, Messages messages) {
+    ContainerTag supportLink = getSupportLink(messages);
     bundle.addFooterContent(supportLink);
 
     return render(bundle);
