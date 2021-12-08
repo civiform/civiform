@@ -3,13 +3,24 @@ version: '3.1'
 
 services:
 
-  localstack:
+  localstack:	
     image: localstack/localstack
+    profiles: ["cloud-aws"]
     container_name: localstack
     ports:
       - 4566:4566
     environment:
       - SERVICES=s3,ses
+
+  azurite:
+     image: mcr.microsoft.com/azure-storage/azurite
+     profiles: ["cloud-azure"]
+     container_name: azurite
+     ports:
+      - 10000:10000
+     command: "azurite-blob --blobHost 0.0.0.0"
+     
+     
 
   db:
     image: postgres:12.5
