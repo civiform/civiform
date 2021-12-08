@@ -92,7 +92,10 @@ public class CsvExporter {
           printer.print(application.getCreateTime().toString());
           break;
         case SUBMIT_TIME:
-          printer.print(application.getSubmitTime().toString());
+          printer.print(
+              application.getSubmitTime() != null
+                  ? application.getSubmitTime().toString()
+                  : EMPTY_VALUE);
           break;
         case SUBMITTER_EMAIL_OPAQUE:
           if (this.secret.isEmpty()) {
