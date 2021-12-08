@@ -1,6 +1,8 @@
 package services.azure;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
@@ -14,7 +16,9 @@ import com.typesafe.config.Config;
 import java.net.URL;
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import javax.inject.Singleton;
+import org.mockito.Mockito;
 import play.Environment;
 
 /**
@@ -50,7 +54,10 @@ public class BlobStorage {
     // TODO: Set to NullClient for test environment
     if (environment.isDev()) {
       client = new AzuriteClient(config);
-    } else {
+    } else if (environment.isDev()) {
+      client = new NullClient();
+    }
+    else {
       client = new AzureBlobClient();
     }
   }
@@ -96,6 +103,17 @@ public class BlobStorage {
       }
       return userDelegationKey;
     }
+    // userDelegationKey = blobServiceClient.getUserDelegationKey(
+    //     OffsetDateTime.now(ZoneId.of("America/Los_Angeles")), OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).plus(AZURE_USER_DELEGATION_KEY_DURATION));
+
+    // private UserDelegationKey getUserDelegationKey() {
+    //   if (userDelegationKey.getSignedExpiry().isBefore(OffsetDateTime.now(ZoneId.of("America/Los_Angeles")))) {
+    //     userDelegationKey = blobServiceClient.getUserDelegationKey(
+    //         OffsetDateTime.now(ZoneId.of("America/Los_Angeles")),
+    //         OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).plus(AZURE_USER_DELEGATION_KEY_DURATION));
+    //   }
+    //   return userDelegationKey;
+    // }
 
     @Override
     public String getPresignedUrl(String filePath) {
@@ -108,7 +126,7 @@ public class BlobStorage {
           .setWritePermission(true);
 
       BlobServiceSasSignatureValues signatureValues = new BlobServiceSasSignatureValues(
-          OffsetDateTime.now().plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
+          OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
           .setProtocol(SasProtocol.HTTPS_ONLY);
 
       String sas = blobClient.generateUserDelegationSas(signatureValues, getUserDelegationKey());
@@ -152,7 +170,7 @@ public class BlobStorage {
           .setListPermission(true);
 
       BlobServiceSasSignatureValues signatureValues = new BlobServiceSasSignatureValues(
-          OffsetDateTime.now().plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
+          OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
           .setProtocol(SasProtocol.HTTPS_ONLY);
 
       String sas = blobClient.generateSas(signatureValues);
@@ -161,5 +179,51 @@ public class BlobStorage {
 
   }
 
-// TODO: Create a Null client for mocking
+  // TODO: Create a Null client for mocking
+  static class NullClient implements Client {
+
+    BlobServiceClient blobServiceClient;
+    BlobContainerClient blobContainerClient;
+    BlobClient blobClient;
+
+    // Test UserDelegationKey that is currently valid.
+    UserDelegationKey testUserDelegationKey =
+        new UserDelegationKey()
+        .setValue("testUserDelegationKey")
+        .setSignedObjectId("objectId")
+        .setSignedTenantId("signedTenantVersion")
+        .setSignedStart(OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).minusDays(1))
+        .setSignedExpiry(OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).plusYears(1));
+
+    NullClient() {
+      this.blobServiceClient = Mockito.mock(BlobServiceClient.class);
+      this.blobContainerClient = Mockito.mock(BlobContainerClient.class);
+      this.blobClient = Mockito.mock(BlobClient.class);
+
+
+      when(blobServiceClient.getUserDelegationKey(any(),
+          any())).thenReturn(testUserDelegationKey);
+      when(blobClient.getBlobUrl()).thenReturn("www.bloblurl.com");
+      when(blobClient.generateSas(any())).thenReturn("sas");
+    }
+
+    // If we want to test with expired or not yet ready UserDelegationKeys to make sure it works
+    // as intended.
+    public void setTestUserDelegationKey(UserDelegationKey newUserDelegationKey) {
+      testUserDelegationKey = newUserDelegationKey;
+    }
+
+    public String getSasQueryParameters(String fileName) {
+      return String.format("%s?%s", fileName, "sas");
+    }
+
+    public BlobServiceClient getBlobServiceClient() {
+      return blobServiceClient;
+    }
+
+    @Override
+    public String getPresignedUrl(String fileName) {
+      return null;
+    }
+  }
 }
