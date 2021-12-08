@@ -79,22 +79,7 @@ public class NotFound extends BaseHtmlView {
                 ).withClasses(Styles.TEXT_CENTER, Styles.MAX_W_SCREEN_SM, Styles.W_5_6, Styles.MX_AUTO);
   }
 
-  public Content render(
-        Http.Request request,
-        Messages messages,
-        String userName
-      ) {
-    HtmlBundle bundle = layout.getBundle();
-    String language = languageSelector.getPreferredLangage(request).code();
-    ContainerTag supportLink = layout.getSupportLink(messages).withClasses(Styles.TEXT_CENTER);
-    bundle.setLanguage(language);
-    bundle.addMainContent(mainContent(messages));
-    bundle.addHeaderContent(layout.renderNavBarLoggedIn(request, userName, messages));
-    bundle.addFooterContent(supportLink);
-    return layout.render(bundle);
-  }
-
-  public Content render(
+  private HtmlBundle addBodyFooter(
         Http.Request request,
         Messages messages
       ) {
@@ -103,8 +88,31 @@ public class NotFound extends BaseHtmlView {
     ContainerTag supportLink = layout.getSupportLink(messages).withClasses(Styles.TEXT_CENTER);
     bundle.setLanguage(language);
     bundle.addMainContent(mainContent(messages));
-    bundle.addHeaderContent(layout.renderNavBarLoggedOut(request, messages));
     bundle.addFooterContent(supportLink);
+
+    return bundle;
+  }
+
+  public Content renderLoggedIn(
+        Http.Request request,
+        Messages messages,
+        String userName
+      ) {
+
+    HtmlBundle bundle = addBodyFooter(request, messages);
+    bundle.addHeaderContent(layout.renderNavBarLoggedIn(request, userName, messages));
+
+    return layout.render(bundle);
+  }
+
+  public Content renderLoggedOut(
+        Http.Request request,
+        Messages messages
+      ) {
+
+    HtmlBundle bundle = addBodyFooter(request, messages);
+    bundle.addHeaderContent(layout.renderNavBarLoggedOut(request, messages));
+
     return layout.render(bundle);
   }
 }

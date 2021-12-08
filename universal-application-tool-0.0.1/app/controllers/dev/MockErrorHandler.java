@@ -43,7 +43,7 @@ public class MockErrorHandler extends Controller {
 
     if (maybeProfile.isEmpty()) {
       return CompletableFuture.completedFuture(
-          ok(notFoundPage.render(
+          ok(notFoundPage.renderLoggedOut(
                 request,
                 messagesApi.preferred(request)
               )));
@@ -53,7 +53,7 @@ public class MockErrorHandler extends Controller {
         .get()
         .getApplicant()
         .thenApplyAsync(
-            applicant -> ok(notFoundPage.render(
+            applicant -> ok(notFoundPage.renderLoggedIn(
                 request, 
                 messagesApi.preferred(request), 
                 applicant.getApplicantData().getApplicantName())),
