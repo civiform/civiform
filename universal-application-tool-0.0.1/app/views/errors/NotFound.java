@@ -1,5 +1,6 @@
 package views.errors;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.span;
@@ -16,6 +17,7 @@ import services.MessageKey;
 import play.i18n.Messages;
 import j2html.tags.ContainerTag;
 import play.mvc.Http;
+import views.LanguageSelector;
 import views.style.ApplicantStyles;
 import views.BaseHtmlView;
 import views.BaseHtmlLayout;
@@ -33,11 +35,13 @@ public class NotFound extends BaseHtmlView {
 
   //private final BaseHtmlLayout layout;
   private final ApplicantLayout layout;
+  private final LanguageSelector languageSelector;
   private final MessagesApi messagesApi;
 
   @Inject
-  public NotFound(ApplicantLayout layout, MessagesApi messagesApi) {
+  public NotFound(ApplicantLayout layout, LanguageSelector languageSelector, MessagesApi messagesApi) {
     this.layout = layout;
+    this.languageSelector = checkNotNull(languageSelector);
     this.messagesApi = messagesApi;
   }
 
@@ -78,11 +82,14 @@ public class NotFound extends BaseHtmlView {
   public Content render(
         Http.Request request,
         Messages messages,
-        String applicantName
+        String userName
       ) {
     HtmlBundle bundle = layout.getBundle();
+    String language = languageSelector.getPreferredLangage(request).code();
+    bundle.setLanguage(language);
     bundle.addMainContent(mainContent(messages));
-    return layout.renderWithNav(request, applicantName, messages, bundle);
+    bundle.addHeaderContent(layout.renderNavBarLoggedIn(request, userName, messages));
+    return layout.render(bundle);
   }
 
   public Content render(
@@ -90,7 +97,10 @@ public class NotFound extends BaseHtmlView {
         Messages messages
       ) {
     HtmlBundle bundle = layout.getBundle();
+    String language = languageSelector.getPreferredLangage(request).code();
+    bundle.setLanguage(language);
     bundle.addMainContent(mainContent(messages));
-    return layout.renderWithNav(request, messages, bundle);
+    bundle.addHeaderContent(layout.renderNavBarLoggedOut(request, messages));
+    return layout.render(bundle);
   }
 }

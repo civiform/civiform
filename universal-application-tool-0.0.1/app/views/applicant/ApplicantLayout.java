@@ -116,11 +116,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Http.Request request, String userName, Messages messages, HtmlBundle bundle) {
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
-    bundle.addHeaderContent(renderNavBar(request, userName, messages));
+    bundle.addHeaderContent(renderNavBarLoggedIn(request, userName, messages));
     return renderWithSupportFooter(bundle, messages);
   }
 
-  private ContainerTag renderNavBar(Http.Request request, String userName, Messages messages) {
+  public ContainerTag renderNavBarLoggedIn(Http.Request request, String userName, Messages messages) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     return renderBaseNavBar(request, messages)
@@ -136,11 +136,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Http.Request request, Messages messages, HtmlBundle bundle) {
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
-    bundle.addHeaderContent(renderNavBar(request, messages));
+    bundle.addHeaderContent(renderNavBarLoggedOut(request, messages));
     return renderWithSupportFooter(bundle, messages);
   }
 
-  private ContainerTag renderNavBar(Http.Request request, Messages messages) {
+  public ContainerTag renderNavBarLoggedOut(Http.Request request, Messages messages) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     return renderBaseNavBar(request, messages)
