@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# DOC: Poll azurite and block until it is healthy.
+
+pushd $(git rev-parse --show-toplevel) > /dev/null
+
+set -e
+
+azurite_endpoint=http://localhost:10000
+
+if [ "$1" ]; then
+    azurite_endpoint=$1
+fi
+
+start_time=$(date +%s)
+deadline=$(($start_time + 200))
+
+echo "Waiting for azurite to get set up. This may take a minute or two..."
+
+# When azurite has successfully started, it should return a 400 error when polling localhost:10000 
+healthy() {
+    [[ ($1 == *"<Code>InvalidQueryParameterValue</Code>"*) ]]
+}
+
+until HEALTHCHECK=$(curl --max-time 2 $azurite_endpoint/) && healthy "$HEALTHCHECK"; do
+    if (( $(date +%s) > $deadline )); then
+        echo "deadline exceeded waiting for azurite start"
+        exit 1
+    fi
+done
+
+popd > /dev/null
