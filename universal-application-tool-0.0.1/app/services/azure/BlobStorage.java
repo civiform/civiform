@@ -56,7 +56,7 @@ public class BlobStorage {
   }
 
   public URL getPresignedUrl(String fileName) {
-    String signedUrl = client.getSasQueryParameters(fileName);
+    String signedUrl = client.getPresignedUrl(fileName);
 
     try {
       return new URL(signedUrl);
@@ -69,10 +69,7 @@ public class BlobStorage {
   //TODO: Implement UploadRequest class
 
   interface Client {
-
-    String getSasQueryParameters(String fileName);
-
-    BlobServiceClient getBlobServiceClient();
+    String getPresignedUrl(String fileName);
 
   }
 
@@ -86,26 +83,22 @@ public class BlobStorage {
           .endpoint(blobEndpoint)
           .credential(credentials.getCredentials())
           .buildClient();
-      userDelegationKey = blobServiceClient.getUserDelegationKey(
-          OffsetDateTime.now(), OffsetDateTime.now().plus(AZURE_USER_DELEGATION_KEY_DURATION));
+      userDelegationKey = getUserDelegationKey();
     }
 
-
     private UserDelegationKey getUserDelegationKey() {
-      if (userDelegationKey.getSignedExpiry().isBefore(OffsetDateTime.now())) {
+      OffsetDateTime tokenExpiration = OffsetDateTime.now().plus(AZURE_SAS_TOKEN_DURATION);
+      OffsetDateTime keyExpiration = userDelegationKey.getSignedExpiry();
+      if (userDelegationKey == null || keyExpiration.isBefore(tokenExpiration)) {
         userDelegationKey = blobServiceClient.getUserDelegationKey(
-            OffsetDateTime.now(), OffsetDateTime.now().plus(AZURE_USER_DELEGATION_KEY_DURATION));
+            OffsetDateTime.now().minus(Duration.ofMinutes(5)),
+            OffsetDateTime.now().plus(AZURE_USER_DELEGATION_KEY_DURATION));
       }
       return userDelegationKey;
     }
 
     @Override
-    public BlobServiceClient getBlobServiceClient() {
-      return blobServiceClient;
-    }
-
-    @Override
-    public String getSasQueryParameters(String filePath) {
+    public String getPresignedUrl(String filePath) {
       BlobClient blobClient = blobServiceClient
           .getBlobContainerClient(container)
           .getBlobClient(filePath);
@@ -118,7 +111,7 @@ public class BlobStorage {
           OffsetDateTime.now().plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
           .setProtocol(SasProtocol.HTTPS_ONLY);
 
-      String sas = blobClient.generateUserDelegationSas(signatureValues, userDelegationKey);
+      String sas = blobClient.generateUserDelegationSas(signatureValues, getUserDelegationKey());
       return String.format("%s?%s", blobClient.getBlobUrl(), sas);
     }
 
@@ -149,7 +142,7 @@ public class BlobStorage {
     }
 
     @Override
-    public String getSasQueryParameters(String filePath) {
+    public String getPresignedUrl(String filePath) {
 
       BlobClient blobClient = blobContainerClient.getBlobClient(filePath);
 
@@ -162,14 +155,10 @@ public class BlobStorage {
           OffsetDateTime.now().plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
           .setProtocol(SasProtocol.HTTPS_ONLY);
 
-      String sas =  blobClient.generateSas(signatureValues);
+      String sas = blobClient.generateSas(signatureValues);
       return String.format("%s?%s", blobClient.getBlobUrl(), sas);
     }
 
-    @Override
-    public BlobServiceClient getBlobServiceClient() {
-      return blobServiceClient;
-    }
   }
 
 // TODO: Create a Null client for mocking
