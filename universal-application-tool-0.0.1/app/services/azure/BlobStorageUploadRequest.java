@@ -9,13 +9,15 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class BlobStorageUploadRequest {
 
-  abstract String accountName();
+  public abstract String accountName();
 
-  abstract String containerName();
+  public abstract String containerName();
 
-  abstract String fileName();
+  public abstract String fileName();
 
-  abstract String sasUrl();
+  public abstract String sasUrl();
+
+  public abstract String successRedirectAction();
 
   public static Builder builder() {
     return new AutoValue_BlobStorageUploadRequest.Builder();
