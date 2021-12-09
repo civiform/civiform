@@ -1,4 +1,4 @@
-package services.azure;
+package services.cloud.azure;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,13 +20,14 @@ import java.time.ZoneId;
 import javax.inject.Singleton;
 import org.mockito.Mockito;
 import play.Environment;
+import services.cloud.StorageClient;
 
 /**
  * SimpleStorage provides methods to create federated links for users of CiviForm to upload and
  * download files directly to and from AWS Simple Storage Service (S3).
  */
 @Singleton
-public class BlobStorage {
+public class BlobStorage implements StorageClient {
 
   public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";
   public static final String AZURE_CONTAINER_CONF_PATH = "azure.blob.container";
@@ -61,7 +62,8 @@ public class BlobStorage {
     }
   }
 
-  public URL getSasUrl(String fileName) {
+  @Override
+  public URL getPresignedUrl(String fileName) {
     String signedUrl = client.getSasUrl(fileName);
     try {
       return new URL(signedUrl);
@@ -70,7 +72,8 @@ public class BlobStorage {
     }
   }
 
-  public BlobStorageUploadRequest getBlobStorageUploadRequest(String fileName,
+  @Override
+  public BlobStorageUploadRequest getSignedUploadRequest(String fileName,
       String successRedirectActionLink) {
     BlobStorageUploadRequest.Builder builder = BlobStorageUploadRequest.builder()
         .setFileName(fileName)

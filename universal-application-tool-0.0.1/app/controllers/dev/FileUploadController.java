@@ -13,8 +13,8 @@ import play.Environment;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
-import services.aws.SignedS3UploadRequest;
-import services.aws.SimpleStorage;
+import services.cloud.aws.SignedS3UploadRequest;
+import services.cloud.aws.SimpleStorage;
 import views.dev.FileUploadView;
 
 /** Controller for interacting with S3 directly in dev mode. */

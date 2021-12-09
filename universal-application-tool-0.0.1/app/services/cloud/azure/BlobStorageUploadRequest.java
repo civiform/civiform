@@ -1,13 +1,14 @@
-package services.azure;
+package services.cloud.azure;
 
 import com.google.auto.value.AutoValue;
+import services.cloud.StorageUploadRequest;
 
 /**
  * This holds the information needed to upload a blob storage request.
  */
 
 @AutoValue
-public abstract class BlobStorageUploadRequest {
+public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
 
   public abstract String accountName();
 
@@ -19,8 +20,11 @@ public abstract class BlobStorageUploadRequest {
 
   public abstract String successRedirectAction();
 
+  @Override public abstract String serviceName();
+
   public static Builder builder() {
-    return new AutoValue_BlobStorageUploadRequest.Builder();
+    return new AutoValue_BlobStorageUploadRequest.Builder()
+        .setService("azure-blob");
   }
 
   @AutoValue.Builder
@@ -67,6 +71,13 @@ public abstract class BlobStorageUploadRequest {
     abstract String successRedirectAction();
 
     public abstract Builder setSuccessRedirectAction(String successRedirectAction);
+
+    /**
+     * Get the service name (this is always set to "azure-blob" so the setter is private
+     */
+    abstract String serviceName();
+
+     abstract Builder setServiceName(String serviceName);
 
     /**
      * Build the request. This is called by the custom public build method.

@@ -1,4 +1,4 @@
-package services.azure;
+package services.cloud.azure;
 
 import com.azure.identity.DefaultAzureCredential;
 import com.azure.identity.DefaultAzureCredentialBuilder;

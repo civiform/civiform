@@ -30,7 +30,7 @@ import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
-import services.aws.SimpleStorage;
+import services.cloud.aws.SimpleStorage;
 import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
 import services.question.exceptions.UnsupportedScalarTypeException;

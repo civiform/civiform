@@ -1,4 +1,4 @@
-package services.aws;
+package services.cloud.aws;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import services.cloud.StorageUploadRequest;
 import software.amazon.awssdk.utils.BinaryUtils;
 
 /**
@@ -30,7 +31,7 @@ import software.amazon.awssdk.utils.BinaryUtils;
  * SimpleStorage#getSignedUploadRequest}.
  */
 @AutoValue
-public abstract class SignedS3UploadRequest {
+public abstract class SignedS3UploadRequest implements StorageUploadRequest {
 
   private static final long MB_TO_BYTES = 1L << 20;
 
@@ -118,7 +119,7 @@ public abstract class SignedS3UploadRequest {
   public abstract String regionName();
 
   /** AWS service name. */
-  public abstract String serviceName();
+  @Override public abstract String serviceName();
 
   @AutoValue.Builder
   public abstract static class Builder {
