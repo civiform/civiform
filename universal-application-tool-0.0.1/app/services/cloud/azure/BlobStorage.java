@@ -32,6 +32,7 @@ public class BlobStorage implements StorageClient {
 
   public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";
   public static final String AZURE_CONTAINER_CONF_PATH = "azure.blob.container";
+  public static final String AZURE_REGION_CONF_PATH = "java.time.zoneid";
   public static final Duration AZURE_SAS_TOKEN_DURATION = Duration.ofMinutes(10);
   public static final Duration AZURE_USER_DELEGATION_KEY_DURATION = Duration.ofMinutes(60);
 
@@ -40,6 +41,7 @@ public class BlobStorage implements StorageClient {
   private final Client client;
   private final String accountName;
   private final String blobEndpoint;
+  private final ZoneId zoneId;
 
 
   @Inject
@@ -51,13 +53,14 @@ public class BlobStorage implements StorageClient {
     this.credentials = checkNotNull(credentials);
     this.container = checkNotNull(config).getString(AZURE_CONTAINER_CONF_PATH);
     this.accountName = checkNotNull(config).getString(AZURE_STORAGE_ACCT_CONF_PATH);
+    this.zoneId = ZoneId.of(checkNotNull(config).getString(AZURE_REGION_CONF_PATH));
     this.blobEndpoint = String.format("https://%s.blob.core.windows.net", accountName);
 
     // TODO: Set to NullClient for test environment
     if (environment.isDev()) {
       client = new AzuriteClient(config);
     } else if (environment.isDev()) {
-      client = new NullClient();
+      client = new NullClient(zoneId);
     } else {
       client = new AzureBlobClient();
     }
@@ -72,6 +75,11 @@ public class BlobStorage implements StorageClient {
       throw new RuntimeException(e);
     }
   }
+  
+  public Client getClient() {
+    return client;
+  }
+
 
   @Override
   public BlobStorageUploadRequest getSignedUploadRequest(String fileName,
@@ -89,6 +97,7 @@ public class BlobStorage implements StorageClient {
 
     String getSasUrl(String fileName);
 
+
   }
 
   // TODO: Create a Null client for mocking
@@ -97,23 +106,24 @@ public class BlobStorage implements StorageClient {
     BlobServiceClient blobServiceClient;
     BlobContainerClient blobContainerClient;
     BlobClient blobClient;
+    public UserDelegationKey userDelegationKey;
 
-    // Test UserDelegationKey that is currently valid.
-    UserDelegationKey testUserDelegationKey =
-        new UserDelegationKey()
-            .setValue("testUserDelegationKey")
-            .setSignedObjectId("objectId")
-            .setSignedTenantId("signedTenantVersion")
-            .setSignedStart(OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).minusDays(1))
-            .setSignedExpiry(OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).plusYears(1));
-
-    NullClient() {
+    NullClient(ZoneId zoneId) {
       this.blobServiceClient = Mockito.mock(BlobServiceClient.class);
       this.blobContainerClient = Mockito.mock(BlobContainerClient.class);
       this.blobClient = Mockito.mock(BlobClient.class);
 
+      // Test UserDelegationKey that is currently valid.
+      userDelegationKey =
+          new UserDelegationKey()
+              .setValue("testUserDelegationKey")
+              .setSignedObjectId("objectId")
+              .setSignedTenantId("signedTenantVersion")
+              .setSignedStart(OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).minusDays(1))
+              .setSignedExpiry(OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).plusYears(1));
+
       when(blobServiceClient.getUserDelegationKey(any(),
-          any())).thenReturn(testUserDelegationKey);
+          any())).thenReturn(userDelegationKey);
       when(blobClient.getBlobUrl()).thenReturn("www.bloblurl.com");
       when(blobClient.generateSas(any())).thenReturn("sas");
     }
@@ -121,7 +131,7 @@ public class BlobStorage implements StorageClient {
     // If we want to test with expired or not yet ready UserDelegationKeys to make sure it works
     // as intended.
     public void setTestUserDelegationKey(UserDelegationKey newUserDelegationKey) {
-      testUserDelegationKey = newUserDelegationKey;
+      userDelegationKey = newUserDelegationKey;
     }
 
     public String getSasQueryParameters(String fileName) {
@@ -134,7 +144,7 @@ public class BlobStorage implements StorageClient {
 
     @Override
     public String getSasUrl(String fileName) {
-      return null;
+      return "sasUrl";
     }
   }
 
@@ -163,17 +173,6 @@ public class BlobStorage implements StorageClient {
       }
       return userDelegationKey;
     }
-    // userDelegationKey = blobServiceClient.getUserDelegationKey(
-    //     OffsetDateTime.now(ZoneId.of("America/Los_Angeles")), OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).plus(AZURE_USER_DELEGATION_KEY_DURATION));
-
-    // private UserDelegationKey getUserDelegationKey() {
-    //   if (userDelegationKey.getSignedExpiry().isBefore(OffsetDateTime.now(ZoneId.of("America/Los_Angeles")))) {
-    //     userDelegationKey = blobServiceClient.getUserDelegationKey(
-    //         OffsetDateTime.now(ZoneId.of("America/Los_Angeles")),
-    //         OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).plus(AZURE_USER_DELEGATION_KEY_DURATION));
-    //   }
-    //   return userDelegationKey;
-    // }
 
     @Override
     public String getSasUrl(String filePath) {
@@ -230,7 +229,7 @@ public class BlobStorage implements StorageClient {
           .setListPermission(true);
 
       BlobServiceSasSignatureValues signatureValues = new BlobServiceSasSignatureValues(
-          OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).plus(AZURE_SAS_TOKEN_DURATION),
+          OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION),
           blobSasPermission)
           .setProtocol(SasProtocol.HTTPS_ONLY);
 
