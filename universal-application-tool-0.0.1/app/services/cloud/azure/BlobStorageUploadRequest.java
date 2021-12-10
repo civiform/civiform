@@ -1,7 +1,7 @@
 package services.cloud.azure;
 
 import com.google.auto.value.AutoValue;
-import services.cloud.StorageService;
+import services.cloud.StorageServiceName;
 import services.cloud.StorageUploadRequest;
 
 /**
@@ -25,7 +25,7 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
 
   public static Builder builder() {
     return new AutoValue_BlobStorageUploadRequest.Builder()
-        .setServiceName(StorageService.AZURE_BLOB.getString());
+        .setServiceName(StorageServiceName.AZURE_BLOB.getString());
   }
 
   @AutoValue.Builder

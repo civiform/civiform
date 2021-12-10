@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import services.cloud.StorageServiceName;
 import services.cloud.StorageUploadRequest;
 import software.amazon.awssdk.utils.BinaryUtils;
 
@@ -59,7 +60,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
   public static Builder builder() {
     return new AutoValue_SignedS3UploadRequest.Builder()
         .setAlgorithm("AWS4-HMAC-SHA256")
-        .setServiceName("s3");
+        .setServiceName(StorageServiceName.AWS_S3.getString());
   }
 
   // -- Below should be included in the upload form.

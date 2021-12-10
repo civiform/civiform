@@ -7,7 +7,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import play.Environment;
 import services.cloud.StorageClient;
-import services.cloud.StorageService;
+import services.cloud.StorageServiceName;
 
 public class CloudStorageModule extends AbstractModule {
 
@@ -29,9 +29,9 @@ public class CloudStorageModule extends AbstractModule {
     String className = AWS_STORAGE_CLASS_NAME;
     try{
       final String storageProvider = checkNotNull(config).getString("cloud.storage");
-      if (storageProvider.equals(StorageService.AWS_S3.getString())) {
+      if (storageProvider.equals(StorageServiceName.AWS_S3.getString())) {
         className = AWS_STORAGE_CLASS_NAME;
-      } else if (storageProvider.equals(StorageService.AZURE_BLOB.getString())){
+      } else if (storageProvider.equals(StorageServiceName.AZURE_BLOB.getString())){
         className = AZURE_STORAGE_CLASS_NAME;
       }
     } catch(ConfigException ex) {
