@@ -150,12 +150,20 @@ public class ExporterService {
     try {
       OutputStream inMemoryBytes = new ByteArrayOutputStream();
       Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8);
+      HashMap<Long, ProgramDefinition> programDefinitions = new HashMap<>();
       for (Application application : applications) {
+        Long programId = application.getProgram().id;
+        if (!programDefinitions.containsKey(programId)) {
+          try {
+            programDefinitions.put(programId, programService.getProgramDefinition(programId));
+          } catch (ProgramNotFoundException e) {
+            throw new RuntimeException("Cannot find a program that has applications for it.", e);
+          }
+        }
+        ProgramDefinition programDefinition = programDefinitions.get(programId);
+
         ReadOnlyApplicantProgramService roApplicantService =
-            applicantService
-                .getReadOnlyApplicantProgramService(application)
-                .toCompletableFuture()
-                .join();
+                applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
         csvExporter.export(application, roApplicantService, writer);
       }
       writer.close();
