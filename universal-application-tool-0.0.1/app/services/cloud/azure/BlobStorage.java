@@ -81,7 +81,7 @@ public class BlobStorage implements StorageClient {
         .setAccountName(accountName)
         .setContainerName(container)
         .setSasUrl(client.getSasUrl(fileName))
-        .setSuccesstActionRedirect(successRedirectActionLink);
+        .setSuccessActionRedirect(successRedirectActionLink);
     return builder.build();
   }
 
@@ -142,6 +142,7 @@ public class BlobStorage implements StorageClient {
 
     private final BlobServiceClient blobServiceClient;
     private UserDelegationKey userDelegationKey;
+    private ZoneId zoneId;
 
     AzureBlobClient() {
       blobServiceClient = new BlobServiceClientBuilder()
@@ -149,15 +150,16 @@ public class BlobStorage implements StorageClient {
           .credential(credentials.getCredentials())
           .buildClient();
       userDelegationKey = getUserDelegationKey();
+      zoneId = ZoneId.systemDefault();
     }
 
     private UserDelegationKey getUserDelegationKey() {
-      OffsetDateTime tokenExpiration = OffsetDateTime.now().plus(AZURE_SAS_TOKEN_DURATION);
+      OffsetDateTime tokenExpiration = OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION);
       OffsetDateTime keyExpiration = userDelegationKey.getSignedExpiry();
       if (userDelegationKey == null || keyExpiration.isBefore(tokenExpiration)) {
         userDelegationKey = blobServiceClient.getUserDelegationKey(
-            OffsetDateTime.now().minus(Duration.ofMinutes(5)),
-            OffsetDateTime.now().plus(AZURE_USER_DELEGATION_KEY_DURATION));
+            OffsetDateTime.now(zoneId).minus(Duration.ofMinutes(5)),
+            OffsetDateTime.now(zoneId).plus(AZURE_USER_DELEGATION_KEY_DURATION));
       }
       return userDelegationKey;
     }
@@ -184,7 +186,7 @@ public class BlobStorage implements StorageClient {
           .setWritePermission(true);
 
       BlobServiceSasSignatureValues signatureValues = new BlobServiceSasSignatureValues(
-          OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).plus(AZURE_SAS_TOKEN_DURATION),
+          OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION),
           blobSasPermission)
           .setProtocol(SasProtocol.HTTPS_ONLY);
 

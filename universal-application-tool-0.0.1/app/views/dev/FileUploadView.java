@@ -32,8 +32,11 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.style.Styles;
 
-/** Renders a page for a developer to test uploading files. */
+/**
+ * Renders a page for a developer to test uploading files.
+ */
 public class FileUploadView extends BaseHtmlView {
+
   private final BaseHtmlLayout layout;
   private final StorageClient storageClient;
 
@@ -50,7 +53,7 @@ public class FileUploadView extends BaseHtmlView {
       Optional<String> maybeFlash) {
     String title = "Dev file upload";
     ContainerTag fileUploadForm;
-    if (signedRequest.serviceName() == StorageService.AZURE_BLOB.getString()) {
+    if (signedRequest.serviceName().equals(StorageService.AZURE_BLOB.getString())) {
       fileUploadForm = azureBlobFileUploadForm((BlobStorageUploadRequest) signedRequest);
     } else {
       fileUploadForm = awsS3FileUploadForm((SignedS3UploadRequest) signedRequest);
@@ -123,6 +126,9 @@ public class FileUploadView extends BaseHtmlView {
   private ContainerTag azureBlobFileUploadForm(BlobStorageUploadRequest request) {
     ContainerTag formTag = form();
     // TODO: build the form
-    return formTag;
+    return formTag
+        .with(input().withType("file").withName("file"))
+        .with(input().withType("hidden").withName("sasUrl").withValue(request.sasUrl()))
+        .with(submitButton("Upload to Azure Blob Storage"));
   }
 }
