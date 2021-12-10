@@ -17,7 +17,9 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
 
   public abstract String fileName();
 
-  public abstract String sasUrl();
+  public abstract String sasToken();
+
+  public abstract String blobUrl();
 
   public abstract String successActionRedirect();
 
@@ -61,11 +63,18 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
     public abstract Builder setContainerName(String containerName);
 
     /**
-     * Get the URL for the resource with the SAS token attached.
+     * Get the URL for the resource.
      */
-    abstract String sasUrl();
+    abstract String blobUrl();
 
-    public abstract Builder setSasUrl(String sasUrl);
+    public abstract Builder setBlobUrl(String blobUrl);
+
+    /**
+     * Get the sas token for the resource.
+     */
+    abstract String sasToken();
+
+    public abstract Builder setSasToken(String sasToken);
 
     /**
      * Get the success redirect action link.

@@ -44,6 +44,7 @@ services:
       - AWS_REGION
       - AWS_SES_SENDER
       - AWS_S3_BUCKET_NAME
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID:-test}
       - IDCS_CLIENT_ID
       - IDCS_SECRET
       - ADFS_CLIENT_ID

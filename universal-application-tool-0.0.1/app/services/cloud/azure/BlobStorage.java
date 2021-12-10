@@ -68,7 +68,9 @@ public class BlobStorage implements StorageClient {
 
   @Override
   public URL getPresignedUrl(String fileName) {
-    String signedUrl = client.getSasUrl(fileName);
+    String blobUrl = client.getBlobUrl(fileName);
+    String sasToken = client.getSasToken(fileName);
+    String signedUrl = String.format("%s", blobUrl, sasToken);
     try {
       return new URL(signedUrl);
     } catch (java.net.MalformedURLException e) {
@@ -88,15 +90,17 @@ public class BlobStorage implements StorageClient {
         .setFileName(fileName)
         .setAccountName(accountName)
         .setContainerName(container)
-        .setSasUrl(client.getSasUrl(fileName))
+        .setBlobUrl(client.getBlobUrl(fileName))
+        .setSasToken(client.getSasToken(fileName))
         .setSuccessActionRedirect(successActionRedirect);
     return builder.build();
   }
 
   interface Client {
 
-    String getSasUrl(String fileName);
+    String getSasToken(String fileName);
 
+    String getBlobUrl(String fileName);
 
   }
 
@@ -143,8 +147,13 @@ public class BlobStorage implements StorageClient {
     }
 
     @Override
-    public String getSasUrl(String fileName) {
-      return "sasUrl";
+    public String getSasToken(String fileName) {
+      return "sasToken";
+    }
+
+    @Override
+    public String getBlobUrl(String fileName) {
+      return "blobUrl";
     }
   }
 
@@ -175,10 +184,10 @@ public class BlobStorage implements StorageClient {
     }
 
     @Override
-    public String getSasUrl(String filePath) {
+    public String getSasToken(String fileName) {
       BlobClient blobClient = blobServiceClient
           .getBlobContainerClient(container)
-          .getBlobClient(filePath);
+          .getBlobClient(fileName);
 
       BlobSasPermission blobSasPermission = new BlobSasPermission()
           .setReadPermission(true)
@@ -189,9 +198,17 @@ public class BlobStorage implements StorageClient {
           blobSasPermission)
           .setProtocol(SasProtocol.HTTPS_ONLY);
 
-      String sas = blobClient.generateUserDelegationSas(signatureValues, getUserDelegationKey());
-      return String.format("%s?%s", blobClient.getBlobUrl(), sas);
+      return blobClient.generateUserDelegationSas(signatureValues, getUserDelegationKey());
     }
+
+    @Override
+    public String getBlobUrl(String fileName) {
+      BlobClient blobClient = blobServiceClient
+          .getBlobContainerClient(container)
+          .getBlobClient(fileName);
+      return blobClient.getBlobUrl();
+    }
+
 
   }
 
@@ -219,9 +236,8 @@ public class BlobStorage implements StorageClient {
     }
 
     @Override
-    public String getSasUrl(String filePath) {
-
-      BlobClient blobClient = blobContainerClient.getBlobClient(filePath);
+    public String getSasToken(String fileName) {
+      BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
 
       BlobSasPermission blobSasPermission = new BlobSasPermission()
           .setReadPermission(true)
@@ -233,10 +249,13 @@ public class BlobStorage implements StorageClient {
           blobSasPermission)
           .setProtocol(SasProtocol.HTTPS_ONLY);
 
-      String sas = blobClient.generateSas(signatureValues);
-      return String.format("%s?%s", blobClient.getBlobUrl(), sas);
+      return blobClient.generateSas(signatureValues);
     }
 
-
+    @Override
+    public String getBlobUrl(String fileName) {
+      BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
+      return blobClient.getBlobUrl();
+    }
   }
 }

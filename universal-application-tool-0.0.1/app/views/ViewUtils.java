@@ -28,6 +28,10 @@ public final class ViewUtils {
         .withType("text/javascript");
   }
 
+  public Tag makeCdnJsTag(String cdnUrl) {
+    return script().withSrc(cdnUrl).withType("text/javascript");
+  }
+
   /**
    * Generates an HTML link tag for loading the CSS file found at public/stylesheets/[filename].css.
    */

@@ -30,6 +30,7 @@ import services.cloud.azure.BlobStorageUploadRequest;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.style.Styles;
 
 /**
@@ -37,13 +38,17 @@ import views.style.Styles;
  */
 public class FileUploadView extends BaseHtmlView {
 
+  private final static String AZURE_STORAGE_BLOB_CDN = "https://www.jsdelivr.com/package/npm/@azure/storage-blob";
+
   private final BaseHtmlLayout layout;
   private final StorageClient storageClient;
+  private final ViewUtils viewUtils;
 
   @Inject
-  public FileUploadView(BaseHtmlLayout layout, StorageClient storageClient) {
+  public FileUploadView(BaseHtmlLayout layout, StorageClient storageClient, ViewUtils viewUtils) {
     this.layout = checkNotNull(layout);
     this.storageClient = checkNotNull(storageClient);
+    this.viewUtils = checkNotNull(viewUtils);
   }
 
   public Content render(
@@ -53,14 +58,18 @@ public class FileUploadView extends BaseHtmlView {
       Optional<String> maybeFlash) {
     String title = "Dev file upload";
     ContainerTag fileUploadForm;
+
+    HtmlBundle bundle = layout.getBundle();
+
     if (signedRequest.serviceName().equals(StorageServiceName.AZURE_BLOB.getString())) {
       fileUploadForm = azureBlobFileUploadForm((BlobStorageUploadRequest) signedRequest);
+      bundle.addFooterScripts(viewUtils.makeCdnJsTag(AZURE_STORAGE_BLOB_CDN));
+      bundle.addFooterScripts(viewUtils.makeLocalJsTag("azure_upload"));
     } else {
       fileUploadForm = awsS3FileUploadForm((SignedS3UploadRequest) signedRequest);
     }
-    HtmlBundle bundle =
-        layout
-            .getBundle()
+
+    bundle
             .setTitle(title)
             .addMainContent(
                 div()
@@ -124,11 +133,16 @@ public class FileUploadView extends BaseHtmlView {
   }
 
   private ContainerTag azureBlobFileUploadForm(BlobStorageUploadRequest request) {
-    ContainerTag formTag = form();
-    // TODO: build the form
+    ContainerTag formTag = form().withId("azure-upload-form-component");
+
     return formTag
         .with(input().withType("file").withName("file"))
-        .with(input().withType("hidden").withName("sasUrl").withValue(request.sasUrl()))
+        .with(input().withType("hidden").withName("sasToken").withValue(request.sasToken()))
+        .with(input().withType("hidden").withName("blobUrl").withValue(request.sasToken()))
+        .with(input().withType("hidden").withName("containerName").withValue(request.containerName()))
+        .with(input().withType("hidden").withName("fileName").withValue(request.fileName()))
+        .with(input().withType("hidden").withName("accountName").withValue(request.accountName()))
+        .with(input().withType("hidden").withName("successActionRedirect").withValue(request.successActionRedirect()))
         .with(submitButton("Upload to Azure Blob Storage"));
   }
 }
