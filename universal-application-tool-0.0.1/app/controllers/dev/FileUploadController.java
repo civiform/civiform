@@ -13,27 +13,30 @@ import play.Environment;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
-import services.cloud.aws.SignedS3UploadRequest;
-import services.cloud.aws.SimpleStorage;
+import services.cloud.StorageClient;
+import services.cloud.StorageUploadRequest;
 import views.dev.FileUploadView;
 
-/** Controller for interacting with S3 directly in dev mode. */
+/**
+ * Controller for interacting with S3 directly in dev mode.
+ */
 public class FileUploadController extends DevController {
+
   private final FileUploadView view;
-  private final SimpleStorage s3Client;
+  private final StorageClient storageClient;
   private final StoredFileRepository storedFileRepository;
   private final String baseUrl;
 
   @Inject
   public FileUploadController(
       FileUploadView view,
-      SimpleStorage s3Client,
+      StorageClient storageClient,
       StoredFileRepository storedFileRepository,
       Environment environment,
       Config configuration) {
     super(environment, configuration);
     this.view = checkNotNull(view);
-    this.s3Client = checkNotNull(s3Client);
+    this.storageClient = checkNotNull(storageClient);
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
   }
@@ -42,8 +45,8 @@ public class FileUploadController extends DevController {
     if (!isDevEnvironment()) {
       return notFound();
     }
-    SignedS3UploadRequest signedRequest =
-        s3Client.getSignedUploadRequest(
+    StorageUploadRequest signedRequest =
+        storageClient.getSignedUploadRequest(
             "dev/${filename}", baseUrl + routes.FileUploadController.create().url());
     Set<StoredFile> files = storedFileRepository.list().toCompletableFuture().join();
     ImmutableList<StoredFile> fileList =

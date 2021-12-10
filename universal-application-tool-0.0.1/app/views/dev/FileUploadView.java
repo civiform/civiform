@@ -22,8 +22,10 @@ import javax.inject.Inject;
 import models.StoredFile;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.cloud.StorageClient;
+import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
-import services.cloud.aws.SimpleStorage;
+import services.cloud.azure.BlobStorageUploadRequest;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -32,20 +34,27 @@ import views.style.Styles;
 /** Renders a page for a developer to test uploading files. */
 public class FileUploadView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
-  private final SimpleStorage s3Client;
+  private final StorageClient storageClient;
 
   @Inject
-  public FileUploadView(BaseHtmlLayout layout, SimpleStorage s3Client) {
+  public FileUploadView(BaseHtmlLayout layout, StorageClient storageClient) {
     this.layout = checkNotNull(layout);
-    this.s3Client = checkNotNull(s3Client);
+    this.storageClient = checkNotNull(storageClient);
   }
 
   public Content render(
       Request request,
-      SignedS3UploadRequest signedRequest,
+      StorageUploadRequest signedRequest,
       ImmutableList<StoredFile> files,
       Optional<String> maybeFlash) {
     String title = "Dev file upload";
+    String requestServiceName = signedRequest.serviceName();
+    ContainerTag fileUploadForm;
+    if (requestServiceName == "azure-blob") {
+      fileUploadForm = azureBlobFileUploadForm((BlobStorageUploadRequest) signedRequest);
+    } else {
+      fileUploadForm = awsS3FileUploadForm((SignedS3UploadRequest) signedRequest);
+    }
     HtmlBundle bundle =
         layout
             .getBundle()
@@ -54,7 +63,7 @@ public class FileUploadView extends BaseHtmlView {
                 div()
                     .with(div(maybeFlash.orElse("")))
                     .with(h1(title))
-                    .with(div().with(fileUploadForm(signedRequest)))
+                    .with(div().with(fileUploadForm))
                     .with(
                         div()
                             .withClasses(Styles.GRID, Styles.GRID_COLS_2)
@@ -75,10 +84,10 @@ public class FileUploadView extends BaseHtmlView {
   }
 
   private String getPresignedURL(StoredFile file) {
-    return s3Client.getPresignedUrl(file.getName()).toString();
+    return storageClient.getPresignedUrl(file.getName()).toString();
   }
 
-  private ContainerTag fileUploadForm(SignedS3UploadRequest request) {
+  private ContainerTag awsS3FileUploadForm(SignedS3UploadRequest request) {
     ContainerTag formTag =
         form()
             .attr(ENCTYPE, "multipart/form-data")
@@ -109,5 +118,11 @@ public class FileUploadView extends BaseHtmlView {
         .with(submitButton("Upload to Amazon S3"))
         .withMethod("post")
         .withAction(request.actionLink());
+  }
+
+  private ContainerTag azureBlobFileUploadForm(BlobStorageUploadRequest request) {
+    ContainerTag formTag = form();
+    // TODO: build the form
+    return formTag;
   }
 }
