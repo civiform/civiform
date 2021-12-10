@@ -25,7 +25,7 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
 
   public static Builder builder() {
     return new AutoValue_BlobStorageUploadRequest.Builder()
-        .setService(StorageService.AZURE_BLOB.getString());
+        .setServiceName(StorageService.AZURE_BLOB.getString());
   }
 
   @AutoValue.Builder
@@ -69,9 +69,9 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
     /**
      * Get the success redirect action link.
      */
-    abstract String successtActionRedirect();
+    abstract String successActionRedirect();
 
-    public abstract Builder setSuccesstActionRedirect(String successtActionRedirect);
+    public abstract Builder setSuccessActionRedirect(String successtActionRedirect);
 
     /**
      * Get the service name (this is always set to "azure-blob" so the setter is private
