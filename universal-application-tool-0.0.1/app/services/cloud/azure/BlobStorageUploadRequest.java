@@ -18,7 +18,7 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
 
   public abstract String sasUrl();
 
-  public abstract String successRedirectAction();
+  public abstract String successActionRedirect();
 
   @Override public abstract String serviceName();
 
@@ -68,9 +68,9 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
     /**
      * Get the success redirect action link.
      */
-    abstract String successRedirectAction();
+    abstract String successtActionRedirect();
 
-    public abstract Builder setSuccessRedirectAction(String successRedirectAction);
+    public abstract Builder setSuccesstActionRedirect(String successtActionRedirect);
 
     /**
      * Get the service name (this is always set to "azure-blob" so the setter is private

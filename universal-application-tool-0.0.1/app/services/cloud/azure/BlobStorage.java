@@ -17,6 +17,7 @@ import java.net.URL;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.mockito.Mockito;
 import play.Environment;
@@ -41,7 +42,7 @@ public class BlobStorage implements StorageClient {
   private final String blobEndpoint;
 
 
-  @Singleton
+  @Inject
   public BlobStorage(
       Credentials credentials,
       Config config,
@@ -80,7 +81,7 @@ public class BlobStorage implements StorageClient {
         .setAccountName(accountName)
         .setContainerName(container)
         .setSasUrl(client.getSasUrl(fileName))
-        .setSuccessRedirectAction(successRedirectActionLink);
+        .setSuccesstActionRedirect(successRedirectActionLink);
     return builder.build();
   }
 
