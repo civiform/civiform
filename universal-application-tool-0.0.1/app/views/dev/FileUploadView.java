@@ -23,6 +23,7 @@ import models.StoredFile;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.cloud.StorageClient;
+import services.cloud.StorageService;
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
 import services.cloud.azure.BlobStorageUploadRequest;
@@ -48,9 +49,8 @@ public class FileUploadView extends BaseHtmlView {
       ImmutableList<StoredFile> files,
       Optional<String> maybeFlash) {
     String title = "Dev file upload";
-    String requestServiceName = signedRequest.serviceName();
     ContainerTag fileUploadForm;
-    if (requestServiceName == "azure-blob") {
+    if (signedRequest.serviceName() == StorageService.AZURE_BLOB.getString()) {
       fileUploadForm = azureBlobFileUploadForm((BlobStorageUploadRequest) signedRequest);
     } else {
       fileUploadForm = awsS3FileUploadForm((SignedS3UploadRequest) signedRequest);
