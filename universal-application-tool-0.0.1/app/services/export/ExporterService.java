@@ -163,7 +163,7 @@ public class ExporterService {
         ProgramDefinition programDefinition = programDefinitions.get(programId);
 
         ReadOnlyApplicantProgramService roApplicantService =
-                applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
+            applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
         csvExporter.export(application, roApplicantService, writer);
       }
       writer.close();
