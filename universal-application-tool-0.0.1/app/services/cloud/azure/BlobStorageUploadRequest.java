@@ -21,6 +21,7 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
 
   public abstract String successActionRedirect();
 
+
   @Override public abstract String serviceName();
 
   public static Builder builder() {
@@ -71,7 +72,7 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
      */
     abstract String successActionRedirect();
 
-    public abstract Builder setSuccessActionRedirect(String successtActionRedirect);
+    public abstract Builder setSuccessActionRedirect(String successActionRedirect);
 
     /**
      * Get the service name (this is always set to "azure-blob" so the setter is private

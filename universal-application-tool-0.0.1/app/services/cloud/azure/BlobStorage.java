@@ -59,7 +59,7 @@ public class BlobStorage implements StorageClient {
     // TODO: Set to NullClient for test environment
     if (environment.isDev()) {
       client = new AzuriteClient(config);
-    } else if (environment.isDev()) {
+    } else if (environment.isTest()) {
       client = new NullClient(zoneId);
     } else {
       client = new AzureBlobClient();
@@ -75,7 +75,7 @@ public class BlobStorage implements StorageClient {
       throw new RuntimeException(e);
     }
   }
-  
+
   public Client getClient() {
     return client;
   }
@@ -83,13 +83,13 @@ public class BlobStorage implements StorageClient {
 
   @Override
   public BlobStorageUploadRequest getSignedUploadRequest(String fileName,
-      String successRedirectActionLink) {
+      String successActionRedirect) {
     BlobStorageUploadRequest.Builder builder = BlobStorageUploadRequest.builder()
         .setFileName(fileName)
         .setAccountName(accountName)
         .setContainerName(container)
         .setSasUrl(client.getSasUrl(fileName))
-        .setSuccessActionRedirect(successRedirectActionLink);
+        .setSuccessActionRedirect(successActionRedirect);
     return builder.build();
   }
 
