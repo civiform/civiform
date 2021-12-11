@@ -6,6 +6,7 @@ export { AdminPrograms } from './admin_programs'
 export { AdminTranslations } from './admin_translations'
 export { AdminTIGroups } from './admin_ti_groups'
 export { ApplicantQuestions } from './applicant_questions'
+export { NotFoundPage } from './error_pages'
 export { clickAndWaitForModal, waitForPageJsLoad } from './wait'
 
 const {
@@ -13,6 +14,8 @@ const {
   TEST_USER_LOGIN = '',
   TEST_USER_PASSWORD = '',
 } = process.env
+
+export { BASE_URL }
 
 export const isLocalDevEnvironment = () => {
   return (
