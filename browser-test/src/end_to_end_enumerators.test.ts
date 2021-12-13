@@ -175,6 +175,61 @@ describe('End to end enumerator test', () => {
 
     await endSession(browser);
   });
+  
+  it('Applicant can navigate to previous blocks', async () => {
+    const { browser, page } = await startSession();
+    await loginAsGuest(page);
+    await selectApplicantLanguage(page, 'English', true);
+    const applicantQuestions = new ApplicantQuestions(page);
+    await applicantQuestions.applyProgram(programName);
+
+    // Fill in name question
+    await applicantQuestions.answerNameQuestion("Porky", "Pig");
+    await applicantQuestions.clickNext();
+
+    // Put in two things in the enumerator question
+    await applicantQuestions.addEnumeratorAnswer("Bugs");
+    await applicantQuestions.addEnumeratorAnswer("Daffy");
+    await applicantQuestions.clickNext();
+
+    // REPEATED ENTITY
+    // Answer name
+    await applicantQuestions.answerNameQuestion("Bugs", "Bunny");
+    await applicantQuestions.clickNext();
+
+    // Put one thing in the nested enumerator for enum one
+    await applicantQuestions.addEnumeratorAnswer("Cartoon Character");
+    await applicantQuestions.clickNext();
+
+    // Answer the nested repeated question
+    await applicantQuestions.answerNumberQuestion("100");
+    await applicantQuestions.clickNext()
+
+    // Check previous navigation works
+    // Click previous and see number question
+    await applicantQuestions.clickPrevious();
+    await applicantQuestions.checkNumberQuestionValue("100");
+
+    // Click previous and see enumerator question
+    await applicantQuestions.clickPrevious();
+    await applicantQuestions.checkEnumeratorAnswerValue("Cartoon Character", 1);
+
+    // Click previous and see name question
+    await applicantQuestions.clickPrevious();
+    await applicantQuestions.checkNameQuestionValue("Bugs", "Bunny");
+
+    // Click previous and see enumerator question
+    await applicantQuestions.clickPrevious();
+    await applicantQuestions.checkEnumeratorAnswerValue("Daffy", 2);
+    await applicantQuestions.checkEnumeratorAnswerValue("Bugs", 1);
+
+    // Click previous and see name question
+    await applicantQuestions.clickPrevious();
+    await applicantQuestions.checkNameQuestionValue("Porky", "Pig");
+
+    await endSession(browser);
+
+  });
 
   it('Create new version of enumerator and update repeated questions and programs', async () => {
     const { browser, page } = await startSession();

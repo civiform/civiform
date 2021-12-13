@@ -13,6 +13,7 @@ button.deleteFile=Delete
 button.keepFile=Continue
 button.logout=Logout
 button.nextScreen=Next
+button.previousScreen=Previous
 button.review=Review
 button.skipFileUpload=Skip
 button.submit=Submit
