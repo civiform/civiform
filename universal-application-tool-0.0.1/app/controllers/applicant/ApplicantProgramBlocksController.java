@@ -12,6 +12,7 @@ import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -116,15 +117,26 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {
     CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
 
-    return applicantStage
-        .thenComposeAsync(
-            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
-            httpExecutionContext.current())
-        .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-            httpExecutionContext.current())
+    CompletableFuture<Void> applicantAuthCompletableFuture =
+        applicantStage
+            .thenComposeAsync(
+                v -> checkApplicantAuthorization(profileUtils, request, applicantId),
+                httpExecutionContext.current())
+            .toCompletableFuture();
+
+    CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
+        applicantStage
+            .thenComposeAsync(
+                v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+                httpExecutionContext.current())
+            .toCompletableFuture();
+
+    return CompletableFuture.allOf(
+            applicantAuthCompletableFuture, applicantProgramServiceCompletableFuture)
         .thenApplyAsync(
-            (roApplicantProgramService) -> {
+            (v) -> {
+              ReadOnlyApplicantProgramService roApplicantProgramService =
+                  applicantProgramServiceCompletableFuture.join();
               ImmutableList<Block> blocks = roApplicantProgramService.getAllActiveBlocks();
               String blockId = blocks.get(previousBlockIndex).getId();
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
