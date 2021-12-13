@@ -53,12 +53,13 @@ public class NotFound extends BaseHtmlView {
                   h1(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE.getKeyName()))
                     .withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION, Styles.TEXT_CENTER),
                   p(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A.getKeyName())),
-                  span(
-                      span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_B.getKeyName())),
-                      span(" "),
-                      a(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_C.getKeyName()))
-                        .withHref("/"),
-                      span(".")
+                  p(
+                    span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_B.getKeyName())),
+                    span(" "),
+                    a(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_C.getKeyName()))
+                      .withHref("/")
+                      .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT),
+                    span(".")
                     ),
                   div(
                     layout.viewUtils.makeLocalImageTag("404")
@@ -67,12 +68,14 @@ public class NotFound extends BaseHtmlView {
                         span(messages.at(MessageKey.ERROR_NOT_FOUND_IMG_CAPTION_A.getKeyName())),
                         span(" "),
                         a(messages.at(MessageKey.ERROR_NOT_FOUND_IMG_CAPTION_B.getKeyName()))
-                          .withHref(img_author_url),
+                          .withHref(img_author_url)
+                          .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT),
                         span(" "),
                         span(messages.at(MessageKey.ERROR_NOT_FOUND_IMG_CAPTION_C.getKeyName())),
                         span(" "),
                         a(messages.at(MessageKey.ERROR_NOT_FOUND_IMG_CAPTION_D.getKeyName()))
                           .withHref(img_url)
+                          .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT)
                       )
                     )
                   )
