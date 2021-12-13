@@ -43,12 +43,8 @@ public class BlobStorage implements StorageClient {
   private final String blobEndpoint;
   private final ZoneId zoneId;
 
-
   @Inject
-  public BlobStorage(
-      Credentials credentials,
-      Config config,
-      Environment environment) {
+  public BlobStorage(Credentials credentials, Config config, Environment environment) {
 
     this.credentials = checkNotNull(credentials);
     this.container = checkNotNull(config).getString(AZURE_CONTAINER_CONF_PATH);
@@ -70,7 +66,7 @@ public class BlobStorage implements StorageClient {
   public URL getPresignedUrl(String fileName) {
     String blobUrl = client.getBlobUrl(fileName);
     String sasToken = client.getSasToken(fileName);
-    String signedUrl = String.format("%s", blobUrl, sasToken);
+    String signedUrl = String.format("%s/%s", blobUrl, sasToken);
     try {
       return new URL(signedUrl);
     } catch (java.net.MalformedURLException e) {
@@ -82,17 +78,17 @@ public class BlobStorage implements StorageClient {
     return client;
   }
 
-
   @Override
-  public BlobStorageUploadRequest getSignedUploadRequest(String fileName,
-      String successActionRedirect) {
-    BlobStorageUploadRequest.Builder builder = BlobStorageUploadRequest.builder()
-        .setFileName(fileName)
-        .setAccountName(accountName)
-        .setContainerName(container)
-        .setBlobUrl(client.getBlobUrl(fileName))
-        .setSasToken(client.getSasToken(fileName))
-        .setSuccessActionRedirect(successActionRedirect);
+  public BlobStorageUploadRequest getSignedUploadRequest(
+      String fileName, String successActionRedirect) {
+    BlobStorageUploadRequest.Builder builder =
+        BlobStorageUploadRequest.builder()
+            .setFileName(fileName)
+            .setAccountName(accountName)
+            .setContainerName(container)
+            .setBlobUrl(client.getBlobUrl(fileName))
+            .setSasToken(client.getSasToken(fileName))
+            .setSuccessActionRedirect(successActionRedirect);
     return builder.build();
   }
 
@@ -101,7 +97,6 @@ public class BlobStorage implements StorageClient {
     String getSasToken(String fileName);
 
     String getBlobUrl(String fileName);
-
   }
 
   // TODO: Create a Null client for mocking
@@ -126,8 +121,7 @@ public class BlobStorage implements StorageClient {
               .setSignedStart(OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).minusDays(1))
               .setSignedExpiry(OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).plusYears(1));
 
-      when(blobServiceClient.getUserDelegationKey(any(),
-          any())).thenReturn(userDelegationKey);
+      when(blobServiceClient.getUserDelegationKey(any(), any())).thenReturn(userDelegationKey);
       when(blobClient.getBlobUrl()).thenReturn("www.bloblurl.com");
       when(blobClient.generateSas(any())).thenReturn("sas");
     }
@@ -164,10 +158,11 @@ public class BlobStorage implements StorageClient {
     private ZoneId zoneId;
 
     AzureBlobClient() {
-      blobServiceClient = new BlobServiceClientBuilder()
-          .endpoint(blobEndpoint)
-          .credential(credentials.getCredentials())
-          .buildClient();
+      blobServiceClient =
+          new BlobServiceClientBuilder()
+              .endpoint(blobEndpoint)
+              .credential(credentials.getCredentials())
+              .buildClient();
       userDelegationKey = getUserDelegationKey();
       zoneId = ZoneId.systemDefault();
     }
@@ -176,40 +171,36 @@ public class BlobStorage implements StorageClient {
       OffsetDateTime tokenExpiration = OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION);
       OffsetDateTime keyExpiration = userDelegationKey.getSignedExpiry();
       if (userDelegationKey == null || keyExpiration.isBefore(tokenExpiration)) {
-        userDelegationKey = blobServiceClient.getUserDelegationKey(
-            OffsetDateTime.now(zoneId).minus(Duration.ofMinutes(5)),
-            OffsetDateTime.now(zoneId).plus(AZURE_USER_DELEGATION_KEY_DURATION));
+        userDelegationKey =
+            blobServiceClient.getUserDelegationKey(
+                OffsetDateTime.now(zoneId).minus(Duration.ofMinutes(5)),
+                OffsetDateTime.now(zoneId).plus(AZURE_USER_DELEGATION_KEY_DURATION));
       }
       return userDelegationKey;
     }
 
     @Override
     public String getSasToken(String fileName) {
-      BlobClient blobClient = blobServiceClient
-          .getBlobContainerClient(container)
-          .getBlobClient(fileName);
+      BlobClient blobClient =
+          blobServiceClient.getBlobContainerClient(container).getBlobClient(fileName);
 
-      BlobSasPermission blobSasPermission = new BlobSasPermission()
-          .setReadPermission(true)
-          .setWritePermission(true);
+      BlobSasPermission blobSasPermission =
+          new BlobSasPermission().setReadPermission(true).setWritePermission(true);
 
-      BlobServiceSasSignatureValues signatureValues = new BlobServiceSasSignatureValues(
-          OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION),
-          blobSasPermission)
-          .setProtocol(SasProtocol.HTTPS_ONLY);
+      BlobServiceSasSignatureValues signatureValues =
+          new BlobServiceSasSignatureValues(
+                  OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
+              .setProtocol(SasProtocol.HTTPS_ONLY);
 
       return blobClient.generateUserDelegationSas(signatureValues, getUserDelegationKey());
     }
 
     @Override
     public String getBlobUrl(String fileName) {
-      BlobClient blobClient = blobServiceClient
-          .getBlobContainerClient(container)
-          .getBlobClient(fileName);
+      BlobClient blobClient =
+          blobServiceClient.getBlobContainerClient(container).getBlobClient(fileName);
       return blobClient.getBlobUrl();
     }
-
-
   }
 
   class AzuriteClient implements Client {
@@ -223,31 +214,30 @@ public class BlobStorage implements StorageClient {
     private final BlobContainerClient blobContainerClient;
 
     AzuriteClient(Config config) {
-      this.connectionString = checkNotNull(config)
-          .getString(AZURE_LOCAL_CONNECTION_STRING_CONF_PATH);
-      this.blobServiceClient = new BlobServiceClientBuilder()
-          .connectionString(connectionString)
-          .buildClient();
+      this.connectionString =
+          checkNotNull(config).getString(AZURE_LOCAL_CONNECTION_STRING_CONF_PATH);
+      this.blobServiceClient =
+          new BlobServiceClientBuilder().connectionString(connectionString).buildClient();
       this.blobContainerClient = blobServiceClient.getBlobContainerClient(container);
       if (!blobContainerClient.exists()) {
         blobContainerClient.create();
       }
-
     }
 
     @Override
     public String getSasToken(String fileName) {
       BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
 
-      BlobSasPermission blobSasPermission = new BlobSasPermission()
-          .setReadPermission(true)
-          .setWritePermission(true)
-          .setListPermission(true);
+      BlobSasPermission blobSasPermission =
+          new BlobSasPermission()
+              .setReadPermission(true)
+              .setWritePermission(true)
+              .setListPermission(true);
 
-      BlobServiceSasSignatureValues signatureValues = new BlobServiceSasSignatureValues(
-          OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION),
-          blobSasPermission)
-          .setProtocol(SasProtocol.HTTPS_ONLY);
+      BlobServiceSasSignatureValues signatureValues =
+          new BlobServiceSasSignatureValues(
+                  OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
+              .setProtocol(SasProtocol.HTTPS_HTTP); // TODO: Get this to work with HTTP_ONLY
 
       return blobClient.generateSas(signatureValues);
     }
