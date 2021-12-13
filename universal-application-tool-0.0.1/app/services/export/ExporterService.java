@@ -150,7 +150,7 @@ public class ExporterService {
     try {
       OutputStream inMemoryBytes = new ByteArrayOutputStream();
       Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8);
-      // Cache Program data so we only look it up once rather than on every exported row.
+      // Cache Program data which doesn't change, so we only look it up once rather than on every exported row.
       // TODO: Lookup all relevant programs in one request to reduce cost of N lookups.
       // TODO: Consider Play's JavaCache over this caching.
       HashMap<Long, ProgramDefinition> programDefinitions = new HashMap<>();
