@@ -27,20 +27,19 @@ public class CloudStorageModule extends AbstractModule {
     // cloud.storage = "azure-blob"
     // cloud.storage = "s3"
     String className = AWS_STORAGE_CLASS_NAME;
-    try{
+    try {
       final String storageProvider = checkNotNull(config).getString("cloud.storage");
       if (storageProvider.equals(StorageServiceName.AWS_S3.getString())) {
         className = AWS_STORAGE_CLASS_NAME;
-      } else if (storageProvider.equals(StorageServiceName.AZURE_BLOB.getString())){
+      } else if (storageProvider.equals(StorageServiceName.AZURE_BLOB.getString())) {
         className = AZURE_STORAGE_CLASS_NAME;
       }
-    } catch(ConfigException ex) {
+    } catch (ConfigException ex) {
       // Ignore missing config and default to S3 for now
     }
     try {
-      Class<? extends StorageClient> boundClass = environment.classLoader()
-          .loadClass(className)
-          .asSubclass(StorageClient.class);
+      Class<? extends StorageClient> boundClass =
+          environment.classLoader().loadClass(className).asSubclass(StorageClient.class);
       bind(StorageClient.class).to(boundClass);
     } catch (ClassNotFoundException ex) {
       throw new RuntimeException(

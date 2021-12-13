@@ -6,7 +6,5 @@ public interface StorageClient {
 
   URL getPresignedUrl(String fileName);
 
-  StorageUploadRequest getSignedUploadRequest(String fileName,
-      String successRedirectActionLink);
-
+  StorageUploadRequest getSignedUploadRequest(String fileName, String successRedirectActionLink);
 }

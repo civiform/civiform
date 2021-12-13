@@ -4,10 +4,7 @@ import com.google.auto.value.AutoValue;
 import services.cloud.StorageServiceName;
 import services.cloud.StorageUploadRequest;
 
-/**
- * This holds the information needed to upload a blob storage request.
- */
-
+/** This holds the information needed to upload a blob storage request. */
 @AutoValue
 public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
 
@@ -23,8 +20,8 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
 
   public abstract String successActionRedirect();
 
-
-  @Override public abstract String serviceName();
+  @Override
+  public abstract String serviceName();
 
   public static Builder builder() {
     return new AutoValue_BlobStorageUploadRequest.Builder()
@@ -62,37 +59,27 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
 
     public abstract Builder setContainerName(String containerName);
 
-    /**
-     * Get the URL for the resource.
-     */
+    /** Get the URL for the resource. */
     abstract String blobUrl();
 
     public abstract Builder setBlobUrl(String blobUrl);
 
-    /**
-     * Get the sas token for the resource.
-     */
+    /** Get the sas token for the resource. */
     abstract String sasToken();
 
     public abstract Builder setSasToken(String sasToken);
 
-    /**
-     * Get the success redirect action link.
-     */
+    /** Get the success redirect action link. */
     abstract String successActionRedirect();
 
     public abstract Builder setSuccessActionRedirect(String successActionRedirect);
 
-    /**
-     * Get the service name (this is always set to "azure-blob" so the setter is private
-     */
+    /** Get the service name (this is always set to "azure-blob" so the setter is private */
     abstract String serviceName();
 
-     abstract Builder setServiceName(String serviceName);
+    abstract Builder setServiceName(String serviceName);
 
-    /**
-     * Build the request. This is called by the custom public build method.
-     */
+    /** Build the request. This is called by the custom public build method. */
     abstract BlobStorageUploadRequest autoBuild();
 
     public BlobStorageUploadRequest build() {

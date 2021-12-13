@@ -22,7 +22,7 @@ healthy() {
     [[ ($1 == *"<Code>InvalidQueryParameterValue</Code>"*) ]]
 }
 
-until HEALTHCHECK=$(curl --max-time 2 $azurite_endpoint/) && healthy "$HEALTHCHECK"; do
+until HEALTHCHECK=$(curl --silent --max-time 2 $azurite_endpoint/) && healthy "$HEALTHCHECK"; do
     if (( $(date +%s) > $deadline )); then
         echo "deadline exceeded waiting for azurite start"
         exit 1

@@ -120,7 +120,8 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
   public abstract String regionName();
 
   /** AWS service name. */
-  @Override public abstract String serviceName();
+  @Override
+  public abstract String serviceName();
 
   @AutoValue.Builder
   public abstract static class Builder {

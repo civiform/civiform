@@ -38,7 +38,8 @@ import views.style.Styles;
  */
 public class FileUploadView extends BaseHtmlView {
 
-  private final static String AZURE_STORAGE_BLOB_CDN = "https://www.jsdelivr.com/package/npm/@azure/storage-blob";
+  private static final String AZURE_STORAGE_BLOB_CDN =
+      "https://cdn.jsdelivr.net/npm/@azure/storage-blob@10.5.0/browser/azure-storage-blob.min.js";
 
   private final BaseHtmlLayout layout;
   private final StorageClient storageClient;
@@ -70,16 +71,16 @@ public class FileUploadView extends BaseHtmlView {
     }
 
     bundle
-            .setTitle(title)
-            .addMainContent(
-                div()
-                    .with(div(maybeFlash.orElse("")))
-                    .with(h1(title))
-                    .with(div().with(fileUploadForm))
-                    .with(
-                        div()
-                            .withClasses(Styles.GRID, Styles.GRID_COLS_2)
-                            .with(div().with(h2("Current Files:")).with(pre(renderFiles(files))))));
+        .setTitle(title)
+        .addMainContent(
+            div()
+                .with(div(maybeFlash.orElse("")))
+                .with(h1(title))
+                .with(div().with(fileUploadForm))
+                .with(
+                    div()
+                        .withClasses(Styles.GRID, Styles.GRID_COLS_2)
+                        .with(div().with(h2("Current Files:")).with(pre(renderFiles(files))))));
     return layout.render(bundle);
   }
 
@@ -134,15 +135,35 @@ public class FileUploadView extends BaseHtmlView {
 
   private ContainerTag azureBlobFileUploadForm(BlobStorageUploadRequest request) {
     ContainerTag formTag = form().withId("azure-upload-form-component");
-
-    return formTag
+    formTag
         .with(input().withType("file").withName("file"))
         .with(input().withType("hidden").withName("sasToken").withValue(request.sasToken()))
-        .with(input().withType("hidden").withName("blobUrl").withValue(request.sasToken()))
-        .with(input().withType("hidden").withName("containerName").withValue(request.containerName()))
+        .with(input().withType("hidden").withName("blobUrl").withValue(request.blobUrl()))
+        .with(
+            input().withType("hidden").withName("containerName").withValue(request.containerName()))
         .with(input().withType("hidden").withName("fileName").withValue(request.fileName()))
         .with(input().withType("hidden").withName("accountName").withValue(request.accountName()))
-        .with(input().withType("hidden").withName("successActionRedirect").withValue(request.successActionRedirect()))
+        .with(
+            input()
+                .withType("hidden")
+                .withName("successActionRedirect")
+                .withValue(request.successActionRedirect()))
         .with(submitButton("Upload to Azure Blob Storage"));
+
+    // Copied styling for progress bar from https://tailwind-elements.com/docs/standard/components/progress/
+    ContainerTag progressBarTag = div().withClass("relative pt-1")
+        .with(div().withClass("overflow-hidden h-2 text-xs flex rounded bg-purple-200").with(
+            div("0%").withId("azure-upload-progress-component").withStyle("width: 0%;")
+                .withClass("shadow-none\n"
+                    + "        flex flex-col\n"
+                    + "        text-center\n"
+                    + "        whitespace-nowrap\n"
+                    + "        text-white\n"
+                    + "        justify-center\n"
+                    + "        bg-purple-500")
+        ));
+    return div()
+        .with(formTag)
+        .with(progressBarTag);
   }
 }
