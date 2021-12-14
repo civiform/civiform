@@ -3,11 +3,11 @@ package views.style;
 public final class ErrorStyles {
   public static final String H1_NOT_FOUND =
       StyleUtils.joinStyles(
-          Styles.TEXT_3XL, Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.MT_28, Styles.MB_8);
+          Styles.TEXT_3XL, Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.MT_16, StyleUtils.responsiveMedium(Styles.MT_28), Styles.MB_8);
 
   public static final String P_DESCRIPTION =
       StyleUtils.joinStyles(
-          Styles.TEXT_XL, Styles.TEXT_BASE, Styles.TEXT_BLACK, Styles.MB_16);
+          Styles.TEXT_XL, Styles.TEXT_BASE, Styles.TEXT_BLACK, Styles.MB_6, StyleUtils.responsiveMedium(Styles.MT_16));
 
   public static final String P_IMG_FOOTER =
       StyleUtils.joinStyles(
