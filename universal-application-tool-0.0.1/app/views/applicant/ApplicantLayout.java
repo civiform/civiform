@@ -152,11 +152,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .with(
               div(),
               div(
-                div(
-                    div(this.viewUtils.makeLocalImageTag("login_icon"))
-                      .withClasses(Styles.MR_2, Styles.MT_0p5),
-                    div(loginButton(messages))
-                  ).withClasses(Styles.FLEX, Styles.FLEX_ROW)
+                div(loginButton(messages))
                 ).withClasses(Styles.JUSTIFY_SELF_END));
   }
 
@@ -237,9 +233,13 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   private ContainerTag loginButton(Messages messages) {
     String loginLink = routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url();
-    return div(a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
+    return div(
+              a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
             .withHref(loginLink)
-            .withClasses(ApplicantStyles.LINK_LOGOUT));
+            .withClasses(ApplicantStyles.LINK_LOGOUT),
+              div(this.viewUtils.makeLocalImageTag("login_icon"))
+                .withClasses(Styles.ABSOLUTE, Styles._LEFT_7, Styles.TOP_PX, Styles.MR_2, Styles.MT_0p5)
+            ).withClasses(Styles.RELATIVE);
   }
 
   /*private ContainerTag loginButton(Messages messages) {
