@@ -8,6 +8,8 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.BlobCorsRule;
+import com.azure.storage.blob.models.BlobServiceProperties;
 import com.azure.storage.blob.models.UserDelegationKey;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
@@ -17,6 +19,7 @@ import java.net.URL;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.mockito.Mockito;
@@ -189,7 +192,7 @@ public class BlobStorage implements StorageClient {
 
       BlobServiceSasSignatureValues signatureValues =
           new BlobServiceSasSignatureValues(
-                  OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
+              OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
               .setProtocol(SasProtocol.HTTPS_ONLY);
 
       return blobClient.generateUserDelegationSas(signatureValues, getUserDelegationKey());
@@ -218,11 +221,30 @@ public class BlobStorage implements StorageClient {
           checkNotNull(config).getString(AZURE_LOCAL_CONNECTION_STRING_CONF_PATH);
       this.blobServiceClient =
           new BlobServiceClientBuilder().connectionString(connectionString).buildClient();
+
+      setCorsRules(blobServiceClient);
       this.blobContainerClient = blobServiceClient.getBlobContainerClient(container);
       if (!blobContainerClient.exists()) {
         blobContainerClient.create();
       }
     }
+
+    private void setCorsRules(BlobServiceClient blobServiceClient){
+      BlobServiceProperties properties = new BlobServiceProperties()
+          .setCors(
+              List.of(
+                  new BlobCorsRule()
+                      // TODO: Make these more specific
+                      .setAllowedOrigins("*")
+                      .setAllowedHeaders("*")
+                      .setExposedHeaders("*")
+                      .setAllowedMethods("GET,PUT,OPTIONS")
+                      .setMaxAgeInSeconds(500)
+              )
+          );
+      blobServiceClient.setProperties(properties);
+    }
+
 
     @Override
     public String getSasToken(String fileName) {
@@ -236,7 +258,7 @@ public class BlobStorage implements StorageClient {
 
       BlobServiceSasSignatureValues signatureValues =
           new BlobServiceSasSignatureValues(
-                  OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
+              OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
               .setProtocol(SasProtocol.HTTPS_HTTP); // TODO: Get this to work with HTTP_ONLY
 
       return blobClient.generateSas(signatureValues);
