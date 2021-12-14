@@ -10,13 +10,13 @@ class AzureUploadController {
     uploadContainer.addEventListener("submit", (event) => this.attemptUpload(event, uploadContainer));
   }
 
-  getValueFromInputLabel(label:string) {
+  getValueFromInputLabel(label: string) {
     return (<HTMLInputElement>document.getElementsByName(label)[0]).value;
   }
 
   attemptUpload(event: Event, uploadContainer: HTMLElement | null) {
     event.preventDefault();
-    const azblob = window["azblob"]; 
+    const azblob = window["azblob"];
     if (uploadContainer != null) {
       const sasToken = this.getValueFromInputLabel("sasToken");
       let blobUrl = this.getValueFromInputLabel("blobUrl");
@@ -46,10 +46,10 @@ class AzureUploadController {
           redirectUrl.searchParams.set("key", fileName);
           redirectUrl.searchParams.set("bucket", containerName);
           window.location.replace(redirectUrl.toString());
-        }      
+        }
       });
-      
-     }
+
+    }
   }
 }
 let azureUploadController = new AzureUploadController();

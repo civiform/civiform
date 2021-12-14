@@ -96,7 +96,7 @@ public class FileUploadView extends BaseHtmlView {
 
   private String getPresignedURL(StoredFile file) {
     String url = storageClient.getPresignedUrl(file.getName()).toString();
-    if (url.contains("azurite")){
+    if (url.contains("azurite")) {
       return url.replace("azurite", "localhost");
     }
     return url;

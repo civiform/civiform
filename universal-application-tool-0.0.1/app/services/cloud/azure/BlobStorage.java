@@ -192,7 +192,7 @@ public class BlobStorage implements StorageClient {
 
       BlobServiceSasSignatureValues signatureValues =
           new BlobServiceSasSignatureValues(
-              OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
+                  OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
               .setProtocol(SasProtocol.HTTPS_ONLY);
 
       return blobClient.generateUserDelegationSas(signatureValues, getUserDelegationKey());
@@ -229,22 +229,20 @@ public class BlobStorage implements StorageClient {
       }
     }
 
-    private void setCorsRules(BlobServiceClient blobServiceClient){
-      BlobServiceProperties properties = new BlobServiceProperties()
-          .setCors(
-              List.of(
-                  new BlobCorsRule()
-                      // TODO: Make these more specific
-                      .setAllowedOrigins("*")
-                      .setAllowedHeaders("*")
-                      .setExposedHeaders("*")
-                      .setAllowedMethods("GET,PUT,OPTIONS")
-                      .setMaxAgeInSeconds(500)
-              )
-          );
+    private void setCorsRules(BlobServiceClient blobServiceClient) {
+      BlobServiceProperties properties =
+          new BlobServiceProperties()
+              .setCors(
+                  List.of(
+                      new BlobCorsRule()
+                          // TODO: Make these more specific
+                          .setAllowedOrigins("*")
+                          .setAllowedHeaders("*")
+                          .setExposedHeaders("*")
+                          .setAllowedMethods("GET,PUT,OPTIONS")
+                          .setMaxAgeInSeconds(500)));
       blobServiceClient.setProperties(properties);
     }
-
 
     @Override
     public String getSasToken(String fileName) {
@@ -258,7 +256,7 @@ public class BlobStorage implements StorageClient {
 
       BlobServiceSasSignatureValues signatureValues =
           new BlobServiceSasSignatureValues(
-              OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
+                  OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
               .setProtocol(SasProtocol.HTTPS_HTTP); // TODO: Get this to work with HTTP_ONLY
 
       return blobClient.generateSas(signatureValues);
