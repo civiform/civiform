@@ -14,6 +14,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
 import services.cloud.StorageClient;
+import services.cloud.StorageServiceName;
 import services.cloud.StorageUploadRequest;
 import views.dev.FileUploadView;
 
@@ -58,17 +59,27 @@ public class FileUploadController extends DevController {
     if (!isDevEnvironment()) {
       return notFound();
     }
-    Optional<String> bucket = request.queryString("bucket");
-    Optional<String> key = request.queryString("key");
     Optional<String> etag = request.queryString("etag");
-    if (!bucket.isPresent() || !key.isPresent()) {
-      return redirect(routes.FileUploadController.index().url());
+    String successMessage;
+    if (storageClient.getStorageServiceName() == StorageServiceName.AWS_S3) {
+      Optional<String> bucket = request.queryString("bucket");
+      Optional<String> key = request.queryString("key");
+      if (!bucket.isPresent() || !key.isPresent()) {
+        return redirect(routes.FileUploadController.index().url());
+      }
+      updateFileRecord(key.get());
+      successMessage =
+          String.format(
+              "File successfully uploaded to S3: bucket: %s, key: %s, etag: %s.",
+              bucket.get(), key.get(), etag.orElse(""));
+    } else {
+      Optional<String> container = request.queryString("container");
+      Optional<String> fileName = request.queryString("fileName");
+      successMessage =
+          String.format(
+              "File successfully uploaded to Azure: container: %s, file name: %s, etag: %s.",
+              container.get(), fileName.get(), etag.orElse(""));
     }
-    updateFileRecord(key.get());
-    String successMessage =
-        String.format(
-            "File successfully uploaded to S3: bucket: %s, key: %s, etag: %s.",
-            bucket.get(), key.get(), etag.orElse(""));
     return redirect(routes.FileUploadController.index().url()).flashing("success", successMessage);
   }
 

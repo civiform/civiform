@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import play.Environment;
 import services.cloud.StorageClient;
+import services.cloud.StorageServiceName;
 
 /**
  * SimpleStorage provides methods to create federated links for users of CiviForm to upload and
@@ -89,6 +90,11 @@ public class BlobStorage implements StorageClient {
             .setSasToken(client.getSasToken(fileName))
             .setSuccessActionRedirect(successActionRedirect);
     return builder.build();
+  }
+
+  @Override
+  public StorageServiceName getStorageServiceName() {
+    return StorageServiceName.AZURE_BLOB;
   }
 
   interface Client {
@@ -198,9 +204,9 @@ public class BlobStorage implements StorageClient {
                   List.of(
                       new BlobCorsRule()
                           // TODO: Make these more specific
-                          .setAllowedOrigins("*")
-                          .setAllowedHeaders("*")
-                          .setExposedHeaders("*")
+                          .setAllowedOrigins("http://localhost:9000/")
+                          .setAllowedHeaders("x-ms-*")
+                          .setExposedHeaders("x-ms-*")
                           .setAllowedMethods("GET,PUT,OPTIONS")
                           .setMaxAgeInSeconds(500)));
       blobServiceClient.setProperties(properties);
@@ -219,7 +225,7 @@ public class BlobStorage implements StorageClient {
       BlobServiceSasSignatureValues signatureValues =
           new BlobServiceSasSignatureValues(
                   OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
-              .setProtocol(SasProtocol.HTTPS_HTTP); // TODO: Get this to work with HTTP_ONLY
+              .setProtocol(SasProtocol.HTTPS_HTTP); // TODO: Get this to work with HTTPS_ONLY
 
       return blobClient.generateSas(signatureValues);
     }

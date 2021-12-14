@@ -16,6 +16,7 @@ import org.mockito.Mockito;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
 import services.cloud.StorageClient;
+import services.cloud.StorageServiceName;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.regions.Region;
@@ -97,6 +98,11 @@ public class SimpleStorage implements StorageClient {
       builder.setSecurityToken(sessionCredentials.sessionToken());
     }
     return builder.build();
+  }
+
+  @Override
+  public StorageServiceName getStorageServiceName() {
+    return StorageServiceName.AWS_S3;
   }
 
   interface Client {
