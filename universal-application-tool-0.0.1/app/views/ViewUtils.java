@@ -28,6 +28,10 @@ public final class ViewUtils {
         .withType("text/javascript");
   }
 
+    /**
+   * Generates an HTML script tag for loading the javascript file found at
+   * public/javascripts/[filename].js.
+   */
   public Tag makeCdnJsTag(String cdnUrl) {
     return script().withSrc(cdnUrl).withType("text/javascript");
   }

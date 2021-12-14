@@ -33,9 +33,7 @@ import views.HtmlBundle;
 import views.ViewUtils;
 import views.style.Styles;
 
-/**
- * Renders a page for a developer to test uploading files.
- */
+/** Renders a page for a developer to test uploading files. */
 public class FileUploadView extends BaseHtmlView {
 
   private static final String AZURE_STORAGE_BLOB_CDN =
@@ -135,7 +133,7 @@ public class FileUploadView extends BaseHtmlView {
 
   private ContainerTag azureBlobFileUploadForm(BlobStorageUploadRequest request) {
     ContainerTag formTag = form().withId("azure-upload-form-component");
-    formTag
+    return formTag
         .with(input().withType("file").withName("file"))
         .with(input().withType("hidden").withName("sasToken").withValue(request.sasToken()))
         .with(input().withType("hidden").withName("blobUrl").withValue(request.blobUrl()))
@@ -149,21 +147,5 @@ public class FileUploadView extends BaseHtmlView {
                 .withName("successActionRedirect")
                 .withValue(request.successActionRedirect()))
         .with(submitButton("Upload to Azure Blob Storage"));
-
-    // Copied styling for progress bar from https://tailwind-elements.com/docs/standard/components/progress/
-    ContainerTag progressBarTag = div().withClass("relative pt-1")
-        .with(div().withClass("overflow-hidden h-2 text-xs flex rounded bg-purple-200").with(
-            div("0%").withId("azure-upload-progress-component").withStyle("width: 0%;")
-                .withClass("shadow-none\n"
-                    + "        flex flex-col\n"
-                    + "        text-center\n"
-                    + "        whitespace-nowrap\n"
-                    + "        text-white\n"
-                    + "        justify-center\n"
-                    + "        bg-purple-500")
-        ));
-    return div()
-        .with(formTag)
-        .with(progressBarTag);
   }
 }

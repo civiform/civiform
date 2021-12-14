@@ -1,7 +1,6 @@
 package services.cloud.azure;
 
 import com.azure.identity.ChainedTokenCredential;
-import com.azure.identity.DefaultAzureCredential;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import javax.inject.Inject;
 import org.mockito.Mockito;
@@ -18,18 +17,16 @@ public class Credentials {
 
   private ChainedTokenCredential defaultAzureCredential;
 
-
   @Inject
   public Credentials(Environment environment) {
-    if (environment.isProd()){
+    if (environment.isProd()) {
       defaultAzureCredential = new DefaultAzureCredentialBuilder().build();
     } else {
       defaultAzureCredential = Mockito.mock(ChainedTokenCredential.class);
     }
   }
+
   public ChainedTokenCredential getCredentials() {
     return defaultAzureCredential;
   }
-
-
 }
