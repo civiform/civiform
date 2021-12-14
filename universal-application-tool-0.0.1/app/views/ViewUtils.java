@@ -29,8 +29,8 @@ public final class ViewUtils {
   }
 
   /**
-   * Generates an HTML script tag for loading the javascript file found at
-   * public/javascripts/[filename].js.
+   * Generates an CDN script tag for loading the javascript file found at
+   * that CDN URL.
    */
   public Tag makeCdnJsTag(String cdnUrl) {
     return script().withSrc(cdnUrl).withType("text/javascript");
