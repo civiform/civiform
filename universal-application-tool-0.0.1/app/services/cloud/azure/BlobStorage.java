@@ -69,7 +69,7 @@ public class BlobStorage implements StorageClient {
   public URL getPresignedUrl(String fileName) {
     String blobUrl = client.getBlobUrl(fileName);
     String sasToken = client.getSasToken(fileName);
-    String signedUrl = String.format("%s/%s", blobUrl, sasToken);
+    String signedUrl = String.format("%s?%s", blobUrl, sasToken);
     try {
       return new URL(signedUrl);
     } catch (java.net.MalformedURLException e) {
