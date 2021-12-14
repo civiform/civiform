@@ -51,32 +51,36 @@ public class NotFound extends BaseHtmlView {
       return div(
                 div(
                   h1(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE.getKeyName()))
-                    .withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION, Styles.TEXT_CENTER),
-                  p(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A.getKeyName())),
-                  p(
+                    .withClasses(ErrorStyles.H1_NOT_FOUND, Styles.TEXT_CENTER),
+                  div(
+                    p(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A.getKeyName())),
+                    p(
                     span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_B.getKeyName())),
                     span(" "),
                     a(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_C.getKeyName()))
                       .withHref("/")
                       .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT),
                     span(".")
-                    ),
+                    )
+                  ).withClasses(ErrorStyles.P_DESCRIPTION),
                   div(
-                    layout.viewUtils.makeLocalImageTag("404")
+                    layout.viewUtils.makeLocalImageTag("404", "Lost in a sea of dreary color")
                       .withClasses(Styles.M_AUTO),
-                    span(
-                        span(messages.at(MessageKey.ERROR_NOT_FOUND_IMG_CAPTION_A.getKeyName())),
-                        span(" "),
-                        a(messages.at(MessageKey.ERROR_NOT_FOUND_IMG_CAPTION_B.getKeyName()))
-                          .withHref(img_author_url)
-                          .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT),
-                        span(" "),
-                        span(messages.at(MessageKey.ERROR_NOT_FOUND_IMG_CAPTION_C.getKeyName())),
-                        span(" "),
-                        a(messages.at(MessageKey.ERROR_NOT_FOUND_IMG_CAPTION_D.getKeyName()))
-                          .withHref(img_url)
-                          .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT)
-                      )
+                    div(
+                      p(
+                          span(messages.at(MessageKey.ERROR_NOT_FOUND_IMG_CAPTION_A.getKeyName())),
+                          span(" "),
+                          a(messages.at(MessageKey.ERROR_NOT_FOUND_IMG_CAPTION_B.getKeyName()))
+                            .withHref(img_author_url)
+                            .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT),
+                          span(" "),
+                          span(messages.at(MessageKey.ERROR_NOT_FOUND_IMG_CAPTION_C.getKeyName())),
+                          span(" "),
+                          a(messages.at(MessageKey.ERROR_NOT_FOUND_IMG_CAPTION_D.getKeyName()))
+                            .withHref(img_url)
+                            .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT)
+                        )
+                      ).withClasses(ErrorStyles.P_IMG_FOOTER)
                     )
                   )
                 ).withClasses(Styles.TEXT_CENTER, Styles.MAX_W_SCREEN_SM, Styles.W_5_6, Styles.MX_AUTO);
