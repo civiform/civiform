@@ -87,7 +87,7 @@ public class NotFound extends BaseHtmlView {
   }
 
   private HtmlBundle addBodyFooter(
-        Http.Request request,
+        Http.RequestHeader request,
         Messages messages
       ) {
     HtmlBundle bundle = layout.getBundle();
@@ -101,7 +101,7 @@ public class NotFound extends BaseHtmlView {
   }
 
   public Content renderLoggedIn(
-        Http.Request request,
+        Http.RequestHeader request,
         Messages messages,
         String userName
       ) {
@@ -113,7 +113,7 @@ public class NotFound extends BaseHtmlView {
   }
 
   public Content renderLoggedOut(
-        Http.Request request,
+        Http.RequestHeader request,
         Messages messages
       ) {
 

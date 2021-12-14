@@ -104,7 +104,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return rendered;
   }
 
-  private ContainerTag renderBaseNavBar(Http.Request request, Messages messages) {
+  private ContainerTag renderBaseNavBar(Http.RequestHeader request, Messages messages) {
     return nav()
         .withClasses(
             Styles.BG_WHITE,
@@ -118,14 +118,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   // nav bar when logged in
   public Content renderWithNav(
-      Http.Request request, String userName, Messages messages, HtmlBundle bundle) {
+      Http.RequestHeader request, String userName, Messages messages, HtmlBundle bundle) {
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBarLoggedIn(request, userName, messages));
     return renderWithSupportFooter(bundle, messages);
   }
 
-  public ContainerTag renderNavBarLoggedIn(Http.Request request, String userName, Messages messages) {
+  public ContainerTag renderNavBarLoggedIn(Http.RequestHeader request, String userName, Messages messages) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     return renderBaseNavBar(request, messages)
@@ -138,14 +138,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
   // nav bar when not logged in
   // needed for 404 page, and possibly other error pages
   public Content renderWithNav(
-      Http.Request request, Messages messages, HtmlBundle bundle) {
+      Http.RequestHeader request, Messages messages, HtmlBundle bundle) {
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBarLoggedOut(request, messages));
     return renderWithSupportFooter(bundle, messages);
   }
 
-  public ContainerTag renderNavBarLoggedOut(Http.Request request, Messages messages) {
+  public ContainerTag renderNavBarLoggedOut(Http.RequestHeader request, Messages messages) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     return renderBaseNavBar(request, messages)
@@ -157,7 +157,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private ContainerTag getLanguageForm(
-      Http.Request request, Optional<CiviFormProfile> profile, Messages messages) {
+      Http.RequestHeader request, Optional<CiviFormProfile> profile, Messages messages) {
     ContainerTag languageForm = div();
     if (profile.isPresent()) { // Show language switcher.
       long userId = profile.get().getApplicant().join().id;

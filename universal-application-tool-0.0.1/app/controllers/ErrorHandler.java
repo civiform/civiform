@@ -42,7 +42,6 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
   protected CompletionStage<Result> onNotFound(Http.RequestHeader requestHeader, String message) {
     return CompletableFuture.completedFuture(
-        Results.forbidden("Page not found. Check URL is correct"));
-        /*Results.notFound(notFoundPage.render(messagesApi.preferred(requestHeader))));*/
+        Results.notFound(notFoundPage.renderLoggedOut(requestHeader, messagesApi.preferred(requestHeader))));
   }
 }
