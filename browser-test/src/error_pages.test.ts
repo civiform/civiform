@@ -1,13 +1,13 @@
 import { startSession, loginAsAdmin, loginAsProgramAdmin, loginAsGuest, loginAsTestUser, logout, endSession, NotFoundPage } from './support'
 
 describe('error pages', () => {
-  it('try invalid sub-url under all stages of logged in and not logged in', async () => {
+  it('try an actual non-existent page while logged out', async () => {
     const { browser, page } = await startSession();
     page.setDefaultTimeout(4000);
 
     const notFound = new NotFoundPage(page);
 
-    await notFound.gotoInvalidPage(page);
+    await notFound.gotoNonExistentPage(page);
 
     await notFound.checkPageHeaderEnUS();
 
@@ -15,4 +15,20 @@ describe('error pages', () => {
 
     await endSession(browser);
   })
+
+  it('try mock not found page', async () => {
+    const { browser, page } = await startSession();
+    page.setDefaultTimeout(4000);
+
+    const notFound = new NotFoundPage(page);
+
+    await notFound.gotoMockNotFoundPage(page);
+
+    await notFound.checkPageHeaderEnUS();
+
+    //await page.pause();
+
+    await endSession(browser);
+  })
+
 })

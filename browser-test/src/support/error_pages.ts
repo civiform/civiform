@@ -9,8 +9,11 @@ export class NotFoundPage {
     this.page = page
   }
 
-  async gotoInvalidPage(page: Page) {
-    // Use /dev/abc for now till I get error handler figured out
+  async gotoNonExistentPage(page: Page) {
+    return await page.goto(BASE_URL + "/dirjwlqickhdfguyqrm");
+  }
+
+  async gotoMockNotFoundPage(page: Page) {
     return await page.goto(BASE_URL + "/dev/abc");
   }
 
