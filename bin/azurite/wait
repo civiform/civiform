@@ -12,6 +12,8 @@ if [ "$1" ]; then
     azurite_endpoint=$1
 fi
 
+echo "Using azurite endpoint $azurite_endpoint"
+
 start_time=$(date +%s)
 deadline=$(($start_time + 200))
 
