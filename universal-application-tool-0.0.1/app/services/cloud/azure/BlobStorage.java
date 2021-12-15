@@ -204,9 +204,9 @@ public class BlobStorage implements StorageClient {
                   List.of(
                       new BlobCorsRule()
                           // TODO: Make these more specific
-                          .setAllowedOrigins("http://localhost:9000/")
-                          .setAllowedHeaders("x-ms-*")
-                          .setExposedHeaders("x-ms-*")
+                          .setAllowedOrigins("*")
+                          .setAllowedHeaders("*")
+                          .setExposedHeaders("*")
                           .setAllowedMethods("GET,PUT,OPTIONS")
                           .setMaxAgeInSeconds(500)));
       blobServiceClient.setProperties(properties);
