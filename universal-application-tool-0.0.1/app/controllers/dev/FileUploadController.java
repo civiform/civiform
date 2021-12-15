@@ -18,7 +18,9 @@ import services.cloud.StorageServiceName;
 import services.cloud.StorageUploadRequest;
 import views.dev.FileUploadView;
 
-/** Controller for interacting with S3 directly in dev mode. */
+/**
+ * Controller for interacting with S3 directly in dev mode.
+ */
 public class FileUploadController extends DevController {
 
   private final FileUploadView view;
@@ -75,10 +77,13 @@ public class FileUploadController extends DevController {
     } else {
       Optional<String> container = request.queryString("container");
       Optional<String> fileName = request.queryString("fileName");
+      Optional<String> userFileName = request.queryString("userFileName");
+      updateFileRecord(fileName.get());
       successMessage =
           String.format(
-              "File successfully uploaded to Azure: container: %s, file name: %s, etag: %s.",
-              container.get(), fileName.get(), etag.orElse(""));
+              "File successfully uploaded to Azure: container: %s, file name: %s, etag: %s, user"
+                  + " file name: %s.",
+              container.get(), fileName.get(), etag.orElse(""), userFileName.get());
     }
     return redirect(routes.FileUploadController.index().url()).flashing("success", successMessage);
   }

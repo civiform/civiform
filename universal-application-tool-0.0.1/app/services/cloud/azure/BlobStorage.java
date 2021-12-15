@@ -18,6 +18,7 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import play.Environment;
@@ -81,6 +82,9 @@ public class BlobStorage implements StorageClient {
   @Override
   public BlobStorageUploadRequest getSignedUploadRequest(
       String fileName, String successActionRedirect) {
+    // Azure blob must know the name of a file to generate a SAS for it, so we'll use a UUID
+    // TODO: figure out how to map this to user-uploaded filename
+    fileName = fileName.replace("${filename}", UUID.randomUUID().toString());
     BlobStorageUploadRequest.Builder builder =
         BlobStorageUploadRequest.builder()
             .setFileName(fileName)

@@ -25,13 +25,7 @@ class AzureUploadController {
       const successActionRedirect = this.getValueFromInputLabel("successActionRedirect");
       const containerName = this.getValueFromInputLabel("containerName");
       const file = (<HTMLInputElement>uploadContainer.querySelector('input[type=file]')).files[0];
-
       let fileName = this.getValueFromInputLabel("fileName");
-      fileName = fileName.replace("${filename}", file.name);
-
-      if (blobUrl.includes(encodeURIComponent("${filename}"))) {
-        blobUrl = blobUrl.replace(encodeURIComponent("${filename}"), encodeURIComponent(file.name));
-      }
 
       const redirectUrl = new URL(successActionRedirect);
 
@@ -45,6 +39,7 @@ class AzureUploadController {
           console.log(err);
         } else {
           console.log(resp);
+          redirectUrl.searchParams.set("userFileName", file.name)
           redirectUrl.searchParams.set("etag", resp.eTag);
           redirectUrl.searchParams.set("fileName", fileName);
           redirectUrl.searchParams.set("container", containerName);
