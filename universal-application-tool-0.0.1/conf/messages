@@ -242,7 +242,7 @@ validation.entityNameRequired=Please enter a value for each line.
 validation.duplicateEntityName=Please enter a unique value for each line.
 
 # The placeholder text for enumerator fields
-placeholder.entityName=Nickname for {0}
+placeholder.entityName={0} name
 
 #---------------------------------------------------------------------------------#
 # FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #

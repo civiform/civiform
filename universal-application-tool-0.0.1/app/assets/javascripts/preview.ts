@@ -64,7 +64,7 @@ class PreviewController {
       if (entityType.length > 0) {
         PreviewController.setAllMatchingPlaceholders(
           PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS + " input",
-          "Nickname for " + entityType);
+          entityType + " name");
         PreviewController.setTextContent(
           PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID,
           "Add " + entityType);
@@ -126,7 +126,7 @@ class PreviewController {
     }
     PreviewController.setAllMatchingPlaceholders(
       PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS,
-      "Nickname for " + entityType);
+      entityType + " name");
     PreviewController.setTextContent(
       PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID,
       "Add " + entityType);
