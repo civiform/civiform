@@ -33,7 +33,9 @@ import views.HtmlBundle;
 import views.ViewUtils;
 import views.style.Styles;
 
-/** Renders a page for a developer to test uploading files. */
+/**
+ * Renders a page for a developer to test uploading files.
+ */
 public class FileUploadView extends BaseHtmlView {
 
   private static final String AZURE_STORAGE_BLOB_CDN =
