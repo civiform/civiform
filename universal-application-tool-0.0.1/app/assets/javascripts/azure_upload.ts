@@ -36,18 +36,19 @@ class AzureUploadController {
             `${blobUrl}?${sasToken}`,
             azblob.StorageURL.newPipeline(new azblob.AnonymousCredential)
         ));
-    azblob.uploadBrowserDataToBlockBlob(azblob.Aborter.none, file, blockBlobURL).then((resp, err) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log(resp);
-        redirectUrl.searchParams.set("userFileName", file.name)
-        redirectUrl.searchParams.set("etag", resp.eTag);
-        redirectUrl.searchParams.set("fileName", fileName);
-        redirectUrl.searchParams.set("container", containerName);
-        window.location.replace(redirectUrl.toString());
-      }
-    });
+      azblob.uploadBrowserDataToBlockBlob(azblob.Aborter.none, file, blockBlobURL).then((resp, err) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log(resp);
+          redirectUrl.searchParams.set("userFileName", file.name)
+          redirectUrl.searchParams.set("etag", resp.eTag);
+          redirectUrl.searchParams.set("fileName", fileName);
+          redirectUrl.searchParams.set("container", containerName);
+          window.location.replace(redirectUrl.toString());
+        }
+      });
+    }
   }
 }
 
