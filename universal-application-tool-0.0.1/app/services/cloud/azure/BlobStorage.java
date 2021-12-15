@@ -104,9 +104,7 @@ public class BlobStorage implements StorageClient {
     String getBlobUrl(String fileName);
   }
 
-  /**
-   * Class to use for BlobStorage unit tests.
-   */
+  /** Class to use for BlobStorage unit tests. */
   static class NullClient implements Client {
 
     NullClient() {}

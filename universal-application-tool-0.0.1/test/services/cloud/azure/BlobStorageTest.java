@@ -13,15 +13,15 @@ import services.cloud.StorageServiceName;
 import services.cloud.azure.BlobStorage.Client;
 import services.cloud.azure.BlobStorage.NullClient;
 
-
 public class BlobStorageTest extends WithApplication {
 
   private static final String TEST_FILE_NAME = "fileName";
-  private static final ImmutableMap<String, Object> TEST_AZURE_CONTAINER_CONFIG = ImmutableMap.of(
-      "azure.blob.container",
-      "super cool blob container name",
-      "azure.blob.account",
-      "my awesome azure account name");
+  private static final ImmutableMap<String, Object> TEST_AZURE_CONTAINER_CONFIG =
+      ImmutableMap.of(
+          "azure.blob.container",
+          "super cool blob container name",
+          "azure.blob.account",
+          "my awesome azure account name");
   private BlobStorage blobStorage;
 
   @Override
@@ -65,21 +65,21 @@ public class BlobStorageTest extends WithApplication {
 
   @Test
   public void getFileUploadRequest() {
-    BlobStorageUploadRequest expectedRequest = BlobStorageUploadRequest
-        .builder().setBlobUrl("http://www.blobUrl.com")
-        .setAccountName("my awesome azure account name")
-        .setFileName(TEST_FILE_NAME)
-        .setContainerName("super cool blob container name")
-        .setSasToken("sasToken")
-        .setSuccessActionRedirect("www.redirectlink.com")
-        .setServiceName(StorageServiceName.AZURE_BLOB.getString())
-        .build();
+    BlobStorageUploadRequest expectedRequest =
+        BlobStorageUploadRequest.builder()
+            .setBlobUrl("http://www.blobUrl.com")
+            .setAccountName("my awesome azure account name")
+            .setFileName(TEST_FILE_NAME)
+            .setContainerName("super cool blob container name")
+            .setSasToken("sasToken")
+            .setSuccessActionRedirect("www.redirectlink.com")
+            .setServiceName(StorageServiceName.AZURE_BLOB.getString())
+            .build();
 
-    BlobStorageUploadRequest blobStorageUploadRequest = blobStorage.getSignedUploadRequest(
-        TEST_FILE_NAME,
-        /* successActionRedirect= */ "www.redirectlink.com");
+    BlobStorageUploadRequest blobStorageUploadRequest =
+        blobStorage.getSignedUploadRequest(
+            TEST_FILE_NAME, /* successActionRedirect= */ "www.redirectlink.com");
 
     assertThat(blobStorageUploadRequest).isEqualTo(expectedRequest);
   }
-
 }
