@@ -14,7 +14,7 @@ node_modules
 bundle.js
 tailwind.css
 *.pem
-package-lock.json 
+*/package-lock.json 
 
 *.terraform
 *.terraform.lock.hcl
