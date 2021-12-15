@@ -15,6 +15,9 @@ class AzureUploadController {
 
   attemptUpload(event: Event, uploadContainer: HTMLElement | null) {
     event.preventDefault();
+    // This is set by an imported JavaScript Azure blob client.
+    // window["azblob"] was used because the TS compiler complained about using
+    // window.azblob.
     const azblob = window["azblob"];
     if (uploadContainer == null) {
       console.error("Attempted to upload to null container");
