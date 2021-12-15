@@ -36,7 +36,7 @@ class AzureUploadController {
         ));
       azblob.uploadBrowserDataToBlockBlob(azblob.Aborter.none, file, blockBlobURL).then((resp, err) => {
         if (err) {
-          console.log(err);
+          console.error(err);
         } else {
           console.log(resp);
           redirectUrl.searchParams.set("userFileName", file.name)
