@@ -9,9 +9,7 @@ import com.typesafe.config.ConfigException;
 import play.Environment;
 import services.cloud.StorageClient;
 
-/**
- * CloudStorageModule configures and initializes the AWS and Azure file storage classes.
- */
+/** CloudStorageModule configures and initializes the AWS and Azure file storage classes. */
 public class CloudStorageModule extends AbstractModule {
 
   private static final String AZURE_STORAGE_CLASS_NAME = "services.cloud.azure.BlobStorage";
