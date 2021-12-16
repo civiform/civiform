@@ -2,15 +2,12 @@ package modules;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static services.cloud.StorageServiceName.AZURE_BLOB;
-import static services.cloud.StorageServiceName.AWS_S3;
-import static services.cloud.StorageServiceName.valueOf;
 
 import com.google.inject.AbstractModule;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import play.Environment;
 import services.cloud.StorageClient;
-import services.cloud.StorageServiceName;
 
 /**
  * CloudStorageModule configures and initializes the AWS and Azure file storage classes.
@@ -50,12 +47,9 @@ public class CloudStorageModule extends AbstractModule {
   }
 
   private String getStorageProviderClassName(String storageProvider) {
-    switch(valueOf(StorageServiceName.class, storageProvider)) {
-      case AZURE_BLOB:
-        return AZURE_STORAGE_CLASS_NAME;
-      case AWS_S3:
-      default:
-        return AWS_STORAGE_CLASS_NAME;
+    if (storageProvider.equals(AZURE_BLOB.getString())) {
+      return AZURE_STORAGE_CLASS_NAME;
     }
+    return AWS_STORAGE_CLASS_NAME;
   }
 }
