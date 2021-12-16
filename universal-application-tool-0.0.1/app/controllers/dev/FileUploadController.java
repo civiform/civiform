@@ -16,9 +16,7 @@ import services.cloud.StorageClient;
 import services.cloud.StorageUploadRequest;
 import views.dev.FileUploadView;
 
-/**
- * Controller for interacting with S3 directly in dev mode.
- */
+/** Controller for interacting with S3 directly in dev mode. */
 public class FileUploadController extends DevController {
 
   private final FileUploadView view;
