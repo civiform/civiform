@@ -35,7 +35,6 @@ import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
-import views.BaseHtmlView;
 
 /** Contains methods rendering common compoments used across applicant pages. */
 public class ApplicantLayout extends BaseHtmlLayout {
@@ -125,20 +124,20 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return renderWithSupportFooter(bundle, messages);
   }
 
-  public ContainerTag renderNavBarLoggedIn(Http.RequestHeader request, String userName, Messages messages) {
+  public ContainerTag renderNavBarLoggedIn(
+      Http.RequestHeader request, String userName, Messages messages) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     return renderBaseNavBar(request, messages)
-            .with(
-                maybeRenderTiButton(profile, userName),
-                div(getLanguageForm(request, profile, messages), logoutButton(userName, messages))
-                  .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
+        .with(
+            maybeRenderTiButton(profile, userName),
+            div(getLanguageForm(request, profile, messages), logoutButton(userName, messages))
+                .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
   // nav bar when not logged in
   // needed for 404 page, and possibly other error pages
-  public Content renderWithNav(
-      Http.RequestHeader request, Messages messages, HtmlBundle bundle) {
+  public Content renderWithNav(Http.RequestHeader request, Messages messages, HtmlBundle bundle) {
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBarLoggedOut(request, messages));
@@ -149,11 +148,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     return renderBaseNavBar(request, messages)
-            .with(
-              div(),
-              div(
-                div(loginButton(messages))
-                ).withClasses(Styles.JUSTIFY_SELF_END));
+        .with(div(), div(div(loginButton(messages))).withClasses(Styles.JUSTIFY_SELF_END));
   }
 
   private ContainerTag getLanguageForm(
@@ -234,19 +229,20 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private ContainerTag loginButton(Messages messages) {
     String loginLink = routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url();
     return div(
-              a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
-            .withHref(loginLink)
-            .withClasses(ApplicantStyles.LINK_LOGOUT),
-              div(this.viewUtils.makeLocalImageTag("login_icon"))
-                .withClasses(Styles.ABSOLUTE, Styles._LEFT_7, Styles.TOP_PX, Styles.MR_2, Styles.MT_0p5)
-            ).withClasses(Styles.RELATIVE);
+            a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
+                .withHref(loginLink)
+                .withClasses(ApplicantStyles.LINK_LOGOUT),
+            div(this.viewUtils.makeLocalImageTag("login_icon"))
+                .withClasses(
+                    Styles.ABSOLUTE, Styles._LEFT_7, Styles.TOP_PX, Styles.MR_2, Styles.MT_0p5))
+        .withClasses(Styles.RELATIVE);
   }
 
   /*private ContainerTag loginButton(Messages messages) {
     String loginLink = routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url();
     String loginMsg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
     return div()
-        .with(BaseHtmlView.redirectButton("idcs", loginMsg, loginLink)); 
+        .with(BaseHtmlView.redirectButton("idcs", loginMsg, loginLink));
   }*/
 
   /**

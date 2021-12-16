@@ -39,6 +39,6 @@ public class DevController extends Controller {
   }
 
   public Result mockNotFound(Http.Request request) {
-    return ok("Mock 404 page"); 
+    return ok("Mock 404 page");
   }
 }

@@ -1,16 +1,13 @@
 package views;
 
-import static j2html.TagCreator.h1;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
 import com.google.inject.Inject;
-import play.twirl.api.Content;
-import views.style.BaseStyles;
-import views.style.Styles;
-import play.i18n.Messages;
 import j2html.tags.ContainerTag;
+import play.twirl.api.Content;
+import views.style.Styles;
 
 public class NotFoundPage extends BaseHtmlView {
 
@@ -70,7 +67,6 @@ public class NotFoundPage extends BaseHtmlView {
                 Styles.TEXT_BASE)
             .with(text(" ")));
 
-    return div()
-        .with(content);
+    return div().with(content);
   }
 }

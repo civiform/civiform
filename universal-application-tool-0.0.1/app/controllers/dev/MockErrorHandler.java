@@ -3,19 +3,18 @@ package controllers.dev;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
+import auth.ProfileUtils;
+import com.google.inject.Inject;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import play.i18n.MessagesApi;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import java.util.Optional;
-import com.google.inject.Inject;
-import play.i18n.MessagesApi;
-import auth.ProfileUtils;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import play.libs.concurrent.HttpExecutionContext;
-
-import views.errors.NotFound;
 import views.ProfileView;
+import views.errors.NotFound;
 
 public class MockErrorHandler extends Controller {
   private final NotFound notFoundPage;
@@ -28,14 +27,14 @@ public class MockErrorHandler extends Controller {
   public MockErrorHandler(
       ProfileUtils profileUtils,
       ProfileView profileView,
-      NotFound notFoundPage, 
+      NotFound notFoundPage,
       HttpExecutionContext httpExecutionContext,
       MessagesApi messagesApi) {
     this.profileUtils = checkNotNull(profileUtils);
     this.profileView = checkNotNull(profileView);
-    this.notFoundPage=notFoundPage;
+    this.notFoundPage = notFoundPage;
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
-    this.messagesApi=messagesApi;
+    this.messagesApi = messagesApi;
   }
 
   public CompletionStage<Result> notFound(Http.Request request) {
@@ -43,20 +42,19 @@ public class MockErrorHandler extends Controller {
 
     if (maybeProfile.isEmpty()) {
       return CompletableFuture.completedFuture(
-          ok(notFoundPage.renderLoggedOut(
-                request,
-                messagesApi.preferred(request)
-              )));
+          ok(notFoundPage.renderLoggedOut(request, messagesApi.preferred(request))));
     }
 
     return maybeProfile
         .get()
         .getApplicant()
         .thenApplyAsync(
-            applicant -> ok(notFoundPage.renderLoggedIn(
-                request, 
-                messagesApi.preferred(request), 
-                applicant.getApplicantData().getApplicantName())),
+            applicant ->
+                ok(
+                    notFoundPage.renderLoggedIn(
+                        request,
+                        messagesApi.preferred(request),
+                        applicant.getApplicantData().getApplicantName())),
             httpExecutionContext.current());
   }
 }
