@@ -22,32 +22,37 @@ class AzureUploadController {
     if (uploadContainer == null) {
       throw "Attempted to upload to null container";
     }
-    const sasToken = this.getValueFromInputLabel("sasToken");
-    let blobUrl = this.getValueFromInputLabel("blobUrl");
-    const successActionRedirect = this.getValueFromInputLabel("successActionRedirect");
-    const containerName = this.getValueFromInputLabel("containerName");
-    const file = (<HTMLInputElement>uploadContainer.querySelector('input[type=file]')).files[0];
-    let fileName = this.getValueFromInputLabel("fileName");
+    const azureUploadProps = this.getAzureUploadProps(uploadContainer);
 
-    const redirectUrl = new URL(successActionRedirect);
-
+    const redirectUrl = new URL(azureUploadProps.successActionRedirect);
     const blockBlobURL = azblob.BlockBlobURL.fromBlobURL(
       new azblob.BlobURL(
-        `${blobUrl}?${sasToken}`,
+        `${azureUploadProps.blobUrl}?${azureUploadProps.sasToken}`,
         azblob.StorageURL.newPipeline(new azblob.AnonymousCredential)
       ));
-    azblob.uploadBrowserDataToBlockBlob(azblob.Aborter.none, file, blockBlobURL).then((resp, err) => {
+    azblob.uploadBrowserDataToBlockBlob(azblob.Aborter.none, azureUploadProps.file, blockBlobURL).then((resp, err) => {
       if (err) {
         throw err;
       } else {
         console.log(resp);
-        redirectUrl.searchParams.set("userFileName", file.name)
+        redirectUrl.searchParams.set("userFileName", azureUploadProps.file.name)
         redirectUrl.searchParams.set("etag", resp.eTag);
-        redirectUrl.searchParams.set("fileName", fileName);
-        redirectUrl.searchParams.set("container", containerName);
+        redirectUrl.searchParams.set("fileName", azureUploadProps.fileName);
+        redirectUrl.searchParams.set("container", azureUploadProps.containerName);
         window.location.replace(redirectUrl.toString());
       }
     });
+  }
+
+  private getAzureUploadProps(uploadContainer: HTMLElement) {
+    return {
+      sasToken: this.getValueFromInputLabel("sasToken"),
+      blobUrl: this.getValueFromInputLabel("blobUrl"),
+      successActionRedirect: this.getValueFromInputLabel("successActionRedirect"),
+      containerName: this.getValueFromInputLabel("containerName"),
+      file: (<HTMLInputElement>uploadContainer.querySelector('input[type=file]')).files[0],
+      fileName: this.getValueFromInputLabel("fileName"),
+    };
   }
 }
 
