@@ -219,10 +219,7 @@ public class BlobStorage implements StorageClient {
       BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
 
       BlobSasPermission blobSasPermission =
-          new BlobSasPermission()
-              .setReadPermission(true)
-              .setWritePermission(true)
-              .setListPermission(true);
+          new BlobSasPermission().setReadPermission(true).setWritePermission(true);
 
       BlobServiceSasSignatureValues signatureValues =
           new BlobServiceSasSignatureValues(
