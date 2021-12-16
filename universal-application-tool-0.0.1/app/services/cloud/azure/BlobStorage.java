@@ -124,9 +124,7 @@ public class BlobStorage implements StorageClient {
     }
   }
 
-  /**
-   * Class to use for prod file uploads to Azure blob storage.
-   */
+  /** Class to use for prod file uploads to Azure blob storage. */
   class AzureBlobClient implements Client {
 
     private final BlobServiceClient blobServiceClient;
@@ -179,9 +177,7 @@ public class BlobStorage implements StorageClient {
     }
   }
 
-  /**
-   * Class to use for BlobStorage dev environment.
-   */
+  /** Class to use for BlobStorage dev environment. */
   class AzuriteClient implements Client {
     // Using Account SAS because Azurite emulator does not support User Delegation SAS yet
     // See https://github.com/Azure/Azurite/issues/656
