@@ -24,9 +24,6 @@ class AzureUploadController {
     }
     const sasToken = this.getValueFromInputLabel("sasToken");
     let blobUrl = this.getValueFromInputLabel("blobUrl");
-    if (blobUrl.includes("azurite")) { // TODO: replace this with a regex to detect azurite URLs
-      blobUrl = blobUrl.replace("azurite", "localhost");
-    }
     const successActionRedirect = this.getValueFromInputLabel("successActionRedirect");
     const containerName = this.getValueFromInputLabel("containerName");
     const file = (<HTMLInputElement>uploadContainer.querySelector('input[type=file]')).files[0];
