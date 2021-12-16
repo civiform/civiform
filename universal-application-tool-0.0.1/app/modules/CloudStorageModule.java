@@ -6,6 +6,9 @@ import static services.cloud.StorageServiceName.AZURE_BLOB;
 import com.google.inject.AbstractModule;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
+import controllers.dev.AwsStrategy;
+import controllers.dev.AzureStrategy;
+import controllers.dev.CloudStorageStrategy;
 import play.Environment;
 import services.cloud.StorageClient;
 import services.cloud.StorageServiceName;
@@ -30,6 +33,7 @@ public class CloudStorageModule extends AbstractModule {
     try {
       String storageProvider = checkNotNull(config).getString("cloud.storage");
       className = getStorageProviderClassName(storageProvider);
+      bindCloudStorageStrategy(storageProvider);
     } catch (ConfigException ex) {
       // Ignore missing config and default to S3 for now
     }
@@ -40,6 +44,19 @@ public class CloudStorageModule extends AbstractModule {
     } catch (ClassNotFoundException ex) {
       throw new RuntimeException(
           String.format("Failed to load storage client class: %s", className));
+    }
+  }
+
+  private void bindCloudStorageStrategy(String storageProvider) {
+    StorageServiceName storageServiceName = StorageServiceName.forString(storageProvider).get();
+    switch (storageServiceName) {
+      case AZURE_BLOB:
+        bind(CloudStorageStrategy.class).to(AzureStrategy.class);
+        return;
+      case AWS_S3:
+      default:
+        bind(CloudStorageStrategy.class).to(AwsStrategy.class);
+        return;
     }
   }
 
