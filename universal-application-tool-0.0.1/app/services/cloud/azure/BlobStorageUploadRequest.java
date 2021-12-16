@@ -4,7 +4,7 @@ import com.google.auto.value.AutoValue;
 import services.cloud.StorageServiceName;
 import services.cloud.StorageUploadRequest;
 
-/** This holds the information needed to upload a blob storage request. */
+/** This holds the information needed to upload a file to blob storage. */
 @AutoValue
 public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
 
@@ -35,7 +35,6 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
      * Get file name for the blob. This is used to build the canonicalized resource part of the
      * signature string.
      */
-    abstract String fileName();
 
     /**
      * Get account name. This is used to build the canonicalized resource part of the signature
@@ -47,36 +46,24 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
      * Get account name. This is used to build the canonicalized resource part of the signature
      * string.
      */
-    abstract String accountName();
-
     public abstract Builder setAccountName(String accountName);
 
     /**
      * Get container name. This is used to build the canonicalized resource part of the signature
      * string.
      */
-    abstract String containerName();
-
     public abstract Builder setContainerName(String containerName);
 
     /** Get the URL for the resource. */
-    abstract String blobUrl();
-
     public abstract Builder setBlobUrl(String blobUrl);
 
     /** Get the sas token for the resource. */
-    abstract String sasToken();
-
     public abstract Builder setSasToken(String sasToken);
 
     /** Get the success redirect action link. */
-    abstract String successActionRedirect();
-
     public abstract Builder setSuccessActionRedirect(String successActionRedirect);
 
     /** Get the service name (this is always set to "azure-blob" so the setter is private */
-    abstract String serviceName();
-
     abstract Builder setServiceName(String serviceName);
 
     /** Build the request. This is called by the custom public build method. */

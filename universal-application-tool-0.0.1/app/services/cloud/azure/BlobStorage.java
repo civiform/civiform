@@ -36,6 +36,11 @@ public class BlobStorage implements StorageClient {
   public static final String AZURE_CONTAINER_CONF_PATH = "azure.blob.container";
   public static final String AZURE_REGION_CONF_PATH = "java.time.zoneid";
   public static final Duration AZURE_SAS_TOKEN_DURATION = Duration.ofMinutes(10);
+
+  // A User Delegation Key is used to sign SAS tokens without having to store the Account Keu
+  // alongside the application.The key needs to be rotated and this duration is the interval
+  // at which it's rotated. More info here:
+  // https://docs.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas
   public static final Duration AZURE_USER_DELEGATION_KEY_DURATION = Duration.ofMinutes(60);
 
   private final Credentials credentials;
@@ -234,7 +239,8 @@ public class BlobStorage implements StorageClient {
     @Override
     public String getBlobUrl(String fileName) {
       BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
-      return blobClient.getBlobUrl();
+      String signedUrl = blobClient.getBlobUrl().replace("azurite", "localhost");
+      return signedUrl;
     }
   }
 }

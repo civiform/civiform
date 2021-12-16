@@ -3,6 +3,7 @@ package services.cloud.azure;
 import com.azure.identity.ChainedTokenCredential;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.mockito.Mockito;
 import play.Environment;
 
@@ -13,6 +14,7 @@ import play.Environment;
  * https://docs.microsoft.com/en-us/java/api/overview/azure/identity-readme?view=azure-java-stable
  * for more details.
  */
+@Singleton
 public class Credentials {
 
   private ChainedTokenCredential defaultAzureCredential;

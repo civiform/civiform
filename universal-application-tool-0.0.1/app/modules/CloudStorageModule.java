@@ -8,6 +8,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import play.Environment;
 import services.cloud.StorageClient;
+import services.cloud.StorageServiceName;
 
 /** CloudStorageModule configures and initializes the AWS and Azure file storage classes. */
 public class CloudStorageModule extends AbstractModule {
@@ -25,11 +26,9 @@ public class CloudStorageModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    // cloud.storage = "azure-blob"
-    // cloud.storage = "s3"
     String className = AWS_STORAGE_CLASS_NAME;
     try {
-      final String storageProvider = checkNotNull(config).getString("cloud.storage");
+      String storageProvider = checkNotNull(config).getString("cloud.storage");
       className = getStorageProviderClassName(storageProvider);
     } catch (ConfigException ex) {
       // Ignore missing config and default to S3 for now
@@ -45,9 +44,13 @@ public class CloudStorageModule extends AbstractModule {
   }
 
   private String getStorageProviderClassName(String storageProvider) {
-    if (storageProvider.equals(AZURE_BLOB.getString())) {
-      return AZURE_STORAGE_CLASS_NAME;
+    StorageServiceName storageServiceName = StorageServiceName.forString(storageProvider).get();
+    switch (storageServiceName) {
+      case AZURE_BLOB:
+        return AZURE_STORAGE_CLASS_NAME;
+      case AWS_S3:
+      default:
+        return AWS_STORAGE_CLASS_NAME;
     }
-    return AWS_STORAGE_CLASS_NAME;
   }
 }
