@@ -8,6 +8,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
 
+/** Implements file uploading for AWS cloud storage. Redirects users on success. */
 public class AwsStrategy implements CloudStorageStrategy {
 
   @Override

@@ -1,7 +1,6 @@
 package modules;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static services.cloud.StorageServiceName.AZURE_BLOB;
 
 import com.google.inject.AbstractModule;
 import com.typesafe.config.Config;
