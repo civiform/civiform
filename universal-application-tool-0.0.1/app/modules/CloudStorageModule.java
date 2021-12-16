@@ -9,6 +9,9 @@ import play.Environment;
 import services.cloud.StorageClient;
 import services.cloud.StorageServiceName;
 
+/**
+ * CloudStorageModule configures and initializes the AWS and Azure file storage classes.
+ */
 public class CloudStorageModule extends AbstractModule {
 
   private static final String AZURE_STORAGE_CLASS_NAME = "services.cloud.azure.BlobStorage";
@@ -18,8 +21,8 @@ public class CloudStorageModule extends AbstractModule {
   private final Config config;
 
   public CloudStorageModule(Environment environment, Config config) {
-    this.environment = environment;
-    this.config = config;
+    this.environment = checkNotNull(environment);
+    this.config = checkNotNull(config);
   }
 
   @Override
@@ -29,11 +32,7 @@ public class CloudStorageModule extends AbstractModule {
     String className = AWS_STORAGE_CLASS_NAME;
     try {
       final String storageProvider = checkNotNull(config).getString("cloud.storage");
-      if (storageProvider.equals(StorageServiceName.AWS_S3.getString())) {
-        className = AWS_STORAGE_CLASS_NAME;
-      } else if (storageProvider.equals(StorageServiceName.AZURE_BLOB.getString())) {
-        className = AZURE_STORAGE_CLASS_NAME;
-      }
+      className = getStorageProviderClassName(storageProvider);
     } catch (ConfigException ex) {
       // Ignore missing config and default to S3 for now
     }
@@ -45,5 +44,17 @@ public class CloudStorageModule extends AbstractModule {
       throw new RuntimeException(
           String.format("Failed to load storage client class: %s", className));
     }
+  }
+
+  private String getStorageProviderClassName(String storageProvider) {
+    StorageServiceName storageServiceName = StorageServiceName.valueOf(storageProvider);
+    switch (storageServiceName) {
+      case AZURE_BLOB:
+        return AZURE_STORAGE_CLASS_NAME;
+      case AWS_S3:
+        DEFAULT:
+        return AWS_STORAGE_CLASS_NAME;
+    }
+    return AWS_STORAGE_CLASS_NAME;
   }
 }

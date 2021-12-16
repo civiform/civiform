@@ -5,6 +5,7 @@ import static play.test.Helpers.fakeApplication;
 
 import com.google.common.collect.ImmutableMap;
 import java.net.URL;
+import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Test;
 import play.Application;
@@ -12,6 +13,7 @@ import play.test.WithApplication;
 import services.cloud.StorageServiceName;
 import services.cloud.azure.BlobStorage.Client;
 import services.cloud.azure.BlobStorage.NullClient;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
 
 public class BlobStorageTest extends WithApplication {
 
@@ -61,6 +63,13 @@ public class BlobStorageTest extends WithApplication {
     URL url = blobStorage.getPresignedUrl(TEST_FILE_NAME);
 
     assertThat(url.toString()).isEqualTo("http://www.blobUrl.com?sasToken");
+  }
+
+  @Test
+  public void getStorageServiceName() {
+    StorageServiceName storageServiceName = blobStorage.getStorageServiceName();
+
+    assertThat(storageServiceName).isEqualTo(StorageServiceName.AZURE_BLOB);
   }
 
   @Test

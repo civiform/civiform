@@ -20,38 +20,37 @@ class AzureUploadController {
     // window.azblob.
     const azblob = window["azblob"];
     if (uploadContainer == null) {
-      console.error("Attempted to upload to null container");
-    } else {
-      const sasToken = this.getValueFromInputLabel("sasToken");
-      let blobUrl = this.getValueFromInputLabel("blobUrl");
-      if (blobUrl.includes("azurite")) { // TODO: replace this with a regex to detect azurite URLs
-        blobUrl = blobUrl.replace("azurite", "localhost");
-      }
-      const successActionRedirect = this.getValueFromInputLabel("successActionRedirect");
-      const containerName = this.getValueFromInputLabel("containerName");
-      const file = (<HTMLInputElement>uploadContainer.querySelector('input[type=file]')).files[0];
-      let fileName = this.getValueFromInputLabel("fileName");
-
-      const redirectUrl = new URL(successActionRedirect);
-
-      const blockBlobURL = azblob.BlockBlobURL.fromBlobURL(
-          new azblob.BlobURL(
-              `${blobUrl}?${sasToken}`,
-              azblob.StorageURL.newPipeline(new azblob.AnonymousCredential)
-          ));
-      azblob.uploadBrowserDataToBlockBlob(azblob.Aborter.none, file, blockBlobURL).then((resp, err) => {
-        if (err) {
-          console.error(err);
-        } else {
-          console.log(resp);
-          redirectUrl.searchParams.set("userFileName", file.name)
-          redirectUrl.searchParams.set("etag", resp.eTag);
-          redirectUrl.searchParams.set("fileName", fileName);
-          redirectUrl.searchParams.set("container", containerName);
-          window.location.replace(redirectUrl.toString());
-        }
-      });
+      throw "Attempted to upload to null container";
     }
+    const sasToken = this.getValueFromInputLabel("sasToken");
+    let blobUrl = this.getValueFromInputLabel("blobUrl");
+    if (blobUrl.includes("azurite")) { // TODO: replace this with a regex to detect azurite URLs
+      blobUrl = blobUrl.replace("azurite", "localhost");
+    }
+    const successActionRedirect = this.getValueFromInputLabel("successActionRedirect");
+    const containerName = this.getValueFromInputLabel("containerName");
+    const file = (<HTMLInputElement>uploadContainer.querySelector('input[type=file]')).files[0];
+    let fileName = this.getValueFromInputLabel("fileName");
+
+    const redirectUrl = new URL(successActionRedirect);
+
+    const blockBlobURL = azblob.BlockBlobURL.fromBlobURL(
+        new azblob.BlobURL(
+            `${blobUrl}?${sasToken}`,
+            azblob.StorageURL.newPipeline(new azblob.AnonymousCredential)
+        ));
+    azblob.uploadBrowserDataToBlockBlob(azblob.Aborter.none, file, blockBlobURL).then((resp, err) => {
+      if (err) {
+        throw err;
+      } else {
+        console.log(resp);
+        redirectUrl.searchParams.set("userFileName", file.name)
+        redirectUrl.searchParams.set("etag", resp.eTag);
+        redirectUrl.searchParams.set("fileName", fileName);
+        redirectUrl.searchParams.set("container", containerName);
+        window.location.replace(redirectUrl.toString());
+      }
+    });
   }
 }
 
