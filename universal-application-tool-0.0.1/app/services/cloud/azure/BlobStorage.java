@@ -26,8 +26,8 @@ import services.cloud.StorageClient;
 import services.cloud.StorageServiceName;
 
 /**
- * SimpleStorage provides methods to create federated links for users of CiviForm to upload and
- * download files directly to and from AWS Simple Storage Service (S3).
+ * BlobStorage provides methods to create federated links for users of CiviForm to upload and
+ * download files directly to and from Azure Blob Storage.
  */
 @Singleton
 public class BlobStorage implements StorageClient {
