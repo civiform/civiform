@@ -9,7 +9,7 @@ set +x
 docker build -t civiform-dev --cache-from civiform/civiform-browser-test:latest --build-arg BUILDKIT_INLINE_CACHE=1 .
 
 # log the docker CLI into the Docker Hub container registry
-echo $DOCKER_HUB_ACCESS_TOKEN | docker login --username $DOCKER_HUB_USERNAME --password-stdin docker.io
+#echo $DOCKER_HUB_ACCESS_TOKEN | docker login --username $DOCKER_HUB_USERNAME --password-stdin docker.io
 
 docker tag civiform-dev:latest civiform/civiform-dev:latest
 
