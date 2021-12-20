@@ -172,6 +172,8 @@ public class CsvExporterTest extends WithPostgresContainer {
     fakeApplicantOne.save();
     fakeApplicantTwo.save();
     new Application(fakeApplicantOne, fakeProgramWithCsvExport, LifecycleStage.ACTIVE).save();
+    new Application(fakeApplicantOne, fakeProgramWithCsvExport, LifecycleStage.OBSOLETE).save();
+    new Application(fakeApplicantOne, fakeProgramWithCsvExport, LifecycleStage.DRAFT).save();
     new Application(fakeApplicantTwo, fakeProgramWithCsvExport, LifecycleStage.ACTIVE).save();
   }
 
@@ -189,7 +191,7 @@ public class CsvExporterTest extends WithPostgresContainer {
             exporterService.getProgramCsv(fakeProgramWithCsvExport.id),
             CSVFormat.DEFAULT.withFirstRecordAsHeader());
     List<CSVRecord> records = parser.getRecords();
-    assertThat(records).hasSize(2);
+    assertThat(records).hasSize(3);
     Streams.mapWithIndex(
             fakeQuestions.stream()
                 .filter(question -> !question.getQuestionDefinition().isEnumerator())
@@ -305,6 +307,7 @@ public class CsvExporterTest extends WithPostgresContainer {
         100);
     firstApplicant.save();
     Application firstApplication = new Application(firstApplicant, program, LifecycleStage.ACTIVE);
+    firstApplication.setSubmitTimeToNow();
     firstApplication.save();
 
     // Second applicant has one household member that has two jobs.
@@ -360,7 +363,13 @@ public class CsvExporterTest extends WithPostgresContainer {
     secondApplicant.save();
     Application secondApplication =
         new Application(secondApplicant, program, LifecycleStage.ACTIVE);
+    secondApplication.setSubmitTimeToNow();
     secondApplication.save();
+
+    Application thirdApplication =
+        new Application(secondApplicant, program, LifecycleStage.OBSOLETE);
+    thirdApplication.setSubmitTimeToNow();
+    thirdApplication.save();
 
     // Generate default CSV
     ExporterService exporterService = instanceOf(ExporterService.class);
@@ -406,7 +415,7 @@ public class CsvExporterTest extends WithPostgresContainer {
                 .build());
 
     List<CSVRecord> records = parser.getRecords();
-    assertThat(records).hasSize(2);
+    assertThat(records).hasSize(3);
 
     // Records should be ordered most recent first.
     assertThat(
@@ -418,21 +427,28 @@ public class CsvExporterTest extends WithPostgresContainer {
         .isEqualTo("333");
     assertThat(
             records
-                .get(0)
+                .get(1)
+                .get(
+                    "applicant household members[0] - household members jobs[2] - household"
+                        + " members days worked (number)"))
+        .isEqualTo("333");
+    assertThat(
+            records
+                .get(1)
                 .get(
                     "applicant household members[1] - household members jobs[0] - household"
                         + " members days worked (number)"))
         .isEqualTo("");
     assertThat(
             records
-                .get(1)
+                .get(2)
                 .get(
                     "applicant household members[0] - household members jobs[2] - household"
                         + " members days worked (number)"))
         .isEqualTo("");
     assertThat(
             records
-                .get(1)
+                .get(2)
                 .get(
                     "applicant household members[1] - household members jobs[0] - household"
                         + " members days worked (number)"))

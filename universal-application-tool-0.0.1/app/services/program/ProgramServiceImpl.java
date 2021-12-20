@@ -119,6 +119,7 @@ public class ProgramServiceImpl implements ProgramService {
     validateProgramText(errorsBuilder, "admin description", adminDescription);
     validateProgramText(errorsBuilder, "display name", defaultDisplayName);
     validateProgramText(errorsBuilder, "display description", defaultDisplayDescription);
+    validateProgramText(errorsBuilder, "display mode", displayMode);
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);

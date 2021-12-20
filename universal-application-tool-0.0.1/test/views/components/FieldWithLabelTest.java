@@ -3,6 +3,7 @@ package views.components;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 import org.junit.Test;
 
 public class FieldWithLabelTest {
@@ -46,6 +47,30 @@ public class FieldWithLabelTest {
   public void number_setsGivenNumberValue() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.number().setValue(OptionalInt.of(6));
     assertThat(fieldWithLabel.getContainer().render()).contains("value=\"6\"");
+  }
+
+  @Test
+  public void number_setsMaxValue() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.number().setMax(OptionalLong.of(5L));
+    assertThat(fieldWithLabel.getContainer().render()).contains("max=\"5\"");
+  }
+
+  @Test
+  public void number_setsMinValue() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.number().setMin(OptionalLong.of(1L));
+    assertThat(fieldWithLabel.getContainer().render()).contains("min=\"1\"");
+  }
+
+  @Test
+  public void number_setsInputmodeDecimal() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.number();
+    assertThat(fieldWithLabel.getContainer().render()).contains("inputmode=\"decimal\"");
+  }
+
+  @Test
+  public void number_setsStepAnyDefault() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.number().setMax(OptionalLong.of(5L));
+    assertThat(fieldWithLabel.getContainer().render()).contains("step=\"any\"");
   }
 
   @Test

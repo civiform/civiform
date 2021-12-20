@@ -61,31 +61,41 @@ public class RoleService {
         getGlobalAdmins().stream()
             .map(Account::getEmailAddress)
             .filter(address -> !Strings.isNullOrEmpty(address))
-            .map(String::toLowerCase)
             .collect(toImmutableSet());
     ImmutableSet.Builder<String> invalidEmailBuilder = ImmutableSet.builder();
-    // Make all email strings lowercase so that email comparison is case insensitive.
-    ImmutableSet<String> accountEmailsLowerCase =
-        accountEmails.stream().map(String::toLowerCase).collect(toImmutableSet());
-    accountEmailsLowerCase.forEach(
-        email -> {
-          if (sysAdminEmails.contains(email)) {
-            invalidEmailBuilder.add(email);
-          } else {
-            userRepository.addAdministeredProgram(email, program);
-          }
-        });
+    String errorMessageString = "";
 
+    for (String email : accountEmails) {
+      if (sysAdminEmails.contains(email)) {
+        invalidEmailBuilder.add(email);
+      } else {
+        Optional<CiviFormError> maybeError = userRepository.addAdministeredProgram(email, program);
+
+        // Concatenate error messages.
+        if (maybeError.isPresent()) {
+          errorMessageString += maybeError.get().message() + " ";
+        }
+      }
+    }
+
+    String allErrorMessages = "";
     ImmutableSet<String> invalidEmails = invalidEmailBuilder.build();
-    if (invalidEmails.isEmpty()) {
-      return Optional.empty();
+
+    // If there were any errors, return the error message.
+    if (!errorMessageString.isEmpty()) {
+      allErrorMessages = errorMessageString;
+    }
+    if (!invalidEmails.isEmpty()) {
+      allErrorMessages +=
+          String.format(
+              "The following are already CiviForm admins and could not be added as"
+                  + " program admins: %s",
+              Joiner.on(", ").join(invalidEmails));
+    }
+    if (!allErrorMessages.isEmpty()) {
+      return Optional.of(CiviFormError.of(allErrorMessages));
     } else {
-      return Optional.of(
-          CiviFormError.of(
-              String.format(
-                  "The following are already CiviForm admins and could not be added as"
-                      + " program admins: %s",
-                  Joiner.on(", ").join(invalidEmails))));
+      return Optional.empty();
     }
   }
 

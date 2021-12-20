@@ -54,29 +54,7 @@ public class RoleServiceTest extends WithPostgresContainer {
   }
 
   @Test
-  public void makeProgramAdmins_emailsAreCaseInsensitive() throws ProgramNotFoundException {
-    String emailUpperCase = "Fake.Person@email.com";
-    String emailLowerCase = "fake.person@email.com";
-    Account account = new Account();
-    account.setEmailAddress(emailLowerCase);
-    account.save();
-
-    String programName = "test program";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
-
-    Optional<CiviFormError> result =
-        service.makeProgramAdmins(program.id, ImmutableSet.of(emailUpperCase));
-
-    assertThat(result).isEmpty();
-
-    account = userRepository.lookupAccount(emailLowerCase).get();
-
-    assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
-  }
-
-  @Test
-  public void makeProgramAdmins_emailsAreCaseInsensitive_accountHasUpperCaseEmail()
-      throws ProgramNotFoundException {
+  public void makeProgramAdmins_emailsAreCaseSensitive() throws ProgramNotFoundException {
     String emailUpperCase = "Fake.Person@email.com";
     String emailLowerCase = "fake.person@email.com";
     Account account = new Account();
@@ -86,13 +64,30 @@ public class RoleServiceTest extends WithPostgresContainer {
     String programName = "test program";
     Program program = ProgramBuilder.newDraftProgram(programName).build();
 
-    Optional<CiviFormError> result =
+    // Make the lower case email a program admin.
+    Optional<CiviFormError> lowerCaseResult =
         service.makeProgramAdmins(program.id, ImmutableSet.of(emailLowerCase));
 
+    assertThat(lowerCaseResult)
+        .isEqualTo(
+            Optional.of(
+                CiviFormError.of(
+                    String.format(
+                        "%s does not have an admin account and cannot be added as a Program"
+                            + " Admin. ",
+                        emailLowerCase))));
+
+    // Lookup the upper case account. They do not have permission to any programs.
+    account = userRepository.lookupAccount(emailUpperCase).get();
+    assertThat(account.getAdministeredProgramNames()).isEmpty();
+
+    // Now make the upper case Email a program admin.
+    Optional<CiviFormError> result =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(emailUpperCase));
     assertThat(result).isEmpty();
 
-    account = userRepository.lookupAccount(emailLowerCase).get();
-
+    // Lookup the upper case account. They now have permissions to the program.
+    account = userRepository.lookupAccount(emailUpperCase).get();
     assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
   }
 
@@ -111,6 +106,49 @@ public class RoleServiceTest extends WithPostgresContainer {
   public void makeProgramAdmins_programNotFound_throwsException() {
     assertThatThrownBy(() -> service.makeProgramAdmins(1234L, ImmutableSet.of("email@email.com")))
         .isInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
+  public void makeProgramAdmins_emailHasNoAccountReturnsError() throws ProgramNotFoundException {
+    String email = "admin_does_not_exist@email.com";
+
+    String programName = "test program";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    Optional<CiviFormError> lowerCaseResult =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(email));
+
+    assertThat(lowerCaseResult)
+        .isEqualTo(
+            Optional.of(
+                CiviFormError.of(
+                    String.format(
+                        "%s does not have an admin account and cannot be added as a Program"
+                            + " Admin. ",
+                        email))));
+  }
+
+  @Test
+  public void makeProgramAdmins_manyEmailsHaveNoAccountReturnsError()
+      throws ProgramNotFoundException {
+    String email1 = "first_admin_does_not_exist@email.com";
+    String email2 = "second_admin_does_not_exist@email.com";
+
+    String programName = "test program";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    Optional<CiviFormError> lowerCaseResult =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(email1, email2));
+
+    assertThat(lowerCaseResult)
+        .isEqualTo(
+            Optional.of(
+                CiviFormError.of(
+                    String.format(
+                        "%1$s does not have an admin account and cannot be added as a Program"
+                            + " Admin. %2$s does not have an admin account and cannot be added as"
+                            + " a Program Admin. ",
+                        email1, email2))));
   }
 
   @Test

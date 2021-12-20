@@ -133,7 +133,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       Http.Request request,
       Optional<CiviFormProfile> profile) {
     String programStatusText = extractProgramStatusText(draftProgram, activeProgram);
-    String lastEditText = "Last updated 2 hours ago."; // TODO: Need to generate this.
+    // String lastEditText = "Last updated 2 hours ago."; // TODO(Issue #1657): Need to generate
+    // this.
 
     ProgramDefinition displayProgram = getDisplayProgram(draftProgram, activeProgram);
 
@@ -179,7 +180,8 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     Tag bottomContent =
         div(
-                p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
+                // TODO(Issue #1657): Create accurate lastEditText and readd.
+                // p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
                 maybeRenderManageTranslationsLink(draftProgram),
                 maybeRenderEditLink(draftProgram, activeProgram, request),

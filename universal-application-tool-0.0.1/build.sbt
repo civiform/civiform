@@ -89,12 +89,13 @@ lazy val root = (project in file("."))
       "-Werror"
     ),
     // Make verbose tests
-    testOptions in Test := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v")),
+    Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v")),
     // Use test config for tests
-    javaOptions in Test += "-Dconfig.file=conf/application.test.conf",
+    Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
     // Turn off scaladoc link warnings
-    scalacOptions in (Compile, doc) += "-no-link-warnings"
+    Compile / doc / scalacOptions += "-no-link-warnings"
   )
+
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 resolvers += Resolver.bintrayRepo("webjars","maven")
 libraryDependencies ++= Seq(
@@ -102,9 +103,9 @@ libraryDependencies ++= Seq(
     "org.webjars.npm" % "types__react" % "15.0.34"
 )
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.10.5",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.10.5",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.10.5",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.11.4",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.11.4",
 )
 resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)

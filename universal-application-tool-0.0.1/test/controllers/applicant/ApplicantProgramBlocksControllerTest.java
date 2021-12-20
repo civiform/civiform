@@ -114,7 +114,22 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         subject.edit(request, applicant.id, program.id, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Próximo");
+    assertThat(contentAsString(result)).contains("Siguiente");
+  }
+
+  @Test
+  public void previous_toAnExistingBlock_rendersTheBlock() {
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.previous(
+                        applicant.id, program.id, 0, true)))
+            .build();
+
+    Result result =
+        subject.previous(request, applicant.id, program.id, 0, true).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
   }
 
   @Test

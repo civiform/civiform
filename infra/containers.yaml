@@ -18,7 +18,7 @@ Mappings:
       group: ad\ITD_CiviForm_Admins_Test
   Registration:
     prod:
-      uri: https://login.seattle.gov/#/registration
+      uri: https://login.seattle.gov/#/registration?appName=CiviForm
     staging:
       uri: https://qalogin.seattle.gov:12443/#/registration?appName=CIVIFORM_STAGE
 Parameters:

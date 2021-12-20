@@ -14,6 +14,7 @@ class ValidationController {
   static readonly ENUMERATOR_QUESTION_CLASS = '.cf-question-enumerator';
   static readonly FILEUPLOAD_QUESTION_CLASS = '.cf-question-fileupload';
   static readonly NAME_QUESTION_CLASS = '.cf-question-name';
+  static readonly NUMBER_QUESTION_CLASS = '.cf-question-number';
   static readonly REQUIRED_QUESTION_CLASS = 'cf-question-required';
 
   static readonly ENUMERATOR_DELETE_TEMPLATE = 'enumerator-delete-template';
@@ -28,11 +29,15 @@ class ValidationController {
   // Currency of 0 dollars with optional 2 digit cents.
   static readonly CURRENCY_ZERO_DOLLARS = /^0(?:\.\d\d)?$/;
 
+  // Integer with no decimal points or non-numeric characters
+  static readonly NUMBER_POSITIVE_INTEGER = /^[0-9]+$/;
+
   isAddressValid = true;
   isCurrencyValid = true;
   isEnumeratorValid = true;
   isFileUploadValid = true;
   isNameValid = true;
+  isNumberValid = true;
 
 
   constructor() {
@@ -56,6 +61,7 @@ class ValidationController {
       this.addCurrencyListeners();
       this.addFileUploadListener();
       this.addNameListeners();
+      this.addNumberListeners();
     }
   }
 
@@ -143,6 +149,14 @@ class ValidationController {
     }
   }
 
+  private addNumberListeners() {
+    const numberQuestions = Array.from(
+      <NodeListOf<HTMLInputElement>>document.querySelectorAll(`${ValidationController.NUMBER_QUESTION_CLASS} input[type=number]`));
+    numberQuestions.forEach(numberQuestion => {
+      numberQuestion.addEventListener('input', () => {this.onNumberChanged();});
+    });
+  }
+
   /** Add listeners to file input to update validation on changes. */
   private addFileUploadListener() {
     // Assumption: There is only ever zero or one file input per block.
@@ -162,12 +176,13 @@ class ValidationController {
     this.isEnumeratorValid = this.validateEnumeratorQuestion();
     this.isFileUploadValid = this.validateFileUploadQuestion();
     this.isNameValid = this.validateNameQuestion();
+    this.isNumberValid = this.validateNumberQuestion();
     this.updateSubmitButton();
   }
 
   isValid() {
     return this.isAddressValid && this.isCurrencyValid && this.isEnumeratorValid
-      && this.isFileUploadValid && this.isNameValid;
+      && this.isFileUploadValid && this.isNameValid && this.isNumberValid;
   }
 
   onAddressChanged() {
@@ -192,6 +207,11 @@ class ValidationController {
 
   onNameChanged() {
     this.isNameValid = this.validateNameQuestion();
+    this.updateSubmitButton();
+  }
+
+  onNumberChanged() {
+    this.isNumberValid = this.validateNumberQuestion();
     this.updateSubmitButton();
   }
 
@@ -384,6 +404,21 @@ class ValidationController {
       isValid = emptyOptional || (!firstNameEmpty && !lastNameEmpty);
     }
     return isValid;
+  }
+
+  /** Validates that numbers are positive integers. */
+  validateNumberQuestion(): boolean {
+    let isAllValid = true;
+    const numberQuestions = Array.from(
+          <NodeListOf<HTMLInputElement>>document.querySelectorAll(ValidationController.NUMBER_QUESTION_CLASS));
+    for (const question of numberQuestions) {
+      const isOptional = !question.classList.contains(ValidationController.REQUIRED_QUESTION_CLASS);
+      const input = <HTMLInputElement>question.querySelector("input[type=number]");
+      let isValid = ValidationController.NUMBER_POSITIVE_INTEGER.test(input.value) || (input.value.length === 0 && isOptional);
+      this.updateFieldErrorState(question, ValidationController.NUMBER_QUESTION_CLASS, isValid);
+      isAllValid = isValid && isAllValid;
+    }
+    return isAllValid;
   }
 }
 

@@ -227,7 +227,7 @@ describe('Admin can manage translations', () => {
 
     // Check that a toast appears warning the program is not fully translated
     const toastMessages = await page.innerText('#toast-container')
-    expect(toastMessages).toContain('Lo siento, este programa no está completamente traducido al español.');
+    expect(toastMessages).toContain('Lo sentimos, este programa no está totalmente traducido al idioma de su preferencia.');
 
     await endSession(browser);
   });
