@@ -25,7 +25,7 @@ jobs:
       - name: Run build-dev.
         id: build_dev
         env:
-          DOCKER_BUILDKIT: 1
+          DOCKER_BUILDKIT: 0
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
@@ -35,7 +35,7 @@ jobs:
       - name: Run build-browser-tests.
         id: build_browser_tests
         env:
-          DOCKER_BUILDKIT: 1
+          DOCKER_BUILDKIT: 0
           PUSH_TO_CIVIFORM_ECR: 1
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
@@ -45,7 +45,7 @@ jobs:
         if: "!contains(toJSON(steps.file_changes.outputs.files), 'infra/')"
         id: build_and_push
         env:
-          DOCKER_BUILDKIT: 1
+          DOCKER_BUILDKIT: 0
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
@@ -56,7 +56,7 @@ jobs:
         if: "contains(toJSON(steps.file_changes.outputs.files), 'infra/')"
         id: deploy_staging
         env:
-          DOCKER_BUILDKIT: 1
+          DOCKER_BUILDKIT: 0
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
         run: bin/deploy-staging

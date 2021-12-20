@@ -12,7 +12,7 @@ jobs:
         uses: docker/setup-buildx-action@v1
       - name: Build browser testing container
         env:
-          DOCKER_BUILDKIT: 1
+          DOCKER_BUILDKIT: 0
         run: bin/build-browser-tests
       - name: Run prober test
         run: bin/run-prober
