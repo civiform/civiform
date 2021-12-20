@@ -1,27 +1,26 @@
 package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import com.typesafe.config.Config;
-import com.google.inject.Provider;
-import play.Environment;
-import play.api.OptionalSourceMapper;
-import play.api.routing.Router;
 
-import play.http.DefaultHttpErrorHandler;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.typesafe.config.Config;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import play.Environment;
+import play.api.OptionalSourceMapper;
+import play.api.routing.Router;
+import play.http.DefaultHttpErrorHandler;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import views.ProfileView;
 import views.errors.NotFound;
-import play.mvc.Results;
 
 public class ErrorHandler extends DefaultHttpErrorHandler {
   private final NotFound notFoundPage;
@@ -62,7 +61,8 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
         .getApplicant()
         .thenApplyAsync(
             applicant ->
-                Results.ok( notFoundPage.renderLoggedIn(
+                Results.ok(
+                    notFoundPage.renderLoggedIn(
                         request,
                         messagesApi.preferred(request),
                         applicant.getApplicantData().getApplicantName())),
