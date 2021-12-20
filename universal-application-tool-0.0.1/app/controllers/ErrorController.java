@@ -1,4 +1,4 @@
-package controllers.dev;
+package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -16,7 +16,7 @@ import play.mvc.Result;
 import views.ProfileView;
 import views.errors.NotFound;
 
-public class MockErrorHandler extends Controller {
+public class ErrorController extends Controller {
   private final NotFound notFoundPage;
   private final MessagesApi messagesApi;
   private final HttpExecutionContext httpExecutionContext;
@@ -24,7 +24,7 @@ public class MockErrorHandler extends Controller {
   private final ProfileView profileView;
 
   @Inject
-  public MockErrorHandler(
+  public ErrorController(
       ProfileUtils profileUtils,
       ProfileView profileView,
       NotFound notFoundPage,
@@ -37,7 +37,7 @@ public class MockErrorHandler extends Controller {
     this.messagesApi = messagesApi;
   }
 
-  public CompletionStage<Result> notFound(Http.Request request) {
+  public CompletionStage<Result> onNotFound(Http.RequestHeader request) {
     Optional<CiviFormProfile> maybeProfile = profileUtils.currentUserProfile(request);
 
     if (maybeProfile.isEmpty()) {

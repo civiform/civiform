@@ -156,4 +156,4 @@ POST    /dev/seed/clear              controllers.dev.DatabaseSeedController.clea
 GET     /dev/fileUpload              controllers.dev.FileUploadController.index(request: Request)
 GET     /dev/fileUpload/create       controllers.dev.FileUploadController.create(request: Request)
 
-GET     /dev/abc                     controllers.dev.MockErrorHandler.notFound(request: Request)
+GET     /notFound                    controllers.ErrorController.onNotFound(request: Request)
