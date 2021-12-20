@@ -36,32 +36,52 @@ public class NotFound extends BaseHtmlView {
     this.messagesApi = messagesApi;
   }
 
+  private ContainerTag h1Content(Messages messages) {
+    return h1(span(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE.getKeyName())),
+              space(),
+              spanNowrap(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE_END.getKeyName()))
+          ).withClasses(ErrorStyles.H1_NOT_FOUND);
+  }
+
+  private ContainerTag descriptionContent(Messages messages) {
+    return   div(
+                    p(
+                      span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A.getKeyName())),
+                      space(),
+                      spanNowrap(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A_END.getKeyName()))
+                      ),
+                    p(
+                        span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_B.getKeyName())),
+                        space(),
+                        spanNowrap(
+                          span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_B_END.getKeyName())),
+                          space(),
+                          a(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_LINK.getKeyName()))
+                            .withHref("/")
+                            .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT),
+                          period() 
+                        )
+                      )
+                    ).withClasses(ErrorStyles.P_DESCRIPTION);
+  }
+
   /**
    * Page returned on 404 error
    */
   private ContainerTag mainContent(Messages messages) {
     String img_author_url = "https://unsplash.com/@lazycreekimages";
     String img_url = "https://unsplash.com/photos/0W4XLGITrHg";
-    return div(div(
-            h1(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE.getKeyName()))
-                .withClasses(ErrorStyles.H1_NOT_FOUND, Styles.TEXT_CENTER),
+    return div(
+            // Header
+            h1Content(messages),
             // Description
-            div(
-                    p(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A.getKeyName())),
-                    p(
-                        span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_B.getKeyName())),
-                        span(" "),
-                        a(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_C.getKeyName()))
-                            .withHref("/")
-                            .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT),
-                        span(".")))
-                .withClasses(ErrorStyles.P_DESCRIPTION),
+            descriptionContent(messages),
             // Picture
             div(
                 layout
                     .viewUtils
                     .makeLocalImageTag("404", "Lost in a sea of dreary color")
-                    .withClasses(Styles.M_AUTO),
+                    .withClasses(ErrorStyles.PHOTO),
 
                 // Picture caption
                 div(p(
@@ -76,7 +96,7 @@ public class NotFound extends BaseHtmlView {
                         a(messages.at(MessageKey.ERROR_NOT_FOUND_IMG_CAPTION_D.getKeyName()))
                             .withHref(img_url)
                             .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT)))
-                    .withClasses(ErrorStyles.P_IMG_FOOTER))))
+                    .withClasses(ErrorStyles.P_IMG_FOOTER)))
         .withClasses(Styles.TEXT_CENTER, Styles.MAX_W_SCREEN_SM, Styles.W_5_6, Styles.MX_AUTO);
   }
 
