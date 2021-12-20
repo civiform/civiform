@@ -22,10 +22,6 @@ import views.style.BaseStyles;
 import views.style.ErrorStyles;
 import views.style.Styles;
 
-/* Get rid of this pg doesn't seem to exist
-   Use a text link
-*/
-
 public class NotFound extends BaseHtmlView {
 
   private final ApplicantLayout layout;
@@ -40,7 +36,9 @@ public class NotFound extends BaseHtmlView {
     this.messagesApi = messagesApi;
   }
 
-  // NotFound page 
+  /**
+   * Page returned on 404 error
+   */
   private ContainerTag mainContent(Messages messages) {
     String img_author_url = "https://unsplash.com/@lazycreekimages";
     String img_url = "https://unsplash.com/photos/0W4XLGITrHg";

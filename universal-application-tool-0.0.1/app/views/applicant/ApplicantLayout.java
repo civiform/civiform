@@ -115,12 +115,24 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(branding());
   }
 
-  // nav bar when logged in
+  /**
+   * Nav bar when logged in
+   */
   public Content renderWithNav(
       Http.RequestHeader request, String userName, Messages messages, HtmlBundle bundle) {
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBarLoggedIn(request, userName, messages));
+    return renderWithSupportFooter(bundle, messages);
+  }
+
+  /**
+   * Nav bar when logged out
+   */
+  public Content renderWithNav(Http.RequestHeader request, Messages messages, HtmlBundle bundle) {
+    String language = languageSelector.getPreferredLangage(request).code();
+    bundle.setLanguage(language);
+    bundle.addHeaderContent(renderNavBarLoggedOut(request, messages));
     return renderWithSupportFooter(bundle, messages);
   }
 
@@ -135,15 +147,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
               getLanguageForm(request, profile, messages), 
               logoutButton(userName, messages)
             ).withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
-  }
-
-  // nav bar when not logged in
-  // needed for 404 page, and possibly other error pages
-  public Content renderWithNav(Http.RequestHeader request, Messages messages, HtmlBundle bundle) {
-    String language = languageSelector.getPreferredLangage(request).code();
-    bundle.setLanguage(language);
-    bundle.addHeaderContent(renderNavBarLoggedOut(request, messages));
-    return renderWithSupportFooter(bundle, messages);
   }
 
   public ContainerTag renderNavBarLoggedOut(Http.RequestHeader request, Messages messages) {
@@ -230,8 +233,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   private ContainerTag loginButton(Messages messages) {
     String loginLink = routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url();
-    // All these nested divs + styles were used to make icon show up consistently
-    // Theres probably a better way to do this
+    // Nested divs + styles were used to make icon show up consistently
+    // There might be a better way to do this
     return div(
             div(
               a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
@@ -242,13 +245,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
               ).withClasses(Styles.MT_2, Styles.RELATIVE)
             ).withClasses(Styles._MT_PX, Styles.JUSTIFY_SELF_END);
   }
-
-  /*private ContainerTag loginButton(Messages messages) {
-    String loginLink = routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url();
-    String loginMsg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
-    return div()
-        .with(BaseHtmlView.redirectButton("idcs", loginMsg, loginLink));
-  }*/
 
   /**
    * The progress indicator is a bit different while an application is being filled out vs for the
