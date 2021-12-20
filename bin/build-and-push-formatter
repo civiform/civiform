@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# DOC: Build a new formatter docker image, push it to the Docker container registry
+
+pushd $(git rev-parse --show-toplevel)
+
+set -e
+set +x
+
+docker build -t civiform/formatter -f formatter.Dockerfile .
+docker push docker.io/civiform/formatter:latest
