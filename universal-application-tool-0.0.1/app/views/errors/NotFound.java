@@ -41,12 +41,14 @@ public class NotFound extends BaseHtmlView {
     this.messagesApi = messagesApi;
   }
 
+  // NotFound page 
   private ContainerTag mainContent(Messages messages) {
     String img_author_url = "https://unsplash.com/@lazycreekimages";
     String img_url = "https://unsplash.com/photos/0W4XLGITrHg";
     return div(div(
             h1(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE.getKeyName()))
                 .withClasses(ErrorStyles.H1_NOT_FOUND, Styles.TEXT_CENTER),
+            // Description
             div(
                     p(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A.getKeyName())),
                     p(
@@ -57,11 +59,14 @@ public class NotFound extends BaseHtmlView {
                             .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT),
                         span(".")))
                 .withClasses(ErrorStyles.P_DESCRIPTION),
+            // Picture
             div(
                 layout
                     .viewUtils
                     .makeLocalImageTag("404", "Lost in a sea of dreary color")
                     .withClasses(Styles.M_AUTO),
+
+                // Picture caption
                 div(p(
                         span(messages.at(MessageKey.ERROR_NOT_FOUND_IMG_CAPTION_A.getKeyName())),
                         span(" "),
