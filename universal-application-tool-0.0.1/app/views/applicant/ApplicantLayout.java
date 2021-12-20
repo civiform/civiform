@@ -234,15 +234,13 @@ public class ApplicantLayout extends BaseHtmlLayout {
     // Theres probably a better way to do this
     return div(
             div(
-              div(
-                a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
-                  .withHref(loginLink)
-                  .withClasses(ApplicantStyles.LINK_LOGOUT),
-                div(this.viewUtils.makeLocalImageTag("login_icon"))
-                  .withClasses(Styles.ABSOLUTE, Styles._LEFT_7, Styles.TOP_PX, Styles.MR_2, Styles.MT_0p5)
-                ).withClasses(Styles.RELATIVE)
-              ).withClasses(Styles.MT_1P5)
-            ).withClasses(Styles.JUSTIFY_SELF_END);
+              a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
+                .withHref(loginLink)
+                .withClasses(ApplicantStyles.LINK_LOGOUT),
+              div(this.viewUtils.makeLocalImageTag("login_icon"))
+                .withClasses(Styles.ABSOLUTE, Styles._LEFT_7, Styles.TOP_PX, Styles.MR_2)
+              ).withClasses(Styles.MT_2, Styles.RELATIVE)
+            ).withClasses(Styles._MT_PX, Styles.JUSTIFY_SELF_END);
   }
 
   /*private ContainerTag loginButton(Messages messages) {
