@@ -131,8 +131,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return renderBaseNavBar(request, messages)
         .with(
             maybeRenderTiButton(profile, userName),
-            div(getLanguageForm(request, profile, messages), logoutButton(userName, messages))
-                .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
+            div(
+              getLanguageForm(request, profile, messages), 
+              logoutButton(userName, messages)
+            ).withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
   // nav bar when not logged in
@@ -148,7 +150,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     return renderBaseNavBar(request, messages)
-        .with(div(), div(div(loginButton(messages))).withClasses(Styles.JUSTIFY_SELF_END));
+        .with(div(), loginButton(messages));
   }
 
   private ContainerTag getLanguageForm(
@@ -228,14 +230,19 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   private ContainerTag loginButton(Messages messages) {
     String loginLink = routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url();
+    // All these nested divs + styles were used to make icon show up consistently
+    // Theres probably a better way to do this
     return div(
-            a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
-                .withHref(loginLink)
-                .withClasses(ApplicantStyles.LINK_LOGOUT),
-            div(this.viewUtils.makeLocalImageTag("login_icon"))
-                .withClasses(
-                    Styles.ABSOLUTE, Styles._LEFT_7, Styles.TOP_PX, Styles.MR_2, Styles.MT_0p5))
-        .withClasses(Styles.RELATIVE);
+            div(
+              div(
+                a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
+                  .withHref(loginLink)
+                  .withClasses(ApplicantStyles.LINK_LOGOUT),
+                div(this.viewUtils.makeLocalImageTag("login_icon"))
+                  .withClasses(Styles.ABSOLUTE, Styles._LEFT_7, Styles.TOP_PX, Styles.MR_2, Styles.MT_0p5)
+                ).withClasses(Styles.RELATIVE)
+              ).withClasses(Styles.MT_1P5)
+            ).withClasses(Styles.JUSTIFY_SELF_END);
   }
 
   /*private ContainerTag loginButton(Messages messages) {

@@ -28,7 +28,6 @@ import views.style.Styles;
 
 public class NotFound extends BaseHtmlView {
 
-  // private final BaseHtmlLayout layout;
   private final ApplicantLayout layout;
   private final LanguageSelector languageSelector;
   private final MessagesApi messagesApi;

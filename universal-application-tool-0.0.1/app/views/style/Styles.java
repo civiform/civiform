@@ -1039,6 +1039,7 @@ public final class Styles {
   public static final String MR_1 = "mr-1";
   public static final String MB_1 = "mb-1";
   public static final String ML_1 = "ml-1";
+  public static final String MT_1P5 = "mt-1.5";
   public static final String MT_2 = "mt-2";
   public static final String MR_2 = "mr-2";
   public static final String MB_2 = "mb-2";
