@@ -46,10 +46,11 @@ public class NotFound extends BaseHtmlView {
   private ContainerTag descriptionContent(Messages messages) {
     return   div(
                     p(
-                      span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A.getKeyName())),
-                      space(),
-                      spanNowrap(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A_END.getKeyName()))
-                      ),
+                        span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A.getKeyName())),
+                        space(),
+                        spanNowrap(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A_END.getKeyName())),
+                        space()
+                      ).withClasses(ErrorStyles.P_MOBILE_INLINE),
                     p(
                         span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_B.getKeyName())),
                         space(),
@@ -61,7 +62,7 @@ public class NotFound extends BaseHtmlView {
                             .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT),
                           period() 
                         )
-                      )
+                      ).withClasses(ErrorStyles.P_MOBILE_INLINE)
                     ).withClasses(ErrorStyles.P_DESCRIPTION);
   }
 

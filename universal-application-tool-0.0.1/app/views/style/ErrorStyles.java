@@ -10,7 +10,7 @@ public final class ErrorStyles {
           Styles.TEXT_GRAY_800,
           Styles.MT_14,
           Styles.MB_4,
-          StyleUtils.responsiveMedium(Styles.MT_28, Styles.TEXT_3XL));
+          StyleUtils.responsiveSmall(Styles.MT_28, Styles.TEXT_3XL));
 
   public static final String P_DESCRIPTION =
       StyleUtils.joinStyles(
@@ -20,7 +20,12 @@ public final class ErrorStyles {
           Styles.TEXT_CENTER,
           Styles.TEXT_GRAY_700,
           Styles.MB_6,
-          StyleUtils.responsiveMedium(Styles.MT_10));
+          StyleUtils.responsiveSmall(Styles.MT_10));
+
+  public static final String P_MOBILE_INLINE = 
+      StyleUtils.joinStyles(
+              Styles.INLINE,
+              StyleUtils.responsiveSmall(Styles.BLOCK));
 
   public static final String PHOTO =
       StyleUtils.joinStyles(Styles.M_AUTO, Styles.OPACITY_80);
