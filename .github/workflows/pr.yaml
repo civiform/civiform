@@ -33,6 +33,8 @@ jobs:
       - name: Build browser testing container
         env:
           DOCKER_BUILDKIT: 1
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-browser-tests
       - name: Start localstack
         run: docker-compose -f browser-test/browser-test-compose.yml up -d localstack
