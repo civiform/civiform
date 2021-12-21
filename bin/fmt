@@ -4,6 +4,8 @@
 
 pushd $(git rev-parse --show-toplevel)
 
-docker run --rm -it -v "$(pwd)/universal-application-tool-0.0.1/:/code" public.ecr.aws/t1q6b4h2/civiform-formatter:latest
+docker run --rm -it \
+  -v "$(pwd)/universal-application-tool-0.0.1/:/code" \
+  docker.io/civiform/formatter:latest
 
 popd
