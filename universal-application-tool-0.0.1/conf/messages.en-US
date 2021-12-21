@@ -45,8 +45,8 @@ content.benefits=Get benefits
 content.description1=CiviForm lets you apply for many benefits at once by reusing information.
 content.description2=Get started by choosing an application below.
 
-error.not_found_title=We''re sorry, we
-error.not_found_title_end=lost the page
+error.not_found_title=We''re sorry, we lost
+error.not_found_title_end=the page
 error.not_found_description_a=Don''t worry though, the benefits
 error.not_found_description_a_end=are still there.
 error.not_found_description_b=Find them on
