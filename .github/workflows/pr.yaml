@@ -15,7 +15,7 @@ jobs:
       - name: Build test container
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -t civiform --cache-from public.ecr.aws/t1q6b4h2/civiform-dev:latest ./
+        run: docker build -t civiform --cache-from docker.io/civiform/civiform:latest ./
       - name: Run tests
         run: docker run -v /var/run/docker.sock:/var/run/docker.sock civiform test
 
@@ -29,7 +29,7 @@ jobs:
       - name: Build test app container
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -t civiform --cache-from public.ecr.aws/t1q6b4h2/civiform-dev:latest ./
+        run: docker build -t civiform --cache-from docker.io/civiform/civiform:latest ./
       - name: Build browser testing container
         env:
           DOCKER_BUILDKIT: 1
@@ -58,7 +58,7 @@ jobs:
       - name: Build prod container
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -f prod.Dockerfile -t civiform:prod --cache-from public.ecr.aws/t1q6b4h2/universal-application-tool:latest ./
+        run: docker build -f prod.Dockerfile -t civiform:prod --cache-from docker.io/civiform/civiform:latest ./
       - name: Build the stack
         env:
           SECRET_KEY: notarealsecret

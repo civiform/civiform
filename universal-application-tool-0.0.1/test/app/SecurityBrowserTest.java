@@ -20,7 +20,7 @@ import support.TestConstants;
 
 public class SecurityBrowserTest extends BaseBrowserTest {
   public static final DockerImageName OIDC_IMAGE =
-      DockerImageName.parse("public.ecr.aws/t1q6b4h2/oidc-provider:latest");
+      DockerImageName.parse("docker.io/civiform/oidc-provider:latest");
 
   @ClassRule
   public static GenericContainer<?> oidcProvider =
