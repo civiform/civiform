@@ -7,5 +7,5 @@ pushd $(git rev-parse --show-toplevel)
 set -e
 set +x
 
-docker build -t civiform/formatter -f formatter.Dockerfile .
+docker build -t civiform/formatter:latest -f formatter.Dockerfile .
 docker push docker.io/civiform/formatter:latest
