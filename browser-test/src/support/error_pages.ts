@@ -20,4 +20,12 @@ export class NotFoundPage {
   async checkPageHeaderEnUS() {
     expect(await this.page.innerText('h1')).toContain("We're sorry, we lost the page");
   }
+
+  async checkNotLoggedIn() {
+    await this.page.waitForSelector('#guest');
+  }
+
+  async checkIsGuest() {
+    await this.page.waitForSelector('text=Logged in as <Anonymous Applicant>');
+  }
 }

@@ -1,7 +1,7 @@
 import { startSession, loginAsAdmin, loginAsProgramAdmin, loginAsGuest, loginAsTestUser, logout, endSession, NotFoundPage } from './support'
 
 describe('error pages', () => {
-  it('try an actual non-existent page while logged out', async () => {
+  it('test 404 page', async () => {
     const { browser, page } = await startSession();
     page.setDefaultTimeout(4000);
 
@@ -11,22 +11,14 @@ describe('error pages', () => {
 
     await notFound.checkPageHeaderEnUS();
 
-    //await page.pause();
+    await notFound.checkNotLoggedIn();
 
-    await endSession(browser);
-  })
+    await loginAsGuest(page);
 
-  it('try mock not found page', async () => {
-    const { browser, page } = await startSession();
-    page.setDefaultTimeout(4000);
+    await notFound.gotoNonExistentPage(page);
 
-    const notFound = new NotFoundPage(page);
-
-    await notFound.gotoMockNotFoundPage(page);
-
-    await notFound.checkPageHeaderEnUS();
-
-    //await page.pause();
+    await page.pause();
+    await notFound.checkIsGuest();
 
     await endSession(browser);
   })

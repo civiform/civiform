@@ -12,6 +12,7 @@ import static j2html.TagCreator.text;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.Roles;
+import auth.GuestClient;
 import com.typesafe.config.Config;
 import controllers.routes;
 import io.jsonwebtoken.lang.Strings;
@@ -27,6 +28,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import views.BaseHtmlLayout;
+import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.LanguageSelector;
 import views.ViewUtils;
@@ -232,13 +234,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private ContainerTag loginButton(Messages messages) {
-    String loginLink = routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url();
+    String msg = "Log in";
+    Tag loginBtn = BaseHtmlView.redirectButton(
+            "guest", msg, routes.CallbackController.callback(GuestClient.CLIENT_NAME).url());
     // Nested divs + styles were used to make icon show up consistently
     // There might be a better way to do this
     return div(
             div(
-              a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
-                .withHref(loginLink)
+              loginBtn
                 .withClasses(ApplicantStyles.LINK_LOGOUT),
               div(this.viewUtils.makeLocalImageTag("login_icon"))
                 .withClasses(Styles.ABSOLUTE, Styles._LEFT_7, Styles.TOP_PX, Styles.MR_2)
