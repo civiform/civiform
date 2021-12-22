@@ -22,14 +22,10 @@ public final class ErrorStyles {
           Styles.MB_6,
           StyleUtils.responsiveSmall(Styles.MT_10));
 
-  public static final String P_MOBILE_INLINE = 
-      StyleUtils.joinStyles(
-              Styles.INLINE,
-              StyleUtils.responsiveSmall(Styles.BLOCK));
+  public static final String P_MOBILE_INLINE =
+      StyleUtils.joinStyles(Styles.INLINE, StyleUtils.responsiveSmall(Styles.BLOCK));
 
-  public static final String PHOTO =
-      StyleUtils.joinStyles(Styles.M_AUTO, Styles.OPACITY_80);
-
+  public static final String PHOTO = StyleUtils.joinStyles(Styles.M_AUTO, Styles.OPACITY_80);
 
   public static final String P_IMG_FOOTER =
       StyleUtils.joinStyles(Styles.TEXT_BASE, Styles.TEXT_BLACK, Styles.MT_3);

@@ -9,7 +9,6 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
@@ -30,7 +29,6 @@ import views.html.helper.CSRF;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
-import java.util.stream.Stream;
 
 /**
  * Base class for all HTML views. Provides stateless convenience methods for generating HTML.
@@ -84,7 +82,7 @@ public abstract class BaseHtmlView {
     return span(tag).withClasses(Styles.WHITESPACE_NOWRAP);
   }
 
-  protected static Tag spanNowrap(Tag ... tags) {
+  protected static Tag spanNowrap(Tag... tags) {
     return span().with(tags).withClasses(Styles.WHITESPACE_NOWRAP);
   }
 

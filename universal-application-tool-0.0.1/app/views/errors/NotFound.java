@@ -37,38 +37,38 @@ public class NotFound extends BaseHtmlView {
   }
 
   private ContainerTag h1Content(Messages messages) {
-    return h1(span(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE.getKeyName())),
-              space(),
-              spanNowrap(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE_END.getKeyName()))
-          ).withClasses(ErrorStyles.H1_NOT_FOUND);
+    return h1(
+            span(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE.getKeyName())),
+            space(),
+            spanNowrap(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE_END.getKeyName())))
+        .withClasses(ErrorStyles.H1_NOT_FOUND);
   }
 
   private ContainerTag descriptionContent(Messages messages) {
-    return   div(
-                    p(
-                        span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A.getKeyName())),
+    return div(
+            p(
+                    span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A.getKeyName())),
+                    space(),
+                    spanNowrap(
+                        messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A_END.getKeyName())),
+                    space())
+                .withClasses(ErrorStyles.P_MOBILE_INLINE),
+            p(
+                    span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_B.getKeyName())),
+                    space(),
+                    spanNowrap(
+                        span(
+                            messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_B_END.getKeyName())),
                         space(),
-                        spanNowrap(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A_END.getKeyName())),
-                        space()
-                      ).withClasses(ErrorStyles.P_MOBILE_INLINE),
-                    p(
-                        span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_B.getKeyName())),
-                        space(),
-                        spanNowrap(
-                          span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_B_END.getKeyName())),
-                          space(),
-                          a(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_LINK.getKeyName()))
+                        a(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_LINK.getKeyName()))
                             .withHref("/")
                             .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT),
-                          period() 
-                        )
-                      ).withClasses(ErrorStyles.P_MOBILE_INLINE)
-                    ).withClasses(ErrorStyles.P_DESCRIPTION);
+                        period()))
+                .withClasses(ErrorStyles.P_MOBILE_INLINE))
+        .withClasses(ErrorStyles.P_DESCRIPTION);
   }
 
-  /**
-   * Page returned on 404 error
-   */
+  /** Page returned on 404 error */
   private ContainerTag mainContent(Messages messages) {
     String img_author_url = "https://unsplash.com/@lazycreekimages";
     String img_url = "https://unsplash.com/photos/0W4XLGITrHg";
