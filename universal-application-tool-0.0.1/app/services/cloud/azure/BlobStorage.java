@@ -212,7 +212,6 @@ public class BlobStorage implements StorageClient {
               .setCors(
                   List.of(
                       new BlobCorsRule()
-                          // TODO: Make these more specific
                           .setAllowedOrigins("*")
                           .setAllowedHeaders("*")
                           .setExposedHeaders("*")

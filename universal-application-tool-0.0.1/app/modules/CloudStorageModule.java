@@ -11,6 +11,9 @@ import controllers.dev.CloudStorageStrategy;
 import play.Environment;
 import services.cloud.StorageClient;
 import services.cloud.StorageServiceName;
+import views.dev.AwsViewStorageStrategy;
+import views.dev.AzureViewStorageStrategy;
+import views.dev.FileUploadViewStorageStrategy;
 
 /** CloudStorageModule configures and initializes the AWS and Azure file storage classes. */
 public class CloudStorageModule extends AbstractModule {
@@ -51,10 +54,12 @@ public class CloudStorageModule extends AbstractModule {
     switch (storageServiceName) {
       case AZURE_BLOB:
         bind(CloudStorageStrategy.class).to(AzureStrategy.class);
+        bind(FileUploadViewStorageStrategy.class).to(AzureViewStorageStrategy.class);
         return;
       case AWS_S3:
       default:
         bind(CloudStorageStrategy.class).to(AwsStrategy.class);
+        bind(FileUploadViewStorageStrategy.class).to(AwsViewStorageStrategy.class);
         return;
     }
   }
