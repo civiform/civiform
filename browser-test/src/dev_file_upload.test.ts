@@ -6,35 +6,34 @@ const { BASE_URL = 'http://civiform:9000' } = process.env
 
 describe('the dev file upload page', () => {
   it('it can upload and download a file', async () => {
+    const { browser, page } = await startSession()
 
-    const { browser, page } = await startSession();
+    await page.goto(BASE_URL + '/dev/fileUpload')
 
-    await page.goto(BASE_URL + '/dev/fileUpload');
-
-    expect(await page.textContent('h1')).toContain('Dev file upload');
+    expect(await page.textContent('h1')).toContain('Dev file upload')
 
     await page.setInputFiles('input[type=file]', {
       name: 'file.txt',
       mimeType: 'text/plain',
-      buffer: Buffer.from('this is test')
-    });
+      buffer: Buffer.from('this is test'),
+    })
 
-    await page.click('button:visible');
+    await page.click('button:visible')
 
-    expect(await page.textContent('h1')).toContain('Dev file upload');
+    expect(await page.textContent('h1')).toContain('Dev file upload')
 
-    await endSession(browser);
+    await endSession(browser)
   })
 })
 
 const downloadFile = async (page: Page, fileName: string) => {
   const [downloadEvent] = await Promise.all([
     page.waitForEvent('download'),
-    page.click(`a:text("${fileName}")`)
-  ]);
-  const path = await downloadEvent.path();
+    page.click(`a:text("${fileName}")`),
+  ])
+  const path = await downloadEvent.path()
   if (path === null) {
-    throw new Error('download failed');
+    throw new Error('download failed')
   }
-  return readFileSync(path, 'utf8');
+  return readFileSync(path, 'utf8')
 }

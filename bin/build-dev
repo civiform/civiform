@@ -11,7 +11,7 @@ REGION=us-west-2
 aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/t1q6b4h2
 
 # build the new image based
-docker build -t civiform-dev --cache-from public.ecr.aws/t1q6b4h2/civiform-dev:latest --build-arg BUILDKIT_INLINE_CACHE=1 .
+docker build -t civiform-dev --cache-from docker.io/civiform/civiform-browser-test:latest --build-arg BUILDKIT_INLINE_CACHE=1 .
 
 # push the new image to the AWS registry
 docker tag civiform-dev:latest public.ecr.aws/t1q6b4h2/civiform-dev:latest

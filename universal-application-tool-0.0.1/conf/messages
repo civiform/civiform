@@ -78,6 +78,9 @@ button.keepFile=Continue
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=Next
 
+# The button text for navigating to the previous screen in the form.
+button.previousScreen=Previous
+
 # The text on the button an applicant clicks to jump to the review page.
 button.review=Review
 
@@ -239,7 +242,7 @@ validation.entityNameRequired=Please enter a value for each line.
 validation.duplicateEntityName=Please enter a unique value for each line.
 
 # The placeholder text for enumerator fields
-placeholder.entityName=Nickname for {0}
+placeholder.entityName={0} name
 
 #---------------------------------------------------------------------------------#
 # FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
