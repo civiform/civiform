@@ -2,6 +2,7 @@
  * This is responsible for uploading a file to Azure blob storage.
  */
 class AzureUploadController {
+
   static UPLOAD_CONTAINER_ID = 'azure-upload-form-component';
 
   constructor() {
@@ -30,6 +31,7 @@ class AzureUploadController {
         `${azureUploadProps.blobUrl}?${azureUploadProps.sasToken}`,
         azblob.StorageURL.newPipeline(new azblob.AnonymousCredential)
       ));
+
     azblob.uploadBrowserDataToBlockBlob(azblob.Aborter.none, azureUploadProps.file, blockBlobURL).then((resp, err) => {
       if (err) {
         throw err;
