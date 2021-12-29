@@ -33,12 +33,15 @@ public class AzureViewStorageStrategy implements FileUploadViewStorageStrategy {
       return null;
     }
     BlobStorageUploadRequest request = (BlobStorageUploadRequest) storageUploadRequest;
+
     // Make sure the CDN is only being injected in a dev environment.
     // This should always be true, since this is the dev file upload view.
     if (environment.isDev()) {
       bundle.addFooterScripts(viewUtils.makeCdnJsTag(AZURE_STORAGE_BLOB_CDN));
     }
+
     ContainerTag formTag = form().withId("azure-upload-form-component");
+
     return formTag
         .with(input().withType("file").withName("file"))
         .with(input().withType("hidden").withName("sasToken").withValue(request.sasToken()))

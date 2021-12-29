@@ -27,7 +27,10 @@ import views.HtmlBundle;
 import views.ViewUtils;
 import views.style.Styles;
 
-/** Renders a page for a developer to test uploading files. */
+/**
+ * Renders a page for a developer to test uploading files. The logic for creating the file upload
+ * form has been extracted out to {@link FileUploadViewStorageStrategy}.
+ */
 public class FileUploadView extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;

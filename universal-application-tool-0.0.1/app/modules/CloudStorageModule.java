@@ -32,6 +32,7 @@ public class CloudStorageModule extends AbstractModule {
   @Override
   protected void configure() {
     String className = AWS_STORAGE_CLASS_NAME;
+
     try {
       String storageProvider = checkNotNull(config).getString("cloud.storage");
       className = getStorageProviderClassName(storageProvider);
@@ -39,6 +40,7 @@ public class CloudStorageModule extends AbstractModule {
     } catch (ConfigException ex) {
       // Ignore missing config and default to S3 for now
     }
+
     try {
       Class<? extends StorageClient> boundClass =
           environment.classLoader().loadClass(className).asSubclass(StorageClient.class);
@@ -51,6 +53,7 @@ public class CloudStorageModule extends AbstractModule {
 
   private void bindCloudStorageStrategy(String storageProvider) {
     StorageServiceName storageServiceName = StorageServiceName.forString(storageProvider).get();
+
     switch (storageServiceName) {
       case AZURE_BLOB:
         bind(CloudStorageStrategy.class).to(AzureStrategy.class);
@@ -60,12 +63,12 @@ public class CloudStorageModule extends AbstractModule {
       default:
         bind(CloudStorageStrategy.class).to(AwsStrategy.class);
         bind(FileUploadViewStorageStrategy.class).to(AwsViewStorageStrategy.class);
-        return;
     }
   }
 
   private String getStorageProviderClassName(String storageProvider) {
     StorageServiceName storageServiceName = StorageServiceName.forString(storageProvider).get();
+
     switch (storageServiceName) {
       case AZURE_BLOB:
         return AZURE_STORAGE_CLASS_NAME;

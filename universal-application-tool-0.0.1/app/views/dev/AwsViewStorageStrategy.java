@@ -22,6 +22,7 @@ public class AwsViewStorageStrategy implements FileUploadViewStorageStrategy {
       return null;
     }
     SignedS3UploadRequest request = (SignedS3UploadRequest) storageUploadRequest;
+
     ContainerTag formTag =
         form()
             .attr(ENCTYPE, "multipart/form-data")
@@ -43,6 +44,7 @@ public class AwsViewStorageStrategy implements FileUploadViewStorageStrategy {
               .withName("X-Amz-Security-Token")
               .withValue(request.securityToken()));
     }
+
     return formTag
         .with(input().withType("text").withName("X-Amz-Algorithm").withValue(request.algorithm()))
         .with(input().withType("text").withName("X-Amz-Date").withValue(request.date()))

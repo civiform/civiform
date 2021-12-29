@@ -16,7 +16,10 @@ import services.cloud.StorageClient;
 import services.cloud.StorageUploadRequest;
 import views.dev.FileUploadView;
 
-/** Controller for interacting with S3 directly in dev mode. */
+/**
+ * Controller for interacting with S3 and blob storage directly in dev mode. The logic for uploading
+ * files to cloud storage has been extracted out into {@link CloudStorageStrategy}
+ */
 public class FileUploadController extends DevController {
 
   private final FileUploadView view;
@@ -45,6 +48,7 @@ public class FileUploadController extends DevController {
     if (!isDevEnvironment()) {
       return notFound();
     }
+
     StorageUploadRequest signedRequest =
         storageClient.getSignedUploadRequest(
             "dev/${filename}", baseUrl + routes.FileUploadController.create().url());

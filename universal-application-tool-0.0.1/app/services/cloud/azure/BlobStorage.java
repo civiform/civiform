@@ -73,6 +73,7 @@ public class BlobStorage implements StorageClient {
     String blobUrl = client.getBlobUrl(fileName);
     String sasToken = client.getSasToken(fileName);
     String signedUrl = String.format("%s?%s", blobUrl, sasToken);
+
     try {
       return new URL(signedUrl);
     } catch (java.net.MalformedURLException e) {
@@ -90,6 +91,7 @@ public class BlobStorage implements StorageClient {
     // Azure blob must know the name of a file to generate a SAS for it, so we'll use a UUID
     // TODO: figure out how to map this to user-uploaded filename
     fileName = fileName.replace("${filename}", UUID.randomUUID().toString());
+
     BlobStorageUploadRequest.Builder builder =
         BlobStorageUploadRequest.builder()
             .setFileName(fileName)
