@@ -205,6 +205,12 @@ class ValidationController {
   }
 
   updateFieldErrorState(question: Element, fieldName: string, isValid: boolean) {
+    const isOptional = !question.classList.contains(ValidationController.REQUIRED_QUESTION_CLASS);
+    const filledInputs = Array.from(question.querySelectorAll('input')).filter(input => input.value !== "");
+    if (isOptional && filledInputs.length === 0) {
+      return;
+    }
+
     const errorDiv = question.querySelector(fieldName + '-error');
     if (errorDiv) {
       errorDiv.classList.toggle('hidden', isValid);
@@ -254,7 +260,7 @@ class ValidationController {
       this.updateFieldErrorState(question, '.cf-address-zip', hasValidZip);
 
       const hasEmptyInputs = addressLine1Empty || cityEmpty || stateEmpty || zipEmpty;
-      const hasValidPresentInputs = !hasEmptyInputs && hasValidZip ;
+      const hasValidPresentInputs = !hasEmptyInputs && hasValidZip;
 
       // If this question isn't required then it's also valid if it is empty.
       const isOptional = !question.classList.contains(ValidationController.REQUIRED_QUESTION_CLASS);
@@ -273,13 +279,13 @@ class ValidationController {
   validateCurrencyQuestion(): boolean {
     let isAllValid = true;
     const questions = Array.from(document.querySelectorAll(ValidationController.CURRENCY_QUESTION_CLASS));
-    for( const question of questions) {
+    for (const question of questions) {
       const currencyInput = <HTMLInputElement>question.querySelector("input[currency]");
       const currencyValue = currencyInput.value;
 
       const isValidCurrency = ValidationController.CURRENCY_NO_COMMAS.test(currencyValue) ||
-          ValidationController.CURRENCY_WITH_COMMAS.test(currencyValue) ||
-          ValidationController.CURRENCY_ZERO_DOLLARS.test(currencyValue);
+        ValidationController.CURRENCY_WITH_COMMAS.test(currencyValue) ||
+        ValidationController.CURRENCY_ZERO_DOLLARS.test(currencyValue);
 
       // If this question isn't required then it's also valid if it is empty.
       const isEmpty = currencyValue.length === 0;
