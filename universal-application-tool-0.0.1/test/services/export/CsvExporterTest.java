@@ -307,6 +307,7 @@ public class CsvExporterTest extends WithPostgresContainer {
         100);
     firstApplicant.save();
     Application firstApplication = new Application(firstApplicant, program, LifecycleStage.ACTIVE);
+    firstApplication.setSubmitTimeToNow();
     firstApplication.save();
 
     // Second applicant has one household member that has two jobs.
@@ -362,10 +363,12 @@ public class CsvExporterTest extends WithPostgresContainer {
     secondApplicant.save();
     Application secondApplication =
         new Application(secondApplicant, program, LifecycleStage.ACTIVE);
+    secondApplication.setSubmitTimeToNow();
     secondApplication.save();
 
     Application thirdApplication =
         new Application(secondApplicant, program, LifecycleStage.OBSOLETE);
+    thirdApplication.setSubmitTimeToNow();
     thirdApplication.save();
 
     // Generate default CSV

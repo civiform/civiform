@@ -29,7 +29,7 @@ services:
       POSTGRES_PASSWORD: example
 
   civiform:
-    image: civiform
+    image: civiform-dev
     restart: always
     container_name: civiform
     links:

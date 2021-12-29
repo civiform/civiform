@@ -4,13 +4,8 @@
 
 pushd $(git rev-parse --show-toplevel)
 
-echo "Making sure we're up to date with the latest formatter..."
-if ! docker pull public.ecr.aws/t1q6b4h2/civiform-formatter:latest; then
-  echo "Failed to pull - possibly some stuck credentials.  De-authenticating then retrying..."
-  docker logout https://public.ecr.aws/t1q6b4h2/civiform-formatter
-  docker pull public.ecr.aws/t1q6b4h2/civiform-formatter:latest
-fi
-
-docker run --rm -it -v "$(pwd)/universal-application-tool-0.0.1/:/code" public.ecr.aws/t1q6b4h2/civiform-formatter:latest
+docker run --rm -it \
+  -v "$(pwd)/universal-application-tool-0.0.1/:/code" \
+  docker.io/civiform/formatter:latest
 
 popd
