@@ -198,7 +198,7 @@ class ValidationController {
   updateSubmitButton() {
     const submitEnabled = this.isValid();
     const submitButton =
-      <HTMLInputElement>document.getElementById(ValidationController.BLOCK_SUBMIT_BUTTON_ID);
+      <HTMLInputElemedocument.getElementById(ValidationController.BLOCK_SUBMIT_BUTTON_ID);
     if (submitButton && ValidationController.VALIDATE_ON_INPUT) {
       submitButton.disabled = !submitEnabled;
     }
