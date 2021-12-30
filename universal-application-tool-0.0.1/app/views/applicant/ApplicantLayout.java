@@ -228,15 +228,16 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   private ContainerTag loginButton(Messages messages) {
     String msg = "Log in";
-    Tag loginBtn =
-        BaseHtmlView.redirectButton(
-            "guest", msg, routes.CallbackController.callback(GuestClient.CLIENT_NAME).url());
+    Tag loginBtn = BaseHtmlView.redirectButton(
+            "guest", msg, routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
+            .withClasses(Styles.BG_WHITE, Styles.TEXT_BLACK);
+    Tag loginIcon = div(div(this.viewUtils.makeLocalImageTag("login_icon"))
+            .withClasses(Styles.ABSOLUTE, Styles._LEFT_3, Styles.TOP_3, Styles.MR_2));
     // Nested divs + styles were used to make icon show up consistently
     // There might be a better way to do this
     return div(div(
-                loginBtn.withClasses(ApplicantStyles.LINK_LOGOUT),
-                div(this.viewUtils.makeLocalImageTag("login_icon"))
-                    .withClasses(Styles.ABSOLUTE, Styles._LEFT_7, Styles.TOP_PX, Styles.MR_2))
+                loginBtn,
+                loginIcon)
             .withClasses(Styles.MT_2, Styles.RELATIVE))
         .withClasses(Styles._MT_PX, Styles.JUSTIFY_SELF_END);
   }
