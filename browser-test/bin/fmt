@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 pushd $(git rev-parse --show-toplevel)/browser-test
 
-# find relative path to typescript files
-FILES="$(find src -name '*.ts' | xargs)"
+CMD="cd /code; npx prettier --write --config /.prettierrc.js --ignore-path /.prettierignore /code"
 
-# build command to run within docker container
-CMD="cd code; tsfmt -r $FILES"
-
-docker run --rm -it -v "$(pwd):/code" public.ecr.aws/t1q6b4h2/civiform-formatter:latest sh -c "$CMD"
+docker run --rm -it \
+  -v "$(pwd)/src:/code" \
+  docker.io/civiform/formatter:latest sh -c "$CMD"
 
 popd

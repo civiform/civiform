@@ -21,7 +21,7 @@ services:
       POSTGRES_PASSWORD: example
 
   fake-idcs:
-    image: public.ecr.aws/t1q6b4h2/oidc-provider:latest
+    image: docker.io/civiform/oidc-provider:latest
     restart: always
     container_name: fake-idcs
     ports:

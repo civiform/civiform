@@ -118,6 +118,21 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void previous_toAnExistingBlock_rendersTheBlock() {
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.previous(
+                        applicant.id, program.id, 0, true)))
+            .build();
+
+    Result result =
+        subject.previous(request, applicant.id, program.id, 0, true).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
   public void update_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
     Request request =
