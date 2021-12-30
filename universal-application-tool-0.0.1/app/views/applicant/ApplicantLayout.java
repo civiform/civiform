@@ -28,7 +28,6 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import views.BaseHtmlLayout;
-import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.LanguageSelector;
 import views.ViewUtils;
@@ -117,7 +116,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(branding());
   }
 
-  /** Nav bar when logged in */
+  /**
+   * Nav bar when logged in
+   */
   public Content renderWithNav(
       Http.RequestHeader request, String userName, Messages messages, HtmlBundle bundle) {
     String language = languageSelector.getPreferredLangage(request).code();
@@ -126,7 +127,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return renderWithSupportFooter(bundle, messages);
   }
 
-  /** Nav bar when logged out */
+  /**
+   * Nav bar when logged out
+   */
   public Content renderWithNav(Http.RequestHeader request, Messages messages, HtmlBundle bundle) {
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
@@ -141,14 +144,17 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return renderBaseNavBar(request, messages)
         .with(
             maybeRenderTiButton(profile, userName),
-            div(getLanguageForm(request, profile, messages), logoutButton(userName, messages))
-                .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
+            div(
+              getLanguageForm(request, profile, messages), 
+              logoutButton(userName, messages)
+            ).withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
   public ContainerTag renderNavBarLoggedOut(Http.RequestHeader request, Messages messages) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
-    return renderBaseNavBar(request, messages).with(div(), loginButton(messages));
+    return renderBaseNavBar(request, messages)
+        .with(div(), loginButton(messages));
   }
 
   private ContainerTag getLanguageForm(
@@ -227,19 +233,19 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private ContainerTag loginButton(Messages messages) {
-    String msg = "Log in";
-    Tag loginBtn = BaseHtmlView.redirectButton(
-            "guest", msg, routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
-            .withClasses(Styles.BG_WHITE, Styles.TEXT_BLACK);
-    Tag loginIcon = div(div(this.viewUtils.makeLocalImageTag("login_icon"))
-            .withClasses(Styles.ABSOLUTE, Styles._LEFT_3, Styles.TOP_3, Styles.MR_2));
+    //String loginLink = routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url();
+    String loginLink = routes.CallbackController.callback(GuestClient.CLIENT_NAME).url();
     // Nested divs + styles were used to make icon show up consistently
     // There might be a better way to do this
-    return div(div(
-                loginBtn,
-                loginIcon)
-            .withClasses(Styles.MT_2, Styles.RELATIVE))
-        .withClasses(Styles._MT_PX, Styles.JUSTIFY_SELF_END);
+    return div(
+            div(
+              a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
+                .withHref(loginLink)
+                .withClasses(ApplicantStyles.LINK_LOGOUT),
+              div(this.viewUtils.makeLocalImageTag("login_icon"))
+                .withClasses(Styles.ABSOLUTE, Styles._LEFT_7, Styles.TOP_PX, Styles.MR_2)
+              ).withClasses(Styles.MT_2, Styles.RELATIVE)
+            ).withClasses(Styles._MT_PX, Styles.JUSTIFY_SELF_END);
   }
 
   /**
