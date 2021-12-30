@@ -1,10 +1,10 @@
-import {AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession} from './support'
+import { AdminPrograms, AdminQuestions, ApplicantQuestions, loginAsAdmin, loginAsGuest, logout, resetSession, selectApplicantLanguage, startSession } from './support'
 
 describe('address applicant flow', () => {
   let pageObject;
 
   beforeAll(async () => {
-    const {page} = await startSession()
+    const { page } = await startSession()
     pageObject = page;
   });
 
@@ -22,7 +22,7 @@ describe('address applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject);
       applicantQuestions = new ApplicantQuestions(pageObject);
 
-      await adminQuestions.addAddressQuestion({questionName: 'address-test-q'});
+      await adminQuestions.addAddressQuestion({ questionName: 'address-test-q' });
       await adminPrograms.addAndPublishProgramWithQuestions(['address-test-q'], programName);
 
       await logout(pageObject);
@@ -96,8 +96,8 @@ describe('address applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject);
       applicantQuestions = new ApplicantQuestions(pageObject);
 
-      await adminQuestions.addAddressQuestion({questionName: 'address-test-a-q'});
-      await adminQuestions.addAddressQuestion({questionName: 'address-test-b-q'});
+      await adminQuestions.addAddressQuestion({ questionName: 'address-test-a-q' });
+      await adminQuestions.addAddressQuestion({ questionName: 'address-test-b-q' });
       await adminPrograms.addAndPublishProgramWithQuestions(['address-test-a-q', 'address-test-b-q'], programName);
 
       await logout(pageObject);
@@ -120,7 +120,7 @@ describe('address applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English');
 
       await applicantQuestions.applyProgram(programName);
-      await applicantQuestions.answerAddressQuestion('', '', '', '', '',0);
+      await applicantQuestions.answerAddressQuestion('', '', '', '', '', 0);
       await applicantQuestions.answerAddressQuestion('1234 St', 'Unit B', 'Sim', 'Ames', '54321', 1);
       await applicantQuestions.clickNext();
 
@@ -187,8 +187,8 @@ describe('address applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject);
       applicantQuestions = new ApplicantQuestions(pageObject);
 
-      await adminQuestions.addAddressQuestion({questionName: 'address-test-optional-q'});
-      await adminQuestions.addAddressQuestion({questionName: 'address-test-required-q'});
+      await adminQuestions.addAddressQuestion({ questionName: 'address-test-optional-q' });
+      await adminQuestions.addAddressQuestion({ questionName: 'address-test-required-q' });
       await adminPrograms.addProgram(programName);
       await adminPrograms.editProgramBlockWithOptional(programName, 'Optional question block', ['address-test-required-q'], 'address-test-optional-q');
       await adminPrograms.gotoAdminProgramsPage();
@@ -248,7 +248,7 @@ describe('address applicant flow', () => {
         expect(await error.isHidden()).toEqual(true);
         error = await pageObject.$('.cf-address-zip-error >> nth=0');
         expect(await error.isHidden()).toEqual(true);
-      });
-    });
-  });
-});
+      })
+    })
+  })
+})
