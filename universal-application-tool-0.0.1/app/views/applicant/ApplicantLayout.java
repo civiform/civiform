@@ -240,6 +240,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div(
             div(
               a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
+                .withId("guestLogin")
                 .withHref(loginLink)
                 .withClasses(ApplicantStyles.LINK_LOGOUT),
               div(this.viewUtils.makeLocalImageTag("login_icon"))

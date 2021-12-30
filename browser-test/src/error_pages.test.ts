@@ -13,7 +13,7 @@ describe('error pages', () => {
 
     await notFound.checkNotLoggedIn();
 
-    await loginAsGuest(page);
+    await notFound.loginAsGuest();
 
     await notFound.gotoNonExistentPage(page);
 

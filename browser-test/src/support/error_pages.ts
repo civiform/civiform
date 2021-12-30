@@ -1,5 +1,5 @@
 import { Page } from 'playwright'
-
+import { waitForPageJsLoad } from './wait'
 import { BASE_URL } from './'
 
 export class NotFoundPage {
@@ -13,6 +13,11 @@ export class NotFoundPage {
     return await page.goto(BASE_URL + "/dirjwlqickhdfguyqrm");
   }
 
+  async loginAsGuest() {
+    await this.page.click('#guestLogin')
+    await waitForPageJsLoad(this.page)
+  }
+
   async gotoMockNotFoundPage(page: Page) {
     return await page.goto(BASE_URL + "/dev/abc");
   }
@@ -22,7 +27,7 @@ export class NotFoundPage {
   }
 
   async checkNotLoggedIn() {
-    await this.page.waitForSelector('#guest');
+    await this.page.waitForSelector('#guestLogin');
   }
 
   async checkIsGuest() {
