@@ -68,17 +68,10 @@ public class NotFound extends BaseHtmlView {
         .withClasses(ErrorStyles.P_DESCRIPTION);
   }
 
-  /** Page returned on 404 error */
-  private ContainerTag mainContent(Messages messages) {
+  private ContainerTag picture(Messages messages) {
     String img_author_url = "https://unsplash.com/@lazycreekimages";
     String img_url = "https://unsplash.com/photos/0W4XLGITrHg";
     return div(
-            // Header
-            h1Content(messages),
-            // Description
-            descriptionContent(messages),
-            // Picture
-            div(
                 layout
                     .viewUtils
                     .makeLocalImageTag("404", "Lost in a sea of dreary color")
@@ -97,7 +90,15 @@ public class NotFound extends BaseHtmlView {
                         a(messages.at(MessageKey.ERROR_NOT_FOUND_IMG_CAPTION_D.getKeyName()))
                             .withHref(img_url)
                             .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT)))
-                    .withClasses(ErrorStyles.P_IMG_FOOTER)))
+                    .withClasses(ErrorStyles.P_IMG_FOOTER));
+  }
+
+  /** Page returned on 404 error */
+  private ContainerTag mainContent(Messages messages) {
+    return div(
+            h1Content(messages),
+            descriptionContent(messages),
+            picture(messages))
         .withClasses(Styles.TEXT_CENTER, Styles.MAX_W_SCREEN_SM, Styles.W_5_6, Styles.MX_AUTO);
   }
 
