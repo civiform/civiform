@@ -117,6 +117,24 @@ content.description1=CiviForm le permite solicitar varios beneficios a la vez vo
 # Long form description of the CiviForm site shown to the applicant. Line 2.
 content.description2=Empiece por elegir una solicitud.
 
+
+# 404 page title
+error.not_found_title=Lo siento se perdio
+error.not_found_title_end=la pagina
+
+# 404 page description
+error.not_found_description_a=Pero no se preocupe, los beneficios
+error.not_found_description_a_end=toda via estan!
+error.not_found_description_b=Encuentre los en la
+error.not_found_description_b_end=pagina de
+error.not_found_description_link=homepage
+
+# 404 page footer
+error.img_caption_a=Foto departe de 
+error.img_caption_b=Michael Dziedzic
+error.img_caption_c=en
+error.img_caption_d=Unsplash
+
 # Link text to read more about a program.
 link.programDetails=Detalles del programa
 
