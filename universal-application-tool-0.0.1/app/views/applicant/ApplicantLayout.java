@@ -226,8 +226,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private ContainerTag loginButton(Messages messages) {
-    // String loginLink = routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url();
     String loginLink = routes.CallbackController.callback(GuestClient.CLIENT_NAME).url();
+
     // Nested divs + styles were used to make icon show up consistently
     // There might be a better way to do this
     return div(div(
