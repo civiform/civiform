@@ -39,6 +39,7 @@ public class AzureViewStorageStrategy implements FileUploadViewStorageStrategy {
     if (environment.isDev()) {
       bundle.addFooterScripts(viewUtils.makeCdnJsTag(AZURE_STORAGE_BLOB_CDN));
     }
+
     bundle.addFooterScripts(viewUtils.makeLocalJsTag("azure_upload"));
 
     ContainerTag formTag = form().withId("azure-upload-form-component");
