@@ -1,6 +1,7 @@
 package services.cloud;
 
 import java.net.URL;
+import models.StoredFile;
 
 /** Interface for working with Cloud storage. We currently support AWS S3 and Azure Blob storage. */
 public interface StorageClient {
@@ -9,9 +10,9 @@ public interface StorageClient {
    * Returns a URL that gives users temporary access to file storage. This URL is used to upload
    * users' files to cloud storage.
    *
-   * @param fileName The file to be uploaded to cloud storage.
+   * @param file The file to be uploaded to cloud storage.
    */
-  URL getPresignedUrl(String fileName);
+  URL getPresignedUrl(StoredFile file);
 
   /**
    * Creates and returns a request to upload a file to cloud storage.

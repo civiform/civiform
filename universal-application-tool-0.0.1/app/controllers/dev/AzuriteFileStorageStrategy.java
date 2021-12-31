@@ -17,7 +17,7 @@ public class AzuriteFileStorageStrategy implements CloudEmulatorFileStorageStrat
     Optional<String> container = request.queryString("container");
     Optional<String> fileName = request.queryString("fileName");
     Optional<String> userFileName = request.queryString("userFileName");
-    updateFileRecord(storedFileRepository, fileName.get());
+    updateFileRecord(storedFileRepository, fileName.get(), userFileName.get());
     String successMessage =
         String.format(
             "File successfully uploaded to Azure: container: %s, file name: %s, etag: %s, user"
@@ -26,9 +26,11 @@ public class AzuriteFileStorageStrategy implements CloudEmulatorFileStorageStrat
     return redirect(routes.FileUploadController.index().url()).flashing("success", successMessage);
   }
 
-  private void updateFileRecord(StoredFileRepository storedFileRepository, String key) {
+  private void updateFileRecord(
+      StoredFileRepository storedFileRepository, String key, String userFileName) {
     StoredFile storedFile = new StoredFile();
     storedFile.setName(key);
+    storedFile.setUserFileName(userFileName);
     storedFileRepository.insert(storedFile);
   }
 }
