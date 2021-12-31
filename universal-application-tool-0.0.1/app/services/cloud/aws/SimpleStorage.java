@@ -12,6 +12,7 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import models.StoredFile;
 import org.mockito.Mockito;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
@@ -66,7 +67,8 @@ public class SimpleStorage implements StorageClient {
   }
 
   @Override
-  public URL getPresignedUrl(String key) {
+  public URL getPresignedUrl(StoredFile file) {
+    String key = file.getName();
     GetObjectRequest getObjectRequest = GetObjectRequest.builder().key(key).bucket(bucket).build();
 
     GetObjectPresignRequest getObjectPresignRequest =

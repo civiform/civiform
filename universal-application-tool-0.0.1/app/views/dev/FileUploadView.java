@@ -105,6 +105,6 @@ public class FileUploadView extends BaseHtmlView {
   }
 
   private String getPresignedURL(StoredFile file) {
-    return storageClient.getPresignedUrl(file.getName()).toString();
+    return storageClient.getPresignedUrl(file).toString();
   }
 }

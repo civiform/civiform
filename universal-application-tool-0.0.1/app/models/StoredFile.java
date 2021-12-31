@@ -18,5 +18,14 @@ public class StoredFile extends BaseModel {
     this.name = name;
   }
 
+  public String getUserFileName() {
+    return userFileName;
+  }
+
+  public void setUserFileName(String userFileName) {
+    this.userFileName = userFileName;
+  }
+
   @Constraints.Required String name;
+  String userFileName;
 }

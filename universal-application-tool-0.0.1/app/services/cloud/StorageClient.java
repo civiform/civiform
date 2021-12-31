@@ -1,6 +1,7 @@
 package services.cloud;
 
 import java.net.URL;
+import models.StoredFile;
 
 /** Interface for working with cloud file storage backends. */
 public interface StorageClient {
@@ -9,9 +10,9 @@ public interface StorageClient {
    * Returns a URL that gives users temporary access to file storage. This URL is used to access and
    * download users' files from cloud storage.
    *
-   * @param fileName The file to be accessed from cloud storage.
+   * @param file The file to be accessed from cloud storage.
    */
-  URL getPresignedUrl(String fileName);
+  URL getPresignedUrl(StoredFile file);
 
   /**
    * Creates and returns a request to upload a file to cloud storage.
