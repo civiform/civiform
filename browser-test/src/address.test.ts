@@ -315,13 +315,6 @@ describe('address applicant flow', () => {
       })
 
       it('optional has no errors', async () => {
-        await loginAsGuest(pageObject)
-        await selectApplicantLanguage(pageObject, 'English')
-
-        await applicantQuestions.applyProgram(programName)
-        await applicantQuestions.answerAddressQuestion('', '', '', '', '', 1)
-        await applicantQuestions.clickNext()
-
         // First question has no errors.
         let error = await pageObject.$('.cf-address-street-1-error >> nth=0')
         expect(await error.isHidden()).toEqual(true)
