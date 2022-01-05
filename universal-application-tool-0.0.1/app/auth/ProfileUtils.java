@@ -52,7 +52,13 @@ public class ProfileUtils {
 
   /** Return true if the account is not a fully usable account to the City of Seattle. */
   public boolean accountIsIdcsPlaceholder(CiviFormProfile profile) {
-    String userEmailLowercase = profile.getProfileData().getEmail().toLowerCase();
+    Optional<String> userEmail = Optional.ofNullable(profile.getProfileData().getEmail());
+
+    if (userEmail.isEmpty()) {
+      return false;
+    }
+
+    String userEmailLowercase = userEmail.get().toLowerCase();
 
     return IDCS_PLACEHOLDER_EMAIL_LOWERCASE.equals(userEmailLowercase)
         || IDCS_PLACEHOLDER_TEST_EMAIL_LOWERCASE.equals(userEmailLowercase);
