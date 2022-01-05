@@ -1,10 +1,5 @@
 package services.cloud.aws;
 
-import static org.mockito.Mockito.when;
-
-import javax.inject.Inject;
-import org.mockito.Mockito;
-import play.Environment;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 
@@ -17,20 +12,10 @@ import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
  */
 public class Credentials {
 
-  private final AwsCredentials credentials;
-
-  @Inject
-  Credentials(Environment environment) {
-    if (environment.isTest()) {
-      credentials = Mockito.mock(AwsCredentials.class);
-      when(credentials.secretAccessKey()).thenReturn("secretAccessKey");
-      when(credentials.accessKeyId()).thenReturn("accessKeyId");
-    } else {
-      credentials = DefaultCredentialsProvider.create().resolveCredentials();
-    }
-  }
+  private static final DefaultCredentialsProvider credentialsProvider =
+      DefaultCredentialsProvider.create();
 
   public AwsCredentials getCredentials() {
-    return credentials;
+    return credentialsProvider.resolveCredentials();
   }
 }
