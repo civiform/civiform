@@ -43,6 +43,13 @@ public class ProfileUtils {
     return Optional.of(profileFactory.wrapProfileData(p.get()));
   }
 
+  private static final String IDCS_PLACEHOLDER_EMAIL = "ITD_UCSS_UAT@seattle.gov";
+
+  /** Return true if the account is a known problem account to the City of Seattle. */
+  public boolean accountIsIdcsPlaceholder(CiviFormProfile profile) {
+    return IDCS_PLACEHOLDER_EMAIL.equals(profile.getProfileData().getEmail());
+  }
+
   /** Return true if the account referenced by the profile exists. */
   public boolean validCiviFormProfile(CiviFormProfile profile) {
     try {
