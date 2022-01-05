@@ -43,12 +43,12 @@ public class ProfileUtils {
     return Optional.of(profileFactory.wrapProfileData(p.get()));
   }
 
-  // Testing account to allow for manual verification of the check.
-  private static final String IDCS_PLACEHOLDER_TEST_EMAIL_LOWERCASE =
-      new String("CiviFormStagingTest@gmail.com").toLowerCase();
   // A temporary placeholder email value, used while the user needs to verify their account.
   private static final String IDCS_PLACEHOLDER_EMAIL_LOWERCASE =
-      new String("ITD_UCSS_UAT@seattle.gov").toLowerCase();
+      "ITD_UCSS_UAT@seattle.gov".toLowerCase();
+  // Testing account to allow for manual verification of the check.
+  private static final String IDCS_PLACEHOLDER_TEST_EMAIL_LOWERCASE =
+      "CiviFormStagingTest@gmail.com".toLowerCase();
 
   /** Return true if the account is not a fully usable account to the City of Seattle. */
   public boolean accountIsIdcsPlaceholder(CiviFormProfile profile) {
