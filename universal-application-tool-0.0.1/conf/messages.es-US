@@ -119,15 +119,15 @@ content.description2=Empiece por elegir una solicitud.
 
 
 # 404 page title
-error.not_found_title=Lo siento se perdio
-error.not_found_title_end=la pagina
+error.not_found_title=Lo siento se perdió
+error.not_found_title_end=la página
 
 # 404 page description
 error.not_found_description_a=Pero no se preocupe, los beneficios
 error.not_found_description_a_end=toda via estan!
-error.not_found_description_b=Encuentre los en la
-error.not_found_description_b_end=pagina de
-error.not_found_description_link=homepage
+error.not_found_description_b=Encuéntre los en la
+error.not_found_description_b_end=página de
+error.not_found_description_link=página principal
 
 # 404 page footer
 error.img_caption_a=Foto departe de 
