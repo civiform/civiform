@@ -41,7 +41,7 @@ fi
 # start emulator
 docker-compose --profile $cloudProvider -f browser-test/browser-test-compose.yml -f browser-test/browser-test-compose.dev.yml up -d $emulator
 
-# wait till emulator running
+# wait until emulator running
 bin/$emulator/wait $devServer
 
 # start everything else
