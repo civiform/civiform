@@ -35,7 +35,7 @@ variable "vnet_address_space" {
 
 variable "subnet_address_prefixes" {
   type        = list(string)
-  description = "List of the apps subnet address prefixes"
+  description = "List of the apps subnet address prefixes (must be distinct from the postgress subnet)"
   default = [
     "10.0.2.0/24"
   ]
@@ -83,14 +83,9 @@ variable "postgres_backup_retention_days" {
   default     = 7
 }
 
-variable "postgres_ssl_minimal_tls_version_enforced" {
-  type    = string
-  default = "TLS1_2"
-}
-
 variable "postgres_subnet_address_prefixes" {
   type        = list(string)
-  description = "A list of the subnet address prefixes for postgres"
+  description = "A list of the subnet address prefixes for postgres (must be distinct from the app's subnet addresses)"
   default = [
     "10.0.4.0/24"
   ]
