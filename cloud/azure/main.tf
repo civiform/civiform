@@ -159,7 +159,7 @@ resource "azurerm_postgresql_server" "civiform" {
   // fqdn civiform-db.postgres.database.azure.com
 
   sku_name   = var.postgres_sku_name
-  version    = var.postgres_version
+  version    = "11"
   storage_mb = var.postgres_storage_mb
 
   backup_retention_days        = var.postgres_backup_retention_days

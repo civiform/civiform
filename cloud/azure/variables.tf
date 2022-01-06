@@ -71,13 +71,6 @@ variable "postgres_sku_name" {
   description = "The sku name for postgres server"
   default     = "GP_Gen5_4"
 }
-
-variable "postgres_version" {
-  type        = string
-  description = "The version of postgres to use"
-  default     = "11"
-}
-
 variable "postgres_storage_mb" {
   type        = number
   description = "The mb of storage for postgres instance"
