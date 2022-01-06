@@ -20,13 +20,13 @@ variable "image_tag_name" {
 }
 
 variable "location_name" {
-  type = string
+  type        = string
   description = "Name of the location for the resource group"
-  default = "eastus"
-} 
+  default     = "eastus"
+}
 
 variable "vnet_address_space" {
-  type = list(string)
+  type        = list(string)
   description = "List of vnet address_spaces"
   default = [
     "10.0.0.0/16"
@@ -34,7 +34,7 @@ variable "vnet_address_space" {
 }
 
 variable "subnet_address_prefixes" {
-  type = list(string)
+  type        = list(string)
   description = "List of the apps subnet address prefixes"
   default = [
     "10.0.2.0/24"
@@ -42,61 +42,61 @@ variable "subnet_address_prefixes" {
 }
 
 variable "app_secret_key" {
-  type = string
+  type        = string
   description = "Secret Key For the app"
 }
 
 variable "app_sku" {
-  type = map(string)
+  type        = map(string)
   description = "SKU tier/size/capacity information"
   default = {
-    tier = "Standard", 
-    size = "S1",
+    tier     = "Standard",
+    size     = "S1",
     capacity = "2"
   }
 }
 
 variable "postgres_admin_login" {
-  type = string
+  type        = string
   description = "Postgres admin login"
 }
 
 variable "postgres_admin_password" {
-  type = string
+  type        = string
   description = "Postgres admin password"
 }
 
 variable "postgres_sku_name" {
-  type = string
+  type        = string
   description = "The sku name for postgres server"
-  default = "GP_Gen5_4"
+  default     = "GP_Gen5_4"
 }
 
 variable "postgres_version" {
-  type = string
+  type        = string
   description = "The version of postgres to use"
-  default = "11"
+  default     = "11"
 }
 
 variable "postgres_storage_mb" {
-  type = number
+  type        = number
   description = "The mb of storage for postgres instance"
-  default = 5120
+  default     = 5120
 }
 
 variable "postgres_backup_retention_days" {
-  type = number
+  type        = number
   description = "Number of days to retain postgres backup"
-  default = 7
+  default     = 7
 }
 
 variable "postgres_ssl_minimal_tls_version_enforced" {
-  type = string
+  type    = string
   default = "TLS1_2"
 }
 
 variable "postgres_subnet_address_prefixes" {
-  type = list(string)
+  type        = list(string)
   description = "A list of the subnet address prefixes for postgres"
   default = [
     "10.0.4.0/24"
@@ -104,13 +104,13 @@ variable "postgres_subnet_address_prefixes" {
 }
 
 variable "log_sku" {
-  type = string
+  type        = string
   description = "The SKU for the sever logs"
-  default = "PerGB2018"
+  default     = "PerGB2018"
 }
 
 variable "log_retention" {
-  type = number
+  type        = number
   description = "The number of days the logs will be retained for"
-  default = 30
+  default     = 30
 }
