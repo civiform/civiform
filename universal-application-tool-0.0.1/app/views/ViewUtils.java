@@ -28,9 +28,12 @@ public final class ViewUtils {
         .withType("text/javascript");
   }
 
-  /** Generates an CDN script tag for loading the javascript file found at that CDN URL. */
-  public Tag makeCdnJsTag(String cdnUrl) {
-    return script().withSrc(cdnUrl).withType("text/javascript");
+  /**
+   * Generates a script tag for loading a javascript asset that is provided by a web JAR and found
+   * at the given asset route.
+   */
+  public Tag makeWebJarsTag(String assetsRoute) {
+    return script().withSrc(assetsFinder.path(assetsRoute));
   }
 
   /**
