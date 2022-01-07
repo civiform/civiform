@@ -2,7 +2,6 @@ package services.cloud;
 
 import java.net.URL;
 import java.util.Optional;
-import models.StoredFile;
 
 /** Interface for working with cloud file storage backends. */
 public interface StorageClient {

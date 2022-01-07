@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import models.StoredFile;
 import play.Environment;
 import services.cloud.StorageClient;
 import services.cloud.StorageServiceName;

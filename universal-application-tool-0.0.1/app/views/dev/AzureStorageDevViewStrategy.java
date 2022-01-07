@@ -69,7 +69,9 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
                     file ->
                         tr(
                             td(String.valueOf(file.id)),
-                            td(a(file.getUserFileName()).withHref(getPresignedURL(file, client)))))));
+                            td(
+                                a(file.getUserFileName())
+                                    .withHref(getPresignedURL(file, client)))))));
   }
 
   public String getPresignedURL(StoredFile file, StorageClient client) {
