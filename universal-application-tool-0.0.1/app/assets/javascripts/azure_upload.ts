@@ -31,7 +31,7 @@ class AzureUploadController {
 
     const redirectUrl = new URL(azureUploadProps.successActionRedirect)
 
-    const blockBlobURL = azblob.BlockBlobURL.fromBlobURL(
+    const blockBlobUrl = azblob.BlockBlobURL.fromBlobURL(
       new azblob.BlobURL(
         `${azureUploadProps.blobUrl}?${azureUploadProps.sasToken}`,
         azblob.StorageURL.newPipeline(new azblob.AnonymousCredential())
@@ -42,7 +42,7 @@ class AzureUploadController {
       .uploadBrowserDataToBlockBlob(
         azblob.Aborter.none,
         azureUploadProps.file,
-        blockBlobURL
+        blockBlobUrl
       )
       .then((resp, err) => {
         if (err) {
