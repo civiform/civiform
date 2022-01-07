@@ -334,16 +334,17 @@ public final class QuestionEditView extends BaseHtmlView {
 
     if (!ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
       formTag.with(
-          div().withId("demographic-field-content").with(buildDemographicFields(questionForm)));
+          div().withId("demographic-field-content").with(buildDemographicFields(questionForm, submittable)));
     }
 
     return formTag;
   }
 
-  private ImmutableList<DomContent> buildDemographicFields(QuestionForm questionForm) {
+  private ImmutableList<DomContent> buildDemographicFields(QuestionForm questionForm, boolean submittable) {
     return ImmutableList.of(
         FieldWithLabel.radio()
             .setId("question-demographic-no-export")
+            .setDisabled(!submittable)
             .setFieldName("questionExportState")
             .setLabelText("No export")
             .setValue(QuestionTag.NON_DEMOGRAPHIC.getValue())
@@ -354,6 +355,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .getContainer(),
         FieldWithLabel.radio()
             .setId("question-demographic-export-demographic")
+            .setDisabled(!submittable)
             .setFieldName("questionExportState")
             .setLabelText("Export Value")
             .setValue(QuestionTag.DEMOGRAPHIC.getValue())
@@ -362,6 +364,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .getContainer(),
         FieldWithLabel.radio()
             .setId("question-demographic-export-pii")
+            .setDisabled(!submittable)
             .setFieldName("questionExportState")
             .setLabelText("Export Obfuscated")
             .setValue(QuestionTag.DEMOGRAPHIC_PII.getValue())
