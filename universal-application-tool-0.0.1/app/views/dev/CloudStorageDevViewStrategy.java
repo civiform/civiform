@@ -8,7 +8,7 @@ import views.HtmlBundle;
 import views.ViewUtils;
 
 /**
- * Interface for interacting with different cloud storage providers for the file upload view. We
+ * Interface for interacting with different cloud storage providers for the dev file upload view. We
  * currently support Azure and AWS.
  */
 public interface CloudStorageDevViewStrategy {

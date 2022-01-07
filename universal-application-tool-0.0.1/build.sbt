@@ -107,7 +107,6 @@ libraryDependencies ++= Seq(
     "org.webjars.npm" % "react" % "15.4.0",
     "org.webjars.npm" % "types__react" % "15.0.34",
     "org.webjars.npm" % "azure__storage-blob" % "10.5.0",
-    "org.webjars" % "requirejs" % "2.2.0",
 )
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.12.5",
