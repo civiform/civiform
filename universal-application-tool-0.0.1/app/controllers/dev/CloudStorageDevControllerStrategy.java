@@ -6,8 +6,7 @@ import repository.StoredFileRepository;
 
 /**
  * Interface for interacting with the different cloud storage providers in dev. Each cloud storage
- * provider implements the interface methods, which can then be
- * called by FileUploadController.
+ * provider implements the interface methods, which can then be called by FileUploadController.
  */
 public interface CloudStorageDevControllerStrategy {
 

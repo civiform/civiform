@@ -10,9 +10,7 @@ import views.ViewUtils;
  */
 public interface CloudStorageDevViewStrategy {
 
-  /**
-   * Method for getting the file upload form for different cloud providers.
-   */
+  /** Method for getting the file upload form for different cloud providers. */
   ContainerTag getFileUploadForm(
       ViewUtils viewUtils, StorageUploadRequest storageUploadRequest, HtmlBundle bundle);
 }
