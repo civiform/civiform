@@ -2,7 +2,6 @@ package services.cloud;
 
 import java.net.URL;
 import java.util.Optional;
-import models.StoredFile;
 
 /** Interface for working with Cloud storage. We currently support AWS S3 and Azure Blob storage. */
 public interface StorageClient {

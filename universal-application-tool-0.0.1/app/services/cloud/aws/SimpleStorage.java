@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import models.StoredFile;
 import org.mockito.Mockito;
 import play.Environment;
 import play.inject.ApplicationLifecycle;

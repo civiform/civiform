@@ -1,16 +1,10 @@
 package views.dev;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.pre;
-import static j2html.TagCreator.table;
-import static j2html.TagCreator.tbody;
-import static j2html.TagCreator.td;
-import static j2html.TagCreator.tr;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
@@ -78,9 +72,10 @@ public class FileUploadView extends BaseHtmlView {
                 .with(
                     div()
                         .withClasses(Styles.GRID, Styles.GRID_COLS_2)
-                        .with(div().with(h2("Current Files:"))
-                            .with(pre(storageStrategy.renderFiles(files, storageClient))))));
+                        .with(
+                            div()
+                                .with(h2("Current Files:"))
+                                .with(pre(storageStrategy.renderFiles(files, storageClient))))));
     return layout.render(bundle);
   }
-
 }
