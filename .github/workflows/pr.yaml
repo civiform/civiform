@@ -39,8 +39,6 @@ jobs:
       - name: Start localstack
         run: docker-compose -f browser-test/browser-test-compose.yml up -d localstack
       - name: Wait for localstack ready
-        env:
-          AWS_DEFAULT_REGION: us-west-2
         run: bin/localstack/wait http://localhost:6645
       - name: Build and run the rest of test stack
         run: sh -c "docker-compose -f browser-test/browser-test-compose.yml up > .dockerlogs &"

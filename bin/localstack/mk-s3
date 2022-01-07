@@ -31,6 +31,6 @@ if ! which aws > /dev/null; then
     exit $?
 fi
 
-AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test aws --endpoint-url=$localstack_local_endpoint $create_s3_cmd
+AWS_DEFAULT_REGION=us-west-2 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test aws --endpoint-url=$localstack_local_endpoint $create_s3_cmd
 
 popd > /dev/null
