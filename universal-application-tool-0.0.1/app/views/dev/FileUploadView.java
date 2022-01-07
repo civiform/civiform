@@ -78,23 +78,9 @@ public class FileUploadView extends BaseHtmlView {
                 .with(
                     div()
                         .withClasses(Styles.GRID, Styles.GRID_COLS_2)
-                        .with(div().with(h2("Current Files:")).with(pre(renderFiles(files))))));
+                        .with(div().with(h2("Current Files:"))
+                            .with(pre(storageStrategy.renderFiles(files, storageClient))))));
     return layout.render(bundle);
   }
 
-  private ContainerTag renderFiles(ImmutableList<StoredFile> files) {
-    return table()
-        .with(
-            tbody(
-                each(
-                    files,
-                    file ->
-                        tr(
-                            td(String.valueOf(file.id)),
-                            td(a(file.getName()).withHref(getPresignedURL(file)))))));
-  }
-
-  private String getPresignedURL(StoredFile file) {
-    return storageClient.getPresignedUrl(file).toString();
-  }
 }

@@ -1,11 +1,21 @@
 package views.dev;
 
+import static j2html.TagCreator.a;
+import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.table;
+import static j2html.TagCreator.tbody;
+import static j2html.TagCreator.td;
 import static j2html.TagCreator.text;
+import static j2html.TagCreator.tr;
 
+import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
+import java.util.Optional;
+import models.StoredFile;
+import services.cloud.StorageClient;
 import services.cloud.StorageUploadRequest;
 import services.cloud.azure.BlobStorageUploadRequest;
 import views.HtmlBundle;
@@ -47,5 +57,22 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
                 .withName("successActionRedirect")
                 .withValue(request.successActionRedirect()))
         .with(TagCreator.button(text("Upload to Azure Blob Storage")).withType("submit"));
+  }
+
+  @Override
+  public ContainerTag renderFiles(ImmutableList<StoredFile> files, StorageClient client) {
+    return table()
+        .with(
+            tbody(
+                each(
+                    files,
+                    file ->
+                        tr(
+                            td(String.valueOf(file.id)),
+                            td(a(file.getUserFileName()).withHref(getPresignedURL(file, client)))))));
+  }
+
+  public String getPresignedURL(StoredFile file, StorageClient client) {
+    return client.getPresignedUrl(file.getName(), Optional.of(file.getUserFileName())).toString();
   }
 }

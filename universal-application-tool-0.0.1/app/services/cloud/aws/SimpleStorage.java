@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -67,10 +68,8 @@ public class SimpleStorage implements StorageClient {
   }
 
   @Override
-  public URL getPresignedUrl(StoredFile file) {
-    String key = file.getName();
+  public URL getPresignedUrl(String key, Optional<String> userFileName) {
     GetObjectRequest getObjectRequest = GetObjectRequest.builder().key(key).bucket(bucket).build();
-
     GetObjectPresignRequest getObjectPresignRequest =
         GetObjectPresignRequest.builder()
             .signatureDuration(AWS_PRESIGNED_URL_DURATION)
