@@ -25,7 +25,7 @@ class AzureUploadController {
     // window.azblob.
     const azblob = window['azblob']
     if (uploadContainer == null) {
-      throw 'Attempted to upload to null container'
+      throw new Error('Attempted to upload to null container')
     }
     const azureUploadProps = this.getAzureUploadProps(uploadContainer)
 
