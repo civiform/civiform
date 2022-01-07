@@ -34,7 +34,7 @@ jobs:
         id: build_browser_tests
         env:
           DOCKER_BUILDKIT: 1
-          PUSH_TO_CIVIFORM_ECR: 1
+          PUSH_BROWSER_TEST_IMAGE: 1
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-browser-tests

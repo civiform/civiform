@@ -36,6 +36,20 @@ public class ValidAccountFilter extends EssentialFilter {
                   Results.redirect(org.pac4j.play.routes.LogoutController.logout()));
             }
           }
+
+          // Check to see if the account is the unconfirmed email placeholder account from Seattle
+          // IDCS. If it is, log them out and redirect to a custom support page for that purpose.
+          if (profile.isPresent()
+              && profileUtils.accountIsIdcsPlaceholder(profile.get())
+              && !isLogoutRequest(request.uri())) {
+            String logoutUrl =
+                controllers.routes.SupportController.handleUnconfirmedIdcsEmail().url();
+
+            return Accumulator.done(
+                Results.redirect(
+                    org.pac4j.play.routes.LogoutController.logout().url() + "?url=" + logoutUrl));
+          }
+
           return next.apply(request);
         });
   }
@@ -51,10 +65,14 @@ public class ValidAccountFilter extends EssentialFilter {
     if (uri.startsWith("/dev")) {
       return true;
     }
-    String logoutUrl = org.pac4j.play.routes.LogoutController.logout().url();
-    if (uri.startsWith(logoutUrl)) {
+    if (isLogoutRequest(uri)) {
       return true;
     }
     return false;
+  }
+
+  /** Return true if the request is to the logout endpoint. */
+  private boolean isLogoutRequest(String uri) {
+    return uri.startsWith(org.pac4j.play.routes.LogoutController.logout().url());
   }
 }
