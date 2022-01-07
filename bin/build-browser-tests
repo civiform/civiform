@@ -1,33 +1,25 @@
 #! /bin/bash
 
-# DOC: Build a new docker image for running the browser tests, optionally push to AWS.
+# DOC: Build a new docker image for running the browser tests and push to Docker hub
 
 pushd $(git rev-parse --show-toplevel)
 
 set -e
 set +x
 
-docker build -t civiform-browser-test \
+docker build -t civiform-browser-test:latest \
   browser-test \
   -f browser-test/playwright.Dockerfile \
-  --cache-from docker.io/civiform/civiform-browser-test:latest \
+  --cache-from civiform/civiform-browser-test:latest \
   --build-arg BUILDKIT_INLINE_CACHE=1
 
-if [ "$PUSH_TO_CIVIFORM_ECR" ]; then
-  export AWS_DEFAULT_REGION=us-west-2
-  aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/t1q6b4h2
-  docker tag civiform-browser-test:latest public.ecr.aws/t1q6b4h2/civiform-browser-tests:latest
-  docker push public.ecr.aws/t1q6b4h2/civiform-browser-tests:latest
+if [ "$PUSH_BROWSER_TEST_IMAGE" ]; then
+  # log the docker CLI into the Docker Hub container registry
+  echo $DOCKER_HUB_ACCESS_TOKEN | docker login --username $DOCKER_HUB_USERNAME --password-stdin docker.io
+
+  # push the new image to the Docker Hub registry
+  docker tag civiform-browser-test:latest docker.io/civiform/civiform-browser-test:latest
+  docker push docker.io/civiform/civiform-browser-test:latest
 fi
-
-# clear AWS login state
-docker logout public.ecr.aws/t1q6b4h2
-
-# log the docker CLI into the Docker Hub container registry
-echo $DOCKER_HUB_ACCESS_TOKEN | docker login --username $DOCKER_HUB_USERNAME --password-stdin docker.io
-
-# push the new image to the Docker Hub registry
-docker tag civiform-browser-test:latest docker.io/civiform/civiform-browser-test:latest
-docker push docker.io/civiform/civiform-browser-test:latest
 
 popd

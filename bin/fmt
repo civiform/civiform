@@ -6,6 +6,6 @@ pushd $(git rev-parse --show-toplevel)
 
 docker run --rm -it \
   -v "$(pwd)/universal-application-tool-0.0.1/:/code" \
-  docker.io/civiform/formatter:latest
+  civiform/formatter:latest
 
 popd
