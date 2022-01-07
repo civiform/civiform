@@ -21,7 +21,8 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
       throws RuntimeException {
     if (!(storageUploadRequest instanceof SignedS3UploadRequest)) {
       throw new RuntimeException(
-          "Trying to upload a file to AWS dev file storage using incorrect upload request type.");
+          "Trying to upload a file to localhost (AWS emulator) dev file storage using incorrect"
+              + " upload request type.");
     }
     SignedS3UploadRequest request = (SignedS3UploadRequest) storageUploadRequest;
 

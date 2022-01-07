@@ -23,7 +23,8 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
       throws RuntimeException {
     if (!(storageUploadRequest instanceof BlobStorageUploadRequest)) {
       throw new RuntimeException(
-          "Trying to upload file to dev Azure blob storage using incorrect upload request type.");
+          "Trying to upload file to dev Azurite (Azure emulator) blob storage using incorrect"
+              + " upload request type.");
     }
     BlobStorageUploadRequest request = (BlobStorageUploadRequest) storageUploadRequest;
     bundle.addFooterScripts(
