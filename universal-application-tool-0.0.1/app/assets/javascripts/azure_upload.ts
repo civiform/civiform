@@ -47,20 +47,10 @@ class AzureUploadController {
       .then((resp, err) => {
         if (err) {
           throw err
-        } else {
-          console.log(resp)
-          redirectUrl.searchParams.set(
-            'userFileName',
-            azureUploadProps.file.name
-          )
-          redirectUrl.searchParams.set('etag', resp.eTag)
-          redirectUrl.searchParams.set('fileName', azureUploadProps.fileName)
-          redirectUrl.searchParams.set(
-            'container',
-            azureUploadProps.containerName
-          )
-          window.location.replace(redirectUrl.toString())
         }
+        console.log(resp)
+        this.setFileUploadMetadata(redirectUrl, azureUploadProps, resp)
+        window.location.replace(redirectUrl.toString())
       })
   }
 
@@ -77,6 +67,17 @@ class AzureUploadController {
       )).files[0],
       fileName: this.getValueFromInputLabel('fileName'),
     }
+  }
+
+  private setFileUploadMetadata(
+    redirectUrl: URL,
+    azureUploadProps: any,
+    resp: any
+  ) {
+    redirectUrl.searchParams.set('userFileName', azureUploadProps.file.name)
+    redirectUrl.searchParams.set('etag', resp.eTag)
+    redirectUrl.searchParams.set('fileName', azureUploadProps.fileName)
+    redirectUrl.searchParams.set('container', azureUploadProps.containerName)
   }
 }
 

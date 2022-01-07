@@ -5,15 +5,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.inject.AbstractModule;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
-import controllers.dev.AwsStrategy;
-import controllers.dev.AzureStrategy;
-import controllers.dev.CloudStorageStrategy;
+import controllers.dev.AwsStorageDevControllerStrategy;
+import controllers.dev.AzureStorageDevControllerStrategy;
+import controllers.dev.CloudStorageDevControllerStrategy;
 import play.Environment;
 import services.cloud.StorageClient;
 import services.cloud.StorageServiceName;
-import views.dev.AwsViewStorageStrategy;
-import views.dev.AzureViewStorageStrategy;
-import views.dev.FileUploadViewStorageStrategy;
+import views.dev.AwsStorageDevViewStrategy;
+import views.dev.AzureStorageDevViewStrategy;
+import views.dev.CloudStorageDevViewStrategy;
 
 /** CloudStorageModule configures and initializes the AWS and Azure file storage classes. */
 public class CloudStorageModule extends AbstractModule {
@@ -56,13 +56,13 @@ public class CloudStorageModule extends AbstractModule {
 
     switch (storageServiceName) {
       case AZURE_BLOB:
-        bind(CloudStorageStrategy.class).to(AzureStrategy.class);
-        bind(FileUploadViewStorageStrategy.class).to(AzureViewStorageStrategy.class);
+        bind(CloudStorageDevControllerStrategy.class).to(AzureStorageDevControllerStrategy.class);
+        bind(CloudStorageDevViewStrategy.class).to(AzureStorageDevViewStrategy.class);
         return;
       case AWS_S3:
       default:
-        bind(CloudStorageStrategy.class).to(AwsStrategy.class);
-        bind(FileUploadViewStorageStrategy.class).to(AwsViewStorageStrategy.class);
+        bind(CloudStorageDevControllerStrategy.class).to(AwsStorageDevControllerStrategy.class);
+        bind(CloudStorageDevViewStrategy.class).to(AwsStorageDevViewStrategy.class);
     }
   }
 

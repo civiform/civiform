@@ -11,7 +11,7 @@ import views.ViewUtils;
  * Interface for interacting with different cloud storage providers for the file upload view. We
  * currently support Azure and AWS.
  */
-public interface FileUploadViewStorageStrategy {
+public interface CloudStorageDevViewStrategy {
 
   /**
    * Method for getting the file upload form for different cloud providers. This currently supports

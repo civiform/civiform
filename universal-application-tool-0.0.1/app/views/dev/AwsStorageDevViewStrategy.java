@@ -13,7 +13,7 @@ import views.HtmlBundle;
 import views.ViewUtils;
 
 /** Strategy class for creating a file upload form for AWS. */
-public class AwsViewStorageStrategy implements FileUploadViewStorageStrategy {
+public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
 
   @Override
   public ContainerTag getFileUploadForm(

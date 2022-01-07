@@ -29,21 +29,21 @@ import views.style.Styles;
 
 /**
  * Renders a page for a developer to test uploading files. The logic for creating the file upload
- * form has been extracted out to {@link FileUploadViewStorageStrategy}.
+ * form has been extracted out to {@link CloudStorageDevViewStrategy}.
  */
 public class FileUploadView extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
   private final StorageClient storageClient;
   private final ViewUtils viewUtils;
-  private final FileUploadViewStorageStrategy storageStrategy;
+  private final CloudStorageDevViewStrategy storageStrategy;
 
   @Inject
   public FileUploadView(
       BaseHtmlLayout layout,
       StorageClient storageClient,
       ViewUtils viewUtils,
-      FileUploadViewStorageStrategy storageStrategy) {
+      CloudStorageDevViewStrategy storageStrategy) {
     this.layout = checkNotNull(layout);
     this.storageClient = checkNotNull(storageClient);
     this.viewUtils = checkNotNull(viewUtils);

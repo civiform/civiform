@@ -9,7 +9,7 @@ import repository.StoredFileRepository;
  * (currently we support Azure and AWS) implements the interface methods, which can then be called
  * by FileUploadController.
  */
-public interface CloudStorageStrategy {
+public interface CloudStorageDevControllerStrategy {
 
   /**
    * Method for uploading a file and redirecting users' on success. Should be implemented for each
