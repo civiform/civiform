@@ -1027,10 +1027,10 @@ public final class Styles {
   public static final String _MX_96 = "-mx-96";
   public static final String _MY_PX = "-my-px";
   public static final String _MX_PX = "-mx-px";
-  public static final String MT_0p5 = "mt-0.5";
-  public static final String MR_0p5 = "mr-0.5";
-  public static final String MB_0p5 = "mb-0.5";
-  public static final String ML_0p5 = "ml-0.5";
+  public static final String MT_0P5 = "mt-0.5";
+  public static final String MR_0P5 = "mr-0.5";
+  public static final String MB_0P5 = "mb-0.5";
+  public static final String ML_0P5 = "ml-0.5";
   public static final String MT_0 = "mt-0";
   public static final String MR_0 = "mr-0";
   public static final String MB_0 = "mb-0";
@@ -1040,6 +1040,9 @@ public final class Styles {
   public static final String MB_1 = "mb-1";
   public static final String ML_1 = "ml-1";
   public static final String MT_1P5 = "mt-1.5";
+  public static final String MR_1p5 = "mr-1.5";
+  public static final String MB_1P5 = "mb-1.5";
+  public static final String ML_1P5 = "ml-1.5";
   public static final String MT_2 = "mt-2";
   public static final String MR_2 = "mr-2";
   public static final String MB_2 = "mb-2";

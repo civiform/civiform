@@ -228,17 +228,13 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private ContainerTag loginButton(Messages messages) {
     String loginLink = routes.CallbackController.callback(GuestClient.CLIENT_NAME).url();
 
-    // Nested divs + styles were used to make icon show up consistently
-    // There might be a better way to do this
-    return div(div(
+    return div(
+                this.viewUtils.makeLocalSvgTag("login_icon").withClasses(Styles.INLINE_BLOCK, Styles.MR_1, Styles.MB_1),
                 a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
                     .withId("guestLogin")
                     .withHref(loginLink)
-                    .withClasses(ApplicantStyles.LINK_LOGOUT),
-                div(this.viewUtils.makeLocalSvgTag("login_icon"))
-                    .withClasses(Styles.ABSOLUTE, Styles._LEFT_7, Styles.TOP_PX, Styles.MR_2))
-            .withClasses(Styles.MT_2, Styles.RELATIVE))
-        .withClasses(Styles._MT_PX, Styles.JUSTIFY_SELF_END);
+                    .withClasses(ApplicantStyles.LINK_LOGOUT, Styles.INLINE_BLOCK, Styles.MT_1)
+              ).withClasses(Styles.JUSTIFY_SELF_END, Styles.WHITESPACE_NOWRAP);
   }
 
   /**
