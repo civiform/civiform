@@ -8,16 +8,31 @@ import services.cloud.StorageUploadRequest;
 @AutoValue
 public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
 
+  /**
+   * Get account name. This is used to build the canonicalized resource part of the signature
+   * string.
+   */
   public abstract String accountName();
 
+  /**
+   * Get container name. This is used to build the canonicalized resource part of the signature
+   * string.
+   */
   public abstract String containerName();
 
+  /**
+   * Get file name for the blob. This is used to build the canonicalized resource part of the
+   * signature string.
+   */
   public abstract String fileName();
 
+  /** Get the sas token for the resource. */
   public abstract String sasToken();
 
+  /** Get the URL for the resource. */
   public abstract String blobUrl();
 
+  /** Get the success redirect action link. */
   public abstract String successActionRedirect();
 
   @Override
@@ -31,44 +46,24 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
   @AutoValue.Builder
   public abstract static class Builder {
 
-    /**
-     * Get file name for the blob. This is used to build the canonicalized resource part of the
-     * signature string.
-     */
-
-    /**
-     * Get account name. This is used to build the canonicalized resource part of the signature
-     * string.
-     */
     public abstract Builder setFileName(String fileName);
 
-    /**
-     * Get account name. This is used to build the canonicalized resource part of the signature
-     * string.
-     */
     public abstract Builder setAccountName(String accountName);
 
-    /**
-     * Get container name. This is used to build the canonicalized resource part of the signature
-     * string.
-     */
     public abstract Builder setContainerName(String containerName);
 
-    /** Get the URL for the resource. */
     public abstract Builder setBlobUrl(String blobUrl);
 
-    /** Get the sas token for the resource. */
     public abstract Builder setSasToken(String sasToken);
 
-    /** Get the success redirect action link. */
     public abstract Builder setSuccessActionRedirect(String successActionRedirect);
 
     /** Get the service name (this is always set to "azure-blob" so the setter is private */
     abstract Builder setServiceName(String serviceName);
 
-    /** Build the request. This is called by the custom public build method. */
     abstract BlobStorageUploadRequest autoBuild();
 
+    /** Build the request. This is called by the custom public build method. */
     public BlobStorageUploadRequest build() {
       return autoBuild();
     }

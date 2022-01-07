@@ -19,9 +19,11 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
 
   @Override
   public ContainerTag getFileUploadForm(
-      ViewUtils viewUtils, StorageUploadRequest storageUploadRequest, HtmlBundle bundle) {
+      ViewUtils viewUtils, StorageUploadRequest storageUploadRequest, HtmlBundle bundle)
+      throws RuntimeException {
     if (!(storageUploadRequest instanceof BlobStorageUploadRequest)) {
-      return null;
+      throw new RuntimeException(
+          "Trying to upload file to dev Azure blob storage using incorrect upload request type.");
     }
     BlobStorageUploadRequest request = (BlobStorageUploadRequest) storageUploadRequest;
     bundle.addFooterScripts(

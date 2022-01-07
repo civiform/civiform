@@ -12,5 +12,6 @@ public interface CloudStorageDevViewStrategy {
 
   /** Method for getting the file upload form for different cloud providers. */
   ContainerTag getFileUploadForm(
-      ViewUtils viewUtils, StorageUploadRequest storageUploadRequest, HtmlBundle bundle);
+      ViewUtils viewUtils, StorageUploadRequest storageUploadRequest, HtmlBundle bundle)
+      throws RuntimeException;
 }

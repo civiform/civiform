@@ -59,7 +59,15 @@ public class FileUploadView extends BaseHtmlView {
     ContainerTag fileUploadForm;
 
     HtmlBundle bundle = layout.getBundle();
-    fileUploadForm = storageStrategy.getFileUploadForm(viewUtils, signedRequest, bundle);
+    try {
+      fileUploadForm = storageStrategy.getFileUploadForm(viewUtils, signedRequest, bundle);
+    } catch (RuntimeException e) {
+      // Exception is only thrown if there is a mismatch between the signedRequest and the cloud
+      // provider.
+      // For example, passing a BlobStorageUploadRequest into AwsStorageDevViewStrategy. This should
+      // never happen.
+      return null;
+    }
     bundle
         .setTitle(title)
         .addMainContent(
