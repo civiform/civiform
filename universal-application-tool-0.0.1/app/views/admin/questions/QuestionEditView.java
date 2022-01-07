@@ -334,13 +334,16 @@ public final class QuestionEditView extends BaseHtmlView {
 
     if (!ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
       formTag.with(
-          div().withId("demographic-field-content").with(buildDemographicFields(questionForm, submittable)));
+          div()
+              .withId("demographic-field-content")
+              .with(buildDemographicFields(questionForm, submittable)));
     }
 
     return formTag;
   }
 
-  private ImmutableList<DomContent> buildDemographicFields(QuestionForm questionForm, boolean submittable) {
+  private ImmutableList<DomContent> buildDemographicFields(
+      QuestionForm questionForm, boolean submittable) {
     return ImmutableList.of(
         FieldWithLabel.radio()
             .setId("question-demographic-no-export")
