@@ -14,6 +14,7 @@ import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.common.sas.SasProtocol;
 import com.typesafe.config.Config;
 import java.net.URL;
+import java.net.URLConnection;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -175,7 +176,9 @@ public class BlobStorage implements StorageClient {
               .setProtocol(SasProtocol.HTTPS_ONLY);
 
       if (prefixedUserFileName.isPresent()) {
-        signatureValues.setContentDisposition("attachment; filename=" + prefixedUserFileName.get());
+        signatureValues.setContentDisposition("inline; filename=" + prefixedUserFileName.get());
+        signatureValues.setContentType(
+            URLConnection.guessContentTypeFromName(prefixedUserFileName.get()));
       }
 
       return blobClient.generateUserDelegationSas(signatureValues, getUserDelegationKey());
@@ -240,7 +243,9 @@ public class BlobStorage implements StorageClient {
               .setProtocol(SasProtocol.HTTPS_HTTP);
 
       if (prefixedUserFileName.isPresent()) {
-        signatureValues.setContentDisposition("attachment; filename=" + prefixedUserFileName.get());
+        signatureValues.setContentDisposition("inline; filename=" + prefixedUserFileName.get());
+        signatureValues.setContentType(
+            URLConnection.guessContentTypeFromName(prefixedUserFileName.get()));
       }
 
       return blobClient.generateSas(signatureValues);
