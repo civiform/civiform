@@ -6,12 +6,14 @@ class AzureUploadController {
   static UPLOAD_CONTAINER_ID = 'azure-upload-form-component'
 
   constructor() {
-    const uploadContainer = document.getElementById(
-      AzureUploadController.UPLOAD_CONTAINER_ID
-    )
-    uploadContainer.addEventListener('submit', (event) =>
-      this.attemptUpload(event, uploadContainer)
-    )
+    window.onload = (event) => {
+      const uploadContainer = document.getElementById(
+        AzureUploadController.UPLOAD_CONTAINER_ID
+      )
+      uploadContainer.addEventListener('submit', (event) =>
+        this.attemptUpload(event, uploadContainer)
+      )
+    }
   }
 
   getValueFromInputLabel(label: string): string {
