@@ -66,6 +66,10 @@ public class SimpleStorage implements StorageClient {
         });
   }
 
+  public URL getPresignedUrl(String key) {
+    return getPresignedUrl(key, Optional.empty());
+  }
+
   @Override
   public URL getPresignedUrl(String key, Optional<String> userFileName) {
     GetObjectRequest getObjectRequest = GetObjectRequest.builder().key(key).bucket(bucket).build();
