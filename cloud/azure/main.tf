@@ -16,21 +16,21 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "rg" {
   name     = "myTFResourceGroup"
-  location = "eastus"
+  location = var.location_name
 }
 
 resource "azurerm_virtual_network" "civiform_vnet" {
   name                = "civiform-vnet"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  address_space       = ["10.0.0.0/16"]
+  address_space       = var.vnet_address_space
 }
 
 resource "azurerm_subnet" "server_subnet" {
   name                 = "server-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.civiform_vnet.name
-  address_prefixes     = ["10.0.2.0/24"]
+  address_prefixes     = var.subnet_address_prefixes
 
   delegation {
     name = "app-service-delegation"
@@ -53,9 +53,9 @@ resource "azurerm_app_service_plan" "plan" {
 
   # Choose size
   sku {
-    tier     = "Standard"
-    size     = "S1"
-    capacity = "2"
+    tier     = var.app_sku["tier"]
+    size     = var.app_sku["size"]
+    capacity = var.app_sku["capacity"]
   }
 }
 
@@ -74,7 +74,7 @@ resource "azurerm_app_service" "civiform_app" {
     DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
     DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
 
-    SECRET_KEY = "insecure-secret-key"
+    SECRET_KEY = var.app_secret_key
   }
   # Configure Docker Image to load on start
   site_config {
@@ -99,8 +99,8 @@ resource "azurerm_log_analytics_workspace" "civiform_logs" {
   name                = "civiform-server-logs"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
+  sku                 = var.log_sku
+  retention_in_days   = var.log_retention
 }
 
 resource "azurerm_monitor_diagnostic_setting" "app_service_log_analytics" {
@@ -153,16 +153,16 @@ resource "azurerm_postgresql_server" "civiform" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
-  administrator_login          = "psqladmin"
-  administrator_login_password = "H@Sh1CoR3!"
+  administrator_login          = var.postgres_admin_login
+  administrator_login_password = var.postgres_admin_password
 
   // fqdn civiform-db.postgres.database.azure.com
 
-  sku_name   = "GP_Gen5_4"
+  sku_name   = var.postgres_sku_name
   version    = "11"
-  storage_mb = 5120
+  storage_mb = var.postgres_storage_mb
 
-  backup_retention_days        = 7
+  backup_retention_days        = var.postgres_backup_retention_days
   geo_redundant_backup_enabled = false
   auto_grow_enabled            = true
 
@@ -185,7 +185,7 @@ resource "azurerm_subnet" "postgres_subnet" {
   name                 = "postgres_subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.civiform_vnet.name
-  address_prefixes     = ["10.0.4.0/24"]
+  address_prefixes     = var.postgres_subnet_address_prefixes
 
   enforce_private_link_endpoint_network_policies = true
 }
