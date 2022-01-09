@@ -7,7 +7,6 @@
     },
     "sourceMap": true,
     "mapRoot": "/assets",
-    "sourceRoot": "/assets",
-    "target": "ES6"
+    "sourceRoot": "/assets"
   }
 }
