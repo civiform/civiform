@@ -229,12 +229,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
     String loginLink = routes.CallbackController.callback(GuestClient.CLIENT_NAME).url();
 
     return div(
-                this.viewUtils.makeLocalSvgTag("login_icon").withClasses(Styles.INLINE_BLOCK, Styles.MR_1, Styles.MB_1),
-                a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
-                    .withId("guestLogin")
-                    .withHref(loginLink)
-                    .withClasses(ApplicantStyles.LINK_LOGOUT, Styles.INLINE_BLOCK, Styles.MT_1)
-              ).withClasses(Styles.JUSTIFY_SELF_END, Styles.WHITESPACE_NOWRAP);
+            this.viewUtils
+                .makeLocalSvgTag("login_icon")
+                .withClasses(Styles.INLINE_BLOCK, Styles.MR_1, Styles.MB_1),
+            a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
+                .withId("guestLogin")
+                .withHref(loginLink)
+                .withClasses(ApplicantStyles.LINK_LOGOUT, Styles.INLINE_BLOCK, Styles.MT_1))
+        .withClasses(Styles.JUSTIFY_SELF_END, Styles.WHITESPACE_NOWRAP);
   }
 
   /**
