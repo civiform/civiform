@@ -26,14 +26,12 @@ public class NotFound extends BaseHtmlView {
 
   private final ApplicantLayout layout;
   private final LanguageSelector languageSelector;
-  private final MessagesApi messagesApi;
 
   @Inject
   public NotFound(
-      ApplicantLayout layout, LanguageSelector languageSelector, MessagesApi messagesApi) {
+      ApplicantLayout layout, LanguageSelector languageSelector) {
     this.layout = layout;
     this.languageSelector = checkNotNull(languageSelector);
-    this.messagesApi = messagesApi;
   }
 
   private ContainerTag h1Content(Messages messages) {

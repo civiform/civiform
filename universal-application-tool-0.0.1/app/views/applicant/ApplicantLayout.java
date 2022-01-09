@@ -104,7 +104,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return rendered;
   }
 
-  private ContainerTag renderBaseNavBar(Http.RequestHeader request, Messages messages) {
+  private ContainerTag renderBaseNavBar() {
     return nav()
         .withClasses(
             Styles.BG_WHITE,
@@ -137,7 +137,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Http.RequestHeader request, String userName, Messages messages) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
-    return renderBaseNavBar(request, messages)
+    return renderBaseNavBar()
         .with(
             maybeRenderTiButton(profile, userName),
             div(getLanguageForm(request, profile, messages), logoutButton(userName, messages))
@@ -145,9 +145,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   public ContainerTag renderNavBarLoggedOut(Http.RequestHeader request, Messages messages) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
-
-    return renderBaseNavBar(request, messages).with(div(), loginButton(messages));
+    return renderBaseNavBar().with(div(), loginButton(messages));
   }
 
   private ContainerTag getLanguageForm(

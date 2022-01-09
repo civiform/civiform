@@ -27,7 +27,6 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   private final MessagesApi messagesApi;
   private final HttpExecutionContext httpExecutionContext;
   private final ProfileUtils profileUtils;
-  private final ProfileView profileView;
 
   @Inject
   public ErrorHandler(
@@ -36,18 +35,17 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       OptionalSourceMapper sourceMapper,
       Provider<Router> routes,
       ProfileUtils profileUtils,
-      ProfileView profileView,
       NotFound notFoundPage,
       HttpExecutionContext httpExecutionContext,
       MessagesApi messagesApi) {
     super(config, environment, sourceMapper, routes);
     this.profileUtils = checkNotNull(profileUtils);
-    this.profileView = checkNotNull(profileView);
     this.notFoundPage = notFoundPage;
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.messagesApi = messagesApi;
   }
 
+  @Override
   public CompletionStage<Result> onNotFound(Http.RequestHeader request, String message) {
     Optional<CiviFormProfile> maybeProfile = profileUtils.currentUserProfile(request);
 
