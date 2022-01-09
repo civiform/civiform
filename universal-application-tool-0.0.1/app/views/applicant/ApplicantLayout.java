@@ -231,7 +231,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div(
             this.viewUtils
                 .makeLocalSvgTag("login_icon")
-                .withClasses(Styles.INLINE_BLOCK, Styles.MR_1, Styles.MB_1),
+                .withClasses(Styles.INLINE_BLOCK, Styles.MR_2, Styles.MB_1),
             a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
                 .withId("guestLogin")
                 .withHref(loginLink)
