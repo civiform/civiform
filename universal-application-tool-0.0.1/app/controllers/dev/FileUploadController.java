@@ -18,7 +18,7 @@ import views.dev.FileUploadView;
 
 /**
  * Controller for interacting with S3 and blob storage directly in dev mode. The logic for uploading
- * files to cloud storage has been extracted out into {@link CloudStorageDevControllerStrategy}
+ * files to cloud storage has been extracted out into {@link CloudEmulatorFileStorageStrategy}
  */
 public class FileUploadController extends DevController {
 
@@ -26,7 +26,7 @@ public class FileUploadController extends DevController {
   private final StorageClient storageClient;
   private final StoredFileRepository storedFileRepository;
   private final String baseUrl;
-  private final CloudStorageDevControllerStrategy cloudStorageDevControllerStrategy;
+  private final CloudEmulatorFileStorageStrategy cloudEmulatorFileStorageStrategy;
 
   @Inject
   public FileUploadController(
@@ -35,13 +35,13 @@ public class FileUploadController extends DevController {
       StoredFileRepository storedFileRepository,
       Environment environment,
       Config configuration,
-      CloudStorageDevControllerStrategy cloudStorageDevControllerStrategy) {
+      CloudEmulatorFileStorageStrategy cloudEmulatorFileStorageStrategy) {
     super(environment, configuration);
     this.view = checkNotNull(view);
     this.storageClient = checkNotNull(storageClient);
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
-    this.cloudStorageDevControllerStrategy = checkNotNull(cloudStorageDevControllerStrategy);
+    this.cloudEmulatorFileStorageStrategy = checkNotNull(cloudEmulatorFileStorageStrategy);
   }
 
   public Result index(Request request) {
@@ -64,6 +64,6 @@ public class FileUploadController extends DevController {
     if (!isDevEnvironment()) {
       return notFound();
     }
-    return cloudStorageDevControllerStrategy.create(storedFileRepository, request);
+    return cloudEmulatorFileStorageStrategy.create(storedFileRepository, request);
   }
 }

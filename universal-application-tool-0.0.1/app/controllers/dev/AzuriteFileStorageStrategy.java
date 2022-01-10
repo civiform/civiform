@@ -9,7 +9,7 @@ import play.mvc.Result;
 import repository.StoredFileRepository;
 
 /** Implements file uploading for Azure cloud storage. Redirects users on success. */
-public class AzureStorageDevControllerStrategy implements CloudStorageDevControllerStrategy {
+public class AzuriteFileStorageStrategy implements CloudEmulatorFileStorageStrategy {
 
   @Override
   public Result create(StoredFileRepository storedFileRepository, Request request) {

@@ -5,9 +5,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.inject.AbstractModule;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
-import controllers.dev.AwsStorageDevControllerStrategy;
-import controllers.dev.AzureStorageDevControllerStrategy;
-import controllers.dev.CloudStorageDevControllerStrategy;
+import controllers.dev.AwsLocalstackFileStorageStrategy;
+import controllers.dev.AzuriteFileStorageStrategy;
+import controllers.dev.CloudEmulatorFileStorageStrategy;
 import play.Environment;
 import services.cloud.StorageClient;
 import services.cloud.StorageServiceName;
@@ -56,12 +56,12 @@ public class CloudStorageModule extends AbstractModule {
 
     switch (storageServiceName) {
       case AZURE_BLOB:
-        bind(CloudStorageDevControllerStrategy.class).to(AzureStorageDevControllerStrategy.class);
+        bind(CloudEmulatorFileStorageStrategy.class).to(AzuriteFileStorageStrategy.class);
         bind(CloudStorageDevViewStrategy.class).to(AzureStorageDevViewStrategy.class);
         return;
       case AWS_S3:
       default:
-        bind(CloudStorageDevControllerStrategy.class).to(AwsStorageDevControllerStrategy.class);
+        bind(CloudEmulatorFileStorageStrategy.class).to(AwsLocalstackFileStorageStrategy.class);
         bind(CloudStorageDevViewStrategy.class).to(AwsStorageDevViewStrategy.class);
     }
   }
