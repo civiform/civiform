@@ -9,9 +9,9 @@ set +x
 
 short_sha=$(git rev-parse --short HEAD)
 date_in_unix_seconds=$(date +%s)
-snapshot_tag="SNAPSHOT-$short_sha-$date_in_unix_seconds"
+snapshot_tag="SNAPSHOT-${short_sha}-${date_in_unix_seconds}"
 
-echo "Building $snapshot_tag..."
+echo "Building ${snapshot_tag}..."
 
 docker build -f prod.Dockerfile \
   -t civiform:latest \
@@ -22,7 +22,7 @@ docker build -f prod.Dockerfile \
 echo $DOCKER_HUB_ACCESS_TOKEN | docker login --username $DOCKER_HUB_USERNAME --password-stdin docker.io
 
 docker tag civiform:latest civiform/civiform:latest
-docker tag civiform:latest "civiform/civiform:$snapshot_tag"
+docker tag civiform:latest "civiform/civiform:${snapshot_tag}"
 
 # push the new image to the Docker Hub registry
 docker push --all-tags civiform/civiform
