@@ -12,7 +12,7 @@ Key features:
 - Multi-language support also through the admin UI
 - Bulk data export with admin-defined privacy settings to preserve applicant privacy
 - Trusted intermediary role to enable community based organizations to manage applications on behalf of clients
-- Recursive data model: admins can define repeated and recursive questions for nested data such as asking for each addres for each employer of each member of a household
+- Recursive data model: admins can define repeated and recursive questions for nested data such as asking for each address for each employer of each member of a household
 
 See [an end-to-end demo](https://youtu.be/glytMu8RTyA) (**NOTE**: This demo is fairly old, please get in touch if you are a civic entity or nonprofit and would like a walkthrough of the system).
 
