@@ -106,8 +106,8 @@ describe('normal application flow', () => {
     await adminQuestions.expectActiveQuestionExist('second-static-q')
     await adminQuestions.expectActiveQuestionExist('monthly-income-q')
 
-    await adminQuestions.goToViewQuestionPage('ice-cream-q')
-    await adminQuestions.expectViewOnlyQuestion('ice-cream-q')
+    await adminQuestions.goToViewQuestionPage('date-q')
+    await adminQuestions.expectViewOnlyQuestion('date-q')
 
     await logout(page)
     await loginAsTestUser(page)
