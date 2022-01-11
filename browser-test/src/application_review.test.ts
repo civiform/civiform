@@ -224,6 +224,7 @@ describe('normal application flow', () => {
 
     await logout(page)
     await loginAsAdmin(page)
+    await adminQuestions.expectViewableQuestion('ice-cream-q')
     await adminQuestions.createNewVersion('favorite-trees-q')
     await adminQuestions.gotoQuestionEditPage('favorite-trees-q')
     await page.click('#question-settings button:text("Remove"):visible')
