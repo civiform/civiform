@@ -8,7 +8,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
 
-/** Implements file uploading for AWS cloud storage. Redirects users on success. */
+/** Implements file uploading to the localstack AWS cloud storage emulator. */
 public class AwsLocalstackFileStorageStrategy implements CloudEmulatorFileStorageStrategy {
 
   @Override

@@ -8,7 +8,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
 
-/** Implements file uploading for Azure cloud storage. Redirects users on success. */
+/** Implements file uploading to Azurite, the Azure emulator. */
 public class AzuriteFileStorageStrategy implements CloudEmulatorFileStorageStrategy {
 
   @Override

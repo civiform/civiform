@@ -5,8 +5,9 @@ import play.mvc.Result;
 import repository.StoredFileRepository;
 
 /**
- * Interface for interacting with the different cloud storage providers in dev. Each cloud storage
- * provider implements the interface methods, which can then be called by FileUploadController.
+ * Interface for interacting with the different cloud storage provider emulators in dev. The
+ * interface methods are implemented for each cloud storage emulator and are then called by
+ * dev/FileUploadController.
  */
 public interface CloudEmulatorFileStorageStrategy {
 

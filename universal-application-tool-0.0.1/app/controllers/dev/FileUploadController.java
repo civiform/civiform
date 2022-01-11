@@ -17,8 +17,9 @@ import services.cloud.StorageUploadRequest;
 import views.dev.FileUploadView;
 
 /**
- * Controller for interacting with S3 and blob storage directly in dev mode. The logic for uploading
- * files to cloud storage has been extracted out into {@link CloudEmulatorFileStorageStrategy}
+ * Controller for interacting with cloud storage provider emulators directly. The logic for
+ * uploading files to cloud storage has been extracted out into {@link
+ * CloudEmulatorFileStorageStrategy}
  */
 public class FileUploadController extends DevController {
 

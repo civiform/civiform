@@ -7,10 +7,10 @@ class AzureUploadController {
 
   constructor() {
     const uploadContainer = document.getElementById(
-        AzureUploadController.UPLOAD_CONTAINER_ID
+      AzureUploadController.UPLOAD_CONTAINER_ID
     )
     uploadContainer.addEventListener('submit', (event) =>
-        this.attemptUpload(event, uploadContainer)
+      this.attemptUpload(event, uploadContainer)
     )
   }
 
@@ -32,26 +32,26 @@ class AzureUploadController {
     const redirectUrl = new URL(azureUploadProps.successActionRedirect)
 
     const blockBlobUrl = azblob.BlockBlobURL.fromBlobURL(
-        new azblob.BlobURL(
-            `${azureUploadProps.blobUrl}?${azureUploadProps.sasToken}`,
-            azblob.StorageURL.newPipeline(new azblob.AnonymousCredential())
-        )
+      new azblob.BlobURL(
+        `${azureUploadProps.blobUrl}?${azureUploadProps.sasToken}`,
+        azblob.StorageURL.newPipeline(new azblob.AnonymousCredential())
+      )
     )
 
     azblob
-        .uploadBrowserDataToBlockBlob(
-            azblob.Aborter.none,
-            azureUploadProps.file,
-            blockBlobUrl
-        )
-        .then((resp, err) => {
-          if (err) {
-            throw err
-          }
-          console.log(resp)
-          this.setFileUploadMetadata(redirectUrl, azureUploadProps, resp)
-          window.location.replace(redirectUrl.toString())
-        })
+      .uploadBrowserDataToBlockBlob(
+        azblob.Aborter.none,
+        azureUploadProps.file,
+        blockBlobUrl
+      )
+      .then((resp, err) => {
+        if (err) {
+          throw err
+        }
+        console.log(resp)
+        this.setFileUploadMetadata(redirectUrl, azureUploadProps, resp)
+        window.location.replace(redirectUrl.toString())
+      })
   }
 
   private getAzureUploadProps(uploadContainer: HTMLElement) {
@@ -59,20 +59,20 @@ class AzureUploadController {
       sasToken: this.getValueFromInputLabel('sasToken'),
       blobUrl: this.getValueFromInputLabel('blobUrl'),
       successActionRedirect: this.getValueFromInputLabel(
-          'successActionRedirect'
+        'successActionRedirect'
       ),
       containerName: this.getValueFromInputLabel('containerName'),
       file: (<HTMLInputElement>(
-          uploadContainer.querySelector('input[type=file]')
+        uploadContainer.querySelector('input[type=file]')
       )).files[0],
       fileName: this.getValueFromInputLabel('fileName'),
     }
   }
 
   private setFileUploadMetadata(
-      redirectUrl: URL,
-      azureUploadProps: any,
-      resp: any
+    redirectUrl: URL,
+    azureUploadProps: any,
+    resp: any
   ) {
     redirectUrl.searchParams.set('userFileName', azureUploadProps.file.name)
     redirectUrl.searchParams.set('etag', resp.eTag)
@@ -81,4 +81,4 @@ class AzureUploadController {
   }
 }
 
-window.addEventListener('load', () => new AzureUploadController());
+window.addEventListener('load', () => new AzureUploadController())
