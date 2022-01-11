@@ -42,7 +42,7 @@ export class AdminQuestions {
 
   async expectViewOnlyQuestion(questionName: string) {
     expect(await (await this.page.$('text=No Export')).isDisabled()).toEqual(true)
-    expect(await (await this.page.$(`text=${questionName}`)).isDisabled()).toEqual(true)
+    expect(await (await this.page.$(`input:below(:text("${questionName}"))`)).isDisabled()).toEqual(true)
   }
 
   async expectAdminQuestionsPageWithSuccessToast(successText: string) {
