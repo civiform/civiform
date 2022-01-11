@@ -251,6 +251,10 @@ placeholder.entityName={0} name
 # Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=Please select a file.
 
+# Message shown on the dev file upload screen. It is used to tell users what file
+# they are about to upload before they hit the "submit" button.
+label.currentFiles=Current Files:
+
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
 #---------------------------------------------------------------------#

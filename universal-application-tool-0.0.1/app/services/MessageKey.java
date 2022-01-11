@@ -54,6 +54,7 @@ public enum MessageKey {
   ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME("validation.duplicateEntityName"),
   ENUMERATOR_VALIDATION_ENTITY_REQUIRED("validation.entityNameRequired"),
   EXTERNAL_LINK("link.externalLink"),
+  FILEUPLOAD_DEV_LABEL("label.currentFiles"),
   FILEUPLOAD_VALIDATION_FILE_REQUIRED("validation.fileRequired"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),

@@ -17,8 +17,10 @@ import j2html.tags.ContainerTag;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.StoredFile;
+import play.i18n.Messages;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.MessageKey;
 import services.cloud.StorageClient;
 import services.cloud.StorageUploadRequest;
 import views.BaseHtmlLayout;
@@ -54,7 +56,8 @@ public class FileUploadView extends BaseHtmlView {
       Request request,
       StorageUploadRequest signedRequest,
       ImmutableList<StoredFile> files,
-      Optional<String> maybeFlash) {
+      Optional<String> maybeFlash,
+      Messages messages) {
     String title = "Dev file upload";
     ContainerTag fileUploadForm;
 
@@ -78,7 +81,8 @@ public class FileUploadView extends BaseHtmlView {
                 .with(
                     div()
                         .withClasses(Styles.GRID, Styles.GRID_COLS_2)
-                        .with(div().with(h2("Current Files:")).with(pre(renderFiles(files))))));
+                        .with(div().with(h2(messages.at(MessageKey.FILEUPLOAD_DEV_LABEL.getKeyName())
+                        )).with(pre(renderFiles(files))))));
     return layout.render(bundle);
   }
 
