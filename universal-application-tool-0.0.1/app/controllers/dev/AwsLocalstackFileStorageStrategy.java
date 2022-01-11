@@ -8,7 +8,9 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
 
-/** Implements file uploading to the localstack AWS cloud storage emulator. */
+/**
+ * Implements file uploading to the localstack AWS cloud storage emulator.
+ */
 public class AwsLocalstackFileStorageStrategy implements CloudEmulatorFileStorageStrategy {
 
   @Override
@@ -16,6 +18,7 @@ public class AwsLocalstackFileStorageStrategy implements CloudEmulatorFileStorag
     Optional<String> etag = request.queryString("etag");
     Optional<String> bucket = request.queryString("bucket");
     Optional<String> key = request.queryString("key");
+    // This case will likely never happen, unless someone has an incomplete application configuration.
     if (!bucket.isPresent() || !key.isPresent()) {
       return redirect(routes.FileUploadController.index().url());
     }
