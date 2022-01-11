@@ -42,6 +42,7 @@ export class AdminQuestions {
 
   async expectViewOnlyQuestion(questionName: string) {
     expect(await this.page.isDisabled('text=No Export')).toEqual(true)
+    // TODO(sgoldblatt): This test does not find any questions need to look into
     // expect(await this.page.isDisabled(`text=${questionName}`)).toEqual(true)
   }
 
