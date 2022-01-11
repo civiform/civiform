@@ -41,7 +41,6 @@ export class AdminQuestions {
   }
 
   async expectViewOnlyQuestion(questionName: string) {
-    goToViewQuestionPage(questionName)
     expect(await (await this.page.$(`text=${questionName}`)).isDisabled()).toEqual(true)
     expect(await (await this.page.$('text=No Export')).isDisabled()).toEqual(true)
   }
