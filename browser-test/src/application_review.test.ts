@@ -106,6 +106,9 @@ describe('normal application flow', () => {
     await adminQuestions.expectActiveQuestionExist('second-static-q')
     await adminQuestions.expectActiveQuestionExist('monthly-income-q')
 
+    await adminQuestions.goToViewQuestionPage('ice-cream-q')
+    await adminQuestions.expectViewOnlyQuestion('ice-cream-q')
+
     await logout(page)
     await loginAsTestUser(page)
     await selectApplicantLanguage(page, 'English')
@@ -224,7 +227,6 @@ describe('normal application flow', () => {
 
     await logout(page)
     await loginAsAdmin(page)
-    await adminQuestions.expectViewableQuestion('ice-cream-q')
     await adminQuestions.createNewVersion('favorite-trees-q')
     await adminQuestions.gotoQuestionEditPage('favorite-trees-q')
     await page.click('#question-settings button:text("Remove"):visible')
