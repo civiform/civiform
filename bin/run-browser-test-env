@@ -20,11 +20,13 @@ _setArgs(){
        cloudProvider="azure"
        emulator="azurite"
        devServer="http://localhost:10000"
+       export STORAGE_SERVICE_NAME="azure-blob"
        ;;
       "--aws")
        cloudProvider="aws"
        emulator="localstack"
        devServer="http://localhost:6645"
+       export STORAGE_SERVICE_NAME="s3"
        ;;
     esac
     shift
@@ -36,6 +38,7 @@ _setArgs "$@"
 # default to AWS for now
 if [ -z "$cloudProvider" ]; then
   cloudProvider="aws" && emulator="localstack" && devServer="http://localhost:6645"
+  export STORAGE_SERVICE_NAME="s3"
 fi
 
 # start emulator
