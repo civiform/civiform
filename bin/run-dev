@@ -25,7 +25,7 @@ _setArgs(){
       "--aws")
        cloudProvider="aws"
        emulator="localstack"
-       export STORAGE_SERVICE_NAME="azure-blob"
+       export STORAGE_SERVICE_NAME="s3"
        ;;
     esac
     shift
