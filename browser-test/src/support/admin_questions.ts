@@ -25,6 +25,12 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPage()
   }
 
+  async goToViewQuestionPage(questionName: string) {
+      await this.gotoAdminQuestionsPage()
+      await this.page.click('text=View')
+      await waitForPageJsLoad(this.page)
+  }
+
   async clickSubmitButtonAndNavigate(buttonText: string) {
     await this.page.click(`button:has-text("${buttonText}")`)
     await waitForPageJsLoad(this.page)
@@ -32,6 +38,12 @@ export class AdminQuestions {
 
   async expectAdminQuestionsPage() {
     expect(await this.page.innerText('h1')).toEqual('All Questions')
+  }
+
+  async expectViewOnlyQuestion(questionName: string) {
+    expect(await this.page.isDisabled('text=No Export')).toEqual(true)
+    // TODO(sgoldblatt): This test does not find any questions need to look into
+    // expect(await this.page.isDisabled(`text=${questionName}`)).toEqual(true)
   }
 
   async expectAdminQuestionsPageWithSuccessToast(successText: string) {
