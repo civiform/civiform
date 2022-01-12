@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# DOC: Load a postgres dump into the dev database (pg_restore), replacing whatever state is currently in it. Takes a file name argument, file must be in current directory.
+# DOC: Load a postgres dump into the dev database (pg_restore), replacing whatever state is currently in it. Takes a file name argument, file must be in project base directory.
 
 pushd $(git rev-parse --show-toplevel)
 
@@ -12,7 +12,8 @@ if [[ ! -f "$1" ]]; then
   exit 1
 fi
 
-# find repo root name (currently civiform), also support any names for backward and forward compatibility
+# Find repo root name (currently civiform), also support any names for backward
+# and forward compatibility.
 CIVIFORM_DIR=$(basename $(pwd))
 
 # set TRUNCATE_SQL to heredoc contents
