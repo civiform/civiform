@@ -29,6 +29,7 @@ export class AdminQuestions {
       await this.gotoAdminQuestionsPage()
       await this.page.click('text=View')
       await waitForPageJsLoad(this.page)
+      expect(await this.page.isVisible(`text=${questionName}`)).toEqual(true)
   }
 
   async clickSubmitButtonAndNavigate(buttonText: string) {
