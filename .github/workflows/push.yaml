@@ -49,7 +49,6 @@ jobs:
         run: bin/build-and-push
 
       - name: Run deploy-staging.
-        if: "contains(toJSON(steps.file_changes.outputs.files), 'infra/')"
         id: deploy_staging
         env:
           DOCKER_BUILDKIT: 1
