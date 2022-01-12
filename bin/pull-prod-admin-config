@@ -123,3 +123,25 @@ scp -o UserKnownHostsFile=/dev/null \
   -o StrictHostKeyChecking=no \
   -o IdentitiesOnly=yes \
   -i $KEY_FILE ubuntu@${INSTANCE_IPADDRESS}:/home/ubuntu/program_data.dump .
+
+# Terminate the instance
+echo "Terminating the instance"
+aws ec2 terminate-instances --instance-ids $INSTANCE_ID
+
+# Delete the emergency key pair
+echo "Removing key pair"
+aws ec2 delete-key-pair --key-name $KEY_NAME
+rm -f $KEY_FILE
+
+# Remove the emergency security group from DB security group
+echo "Revoke access to DB security group"
+aws ec2 revoke-security-group-ingress \
+    --group-id $DBSG_ID \
+    --protocol tcp \
+    --port 0-65535 \
+    --source-group $SG_ID
+
+# Remove the emergency security group
+echo "Removing the emergency security group"
+until aws ec2 wait instance-terminated --instance-ids $INSTANCE_ID; do :; done
+aws ec2 delete-security-group --group-id $SG_ID
