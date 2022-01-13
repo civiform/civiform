@@ -9,7 +9,7 @@ storage_account_name  = < account name >
 container_name  = < container name >
 key  = "terraform.tfstate"
 ```
-You can get the resource group name, the storage account name, and the container name from the azure portal (or check this into a private repo). 
+You can get the resource group name, the storage account name, and the container name from the azure portal (or copy the file from a collaborator or shared private repo). 
 
 ## export your account key
 We use a shared state on an azure blob so that we don't have conflicts with our deploys. In order to get the account_key use the azure CLI. You'll need to get the resource_group_name, storage_account_name from the prior step or from someone else's backend_vars
