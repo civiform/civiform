@@ -35,7 +35,7 @@ aws cloudformation update-stack \
 aws cloudformation wait stack-update-complete --stack-name civiform-staging
 
 ECSSERVICE=$(aws cloudformation describe-stacks \
-    --region ${REGION}
+    --region ${REGION} \
     --stack-name civiform-staging |
       jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSService") | .OutputValue')
 
