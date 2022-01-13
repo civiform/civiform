@@ -12,7 +12,7 @@ if [ -f ".secrets" ]; then
   . .secrets
 fi
 
-# Get cloud provider (currently either AWS or Azure)
+# Get cloud provider
 _setArgs(){
   while [ "${1:-}" != "" ]; do
     case "$1" in

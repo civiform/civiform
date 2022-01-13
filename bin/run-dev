@@ -45,7 +45,7 @@ docker-compose --profile $cloudProvider -f docker-compose.yml -f docker-compose.
 
 # wait till localstack running
 # otherwise other services crash
-bin/$emulator/wait
+bin/${emulator}/wait
 
 # start everything else
 docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
