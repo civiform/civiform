@@ -7,7 +7,7 @@ terraform {
     }
     random = {}
   }
-
+  backend "azurerm" {}
   required_version = ">= 0.14.9"
 }
 
@@ -18,7 +18,7 @@ provider "azurerm" {
 resource "random_pet" "server" {}
 
 resource "azurerm_resource_group" "rg" {
-  name     = "susanslilTFResourceGroup"
+  name     = "civiform-resourcegroup"
   location = var.location_name
 }
 
