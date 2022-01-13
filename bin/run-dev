@@ -41,7 +41,11 @@ if [ -z "$cloudProvider" ]; then
 fi
 
 # start emulator
-docker-compose --profile $cloudProvider -f docker-compose.yml -f docker-compose.dev.yml up -d $emulator
+docker-compose --profile $cloudProvider \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  up \
+  -d $emulator
 
 # wait till localstack running
 # otherwise other services crash
