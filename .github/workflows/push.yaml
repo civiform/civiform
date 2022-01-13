@@ -40,7 +40,6 @@ jobs:
         run: bin/build-browser-tests
 
       - name: Run build-and-push.
-        if: "!contains(toJSON(steps.file_changes.outputs.files), 'infra/')"
         id: build_and_push
         env:
           DOCKER_BUILDKIT: 1
