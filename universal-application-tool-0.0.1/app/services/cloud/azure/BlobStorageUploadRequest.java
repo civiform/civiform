@@ -4,9 +4,16 @@ import com.google.auto.value.AutoValue;
 import services.cloud.StorageServiceName;
 import services.cloud.StorageUploadRequest;
 
-/** This holds the information needed to upload a file to blob storage. */
+/**
+ * This holds the information needed to upload a file to blob storage.
+ */
 @AutoValue
 public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
+
+  public static Builder builder() {
+    return new AutoValue_BlobStorageUploadRequest.Builder()
+        .setServiceName(StorageServiceName.AZURE_BLOB.getString());
+  }
 
   /**
    * Get account name. This is used to build the canonicalized resource part of the signature
@@ -26,22 +33,23 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
    */
   public abstract String fileName();
 
-  /** Get the sas token for the resource. */
+  /**
+   * Get the sas token for the resource.
+   */
   public abstract String sasToken();
 
-  /** Get the URL for the resource. */
+  /**
+   * Get the URL for the resource.
+   */
   public abstract String blobUrl();
 
-  /** Get the success redirect action link. */
+  /**
+   * Get the success redirect action link.
+   */
   public abstract String successActionRedirect();
 
   @Override
   public abstract String serviceName();
-
-  public static Builder builder() {
-    return new AutoValue_BlobStorageUploadRequest.Builder()
-        .setServiceName(StorageServiceName.AZURE_BLOB.getString());
-  }
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -62,7 +70,9 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
 
     abstract BlobStorageUploadRequest autoBuild();
 
-    /** Build the request. This is called by the custom public build method. */
+    /**
+     * Build the request. This is called by the custom public build method.
+     */
     public BlobStorageUploadRequest build() {
       return autoBuild();
     }

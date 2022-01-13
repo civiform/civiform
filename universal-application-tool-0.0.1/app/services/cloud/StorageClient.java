@@ -6,8 +6,8 @@ import java.net.URL;
 public interface StorageClient {
 
   /**
-   * Returns a URL that gives users temporary access to file storage. This URL is used to access
-   * and download users' files from cloud storage.
+   * Returns a URL that gives users temporary access to file storage. This URL is used to access and
+   * download users' files from cloud storage.
    *
    * @param fileName The file to be accessed from cloud storage.
    */
