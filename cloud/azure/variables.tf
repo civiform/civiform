@@ -56,6 +56,11 @@ variable "app_sku" {
   }
 }
 
+variable "postgres_name" {
+  type        = string
+  description = "A name for the postgres instance (azure requires a globally unique name)"
+}
+
 variable "postgres_admin_login" {
   type        = string
   description = "Postgres admin login"
