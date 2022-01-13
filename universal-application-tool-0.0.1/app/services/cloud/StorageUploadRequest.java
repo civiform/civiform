@@ -6,8 +6,6 @@ package services.cloud;
  */
 public interface StorageUploadRequest {
 
-  /**
-   * Getter which returns the name of the service being used, i.e "azure-blob" or "s3"
-   */
+  /** Getter which returns the name of the service being used, i.e "azure-blob" or "s3" */
   String serviceName();
 }

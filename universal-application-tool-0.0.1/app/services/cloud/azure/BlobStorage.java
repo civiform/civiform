@@ -115,13 +115,10 @@ public class BlobStorage implements StorageClient {
     String getBlobUrl(String fileName);
   }
 
-  /**
-   * Class to use for BlobStorage unit tests.
-   */
+  /** Class to use for BlobStorage unit tests. */
   static class NullClient implements Client {
 
-    NullClient() {
-    }
+    NullClient() {}
 
     @Override
     public String getSasToken(String fileName) {
@@ -134,9 +131,7 @@ public class BlobStorage implements StorageClient {
     }
   }
 
-  /**
-   * Class to use for prod file uploads to Azure blob storage.
-   */
+  /** Class to use for prod file uploads to Azure blob storage. */
   class AzureBlobClient implements Client {
 
     private final BlobServiceClient blobServiceClient;
@@ -175,7 +170,7 @@ public class BlobStorage implements StorageClient {
 
       BlobServiceSasSignatureValues signatureValues =
           new BlobServiceSasSignatureValues(
-              OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
+                  OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
               .setProtocol(SasProtocol.HTTPS_ONLY);
 
       return blobClient.generateUserDelegationSas(signatureValues, getUserDelegationKey());
@@ -189,9 +184,7 @@ public class BlobStorage implements StorageClient {
     }
   }
 
-  /**
-   * Class to use for BlobStorage dev environment.
-   */
+  /** Class to use for BlobStorage dev environment. */
   class AzuriteClient implements Client {
     // Using Account SAS because Azurite emulator does not support User Delegation SAS yet
     // See https://github.com/Azure/Azurite/issues/656
@@ -238,7 +231,7 @@ public class BlobStorage implements StorageClient {
 
       BlobServiceSasSignatureValues signatureValues =
           new BlobServiceSasSignatureValues(
-              OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
+                  OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
               .setProtocol(SasProtocol.HTTPS_HTTP); // TODO: Get this to work with HTTPS_ONLY
 
       return blobClient.generateSas(signatureValues);
