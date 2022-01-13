@@ -1,5 +1,5 @@
 # Azure Terraform Setup
-
+We use a remote backend to store state information to avoid conflicts when multiple collaborators are updating resources managed by Terraform. Follow the steps outlined in this doc to enable collaborators to access the remote backend and shared state on their machines.
 ## create a backend_vars file 
 
 Create a file named `backend_vars` and add the following values to it:
