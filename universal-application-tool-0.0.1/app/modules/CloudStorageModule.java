@@ -15,7 +15,7 @@ import views.dev.AwsStorageDevViewStrategy;
 import views.dev.AzureStorageDevViewStrategy;
 import views.dev.CloudStorageDevViewStrategy;
 
-/** CloudStorageModule configures and initializes the AWS and Azure file storage classes. */
+/** Configures and initializes the classes for interacting with file storage backends. */
 public class CloudStorageModule extends AbstractModule {
 
   private static final String AZURE_STORAGE_CLASS_NAME = "services.cloud.azure.BlobStorage";
