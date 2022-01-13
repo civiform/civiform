@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.Set;
 import models.StoredFile;
 import play.Environment;
+import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
@@ -28,6 +29,7 @@ public class FileUploadController extends DevController {
   private final StoredFileRepository storedFileRepository;
   private final String baseUrl;
   private final CloudEmulatorFileStorageStrategy cloudEmulatorFileStorageStrategy;
+  private final MessagesApi messagesApi;
 
   @Inject
   public FileUploadController(
@@ -36,13 +38,15 @@ public class FileUploadController extends DevController {
       StoredFileRepository storedFileRepository,
       Environment environment,
       Config configuration,
-      CloudEmulatorFileStorageStrategy cloudEmulatorFileStorageStrategy) {
+      CloudEmulatorFileStorageStrategy cloudEmulatorFileStorageStrategy,
+      MessagesApi messagesApi) {
     super(environment, configuration);
     this.view = checkNotNull(view);
     this.storageClient = checkNotNull(storageClient);
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.cloudEmulatorFileStorageStrategy = checkNotNull(cloudEmulatorFileStorageStrategy);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   public Result index(Request request) {
@@ -58,7 +62,13 @@ public class FileUploadController extends DevController {
         files.stream()
             .sorted(Comparator.comparing(StoredFile::getName))
             .collect(ImmutableList.toImmutableList());
-    return ok(view.render(request, signedRequest, fileList, request.flash().get("success")));
+    return ok(
+        view.render(
+            request,
+            signedRequest,
+            fileList,
+            request.flash().get("success"),
+            messagesApi.preferred(request)));
   }
 
   public Result create(Request request) {
