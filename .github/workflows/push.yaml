@@ -51,6 +51,8 @@ jobs:
         id: deploy_staging
         env:
           DOCKER_BUILDKIT: 1
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
         run: bin/deploy-staging
 
       - name: Run prober test
