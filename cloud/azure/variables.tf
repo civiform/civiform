@@ -56,9 +56,9 @@ variable "app_sku" {
   }
 }
 
-variable "postgres_name" {
+variable "resource_group_name" {
   type        = string
-  description = "A name for the postgres instance (azure requires a globally unique name)"
+  default     = "civiform-resourcegroup"
 }
 
 variable "postgres_admin_login" {

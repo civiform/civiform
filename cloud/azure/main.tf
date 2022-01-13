@@ -18,7 +18,7 @@ provider "azurerm" {
 resource "random_pet" "server" {}
 
 resource "azurerm_resource_group" "rg" {
-  name     = "civiform-resourcegroup"
+  name     = var.resource_group_name
   location = var.location_name
 }
 
