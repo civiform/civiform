@@ -24,7 +24,7 @@ Since we are using a shared backend you'll need to run init specifying that
 $ terraform init -backend-config=backend_vars
 ```
 
-# First time Setup
+# First time setup
 In order to run for the first time we have to create the blob store to store the backend data in. 
 ```
 $ chmod +x initial_setup.sh
