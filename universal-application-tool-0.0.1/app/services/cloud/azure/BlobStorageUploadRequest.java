@@ -58,7 +58,6 @@ public abstract class BlobStorageUploadRequest implements StorageUploadRequest {
 
     public abstract Builder setSuccessActionRedirect(String successActionRedirect);
 
-    /** Get the service name (this is always set to "azure-blob" so the setter is private */
     abstract Builder setServiceName(String serviceName);
 
     abstract BlobStorageUploadRequest autoBuild();

@@ -81,7 +81,7 @@ public class BlobStorage implements StorageClient {
     }
   }
 
-  public Client getClient() {
+  Client getClient() {
     return client;
   }
 
