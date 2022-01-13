@@ -2,7 +2,7 @@
 
 ## create a backend_vars file 
 
-Backend vars should look like the following
+Create a file named `backend_vars` and add the following values to it:
 ```
 resource_group_name  = < rg group name >
 storage_account_name  = < account name >
