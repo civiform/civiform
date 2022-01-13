@@ -5,11 +5,19 @@ services:
 
   localstack:
     image: localstack/localstack
+    profiles: ["aws"]
     container_name: localstack
     ports:
       - 4566:4566
     environment:
       - SERVICES=s3,ses
+
+  azurite:
+     image: mcr.microsoft.com/azure-storage/azurite
+     profiles: ["azure"]
+     container_name: azurite
+     ports:
+      - 10000:10000
 
   db:
     image: postgres:12.5
@@ -36,6 +44,11 @@ services:
       - AWS_REGION
       - AWS_SES_SENDER
       - AWS_S3_BUCKET_NAME
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID:-test}
+      - AZURE_LOCAL_CONNECTION_STRING
+      - AZURE_STORAGE_ACCOUNT_NAME
+      - AZURE_STORAGE_ACCOUNT_CONTAINER
+      - STORAGE_SERVICE_NAME
       - IDCS_CLIENT_ID
       - IDCS_SECRET
       - ADFS_CLIENT_ID

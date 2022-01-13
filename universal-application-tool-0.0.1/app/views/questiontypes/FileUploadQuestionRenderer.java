@@ -10,7 +10,7 @@ import java.util.Optional;
 import play.i18n.Messages;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
-import services.aws.SignedS3UploadRequest;
+import services.cloud.aws.SignedS3UploadRequest;
 import views.components.FieldWithLabel;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
