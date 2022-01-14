@@ -48,8 +48,8 @@ public class VersionRepository {
   }
 
   /**
-   * Publish a new version of all programs and all questions. All DRAFT programs will become ACTIVE,
-   * and all ACTIVE programs without a draft will be copied to the next version.
+   * Publish a new version of all programs and questions. All DRAFT programs/questions will become
+   * ACTIVE, and all ACTIVE programs/questions without a draft will be copied to the next version.
    */
   public void publishNewSynchronizedVersion() {
     try {
@@ -58,10 +58,13 @@ public class VersionRepository {
       Version active = getActiveVersion();
       Preconditions.checkState(
           draft.getPrograms().size() > 0, "Must have at least 1 program in the draft version.");
+      // Associate any active programs that aren't present in the draft with the draft.
       active.getPrograms().stream()
+          // Exclude programs deleted in the draft.
           .filter(
               activeProgram ->
                   !draft.programIsTombstoned(activeProgram.getProgramDefinition().adminName()))
+          // Exclude programs that are in the draft already.
           .filter(
               activeProgram ->
                   draft.getPrograms().stream()
@@ -71,15 +74,20 @@ public class VersionRepository {
                                   .getProgramDefinition()
                                   .adminName()
                                   .equals(draftProgram.getProgramDefinition().adminName())))
+          // For each active program not associated with the draft, associate it with the draft.
           .forEach(
               activeProgramNotInDraft -> {
                 activeProgramNotInDraft.addVersion(draft);
                 activeProgramNotInDraft.save();
               });
+
+      // Associate any active questions that aren't present in the draft with the draft.
       active.getQuestions().stream()
+          // Exclude questions deleted in the draft.
           .filter(
               activeQuestion ->
                   !draft.questionIsTombstoned(activeQuestion.getQuestionDefinition().getName()))
+          // Exclude questions that are in the draft already.
           .filter(
               activeQuestion ->
                   draft.getQuestions().stream()
@@ -89,11 +97,13 @@ public class VersionRepository {
                                   .getQuestionDefinition()
                                   .getName()
                                   .equals(draftQuestion.getQuestionDefinition().getName())))
+          // For each active question not associated with the draft, associate it with the draft.
           .forEach(
               activeQuestionNotInDraft -> {
                 activeQuestionNotInDraft.addVersion(draft);
                 activeQuestionNotInDraft.save();
               });
+      // Move forward the ACTIVE version.
       active.setLifecycleStage(LifecycleStage.OBSOLETE);
       draft.setLifecycleStage(LifecycleStage.ACTIVE);
       active.save();
