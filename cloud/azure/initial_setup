@@ -17,7 +17,7 @@ echo "storing the account key"
 ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query '[0].value' -o tsv)
 export ARM_ACCESS_KEY=$ACCOUNT_KEY
 
-echo "genering the backend vars file"
+echo "generating the backend_vars file"
 touch backend_vars
 echo "resource_group_name  = \"$RESOURCE_GROUP_NAME\"" >> backend_vars
 echo "storage_account_name  = \"$STORAGE_ACCOUNT_NAME\"" >> backend_vars
