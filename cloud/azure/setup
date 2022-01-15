@@ -30,7 +30,8 @@ else
 fi
 
 echo "Create blob container if it doesn't exist"
-CONTAINER_EXIST=$(az storage container exists --name ${CONTAINER_NAME} --account-name ${STORAGE_ACCOUNT_NAME})
+CONTAINER_EXIST=$(az storage container exists --name ${CONTAINER_NAME} \
+--account-name ${STORAGE_ACCOUNT_NAME})
 CONTAINER_EXISTS_PATTERN="\"exists\"\: true"
 if [[ "${CONTAINER_EXIST}" =~ "${CONTAINER_EXISTS_PATTERN}" ]]; then
     echo "Container already exists"
