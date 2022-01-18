@@ -16,27 +16,27 @@ public class AzuriteFileStorageStrategy implements CloudEmulatorFileStorageStrat
     Optional<String> etag = request.queryString("etag");
     Optional<String> container = request.queryString("container");
     Optional<String> fileName = request.queryString("fileName");
-    Optional<String> userFileName = request.queryString("userFileName");
-    updateFileRecord(storedFileRepository, fileName.get(), userFileName.get());
+    Optional<String> originalFileName = request.queryString("originalFileName");
+    updateFileRecord(storedFileRepository, fileName.get(), originalFileName.get());
     String successMessage =
         String.format(
             "File successfully uploaded to Azure: container: %s, file name: %s, etag: %s, user"
                 + " file name: %s.",
-            container.get(), fileName.get(), etag.orElse(""), userFileName.get());
+            container.get(), fileName.get(), etag.orElse(""), originalFileName.get());
     return redirect(routes.FileUploadController.index().url()).flashing("success", successMessage);
   }
 
   private void updateFileRecord(
-      StoredFileRepository storedFileRepository, String key, String userFileName) {
+      StoredFileRepository storedFileRepository, String key, String originalFileName) {
     StoredFile storedFile = new StoredFile();
     storedFile.setName(key);
-    storedFile.setUserFileName(getPrefixedUserFileName(key, userFileName));
+    storedFile.setOriginalFileName(getPrefixedUserFileName(key, originalFileName));
     storedFileRepository.insert(storedFile);
   }
 
-  private String getPrefixedUserFileName(String fileName, String userFileName) {
+  private String getPrefixedUserFileName(String fileName, String originalFileName) {
     String[] newFileName = fileName.split("/");
-    newFileName[newFileName.length - 1] = userFileName;
+    newFileName[newFileName.length - 1] = originalFileName;
     return String.join("/", newFileName);
   }
 }

@@ -71,9 +71,9 @@ public class BlobStorage implements StorageClient {
   }
 
   @Override
-  public URL getPresignedUrl(String fileName, Optional<String> userFileName) {
+  public URL getPresignedUrl(String fileName, Optional<String> originalFileName) {
     String blobUrl = client.getBlobUrl(fileName);
-    String sasToken = client.getSasToken(fileName, userFileName);
+    String sasToken = client.getSasToken(fileName, originalFileName);
     String signedUrl = String.format("%s?%s", blobUrl, sasToken);
 
     try {
@@ -112,7 +112,7 @@ public class BlobStorage implements StorageClient {
 
   interface Client {
 
-    String getSasToken(String fileName, Optional<String> userFileName);
+    String getSasToken(String fileName, Optional<String> originalFileName);
 
     String getBlobUrl(String fileName);
   }
@@ -123,8 +123,8 @@ public class BlobStorage implements StorageClient {
     NullClient() {}
 
     @Override
-    public String getSasToken(String fileName, Optional<String> userFileName) {
-      if (userFileName.isPresent()) {
+    public String getSasToken(String fileName, Optional<String> originalFileName) {
+      if (originalFileName.isPresent()) {
         return "sasTokenWithContentHeaders";
       }
       return "sasToken";

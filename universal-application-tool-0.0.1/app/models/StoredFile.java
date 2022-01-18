@@ -18,14 +18,14 @@ public class StoredFile extends BaseModel {
     this.name = name;
   }
 
-  public String getUserFileName() {
-    return userFileName;
+  public String getOriginalFileName() {
+    return originalFileName;
   }
 
-  public void setUserFileName(String userFileName) {
-    this.userFileName = userFileName;
+  public void setOriginalFileName(String originalFileName) {
+    this.originalFileName = originalFileName;
   }
 
   @Constraints.Required String name;
-  String userFileName;
+  String originalFileName;
 }

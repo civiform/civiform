@@ -11,9 +11,9 @@ public interface StorageClient {
    * download users' files from cloud storage.
    *
    * @param fileKey The file key to be accessed from cloud storage.
-   * @param userFileName The file name set by the user (optional).
+   * @param originalFileName The file name set by the user (optional).
    */
-  URL getPresignedUrl(String fileKey, Optional<String> userFileName);
+  URL getPresignedUrl(String fileKey, Optional<String> originalFileName);
 
   /**
    * Creates and returns a request to upload a file to cloud storage.

@@ -51,7 +51,7 @@ public class BlobStorageTest extends WithApplication {
   }
 
   @Test
-  public void getSasToken_userFileNameNotSet() {
+  public void getSasToken_originalFileNameNotSet() {
     String sasToken = blobStorage.getClient().getSasToken(TEST_FILE_NAME, Optional.empty());
 
     assertThat(sasToken).isEqualTo("sasToken");
@@ -59,7 +59,7 @@ public class BlobStorageTest extends WithApplication {
 
   
   @Test
-  public void getSasToken_userFileNameSet() {
+  public void getSasToken_originalFileNameSet() {
     String sasToken = blobStorage.getClient().getSasToken(TEST_FILE_NAME, Optional.of("file.pdf"));
     assertThat(sasToken).isEqualTo("sasTokenWithContentHeaders");
   }
