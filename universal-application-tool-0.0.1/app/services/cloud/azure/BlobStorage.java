@@ -200,23 +200,23 @@ public class BlobStorage implements StorageClient {
           checkNotNull(config).getString(AZURE_LOCAL_CONNECTION_STRING_CONF_PATH);
       this.blobServiceClient =
           new BlobServiceClientBuilder().connectionString(connectionString).buildClient();
+      String baseUrl = checkNotNull(config).getString("base_url");
 
-      setCorsRules(blobServiceClient);
+      setCorsRules(blobServiceClient, baseUrl);
       this.blobContainerClient = blobServiceClient.getBlobContainerClient(container);
       if (!blobContainerClient.exists()) {
         blobContainerClient.create();
       }
     }
 
-    private void setCorsRules(BlobServiceClient blobServiceClient) {
+    private void setCorsRules(BlobServiceClient blobServiceClient, String baseUrl) {
       BlobServiceProperties properties =
           new BlobServiceProperties()
               .setCors(
                   List.of(
                       new BlobCorsRule()
-                          .setAllowedOrigins("*")
-                          .setAllowedHeaders("*")
-                          .setExposedHeaders("*")
+                          .setAllowedOrigins(baseUrl) 
+                          .setAllowedHeaders("content-type,x-ms-blob-type,x-ms-client-request-id,x-ms-version")
                           .setAllowedMethods("GET,PUT,OPTIONS")
                           .setMaxAgeInSeconds(500)));
       blobServiceClient.setProperties(properties);
