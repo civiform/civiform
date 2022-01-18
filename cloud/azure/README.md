@@ -71,9 +71,9 @@ This is used by terraform to specify the backend we wil use to store tfsate
 and generally should look like this
 ```
 resource_group_name  = tfstate
-storage_account_name  = < account name >
-container_name  = tfstate
-key  = "terraform.tfstate"
+storage_account_name = < account name >
+container_name       = tfstate
+key                  = "terraform.tfstate"
 ```
 
 ## Where to get the resource_group_name and the storage_account_name
