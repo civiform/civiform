@@ -57,13 +57,11 @@ public class BlobStorageTest extends WithApplication {
     assertThat(sasToken).isEqualTo("sasToken");
   }
 
-  
   @Test
   public void getSasToken_originalFileNameSet() {
     String sasToken = blobStorage.getClient().getSasToken(TEST_FILE_NAME, Optional.of("file.pdf"));
     assertThat(sasToken).isEqualTo("sasTokenWithContentHeaders");
   }
-
 
   @Test
   public void getPresignedUrl() {

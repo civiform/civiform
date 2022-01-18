@@ -75,6 +75,8 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
   }
 
   public String getPresignedURL(StoredFile file, StorageClient client) {
-    return client.getPresignedUrl(file.getName(), Optional.of(file.getOriginalFileName())).toString();
+    return client
+        .getPresignedUrl(file.getName(), Optional.of(file.getOriginalFileName()))
+        .toString();
   }
 }
