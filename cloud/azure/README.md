@@ -57,9 +57,11 @@ $ terraform init -backend-config=backend_vars
 If you are running into access issues, you do need to have the ARM_ACCESS_KEY 
 exported to run terraform commands. So try re running
 ```
-ACCOUNT_KEY=$(az storage account keys list --resource-group \
-$RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query \
-'[0].value' -o tsv)
+ACCOUNT_KEY=$(az storage account keys list \
+  --resource-group $RESOURCE_GROUP_NAME \
+  --account-name $STORAGE_ACCOUNT_NAME \
+  --query '[0].value' \
+  -o tsv)
 export ARM_ACCESS_KEY=$ACCOUNT_KEY
 ```
 
