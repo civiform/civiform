@@ -124,6 +124,9 @@ public class BlobStorage implements StorageClient {
 
     @Override
     public String getSasToken(String fileName, Optional<String> userFileName) {
+      if (userFileName.isPresent()) {
+        return "sasTokenWithContentHeaders";
+      }
       return "sasToken";
     }
 
