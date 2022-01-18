@@ -32,7 +32,7 @@ to write your own script to do that!
 ## Export your account key
 In order to use terraform with the azure backend you'll need to get the 
 `account_key` set up properly. The backend_vars file expects it to be provided 
-via ARM_ACCESS_KEY so you'll need to use the Azure CLI to provide it. 
+via the `ARM_ACCESS_KEY` environment variable so you'll need to use the Azure CLI to provide it. 
 Get the `resource_group_name` and `storage_account_name` from the backend_vars
 file or via the azure cli/portal (details on how to do this in the 
 troubleshooting section below)
