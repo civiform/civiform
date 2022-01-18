@@ -27,7 +27,7 @@ You can run this command again if you delete your backend_vars or need to
 re-export your account key (although you can also re-export your account key
 via the commands below), note that it does a pretty fuzzy regex match for
 the storage account name so if you are doing something special you might have
-to wright your own script to do that!
+to write your own script to do that!
 
 ## Export your account key
 In order to use terraform with the azure backend you'll need to get the 
