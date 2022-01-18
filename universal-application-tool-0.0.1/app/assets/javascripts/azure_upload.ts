@@ -1,6 +1,7 @@
 /**
  * This is responsible for uploading a file to Azure blob storage.
  */
+
 class AzureUploadController {
   static UPLOAD_CONTAINER_ID = 'azure-upload-form-component'
 
