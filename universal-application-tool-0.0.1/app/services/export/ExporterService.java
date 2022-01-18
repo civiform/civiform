@@ -150,6 +150,10 @@ public class ExporterService {
     try {
       OutputStream inMemoryBytes = new ByteArrayOutputStream();
       Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8);
+      // Cache Program data which doesn't change, so we only look it up once rather than on every
+      // exported row.
+      // TODO(#1750): Lookup all relevant programs in one request to reduce cost of N lookups.
+      // TODO(#1750): Consider Play's JavaCache over this caching.
       HashMap<Long, ProgramDefinition> programDefinitions = new HashMap<>();
       for (Application application : applications) {
         Long programId = application.getProgram().id;
@@ -163,7 +167,7 @@ public class ExporterService {
         ProgramDefinition programDefinition = programDefinitions.get(programId);
 
         ReadOnlyApplicantProgramService roApplicantService =
-                applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
+            applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
         csvExporter.export(application, roApplicantService, writer);
       }
       writer.close();

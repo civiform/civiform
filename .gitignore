@@ -18,4 +18,5 @@ tailwind.css
 *.terraform
 *.terraform.lock.hcl
 **.tfvars
+!*example.auto.tfvars
 terraform.tfstate**

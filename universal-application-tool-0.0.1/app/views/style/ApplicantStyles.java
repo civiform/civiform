@@ -116,6 +116,8 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_SM, Styles.MX_AUTO);
   public static final String BUTTON_BLOCK_NEXT =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE);
+  public static final String BUTTON_BLOCK_PREVIOUS =
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE);
   public static final String BUTTON_REVIEW =
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_UPPERCASE, Styles.TEXT_BASE);
   public static final String BUTTON_SUBMIT_APPLICATION =

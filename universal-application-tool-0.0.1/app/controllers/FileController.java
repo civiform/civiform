@@ -11,7 +11,7 @@ import org.pac4j.play.java.Secure;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import services.aws.SimpleStorage;
+import services.cloud.aws.SimpleStorage;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;

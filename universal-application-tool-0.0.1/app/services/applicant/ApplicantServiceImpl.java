@@ -31,7 +31,7 @@ import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
-import services.aws.SimpleEmail;
+import services.cloud.aws.SimpleEmail;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;

@@ -104,8 +104,12 @@ GET     /applicants/:applicantId/programs/:programId/review                     
 POST    /applicants/:applicantId/programs/:programId/submit                                    controllers.applicant.ApplicantProgramReviewController.submit(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit                      controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: String)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review                    controllers.applicant.ApplicantProgramBlocksController.review(request: Request, applicantId: Long, programId: Long, blockId: String)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockIndex/previous/:inReview     controllers.applicant.ApplicantProgramBlocksController.previous(request: Request, applicantId: Long, programId: Long, blockIndex: Int, inReview: Boolean)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview                 controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+
+# Methods for user support incidents
+GET     /support/unconfirmedIdcsEmail  controllers.SupportController.handleUnconfirmedIdcsEmail(request: Request)
 
 # Methods for program admins
 GET     /programAdmin       controllers.admin.ProgramAdminController.index(request: Request)

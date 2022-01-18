@@ -12,12 +12,44 @@ if [ -f ".secrets" ]; then
     . .secrets
 fi
 
-# start localstack
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d localstack
+
+# Get cloud provider (currently either AWS or Azure)
+_setArgs(){
+  while [ "${1:-}" != "" ]; do
+    case "$1" in 
+      "--azure")
+       cloudProvider="azure"
+       emulator="azurite"
+       export STORAGE_SERVICE_NAME="azure-blob"
+       ;;
+      "--aws")
+       cloudProvider="aws"
+       emulator="localstack"
+       export STORAGE_SERVICE_NAME="s3"
+       ;;
+    esac
+    shift
+  done
+}
+
+_setArgs $*
+
+# default to AWS for now
+if [ -z "$cloudProvider" ]; then 
+  cloudProvider="aws" && emulator="localstack"
+  export STORAGE_SERVICE_NAME="s3"
+fi
+
+# start emulator
+docker-compose --profile $cloudProvider \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  up \
+  -d $emulator
 
 # wait till localstack running
 # otherwise other services crash
-bin/localstack/wait
+bin/${emulator}/wait
 
 # start everything else
 docker-compose -f docker-compose.yml -f docker-compose.dev.yml up

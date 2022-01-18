@@ -4,10 +4,6 @@
 
 if [ -z "$USE_LOCAL_CIVIFORM" ]; then
   echo "Making sure we're up to date with the latest dev... set environment variable USE_LOCAL_CIVIFORM=1 to skip"
-  if ! docker pull public.ecr.aws/t1q6b4h2/civiform-dev:latest; then
-    echo "Failed to pull - possibly some stuck credentials.  De-authenticating then retrying..."
-    docker logout https://public.ecr.aws/t1q6b4h2/civiform-dev
-    docker pull public.ecr.aws/t1q6b4h2/civiform-dev:latest
-  fi
-  docker tag public.ecr.aws/t1q6b4h2/civiform-dev:latest civiform
+  docker pull civiform/civiform-dev:latest
+  docker tag civiform/civiform-dev:latest civiform-dev
 fi

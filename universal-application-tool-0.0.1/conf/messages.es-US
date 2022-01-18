@@ -75,6 +75,9 @@ button.keepFile=Continuar
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=Siguiente
 
+# The button text for navigating to the previous screen in the form.
+button.previousScreen=Atrás
+
 # The text on the button an applicant clicks to jump to the review page.
 button.review=Revisar
 

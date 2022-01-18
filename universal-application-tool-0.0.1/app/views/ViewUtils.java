@@ -29,6 +29,14 @@ public final class ViewUtils {
   }
 
   /**
+   * Generates a script tag for loading a javascript asset that is provided by a web JAR and found
+   * at the given asset route.
+   */
+  public Tag makeWebJarsTag(String assetsRoute) {
+    return script().withSrc(assetsFinder.path(assetsRoute));
+  }
+
+  /**
    * Generates an HTML link tag for loading the CSS file found at public/stylesheets/[filename].css.
    */
   Tag makeLocalCssTag(String filename) {

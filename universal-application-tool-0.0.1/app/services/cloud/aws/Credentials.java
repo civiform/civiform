@@ -1,4 +1,4 @@
-package services.aws;
+package services.cloud.aws;
 
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
