@@ -122,7 +122,9 @@ echo "Copying file to local computer using scp"
 scp -o UserKnownHostsFile=/dev/null \
   -o StrictHostKeyChecking=no \
   -o IdentitiesOnly=yes \
-  -i $KEY_FILE ubuntu@${INSTANCE_IPADDRESS}:/home/ubuntu/program_data.dump .
+  -i "${KEY_FILE}" \
+  "ubuntu@${INSTANCE_IPADDRESS}:/home/ubuntu/program_data.dump" \
+  .
 
 # Terminate the instance
 echo "Terminating the instance"
@@ -142,6 +144,7 @@ aws ec2 revoke-security-group-ingress \
     --source-group $SG_ID
 
 # Remove the emergency security group
+echo "Waiting for EC2 instance to terminate"
+aws ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
 echo "Removing the emergency security group"
-until aws ec2 wait instance-terminated --instance-ids $INSTANCE_ID; do :; done
 aws ec2 delete-security-group --group-id $SG_ID
