@@ -36,17 +36,19 @@ jobs:
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-browser-tests
-      - name: Start localstack
-        run: docker-compose -f browser-test/browser-test-compose.yml up -d localstack
-      - name: Wait for localstack ready
-        run: bin/localstack/wait http://localhost:6645
-      - name: Build and run the rest of test stack
-        run: sh -c "docker-compose -f browser-test/browser-test-compose.yml up > .dockerlogs &"
-      - name: Run browser tests
+      - name: Bring up test env with Localstack
+        run: sh -c "bin/run-browser-test-env --aws &"
+      - name: Run browser tests with Localstack
         run: bin/run-browser-tests-ci
       - name: Print logs on failure
         if: failure()
         run: cat .dockerlogs
+      - name: Bring localstack app environment down
+        run: docker container kill $(docker container ls -q)
+      - name: Bring up test env with Azurite
+        run: sh -c "bin/run-browser-test-env --azurite &"
+      - name: Run browser tests with Azurite
+        run: bin/run-browser-tests-ci dev_file_upload.test.ts
 
   test_prod:
     runs-on: ubuntu-latest
