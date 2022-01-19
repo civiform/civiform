@@ -49,6 +49,9 @@ jobs:
         run: sh -c "bin/run-browser-test-env --azurite &"
       - name: Run browser tests with Azurite
         run: bin/run-browser-tests-ci dev_file_upload.test.ts
+      - name: Print logs on failure
+        if: failure()
+        run: cat .dockerlogs
 
   test_prod:
     runs-on: ubuntu-latest
