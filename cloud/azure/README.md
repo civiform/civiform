@@ -5,7 +5,7 @@ Follow the steps outlined in this doc to enable collaborators to access
 the remote backend and shared state on their machines.
 
 # Setup
-In order to run for the first time run
+In order to run for the first time run from the `cloud/azure` directory.
  
 ```
 $ source setup
