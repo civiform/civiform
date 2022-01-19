@@ -5,8 +5,9 @@ terraform {
       source  = "azurerm"
       version = ">=2.65"
     }
+    random = {}
   }
-
+  backend "azurerm" {}
   required_version = ">= 0.14.9"
 }
 
@@ -14,8 +15,10 @@ provider "azurerm" {
   features {}
 }
 
+resource "random_pet" "server" {}
+
 resource "azurerm_resource_group" "rg" {
-  name     = "myTFResourceGroup"
+  name     = var.resource_group_name
   location = var.location_name
 }
 
@@ -60,7 +63,7 @@ resource "azurerm_app_service_plan" "plan" {
 }
 
 resource "azurerm_app_service" "civiform_app" {
-  name                = var.application_name
+  name                = "${var.application_name}-${random_pet.server.id}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   app_service_plan_id = azurerm_app_service_plan.plan.id
@@ -149,7 +152,7 @@ resource "azurerm_monitor_diagnostic_setting" "app_service_log_analytics" {
 }
 
 resource "azurerm_postgresql_server" "civiform" {
-  name                = "civiform-db"
+  name                = "civiform-${random_pet.server.id}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 

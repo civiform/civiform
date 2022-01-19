@@ -15,6 +15,7 @@ bundle.js
 tailwind.css
 *.pem
 
+backend_vars
 *.terraform
 *.terraform.lock.hcl
 **.tfvars
