@@ -13,7 +13,6 @@ import static j2html.TagCreator.tr;
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
-import java.util.Optional;
 import models.StoredFile;
 import services.cloud.StorageClient;
 import services.cloud.StorageUploadRequest;
@@ -70,13 +69,13 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
                         tr(
                             td(String.valueOf(file.id)),
                             td(
-                                a(file.getOriginalFileName())
+                                a(file.getOriginalFileName().isPresent()
+                                        ? file.getOriginalFileName().get()
+                                        : file.getName())
                                     .withHref(getPresignedURL(file, client)))))));
   }
 
   public String getPresignedURL(StoredFile file, StorageClient client) {
-    return client
-        .getPresignedUrl(file.getName(), Optional.of(file.getOriginalFileName()))
-        .toString();
+    return client.getPresignedUrl(file.getName(), file.getOriginalFileName()).toString();
   }
 }

@@ -1,5 +1,6 @@
 package models;
 
+import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
@@ -18,8 +19,11 @@ public class StoredFile extends BaseModel {
     this.name = name;
   }
 
-  public String getOriginalFileName() {
-    return originalFileName;
+  public Optional<String> getOriginalFileName() {
+    if (originalFileName == null) {
+      return Optional.empty();
+    }
+    return Optional.of(originalFileName);
   }
 
   public void setOriginalFileName(String originalFileName) {
