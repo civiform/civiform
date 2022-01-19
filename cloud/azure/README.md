@@ -46,7 +46,8 @@ export ARM_ACCESS_KEY=$ACCOUNT_KEY
 ```
 
 ## Running terraform with this config  
-Since we are using a shared backend you'll need to run init specifying that
+Since we are using a shared backend you'll need to run init specifying that 
+within the `cloud/azure` directory.
 ```
 $ terraform init -backend-config=backend_vars
 ```
