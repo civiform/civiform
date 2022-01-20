@@ -12,6 +12,41 @@ resource "azurerm_virtual_network" "civiform_vnet" {
   address_space       = var.vnet_address_space
 }
 
+resource "azurerm_subnet" "storage_subnet" {
+  name                 = "storage-subnet"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.civiform_vnet.name
+  address_prefixes     = ["10.0.8.0/24"]
+  delegation {
+    name = "app-service-delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+}
+
+resource "azurerm_storage_account" "file_storage" {
+  name                     = "${var.application_name}-${random_pet.server.id}-storage"
+  location                 = azurerm_resource_group.rg.location
+  resource_group_name      = azurerm_resource_group.rg.name
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  network_rules {
+    default_action             = "Deny"
+    ip_rules                   = ["100.0.0.1"]
+    virtual_network_subnet_ids = [azurerm_subnet.storage_subnet.id]
+  }
+
+}
+
+resource "azurerm_storage_container" "files" {
+  name                  = "files"
+  storage_account_name  = azurerm_storage_account.file_storage.name
+  container_access_type = "blob"
+}
+
 resource "azurerm_subnet" "server_subnet" {
   name                 = "server-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
@@ -59,6 +94,9 @@ resource "azurerm_app_service" "civiform_app" {
     DB_USERNAME    = "${azurerm_postgresql_server.civiform.administrator_login}@${azurerm_postgresql_server.civiform.name}"
     DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
     DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
+
+    AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.file_storage.name
+    AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files.name
 
     AWS_SES_SENDER = var.ses_sender_email
     SECRET_KEY     = var.app_secret_key
