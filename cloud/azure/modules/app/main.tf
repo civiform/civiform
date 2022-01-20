@@ -60,7 +60,8 @@ resource "azurerm_app_service" "civiform_app" {
     DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
     DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
 
-    SECRET_KEY = var.app_secret_key
+    AWS_SES_SENDER = var.ses_sender_email
+    SECRET_KEY     = var.app_secret_key
   }
   # Configure Docker Image to load on start
   site_config {

@@ -1,3 +1,8 @@
+variable "sender_email_address" {
+  type        = string
+  description = "Email address that emails will be sent from"
+}
+
 variable "postgres_admin_login" {
   type        = string
   description = "Postgres admin login"
