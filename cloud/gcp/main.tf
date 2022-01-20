@@ -16,7 +16,7 @@ data "google_service_account_access_token" "default" {
 provider "google" {
  project 		= "civiform-demo"
  access_token	= data.google_service_account_access_token.default.access_token
- request_timeout 	= "1200s"
+ request_timeout 	= "60s"
 }
 
 module "network" {
@@ -27,6 +27,6 @@ module "network" {
 module "storage" {
   source = "./storage"
   region = var.region
-  company-name = var.company-name
+  application_name = var.application_name
 }
 

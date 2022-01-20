@@ -3,7 +3,7 @@ variable "region" {
   description = "Default region for bucket resources"
 }
 
-variable "company-name" {
+variable "application_name" {
     type = string
     description = "Company name to be used as prefix or postfix"
 }

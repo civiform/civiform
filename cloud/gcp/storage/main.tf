@@ -3,8 +3,8 @@ resource "google_kms_key_ring" "keyring" {
   location = var.region
 }
 
-resource "google_kms_crypto_key" "storage-key" {
-  name            = "cloud-storage-key"
+resource "google_kms_crypto_key" "storage_key" {
+  name            = "gcs-key"
   key_ring        = google_kms_key_ring.keyring.id
   rotation_period = "604800s" //7 days
 
@@ -18,15 +18,15 @@ data "google_storage_project_service_account" "gcs_account" {
 }
 
 // Allow gcs service account on key.
-resource "google_kms_crypto_key_iam_binding" "kms-binding" {
-  crypto_key_id = google_kms_crypto_key.storage-key.id
+resource "google_kms_crypto_key_iam_binding" "kms_binding" {
+  crypto_key_id = google_kms_crypto_key.storage_key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   members = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
 }
 
 
-resource "google_storage_bucket" "file-storage" {
-  name          = "cloud-filestore-${var.company-name}"
+resource "google_storage_bucket" "file_storage" {
+  name          = "cloud-filestore-${var.application_name}"
   location      = var.region
   force_destroy = true
 
@@ -37,16 +37,16 @@ resource "google_storage_bucket" "file-storage" {
   }
 
   encryption {
-    default_kms_key_name = google_kms_crypto_key.storage-key.id
+    default_kms_key_name = google_kms_crypto_key.storage_key.id
   }
 
   depends_on = [
-    google_kms_crypto_key_iam_binding.kms-binding
+    google_kms_crypto_key_iam_binding.kms_binding
   ]
 }
 
 ## TODO(ktoor@google.com) : Remove user and add service accounts for GKE.
-data "google_iam_policy" "storage-viewer" {
+data "google_iam_policy" "storage_viewer" {
   binding {
     role = "roles/storage.legacyBucketReader"
     members = [
@@ -55,12 +55,12 @@ data "google_iam_policy" "storage-viewer" {
   }
 }
 
-resource "google_storage_bucket_iam_policy" "viewer-policy" {
-  bucket = google_storage_bucket.file-storage.name
-  policy_data = data.google_iam_policy.storage-viewer.policy_data
+resource "google_storage_bucket_iam_policy" "viewer_policy" {
+  bucket = google_storage_bucket.file_storage.name
+  policy_data = data.google_iam_policy.storage_viewer.policy_data
 }
 
-data "google_iam_policy" "storage-owner" {
+data "google_iam_policy" "storage_owner" {
   binding {
     role = "roles/storage.legacyBucketOwner"
     members = [
@@ -69,7 +69,7 @@ data "google_iam_policy" "storage-owner" {
   }
 }
 
-resource "google_storage_bucket_iam_policy" "owner-policy" {
-  bucket = google_storage_bucket.file-storage.name
-  policy_data = data.google_iam_policy.storage-owner.policy_data
+resource "google_storage_bucket_iam_policy" "owner_policy" {
+  bucket = google_storage_bucket.file_storage.name
+  policy_data = data.google_iam_policy.storage_owner.policy_data
 }

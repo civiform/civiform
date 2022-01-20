@@ -1,6 +1,6 @@
 variable "terraform_service_account" {
   type        = string
-  description = "Service Account to use for running terroform on GCP."
+  description = "Service Account to use for running terroform on GCP"
 }
 
 variable "region" {
@@ -9,7 +9,7 @@ variable "region" {
   description = "Default region for the project"
 }
 
-variable "company-name" {
+variable "application_name" {
     type = string
     default = "civform"
     description = "Company name to be used as prefix or postfix"
