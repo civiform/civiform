@@ -25,6 +25,7 @@ module "app" {
 
   application_name = var.application_name
   app_secret_key   = var.app_secret_key
+  app_variable_sender_email = var.sender_email_address
 }
 
 module "email_service" {

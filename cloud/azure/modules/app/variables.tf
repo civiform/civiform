@@ -107,3 +107,8 @@ variable "log_retention" {
   description = "The number of days the logs will be retained for"
   default     = 30
 }
+
+variable "ses_sender_email" {
+  type = string
+  description = "Email address of who is sending the email, passed to the app"
+}
