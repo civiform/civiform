@@ -37,7 +37,7 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-browser-tests
       - name: Bring up test env with Localstack
-        run: 'bin/run-browser-test-env --aws &'
+        run: bin/run-browser-test-env --aws --background
       - name: What is going on
         run: 'docker ps && docker ps --format "{{.Names}}: {{.Networks}}"'
       - name: Run browser tests with Localstack
@@ -48,7 +48,7 @@ jobs:
       - name: Bring localstack app environment down
         run: docker container kill $(docker container ls -q)
       - name: Bring up test env with Azurite
-        run: 'bin/run-browser-test-env --azurite &'
+        run: bin/run-browser-test-env --azurite --background
       - name: Run browser tests with Azurite
         run: bin/run-browser-tests-ci dev_file_upload.test.ts
       - name: Print logs on failure

@@ -12,23 +12,31 @@ if [ -f ".secrets" ]; then
   . .secrets
 fi
 
+background="no"
+
 # Get cloud provider
 _setArgs(){
   while [ "${1:-}" != "" ]; do
     case "$1" in
+      "--background")
+        background="yes"
+        ;;
+
       "--azure")
-       cloudProvider="azure"
-       emulator="azurite"
-       devServer="http://localhost:10000"
-       export STORAGE_SERVICE_NAME="azure-blob"
-       ;;
+        cloudProvider="azure"
+        emulator="azurite"
+        devServer="http://localhost:10000"
+        export STORAGE_SERVICE_NAME="azure-blob"
+        ;;
+
       "--aws")
-       cloudProvider="aws"
-       emulator="localstack"
-       devServer="http://localhost:6645"
-       export STORAGE_SERVICE_NAME="s3"
+        cloudProvider="aws"
+        emulator="localstack"
+        devServer="http://localhost:6645"
+        export STORAGE_SERVICE_NAME="s3"
        ;;
     esac
+
     shift
   done
 }
@@ -42,15 +50,25 @@ if [ -z "$cloudProvider" ]; then
 fi
 
 # start emulator
-docker-compose --profile $cloudProvider \
+docker-compose --profile "${cloudProvider}" \
   -f browser-test/browser-test-compose.yml \
   -f browser-test/browser-test-compose.dev.yml \
-  up -d $emulator
+  up -d "${emulator}"
 
 # wait until emulator running
-bin/$emulator/wait $devServer
+"bin/${emulator}/wait" "${devServer}"
 
 # start everything else
-docker-compose -f browser-test/browser-test-compose.yml -f browser-test/browser-test-compose.dev.yml up
+readonly compose_command=docker-compose \
+  -f browser-test/browser-test-compose.yml \
+  -f browser-test/browser-test-compose.dev.yml \
+  up
+
+if [[ "${background}" = "yes" ]]; then
+  eval "${compose_command} > /dev/null 2>&1" &
+  disown
+else
+  eval "${compose_command}"
+fi
 
 popd
