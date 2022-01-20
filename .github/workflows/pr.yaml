@@ -44,7 +44,7 @@ jobs:
         run: bin/run-browser-tests-ci
       - name: Print logs on failure
         if: failure()
-        run: docker network ls; cat .dockerlogs
+        run: 'docker ps --format "{{.Names}}: {{.Networks}}"; cat .dockerlogs'
       - name: Bring localstack app environment down
         run: docker container kill $(docker container ls -q)
       - name: Bring up test env with Azurite

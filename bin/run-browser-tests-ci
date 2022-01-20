@@ -7,6 +7,10 @@ pushd $(git rev-parse --show-toplevel)
 set -e
 set +x
 
+sleep 5
+
+docker ps --format "{{.Names}}: {{.Networks}}"
+
 docker run \
   -v "$(pwd)/browser-test/src:/usr/src/civiform-browser-tests/src" \
   -v "$(pwd)/browser-test/bin:/usr/src/civiform-browser-tests/bin" \
