@@ -16,23 +16,17 @@ data "google_service_account_access_token" "default" {
 provider "google" {
  project 		= "civiform-demo"
  access_token	= data.google_service_account_access_token.default.access_token
- request_timeout 	= "60s"
+ request_timeout 	= "1200s"
 }
 
-resource "google_compute_instance" "vm_instance" {
-  name         = "terraform-instance"
-  machine_type = "f1-micro"
-
-  boot_disk {
-    initialize_params {
-      image = "debian-cloud/debian-9"
-    }
-  }
-
-  network_interface {
-    # A default network is created for all GCP projects
-    network = "default"
-    access_config {
-    }
-  }
+module "network" {
+  source = "./network"
+  region = var.region
 }
+
+module "storage" {
+  source = "./storage"
+  region = var.region
+  company-name = var.company-name
+}
+
