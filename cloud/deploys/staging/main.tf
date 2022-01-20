@@ -1,9 +1,5 @@
 terraform {
   required_providers {
-    aws = {
-      source = "hashicorp/aws"
-      version = "3.72.0"
-    }
     azurerm = {
       source  = "azurerm"
       version = ">=2.65"
@@ -25,10 +21,4 @@ module "app" {
 
   application_name = var.application_name
   app_secret_key   = var.app_secret_key
-  app_variable_sender_email = var.sender_email_address
-}
-
-module "email_service" {
-  source               = "../../aws/modules/ses"
-  sender_email_address = var.sender_email_address
 }
