@@ -37,7 +37,9 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-browser-tests
       - name: Bring up test env with Localstack
-        run: 'bin/run-browser-test-env --aws &; sleep 10; docker ps; docker ps --format "{{.Names}}: {{.Networks}}"'
+        run: bin/run-browser-test-env --aws &
+      - name: What is going on
+        run: docker ps && docker ps --format "{{.Names}}: {{.Networks}}"
       - name: Run browser tests with Localstack
         run: bin/run-browser-tests-ci
       - name: Print logs on failure
