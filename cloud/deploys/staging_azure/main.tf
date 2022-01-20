@@ -1,7 +1,11 @@
 terraform {
   required_providers {
     aws = {
+<<<<<<< HEAD
       source  = "hashicorp/aws"
+=======
+      source = "hashicorp/aws"
+>>>>>>> 2281fdd (Adding in the SES module)
       version = "3.72.0"
     }
     azurerm = {
