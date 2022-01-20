@@ -59,16 +59,15 @@ docker-compose --profile "${cloudProvider}" \
 "bin/${emulator}/wait" "${devServer}"
 
 # start everything else
-readonly compose_command=docker-compose \
-  -f browser-test/browser-test-compose.yml \
-  -f browser-test/browser-test-compose.dev.yml \
-  up
+compose_command="docker-compose"
+compose_command="${compose_command} -f browser-test/browser-test-compose.yml"
+compose_command="${compose_command} -f browser-test/browser-test-compose.dev.yml"
+compose_command="${compose_command} up"
 
 if [[ "${background}" = "yes" ]]; then
-  eval "${compose_command} > /dev/null 2>&1" &
-  disown
-else
-  eval "${compose_command}"
+  compose_command="${compose_command} > .dockerlogs 2>&1 &"
 fi
+
+eval "${compose_command}"
 
 popd
