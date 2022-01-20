@@ -1,5 +1,11 @@
 resource "random_pet" "server" {}
 
+resource "random_string" "resource_code" {
+  length  = 5
+  special = false
+  upper   = false
+}
+
 resource "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
   location = var.location_name
@@ -13,38 +19,44 @@ resource "azurerm_virtual_network" "civiform_vnet" {
 }
 
 resource "azurerm_subnet" "storage_subnet" {
-  name                 = "storage-subnet"
-  resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.civiform_vnet.name
-  address_prefixes     = ["10.0.8.0/24"]
-  delegation {
-    name = "app-service-delegation"
-
-    service_delegation {
-      name    = "Microsoft.Web/serverFarms"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
-    }
-  }
+  name                                           = "storage-subnet"
+  resource_group_name                            = azurerm_resource_group.rg.name
+  virtual_network_name                           = azurerm_virtual_network.civiform_vnet.name
+  address_prefixes                               = ["10.0.8.0/24"]
+  service_endpoints                              = ["Microsoft.Storage"]
+  enforce_private_link_endpoint_network_policies = true
 }
 
 resource "azurerm_storage_account" "file_storage" {
-  name                     = "${var.application_name}-${random_pet.server.id}-storage"
-  location                 = azurerm_resource_group.rg.location
-  resource_group_name      = azurerm_resource_group.rg.name
+  name                = "${var.application_name}${random_string.resource_code.result}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  network_rules {
-    default_action             = "Deny"
-    ip_rules                   = ["100.0.0.1"]
-    virtual_network_subnet_ids = [azurerm_subnet.storage_subnet.id]
-  }
+}
 
+data "http" "myip" {
+  url = "https://ipv4.icanhazip.com"
+}
+
+# adding the bypass/ip_rules is a workaround for azure's firewall
+# if we don't add this we can't add files to this container
+resource "azurerm_storage_account_network_rules" "example" {
+  storage_account_id         = azurerm_storage_account.file_storage.id
+  default_action             = "Deny"
+  virtual_network_subnet_ids = [azurerm_subnet.storage_subnet.id]
+  bypass                     = ["AzureServices"]
+  ip_rules                   = [chomp(data.http.myip.body)]
+  private_link_access {
+    endpoint_resource_id = azurerm_app_service.civiform_app.id
+  }
 }
 
 resource "azurerm_storage_container" "files" {
   name                  = "files"
   storage_account_name  = azurerm_storage_account.file_storage.name
-  container_access_type = "blob"
+  container_access_type = "private"
 }
 
 resource "azurerm_subnet" "server_subnet" {
