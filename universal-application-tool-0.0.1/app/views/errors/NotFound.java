@@ -10,7 +10,6 @@ import static j2html.TagCreator.span;
 import com.google.inject.Inject;
 import j2html.tags.ContainerTag;
 import play.i18n.Messages;
-import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
@@ -28,8 +27,7 @@ public class NotFound extends BaseHtmlView {
   private final LanguageSelector languageSelector;
 
   @Inject
-  public NotFound(
-      ApplicantLayout layout, LanguageSelector languageSelector) {
+  public NotFound(ApplicantLayout layout, LanguageSelector languageSelector) {
     this.layout = layout;
     this.languageSelector = checkNotNull(languageSelector);
   }

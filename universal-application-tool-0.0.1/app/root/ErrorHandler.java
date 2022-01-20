@@ -19,7 +19,6 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
-import views.ProfileView;
 import views.errors.NotFound;
 
 public class ErrorHandler extends DefaultHttpErrorHandler {
