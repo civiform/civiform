@@ -5,7 +5,7 @@ on:
     branches: main
 
 jobs:
-  run_tests:
+  run_junit_tests:
     runs-on: ubuntu-latest
     steps:
       - name: check out pr branch
