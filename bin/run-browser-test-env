@@ -12,14 +12,14 @@ if [ -f ".secrets" ]; then
   . .secrets
 fi
 
-background="no"
+ci="no"
 
 # Get cloud provider
 _setArgs(){
   while [ "${1:-}" != "" ]; do
     case "$1" in
-      "--background")
-        background="yes"
+      "--ci")
+        ci="yes"
         ;;
 
       "--azure")
@@ -61,10 +61,14 @@ docker-compose --profile "${cloudProvider}" \
 # start everything else
 compose_command="docker-compose"
 compose_command="${compose_command} -f browser-test/browser-test-compose.yml"
-compose_command="${compose_command} -f browser-test/browser-test-compose.dev.yml"
+
+if [[ "${ci}" = "no" ]]; then
+  compose_command="${compose_command} -f browser-test/browser-test-compose.dev.yml"
+fi
+
 compose_command="${compose_command} up"
 
-if [[ "${background}" = "yes" ]]; then
+if [[ "${ci}" = "yes" ]]; then
   compose_command="${compose_command} > .dockerlogs 2>&1 &"
 fi
 
