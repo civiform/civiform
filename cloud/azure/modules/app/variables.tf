@@ -57,8 +57,8 @@ variable "app_sku" {
 }
 
 variable "resource_group_name" {
-  type        = string
-  default     = "civiform-resourcegroup"
+  type    = string
+  default = "civiform-resourcegroup"
 }
 
 variable "postgres_admin_login" {

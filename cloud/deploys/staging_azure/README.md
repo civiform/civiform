@@ -5,7 +5,8 @@ Follow the steps outlined in this doc to enable collaborators to access
 the remote backend and shared state on their machines.
 
 # Setup
-In order to run for the first time run from the `cloud/azure` directory.
+In order to run for the first time run from the `cloud/deploys/staging_azure` 
+directory.
  
 ```
 $ source setup
@@ -47,7 +48,7 @@ export ARM_ACCESS_KEY=$ACCOUNT_KEY
 
 ## Running terraform with this config  
 Since we are using a shared backend you'll need to run init specifying that 
-within the `cloud/azure` directory.
+within the `cloud/deploys/staging_azure` directory.
 ```
 $ terraform init -backend-config=backend_vars
 ```
