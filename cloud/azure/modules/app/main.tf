@@ -1,5 +1,11 @@
 resource "random_pet" "server" {}
 
+resource "random_string" "resource_code" {
+  length  = 5
+  special = false
+  upper   = false
+}
+
 resource "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
   location = var.location_name
@@ -10,6 +16,49 @@ resource "azurerm_virtual_network" "civiform_vnet" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   address_space       = var.vnet_address_space
+}
+
+resource "azurerm_subnet" "storage_subnet" {
+  name                                           = "storage-subnet"
+  resource_group_name                            = azurerm_resource_group.rg.name
+  virtual_network_name                           = azurerm_virtual_network.civiform_vnet.name
+  address_prefixes                               = ["10.0.8.0/24"]
+  service_endpoints                              = ["Microsoft.Storage"]
+  enforce_private_link_endpoint_network_policies = true
+}
+
+resource "azurerm_storage_account" "files_storage_account" {
+  name                = "${var.application_name}${random_string.resource_code.result}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+data "http" "myip" {
+  url = "https://ipv4.icanhazip.com"
+}
+
+# adding the bypass/ip_rules is a workaround for azure's firewall settings
+# if we don't add this we can't add storage containers to this storage_account
+# there might be a type of account we can create to run the tf command through
+# instead of doing this ip_rules bypass
+resource "azurerm_storage_account_network_rules" "files_storage_rules" {
+  storage_account_id         = azurerm_storage_account.files_storage_account.id
+  default_action             = "Deny"
+  virtual_network_subnet_ids = [azurerm_subnet.storage_subnet.id]
+  bypass                     = ["AzureServices"]
+  ip_rules                   = [chomp(data.http.myip.body)]
+  private_link_access {
+    endpoint_resource_id = azurerm_app_service.civiform_app.id
+  }
+}
+
+resource "azurerm_storage_container" "files_container" {
+  name                  = "files"
+  storage_account_name  = azurerm_storage_account.files_storage_account.name
+  container_access_type = "private"
 }
 
 resource "azurerm_subnet" "server_subnet" {
@@ -59,6 +108,9 @@ resource "azurerm_app_service" "civiform_app" {
     DB_USERNAME    = "${azurerm_postgresql_server.civiform.administrator_login}@${azurerm_postgresql_server.civiform.name}"
     DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
     DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
+
+    AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
+    AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
 
     AWS_SES_SENDER = var.ses_sender_email
     SECRET_KEY     = var.app_secret_key
