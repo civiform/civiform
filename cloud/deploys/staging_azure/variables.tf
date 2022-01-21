@@ -1,8 +1,3 @@
-variable "sender_email_address" {
-  type        = string
-  description = "Email address that emails will be sent from"
-}
-
 variable "postgres_admin_login" {
   type        = string
   description = "Postgres admin login"
@@ -37,4 +32,9 @@ variable "aws_region" {
   type        = string
   description = "Region where the AWS servers will live"
   default     = "us-east-1"
+}
+
+variable "sender_email_address" {
+  type        = string
+  description = "Email address that emails will be sent from"
 }
