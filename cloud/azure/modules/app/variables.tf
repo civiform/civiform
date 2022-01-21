@@ -57,8 +57,8 @@ variable "app_sku" {
 }
 
 variable "resource_group_name" {
-  type    = string
-  default = "civiform-resourcegroup"
+  type        = string
+  default     = "civiform-resourcegroup"
 }
 
 variable "postgres_admin_login" {
@@ -106,4 +106,9 @@ variable "log_retention" {
   type        = number
   description = "The number of days the logs will be retained for"
   default     = 30
+}
+
+variable "ses_sender_email" {
+  type = string
+  description = "Email address of who is sending the email, passed to the app"
 }
