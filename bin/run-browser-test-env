@@ -23,16 +23,16 @@ _setArgs(){
         ;;
 
       "--azure")
-        cloudProvider="azure"
-        emulator="azurite"
-        devServer="http://localhost:10000"
+        readonly CLOUD_PROVIDER="azure"
+        readonly EMULATOR="azurite"
+        readonly SERVER_URL="http://localhost:10000"
         export STORAGE_SERVICE_NAME="azure-blob"
         ;;
 
       "--aws")
-        cloudProvider="aws"
-        emulator="localstack"
-        devServer="http://localhost:6645"
+        readonly CLOUD_PROVIDER="aws"
+        readonly EMULATOR="localstack"
+        readonly SERVER_URL="http://localhost:6645"
         export STORAGE_SERVICE_NAME="s3"
        ;;
     esac
@@ -44,22 +44,15 @@ _setArgs(){
 _setArgs "$@"
 
 # default to AWS for now
-if [ -z "$cloudProvider" ]; then
-  cloudProvider="aws" && emulator="localstack" && devServer="http://localhost:6645"
+if [ -z "${CLOUD_PROVIDER}" ]; then
+  readonly CLOUD_PROVIDER="aws"
+  readonly EMULATOR="localstack"
+  readonly SERVER_URL="http://localhost:6645"
+
   export STORAGE_SERVICE_NAME="s3"
 fi
 
-# start emulator
-docker-compose --profile "${cloudProvider}" \
-  -f browser-test/browser-test-compose.yml \
-  -f browser-test/browser-test-compose.dev.yml \
-  up -d "${emulator}"
-
-# wait until emulator running
-"bin/${emulator}/wait" "${devServer}"
-
-# start everything else
-compose_command="docker-compose"
+compose_command="docker-compose --profile ${CLOUD_PROVIDER}"
 compose_command="${compose_command} -f browser-test/browser-test-compose.yml"
 
 if [[ "${ci}" = "no" ]]; then
@@ -68,10 +61,24 @@ fi
 
 compose_command="${compose_command} up"
 
+readonly START_EMULATOR_COMMAND="${compose_command} -d ${EMULATOR}"
+echo "Running docker compose to start the cloud emulator:"
+echo "${START_EMULATOR_COMMAND}"
+
+# start emulator
+eval "${START_EMULATOR_COMMAND}"
+
+# wait until the emulator is running
+"bin/${EMULATOR}/wait" "${SERVER_URL}"
+
 if [[ "${ci}" = "yes" ]]; then
   compose_command="${compose_command} > .dockerlogs 2>&1 &"
 fi
 
+echo "Running docker compose to start the CiviForm environment:"
+echo "${compose_command}"
+
+# start everything else
 eval "${compose_command}"
 
 popd

@@ -38,22 +38,20 @@ jobs:
         run: bin/build-browser-tests
       - name: Bring up test env with Localstack
         run: bin/run-browser-test-env --aws --ci
-      - name: What is going on
-        run: 'docker ps && docker ps --format "{{.Names}}: {{.Networks}}"'
       - name: Run browser tests with Localstack
         run: bin/run-browser-tests-ci
       - name: Print logs on failure
         if: failure()
-        run: 'docker ps --format "{{.Names}}: {{.Networks}}"; cat .dockerlogs'
+        run: cat .dockerlogs
       - name: Bring localstack app environment down
         run: docker container kill $(docker container ls -q)
       - name: Bring up test env with Azurite
-        run: bin/run-browser-test-env --azurite --background
+        run: bin/run-browser-test-env --azurite --ci
       - name: Run browser tests with Azurite
         run: bin/run-browser-tests-ci dev_file_upload.test.ts
       - name: Print logs on failure
         if: failure()
-        run: docker network ls; cat .dockerlogs
+        run: cat .dockerlogs
 
   test_prod:
     runs-on: ubuntu-latest
