@@ -27,7 +27,7 @@ resource "azurerm_subnet" "storage_subnet" {
   enforce_private_link_endpoint_network_policies = true
 }
 
-resource "azurerm_storage_account" "file_storage" {
+resource "azurerm_storage_account" "files_storage_account" {
   name                = "${var.application_name}${random_string.resource_code.result}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -40,10 +40,12 @@ data "http" "myip" {
   url = "https://ipv4.icanhazip.com"
 }
 
-# adding the bypass/ip_rules is a workaround for azure's firewall
-# if we don't add this we can't add files to this container
-resource "azurerm_storage_account_network_rules" "example" {
-  storage_account_id         = azurerm_storage_account.file_storage.id
+# adding the bypass/ip_rules is a workaround for azure's firewall settings
+# if we don't add this we can't add storage containers to this storage_account
+# there might be a type of account we can create to run the tf command through
+# instead of doing this ip_rules bypass
+resource "azurerm_storage_account_network_rules" "files_storage_rules" {
+  storage_account_id         = azurerm_storage_account.files_storage_account.id
   default_action             = "Deny"
   virtual_network_subnet_ids = [azurerm_subnet.storage_subnet.id]
   bypass                     = ["AzureServices"]
@@ -53,9 +55,9 @@ resource "azurerm_storage_account_network_rules" "example" {
   }
 }
 
-resource "azurerm_storage_container" "files" {
+resource "azurerm_storage_container" "files_container" {
   name                  = "files"
-  storage_account_name  = azurerm_storage_account.file_storage.name
+  storage_account_name  = azurerm_storage_account.files_storage_account.name
   container_access_type = "private"
 }
 
@@ -107,8 +109,8 @@ resource "azurerm_app_service" "civiform_app" {
     DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
     DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
 
-    AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.file_storage.name
-    AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files.name
+    AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
+    AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
 
     AWS_SES_SENDER = var.ses_sender_email
     SECRET_KEY     = var.app_secret_key
