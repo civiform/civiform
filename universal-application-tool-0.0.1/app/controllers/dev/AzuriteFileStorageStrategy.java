@@ -30,11 +30,12 @@ public class AzuriteFileStorageStrategy implements CloudEmulatorFileStorageStrat
       StoredFileRepository storedFileRepository, String key, String originalFileName) {
     StoredFile storedFile = new StoredFile();
     storedFile.setName(key);
-    storedFile.setOriginalFileName(getPrefixedUserFileName(key, originalFileName));
+    storedFile.setOriginalFileName(getPrefixedOriginalFileName(key, originalFileName));
     storedFileRepository.insert(storedFile);
   }
 
-  private String getPrefixedUserFileName(String fileName, String originalFileName) {
+  /** Returns the file's original file name, in the format "dev/${filename}" */
+  private String getPrefixedOriginalFileName(String fileName, String originalFileName) {
     String[] newFileName = fileName.split("/");
     newFileName[newFileName.length - 1] = originalFileName;
     return String.join("/", newFileName);

@@ -71,9 +71,12 @@ public class BlobStorage implements StorageClient {
   }
 
   @Override
-  public URL getPresignedUrl(String fileName, Optional<String> originalFileName) {
+  public URL getPresignedUrl(String fileName, Optional<String> prefixedOriginalFileName) {
     String blobUrl = client.getBlobUrl(fileName);
-    String sasToken = client.getSasToken(fileName, originalFileName);
+    // The prefixedOriginalFileName will either be in the format "dev/${filename}" or
+    // "applicant-%d/program-%d/block-%s/${filename}" where "${filename}" is the original name of the
+    // uploaded file set by a user
+    String sasToken = client.getSasToken(fileName, prefixedOriginalFileName);
     String signedUrl = String.format("%s?%s", blobUrl, sasToken);
 
     try {
@@ -166,7 +169,7 @@ public class BlobStorage implements StorageClient {
     }
 
     @Override
-    public String getSasToken(String fileName, Optional<String> prefixedUserFileName) {
+    public String getSasToken(String fileName, Optional<String> prefixedOriginalFileName) {
       BlobClient blobClient =
           blobServiceClient.getBlobContainerClient(container).getBlobClient(fileName);
 
@@ -178,10 +181,10 @@ public class BlobStorage implements StorageClient {
                   OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
               .setProtocol(SasProtocol.HTTPS_ONLY);
 
-      if (prefixedUserFileName.isPresent()) {
-        signatureValues.setContentDisposition("inline; filename=" + prefixedUserFileName.get());
+      if (prefixedOriginalFileName.isPresent()) {
+        signatureValues.setContentDisposition("inline; filename=" + prefixedOriginalFileName.get());
         signatureValues.setContentType(
-            URLConnection.guessContentTypeFromName(prefixedUserFileName.get()));
+            URLConnection.guessContentTypeFromName(prefixedOriginalFileName.get()));
       }
 
       return blobClient.generateUserDelegationSas(signatureValues, getUserDelegationKey());
@@ -234,7 +237,7 @@ public class BlobStorage implements StorageClient {
     }
 
     @Override
-    public String getSasToken(String fileName, Optional<String> prefixedUserFileName) {
+    public String getSasToken(String fileName, Optional<String> prefixedOriginalFileName) {
       BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
 
       BlobSasPermission blobSasPermission =
@@ -245,10 +248,10 @@ public class BlobStorage implements StorageClient {
                   OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
               .setProtocol(SasProtocol.HTTPS_HTTP);
 
-      if (prefixedUserFileName.isPresent()) {
-        signatureValues.setContentDisposition("inline; filename=" + prefixedUserFileName.get());
+      if (prefixedOriginalFileName.isPresent()) {
+        signatureValues.setContentDisposition("inline; filename=" + prefixedOriginalFileName.get());
         signatureValues.setContentType(
-            URLConnection.guessContentTypeFromName(prefixedUserFileName.get()));
+            URLConnection.guessContentTypeFromName(prefixedOriginalFileName.get()));
       }
 
       return blobClient.generateSas(signatureValues);
