@@ -32,7 +32,7 @@ import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
-import services.cloud.aws.SimpleStorage;
+import services.cloud.StorageClient;
 import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
 import services.question.exceptions.UnsupportedScalarTypeException;
@@ -51,7 +51,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final ApplicantProgramBlockEditView editView;
   private final FormFactory formFactory;
-  private final SimpleStorage amazonS3Client;
+  private final StorageClient storageClient;
   private final StoredFileRepository storedFileRepository;
   private final ProfileUtils profileUtils;
   private final String baseUrl;
@@ -65,7 +65,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       HttpExecutionContext httpExecutionContext,
       ApplicantProgramBlockEditView editView,
       FormFactory formFactory,
-      SimpleStorage amazonS3Client,
+      StorageClient storageClient,
       StoredFileRepository storedFileRepository,
       ProfileUtils profileUtils,
       Config configuration) {
@@ -74,7 +74,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
-    this.amazonS3Client = checkNotNull(amazonS3Client);
+    this.storageClient = checkNotNull(storageClient);
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.profileUtils = checkNotNull(profileUtils);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
@@ -407,7 +407,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setTotalBlockCount(roApplicantProgramService.getAllActiveBlocks().size())
         .setApplicantName(applicantName)
         .setPreferredLanguageSupported(roApplicantProgramService.preferredLanguageSupported())
-        .setAmazonS3Client(amazonS3Client)
+        .setStorageClient(storageClient)
         .setBaseUrl(baseUrl)
         .build();
   }
