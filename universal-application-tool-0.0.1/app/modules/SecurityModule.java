@@ -156,17 +156,43 @@ public class SecurityModule extends AbstractModule {
       return null;
     }
     OidcConfiguration config = new OidcConfiguration();
+    // this is the resource identifier that tells adfs that this is civiform
     config.setClientId(this.configuration.getString("adfs.client_id"));
+
+    // this is the token that we create within adfs
     config.setSecret(this.configuration.getString("adfs.secret"));
+
+    // oidc convention that auth provider has an endpoint that can get text blob
+    // that gets back public key/etc (can just curl this if curious,
+    // get from endpoints in azure)
     config.setDiscoveryURI(this.configuration.getString("adfs.discovery_uri"));
+
+    // tells AD to use a post response when it sends info back from
+    // the auth request
     config.setResponseMode("form_post");
+
+    // we want adfs to give us an id token back from this request
     config.setResponseType("id_token");
+
+    // scopes are the other things that we want from the adfs endpoint
+    // (needs to also be configured on adfs)
     config.setScope("openid profile email allatclaims");
+
+    // security setting that adds a random number to ensure cannot be reused
     config.setUseNonce(true);
+
+    // ? relationship with adfs is not stateful ?
     config.setWithState(false);
+
     OidcClient client = new OidcClient(config);
     client.setName("AdClient");
+
+    // telling adfs where to send people where to go back to
     client.setCallbackUrl(baseUrl + "/callback");
+
+    // this is specific to the implemention using pac4j. has concept of a profile
+    // for different identity profiles we have different creators. this is
+    // what links the user to the stuff they have access to within the application
     client.setProfileCreator(
         new AdfsProfileAdapter(
             config, client, profileFactory, this.configuration, applicantRepositoryProvider));

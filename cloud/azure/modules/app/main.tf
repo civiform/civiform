@@ -116,6 +116,13 @@ resource "azurerm_app_service" "civiform_app" {
 
     AWS_SES_SENDER = var.ses_sender_email
     SECRET_KEY     = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.app_secret_key.id})"
+
+    ADFS_CLIENT_ID          = var.adfs_client_id
+    AZURE_CLIENT_SECRET     = var.adfs_secret
+    ADFS_SECRET             = var.adfs_secret
+    ADFS_DISCOVERY_URI      = var.adfs_discovery_uri
+    ADFS_GLOBAL_ADMIN_GROUP = var.adfs_admin_group
+
   }
   # Configure Docker Image to load on start
   site_config {

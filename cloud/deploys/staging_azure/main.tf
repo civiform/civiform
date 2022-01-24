@@ -31,6 +31,11 @@ module "app" {
 
   ses_sender_email = var.sender_email_address
   custom_hostname  = var.custom_hostname
+
+  adfs_client_id     = var.adfs_client_id
+  adfs_secret        = var.adfs_secret
+  adfs_discovery_uri = var.adfs_discovery_uri
+  adfs_admin_group   = var.adfs_admin_group
 }
 
 module "custom_hostname" {
