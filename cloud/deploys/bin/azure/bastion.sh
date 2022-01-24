@@ -112,6 +112,24 @@ function bastion::get_connect_to_postgres_command() {
   local DB_PASSWORD=$(bastion::get_pg_password "${2}")
   echo "export DEBIAN_FRONTEND='noninteractive'; \
     yes | sudo apt-get update > /dev/null; \
+    yes | sudo apt-get install n-client > /dev/null; \
+    PGPASSWORD='${DB_PASSWORD}' psql -h ${1} -d postgres -U psqladmin@${1}"
+}
+
+
+#######################################
+# Get the command to restore db data
+# Arguments:
+#   1: the postgres host to connect to 
+#   2: the vaultname where secrets are stored
+#######################################
+function bastion::get_psql_restore() {
+  local DB_PASSWORD=$(bastion::get_pg_password "${2}")
+  echo "export DEBIAN_FRONTEND='noninteractive'; \
+    yes | sudo apt-get update > /dev/null; \
     yes | sudo apt-get install postgresql-client > /dev/null; \
     PGPASSWORD='${DB_PASSWORD}' psql -h ${1} -d postgres -U psqladmin@${1}"
 }
+
+ssh -i /Users/sgoldblatt/.ssh/bastion adminuser@137.135.99.27 
+scp -i ~/.ssh/bastion ~/Desktop/dev_programs.dump adminuser@137.135.99.27:~/pgdum
