@@ -20,10 +20,7 @@ public class StoredFile extends BaseModel {
   }
 
   public Optional<String> getOriginalFileName() {
-    if (originalFileName == null) {
-      return Optional.empty();
-    }
-    return Optional.of(originalFileName);
+    return Optional.ofNullable(originalFileName);
   }
 
   public void setOriginalFileName(String originalFileName) {
