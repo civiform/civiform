@@ -63,7 +63,7 @@ jobs:
         run: bin/build-browser-tests
       - name: Bring up test env with Azurite
         run: bin/run-browser-test-env --azure --ci
-      - name: Run browser tests with Azurite
+      - name: Run dev_file_upload.test.ts browser tests with Azurite
         run: bin/run-browser-tests-ci dev_file_upload.test.ts
       - name: Print logs on failure
         if: failure()
