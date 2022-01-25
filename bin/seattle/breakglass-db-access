@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# DOC: Connect to the production PostgreSQL database for emergency fixes.
+# DOC: Connect to the production or staging PostgreSQL database for emergency fixes.
 
 set -e
 

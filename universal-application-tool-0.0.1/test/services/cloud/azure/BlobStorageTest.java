@@ -5,6 +5,7 @@ import static play.test.Helpers.fakeApplication;
 
 import com.google.common.collect.ImmutableMap;
 import java.net.URL;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import play.Application;
@@ -50,15 +51,21 @@ public class BlobStorageTest extends WithApplication {
   }
 
   @Test
-  public void getSasToken() {
-    String sasToken = blobStorage.getClient().getSasToken(TEST_FILE_NAME);
+  public void getSasToken_originalFileNameNotSet() {
+    String sasToken = blobStorage.getClient().getSasToken(TEST_FILE_NAME, Optional.empty());
 
     assertThat(sasToken).isEqualTo("sasToken");
   }
 
   @Test
+  public void getSasToken_originalFileNameSet() {
+    String sasToken = blobStorage.getClient().getSasToken(TEST_FILE_NAME, Optional.of("file.pdf"));
+    assertThat(sasToken).isEqualTo("sasTokenWithContentHeaders");
+  }
+
+  @Test
   public void getPresignedUrl() {
-    URL url = blobStorage.getPresignedUrl(TEST_FILE_NAME);
+    URL url = blobStorage.getPresignedUrl(TEST_FILE_NAME, Optional.empty());
 
     assertThat(url.toString()).isEqualTo("http://www.blobUrl.com?sasToken");
   }

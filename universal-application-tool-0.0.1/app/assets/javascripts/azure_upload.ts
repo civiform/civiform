@@ -74,7 +74,7 @@ class AzureUploadController {
     azureUploadProps: any,
     resp: any
   ) {
-    redirectUrl.searchParams.set('userFileName', azureUploadProps.file.name)
+    redirectUrl.searchParams.set('originalFileName', azureUploadProps.file.name)
     redirectUrl.searchParams.set('etag', resp.eTag)
     redirectUrl.searchParams.set('fileName', azureUploadProps.fileName)
     redirectUrl.searchParams.set('container', azureUploadProps.containerName)

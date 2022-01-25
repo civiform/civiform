@@ -13,6 +13,7 @@ import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
+import services.cloud.FileNameFormatter;
 import services.cloud.StorageClient;
 import services.cloud.StorageUploadRequest;
 import views.dev.FileUploadView;
@@ -50,13 +51,14 @@ public class FileUploadController extends DevController {
   }
 
   public Result index(Request request) {
-    if (!isDevEnvironment()) {
+    if (!(isDevEnvironment() || isStaging())) {
       return notFound();
     }
 
     StorageUploadRequest signedRequest =
         storageClient.getSignedUploadRequest(
-            "dev/${filename}", baseUrl + routes.FileUploadController.create().url());
+            FileNameFormatter.formatDevUploadFilename(),
+            baseUrl + routes.FileUploadController.create().url());
     Set<StoredFile> files = storedFileRepository.list().toCompletableFuture().join();
     ImmutableList<StoredFile> fileList =
         files.stream()
