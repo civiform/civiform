@@ -19,6 +19,7 @@ describe('the dev file upload page', () => {
     })
 
     await page.click('button:visible')
+    await waitForPageJsLoad(page)
 
     expect(await page.textContent('h1')).toContain('Dev file upload')
     expect(await page.content()).toContain('dev/file.txt')
