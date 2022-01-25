@@ -30,18 +30,15 @@ import views.style.Styles;
 public class FileUploadView extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
-  private final StorageClient storageClient;
   private final ViewUtils viewUtils;
   private final CloudStorageDevViewStrategy storageStrategy;
 
   @Inject
   public FileUploadView(
       BaseHtmlLayout layout,
-      StorageClient storageClient,
       ViewUtils viewUtils,
       CloudStorageDevViewStrategy storageStrategy) {
     this.layout = checkNotNull(layout);
-    this.storageClient = checkNotNull(storageClient);
     this.viewUtils = checkNotNull(viewUtils);
     this.storageStrategy = checkNotNull(storageStrategy);
   }
