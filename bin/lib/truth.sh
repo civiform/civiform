@@ -77,7 +77,7 @@ function truth::declare_var_false() {
 #   2: the error message to print if the variable is not set
 #######################################
 function truth::assert_is_set() {
-  if [ -z ${1+x} ]; then
+  if [[ -z ${!1+x} ]]; then
     out::error "${2}"
     exit 2
   fi
@@ -90,7 +90,7 @@ function truth::assert_is_set() {
 #   2: the error message to print if the variable is already set
 #######################################
 function truth::assert_not_set() {
-  if [ -z "${1}" ]; then
+  if [[ ! -z ${!1+x} ]]; then
     out::error "${2}"
     exit 2
   fi
