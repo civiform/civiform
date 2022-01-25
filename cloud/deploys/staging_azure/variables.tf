@@ -38,8 +38,3 @@ variable "sender_email_address" {
   type        = string
   description = "Email address that emails will be sent from"
 }
-
-variable "staging_hostname" {
-  type        = string
-  description = "URL for staging"
-}
