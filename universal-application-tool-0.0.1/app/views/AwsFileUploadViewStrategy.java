@@ -14,6 +14,7 @@ import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import services.applicant.question.FileUploadQuestion;
+import services.cloud.FileNameFormatter;
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
 import views.applicant.ApplicantProgramBlockEditView.Params;
@@ -65,14 +66,7 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
   @Override
   public Tag renderFileUploadBlockSubmitForms(
       Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
-    // Note: This key uniquely identifies the file to be uploaded by the applicant and will be
-    // persisted in DB. Other parts of the system rely on the format of the key, e.g. in
-    // FileController.java we check if a file can be accessed based on the key content, so be extra
-    // cautious if you want to change the format.
-    String key =
-        String.format(
-            "applicant-%d/program-%d/block-%s/${filename}",
-            params.applicantId(), params.programId(), params.block().getId());
+    String key = FileNameFormatter.formatFileUploadQuestionFilename(params);
     String onSuccessRedirectUrl =
         params.baseUrl()
             + routes.ApplicantProgramBlocksController.updateFile(
@@ -81,6 +75,7 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
                     params.block().getId(),
                     params.inReview())
                 .url();
+
     StorageUploadRequest request =
         params.storageClient().getSignedUploadRequest(key, onSuccessRedirectUrl);
 
@@ -88,6 +83,7 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
       throw new RuntimeException(
           "Tried to upload a file to AWS S3 storage using incorrect request type");
     }
+
     SignedS3UploadRequest signedRequest = (SignedS3UploadRequest) request;
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()

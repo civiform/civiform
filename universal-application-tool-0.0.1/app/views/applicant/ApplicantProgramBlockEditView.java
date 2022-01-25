@@ -107,8 +107,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     // warning still appears across applicants, so that (for example) a Trusted Intermediary
     // handling multiple applicants will see the toast displayed.
     return ToastMessage.warning(messages.at(MessageKey.TOAST_LOCALE_NOT_SUPPORTED.getKeyName()))
-        .setId(String.
-               ("locale-not-supported-%d-%d", applicantId, programId))
+        .setId(String.format("locale-not-supported-%d-%d", applicantId, programId))
         .setDismissible(true)
         .setIgnorable(true)
         .setDuration(0)
@@ -138,7 +137,6 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
                 question -> renderQuestion(question, rendererParams)))
         .with(renderBottomNavButtons(params));
   }
-
 
   private Tag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return applicantQuestionRendererFactory.getRenderer(question).render(params);
