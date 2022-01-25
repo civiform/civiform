@@ -15,7 +15,6 @@ import play.i18n.Messages;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.MessageKey;
-import services.cloud.StorageClient;
 import services.cloud.StorageUploadRequest;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
@@ -35,9 +34,7 @@ public class FileUploadView extends BaseHtmlView {
 
   @Inject
   public FileUploadView(
-      BaseHtmlLayout layout,
-      ViewUtils viewUtils,
-      CloudStorageDevViewStrategy storageStrategy) {
+      BaseHtmlLayout layout, ViewUtils viewUtils, CloudStorageDevViewStrategy storageStrategy) {
     this.layout = checkNotNull(layout);
     this.viewUtils = checkNotNull(viewUtils);
     this.storageStrategy = checkNotNull(storageStrategy);
