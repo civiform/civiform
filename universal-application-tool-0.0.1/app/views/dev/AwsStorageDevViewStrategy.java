@@ -1,12 +1,24 @@
 package views.dev;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
+import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.table;
+import static j2html.TagCreator.tbody;
+import static j2html.TagCreator.td;
 import static j2html.TagCreator.text;
+import static j2html.TagCreator.tr;
 import static j2html.attributes.Attr.ENCTYPE;
 
+import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
+import java.util.Optional;
+import javax.inject.Inject;
+import models.StoredFile;
+import services.cloud.StorageClient;
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
 import views.HtmlBundle;
@@ -14,6 +26,13 @@ import views.ViewUtils;
 
 /** Strategy class for creating a file upload form for AWS. */
 public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
+
+  private final StorageClient client;
+
+  @Inject
+  public AwsStorageDevViewStrategy(StorageClient client) {
+    this.client = checkNotNull(client);
+  }
 
   @Override
   public ContainerTag getFileUploadForm(
@@ -57,5 +76,23 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
         .with(TagCreator.button(text("Upload to Amazon S3")).withType("submit"))
         .withMethod("post")
         .withAction(request.actionLink());
+  }
+
+  @Override
+  public ContainerTag renderFiles(ImmutableList<StoredFile> files) {
+    return table()
+        .with(
+            tbody(
+                each(
+                    files,
+                    file ->
+                        tr(
+                            td(String.valueOf(file.id)),
+                            td(a(file.getName()).withHref(getPresignedUrl(file)))))));
+  }
+
+  @Override
+  public String getPresignedUrl(StoredFile file) {
+    return client.getPresignedUrl(file.getName(), Optional.empty()).toString();
   }
 }

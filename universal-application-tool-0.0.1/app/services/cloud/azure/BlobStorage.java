@@ -14,10 +14,12 @@ import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.common.sas.SasProtocol;
 import com.typesafe.config.Config;
 import java.net.URL;
+import java.net.URLConnection;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -69,9 +71,9 @@ public class BlobStorage implements StorageClient {
   }
 
   @Override
-  public URL getPresignedUrl(String fileName) {
+  public URL getPresignedUrl(String fileName, Optional<String> prefixedOriginalFileName) {
     String blobUrl = client.getBlobUrl(fileName);
-    String sasToken = client.getSasToken(fileName);
+    String sasToken = client.getSasToken(fileName, prefixedOriginalFileName);
     String signedUrl = String.format("%s?%s", blobUrl, sasToken);
 
     try {
@@ -89,7 +91,7 @@ public class BlobStorage implements StorageClient {
   public BlobStorageUploadRequest getSignedUploadRequest(
       String fileName, String successActionRedirect) {
     // Azure blob must know the name of a file to generate a SAS for it, so we'll use a UUID
-    // TODO: figure out how to map this to user-uploaded filename
+    // When the file is uploaded, this UUID is stored along with the name of the file.
     fileName = fileName.replace("${filename}", UUID.randomUUID().toString());
 
     BlobStorageUploadRequest.Builder builder =
@@ -98,7 +100,7 @@ public class BlobStorage implements StorageClient {
             .setAccountName(accountName)
             .setContainerName(container)
             .setBlobUrl(client.getBlobUrl(fileName))
-            .setSasToken(client.getSasToken(fileName))
+            .setSasToken(client.getSasToken(fileName, Optional.empty()))
             .setSuccessActionRedirect(successActionRedirect);
     return builder.build();
   }
@@ -110,7 +112,7 @@ public class BlobStorage implements StorageClient {
 
   interface Client {
 
-    String getSasToken(String fileName);
+    String getSasToken(String fileName, Optional<String> originalFileName);
 
     String getBlobUrl(String fileName);
   }
@@ -121,7 +123,10 @@ public class BlobStorage implements StorageClient {
     NullClient() {}
 
     @Override
-    public String getSasToken(String fileName) {
+    public String getSasToken(String fileName, Optional<String> originalFileName) {
+      if (originalFileName.isPresent()) {
+        return "sasTokenWithContentHeaders";
+      }
       return "sasToken";
     }
 
@@ -161,7 +166,7 @@ public class BlobStorage implements StorageClient {
     }
 
     @Override
-    public String getSasToken(String fileName) {
+    public String getSasToken(String fileName, Optional<String> prefixedOriginalFileName) {
       BlobClient blobClient =
           blobServiceClient.getBlobContainerClient(container).getBlobClient(fileName);
 
@@ -172,6 +177,12 @@ public class BlobStorage implements StorageClient {
           new BlobServiceSasSignatureValues(
                   OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
               .setProtocol(SasProtocol.HTTPS_ONLY);
+
+      if (prefixedOriginalFileName.isPresent()) {
+        signatureValues.setContentDisposition("inline; filename=" + prefixedOriginalFileName.get());
+        signatureValues.setContentType(
+            URLConnection.guessContentTypeFromName(prefixedOriginalFileName.get()));
+      }
 
       return blobClient.generateUserDelegationSas(signatureValues, getUserDelegationKey());
     }
@@ -227,7 +238,7 @@ public class BlobStorage implements StorageClient {
     }
 
     @Override
-    public String getSasToken(String fileName) {
+    public String getSasToken(String fileName, Optional<String> prefixedOriginalFileName) {
       BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
 
       BlobSasPermission blobSasPermission =
@@ -236,7 +247,13 @@ public class BlobStorage implements StorageClient {
       BlobServiceSasSignatureValues signatureValues =
           new BlobServiceSasSignatureValues(
                   OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
-              .setProtocol(SasProtocol.HTTPS_HTTP); // TODO: Get this to work with HTTPS_ONLY
+              .setProtocol(SasProtocol.HTTPS_HTTP);
+
+      if (prefixedOriginalFileName.isPresent()) {
+        signatureValues.setContentDisposition("inline; filename=" + prefixedOriginalFileName.get());
+        signatureValues.setContentType(
+            URLConnection.guessContentTypeFromName(prefixedOriginalFileName.get()));
+      }
 
       return blobClient.generateSas(signatureValues);
     }
