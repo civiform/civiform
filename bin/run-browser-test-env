@@ -6,8 +6,10 @@ pushd $(git rev-parse --show-toplevel) > /dev/null
 
 set -e
 
-# Default to continuous integration mode disable.
-continuous_integration=1
+source bin/lib.sh
+
+# Default to continuous integration mode disabled.
+truth::declare_var_false continuous_integration
 
 # Default to AWS/Localstack emulator.
 cloud_provider="aws"
@@ -24,15 +26,15 @@ STORAGE_SERVICE_NAME="s3"
 # Arguments:
 #   1: the cloud provider indicated by the flag currently being processed
 #######################################
-already_set_cloud_provider=1
-ensure_only_one_cloud_provider_flag() {
-  if [[ $already_set_cloud_provider -eq 0 ]]; then
+truth::declare_var_false already_set_cloud_provider
+function ensure_only_one_cloud_provider_flag() {
+  if truth::is_enabled already_set_cloud_provider; then
     local duplicate_providers="${cloud_provider} and ${1}"
     echo "One cloud provider flag can be set but found both ${duplicate_providers}"
     exit 1
   fi
 
-  already_set_cloud_provider=0
+  truth::enable already_set_cloud_provider
 }
 
 #######################################
@@ -47,7 +49,7 @@ ensure_only_one_cloud_provider_flag() {
 # Arguments:
 #   1: "$@" - full args array for the script
 #######################################
-set_args() {
+function set_args() {
   while [ "${1:-}" != "" ]; do
     case "$1" in
       "--help")
@@ -71,7 +73,7 @@ EOF
         ;;
 
       "--ci")
-        continuous_integration=0
+        truth::enable continuous_integration
         ;;
 
       "--azure")
@@ -90,8 +92,6 @@ EOF
 
     shift
   done
-
-
 }
 
 set_args "$@"
@@ -108,7 +108,7 @@ fi
 compose_command="docker-compose --profile ${cloud_provider}"
 compose_command="${compose_command} -f browser-test/browser-test-compose.yml"
 
-if [[ "${continuous_integration}" -eq 1 ]]; then
+if truth::is_disabled continuous_integration; then
   # If not running in CI, load the dev addition to the browser test compose
   # this mounts the local SBT cache directories for faster subsequent builds.
   compose_command="${compose_command} -f browser-test/browser-test-compose.dev.yml"
@@ -126,7 +126,7 @@ eval "${START_EMULATOR_COMMAND}"
 # Wait until the emulator is running.
 "bin/${emulator}/wait" "${server_url}"
 
-if [[ "${continuous_integration}" -eq 0 ]]; then
+if truth::is_enabled continuous_integration; then
   compose_command="${compose_command} > .dockerlogs 2>&1 &"
 fi
 
