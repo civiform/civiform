@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import java.util.Optional;
+import javax.inject.Inject;
 import models.StoredFile;
 import services.cloud.StorageClient;
 import services.cloud.StorageUploadRequest;
@@ -24,6 +25,13 @@ import views.ViewUtils;
 
 /** Strategy class for creating a file upload form for AWS. */
 public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
+
+  private final StorageClient client;
+
+  @Inject
+  public AwsStorageDevViewStrategy(StorageClient client) {
+    this.client = client;
+  }
 
   @Override
   public ContainerTag getFileUploadForm(
@@ -70,7 +78,7 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
   }
 
   @Override
-  public ContainerTag renderFiles(ImmutableList<StoredFile> files, StorageClient client) {
+  public ContainerTag renderFiles(ImmutableList<StoredFile> files) {
     return table()
         .with(
             tbody(
@@ -79,10 +87,11 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
                     file ->
                         tr(
                             td(String.valueOf(file.id)),
-                            td(a(file.getName()).withHref(getPresignedURL(file, client)))))));
+                            td(a(file.getName()).withHref(getPresignedURL(file)))))));
   }
 
-  public String getPresignedURL(StoredFile file, StorageClient client) {
+  @Override
+  public String getPresignedURL(StoredFile file) {
     return client.getPresignedUrl(file.getName(), Optional.empty()).toString();
   }
 }

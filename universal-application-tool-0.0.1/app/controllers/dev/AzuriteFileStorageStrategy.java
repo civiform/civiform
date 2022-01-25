@@ -7,6 +7,7 @@ import models.StoredFile;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
+import services.cloud.azure.FileNameFormatter;
 
 /** Implements file uploading to Azurite, the Azure emulator. */
 public class AzuriteFileStorageStrategy implements CloudEmulatorFileStorageStrategy {
@@ -30,14 +31,8 @@ public class AzuriteFileStorageStrategy implements CloudEmulatorFileStorageStrat
       StoredFileRepository storedFileRepository, String key, String originalFileName) {
     StoredFile storedFile = new StoredFile();
     storedFile.setName(key);
-    storedFile.setOriginalFileName(getPrefixedOriginalFileName(key, originalFileName));
+    storedFile.setOriginalFileName(
+        FileNameFormatter.getPrefixedOriginalFileName(key, originalFileName));
     storedFileRepository.insert(storedFile);
-  }
-
-  /** Returns the file's original file name, in the format "dev/${filename}" */
-  private String getPrefixedOriginalFileName(String fileName, String originalFileName) {
-    String[] newFileName = fileName.split("/");
-    newFileName[newFileName.length - 1] = originalFileName;
-    return String.join("/", newFileName);
   }
 }

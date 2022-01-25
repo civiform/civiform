@@ -13,6 +13,7 @@ import static j2html.TagCreator.tr;
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
+import javax.inject.Inject;
 import models.StoredFile;
 import services.cloud.StorageClient;
 import services.cloud.StorageUploadRequest;
@@ -25,6 +26,13 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
 
   private static final String AZURE_STORAGE_BLOB_WEB_JAR =
       "lib/azure__storage-blob/browser/azure-storage-blob.min.js";
+
+  private final StorageClient client;
+
+  @Inject
+  public AzureStorageDevViewStrategy(StorageClient client) {
+    this.client = client;
+  }
 
   @Override
   public ContainerTag getFileUploadForm(
@@ -59,7 +67,7 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
   }
 
   @Override
-  public ContainerTag renderFiles(ImmutableList<StoredFile> files, StorageClient client) {
+  public ContainerTag renderFiles(ImmutableList<StoredFile> files) {
     return table()
         .with(
             tbody(
@@ -72,10 +80,11 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
                                 a(file.getOriginalFileName().isPresent()
                                         ? file.getOriginalFileName().get()
                                         : file.getName())
-                                    .withHref(getPresignedURL(file, client)))))));
+                                    .withHref(getPresignedURL(file)))))));
   }
 
-  public String getPresignedURL(StoredFile file, StorageClient client) {
+  @Override
+  public String getPresignedURL(StoredFile file) {
     return client.getPresignedUrl(file.getName(), file.getOriginalFileName()).toString();
   }
 }

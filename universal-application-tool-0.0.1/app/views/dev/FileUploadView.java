@@ -82,7 +82,7 @@ public class FileUploadView extends BaseHtmlView {
                                         messages.at(
                                             MessageKey.FILEUPLOAD_LABEL_CURRENT_FILES
                                                 .getKeyName())))
-                                .with(pre(storageStrategy.renderFiles(files, storageClient))))));
+                                .with(pre(storageStrategy.renderFiles(files))))));
     return layout.render(bundle);
   }
 }

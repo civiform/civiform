@@ -74,8 +74,8 @@ public class BlobStorage implements StorageClient {
   public URL getPresignedUrl(String fileName, Optional<String> prefixedOriginalFileName) {
     String blobUrl = client.getBlobUrl(fileName);
     // The prefixedOriginalFileName will either be in the format "dev/${filename}" or
-    // "applicant-%d/program-%d/block-%s/${filename}" where "${filename}" is the original name of the
-    // uploaded file set by a user
+    // "applicant-%d/program-%d/block-%s/${filename}" where "${filename}" is the original name of
+    // the uploaded file set by a user
     String sasToken = client.getSasToken(fileName, prefixedOriginalFileName);
     String signedUrl = String.format("%s?%s", blobUrl, sasToken);
 
