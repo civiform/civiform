@@ -1,6 +1,7 @@
 package views.questiontypes;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
 import java.util.Locale;
 import java.util.Optional;
 import services.LocalizedStrings;
@@ -12,9 +13,17 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import views.FileUploadViewStrategy;
 
 /** A helper class for constructing type-specific applicant question renderers. */
 public class ApplicantQuestionRendererFactory {
+
+  private final FileUploadViewStrategy fileUploadViewStrategy;
+
+  @Inject
+  public ApplicantQuestionRendererFactory(FileUploadViewStrategy fileUploadViewStrategy) {
+    this.fileUploadViewStrategy = fileUploadViewStrategy;
+  }
 
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
@@ -41,7 +50,7 @@ public class ApplicantQuestionRendererFactory {
       case EMAIL:
         return new EmailQuestionRenderer(question);
       case FILEUPLOAD:
-        return new FileUploadQuestionRenderer(question);
+        return new FileUploadQuestionRenderer(question, fileUploadViewStrategy);
       case ID:
         return new IdQuestionRenderer(question);
       case NAME:

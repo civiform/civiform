@@ -9,7 +9,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
-import views.FileUploadStrategy;
+import views.FileUploadViewStrategy;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
@@ -22,7 +22,7 @@ import views.style.ReferenceClasses;
 public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
   private static final String IMAGES_AND_PDF = "image/*,.pdf";
 
-  @Inject FileUploadStrategy fileUploadStrategy;
+  FileUploadViewStrategy fileUploadViewStrategy;
 
   private final FileUploadQuestion fileuploadQuestion;
 
@@ -41,9 +41,11 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Inject
-  public FileUploadQuestionRenderer(ApplicantQuestion question) {
+  public FileUploadQuestionRenderer(
+      ApplicantQuestion question, FileUploadViewStrategy fileUploadViewStrategy) {
     super(question);
     this.fileuploadQuestion = question.createFileUploadQuestion();
+    this.fileUploadViewStrategy = fileUploadViewStrategy;
   }
 
   @Override
@@ -60,7 +62,7 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
     if (params.isSample()) {
       return fileUploadFieldsPreview();
     }
-    return fileUploadStrategy.signedFileUploadFields(params, fileuploadQuestion);
+    return fileUploadViewStrategy.signedFileUploadFields(params, fileuploadQuestion);
   }
 
   private ContainerTag fileUploadFieldsPreview() {

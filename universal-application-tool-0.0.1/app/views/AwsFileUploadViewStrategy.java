@@ -23,7 +23,7 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
-public class AwsFileUploadStrategy extends FileUploadStrategy {
+public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
   public ContainerTag signedFileUploadFields(
@@ -113,7 +113,7 @@ public class AwsFileUploadStrategy extends FileUploadStrategy {
   }
 
   private String acceptFileTypes() {
-    return IMAGES_AND_PDF;
+    return MIME_TYPES_IMAGES_AND_PDF;
   }
 
   private ContainerTag errorDiv(Messages messages, FileUploadQuestion fileUploadQuestion) {

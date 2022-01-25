@@ -11,8 +11,8 @@ import controllers.dev.CloudEmulatorFileStorageStrategy;
 import play.Environment;
 import services.cloud.StorageClient;
 import services.cloud.StorageServiceName;
-import views.AwsFileUploadStrategy;
-import views.FileUploadStrategy;
+import views.AwsFileUploadViewStrategy;
+import views.FileUploadViewStrategy;
 import views.dev.AwsStorageDevViewStrategy;
 import views.dev.AzureStorageDevViewStrategy;
 import views.dev.CloudStorageDevViewStrategy;
@@ -56,7 +56,8 @@ public class CloudStorageModule extends AbstractModule {
   private void bindCloudStorageStrategy(String storageProvider) {
     // Defaulting to this for now because prod file upload to Azure blob storage hasn't been
     // implemented yet.
-    bind(FileUploadStrategy.class).to(AwsFileUploadStrategy.class);
+    // TODO(#1838): Implement Azure prod file upload.
+    bind(FileUploadViewStrategy.class).to(AwsFileUploadViewStrategy.class);
     StorageServiceName storageServiceName = StorageServiceName.forString(storageProvider).get();
 
     switch (storageServiceName) {

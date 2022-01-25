@@ -22,7 +22,7 @@ import services.applicant.Block;
 import services.applicant.question.ApplicantQuestion;
 import services.cloud.StorageClient;
 import views.BaseHtmlView;
-import views.FileUploadStrategy;
+import views.FileUploadViewStrategy;
 import views.HtmlBundle;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
@@ -37,13 +37,13 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
   private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
-  private final FileUploadStrategy fileUploadStrategy;
+  private final FileUploadViewStrategy fileUploadStrategy;
 
   @Inject
   public ApplicantProgramBlockEditView(
       ApplicantLayout layout,
       ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
-      FileUploadStrategy fileUploadStrategy) {
+      FileUploadViewStrategy fileUploadStrategy) {
     this.layout = checkNotNull(layout);
     this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
     this.fileUploadStrategy = checkNotNull(fileUploadStrategy);

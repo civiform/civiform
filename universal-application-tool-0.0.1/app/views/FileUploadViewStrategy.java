@@ -24,16 +24,39 @@ import views.questiontypes.FileUploadQuestionRenderer;
 import views.style.ApplicantStyles;
 import views.style.Styles;
 
-public abstract class FileUploadStrategy {
+/**
+ * A strategy pattern that abstracts out the logic of file upload/download into the different cloud
+ * providers.
+ */
+public abstract class FileUploadViewStrategy {
 
-  static final String IMAGES_AND_PDF = "image/*,.pdf";
+  static final String MIME_TYPES_IMAGES_AND_PDF = "image/*,.pdf";
   final String BLOCK_FORM_ID = "cf-block-form";
   private final String FILEUPLOAD_CONTINUE_FORM_ID = "cf-fileupload-continue-form";
   private final String FILEUPLOAD_DELETE_FORM_ID = "cf-fileupload-delete-form";
+  private final String FILEUPLOAD_SUBMIT_FORM_ID = "cf-block-submit";
+  private final String FILEUPLOAD_DELETE_BUTTON_ID = "fileupload-delete-button";
+  private final String FILEUPLOAD_SKIP_BUTTON_ID = "fileupload-skip-button";
+  private final String FILEUPLOAD_CONTINUE_BUTTON_ID = "fileupload-continue-button";
+  private final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
 
+  /**
+   * Method to generate the field tags for the file upload view form.
+   *
+   * @param params the fields necessary to render applicant questions.
+   * @param fileUploadQuestion The question that requires a file upload.
+   * @return a container tag with the necessary fields
+   */
   public abstract ContainerTag signedFileUploadFields(
       ApplicantQuestionRendererParams params, FileUploadQuestion fileUploadQuestion);
 
+  /**
+   * Method to render the submit form for uploading a file.
+   *
+   * @param params the information needed to render a file upload view
+   * @param applicantQuestionRendererFactory a class for rendering applicant questions.
+   * @return a container tag with the submit view
+   */
   public abstract Tag renderFileUploadBlockSubmitForms(
       Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory);
 
@@ -121,7 +144,7 @@ public abstract class FileUploadStrategy {
             .url();
     return a().attr(HREF, reviewUrl)
         .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
-        .withId("review-application-button")
+        .withId(REVIEW_APPLICATION_BUTTON_ID)
         .withClasses(ApplicantStyles.BUTTON_REVIEW);
   }
 
@@ -138,7 +161,7 @@ public abstract class FileUploadStrategy {
         submitButton(params.messages().at(MessageKey.BUTTON_KEEP_FILE.getKeyName()))
             .attr(FORM, FILEUPLOAD_CONTINUE_FORM_ID)
             .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
-            .withId("fileupload-continue-button");
+            .withId(FILEUPLOAD_CONTINUE_BUTTON_ID);
     return Optional.of(button);
   }
 
@@ -155,10 +178,10 @@ public abstract class FileUploadStrategy {
       return Optional.empty();
     }
     String buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
-    String buttonId = "fileupload-skip-button";
+    String buttonId = FILEUPLOAD_SKIP_BUTTON_ID;
     if (hasUploadedFile(params)) {
       buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
-      buttonId = "fileupload-delete-button";
+      buttonId = FILEUPLOAD_DELETE_BUTTON_ID;
     }
     Tag button =
         submitButton(buttonText)
@@ -176,7 +199,7 @@ public abstract class FileUploadStrategy {
     return submitButton(params.messages().at(MessageKey.BUTTON_UPLOAD.getKeyName()))
         .attr(FORM, BLOCK_FORM_ID)
         .withClasses(styles)
-        .withId("cf-block-submit");
+        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
   }
 
   private boolean hasUploadedFile(Params params) {
