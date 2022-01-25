@@ -19,5 +19,5 @@ public interface CloudStorageDevViewStrategy {
 
   ContainerTag renderFiles(ImmutableList<StoredFile> files);
 
-  String getPresignedURL(StoredFile file);
+  String getPresignedUrl(StoredFile file);
 }

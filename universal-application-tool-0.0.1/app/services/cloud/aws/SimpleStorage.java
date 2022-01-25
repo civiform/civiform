@@ -67,6 +67,7 @@ public class SimpleStorage implements StorageClient {
   }
 
   public URL getPresignedUrl(String key) {
+    // TODO(#1841): support storing and displaying original filenames for AWS uploads
     return getPresignedUrl(key, Optional.empty());
   }
 

@@ -88,11 +88,11 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
                     file ->
                         tr(
                             td(String.valueOf(file.id)),
-                            td(a(file.getName()).withHref(getPresignedURL(file)))))));
+                            td(a(file.getName()).withHref(getPresignedUrl(file)))))));
   }
 
   @Override
-  public String getPresignedURL(StoredFile file) {
+  public String getPresignedUrl(StoredFile file) {
     return client.getPresignedUrl(file.getName(), Optional.empty()).toString();
   }
 }

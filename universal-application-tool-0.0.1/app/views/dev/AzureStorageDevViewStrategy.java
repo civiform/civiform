@@ -81,11 +81,11 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
                                 a(file.getOriginalFileName().isPresent()
                                         ? file.getOriginalFileName().get()
                                         : file.getName())
-                                    .withHref(getPresignedURL(file)))))));
+                                    .withHref(getPresignedUrl(file)))))));
   }
 
   @Override
-  public String getPresignedURL(StoredFile file) {
+  public String getPresignedUrl(StoredFile file) {
     return client.getPresignedUrl(file.getName(), file.getOriginalFileName()).toString();
   }
 }
