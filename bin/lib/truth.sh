@@ -23,7 +23,7 @@ function truth::is_disabled() {
 }
 
 #######################################
-# Set boolean variable to true
+# Set boolean variable to true.
 # Arguments:
 #   1: the variable name
 #######################################
@@ -34,7 +34,7 @@ function truth::enable() {
 }
 
 #######################################
-# Set boolean variable to false
+# Set boolean variable to false.
 # Arguments:
 #   1: the variable name
 #######################################
@@ -45,7 +45,7 @@ function truth::disable() {
 }
 
 #######################################
-# Declare a variable as true
+# Declare a variable as true.
 # Arguments:
 #   1: the variable name
 #######################################
@@ -57,7 +57,7 @@ function truth::declare_var_true() {
 }
 
 #######################################
-# Declare a variable as false
+# Declare a variable as false.
 # Arguments:
 #   1: the variable name
 #######################################
