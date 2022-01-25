@@ -66,13 +66,14 @@ public class SimpleStorage implements StorageClient {
         });
   }
 
-  public URL getPresignedUrl(String key) {
+  @Override
+  public String getPresignedUrlString(String key) {
     // TODO(#1841): support storing and displaying original filenames for AWS uploads
-    return getPresignedUrl(key, Optional.empty());
+    return getPresignedUrlString(key, /* originalFileName= */ Optional.empty());
   }
 
   @Override
-  public URL getPresignedUrl(String key, Optional<String> originalFileName) {
+  public String getPresignedUrlString(String key, Optional<String> originalFileName) {
     GetObjectRequest getObjectRequest = GetObjectRequest.builder().key(key).bucket(bucket).build();
     GetObjectPresignRequest getObjectPresignRequest =
         GetObjectPresignRequest.builder()
@@ -82,7 +83,7 @@ public class SimpleStorage implements StorageClient {
 
     PresignedGetObjectRequest presignedGetObjectRequest =
         client.getPresigner().presignGetObject(getObjectPresignRequest);
-    return presignedGetObjectRequest.url();
+    return presignedGetObjectRequest.url().toString();
   }
 
   @Override

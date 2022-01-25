@@ -53,22 +53,24 @@ public abstract class FileUploadViewStrategy {
   public abstract Tag renderFileUploadBlockSubmitForms(
       Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory);
 
-  Tag renderQuestion(
+  protected Tag renderQuestion(
       ApplicantQuestion question,
       ApplicantQuestionRendererParams params,
       ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
     return applicantQuestionRendererFactory.getRenderer(question).render(params);
   }
 
-  Tag renderFileKeyField(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
+  protected Tag renderFileKeyField(
+      ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, false);
   }
 
-  Tag renderEmptyFileKeyField(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
+  protected Tag renderEmptyFileKeyField(
+      ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, true);
   }
 
-  Tag renderReviewButton(Params params) {
+  protected Tag renderReviewButton(Params params) {
     String reviewUrl =
         routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
             .url();
@@ -78,7 +80,7 @@ public abstract class FileUploadViewStrategy {
         .withClasses(ApplicantStyles.BUTTON_REVIEW);
   }
 
-  Tag renderUploadButton(Params params) {
+  protected Tag renderUploadButton(Params params) {
     String styles = ApplicantStyles.BUTTON_BLOCK_NEXT;
     if (hasUploadedFile(params)) {
       styles = ApplicantStyles.BUTTON_REVIEW;
@@ -89,14 +91,14 @@ public abstract class FileUploadViewStrategy {
         .withId(FILEUPLOAD_SUBMIT_FORM_ID);
   }
 
-  boolean hasUploadedFile(Params params) {
+  protected boolean hasUploadedFile(Params params) {
     return params.block().getQuestions().stream()
         .map(ApplicantQuestion::createFileUploadQuestion)
         .map(FileUploadQuestion::getFileKeyValue)
         .anyMatch(maybeValue -> maybeValue.isPresent());
   }
 
-  boolean hasAtLeastOneRequiredQuestion(Params params) {
+  protected boolean hasAtLeastOneRequiredQuestion(Params params) {
     return params.block().getQuestions().stream().anyMatch(question -> !question.isOptional());
   }
 }

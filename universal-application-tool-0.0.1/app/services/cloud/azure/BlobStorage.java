@@ -71,13 +71,18 @@ public class BlobStorage implements StorageClient {
   }
 
   @Override
-  public URL getPresignedUrl(String fileName, Optional<String> prefixedOriginalFileName) {
+  public String getPresignedUrlString(String fileKey) {
+    return getPresignedUrlString(fileKey, /* prefixedOriginalFileName= */ Optional.empty());
+  }
+
+  @Override
+  public String getPresignedUrlString(String fileName, Optional<String> prefixedOriginalFileName) {
     String blobUrl = client.getBlobUrl(fileName);
     String sasToken = client.getSasToken(fileName, prefixedOriginalFileName);
     String signedUrl = String.format("%s?%s", blobUrl, sasToken);
 
     try {
-      return new URL(signedUrl);
+      return new URL(signedUrl).toString();
     } catch (java.net.MalformedURLException e) {
       throw new RuntimeException(e);
     }

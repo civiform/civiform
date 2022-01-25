@@ -3,7 +3,6 @@ package views.questiontypes;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 
-import com.google.inject.Inject;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
@@ -39,7 +38,6 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
         .getContainer();
   }
 
-  @Inject
   public FileUploadQuestionRenderer(
       ApplicantQuestion question, FileUploadViewStrategy fileUploadViewStrategy) {
     super(question);
