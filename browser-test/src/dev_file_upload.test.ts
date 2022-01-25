@@ -1,6 +1,6 @@
 import { Page } from 'playwright'
 import { readFileSync } from 'fs'
-import { startSession, endSession } from './support'
+import { startSession, endSession, waitForPageJsLoad } from './support'
 
 const { BASE_URL = 'http://civiform:9000' } = process.env
 
@@ -19,6 +19,7 @@ describe('the dev file upload page', () => {
     })
 
     await page.click('button:visible')
+    await waitForPageJsLoad(page)
 
     expect(await page.textContent('h1')).toContain('Dev file upload')
     expect(await page.content()).toContain('dev/file.txt')
