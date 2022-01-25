@@ -3,7 +3,6 @@ package services.cloud;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
-import services.cloud.FileNameFormatter;
 
 public class FileNameFormatterTest {
 
