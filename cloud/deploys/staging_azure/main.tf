@@ -26,6 +26,8 @@ module "app" {
   application_name = var.application_name
   app_secret_key   = var.app_secret_key
   ses_sender_email = var.sender_email_address
+
+  staging_hostname = var.staging_hostname
 }
 
 module "email_service" {
