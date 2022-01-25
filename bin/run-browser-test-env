@@ -61,10 +61,10 @@ Run a local civiform environment for the browser tests to exercise.
 Options:
 
 --ci    Run the environment in CI mode. Removes caching for SBT builds and
-        redirects log statements to a .dockerlogs file.
+        redirects log statements to a .dockerlogs file. Defaults to off.
 
 --aws   Use the AWS emulator (Localstack) for simulating cloud services,
-        cannot be used with --azure flag.
+        cannot be used with --azure flag. This is the default.
 
 --azure Use the Azure emulator (Azurite) for simluating cloud services,
         cannot be used with --aws flag.

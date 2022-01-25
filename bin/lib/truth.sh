@@ -19,9 +19,7 @@ function truth::is_enabled() {
 #   1: the variable name
 #######################################
 function truth::is_disabled() {
-  truth::assert_is_boolean "${1}"
-
-  [[ "${!1}" != "true" ]]
+  ! truth::is_enabled "${1}"
 }
 
 #######################################
@@ -96,7 +94,6 @@ function truth::assert_not_set() {
   fi
 }
 
-
 #######################################
 # Assert that a variable contains 'true' or 'false'
 # Arguments:
@@ -116,7 +113,7 @@ function truth::assert_is_boolean() {
     return 0
   else
     out::error "Expected variable '${var_name}' to be a boolean"\
-      "but it contained ${value}"
+      "but it contained '${value}'"
     exit 2
   fi
 }
