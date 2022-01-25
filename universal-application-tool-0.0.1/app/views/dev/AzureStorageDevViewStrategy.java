@@ -1,5 +1,6 @@
 package views.dev;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -31,7 +32,7 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
 
   @Inject
   public AzureStorageDevViewStrategy(StorageClient client) {
-    this.client = client;
+    this.client = checkNotNull(client);
   }
 
   @Override

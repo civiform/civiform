@@ -24,6 +24,7 @@ import services.MessageKey;
 import services.applicant.Block;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
+import services.cloud.FileNameFormatter;
 import services.cloud.aws.SignedS3UploadRequest;
 import services.cloud.aws.SimpleStorage;
 import views.BaseHtmlView;
@@ -141,14 +142,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   private Tag renderFileUploadBlockSubmitForms(Params params) {
-    // Note: This key uniquely identifies the file to be uploaded by the applicant and will be
-    // persisted in DB. Other parts of the system rely on the format of the key, e.g. in
-    // FileController.java we check if a file can be accessed based on the key content, so be extra
-    // cautious if you want to change the format.
-    String key =
-        String.format(
-            "applicant-%d/program-%d/block-%s/${filename}",
-            params.applicantId(), params.programId(), params.block().getId());
+    String key = FileNameFormatter.formatFileUploadQuestionFilename(params);
     String onSuccessRedirectUrl =
         params.baseUrl()
             + routes.ApplicantProgramBlocksController.updateFile(
@@ -383,13 +377,13 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     abstract int totalBlockCount();
 
-    abstract long applicantId();
+    public abstract long applicantId();
 
     abstract String programTitle();
 
-    abstract long programId();
+    public abstract long programId();
 
-    abstract Block block();
+    public abstract Block block();
 
     abstract boolean preferredLanguageSupported();
 
