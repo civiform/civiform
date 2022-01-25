@@ -64,7 +64,7 @@ public class BlobStorage implements StorageClient {
     } else if (environment.isTest()) {
       client = new NullClient();
     } else {
-      client = new AzureBlobClient();
+      client = new AzureBlobClient(config);
     }
   }
 
@@ -138,7 +138,7 @@ public class BlobStorage implements StorageClient {
     private UserDelegationKey userDelegationKey;
     private ZoneId zoneId;
 
-    AzureBlobClient() {
+    AzureBlobClient(Config config) {
       blobServiceClient =
           new BlobServiceClientBuilder()
               .endpoint(blobEndpoint)
