@@ -109,6 +109,8 @@ resource "azurerm_app_service" "civiform_app" {
     DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
     DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
 
+    STORAGE_SERVICE_NAME = "azure-blob"
+
     AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
 

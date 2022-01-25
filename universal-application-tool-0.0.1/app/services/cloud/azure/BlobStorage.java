@@ -145,7 +145,7 @@ public class BlobStorage implements StorageClient {
               .credential(credentials.getCredentials())
               .buildClient();
       userDelegationKey = getUserDelegationKey();
-      zoneId = ZoneId.systemDefault();
+      zoneId = ZoneId.of(checkNotNull(config).getString(AZURE_REGION_CONF_PATH));
     }
 
     private UserDelegationKey getUserDelegationKey() {
