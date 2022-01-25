@@ -51,7 +51,7 @@ public class FileUploadController extends DevController {
   }
 
   public Result index(Request request) {
-    if (!(isDevEnvironment() || isStaging())) {
+    if (!isDevEnvironment()) {
       return notFound();
     }
 
