@@ -28,9 +28,6 @@ public class FileNameFormatter {
    * DB. Other parts of the system rely on the format of the key, e.g. in FileController.java we
    * check if a file can be accessed based on the key content, so be extra cautious if you want to
    * change the format.
-   *
-   * @param params
-   * @return String
    */
   public static String formatFileUploadQuestionFilename(
       ApplicantProgramBlockEditView.Params params) {
@@ -43,8 +40,6 @@ public class FileNameFormatter {
   /**
    * This returns a prefixed filename used in the dev file upload view, which will be persisted in
    * the DB.
-   *
-   * @return String
    */
   public static String formatDevUploadFilename() {
     return "dev/${filename}";
