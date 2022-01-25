@@ -22,8 +22,7 @@ import views.style.ReferenceClasses;
 public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
   private static final String IMAGES_AND_PDF = "image/*,.pdf";
 
-  FileUploadViewStrategy fileUploadViewStrategy;
-
+  private final FileUploadViewStrategy fileUploadViewStrategy;
   private final FileUploadQuestion fileuploadQuestion;
 
   public static Tag renderFileKeyField(
