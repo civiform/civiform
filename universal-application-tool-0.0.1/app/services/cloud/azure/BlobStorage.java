@@ -144,7 +144,7 @@ public class BlobStorage implements StorageClient {
     private ZoneId zoneId;
 
     AzureBlobClient(ZoneId zoneId) {
-      this.zoneId = zoneId;
+      this.zoneId = checkNotNull(zoneId);
       blobServiceClient =
           new BlobServiceClientBuilder()
               .endpoint(blobEndpoint)
