@@ -158,7 +158,7 @@ public class BlobStorage implements StorageClient {
       boolean isUserDelegationKeyExpired = false;
       if (userDelegationKey != null) {
         OffsetDateTime keyExpiration = userDelegationKey.getSignedExpiry();
-        isUserDelegationKeyExpired = keyExpiration.isBefore(userDelegationKey.getSignedExpiry());
+        isUserDelegationKeyExpired = keyExpiration.isBefore(tokenExpiration);
       }
       if (userDelegationKey == null || isUserDelegationKeyExpired) {
         userDelegationKey =
