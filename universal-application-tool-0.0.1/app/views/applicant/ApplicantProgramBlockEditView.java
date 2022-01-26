@@ -9,11 +9,10 @@ import static j2html.TagCreator.h1;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.auto.value.AutoValue;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
@@ -37,17 +36,21 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   private final String BLOCK_FORM_ID = "cf-block-form";
 
   private final ApplicantLayout layout;
-  private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
   private final FileUploadViewStrategy fileUploadStrategy;
+
+  private ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
 
   @Inject
   public ApplicantProgramBlockEditView(
-      ApplicantLayout layout,
-      @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
-      FileUploadViewStrategy fileUploadStrategy) {
+      ApplicantLayout layout, FileUploadViewStrategy fileUploadStrategy) {
     this.layout = checkNotNull(layout);
     this.fileUploadStrategy = checkNotNull(fileUploadStrategy);
-    this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
+  }
+
+  /** This method must be called before any other methods. */
+  // TODO(#1847): Try to get AssistedInjection working.
+  public void init(ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
+    this.applicantQuestionRendererFactory = applicantQuestionRendererFactory;
   }
 
   public Content render(Params params) {
@@ -116,6 +119,10 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   private Tag renderBlockWithSubmitForm(Params params) {
+    checkNotNull(
+        applicantQuestionRendererFactory,
+        "Must call init function for initializing ApplicantQuestionRendererFactory");
+
     if (params.block().isFileUpload()) {
       return fileUploadStrategy.renderFileUploadBlockSubmitForms(
           params, applicantQuestionRendererFactory);
@@ -140,6 +147,9 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   private Tag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
+    checkNotNull(
+        applicantQuestionRendererFactory,
+        "Must call init function for initializing ApplicantQuestionRendererFactory");
     return applicantQuestionRendererFactory.getRenderer(question).render(params);
   }
 
