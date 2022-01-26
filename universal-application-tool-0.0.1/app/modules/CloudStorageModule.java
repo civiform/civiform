@@ -3,6 +3,7 @@ package modules;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import controllers.dev.AwsLocalstackFileStorageStrategy;
@@ -12,7 +13,10 @@ import play.Environment;
 import services.cloud.StorageClient;
 import services.cloud.StorageServiceName;
 import views.AwsFileUploadViewStrategy;
+import views.BaseHtmlView;
 import views.FileUploadViewStrategy;
+import views.applicant.ApplicantProgramBlockEditView;
+import views.applicant.ApplicantProgramBlockEditViewFactory;
 import views.dev.AwsStorageDevViewStrategy;
 import views.dev.AzureStorageDevViewStrategy;
 import views.dev.CloudStorageDevViewStrategy;
@@ -51,6 +55,11 @@ public class CloudStorageModule extends AbstractModule {
       throw new RuntimeException(
           String.format("Failed to load storage client class: %s", className));
     }
+
+    install(
+        new FactoryModuleBuilder()
+            .implement(BaseHtmlView.class, ApplicantProgramBlockEditView.class)
+            .build(ApplicantProgramBlockEditViewFactory.class));
   }
 
   private void bindCloudStorageStrategy(String storageProvider) {

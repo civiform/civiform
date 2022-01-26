@@ -9,6 +9,7 @@ import static j2html.TagCreator.h1;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.auto.value.AutoValue;
+import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
@@ -37,18 +38,15 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
   private final FileUploadViewStrategy fileUploadStrategy;
-
-  private ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
+  private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
 
   @Inject
-  ApplicantProgramBlockEditView(ApplicantLayout layout, FileUploadViewStrategy fileUploadStrategy) {
+  ApplicantProgramBlockEditView(
+      ApplicantLayout layout,
+      FileUploadViewStrategy fileUploadStrategy,
+      @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
     this.layout = checkNotNull(layout);
     this.fileUploadStrategy = checkNotNull(fileUploadStrategy);
-  }
-
-  /** This method must be called before any other methods. */
-  // TODO(#1847): Try to get AssistedInjection working.
-  public void init(ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
     this.applicantQuestionRendererFactory = applicantQuestionRendererFactory;
   }
 
@@ -118,10 +116,6 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   }
 
   private Tag renderBlockWithSubmitForm(Params params) {
-    checkNotNull(
-        applicantQuestionRendererFactory,
-        "Must call init function for initializing ApplicantQuestionRendererFactory");
-
     if (params.block().isFileUpload()) {
       return fileUploadStrategy.renderFileUploadBlockSubmitForms(
           params, applicantQuestionRendererFactory);

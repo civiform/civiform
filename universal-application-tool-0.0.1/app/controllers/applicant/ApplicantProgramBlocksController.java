@@ -39,6 +39,7 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import views.FileUploadViewStrategy;
 import views.applicant.ApplicantProgramBlockEditView;
+import views.applicant.ApplicantProgramBlockEditViewFactory;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 
 /**
@@ -65,7 +66,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantService applicantService,
       MessagesApi messagesApi,
       HttpExecutionContext httpExecutionContext,
-      ApplicantProgramBlockEditView editView,
+      ApplicantProgramBlockEditViewFactory editViewFactory,
       FormFactory formFactory,
       StorageClient storageClient,
       StoredFileRepository storedFileRepository,
@@ -80,9 +81,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.profileUtils = checkNotNull(profileUtils);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
-    // TODO(#1847): Try to get AssistedInjection working.
-    this.editView = checkNotNull(editView);
-    editView.init(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
+    this.editView =
+        editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
   }
 
   /**
