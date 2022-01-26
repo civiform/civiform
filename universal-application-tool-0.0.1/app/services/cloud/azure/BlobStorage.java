@@ -260,9 +260,7 @@ public class BlobStorage implements StorageClient {
 
     @Override
     public String getBlobUrl(String fileName) {
-      BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
-      String signedUrl = blobClient.getBlobUrl().replace("azurite", "localhost");
-      return signedUrl;
+      return blobContainerClient.getBlobClient(fileName).getBlobUrl();
     }
   }
 }

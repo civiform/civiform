@@ -12,6 +12,8 @@ if [ "$1" ]; then
     localstack_endpoint=$1
 fi
 
+echo "Using localstack endpoint ${localstack_endpoint}"
+
 start_time=$(date +%s)
 deadline=$(($start_time + 200))
 

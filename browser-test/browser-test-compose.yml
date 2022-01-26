@@ -17,7 +17,7 @@ services:
     profiles: ["azure"]
     container_name: azurite-test
     ports:
-    - 10000
+      - 10000:10000
 
   db:
     image: postgres:12.5
