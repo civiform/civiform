@@ -155,8 +155,12 @@ public class BlobStorage implements StorageClient {
 
     private UserDelegationKey getUserDelegationKey() {
       OffsetDateTime tokenExpiration = OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION);
-      OffsetDateTime keyExpiration = userDelegationKey.getSignedExpiry();
-      if (userDelegationKey == null || keyExpiration.isBefore(tokenExpiration)) {
+      boolean isUserDelegationKeyExpired = false;
+      if (userDelegationKey != null) {
+        OffsetDateTime keyExpiration = userDelegationKey.getSignedExpiry();
+        isUserDelegationKeyExpired = keyExpiration.isBefore(tokenExpiration);
+      }
+      if (userDelegationKey == null || isUserDelegationKeyExpired) {
         userDelegationKey =
             blobServiceClient.getUserDelegationKey(
                 OffsetDateTime.now(zoneId).minus(Duration.ofMinutes(5)),
