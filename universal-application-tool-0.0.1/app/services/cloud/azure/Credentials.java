@@ -1,6 +1,6 @@
 package services.cloud.azure;
 
-import com.azure.identity.TokenCredential;
+import com.azure.core.TokenCredential;
 import com.azure.identity.ManagedIdentityCredentialBuilder;
 import javax.inject.Inject;
 import javax.inject.Singleton;
