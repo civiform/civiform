@@ -23,53 +23,53 @@
 #      placeholder.street
 #
 
-pushd $(git rev-parse --show-toplevel) >/dev/null
+source bin/lib.sh
 
-get_messages() {
-  regex="^[a-z][^=]*"
-  echo "$(grep -o ${regex} $1 | sort)"
+function get_messages() {
+  local REGEX="^[a-z][^=]*"
+  echo "$(grep -o ${REGEX} $1 | sort)"
 }
 
-diff_messages() {
-  if [[ ! -z $2 ]]
-  then
-    echo "Missing translations in $3:";
-    difference="$(diff -b --strip-trailing-cr <(echo "$1") <(echo "$2"))";
-    echo "${difference}" | grep "<" | grep -o "[^<][a-zA-Z.]*" | sed "s/^/    /";
+function diff_messages() {
+  if [[ ! -z "${2}" ]]; then
+    echo "Missing translations in $3:"
 
-    extra=$(echo "${difference}" | grep ">" | grep -o "[^>]*");
-    if [[ ! -z "${extra}" ]];
-    then
-      echo "  Something weird is going on with these messages:";
-      echo "${extra}" | sed "s/^/    /";
+    local difference="$(diff -b --strip-trailing-cr <(echo "$1") <(echo "$2"))"
+    echo "${difference}" \
+      | grep "<" \
+      | grep -o "[^<][a-zA-Z.]*" \
+      | sed "s/^/    /"
+
+    local extra=$(echo "${difference}" \
+      | grep ">" \
+      | grep -o "[^>]*")
+
+    if [[ ! -z "${extra}" ]]; then
+      echo "  Something weird is going on with these messages:"
+      echo "${extra}" | sed "s/^/    /"
     fi
   else
-    echo "There are no translations in $3"
+    echo "There are no translations in ${3}"
   fi
 }
 
-messagesDir="universal-application-tool-0.0.1/conf"
-messagesFile="${messagesDir}/messages"
+readonly MESSAGES_FILE="universal-application-tool-0.0.1/conf/messages"
+readonly MESSAGES="$(get_messages ${MESSAGES_FILE})"
 
-messages="$(get_messages ${messagesFile})"
+if [ $# -eq 1 ]; then
+  readonly TRANSLATION="$1"
+  readonly TRANSLATED_MESSAGES_FILE="${MESSAGES_FILE}.${TRANSLATION}"
 
-if [ $# -eq 1 ];
-then
-  translation="$1";
-  translatedMessagesFile="${messagesFile}.${translation}";
-  if [ -f "${translatedMessagesFile}" ];
-  then
-    translatedMessages="$(get_messages ${translatedMessagesFile})";
-    diff_messages "$messages" "$translatedMessages" $translatedMessagesFile;
+  if [ -f "${TRANSLATED_MESSAGES_FILE}" ]; then
+    TRANSLATED_MESSAGES="$(get_messages ${TRANSLATED_MESSAGES_FILE})"
+    diff_messages "$MESSAGES" "$TRANSLATED_MESSAGES" "$TRANSLATED_MESSAGES_FILE"
   else
-    echo "File ${translatedMessagesFile} does not exist.";
+    echo "File ${TRANSLATED_MESSAGES_FILE} does not exist."
   fi
 else
-  for translatedMessagesFile in ${messagesFile}.*
+  for TRANSLATED_MESSAGES_FILE in ${MESSAGES_FILE}.*
   do
-    translatedMessages="$(get_messages ${translatedMessagesFile})";
-    diff_messages "$messages" "$translatedMessages" $translatedMessagesFile;
+    TRANSLATED_MESSAGES="$(get_messages ${TRANSLATED_MESSAGES_FILE})"
+    diff_messages "$MESSAGES" "$TRANSLATED_MESSAGES" "$TRANSLATED_MESSAGES_FILE"
   done
 fi
-
-popd >/dev/null

@@ -1,25 +1,23 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
-# DOC: Build a new docker image for running the browser tests and push to Docker hub
+# DOC: Build a new docker image for running the browser tests and optionally push to Docker hub if PUSH_BROWSER_TEST_IMAGE is set.
 
-pushd $(git rev-parse --show-toplevel)
+source bin/lib.sh
 
-set -e
-set +x
-
-docker build -t civiform-browser-test:latest \
-  browser-test \
+docker build \
+  -t civiform-browser-test:latest \
   -f browser-test/playwright.Dockerfile \
   --cache-from civiform/civiform-browser-test:latest \
-  --build-arg BUILDKIT_INLINE_CACHE=1
+  --build-arg BUILDKIT_INLINE_CACHE=1 \
+  browser-test/
 
 if [ "$PUSH_BROWSER_TEST_IMAGE" ]; then
-  # log the docker CLI into the Docker Hub container registry
-  echo $DOCKER_HUB_ACCESS_TOKEN | docker login --username $DOCKER_HUB_USERNAME --password-stdin docker.io
+  docker::do_dockerhub_login
 
   # push the new image to the Docker Hub registry
-  docker tag civiform-browser-test:latest docker.io/civiform/civiform-browser-test:latest
+  docker tag \
+    civiform-browser-test:latest \
+    docker.io/civiform/civiform-browser-test:latest
+
   docker push docker.io/civiform/civiform-browser-test:latest
 fi
-
-popd

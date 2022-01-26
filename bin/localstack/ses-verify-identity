@@ -1,36 +1,12 @@
-#!/bin/bash
+#! /usr/bin/env bash
 
 # DOC: Verify SES email identity in localstack.
 
-pushd $(git rev-parse --show-toplevel) > /dev/null
+source bin/lib.sh
+source bin/localstack/lib.sh
 
-set -e
+verify_identity_cmd="ses verify-email-identity \
+--region us-west-2 \
+--email-address ${1}"
 
-localstack_local_endpoint=http://localhost:4566
-
-# find repo root name (currently civiform), also support any names for backward and forward compatibility
-CIVIFORM_DIR=$(basename $(pwd))
-
-if [ "$1" != "$localstack_local_endpoint" ]; then
-    localstack_local_endpoint=$1
-    # if we overwrite local endpoint, we intend to run browser tests
-    CIVIFORM_DIR=browser-test
-fi
-
-verify_identity_cmd="ses verify-email-identity --region us-west-2 --email-address $2"
-
-if ! which aws > /dev/null; then
-    docker run --rm -it \
-    --network ${CIVIFORM_DIR}_default \
-    -e AWS_ACCESS_KEY_ID=test \
-    -e AWS_SECRET_ACCESS_KEY=test \
-    amazon/aws-cli \
-        --endpoint-url=http://localstack:4566 \
-        $verify_identity_cmd
-
-    exit $?
-fi
-
-AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test aws --endpoint-url=$localstack_local_endpoint $verify_identity_cmd
-
-popd > /dev/null
+localstack::run_command "${verify_identity_cmd}"

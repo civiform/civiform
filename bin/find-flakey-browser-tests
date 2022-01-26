@@ -1,19 +1,15 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 # DOC: Run browser tests multiple times to find flakes. Run with -h flag for more info.
 
-pushd $(git rev-parse --show-toplevel) > /dev/null
+source bin/lib.sh
 
-set +x
-
-Help()
-{
-
-# Without any arguments, this will run all browser tests once and
-# if it fails the outputs are saved at /flakes/$COMMIT.
-#
-# Arguments:
-#  -
+function print_help() {
+  # Without any arguments, this will run all browser tests once and
+  # if it fails the outputs are saved at /flakes/$COMMIT.
+  #
+  # Arguments:
+  #  -
   echo "Run browser tests and save outputs of failed runs at /flakes/<current commit hash>."
   echo
   echo "Syntax: find-flakey-browser-tests [-h] [-n <num runs>] [-t <test name>]"
@@ -28,36 +24,39 @@ Help()
   echo
 }
 
-NUMRUNS=1
-TS_TEST=""
+number_of_runs=1
+ts_test=""
 while getopts n:t:h flag; do
   case "${flag}" in
-    n) NUMRUNS=${OPTARG}
+    n)
+      number_of_runs="${OPTARG}"
       ;;
-    t) TS_TEST=${OPTARG}
+    t)
+      ts_test="${OPTARG}"
       ;;
-    h) Help
-      exit;;
+    h)
+      print_help
+      exit 0
+      ;;
   esac
 done
+
 shift "$(( OPTIND - 1 ))"
 
 COMMIT=$(git rev-parse HEAD)
-FLAKESDIR="flakes/$COMMIT"
-mkdir -p $FLAKESDIR
+FLAKESDIR="flakes/${COMMIT}"
+mkdir -p "${FLAKESDIR}"
 
-echo "Finding flakes for commit $COMMIT"
-for i in $( seq 1 $NUMRUNS )
+echo "Finding flakes for commit ${COMMIT}"
+for i in $( seq 1 "${number_of_runs}" )
 do
-  printf "Starting browser test run #$i..."
-  bin/run-browser-tests ${TS_TEST} > $FLAKESDIR/tmp 2>&1
+  printf "Starting browser test run #${i}..."
+  bin/run-browser-tests "${ts_test}" > "${FLAKESDIR}/tmp" 2>&1
   if [ $? -eq 0 ]; then
     printf "PASS\n"
   else
     TIMESTAMP=$(date +%s)
-    printf "FAIL at timestamp $TIMESTAMP\n"
-    mv $FLAKESDIR/tmp $FLAKESDIR/$TIMESTAMP
+    printf "FAIL at timestamp ${TIMESTAMP}\n"
+    mv "${FLAKESDIR}/tmp" "${FLAKESDIR}/${TIMESTAMP}"
   fi
 done
-
-popd > /dev/null

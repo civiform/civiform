@@ -1,11 +1,8 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 # DOC: Run the browser tests using Docker. Requires browser test env already running.
 
-pushd $(git rev-parse --show-toplevel) > /dev/null
-
-set -e
-set +x
+source bin/lib.sh
 
 docker run --ipc=host --rm -it \
   -v "$(pwd)/browser-test/src:/usr/src/civiform-browser-tests/src" \
@@ -15,5 +12,3 @@ docker run --ipc=host --rm -it \
   civiform-browser-test:latest \
   /usr/src/civiform-browser-tests/bin/wait_for_server_start_and_run_tests.sh \
   $@
-
-popd

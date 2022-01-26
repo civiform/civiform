@@ -2,18 +2,16 @@
 
 # DOC: Connect to dev environment PostgreSQL database.
 
-pushd $(git rev-parse --show-toplevel)
+source bin/lib.sh
 
-set -e
-set +x
-
-# find repo root name (currently civiform), also support any names for backward and forward compatibility
-CIVIFORM_DIR=$(basename $(pwd))
+# Find repo root name (currently civiform), also support any names for backward
+# and forward compatibility.
+readonly CIVIFORM_DIR="$(basename $(pwd))"
 
 docker run --rm -it \
   -e PGPASSWORD=example \
-  --network ${CIVIFORM_DIR}_default \
+  --network "${CIVIFORM_DIR}_default" \
   postgres:12.5 \
-  /usr/bin/psql -h db -U postgres
-
-popd
+  /usr/bin/psql \
+  -h db \
+  -U postgres

@@ -1,36 +1,12 @@
-#!/bin/bash
+#! /usr/bin/env bash
 
 # DOC: Create S3 bucket in localstack.
 
-pushd $(git rev-parse --show-toplevel) > /dev/null
+source bin/lib.sh
+source bin/localstack/lib.sh
 
-set -e
+create_s3_bucket="s3api create-bucket \
+--bucket civiform-local-s3 \
+--region us-west-2"
 
-localstack_local_endpoint=http://localhost:4566
-
-# find repo root name (currently civiform), also support any names for backward and forward compatibility
-CIVIFORM_DIR=$(basename $(pwd))
-
-if [ "$1" != "$localstack_local_endpoint" ]; then
-    localstack_local_endpoint=$1
-    # if we overwrite local endpoint, we intend to run browser tests
-    CIVIFORM_DIR=browser-test
-fi
-
-create_s3_cmd="s3api create-bucket --bucket civiform-local-s3 --region us-west-2"
-
-if ! which aws > /dev/null; then
-    docker run --rm -it \
-    --network ${CIVIFORM_DIR}_default \
-    -e AWS_ACCESS_KEY_ID=test \
-    -e AWS_SECRET_ACCESS_KEY=test \
-    amazon/aws-cli \
-        --endpoint-url=http://localstack:4566 \
-        $create_s3_cmd
-
-    exit $?
-fi
-
-AWS_DEFAULT_REGION=us-west-2 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test aws --endpoint-url=$localstack_local_endpoint $create_s3_cmd
-
-popd > /dev/null
+localstack::run_command "${create_s3_bucket}"

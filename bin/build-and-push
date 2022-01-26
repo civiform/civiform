@@ -1,30 +1,25 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 # DOC: Build a new production docker image, push to Docker Hub tagged with short commit SHA and unix seconds timestamp.
 
-pushd $(git rev-parse --show-toplevel)
+source bin/lib.sh
 
-set -e
-set +x
+readonly SHORT_SHA=$(git rev-parse --short HEAD)
+readonly DATE_IN_UNIX_SECONDS=$(date +%s)
+readonly SNAPSHOT_TAG="SNAPSHOT-${SHORT_SHA}-${DATE_IN_UNIX_SECONDS}"
 
-short_sha=$(git rev-parse --short HEAD)
-date_in_unix_seconds=$(date +%s)
-snapshot_tag="SNAPSHOT-${short_sha}-${date_in_unix_seconds}"
-
-echo "Building ${snapshot_tag}..."
+echo "Building ${SNAPSHOT_TAG}..."
 
 docker build -f prod.Dockerfile \
   -t civiform:latest \
   --cache-from civiform/civiform:latest \
-  --build-arg BUILDKIT_INLINE_CACHE=1 .
+  --build-arg BUILDKIT_INLINE_CACHE=1 \
+  .
 
-# log the docker CLI into the Docker Hub container registry
-echo $DOCKER_HUB_ACCESS_TOKEN | docker login --username $DOCKER_HUB_USERNAME --password-stdin docker.io
+docker::do_dockerhub_login
 
 docker tag civiform:latest civiform/civiform:latest
-docker tag civiform:latest "civiform/civiform:${snapshot_tag}"
+docker tag civiform:latest "civiform/civiform:${SNAPSHOT_TAG}"
 
 # push the new image to the Docker Hub registry
 docker push --all-tags civiform/civiform
-
-popd

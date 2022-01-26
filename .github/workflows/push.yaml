@@ -22,7 +22,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Run build-dev.
+      - name: Build and push new development image to docker hub
         id: build_dev
         env:
           DOCKER_BUILDKIT: 1
@@ -47,13 +47,13 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-and-push
 
-      - name: Run deploy-staging.
+      - name: Deploy Seattle staging.
         id: deploy_staging
         env:
           DOCKER_BUILDKIT: 1
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
-        run: bin/deploy-staging
+        run: cloud/deploys/seattle/bin/deploy-staging
 
       - name: Run prober test
         run: bin/run-prober
