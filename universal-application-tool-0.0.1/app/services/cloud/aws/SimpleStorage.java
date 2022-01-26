@@ -75,8 +75,8 @@ public class SimpleStorage implements StorageClient {
 
   @Override
   public String getPresignedUrlString(String fileKey, Optional<String> originalFileName) {
-    GetObjectRequest getObjectRequest = GetObjectRequest.builder().key(fileKey).bucket(bucket)
-        .build();
+    GetObjectRequest getObjectRequest =
+        GetObjectRequest.builder().key(fileKey).bucket(bucket).build();
     GetObjectPresignRequest getObjectPresignRequest =
         GetObjectPresignRequest.builder()
             .signatureDuration(AWS_PRESIGNED_URL_DURATION)
@@ -152,8 +152,7 @@ public class SimpleStorage implements StorageClient {
     }
 
     @Override
-    public void close() {
-    }
+    public void close() {}
   }
 
   class AwsClient implements Client {
