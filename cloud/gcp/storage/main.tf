@@ -1,5 +1,5 @@
 resource "google_kms_key_ring" "keyring" {
-  name     = "civform-keyring"
+  name     = "civiform-keyring"
   location = var.region
 }
 

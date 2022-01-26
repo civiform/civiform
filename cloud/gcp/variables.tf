@@ -11,7 +11,7 @@ variable "region" {
 
 variable "application_name_postfix" {
   type        = string
-  default     = "civform"
+  default     = "civiform"
   description = "application name to be used as postfix to resources"
 }
 
