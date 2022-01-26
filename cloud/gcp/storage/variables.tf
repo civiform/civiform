@@ -3,7 +3,11 @@ variable "region" {
   description = "Default region for bucket resources"
 }
 
-variable "application_name" {
+variable "application_name_postfix" {
     type = string
-    description = "Company name to be used as prefix or postfix"
+<<<<<<< Updated upstream
+    description = "Company name to be used postfix"
+=======
+    description = "Company name to be used as prefix"
+>>>>>>> Stashed changes
 }

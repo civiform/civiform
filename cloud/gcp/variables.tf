@@ -9,8 +9,14 @@ variable "region" {
   description = "Default region for the project"
 }
 
-variable "application_name" {
+variable "application_name_postfix" {
   type        = string
   default     = "civform"
   description = "application name to be used as postfix to resources"
+}
+
+variable "db_tier_type" {
+  type = string
+  description = "vm tier type to run db instance"
+  default = "db-n1-standard-4"
 }

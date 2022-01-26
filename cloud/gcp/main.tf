@@ -27,6 +27,12 @@ module "network" {
 module "storage" {
   source           = "./storage"
   region           = var.region
-  application_name = var.application_name
+  application_name_postfix = var.application_name_postfix
 }
+
+# module "database" {
+#     source = "./database"
+#     region = var.region
+#     tier_type = var.db_tier_type
+# }
 

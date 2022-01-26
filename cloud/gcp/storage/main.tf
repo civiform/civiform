@@ -26,7 +26,7 @@ resource "google_kms_crypto_key_iam_binding" "kms_binding" {
 
 
 resource "google_storage_bucket" "file_storage" {
-  name          = "cloud-filestore-${var.application_name}"
+  name          = "cloud-filestore-${var.application_name_postfix}"
   location      = var.region
   force_destroy = true
 
