@@ -1,6 +1,6 @@
 package services.cloud.azure;
 
-import com.azure.identity.ChainedTokenCredential;
+import com.azure.identity.TokenCredential;
 import com.azure.identity.ManagedIdentityCredentialBuilder;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -17,18 +17,18 @@ import play.Environment;
 @Singleton
 public class Credentials {
 
-  private ChainedTokenCredential azureCredential;
+  private TokenCredential azureCredential;
 
   @Inject
   public Credentials(Environment environment) {
     if (environment.isProd()) {
       azureCredential = new ManagedIdentityCredentialBuilder().build();
     } else {
-      azureCredential = Mockito.mock(ChainedTokenCredential.class);
+      azureCredential = Mockito.mock(TokenCredential.class);
     }
   }
 
-  public ChainedTokenCredential getCredentials() {
+  public TokenCredential getCredentials() {
     return azureCredential;
   }
 }
