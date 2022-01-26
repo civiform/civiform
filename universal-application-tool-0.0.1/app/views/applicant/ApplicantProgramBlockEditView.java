@@ -10,6 +10,7 @@ import static j2html.attributes.Attr.HREF;
 
 import com.google.auto.value.AutoValue;
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
@@ -42,11 +43,11 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   @Inject
   public ApplicantProgramBlockEditView(
       ApplicantLayout layout,
-      ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
+      @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
       FileUploadViewStrategy fileUploadStrategy) {
     this.layout = checkNotNull(layout);
-    this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
     this.fileUploadStrategy = checkNotNull(fileUploadStrategy);
+    this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
   }
 
   public Content render(Params params) {

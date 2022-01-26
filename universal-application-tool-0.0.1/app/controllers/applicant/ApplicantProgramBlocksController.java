@@ -37,7 +37,10 @@ import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
+import views.FileUploadViewStrategy;
 import views.applicant.ApplicantProgramBlockEditView;
+import views.applicant.ApplicantProgramBlockEditViewFactory;
+import views.questiontypes.ApplicantQuestionRendererFactory;
 
 /**
  * Controller for handling an applicant filling out a single program. CAUTION: you must explicitly
@@ -63,16 +66,19 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantService applicantService,
       MessagesApi messagesApi,
       HttpExecutionContext httpExecutionContext,
-      ApplicantProgramBlockEditView editView,
+      ApplicantProgramBlockEditViewFactory editViewFactory,
       FormFactory formFactory,
       StorageClient storageClient,
       StoredFileRepository storedFileRepository,
       ProfileUtils profileUtils,
-      Config configuration) {
+      Config configuration,
+      FileUploadViewStrategy fileUploadViewStrategy) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
-    this.editView = checkNotNull(editView);
+    this.editView =
+        checkNotNull(
+            editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy)));
     this.formFactory = checkNotNull(formFactory);
     this.storageClient = checkNotNull(storageClient);
     this.storedFileRepository = checkNotNull(storedFileRepository);
