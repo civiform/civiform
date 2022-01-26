@@ -32,6 +32,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
  */
 @Singleton
 public class SimpleStorage implements StorageClient {
+
   public static final String AWS_S3_BUCKET_CONF_PATH = "aws.s3.bucket";
   public static final Duration AWS_PRESIGNED_URL_DURATION = Duration.ofMinutes(10);
 
@@ -67,14 +68,15 @@ public class SimpleStorage implements StorageClient {
   }
 
   @Override
-  public String getPresignedUrlString(String key) {
+  public String getPresignedUrlString(String fileKey) {
     // TODO(#1841): support storing and displaying original filenames for AWS uploads
-    return getPresignedUrlString(key, /* originalFileName= */ Optional.empty());
+    return getPresignedUrlString(fileKey, /* originalFileName= */ Optional.empty());
   }
 
   @Override
-  public String getPresignedUrlString(String key, Optional<String> originalFileName) {
-    GetObjectRequest getObjectRequest = GetObjectRequest.builder().key(key).bucket(bucket).build();
+  public String getPresignedUrlString(String fileKey, Optional<String> originalFileName) {
+    GetObjectRequest getObjectRequest = GetObjectRequest.builder().key(fileKey).bucket(bucket)
+        .build();
     GetObjectPresignRequest getObjectPresignRequest =
         GetObjectPresignRequest.builder()
             .signatureDuration(AWS_PRESIGNED_URL_DURATION)
@@ -112,6 +114,7 @@ public class SimpleStorage implements StorageClient {
   }
 
   interface Client {
+
     S3Presigner getPresigner();
 
     String bucketAddress();
@@ -119,7 +122,42 @@ public class SimpleStorage implements StorageClient {
     void close();
   }
 
+  static class NullClient implements Client {
+
+    private final S3Presigner presigner;
+
+    NullClient() {
+      presigner = Mockito.mock(S3Presigner.class);
+      PresignedGetObjectRequest presignedGetObjectRequest =
+          Mockito.mock(PresignedGetObjectRequest.class);
+      URL fakeUrl;
+      try {
+        fakeUrl = new URL("http://fake-url");
+      } catch (java.net.MalformedURLException e) {
+        throw new RuntimeException(e);
+      }
+      when(presignedGetObjectRequest.url()).thenReturn(fakeUrl);
+      when(presigner.presignGetObject(any(GetObjectPresignRequest.class)))
+          .thenReturn(presignedGetObjectRequest);
+    }
+
+    @Override
+    public S3Presigner getPresigner() {
+      return presigner;
+    }
+
+    @Override
+    public String bucketAddress() {
+      return "fake-bucket-address";
+    }
+
+    @Override
+    public void close() {
+    }
+  }
+
   class AwsClient implements Client {
+
     private final S3Presigner presigner;
 
     AwsClient() {
@@ -143,6 +181,7 @@ public class SimpleStorage implements StorageClient {
   }
 
   class LocalStackClient implements Client {
+
     private static final String AWS_LOCAL_ENDPOINT_CONF_PATH = "aws.local.endpoint";
 
     private final String localEndpoint;
@@ -173,37 +212,5 @@ public class SimpleStorage implements StorageClient {
     public void close() {
       presigner.close();
     }
-  }
-
-  static class NullClient implements Client {
-    private final S3Presigner presigner;
-
-    NullClient() {
-      presigner = Mockito.mock(S3Presigner.class);
-      PresignedGetObjectRequest presignedGetObjectRequest =
-          Mockito.mock(PresignedGetObjectRequest.class);
-      URL fakeUrl;
-      try {
-        fakeUrl = new URL("http://fake-url");
-      } catch (java.net.MalformedURLException e) {
-        throw new RuntimeException(e);
-      }
-      when(presignedGetObjectRequest.url()).thenReturn(fakeUrl);
-      when(presigner.presignGetObject(any(GetObjectPresignRequest.class)))
-          .thenReturn(presignedGetObjectRequest);
-    }
-
-    @Override
-    public S3Presigner getPresigner() {
-      return presigner;
-    }
-
-    @Override
-    public String bucketAddress() {
-      return "fake-bucket-address";
-    }
-
-    @Override
-    public void close() {}
   }
 }
