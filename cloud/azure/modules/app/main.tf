@@ -264,21 +264,13 @@ resource "azurerm_private_endpoint" "endpoint" {
 }
 
 resource "azurerm_role_assignment" "storage_blob_delegator" {
-
-  scope = azurerm_storage_account.files_storage_account.id
-
+  scope                = azurerm_storage_account.files_storage_account.id
   role_definition_name = "Storage Blob Delegator"
-
-  principal_id = azurerm_app_service.civiform_app.identity.0.principal_id
-
+  principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
 }
 
 resource "azurerm_role_assignment" "storage_blob_data_contributor" {
-
-  scope = azurerm_storage_account.files_storage_account.id
-
+  scope                = azurerm_storage_account.files_storage_account.id
   role_definition_name = "Storage Blob Data Contributor"
-
-  principal_id = azurerm_app_service.civiform_app.identity.0.principal_id
-
+  principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
 }
