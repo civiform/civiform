@@ -110,6 +110,7 @@ resource "azurerm_app_service" "civiform_app" {
     DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
 
     STORAGE_SERVICE_NAME = "azure-blob"
+    STAGING_HOSTNAME     = "sgtest-full-mammal.azurewebsites.net" // TODO(sgoldblatt): update this to staging when dns is set up
 
     AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
@@ -260,4 +261,16 @@ resource "azurerm_private_endpoint" "endpoint" {
     subresource_names              = ["postgresqlServer"]
     is_manual_connection           = false
   }
+}
+
+resource "azurerm_role_assignment" "storage_blob_delegator" {
+  scope                = azurerm_storage_account.files_storage_account.id
+  role_definition_name = "Storage Blob Delegator"
+  principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
+}
+
+resource "azurerm_role_assignment" "storage_blob_data_contributor" {
+  scope                = azurerm_storage_account.files_storage_account.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
 }
