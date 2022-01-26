@@ -41,8 +41,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
   private ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
 
   @Inject
-  public ApplicantProgramBlockEditView(
-      ApplicantLayout layout, FileUploadViewStrategy fileUploadStrategy) {
+  ApplicantProgramBlockEditView(ApplicantLayout layout, FileUploadViewStrategy fileUploadStrategy) {
     this.layout = checkNotNull(layout);
     this.fileUploadStrategy = checkNotNull(fileUploadStrategy);
   }

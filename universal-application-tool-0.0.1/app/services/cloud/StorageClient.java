@@ -7,8 +7,8 @@ public interface StorageClient {
 
   /**
    * Returns the string version of a URL that gives users temporary access to file storage. This URL
-   * is used to access and download users' files from cloud storage. This calls the follow
-   * getPresignedUrlString method with an empty Optional for the prefixed original file name.
+   * is used to access and download users' files from cloud storage. This calls {@link
+   * getPresignedUrlString} with an empty Optional.
    *
    * @param fileKey The file key to be accessed from cloud storage.
    */
@@ -16,10 +16,11 @@ public interface StorageClient {
 
   /**
    * Returns the string version of a URL that gives users temporary access to file storage. This URL
-   * is used to access and download users' files from cloud storage. The prefixedOriginalFileName
-   * will either be in the format "dev/${filename}" or applicant-%d/program-%d/block-%s/${filename}"
-   * where "${filename}" is the name of the uploaded file which is set by a user. For more
-   * information on prefixed filenames, see {@link services.cloud.FileNameFormatter}
+   * is used to access and download the users' files from cloud storage. The
+   * prefixedOriginalFileName will either be in the format "dev/${filename}" or
+   * applicant-%d/program-%d/block-%s/${filename}" where "${filename}" is the name of the uploaded
+   * file which is set by a user. For more information on prefixed filenames, see {@link
+   * services.cloud.FileNameFormatter}
    *
    * @param fileKey The file key to be accessed from cloud storage.
    * @param prefixedOriginalFileName The file name set by the user (optional).
