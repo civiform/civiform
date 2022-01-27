@@ -110,7 +110,8 @@ resource "azurerm_app_service" "civiform_app" {
     DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
 
     STORAGE_SERVICE_NAME = "azure-blob"
-    STAGING_HOSTNAME     = "sgtest-full-mammal.azurewebsites.net" // TODO(sgoldblatt): update this to staging when dns is set up
+    STAGING_HOSTNAME     = "sgtest-full-mammal.azurewebsites.net"                                      // TODO(#1720): update this to staging when dns is set up
+    BASE_URL             = "https://${var.application_name}-${random_pet.server.id}.azurewebsites.net" // TODO(#1720) this should be the dns name passed in
 
     AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
