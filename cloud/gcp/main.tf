@@ -20,12 +20,12 @@ provider "google" {
 }
 
 module "network" {
-  source = "./network"
+  source = "./modules/network"
   region = var.region
 }
 
 module "storage" {
-  source           = "./storage"
+  source           = "./modules/storage"
   region           = var.region
   application_name_postfix = var.application_name_postfix
 }
