@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# DOC: Build a new docker image for running the browser tests and optionally push to Docker hub if PUSH_BROWSER_TEST_IMAGE is set.
+# DOC: Build a new docker image for running the browser tests and optionally push to Docker Hub if PUSH_BROWSER_TEST_IMAGE is set to anything.
 
 source bin/lib.sh
 
@@ -11,7 +11,7 @@ docker build \
   --build-arg BUILDKIT_INLINE_CACHE=1 \
   browser-test/
 
-if [ "$PUSH_BROWSER_TEST_IMAGE" ]; then
+if [[ "$PUSH_BROWSER_TEST_IMAGE" ]]; then
   docker::do_dockerhub_login
 
   # push the new image to the Docker Hub registry

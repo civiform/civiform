@@ -5,8 +5,8 @@
 source bin/lib.sh
 source bin/localstack/lib.sh
 
-verify_identity_cmd="ses verify-email-identity \
---region us-west-2 \
---email-address ${1}"
+verify_identity_cmd="ses verify-email-identity
+  --region us-west-2
+  --email-address ${1}"
 
 localstack::run_command "${verify_identity_cmd}"

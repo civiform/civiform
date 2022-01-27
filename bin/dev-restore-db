@@ -11,7 +11,7 @@ fi
 
 # Find repo root name (currently civiform), also support any names for backward
 # and forward compatibility.
-readonly CIVIFORM_DIR=$(basename $(pwd))
+readonly CIVIFORM_DIR="$(basename $(pwd))"
 
 # set TRUNCATE_SQL to heredoc contents
 TRUNCATE_SQL=$(cat <<EOF

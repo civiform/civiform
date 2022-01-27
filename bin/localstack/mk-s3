@@ -5,8 +5,8 @@
 source bin/lib.sh
 source bin/localstack/lib.sh
 
-create_s3_bucket="s3api create-bucket \
---bucket civiform-local-s3 \
---region us-west-2"
+create_s3_bucket="s3api create-bucket
+  --bucket civiform-local-s3
+  --region us-west-2"
 
 localstack::run_command "${create_s3_bucket}"

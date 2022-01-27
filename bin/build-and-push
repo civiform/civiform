@@ -4,8 +4,8 @@
 
 source bin/lib.sh
 
-readonly SHORT_SHA=$(git rev-parse --short HEAD)
-readonly DATE_IN_UNIX_SECONDS=$(date +%s)
+readonly SHORT_SHA="$(git rev-parse --short HEAD)"
+readonly DATE_IN_UNIX_SECONDS="$(date +%s)"
 readonly SNAPSHOT_TAG="SNAPSHOT-${SHORT_SHA}-${DATE_IN_UNIX_SECONDS}"
 
 echo "Building ${SNAPSHOT_TAG}..."

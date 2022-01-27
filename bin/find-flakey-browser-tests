@@ -50,13 +50,16 @@ mkdir -p "${FLAKESDIR}"
 echo "Finding flakes for commit ${COMMIT}"
 for i in $( seq 1 "${number_of_runs}" )
 do
-  printf "Starting browser test run #${i}..."
+  echo "Starting browser test run #${i}..."
   bin/run-browser-tests "${ts_test}" > "${FLAKESDIR}/tmp" 2>&1
+
   if [ $? -eq 0 ]; then
-    printf "PASS\n"
+    echo "PASS"
+    echo
   else
-    TIMESTAMP=$(date +%s)
-    printf "FAIL at timestamp ${TIMESTAMP}\n"
+    TIMESTAMP="$(date +%s)"
+    out::error "FAIL at timestamp ${TIMESTAMP}"
+    echo
     mv "${FLAKESDIR}/tmp" "${FLAKESDIR}/${TIMESTAMP}"
   fi
 done
