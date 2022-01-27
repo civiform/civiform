@@ -2,8 +2,6 @@
 
 # DOC: Run the browser tests locally. Requires browser test env already running.
 
-pushd $(git rev-parse --show-toplevel)/browser-test
+source bin/lib.sh
 
 BASE_URL=http://localhost:9999 yarn test $@
-
-popd

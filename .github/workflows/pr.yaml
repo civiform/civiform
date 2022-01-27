@@ -104,7 +104,7 @@ jobs:
           echo
           echo "To fix this issue, just push your branch to the main repo, close the PR that generated this error, and open another one."
           echo "If that won't work for you for some reason, say because you are an OSS contributor who does not have collaborator perms on the repo,"
-          echo "you can run bin/deploy-prod and verify your changes for yourself in an AWS account that you have access to."
+          echo "you can run cloud/deploys/seatle/bin/deploy-prod and verify your changes for yourself in an AWS account that you have access to."
           exit 1
 
       - name: Checkout
@@ -118,7 +118,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.SESSION_TOKEN }}
-        run: bin/check-cfn-change
+        run: cloud/deploys/seattle/bin/check-cfn-change
 
       - uses: mshick/add-pr-comment@v1
         if: failure() && contains(toJSON(steps.file_changes.outputs.files), 'infra/')

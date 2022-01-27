@@ -1,57 +1,61 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 # DOC: Run the app locally using Docker. Useful for manual testing.
 
-pushd $(git rev-parse --show-toplevel) > /dev/null
+source bin/lib.sh
 
-set -e
+# Default to using Localstack emulator.
+emulators::set_localstack_emulator_vars
 
-bin/pull-image
-
-if [ -f ".secrets" ]; then
-    . .secrets
-fi
-
-
-# Get cloud provider (currently either AWS or Azure)
-_setArgs(){
+#######################################
+# Process the script's commandline args.
+# Globals:
+#   already_set_cloud_provider
+#   cloud_provider
+#   emulator
+#   server_url
+#   STORAGE_SERVICE_NAME
+# Arguments:
+#   1: "$@" - full args array for the script
+#######################################
+function set_args() {
   while [ "${1:-}" != "" ]; do
-    case "$1" in 
+    case "$1" in
       "--azure")
-       cloudProvider="azure"
-       emulator="azurite"
-       export STORAGE_SERVICE_NAME="azure-blob"
-       ;;
+        emulators::ensure_only_one_cloud_provider_flag azure
+        emulators::set_azurite_emulator_vars
+        ;;
+
       "--aws")
-       cloudProvider="aws"
-       emulator="localstack"
-       export STORAGE_SERVICE_NAME="s3"
-       ;;
+        emulators::ensure_only_one_cloud_provider_flag aws
+        # Already defaulted to AWS.
+        ;;
     esac
+
     shift
   done
 }
 
-_setArgs $*
+set_args "$@"
 
-# default to AWS for now
-if [ -z "$cloudProvider" ]; then 
-  cloudProvider="aws" && emulator="localstack"
-  export STORAGE_SERVICE_NAME="s3"
-fi
+echo "Making sure we're up to date with the latest dev... "\
+  "set environment variable USE_LOCAL_CIVIFORM=1 to skip"
+bin/pull-image > /dev/null
 
-# start emulator
-docker-compose --profile $cloudProvider \
+docker::set_network_name_dev
+
+# Start emulator.
+docker-compose --profile "${cloud_provider}" \
   -f docker-compose.yml \
   -f docker-compose.dev.yml \
   up \
-  -d $emulator
+  -d "${emulator}"
 
-# wait till localstack running
-# otherwise other services crash
-bin/${emulator}/wait
+# Wait until the emulator is running.
+"bin/${emulator}/wait"
 
 # start everything else
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
-
-popd > /dev/null
+docker-compose \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  up
