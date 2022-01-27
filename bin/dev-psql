@@ -4,13 +4,11 @@
 
 source bin/lib.sh
 
-# Find repo root name (currently civiform), also support any names for backward
-# and forward compatibility.
-readonly CIVIFORM_DIR="$(basename $(pwd))"
+docker::set_network_name_dev
 
 docker run --rm -it \
-  -e PGPASSWORD=example \
-  --network "${CIVIFORM_DIR}_default" \
+  -e "PGPASSWORD=example" \
+  --network "${DOCKER_NETWORK_NAME}" \
   postgres:12.5 \
   /usr/bin/psql \
   -h db \

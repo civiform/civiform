@@ -9,10 +9,6 @@ if [[ ! -f "$1" ]]; then
   exit 1
 fi
 
-# Find repo root name (currently civiform), also support any names for backward
-# and forward compatibility.
-readonly CIVIFORM_DIR="$(basename $(pwd))"
-
 # set TRUNCATE_SQL to heredoc contents
 TRUNCATE_SQL=$(cat <<EOF
 TRUNCATE TABLE files;
@@ -28,7 +24,7 @@ EOF
 )
 
 # remove newlines
-TRUNCATE_SQL=${TRUNCATE_SQL//$'\n'/}
+TRUNCATE_SQL="${TRUNCATE_SQL//$'\n'/}"
 
 # location of dump file in docker container
 readonly DUMP_FILE="project/$1"
@@ -42,9 +38,11 @@ readonly PG_RESTORE_CMD="/usr/bin/pg_restore -h db -U postgres -d postgres"\
 
 readonly CMD="${TRUNCATE_DB_CMD} && ${PG_RESTORE_CMD}"
 
+docker::set_network_name_dev
+
 docker run --rm -it \
   -v "$(pwd):/project" \
-  -e PGPASSWORD=example \
-  --network ${CIVIFORM_DIR}_default \
+  -e "PGPASSWORD=example" \
+  --network "${DOCKER_NETWORK_NAME}" \
   postgres:12.5 \
   /bin/bash -c "${CMD}"
