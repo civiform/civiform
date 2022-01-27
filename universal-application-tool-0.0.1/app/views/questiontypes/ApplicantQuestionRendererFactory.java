@@ -1,5 +1,7 @@
 package views.questiontypes;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
@@ -12,9 +14,16 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
+import views.FileUploadViewStrategy;
 
 /** A helper class for constructing type-specific applicant question renderers. */
 public class ApplicantQuestionRendererFactory {
+
+  private final FileUploadViewStrategy fileUploadViewStrategy;
+
+  public ApplicantQuestionRendererFactory(FileUploadViewStrategy fileUploadViewStrategy) {
+    this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
+  }
 
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
       throws UnsupportedQuestionTypeException {
@@ -41,7 +50,7 @@ public class ApplicantQuestionRendererFactory {
       case EMAIL:
         return new EmailQuestionRenderer(question);
       case FILEUPLOAD:
-        return new FileUploadQuestionRenderer(question);
+        return new FileUploadQuestionRenderer(question, fileUploadViewStrategy);
       case ID:
         return new IdQuestionRenderer(question);
       case NAME:

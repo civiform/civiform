@@ -15,7 +15,6 @@ import static j2html.attributes.Attr.ENCTYPE;
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
-import java.util.Optional;
 import javax.inject.Inject;
 import models.StoredFile;
 import services.cloud.StorageClient;
@@ -93,6 +92,6 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
 
   @Override
   public String getPresignedUrl(StoredFile file) {
-    return client.getPresignedUrl(file.getName(), Optional.empty()).toString();
+    return client.getPresignedUrlString(file.getName());
   }
 }
