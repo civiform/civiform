@@ -26,7 +26,7 @@ function docker::set_network_name_browser_tests() {
 #   DOCKER_HUB_ACCESS_TOKEN
 #   DOCKER_HUB_USERNAME
 #######################################
-function docker::do_duckerhub_login() {
+function docker::do_dockerhub_login() {
   echo $DOCKER_HUB_ACCESS_TOKEN \
     | docker login \
       --username $DOCKER_HUB_USERNAME \

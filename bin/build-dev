@@ -11,7 +11,7 @@ docker build \
   --build-arg BUILDKIT_INLINE_CACHE=1 \
   .
 
-docker::do_duckerhub_login
+docker::do_dockerhub_login
 
 docker tag civiform-dev:latest civiform/civiform-dev:latest
 
