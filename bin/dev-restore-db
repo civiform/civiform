@@ -4,7 +4,7 @@
 
 source bin/lib.sh
 
-if [[ ! -f "$1" ]]; then
+if [[ ! -f "${1}" ]]; then
   echo "Usage: bin/dev-restore-db DUMP_FILE_NAME"
   exit 1
 fi
@@ -27,7 +27,7 @@ EOF
 TRUNCATE_SQL="${TRUNCATE_SQL//$'\n'/}"
 
 # location of dump file in docker container
-readonly DUMP_FILE="project/$1"
+readonly DUMP_FILE="project/${1}"
 
 # command for invoking psql with the dev database
 readonly TRUNCATE_DB_CMD="/usr/bin/psql -h db -U postgres -c '${TRUNCATE_SQL}' postgres"
