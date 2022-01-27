@@ -8,7 +8,7 @@ public interface StorageClient {
   /**
    * Returns the string version of a URL that gives users temporary access to file storage. This URL
    * is used to access and download the users' files from cloud storage. This calls {@link
-   * getPresignedUrlString} with an empty Optional.
+   * getPresignedUrlString} (below) with an empty Optional.
    *
    * @param fileKey The file key to be accessed from cloud storage.
    */

@@ -76,9 +76,9 @@ public class BlobStorage implements StorageClient {
   }
 
   @Override
-  public String getPresignedUrlString(String fileName, Optional<String> prefixedOriginalFileName) {
-    String blobUrl = client.getBlobUrl(fileName);
-    String sasToken = client.getSasToken(fileName, prefixedOriginalFileName);
+  public String getPresignedUrlString(String fileKey, Optional<String> prefixedOriginalFileName) {
+    String blobUrl = client.getBlobUrl(fileKey);
+    String sasToken = client.getSasToken(fileKey, prefixedOriginalFileName);
     String signedUrl = String.format("%s?%s", blobUrl, sasToken);
 
     try {
