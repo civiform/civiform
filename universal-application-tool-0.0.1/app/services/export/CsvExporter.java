@@ -79,10 +79,13 @@ public class CsvExporter {
             .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
     for (Column column : getColumns()) {
       switch (column.columnType()) {
-        case APPLICANT:
+        case APPLICANT_ANSWER:
           printer.print(getValueFromAnswerMap(column, answerMap));
           break;
-        case ID:
+        case APPLICANT_ID:
+          printer.print(application.getApplicant().id);
+          break;
+        case APPLICATION_ID:
           printer.print(application.id);
           break;
         case LANGUAGE:
