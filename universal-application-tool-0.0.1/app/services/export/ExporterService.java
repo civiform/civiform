@@ -227,8 +227,13 @@ public class ExporterService {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
 
     // Default columns
-    columnsBuilder.add(Column.builder().setHeader("Applicant ID").setColumnType(ColumnType.APPLICANT_ID).build());
-    columnsBuilder.add(Column.builder().setHeader("Application ID").setColumnType(ColumnType.APPLICATION_ID).build());
+    columnsBuilder.add(
+        Column.builder().setHeader("Applicant ID").setColumnType(ColumnType.APPLICANT_ID).build());
+    columnsBuilder.add(
+        Column.builder()
+            .setHeader("Application ID")
+            .setColumnType(ColumnType.APPLICATION_ID)
+            .build());
     columnsBuilder.add(
         Column.builder()
             .setHeader("Applicant language")
