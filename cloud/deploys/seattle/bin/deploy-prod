@@ -1,9 +1,10 @@
-#!/bin/bash
+#! /usr/bin/env bash
 
 # DOC: Deploy the most recently registered production image to production along with cloudformation stack changes.
 
 set -e
 set +x
+
 export AWS_DEFAULT_REGION=us-west-2
 REGION=us-west-2
 

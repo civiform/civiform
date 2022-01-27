@@ -4,6 +4,7 @@
 
 set -e
 set +x
+
 export AWS_DEFAULT_REGION=us-west-2
 REGION=us-west-2
 

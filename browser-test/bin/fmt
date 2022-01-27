@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 pushd $(git rev-parse --show-toplevel)/browser-test
 
 CMD="cd /code; npx prettier --write --config /.prettierrc.js --ignore-path /.prettierignore /code"
