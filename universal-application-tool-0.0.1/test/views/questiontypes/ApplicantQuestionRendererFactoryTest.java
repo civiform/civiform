@@ -13,6 +13,7 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
+import views.AwsFileUploadViewStrategy;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantQuestionRendererFactoryTest {
@@ -25,7 +26,8 @@ public class ApplicantQuestionRendererFactoryTest {
   @Test
   @Parameters(source = QuestionType.class)
   public void rendererExistsForAllTypes(QuestionType type) throws UnsupportedQuestionTypeException {
-    ApplicantQuestionRendererFactory factory = new ApplicantQuestionRendererFactory();
+    ApplicantQuestionRendererFactory factory =
+        new ApplicantQuestionRendererFactory(new AwsFileUploadViewStrategy());
 
     ApplicantQuestionRenderer renderer = factory.getSampleRenderer(type);
 

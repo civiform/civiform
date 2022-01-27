@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.fakeApplication;
 
 import com.google.common.collect.ImmutableMap;
-import java.net.URL;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,9 +64,9 @@ public class BlobStorageTest extends WithApplication {
 
   @Test
   public void getPresignedUrl() {
-    URL url = blobStorage.getPresignedUrl(TEST_FILE_NAME, Optional.empty());
+    String url = blobStorage.getPresignedUrlString(TEST_FILE_NAME, Optional.empty());
 
-    assertThat(url.toString()).isEqualTo("http://www.blobUrl.com?sasToken");
+    assertThat(url).isEqualTo("http://www.blobUrl.com?sasToken");
   }
 
   @Test

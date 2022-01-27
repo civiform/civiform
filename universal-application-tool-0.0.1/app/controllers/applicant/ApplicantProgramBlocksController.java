@@ -32,12 +32,15 @@ import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
-import services.cloud.aws.SimpleStorage;
+import services.cloud.StorageClient;
 import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
+import views.FileUploadViewStrategy;
 import views.applicant.ApplicantProgramBlockEditView;
+import views.applicant.ApplicantProgramBlockEditViewFactory;
+import views.questiontypes.ApplicantQuestionRendererFactory;
 
 /**
  * Controller for handling an applicant filling out a single program. CAUTION: you must explicitly
@@ -51,7 +54,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final ApplicantProgramBlockEditView editView;
   private final FormFactory formFactory;
-  private final SimpleStorage amazonS3Client;
+  private final StorageClient storageClient;
   private final StoredFileRepository storedFileRepository;
   private final ProfileUtils profileUtils;
   private final String baseUrl;
@@ -63,21 +66,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantService applicantService,
       MessagesApi messagesApi,
       HttpExecutionContext httpExecutionContext,
-      ApplicantProgramBlockEditView editView,
+      ApplicantProgramBlockEditViewFactory editViewFactory,
       FormFactory formFactory,
-      SimpleStorage amazonS3Client,
+      StorageClient storageClient,
       StoredFileRepository storedFileRepository,
       ProfileUtils profileUtils,
-      Config configuration) {
+      Config configuration,
+      FileUploadViewStrategy fileUploadViewStrategy) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
-    this.editView = checkNotNull(editView);
     this.formFactory = checkNotNull(formFactory);
-    this.amazonS3Client = checkNotNull(amazonS3Client);
+    this.storageClient = checkNotNull(storageClient);
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.profileUtils = checkNotNull(profileUtils);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
+    this.editView =
+        editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
   }
 
   /**
@@ -407,7 +412,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setTotalBlockCount(roApplicantProgramService.getAllActiveBlocks().size())
         .setApplicantName(applicantName)
         .setPreferredLanguageSupported(roApplicantProgramService.preferredLanguageSupported())
-        .setAmazonS3Client(amazonS3Client)
+        .setStorageClient(storageClient)
         .setBaseUrl(baseUrl)
         .build();
   }

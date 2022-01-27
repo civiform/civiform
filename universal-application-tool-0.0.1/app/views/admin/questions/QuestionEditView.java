@@ -29,6 +29,7 @@ import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import views.BaseHtmlView;
+import views.FileUploadViewStrategy;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
@@ -41,6 +42,7 @@ import views.style.Styles;
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages messages;
+  private final FileUploadViewStrategy fileUploadViewStrategy;
 
   private static final String NO_ENUMERATOR_DISPLAY_STRING = "does not repeat";
   private static final String NO_ENUMERATOR_ID_STRING = "";
@@ -48,10 +50,12 @@ public final class QuestionEditView extends BaseHtmlView {
   private static final String QUESTION_ENUMERATOR_FIELD = "enumeratorId";
 
   @Inject
-  public QuestionEditView(AdminLayout layout, MessagesApi messagesApi) {
+  public QuestionEditView(
+      AdminLayout layout, MessagesApi messagesApi, FileUploadViewStrategy fileUploadViewStrategy) {
     this.layout = checkNotNull(layout);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
+    this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
   }
 
   /** Render a fresh New Question Form. */
@@ -164,7 +168,8 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private Content renderWithPreview(ContainerTag formContent, QuestionType type, String title) {
-    ContainerTag previewContent = QuestionPreview.renderQuestionPreview(type, messages);
+    ContainerTag previewContent =
+        QuestionPreview.renderQuestionPreview(type, messages, fileUploadViewStrategy);
 
     HtmlBundle htmlBundle =
         layout.getBundle().setTitle(title).addMainContent(formContent, previewContent);
