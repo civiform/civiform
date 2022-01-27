@@ -20,7 +20,7 @@ emulators::set_localstack_emulator_vars
 #######################################
 function set_args() {
   while [ "${1:-}" != "" ]; do
-    case "$1" in 
+    case "$1" in
       "--azure")
         emulators::ensure_only_one_cloud_provider_flag azure
         emulators::set_azurite_emulator_vars
