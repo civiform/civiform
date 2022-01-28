@@ -49,7 +49,12 @@ class AzureUploadController {
           throw err
         }
         console.log(resp)
-        this.setFileUploadMetadata(redirectUrl, azureUploadProps, resp)
+        this.setFileUploadMetadata(
+          redirectUrl,
+          azureUploadProps,
+          resp,
+          blockBlobUrl
+        )
         window.location.replace(redirectUrl.toString())
       })
   }
@@ -72,12 +77,14 @@ class AzureUploadController {
   private setFileUploadMetadata(
     redirectUrl: URL,
     azureUploadProps: any,
-    resp: any
+    resp: any,
+    blockBlobUrl: any
   ) {
     redirectUrl.searchParams.set('originalFileName', azureUploadProps.file.name)
     redirectUrl.searchParams.set('etag', resp.eTag)
     redirectUrl.searchParams.set('fileName', azureUploadProps.fileName)
     redirectUrl.searchParams.set('container', azureUploadProps.containerName)
+    redirectUrl.searchParams.set('blockBlobUrl', blockBlobUrl)
   }
 }
 

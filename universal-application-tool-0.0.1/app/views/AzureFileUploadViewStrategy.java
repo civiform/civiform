@@ -2,76 +2,75 @@ package views;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
-import static j2html.attributes.Attr.ENCTYPE;
+import static j2html.TagCreator.text;
 import static j2html.attributes.Attr.FORM;
 import static views.BaseHtmlView.makeCsrfTokenInputTag;
 import static views.BaseHtmlView.submitButton;
 
 import controllers.applicant.routes;
-import j2html.attributes.Attr;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
-import play.i18n.Messages;
-import play.mvc.Http.HttpVerbs;
+import javax.inject.Inject;
 import services.MessageKey;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.FileNameFormatter;
 import services.cloud.StorageUploadRequest;
-import services.cloud.aws.SignedS3UploadRequest;
+import services.cloud.azure.BlobStorageUploadRequest;
 import views.applicant.ApplicantProgramBlockEditView.Params;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.ApplicantStyles;
-import views.style.BaseStyles;
-import views.style.ReferenceClasses;
 import views.style.Styles;
 
-public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
+public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
+
+  private static final String AZURE_STORAGE_BLOB_WEB_JAR =
+      "lib/azure__storage-blob/browser/azure-storage-blob.min.js";
+
+  private final ViewUtils viewUtils;
+
+  @Inject
+  AzureFileUploadViewStrategy(ViewUtils viewUtils) {
+    this.viewUtils = viewUtils;
+  }
 
   @Override
   public ContainerTag signedFileUploadFields(
       ApplicantQuestionRendererParams params, FileUploadQuestion fileUploadQuestion) {
-    StorageUploadRequest genericRequest = params.signedFileUploadRequest().get();
-    SignedS3UploadRequest request = (SignedS3UploadRequest) genericRequest;
-    Optional<String> uploaded =
-        fileUploadQuestion.getFilename().map(f -> String.format("File uploaded: %s", f));
-    ContainerTag fieldsTag =
-        div()
-            .with(div().withText(uploaded.orElse("")))
-            .with(input().withType("hidden").withName("key").withValue(request.key()))
-            .with(
-                input()
-                    .withType("hidden")
-                    .withName("success_action_redirect")
-                    .withValue(request.successActionRedirect()))
-            .with(
-                input()
-                    .withType("hidden")
-                    .withName("X-Amz-Credential")
-                    .withValue(request.credential()));
-    if (!request.securityToken().isEmpty()) {
-      fieldsTag.with(
-          input()
-              .withType("hidden")
-              .withName("X-Amz-Security-Token")
-              .withValue(request.securityToken()));
+    StorageUploadRequest storageUploadRequest = params.signedFileUploadRequest().get();
+    if (!(storageUploadRequest instanceof BlobStorageUploadRequest)) {
+      throw new RuntimeException(
+          "Trying to upload file to Azure blob storage using incorrect" + " upload request type.");
     }
-    return fieldsTag
-        .with(input().withType("hidden").withName("X-Amz-Algorithm").withValue(request.algorithm()))
-        .with(input().withType("hidden").withName("X-Amz-Date").withValue(request.date()))
-        .with(input().withType("hidden").withName("Policy").withValue(request.policy()))
-        .with(input().withType("hidden").withName("X-Amz-Signature").withValue(request.signature()))
-        .with(input().withType("file").withName("file").attr(Attr.ACCEPT, acceptFileTypes()))
-        .with(errorDiv(params.messages(), fileUploadQuestion));
+    BlobStorageUploadRequest request = (BlobStorageUploadRequest) storageUploadRequest;
+    ContainerTag formTag = form().withId("azure-upload-form-component");
+    formTag.with(
+        footer(viewUtils.makeWebJarsTag(AZURE_STORAGE_BLOB_WEB_JAR)),
+        footer(viewUtils.makeLocalJsTag("azure_upload")));
+    return formTag
+        .with(input().withType("file").withName("file"))
+        .with(input().withType("hidden").withName("sasToken").withValue(request.sasToken()))
+        .with(input().withType("hidden").withName("blobUrl").withValue(request.blobUrl()))
+        .with(
+            input().withType("hidden").withName("containerName").withValue(request.containerName()))
+        .with(input().withType("hidden").withName("fileName").withValue(request.fileName()))
+        .with(input().withType("hidden").withName("accountName").withValue(request.accountName()))
+        .with(
+            input()
+                .withType("hidden")
+                .withName("successActionRedirect")
+                .withValue(request.successActionRedirect()))
+        .with(TagCreator.button(text("Upload to Azure Blob Storage")).withType("submit"));
   }
 
   @Override
   public Tag renderFileUploadBlockSubmitForms(
       Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
-
     String key = FileNameFormatter.formatFileUploadQuestionFilename(params);
     String onSuccessRedirectUrl =
         params.baseUrl()
@@ -85,33 +84,31 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     StorageUploadRequest request =
         params.storageClient().getSignedUploadRequest(key, onSuccessRedirectUrl);
 
-    if (!(request instanceof SignedS3UploadRequest)) {
+    if (!(request instanceof BlobStorageUploadRequest)) {
       throw new RuntimeException(
-          "Tried to upload a file to AWS S3 storage using incorrect request type");
+          "Tried to upload a file to Azure Blob storage using incorrect request type");
     }
-
-    SignedS3UploadRequest signedRequest = (SignedS3UploadRequest) request;
+    BlobStorageUploadRequest blobStorageUploadRequest = (BlobStorageUploadRequest) request;
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()
             .setMessages(params.messages())
-            .setSignedFileUploadRequest(signedRequest)
+            .setSignedFileUploadRequest(blobStorageUploadRequest)
             .build();
 
-    Tag uploadForm =
+    ContainerTag formTag =
         form()
             .withId(BLOCK_FORM_ID)
-            .attr(ENCTYPE, "multipart/form-data")
-            .withAction(signedRequest.actionLink())
-            .withMethod(HttpVerbs.POST)
             .with(
                 each(
                     params.block().getQuestions(),
                     question ->
                         renderQuestion(
                             question, rendererParams, applicantQuestionRendererFactory)));
+
     Tag skipForms = renderDeleteAndContinueFileUploadForms(params);
     Tag buttons = renderFileUploadBottomNavButtons(params);
-    return div(uploadForm, skipForms, buttons);
+
+    return div(formTag, skipForms, buttons);
   }
 
   Tag renderFileUploadBottomNavButtons(Params params) {
@@ -179,9 +176,9 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
   /**
    * Returns two hidden forms for navigating through a file upload block without uploading a file.
    *
-   * <p>Delete form sends an update with an empty file key. An empty file key erases the existing
-   * file key if one is present. In either case, the file upload question is marked as seen but
-   * unanswered, namely skipping the file upload. This is only allowed for an optional question.
+   * <p>Delete form calls a script that deletes the uploaded block blob using the JavaScript SDK. In
+   * either case, the file upload question is marked as seen but unanswered, namely skipping the
+   * file upload. This is only allowed for an optional question.
    *
    * <p>Continue form sends an update with the currently stored file key, the same behavior as an
    * applicant re-submits a form without changing their answer. Continue form is only used when an
@@ -199,32 +196,25 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
         form()
             .withId(FILEUPLOAD_CONTINUE_FORM_ID)
             .withAction(formAction)
-            .withMethod(HttpVerbs.POST)
-            .with(makeCsrfTokenInputTag(params.request()))
+            .with(
+                footer(viewUtils.makeWebJarsTag(AZURE_STORAGE_BLOB_WEB_JAR)),
+                footer(viewUtils.makeLocalJsTag("azure_upload")))
             .with(
                 each(
                     params.block().getQuestions(),
                     question -> renderFileKeyField(question, rendererParams)));
+
     Tag deleteForm =
         form()
             .withId(FILEUPLOAD_DELETE_FORM_ID)
             .withAction(formAction)
-            .withMethod(HttpVerbs.POST)
+            .with(footer(viewUtils.makeWebJarsTag(AZURE_STORAGE_BLOB_WEB_JAR)))
+            .with(footer(viewUtils.makeLocalJsTag("azure_delete")))
             .with(makeCsrfTokenInputTag(params.request()))
             .with(
                 each(
                     params.block().getQuestions(),
                     question -> renderEmptyFileKeyField(question, rendererParams)));
     return div(continueForm, deleteForm).withClasses(Styles.HIDDEN);
-  }
-
-  private String acceptFileTypes() {
-    return MIME_TYPES_IMAGES_AND_PDF;
-  }
-
-  private ContainerTag errorDiv(Messages messages, FileUploadQuestion fileUploadQuestion) {
-    return div(fileUploadQuestion.fileRequiredMessage().getMessage(messages))
-        .withClasses(
-            ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, Styles.HIDDEN);
   }
 }
