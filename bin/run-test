@@ -9,6 +9,6 @@ bin/pull-image
 # Allocate a tty for better test output even though not strictly needed.
 docker run -it --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  -v $(pwd)/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1 \
+  -v $(pwd)/universal-application-tool:/usr/src/universal-application-tool \
   civiform \
   reload test

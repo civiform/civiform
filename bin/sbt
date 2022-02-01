@@ -9,7 +9,7 @@ bin/pull-image
 # Allocate a TTY for better output even though not strictly needed.
 docker run -it --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  -v $(pwd)/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1 \
+  -v $(pwd)/universal-application-tool:/usr/src/universal-application-tool \
   -v ~/.coursier:/root/.coursier \
   -v ~/.sbt:/root/.sbt \
   -v ~/.ivy:/root/.ivy2 \

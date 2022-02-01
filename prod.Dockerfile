@@ -26,7 +26,7 @@ RUN apk add --update npm
 # even if the dependencies change slightly.
 
 ENV PROJECT_HOME /usr/src
-ENV PROJECT_NAME universal-application-tool-0.0.1
+ENV PROJECT_NAME universal-application-tool
 
 COPY ${PROJECT_NAME}/build.sbt ${PROJECT_HOME}/${PROJECT_NAME}/
 COPY ${PROJECT_NAME}/project ${PROJECT_HOME}/${PROJECT_NAME}/project
@@ -39,8 +39,8 @@ RUN cd $PROJECT_HOME/$PROJECT_NAME && npm install && \
 # This is a common trick to shrink container sizes.  we just throw away all that build stuff and use only the jars
 # we built with sbt dist.
 FROM adoptopenjdk/openjdk11:jdk-11.0.10_9-alpine-slim AS stage2
-COPY --from=stage1 /usr/src/universal-application-tool-0.0.1/target/universal/universal-application-tool-0.0.1.zip /civiform.zip
+COPY --from=stage1 /usr/src/universal-application-tool/target/universal/universal-application-tool.zip /civiform.zip
 RUN apk add bash nodejs npm
-RUN unzip /civiform.zip; chmod +x /universal-application-tool-0.0.1/bin/universal-application-tool
+RUN unzip /civiform.zip; chmod +x /universal-application-tool/bin/universal-application-tool
 
-CMD ["/universal-application-tool-0.0.1/bin/universal-application-tool", "-Dconfig.file=/universal-application-tool-0.0.1/conf/application.conf"]
+CMD ["/universal-application-tool/bin/universal-application-tool", "-Dconfig.file=/universal-application-tool/conf/application.conf"]

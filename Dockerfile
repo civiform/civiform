@@ -26,7 +26,7 @@ RUN apk add --update npm
 # even if the dependencies change slightly.
 
 ENV PROJECT_HOME /usr/src
-ENV PROJECT_NAME universal-application-tool-0.0.1
+ENV PROJECT_NAME universal-application-tool
 
 COPY ${PROJECT_NAME}/build.sbt ${PROJECT_HOME}/${PROJECT_NAME}/
 COPY ${PROJECT_NAME}/project ${PROJECT_HOME}/${PROJECT_NAME}/project
