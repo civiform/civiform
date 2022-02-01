@@ -2,7 +2,7 @@ package models;
 
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbArray;
-import io.ebean.annotation.UpdatedTimestamp;
+import io.ebean.annotation.WhenModified;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +50,7 @@ public class Version extends BaseModel {
    */
   @DbArray private List<String> tombstonedProgramNames = new ArrayList<>();
 
-  @UpdatedTimestamp private Instant submitTime;
+  @WhenModified private Instant submitTime;
 
   public Version() {
     this(LifecycleStage.DRAFT);
