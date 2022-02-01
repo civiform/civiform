@@ -3,6 +3,9 @@ name: ci
 on:
   push:
     branches: main
+
+  # Setting this enables manually triggering workflow in the GitHub UI
+  # see https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
   workflow_dispatch: {}
 
 # Two probers running at once can break each other.
