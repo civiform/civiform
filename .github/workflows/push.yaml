@@ -3,6 +3,7 @@ name: ci
 on:
   push:
     branches: main
+  workflow_dispatch: {}
 
 # Two probers running at once can break each other.
 concurrency:
