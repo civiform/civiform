@@ -3,7 +3,7 @@ package models;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import io.ebean.config.ServerConfig;
+import io.ebean.config.DatabaseConfig;
 import io.ebean.event.ServerConfigStartup;
 
 /**
@@ -14,9 +14,9 @@ import io.ebean.event.ServerConfigStartup;
 public class EbeanServerConfigStartup implements ServerConfigStartup {
 
   @Override
-  public void onStart(ServerConfig serverConfig) {
+  public void onStart(DatabaseConfig databaseConfig) {
     ObjectMapper mapper =
         new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
-    serverConfig.setObjectMapper(mapper);
+    databaseConfig.setObjectMapper(mapper);
   }
 }
