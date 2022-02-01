@@ -16,6 +16,8 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1
         run: docker build -t civiform --cache-from docker.io/civiform/civiform:latest ./
+      - name: sbt clean
+        run: docker run -v /var/run/docker.sock:/var/run/docker.sock civiform clean
       - name: Run tests
         run: docker run -v /var/run/docker.sock:/var/run/docker.sock civiform test
 
