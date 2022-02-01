@@ -30,9 +30,10 @@ module "storage" {
   application_name_postfix = var.application_name_postfix
 }
 
-# module "database" {
-#     source = "./database"
-#     region = var.region
-#     tier_type = var.db_tier_type
-# }
+module "database" {
+    source = "./modules/database"
+    terraform_service_account = var.terraform_service_account
+    region = var.region
+    tier_type = var.db_tier_type
+}
 

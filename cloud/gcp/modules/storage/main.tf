@@ -9,7 +9,7 @@ resource "google_kms_crypto_key" "storage_key" {
   rotation_period = "604800s" //7 days
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }
 

@@ -16,8 +16,17 @@ resource "google_secret_manager_secret_version" "database_password_version" {
   secret_data = random_password.password.result
 }
 
+resource "google_secret_manager_secret_iam_binding" "binding" {
+  secret_id = google_secret_manager_secret.database_password.secret_id
+  role = "roles/secretmanager.secretAccessor"
+  members = [
+    "user:ktoor@google.com",
+    "serviceAccount:${var.terraform_service_account}"
+  ]
+}
+
 resource "google_sql_database_instance" "civiform_db" {
-  name             = "civiform-instance"
+  name             = "civiform-db-instance"
   database_version = "POSTGRES_12"
   region           = var.region
 
