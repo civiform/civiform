@@ -23,4 +23,4 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
-        run: cloud/deploys/seatle/bin/deploy-prod
+        run: bin/deploy-prod

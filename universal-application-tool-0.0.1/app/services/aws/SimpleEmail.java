@@ -1,4 +1,4 @@
-package services.cloud.aws;
+package services.aws;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

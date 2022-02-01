@@ -1,15 +1,19 @@
-#! /usr/bin/env bash
+#! /bin/bash
 
 # DOC: Run browser tests multiple times to find flakes. Run with -h flag for more info.
 
-source bin/lib.sh
+pushd $(git rev-parse --show-toplevel) > /dev/null
 
-function print_help() {
-  # Without any arguments, this will run all browser tests once and
-  # if it fails the outputs are saved at /flakes/$COMMIT.
-  #
-  # Arguments:
-  #  -
+set +x
+
+Help()
+{
+
+# Without any arguments, this will run all browser tests once and
+# if it fails the outputs are saved at /flakes/$COMMIT.
+#
+# Arguments:
+#  -
   echo "Run browser tests and save outputs of failed runs at /flakes/<current commit hash>."
   echo
   echo "Syntax: find-flakey-browser-tests [-h] [-n <num runs>] [-t <test name>]"
@@ -24,42 +28,36 @@ function print_help() {
   echo
 }
 
-number_of_runs=1
-ts_test=""
+NUMRUNS=1
+TS_TEST=""
 while getopts n:t:h flag; do
   case "${flag}" in
-    n)
-      number_of_runs="${OPTARG}"
+    n) NUMRUNS=${OPTARG}
       ;;
-    t)
-      ts_test="${OPTARG}"
+    t) TS_TEST=${OPTARG}
       ;;
-    h)
-      print_help
-      exit 0
-      ;;
+    h) Help
+      exit;;
   esac
 done
-
 shift "$(( OPTIND - 1 ))"
 
 COMMIT=$(git rev-parse HEAD)
-FLAKESDIR="flakes/${COMMIT}"
-mkdir -p "${FLAKESDIR}"
+FLAKESDIR="flakes/$COMMIT"
+mkdir -p $FLAKESDIR
 
-echo "Finding flakes for commit ${COMMIT}"
-for i in $( seq 1 "${number_of_runs}" )
+echo "Finding flakes for commit $COMMIT"
+for i in $( seq 1 $NUMRUNS )
 do
-  echo "Starting browser test run #${i}..."
-  bin/run-browser-tests "${ts_test}" > "${FLAKESDIR}/tmp" 2>&1
-
+  printf "Starting browser test run #$i..."
+  bin/run-browser-tests ${TS_TEST} > $FLAKESDIR/tmp 2>&1
   if [ $? -eq 0 ]; then
-    echo "PASS"
-    echo
+    printf "PASS\n"
   else
-    TIMESTAMP="$(date +%s)"
-    out::error "FAIL at timestamp ${TIMESTAMP}"
-    echo
-    mv "${FLAKESDIR}/tmp" "${FLAKESDIR}/${TIMESTAMP}"
+    TIMESTAMP=$(date +%s)
+    printf "FAIL at timestamp $TIMESTAMP\n"
+    mv $FLAKESDIR/tmp $FLAKESDIR/$TIMESTAMP
   fi
 done
+
+popd > /dev/null

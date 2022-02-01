@@ -7,7 +7,6 @@ import j2html.tags.ContainerTag;
 import play.i18n.Messages;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
-import views.FileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.ApplicantStyles;
@@ -17,17 +16,14 @@ import views.style.Styles;
 /** Contains methods for rendering preview of a question. */
 public class QuestionPreview {
 
-  private static ContainerTag buildQuestionRenderer(
-      QuestionType type, Messages messages, FileUploadViewStrategy fileUploadViewStrategy)
+  private static ContainerTag buildQuestionRenderer(QuestionType type, Messages messages)
       throws UnsupportedQuestionTypeException {
-    ApplicantQuestionRendererFactory rf =
-        new ApplicantQuestionRendererFactory(fileUploadViewStrategy);
+    ApplicantQuestionRendererFactory rf = new ApplicantQuestionRendererFactory();
     ApplicantQuestionRendererParams params = ApplicantQuestionRendererParams.sample(messages);
     return div(rf.getSampleRenderer(type).render(params));
   }
 
-  public static ContainerTag renderQuestionPreview(
-      QuestionType type, Messages messages, FileUploadViewStrategy fileUploadViewStrategy) {
+  public static ContainerTag renderQuestionPreview(QuestionType type, Messages messages) {
     ContainerTag titleContainer =
         div()
             .withId("sample-render")
@@ -46,7 +42,7 @@ public class QuestionPreview {
 
     ContainerTag renderedQuestion = div();
     try {
-      renderedQuestion = buildQuestionRenderer(type, messages, fileUploadViewStrategy);
+      renderedQuestion = buildQuestionRenderer(type, messages);
     } catch (UnsupportedQuestionTypeException e) {
       renderedQuestion = div().withText(e.toString());
     }

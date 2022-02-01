@@ -1,5 +1,5 @@
-#! /usr/bin/env bash
+#!/bin/bash
 
-# DOC: Stop the running dev environment. Alias of 'docker-compose down'.
+# DOC: Stop the development environment. Alias of 'docker-compose down'.
 
 docker-compose down

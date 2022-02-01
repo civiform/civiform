@@ -11,7 +11,7 @@ import org.pac4j.play.java.Secure;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import services.cloud.StorageClient;
+import services.aws.SimpleStorage;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -20,18 +20,18 @@ import services.program.ProgramService;
 public class FileController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final ProgramService programService;
-  private final StorageClient storageClient;
+  private final SimpleStorage amazonS3Client;
   private final ProfileUtils profileUtils;
 
   @Inject
   public FileController(
       HttpExecutionContext httpExecutionContext,
       ProgramService programService,
-      StorageClient storageClient,
+      SimpleStorage amazonS3Client,
       ProfileUtils profileUtils) {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.programService = checkNotNull(programService);
-    this.storageClient = checkNotNull(storageClient);
+    this.amazonS3Client = checkNotNull(amazonS3Client);
     this.profileUtils = checkNotNull(profileUtils);
   }
 
@@ -46,7 +46,7 @@ public class FileController extends CiviFormController {
               if (!fileKey.contains(String.format("applicant-%d", applicantId))) {
                 return notFound();
               }
-              return redirect(storageClient.getPresignedUrlString(fileKey));
+              return redirect(amazonS3Client.getPresignedUrl(fileKey).toString());
             },
             httpExecutionContext.current())
         .exceptionally(
@@ -70,7 +70,7 @@ public class FileController extends CiviFormController {
       if (!fileKey.contains(String.format("program-%d", programId))) {
         return notFound();
       }
-      return redirect(storageClient.getPresignedUrlString(fileKey));
+      return redirect(amazonS3Client.getPresignedUrl(fileKey).toString());
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (CompletionException e) {

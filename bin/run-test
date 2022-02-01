@@ -1,14 +1,12 @@
-#! /usr/bin/env bash
+#! /bin/bash
 
 # DOC: Run the Java test suite in Docker.
 
-source bin/lib.sh
+pushd $(git rev-parse --show-toplevel)
 
 bin/pull-image
 
-# Allocate a tty for better test output even though not strictly needed.
-docker run -it --rm \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v $(pwd)/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1 \
-  civiform \
-  reload test
+# allocate a tty for better test output even though not strictly needed.
+docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd)/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1 civiform reload test
+
+popd

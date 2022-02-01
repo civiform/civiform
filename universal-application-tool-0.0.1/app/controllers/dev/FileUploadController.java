@@ -6,77 +6,74 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.Set;
 import models.StoredFile;
 import play.Environment;
-import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
-import services.cloud.FileNameFormatter;
-import services.cloud.StorageClient;
-import services.cloud.StorageUploadRequest;
+import services.aws.SignedS3UploadRequest;
+import services.aws.SimpleStorage;
 import views.dev.FileUploadView;
 
-/**
- * Controller for interacting with cloud storage provider emulators directly. The logic for
- * uploading files to cloud storage has been extracted out into {@link
- * CloudEmulatorFileStorageStrategy}
- */
+/** Controller for interacting with S3 directly in dev mode. */
 public class FileUploadController extends DevController {
-
   private final FileUploadView view;
-  private final StorageClient storageClient;
+  private final SimpleStorage s3Client;
   private final StoredFileRepository storedFileRepository;
   private final String baseUrl;
-  private final CloudEmulatorFileStorageStrategy cloudEmulatorFileStorageStrategy;
-  private final MessagesApi messagesApi;
 
   @Inject
   public FileUploadController(
       FileUploadView view,
-      StorageClient storageClient,
+      SimpleStorage s3Client,
       StoredFileRepository storedFileRepository,
       Environment environment,
-      Config configuration,
-      CloudEmulatorFileStorageStrategy cloudEmulatorFileStorageStrategy,
-      MessagesApi messagesApi) {
+      Config configuration) {
     super(environment, configuration);
     this.view = checkNotNull(view);
-    this.storageClient = checkNotNull(storageClient);
+    this.s3Client = checkNotNull(s3Client);
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
-    this.cloudEmulatorFileStorageStrategy = checkNotNull(cloudEmulatorFileStorageStrategy);
-    this.messagesApi = checkNotNull(messagesApi);
   }
 
   public Result index(Request request) {
     if (!isDevEnvironment()) {
       return notFound();
     }
-
-    StorageUploadRequest signedRequest =
-        storageClient.getSignedUploadRequest(
-            FileNameFormatter.formatDevUploadFilename(),
-            baseUrl + routes.FileUploadController.create().url());
+    SignedS3UploadRequest signedRequest =
+        s3Client.getSignedUploadRequest(
+            "dev/${filename}", baseUrl + routes.FileUploadController.create().url());
     Set<StoredFile> files = storedFileRepository.list().toCompletableFuture().join();
     ImmutableList<StoredFile> fileList =
         files.stream()
             .sorted(Comparator.comparing(StoredFile::getName))
             .collect(ImmutableList.toImmutableList());
-    return ok(
-        view.render(
-            request,
-            signedRequest,
-            fileList,
-            request.flash().get("success"),
-            messagesApi.preferred(request)));
+    return ok(view.render(request, signedRequest, fileList, request.flash().get("success")));
   }
 
   public Result create(Request request) {
     if (!isDevEnvironment()) {
       return notFound();
     }
-    return cloudEmulatorFileStorageStrategy.create(storedFileRepository, request);
+    Optional<String> bucket = request.queryString("bucket");
+    Optional<String> key = request.queryString("key");
+    Optional<String> etag = request.queryString("etag");
+    if (!bucket.isPresent() || !key.isPresent()) {
+      return redirect(routes.FileUploadController.index().url());
+    }
+    updateFileRecord(key.get());
+    String successMessage =
+        String.format(
+            "File successfully uploaded to S3: bucket: %s, key: %s, etag: %s.",
+            bucket.get(), key.get(), etag.orElse(""));
+    return redirect(routes.FileUploadController.index().url()).flashing("success", successMessage);
+  }
+
+  private void updateFileRecord(String key) {
+    StoredFile storedFile = new StoredFile();
+    storedFile.setName(key);
+    storedFileRepository.insert(storedFile);
   }
 }

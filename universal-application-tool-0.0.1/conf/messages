@@ -251,10 +251,6 @@ placeholder.entityName={0} name
 # Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=Please select a file.
 
-# Label shown on the dev file upload page. This is shown before users hit the
-# submit button, to show users what files they are about to upload.
-label.currentFiles=Current files:
-
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #
 #---------------------------------------------------------------------#

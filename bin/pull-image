@@ -1,13 +1,9 @@
-#! /usr/bin/env bash
+#!/bin/bash
 
-# DOC: Pull the latest development environment docker image from Docker Hub unless USE_LOCAL_CIVIFORM is set.
+# DOC: Pull the latest development environment docker image from AWS.
 
-source bin/lib.sh
-
-if [[ -z "${USE_LOCAL_CIVIFORM}" ]]; then
-  echo "Making sure we're up to date with the latest dev... "\
-    "set environment variable USE_LOCAL_CIVIFORM=1 to skip"
-
-  docker pull civiform/civiform-dev:latest
-  docker tag civiform/civiform-dev:latest civiform-dev
+if [ -z "$USE_LOCAL_CIVIFORM" ]; then
+  echo "Making sure we're up to date with the latest dev... set environment variable USE_LOCAL_CIVIFORM=1 to skip"
+  docker pull docker.io/civiform/civiform-dev:latest
+  docker tag docker.io/civiform/civiform-dev:latest civiform-dev
 fi

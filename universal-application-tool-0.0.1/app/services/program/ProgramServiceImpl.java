@@ -625,37 +625,22 @@ public class ProgramServiceImpl implements ProgramService {
     return questionService
         .getReadOnlyQuestionService()
         .thenApplyAsync(
-            roQuestionService -> {
-              try {
-                return syncProgramDefinitionQuestions(programDefinition, roQuestionService);
-              } catch (QuestionNotFoundException e) {
-                throw new RuntimeException(
-                    String.format("Question not found for Program %s", programDefinition.id()), e);
-              }
-            },
+            roQuestionService ->
+                syncProgramDefinitionQuestions(programDefinition, roQuestionService),
             httpExecutionContext.current());
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(
       ProgramDefinition programDefinition, Version version) {
-    try {
-      return syncProgramDefinitionQuestions(
-          programDefinition, questionService.getReadOnlyVersionedQuestionService(version));
-    } catch (QuestionNotFoundException e) {
-      throw new RuntimeException(
-          String.format(
-              "Question not found for Program %s at Version %s",
-              programDefinition.id(), version.id),
-          e);
-    }
+    return syncProgramDefinitionQuestions(
+        programDefinition, questionService.getReadOnlyVersionedQuestionService(version));
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(
-      ProgramDefinition programDefinition, ReadOnlyQuestionService roQuestionService)
-      throws QuestionNotFoundException {
+      ProgramDefinition programDefinition, ReadOnlyQuestionService roQuestionService) {
     ProgramDefinition.Builder programDefinitionBuilder = programDefinition.toBuilder();
-    ImmutableList.Builder<BlockDefinition> blockListBuilder = ImmutableList.builder();
 
+    ImmutableList.Builder<BlockDefinition> blockListBuilder = ImmutableList.builder();
     for (BlockDefinition block : programDefinition.blockDefinitions()) {
       BlockDefinition syncedBlock =
           syncBlockDefinitionQuestions(programDefinition.id(), block, roQuestionService);
@@ -669,8 +654,7 @@ public class ProgramServiceImpl implements ProgramService {
   private BlockDefinition syncBlockDefinitionQuestions(
       long programDefinitionId,
       BlockDefinition blockDefinition,
-      ReadOnlyQuestionService roQuestionService)
-      throws QuestionNotFoundException {
+      ReadOnlyQuestionService roQuestionService) {
     BlockDefinition.Builder blockBuilder = blockDefinition.toBuilder();
 
     ImmutableList.Builder<ProgramQuestionDefinition> pqdListBuilder = ImmutableList.builder();
@@ -687,9 +671,12 @@ public class ProgramServiceImpl implements ProgramService {
   private ProgramQuestionDefinition syncProgramQuestionDefinition(
       long programDefinitionId,
       ProgramQuestionDefinition pqd,
-      ReadOnlyQuestionService roQuestionService)
-      throws QuestionNotFoundException {
-    QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
-    return pqd.loadCompletely(programDefinitionId, questionDefinition);
+      ReadOnlyQuestionService roQuestionService) {
+    try {
+      QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
+      return pqd.loadCompletely(programDefinitionId, questionDefinition);
+    } catch (QuestionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

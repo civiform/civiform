@@ -29,7 +29,6 @@ import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import views.BaseHtmlView;
-import views.FileUploadViewStrategy;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
@@ -42,7 +41,6 @@ import views.style.Styles;
 public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages messages;
-  private final FileUploadViewStrategy fileUploadViewStrategy;
 
   private static final String NO_ENUMERATOR_DISPLAY_STRING = "does not repeat";
   private static final String NO_ENUMERATOR_ID_STRING = "";
@@ -50,12 +48,10 @@ public final class QuestionEditView extends BaseHtmlView {
   private static final String QUESTION_ENUMERATOR_FIELD = "enumeratorId";
 
   @Inject
-  public QuestionEditView(
-      AdminLayout layout, MessagesApi messagesApi, FileUploadViewStrategy fileUploadViewStrategy) {
+  public QuestionEditView(AdminLayout layout, MessagesApi messagesApi) {
     this.layout = checkNotNull(layout);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
-    this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
   }
 
   /** Render a fresh New Question Form. */
@@ -168,8 +164,7 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private Content renderWithPreview(ContainerTag formContent, QuestionType type, String title) {
-    ContainerTag previewContent =
-        QuestionPreview.renderQuestionPreview(type, messages, fileUploadViewStrategy);
+    ContainerTag previewContent = QuestionPreview.renderQuestionPreview(type, messages);
 
     HtmlBundle htmlBundle =
         layout.getBundle().setTitle(title).addMainContent(formContent, previewContent);
@@ -339,20 +334,16 @@ public final class QuestionEditView extends BaseHtmlView {
 
     if (!ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
       formTag.with(
-          div()
-              .withId("demographic-field-content")
-              .with(buildDemographicFields(questionForm, submittable)));
+          div().withId("demographic-field-content").with(buildDemographicFields(questionForm)));
     }
 
     return formTag;
   }
 
-  private ImmutableList<DomContent> buildDemographicFields(
-      QuestionForm questionForm, boolean submittable) {
+  private ImmutableList<DomContent> buildDemographicFields(QuestionForm questionForm) {
     return ImmutableList.of(
         FieldWithLabel.radio()
             .setId("question-demographic-no-export")
-            .setDisabled(!submittable)
             .setFieldName("questionExportState")
             .setLabelText("No export")
             .setValue(QuestionTag.NON_DEMOGRAPHIC.getValue())
@@ -363,7 +354,6 @@ public final class QuestionEditView extends BaseHtmlView {
             .getContainer(),
         FieldWithLabel.radio()
             .setId("question-demographic-export-demographic")
-            .setDisabled(!submittable)
             .setFieldName("questionExportState")
             .setLabelText("Export Value")
             .setValue(QuestionTag.DEMOGRAPHIC.getValue())
@@ -372,7 +362,6 @@ public final class QuestionEditView extends BaseHtmlView {
             .getContainer(),
         FieldWithLabel.radio()
             .setId("question-demographic-export-pii")
-            .setDisabled(!submittable)
             .setFieldName("questionExportState")
             .setLabelText("Export Obfuscated")
             .setValue(QuestionTag.DEMOGRAPHIC_PII.getValue())

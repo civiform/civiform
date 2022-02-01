@@ -66,7 +66,7 @@ public class CsvExporterTest extends WithPostgresContainer {
                     Column.builder()
                         .setHeader(ExporterService.pathToHeader(path))
                         .setJsonPath(path)
-                        .setColumnType(ColumnType.APPLICANT_ANSWER)
+                        .setColumnType(ColumnType.APPLICANT)
                         .build()));
     return csvExportConfigBuilder.build();
   }
@@ -381,8 +381,7 @@ public class CsvExporterTest extends WithPostgresContainer {
     assertThat(parser.getHeaderMap())
         .containsExactlyEntriesOf(
             ImmutableMap.<String, Integer>builder()
-                .put("Applicant ID", id++)
-                .put("Application ID", id++)
+                .put("ID", id++)
                 .put("Applicant language", id++)
                 .put("Submit time", id++)
                 .put("Submitted by", id++)

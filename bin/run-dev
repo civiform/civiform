@@ -1,61 +1,25 @@
-#! /usr/bin/env bash
+#! /bin/bash
 
 # DOC: Run the app locally using Docker. Useful for manual testing.
 
-source bin/lib.sh
+pushd $(git rev-parse --show-toplevel) > /dev/null
 
-# Default to using Localstack emulator.
-emulators::set_localstack_emulator_vars
+set -e
 
-#######################################
-# Process the script's commandline args.
-# Globals:
-#   already_set_cloud_provider
-#   cloud_provider
-#   emulator
-#   server_url
-#   STORAGE_SERVICE_NAME
-# Arguments:
-#   1: "$@" - full args array for the script
-#######################################
-function set_args() {
-  while [ "${1:-}" != "" ]; do
-    case "$1" in
-      "--azure")
-        emulators::ensure_only_one_cloud_provider_flag azure
-        emulators::set_azurite_emulator_vars
-        ;;
+bin/pull-image
 
-      "--aws")
-        emulators::ensure_only_one_cloud_provider_flag aws
-        # Already defaulted to AWS.
-        ;;
-    esac
+if [ -f ".secrets" ]; then
+    . .secrets
+fi
 
-    shift
-  done
-}
+# start localstack
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d localstack
 
-set_args "$@"
-
-echo "Making sure we're up to date with the latest dev... "\
-  "set environment variable USE_LOCAL_CIVIFORM=1 to skip"
-bin/pull-image > /dev/null
-
-docker::set_network_name_dev
-
-# Start emulator.
-docker-compose --profile "${cloud_provider}" \
-  -f docker-compose.yml \
-  -f docker-compose.dev.yml \
-  up \
-  -d "${emulator}"
-
-# Wait until the emulator is running.
-"bin/${emulator}/wait"
+# wait till localstack running
+# otherwise other services crash
+bin/localstack/wait
 
 # start everything else
-docker-compose \
-  -f docker-compose.yml \
-  -f docker-compose.dev.yml \
-  up
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+popd > /dev/null

@@ -5,19 +5,11 @@ services:
 
   localstack:
     image: localstack/localstack
-    profiles: ["aws"]
     container_name: localstack-test
     ports:
       - 6645:4566
     environment:
       - SERVICES=s3,ses
-
-  azurite:
-    image: mcr.microsoft.com/azure-storage/azurite
-    profiles: ["azure"]
-    container_name: azurite-test
-    ports:
-      - 10000:10000
 
   db:
     image: postgres:12.5
@@ -58,10 +50,5 @@ services:
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
       - BASE_URL=http://civiform:9000
       - CF_OPTIONAL_QUESTIONS
-      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID:-test}
-      - AZURE_LOCAL_CONNECTION_STRING
-      - AZURE_STORAGE_ACCOUNT_NAME
-      - AZURE_STORAGE_ACCOUNT_CONTAINER
-      - STORAGE_SERVICE_NAME
 
     command: ~run -Dconfig.file=conf/application.dev.conf

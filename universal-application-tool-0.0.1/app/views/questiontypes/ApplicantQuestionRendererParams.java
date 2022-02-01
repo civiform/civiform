@@ -3,7 +3,7 @@ package views.questiontypes;
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
 import play.i18n.Messages;
-import services.cloud.StorageUploadRequest;
+import services.aws.SignedS3UploadRequest;
 
 /** Contains necessary parameters for an applicant question renderer to render a question. */
 @AutoValue
@@ -21,7 +21,7 @@ public abstract class ApplicantQuestionRendererParams {
 
   public abstract Messages messages();
 
-  public abstract Optional<StorageUploadRequest> signedFileUploadRequest();
+  public abstract Optional<SignedS3UploadRequest> signedFileUploadRequest();
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -30,7 +30,7 @@ public abstract class ApplicantQuestionRendererParams {
     public abstract Builder setMessages(Messages messages);
 
     public abstract Builder setSignedFileUploadRequest(
-        StorageUploadRequest signedFileUploadRequest);
+        SignedS3UploadRequest signedFileUploadRequest);
 
     public abstract ApplicantQuestionRendererParams build();
   }

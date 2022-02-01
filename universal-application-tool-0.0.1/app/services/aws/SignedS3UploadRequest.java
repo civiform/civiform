@@ -1,4 +1,4 @@
-package services.cloud.aws;
+package services.aws;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -19,8 +19,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import services.cloud.StorageServiceName;
-import services.cloud.StorageUploadRequest;
 import software.amazon.awssdk.utils.BinaryUtils;
 
 /**
@@ -32,7 +30,7 @@ import software.amazon.awssdk.utils.BinaryUtils;
  * SimpleStorage#getSignedUploadRequest}.
  */
 @AutoValue
-public abstract class SignedS3UploadRequest implements StorageUploadRequest {
+public abstract class SignedS3UploadRequest {
 
   private static final long MB_TO_BYTES = 1L << 20;
 
@@ -60,7 +58,7 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
   public static Builder builder() {
     return new AutoValue_SignedS3UploadRequest.Builder()
         .setAlgorithm("AWS4-HMAC-SHA256")
-        .setServiceName(StorageServiceName.AWS_S3.getString());
+        .setServiceName("s3");
   }
 
   // -- Below should be included in the upload form.
@@ -120,7 +118,6 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
   public abstract String regionName();
 
   /** AWS service name. */
-  @Override
   public abstract String serviceName();
 
   @AutoValue.Builder

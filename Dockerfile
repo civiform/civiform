@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:jdk-11.0.10_9-alpine-slim
+FROM adoptopenjdk/openjdk11:alpine-slim
 
 # sbt
 

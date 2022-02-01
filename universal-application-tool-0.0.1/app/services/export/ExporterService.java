@@ -225,15 +225,8 @@ public class ExporterService {
    */
   private CsvExportConfig generateDefaultCsvConfig(ImmutableList<AnswerData> answerDataList) {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
-
-    // Default columns
-    columnsBuilder.add(
-        Column.builder().setHeader("Applicant ID").setColumnType(ColumnType.APPLICANT_ID).build());
-    columnsBuilder.add(
-        Column.builder()
-            .setHeader("Application ID")
-            .setColumnType(ColumnType.APPLICATION_ID)
-            .build());
+    // First add the ID, submit time, and submitter email columns.
+    columnsBuilder.add(Column.builder().setHeader("ID").setColumnType(ColumnType.ID).build());
     columnsBuilder.add(
         Column.builder()
             .setHeader("Applicant language")
@@ -257,7 +250,7 @@ public class ExporterService {
             Column.builder()
                 .setHeader(pathToHeader(path))
                 .setJsonPath(path)
-                .setColumnType(ColumnType.APPLICANT_ANSWER)
+                .setColumnType(ColumnType.APPLICANT)
                 .build());
       }
     }
@@ -373,7 +366,7 @@ public class ExporterService {
                   .setColumnType(
                       tagType == QuestionTag.DEMOGRAPHIC_PII
                           ? ColumnType.APPLICANT_OPAQUE
-                          : ColumnType.APPLICANT_ANSWER)
+                          : ColumnType.APPLICANT)
                   .build());
         }
       }

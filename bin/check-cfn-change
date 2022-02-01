@@ -2,13 +2,13 @@
 
 # DOC: Check cloudformation configuration for correctness.
 
-set -e
-
 if [ -z "$GITHUB_EVENT_PATH" ]; then
   PR_NUMBER=localrun-$USER
 else
   PR_NUMBER=$(jq -r .pull_request.number "$GITHUB_EVENT_PATH")
 fi
+
+set -e
 
 TIMESTAMP=$(date +%s)
 REGION=us-west-2

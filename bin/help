@@ -1,37 +1,41 @@
-#! /usr/bin/env bash
+#! /bin/bash
 
 # DOC: Print descriptions of each bin script.
 
-source bin/lib.sh
+set -e
+
+pushd $(git rev-parse --show-toplevel) > /dev/null
 
 missing=""
 
+column_print () {
+  printf "%-40s %s\n" "$1" "$2"
+}
+
 for f in bin/* bin/**/*
 do
-  # Files containing library code for scripts have .sh file extension,
-  # don't include those or directories.
-  if [[ -d "${f}" || "${f}" =~ .+\.sh ]]; then
+  if [[ -d $f ]]; then
     continue
   fi
 
   help=$(cat $f | { grep "DOC\:" || true; })
 
   if [[ -z $help ]]; then
-    out::column_print 40 "$f" "MISSING DOCSTRING"
-    missing="${f}"
+    column_print "$f" "MISSING DOCSTRING"
+    missing=$f
     continue
   fi
 
   help_without_prefix=$(echo "$help" | sed -e "s/^\# DOC\: //")
 
-  out::column_print 40 "$f" "$help_without_prefix"
+  column_print "$f" "$help_without_prefix"
 done
 
-if [[ -z "${missing}" ]]; then
+if [[ -z $missing ]]; then
   exit 0
 fi
 
 echo
-out::error "${missing} is missing a docstring. Please fix."
+>&2 echo "$missing is missing a docstring. Please fix."
 
 exit 1
