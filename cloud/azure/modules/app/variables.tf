@@ -119,7 +119,7 @@ variable "staging_hostname" {
   default     = "staging-azure.civiform.dev"
 }
 
-variable "hostname" {
+variable "custom_hostname" {
   type        = string
-  description = "hostname for the app to map to custom hostname (used also for CORS)"
+  description = "custom hostname for the app to map the dns (used also for CORS)"
 }

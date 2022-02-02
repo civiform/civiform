@@ -111,7 +111,7 @@ resource "azurerm_app_service" "civiform_app" {
 
     STORAGE_SERVICE_NAME = "azure-blob"
     STAGING_HOSTNAME     = var.staging_hostname
-    BASE_URL             = "https://${var.hostname}" // TODO(#1720) this should be the dns name passed in
+    BASE_URL             = "https://${var.custom_hostname}"
 
     AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
@@ -134,7 +134,7 @@ resource "azurerm_app_service" "civiform_app" {
 }
 
 resource "azurerm_app_service_custom_hostname_binding" "custom_domain_binding" {
-  hostname            = var.hostname
+  hostname            = var.custom_hostname
   app_service_name    = azurerm_app_service.civiform_app.name
   resource_group_name = azurerm_resource_group.rg.name
 }
