@@ -66,9 +66,9 @@ lazy val root = (project in file("."))
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.7.1",
 
       // Autovalue
-      "com.google.auto.value" % "auto-value-annotations" % "1.7.4",
-      "com.google.auto.value" % "auto-value" % "1.7.4",
-      "com.google.auto.value" % "auto-value-parent" % "1.7.4",
+      "com.google.auto.value" % "auto-value-annotations" % "1.8.2",
+      "com.google.auto.value" % "auto-value" % "1.8.2",
+      "com.google.auto.value" % "auto-value-parent" % "1.8.2",
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.5.1",
