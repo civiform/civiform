@@ -21,7 +21,7 @@ public class GuestClient extends IndirectClient {
   }
 
   @Override
-  protected void internalInit(boolean unused) {
+  protected void internalInit(final boolean forceReinit) {
 
     /*
      * This is the root of the non-logged-in auth story.  This class is invoked to
