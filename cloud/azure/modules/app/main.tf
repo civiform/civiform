@@ -110,15 +110,14 @@ resource "azurerm_app_service" "civiform_app" {
     DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
 
     STORAGE_SERVICE_NAME = "azure-blob"
-    STAGING_HOSTNAME     = "sgtest-full-mammal.azurewebsites.net"                                      // TODO(#1720): update this to staging when dns is set up
-    BASE_URL             = "https://${var.application_name}-${random_pet.server.id}.azurewebsites.net" // TODO(#1720) this should be the dns name passed in
+    STAGING_HOSTNAME     = var.staging_hostname
+    BASE_URL             = "https://${var.custom_hostname}"
 
     AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
 
-    AWS_SES_SENDER   = var.ses_sender_email
-    SECRET_KEY       = var.app_secret_key
-    STAGING_HOSTNAME = var.staging_hostname
+    AWS_SES_SENDER = var.ses_sender_email
+    SECRET_KEY     = var.app_secret_key
   }
   # Configure Docker Image to load on start
   site_config {
@@ -135,7 +134,7 @@ resource "azurerm_app_service" "civiform_app" {
 }
 
 resource "azurerm_app_service_custom_hostname_binding" "custom_domain_binding" {
-  hostname            = var.staging_hostname
+  hostname            = var.custom_hostname
   app_service_name    = azurerm_app_service.civiform_app.name
   resource_group_name = azurerm_resource_group.rg.name
 }
