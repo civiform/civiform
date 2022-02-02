@@ -115,5 +115,5 @@ variable "ses_sender_email" {
 
 variable "staging_hostname" {
   type        = string
-  description = "URL for staging"
+  description = "hostname for staging (e.g staging-azure.civiform.dev)"
 }
