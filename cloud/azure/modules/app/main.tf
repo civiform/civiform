@@ -303,8 +303,8 @@ resource "azurerm_role_assignment" "storage_account_contributor" {
 # create a public IP for so we can ssh to the bastion
 resource "azurerm_public_ip" "bastion_pip" {
   name                = "bastion_pip"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"
   sku                 = "Standard"
 }
