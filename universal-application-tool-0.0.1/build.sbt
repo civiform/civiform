@@ -11,7 +11,7 @@ lazy val root = (project in file("."))
       guice,
       javaJdbc,
       // JSON libraries
-      "com.jayway.jsonpath" % "json-path" % "2.5.0",
+      "com.jayway.jsonpath" % "json-path" % "2.6.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.12.5",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.12.5",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.12.5",
