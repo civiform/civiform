@@ -39,7 +39,7 @@ public class FakeAdminClient extends IndirectClient {
   }
 
   @Override
-  protected void internalInit() {
+  protected void internalInit(boolean unused) {
     defaultCredentialsExtractor(
         (ctx, store) -> {
           // Double check that we haven't been fooled into allowing this somehow.
