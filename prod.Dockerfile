@@ -2,7 +2,7 @@ FROM adoptopenjdk/openjdk11:jdk-11.0.10_9-alpine-slim AS stage1
 
 # sbt
 
-ENV SBT_VERSION 1.6.1
+ENV SBT_VERSION 1.6.2
 ENV INSTALL_DIR /usr/local
 ENV SBT_HOME /usr/local/sbt
 ENV PATH ${PATH}:${SBT_HOME}/bin
