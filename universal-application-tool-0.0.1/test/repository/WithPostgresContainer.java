@@ -12,7 +12,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import play.Application;
-import play.db.ebean.EbeanConfig;
 import play.test.Helpers;
 import support.ProgramBuilder;
 import support.ResourceCreator;
@@ -56,7 +55,6 @@ public class WithPostgresContainer {
 
   @Before
   public void resetTables() {
-    EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
     Database database = DB.getDefault();
     Models.truncate(database);
     Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
