@@ -12,9 +12,9 @@ lazy val root = (project in file("."))
       javaJdbc,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.5.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.12.5",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.12.5",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.12.5",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.13.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.13.1",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.1",
 
       "com.google.inject.extensions" % "guice-assistedinject" % "5.0.1",
 
@@ -111,9 +111,9 @@ libraryDependencies ++= Seq(
     "org.webjars.npm" % "azure__storage-blob" % "10.5.0",
 )
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.12.5",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.12.5",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.12.5",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.1",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.13.1",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.1",
 )
 resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)
