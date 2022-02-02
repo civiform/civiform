@@ -116,8 +116,9 @@ resource "azurerm_app_service" "civiform_app" {
     AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
 
-    AWS_SES_SENDER = var.ses_sender_email
-    SECRET_KEY     = var.app_secret_key
+    AWS_SES_SENDER   = var.ses_sender_email
+    SECRET_KEY       = var.app_secret_key
+    STAGING_HOSTNAME = var.staging_hostname
   }
   # Configure Docker Image to load on start
   site_config {
@@ -131,6 +132,22 @@ resource "azurerm_app_service" "civiform_app" {
     type = "SystemAssigned"
   }
 
+}
+
+resource "azurerm_app_service_custom_hostname_binding" "custom_domain_binding" {
+  hostname            = var.staging_hostname
+  app_service_name    = azurerm_app_service.civiform_app.name
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+resource "azurerm_app_service_managed_certificate" "cert" {
+  custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.custom_domain_binding.id
+}
+
+resource "azurerm_app_service_certificate_binding" "cert_binding" {
+  hostname_binding_id = azurerm_app_service_custom_hostname_binding.custom_domain_binding.id
+  certificate_id      = azurerm_app_service_managed_certificate.cert.id
+  ssl_state           = "IpBasedEnabled"
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "appservice_vnet_connection" {

@@ -57,8 +57,8 @@ variable "app_sku" {
 }
 
 variable "resource_group_name" {
-  type        = string
-  default     = "civiform-resourcegroup"
+  type    = string
+  default = "civiform-resourcegroup"
 }
 
 variable "postgres_admin_login" {
@@ -109,6 +109,11 @@ variable "log_retention" {
 }
 
 variable "ses_sender_email" {
-  type = string
+  type        = string
   description = "Email address of who is sending the email, passed to the app"
+}
+
+variable "staging_hostname" {
+  type        = string
+  description = "hostname for staging (e.g staging-azure.civiform.dev)"
 }
