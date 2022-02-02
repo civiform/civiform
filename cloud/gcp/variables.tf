@@ -16,7 +16,13 @@ variable "application_name_postfix" {
 }
 
 variable "db_tier_type" {
-  type = string
+  type        = string
   description = "vm tier type to run db instance"
-  default = "db-f1-micro"
+  default     = "db-f1-micro"
+}
+
+variable "http_port" {
+  type        = number
+  description = "The container port application runs on"
+  default     = 9000
 }

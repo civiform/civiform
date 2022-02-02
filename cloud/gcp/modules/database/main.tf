@@ -21,7 +21,8 @@ resource "google_secret_manager_secret_iam_binding" "binding" {
   role = "roles/secretmanager.secretAccessor"
   members = [
     "user:ktoor@google.com",
-    "serviceAccount:${var.terraform_service_account}"
+    "serviceAccount:${var.terraform_service_account}",
+    "serviceAccount:${var.application_service_account_email}"
   ]
 }
 
@@ -38,10 +39,9 @@ resource "google_sql_database_instance" "civiform_db" {
   }
 }
 
-## TODO(ktoor@google.com): Change this with the service account running the application.
 resource "google_sql_user" "civiform-user" {
-  name     = "ktoor@google.com"
+  name     = var.application_service_account_email
   instance = google_sql_database_instance.civiform_db.name
   password = google_secret_manager_secret_version.database_password_version.secret_data
-  type     = "CLOUD_IAM_USER"
+  type     = "CLOUD_IAM_SERVICE_ACCOUNT"
 }

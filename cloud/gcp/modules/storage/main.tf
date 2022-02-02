@@ -21,7 +21,8 @@ data "google_storage_project_service_account" "gcs_account" {
 resource "google_kms_crypto_key_iam_binding" "kms_binding" {
   crypto_key_id = google_kms_crypto_key.storage_key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  members = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
+  members = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}",
+            "serviceAccount:${var.application_service_account_email}"]
 }
 
 
@@ -50,7 +51,7 @@ data "google_iam_policy" "storage_viewer" {
   binding {
     role = "roles/storage.legacyBucketReader"
     members = [
-      "user:ktoor@google.com",
+      "user:ktoor@google.com"
     ]
   }
 }
@@ -65,6 +66,7 @@ data "google_iam_policy" "storage_owner" {
     role = "roles/storage.legacyBucketOwner"
     members = [
       "serviceAccount:civform-terraform@civiform-demo.iam.gserviceaccount.com",
+      "serviceAccount:${var.application_service_account_email}"
     ]
   }
 }
