@@ -39,8 +39,8 @@ variable "sender_email_address" {
   description = "Email address that emails will be sent from"
 }
 
-variable "staging_hostname" {
+variable "hostname" {
   type        = string
-  description = "hostname for staging"
+  description = "custom hostname for application"
   default     = "staging-azure.civiform.dev"
 }

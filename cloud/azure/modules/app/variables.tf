@@ -115,5 +115,11 @@ variable "ses_sender_email" {
 
 variable "staging_hostname" {
   type        = string
-  description = "hostname for staging (e.g staging-azure.civiform.dev)"
+  description = "hostname for staging (used by the code to allow dev features)"
+  default     = "staging-azure.civiform.dev"
+}
+
+variable "hostname" {
+  type        = string
+  description = "hostname for the app to map to custom hostname (used also for CORS)"
 }
