@@ -19,6 +19,7 @@ module "app" {
 
   postgres_admin_login    = var.postgres_admin_login
   postgres_admin_password = var.postgres_admin_password
+  postgres_sku_name       = "B_Gen5_2"
 
   docker_username        = var.docker_username
   docker_repository_name = var.docker_repository_name
@@ -26,8 +27,14 @@ module "app" {
   application_name = var.application_name
   app_secret_key   = var.app_secret_key
   ses_sender_email = var.sender_email_address
+  custom_hostname  = var.custom_hostname
+}
 
-  custom_hostname = var.custom_hostname
+module "custom_hostname" {
+  source              = "../../azure/modules/custom_hostname"
+  custom_hostname     = var.custom_hostname
+  app_service_name    = module.app.app_service_name
+  resource_group_name = module.app.resource_group_name
 }
 
 module "email_service" {
