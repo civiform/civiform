@@ -7,7 +7,7 @@ The process to deploy is similar
 to the staging process but we do not have to do the shared state set up. It 
 should be `terraform init` and then `terraform apply`
 
-# Local Docker Build to Terrafrom
+# Local Docker Build to Remote Azure Deploy
 If you want to do local onto terraform we build/tag/deploy the docker image 
 and then update the azure app service to point to the local image. 
 
@@ -20,7 +20,7 @@ docker tag <DOCKER_TAG> <DOCKER_USERNAME>/<DOCKER_REPO_NAME>:<DOCKER_TAG>
 docker push <DOCKER_USERNAME>/<DOCKER_REPO_NAME>:<DOCKER_TAG>
 ```
 
-## 2. Update the docker repo for your staging
+## 2. Update the image name/tag for your remote azure deploy
 You can do this one of two ways. Terraform deploy or update via the azure 
 portal 
 
