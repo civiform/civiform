@@ -111,8 +111,8 @@ resource "azurerm_app_service" "civiform_app" {
 
     STORAGE_SERVICE_NAME = "azure-blob"
     # this allows for the dev instances to get setup
-    STAGING_HOSTNAME = (var.staging_hostname != "" ? var.staging_hostname : local.generated_url)
-    BASE_URL         = "https://${var.custom_hostname != "" ? var.custom_hostname : local.generated_url}"
+    STAGING_HOSTNAME = (var.staging_hostname != "" ? var.staging_hostname : local.generated_hostname)
+    BASE_URL         = "https://${var.custom_hostname != "" ? var.custom_hostname : local.generated_hostname}"
 
     AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
