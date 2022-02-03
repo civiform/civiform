@@ -39,7 +39,6 @@ variable "sender_email_address" {
   description = "Email address that emails will be sent from"
 }
 
-
 variable "resource_group_name" {
   type = string
 }
