@@ -42,6 +42,10 @@ class ValidateVariableDefinitions():
         if not isinstance(variable_definition.get("secret", None), bool):
             errors.append("Missing 'secret' field.")
 
+        if not isinstance(variable_definition.get("type", None), str):
+            errors.append("Missing 'type' field.")
+            return errors
+
         type_specific_validators = {
             "float": self.validate_float_definition_type,
             "integer": self.validate_integer_definition_type,
@@ -49,7 +53,7 @@ class ValidateVariableDefinitions():
             "enum": self.validate_enum_definition_type,
         }
 
-        validator = type_specific_validators[variable_definition["type"]]
+        validator = type_specific_validators.get(variable_definition["type"], None)
 
         if validator:
             validator(variable_definition, errors)

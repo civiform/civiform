@@ -61,6 +61,18 @@ class TestValidateVariableDefinitions(unittest.TestCase):
 
         self.assertEqual(errors, { "FOO": ["Missing 'secret' field."] })
 
+    def test_get_validation_errors_string_missing_type(self):
+        enum = {
+            "FOO": {
+                "required": True,
+                "secret": False
+            }
+        }
+
+        errors = ValidateVariableDefinitions(enum).get_validation_errors()
+
+        self.assertEqual(errors, { "FOO": ["Missing 'type' field."] })
+
     def test_get_validation_errors_string_missing_required(self):
         enum = {
             "FOO": {
