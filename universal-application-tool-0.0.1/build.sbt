@@ -96,7 +96,7 @@ lazy val root = (project in file("."))
       "-Werror"
     ),
     // Allow circular dependencies between Scala and Java
-    Compile / compileOrder := CompileOrder.Mixed,
+    Compile / compileOrder := CompileOrder.ScalaThenJava,
     // Make verbose tests
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v")),
     // Use test config for tests
