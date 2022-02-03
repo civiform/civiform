@@ -19,7 +19,8 @@ module "app" {
 
   postgres_admin_login    = var.postgres_admin_login
   postgres_admin_password = var.postgres_admin_password
-  postgres_sku_name       = "B_Gen5_2"
+  # note that we must use GP tier
+  postgres_sku_name       = "GP_Gen5_2"
 
   docker_username        = var.docker_username
   docker_repository_name = var.docker_repository_name
