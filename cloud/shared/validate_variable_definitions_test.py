@@ -11,7 +11,7 @@ class TestValidateVariableDefinitions(unittest.TestCase):
         self.assertEqual(errors, {})
 
     def test_get_validation_errors_float_no_errors(self):
-        enum = {
+        defs = {
             "FOO": {
                 "required": True,
                 "secret": False,
@@ -19,12 +19,12 @@ class TestValidateVariableDefinitions(unittest.TestCase):
             }
         }
 
-        errors = ValidateVariableDefinitions(enum).get_validation_errors()
+        errors = ValidateVariableDefinitions(defs).get_validation_errors()
 
         self.assertEqual(errors, {})
 
     def test_get_validation_errors_integer_no_errors(self):
-        enum = {
+        defs = {
             "FOO": {
                 "required": True,
                 "secret": False,
@@ -32,12 +32,12 @@ class TestValidateVariableDefinitions(unittest.TestCase):
             }
         }
 
-        errors = ValidateVariableDefinitions(enum).get_validation_errors()
+        errors = ValidateVariableDefinitions(defs).get_validation_errors()
 
         self.assertEqual(errors, {})
 
     def test_get_validation_errors_string_no_errors(self):
-        enum = {
+        defs = {
             "FOO": {
                 "required": True,
                 "secret": False,
@@ -45,48 +45,48 @@ class TestValidateVariableDefinitions(unittest.TestCase):
             }
         }
 
-        errors = ValidateVariableDefinitions(enum).get_validation_errors()
+        errors = ValidateVariableDefinitions(defs).get_validation_errors()
 
         self.assertEqual(errors, {})
 
     def test_get_validation_errors_string_missing_secret(self):
-        enum = {
+        defs = {
             "FOO": {
                 "required": True,
                 "type": "string"
             }
         }
 
-        errors = ValidateVariableDefinitions(enum).get_validation_errors()
+        errors = ValidateVariableDefinitions(defs).get_validation_errors()
 
         self.assertEqual(errors, { "FOO": ["Missing 'secret' field."] })
 
     def test_get_validation_errors_string_missing_type(self):
-        enum = {
+        defs = {
             "FOO": {
                 "required": True,
                 "secret": False
             }
         }
 
-        errors = ValidateVariableDefinitions(enum).get_validation_errors()
+        errors = ValidateVariableDefinitions(defs).get_validation_errors()
 
         self.assertEqual(errors, { "FOO": ["Missing 'type' field."] })
 
     def test_get_validation_errors_string_missing_required(self):
-        enum = {
+        defs = {
             "FOO": {
                 "secret": False,
                 "type": "string"
             }
         }
 
-        errors = ValidateVariableDefinitions(enum).get_validation_errors()
+        errors = ValidateVariableDefinitions(defs).get_validation_errors()
 
         self.assertEqual(errors, { "FOO": ["Missing 'required' field."] })
 
     def test_get_validation_errors_enum_no_errors(self):
-        enum = {
+        defs = {
             "CIVIFORM_CLOUD_PROVIDER": {
                 "required": True,
                 "secret": False,
@@ -95,12 +95,12 @@ class TestValidateVariableDefinitions(unittest.TestCase):
             }
         }
 
-        errors = ValidateVariableDefinitions(enum).get_validation_errors()
+        errors = ValidateVariableDefinitions(defs).get_validation_errors()
 
         self.assertEqual(errors, {})
 
     def test_get_validation_errors_enum_missing_values(self):
-        enum = {
+        defs = {
             "CIVIFORM_CLOUD_PROVIDER": {
                 "required": True,
                 "secret": False,
@@ -108,7 +108,7 @@ class TestValidateVariableDefinitions(unittest.TestCase):
             }
         }
 
-        errors = ValidateVariableDefinitions(enum).get_validation_errors()
+        errors = ValidateVariableDefinitions(defs).get_validation_errors()
 
         expected_errors = {
             "CIVIFORM_CLOUD_PROVIDER": ["Missing 'values' field for enum."]
