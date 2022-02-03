@@ -15,7 +15,7 @@ jobs:
       - name: Build test container
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -t civiform ./
+        run: DOCKER_BUILDKIT=1 docker build -t civiform ./
       - name: Run tests
         run: docker run -v /var/run/docker.sock:/var/run/docker.sock civiform test
 
@@ -29,7 +29,7 @@ jobs:
       - name: Build test app container
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -t civiform ./
+        run: DOCKER_BUILDKIT=1 docker build -t civiform ./
       - name: Build browser testing container
         env:
           DOCKER_BUILDKIT: 1
@@ -54,7 +54,7 @@ jobs:
       - name: Build test app container
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -t civiform ./
+        run: DOCKER_BUILDKIT=1 docker build -t civiform ./
       - name: Build browser testing container
         env:
           DOCKER_BUILDKIT: 1
