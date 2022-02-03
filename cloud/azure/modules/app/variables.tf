@@ -74,7 +74,7 @@ variable "postgres_admin_password" {
 variable "postgres_sku_name" {
   type        = string
   description = "The sku name for postgres server"
-  default     = "GP_Gen5_4"
+  default     = "GP_Gen5_2"
 }
 variable "postgres_storage_mb" {
   type        = number
