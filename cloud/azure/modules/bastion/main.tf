@@ -1,12 +1,3 @@
-# create a public IP for so we can ssh to the bastion
-resource "azurerm_public_ip" "bastion_pip" {
-  name                = "bastion_pip"
-  location            = var.resource_group_location
-  resource_group_name = var.resource_group_name
-  allocation_method   = "Static"
-  sku                 = "Standard"
-}
-
 # Make sure the bastion is within the vnet of the database
 resource "azurerm_subnet" "bastion_subnet" {
   name                 = "bastion_subnet"
@@ -88,13 +79,12 @@ resource "azurerm_linux_virtual_machine" "bastion_vm" {
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "16.04-LTS"
+    sku       = "18.04-LTS"
     version   = "latest"
   }
 
   admin_ssh_key {
-    username = "adminuser"
-    # ssh-keygen -t rsa -b 4096 -C "sgoldblatt@google.com" -f $HOME/.ssh/bastion
+    username   = "adminuser"
     public_key = file("~/.ssh/bastion.pub")
   }
 }
