@@ -300,35 +300,10 @@ resource "azurerm_role_assignment" "storage_account_contributor" {
   principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
 }
 
-# create a public IP for so we can ssh to the bastion
-resource "azurerm_public_ip" "bastion_pip" {
-  name                = "bastion_pip"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  allocation_method   = "Static"
-  sku                 = "Standard"
-}
+module "bastion" {
+  source = "../bastion"
 
-# Make sure the bastion is within the vnet of the database
-resource "azurerm_subnet" "bastion_subnet" {
-  name                 = "AzureBastionSubnet"
-  resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.civiform_vnet.name
-  address_prefixes = [
-    "10.0.6.0/24"
-  ]
-
-}
-
-#create the bastion 
-resource "azurerm_bastion_host" "bastion" {
-  name                = "bastion"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-
-  ip_configuration {
-    name                 = "configuration"
-    subnet_id            = azurerm_subnet.postgres_subnet.id
-    public_ip_address_id = azurerm_public_ip.bastion_pip.id
-  }
+  resource_group_name     = azurerm_resource_group.rg.name
+  resource_group_location = azurerm_resource_group.rg.location
+  vnet_name               = azurerm_virtual_network.civiform_vnet.name
 }

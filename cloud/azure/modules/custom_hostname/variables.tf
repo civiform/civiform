@@ -10,6 +10,5 @@ variable "app_service_name" {
 
 variable "resource_group_name" {
   type        = string
-  description = "location for the resource group"
+  description = "name of the resource group"
 }
-
