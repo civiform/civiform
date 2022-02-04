@@ -2,6 +2,7 @@ resource "google_cloud_run_service" "civiform_application_run_service" {
   name     = "cloudrun-civiform"
   location = var.region
 
+  ##TODO(@ktoor): Change to correct docker image. Will need to push the image to gcr through some mechanism.
   template {
     spec {
       containers {
