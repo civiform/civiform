@@ -21,4 +21,4 @@ docker run --rm -it \
     -t versions \
     -t versions_programs \
     -t versions_questions \
-    postgres > /project/dev_db.dump"
+    postgres > /project/dev_programs.dump"
