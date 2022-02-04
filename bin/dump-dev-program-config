@@ -7,17 +7,18 @@ source bin/lib.sh
 docker::set_network_name_dev
 
 docker run --rm -it \
+  -v "$(pwd):/project" \
   -e "PGPASSWORD=example" \
   --network "${DOCKER_NETWORK_NAME}" \
   postgres:12.5 \
-  /usr/bin/pg_dump \
-  -w \
-  -Fc \
-  -h db \
-  -U postgres \
-  -t programs \
-  -t questions \
-  -t versions \
-  -t versions_programs \
-  -t versions_questions \
-  postgres > dev_programs.dump
+  /bin/bash -c "pg_dump \
+    -w \
+    -Fc \
+    -h db \
+    -U postgres \
+    -t programs \
+    -t questions \
+    -t versions \
+    -t versions_programs \
+    -t versions_questions \
+    postgres > /project/dev_programs.dump"
