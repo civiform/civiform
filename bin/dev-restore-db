@@ -33,8 +33,9 @@ readonly DUMP_FILE="project/${1}"
 readonly TRUNCATE_DB_CMD="/usr/bin/psql -h db -U postgres -c '${TRUNCATE_SQL}' postgres"
 
 # command for invoking pg_restore with the dev database
-readonly PG_RESTORE_CMD="/usr/bin/pg_restore -h db -U postgres -d postgres"\
-  " < ${DUMP_FILE}"
+
+readonly PG_RESTORE_CMD="/usr/bin/pg_restore -h db -U \
+  postgres -d postgres < ${DUMP_FILE}"
 
 readonly CMD="${TRUNCATE_DB_CMD} && ${PG_RESTORE_CMD}"
 
