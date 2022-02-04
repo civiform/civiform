@@ -64,7 +64,7 @@ resource "azurerm_network_interface_security_group_association" "nic_sg" {
 
 # Create bastion host VM.
 resource "azurerm_linux_virtual_machine" "bastion_vm" {
-  name                  = "${var.resource_group_name}-bstn-vm001"
+  name                  = "${var.resource_group_name}-bstn-vm"
   location              = var.resource_group_location
   resource_group_name   = var.resource_group_name
   network_interface_ids = ["${azurerm_network_interface.bastion_nic.id}"]
@@ -83,6 +83,8 @@ resource "azurerm_linux_virtual_machine" "bastion_vm" {
     version   = "latest"
   }
 
+  # This adds the deploying user to the list of people who can ssh, but
+  # to access the db, use the roc/bin/db-connection script
   admin_ssh_key {
     username   = "adminuser"
     public_key = file("~/.ssh/bastion.pub")

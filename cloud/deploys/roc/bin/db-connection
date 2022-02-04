@@ -1,21 +1,26 @@
-resource_group="sgdev"
-database_name="civiform-artistic-halibut"
+# example: ./db-connection -g sgdev -d civiform-artistic-halibut -k bastion -p $DB_PASSWORD
+while getopts g:d:k:p flag
+do
+    case "${flag}" in
+        g) resource_group=${OPTARG};;
+        d) database_name=${OPTARG};;
+        k) key_name=${OPTARG};;
+        p) db_password=${OPTARG};;
+    esac
+done
+ssh-keygen -t rsa -b 4096 -f $HOME/.ssh/${key_name}
 
-# make sure the rsa keys exists that we will add to the host
-ssh-keygen -t rsa -b 4096 -f $HOME/.ssh/bastion
-
-# get the vm ip address and remove the quotes that azure adds
+echo "Getting the bastion vm's ip address"
 vm_ip_address=$(az network public-ip show -g ${resource_group} -n ${resource_group}-ip --query "ipAddress" | tr -d '"')
 
-# get the database host address and remove the quotes that azure adds
+echo "Getting the postgres host name"
 postgres_host=$(az postgres server show -g ${resource_group} -n ${database_name} --query "fullyQualifiedDomainName" | tr -d '"')
 
-# add the key pair to the instance
-az vm user update -u adminuser -g ${resource_group} -n ${resource_group}-bstn-vm001 --ssh-key-value "$(< ~/.ssh/bastion3.pub)"
+echo "Adding the public key to the bastion vm"
+az vm user update -u adminuser -g ${resource_group} -n ${resource_group}-bstn-vm --ssh-key-value "$(< ~/.ssh/${key_name}.pub)"
 
-# connect to the instance
-echo "Running in postgres, type command here and ctrl-d to exit"
-ssh -i $HOME/.ssh/bastion adminuser@${vm_ip_address} \
+echo "SSHing into machine and opening postgres, type command here and ctrl-d to exit"
+ssh -i $HOME/.ssh/${key_name} adminuser@${vm_ip_address} \
     "yes | sudo apt-get update > /dev/null; \
     yes | sudo apt-get install postgresql-client > /dev/null; \
-    PGPASSWORD='${DB_PASSWORD}' psql -h ${postgres_host} -d postgres -U psqladmin@${postgres_host}"
+    PGPASSWORD='${db_password}' psql -h ${postgres_host} -d postgres -U psqladmin@${postgres_host}"
