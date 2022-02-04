@@ -11,4 +11,5 @@ docker run -it --rm \
   civiform/civiform-dev:latest \
   tailwindcss build \
   -i ./app/assets/stylesheets/styles.css \
-  -o ./public/stylesheets/tailwind.css
+  -o ./public/stylesheets/tailwind.css \
+  --minify
