@@ -25,8 +25,8 @@ resource "google_kms_crypto_key_iam_binding" "kms_binding" {
 }
 
 
-resource "google_storage_bucket" "file_storage" {
-  name          = "cloud-filestore-${var.application_name_postfix}"
+resource "google_storage_bucket" "object_storage" {
+  name          = "cloud-objectstore-${var.application_name_postfix}"
   location      = var.region
   force_destroy = true
 
@@ -56,7 +56,7 @@ data "google_iam_policy" "storage_viewer" {
 }
 
 resource "google_storage_bucket_iam_policy" "viewer_policy" {
-  bucket = google_storage_bucket.file_storage.name
+  bucket = google_storage_bucket.object_storage.name
   policy_data = data.google_iam_policy.storage_viewer.policy_data
 }
 
