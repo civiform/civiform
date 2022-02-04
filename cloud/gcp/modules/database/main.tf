@@ -27,7 +27,7 @@ resource "google_secret_manager_secret_iam_binding" "binding" {
 }
 
 resource "google_sql_database_instance" "civiform_db" {
-  name             = "civiform-db-instance"
+  name             = "civiform-db-instance-3"
   database_version = "POSTGRES_12"
   region           = var.region
 
@@ -39,8 +39,9 @@ resource "google_sql_database_instance" "civiform_db" {
   }
 }
 
+// Service accounts should be created with ".gserviceaccount.com" suffix.
 resource "google_sql_user" "civiform-user" {
-  name     = var.application_service_account_email
+  name     = replace(var.application_service_account_email,".gserviceaccount.com","")
   instance = google_sql_database_instance.civiform_db.name
   password = google_secret_manager_secret_version.database_password_version.secret_data
   type     = "CLOUD_IAM_SERVICE_ACCOUNT"

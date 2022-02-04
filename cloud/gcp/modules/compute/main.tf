@@ -5,15 +5,19 @@ resource "google_cloud_run_service" "civiform_application_run_service" {
   template {
     spec {
       containers {
-        image = "public.ecr.aws/t1q6b4h2/universal-application-tool:latest"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
         resources {
             requests = {
-                "cpu"    = "1024m"
-                "memory" = "8192Mi"
+                "cpu"    = "1"
+                "memory" = "512Mi"
+            }
+            limits = {
+                cpu      = "4"
+                "memory" = "7182Mi"
             }
         }
         ports {
-          name = "http"
+          name = "http1"
           container_port = var.http_port
         }
         env {
@@ -45,7 +49,6 @@ resource "google_cloud_run_service" "civiform_application_run_service" {
       }
         service_account_name = var.application_service_account_email
     }
-
     metadata {
       annotations = {
         "autoscaling.knative.dev/maxScale"      = "5"
@@ -54,11 +57,9 @@ resource "google_cloud_run_service" "civiform_application_run_service" {
       }
     }
   }
-  
-
   metadata { 
     annotations = { 
-      "run.googleapis.com /ingress"       = "internal-and-cloud-load-balancing"
+      "run.googleapis.com/ingress"       = "internal-and-cloud-load-balancing"
     } 
   }
   autogenerate_revision_name = true
