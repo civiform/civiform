@@ -10,8 +10,7 @@ object TailwindBuilder {
 
       override def beforeStarted() = {
         process = Option(
-          //Process("npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css --minify", base).run()
-          Process("npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css --minify", base, "NODE_ENV" -> "production").run()
+          Process("npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css", base).run()
         )
       }
 
