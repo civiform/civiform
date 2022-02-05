@@ -16,7 +16,7 @@ vm_ip_address=$(az network public-ip show -g ${resource_group} -n ${resource_gro
 echo "Getting the postgres host name"
 postgres_host=$(az postgres server show -g ${resource_group} -n ${database_name} --query "fullyQualifiedDomainName" | tr -d '"')
 
-echo "Adding the public key to the bastion vm"
+# echo "Adding the public key to the bastion vm"
 az vm user update -u adminuser -g ${resource_group} -n ${resource_group}-bstn-vm --ssh-key-value "$(< ~/.ssh/${key_name}.pub)"
 
 echo "SSHing into machine and opening postgres, type command here and ctrl-d to exit"
