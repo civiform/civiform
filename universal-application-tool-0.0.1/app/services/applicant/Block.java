@@ -205,8 +205,9 @@ public final class Block {
   }
 
   private boolean isCompleteInProgram() {
-    return getQuestions().size() == 0 || getQuestions().stream()
-        .allMatch(question -> question.isAnsweredOrSkippedOptionalInProgram());
+    return getQuestions().size() == 0
+        || getQuestions().stream()
+            .allMatch(question -> question.isAnsweredOrSkippedOptionalInProgram());
   }
 
   /**
