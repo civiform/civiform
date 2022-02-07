@@ -4,4 +4,7 @@ locals {
   # and record set configured.
   postgres_private_link = azurerm_private_endpoint.endpoint.private_dns_zone_configs[0].record_sets[0].fqdn
   generated_hostname    = "${var.application_name}-${random_pet.server.id}.azurewebsites.net"
+
+  postgres_password_secret_name = "postgres-password"
+  app_key_secret_name = "app-secret-key"
 }

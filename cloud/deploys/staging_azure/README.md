@@ -89,3 +89,8 @@ storage account within that resource group. For example in the below azure
 portal the resource group name is 'tfstate' and the storage_account_name is 
 'tfstate7307'.
 ![Image of Azure portal showing where to find the storage_account_name](img/how_to_find_backend_vars.png?raw=true)
+
+# Manually Configure Key Vault before running Terraform
+Before applying the Terraform configuration, you'll need to make sure that Azure Key Vault is
+properly configured to store the `postgres-password` and `app-secret-key` secrets. Then, in order
+to use the Key Vault as a data source in Terraform, set the `key_vault_name` variable in your `auto.tfvars` file to the name of the key vault.
