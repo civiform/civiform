@@ -106,6 +106,10 @@ public final class Block {
     return blockDefinition.isFileUpload();
   }
 
+  public boolean hasQuestions() {
+    return getQuestions().size() > 0;
+  }
+
   public ImmutableList<ApplicantQuestion> getQuestions() {
     if (questionsMemo.isEmpty()) {
       this.questionsMemo =

@@ -40,6 +40,9 @@ public interface ReadOnlyApplicantProgramService {
    */
   int getActiveAndCompletedInProgramBlockCount();
 
+  /** The count of blocks that are active and have at least one question. */
+  int getCompletableProgramsBlockCount();
+
   /** Get the block with the given block ID */
   Optional<Block> getBlock(String blockId);
 

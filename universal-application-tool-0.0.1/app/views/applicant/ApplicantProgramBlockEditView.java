@@ -120,6 +120,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       return fileUploadStrategy.renderFileUploadBlockSubmitForms(
           params, applicantQuestionRendererFactory);
     }
+
     String formAction =
         routes.ApplicantProgramBlocksController.update(
                 params.applicantId(), params.programId(), params.block().getId(), params.inReview())

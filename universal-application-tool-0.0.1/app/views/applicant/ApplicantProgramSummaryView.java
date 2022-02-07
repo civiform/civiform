@@ -45,7 +45,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   }
 
   /**
-   * Renders a summary of all of the applicant's data for a specific application. Data includes:
+   * Renders a summary of all the applicant's data for a specific application. Data includes:
    *
    * <p>Program Id, Applicant Id - Needed for link context (submit & edit)
    *
