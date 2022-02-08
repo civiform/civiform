@@ -21,12 +21,10 @@ import services.cloud.StorageUploadRequest;
 import services.cloud.azure.BlobStorageUploadRequest;
 import views.HtmlBundle;
 import views.ViewUtils;
+import views.WebJarJsPaths;
 
 /** Strategy class for creating a file upload form for Azure. */
 public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy {
-
-  private static final String AZURE_STORAGE_BLOB_WEB_JAR =
-      "lib/azure__storage-blob/browser/azure-storage-blob.min.js";
 
   private final StorageClient client;
 
@@ -46,7 +44,7 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
     }
     BlobStorageUploadRequest request = (BlobStorageUploadRequest) storageUploadRequest;
     bundle.addFooterScripts(
-        viewUtils.makeWebJarsTag(/* assetsRoute= */ AZURE_STORAGE_BLOB_WEB_JAR));
+        viewUtils.makeWebJarsTag(/* assetsRoute= */ WebJarJsPaths.AZURE_STORAGE_BLOB.getString()));
     bundle.addFooterScripts(viewUtils.makeLocalJsTag(/* filename= */ "azure_upload"));
 
     ContainerTag formTag = form().withId("azure-upload-form-component");

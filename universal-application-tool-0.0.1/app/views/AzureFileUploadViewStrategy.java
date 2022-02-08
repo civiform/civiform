@@ -27,9 +27,6 @@ import views.style.Styles;
 
 public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
 
-  private static final String AZURE_STORAGE_BLOB_WEB_JAR =
-      "lib/azure__storage-blob/browser/azure-storage-blob.min.js";
-
   private final ViewUtils viewUtils;
 
   @Inject
@@ -41,11 +38,8 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   public ContainerTag signedFileUploadFields(
       ApplicantQuestionRendererParams params, FileUploadQuestion fileUploadQuestion) {
     StorageUploadRequest storageUploadRequest = params.signedFileUploadRequest().get();
-    if (!(storageUploadRequest instanceof BlobStorageUploadRequest)) {
-      throw new RuntimeException(
-          "Trying to upload file to Azure blob storage using incorrect upload request type.");
-    }
-    BlobStorageUploadRequest request = (BlobStorageUploadRequest) storageUploadRequest;
+
+    BlobStorageUploadRequest request = castStorageRequest(storageUploadRequest);
 
     Optional<String> uploaded =
         fileUploadQuestion.getFilename().map(f -> String.format("File uploaded: %s", f));
@@ -85,11 +79,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     StorageUploadRequest request =
         params.storageClient().getSignedUploadRequest(key, onSuccessRedirectUrl);
 
-    if (!(request instanceof BlobStorageUploadRequest)) {
-      throw new RuntimeException(
-          "Tried to upload a file to Azure Blob storage using incorrect request type");
-    }
-    BlobStorageUploadRequest blobStorageUploadRequest = (BlobStorageUploadRequest) request;
+    BlobStorageUploadRequest blobStorageUploadRequest = castStorageRequest(request);
 
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()
@@ -112,11 +102,19 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     return div(formTag, buttons)
         .withId("azure-upload-form-component")
         .with(
-            footer(viewUtils.makeWebJarsTag(AZURE_STORAGE_BLOB_WEB_JAR)),
+            footer(viewUtils.makeWebJarsTag(WebJarJsPaths.AZURE_STORAGE_BLOB.getString())),
             footer(viewUtils.makeLocalJsTag("azure_upload")));
   }
 
-  Tag renderFileUploadBottomNavButtons(Params params) {
+  private BlobStorageUploadRequest castStorageRequest(StorageUploadRequest request) {
+    if (!(request instanceof BlobStorageUploadRequest)) {
+      throw new RuntimeException(
+          "Tried to upload a file to Azure Blob storage using incorrect request type");
+    }
+    return (BlobStorageUploadRequest) request;
+  }
+
+  private Tag renderFileUploadBottomNavButtons(Params params) {
     ContainerTag ret =
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
@@ -129,8 +127,11 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     return ret;
   }
 
-  protected ContainerTag renderAzureUploadButton(Params params) {
+  private ContainerTag renderAzureUploadButton(Params params) {
     String styles = ApplicantStyles.BUTTON_BLOCK_NEXT;
+    if (hasUploadedFile(params)) {
+      styles = ApplicantStyles.BUTTON_REVIEW;
+    }
     return button()
         .withType("submit")
         .withText(params.messages().at(MessageKey.BUTTON_UPLOAD.getKeyName()))

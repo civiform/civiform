@@ -175,17 +175,6 @@ public abstract class FileUploadViewStrategy {
         .withClasses(ApplicantStyles.BUTTON_REVIEW);
   }
 
-  protected Tag renderUploadButton(Params params) {
-    String styles = ApplicantStyles.BUTTON_BLOCK_NEXT;
-    if (hasUploadedFile(params)) {
-      styles = ApplicantStyles.BUTTON_REVIEW;
-    }
-    return submitButton(params.messages().at(MessageKey.BUTTON_UPLOAD.getKeyName()))
-        .attr(FORM, BLOCK_FORM_ID)
-        .withClasses(styles)
-        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
-  }
-
   protected boolean hasUploadedFile(Params params) {
     return params.block().getQuestions().stream()
         .map(ApplicantQuestion::createFileUploadQuestion)
