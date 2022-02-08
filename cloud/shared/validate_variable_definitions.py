@@ -1,7 +1,18 @@
 import os
-import glob
 import json
 
+# Loads all configuration variable definition files and validates each
+# definition for correctness. Exercised by the accompanying test file
+# which is run for every pull request.
+#
+# Requires that:
+#     - Each variable definition file is referenced in
+#       def load_repo_variable_definitions_files():
+#
+#     - All variables have, at minimum, 'type', 'required', and 'secret' fields
+#
+#     - Variable definitions may include additional configuration based on their
+#       type.
 class ValidateVariableDefinitions():
     def __init__(self, variable_definitions = {}):
         self.variable_definitions = variable_definitions
@@ -10,7 +21,11 @@ class ValidateVariableDefinitions():
         self.variable_definitions = {}
         cwd = os.getcwd()
 
-        definition_file_paths = glob.glob(cwd + '/cloud/**/variable_definitions.json', recursive=True)
+        # As more variable definition files are added for each cloud provider,
+        # add their paths here.
+        definition_file_paths = [
+            cwd + '/cloud/shared/variable_definitions.json'
+        ]
 
         for path in definition_file_paths:
             with open(path, 'r') as file:
