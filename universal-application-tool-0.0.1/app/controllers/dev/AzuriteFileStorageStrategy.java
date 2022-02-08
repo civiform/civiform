@@ -9,7 +9,9 @@ import play.mvc.Result;
 import repository.StoredFileRepository;
 import services.cloud.FileNameFormatter;
 
-/** Implements file uploading to Azurite, the Azure emulator. */
+/**
+ * Implements file uploading to Azurite, the Azure emulator.
+ */
 public class AzuriteFileStorageStrategy implements CloudEmulatorFileStorageStrategy {
 
   @Override
@@ -18,6 +20,11 @@ public class AzuriteFileStorageStrategy implements CloudEmulatorFileStorageStrat
     Optional<String> container = request.queryString("bucket");
     Optional<String> fileName = request.queryString("key");
     Optional<String> originalFileName = request.queryString("originalFileName");
+
+    if (!container.isPresent() || !fileName.isPresent()) {
+      throw new RuntimeException("File missing container or file name, cannot upload");
+    }
+
     updateFileRecord(storedFileRepository, fileName.get(), originalFileName.get());
     String successMessage =
         String.format(
