@@ -155,6 +155,17 @@ public abstract class FileUploadViewStrategy {
     return div(continueForm, deleteForm).withClasses(Styles.HIDDEN);
   }
 
+  protected Tag renderUploadButton(Params params) {
+    String styles = ApplicantStyles.BUTTON_BLOCK_NEXT;
+    if (hasUploadedFile(params)) {
+      styles = ApplicantStyles.BUTTON_REVIEW;
+    }
+    return submitButton(params.messages().at(MessageKey.BUTTON_UPLOAD.getKeyName()))
+        .attr(FORM, BLOCK_FORM_ID)
+        .withClasses(styles)
+        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
+  }
+
   protected Tag renderFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, false);

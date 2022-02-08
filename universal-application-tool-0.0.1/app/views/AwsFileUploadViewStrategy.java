@@ -5,8 +5,6 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 import static j2html.attributes.Attr.ENCTYPE;
-import static j2html.attributes.Attr.FORM;
-import static views.BaseHtmlView.submitButton;
 
 import controllers.applicant.routes;
 import j2html.attributes.Attr;
@@ -14,7 +12,6 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import play.mvc.Http.HttpVerbs;
-import services.MessageKey;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.FileNameFormatter;
 import services.cloud.StorageUploadRequest;
@@ -131,16 +128,5 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
       ret.with(maybeContinueButton.get());
     }
     return ret;
-  }
-
-  private Tag renderUploadButton(Params params) {
-    String styles = ApplicantStyles.BUTTON_BLOCK_NEXT;
-    if (hasUploadedFile(params)) {
-      styles = ApplicantStyles.BUTTON_REVIEW;
-    }
-    return submitButton(params.messages().at(MessageKey.BUTTON_UPLOAD.getKeyName()))
-        .attr(FORM, BLOCK_FORM_ID)
-        .withClasses(styles)
-        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
   }
 }

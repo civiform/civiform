@@ -1,20 +1,17 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
-import static j2html.attributes.Attr.FORM;
 
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import javax.inject.Inject;
-import services.MessageKey;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.FileNameFormatter;
 import services.cloud.StorageUploadRequest;
@@ -122,21 +119,8 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
             .with(div().withClasses(Styles.FLEX_GROW))
             .with(renderReviewButton(params));
 
-    ret.with(renderAzureUploadButton(params));
+    ret.with(renderUploadButton(params));
 
     return ret;
-  }
-
-  private ContainerTag renderAzureUploadButton(Params params) {
-    String styles = ApplicantStyles.BUTTON_BLOCK_NEXT;
-    if (hasUploadedFile(params)) {
-      styles = ApplicantStyles.BUTTON_REVIEW;
-    }
-    return button()
-        .withType("submit")
-        .withText(params.messages().at(MessageKey.BUTTON_UPLOAD.getKeyName()))
-        .attr(FORM, BLOCK_FORM_ID)
-        .withClasses(styles)
-        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
   }
 }
