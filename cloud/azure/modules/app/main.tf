@@ -61,12 +61,12 @@ data "azurerm_key_vault" "civiform_key_vault" {
 }
 
 data "azurerm_key_vault_secret" "postgres_password" {
-  name         = local.postgres_password_secret_name
+  name         = local.postgres_password_keyvault_id
   key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
 }
 
 data "azurerm_key_vault_secret" "app_secret_key" {
-  name         = local.app_key_secret_name
+  name         = local.app_secret_key_keyvault_id
   key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
 }
 
