@@ -15,8 +15,8 @@ public class AzuriteFileStorageStrategy implements CloudEmulatorFileStorageStrat
   @Override
   public Result create(StoredFileRepository storedFileRepository, Request request) {
     Optional<String> etag = request.queryString("etag");
-    Optional<String> container = request.queryString("container");
-    Optional<String> fileName = request.queryString("fileName");
+    Optional<String> container = request.queryString("bucket");
+    Optional<String> fileName = request.queryString("key");
     Optional<String> originalFileName = request.queryString("originalFileName");
     updateFileRecord(storedFileRepository, fileName.get(), originalFileName.get());
     String successMessage =
