@@ -9,9 +9,7 @@ import play.mvc.Result;
 import repository.StoredFileRepository;
 import services.cloud.FileNameFormatter;
 
-/**
- * Implements file uploading to Azurite, the Azure emulator.
- */
+/** Implements file uploading to Azurite, the Azure emulator. */
 public class AzuriteFileStorageStrategy implements CloudEmulatorFileStorageStrategy {
 
   @Override
