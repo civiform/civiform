@@ -1,4 +1,4 @@
-# example: ./ssh-connection -g sgdev -d civiform-artistic-halibut -k bastion
+# example: ../roc/bin/ssh-connection -g sgdev -d civiform-artistic-halibut -k bastion
 while getopts g:d:k:p flag
 do
     case "${flag}" in

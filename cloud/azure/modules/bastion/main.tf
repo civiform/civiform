@@ -24,7 +24,7 @@ resource "azurerm_network_security_group" "public_nsg" {
     source_port_range          = "*"
     destination_port_range     = "22"
     source_address_prefix      = "*"
-    destination_address_prefix = "*"
+    destination_address_prefix = "VirtualNetwork"
   }
 }
 
@@ -33,7 +33,6 @@ resource "azurerm_subnet_network_security_group_association" "bastion_subnet_ass
   subnet_id                 = azurerm_subnet.bastion_subnet.id
   network_security_group_id = azurerm_network_security_group.public_nsg.id
 }
-
 
 # Create a public IP address for bastion host VM in public subnet.
 resource "azurerm_public_ip" "public_ip" {
