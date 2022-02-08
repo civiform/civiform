@@ -44,7 +44,7 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
     }
     BlobStorageUploadRequest request = (BlobStorageUploadRequest) storageUploadRequest;
     bundle.addFooterScripts(
-        viewUtils.makeWebJarsTag(/* assetsRoute= */ WebJarJsPaths.AZURE_STORAGE_BLOB.getString()));
+        viewUtils.makeWebJarsTag(/* assetsRoute= */ WebJarJsPaths.AZURE_STORAGE_BLOB));
     bundle.addFooterScripts(viewUtils.makeLocalJsTag(/* filename= */ "azure_upload"));
 
     ContainerTag formTag = form().withId("azure-upload-form-component");

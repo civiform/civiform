@@ -43,7 +43,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
 
     ContainerTag formTag = form();
     return formTag
-        .with(div().withText(uploaded.orElse("There is no file uploaded")))
+        .with(div().withText(uploaded.orElse("")))
         .with(input().withType("file").withName("file"))
         .with(input().withType("hidden").withName("sasToken").withValue(request.sasToken()))
         .with(input().withType("hidden").withName("blobUrl").withValue(request.blobUrl()))
@@ -99,7 +99,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     return div(formTag, buttons)
         .withId("azure-upload-form-component")
         .with(
-            footer(viewUtils.makeWebJarsTag(WebJarJsPaths.AZURE_STORAGE_BLOB.getString())),
+            footer(viewUtils.makeWebJarsTag(WebJarJsPaths.AZURE_STORAGE_BLOB)),
             footer(viewUtils.makeLocalJsTag("azure_upload")));
   }
 

@@ -75,7 +75,7 @@ public abstract class FileUploadViewStrategy {
    *
    * <p>See {@link renderDeleteAndContinueFileUploadForms}.
    */
-  Optional<Tag> maybeRenderContinueButton(Params params) {
+  protected Optional<Tag> maybeRenderContinueButton(Params params) {
     if (!hasUploadedFile(params)) {
       return Optional.empty();
     }
@@ -124,7 +124,7 @@ public abstract class FileUploadViewStrategy {
    * applicant re-submits a form without changing their answer. Continue form is only used when an
    * existing file (and file key) is present.
    */
-  Tag renderDeleteAndContinueFileUploadForms(Params params) {
+  protected Tag renderDeleteAndContinueFileUploadForms(Params params) {
     String formAction =
         routes.ApplicantProgramBlocksController.update(
                 params.applicantId(), params.programId(), params.block().getId(), params.inReview())
@@ -197,11 +197,11 @@ public abstract class FileUploadViewStrategy {
     return params.block().getQuestions().stream().anyMatch(question -> !question.isOptional());
   }
 
-  String acceptFileTypes() {
+  protected String acceptFileTypes() {
     return MIME_TYPES_IMAGES_AND_PDF;
   }
 
-  ContainerTag errorDiv(Messages messages, FileUploadQuestion fileUploadQuestion) {
+  protected ContainerTag errorDiv(Messages messages, FileUploadQuestion fileUploadQuestion) {
     return div(fileUploadQuestion.fileRequiredMessage().getMessage(messages))
         .withClasses(
             ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, Styles.HIDDEN);
