@@ -15,8 +15,8 @@ echo "Getting the postgres host name"
 postgres_host=$(az postgres server show -g ${resource_group} -n ${database_name} --query "fullyQualifiedDomainName" | tr -d '"')
 
 echo "ssh command: ssh -i $HOME/.ssh/${key_name} adminuser@${vm_ip_address}"
-echo "pghost: ${postgres_host}"
-
-# note: to get data out via a pg dump, need to 
-# update the postgres version (instructions at the stack overflow below)
-# https://stackoverflow.com/questions/52765873/how-to-upgrade-to-postgresql-11-for-ubuntu-18-04
+echo "psql command: \
+    export DEBIAN_FRONTEND='noninteractive'; \
+    yes | sudo apt-get update > /dev/null; \
+    yes | sudo apt-get install postgresql-client > /dev/null; \
+    psql -h ${postgres_host} -d postgres -U psqladmin@${postgres_host}"
