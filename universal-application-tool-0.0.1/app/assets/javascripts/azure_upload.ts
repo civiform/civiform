@@ -48,7 +48,6 @@ class AzureUploadController {
         if (err) {
           throw err
         }
-        console.log(resp)
         this.setFileUploadMetadata(redirectUrl, azureUploadProps, resp)
         window.location.replace(redirectUrl.toString())
       })
