@@ -1,17 +1,20 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
+import static j2html.attributes.Attr.FORM;
 
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import javax.inject.Inject;
+import services.MessageKey;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.FileNameFormatter;
 import services.cloud.StorageUploadRequest;
@@ -104,13 +107,35 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
                         renderQuestion(
                             question, rendererParams, applicantQuestionRendererFactory)));
 
-    Tag skipForms = renderDeleteAndContinueFileUploadForms(params);
     Tag buttons = renderFileUploadBottomNavButtons(params);
 
-    return div(formTag, skipForms, buttons)
+    return div(formTag, buttons)
         .withId("azure-upload-form-component")
         .with(
             footer(viewUtils.makeWebJarsTag(AZURE_STORAGE_BLOB_WEB_JAR)),
             footer(viewUtils.makeLocalJsTag("azure_upload")));
+  }
+
+  Tag renderFileUploadBottomNavButtons(Params params) {
+    ContainerTag ret =
+        div()
+            .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
+            // An empty div to take up the space to the left of the buttons.
+            .with(div().withClasses(Styles.FLEX_GROW))
+            .with(renderReviewButton(params));
+
+    ret.with(renderAzureUploadButton(params));
+
+    return ret;
+  }
+
+  protected ContainerTag renderAzureUploadButton(Params params) {
+    String styles = ApplicantStyles.BUTTON_BLOCK_NEXT;
+    return button()
+        .withType("submit")
+        .withText(params.messages().at(MessageKey.BUTTON_UPLOAD.getKeyName()))
+        .attr(FORM, BLOCK_FORM_ID)
+        .withClasses(styles)
+        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
   }
 }

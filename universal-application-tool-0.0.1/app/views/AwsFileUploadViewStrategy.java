@@ -19,6 +19,8 @@ import services.cloud.aws.SignedS3UploadRequest;
 import views.applicant.ApplicantProgramBlockEditView.Params;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
+import views.style.ApplicantStyles;
+import views.style.Styles;
 
 public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
@@ -103,5 +105,24 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     Tag skipForms = renderDeleteAndContinueFileUploadForms(params);
     Tag buttons = renderFileUploadBottomNavButtons(params);
     return div(uploadForm, skipForms, buttons);
+  }
+
+  Tag renderFileUploadBottomNavButtons(Params params) {
+    Optional<Tag> maybeContinueButton = maybeRenderContinueButton(params);
+    Optional<Tag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
+    ContainerTag ret =
+        div()
+            .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
+            // An empty div to take up the space to the left of the buttons.
+            .with(div().withClasses(Styles.FLEX_GROW))
+            .with(renderReviewButton(params));
+    if (maybeSkipOrDeleteButton.isPresent()) {
+      ret.with(maybeSkipOrDeleteButton.get());
+    }
+    ret.with(renderUploadButton(params));
+    if (maybeContinueButton.isPresent()) {
+      ret.with(maybeContinueButton.get());
+    }
+    return ret;
   }
 }

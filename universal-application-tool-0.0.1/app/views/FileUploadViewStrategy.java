@@ -70,25 +70,6 @@ public abstract class FileUploadViewStrategy {
     return applicantQuestionRendererFactory.getRenderer(question).render(params);
   }
 
-  Tag renderFileUploadBottomNavButtons(Params params) {
-    Optional<Tag> maybeContinueButton = maybeRenderContinueButton(params);
-    Optional<Tag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
-    ContainerTag ret =
-        div()
-            .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-            // An empty div to take up the space to the left of the buttons.
-            .with(div().withClasses(Styles.FLEX_GROW))
-            .with(renderReviewButton(params));
-    if (maybeSkipOrDeleteButton.isPresent()) {
-      ret.with(maybeSkipOrDeleteButton.get());
-    }
-    ret.with(renderUploadButton(params));
-    if (maybeContinueButton.isPresent()) {
-      ret.with(maybeContinueButton.get());
-    }
-    return ret;
-  }
-
   /**
    * Renders a form submit button for continue form if an uploaded file is present.
    *
@@ -113,7 +94,7 @@ public abstract class FileUploadViewStrategy {
    *
    * <p>See {@link renderDeleteAndContinueFileUploadForms}.
    */
-  private Optional<Tag> maybeRenderSkipOrDeleteButton(Params params) {
+  Optional<Tag> maybeRenderSkipOrDeleteButton(Params params) {
     if (hasAtLeastOneRequiredQuestion(params)) {
       // If the file question is required, skip or delete is not allowed.
       return Optional.empty();

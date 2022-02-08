@@ -49,9 +49,7 @@ class AzureUploadController {
           throw err
         }
         this.setFileUploadMetadata(redirectUrl, azureUploadProps, resp)
-        window.addEventListener('load', () =>
-          window.location.replace(redirectUrl.toString())
-        )
+        window.location.replace(redirectUrl.toString())
       })
   }
 
@@ -77,8 +75,10 @@ class AzureUploadController {
   ) {
     redirectUrl.searchParams.set('originalFileName', azureUploadProps.file.name)
     redirectUrl.searchParams.set('etag', resp.eTag)
-    redirectUrl.searchParams.set('fileName', azureUploadProps.fileName)
-    redirectUrl.searchParams.set('container', azureUploadProps.containerName)
+    // Key and Bucket are AWS terms, but are used throughout the rest of the
+    // codebase. Key corresponds to file name and bucket to container name.
+    redirectUrl.searchParams.set('key', azureUploadProps.fileName)
+    redirectUrl.searchParams.set('bucket', azureUploadProps.containerName)
   }
 }
 
