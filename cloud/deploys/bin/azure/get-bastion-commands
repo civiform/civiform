@@ -1,0 +1,37 @@
+#! /usr/bin/env bash
+
+# DOC: Print out command to ssh onto bastion machine
+# example: ../roc/bin/ssh-connection -g sgdev -d civiform-artistic-halibut
+key_name="bastion"
+while getopts g:d:k:p flag
+do
+    case "${flag}" in
+        g) resource_group=${OPTARG};;
+        d) database_name=${OPTARG};;
+        k) key_name=${OPTARG};;
+    esac
+done
+
+if [[ ! -z "${resource_group}" ]] || [[ ! -z "${database_name}" ]]; then
+  echo "arguments -g and -d must be provided"
+  exit 1
+fi
+
+echo "Getting the bastion vm's ip address"
+vm_ip_address=$(az network public-ip show \
+    -g "${resource_group}" \
+    -n "${resource_group}-ip" \
+    --query "ipAddress" | tr -d '"')
+
+echo "Getting the postgres host name"
+postgres_host=$(az postgres server show \
+    -g "${resource_group}" \
+    -n "${database_name}" \
+    --query "fullyQualifiedDomainName" | tr -d '"')
+
+echo "ssh command: ssh -i $HOME/.ssh/${key_name} adminuser@${vm_ip_address}"
+echo "psql command: \
+    export DEBIAN_FRONTEND='noninteractive'; \
+    yes | sudo apt-get update > /dev/null; \
+    yes | sudo apt-get install postgresql-client > /dev/null; \
+    psql -h ${postgres_host} -d postgres -U psqladmin@${postgres_host}"
