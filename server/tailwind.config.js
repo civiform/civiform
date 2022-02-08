@@ -7,7 +7,7 @@ class StylesJavaReader {
   }
 
   getMatches(matches) {
-    for (const match in this.file_contents.matchAll(this.regexp)) {
+    for (const match in this.file_contents.match(this.regexp)) {
       matches[match[0]] = match[1];
     }
   }
@@ -40,15 +40,6 @@ function getStyles() {
     let stylesReader = new StylesJavaReader(data);
     
     stylesReader.getMatches(matches);
-
-    const assetsFolder = './app/assets/javascripts/';
-    let files = fs.readdirSync(assetsFolder);
-
-    for (const f of files) {
-      let data = fs.readFileSync(assetsFolder + f, 'utf8');
-      let tsReader = new StylesTsReader(data);
-      tsReader.getMatches(matches);
-    }
   }
 
   catch (error) {
@@ -58,11 +49,12 @@ function getStyles() {
   return matches;
 }
 
+var PROCESSED_TS = false;
+
 module.exports = {
   purge: {
     enabled: true,
     content: [
-      './app/assets/javascripts/*.ts',
       './app/views/**/*.java',
     ],
     extract: {
@@ -87,16 +79,58 @@ module.exports = {
         };
 
         const styleDict = getStyles();
-        for (const matches of content.matchAll(/Styles\.([A-Z_]+)/g)) {
-          for (const m of matches) {
-            let s = styleDict[m];
-            output.push(s)
-            // We don't know which, if any, of these prefixes are in use for any class in particular.
-            // We therefore have to use every combination of them.
-            for (const [key, value] of Object.entries(prefixes)) {
-              output.push(key + ':' + s)
+        var output = []
+        let matchIter = content.match(/(?<=Styles\.)([0-9A-Z_]+)/g);
+        console.log(matchIter);
+        if (matchIter) {
+          for (const matches of matchIter) {
+            //console.log(matches)
+            for (const m of matches) {
+              let s = styleDict[m];
+              //console.log(m);
+              output.push(s)
+              // We don't know which, if any, of these prefixes are in use for any class in particular.
+              // We therefore have to use every combination of them.
+              for (const [key, value] of Object.entries(prefixes)) {
+                output.push(key + ':' + s)
+              }
             }
           }
+        }
+
+        /*for (const match of content.matchAll(/"([\w-/:]+)"/g)) {
+          output.push(match[1])
+          // We don't know which, if any, of these prefixes are in use for any class in particular.
+          // We therefore have to use every combination of them.
+          for (const prefix of [
+            'even',
+            'focus',
+            'focus-within',
+            'hover',
+            'disabled',
+            'sm',
+            'md',
+            'lg',
+            'xl',
+            '2xl',
+          ]) {
+            output.push(prefix + ':' + match[1])
+          }
+        }*/
+
+        const assetsFolder = './app/assets/javascripts/';
+        let files = fs.readdirSync(assetsFolder);
+
+        if (PROCESSED_TS === false) {
+          for (const f of files) {
+            let data = fs.readFileSync(assetsFolder + f, 'utf8');
+            let matches = data.matchAll(/"([\w-/:]+)"/g);
+            for (m of matches) {
+              output.push(m);
+            }
+          }
+
+          PROCESSED_TS = true;
         }
         return output
       },
