@@ -33,7 +33,7 @@ readonly POSTGRES_HOST=$(bastion::get_postgres_host \
 echo "postgreshost: ${POSTGRES_HOST}"
 
 echo "Adding the public key to the bastion vm"
-eval $(bastion::update_bastion_ssh_keys "${resource_group}" "${KEY_FILE}")
+bastion::update_bastion_ssh_keys "${resource_group}" "${KEY_FILE}"
 
 readonly PSQL_CONNECT=$(bastion::get_connect_to_postgres_command \
   "${POSTGRES_HOST}")
@@ -44,4 +44,4 @@ eval $(bastion::get_ssh_command \
   "${VM_IP_ADDRESS}" "${KEY_FILE}" "${PSQL_CONNECT}")
 
 echo "Removing the ssh keys from your machine"
-eval $(bastion::remove_ssh_key "${KEY_FILE}")
+bastion::remove_ssh_key "${KEY_FILE}"

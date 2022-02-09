@@ -6,10 +6,10 @@
 #   1: the resource group name
 #######################################
 function bastion::get_vm_ip() {
-  echo $(az network public-ip show \
+  az network public-ip show \
     -g "${1}" \
     -n "${1}-ip" \
-    --query "ipAddress" | tr -d '"')
+    --query "ipAddress" | tr -d '"'
 }
 
 #######################################
@@ -19,10 +19,11 @@ function bastion::get_vm_ip() {
 #   2: the name of the database
 #######################################
 function bastion::get_postgres_host() {
-  echo $(az postgres server show \
+  az postgres server show \
     -g "${1}" \
     -n "${2}" \
-    --query "fullyQualifiedDomainName" | tr -d '"')
+    --query "fullyQualifiedDomainName" \
+    | tr -d '"'
 }
 
 #######################################
@@ -31,7 +32,8 @@ function bastion::get_postgres_host() {
 #   1: the key name to remove
 #######################################
 function bastion::remove_ssh_key() {
-  echo "rm {1}; rm ${1}.pub"
+  rm "${1}"
+  rm "${1}".pub
 }
 
 #######################################
@@ -52,11 +54,11 @@ function bastion::get_ssh_command() {
 #   2: the key name to use to connect to
 #######################################
 function bastion::update_bastion_ssh_keys() {
-  echo "az vm user update \
+  az vm user update \
     -u adminuser \
     -g "${1}" \
     -n "${1}-bstn-vm" \
-    --ssh-key-value \"$(< ${2}.pub)\""
+    --ssh-key-value "$(< ${2}.pub)"
 }
 
 #######################################
