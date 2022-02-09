@@ -3,14 +3,14 @@
  */
 
 class AzureUploadController {
-  static UPLOAD_CONTAINER_ID = "azure-upload-form-component"
+  static UPLOAD_CONTAINER_ID = 'azure-upload-form-component'
 
   constructor() {
     const uploadContainer = document.getElementById(
       AzureUploadController.UPLOAD_CONTAINER_ID
     )
 
-    const uploadButton = document.getElementById("cf-block-submit")
+    const uploadButton = document.getElementById('cf-block-submit')
 
     uploadButton.addEventListener('click', (event) =>
       this.attemptUpload(event, uploadContainer)

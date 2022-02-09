@@ -8,15 +8,12 @@ import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 import static j2html.attributes.Attr.FORM;
-import static views.BaseHtmlView.makeCsrfTokenInputTag;
-import static views.BaseHtmlView.submitButton;
 
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import javax.inject.Inject;
-import play.mvc.Http.HttpVerbs;
 import services.MessageKey;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.FileNameFormatter;
