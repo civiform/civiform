@@ -6,11 +6,10 @@
 #   1: the resource group name
 #######################################
 function bastion::get_vm_ip() {
-  readonly VM_IP_ADDRESS=$(az network public-ip show \
+  echo $(az network public-ip show \
     -g "${1}" \
     -n "${1}-ip" \
     --query "ipAddress" | tr -d '"')
-  echo "${VM_IP_ADDRESS}"
 }
 
 #######################################
