@@ -1,4 +1,5 @@
 #! /usr/bin/env bash
+source lib/out.sh
 source azure/bastion
 
 # DOC: Connect to the database via the bastion
@@ -6,22 +7,22 @@ source azure/bastion
 key_name="bastion"
 while getopts g:d:k flag
 do
-    case "${flag}" in
-        g) resource_group=${OPTARG};;
-        d) database_name=${OPTARG};;
-        k) key_name=${OPTARG};;
-    esac
+  case "${flag}" in
+    g) resource_group=${OPTARG};;
+    d) database_name=${OPTARG};;
+    k) key_name=${OPTARG};;
+  esac
 done
 
 if [[ ! "${resource_group}" ]] || [[ ! "${database_name}" ]]; then
-  echo "arguments -g and -d must be provided" >&2
+  out::error "arguments -g and -d must be provided"
   exit 1
 fi
 
 key_file="$HOME/.ssh/${key_name}"
 if ! [[ -f "${key_file}" ]]; then
-    echo "Creating a new ssh key"
-    ssh-keygen -t rsa -b 4096 -f "${key_file}"
+  echo "Creating a new ssh key"
+  ssh-keygen -t rsa -b 4096 -f "${key_file}"
 fi
 
 readonly VM_IP_ADDRESS=$(bastion::get_vm_ip "${resource_group}")
