@@ -20,9 +20,9 @@ function bastion::get_vm_ip() {
 #######################################
 function bastion::get_postgres_host() {
   readonly POSTGRES_HOST=$(az postgres server show \
-  -g "${1}" \
-  -n "${2}" \
-  --query "fullyQualifiedDomainName" | tr -d '"')
+    -g "${1}" \
+    -n "${2}" \
+    --query "fullyQualifiedDomainName" | tr -d '"')
   echo "${POSTGRES_HOST}"
 }
 
@@ -54,10 +54,10 @@ function bastion::get_ssh_command() {
 #######################################
 function bastion::update_bastion_ssh_keys() {
   echo "az vm user update \
-  -u adminuser \
-  -g "${1}" \
-  -n "${1}-bstn-vm" \
-  --ssh-key-value \"$(< ${2}.pub)\""
+    -u adminuser \
+    -g "${1}" \
+    -n "${1}-bstn-vm" \
+    --ssh-key-value \"$(< ${2}.pub)\""
 }
 
 #######################################
@@ -67,7 +67,7 @@ function bastion::update_bastion_ssh_keys() {
 #######################################
 function bastion::get_connect_to_postgres_command() {
   echo "export DEBIAN_FRONTEND='noninteractive'; \
-  yes | sudo apt-get update > /dev/null; \
-  yes | sudo apt-get install postgresql-client > /dev/null; \
-  psql -h ${1} -d postgres -U psqladmin@${1}"
+    yes | sudo apt-get update > /dev/null; \
+    yes | sudo apt-get install postgresql-client > /dev/null; \
+    psql -h ${1} -d postgres -U psqladmin@${1}"
 }

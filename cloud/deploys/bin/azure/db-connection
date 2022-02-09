@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 source lib/out.sh
-source azure/bastion
+source azure/bastion.sh
 
 # DOC: Connect to the database via the bastion
 # example: azure/db-connection -g sgdev -d civiform-artistic-halibut
