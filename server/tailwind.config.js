@@ -32,9 +32,13 @@ class StylesJavaReader {
 function getStyles() {
   const matches = {};
   try {
-    let data = fs.readFileSync('./app/views/style/Styles.java', 'utf8').split('\n');
-    let stylesReader = new StylesJavaReader(data);
-    stylesReader.getMatches(matches);
+    let specialFiles = ['Styles.java', 'BaseStyles.java', 'ReferenceClasses.java'];
+    let folder = './app/views/style/'
+    for (file of specialFiles) {
+      let data = fs.readFileSync(folder+file, 'utf8').split('\n');
+      let stylesReader = new StylesJavaReader(data);
+      stylesReader.getMatches(matches);
+    }
   }
   catch (error) {
     throw 'error reading Styles.java for tailwindcss processing: ' + error.message;
