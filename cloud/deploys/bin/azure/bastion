@@ -28,6 +28,15 @@ function bastion::get_postgres_host() {
 }
 
 #######################################
+# Remove the ssh key we created after you connect 
+# Arguments:
+#   1: the key name to remove
+#######################################
+function bastion::remove_ssh_key() {
+  echo "rm $HOME/.ssh/${1}; rm $HOME/.ssh/${1}.pub"
+}
+
+#######################################
 # Get the ssh command to connect to the bastion
 # Arguments:
 #   1: the ip of the vm you will connect to

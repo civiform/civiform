@@ -28,15 +28,20 @@ fi
 readonly VM_IP_ADDRESS=$(bastion::get_vm_ip "${resource_group}")
 echo "Bastion vm ip address: ${VM_IP_ADDRESS}"
 
-readonly POSTGRES_HOST=$(bastion::get_postgres_host "${resource_group}" "${database_name}")
+readonly POSTGRES_HOST=$(bastion::get_postgres_host \
+  "${resource_group}" "${database_name}")
 echo "postgreshost: ${POSTGRES_HOST}"
 
-# echo "Adding the public key to the bastion vm"
+echo "Adding the public key to the bastion vm"
 eval $(bastion::update_bastion_ssh_keys "${resource_group}" "${key_name}")
 
-# todo: add a pgpass file here
-readonly PSQL_CONNECT=$(bastion::get_connect_to_postgres_command "${POSTGRES_HOST}")
+readonly PSQL_CONNECT=$(bastion::get_connect_to_postgres_command \
+  "${POSTGRES_HOST}")
 
 echo "SSHing into machine and opening postgres, \
-type command here and ctrl-d to exit"
-eval $(bastion::get_ssh_command "${VM_IP_ADDRESS}" "${key_name}" "${PSQL_CONNECT}")
+type command here and \\q to exit"
+eval $(bastion::get_ssh_command \
+  "${VM_IP_ADDRESS}" "${key_name}" "${PSQL_CONNECT}")
+
+echo "Removing the ssh keys from your machine"
+eval $(bastion::remove_ssh_key "${key_name}")
