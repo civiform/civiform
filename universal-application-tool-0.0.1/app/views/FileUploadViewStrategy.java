@@ -94,7 +94,7 @@ public abstract class FileUploadViewStrategy {
    *
    * <p>See {@link renderDeleteAndContinueFileUploadForms}.
    */
-  Optional<Tag> maybeRenderSkipOrDeleteButton(Params params) {
+  protected Optional<Tag> maybeRenderSkipOrDeleteButton(Params params) {
     if (hasAtLeastOneRequiredQuestion(params)) {
       // If the file question is required, skip or delete is not allowed.
       return Optional.empty();

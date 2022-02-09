@@ -1,17 +1,23 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
+import static j2html.attributes.Attr.FORM;
+import static views.BaseHtmlView.makeCsrfTokenInputTag;
+import static views.BaseHtmlView.submitButton;
 
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import javax.inject.Inject;
+import play.mvc.Http.HttpVerbs;
+import services.MessageKey;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.FileNameFormatter;
 import services.cloud.StorageUploadRequest;
@@ -94,9 +100,10 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
                         renderQuestion(
                             question, rendererParams, applicantQuestionRendererFactory)));
 
+    Tag skipForms = renderDeleteAndContinueFileUploadForms(params);
     Tag buttons = renderFileUploadBottomNavButtons(params);
 
-    return div(formTag, buttons)
+    return div(formTag, skipForms, buttons)
         .withId("azure-upload-form-component")
         .with(
             footer(viewUtils.makeWebJarsTag(WebJarJsPaths.AZURE_STORAGE_BLOB)),
@@ -112,15 +119,43 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   private Tag renderFileUploadBottomNavButtons(Params params) {
+    Optional<Tag> maybeContinueButton = maybeRenderContinueButton(params);
+    Optional<ContainerTag> maybeSkipOrDeleteButton = maybeRenderAzureSkipOrDeleteButton(params);
     ContainerTag ret =
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
             // An empty div to take up the space to the left of the buttons.
             .with(div().withClasses(Styles.FLEX_GROW))
             .with(renderReviewButton(params));
-
+    if (maybeSkipOrDeleteButton.isPresent()) {
+      ret.with(maybeSkipOrDeleteButton.get());
+    }
     ret.with(renderUploadButton(params));
-
+    if (maybeContinueButton.isPresent()) {
+      ret.with(maybeContinueButton.get());
+    }
     return ret;
+  }
+
+  protected Optional<ContainerTag> maybeRenderAzureSkipOrDeleteButton(Params params) {
+    if (hasAtLeastOneRequiredQuestion(params)) {
+      // If the file question is required, skip or delete is not allowed.
+      return Optional.empty();
+    }
+    String buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
+    String buttonId = FILEUPLOAD_SKIP_BUTTON_ID;
+    Optional<ContainerTag> footer = Optional.empty();
+    if (hasUploadedFile(params)) {
+      buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
+      buttonId = FILEUPLOAD_DELETE_BUTTON_ID;
+      footer = Optional.of(footer().with(viewUtils.makeLocalJsTag("azure_delete")));
+    }
+    ContainerTag button =
+        button(buttonText)
+            .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
+            .withClasses(ApplicantStyles.BUTTON_REVIEW)
+            .withId(buttonId);
+    footer.ifPresent(button::with);
+    return Optional.of(button);
   }
 }
