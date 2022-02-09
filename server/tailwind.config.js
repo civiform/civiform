@@ -3,31 +3,28 @@ const fs = require('fs');
 class StylesJavaReader {
   constructor(file_contents) {
     this.file_contents = file_contents;
-    this.regexp = /public +static +final +String +([0-9A-Z_]+) += +"(.*)"/g;
+    this.rgx_key = /(?<= +public +static +final +String +)([0-9A-Z_]+)/g;
+    this.rgx_val = /(?<= +public +static +final +String +[0-9A-Z_]+ += +")([a-z0-9-/]+)/g;
   }
 
   getMatches(matches) {
-    for (const match in this.file_contents.match(this.regexp)) {
-      matches[match[0]] = match[1];
-    }
-  }
-}
+    let count = 1
+    for (const line of this.file_contents) {
+      let match_key = line.match(this.rgx_key);
+      let match_val = line.match(this.rgx_val);
 
-class StylesTsReader {
-  constructor(file_contents) {
-    this.file_contents = file_contents;
-    this.dir = './app/assets/javascripts/';
-    //this.regexp = /classList\.{add|remove|toggle}\('(.*)'\)/g;
-    this.regexp_a = /"([\w-/:]+)"/g;
-    this.regexp_b = /'([\w-/:]+)'/g;
-  }
+      if (Array.isArray(match_key) && Array.isArray(match_val)) {
+        if (match_key.length === 1 && match_val.length === 1) {
+          matches[match_key[0]] = match_val[0];
+          if (false & count % 200 === 0) {
+            console.log(match_key[0]);
+          }
+        } else {
+          console.log("strange line in 'Styles.java' at line " + count.toString());
+        }
+      }
 
-  getMatches(matches) {
-    for (const match in this.file_contents.matchAll(this.regexp_a)) {
-      matches[match[0]] = match[1];
-    }
-    for (const match in this.file_contents.matchAll(this.regexp_b)) {
-      matches[match[0]] = match[1];
+      count += 1
     }
   }
 }
@@ -35,13 +32,10 @@ class StylesTsReader {
 function getStyles() {
   const matches = {};
   try {
-
-    let data = fs.readFileSync('./app/views/style/Styles.java', 'utf8');
+    let data = fs.readFileSync('./app/views/style/Styles.java', 'utf8').split('\n');
     let stylesReader = new StylesJavaReader(data);
-    
     stylesReader.getMatches(matches);
   }
-
   catch (error) {
     throw 'error reading Styles.java for tailwindcss processing: ' + error.message;
   }
@@ -50,6 +44,7 @@ function getStyles() {
 }
 
 var PROCESSED_TS = false;
+const styleDict = getStyles();
 
 module.exports = {
   purge: {
@@ -78,21 +73,33 @@ module.exports = {
           '2xl': 'RESPONSIVE_2XL'
         };
 
-        const styleDict = getStyles();
         var output = []
         let matchIter = content.match(/(?<=Styles\.)([0-9A-Z_]+)/g);
-        console.log(matchIter);
+
         if (matchIter) {
-          for (const matches of matchIter) {
-            //console.log(matches)
-            for (const m of matches) {
-              let s = styleDict[m];
-              //console.log(m);
+          for (const m of matchIter) {
+            let s = styleDict[m];
+            //console.log(m);
+            
+            if (s === undefined) {
+              console.log(m);
+            } else {
               output.push(s)
               // We don't know which, if any, of these prefixes are in use for any class in particular.
               // We therefore have to use every combination of them.
-              for (const [key, value] of Object.entries(prefixes)) {
-                output.push(key + ':' + s)
+              for (const prefix of [
+                        'even',
+                        'focus',
+                        'focus-within',
+                        'hover',
+                        'disabled',
+                        'sm',
+                        'md',
+                        'lg',
+                        'xl',
+                        '2xl',
+                      ]) {
+                output.push(prefix + ':' + s)
               }
             }
           }
