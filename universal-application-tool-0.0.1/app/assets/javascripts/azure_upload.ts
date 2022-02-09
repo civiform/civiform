@@ -73,9 +73,9 @@ class AzureUploadController {
     azureUploadProps: any,
     resp: any
   ) {
-    redirectUrl.searchParams.set('originalFileName', azureUploadProps.file.name)
+    redirectUrl.searchParams.set('generatedFileName', azureUploadProps.fileName)
     redirectUrl.searchParams.set('etag', resp.eTag)
-    redirectUrl.searchParams.set('key', azureUploadProps.fileName)
+    redirectUrl.searchParams.set('key', azureUploadProps.file.name)
     redirectUrl.searchParams.set('bucket', azureUploadProps.containerName)
   }
 }
