@@ -55,6 +55,21 @@ resource "azurerm_storage_account_network_rules" "files_storage_rules" {
   }
 }
 
+data "azurerm_key_vault" "civiform_key_vault" {
+  name                = var.key_vault_name
+  resource_group_name = azurerm_resource_group.rg
+}
+
+data "azurerm_key_vault_secret" "postgres_password" {
+  name         = local.postgres_password_keyvault_id
+  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
+}
+
+data "azurerm_key_vault_secret" "app_secret_key" {
+  name         = local.app_secret_key_keyvault_id
+  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
+}
+
 resource "azurerm_storage_container" "files_container" {
   name                  = "files"
   storage_account_name  = azurerm_storage_account.files_storage_account.name
@@ -106,7 +121,7 @@ resource "azurerm_app_service" "civiform_app" {
     DOCKER_REGISTRY_SERVER_URL = "https://index.docker.io"
 
     DB_USERNAME    = "${azurerm_postgresql_server.civiform.administrator_login}@${azurerm_postgresql_server.civiform.name}"
-    DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
+    DB_PASSWORD    = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.postgres_password.id})"
     DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
 
     STORAGE_SERVICE_NAME = "azure-blob"
@@ -118,7 +133,7 @@ resource "azurerm_app_service" "civiform_app" {
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
 
     AWS_SES_SENDER = var.ses_sender_email
-    SECRET_KEY     = var.app_secret_key
+    SECRET_KEY     = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.app_secret_key.id})"
   }
   # Configure Docker Image to load on start
   site_config {
@@ -198,7 +213,7 @@ resource "azurerm_postgresql_server" "civiform" {
   resource_group_name = azurerm_resource_group.rg.name
 
   administrator_login          = var.postgres_admin_login
-  administrator_login_password = var.postgres_admin_password
+  administrator_login_password = data.azurerm_key_vault_secret.postgres_password.value
 
   // fqdn civiform-db.postgres.database.azure.com
 
