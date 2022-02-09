@@ -41,11 +41,6 @@ variable "subnet_address_prefixes" {
   ]
 }
 
-variable "app_secret_key" {
-  type        = string
-  description = "Secret Key For the app"
-}
-
 variable "app_sku" {
   type        = map(string)
   description = "SKU tier/size/capacity information"
@@ -64,11 +59,6 @@ variable "resource_group_name" {
 variable "postgres_admin_login" {
   type        = string
   description = "Postgres admin login"
-}
-
-variable "postgres_admin_password" {
-  type        = string
-  description = "Postgres admin password"
 }
 
 variable "postgres_sku_name" {
@@ -122,4 +112,8 @@ variable "staging_hostname" {
 variable "custom_hostname" {
   type        = string
   description = "custom hostname for the app to map the dns (used also for CORS)"
+}
+variable "key_vault_name" {
+  type = string
+  description = "Name of key vault where secrets are stored."
 }
