@@ -3,9 +3,7 @@ resource "azurerm_subnet" "bastion_subnet" {
   name                 = "bastion_subnet"
   resource_group_name  = var.resource_group_name
   virtual_network_name = var.vnet_name
-  address_prefixes = [
-    "10.0.6.0/24"
-  ]
+  address_prefixes     = var.bastion_address_prefixes
 }
 
 # Create network security group and SSH rule for public subnet.

@@ -1,7 +1,8 @@
 #! /usr/bin/env bash
+source azure/bastion
 
 # DOC: Connect to the database via the bastion
-# example: ./db-connection -g sgdev -d civiform-artistic-halibut
+# example: azure/db-connection -g sgdev -d civiform-artistic-halibut
 key_name="bastion"
 while getopts g:d:k flag
 do
@@ -12,8 +13,8 @@ do
     esac
 done
 
-if [[ ! -z "${resource_group}" ]] || [[ ! -z "${database_name}" ]]; then
-  echo "arguments -g and -d must be provided"
+if [[ ! "${resource_group}" ]] || [[ ! "${database_name}" ]]; then
+  echo "arguments -g and -d must be provided" >&2
   exit 1
 fi
 
@@ -23,30 +24,18 @@ if ! [[ -f "${key_file}" ]]; then
     ssh-keygen -t rsa -b 4096 -f "${key_file}"
 fi
 
-echo "Getting the bastion vm's ip address"
-vm_ip_address=$(az network public-ip show \
-    -g "${resource_group}" \
-    -n "${resource_group}-ip" \
-    --query "ipAddress" | tr -d '"')
+readonly VM_IP_ADDRESS=$(bastion::get_vm_ip "${resource_group}")
+echo "Bastion vm ip address: ${VM_IP_ADDRESS}"
 
-echo "Getting the postgres host name"
-postgres_host=$(az postgres server show \
-    -g "${resource_group}" \
-    -n "${database_name}" \
-    --query "fullyQualifiedDomainName" | tr -d '"')
+readonly POSTGRES_HOST=$(bastion::get_postgres_host "${resource_group}" "${database_name}")
+echo "postgreshost: ${POSTGRES_HOST}"
 
 # echo "Adding the public key to the bastion vm"
-az vm user update \
-    -u adminuser \
-    -g "${resource_group}" \
-    -n "${resource_group}-bstn-vm" \
-    --ssh-key-value "$(< ~/.ssh/${key_name}.pub)"
+eval $(bastion::update_bastion_ssh_keys "${resource_group}" "${key_name}")
+
+# todo: add a pgpass file here
+readonly PSQL_CONNECT=$(bastion::get_connect_to_postgres_command "${POSTGRES_HOST}")
 
 echo "SSHing into machine and opening postgres, \
 type command here and ctrl-d to exit"
-# todo: add a pgpass file here
-ssh -i "$HOME/.ssh/${key_name}" "adminuser@${vm_ip_address}" \
-    "export DEBIAN_FRONTEND='noninteractive'; \
-    yes | sudo apt-get update > /dev/null; \
-    yes | sudo apt-get install postgresql-client > /dev/null; \
-    psql -h ${postgres_host} -d postgres -U psqladmin@${postgres_host}"
+eval $(bastion::get_ssh_command "${VM_IP_ADDRESS}" "${key_name}" "${PSQL_CONNECT}")

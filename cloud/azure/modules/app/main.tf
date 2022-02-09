@@ -303,7 +303,8 @@ resource "azurerm_role_assignment" "storage_account_contributor" {
 module "bastion" {
   source = "../bastion"
 
-  resource_group_name     = azurerm_resource_group.rg.name
-  resource_group_location = azurerm_resource_group.rg.location
-  vnet_name               = azurerm_virtual_network.civiform_vnet.name
+  resource_group_name      = azurerm_resource_group.rg.name
+  resource_group_location  = azurerm_resource_group.rg.location
+  bastion_address_prefixes = var.bastion_address_prefixes
+  vnet_name                = azurerm_virtual_network.civiform_vnet.name
 }
