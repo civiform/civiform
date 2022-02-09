@@ -19,10 +19,10 @@ if [[ ! "${resource_group}" ]] || [[ ! "${database_name}" ]]; then
   exit 1
 fi
 
-key_file="$HOME/.ssh/${key_name}"
-if ! [[ -f "${key_file}" ]]; then
+readonly KEY_FILE="$HOME/.ssh/${key_name}"
+if ! [[ -f "${KEY_FILE}" ]]; then
   echo "Creating a new ssh key"
-  ssh-keygen -t rsa -b 4096 -f "${key_file}"
+  ssh-keygen -t rsa -b 4096 -f "${KEY_FILE}"
 fi
 
 readonly VM_IP_ADDRESS=$(bastion::get_vm_ip "${resource_group}")
@@ -33,7 +33,7 @@ readonly POSTGRES_HOST=$(bastion::get_postgres_host \
 echo "postgreshost: ${POSTGRES_HOST}"
 
 echo "Adding the public key to the bastion vm"
-eval $(bastion::update_bastion_ssh_keys "${resource_group}" "${key_name}")
+eval $(bastion::update_bastion_ssh_keys "${resource_group}" "${KEY_FILE}")
 
 readonly PSQL_CONNECT=$(bastion::get_connect_to_postgres_command \
   "${POSTGRES_HOST}")
@@ -41,7 +41,7 @@ readonly PSQL_CONNECT=$(bastion::get_connect_to_postgres_command \
 echo "SSHing into machine and opening postgres, \
 type command here and \\q to exit"
 eval $(bastion::get_ssh_command \
-  "${VM_IP_ADDRESS}" "${key_name}" "${PSQL_CONNECT}")
+  "${VM_IP_ADDRESS}" "${KEY_FILE}" "${PSQL_CONNECT}")
 
 echo "Removing the ssh keys from your machine"
-eval $(bastion::remove_ssh_key "${key_name}")
+eval $(bastion::remove_ssh_key "${KEY_FILE}")

@@ -33,7 +33,7 @@ function bastion::get_postgres_host() {
 #   1: the key name to remove
 #######################################
 function bastion::remove_ssh_key() {
-  echo "rm $HOME/.ssh/${1}; rm $HOME/.ssh/${1}.pub"
+  echo "rm {1}; rm ${1}.pub"
 }
 
 #######################################
@@ -44,7 +44,7 @@ function bastion::remove_ssh_key() {
 #   3: command to run after ssh'ing
 #######################################
 function bastion::get_ssh_command() {
-  echo "ssh -i $HOME/.ssh/${2} adminuser@${1} '${3}'"
+  echo "ssh -i ${2} adminuser@${1} '${3}'"
 }
 
 #######################################
@@ -58,7 +58,7 @@ function bastion::update_bastion_ssh_keys() {
   -u adminuser \
   -g "${1}" \
   -n "${1}-bstn-vm" \
-  --ssh-key-value \"$(< ~/.ssh/${2}.pub)\""
+  --ssh-key-value \"$(< ${2}.pub)\""
 }
 
 #######################################
