@@ -79,11 +79,4 @@ resource "azurerm_linux_virtual_machine" "bastion_vm" {
     sku       = "18.04-LTS"
     version   = "latest"
   }
-
-  # This adds the deploying user to the list of people who can ssh, but
-  # to access the db, use the roc/bin/db-connection script
-  admin_ssh_key {
-    username   = "adminuser"
-    public_key = file("~/.ssh/bastion.pub")
-  }
 }
