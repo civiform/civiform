@@ -19,11 +19,10 @@ function bastion::get_vm_ip() {
 #   2: the name of the database
 #######################################
 function bastion::get_postgres_host() {
-  readonly POSTGRES_HOST=$(az postgres server show \
+  echo $(az postgres server show \
     -g "${1}" \
     -n "${2}" \
     --query "fullyQualifiedDomainName" | tr -d '"')
-  echo "${POSTGRES_HOST}"
 }
 
 #######################################
