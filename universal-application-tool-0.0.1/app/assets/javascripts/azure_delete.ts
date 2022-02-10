@@ -11,11 +11,10 @@ class AzureDeleteController {
   attemptDelete() {
     const azblob = window['azblob']
     const blockBlobUrl = this.getBlockBlobUrl()
-    if (blockBlobUrl == null) {
+    if (!blockBlobUrl) {
       return
     }
     blockBlobUrl.delete(azblob.Aborter.none)
-    console.log(blockBlobUrl)
   }
 
   private getBlockBlobUrl() {
