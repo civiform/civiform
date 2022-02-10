@@ -14,11 +14,11 @@ terraform {
 }
 
 module "app" {
-  source                  = "../../azure/modules/app"
-  resource_group_name     = var.resource_group_name
-  postgres_admin_login    = var.postgres_admin_login
-  postgres_admin_password = var.postgres_admin_password
-  postgres_sku_name       = "GP_Gen5_2"
+  source               = "../../azure/modules/app"
+  resource_group_name  = var.resource_group_name
+  postgres_admin_login = var.postgres_admin_login
+  key_vault_name       = var.key_vault_name
+  postgres_sku_name    = "GP_Gen5_2"
 
   docker_username        = var.docker_username
   docker_repository_name = var.docker_repository_name

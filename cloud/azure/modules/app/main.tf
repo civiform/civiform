@@ -57,7 +57,7 @@ resource "azurerm_storage_account_network_rules" "files_storage_rules" {
 
 data "azurerm_key_vault" "civiform_key_vault" {
   name                = var.key_vault_name
-  resource_group_name = azurerm_resource_group.rg
+  resource_group_name = azurerm_resource_group.rg.name
 }
 
 data "azurerm_key_vault_secret" "postgres_password" {

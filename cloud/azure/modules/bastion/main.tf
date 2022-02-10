@@ -16,7 +16,7 @@ resource "azurerm_network_security_group" "public_nsg" {
   # to access: manually run script to allow just your IP 
   # (see db-connection script for an example of how to do this)
   security_rule {
-    name                       = "ssh-all"
+    name                       = "ssh-rule"
     priority                   = 100
     direction                  = "Inbound"
     access                     = "Deny"
@@ -72,6 +72,12 @@ resource "azurerm_linux_virtual_machine" "bastion_vm" {
   network_interface_ids = ["${azurerm_network_interface.bastion_nic.id}"]
   size                  = "Standard_B1ls"
   admin_username        = "adminuser"
+
+  # this is required, but we deny all ingres to the machine
+  admin_ssh_key {
+    username   = "adminuser"
+    public_key = file("~/.ssh/bastion.pub")
+  }
 
   os_disk {
     caching              = "ReadWrite"

@@ -63,11 +63,13 @@ function bastion::update_bastion_ssh_keys() {
 
 #######################################
 # Get pg password from the keyvault
+# Arguments:
+#   1: the vaultname where secrets are stored
 #######################################
 function bastion::get_pg_password() {
   az keyvault secret show \
     --name postgres-password \
-    --vault-name civiform-keyvault \
+    --vault-name "${1}" \
     --query value | tr -d '"'
 }
 
@@ -81,7 +83,7 @@ function bastion::allow_ip_security_group() {
   az network nsg rule update \
     -g "${1}" \
     --nsg-name "${1}-pblc-nsg" \
-    -n "ssh-all" \
+    -n "ssh-rule" \
     --access "Allow" \
     --source-address-prefixes "${MY_IPADDRESS}"
 }
@@ -95,7 +97,7 @@ function bastion::deny_ip_security_group() {
   az network nsg rule update \
     -g "${1}" \
     --nsg-name "${1}-pblc-nsg" \
-    -n "ssh-all" \
+    -n "ssh-rule" \
     --access "Deny" \
     --source-address-prefixes "*"
 }
@@ -104,9 +106,10 @@ function bastion::deny_ip_security_group() {
 # Get the command to connect to postgres
 # Arguments:
 #   1: the postgres host to connect to 
+#   2: the vaultname where secrets are stored
 #######################################
 function bastion::get_connect_to_postgres_command() {
-  db_password=$(bastion::get_pg_password)
+  db_password=$(bastion::get_pg_password "${2}")
   echo "export DEBIAN_FRONTEND='noninteractive'; \
     yes | sudo apt-get update > /dev/null; \
     yes | sudo apt-get install postgresql-client > /dev/null; \
