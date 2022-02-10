@@ -19,6 +19,9 @@ if [[ ! "${resource_group}" ]] || [[ ! "${database_name}" ]]; then
   exit 1
 fi
 
+echo "add my ip address to the security group for ssh"
+bastion::allow_ip_security_group "${resource_group}"
+
 readonly KEY_FILE="$HOME/.ssh/${key_name}"
 if ! [[ -f "${KEY_FILE}" ]]; then
   echo "Creating a new ssh key"
@@ -37,13 +40,13 @@ bastion::update_bastion_ssh_keys "${resource_group}" "${KEY_FILE}"
 
 readonly PSQL_CONNECT=$(bastion::get_connect_to_postgres_command \
   "${POSTGRES_HOST}")
-
 echo "SSHing into machine and opening postgres, \
 type command here and \\q to exit"
 bastion::bastion_ssh_connect \
   "${VM_IP_ADDRESS}" "${KEY_FILE}" "${PSQL_CONNECT}"
 
-# ssh -i "${KEY_FILE}" "${VM_IP_ADDRESS}" "${PSQL_CONNECT}"
-
 echo "Removing the ssh keys from your machine"
 bastion::remove_ssh_key "${KEY_FILE}"
+
+echo "Update bastion security group to deny all ssh request"
+bastion::deny_ip_security_group "${resource_group}"

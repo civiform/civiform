@@ -14,10 +14,10 @@ resource "azurerm_network_security_group" "public_nsg" {
 
   # Allow SSH traffic in from Internet to public subnet.
   security_rule {
-    name                       = "allow-ssh-all"
+    name                       = "ssh-all"
     priority                   = 100
     direction                  = "Inbound"
-    access                     = "Allow"
+    access                     = "Deny"
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"

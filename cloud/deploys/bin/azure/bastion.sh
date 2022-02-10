@@ -62,13 +62,51 @@ function bastion::update_bastion_ssh_keys() {
 }
 
 #######################################
+# Get pg password from the keyvault
+#######################################
+function bastion::get_pg_password() {
+  az keyvault secret show \
+    --name postgres-password \
+    --vault-name civiform-keyvault \
+    --query value | tr -d '"'
+}
+
+#######################################
+# Allow the current ip address to ssh onto the bastion
+# Arguments:
+#   1: the resource group name
+#######################################
+function bastion::allow_ip_security_group() {
+  MY_IPADDRESS=$(curl -s https://checkip.amazonaws.com)
+  az network nsg rule update \
+    -g "${1}" \
+    --nsg-name "${1}-pblc-nsg" \
+    -n "ssh-all" \
+    --access "Allow" \
+    --source-address-prefixes "${MY_IPADDRESS}"
+}
+
+#######################################
+# Deny all ssh request onto the bastion
+# Arguments:
+#   1: the resource group name
+#######################################
+function bastion::deny_ip_security_group() {
+  az network nsg rule update \
+    -g "${1}" \
+    --nsg-name "${1}-pblc-nsg" \
+    -n "ssh-all" \
+    --access "Deny" \
+    --source-address-prefixes "*"
+}
+
+#######################################
 # Get the command to connect to postgres
 # Arguments:
 #   1: the postgres host to connect to 
 #######################################
 function bastion::get_connect_to_postgres_command() {
-  # look at what shubha has done to get the password from the secret store
-  
+  db_password=$(bastion::get_pg_password)
   echo "export DEBIAN_FRONTEND='noninteractive'; \
     yes | sudo apt-get update > /dev/null; \
     yes | sudo apt-get install postgresql-client > /dev/null; \
