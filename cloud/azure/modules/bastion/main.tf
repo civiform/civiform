@@ -39,6 +39,9 @@ resource "azurerm_public_ip" "public_ip" {
   resource_group_name = var.resource_group_name
   allocation_method   = "Dynamic"
 }
+# prevent all access to the bastion's public IP address, but then in script 
+# set it up so that the current machine can access the public ip 
+# remove this set up 
 
 # Create network interface for bastion host VM in public subnet.
 resource "azurerm_network_interface" "bastion_nic" {

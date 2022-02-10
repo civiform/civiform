@@ -37,14 +37,14 @@ function bastion::remove_ssh_key() {
 }
 
 #######################################
-# Get the ssh command to connect to the bastion
+# Connect to the bastion
 # Arguments:
 #   1: the ip of the vm you will connect to
 #   2: the key name to use to connect to
 #   3: command to run after ssh'ing
 #######################################
-function bastion::get_ssh_command() {
-  echo "ssh -i ${2} adminuser@${1} '${3}'"
+function bastion::bastion_ssh_connect() {
+  ssh -i "${2}" "adminuser@${1}" "${3}"
 }
 
 #######################################
@@ -67,8 +67,10 @@ function bastion::update_bastion_ssh_keys() {
 #   1: the postgres host to connect to 
 #######################################
 function bastion::get_connect_to_postgres_command() {
+  # look at what shubha has done to get the password from the secret store
+  
   echo "export DEBIAN_FRONTEND='noninteractive'; \
     yes | sudo apt-get update > /dev/null; \
     yes | sudo apt-get install postgresql-client > /dev/null; \
-    psql -h ${1} -d postgres -U psqladmin@${1}"
+    PGPASSWORD='${db_password}' psql -h ${1} -d postgres -U psqladmin@${1}"
 }
