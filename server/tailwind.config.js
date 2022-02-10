@@ -110,7 +110,7 @@ module.exports = {
             let s = styleDict[m];
             
             if (s === undefined) {
-              console.log(m);
+              //console.log(m);
             } else {
               output.push(s)
               // We don't know which, if any, of these prefixes are in use for any class in particular.
@@ -138,14 +138,16 @@ module.exports = {
 
         if (PROCESSED_TS === false) {
           for (const f of files) {
-            let data = fs.readFileSync(assetsFolder + f, 'utf8');
-            let matches = data.matchAll(/"([\w-/:]+)"/g);
-            for (m of matches) {
-              output.push(m);
+            let data = fs.readFileSync(assetsFolder + f, 'utf8').split('\n');
+            for (const line of data) {
+              matches = line.matchAll(/["'][\.a-z0-9/:-]+["']/g);
+              for (m of matches) {
+                let mr = m[0].replace(/['"]+/g, '');
+                console.log(mr);
+                output.push(mr);
+              }
             }
           }
-
-          output.push("button");
 
           // Had to manually push all the html tags for some reason
           for (const t of htmlTags) {
@@ -154,6 +156,7 @@ module.exports = {
 
           PROCESSED_TS = true;
         }
+
         return output
       },
     },
