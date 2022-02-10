@@ -2,8 +2,9 @@
 source lib/out.sh
 source azure/bastion.sh
 
-# DOC: Connect to the database via the bastion
-# example: azure/db-connection -g sgdev -d civiform-artistic-halibut -v sgdev-civiform-kv
+# DOC: Connect to the database via the bastion. 
+# DOC: Required to pass in the resource group (-g), the database name (-d) and the keyvault name (-v). 
+# DOC: example: azure/db-connection -g sgdev -d civiform-artistic-halibut -v sgdev-civiform-kv
 key_name="bastion" 
 while getopts g:d:k:v: flag
 do
@@ -22,10 +23,10 @@ if [[ ! "${resource_group}" ]] \
   exit 1
 fi
 
-echo "add my ip address to the security group for ssh"
+echo "Add my ip address to the security group for ssh"
 bastion::allow_ip_security_group "${resource_group}" "${vault_name}"
 
-readonly KEY_FILE="$HOME/.ssh/${key_name}"
+readonly KEY_FILE="${HOME}/.ssh/${key_name}"
 if ! [[ -f "${KEY_FILE}" ]]; then
   echo "Creating a new ssh key"
   ssh-keygen -t rsa -b 4096 -f "${KEY_FILE}"
@@ -45,7 +46,7 @@ readonly PSQL_CONNECT=$(bastion::get_connect_to_postgres_command \
   "${POSTGRES_HOST}" "${vault_name}")
 echo "SSHing into machine and opening postgres, \
 type command here and \\q to exit"
-bastion::bastion_ssh_connect \
+bastion::bastion_ssh_exec \
   "${VM_IP_ADDRESS}" "${KEY_FILE}" "${PSQL_CONNECT}"
 
 echo "Removing the ssh keys from your machine"

@@ -1,10 +1,13 @@
 # azure/bin
-This directory includes two scripts to help set up the bastion instance. 
+This directory includes a script to help set up the bastion instance. 
 
 # db-connection
-Establishes a db-connection via the bastion. Creates
-a new ssh key and associates it with the bastion instance. Afterwards it opens a 
-postgres connection to the remote database and forwards the terminal along.
+Establishes a db-connection via the bastion. 
+- Adds the IP address to the security rule & allows
+ssh connections to the bastion
+- Creates a new ssh key and associates it with the bastion instance.
+- Opens a postgres connection to the remote database and forwards the terminal along.
+- On closing the connection deletes the ssh key & updates the ssh security rule to deny all requests
 
 After running this you should be able to run postgres commands directly. 
 

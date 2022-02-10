@@ -43,7 +43,7 @@ function bastion::remove_ssh_key() {
 #   2: the key name to use to connect to
 #   3: command to run after ssh'ing
 #######################################
-function bastion::bastion_ssh_connect() {
+function bastion::bastion_ssh_exec() {
   ssh -i "${2}" "adminuser@${1}" "${3}"
 }
 
@@ -79,7 +79,7 @@ function bastion::get_pg_password() {
 #   1: the resource group name
 #######################################
 function bastion::allow_ip_security_group() {
-  MY_IPADDRESS=$(curl -s https://checkip.amazonaws.com)
+  local MY_IPADDRESS=$(curl -s https://checkip.amazonaws.com)
   az network nsg rule update \
     -g "${1}" \
     --nsg-name "${1}-pblc-nsg" \
@@ -109,9 +109,9 @@ function bastion::deny_ip_security_group() {
 #   2: the vaultname where secrets are stored
 #######################################
 function bastion::get_connect_to_postgres_command() {
-  db_password=$(bastion::get_pg_password "${2}")
+  local DB_PASSWORD=$(bastion::get_pg_password "${2}")
   echo "export DEBIAN_FRONTEND='noninteractive'; \
     yes | sudo apt-get update > /dev/null; \
     yes | sudo apt-get install postgresql-client > /dev/null; \
-    PGPASSWORD='${db_password}' psql -h ${1} -d postgres -U psqladmin@${1}"
+    PGPASSWORD='${DB_PASSWORD}' psql -h ${1} -d postgres -U psqladmin@${1}"
 }
