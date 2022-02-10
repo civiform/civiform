@@ -59,6 +59,7 @@ describe('normal application flow', () => {
 
     const programName = 'a shiny new program'
     await adminPrograms.addProgram(programName)
+
     await adminPrograms.editProgramBlock(programName, 'block description', [
       'date-q',
       'address-q',
@@ -84,6 +85,10 @@ describe('normal application flow', () => {
       'second-static-q',
       'monthly-income-q',
     ])
+
+    // Intentionally add an empty block to ensure that empty blocks do not
+    // prevent applicants from being able to submit applications.
+    await adminPrograms.addProgramBlock(programName, 'empty block')
 
     await adminPrograms.gotoAdminProgramsPage()
     await adminPrograms.expectDraftProgram(programName)
