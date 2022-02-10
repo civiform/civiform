@@ -12,7 +12,9 @@ resource "azurerm_network_security_group" "public_nsg" {
   location            = var.resource_group_location
   resource_group_name = var.resource_group_name
 
-  # Allow SSH traffic in from Internet to public subnet.
+  # deny the access to the machine
+  # to access: manually run script to allow just your IP 
+  # (see db-connection script for an example of how to do this)
   security_rule {
     name                       = "ssh-all"
     priority                   = 100
