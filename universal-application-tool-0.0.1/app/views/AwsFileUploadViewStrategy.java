@@ -105,14 +105,7 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     Tag buttons = renderFileUploadBottomNavButtons(params);
     return div(uploadForm, skipForms, buttons);
   }
-
-  /**
-   * Renders a form submit button for delete form if the file upload question is optional.
-   *
-   * <p>If an uploaded file is present, render the button text as delete. Otherwise, skip.
-   *
-   * <p>See {@link renderDeleteAndContinueFileUploadForms}.
-   */
+  
   @Override
   protected Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params) {
     if (hasAtLeastOneRequiredQuestion(params)) {
