@@ -57,7 +57,7 @@ resource "azurerm_storage_account_network_rules" "files_storage_rules" {
 
 data "azurerm_key_vault" "civiform_key_vault" {
   name                = var.key_vault_name
-  resource_group_name = azurerm_resource_group.rg
+  resource_group_name = azurerm_resource_group.rg.name
 }
 
 data "azurerm_key_vault_secret" "postgres_password" {
@@ -298,4 +298,13 @@ resource "azurerm_role_assignment" "storage_account_contributor" {
   scope                = azurerm_storage_account.files_storage_account.id
   role_definition_name = "Storage Account Contributor"
   principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
+}
+
+module "bastion" {
+  source = "../bastion"
+
+  resource_group_name      = azurerm_resource_group.rg.name
+  resource_group_location  = azurerm_resource_group.rg.location
+  bastion_address_prefixes = var.bastion_address_prefixes
+  vnet_name                = azurerm_virtual_network.civiform_vnet.name
 }
