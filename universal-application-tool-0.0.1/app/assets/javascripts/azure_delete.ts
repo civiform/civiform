@@ -24,11 +24,11 @@ class AzureDeleteController {
 
   private getBlockBlobUrl(azblob: any) {
     const searchParams = new URLSearchParams(document.location.search)
-    const blockBlobUrl = searchParams.get('blockBlobUrlString')
-    if (!blockBlobUrl) {
-      return
+    const blockBlobUrlString = searchParams.get('blockBlobUrlString')
+    if (!blockBlobUrlString) {
+      return null
     }
-    return new azblob.BlockBlobURL(blockBlobUrl)
+    return new azblob.BlockBlobURL(blockBlobUrlString)
   }
 }
 

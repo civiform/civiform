@@ -105,7 +105,7 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     Tag buttons = renderFileUploadBottomNavButtons(params);
     return div(uploadForm, skipForms, buttons);
   }
-  
+
   @Override
   protected Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params) {
     if (hasAtLeastOneRequiredQuestion(params)) {
