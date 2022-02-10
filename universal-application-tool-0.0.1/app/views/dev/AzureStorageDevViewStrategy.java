@@ -62,7 +62,10 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
                 .withType("hidden")
                 .withName("successActionRedirect")
                 .withValue(request.successActionRedirect()))
-        .with(TagCreator.button(text("Upload to Azure Blob Storage")).withType("submit"));
+        .with(
+            TagCreator.button(text("Upload to Azure Blob Storage"))
+                .withType("submit")
+                .withId("cf-block-submit"));
   }
 
   @Override
