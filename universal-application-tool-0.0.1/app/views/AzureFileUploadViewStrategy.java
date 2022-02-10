@@ -107,34 +107,8 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
             footer(viewUtils.makeLocalJsTag("azure_upload")));
   }
 
-  private BlobStorageUploadRequest castStorageRequest(StorageUploadRequest request) {
-    if (!(request instanceof BlobStorageUploadRequest)) {
-      throw new RuntimeException(
-          "Tried to upload a file to Azure Blob storage using incorrect request type");
-    }
-    return (BlobStorageUploadRequest) request;
-  }
-
-  private Tag renderFileUploadBottomNavButtons(Params params) {
-    Optional<Tag> maybeContinueButton = maybeRenderContinueButton(params);
-    Optional<ContainerTag> maybeSkipOrDeleteButton = maybeRenderAzureSkipOrDeleteButton(params);
-    ContainerTag ret =
-        div()
-            .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-            // An empty div to take up the space to the left of the buttons.
-            .with(div().withClasses(Styles.FLEX_GROW))
-            .with(renderReviewButton(params));
-    if (maybeSkipOrDeleteButton.isPresent()) {
-      ret.with(maybeSkipOrDeleteButton.get());
-    }
-    ret.with(renderUploadButton(params));
-    if (maybeContinueButton.isPresent()) {
-      ret.with(maybeContinueButton.get());
-    }
-    return ret;
-  }
-
-  protected Optional<ContainerTag> maybeRenderAzureSkipOrDeleteButton(Params params) {
+  @Override
+  protected Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params) {
     if (hasAtLeastOneRequiredQuestion(params)) {
       // If the file question is required, skip or delete is not allowed.
       return Optional.empty();
@@ -154,5 +128,32 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
             .withId(buttonId);
     footer.ifPresent(button::with);
     return Optional.of(button);
+  }
+
+  private BlobStorageUploadRequest castStorageRequest(StorageUploadRequest request) {
+    if (!(request instanceof BlobStorageUploadRequest)) {
+      throw new RuntimeException(
+          "Tried to upload a file to Azure Blob storage using incorrect request type");
+    }
+    return (BlobStorageUploadRequest) request;
+  }
+
+  private Tag renderFileUploadBottomNavButtons(Params params) {
+    Optional<Tag> maybeContinueButton = maybeRenderContinueButton(params);
+    Optional<ContainerTag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
+    ContainerTag ret =
+        div()
+            .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
+            // An empty div to take up the space to the left of the buttons.
+            .with(div().withClasses(Styles.FLEX_GROW))
+            .with(renderReviewButton(params));
+    if (maybeSkipOrDeleteButton.isPresent()) {
+      ret.with(maybeSkipOrDeleteButton.get());
+    }
+    ret.with(renderUploadButton(params));
+    if (maybeContinueButton.isPresent()) {
+      ret.with(maybeContinueButton.get());
+    }
+    return ret;
   }
 }

@@ -1,26 +1,34 @@
 /**
  * This is responsible for deleting a file that was uploaded to Azure blob storage.
  */
-
 class AzureDeleteController {
+  static FILEUPLOAD_DELETE_ID = 'fileupload-delete-button'
+
   constructor() {
-    const deleteContainer = document.getElementById('fileupload-delete-button')
-    deleteContainer.addEventListener('click', (event) => this.attemptDelete())
+    const deleteContainer = document.getElementById(
+      AzureDeleteController.FILEUPLOAD_DELETE_ID
+    )
+    const azblob = window['azblob']
+    deleteContainer.addEventListener('click', (event) =>
+      this.attemptDelete(azblob)
+    )
   }
 
-  attemptDelete() {
-    const azblob = window['azblob']
-    const blockBlobUrl = this.getBlockBlobUrl()
+  attemptDelete(azblob: any) {
+    const blockBlobUrl = this.getBlockBlobUrl(azblob)
     if (!blockBlobUrl) {
       return
     }
     blockBlobUrl.delete(azblob.Aborter.none)
   }
 
-  private getBlockBlobUrl() {
-    const azblob = window['azblob']
+  private getBlockBlobUrl(azblob: any) {
     const searchParams = new URLSearchParams(document.location.search)
-    return new azblob.BlockBlobURL(searchParams.get('blockBlobUrlString'))
+    const blockBlobUrl = searchParams.get('blockBlobUrlString')
+    if (!blockBlobUrl) {
+      return
+    }
+    return new azblob.BlockBlobURL(blockBlobUrl)
   }
 }
 
