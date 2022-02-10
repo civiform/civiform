@@ -2,7 +2,7 @@
  * This is responsible for deleting a file that was uploaded to Azure blob storage.
  */
 class AzureDeleteController {
-  static FILEUPLOAD_DELETE_ID = 'fileupload-delete-button'
+  private static FILEUPLOAD_DELETE_ID = 'fileupload-delete-button'
 
   constructor() {
     const deleteContainer = document.getElementById(
@@ -17,7 +17,9 @@ class AzureDeleteController {
   attemptDelete(azblob: any) {
     const blockBlobUrl = this.getBlockBlobUrl(azblob)
     if (!blockBlobUrl) {
-      return
+      throw new Error(
+        'Attempting to delete file from a block blob URL that does not exist'
+      )
     }
     blockBlobUrl.delete(azblob.Aborter.none)
   }
@@ -26,7 +28,7 @@ class AzureDeleteController {
     const searchParams = new URLSearchParams(document.location.search)
     const blockBlobUrlString = searchParams.get('blockBlobUrlString')
     if (!blockBlobUrlString) {
-      return null
+      throw new Error('Attempting to delete file that does not exist')
     }
     return new azblob.BlockBlobURL(blockBlobUrlString)
   }

@@ -113,20 +113,24 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
       // If the file question is required, skip or delete is not allowed.
       return Optional.empty();
     }
+
     String buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
     String buttonId = FILEUPLOAD_SKIP_BUTTON_ID;
     Optional<ContainerTag> footer = Optional.empty();
+
     if (hasUploadedFile(params)) {
       buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
       buttonId = FILEUPLOAD_DELETE_BUTTON_ID;
       footer = Optional.of(footer().with(viewUtils.makeLocalJsTag("azure_delete")));
     }
+
     ContainerTag button =
         button(buttonText)
             .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
             .withClasses(ApplicantStyles.BUTTON_REVIEW)
             .withId(buttonId);
     footer.ifPresent(button::with);
+
     return Optional.of(button);
   }
 
