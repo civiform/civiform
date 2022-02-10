@@ -41,6 +41,19 @@ variable "subnet_address_prefixes" {
   ]
 }
 
+variable "bastion_address_prefixes" {
+  type        = list(string)
+  description = "Prefixes for the bastion instance (must be distinct from other subnets)"
+  default = [
+    "10.0.6.0/24"
+  ]
+}
+
+variable "app_secret_key" {
+  type        = string
+  description = "Secret Key For the app"
+}
+
 variable "app_sku" {
   type        = map(string)
   description = "SKU tier/size/capacity information"
@@ -114,6 +127,6 @@ variable "custom_hostname" {
   description = "custom hostname for the app to map the dns (used also for CORS)"
 }
 variable "key_vault_name" {
-  type = string
+  type        = string
   description = "Name of key vault where secrets are stored."
 }
