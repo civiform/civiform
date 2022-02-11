@@ -43,6 +43,12 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRenderer {
                             option -> String.valueOf(option.id()))));
     select.setScreenReaderText(question.getQuestionText());
 
+    select
+        .setDescribedByHtmlId(questionHelpTextHtmlId())
+        .setErrorMessageHtmlId(questionErrorMessageHtmlId())
+        .setIsInvalid(isInvalid())
+        .setIsRequired(question.isRequired());
+
     if (singleSelectQuestion.getSelectedOptionId().isPresent()) {
       select.setValue(String.valueOf(singleSelectQuestion.getSelectedOptionId().get()));
     }

@@ -27,6 +27,10 @@ public class IdQuestionRenderer extends ApplicantQuestionRenderer {
             .setValue(idQuestion.getIdValue().orElse(""))
             .setFieldErrors(params.messages(), idQuestion.getQuestionErrors())
             .setScreenReaderText(question.getQuestionText())
+            .setDescribedByHtmlId(questionHelpTextHtmlId())
+            .setErrorMessageHtmlId(questionErrorMessageHtmlId())
+            .setIsInvalid(isInvalid())
+            .setIsRequired(question.isRequired())
             .getContainer();
 
     return renderInternal(params.messages(), questionFormContent, false);

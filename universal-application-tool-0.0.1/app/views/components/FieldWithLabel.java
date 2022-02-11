@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.textarea;
+import static views.HtmlAttributes.*;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -55,6 +56,10 @@ public class FieldWithLabel {
   protected boolean checked = false;
   protected boolean disabled = false;
   protected boolean isCurrency = false;
+  protected String errorMessageHtmlId = "";
+  protected String describedByHtmlId = "";
+  protected boolean isInvalid = false;
+  protected boolean isRequired = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
 
   public FieldWithLabel(Tag fieldTag) {
@@ -133,7 +138,27 @@ public class FieldWithLabel {
     return this;
   }
 
-  FieldWithLabel setIsCurrency() {
+  public FieldWithLabel setErrorMessageHtmlId(String errorMessageHtmlId) {
+    this.errorMessageHtmlId = errorMessageHtmlId;
+    return this;
+  }
+
+  public FieldWithLabel setDescribedByHtmlId(String describedByHtmlId) {
+    this.describedByHtmlId = describedByHtmlId;
+    return this;
+  }
+
+  public FieldWithLabel setIsInvalid(boolean isInvalid) {
+    this.isInvalid = isInvalid;
+    return this;
+  }
+
+  public FieldWithLabel setIsRequired(boolean isRequired) {
+    this.isRequired = isRequired;
+    return this;
+  }
+
+  public FieldWithLabel setIsCurrency() {
     this.isCurrency = true;
     // There is no HTML currency input so we identify these with a custom attribute.
     this.setAttribute("currency");
@@ -293,6 +318,10 @@ public class FieldWithLabel {
             StyleUtils.joinStyles(
                 BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
         .withId(this.id)
+        .condAttr(isRequired, ARIA_REQUIRED, "true")
+        .condAttr(!errorMessageHtmlId.isEmpty(), ARIA_ERRORMESSAGE, errorMessageHtmlId)
+        .condAttr(!describedByHtmlId.isEmpty(), ARIA_DESCRIBEDBY, describedByHtmlId)
+        .attr(ARIA_INVALID, isInvalid)
         .withName(this.fieldName)
         .condAttr(this.disabled, Attr.DISABLED, "true")
         .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)

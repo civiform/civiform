@@ -36,6 +36,7 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRenderer {
                 params.messages(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(MessageKey.CURRENCY_VALIDATION_MISFORMATTED)))
+            .setDescribedByHtmlId(questionHelpTextHtmlId())
             .showFieldErrors(false);
     if (currencyQuestion.getValue().isPresent()) {
       currencyField.setValue(currencyQuestion.getValue().get());

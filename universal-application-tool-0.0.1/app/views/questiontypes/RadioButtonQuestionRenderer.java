@@ -1,8 +1,7 @@
 package views.questiontypes;
 
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.input;
-import static j2html.TagCreator.label;
+import static j2html.TagCreator.*;
+import static views.HtmlAttributes.*;
 
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
@@ -33,7 +32,8 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRenderer {
     SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
 
     Tag radioQuestionFormContent =
-        div()
+        fieldset()
+            .condAttr(question.isRequired(), ARIA_REQUIRED, "true")
             .with(
                 singleOptionQuestion.getOptions().stream()
                     .sorted(Comparator.comparing(LocalizedQuestionOption::order))
@@ -63,6 +63,8 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRenderer {
                     .withType("radio")
                     .withName(selectionPath)
                     .withValue(String.valueOf(option.id()))
+                    .attr(ARIA_DESCRIBEDBY, questionHelpTextHtmlId())
+                    .attr(ARIA_ERRORMESSAGE, questionErrorMessageHtmlId())
                     .condAttr(checked, Attr.CHECKED, "")
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO)))

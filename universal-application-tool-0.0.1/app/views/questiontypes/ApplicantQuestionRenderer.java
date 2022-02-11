@@ -35,8 +35,30 @@ public abstract class ApplicantQuestionRenderer {
     return question.isOptional() ? "" : ReferenceClasses.REQUIRED_QUESTION;
   }
 
-  Tag renderInternal(Messages messages, Tag questionFormContent) {
+  protected Tag renderInternal(Messages messages, Tag questionFormContent) {
     return renderInternal(messages, questionFormContent, true);
+  }
+
+  /**
+   * Returns true if the question is required but skipped in the current program (i.e. the applicant
+   * clicked "next" without answering the question) or if the question's contents does not pass
+   * question-specific validation checks.
+   */
+  public boolean isInvalid() {
+    return question.isRequiredButWasSkippedInCurrentProgram()
+        || !question.getQuestionErrors().isEmpty();
+  }
+
+  protected String questionHtmlId() {
+    return question.getContextualizedPath().toString();
+  }
+
+  protected String questionErrorMessageHtmlId() {
+    return questionHtmlId() + "-error";
+  }
+
+  protected String questionHelpTextHtmlId() {
+    return questionHtmlId() + "-help-text";
   }
 
   /**
@@ -46,7 +68,7 @@ public abstract class ApplicantQuestionRenderer {
    * the form content, so we offer the ability to specify whether or not this method should render
    * the question errors here.
    */
-  Tag renderInternal(
+  protected Tag renderInternal(
       Messages messages, Tag questionFormContent, boolean shouldDisplayQuestionErrors) {
 
     ContainerTag questionTextDiv =
@@ -60,29 +82,33 @@ public abstract class ApplicantQuestionRenderer {
             // Question help text
             .with(
                 div()
+                    .withId(questionHelpTextHtmlId())
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)
                     .with(TextFormatter.createLinksAndEscapeText(question.getQuestionHelpText())))
             .withClasses(Styles.MB_4);
 
+    ContainerTag errorsDiv = div().withId(questionErrorMessageHtmlId());
+
     if (shouldDisplayQuestionErrors) {
       // Question error text
-      questionTextDiv.with(BaseHtmlView.fieldErrors(messages, question.getQuestionErrors()));
+      errorsDiv.with(BaseHtmlView.fieldErrors(messages, question.getQuestionErrors()));
     }
 
     if (question.isRequiredButWasSkippedInCurrentProgram()) {
       String requiredQuestionMessage = messages.at(MessageKey.VALIDATION_REQUIRED.getKeyName());
-      questionTextDiv.with(
+      errorsDiv.with(
           div()
+              .withId(questionErrorMessageHtmlId())
               .withClasses(Styles.P_1, Styles.TEXT_RED_600)
               .withText("*" + requiredQuestionMessage));
     }
 
     return div()
-        .withId(question.getContextualizedPath().toString())
+        .withId(questionHtmlId())
         .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
-        .with(questionTextDiv)
+        .with(questionTextDiv.with(errorsDiv))
         .with(questionFormContent);
   }
 }

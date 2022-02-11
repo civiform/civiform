@@ -275,11 +275,13 @@ class ValidationController {
     const filledInputs = Array.from(question.querySelectorAll('input')).filter(
       (input) => input.value !== ''
     )
+
     if (isOptional && filledInputs.length === 0) {
       return
     }
 
     const errorDiv = question.querySelector(fieldName + '-error')
+
     if (errorDiv) {
       errorDiv.classList.toggle('hidden', isValid)
     }

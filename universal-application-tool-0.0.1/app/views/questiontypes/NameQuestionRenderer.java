@@ -37,6 +37,9 @@ public class NameQuestionRenderer extends ApplicantQuestionRenderer {
                     .setFieldErrors(messages, nameQuestion.getFirstNameErrorMessage())
                     .showFieldErrors(!nameQuestion.getFirstNameErrors().isEmpty())
                     .addReferenceClass(ReferenceClasses.NAME_FIRST)
+                    .setErrorMessageHtmlId(questionErrorMessageHtmlId())
+                    .setDescribedByHtmlId(questionHelpTextHtmlId())
+                    .setIsInvalid(isInvalid())
                     .getContainer())
             .with(
                 FieldWithLabel.input()
@@ -53,6 +56,9 @@ public class NameQuestionRenderer extends ApplicantQuestionRenderer {
                     .setFieldErrors(messages, nameQuestion.getLastNameErrorMessage())
                     .showFieldErrors(!nameQuestion.getLastNameErrors().isEmpty())
                     .addReferenceClass(ReferenceClasses.NAME_LAST)
+                    .setErrorMessageHtmlId(questionErrorMessageHtmlId())
+                    .setDescribedByHtmlId(questionHelpTextHtmlId())
+                    .setIsInvalid(isInvalid())
                     .getContainer());
 
     return renderInternal(messages, nameQuestionFormContent);

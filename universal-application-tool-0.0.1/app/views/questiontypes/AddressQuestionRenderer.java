@@ -41,6 +41,9 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
                     .setFieldErrors(messages, addressQuestion.getStreetErrorMessage())
                     .showFieldErrors(!addressQuestion.getStreetErrors().isEmpty())
                     .addReferenceClass(ReferenceClasses.ADDRESS_STREET_1)
+                    .setErrorMessageHtmlId(questionErrorMessageHtmlId())
+                    .setDescribedByHtmlId(questionHelpTextHtmlId())
+                    .setIsInvalid(isInvalid())
                     .getContainer(),
                 /** Second line of address entry: Address line 2 AKA apartment, unit, etc. */
                 FieldWithLabel.input()
@@ -62,6 +65,9 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
                             .addReferenceClass(ReferenceClasses.ADDRESS_CITY)
                             .setFieldErrors(messages, addressQuestion.getCityErrorMessage())
                             .showFieldErrors(!addressQuestion.getCityErrors().isEmpty())
+                            .setErrorMessageHtmlId(questionErrorMessageHtmlId())
+                            .setDescribedByHtmlId(questionHelpTextHtmlId())
+                            .setIsInvalid(isInvalid())
                             .getContainer(),
                         FieldWithLabel.input()
                             .setFieldName(addressQuestion.getStatePath().toString())
@@ -70,6 +76,9 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
                             .setFieldErrors(messages, addressQuestion.getStateErrorMessage())
                             .showFieldErrors(!addressQuestion.getStateErrors().isEmpty())
                             .addReferenceClass(ReferenceClasses.ADDRESS_STATE)
+                            .setErrorMessageHtmlId(questionErrorMessageHtmlId())
+                            .setDescribedByHtmlId(questionHelpTextHtmlId())
+                            .setIsInvalid(isInvalid())
                             .getContainer(),
                         FieldWithLabel.input()
                             .setFieldName(addressQuestion.getZipPath().toString())
@@ -79,6 +88,9 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
                             .setFieldErrors(messages, addressQuestion.getZipErrorMessage())
                             .showFieldErrors(!addressQuestion.getZipErrors().isEmpty())
                             .addReferenceClass(ReferenceClasses.ADDRESS_ZIP)
+                            .setErrorMessageHtmlId(questionErrorMessageHtmlId())
+                            .setDescribedByHtmlId(questionHelpTextHtmlId())
+                            .setIsInvalid(isInvalid())
                             .getContainer()));
 
     return renderInternal(messages, addressQuestionFormContent);

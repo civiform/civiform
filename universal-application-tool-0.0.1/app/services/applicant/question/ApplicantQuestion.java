@@ -76,6 +76,10 @@ public class ApplicantQuestion {
     return programQuestionDefinition.optional();
   }
 
+  public boolean isRequired() {
+    return !isOptional();
+  }
+
   /**
    * Return true if this question is answered or a skipped optional question in the program
    * specified. Questions can only be skipped and left unanswered if they are optional.

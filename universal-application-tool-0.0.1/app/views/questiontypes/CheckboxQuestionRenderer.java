@@ -1,8 +1,7 @@
 package views.questiontypes;
 
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.input;
-import static j2html.TagCreator.label;
+import static j2html.TagCreator.*;
+import static views.HtmlAttributes.*;
 
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
@@ -32,8 +31,11 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRenderer {
   public Tag render(ApplicantQuestionRendererParams params) {
     MultiSelectQuestion multiOptionQuestion = question.createMultiSelectQuestion();
 
+    // If there is only one checkbox and the question is required then the checkbox is required.
+    boolean markRequired = multiOptionQuestion.getOptions().size() == 1 && question.isRequired();
+
     Tag checkboxQuestionFormContent =
-        div()
+        fieldset()
             // Hidden input that's always selected to allow for clearing mutli-select data.
             .with(
                 input()
@@ -50,13 +52,17 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRenderer {
                             renderCheckboxOption(
                                 multiOptionQuestion.getSelectionPathAsArray(),
                                 option,
-                                multiOptionQuestion.optionIsSelected(option))));
+                                multiOptionQuestion.optionIsSelected(option),
+                                markRequired)));
 
     return renderInternal(params.messages(), checkboxQuestionFormContent);
   }
 
   private Tag renderCheckboxOption(
-      String selectionPath, LocalizedQuestionOption option, boolean isSelected) {
+      String selectionPath,
+      LocalizedQuestionOption option,
+      boolean isSelected,
+      boolean isRequired) {
     String id = "checkbox-" + question.getContextualizedPath() + "-" + option.id();
     ContainerTag labelTag =
         label()
@@ -71,6 +77,9 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRenderer {
                     .withName(selectionPath)
                     .withValue(String.valueOf(option.id()))
                     .condAttr(isSelected, Attr.CHECKED, "")
+                    .condAttr(isRequired, ARIA_REQUIRED, "true")
+                    .attr(ARIA_ERRORMESSAGE, questionErrorMessageHtmlId())
+                    .attr(ARIA_DESCRIBEDBY, questionHelpTextHtmlId())
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)))
             .withText(option.optionText());

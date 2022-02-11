@@ -28,6 +28,10 @@ public class EmailQuestionRenderer extends ApplicantQuestionRenderer {
             .setValue(emailQuestion.getEmailValue().orElse(""))
             .setFieldErrors(params.messages(), emailQuestion.getQuestionErrors())
             .setScreenReaderText(question.getQuestionText())
+            .setDescribedByHtmlId(questionHelpTextHtmlId())
+            .setErrorMessageHtmlId(questionErrorMessageHtmlId())
+            .setIsInvalid(isInvalid())
+            .setIsRequired(question.isRequired())
             .getContainer();
 
     return renderInternal(params.messages(), questionFormContent, false);

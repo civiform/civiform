@@ -26,8 +26,13 @@ public class DateQuestionRenderer extends ApplicantQuestionRenderer {
 
     FieldWithLabel dateField =
         FieldWithLabel.date()
+            .setDescribedByHtmlId(questionHelpTextHtmlId())
+            .setErrorMessageHtmlId(questionErrorMessageHtmlId())
+            .setIsInvalid(isInvalid())
+            .setIsRequired(question.isRequired())
             .setFieldName(dateQuestion.getDatePath().toString())
-            .setScreenReaderText(question.getQuestionText());
+            .setScreenReaderText(question.getQuestionText())
+            .setDescribedByHtmlId(questionHelpTextHtmlId());
     if (dateQuestion.getDateValue().isPresent()) {
       Optional<String> value = dateQuestion.getDateValue().map(LocalDate::toString);
       dateField.setValue(value);

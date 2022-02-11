@@ -33,6 +33,10 @@ public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
             .setScreenReaderText(question.getQuestionText())
             .setMin(numberQuestion.getQuestionDefinition().getMin())
             .setMax(numberQuestion.getQuestionDefinition().getMax())
+            .setDescribedByHtmlId(questionHelpTextHtmlId())
+            .setErrorMessageHtmlId(questionErrorMessageHtmlId())
+            .setIsInvalid(isInvalid())
+            .setIsRequired(question.isRequired())
             .setFieldErrors(
                 params.messages(),
                 ImmutableSet.of(

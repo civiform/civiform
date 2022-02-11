@@ -2,6 +2,7 @@ package views.components;
 
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
+import static views.HtmlAttributes.ARIA_REQUIRED;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -92,6 +93,8 @@ public class SelectWithLabel extends FieldWithLabel {
       placeholder.attr(Attr.SELECTED);
     }
     ((ContainerTag) fieldTag).with(placeholder);
+
+    fieldTag.condAttr(isRequired, ARIA_REQUIRED, "true");
 
     // Either set the options to be custom options or create options from the (text, value) pairs.
     if (!this.customOptions.isEmpty()) {
