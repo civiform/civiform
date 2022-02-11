@@ -28,13 +28,7 @@ RUN apk add --update npm
 ENV PROJECT_HOME /usr/src
 ENV PROJECT_NAME universal-application-tool-0.0.1
 
-COPY ${PROJECT_NAME}/build.sbt ${PROJECT_HOME}/${PROJECT_NAME}/
-COPY ${PROJECT_NAME}/project ${PROJECT_HOME}/${PROJECT_NAME}/project
-RUN cd $PROJECT_HOME/$PROJECT_NAME && sbt update
-
 COPY ${PROJECT_NAME} ${PROJECT_HOME}/${PROJECT_NAME}
-RUN cd $PROJECT_HOME/$PROJECT_NAME && npm install && \
-    sbt dist
 
 # This is a common trick to shrink container sizes.  we just throw away all that build stuff and use only the jars
 # we built with sbt dist.

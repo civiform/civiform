@@ -20,21 +20,12 @@ RUN apk add --no-cache git openssh
 # Install node.js
 RUN apk add --update npm
 
-# Copy play project and compile it.
-# This will download all the ivy2 and sbt dependencies and install them
-# in the container /root directory, which saves time on future runs,
-# even if the dependencies change slightly.
-
 ENV PROJECT_HOME /usr/src
 ENV PROJECT_NAME universal-application-tool-0.0.1
 
-COPY ${PROJECT_NAME}/build.sbt ${PROJECT_HOME}/${PROJECT_NAME}/
-COPY ${PROJECT_NAME}/project ${PROJECT_HOME}/${PROJECT_NAME}/project
-RUN cd $PROJECT_HOME/$PROJECT_NAME && sbt update
-
 COPY ${PROJECT_NAME} ${PROJECT_HOME}/${PROJECT_NAME}
-RUN cd $PROJECT_HOME/$PROJECT_NAME && sbt reload compile
-ADD entrypoint.sh /entrypoint.sh
+
+COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 
