@@ -76,7 +76,8 @@ public class RadioButtonQuestionRendererTest {
     assertThat(result.render())
         .contains(
             "<input id=\"peanut_butter\" type=\"radio\""
-                + " name=\"applicant.favorite_ice_cream.selection\""
-                + " value=\"2\" checked=\"\"");
+                + " name=\"applicant.favorite_ice_cream.selection\" value=\"2\""
+                + " aria-describedby=\"applicant.favorite_ice_cream-help-text\""
+                + " aria-errormessage=\"applicant.favorite_ice_cream-error\" checked=\"\"");
   }
 }
