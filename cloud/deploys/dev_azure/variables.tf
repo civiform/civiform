@@ -39,10 +39,10 @@ variable "resource_group_name" {
 }
 
 variable "key_vault_name" {
-  type = string
+  type        = string
   description = "Name of key vault where secrets are stored."
 }
 
 variable "key_vault_resource_group" {
-  type    = string
+  type = string
 }
