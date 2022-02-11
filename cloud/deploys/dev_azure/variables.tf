@@ -19,8 +19,13 @@ variable "application_name" {
 }
 
 variable "key_vault_name" {
-  type = string
-  description = "Name of key vault where app secrets are stored."
+  type        = string
+  description = "name of the keyvault"
+}
+
+variable "app_secret_key" {
+  type        = string
+  description = "Secret Key For the app"
 }
 
 variable "aws_region" {
@@ -34,8 +39,6 @@ variable "sender_email_address" {
   description = "Email address that emails will be sent from"
 }
 
-variable "custom_hostname" {
-  type        = string
-  description = "custom hostname for the app to map the dns (used also for CORS)"
-  default     = "staging-azure.civiform.dev"
+variable "resource_group_name" {
+  type = string
 }

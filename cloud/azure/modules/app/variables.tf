@@ -41,6 +41,14 @@ variable "subnet_address_prefixes" {
   ]
 }
 
+variable "bastion_address_prefixes" {
+  type        = list(string)
+  description = "Prefixes for the bastion instance (must be distinct from other subnets)"
+  default = [
+    "10.0.6.0/24"
+  ]
+}
+
 variable "app_secret_key" {
   type        = string
   description = "Secret Key For the app"
@@ -57,8 +65,8 @@ variable "app_sku" {
 }
 
 variable "resource_group_name" {
-  type        = string
-  default     = "civiform-resourcegroup"
+  type    = string
+  default = "civiform-resourcegroup"
 }
 
 variable "postgres_admin_login" {
@@ -66,15 +74,10 @@ variable "postgres_admin_login" {
   description = "Postgres admin login"
 }
 
-variable "postgres_admin_password" {
-  type        = string
-  description = "Postgres admin password"
-}
-
 variable "postgres_sku_name" {
   type        = string
   description = "The sku name for postgres server"
-  default     = "GP_Gen5_4"
+  default     = "GP_Gen5_2"
 }
 variable "postgres_storage_mb" {
   type        = number
@@ -109,6 +112,21 @@ variable "log_retention" {
 }
 
 variable "ses_sender_email" {
-  type = string
+  type        = string
   description = "Email address of who is sending the email, passed to the app"
+}
+
+variable "staging_hostname" {
+  type        = string
+  description = "hostname for staging (used by the code to allow dev features)"
+  default     = "staging-azure.civiform.dev"
+}
+
+variable "custom_hostname" {
+  type        = string
+  description = "custom hostname for the app to map the dns (used also for CORS)"
+}
+variable "key_vault_name" {
+  type        = string
+  description = "Name of key vault where secrets are stored."
 }

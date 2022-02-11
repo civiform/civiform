@@ -48,7 +48,6 @@ class AzureUploadController {
         if (err) {
           throw err
         }
-        console.log(resp)
         this.setFileUploadMetadata(redirectUrl, azureUploadProps, resp)
         window.location.replace(redirectUrl.toString())
       })
@@ -74,10 +73,10 @@ class AzureUploadController {
     azureUploadProps: any,
     resp: any
   ) {
-    redirectUrl.searchParams.set('originalFileName', azureUploadProps.file.name)
+    redirectUrl.searchParams.set('generatedFileName', azureUploadProps.fileName)
     redirectUrl.searchParams.set('etag', resp.eTag)
-    redirectUrl.searchParams.set('fileName', azureUploadProps.fileName)
-    redirectUrl.searchParams.set('container', azureUploadProps.containerName)
+    redirectUrl.searchParams.set('key', azureUploadProps.file.name)
+    redirectUrl.searchParams.set('bucket', azureUploadProps.containerName)
   }
 }
 

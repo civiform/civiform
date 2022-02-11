@@ -55,6 +55,21 @@ resource "azurerm_storage_account_network_rules" "files_storage_rules" {
   }
 }
 
+data "azurerm_key_vault" "civiform_key_vault" {
+  name                = var.key_vault_name
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+data "azurerm_key_vault_secret" "postgres_password" {
+  name         = local.postgres_password_keyvault_id
+  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
+}
+
+data "azurerm_key_vault_secret" "app_secret_key" {
+  name         = local.app_secret_key_keyvault_id
+  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
+}
+
 resource "azurerm_storage_container" "files_container" {
   name                  = "files"
   storage_account_name  = azurerm_storage_account.files_storage_account.name
@@ -106,18 +121,19 @@ resource "azurerm_app_service" "civiform_app" {
     DOCKER_REGISTRY_SERVER_URL = "https://index.docker.io"
 
     DB_USERNAME    = "${azurerm_postgresql_server.civiform.administrator_login}@${azurerm_postgresql_server.civiform.name}"
-    DB_PASSWORD    = azurerm_postgresql_server.civiform.administrator_login_password
+    DB_PASSWORD    = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.postgres_password.id})"
     DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
 
     STORAGE_SERVICE_NAME = "azure-blob"
-    STAGING_HOSTNAME     = "sgtest-full-mammal.azurewebsites.net"                                      // TODO(#1720): update this to staging when dns is set up
-    BASE_URL             = "https://${var.application_name}-${random_pet.server.id}.azurewebsites.net" // TODO(#1720) this should be the dns name passed in
+    # this allows for the dev instances to get setup
+    STAGING_HOSTNAME = (var.staging_hostname != "" ? var.staging_hostname : local.generated_hostname)
+    BASE_URL         = "https://${var.custom_hostname != "" ? var.custom_hostname : local.generated_hostname}"
 
     AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
 
     AWS_SES_SENDER = var.ses_sender_email
-    SECRET_KEY     = var.app_secret_key
+    SECRET_KEY     = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.app_secret_key.id})"
   }
   # Configure Docker Image to load on start
   site_config {
@@ -197,7 +213,7 @@ resource "azurerm_postgresql_server" "civiform" {
   resource_group_name = azurerm_resource_group.rg.name
 
   administrator_login          = var.postgres_admin_login
-  administrator_login_password = var.postgres_admin_password
+  administrator_login_password = data.azurerm_key_vault_secret.postgres_password.value
 
   // fqdn civiform-db.postgres.database.azure.com
 
@@ -274,4 +290,21 @@ resource "azurerm_role_assignment" "storage_blob_data_contributor" {
   scope                = azurerm_storage_account.files_storage_account.id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
+}
+
+# Grant the app the role of storage account contributor, as the app needs 
+# to set its own CORs
+resource "azurerm_role_assignment" "storage_account_contributor" {
+  scope                = azurerm_storage_account.files_storage_account.id
+  role_definition_name = "Storage Account Contributor"
+  principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
+}
+
+module "bastion" {
+  source = "../bastion"
+
+  resource_group_name      = azurerm_resource_group.rg.name
+  resource_group_location  = azurerm_resource_group.rg.location
+  bastion_address_prefixes = var.bastion_address_prefixes
+  vnet_name                = azurerm_virtual_network.civiform_vnet.name
 }

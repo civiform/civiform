@@ -204,9 +204,16 @@ public final class Block {
     return isCompleteInProgram() && !hasErrors();
   }
 
+  /**
+   * A block is considered complete in a program if 1) It has no questions (this is a bit of a
+   * bugfix hack so that empty blocks the admin hasn't added content to don't prevent applicants
+   * from being able to submit their applications). OR 2) Each of its required questions is answered
+   * AND each of its optional questions is answered or intentionally skipped.
+   */
   private boolean isCompleteInProgram() {
-    return getQuestions().stream()
-        .anyMatch(question -> question.isAnsweredOrSkippedOptionalInProgram());
+    return getQuestions().isEmpty()
+        || getQuestions().stream()
+            .allMatch(question -> question.isAnsweredOrSkippedOptionalInProgram());
   }
 
   /**

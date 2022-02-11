@@ -1,0 +1,8 @@
+{
+  "CIVIFORM_CLOUD_PROVIDER": {
+    "required": true,
+    "secret": false,
+    "type": "enum",
+    "values": ["gcp", "azure", "aws"]
+  }
+}
