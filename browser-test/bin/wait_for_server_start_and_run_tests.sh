@@ -3,7 +3,7 @@
 set -euo pipefail
 
 START_TIME=$(date +%s)
-DEADLINE=$(($START_TIME + 200))
+DEADLINE=$(($START_TIME + 500))
 SERVER_URL="http://civiform:9000"
 
 echo "Polling to check server start"
