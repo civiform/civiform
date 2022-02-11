@@ -10,8 +10,7 @@ RUN set -o pipefail && \
     apk update && \
     apk add --no-cache --update bash wget npm git openssh && \
     mkdir -p "${SBT_HOME}" && \
-    wget -qO - --no-check-certificate "${SBT_URL}" | \
-    tar xz -C "${INSTALL_DIR}" && \
+    wget -qO - "${SBT_URL}" | tar xz -C "${INSTALL_DIR}" && \
     echo -ne "- with sbt ${SBT_VERSION}\n" >> /root/.built
 
 ENV PROJECT_HOME /usr/src
