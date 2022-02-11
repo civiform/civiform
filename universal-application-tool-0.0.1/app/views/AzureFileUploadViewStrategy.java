@@ -48,6 +48,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     return formTag
         .with(div().withText(uploaded.orElse("")))
         .with(input().withType("file").withName("file"))
+        .with(input().withType("hidden").withName("key").withValue(request.fileName()))
         .with(input().withType("hidden").withName("sasToken").withValue(request.sasToken()))
         .with(input().withType("hidden").withName("blobUrl").withValue(request.blobUrl()))
         .with(
