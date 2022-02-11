@@ -8,12 +8,13 @@ import static j2html.TagCreator.textarea;
 import static views.HtmlAttributes.*;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -60,7 +61,7 @@ public class FieldWithLabel {
   protected String describedByHtmlId = "";
   protected boolean isInvalid = false;
   protected boolean isRequired = false;
-  protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
+  protected ArrayList<String> referenceClasses = new ArrayList<>();
 
   public FieldWithLabel(Tag fieldTag) {
     this.fieldTag = checkNotNull(fieldTag);
@@ -108,7 +109,7 @@ public class FieldWithLabel {
 
   /** Add a reference class from {@link views.style.ReferenceClasses} to this element. */
   public FieldWithLabel addReferenceClass(String referenceClass) {
-    referenceClassesBuilder.add(referenceClass);
+    referenceClasses.add(referenceClass);
     return this;
   }
 
@@ -343,7 +344,7 @@ public class FieldWithLabel {
             labelTag,
             div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
         .withClasses(
-            StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
+            StyleUtils.joinStyles(referenceClasses.toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
   }
 
@@ -358,7 +359,7 @@ public class FieldWithLabel {
 
     return label()
         .withClasses(
-            StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
+            StyleUtils.joinStyles(referenceClasses.toArray(new String[0])),
             BaseStyles.CHECKBOX_LABEL,
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
             labelText.isEmpty() ? Styles.W_MIN : "")
@@ -369,7 +370,8 @@ public class FieldWithLabel {
 
   private Tag buildFieldErrorsTag() {
     String[] referenceClasses =
-        referenceClassesBuilder.build().stream().map(ref -> ref + "-error").toArray(String[]::new);
+        this.referenceClasses.stream().map(ref -> ref + "-error").toArray(String[]::new);
+
     return div(each(fieldErrors, error -> div(error.getMessage(messages))))
         .withClasses(
             StyleUtils.joinStyles(referenceClasses),

@@ -299,6 +299,7 @@ class ValidationController {
     const addressQuestions = Array.from(
       document.querySelectorAll(ValidationController.ADDRESS_QUESTION_CLASS)
     )
+
     for (const question of addressQuestions) {
       // validate address line 1 not empty.
       const addressLine1 = <HTMLInputElement>(
@@ -365,6 +366,7 @@ class ValidationController {
       const isValid = emptyOptional || hasValidPresentInputs
       allValid = allValid && isValid
     }
+
     return allValid
   }
 

@@ -22,7 +22,7 @@ public class SelectWithLabel extends FieldWithLabel {
 
   @Override
   public SelectWithLabel addReferenceClass(String referenceClass) {
-    referenceClassesBuilder.add(referenceClass);
+    referenceClasses.add(referenceClass);
     return this;
   }
 

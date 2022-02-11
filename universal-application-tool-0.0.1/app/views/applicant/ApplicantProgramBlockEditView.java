@@ -88,9 +88,6 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
               params.messages()));
     }
 
-    // Add question validation scripts.
-    bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("validation"));
-
     return layout.renderWithNav(
         params.request(), params.applicantName(), params.messages(), bundle);
   }

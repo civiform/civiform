@@ -51,6 +51,6 @@ public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
 
     Tag numberQuestionFormContent = div().with(numberField.getContainer());
 
-    return renderInternal(params.messages(), numberQuestionFormContent, false);
+    return renderInternal(params.messages(), numberQuestionFormContent);
   }
 }

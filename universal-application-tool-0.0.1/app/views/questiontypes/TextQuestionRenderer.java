@@ -33,6 +33,6 @@ public class TextQuestionRenderer extends ApplicantQuestionRenderer {
             .setIsRequired(question.isRequired())
             .getContainer();
 
-    return renderInternal(params.messages(), questionFormContent, false);
+    return renderInternal(params.messages(), questionFormContent);
   }
 }

@@ -59,6 +59,6 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRenderer {
     Tag currencyQuestionFormContent =
         div().withClasses(Styles.FLEX).with(dollarSign).with(currencyField.getContainer());
 
-    return renderInternal(params.messages(), currencyQuestionFormContent, false);
+    return renderInternal(params.messages(), currencyQuestionFormContent);
   }
 }

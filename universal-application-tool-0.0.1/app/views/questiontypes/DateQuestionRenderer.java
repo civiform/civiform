@@ -39,6 +39,6 @@ public class DateQuestionRenderer extends ApplicantQuestionRenderer {
     }
     Tag dateQuestionFormContent = dateField.getContainer();
 
-    return renderInternal(params.messages(), dateQuestionFormContent, false);
+    return renderInternal(params.messages(), dateQuestionFormContent);
   }
 }

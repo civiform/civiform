@@ -91,7 +91,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
                         ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
                         StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400)));
 
-    return renderInternal(messages, enumeratorQuestionFormContent, false);
+    return renderInternal(messages, enumeratorQuestionFormContent);
   }
 
   /**
