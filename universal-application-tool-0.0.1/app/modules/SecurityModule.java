@@ -12,12 +12,16 @@ import auth.FakeAdminClient;
 import auth.GuestClient;
 import auth.IdcsOidcClient;
 import auth.IdcsProfileAdapter;
+import auth.LoginRadiusOidcClient;
 import auth.ProfileFactory;
 import auth.Roles;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
+import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import controllers.routes;
 import java.net.URI;
 import java.util.ArrayList;
@@ -26,6 +30,7 @@ import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import javax.inject.Provider;
+import net.minidev.json.JSONObject;
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
 import org.pac4j.core.authorization.authorizer.RequireAnyRoleAuthorizer;
 import org.pac4j.core.client.Client;
@@ -142,6 +147,56 @@ public class SecurityModule extends AbstractModule {
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.init();
     return client;
+  }
+
+  /** Creates a singleton object of OidcClient configured for LoginRadius and initializes it on startup. */
+  @Provides
+  @Nullable
+  @Singleton
+  @LoginRadiusOidcClient
+  protected OidcClient provideLoginRadiusClient(
+      ProfileFactory profileFactory, Provider<UserRepository> applicantRepositoryProvider) {
+    if (!this.configuration.hasPath("login_radius.client_id")
+        || !this.configuration.hasPath("login_radius.secret")) {
+      return null;
+    }
+    OidcConfiguration config = new OidcConfiguration();
+    config.setClientId(this.configuration.getString("login_radius.client_id"));
+    config.setSecret(this.configuration.getString("login_radius.secret"));
+    config.setDiscoveryURI(this.configuration.getString("login_radius.discovery_uri"));
+
+    config.setClientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+    addProviderMetadata(config);
+
+    config.setResponseMode("form_post");
+    config.setResponseType("id_token token");
+
+    config.setUseNonce(true);
+    config.setWithState(false);
+    config.setScope("openid profile email");
+
+
+    OidcClient client = new OidcClient(config);
+    client.setCallbackUrl(baseUrl + "/callback");
+
+    // TODO loginradiusprofileadapter
+    client.setProfileCreator(
+        new IdcsProfileAdapter(config, client, profileFactory, applicantRepositoryProvider));
+    client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
+    client.init();
+    return client;
+  }
+
+  private void addProviderMetadata(OidcConfiguration oidcConfiguration) {
+    JSONObject jsonObj = new JSONObject();
+    jsonObj.appendField("token_endpoint", configuration.getString("login_radius.tokenUri"));
+    final OIDCProviderMetadata providerMetaData;
+    try {
+      providerMetaData = OIDCProviderMetadata.parse(jsonObj);
+      oidcConfiguration.setProviderMetadata(providerMetaData);
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
   }
 
   /** Creates a singleton object of OidcClient configured for AD and initializes it on startup. */

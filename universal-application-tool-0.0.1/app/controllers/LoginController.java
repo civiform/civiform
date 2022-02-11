@@ -4,6 +4,7 @@ import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 
 import auth.AdOidcClient;
 import auth.IdcsOidcClient;
+import auth.LoginRadiusOidcClient;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.typesafe.config.Config;
@@ -31,6 +32,8 @@ public class LoginController extends Controller {
 
   private final OidcClient adClient;
 
+  private final OidcClient loginRadiusClient;
+
   private final SessionStore sessionStore;
 
   private final HttpActionAdapter httpActionAdapter;
@@ -41,10 +44,12 @@ public class LoginController extends Controller {
   public LoginController(
       @AdOidcClient @Nullable OidcClient adClient,
       @IdcsOidcClient @Nullable OidcClient idcsClient,
+      @LoginRadiusOidcClient @Nullable OidcClient loginRadiusClient,
       SessionStore sessionStore,
       Config config) {
     this.idcsClient = idcsClient;
     this.adClient = adClient;
+    this.loginRadiusClient = loginRadiusClient;
     this.sessionStore = Preconditions.checkNotNull(sessionStore);
     this.httpActionAdapter = PlayHttpActionAdapter.INSTANCE;
     this.config = config;
