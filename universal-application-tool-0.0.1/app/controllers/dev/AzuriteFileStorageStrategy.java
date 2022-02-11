@@ -16,8 +16,8 @@ public class AzuriteFileStorageStrategy implements CloudEmulatorFileStorageStrat
   public Result create(StoredFileRepository storedFileRepository, Request request) {
     Optional<String> etag = request.queryString("etag");
     Optional<String> container = request.queryString("bucket");
-    Optional<String> originalFileName = request.queryString("key");
-    Optional<String> fileName = request.queryString("generatedFileName");
+    Optional<String> originalFileName = request.queryString("originalFileName");
+    Optional<String> fileName = request.queryString("key");
 
     if (!container.isPresent() || !fileName.isPresent()) {
       throw new RuntimeException("File missing container or file name, cannot upload");
