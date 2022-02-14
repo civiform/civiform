@@ -29,4 +29,9 @@ module "app" {
   ses_sender_email = var.sender_email_address
   custom_hostname  = ""
   staging_hostname = ""
+
+  # pull these from the keyvault
+  adfs_client_id     = var.adfs_client_id
+  adfs_discovery_uri = var.adfs_discovery_uri
+  adfs_admin_group   = var.adfs_admin_group
 }

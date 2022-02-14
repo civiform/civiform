@@ -30,6 +30,40 @@ via the commands below), note that it does a pretty fuzzy regex match for
 the storage account name so if you are doing something special you might have
 to write your own script to do that!
 
+## Logging 
+In order to see the log stream for your app service; you have to manually allow the http logs. Do this by going to diagnostic settings and send the http logs to the log server we created (note i think this can be done via terraform)
+
+also had to do 
+To enable application logging for Linux apps or custom containers in the Azure portal, navigate to your app and select App Service logs.
+
+In Application logging, select File System.
+
+In Quota (MB), specify the disk quota for the application logs. In Retention Period (Days), set the number of days the logs should be retained.
+
+When finished, select Save.
+
+## Azure Ad Setup
+Add the adfs_client_id to your local configs. For the private adfs_secret add it via key vault.
+
+Configure the Microsoft provider:
+- Go To App Serice and select the authentication tab on the left panel
+- Add a new identity provider and select Microsoft
+- Make a note of the client id (as this will be the adfs_client_id to store in your client id)
+
+Within the identity provider you just created go to Authentication and add the following information:
+- Add the correct redirect url (should be: `https://<HOSTNAME>/callback/AdClient`) 
+- Select ID token 
+- Select Single Tenant 
+
+Within the API permissions
+- Select add permission
+- Select delegated permissions
+- Select microsoft graph
+- Find the openid Permissions and select: email, openid, profile
+
+Within the certificates & secrets
+- add a new client secret and add the value to your key vault
+
 ## Export your account key
 In order to use terraform with the azure backend you'll need to get the 
 `account_key` set up properly. The backend_vars file expects it to be provided 

@@ -134,11 +134,6 @@ variable "adfs_client_id" {
   description = "Active Directory Federation Service client id"
 }
 
-variable "adfs_secret" {
-  type        = string
-  description = "Active Directory Federation Service secret"
-}
-
 variable "adfs_discovery_uri" {
   type        = string
   description = "Active Directory Federation Service url that handles adfs login"

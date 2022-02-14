@@ -52,6 +52,11 @@ data "azurerm_key_vault_secret" "app_secret_key" {
   key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
 }
 
+data "azurerm_key_vault_secret" "adfs_secret" {
+  name         = local.adfs_secret_keyvault_id
+  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
+}
+
 resource "azurerm_storage_container" "files_container" {
   name                  = "files"
   storage_account_name  = azurerm_storage_account.files_storage_account.name
@@ -118,8 +123,7 @@ resource "azurerm_app_service" "civiform_app" {
     SECRET_KEY     = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.app_secret_key.id})"
 
     ADFS_CLIENT_ID          = var.adfs_client_id
-    AZURE_CLIENT_SECRET     = var.adfs_secret
-    ADFS_SECRET             = var.adfs_secret
+    ADFS_SECRET             = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.adfs_secret.id})"
     ADFS_DISCOVERY_URI      = var.adfs_discovery_uri
     ADFS_GLOBAL_ADMIN_GROUP = var.adfs_admin_group
 
@@ -266,6 +270,12 @@ resource "azurerm_private_endpoint" "endpoint" {
     subresource_names              = ["postgresqlServer"]
     is_manual_connection           = false
   }
+}
+
+resource "azurerm_role_assignment" "key_vault" {
+  scope                = data.azurerm_key_vault.civiform_key_vault.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
 }
 
 resource "azurerm_role_assignment" "storage_blob_delegator" {
