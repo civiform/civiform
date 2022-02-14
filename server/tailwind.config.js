@@ -1,23 +1,31 @@
 const fs = require('fs');
-const prefixes = {
-  'even': 'EVEN',
-  'focus': 'FOCUS',
-  'focus-within': 'FOCUS_WITHIN',
-  'hover': 'HOVER',
-  'disabled': 'DISABLED',
-  'sm': 'RESPONSIVE_SM',
-  'md': 'RESPONSIVE_MD',
-  'lg': 'RESPONSIVE_LG',
-  'xl': 'RESPONSIVE_XL',
-  '2xl': 'RESPONSIVE_2XL'
+const styleUtilsPrefixes = {
+  'even':'even',
+  'focus':'focus',
+  'focusWithin':'focus-within',
+  'hover':'hover',
+  'disabled':'disabled',
+  'resonsiveSmall':'sm',
+  'responsiveMedium':'md',
+  'responsiveLarge':'lg',
+  'responsiveXLarge':'xl',
+  'responsive2XLarge':'2xl'
 };
 
-const htmlTags = fs.readFileSync('./tags.txt', 'utf8').split('\n');
+// Used in the main tailwind's method of the transform obj to ensure we only
+// read certain files (e.g. typescript) only once, since those have their contents read directly
+var PROCESSED_TS = false;
 
+// Used to get a dictionary mapping for all possible base styles (no prefixes) in
+// java files refered to in `function getStyles()`
 class StylesJavaReader {
   constructor(file_contents) {
     this.file_contents = file_contents;
+
+    // Variable as a key, e.g. Styles.BG_BLUE_200
     this.rgx_key = /(?<= +public +static +final +String +)([0-9A-Z_]+)/g;
+
+    // Tailwind string value refered to by variable, e.g. 'bg-blue-200'
     this.rgx_val = /(?<= +public +static +final +String +[0-9A-Z_]+ += +")([a-z0-9-/]+)/g;
   }
 
@@ -27,6 +35,8 @@ class StylesJavaReader {
       let match_key = line.match(this.rgx_key);
       let match_val = line.match(this.rgx_val);
 
+      // Both 'variable' and tailwind str are probably on same line
+      // Even though java probably doesn't require it
       if (Array.isArray(match_key) && Array.isArray(match_val)) {
         if (match_key.length === 1 && match_val.length === 1) {
           matches[match_key[0]] = match_val[0];
@@ -40,6 +50,13 @@ class StylesJavaReader {
 
       count += 1
     }
+  }
+}
+
+class StylesPrefixReader {
+  constructor(file_contents, stylesDict) {
+    this.file_contents = file_contents;
+    this.stylesDict = stylesDict;
   }
 }
 
@@ -62,7 +79,6 @@ function getStyles() {
   return matches;
 }
 
-var PROCESSED_TS = false;
 const styleDict = getStyles();
 
 function original(content, output) {
@@ -102,7 +118,6 @@ module.exports = {
       java: (content) => {
         var output = [];
 
-        var output = []
         let matchIter = content.match(/(?<=Styles\.)([0-9A-Z_]+)/g);
 
         if (matchIter) {
@@ -150,6 +165,7 @@ module.exports = {
           }
 
           // Had to manually push all the html tags for some reason
+          const htmlTags = fs.readFileSync('./tags.txt', 'utf8').split('\n');
           for (const t of htmlTags) {
             output.push(t);
           }
@@ -161,6 +177,7 @@ module.exports = {
       },
     },
   },
+
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
