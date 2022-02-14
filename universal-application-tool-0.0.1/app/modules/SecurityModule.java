@@ -175,9 +175,7 @@ public class SecurityModule extends AbstractModule {
     config.setPrivateKeyPassword(this.configuration.getString("login_radius.private_key_password"));
     config.setIdentityProviderMetadataResourceUrl(metadataResourceUrl);
     config.setServiceProviderEntityId(baseUrl + "/callback");
-
-
-
+    
     SAML2Client client = new SAML2Client(config);
 
     // TODO loginradiusprofileadapter

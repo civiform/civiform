@@ -88,6 +88,10 @@ public class LoginController extends Controller {
             routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url());
   }
 
+  public Result loginRadiusLogin(Http.Request request) {
+    return login(request, loginRadiusClient);
+  }
+
   public Result adfsLogin(Http.Request request) {
     return login(request, adClient);
   }
