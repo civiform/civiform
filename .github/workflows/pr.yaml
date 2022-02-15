@@ -10,10 +10,12 @@ jobs:
     steps:
       - name: check out pr branch
         uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build test container
         env:
           DOCKER_BUILDKIT: 1
-        run: DOCKER_BUILDKIT=1 docker build -t civiform ./
+        run: docker build -t civiform --cache-from docker.io/civiform/civiform:latest ./
       - name: Run tests
         run: docker run -v /var/run/docker.sock:/var/run/docker.sock civiform test
 
@@ -22,10 +24,12 @@ jobs:
     steps:
       - name: check out pr branch
         uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build test app container
         env:
           DOCKER_BUILDKIT: 1
-        run: DOCKER_BUILDKIT=1 docker build -t civiform ./
+        run: docker build -t civiform --cache-from docker.io/civiform/civiform:latest ./
       - name: Build browser testing container
         env:
           DOCKER_BUILDKIT: 1
@@ -45,10 +49,12 @@ jobs:
     steps:
       - name: check out pr branch
         uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build test app container
         env:
           DOCKER_BUILDKIT: 1
-        run: DOCKER_BUILDKIT=1 docker build -t civiform ./
+        run: docker build -t civiform --cache-from docker.io/civiform/civiform:latest ./
       - name: Build browser testing container
         env:
           DOCKER_BUILDKIT: 1
@@ -68,10 +74,12 @@ jobs:
     steps:
       - name: check out pr branch
         uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Build prod container
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -f prod.Dockerfile -t civiform:prod ./
+        run: docker build -f prod.Dockerfile -t civiform:prod --cache-from docker.io/civiform/civiform:latest ./
       - name: Build the stack
         env:
           SECRET_KEY: notarealsecret
