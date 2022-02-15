@@ -48,6 +48,7 @@ Add the adfs_client_id to your local configs. For the private adfs_secret add it
 Configure the Microsoft provider:
 - Go To App Serice and select the authentication tab on the left panel
 - Add a new identity provider and select Microsoft
+- Make sure the identity provider allows all requests (this page is publicly visible but the login is restricted)
 - Make a note of the client id (as this will be the adfs_client_id to store in your client id)
 
 Within the identity provider you just created go to Authentication and add the following information:

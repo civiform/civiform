@@ -175,7 +175,9 @@ public class SecurityModule extends AbstractModule {
     config.setResponseType("id_token");
 
     // scopes are the other things that we want from the adfs endpoint
-    // (needs to also be configured on adfs). allatclaims returns the profile
+    // (needs to also be configured on adfs). 
+    // allatclaims returns access token in the id_token. might be used for 
+    // the group that tells who are in what group. 
     config.setScope("openid profile email");
 
     // security setting that adds a random number to ensure cannot be reused
