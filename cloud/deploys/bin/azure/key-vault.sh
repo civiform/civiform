@@ -49,11 +49,12 @@ function key_vault::add_secret(){
 #######################################
 function key_vault::add_generated_secrets(){
     vault_name=$1
+    charset='A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~'
     shift;
     for key in "$@";
     do
         echo "Generating secret: ${key}"
-        secret_value="$(head -1 /dev/urandom | cut -c -40)"
+        secret_value="$(head /dev/urandom | tr -dc "$charset" | cut -c -40)"
         echo "Setting secret: ${key}"
         key_vault::add_secret "$(echo $vault_name)" "${key}" "${secret_value}"
     done
