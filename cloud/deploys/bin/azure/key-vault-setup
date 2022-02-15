@@ -1,5 +1,6 @@
 #! /usr/bin/env bash
 source lib/out.sh
+source azure/key-vault.sh
 
 # DOC: Create key vault instance, set permissions, and generate and set secrets
 
@@ -17,6 +18,7 @@ if [[ ! "${resource_group}" ]] \
    || [[ ! "${vault_name}" ]]; then
   out::error "arguments -g and -v must be provided"
   exit 1
+fi
 
 echo "Creating resource group ${resource_group}"
 key_vault::create_resource_group "${resource_group}" "${location}"
@@ -26,8 +28,6 @@ key_vault::create_vault "${resource_group}" "${location}" "${vault_name}"
 
 echo "Generating and setting secrets"
 key_vault::add_generated_secrets "${vault_name}" "postgres-password" "app-secret-key"
-
-
 
 
 

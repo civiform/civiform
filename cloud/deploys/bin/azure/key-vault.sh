@@ -7,7 +7,9 @@
 #   2: The location of the key vault
 #######################################
 function key_vault::create_resource_group(){
-    az group create --name "${1}" -l "${2}"
+    if [ $(az group exists --name "${1}") = false ]; then
+        az group create --name "${1}" -l "${2}"
+    fi
 }
 
 #######################################
@@ -18,6 +20,7 @@ function key_vault::create_resource_group(){
 #   3: The name of the key vault 
 #######################################
 function key_vault::create_vault(){
+    
     az keyvault create \
         --name "${3}" \
         --resource-group "${1}"\
@@ -37,7 +40,7 @@ function key_vault::add_secret(){
         --vault-name "${1}" \
         --name "${2}" \
         --value "${3}"
-
+}
 #######################################
 # Generates and adds secrets to the key vault
 # Arguments:
@@ -45,8 +48,13 @@ function key_vault::add_secret(){
 #   2..n: The name of the secret (i.e. "postgres-password")
 #######################################
 function key_vault::add_generated_secrets(){
-    for ${@:2} 
+    vault_name=$1
+    shift;
+    for key in "$@";
     do
-        secret_value = "$(head -1 /dev/urandom | cut -c -40)"
-        key_vault::add_secret "${1}" "${2}" "${secret_value}"
+        echo "Generating secret: ${key}"
+        secret_value="$(head -1 /dev/urandom | cut -c -40)"
+        echo "Setting secret: ${key}"
+        key_vault::add_secret "$(echo $vault_name)" "${key}" "${secret_value}"
     done
+}
