@@ -18,11 +18,6 @@ variable "application_name" {
   description = "Azure Web App Name"
 }
 
-variable "key_vault_name" {
-  type        = string
-  description = "name of the keyvault"
-}
-
 variable "app_secret_key" {
   type        = string
   description = "Secret Key For the app"
@@ -40,5 +35,14 @@ variable "sender_email_address" {
 }
 
 variable "resource_group_name" {
+  type = string
+}
+
+variable "key_vault_name" {
+  type        = string
+  description = "Name of key vault where secrets are stored."
+}
+
+variable "key_vault_resource_group" {
   type = string
 }
