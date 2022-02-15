@@ -7,6 +7,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
+import static j2html.attributes.Attr.ENCTYPE;
 import static j2html.attributes.Attr.FORM;
 
 import controllers.applicant.routes;
@@ -91,6 +92,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     ContainerTag formTag =
         form()
             .withId(BLOCK_FORM_ID)
+            .attr(ENCTYPE, "multipart/form-data")
             .with(
                 each(
                     params.block().getQuestions(),
