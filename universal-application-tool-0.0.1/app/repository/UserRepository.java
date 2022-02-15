@@ -9,8 +9,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import io.ebean.DB;
+import io.ebean.Database;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +25,6 @@ import models.DisplayMode;
 import models.LifecycleStage;
 import models.Program;
 import models.TrustedIntermediaryGroup;
-import play.db.ebean.EbeanConfig;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
 import services.ti.EmailAddressExistsException;
@@ -38,27 +37,26 @@ import services.ti.NoSuchTrustedIntermediaryGroupError;
  */
 public class UserRepository {
 
-  private final EbeanServer ebeanServer;
+  private final Database database;
   private final DatabaseExecutionContext executionContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
   public UserRepository(
-      EbeanConfig ebeanConfig,
       DatabaseExecutionContext executionContext,
       Provider<VersionRepository> versionRepositoryProvider) {
-    this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
+    this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
   }
 
   public CompletionStage<Set<Applicant>> listApplicants() {
-    return supplyAsync(() -> ebeanServer.find(Applicant.class).findSet(), executionContext);
+    return supplyAsync(() -> database.find(Applicant.class).findSet(), executionContext);
   }
 
   public CompletionStage<Optional<Applicant>> lookupApplicant(long id) {
     return supplyAsync(
-        () -> ebeanServer.find(Applicant.class).setId(id).findOneOrEmpty(), executionContext);
+        () -> database.find(Applicant.class).setId(id).findOneOrEmpty(), executionContext);
   }
 
   /**
@@ -70,12 +68,12 @@ public class UserRepository {
     return supplyAsync(
         () -> {
           ImmutableList<ProgramDefinition> inProgressPrograms =
-              ebeanServer
+              database
                   .find(Program.class)
                   .alias("p")
                   .where()
                   .exists(
-                      ebeanServer
+                      database
                           .find(Application.class)
                           .where()
                           .eq("applicant.id", applicantId)
@@ -103,11 +101,7 @@ public class UserRepository {
     if (emailAddress == null || emailAddress.isEmpty()) {
       return Optional.empty();
     }
-    return ebeanServer
-        .find(Account.class)
-        .where()
-        .eq("email_address", emailAddress)
-        .findOneOrEmpty();
+    return database.find(Account.class).where().eq("email_address", emailAddress).findOneOrEmpty();
   }
 
   public CompletionStage<Optional<Applicant>> lookupApplicant(String emailAddress) {
@@ -139,7 +133,7 @@ public class UserRepository {
   public CompletionStage<Void> insertApplicant(Applicant applicant) {
     return supplyAsync(
         () -> {
-          ebeanServer.insert(applicant);
+          database.insert(applicant);
           return null;
         },
         executionContext);
@@ -148,14 +142,14 @@ public class UserRepository {
   public CompletionStage<Void> updateApplicant(Applicant applicant) {
     return supplyAsync(
         () -> {
-          ebeanServer.update(applicant);
+          database.update(applicant);
           return null;
         },
         executionContext);
   }
 
   public Optional<Applicant> lookupApplicantSync(long id) {
-    return ebeanServer.find(Applicant.class).setId(id).findOneOrEmpty();
+    return database.find(Applicant.class).setId(id).findOneOrEmpty();
   }
 
   /** Merge the older applicant data into the newer applicant, and set both to the given account. */
@@ -188,7 +182,7 @@ public class UserRepository {
   }
 
   public List<TrustedIntermediaryGroup> listTrustedIntermediaryGroups() {
-    return ebeanServer.find(TrustedIntermediaryGroup.class).findList();
+    return database.find(TrustedIntermediaryGroup.class).findList();
   }
 
   public TrustedIntermediaryGroup createNewTrustedIntermediaryGroup(
@@ -203,11 +197,11 @@ public class UserRepository {
     if (tiGroup.isEmpty()) {
       throw new NoSuchTrustedIntermediaryGroupError();
     }
-    ebeanServer.delete(tiGroup.get());
+    database.delete(tiGroup.get());
   }
 
   public Optional<TrustedIntermediaryGroup> getTrustedIntermediaryGroup(long id) {
-    return ebeanServer.find(TrustedIntermediaryGroup.class).setId(id).findOneOrEmpty();
+    return database.find(TrustedIntermediaryGroup.class).setId(id).findOneOrEmpty();
   }
 
   /**
@@ -255,7 +249,7 @@ public class UserRepository {
   }
 
   private Optional<Account> lookupAccount(long accountId) {
-    return ebeanServer.find(Account.class).setId(accountId).findOneOrEmpty();
+    return database.find(Account.class).setId(accountId).findOneOrEmpty();
   }
 
   public Optional<TrustedIntermediaryGroup> getTrustedIntermediaryGroup(
@@ -338,6 +332,6 @@ public class UserRepository {
 
   public ImmutableSet<Account> getGlobalAdmins() {
     return ImmutableSet.copyOf(
-        ebeanServer.find(Account.class).where().eq("global_admin", true).findList());
+        database.find(Account.class).where().eq("global_admin", true).findList());
   }
 }

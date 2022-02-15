@@ -1,7 +1,7 @@
 package models;
 
-import io.ebean.annotation.CreatedTimestamp;
 import io.ebean.annotation.DbJson;
+import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
@@ -32,7 +32,7 @@ public class Application extends BaseModel {
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
-  @CreatedTimestamp private Instant createTime;
+  @WhenCreated private Instant createTime;
 
   @Constraints.Required @DbJson private String object;
 
