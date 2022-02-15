@@ -57,7 +57,7 @@ resource "azurerm_storage_account_network_rules" "files_storage_rules" {
 
 data "azurerm_key_vault" "civiform_key_vault" {
   name                = var.key_vault_name
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = var.key_vault_resource_group
 }
 
 data "azurerm_key_vault_secret" "postgres_password" {
@@ -146,7 +146,6 @@ resource "azurerm_app_service" "civiform_app" {
   identity {
     type = "SystemAssigned"
   }
-
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "appservice_vnet_connection" {
@@ -283,6 +282,12 @@ resource "azurerm_private_endpoint" "endpoint" {
 resource "azurerm_role_assignment" "storage_blob_delegator" {
   scope                = azurerm_storage_account.files_storage_account.id
   role_definition_name = "Storage Blob Delegator"
+  principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
+}
+
+resource "azurerm_role_assignment" "key_vault_secrets_user" {
+  scope                = data.azurerm_key_vault.civiform_key_vault.id
+  role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
 }
 

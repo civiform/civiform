@@ -49,11 +49,6 @@ variable "bastion_address_prefixes" {
   ]
 }
 
-variable "app_secret_key" {
-  type        = string
-  description = "Secret Key For the app"
-}
-
 variable "app_sku" {
   type        = map(string)
   description = "SKU tier/size/capacity information"
@@ -129,4 +124,8 @@ variable "custom_hostname" {
 variable "key_vault_name" {
   type        = string
   description = "Name of key vault where secrets are stored."
+}
+
+variable "key_vault_resource_group" {
+  type    = string
 }

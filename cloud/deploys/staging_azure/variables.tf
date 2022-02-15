@@ -19,8 +19,13 @@ variable "application_name" {
 }
 
 variable "key_vault_name" {
-  type = string
-  description = "Name of key vault where app secrets are stored."
+  type        = string
+  description = "Name of key vault where secrets are stored."
+}
+
+variable "key_vault_resource_group" {
+  type        = string
+  description = "Resource group that key vault is in."
 }
 
 variable "aws_region" {
