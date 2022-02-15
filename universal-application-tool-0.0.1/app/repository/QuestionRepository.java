@@ -4,8 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.collect.ImmutableList;
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import io.ebean.DB;
+import io.ebean.Database;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import java.util.Comparator;
@@ -18,7 +18,6 @@ import javax.inject.Provider;
 import models.Question;
 import models.QuestionTag;
 import models.Version;
-import play.db.ebean.EbeanConfig;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -29,28 +28,27 @@ import services.question.types.QuestionDefinitionBuilder;
  */
 public class QuestionRepository {
 
-  private final EbeanServer ebeanServer;
+  private final Database database;
   private final DatabaseExecutionContext executionContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
   public QuestionRepository(
-      EbeanConfig ebeanConfig,
       DatabaseExecutionContext executionContext,
       ProgramRepository programRepository,
       Provider<VersionRepository> versionRepositoryProvider) {
-    this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
+    this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
   }
 
   public CompletionStage<Set<Question>> listQuestions() {
-    return supplyAsync(() -> ebeanServer.find(Question.class).findSet(), executionContext);
+    return supplyAsync(() -> database.find(Question.class).findSet(), executionContext);
   }
 
   public CompletionStage<Optional<Question>> lookupQuestion(long id) {
     return supplyAsync(
-        () -> ebeanServer.find(Question.class).setId(id).findOneOrEmpty(), executionContext);
+        () -> database.find(Question.class).setId(id).findOneOrEmpty(), executionContext);
   }
 
   /**
@@ -59,7 +57,7 @@ public class QuestionRepository {
    */
   public Question updateOrCreateDraft(QuestionDefinition definition) {
     Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
-    try (Transaction transaction = ebeanServer.beginTransaction(TxScope.requiresNew())) {
+    try (Transaction transaction = database.beginTransaction(TxScope.requiresNew())) {
       Optional<Question> existingDraft = draftVersion.getQuestionByName(definition.getName());
       try {
         if (existingDraft.isPresent()) {
@@ -142,7 +140,7 @@ public class QuestionRepository {
             newQuestionDefinition.getEnumeratorId(),
             newQuestionDefinition.getQuestionPathSegment(),
             newQuestionDefinition.getName());
-    ebeanServer
+    database
         .find(Question.class)
         .findEachWhile(question -> !conflictDetector.hasConflict(question));
     return conflictDetector.getConflictedQuestion();
@@ -151,7 +149,7 @@ public class QuestionRepository {
   /** Get the questions with the specified tag which are in the active version. */
   public ImmutableList<QuestionDefinition> getAllQuestionsForTag(QuestionTag tag) {
     Version active = versionRepositoryProvider.get().getActiveVersion();
-    return ebeanServer
+    return database
         .find(Question.class)
         .where()
         .arrayContains("question_tags", tag)
@@ -200,28 +198,28 @@ public class QuestionRepository {
   public CompletionStage<Question> insertQuestion(Question question) {
     return supplyAsync(
         () -> {
-          ebeanServer.insert(question);
+          database.insert(question);
           return question;
         },
         executionContext);
   }
 
   public Question insertQuestionSync(Question question) {
-    ebeanServer.insert(question);
+    database.insert(question);
     return question;
   }
 
   public CompletionStage<Question> updateQuestion(Question question) {
     return supplyAsync(
         () -> {
-          ebeanServer.update(question);
+          database.update(question);
           return question;
         },
         executionContext);
   }
 
   public Question updateQuestionSync(Question question) {
-    ebeanServer.update(question);
+    database.update(question);
     return question;
   }
 }

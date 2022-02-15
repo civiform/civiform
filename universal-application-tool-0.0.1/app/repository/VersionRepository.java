@@ -7,8 +7,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import io.ebean.DB;
+import io.ebean.Database;
 import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
@@ -24,7 +24,6 @@ import models.Question;
 import models.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.db.ebean.EbeanConfig;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
@@ -37,13 +36,13 @@ import services.program.predicate.PredicateExpressionNode;
 /** A repository object for dealing with versioning of questions and programs. */
 public class VersionRepository {
 
-  private final EbeanServer ebeanServer;
+  private final Database database;
   private final Logger LOG = LoggerFactory.getLogger(VersionRepository.class);
   private final ProgramRepository programRepository;
 
   @Inject
-  public VersionRepository(EbeanConfig ebeanConfig, ProgramRepository programRepository) {
-    this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
+  public VersionRepository(ProgramRepository programRepository) {
+    this.database = DB.getDefault();
     this.programRepository = checkNotNull(programRepository);
   }
 
@@ -53,7 +52,7 @@ public class VersionRepository {
    */
   public void publishNewSynchronizedVersion() {
     try {
-      ebeanServer.beginTransaction();
+      database.beginTransaction();
       Version draft = getDraftVersion();
       Version active = getActiveVersion();
       Preconditions.checkState(
@@ -109,16 +108,16 @@ public class VersionRepository {
       active.save();
       draft.save();
       draft.refresh();
-      ebeanServer.commitTransaction();
+      database.commitTransaction();
     } finally {
-      ebeanServer.endTransaction();
+      database.endTransaction();
     }
   }
 
   /** Get the current draft version. Creates it if one does not exist. */
   public Version getDraftVersion() {
     Optional<Version> version =
-        ebeanServer
+        database
             .find(Version.class)
             .where()
             .eq("lifecycle_stage", LifecycleStage.DRAFT)
@@ -138,12 +137,11 @@ public class VersionRepository {
       // are very rare.  It is unlikely this will represent a real performance penalty
       // for any applicant - or even any admin, really.
       Transaction transaction =
-          ebeanServer.beginTransaction(
-              TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
+          database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
       try {
         Version newDraftVersion = new Version(LifecycleStage.DRAFT);
-        ebeanServer.insert(newDraftVersion);
-        ebeanServer
+        database.insert(newDraftVersion);
+        database
             .find(Version.class)
             .forUpdate()
             .where()
@@ -161,7 +159,7 @@ public class VersionRepository {
       } finally {
         // This may come after a prior call to `transaction.end` in the event of a
         // precondition failure - this is okay, since it a double-call to `end` on
-        // a particular transaction.  Only double calls to ebeanServer.endTransaction
+        // a particular transaction.  Only double calls to database.endTransaction
         // must be avoided.
         transaction.end();
       }
@@ -169,7 +167,7 @@ public class VersionRepository {
   }
 
   public Version getActiveVersion() {
-    return ebeanServer
+    return database
         .find(Version.class)
         .where()
         .eq("lifecycle_stage", LifecycleStage.ACTIVE)
@@ -178,7 +176,7 @@ public class VersionRepository {
 
   private Optional<Question> getLatestVersionOfQuestion(long questionId) {
     String questionName =
-        ebeanServer.find(Question.class).setId(questionId).select("name").findSingleAttribute();
+        database.find(Question.class).setId(questionId).select("name").findSingleAttribute();
     Optional<Question> draftQuestion =
         getDraftVersion().getQuestions().stream()
             .filter(question -> question.getQuestionDefinition().getName().equals(questionName))
@@ -209,7 +207,7 @@ public class VersionRepository {
     }
     draftProgram = new Program(updatedDefinition.build());
     LOG.trace("Submitting update.");
-    ebeanServer.update(draftProgram);
+    database.update(draftProgram);
     draftProgram.refresh();
   }
 
@@ -303,13 +301,13 @@ public class VersionRepository {
   }
 
   public List<Version> listAllVersions() {
-    return ebeanServer.find(Version.class).findList();
+    return database.find(Version.class).findList();
   }
 
   public void setLive(long versionId) {
     Version draftVersion = getDraftVersion();
     Version activeVersion = getActiveVersion();
-    Version newActiveVersion = ebeanServer.find(Version.class).setId(versionId).findOne();
+    Version newActiveVersion = database.find(Version.class).setId(versionId).findOne();
     newActiveVersion.setLifecycleStage(LifecycleStage.ACTIVE);
     newActiveVersion.save();
     activeVersion.setLifecycleStage(LifecycleStage.OBSOLETE);

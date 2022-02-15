@@ -4,8 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.collect.ImmutableList;
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import io.ebean.DB;
+import io.ebean.Database;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -17,7 +17,6 @@ import models.LifecycleStage;
 import models.Program;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.db.ebean.EbeanConfig;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.program.ProgramNotFoundException;
 
@@ -28,7 +27,7 @@ import services.program.ProgramNotFoundException;
 public class ApplicationRepository {
   private final ProgramRepository programRepository;
   private final UserRepository userRepository;
-  private final EbeanServer ebeanServer;
+  private final Database database;
   private final DatabaseExecutionContext executionContext;
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationRepository.class);
 
@@ -36,11 +35,10 @@ public class ApplicationRepository {
   public ApplicationRepository(
       ProgramRepository programRepository,
       UserRepository userRepository,
-      EbeanConfig ebeanConfig,
       DatabaseExecutionContext executionContext) {
     this.programRepository = checkNotNull(programRepository);
     this.userRepository = checkNotNull(userRepository);
-    this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
+    this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
   }
 
@@ -69,10 +67,10 @@ public class ApplicationRepository {
 
   private Application submitApplicationInternal(
       Applicant applicant, Program program, Optional<String> submitterEmail) {
-    ebeanServer.beginTransaction();
+    database.beginTransaction();
     try {
       List<Application> oldApplications =
-          ebeanServer
+          database
               .createQuery(Application.class)
               .where()
               .eq("applicant.id", applicant.id)
@@ -99,10 +97,10 @@ public class ApplicationRepository {
       }
 
       application.save();
-      ebeanServer.commitTransaction();
+      database.commitTransaction();
       return application;
     } finally {
-      ebeanServer.endTransaction();
+      database.endTransaction();
     }
   }
 
@@ -133,7 +131,7 @@ public class ApplicationRepository {
   }
 
   public ImmutableList<Application> getAllApplications() {
-    return ImmutableList.copyOf(ebeanServer.find(Application.class).findList());
+    return ImmutableList.copyOf(database.find(Application.class).findList());
   }
 
   // Need to transmit both arguments to submitApplication through the CompletionStage pipeline.
@@ -149,10 +147,10 @@ public class ApplicationRepository {
   }
 
   private Application createOrUpdateDraftApplicationInternal(Applicant applicant, Program program) {
-    ebeanServer.beginTransaction();
+    database.beginTransaction();
     try {
       Optional<Application> existingDraft =
-          ebeanServer
+          database
               .createQuery(Application.class)
               .where()
               .eq("applicant.id", applicant.id)
@@ -163,10 +161,10 @@ public class ApplicationRepository {
           existingDraft.orElse(new Application(applicant, program, LifecycleStage.DRAFT));
       application.setApplicantData(applicant.getApplicantData());
       application.save();
-      ebeanServer.commitTransaction();
+      database.commitTransaction();
       return application;
     } finally {
-      ebeanServer.endTransaction();
+      database.endTransaction();
     }
   }
 
@@ -193,7 +191,7 @@ public class ApplicationRepository {
 
   public CompletionStage<Optional<Application>> getApplication(long applicationId) {
     return supplyAsync(
-        () -> ebeanServer.find(Application.class).setId(applicationId).findOneOrEmpty(),
+        () -> database.find(Application.class).setId(applicationId).findOneOrEmpty(),
         executionContext.current());
   }
 }

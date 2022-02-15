@@ -6,8 +6,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import forms.BlockForm;
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import io.ebean.DB;
+import io.ebean.Database;
 import java.util.Locale;
 import java.util.Optional;
 import models.DisplayMode;
@@ -15,7 +15,6 @@ import models.LifecycleStage;
 import models.Models;
 import models.Version;
 import play.Environment;
-import play.db.ebean.EbeanConfig;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.LocalizedStrings;
@@ -45,21 +44,20 @@ import views.dev.DatabaseSeedView;
 public class DatabaseSeedController extends DevController {
 
   private final DatabaseSeedView view;
-  private final EbeanServer ebeanServer;
+  private final Database database;
   private final QuestionService questionService;
   private final ProgramService programService;
 
   @Inject
   public DatabaseSeedController(
       DatabaseSeedView view,
-      EbeanConfig ebeanConfig,
       QuestionService questionService,
       ProgramService programService,
       Environment environment,
       Config configuration) {
     super(environment, configuration);
     this.view = checkNotNull(view);
-    this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
+    this.database = DB.getDefault();
     this.questionService = checkNotNull(questionService);
     this.programService = checkNotNull(programService);
   }
@@ -278,7 +276,7 @@ public class DatabaseSeedController extends DevController {
   }
 
   private void resetTables() {
-    Models.truncate(ebeanServer);
+    Models.truncate(database);
     Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
     newActiveVersion.save();
   }
