@@ -6,7 +6,7 @@
 #   1: The resource group name for the key vault
 #   2: The location of the key vault
 #######################################
-function key_vault::create_resource_group(){
+function key_vault::create_resource_group() {
     if [ $(az group exists --name "${1}") = false ]; then
         az group create --name "${1}" -l "${2}"
     fi
