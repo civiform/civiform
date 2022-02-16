@@ -85,9 +85,9 @@ class AzureUploadController {
     resp: any,
     blockBlobUrlString: string
   ) {
-    redirectUrl.searchParams.set('originalFileName', azureUploadProps.fileName)
+    redirectUrl.searchParams.set('originalFileName', azureUploadProps.file.name)
     redirectUrl.searchParams.set('etag', resp.eTag)
-    redirectUrl.searchParams.set('key', azureUploadProps.file.name)
+    redirectUrl.searchParams.set('key', azureUploadProps.fileName)
     redirectUrl.searchParams.set('bucket', azureUploadProps.containerName)
     redirectUrl.searchParams.set('blockBlobUrlString', blockBlobUrlString)
   }

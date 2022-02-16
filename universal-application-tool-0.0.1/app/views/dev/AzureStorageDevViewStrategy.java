@@ -51,6 +51,9 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
 
     return formTag
         .with(input().withType("file").withName("file"))
+        .with(input().withType("hidden"))
+        .withName("key")
+        .withValue(request.fileName())
         .with(input().withType("hidden").withName("sasToken").withValue(request.sasToken()))
         .with(input().withType("hidden").withName("blobUrl").withValue(request.blobUrl()))
         .with(
