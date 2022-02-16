@@ -30,7 +30,3 @@ key_vault::create_vault "${resource_group}" "${location}" "${vault_name}"
 echo "Generating and setting secrets"
 key_vault::add_generated_secrets "${vault_name}" "postgres-password" "app-secret-key"
 
-
-
-
-
