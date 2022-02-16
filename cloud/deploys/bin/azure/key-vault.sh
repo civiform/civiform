@@ -31,7 +31,7 @@ function key_vault::create_vault(){
 # Add a secret to the key vault
 # Arguments:
 #   1: The name of the key vault
-#   2: The name of the secret (i.e. "postgres-password")
+#   2: The name of the secret (used to identify it e.g. "postgres-password")
 #   3: The value of the secret
 #######################################
 function key_vault::add_secret(){
