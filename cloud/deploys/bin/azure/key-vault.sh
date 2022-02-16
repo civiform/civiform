@@ -34,7 +34,7 @@ function key_vault::create_vault() {
 #   2: The name of the secret (used to identify it e.g. "postgres-password")
 #   3: The value of the secret
 #######################################
-function key_vault::add_secret(){
+function key_vault::add_secret() {
     az keyvault secret set \
         --vault-name "${1}" \
         --name "${2}" \
