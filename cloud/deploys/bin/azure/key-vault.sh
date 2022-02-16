@@ -40,6 +40,7 @@ function key_vault::add_secret(){
         --name "${2}" \
         --value "${3}"
 }
+
 #######################################
 # Generates and adds secrets to the key vault
 # Arguments:
