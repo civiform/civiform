@@ -56,6 +56,6 @@ function key_vault::add_generated_secrets() {
         echo "Generating secret: ${key}"
         secret_value="$(head /dev/urandom | tr -dc "${charset}" | cut -c -40)"
         echo "Setting secret: ${key}"
-        key_vault::add_secret "$(echo $vault_name)" "${key}" "${secret_value}"
+        key_vault::add_secret "${vault_name}" "${key}" "${secret_value}"
     done
 }
