@@ -23,4 +23,4 @@ dist := (dist dependsOn tailwindCliProd).value
 
 stage := (stage dependsOn tailwindCli).value
 
-test := ((test in Test) dependsOn tailwindCli).value
+test := (Test / test dependsOn tailwindCli).value

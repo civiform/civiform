@@ -1,5 +1,5 @@
 const fs = require('fs');
-const styleUtilsPrefixes = {
+const PREFIXES = {
   'even':'even',
   'focus':'focus',
   'focusWithin':'focus-within',
@@ -14,41 +14,43 @@ const styleUtilsPrefixes = {
 
 // Used in the main tailwind's method of the transform obj to ensure we only
 // read certain files (e.g. typescript) only once, since those have their contents read directly
-var PROCESSED_TS = false;
+let processedTs = false;
 
 // Used to get a dictionary mapping for all possible base styles (no prefixes) in
 // java files refered to in `function getStyles()`
 class StylesJavaReader {
+
   constructor(file_contents) {
     this.file_contents = file_contents;
+  }
 
-    // Variable as a key, e.g. Styles.BG_BLUE_200
-    this.rgx_key = /(?<= +public +static +final +String +)([0-9A-Z_]+)/g;
+  // Styles.java variable as a key, e.g. Styles.BG_BLUE_200
+  static get rgxKey() {
+    return /(?<= +public +static +final +String +)([0-9A-Z_]+)/g;
+  }
 
-    // Tailwind string value refered to by variable, e.g. 'bg-blue-200'
-    this.rgx_val = /(?<= +public +static +final +String +[0-9A-Z_]+ += +")([a-z0-9-/]+)/g;
+  // Tailwind string value refered to by variable, e.g. 'bg-blue-200'
+  static get rgxVal() {
+    return /(?<= +public +static +final +String +[0-9A-Z_]+ += +")([a-z0-9-/]+)/g;
   }
 
   getMatches(matches) {
     let count = 1
     for (const line of this.file_contents) {
-      let match_key = line.match(this.rgx_key);
-      let match_val = line.match(this.rgx_val);
+      let match_key = line.match(this.constructor.rgxKey);
+      let match_val = line.match(this.constructor.rgxVal);
 
       // Both 'variable' and tailwind str are probably on same line
       // Even though java probably doesn't require it
       if (Array.isArray(match_key) && Array.isArray(match_val)) {
         if (match_key.length === 1 && match_val.length === 1) {
           matches[match_key[0]] = match_val[0];
-          if (false & count % 200 === 0) {
-            console.log(match_key[0]);
-          }
         } else {
-          console.log("strange line in 'Styles.java' at line " + count.toString());
+          throw "strange line in 'Styles.java' at line " + count.toString();
         }
       }
 
-      count += 1
+      count++;
     }
   }
 }
@@ -121,13 +123,11 @@ module.exports = {
         let matchIter = content.match(/(?<=Styles\.)([0-9A-Z_]+)/g);
 
         if (matchIter) {
-          for (const m of matchIter) {
-            let s = styleDict[m];
+          for (const tailwindClassId of matchIter) {
+            let tailwindClass = styleDict[tailwindClassId];
             
-            if (s === undefined) {
-              //console.log(m);
-            } else {
-              output.push(s)
+            if (tailwindClass !== undefined) {
+              output.push(tailwindClass)
               // We don't know which, if any, of these prefixes are in use for any class in particular.
               // We therefore have to use every combination of them.
               for (const prefix of [
@@ -142,7 +142,7 @@ module.exports = {
                         'xl',
                         '2xl',
                       ]) {
-                output.push(prefix + ':' + s)
+                output.push(prefix + ':' + tailwindClass)
               }
             }
           }
@@ -151,7 +151,7 @@ module.exports = {
         const assetsFolder = './app/assets/javascripts/';
         let files = fs.readdirSync(assetsFolder);
 
-        if (PROCESSED_TS === false) {
+        if (processedTs === false) {
           for (const f of files) {
             let data = fs.readFileSync(assetsFolder + f, 'utf8').split('\n');
             for (const line of data) {
@@ -170,7 +170,7 @@ module.exports = {
             output.push(t);
           }
 
-          PROCESSED_TS = true;
+          processedTs = true;
         }
 
         return output

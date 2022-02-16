@@ -16,5 +16,8 @@
     "postcss": "8.4.13",
     "tailwindcss": "^2.2.19",
     "java-parser": "2.0.1"
+  },
+  "dependencies": {
+    "npm": "^8.5.0"
   }
 }
