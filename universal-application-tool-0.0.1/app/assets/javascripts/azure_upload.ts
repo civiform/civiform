@@ -58,7 +58,7 @@ class AzureUploadController {
           redirectUrl,
           azureUploadProps,
           resp,
-          blockBlobUrl.toString()
+          blockBlobUrl.url
         )
         window.location.replace(redirectUrl.toString())
       })

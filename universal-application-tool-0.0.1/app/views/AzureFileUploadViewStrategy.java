@@ -54,7 +54,6 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
         .with(input().withType("hidden").withName("blobUrl").withValue(request.blobUrl()))
         .with(
             input().withType("hidden").withName("containerName").withValue(request.containerName()))
-        .with(input().withType("hidden").withName("fileName").withValue(request.fileName()))
         .with(input().withType("hidden").withName("accountName").withValue(request.accountName()))
         .with(
             input()
