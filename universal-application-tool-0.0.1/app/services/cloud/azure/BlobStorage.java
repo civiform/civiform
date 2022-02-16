@@ -210,12 +210,12 @@ public class BlobStorage implements StorageClient {
                   OffsetDateTime.now(zoneId).plus(AZURE_SAS_TOKEN_DURATION), blobSasPermission)
               .setProtocol(SasProtocol.HTTPS_ONLY);
 
-      // if (prefixedOriginalFileName.isPresent()) {
-      //   signatureValues.setContentDisposition("inline; filename=" +
-      // prefixedOriginalFileName.get());
-      //   signatureValues.setContentType(
-      //       URLConnection.guessContentTypeFromName(prefixedOriginalFileName.get()));
-      // }
+      if (prefixedOriginalFileName.isPresent()) {
+        signatureValues.setContentDisposition("inline; filename=" +
+      prefixedOriginalFileName.get());
+        signatureValues.setContentType(
+            URLConnection.guessContentTypeFromName(prefixedOriginalFileName.get()));
+      }
 
       return blobClient.generateUserDelegationSas(signatureValues, getUserDelegationKey());
     }
