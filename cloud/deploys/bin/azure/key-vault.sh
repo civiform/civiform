@@ -46,7 +46,7 @@ function key_vault::add_secret(){
 #   1: The name of the key vault
 #   2..n: The name of the secret (i.e. "postgres-password")
 #######################################
-function key_vault::add_generated_secrets(){
+function key_vault::add_generated_secrets() {
     local vault_name="${1}"
     charset='A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~'
     shift;
