@@ -211,8 +211,7 @@ public class BlobStorage implements StorageClient {
               .setProtocol(SasProtocol.HTTPS_ONLY);
 
       if (prefixedOriginalFileName.isPresent()) {
-        signatureValues.setContentDisposition("inline; filename=" +
-      prefixedOriginalFileName.get());
+        signatureValues.setContentDisposition("inline; filename=" + prefixedOriginalFileName.get());
         signatureValues.setContentType(
             URLConnection.guessContentTypeFromName(prefixedOriginalFileName.get()));
       }
