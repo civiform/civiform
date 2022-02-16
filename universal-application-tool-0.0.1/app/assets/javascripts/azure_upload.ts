@@ -4,12 +4,18 @@
 
 class AzureUploadController {
   static UPLOAD_CONTAINER_ID = 'azure-upload-form-component'
+  static FILEUPLOAD_SUBMIT_FORM_ID = 'cf-block-submit'
 
   constructor() {
     const uploadContainer = document.getElementById(
       AzureUploadController.UPLOAD_CONTAINER_ID
     )
-    uploadContainer.addEventListener('submit', (event) =>
+
+    const uploadButton = document.getElementById(
+      AzureUploadController.FILEUPLOAD_SUBMIT_FORM_ID
+    )
+
+    uploadButton.addEventListener('click', (event) =>
       this.attemptUpload(event, uploadContainer)
     )
   }
@@ -48,7 +54,12 @@ class AzureUploadController {
         if (err) {
           throw err
         }
-        this.setFileUploadMetadata(redirectUrl, azureUploadProps, resp)
+        this.setFileUploadMetadata(
+          redirectUrl,
+          azureUploadProps,
+          resp,
+          blockBlobUrl.url
+        )
         window.location.replace(redirectUrl.toString())
       })
   }
@@ -71,12 +82,14 @@ class AzureUploadController {
   private setFileUploadMetadata(
     redirectUrl: URL,
     azureUploadProps: any,
-    resp: any
+    resp: any,
+    blockBlobUrlString: string
   ) {
-    redirectUrl.searchParams.set('generatedFileName', azureUploadProps.fileName)
+    redirectUrl.searchParams.set('originalFileName', azureUploadProps.file.name)
     redirectUrl.searchParams.set('etag', resp.eTag)
-    redirectUrl.searchParams.set('key', azureUploadProps.file.name)
+    redirectUrl.searchParams.set('key', azureUploadProps.fileName)
     redirectUrl.searchParams.set('bucket', azureUploadProps.containerName)
+    redirectUrl.searchParams.set('blockBlobUrlString', blockBlobUrlString)
   }
 }
 
