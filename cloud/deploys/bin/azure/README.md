@@ -1,5 +1,5 @@
 # azure/bin
-This directory includes a scripts to help with setting up the staging or production environment
+This directory includes scripts to help with managing staging and production environments in Azure.
 
 
 ## Bastion instance
