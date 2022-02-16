@@ -1,11 +1,10 @@
 #! /usr/bin/env bash
 
 source lib/out.sh
-source azure/key-vault.sh
+source azure/lib.sh
 
 # DOC: Create key vault instance, set permissions, and generate and set secrets
 
-location="EastUS"
 while getopts g:v:l: flag
 do
   case "${flag}" in
@@ -16,8 +15,9 @@ do
 done
 
 if [[ ! "${resource_group}" ]] \
-   || [[ ! "${vault_name}" ]]; then
-  out::error "arguments -g and -v must be provided"
+   || [[ ! "${vault_name}" ]] \
+   || [[ ! "${location}" ]]; then
+  out::error "arguments -g, -v , and -l must be provided"
   exit 1
 fi
 

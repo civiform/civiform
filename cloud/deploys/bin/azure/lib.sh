@@ -1,14 +1,18 @@
 #! /usr/bin/env bash
 
+# CHARSET is a regex pattern that matches the acceptable characters to 
+# use when generating a secret value
+readonly CHARSET='A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~'
+
 #######################################
 # Create resource group
 # Arguments:
-#   1: The resource group name for the key vault
-#   2: The location of the key vault
+#   1: The resource group name 
+#   2: The location of the resource group
 #######################################
 function key_vault::create_resource_group() {
     if [ $(az group exists --name "${1}") = false ]; then
-        az group create --name "${1}" -l "${2}"
+        az group create --name "${1}" -location "${2}"
     fi
 }
 
@@ -16,7 +20,7 @@ function key_vault::create_resource_group() {
 # Create key vault
 # Arguments:
 #   1: The resource group name for the key vault
-#   2: The location of the key vault
+#   2: The region (e.g. EastUS) to create the key vault in
 #   3: The name of the key vault 
 #######################################
 function key_vault::create_vault() {
@@ -42,14 +46,14 @@ function key_vault::add_secret() {
 }
 
 #######################################
-# Generates and adds secrets to the key vault
+# For each argument after the first, generates a secret value and adds it to the
+# key vault, using the argument as the secret name.
 # Arguments:
 #   1: The name of the key vault
 #   2..n: Names of the secrets to be created (e.g. "postgres-password")
 #######################################
 function key_vault::add_generated_secrets() {
     local vault_name="${1}"
-    charset='A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~'
     shift;
     for key in "$@";
     do
