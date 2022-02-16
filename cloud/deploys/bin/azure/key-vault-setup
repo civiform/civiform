@@ -1,4 +1,5 @@
 #! /usr/bin/env bash
+
 source lib/out.sh
 source azure/key-vault.sh
 
