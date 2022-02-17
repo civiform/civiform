@@ -1,0 +1,7 @@
+#! /usr/bin/env bash
+
+KEEP_ORIGINAL_PWD=true source "${PROJECT_BASE_DIR}/bin/lib.sh"
+source "${PROJECT_BASE_DIR}/cloud/shared/bin/lib.sh"
+source "${PROJECT_BASE_DIR}/cloud/azure/bin/lib.sh"
+
+# TODO: implement actual Azure deployment logic

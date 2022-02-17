@@ -3,7 +3,9 @@
 # This file loads shared code for most shell scripts. All scripts
 # in the base bin/ directory should begin by sourcing it.
 
-pushd $(git rev-parse --show-toplevel) > /dev/null
+if [[ "${KEEP_ORIGINAL_PWD}" != "true" ]]; then
+  pushd $(git rev-parse --show-toplevel) > /dev/null
+fi
 
 set -e
 set +x
