@@ -10,9 +10,9 @@ readonly CHARSET='A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~'
 #   1: The resource group name 
 #   2: The location of the resource group
 #######################################
-function key_vault::create_resource_group() {
+function azure::create_resource_group() {
     if [ $(az group exists --name "${1}") = false ]; then
-        az group create --name "${1}" -location "${2}"
+        az group create --name "${1}" --location "${2}"
     fi
 }
 
@@ -23,7 +23,7 @@ function key_vault::create_resource_group() {
 #   2: The region (e.g. EastUS) to create the key vault in
 #   3: The name of the key vault 
 #######################################
-function key_vault::create_vault() {
+function azure::create_vault() {
     az keyvault create \
         --name "${3}" \
         --resource-group "${1}"\
@@ -38,7 +38,7 @@ function key_vault::create_vault() {
 #   2: The name of the secret (used to identify it e.g. "postgres-password")
 #   3: The value of the secret
 #######################################
-function key_vault::add_secret() {
+function azure::add_secret() {
     az keyvault secret set \
         --vault-name "${1}" \
         --name "${2}" \
@@ -52,13 +52,13 @@ function key_vault::add_secret() {
 #   1: The name of the key vault
 #   2..n: Names of the secrets to be created (e.g. "postgres-password")
 #######################################
-function key_vault::add_generated_secrets() {
+function azure::add_generated_secrets() {
     local vault_name="${1}"
     shift;
     for key in "$@";
     do
         echo "Generating secret: ${key}"
-        secret_value="$(head /dev/urandom | tr -dc "${charset}" | cut -c -40)"
+        local secret_value="$(head /dev/urandom | tr -dc "${charset}" | cut -c -40)"
         echo "Setting secret: ${key}"
         key_vault::add_secret "${vault_name}" "${key}" "${secret_value}"
     done
