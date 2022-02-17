@@ -21,12 +21,10 @@ import services.cloud.StorageUploadRequest;
 import services.cloud.azure.BlobStorageUploadRequest;
 import views.HtmlBundle;
 import views.ViewUtils;
+import views.WebJarJsPaths;
 
 /** Strategy class for creating a file upload form for Azure. */
 public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy {
-
-  private static final String AZURE_STORAGE_BLOB_WEB_JAR =
-      "lib/azure__storage-blob/browser/azure-storage-blob.min.js";
 
   private final StorageClient client;
 
@@ -46,13 +44,16 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
     }
     BlobStorageUploadRequest request = (BlobStorageUploadRequest) storageUploadRequest;
     bundle.addFooterScripts(
-        viewUtils.makeWebJarsTag(/* assetsRoute= */ AZURE_STORAGE_BLOB_WEB_JAR));
+        viewUtils.makeWebJarsTag(/* assetsRoute= */ WebJarJsPaths.AZURE_STORAGE_BLOB));
     bundle.addFooterScripts(viewUtils.makeLocalJsTag(/* filename= */ "azure_upload"));
 
     ContainerTag formTag = form().withId("azure-upload-form-component");
 
     return formTag
         .with(input().withType("file").withName("file"))
+        .with(input().withType("hidden"))
+        .withName("key")
+        .withValue(request.fileName())
         .with(input().withType("hidden").withName("sasToken").withValue(request.sasToken()))
         .with(input().withType("hidden").withName("blobUrl").withValue(request.blobUrl()))
         .with(
@@ -64,7 +65,10 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
                 .withType("hidden")
                 .withName("successActionRedirect")
                 .withValue(request.successActionRedirect()))
-        .with(TagCreator.button(text("Upload to Azure Blob Storage")).withType("submit"));
+        .with(
+            TagCreator.button(text("Upload to Azure Blob Storage"))
+                .withType("submit")
+                .withId("cf-block-submit"));
   }
 
   @Override

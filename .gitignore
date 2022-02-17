@@ -22,3 +22,5 @@ backend_vars
 **.tfvars
 !*example.auto.tfvars
 terraform.tfstate**
+.terraform.tfstate**
+*.pyc

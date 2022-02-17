@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.auto.value.AutoValue;
@@ -274,6 +275,10 @@ public abstract class SignedS3UploadRequest implements StorageUploadRequest {
   abstract static class UploadPolicy {
     private static final ObjectMapper mapper =
         new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
+
+    static {
+      mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    }
 
     static Builder builder() {
       return new AutoValue_SignedS3UploadRequest_UploadPolicy.Builder();

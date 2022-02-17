@@ -1,0 +1,56 @@
+#! /usr/bin/env bash
+source lib/out.sh
+source azure/bastion.sh
+
+# DOC: Connect to the database via the bastion. 
+# DOC: Required to pass in the resource group (-g), the database name (-d) and the keyvault name (-v). 
+# DOC: example: azure/db-connection -g sgdev -d civiform-artistic-halibut -v sgdev-civiform-kv
+key_name="bastion" 
+while getopts g:d:k:v: flag
+do
+  case "${flag}" in
+    g) resource_group=${OPTARG};;
+    d) database_name=${OPTARG};;
+    k) key_name=${OPTARG};;
+    v) vault_name=${OPTARG};;
+  esac
+done
+
+if [[ ! "${resource_group}" ]] \
+   || [[ ! "${database_name}" ]] \
+   || [[ ! "${vault_name}" ]]; then
+  out::error "arguments -g and -d and -v must be provided"
+  exit 1
+fi
+
+echo "Add my ip address to the security group for ssh"
+bastion::allow_ip_security_group "${resource_group}" "${vault_name}"
+
+readonly KEY_FILE="${HOME}/.ssh/${key_name}"
+if ! [[ -f "${KEY_FILE}" ]]; then
+  echo "Creating a new ssh key"
+  ssh-keygen -t rsa -b 4096 -f "${KEY_FILE}"
+fi
+
+readonly VM_IP_ADDRESS=$(bastion::get_vm_ip "${resource_group}")
+echo "Bastion vm ip address: ${VM_IP_ADDRESS}"
+
+readonly POSTGRES_HOST=$(bastion::get_postgres_host \
+  "${resource_group}" "${database_name}")
+echo "postgreshost: ${POSTGRES_HOST}"
+
+echo "Adding the public key to the bastion vm"
+bastion::update_bastion_ssh_keys "${resource_group}" "${KEY_FILE}"
+
+readonly PSQL_CONNECT=$(bastion::get_connect_to_postgres_command \
+  "${POSTGRES_HOST}" "${vault_name}")
+echo "SSHing into machine and opening postgres, \
+type command here and \\q to exit"
+bastion::bastion_ssh_exec \
+  "${VM_IP_ADDRESS}" "${KEY_FILE}" "${PSQL_CONNECT}"
+
+echo "Removing the ssh keys from your machine"
+bastion::remove_ssh_key "${KEY_FILE}"
+
+echo "Update bastion security group to deny all ssh request"
+bastion::deny_ip_security_group "${resource_group}"

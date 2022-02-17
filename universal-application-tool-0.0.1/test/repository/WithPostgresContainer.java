@@ -3,8 +3,8 @@ package repository;
 import static play.test.Helpers.fakeApplication;
 
 import akka.stream.Materializer;
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import io.ebean.DB;
+import io.ebean.Database;
 import models.LifecycleStage;
 import models.Models;
 import models.Version;
@@ -12,7 +12,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import play.Application;
-import play.db.ebean.EbeanConfig;
 import play.test.Helpers;
 import support.ProgramBuilder;
 import support.ResourceCreator;
@@ -56,9 +55,8 @@ public class WithPostgresContainer {
 
   @Before
   public void resetTables() {
-    EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
-    EbeanServer server = Ebean.getServer(config.defaultServer());
-    Models.truncate(server);
+    Database database = DB.getDefault();
+    Models.truncate(database);
     Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
     newActiveVersion.save();
   }

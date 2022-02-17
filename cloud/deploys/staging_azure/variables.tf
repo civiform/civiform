@@ -18,14 +18,14 @@ variable "application_name" {
   description = "Azure Web App Name"
 }
 
-variable "postgres_admin_password" {
+variable "key_vault_name" {
   type        = string
-  description = "Postgres admin password"
+  description = "Name of key vault where secrets are stored."
 }
 
-variable "app_secret_key" {
+variable "key_vault_resource_group" {
   type        = string
-  description = "Secret Key For the app"
+  description = "Resource group that key vault is in."
 }
 
 variable "aws_region" {

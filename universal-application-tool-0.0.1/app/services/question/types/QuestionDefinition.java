@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableSet;
@@ -67,6 +68,10 @@ public abstract class QuestionDefinition {
   public abstract static class ValidationPredicates {
     protected static final ObjectMapper mapper =
         new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
+
+    static {
+      mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    }
 
     public String serializeAsString() {
       try {

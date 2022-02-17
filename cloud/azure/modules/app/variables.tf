@@ -41,9 +41,12 @@ variable "subnet_address_prefixes" {
   ]
 }
 
-variable "app_secret_key" {
-  type        = string
-  description = "Secret Key For the app"
+variable "bastion_address_prefixes" {
+  type        = list(string)
+  description = "Prefixes for the bastion instance (must be distinct from other subnets)"
+  default = [
+    "10.0.6.0/24"
+  ]
 }
 
 variable "app_sku" {
@@ -66,15 +69,10 @@ variable "postgres_admin_login" {
   description = "Postgres admin login"
 }
 
-variable "postgres_admin_password" {
-  type        = string
-  description = "Postgres admin password"
-}
-
 variable "postgres_sku_name" {
   type        = string
   description = "The sku name for postgres server"
-  default     = "GP_Gen5_4"
+  default     = "GP_Gen5_2"
 }
 variable "postgres_storage_mb" {
   type        = number
@@ -122,4 +120,12 @@ variable "staging_hostname" {
 variable "custom_hostname" {
   type        = string
   description = "custom hostname for the app to map the dns (used also for CORS)"
+}
+variable "key_vault_name" {
+  type        = string
+  description = "Name of key vault where secrets are stored."
+}
+
+variable "key_vault_resource_group" {
+  type    = string
 }
