@@ -1,0 +1,4 @@
+#! /usr/bin/env bash
+
+export PROJECT_BASE_DIR="$(realpath "$(dirname "${BASH_SOURCE}")/../../../")"
+exec "${PROJECT_BASE_DIR}/cloud/azure/bin/deploy" "$@"
