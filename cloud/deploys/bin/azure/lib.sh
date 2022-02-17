@@ -11,9 +11,9 @@ readonly CHARSET='A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~'
 #   2: The location of the resource group
 #######################################
 function azure::create_resource_group() {
-    if [ $(az group exists --name "${1}") = false ]; then
-        az group create --name "${1}" --location "${2}"
-    fi
+  if [ $(az group exists --name "${1}") = false ]; then
+    az group create --name "${1}" --location "${2}"
+  fi
 }
 
 #######################################
@@ -24,11 +24,11 @@ function azure::create_resource_group() {
 #   3: The name of the key vault 
 #######################################
 function azure::create_vault() {
-    az keyvault create \
-        --name "${3}" \
-        --resource-group "${1}"\
-        --location "${2}" \
-        --enable-rbac-authorization
+  az keyvault create \
+    --name "${3}" \
+    --resource-group "${1}"\
+    --location "${2}" \
+    --enable-rbac-authorization
 }
 
 #######################################
@@ -39,10 +39,10 @@ function azure::create_vault() {
 #   3: The value of the secret
 #######################################
 function azure::add_secret() {
-    az keyvault secret set \
-        --vault-name "${1}" \
-        --name "${2}" \
-        --value "${3}"
+  az keyvault secret set \
+    --vault-name "${1}" \
+    --name "${2}" \
+    --value "${3}"
 }
 
 #######################################
@@ -53,13 +53,13 @@ function azure::add_secret() {
 #   2..n: Names of the secrets to be created (e.g. "postgres-password")
 #######################################
 function azure::add_generated_secrets() {
-    local vault_name="${1}"
-    shift;
-    for key in "$@";
-    do
-        echo "Generating secret: ${key}"
-        local secret_value="$(head /dev/urandom | tr -dc "${charset}" | cut -c -40)"
-        echo "Setting secret: ${key}"
-        key_vault::add_secret "${vault_name}" "${key}" "${secret_value}"
-    done
+  local VAULT_NAME="${1}"
+  shift;
+  for key in "$@";
+  do
+    echo "Generating secret: ${key}"
+    local SECRET_VALUE="$(head /dev/urandom | tr -dc "${charset}" | cut -c -40)"
+    echo "Setting secret: ${key}"
+    azure::add_secret "${VAULT_NAME}" "${key}" "${SECRET_VALUE}"
+  done
 }
