@@ -91,10 +91,10 @@ function azure_log::initialize_log_file() {
   echo "Done creating deploy log storage container."
 
   echo "Granting current user access deploy log storage account..."
-  az ad signed-in-user show --query objectId -o tsv \
-    | az role assignment create \
+  local CURRENT_USER_ID="$(az ad signed-in-user show --query objectId -o tsv)"
+  az role assignment create \
       --role "Storage Blob Data Contributor" \
-      --assignee @- \
+      --assignee "${CURRENT_USER_ID}" \
       --scope "/subscriptions/${AZURE_SUBSCRIPTION}/resourceGroups/${AZURE_RESOURCE_GROUP}/providers/Microsoft.Storage/storageAccounts/${AZURE_LOG_STORAGE_ACCOUNT_NAME}"
   echo "Done granting current user access deploy log storage account."
 
