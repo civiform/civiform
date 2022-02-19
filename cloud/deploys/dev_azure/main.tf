@@ -17,14 +17,15 @@ module "app" {
   source               = "../../azure/modules/app"
   resource_group_name  = var.resource_group_name
   postgres_admin_login = var.postgres_admin_login
-  key_vault_name       = var.key_vault_name
   postgres_sku_name    = "GP_Gen5_2"
 
   docker_username        = var.docker_username
   docker_repository_name = var.docker_repository_name
 
+  key_vault_name           = var.key_vault_name
+  key_vault_resource_group = var.key_vault_resource_group
+
   application_name = var.application_name
-  app_secret_key   = var.app_secret_key
   ses_sender_email = var.sender_email_address
   custom_hostname  = ""
   staging_hostname = ""

@@ -94,11 +94,18 @@ portal the resource group name is 'tfstate' and the storage_account_name is
 Before applying the Terraform configuration, you'll need to make sure that Azure Key Vault is
 properly configured to store the `postgres-password` and `app-secret-key` secrets. To do this, run the command `az keyvault list` to list all the key vaults in your project. Find the key vault that stores the secrets for Civiform. Then run `az keyvault secret list --vault-name=[your vault name]`. The `postgres-password` and `app-secret-key` secrets should be listed.
 
-If the secrets are not listed, you'll need to [create a key vault](https://docs.microsoft.com/en-us/azure/key-vault/general/quick-create-cli) if you haven't already. Then set the secrets:
+If the secrets are not listed, you'll need to [create a key vault](https://docs.microsoft.com/en-us/azure/key-vault/general/quick-create-cli) if you haven't already. Make a note of the resource group that is used. Next, run 
+```
+az keyvault update --name=[your keyvault name] --enable-rbac-authorization
+```
+This allows you to grant the App Service Managed Identity permission to access the key vault.
+
+Next, [grant yourself the Key Vault Secrets Officer role in the Azure portal](https://docs.microsoft.com/en-us/azure/key-vault/general/rbac-guide?tabs=azure-cli#key-vault-scope-role-assignment)
+Then set the secrets:
 
 ```
 az keyvault secret set --name postgres-password --vault-name [key vault name] --value [password]
 az keyvault secret set --name app-secret-key --vault-name [key vault name] --value [secret key]
 ```
 
-Then, in order to use the Key Vault as a data source in Terraform, set the `key_vault_name` variable in your `auto.tfvars` file to the name of the key vault.
+Then, in order to use the Key Vault as a data source in Terraform, set the `key_vault_name` variable in your `auto.tfvars` file to the name of the key vault and the `key_vault_resource_group` to the resource group the key vault is in.

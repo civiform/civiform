@@ -15,19 +15,20 @@ terraform {
 }
 
 module "app" {
-  source = "../../azure/modules/app"
-  postgres_admin_login    = var.postgres_admin_login
-  
+  source               = "../../azure/modules/app"
+  postgres_admin_login = var.postgres_admin_login
+
   # note that we must use GP tier
-  postgres_sku_name       = "GP_Gen5_2"
+  postgres_sku_name = "GP_Gen5_2"
 
   docker_username        = var.docker_username
   docker_repository_name = var.docker_repository_name
 
   key_vault_name = var.key_vault_name
+  key_vault_resource_group = var.key_vault_resource_group
 
   application_name = var.application_name
-  
+
   ses_sender_email = var.sender_email_address
   custom_hostname  = var.custom_hostname
 }
