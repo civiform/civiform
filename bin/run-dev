@@ -54,11 +54,11 @@ docker-compose --profile "${cloud_provider}" \
 # Wait until the emulator is running.
 "bin/${emulator}/wait"
 
-# Once the server starts through the subsequent 'up' the webserver will lazily compile a lot of resources upon first
-# load. This will instigates that happening so the server is fully usable for the user.
-for i in {1..24}; do
-  curl --output /dev/null --silent --fail http://localhost:9000/script-startup-load && break
+# Start a warmup request loop so that when the subsequent server startup is ready, we trigger lazy
+# loading its edit-refresh resources so save developer time.
+for i in {1..60}; do
   sleep 5
+  curl --output /dev/null --silent --fail http://localhost:9000/loginForm && break
 done &
 
 # start everything else
