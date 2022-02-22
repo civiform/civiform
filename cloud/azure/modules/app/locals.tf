@@ -6,5 +6,5 @@ locals {
   generated_hostname    = "${var.application_name}-${random_pet.server.id}.azurewebsites.net"
 
   postgres_password_keyvault_id = "postgres-password"
-  app_secret_key_keyvault_id = "app-secret-key"
+  app_secret_key_keyvault_id    = "app-secret-key"
 }
