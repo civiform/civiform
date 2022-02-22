@@ -34,6 +34,8 @@ resource "azurerm_storage_account" "files_storage_account" {
 
   account_tier             = "Standard"
   account_replication_type = "LRS"
+
+  allow_blob_public_access = false
 }
 data "azurerm_key_vault" "civiform_key_vault" {
   name                = var.key_vault_name
