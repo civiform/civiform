@@ -62,7 +62,7 @@ function azure_log::log_file_exists() {
 }
 
 #######################################
-# Initialize the deplooy log in Azure blob storage.
+# Initialize the deploy log in Azure blob storage.
 # Globals read:
 #   AZURE_LOG_STORAGE_ACCOUNT_NAME
 #   AZURE_LOG_CONTAINER_NAME
