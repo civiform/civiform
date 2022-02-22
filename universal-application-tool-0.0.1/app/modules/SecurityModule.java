@@ -12,7 +12,7 @@ import auth.FakeAdminClient;
 import auth.GuestClient;
 import auth.IdcsOidcClient;
 import auth.IdcsProfileAdapter;
-import auth.LoginRadiusOidcClient;
+import auth.LoginRadiusSamlClient;
 import auth.ProfileFactory;
 import auth.Roles;
 import com.google.common.collect.ImmutableMap;
@@ -46,6 +46,8 @@ import org.pac4j.play.LogoutController;
 import org.pac4j.play.http.PlayHttpActionAdapter;
 import org.pac4j.play.store.PlayCookieSessionStore;
 import org.pac4j.play.store.ShiroAesDataEncrypter;
+import org.pac4j.saml.client.SAML2Client;
+import org.pac4j.saml.config.SAML2Configuration;
 import play.Environment;
 import repository.UserRepository;
 
@@ -153,51 +155,38 @@ public class SecurityModule extends AbstractModule {
   @Provides
   @Nullable
   @Singleton
-  @LoginRadiusOidcClient
-  protected OidcClient provideLoginRadiusClient(
+  @LoginRadiusSamlClient
+  protected SAML2Client provideLoginRadiusClient(
       ProfileFactory profileFactory, Provider<UserRepository> applicantRepositoryProvider) {
-    if (!this.configuration.hasPath("login_radius.client_id")
-        || !this.configuration.hasPath("login_radius.secret")) {
+    if (!this.configuration.hasPath("login_radius.keystore_password")
+        || !this.configuration.hasPath("login_radius.private_key_password")
+        || !this.configuration.hasPath("login_radius.api_key")) {
       return null;
     }
-    OidcConfiguration config = new OidcConfiguration();
-    config.setClientId(this.configuration.getString("login_radius.client_id"));
-    config.setSecret(this.configuration.getString("login_radius.secret"));
-    config.setDiscoveryURI(this.configuration.getString("login_radius.discovery_uri"));
 
-    config.setClientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
-    addProviderMetadata(config);
-
-    config.setResponseMode("form_post");
-    config.setResponseType("id_token token");
-
-    config.setUseNonce(true);
-    config.setWithState(false);
-    config.setScope("openid profile email");
+    String metadataResourceUrl = String.format("%s?apikey=%s?appName=$s",
+        this.configuration.getString("login_radius.metadata_url"),
+        this.configuration.getString("login_radius.api_key"),
+        this.configuration.getString("login_radius.saml_app_name")
+    );
+    SAML2Configuration config = new SAML2Configuration();
+    config.setKeystoreResourceClasspath(this.configuration.getString("login_radius.keystore_name"));
+    config.setKeystorePassword(this.configuration.getString("login_radius.keystore_password"));
+    config.setPrivateKeyPassword(this.configuration.getString("login_radius.private_key_password"));
+    config.setIdentityProviderMetadataResourceUrl(metadataResourceUrl);
+    config.setServiceProviderEntityId(baseUrl + "/callback");
 
 
-    OidcClient client = new OidcClient(config);
-    client.setCallbackUrl(baseUrl + "/callback");
+
+    SAML2Client client = new SAML2Client(config);
 
     // TODO loginradiusprofileadapter
-    client.setProfileCreator(
-        new IdcsProfileAdapter(config, client, profileFactory, applicantRepositoryProvider));
+
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.init();
     return client;
   }
 
-  private void addProviderMetadata(OidcConfiguration oidcConfiguration) {
-    JSONObject jsonObj = new JSONObject();
-    jsonObj.appendField("token_endpoint", configuration.getString("login_radius.tokenUri"));
-    final OIDCProviderMetadata providerMetaData;
-    try {
-      providerMetaData = OIDCProviderMetadata.parse(jsonObj);
-      oidcConfiguration.setProviderMetadata(providerMetaData);
-    } catch (ParseException e) {
-      e.printStackTrace();
-    }
-  }
 
   /** Creates a singleton object of OidcClient configured for AD and initializes it on startup. */
   @Provides

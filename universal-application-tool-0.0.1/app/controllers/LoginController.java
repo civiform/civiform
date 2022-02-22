@@ -5,6 +5,7 @@ import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import auth.AdOidcClient;
 import auth.IdcsOidcClient;
 import auth.LoginRadiusOidcClient;
+import auth.LoginRadiusSamlClient;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.typesafe.config.Config;
@@ -19,6 +20,7 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.play.PlayWebContext;
 import org.pac4j.play.http.PlayHttpActionAdapter;
+import org.pac4j.saml.client.SAML2Client;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -32,7 +34,7 @@ public class LoginController extends Controller {
 
   private final OidcClient adClient;
 
-  private final OidcClient loginRadiusClient;
+  private final SAML2Client loginRadiusClient;
 
   private final SessionStore sessionStore;
 
@@ -44,7 +46,7 @@ public class LoginController extends Controller {
   public LoginController(
       @AdOidcClient @Nullable OidcClient adClient,
       @IdcsOidcClient @Nullable OidcClient idcsClient,
-      @LoginRadiusOidcClient @Nullable OidcClient loginRadiusClient,
+      @LoginRadiusSamlClient  @Nullable SAML2Client loginRadiusClient,
       SessionStore sessionStore,
       Config config) {
     this.idcsClient = idcsClient;

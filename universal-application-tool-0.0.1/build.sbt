@@ -57,11 +57,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.0.0-PLAY2.8",
-      "org.pac4j" % "pac4j-core" % "5.2.1",
+      "org.pac4j" % "pac4j-core" % "5.3.1",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.2.1",
+      "org.pac4j" % "pac4j-http" % "5.3.1",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.2.1",
+      "org.pac4j" % "pac4j-oidc" % "5.3.1",
+      // SAML authentication
+      "org.pac4j" % "pac4j-saml" % "5.3.1",
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.7.1",
 
@@ -105,6 +107,7 @@ lazy val root = (project in file("."))
 
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 resolvers += Resolver.bintrayRepo("webjars","maven")
+resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 libraryDependencies ++= Seq(
     "org.webjars.npm" % "react" % "15.4.0",
     "org.webjars.npm" % "types__react" % "15.0.34",
