@@ -1,6 +1,5 @@
 #! /usr/bin/env bash
 
-readonly AZURE_LOG_STORAGE_ACCOUNT_NAME="civiformdeploymentlog"
 readonly AZURE_LOG_CONTAINER_NAME="civiformdeploymentlogstoragecontainer"
 readonly AZURE_LOG_FILE_NAME="civiform_deployment_log.txt"
 

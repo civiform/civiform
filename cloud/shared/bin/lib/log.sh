@@ -52,13 +52,18 @@ function log::initialized() {
 #######################################
 function log::check_deploy_args() {
   for i in {1..2}; do
-    if [[ -z "${!i}" || -z "${!i}" ]]; then
+    if [[ -z "${!i}" ]]; then
       out::error "Missing arguments to deployment log function."
       exit 1
     fi
 
     log::validate_token "${!i}"
   done
+
+  if [[ "$#" -gt 2 ]]; then
+      out::error "Too many arguments to deployment log function."
+      exit 1
+  fi
 }
 
 #######################################
