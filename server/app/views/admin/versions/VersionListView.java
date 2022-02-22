@@ -131,7 +131,7 @@ public class VersionListView extends BaseHtmlView {
                         Styles.TEXT_XS,
                         Styles.TEXT_GRAY_700,
                         Styles.MR_2,
-                        StyleUtils.applyUtilityClass(StyleUtils.RESPONSIVE_MD, Styles.MR_4)))
+                        StyleUtils.responsiveMedium(Styles.MR_4)))
             .withClasses(Styles.FLEX);
 
     String listOfPrograms =
