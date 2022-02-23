@@ -1,10 +1,9 @@
 #! /usr/bin/env bash
-source lib/out.sh
-source azure/bastion.sh
+source bin/lib.sh
 
 # DOC: Connect to the database via the bastion. 
 # DOC: Required to pass in the resource group (-g), the database name (-d) and the keyvault name (-v). 
-# DOC: example: azure/db-connection -g sgdev -d civiform-artistic-halibut -v sgdev-civiform-kv
+# DOC: example: bin/db-connection -g sgdev -d civiform-artistic-halibut -v sgdev-civiform-kv
 key_name="bastion" 
 while getopts g:d:k:v: flag
 do
@@ -31,7 +30,7 @@ echo "Bastion vm ip address: ${VM_IP_ADDRESS}"
 
 readonly POSTGRES_HOST=$(bastion::get_postgres_host \
   "${resource_group}" "${database_name}")
-echo "postgreshost: ${POSTGRES_HOST}"
+echo "postgres host: ${POSTGRES_HOST}"
 
 readonly PSQL_CONNECT=$(bastion::get_connect_to_postgres_command \
   "${POSTGRES_HOST}" "${vault_name}")
