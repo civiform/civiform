@@ -4,7 +4,6 @@ import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 
 import auth.AdOidcClient;
 import auth.IdcsOidcClient;
-import auth.LoginRadiusOidcClient;
 import auth.LoginRadiusSamlClient;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -69,6 +68,18 @@ public class LoginController extends Controller {
         .addingToSession(request, REDIRECT_TO_SESSION_KEY, redirectTo.get());
   }
 
+  public Result loginRadiusLogin(Http.Request request) {
+    return samlLogin(request, loginRadiusClient);
+  }
+
+  public Result loginRadiusLoginWithRedirect(Http.Request request, Optional<String> redirectTo) {
+    if (redirectTo.isEmpty()) {
+      return loginRadiusLogin(request);
+    }
+    return samlLogin(request, loginRadiusClient)
+        .addingToSession(request, REDIRECT_TO_SESSION_KEY, redirectTo.get());
+  }
+
   public Result register(Http.Request request) {
     String registerUrl = null;
     try {
@@ -88,9 +99,6 @@ public class LoginController extends Controller {
             routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url());
   }
 
-  public Result loginRadiusLogin(Http.Request request) {
-    return login(request, loginRadiusClient);
-  }
 
   public Result adfsLogin(Http.Request request) {
     return login(request, adClient);
@@ -103,6 +111,19 @@ public class LoginController extends Controller {
     }
     PlayWebContext webContext = new PlayWebContext(request);
     webContext.setRequestAttribute(OidcConfiguration.SCOPE, client.getConfiguration().getScope());
+    Optional<RedirectionAction> redirect = client.getRedirectionAction(webContext, sessionStore);
+    if (redirect.isPresent()) {
+      return (Result) httpActionAdapter.adapt(redirect.get(), webContext);
+    }
+    return badRequest("cannot redirect to identity provider");
+  }
+
+  // Logic taken from org.pac4j.play.deadbolt2.Pac4jHandler.beforeAuthCheck.
+  private Result samlLogin(Http.Request request, SAML2Client client) {
+    if (client == null) {
+      return badRequest("Identity provider secrets not configured.");
+    }
+    PlayWebContext webContext = new PlayWebContext(request);
     Optional<RedirectionAction> redirect = client.getRedirectionAction(webContext, sessionStore);
     if (redirect.isPresent()) {
       return (Result) httpActionAdapter.adapt(redirect.get(), webContext);

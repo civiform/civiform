@@ -164,7 +164,7 @@ public class SecurityModule extends AbstractModule {
       return null;
     }
 
-    String metadataResourceUrl = String.format("%s?apikey=%s?appName=$s",
+    String metadataResourceUrl = String.format("%s?apikey=%s?appName=%s",
         this.configuration.getString("login_radius.metadata_url"),
         this.configuration.getString("login_radius.api_key"),
         this.configuration.getString("login_radius.saml_app_name")
