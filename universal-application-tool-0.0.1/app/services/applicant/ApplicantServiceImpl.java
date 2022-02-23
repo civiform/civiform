@@ -2,8 +2,9 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import auth.UatProfile;
+import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -20,6 +21,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
+import models.LifecycleStage;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
 import repository.UserRepository;
@@ -27,8 +29,9 @@ import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
+import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
-import services.aws.SimpleEmail;
+import services.cloud.aws.SimpleEmail;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -36,10 +39,8 @@ import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 
+/** Implementation class for ApplicantService interface. */
 public class ApplicantServiceImpl implements ApplicantService {
-
-  private static final String STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST =
-      "seattle-civiform-program-admins-notify@google.com";
 
   private final ApplicationRepository applicationRepository;
   private final UserRepository userRepository;
@@ -49,6 +50,9 @@ public class ApplicantServiceImpl implements ApplicantService {
   private final String baseUrl;
   private final boolean isStaging;
   private final HttpExecutionContext httpExecutionContext;
+  private final String stagingProgramAdminNotificationMailingList;
+  private final String stagingTiNotificationMailingList;
+  private final String stagingApplicantNotificationMailingList;
 
   @Inject
   public ApplicantServiceImpl(
@@ -64,9 +68,17 @@ public class ApplicantServiceImpl implements ApplicantService {
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
-    this.baseUrl = checkNotNull(configuration).getString("base_url");
-    this.isStaging = URI.create(baseUrl).getHost().equals("staging.seattle.civiform.com");
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
+
+    String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
+    this.baseUrl = checkNotNull(configuration).getString("base_url");
+    this.isStaging = URI.create(baseUrl).getHost().equals(stagingHostname);
+    this.stagingProgramAdminNotificationMailingList =
+        checkNotNull(configuration).getString("staging_program_admin_notification_mailing_list");
+    this.stagingTiNotificationMailingList =
+        checkNotNull(configuration).getString("staging_ti_notification_mailing_list");
+    this.stagingApplicantNotificationMailingList =
+        checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
   }
 
   @Override
@@ -90,7 +102,7 @@ public class ApplicantServiceImpl implements ApplicantService {
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               return new ReadOnlyApplicantProgramServiceImpl(
-                  applicant.getApplicantData(), programDefinition);
+                  applicant.getApplicantData(), programDefinition, baseUrl);
             },
             httpExecutionContext.current());
   }
@@ -102,10 +114,18 @@ public class ApplicantServiceImpl implements ApplicantService {
       return CompletableFuture.completedFuture(
           new ReadOnlyApplicantProgramServiceImpl(
               application.getApplicantData(),
-              programService.getProgramDefinition(application.getProgram().id)));
+              programService.getProgramDefinition(application.getProgram().id),
+              baseUrl));
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException("Cannot find a program that has applications for it.", e);
     }
+  }
+
+  @Override
+  public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
+      Application application, ProgramDefinition programDefinition) {
+    return new ReadOnlyApplicantProgramServiceImpl(
+        application.getApplicantData(), programDefinition, baseUrl);
   }
 
   @Override
@@ -151,7 +171,7 @@ public class ApplicantServiceImpl implements ApplicantService {
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
               ReadOnlyApplicantProgramService readOnlyApplicantProgramServiceBeforeUpdate =
                   new ReadOnlyApplicantProgramServiceImpl(
-                      applicant.getApplicantData(), programDefinition);
+                      applicant.getApplicantData(), programDefinition, baseUrl);
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramServiceBeforeUpdate.getBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
@@ -170,7 +190,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   new ReadOnlyApplicantProgramServiceImpl(
-                      applicant.getApplicantData(), programDefinition);
+                      applicant.getApplicantData(), programDefinition, baseUrl);
 
               Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
               if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
@@ -183,12 +203,17 @@ public class ApplicantServiceImpl implements ApplicantService {
 
               return CompletableFuture.completedFuture(roApplicantProgramService);
             },
-            httpExecutionContext.current());
+            httpExecutionContext.current())
+        .thenCompose(
+            (v) ->
+                applicationRepository
+                    .createOrUpdateDraft(applicantId, programId)
+                    .thenApplyAsync(appDraft -> v));
   }
 
   @Override
   public CompletionStage<Application> submitApplication(
-      long applicantId, long programId, UatProfile submitterProfile) {
+      long applicantId, long programId, CiviFormProfile submitterProfile) {
     if (submitterProfile.isTrustedIntermediary()) {
       return submitterProfile
           .getAccount()
@@ -214,13 +239,18 @@ public class ApplicantServiceImpl implements ApplicantService {
               Application application = applicationMaybe.get();
               String programName = application.getProgram().getProgramDefinition().adminName();
               notifyProgramAdmins(applicantId, programId, application.id, programName);
+              if (submitterEmail.isPresent()) {
+                notifySubmitter(submitterEmail.get(), applicantId, application.id, programName);
+              }
+              maybeNotifyApplicant(applicantId, application.id, programName);
               return CompletableFuture.completedFuture(application);
             },
             httpExecutionContext.current());
   }
 
   @Override
-  public CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId) {
+  public CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>>
+      relevantPrograms(long applicantId) {
     return userRepository.programsForApplicant(applicantId);
   }
 
@@ -230,16 +260,61 @@ public class ApplicantServiceImpl implements ApplicantService {
         baseUrl
             + controllers.admin.routes.AdminApplicationController.show(programId, applicationId)
                 .url();
-    String subject = String.format("Applicant %d submitted a new application", applicantId);
+    String subject = String.format("New application %d submitted", applicationId);
     String message =
         String.format(
-            "Applicant %d submitted a new application to program %s.\nView the application at %s.",
-            applicantId, programName, viewLink);
+            "Applicant %d submitted a new application %d to program %s.\n"
+                + "View the application at %s.",
+            applicantId, applicationId, programName, viewLink);
     if (isStaging) {
-      amazonSESClient.send(STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST, subject, message);
+      amazonSESClient.send(stagingProgramAdminNotificationMailingList, subject, message);
     } else {
       amazonSESClient.send(
           programService.getNotificationEmailAddresses(programName), subject, message);
+    }
+  }
+
+  private void notifySubmitter(
+      String submitter, long applicantId, long applicationId, String programName) {
+    String tiDashLink =
+        baseUrl
+            + controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                    Optional.empty(), Optional.empty())
+                .url();
+    String subject =
+        String.format(
+            "You submitted an application for program %s on behalf of applicant %d",
+            programName, applicantId);
+    String message =
+        String.format(
+            "The application to program %s as applicant %d has been received, and the application"
+                + " ID is %d.\n"
+                + "Manage your clients at %s.",
+            programName, applicantId, applicationId, tiDashLink);
+    if (isStaging) {
+      amazonSESClient.send(stagingTiNotificationMailingList, subject, message);
+    } else {
+      amazonSESClient.send(submitter, subject, message);
+    }
+  }
+
+  private void maybeNotifyApplicant(long applicantId, long applicationId, String programName) {
+    Optional<String> email = getEmail(applicantId).toCompletableFuture().join();
+    if (email.isEmpty()) {
+      return;
+    }
+    String civiformLink = baseUrl;
+    String subject = String.format("Your application to program %s is received", programName);
+    String message =
+        String.format(
+            "Your application to program %s has been received. Your applicant ID is %d and the"
+                + " application ID is %d.\n"
+                + "Log in to CiviForm at %s.",
+            programName, applicantId, applicationId, civiformLink);
+    if (isStaging) {
+      amazonSESClient.send(stagingApplicantNotificationMailingList, subject, message);
+    } else {
+      amazonSESClient.send(email.get(), subject, message);
     }
   }
 
@@ -253,7 +328,31 @@ public class ApplicantServiceImpl implements ApplicantService {
                 return "<Anonymous Applicant>";
               }
               return applicant.get().getApplicantData().getApplicantName();
-            });
+            },
+            httpExecutionContext.current());
+  }
+
+  @Override
+  public CompletionStage<Optional<String>> getEmail(long applicantId) {
+    return userRepository
+        .lookupApplicant(applicantId)
+        .thenApplyAsync(
+            applicant -> {
+              if (applicant.isEmpty()) {
+                return Optional.empty();
+              }
+              String emailAddress = applicant.get().getAccount().getEmailAddress();
+              if (Strings.isNullOrEmpty(emailAddress)) {
+                return Optional.empty();
+              }
+              return Optional.of(emailAddress);
+            },
+            httpExecutionContext.current());
+  }
+
+  @Override
+  public ImmutableList<Application> getAllApplications() {
+    return applicationRepository.getAllApplications();
   }
 
   /**
@@ -289,12 +388,6 @@ public class ApplicantServiceImpl implements ApplicantService {
       throws PathNotInBlockException {
     Path enumeratorPath = block.getEnumeratorQuestion().getContextualizedPath();
 
-    // The applicant has seen this question, but has not supplied any entities.
-    // We need to still write this path so we can tell they have seen this question.
-    if (!applicantData.hasPath(enumeratorPath.withoutArrayReference())) {
-      applicantData.putRepeatedEntities(enumeratorPath.withoutArrayReference(), ImmutableList.of());
-    }
-
     ImmutableSet<Update> addsAndChanges = validateEnumeratorAddsAndChanges(block, updates);
     ImmutableSet<Update> deletes =
         updates.stream()
@@ -312,6 +405,13 @@ public class ApplicantServiceImpl implements ApplicantService {
       throw new PathNotInBlockException(block.getId(), unknownUpdates.iterator().next().path());
     }
 
+    // Before adding anything, if only metadata is being stored then delete it. We cannot put an
+    // array of entities at the question path if a JSON object with metadata is already at that
+    // path.
+    if (applicantData.readRepeatedEntities(enumeratorPath).isEmpty()) {
+      applicantData.maybeDelete(enumeratorPath.withoutArrayReference());
+    }
+
     // Add and change entity names BEFORE deleting, because if deletes happened first, then changed
     // entity names may not match the intended entities.
     for (Update update : addsAndChanges) {
@@ -325,6 +425,12 @@ public class ApplicantServiceImpl implements ApplicantService {
             .map(Integer::valueOf)
             .collect(ImmutableList.toImmutableList());
     applicantData.deleteRepeatedEntities(enumeratorPath, deleteIndices);
+
+    // If there are no repeated entities at this point, we still need to save metadata for this
+    // question.
+    if (applicantData.maybeClearRepeatedEntities(enumeratorPath)) {
+      writeMetadataForPath(enumeratorPath.withoutArrayReference(), applicantData, updateMetadata);
+    }
   }
 
   /**
@@ -378,12 +484,11 @@ public class ApplicantServiceImpl implements ApplicantService {
       UpdateMetadata updateMetadata,
       ImmutableSet<Update> updates)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
-    ImmutableSet.Builder<Path> questionPaths = ImmutableSet.builder();
     ArrayList<Path> visitedPaths = new ArrayList<>();
     for (Update update : updates) {
       Path currentPath = update.path();
 
-      // If we're updating an array we need to clear it first.
+      // If we're updating an array we need to clear it the first time it is visited
       if (currentPath.isArrayElement()
           && !visitedPaths.contains(currentPath.withoutArrayReference())) {
         visitedPaths.add(currentPath.withoutArrayReference());
@@ -394,24 +499,34 @@ public class ApplicantServiceImpl implements ApplicantService {
           block
               .getScalarType(currentPath)
               .orElseThrow(() -> new PathNotInBlockException(block.getId(), currentPath));
-      questionPaths.add(currentPath.parentPath());
-      switch (type) {
-        case DATE:
-          applicantData.putDate(currentPath, update.value());
-          break;
-        case STRING:
-          applicantData.putString(currentPath, update.value());
-          break;
-        case LONG:
-          applicantData.putLong(currentPath, update.value());
-          break;
-        default:
-          throw new UnsupportedScalarTypeException(type);
+      // An empty update means the applicant doesn't want to store anything. We already cleared the
+      // multi-select array above in preparation for updates, so do not remove the path.
+      if (!update.path().isArrayElement() && update.value().isBlank()) {
+        applicantData.maybeDelete(update.path());
+      } else {
+        switch (type) {
+          case CURRENCY_CENTS:
+            applicantData.putCurrencyDollars(currentPath, update.value());
+            break;
+          case DATE:
+            applicantData.putDate(currentPath, update.value());
+            break;
+          case LIST_OF_STRINGS:
+          case STRING:
+            applicantData.putString(currentPath, update.value());
+            break;
+          case LONG:
+            applicantData.putLong(currentPath, update.value());
+            break;
+          default:
+            throw new UnsupportedScalarTypeException(type);
+        }
       }
     }
 
-    questionPaths
-        .build()
+    // Write metadata for all questions in the block, regardless of whether they were blank or not.
+    block.getQuestions().stream()
+        .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> writeMetadataForPath(path, applicantData, updateMetadata));
   }
 

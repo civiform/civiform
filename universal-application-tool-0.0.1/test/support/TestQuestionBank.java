@@ -16,16 +16,19 @@ import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.CurrencyQuestionDefinition;
 import services.question.types.DateQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
 import services.question.types.EmailQuestionDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
+import services.question.types.IdQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.RadioButtonQuestionDefinition;
+import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 /**
@@ -73,15 +76,18 @@ public class TestQuestionBank {
     return new ImmutableMap.Builder<QuestionType, Question>()
         .put(QuestionType.ADDRESS, applicantAddress())
         .put(QuestionType.CHECKBOX, applicantKitchenTools())
+        .put(QuestionType.CURRENCY, applicantMonthlyIncome())
         .put(QuestionType.DATE, applicantDate())
         .put(QuestionType.DROPDOWN, applicantIceCream())
         .put(QuestionType.EMAIL, applicantEmail())
         .put(QuestionType.FILEUPLOAD, applicantFile())
+        .put(QuestionType.ID, applicantId())
         .put(QuestionType.NAME, applicantName())
         .put(QuestionType.NUMBER, applicantJugglingNumber())
         .put(QuestionType.RADIO_BUTTON, applicantSeason())
         .put(QuestionType.ENUMERATOR, applicantHouseholdMembers())
         .put(QuestionType.TEXT, applicantFavoriteColor())
+        .put(QuestionType.STATIC, staticContent())
         .build();
   }
 
@@ -128,6 +134,17 @@ public class TestQuestionBank {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_FILE, this::applicantFile);
   }
 
+  // Currency
+  public Question applicantMonthlyIncome() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_MONTHLY_INCOME, this::applicantMonthlyIncome);
+  }
+
+  // Id
+  public Question applicantId() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_ID, this::applicantId);
+  }
+
   // Name
   public Question applicantName() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_NAME, this::applicantName);
@@ -148,10 +165,10 @@ public class TestQuestionBank {
   }
 
   // Deeply nested Number
-  public Question applicantHouseholdMemberJobIncome() {
+  public Question applicantHouseholdMemberDaysWorked() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_JOB_INCOME,
-        this::applicantHouseholdMemberJobIncome);
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_DAYS_WORKED,
+        this::applicantHouseholdMemberDaysWorked);
   }
 
   // Radio button
@@ -163,6 +180,11 @@ public class TestQuestionBank {
   public Question applicantFavoriteColor() {
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_FAVORITE_COLOR, this::applicantFavoriteColor);
+  }
+
+  // Text
+  public Question staticContent() {
+    return questionCache.computeIfAbsent(QuestionEnum.STATIC_CONTENT, this::staticContent);
   }
 
   // Address
@@ -188,9 +210,9 @@ public class TestQuestionBank {
                 Locale.US, "Which of the following kitchen instruments do you own?"),
             LocalizedStrings.of(Locale.US, "This is sample help text."),
             ImmutableList.of(
-                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "toaster")),
-                QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "pepper grinder")),
-                QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "garlic press"))));
+                QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "toaster")),
+                QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "pepper grinder")),
+                QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "garlic press"))));
     return maybeSave(definition);
   }
 
@@ -205,10 +227,10 @@ public class TestQuestionBank {
                 Locale.US, "Select your favorite ice cream flavor from the following"),
             LocalizedStrings.of(Locale.US, "This is sample help text."),
             ImmutableList.of(
-                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "chocolate")),
-                QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "strawberry")),
-                QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "vanilla")),
-                QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "coffee"))));
+                QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "chocolate")),
+                QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "strawberry")),
+                QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "vanilla")),
+                QuestionOption.create(4L, 4L, LocalizedStrings.of(Locale.US, "coffee"))));
     return maybeSave(definition);
   }
 
@@ -247,6 +269,30 @@ public class TestQuestionBank {
             Optional.empty(),
             "The file to be uploaded",
             LocalizedStrings.of(Locale.US, "What is the file you want to upload?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
+    return maybeSave(definition);
+  }
+
+  // Currency
+  private Question applicantMonthlyIncome(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new CurrencyQuestionDefinition(
+            "applicant monthly income",
+            Optional.empty(),
+            "monthly income of applicant",
+            LocalizedStrings.of(Locale.US, "what is your monthly income?"),
+            LocalizedStrings.of(Locale.US, "help text"));
+    return maybeSave(definition);
+  }
+
+  // Id
+  private Question applicantId(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new IdQuestionDefinition(
+            "applicant id",
+            Optional.empty(),
+            "1234",
+            LocalizedStrings.of(Locale.US, "What is the the id?"),
             LocalizedStrings.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
@@ -312,16 +358,17 @@ public class TestQuestionBank {
             LocalizedStrings.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
+
   // Deeply Nested Number
-  private Question applicantHouseholdMemberJobIncome(QuestionEnum ignore) {
+  private Question applicantHouseholdMemberDaysWorked(QuestionEnum ignore) {
     Question householdMemberJobs = applicantHouseholdMemberJobs();
     QuestionDefinition definition =
         new NumberQuestionDefinition(
-            "household members jobs income",
+            "household members days worked",
             Optional.of(householdMemberJobs.id),
-            "The applicant's household member's job's income",
-            LocalizedStrings.of(Locale.US, "What is $this.parent's income at $this?"),
-            LocalizedStrings.of(Locale.US, "What is the monthly income of $this.parent at $this?"));
+            "The applicant's household member's number of days worked",
+            LocalizedStrings.of(Locale.US, "How many days has $this.parent worked at $this?"),
+            LocalizedStrings.of(Locale.US, "How many days has $this.parent worked at $this?"));
 
     return maybeSave(definition);
   }
@@ -336,13 +383,24 @@ public class TestQuestionBank {
             LocalizedStrings.of(Locale.US, "What is your favorite season?"),
             LocalizedStrings.of(Locale.US, "This is sample help text."),
             ImmutableList.of(
-                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "winter")),
-                QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "spring")),
-                QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "summer")),
-                QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "fall"))));
+                QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "winter")),
+                QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "spring")),
+                QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "summer")),
+                QuestionOption.create(4L, 4L, LocalizedStrings.of(Locale.US, "fall"))));
     return maybeSave(definition);
   }
 
+  // Static
+  private Question staticContent(QuestionEnum ignore) {
+    QuestionDefinition definition =
+        new StaticContentQuestionDefinition(
+            "more info about something",
+            Optional.empty(),
+            "Shows more info to the applicant",
+            LocalizedStrings.of(Locale.US, "This is more info"),
+            LocalizedStrings.of(Locale.US, ""));
+    return maybeSave(definition);
+  }
   // Text
   private Question applicantFavoriteColor(QuestionEnum ignore) {
     QuestionDefinition definition =
@@ -397,16 +455,19 @@ public class TestQuestionBank {
     APPLICANT_ADDRESS,
     APPLICANT_FAVORITE_COLOR,
     APPLICANT_FILE,
+    APPLICANT_ID,
     APPLICANT_HOUSEHOLD_MEMBERS,
+    APPLICANT_HOUSEHOLD_MEMBER_DAYS_WORKED,
     APPLICANT_HOUSEHOLD_MEMBER_NAME,
     APPLICANT_HOUSEHOLD_MEMBER_JOBS,
-    APPLICANT_HOUSEHOLD_MEMBER_JOB_INCOME,
+    APPLICANT_MONTHLY_INCOME,
     APPLICANT_ICE_CREAM,
     APPLICANT_JUGGLING_NUMBER,
     APPLICANT_KITCHEN_TOOLS,
     APPLICANT_NAME,
     APPLICANT_BIRTHDATE,
     APPLICANT_SEASON,
-    APPLICANT_EMAIL
+    APPLICANT_EMAIL,
+    STATIC_CONTENT,
   }
 }

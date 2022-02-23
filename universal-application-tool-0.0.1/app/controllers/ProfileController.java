@@ -2,8 +2,8 @@ package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.UatProfile;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -14,6 +14,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import views.ProfileView;
 
+/** Controller for handling methods for user profile pages. */
 public class ProfileController extends Controller {
 
   private final ProfileView profileView;
@@ -31,7 +32,7 @@ public class ProfileController extends Controller {
   }
 
   public CompletionStage<Result> myProfile(Http.Request request) {
-    Optional<UatProfile> maybeProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> maybeProfile = profileUtils.currentUserProfile(request);
 
     if (maybeProfile.isEmpty()) {
       return CompletableFuture.completedFuture(ok(profileView.renderNoProfile()));

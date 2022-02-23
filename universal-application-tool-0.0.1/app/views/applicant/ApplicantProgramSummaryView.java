@@ -8,6 +8,7 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.attributes.Attr.HREF;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
@@ -19,8 +20,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Optional;
 import play.i18n.Messages;
-import play.mvc.Http.HttpVerbs;
-import play.mvc.Http.Request;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.AnswerData;
@@ -31,8 +31,10 @@ import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Shows all questions in the applying program and answers to the questions if present. */
 public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
@@ -44,48 +46,56 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   /**
    * Renders a summary of all of the applicant's data for a specific application. Data includes:
-   * Program Id, Applicant Id - Needed for link context (submit & edit) Question Data for each
-   * question: - question text - answer text - block id (for edit link)
+   *
+   * <p>Program Id, Applicant Id - Needed for link context (submit & edit)
+   *
+   * <p>Question Data for each question:
+   *
+   * <ul>
+   *   <li>question text
+   *   <li>answer text
+   *   <li>block id (for edit link)
+   * </ul>
    */
-  public Content render(
-      Request request,
-      Long applicantId,
-      String userName,
-      Long programId,
-      String programTitle,
-      ImmutableList<AnswerData> data,
-      int completedBlockCount,
-      int totalBlockCount,
-      Messages messages,
-      Optional<String> banner) {
-    String pageTitle = "Application summary";
+  public Content render(Params params) {
+    Messages messages = params.messages();
+    String pageTitle =
+        params.inReview()
+            ? messages.at(MessageKey.TITLE_PROGRAM_REVIEW.getKeyName())
+            : messages.at(MessageKey.TITLE_PROGRAM_PREVIEW.getKeyName());
     HtmlBundle bundle =
-        layout.getBundle().setTitle(String.format("%s — %s", pageTitle, programTitle));
+        layout.getBundle().setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
 
     ContainerTag applicationSummary = div().withId("application-summary").withClasses(Styles.MB_8);
     Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
-    for (AnswerData answerData : data) {
+    boolean isFirstUnanswered = true;
+    for (AnswerData answerData : params.summaryData()) {
       Optional<RepeatedEntity> currentRepeatedEntity = answerData.repeatedEntity();
       if (!currentRepeatedEntity.equals(previousRepeatedEntity)
           && currentRepeatedEntity.isPresent()) {
         applicationSummary.with(renderRepeatedEntitySection(currentRepeatedEntity.get(), messages));
       }
-      applicationSummary.with(renderQuestionSummary(answerData, applicantId));
+      applicationSummary.with(
+          renderQuestionSummary(
+              answerData, messages, params.applicantId(), params.inReview(), isFirstUnanswered));
+      isFirstUnanswered = isFirstUnanswered && answerData.isAnswered();
       previousRepeatedEntity = currentRepeatedEntity;
     }
 
     // Add submit action (POST).
     String submitLink =
-        routes.ApplicantProgramReviewController.submit(applicantId, programId).url();
+        routes.ApplicantProgramReviewController.submit(params.applicantId(), params.programId())
+            .url();
 
     Tag continueOrSubmitButton;
-    if (completedBlockCount == totalBlockCount) {
+    if (params.completedBlockCount() == params.totalBlockCount()) {
       continueOrSubmitButton =
           submitButton(messages.at(MessageKey.BUTTON_SUBMIT.getKeyName()))
               .withClasses(
                   ReferenceClasses.SUBMIT_BUTTON, ApplicantStyles.BUTTON_SUBMIT_APPLICATION);
     } else {
-      String applyUrl = routes.ApplicantProgramsController.edit(applicantId, programId).url();
+      String applyUrl =
+          routes.ApplicantProgramsController.edit(params.applicantId(), params.programId()).url();
       continueOrSubmitButton =
           a().attr(HREF, applyUrl)
               .withText(messages.at(MessageKey.BUTTON_CONTINUE.getKeyName()))
@@ -100,24 +110,31 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             .with(
                 form()
                     .withAction(submitLink)
-                    .withMethod(HttpVerbs.POST)
-                    .with(makeCsrfTokenInputTag(request))
+                    .withMethod(Http.HttpVerbs.POST)
+                    .with(makeCsrfTokenInputTag(params.request()))
                     .with(continueOrSubmitButton));
 
-    if (banner.isPresent()) {
-      bundle.addToastMessages(ToastMessage.error(banner.get()));
+    if (!params.banner().isEmpty()) {
+      bundle.addToastMessages(ToastMessage.error(params.banner()));
     }
+
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
-            programTitle, completedBlockCount, totalBlockCount, true),
+            params.programTitle(), params.completedBlockCount(), params.totalBlockCount(), true),
         h1(pageTitle).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
-    return layout.renderWithNav(request, userName, messages, bundle);
+    return layout.renderWithNav(
+        params.request(), params.applicantName(), params.messages(), bundle);
   }
 
-  private ContainerTag renderQuestionSummary(AnswerData data, Long applicantId) {
+  private ContainerTag renderQuestionSummary(
+      AnswerData data,
+      Messages messages,
+      long applicantId,
+      boolean inReview,
+      boolean isFirstUnanswered) {
     ContainerTag questionPrompt =
         div(data.questionText()).withClasses(Styles.FLEX_AUTO, Styles.FONT_SEMIBOLD);
     ContainerTag questionContent =
@@ -137,7 +154,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     if (data.fileKey().isPresent()) {
       String fileLink =
           controllers.routes.FileController.show(applicantId, data.fileKey().get()).url();
-      answerContent = a().withHref(fileLink);
+      answerContent = a().withHref(fileLink).withClasses(Styles.W_2_3);
     } else {
       answerContent = div();
     }
@@ -153,36 +170,65 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       answerContent.withText(texts[i]);
     }
 
-    // Link to block containing specific question.
-    String editLink =
-        routes.ApplicantProgramBlocksController.review(
-                applicantId, data.programId(), data.blockId())
-            .url();
-    ContainerTag editAction =
-        new LinkElement()
-            .setHref(editLink)
-            .setText("Edit")
-            .setStyles(Styles.ABSOLUTE, Styles.BOTTOM_0, Styles.RIGHT_0)
-            .asAnchorText();
-    ContainerTag editContent =
-        div(editAction)
-            .withClasses(
-                Styles.FLEX_AUTO,
-                Styles.TEXT_RIGHT,
-                Styles.FONT_LIGHT,
-                Styles.ITALIC,
-                Styles.RELATIVE);
     ContainerTag answerDiv =
-        div(answerContent, editContent).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
+        div(answerContent).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
+
+    // Maybe link to block containing specific question.
+    if (data.isAnswered() || isFirstUnanswered) {
+      String editText = messages.at(MessageKey.LINK_EDIT.getKeyName());
+      if (!data.isAnswered()) {
+        editText =
+            inReview
+                ? messages.at(MessageKey.BUTTON_CONTINUE.getKeyName())
+                : messages.at(MessageKey.LINK_BEGIN.getKeyName());
+      }
+      String editLink =
+          (!data.isAnswered() && !inReview)
+              ? routes.ApplicantProgramBlocksController.edit(
+                      applicantId, data.programId(), data.blockId())
+                  .url()
+              : routes.ApplicantProgramBlocksController.review(
+                      applicantId, data.programId(), data.blockId())
+                  .url();
+
+      ContainerTag editAction =
+          new LinkElement()
+              .setHref(editLink)
+              .setText(editText)
+              .setStyles(
+                  Styles.ABSOLUTE,
+                  Styles.BOTTOM_0,
+                  Styles.RIGHT_0,
+                  Styles.PR_2,
+                  Styles.TEXT_BLUE_600,
+                  StyleUtils.hover(Styles.TEXT_BLUE_700))
+              .asAnchorText()
+              .attr(
+                  "aria-label",
+                  messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName(), data.questionText()));
+      ContainerTag editContent =
+          div(editAction)
+              .withClasses(
+                  Styles.FLEX_AUTO,
+                  Styles.TEXT_RIGHT,
+                  Styles.FONT_MEDIUM,
+                  Styles.RELATIVE,
+                  Styles.BREAK_NORMAL);
+
+      answerDiv.with(editContent);
+    }
 
     return div(questionContent, answerDiv)
         .withClasses(
+            ReferenceClasses.APPLICANT_SUMMARY_ROW,
             marginIndentClass(data.repeatedEntity().map(RepeatedEntity::depth).orElse(0)),
-            Styles.MY_2,
-            Styles.PY_2,
+            data.isAnswered() ? "" : Styles.BG_YELLOW_50,
+            Styles.MY_0,
+            Styles.P_2,
+            Styles.PT_4,
             Styles.BORDER_B,
-            Styles.BORDER_GRAY_300,
-            ReferenceClasses.APPLICANT_SUMMARY_ROW);
+            Styles.BORDER_GRAY_300)
+        .attr("style", "word-break:break-word");
   }
 
   private ContainerTag renderRepeatedEntitySection(
@@ -209,5 +255,61 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   private String marginIndentClass(int depth) {
     return "ml-" + (depth * 4);
+  }
+
+  @AutoValue
+  public abstract static class Params {
+    public static Builder builder() {
+      return new AutoValue_ApplicantProgramSummaryView_Params.Builder();
+    }
+
+    abstract Http.Request request();
+
+    abstract long applicantId();
+
+    abstract String applicantName();
+
+    abstract String banner();
+
+    abstract int completedBlockCount();
+
+    abstract boolean inReview();
+
+    abstract Messages messages();
+
+    abstract long programId();
+
+    abstract String programTitle();
+
+    abstract ImmutableList<AnswerData> summaryData();
+
+    abstract int totalBlockCount();
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder setRequest(Http.Request request);
+
+      public abstract Builder setApplicantId(long applicantId);
+
+      public abstract Builder setApplicantName(String applicantName);
+
+      public abstract Builder setBanner(String banner);
+
+      public abstract Builder setCompletedBlockCount(int completedBlockCount);
+
+      public abstract Builder setInReview(boolean inReview);
+
+      public abstract Builder setMessages(Messages messages);
+
+      public abstract Builder setProgramId(long programId);
+
+      public abstract Builder setProgramTitle(String programTitle);
+
+      public abstract Builder setSummaryData(ImmutableList<AnswerData> summaryData);
+
+      public abstract Builder setTotalBlockCount(int totalBlockCount);
+
+      public abstract Params build();
+    }
   }
 }

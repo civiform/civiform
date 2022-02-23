@@ -1,5 +1,6 @@
 package views.style;
 
+/** Styles for admin pages. */
 public class AdminStyles {
 
   public static final String LANGUAGE_LINK_SELECTED =
@@ -52,6 +53,15 @@ public class AdminStyles {
           Styles.TOP_0,
           Styles.W_FULL);
 
+  public static final String MOVE_BLOCK_BUTTON =
+      StyleUtils.joinStyles(
+          Styles.BG_TRANSPARENT,
+          Styles.P_0,
+          Styles.W_6,
+          Styles.TEXT_CENTER,
+          Styles.TEXT_GRAY_500,
+          StyleUtils.hover(Styles.BG_GRAY_200, Styles.TEXT_GRAY_900));
+
   public static final String BODY =
       StyleUtils.joinStyles(
           BODY_GRADIENT_STYLE,
@@ -75,4 +85,17 @@ public class AdminStyles {
           Styles.OVERFLOW_Y_AUTO,
           Styles.SHADOW_LG,
           Styles.W_SCREEN);
+
+  public static final String BUTTON_QUESTION_PREDICATE =
+      StyleUtils.joinStyles(
+          Styles.W_FULL,
+          Styles.PX_4,
+          Styles.PY_2,
+          Styles.BORDER,
+          Styles.BORDER_GRAY_200,
+          Styles.TEXT_BLACK,
+          Styles.TEXT_LEFT,
+          Styles.FONT_NORMAL,
+          Styles.BG_WHITE,
+          StyleUtils.hover(Styles.TEXT_GRAY_800, Styles.BG_GRAY_100));
 }

@@ -3,8 +3,9 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import com.google.common.collect.ImmutableList;
+import io.ebean.DB;
+import io.ebean.Database;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -16,14 +17,17 @@ import models.LifecycleStage;
 import models.Program;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.db.ebean.EbeanConfig;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.program.ProgramNotFoundException;
 
+/**
+ * ApplicationRepository performs complicated operations on {@link Application} that often involve
+ * other EBean models or asynchronous handling.
+ */
 public class ApplicationRepository {
   private final ProgramRepository programRepository;
   private final UserRepository userRepository;
-  private final EbeanServer ebeanServer;
+  private final Database database;
   private final DatabaseExecutionContext executionContext;
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationRepository.class);
 
@@ -31,11 +35,10 @@ public class ApplicationRepository {
   public ApplicationRepository(
       ProgramRepository programRepository,
       UserRepository userRepository,
-      EbeanConfig ebeanConfig,
       DatabaseExecutionContext executionContext) {
     this.programRepository = checkNotNull(programRepository);
     this.userRepository = checkNotNull(userRepository);
-    this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
+    this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
   }
 
@@ -64,35 +67,40 @@ public class ApplicationRepository {
 
   private Application submitApplicationInternal(
       Applicant applicant, Program program, Optional<String> submitterEmail) {
-    ebeanServer.beginTransaction();
+    database.beginTransaction();
     try {
       List<Application> oldApplications =
-          ebeanServer
+          database
               .createQuery(Application.class)
               .where()
               .eq("applicant.id", applicant.id)
               .eq("program.name", program.getProgramDefinition().adminName())
               .findList();
+      Optional<Application> completedApplication = Optional.empty();
       for (Application application : oldApplications) {
         // Delete any in-progress drafts, and mark obsolete any old applications.
         if (application.getLifecycleStage().equals(LifecycleStage.DRAFT)) {
-          application.setLifecycleStage(LifecycleStage.DELETED);
+          application.setLifecycleStage(LifecycleStage.ACTIVE);
+          application.setSubmitTimeToNow();
+          completedApplication = Optional.of(application);
         } else {
           application.setLifecycleStage(LifecycleStage.OBSOLETE);
         }
         application.save();
       }
-      Application application = new Application(applicant, program, LifecycleStage.ACTIVE);
+      Application application =
+          completedApplication.orElse(new Application(applicant, program, LifecycleStage.ACTIVE));
+      application.setSubmitTimeToNow();
 
       if (submitterEmail.isPresent()) {
         application.setSubmitterEmail(submitterEmail.get());
       }
 
       application.save();
-      ebeanServer.commitTransaction();
+      database.commitTransaction();
       return application;
     } finally {
-      ebeanServer.endTransaction();
+      database.endTransaction();
     }
   }
 
@@ -122,6 +130,10 @@ public class ApplicationRepository {
             });
   }
 
+  public ImmutableList<Application> getAllApplications() {
+    return ImmutableList.copyOf(database.find(Application.class).findList());
+  }
+
   // Need to transmit both arguments to submitApplication through the CompletionStage pipeline.
   // Not useful in the API, not needed more broadly.
   private static class ApplicationArguments {
@@ -135,10 +147,10 @@ public class ApplicationRepository {
   }
 
   private Application createOrUpdateDraftApplicationInternal(Applicant applicant, Program program) {
-    ebeanServer.beginTransaction();
+    database.beginTransaction();
     try {
       Optional<Application> existingDraft =
-          ebeanServer
+          database
               .createQuery(Application.class)
               .where()
               .eq("applicant.id", applicant.id)
@@ -147,11 +159,12 @@ public class ApplicationRepository {
               .findOneOrEmpty();
       Application application =
           existingDraft.orElse(new Application(applicant, program, LifecycleStage.DRAFT));
+      application.setApplicantData(applicant.getApplicantData());
       application.save();
-      ebeanServer.commitTransaction();
+      database.commitTransaction();
       return application;
     } finally {
-      ebeanServer.endTransaction();
+      database.endTransaction();
     }
   }
 
@@ -178,7 +191,7 @@ public class ApplicationRepository {
 
   public CompletionStage<Optional<Application>> getApplication(long applicationId) {
     return supplyAsync(
-        () -> ebeanServer.find(Application.class).setId(applicationId).findOneOrEmpty(),
+        () -> database.find(Application.class).setId(applicationId).findOneOrEmpty(),
         executionContext.current());
   }
 }

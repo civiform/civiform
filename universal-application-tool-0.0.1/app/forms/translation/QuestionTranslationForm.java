@@ -5,6 +5,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
+/** Form for updating translation for questions. */
 public class QuestionTranslationForm {
 
   private String questionText;

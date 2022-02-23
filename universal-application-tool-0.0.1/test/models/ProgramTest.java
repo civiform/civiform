@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ProgramRepository;
@@ -45,24 +46,28 @@ public class ProgramTest extends WithPostgresContainer {
             .setDescription("applicant's name")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
             .build();
-
+    long programDefinitionId = 1L;
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(1L)
             .setName("First Block")
             .setDescription("basic info")
             .setProgramQuestionDefinitions(
-                ImmutableList.of(ProgramQuestionDefinition.create(questionDefinition)))
+                ImmutableList.of(
+                    ProgramQuestionDefinition.create(
+                        questionDefinition, Optional.of(programDefinitionId))))
             .build();
 
     ProgramDefinition definition =
         ProgramDefinition.builder()
-            .setId(1L)
+            .setId(programDefinitionId)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
+            .setExternalLink("")
+            .setDisplayMode(DisplayMode.PUBLIC)
             .build();
     Program program = new Program(definition);
 
@@ -108,6 +113,7 @@ public class ProgramTest extends WithPostgresContainer {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
                 .build();
 
+    long programDefinitionId = 1L;
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(1L)
@@ -115,18 +121,22 @@ public class ProgramTest extends WithPostgresContainer {
             .setDescription("basic info")
             .setProgramQuestionDefinitions(
                 ImmutableList.of(
-                    ProgramQuestionDefinition.create(addressQuestionDefinition),
-                    ProgramQuestionDefinition.create(nameQuestionDefinition)))
+                    ProgramQuestionDefinition.create(
+                        addressQuestionDefinition, Optional.of(programDefinitionId)),
+                    ProgramQuestionDefinition.create(
+                        nameQuestionDefinition, Optional.of(programDefinitionId))))
             .build();
 
     ProgramDefinition definition =
         ProgramDefinition.builder()
-            .setId(1L)
+            .setId(programDefinitionId)
             .setAdminName("Admin name")
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
+            .setExternalLink("")
+            .setDisplayMode(DisplayMode.PUBLIC)
             .build();
     Program program = new Program(definition);
     program.save();
@@ -167,6 +177,8 @@ public class ProgramTest extends WithPostgresContainer {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
+            .setExternalLink("")
+            .setDisplayMode(DisplayMode.PUBLIC)
             .build();
     Program program = new Program(definition);
     program.save();
@@ -177,5 +189,97 @@ public class ProgramTest extends WithPostgresContainer {
     BlockDefinition block = found.getProgramDefinition().getBlockDefinition(1L);
     assertThat(block.visibilityPredicate()).hasValue(predicate);
     assertThat(block.optionalPredicate()).isEmpty();
+  }
+
+  @Test
+  public void unorderedBlockDefinitions_getOrderedBlockDefinitionsOnSave() {
+    long programDefinitionId = 45832L;
+    ImmutableList<BlockDefinition> unorderedBlocks =
+        ImmutableList.<BlockDefinition>builder()
+            .add(
+                BlockDefinition.builder()
+                    .setId(1L)
+                    .setName("enumerator")
+                    .setDescription("description")
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                            Optional.of(programDefinitionId)))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(2L)
+                    .setName("top level")
+                    .setDescription("description")
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank.applicantEmail().getQuestionDefinition(),
+                            Optional.of(programDefinitionId)))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(3L)
+                    .setName("nested enumerator")
+                    .setDescription("description")
+                    .setEnumeratorId(Optional.of(1L))
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
+                            Optional.of(programDefinitionId)))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(4L)
+                    .setName("repeated")
+                    .setDescription("description")
+                    .setEnumeratorId(Optional.of(1L))
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition(),
+                            Optional.of(programDefinitionId)))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(5L)
+                    .setName("nested repeated")
+                    .setDescription("description")
+                    .setEnumeratorId(Optional.of(3L))
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank
+                                .applicantHouseholdMemberDaysWorked()
+                                .getQuestionDefinition(),
+                            Optional.of(programDefinitionId)))
+                    .build())
+            .add(
+                BlockDefinition.builder()
+                    .setId(6L)
+                    .setName("top level 2")
+                    .setDescription("description")
+                    .addQuestion(
+                        ProgramQuestionDefinition.create(
+                            testQuestionBank.applicantName().getQuestionDefinition(),
+                            Optional.of(programDefinitionId)))
+                    .build())
+            .build();
+
+    ProgramDefinition programDefinition =
+        ProgramDefinition.builder()
+            .setId(programDefinitionId)
+            .setAdminName("test program")
+            .setAdminDescription("test description")
+            .setExternalLink("")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setLocalizedName(LocalizedStrings.withDefaultValue("test name"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("test description"))
+            .setBlockDefinitions(unorderedBlocks)
+            .build();
+
+    assertThat(programDefinition.hasOrderedBlockDefinitions()).isFalse();
+
+    Program program = programDefinition.toProgram();
+    program.save();
+
+    assertThat(program.getProgramDefinition().hasOrderedBlockDefinitions()).isTrue();
   }
 }

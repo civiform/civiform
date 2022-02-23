@@ -6,6 +6,7 @@ import static j2html.TagCreator.h3;
 
 import forms.ProgramForm;
 import j2html.tags.ContainerTag;
+import models.DisplayMode;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
@@ -23,6 +24,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
         program.getAdminDescription(),
         program.getLocalizedDisplayName(),
         program.getLocalizedDisplayDescription(),
+        program.getExternalLink(),
+        program.getDisplayMode(),
         editExistingProgram);
   }
 
@@ -34,6 +37,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
         program.adminDescription(),
         program.localizedName().getDefault(),
         program.localizedDescription().getDefault(),
+        program.externalLink(),
+        program.displayMode().getValue(),
         editExistingProgram);
   }
 
@@ -42,6 +47,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
       String adminDescription,
       String displayName,
       String displayDescription,
+      String externalLink,
+      String displayMode,
       boolean editExistingProgram) {
     ContainerTag formTag = form().withMethod("POST");
     formTag.with(
@@ -60,6 +67,20 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Describe this program for administrative use")
             .setValue(adminDescription)
             .getContainer(),
+        FieldWithLabel.radio()
+            .setId("program-display-mode-public")
+            .setFieldName("displayMode")
+            .setLabelText("Public")
+            .setValue(DisplayMode.PUBLIC.getValue())
+            .setChecked(displayMode.equals(DisplayMode.PUBLIC.getValue()))
+            .getContainer(),
+        FieldWithLabel.radio()
+            .setId("program-display-mode-hidden")
+            .setFieldName("displayMode")
+            .setLabelText("Hidden in Index")
+            .setValue(DisplayMode.HIDDEN_IN_INDEX.getValue())
+            .setChecked(displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()))
+            .getContainer(),
         h2("Public program information"),
         h3("This will be visible to the public"),
         FieldWithLabel.input()
@@ -73,6 +94,12 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .setFieldName("localizedDisplayDescription")
             .setLabelText("Describe this program for the public")
             .setValue(displayDescription)
+            .getContainer(),
+        FieldWithLabel.input()
+            .setId("program-external-link-input")
+            .setFieldName("externalLink")
+            .setLabelText("Link for additional program information")
+            .setValue(externalLink)
             .getContainer(),
         submitButton("Save").withId("program-update-button"));
     return formTag;

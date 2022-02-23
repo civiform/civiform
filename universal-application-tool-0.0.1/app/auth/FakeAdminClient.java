@@ -1,7 +1,9 @@
 package auth;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableSet;
+import com.typesafe.config.Config;
 import controllers.admin.routes;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -9,25 +11,31 @@ import org.pac4j.core.client.IndirectClient;
 import org.pac4j.core.credentials.AnonymousCredentials;
 import org.pac4j.core.util.HttpActionHelper;
 
+/**
+ * This class implements a special client that allows logging in without logging in to a real AD
+ * account. The feature is only enabled in development environment.
+ */
 public class FakeAdminClient extends IndirectClient {
 
   public static final String CLIENT_NAME = "FakeAdminClient";
   public static final String GLOBAL_ADMIN = "GLOBAL";
   public static final String PROGRAM_ADMIN = "PROGRAM";
+  public static final String DUAL_ADMIN = "DUAL";
 
-  public static final ImmutableSet<String> ACCEPTED_HOSTS =
-      ImmutableSet.of("localhost", "civiform", "staging.seattle.civiform.com");
-
+  private ImmutableSet<String> acceptedHosts;
   private ProfileFactory profileFactory;
 
-  public static boolean canEnable(String host) {
-    return FakeAdminClient.ACCEPTED_HOSTS.stream()
-        .anyMatch(acceptedHost -> host.equals(acceptedHost) || host.startsWith(acceptedHost + ":"));
+  @Inject
+  public FakeAdminClient(ProfileFactory profileFactory, Config configuration) {
+    this.profileFactory = checkNotNull(profileFactory);
+
+    String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
+    acceptedHosts = ImmutableSet.of("localhost", "civiform", stagingHostname);
   }
 
-  @Inject
-  public FakeAdminClient(ProfileFactory profileFactory) {
-    this.profileFactory = Preconditions.checkNotNull(profileFactory);
+  public boolean canEnable(String host) {
+    return acceptedHosts.stream()
+        .anyMatch(acceptedHost -> host.equals(acceptedHost) || host.startsWith(acceptedHost + ":"));
   }
 
   @Override
@@ -35,7 +43,7 @@ public class FakeAdminClient extends IndirectClient {
     defaultCredentialsExtractor(
         (ctx, store) -> {
           // Double check that we haven't been fooled into allowing this somehow.
-          if (!ACCEPTED_HOSTS.contains(ctx.getServerName())) {
+          if (!acceptedHosts.contains(ctx.getServerName())) {
             throw new UnsupportedOperationException(
                 "You cannot create a fake admin unless you are running locally.");
           }
@@ -51,6 +59,8 @@ public class FakeAdminClient extends IndirectClient {
             cred.setUserProfile(profileFactory.createNewAdmin());
           } else if (adminType.get().equals(PROGRAM_ADMIN)) {
             cred.setUserProfile(profileFactory.createFakeProgramAdmin());
+          } else if (adminType.get().equals(DUAL_ADMIN)) {
+            cred.setUserProfile(profileFactory.createFakeDualAdmin());
           } else {
             throw new IllegalArgumentException(
                 String.format("admin type %s not recognized", adminType.get()));

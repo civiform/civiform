@@ -5,14 +5,15 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
-import static j2html.attributes.Attr.ENCTYPE;
+import static j2html.TagCreator.h1;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.auto.value.AutoValue;
-import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
@@ -20,9 +21,9 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.Block;
 import services.applicant.question.ApplicantQuestion;
-import services.aws.SignedS3UploadRequest;
-import services.aws.SimpleStorage;
+import services.cloud.StorageClient;
 import views.BaseHtmlView;
+import views.FileUploadViewStrategy;
 import views.HtmlBundle;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
@@ -31,16 +32,22 @@ import views.questiontypes.EnumeratorQuestionRenderer;
 import views.style.ApplicantStyles;
 import views.style.Styles;
 
+/** Renders a page for answering questions in a program screen (block). */
 public final class ApplicantProgramBlockEditView extends BaseHtmlView {
+  private final String BLOCK_FORM_ID = "cf-block-form";
 
   private final ApplicantLayout layout;
+  private final FileUploadViewStrategy fileUploadStrategy;
   private final ApplicantQuestionRendererFactory applicantQuestionRendererFactory;
 
   @Inject
-  public ApplicantProgramBlockEditView(
-      ApplicantLayout layout, ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
+  ApplicantProgramBlockEditView(
+      ApplicantLayout layout,
+      FileUploadViewStrategy fileUploadStrategy,
+      @Assisted ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
     this.layout = checkNotNull(layout);
-    this.applicantQuestionRendererFactory = checkNotNull(applicantQuestionRendererFactory);
+    this.fileUploadStrategy = checkNotNull(fileUploadStrategy);
+    this.applicantQuestionRendererFactory = applicantQuestionRendererFactory;
   }
 
   public Content render(Params params) {
@@ -53,6 +60,13 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         layout
             .getBundle()
             .setTitle(params.programTitle())
+            .addMainContent(
+                h1(params.programTitle()
+                        + " "
+                        + params.blockIndex()
+                        + "/"
+                        + params.totalBlockCount())
+                    .withClasses(Styles.SR_ONLY))
             .addMainContent(
                 layout.renderProgramApplicationTitleAndProgressIndicator(
                     params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
@@ -103,7 +117,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
   private Tag renderBlockWithSubmitForm(Params params) {
     if (params.block().isFileUpload()) {
-      return renderFileUploadBlockSubmitForm(params);
+      return fileUploadStrategy.renderFileUploadBlockSubmitForms(
+          params, applicantQuestionRendererFactory);
     }
     String formAction =
         routes.ApplicantProgramBlocksController.update(
@@ -113,7 +128,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         ApplicantQuestionRendererParams.builder().setMessages(params.messages()).build();
 
     return form()
-        .withId("cf-block-form")
+        .withId(BLOCK_FORM_ID)
         .withAction(formAction)
         .withMethod(HttpVerbs.POST)
         .with(makeCsrfTokenInputTag(params.request()))
@@ -124,48 +139,20 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         .with(renderBottomNavButtons(params));
   }
 
-  private Tag renderFileUploadBlockSubmitForm(Params params) {
-    String key =
-        String.format(
-            "applicant-%d/program-%d/block-%s",
-            params.applicantId(), params.programId(), params.block().getId());
-    String onSuccessRedirectUrl =
-        params.baseUrl()
-            + routes.ApplicantProgramBlocksController.updateFile(
-                    params.applicantId(),
-                    params.programId(),
-                    params.block().getId(),
-                    params.inReview())
-                .url();
-    SignedS3UploadRequest signedRequest =
-        params.amazonS3Client().getSignedUploadRequest(key, onSuccessRedirectUrl);
-    ApplicantQuestionRendererParams rendererParams =
-        ApplicantQuestionRendererParams.builder()
-            .setMessages(params.messages())
-            .setSignedFileUploadRequest(signedRequest)
-            .build();
-
-    return form()
-        .attr(ENCTYPE, "multipart/form-data")
-        .withAction(signedRequest.actionLink())
-        .withMethod(HttpVerbs.POST)
-        .with(
-            each(
-                params.block().getQuestions(),
-                question -> renderQuestion(question, rendererParams)))
-        .with(renderBottomNavButtons(params));
-  }
-
   private Tag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
+    checkNotNull(
+        applicantQuestionRendererFactory,
+        "Must call init function for initializing ApplicantQuestionRendererFactory");
     return applicantQuestionRendererFactory.getRenderer(question).render(params);
   }
 
   private Tag renderBottomNavButtons(Params params) {
     return div()
-        .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
+        .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
         // An empty div to take up the space to the left of the buttons.
         .with(div().withClasses(Styles.FLEX_GROW))
         .with(renderReviewButton(params))
+        .with(renderPreviousButton(params))
         .with(renderNextButton(params));
   }
 
@@ -179,8 +166,29 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         .withClasses(ApplicantStyles.BUTTON_REVIEW);
   }
 
+  private Tag renderPreviousButton(Params params) {
+    int previousBlockIndex = params.blockIndex() - 1;
+    String redirectUrl;
+
+    if (previousBlockIndex >= 0) {
+      redirectUrl =
+          routes.ApplicantProgramBlocksController.previous(
+                  params.applicantId(), params.programId(), previousBlockIndex, params.inReview())
+              .url();
+    } else {
+      redirectUrl =
+          routes.ApplicantProgramReviewController.preview(params.applicantId(), params.programId())
+              .url();
+    }
+
+    return a().attr(HREF, redirectUrl)
+        .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
+        .withClasses(ApplicantStyles.BUTTON_BLOCK_PREVIOUS)
+        .withId("cf-block-previous");
+  }
+
   private Tag renderNextButton(Params params) {
-    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_BLOCK.getKeyName()))
+    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
         .withId("cf-block-submit");
   }
@@ -191,31 +199,31 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       return new AutoValue_ApplicantProgramBlockEditView_Params.Builder();
     }
 
-    abstract boolean inReview();
+    public abstract boolean inReview();
 
-    abstract Http.Request request();
+    public abstract Http.Request request();
 
-    abstract Messages messages();
+    public abstract Messages messages();
 
-    abstract int blockIndex();
+    public abstract int blockIndex();
 
-    abstract int totalBlockCount();
+    public abstract int totalBlockCount();
 
-    abstract long applicantId();
+    public abstract long applicantId();
 
-    abstract String programTitle();
+    public abstract String programTitle();
 
-    abstract long programId();
+    public abstract long programId();
 
-    abstract Block block();
+    public abstract Block block();
 
-    abstract boolean preferredLanguageSupported();
+    public abstract boolean preferredLanguageSupported();
 
-    abstract SimpleStorage amazonS3Client();
+    public abstract StorageClient storageClient();
 
-    abstract String baseUrl();
+    public abstract String baseUrl();
 
-    abstract String applicantName();
+    public abstract String applicantName();
 
     @AutoValue.Builder
     public abstract static class Builder {
@@ -239,7 +247,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
       public abstract Builder setPreferredLanguageSupported(boolean preferredLanguageSupported);
 
-      public abstract Builder setAmazonS3Client(SimpleStorage amazonS3Client);
+      public abstract Builder setStorageClient(StorageClient storageClient);
 
       public abstract Builder setBaseUrl(String baseUrl);
 

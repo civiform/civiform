@@ -14,6 +14,8 @@ import services.Path;
 import services.applicant.predicate.JsonPathPredicateGenerator;
 import services.applicant.predicate.PredicateEvaluator;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.CurrencyQuestion;
+import services.applicant.question.DateQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
@@ -21,20 +23,31 @@ import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.LocalizedQuestionOption;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.QuestionType;
 
+/** Implementation class for ReadOnlyApplicantProgramService interface. */
 public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantProgramService {
 
+  /**
+   * Note that even though {@link ApplicantData} is mutable, we can consider it immutable at this
+   * point since there is no shared state between requests. In fact, we call {@link
+   * ApplicantData#lock()} in the constructor so no changes can occur. This means that we can
+   * memoize attributes based on ApplicantData without concern that the data will change.
+   */
   private final ApplicantData applicantData;
+
   private final ProgramDefinition programDefinition;
+  private final String baseUrl;
   private ImmutableList<Block> allBlockList;
   private ImmutableList<Block> currentBlockList;
 
   protected ReadOnlyApplicantProgramServiceImpl(
-      ApplicantData applicantData, ProgramDefinition programDefinition) {
+      ApplicantData applicantData, ProgramDefinition programDefinition, String baseUrl) {
     this.applicantData = new ApplicantData(checkNotNull(applicantData).asJsonString());
     this.applicantData.setPreferredLocale(applicantData.preferredLocale());
     this.applicantData.lock();
     this.programDefinition = checkNotNull(programDefinition);
+    this.baseUrl = checkNotNull(baseUrl);
   }
 
   @Override
@@ -43,11 +56,19 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public ImmutableList<Block> getAllBlocks() {
+  public ImmutableList<Block> getAllActiveBlocks() {
     if (allBlockList == null) {
-      allBlockList = getBlocks(block -> true);
+      allBlockList = getBlocks(this::showBlock);
     }
     return allBlockList;
+  }
+
+  @Override
+  public int getActiveAndCompletedInProgramBlockCount() {
+    return getAllActiveBlocks().stream()
+        .filter(block -> block.isCompletedInProgramWithoutErrors())
+        .mapToInt(b -> 1)
+        .sum();
   }
 
   @Override
@@ -56,15 +77,21 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       currentBlockList =
           getBlocks(
               block ->
-                  !block.isCompleteWithoutErrors()
-                      || block.wasCompletedInProgram(programDefinition.id()));
+                  // Return all blocks that contain errors, were answered in this program, or
+                  // contain a static question.
+                  (!block.isAnsweredWithoutErrors()
+                          || block.wasAnsweredInProgram(programDefinition.id())
+                          || block.containsStatic())
+                      && showBlock(block));
     }
     return currentBlockList;
   }
 
   @Override
   public Optional<Block> getBlock(String blockId) {
-    return getAllBlocks().stream().filter((block) -> block.getId().equals(blockId)).findFirst();
+    return getAllActiveBlocks().stream()
+        .filter((block) -> block.getId().equals(blockId))
+        .findFirst();
   }
 
   @Override
@@ -80,10 +107,12 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   @Override
   public int getBlockIndex(String blockId) {
-    ImmutableList<Block> allBlocks = getAllBlocks();
+    ImmutableList<Block> allBlocks = getAllActiveBlocks();
 
     for (int i = 0; i < allBlocks.size(); i++) {
-      if (allBlocks.get(i).getId().equals(blockId)) return i;
+      if (allBlocks.get(i).getId().equals(blockId)) {
+        return i;
+      }
     }
 
     return -1;
@@ -92,7 +121,14 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public Optional<Block> getFirstIncompleteBlock() {
     return getInProgressBlocks().stream()
-        .filter(block -> !block.isCompleteWithoutErrors())
+        .filter(block -> !block.isCompletedInProgramWithoutErrors() || block.containsStatic())
+        .findFirst();
+  }
+
+  @Override
+  public Optional<Block> getFirstIncompleteBlockExcludingStatic() {
+    return getInProgressBlocks().stream()
+        .filter(block -> !block.isCompletedInProgramWithoutErrors())
         .findFirst();
   }
 
@@ -105,11 +141,16 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   public ImmutableList<AnswerData> getSummaryData() {
     // TODO: We need to be able to use this on the admin side with admin-specific l10n.
     ImmutableList.Builder<AnswerData> builder = new ImmutableList.Builder<>();
-    ImmutableList<Block> blocks = getAllBlocks();
+    ImmutableList<Block> blocks = getAllActiveBlocks();
     for (Block block : blocks) {
       ImmutableList<ApplicantQuestion> questions = block.getQuestions();
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
         ApplicantQuestion question = questions.get(questionIndex);
+        // Don't include static content in summary data.
+        if (question.getType().equals(QuestionType.STATIC)) {
+          continue;
+        }
+        boolean isAnswered = question.errorsPresenter().isAnswered();
         String questionText = question.getQuestionText();
         String answerText = question.errorsPresenter().getAnswerString();
         Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
@@ -120,10 +161,12 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
             AnswerData.builder()
                 .setProgramId(programDefinition.id())
                 .setBlockId(block.getId())
+                .setContextualizedPath(question.getContextualizedPath())
                 .setQuestionDefinition(question.getQuestionDefinition())
                 .setRepeatedEntity(block.getRepeatedEntity())
                 .setQuestionIndex(questionIndex)
                 .setQuestionText(questionText)
+                .setIsAnswered(isAnswered)
                 .setAnswerText(answerText)
                 .setFileKey(getFileKey(question))
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
@@ -207,8 +250,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return blockListBuilder.build();
   }
 
-  // TODO(cdanzi): Change to private when this method is used.
-  protected boolean showBlock(Block block) {
+  private boolean showBlock(Block block) {
     if (block.getVisibilityPredicate().isEmpty()) {
       // Default to show
       return true;
@@ -261,9 +303,13 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .getSelectedOptionValue(locale)
                 .map(LocalizedQuestionOption::optionText)
                 .orElse(""));
+      case CURRENCY:
+        CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
+        return ImmutableMap.of(
+            currencyQuestion.getCurrencyPath(), currencyQuestion.getAnswerString());
       case CHECKBOX:
         return ImmutableMap.of(
-            question.getContextualizedPath().join(Scalar.SELECTION),
+            question.getContextualizedPath().join(Scalar.SELECTIONS),
             question
                 .createMultiSelectQuestion()
                 .getSelectedOptionsValue(locale)
@@ -271,7 +317,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                     selectedOptions ->
                         selectedOptions.stream()
                             .map(LocalizedQuestionOption::optionText)
-                            .collect(Collectors.joining(", ")))
+                            .collect(Collectors.joining(", ", "[", "]")))
                 .orElse(""));
       case FILEUPLOAD:
         return ImmutableMap.of(
@@ -281,13 +327,18 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .getFileKeyValue()
                 .map(
                     fileKey ->
-                        controllers.routes.FileController.adminShow(programDefinition.id(), fileKey)
-                            .url())
+                        baseUrl
+                            + controllers.routes.FileController.adminShow(
+                                    programDefinition.id(), fileKey)
+                                .url())
                 .orElse(""));
       case ENUMERATOR:
         return ImmutableMap.of(
             question.getContextualizedPath(),
             question.createEnumeratorQuestion().getAnswerString());
+      case DATE:
+        DateQuestion dateQuestion = question.createDateQuestion();
+        return ImmutableMap.of(dateQuestion.getDatePath(), dateQuestion.getAnswerString());
       default:
         return question.getContextualizedScalars().keySet().stream()
             .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Applicant;
@@ -22,14 +23,17 @@ public class AddressQuestionTest {
 
   private static final AddressQuestionDefinition addressQuestionDefinition =
       new AddressQuestionDefinition(
+          OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"));
+          LocalizedStrings.of(Locale.US, "help text"),
+          AddressQuestionDefinition.AddressValidationPredicates.create());
 
   private static final AddressQuestionDefinition noPoBoxAddressQuestionDefinition =
       new AddressQuestionDefinition(
+          OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",
@@ -54,7 +58,7 @@ public class AddressQuestionTest {
     AddressQuestion addressQuestion = new AddressQuestion(applicantQuestion);
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(addressQuestion.hasQuestionErrors()).isFalse();
+    assertThat(addressQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -73,7 +77,7 @@ public class AddressQuestionTest {
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(addressQuestion.hasQuestionErrors()).isFalse();
+    assertThat(addressQuestion.hasConditionErrors()).isFalse();
     assertThat(addressQuestion.getStreetValue().get()).isEqualTo("PO Box 123");
     assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Line 2");
     assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
@@ -142,7 +146,7 @@ public class AddressQuestionTest {
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(addressQuestion.hasQuestionErrors()).isFalse();
+    assertThat(addressQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test

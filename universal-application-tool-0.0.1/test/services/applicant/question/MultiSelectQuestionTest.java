@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
@@ -20,6 +21,7 @@ public class MultiSelectQuestionTest {
 
   private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
       new CheckboxQuestionDefinition(
+          OptionalLong.of(1),
           "name",
           Optional.empty(),
           "description",
@@ -50,7 +52,7 @@ public class MultiSelectQuestionTest {
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
     assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(multiSelectQuestion.hasQuestionErrors()).isFalse();
+    assertThat(multiSelectQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -65,7 +67,7 @@ public class MultiSelectQuestionTest {
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
     assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(multiSelectQuestion.hasQuestionErrors()).isFalse();
+    assertThat(multiSelectQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -116,7 +118,7 @@ public class MultiSelectQuestionTest {
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
     assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(multiSelectQuestion.hasQuestionErrors()).isFalse();
+    assertThat(multiSelectQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test

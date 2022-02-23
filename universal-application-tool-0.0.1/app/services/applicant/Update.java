@@ -3,6 +3,10 @@ package services.applicant;
 import com.google.auto.value.AutoValue;
 import services.Path;
 
+/**
+ * An update represents one piece of the applicant's answers to a question, i.e. the answer to a
+ * scalar, along with the path to the scalar.
+ */
 @AutoValue
 public abstract class Update {
 

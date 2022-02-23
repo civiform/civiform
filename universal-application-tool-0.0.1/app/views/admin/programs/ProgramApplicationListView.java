@@ -28,13 +28,14 @@ import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
+/** Renders a page for viewing applications to a program. */
 public final class ProgramApplicationListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
 
   @Inject
   public ProgramApplicationListView(AdminLayout layout) {
-    this.layout = checkNotNull(layout);
+    this.layout = checkNotNull(layout).setOnlyProgramAdminType();
   }
 
   public Content render(
@@ -96,7 +97,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                         .withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                     p().withClasses(Styles.FLEX_GROW),
                     renderApplicationsLink(
-                        String.format("Applications (%d) →", program.getApplications().size()),
+                        String.format(
+                            "Applications (%d) →", program.getSubmittedApplications().size()),
                         program.id))
                 .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL))
         .withClasses(
@@ -108,7 +110,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     return new LinkElement()
         .setId("download-all-button")
         .setHref(link)
-        .setText("Download all (CSV)")
+        .setText("Download all versions (CSV)")
         .setStyles(ReferenceClasses.DOWNLOAD_ALL_BUTTON)
         .asButton();
   }
@@ -116,10 +118,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private Tag renderApplicationListItem(long programId, Application application) {
     String downloadLinkText = "Download (PDF)";
     long applicationId = application.id;
-    String applicantNameWithId =
-        String.format(
-            "%s (%d)",
-            application.getApplicantData().getApplicantName(), application.getApplicant().id);
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
     String lastEditText;
     try {
       lastEditText = application.getSubmitTime().toString();
@@ -133,7 +133,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     Tag topContent =
         div(
                 div(
-                    div(applicantNameWithId)
+                    div(applicantNameWithApplicationId)
                         .withClasses(
                             Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.TEXT_XL, Styles.MB_2)),
                 p().withClasses(Styles.FLEX_GROW))

@@ -1,31 +1,25 @@
-#! /bin/bash
-pushd $(git rev-parse --show-toplevel)
+#! /usr/bin/env bash
 
-set -e
-set +x
-export AWS_DEFAULT_REGION=us-west-2
-REGION=us-west-2
-STACK=civiform-staging
-if [ ! -z "$1" ]; then
-	STACK="$1"
-fi
+# DOC: Build a new production docker image, push to Docker Hub tagged with short commit SHA and unix seconds timestamp.
 
-aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/t1q6b4h2
-docker build -f prod.Dockerfile -t universal-application-tool --cache-from public.ecr.aws/t1q6b4h2/universal-application-tool:latest --build-arg BUILDKIT_INLINE_CACHE=1 .
-docker tag universal-application-tool:latest public.ecr.aws/t1q6b4h2/universal-application-tool:latest
-docker push public.ecr.aws/t1q6b4h2/universal-application-tool:latest
+source bin/lib.sh
 
-ECSSERVICE=$(aws cloudformation describe-stacks --region ${REGION} --stack-name $STACK | jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSService") | .OutputValue')
-ECSCLUSTER=$(aws cloudformation describe-stacks --region ${REGION} --stack-name $STACK | jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSCluster") | .OutputValue')
+readonly SHORT_SHA="$(git rev-parse --short HEAD)"
+readonly DATE_IN_UNIX_SECONDS="$(date +%s)"
+readonly SNAPSHOT_TAG="SNAPSHOT-${SHORT_SHA}-${DATE_IN_UNIX_SECONDS}"
 
-aws ecs update-service --region=${REGION} --cluster "$ECSCLUSTER" --service "$ECSSERVICE" --force-new-deployment
+echo "Building ${SNAPSHOT_TAG}..."
 
-deadline=$(($(date +%s) + 900))
-until aws ecs wait services-stable --region=${REGION} --cluster "$ECSCLUSTER" --services "$ECSSERVICE"; do
-    if (( $(date +%s) > $deadline )); then
-        echo "deadline exceeded waiting for service update to stabilize"
-        exit 1
-    fi
-done
+docker build -f prod.Dockerfile \
+  -t civiform:latest \
+  --cache-from civiform/civiform:latest \
+  --build-arg BUILDKIT_INLINE_CACHE=1 \
+  .
 
-popd
+docker::do_dockerhub_login
+
+docker tag civiform:latest civiform/civiform:latest
+docker tag civiform:latest "civiform/civiform:${SNAPSHOT_TAG}"
+
+# push the new image to the Docker Hub registry
+docker push --all-tags civiform/civiform

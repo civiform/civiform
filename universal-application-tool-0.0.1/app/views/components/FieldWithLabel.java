@@ -16,15 +16,19 @@ import j2html.tags.Tag;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
+import services.applicant.Currency;
 import services.applicant.ValidationErrorMessage;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Utility class for rendering an input field with an optional label. */
 public class FieldWithLabel {
+
   private static final ImmutableSet<String> STRING_TYPES =
-      ImmutableSet.of("text", "checkbox", "date", "email");
+      ImmutableSet.of("text", "checkbox", "radio", "date", "email");
 
   protected Tag fieldTag;
   protected String fieldName = "";
@@ -34,16 +38,24 @@ public class FieldWithLabel {
   /** For use with fields of type `number`. */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
 
+  protected OptionalLong minValue = OptionalLong.empty();
+  protected OptionalLong maxValue = OptionalLong.empty();
+
+  /** For use with fields that have isCurrency true`. */
+  protected Optional<Currency> fieldValueCurrency = Optional.empty();
+
   protected String formId = "";
   protected String id = "";
   protected String labelText = "";
   protected String placeholderText = "";
+  protected String screenReaderText = "";
   protected Messages messages;
   protected ImmutableSet<ValidationErrorMessage> fieldErrors = ImmutableSet.of();
   protected boolean showFieldErrors = true;
   protected boolean checked = false;
   protected boolean disabled = false;
-  protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.<String>builder();
+  protected boolean isCurrency = false;
+  protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
 
   public FieldWithLabel(Tag fieldTag) {
     this.fieldTag = checkNotNull(fieldTag);
@@ -52,6 +64,16 @@ public class FieldWithLabel {
   public static FieldWithLabel checkbox() {
     Tag fieldTag = TagCreator.input();
     return new FieldWithLabel(fieldTag).setFieldType("checkbox");
+  }
+
+  public static FieldWithLabel currency() {
+    Tag fieldTag = TagCreator.input();
+    return new FieldWithLabel(fieldTag).setFieldType("text").setIsCurrency();
+  }
+
+  public static FieldWithLabel radio() {
+    Tag fieldTag = TagCreator.input();
+    return new FieldWithLabel(fieldTag).setFieldType("radio");
   }
 
   public static FieldWithLabel input() {
@@ -111,6 +133,13 @@ public class FieldWithLabel {
     return this;
   }
 
+  FieldWithLabel setIsCurrency() {
+    this.isCurrency = true;
+    // There is no HTML currency input so we identify these with a custom attribute.
+    this.setAttribute("currency");
+    return this;
+  }
+
   public FieldWithLabel setLabelText(String labelText) {
     this.labelText = labelText;
     return this;
@@ -118,6 +147,31 @@ public class FieldWithLabel {
 
   public FieldWithLabel setPlaceholderText(String placeholder) {
     this.placeholderText = placeholder;
+    return this;
+  }
+
+  /** Sets a valueless attribute. */
+  public FieldWithLabel setAttribute(String attribute) {
+    this.fieldTag.attr(attribute, null);
+    return this;
+  }
+
+  public FieldWithLabel setMin(OptionalLong value) {
+    if (!this.fieldType.equals("number")) {
+      throw new RuntimeException(
+          "setting an OptionalLong min value is only available on fields of type 'number'");
+    }
+    this.minValue = value;
+    return this;
+  }
+
+  public FieldWithLabel setMax(OptionalLong value) {
+    if (!this.fieldType.equals("number")) {
+      throw new RuntimeException(
+          "setting an OptionalLong max value is only available on fields of type 'number'");
+    }
+
+    this.maxValue = value;
     return this;
   }
 
@@ -144,7 +198,7 @@ public class FieldWithLabel {
   public FieldWithLabel setValue(OptionalInt value) {
     if (!this.fieldType.equals("number")) {
       throw new RuntimeException(
-          "setting an Optional<Integer> value is only available on fields of type `number`");
+          "setting an OptionalInt value is only available on fields of type `number`");
     }
 
     this.fieldValueNumber =
@@ -162,8 +216,23 @@ public class FieldWithLabel {
     return this;
   }
 
+  public FieldWithLabel setValue(Currency value) {
+    if (!isCurrency) {
+      throw new RuntimeException(
+          "setting a Currency value is only available on fields for currency");
+    }
+
+    this.fieldValueCurrency = Optional.of(value);
+    return this;
+  }
+
   public FieldWithLabel setDisabled(boolean disabled) {
     this.disabled = disabled;
+    return this;
+  }
+
+  public FieldWithLabel setScreenReaderText(String screenReaderText) {
+    this.screenReaderText = screenReaderText;
     return this;
   }
 
@@ -180,11 +249,35 @@ public class FieldWithLabel {
   }
 
   public ContainerTag getContainer() {
-    if (fieldTag.getTagName().equals("textarea")) {
+    // In order for the labels to be associated with the fields (mandatory for screen readers)
+    // we need an id.  Generate a reasonable one if none is provided.
+    if (this.id.isEmpty()) {
+      this.id = RandomStringUtils.randomAlphabetic(8);
+    }
+    if (this.isCurrency) {
+      if (this.fieldValueCurrency.isPresent()) {
+        fieldTag.withValue(this.fieldValueCurrency.get().prettyPrint());
+      }
+    } else if (fieldTag.getTagName().equals("textarea")) {
       // Have to recreate the field here in case the value is modified.
       ContainerTag textAreaTag = textarea().withType("text").withText(this.fieldValue);
       fieldTag = textAreaTag;
     } else if (this.fieldType.equals("number")) {
+      // Setting inputmode to decimal gives iOS users a more accessible keyboard
+      fieldTag.attr("inputmode", "decimal");
+
+      // Setting step to any disables the built-in HTML validation so we can use our
+      // custom validation message to enforce integers.
+      fieldTag.attr("step", "any");
+
+      // Set min and max values for client-side validation
+      if (this.minValue.isPresent()) {
+        fieldTag.attr("min", minValue.getAsLong());
+      }
+      if (this.maxValue.isPresent()) {
+        fieldTag.attr("max", maxValue.getAsLong());
+      }
+
       // For number types, only set the value if it's present since there is no empty string
       // equivalent for numbers.
       if (this.fieldValueNumber.isPresent()) {
@@ -199,23 +292,27 @@ public class FieldWithLabel {
         .withClasses(
             StyleUtils.joinStyles(
                 BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
-        .withCondId(!this.id.isEmpty(), this.id)
+        .withId(this.id)
         .withName(this.fieldName)
         .condAttr(this.disabled, Attr.DISABLED, "true")
         .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
 
-    if (this.fieldType.equals("checkbox")) {
+    if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
       return getCheckboxContainer();
     }
 
     ContainerTag labelTag =
         label()
-            .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
-            .withClasses(labelText.isEmpty() ? "" : BaseStyles.INPUT_LABEL)
-            .withText(labelText);
+            .attr(Attr.FOR, this.id)
+            // If the text is screen-reader text, then we want the label to be screen-reader
+            // only.
+            .withClass(labelText.isEmpty() ? Styles.SR_ONLY : BaseStyles.INPUT_LABEL)
+            .withText(labelText.isEmpty() ? screenReaderText : labelText);
 
-    return div(labelTag, fieldTag, buildFieldErrorsTag())
+    return div(
+            labelTag,
+            div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);

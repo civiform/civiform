@@ -2,17 +2,21 @@ package services.question.types;
 
 import services.question.exceptions.InvalidQuestionTypeException;
 
+/** Defines types of questions supported. */
 public enum QuestionType {
   ADDRESS(false),
   CHECKBOX(true),
+  CURRENCY(false),
   DATE(false),
   DROPDOWN(true),
   EMAIL(false),
   ENUMERATOR(false),
   FILEUPLOAD(false),
+  ID(false),
   NAME(false),
   NUMBER(false),
   RADIO_BUTTON(true),
+  STATIC(false),
   TEXT(false);
 
   private final boolean isMultiOptionType;

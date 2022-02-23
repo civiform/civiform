@@ -13,6 +13,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import services.Path;
 
+/** PdfExporter is meant to generate PDF files. The functionality is not fully implemented yet. */
 public class PdfExporter {
   private PDDocument baseDocument;
   private ImmutableMap<String, String> fieldToValue;

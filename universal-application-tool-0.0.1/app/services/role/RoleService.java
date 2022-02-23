@@ -27,9 +27,9 @@ public class RoleService {
   }
 
   /**
-   * Get a set of {@link Account}s that have the role {@link auth.Roles#ROLE_UAT_ADMIN}.
+   * Get a set of {@link Account}s that have the role {@link auth.Roles#ROLE_CIVIFORM_ADMIN}.
    *
-   * @return an {@link ImmutableSet} of {@link Account}s that are UAT admins.
+   * @return an {@link ImmutableSet} of {@link Account}s that are CiviForm admins.
    */
   public ImmutableSet<Account> getGlobalAdmins() {
     return userRepository.getGlobalAdmins();
@@ -38,9 +38,9 @@ public class RoleService {
   /**
    * Promotes the set of accounts (identified by email) to the role of {@link
    * auth.Roles#ROLE_PROGRAM_ADMIN} for the given program. If an account is currently a {@link
-   * auth.Roles#ROLE_UAT_ADMIN}, they will not be promoted, since UAT admins cannot be program
-   * admins. Instead, we return a {@link CiviFormError} listing the admin accounts that could not be
-   * promoted to program admins.
+   * auth.Roles#ROLE_CIVIFORM_ADMIN}, they will not be promoted, since CiviForm admins cannot be
+   * program admins. Instead, we return a {@link CiviFormError} listing the admin accounts that
+   * could not be promoted to program admins.
    *
    * @param programId the ID of the {@link models.Program} these accounts administer
    * @param accountEmails a {@link ImmutableSet} of account emails to make program admins
@@ -55,32 +55,47 @@ public class RoleService {
     }
 
     ProgramDefinition program = programService.getProgramDefinition(programId);
-    // Filter out UAT admins from the list of emails - a UAT admin cannot be a program admin.
+    // Filter out CiviForm admins from the list of emails - a CiviForm admin cannot be a program
+    // admin.
     ImmutableSet<String> sysAdminEmails =
         getGlobalAdmins().stream()
             .map(Account::getEmailAddress)
             .filter(address -> !Strings.isNullOrEmpty(address))
             .collect(toImmutableSet());
     ImmutableSet.Builder<String> invalidEmailBuilder = ImmutableSet.builder();
-    accountEmails.forEach(
-        email -> {
-          if (sysAdminEmails.contains(email)) {
-            invalidEmailBuilder.add(email);
-          } else {
-            userRepository.addAdministeredProgram(email, program);
-          }
-        });
+    String errorMessageString = "";
 
+    for (String email : accountEmails) {
+      if (sysAdminEmails.contains(email)) {
+        invalidEmailBuilder.add(email);
+      } else {
+        Optional<CiviFormError> maybeError = userRepository.addAdministeredProgram(email, program);
+
+        // Concatenate error messages.
+        if (maybeError.isPresent()) {
+          errorMessageString += maybeError.get().message() + " ";
+        }
+      }
+    }
+
+    String allErrorMessages = "";
     ImmutableSet<String> invalidEmails = invalidEmailBuilder.build();
-    if (invalidEmails.isEmpty()) {
-      return Optional.empty();
+
+    // If there were any errors, return the error message.
+    if (!errorMessageString.isEmpty()) {
+      allErrorMessages = errorMessageString;
+    }
+    if (!invalidEmails.isEmpty()) {
+      allErrorMessages +=
+          String.format(
+              "The following are already CiviForm admins and could not be added as"
+                  + " program admins: %s",
+              Joiner.on(", ").join(invalidEmails));
+    }
+    if (!allErrorMessages.isEmpty()) {
+      return Optional.of(CiviFormError.of(allErrorMessages));
     } else {
-      return Optional.of(
-          CiviFormError.of(
-              String.format(
-                  "The following are already CiviForm admins and could not be added as"
-                      + " program admins: %s",
-                  Joiner.on(", ").join(invalidEmails))));
+      return Optional.empty();
     }
   }
 

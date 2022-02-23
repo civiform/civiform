@@ -9,6 +9,7 @@ import java.util.AbstractMap;
 import java.util.Locale;
 import java.util.Optional;
 import models.Applicant;
+import models.DisplayMode;
 import org.junit.Before;
 import org.junit.Test;
 import repository.WithPostgresContainer;
@@ -28,10 +29,12 @@ import support.ProgramBuilder;
 import support.QuestionAnswerer;
 
 public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContainer {
+  private static final String FAKE_BASE_URL = "http://fake-base-url";
 
   private QuestionDefinition nameQuestion;
   private QuestionDefinition colorQuestion;
   private QuestionDefinition addressQuestion;
+  private QuestionDefinition staticQuestion;
   private ApplicantData applicantData;
   private ProgramDefinition programDefinition;
 
@@ -41,21 +44,22 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
     colorQuestion = testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
     addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
+    staticQuestion = testQuestionBank.staticContent().getQuestionDefinition();
     programDefinition =
         ProgramBuilder.newDraftProgram("My Program")
             .withLocalizedName(Locale.GERMAN, "Mein Programm")
             .withBlock("Block one")
-            .withQuestionDefinition(nameQuestion)
+            .withRequiredQuestionDefinition(nameQuestion)
             .withBlock("Block two")
-            .withQuestionDefinition(colorQuestion)
-            .withQuestionDefinition(addressQuestion)
+            .withRequiredQuestionDefinition(colorQuestion)
+            .withRequiredQuestionDefinition(addressQuestion)
             .buildDefinition();
   }
 
   @Test
   public void getProgramTitle_returnsProgramTitleInDefaultLocale() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
     assertThat(subject.getProgramTitle()).isEqualTo("My Program");
   }
@@ -64,23 +68,126 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   public void getProgramTitle_returnsProgramTitleForPreferredLocale() {
     applicantData.setPreferredLocale(Locale.GERMAN);
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
     assertThat(subject.getProgramTitle()).isEqualTo("Mein Programm");
   }
 
   @Test
   public void getAllBlocks_includesPreviouslyCompletedBlocks() {
+    ProgramDefinition programDefinitionWithStatic =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withLocalizedName(Locale.GERMAN, "Mein Programm")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(nameQuestion)
+            .withBlock("Block two")
+            .withRequiredQuestionDefinition(colorQuestion)
+            .withRequiredQuestionDefinition(addressQuestion)
+            .withBlock("Block three")
+            .withRequiredQuestionDefinition(staticQuestion)
+            .buildDefinition();
     // Answer first block in a separate program
-    answerNameQuestion(programDefinition.id() + 1);
+    answerNameQuestion(programDefinitionWithStatic.id() + 1);
 
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
-    ImmutableList<Block> allBlocks = subject.getAllBlocks();
+        new ReadOnlyApplicantProgramServiceImpl(
+            applicantData, programDefinitionWithStatic, FAKE_BASE_URL);
+    ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
 
-    assertThat(allBlocks).hasSize(2);
+    assertThat(allBlocks).hasSize(3);
     assertThat(allBlocks.get(0).getName()).isEqualTo("Block one");
     assertThat(allBlocks.get(1).getName()).isEqualTo("Block two");
+    assertThat(allBlocks.get(2).getName()).isEqualTo("Block three");
+  }
+
+  @Test
+  public void getAllBlocks_onlyStaticBlock() {
+    ProgramDefinition programDefinitionWithStatic =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withLocalizedName(Locale.GERMAN, "Mein Programm")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(staticQuestion)
+            .buildDefinition();
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(
+            applicantData, programDefinitionWithStatic, FAKE_BASE_URL);
+    ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
+
+    assertThat(allBlocks).hasSize(1);
+    assertThat(allBlocks.get(0).getName()).isEqualTo("Block one");
+
+    ImmutableList<Block> inProgressBlocks = subject.getInProgressBlocks();
+
+    assertThat(inProgressBlocks).hasSize(1);
+    assertThat(inProgressBlocks.get(0).getName()).isEqualTo("Block one");
+
+    Optional<Block> firstIncompleteBlock = subject.getFirstIncompleteBlock();
+    Optional<Block> firstIncompleteExcludingStatic =
+        subject.getFirstIncompleteBlockExcludingStatic();
+
+    assertThat(firstIncompleteBlock.isPresent()).isTrue();
+    assertThat(firstIncompleteBlock.get().getName()).isEqualTo("Block one");
+    assertThat(firstIncompleteExcludingStatic.isPresent()).isFalse();
+  }
+
+  @Test
+  public void getAllBlocks_doesNotIncludeBlocksThatAreHidden() {
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    colorQuestion.getId(),
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("blue"))),
+            PredicateAction.HIDE_BLOCK);
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock() // Previous block with color question
+            .withRequiredQuestionDefinition(colorQuestion)
+            .withBlock() // Block with predicate
+            .withPredicate(predicate)
+            .withRequiredQuestionDefinition(
+                addressQuestion) // Include a question that has not been answered
+            .buildDefinition();
+
+    // Answer predicate question so that the block should be hidden
+    answerColorQuestion(program.id(), "blue");
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+    ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
+
+    assertThat(allBlocks).hasSize(1);
+  }
+
+  @Test
+  public void getAllBlocks_includesBlockWithStaticEvenWhenOthersAreAnswered() {
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("Block one") // Previous block with color question
+            .withRequiredQuestionDefinition(colorQuestion)
+            .withRequiredQuestionDefinition(staticQuestion)
+            .withBlock("Block two") // Block required skipped question
+            .withRequiredQuestionDefinition(addressQuestion)
+            .buildDefinition();
+
+    // Answer color question
+    answerColorQuestion(program.id(), "blue");
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+
+    ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
+    Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
+    Optional<Block> maybeBlockExcludeStatic = subject.getFirstIncompleteBlockExcludingStatic();
+
+    assertThat(allBlocks).hasSize(2);
+    assertThat(maybeBlock).isNotEmpty();
+    assertThat(maybeBlock.get().getName()).isEqualTo("Block one");
+    assertThat(maybeBlockExcludeStatic).isNotEmpty();
+    assertThat(maybeBlockExcludeStatic.get().getName()).isEqualTo("Block two");
   }
 
   @Test
@@ -88,17 +195,17 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     programDefinition =
         ProgramBuilder.newActiveProgram()
             .withBlock("name")
-            .withQuestion(testQuestionBank.applicantName())
+            .withRequiredQuestion(testQuestionBank.applicantName())
             .withBlock("address")
-            .withQuestion(testQuestionBank.applicantAddress())
+            .withRequiredQuestion(testQuestionBank.applicantAddress())
             .withBlock("enumeration - household members")
-            .withQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .withRepeatedBlock("repeated - household members name")
-            .withQuestion(testQuestionBank.applicantHouseholdMemberName())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberName())
             .withAnotherRepeatedBlock("repeated - household members jobs")
-            .withQuestion(testQuestionBank.applicantHouseholdMemberJobs())
-            .withRepeatedBlock("deeply repeated - household members jobs income")
-            .withQuestion(testQuestionBank.applicantHouseholdMemberJobIncome())
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRepeatedBlock("deeply repeated - household members number days worked")
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberDaysWorked())
             .buildDefinition();
 
     // Add repeated entities to applicant data
@@ -125,9 +232,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
         deepEnumerationPath.atIndex(1).join(Scalar.ENTITY_NAME), "nested second job");
 
     ReadOnlyApplicantProgramService service =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
-    ImmutableList<Block> blocks = service.getAllBlocks();
+    ImmutableList<Block> blocks = service.getAllActiveBlocks();
 
     assertThat(blocks).hasSize(11);
 
@@ -184,7 +291,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     assertThat(blocks.get(8).isEnumerator()).isTrue();
 
     assertThat(blocks.get(9).getId()).isEqualTo("6-2-0");
-    questionPath = deepEnumerationPath.atIndex(0).join("household_members_jobs_income");
+    questionPath = deepEnumerationPath.atIndex(0).join("household_members_days_worked");
     assertThat(blocks.get(9).getQuestions().get(0).getContextualizedScalars())
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
@@ -196,7 +303,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 ScalarType.LONG));
 
     assertThat(blocks.get(10).getId()).isEqualTo("6-2-1");
-    questionPath = deepEnumerationPath.atIndex(1).join("household_members_jobs_income");
+    questionPath = deepEnumerationPath.atIndex(1).join("household_members_days_worked");
     assertThat(blocks.get(10).getQuestions().get(0).getContextualizedScalars())
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
@@ -217,7 +324,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getInProgressBlocks_getsTheApplicantSpecificBlocksForTheProgram() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
     ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     assertThat(blockList).hasSize(2);
@@ -231,7 +338,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     answerNameQuestion(programDefinition.id() + 1);
 
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
     ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     assertThat(blockList).hasSize(1);
@@ -246,7 +353,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     answerAddressQuestion(programDefinition.id() + 1);
 
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
     ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     assertThat(blockList).isEmpty();
@@ -258,7 +365,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     answerNameQuestion(programDefinition.id());
 
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
     ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     // Block 1 should still be there
@@ -276,7 +383,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     answerColorQuestion(programDefinition.id());
 
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
     ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
@@ -289,9 +396,169 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   }
 
   @Test
+  public void getInProgressBlocks_handlesBlockWithShowBlockActionPredicate() {
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    colorQuestion.getId(),
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("blue"))),
+            PredicateAction.SHOW_BLOCK);
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock() // Previous block with color question
+            .withRequiredQuestionDefinition(colorQuestion)
+            .withBlock() // Block with predicate
+            .withPredicate(predicate)
+            .withRequiredQuestionDefinition(
+                addressQuestion) // Include a question that has not been answered
+            .buildDefinition();
+
+    // Answer "blue" to the question - the predicate is true, so we should show the block.
+    answerColorQuestion(program.id(), "blue");
+    ReadOnlyApplicantProgramService service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+    assertThat(service.getInProgressBlocks()).hasSize(2);
+
+    // Answer "green" to the question - the predicate is now false, so we should not show the block.
+    answerColorQuestion(program.id(), "green");
+    service = new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+    assertThat(service.getInProgressBlocks()).hasSize(1);
+  }
+
+  @Test
+  public void getInProgressBlocks_handlesBlockWithHideBlockActionPredicate() {
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    colorQuestion.getId(),
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("blue"))),
+            PredicateAction.HIDE_BLOCK);
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestionDefinition(colorQuestion)
+            .withBlock()
+            .withPredicate(predicate)
+            .withRequiredQuestionDefinition(
+                addressQuestion) // Include a skipped question so the block is incomplete
+            .buildDefinition();
+
+    // Answer "blue" to the question - the predicate is true, so we should hide the block.
+    answerColorQuestion(program.id(), "blue");
+    ReadOnlyApplicantProgramServiceImpl service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+    assertThat(service.getInProgressBlocks()).hasSize(1);
+
+    // Answer "green" to the question - the predicate is now false, so we should show the block.
+    answerColorQuestion(program.id(), "green");
+    service = new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+    assertThat(service.getInProgressBlocks()).hasSize(2);
+  }
+
+  @Test
+  public void getInProgressBlocks_predicateAnswerUndefined_includesBlockInList() {
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    colorQuestion.getId(),
+                    Scalar.TEXT,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("blue"))),
+            PredicateAction.HIDE_BLOCK);
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock() // Block is completed
+            .withRequiredQuestionDefinition(nameQuestion)
+            .withBlock() // Block incomplete; this is what predicate is based on
+            .withRequiredQuestionDefinition(colorQuestion)
+            .withBlock()
+            .withPredicate(predicate)
+            .withRequiredQuestionDefinition(
+                addressQuestion) // Include a skipped question so the block is incomplete
+            .buildDefinition();
+
+    // The color question is not answered yet - we should default to show the block that uses the
+    // color question in a predicate.
+    answerNameQuestion(program.id());
+    ReadOnlyApplicantProgramServiceImpl service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+    assertThat(service.getInProgressBlocks()).hasSize(3);
+  }
+
+  @Test
+  public void getActiveAndCompletedInProgramBlockCount_withSkippedOptional() {
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock() // Block is completed
+            .withQuestionDefinition(nameQuestion, true)
+            .withBlock() // Block incomplete; this is what predicate is based on
+            .withQuestionDefinition(colorQuestion, false)
+            .buildDefinition();
+    QuestionAnswerer.addMetadata(
+        applicantData,
+        nameQuestion.getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH),
+        program.id(),
+        0L);
+
+    ReadOnlyApplicantProgramServiceImpl service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+
+    assertThat(service.getActiveAndCompletedInProgramBlockCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void getActiveAndCompletedInProgramBlockCount_withSkippedOptionalInDifferentProgram() {
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock() // Block is completed
+            .withQuestionDefinition(nameQuestion, true)
+            .withBlock() // Block incomplete; this is what predicate is based on
+            .withQuestionDefinition(colorQuestion, false)
+            .buildDefinition();
+    QuestionAnswerer.addMetadata(
+        applicantData,
+        nameQuestion.getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH),
+        program.id() + 1,
+        0L);
+
+    ReadOnlyApplicantProgramServiceImpl service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+
+    assertThat(service.getActiveAndCompletedInProgramBlockCount()).isEqualTo(0);
+  }
+
+  @Test
+  public void getActiveAndCompletedInProgramBlockCount_withRequiredSkipped() {
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock() // Block is completed
+            .withQuestionDefinition(nameQuestion, false)
+            .withBlock() // Block incomplete; this is what predicate is based on
+            .withQuestionDefinition(colorQuestion, false)
+            .buildDefinition();
+    QuestionAnswerer.addMetadata(
+        applicantData,
+        nameQuestion.getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH),
+        program.id(),
+        0L);
+
+    ReadOnlyApplicantProgramServiceImpl service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, program, FAKE_BASE_URL);
+
+    assertThat(service.getActiveAndCompletedInProgramBlockCount()).isEqualTo(0);
+  }
+
+  @Test
   public void getBlock_blockExists_returnsTheBlock() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
     Optional<Block> maybeBlock = subject.getBlock("1");
 
@@ -302,7 +569,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getBlock_blockNotInList_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
     Optional<Block> maybeBlock = subject.getBlock("111");
 
@@ -312,7 +579,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getBlockAfter_thereExistsABlockAfter_returnsTheBlockAfterTheGivenBlock() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
     Optional<Block> maybeBlock = subject.getInProgressBlockAfter("1");
 
@@ -323,7 +590,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getBlockAfter_argIsLastBlock_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
     Optional<Block> maybeBlock = subject.getInProgressBlockAfter("321");
 
@@ -342,7 +609,10 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                 .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
                 .setLocalizedDescription(
                     LocalizedStrings.of(Locale.US, "This program is for testing."))
-                .build());
+                .setExternalLink("")
+                .setDisplayMode(DisplayMode.PUBLIC)
+                .build(),
+            FAKE_BASE_URL);
 
     Optional<Block> maybeBlock = subject.getInProgressBlockAfter("321");
 
@@ -352,7 +622,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getFirstIncompleteBlock_firstIncompleteBlockReturned() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
     Optional<Block> maybeBlock = subject.getFirstIncompleteBlock();
 
@@ -366,7 +636,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     answerNameQuestion(programDefinition.id());
 
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
     assertThat(subject.getInProgressBlocks().get(0).getName()).isEqualTo("Block one");
 
@@ -379,7 +649,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void preferredLanguageSupported_returnsTrueForDefaults() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
     assertThat(subject.preferredLanguageSupported()).isTrue();
   }
 
@@ -388,7 +658,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     applicantData.setPreferredLocale(Locale.CHINESE);
 
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
     assertThat(subject.preferredLanguageSupported()).isFalse();
   }
@@ -400,6 +670,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
         testQuestionBank.applicantSeason().getQuestionDefinition();
     QuestionDefinition multiSelectQuestionDefinition =
         testQuestionBank.applicantKitchenTools().getQuestionDefinition();
+    QuestionDefinition fileQuestionDefinition =
+        testQuestionBank.applicantFile().getQuestionDefinition();
     QuestionDefinition enumeratorQuestionDefinition =
         testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition repeatedQuestionDefinition =
@@ -408,17 +680,19 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
         ProgramBuilder.newDraftProgram("My Program")
             .withLocalizedName(Locale.GERMAN, "Mein Programm")
             .withBlock("Block one")
-            .withQuestionDefinitions(
+            .withRequiredQuestionDefinitions(
                 ImmutableList.of(
                     nameQuestion,
                     colorQuestion,
                     addressQuestion,
                     singleSelectQuestionDefinition,
                     multiSelectQuestionDefinition))
+            .withBlock("file")
+            .withRequiredQuestionDefinition(fileQuestionDefinition)
             .withBlock("enumerator")
-            .withQuestionDefinition(enumeratorQuestionDefinition)
+            .withRequiredQuestionDefinition(enumeratorQuestionDefinition)
             .withRepeatedBlock("repeated")
-            .withQuestionDefinition(repeatedQuestionDefinition)
+            .withRequiredQuestionDefinition(repeatedQuestionDefinition)
             .buildDefinition();
     answerNameQuestion(programDefinition.id());
     answerColorQuestion(programDefinition.id());
@@ -439,6 +713,10 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
         ApplicantData.APPLICANT_PATH.join(multiSelectQuestionDefinition.getQuestionPathSegment()),
         1,
         2L);
+    QuestionAnswerer.answerFileQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
+        "file-key");
     Path enumeratorPath =
         ApplicantData.APPLICANT_PATH.join(enumeratorQuestionDefinition.getQuestionPathSegment());
     QuestionAnswerer.answerEnumeratorQuestion(
@@ -458,10 +736,10 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
     ImmutableList<AnswerData> result = subject.getSummaryData();
 
-    assertEquals(8, result.size());
+    assertEquals(9, result.size());
     assertThat(result.get(0).answerText()).isEqualTo("Alice Middle Last");
     assertThat(result.get(1).answerText()).isEqualTo("mauve");
     assertThat(result.get(2).answerText()).isEqualTo("123 Rhode St.\nSeattle, WA 12345");
@@ -481,15 +759,27 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
             new AbstractMap.SimpleEntry<>(
                 ApplicantData.APPLICANT_PATH
                     .join(multiSelectQuestionDefinition.getQuestionPathSegment())
-                    .join(Scalar.SELECTION),
-                "toaster, pepper grinder"));
+                    .join(Scalar.SELECTIONS),
+                "[toaster, pepper grinder]"));
 
-    // check enumerator and repeated answers
+    // check file answer
     assertThat(result.get(5).questionIndex()).isEqualTo(0);
     assertThat(result.get(5).scalarAnswersInDefaultLocale())
-        .containsExactly(new AbstractMap.SimpleEntry<>(enumeratorPath, "enum one\nenum two"));
+        .containsExactly(
+            new AbstractMap.SimpleEntry<>(
+                ApplicantData.APPLICANT_PATH
+                    .join(fileQuestionDefinition.getQuestionPathSegment())
+                    .join(Scalar.FILE_KEY),
+                String.format(
+                    "%s/admin/programs/%d/files/%s",
+                    FAKE_BASE_URL, programDefinition.id(), "file-key")));
+
+    // check enumerator and repeated answers
     assertThat(result.get(6).questionIndex()).isEqualTo(0);
     assertThat(result.get(6).scalarAnswersInDefaultLocale())
+        .containsExactly(new AbstractMap.SimpleEntry<>(enumeratorPath, "enum one\nenum two"));
+    assertThat(result.get(7).questionIndex()).isEqualTo(0);
+    assertThat(result.get(7).scalarAnswersInDefaultLocale())
         .containsExactlyEntriesOf(
             ImmutableMap.of(
                 enumeratorPath
@@ -507,8 +797,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
                     .join(repeatedQuestionDefinition.getQuestionPathSegment())
                     .join(Scalar.LAST_NAME),
                 "last"));
-    assertThat(result.get(7).questionIndex()).isEqualTo(0);
-    assertThat(result.get(7).scalarAnswersInDefaultLocale())
+    assertThat(result.get(8).questionIndex()).isEqualTo(0);
+    assertThat(result.get(8).scalarAnswersInDefaultLocale())
         .containsExactlyEntriesOf(
             ImmutableMap.of(
                 enumeratorPath
@@ -536,8 +826,8 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
     programDefinition =
         ProgramBuilder.newDraftProgram("My Program")
             .withBlock("Block one")
-            .withQuestionDefinition(nameQuestion)
-            .withQuestionDefinition(fileUploadQuestionDefinition)
+            .withRequiredQuestionDefinition(nameQuestion)
+            .withRequiredQuestionDefinition(fileUploadQuestionDefinition)
             .buildDefinition();
     // Answer the questions
     answerNameQuestion(programDefinition.id());
@@ -548,7 +838,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
 
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
     ImmutableList<AnswerData> result = subject.getSummaryData();
 
     assertEquals(2, result.size());
@@ -561,7 +851,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getSummaryData_returnsWithEmptyData() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
     ImmutableList<AnswerData> result = subject.getSummaryData();
 
@@ -574,82 +864,11 @@ public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContain
   @Test
   public void getBlockIndex() {
     ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition);
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
     assertThat(subject.getBlockIndex("1")).isEqualTo(0);
     assertThat(subject.getBlockIndex("2")).isEqualTo(1);
     assertThat(subject.getBlockIndex("not a real block id")).isEqualTo(-1);
-  }
-
-  @Test
-  public void showBlock_returnsTrueForBlockWithoutPredicate() {
-    ProgramDefinition program = ProgramBuilder.newActiveProgram().withBlock().buildDefinition();
-    ReadOnlyApplicantProgramServiceImpl service =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
-
-    assertThat(service.showBlock(service.getAllBlocks().get(0))).isTrue();
-  }
-
-  @Test
-  public void showBlock_showBlockAction() {
-    PredicateDefinition predicate =
-        PredicateDefinition.create(
-            PredicateExpressionNode.create(
-                LeafOperationExpressionNode.create(
-                    colorQuestion.getId(),
-                    Scalar.TEXT,
-                    Operator.EQUAL_TO,
-                    PredicateValue.of("blue"))),
-            PredicateAction.SHOW_BLOCK);
-    ProgramDefinition program =
-        ProgramBuilder.newActiveProgram()
-            .withBlock()
-            .withQuestionDefinition(colorQuestion)
-            .withBlock()
-            .withPredicate(predicate)
-            .buildDefinition();
-
-    // Answer "blue" to the question - the predicate is true, so we should show the block.
-    answerColorQuestion(program.id(), "blue");
-    ReadOnlyApplicantProgramServiceImpl service =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
-    assertThat(service.showBlock(service.getAllBlocks().get(1))).isTrue();
-
-    // Answer "green" to the question - the predicate is now false, so we should not show the block.
-    answerColorQuestion(program.id(), "green");
-    service = new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
-    assertThat(service.showBlock(service.getAllBlocks().get(1))).isFalse();
-  }
-
-  @Test
-  public void showBlock_hideBlockAction() {
-    PredicateDefinition predicate =
-        PredicateDefinition.create(
-            PredicateExpressionNode.create(
-                LeafOperationExpressionNode.create(
-                    colorQuestion.getId(),
-                    Scalar.TEXT,
-                    Operator.EQUAL_TO,
-                    PredicateValue.of("blue"))),
-            PredicateAction.HIDE_BLOCK);
-    ProgramDefinition program =
-        ProgramBuilder.newActiveProgram()
-            .withBlock()
-            .withQuestionDefinition(colorQuestion)
-            .withBlock()
-            .withPredicate(predicate)
-            .buildDefinition();
-
-    // Answer "blue" to the question - the predicate is true, so we should hide the block.
-    answerColorQuestion(program.id(), "blue");
-    ReadOnlyApplicantProgramServiceImpl service =
-        new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
-    assertThat(service.showBlock(service.getAllBlocks().get(1))).isFalse();
-
-    // Answer "green" to the question - the predicate is now false, so we should show the block.
-    answerColorQuestion(program.id(), "green");
-    service = new ReadOnlyApplicantProgramServiceImpl(applicantData, program);
-    assertThat(service.showBlock(service.getAllBlocks().get(1))).isTrue();
   }
 
   private void answerNameQuestion(long programId) {

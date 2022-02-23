@@ -6,6 +6,7 @@ import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
+/** Form for updating translation for enumerator questions. */
 public class EnumeratorQuestionTranslationForm extends QuestionTranslationForm {
 
   private String entityType;

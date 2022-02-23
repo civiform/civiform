@@ -12,7 +12,7 @@
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%coloredLevel %logger{15} - %message%n%xException{10}</pattern>
+      <pattern>%coloredLevel %logger{15} - %message%n%xException{20}</pattern>
     </encoder>
   </appender>
 
@@ -30,9 +30,8 @@
   <logger name="controllers" level="INFO" />
   <logger name="s3client" level="INFO" />
   <logger name="io.ebean" level="INFO" />
-  <logger name="org.pac4j" level="DEBUG" />
-  <logger name="auth" level="DEBUG" />
-
+  <logger name="org.pac4j" level="INFO" />
+  <logger name="auth" level="INFO" />
 
   <!-- Off these ones as they are annoying. -->
   <logger name="com.gargoylesoftware.htmlunit" level="OFF" />

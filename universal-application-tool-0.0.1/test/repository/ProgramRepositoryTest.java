@@ -6,6 +6,7 @@ import io.ebean.DB;
 import java.util.Locale;
 import java.util.Optional;
 import models.Account;
+import models.DisplayMode;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
@@ -100,7 +101,9 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
 
   @Test
   public void insertProgramSync() throws Exception {
-    Program program = new Program("ProgramRepository", "desc", "name", "description");
+    Program program =
+        new Program(
+            "ProgramRepository", "desc", "name", "description", "", DisplayMode.PUBLIC.getValue());
 
     Program withId = repo.insertProgramSync(program);
 

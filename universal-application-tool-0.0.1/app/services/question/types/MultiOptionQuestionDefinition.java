@@ -20,6 +20,7 @@ import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
 
+/** Superclass for all multi-option questions. */
 public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
 
   protected static final MultiOptionValidationPredicates SINGLE_SELECT_PREDICATE =
@@ -153,6 +154,14 @@ public abstract class MultiOptionQuestionDefinition extends QuestionDefinition {
       }
       throw new TranslationNotFoundException(locale);
     }
+  }
+
+  /** Get the default locale representation of the option with the given ID. */
+  public Optional<String> getDefaultLocaleOptionForId(long id) {
+    return getOptionsForDefaultLocale().stream()
+        .filter(o -> o.id() == id)
+        .map(LocalizedQuestionOption::optionText)
+        .findFirst();
   }
 
   public MultiOptionValidationPredicates getMultiOptionValidationPredicates() {

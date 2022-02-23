@@ -20,8 +20,10 @@ import views.HtmlBundle;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
+import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Renders a confirmation page after application submission. */
 public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
@@ -37,6 +39,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
       String redirectTo,
       Account account,
       String programTitle,
+      String applicantName,
       Long applicationId,
       Messages messages,
       Optional<String> banner) {
@@ -49,9 +52,11 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
             .withClasses(
                 Styles.BORDER,
                 Styles.BORDER_GRAY_200,
+                Styles.ROUNDED_2XL,
                 Styles.SHADOW_MD,
                 Styles.BG_WHITE,
-                Styles.P_10,
+                Styles.P_4,
+                StyleUtils.responsiveSmall(Styles.P_6),
                 Styles.MY_6)
             .with(
                 h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName()))
@@ -61,13 +66,24 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
                     .withClasses(Styles.MB_4))
             .with(
                 div()
-                    .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
-                    // Empty div to push buttons to the right.
+                    .withClasses(
+                        Styles.FLEX,
+                        Styles.FLEX_COL,
+                        Styles.GAP_4,
+                        StyleUtils.responsiveSmall(Styles.FLEX_ROW))
+                    // Empty div to push buttons to the right on desktop.
                     .with(div().withClasses(Styles.FLEX_GROW))
                     .with(
                         new LinkElement()
                             .setHref(redirectTo)
-                            .setText(messages.at(MessageKey.LINK_DONT_SIGN_IN.getKeyName()))
+                            .setText(
+                                messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
+                            .asButton()
+                            .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
+                    .with(
+                        new LinkElement()
+                            .setHref(org.pac4j.play.routes.LogoutController.logout().url())
+                            .setText(messages.at(MessageKey.LINK_ALL_DONE.getKeyName()))
                             .asButton()
                             .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
                     .with(
@@ -76,7 +92,8 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
                                 routes.LoginController.idcsLoginWithRedirect(
                                         Optional.of(redirectTo))
                                     .url())
-                            .setText(messages.at(MessageKey.LINK_DO_SIGN_IN.getKeyName()))
+                            .setText(
+                                messages.at(MessageKey.LINK_CREATE_ACCOUNT_OR_SIGN_IN.getKeyName()))
                             .asButton()
                             .withClasses(ApplicantStyles.BUTTON_CREATE_ACCOUNT)));
 
@@ -94,7 +111,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
       content.with(
           new LinkElement()
               .setHref(redirectTo)
-              .setText(messages.at(MessageKey.LINK_RETURN_TO_DASH.getKeyName()))
+              .setText(messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
               .asAnchorText());
     }
 
@@ -106,6 +123,6 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
         .addMainContent(h1(title).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION), content);
 
-    return layout.renderWithNav(request, account.getApplicantName(), messages, bundle);
+    return layout.renderWithNav(request, applicantName, messages, bundle);
   }
 }

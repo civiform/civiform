@@ -25,6 +25,9 @@ public abstract class AnswerData {
   /** The {@link Block} id for where this question resides within the current program. */
   public abstract String blockId();
 
+  /** The {@link Path} for this answer in the applicant's {@code ApplicantData}. */
+  public abstract Path contextualizedPath();
+
   /** The {@link models.Question} ID this is an answer for. */
   public abstract QuestionDefinition questionDefinition();
 
@@ -36,6 +39,9 @@ public abstract class AnswerData {
 
   /** The localized question text */
   public abstract String questionText();
+
+  /** True if this answer represents an answer, or false for a skipped question. */
+  public abstract boolean isAnswered();
 
   /** The applicant's response to the question. */
   public abstract String answerText();
@@ -61,6 +67,8 @@ public abstract class AnswerData {
 
     public abstract Builder setBlockId(String blockId);
 
+    public abstract Builder setContextualizedPath(Path path);
+
     public abstract Builder setQuestionDefinition(QuestionDefinition questionDefinition);
 
     public abstract Builder setRepeatedEntity(Optional<RepeatedEntity> repeatedEntity);
@@ -68,6 +76,8 @@ public abstract class AnswerData {
     public abstract Builder setQuestionIndex(int questionIndex);
 
     public abstract Builder setQuestionText(String questionText);
+
+    public abstract Builder setIsAnswered(boolean isAnswered);
 
     public abstract Builder setAnswerText(String answerText);
 

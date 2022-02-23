@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Applicant;
@@ -27,6 +28,7 @@ import support.TestQuestionBank;
 public class EnumeratorQuestionTest extends WithPostgresContainer {
   private static final EnumeratorQuestionDefinition enumeratorQuestionDefinition =
       new EnumeratorQuestionDefinition(
+          OptionalLong.of(1),
           "household members",
           Optional.empty(),
           "description",
@@ -57,7 +59,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
 
     assertThat(enumeratorQuestion.isAnswered()).isFalse();
     assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(enumeratorQuestion.hasQuestionErrors()).isFalse();
+    assertThat(enumeratorQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -74,7 +76,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).contains("first", "second", "third");
     assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(enumeratorQuestion.hasQuestionErrors()).isFalse();
+    assertThat(enumeratorQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -90,7 +92,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly(value);
     assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(enumeratorQuestion.hasQuestionErrors()).isTrue();
+    assertThat(enumeratorQuestion.hasConditionErrors()).isTrue();
     assertThat(enumeratorQuestion.getQuestionErrors()).hasSize(1);
     assertThat(enumeratorQuestion.getQuestionErrors().asList().get(0).getMessage(messages))
         .isEqualTo("Please enter a value for each line.");
@@ -110,7 +112,7 @@ public class EnumeratorQuestionTest extends WithPostgresContainer {
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly("hello", "hello");
     assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(enumeratorQuestion.hasQuestionErrors()).isTrue();
+    assertThat(enumeratorQuestion.hasConditionErrors()).isTrue();
     assertThat(enumeratorQuestion.getQuestionErrors()).hasSize(1);
     assertThat(enumeratorQuestion.getQuestionErrors().asList().get(0).getMessage(messages))
         .isEqualTo("Please enter a unique value for each line.");

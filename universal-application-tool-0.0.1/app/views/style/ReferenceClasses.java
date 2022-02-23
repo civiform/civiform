@@ -14,6 +14,14 @@ public final class ReferenceClasses {
   public static final String ADMIN_TI_GROUP_ROW = "cf-ti-row";
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
   public static final String QUESTION_CONFIG = "cf-question-config";
+  public static final String EDIT_PREDICATE_BUTTON = "cf-edit-predicate";
+  public static final String PREDICATE_DISPLAY = "cf-display-predicate";
+  public static final String PREDICATE_ACTION = "cf-predicate-action";
+  public static final String PREDICATE_SCALAR_SELECT = "cf-scalar-select";
+  public static final String PREDICATE_OPERATOR_SELECT = "cf-operator-select";
+  public static final String PREDICATE_OPTIONS = "cf-predicate-options";
+  public static final String PREDICATE_VALUE_INPUT = "cf-predicate-value-input";
+  public static final String PREDICATE_VALUE_COMMA_HELP_TEXT = "cf-predicate-value-comma-help-text";
 
   public static final String QUESTION_BANK_ELEMENT = "cf-question-bank-element";
 
@@ -25,6 +33,7 @@ public final class ReferenceClasses {
   public static final String VIEW_BUTTON = "cf-view-application-button";
 
   public static final String PROGRAM_ADMIN_REMOVE_BUTTON = "cf-program-admin-remove-button";
+  public static final String PROGRAM_QUESTION = "cf-program-question";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Applicant reference classes
@@ -44,6 +53,8 @@ public final class ReferenceClasses {
   // Question reference classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
+  public static final String REQUIRED_QUESTION = "cf-question-required";
+
   public static final String ADDRESS_QUESTION = "cf-question-address";
   public static final String ADDRESS_CITY = "cf-address-city";
   public static final String ADDRESS_STREET_1 = "cf-address-street-1";
@@ -51,12 +62,20 @@ public final class ReferenceClasses {
   public static final String ADDRESS_STATE = "cf-address-state";
   public static final String ADDRESS_ZIP = "cf-address-zip";
 
+  public static final String MULTI_OPTION_QUESTION_OPTION = "cf-multi-option-question-option";
+  public static final String MULTI_OPTION_INPUT = "cf-multi-option-input";
+
   public static final String CHECKBOX_QUESTION = "cf-question-checkbox";
+  public static final String CURRENCY_QUESTION = "cf-question-currency";
+  public static final String CURRENCY_VALUE = "cf-currency-value";
   public static final String DATE_QUESTION = "cf-question-date";
   public static final String EMAIL_QUESTION = "cf-question-email";
 
   public static final String ENUMERATOR_QUESTION = "cf-question-enumerator";
   public static final String ENUMERATOR_ERROR = "cf-enumerator-error";
+
+  public static final String FILEUPLOAD_QUESTION = "cf-question-fileupload";
+  public static final String FILEUPLOAD_ERROR = "cf-fileupload-error";
 
   public static final String NAME_QUESTION = "cf-question-name";
   public static final String NAME_FIRST = "cf-name-first";
@@ -67,6 +86,12 @@ public final class ReferenceClasses {
   // Common reference classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
+  public static final String ACCORDION = "cf-accordion";
+  public static final String ACCORDION_BUTTON = "cf-accordion-button";
+  public static final String ACCORDION_CONTENT = "cf-accordion-content";
+  public static final String ACCORDION_HEADER = "cf-accordion-header";
+
+  public static final String QUESTION_TYPE = "cf-question-type";
   public static final String TOAST_MESSAGE = "cf-toast-data";
   public static final String ENTITY_NAME_INPUT = "cf-entity-name-input";
   public static final String ENUMERATOR_FIELD = "cf-enumerator-field";

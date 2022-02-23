@@ -7,12 +7,15 @@ import java.net.URI;
 import play.Environment;
 import play.mvc.Controller;
 
+/** Superclass for dev controllers. */
 public class DevController extends Controller {
   private final Environment environment;
   private final String hostName;
+  private final String stagingHostname;
 
   public DevController(Environment environment, Config configuration) {
     this.environment = checkNotNull(environment);
+    stagingHostname = checkNotNull(configuration).getString("staging_hostname");
 
     String baseUrl = checkNotNull(configuration).getString("base_url");
     this.hostName = URI.create(baseUrl).getHost();
@@ -30,6 +33,6 @@ public class DevController extends Controller {
   }
 
   public boolean isStaging() {
-    return hostName.equals("staging.seattle.civiform.com");
+    return hostName.equals(stagingHostname);
   }
 }

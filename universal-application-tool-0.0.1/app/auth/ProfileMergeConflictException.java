@@ -7,7 +7,7 @@ public class ProfileMergeConflictException extends HttpAction implements WithCon
   private final String message;
 
   /**
-   * When this exception is thrown in a controlller, the resulting response will be a 400 and the
+   * When this exception is thrown in a controller, the resulting response will be a 400 and the
    * provided message will be displayed to the user (unformatted, for now).
    */
   ProfileMergeConflictException(String message) {

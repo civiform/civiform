@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import forms.BlockForm;
 import java.util.Locale;
@@ -12,9 +13,12 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import javax.annotation.Nullable;
 import models.Account;
 import models.Application;
+import models.DisplayMode;
 import models.Program;
+import models.Version;
 import play.db.ebean.Transactional;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
@@ -28,6 +32,7 @@ import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 
+/** Implementation class for {@link ProgramService} interface. */
 public class ProgramServiceImpl implements ProgramService {
 
   private final ProgramRepository programRepository;
@@ -73,14 +78,28 @@ public class ProgramServiceImpl implements ProgramService {
     return programRepository
         .lookupProgram(id)
         .thenComposeAsync(
-            programMaybe ->
-                programMaybe.isEmpty()
-                    ? CompletableFuture.failedFuture(new ProgramNotFoundException(id))
-                    : programMaybe
-                        .map(Program::getProgramDefinition)
-                        .map(this::syncProgramDefinitionQuestions)
-                        .get(),
+            programMaybe -> {
+              if (programMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
+              }
+
+              return syncProgramAssociations(programMaybe.get());
+            },
             httpExecutionContext.current());
+  }
+
+  private CompletionStage<ProgramDefinition> syncProgramAssociations(Program program) {
+    if (isActiveOrDraftProgram(program)) {
+      return syncProgramDefinitionQuestions(program.getProgramDefinition())
+          .thenApply(programDefinition -> programDefinition.orderBlockDefinitions());
+    }
+
+    // Any version that the program is in has all the questions the program has.
+    Version version = program.getVersions().stream().findAny().get();
+    ProgramDefinition programDefinition =
+        syncProgramDefinitionQuestions(program.getProgramDefinition(), version);
+
+    return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
   }
 
   @Override
@@ -88,7 +107,9 @@ public class ProgramServiceImpl implements ProgramService {
       String adminName,
       String adminDescription,
       String defaultDisplayName,
-      String defaultDisplayDescription) {
+      String defaultDisplayDescription,
+      String externalLink,
+      String displayMode) {
 
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     if (hasProgramNameCollision(adminName)) {
@@ -98,13 +119,20 @@ public class ProgramServiceImpl implements ProgramService {
     validateProgramText(errorsBuilder, "admin description", adminDescription);
     validateProgramText(errorsBuilder, "display name", defaultDisplayName);
     validateProgramText(errorsBuilder, "display description", defaultDisplayDescription);
+    validateProgramText(errorsBuilder, "display mode", displayMode);
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
 
     Program program =
-        new Program(adminName, adminDescription, defaultDisplayName, defaultDisplayDescription);
+        new Program(
+            adminName,
+            adminDescription,
+            defaultDisplayName,
+            defaultDisplayDescription,
+            externalLink,
+            displayMode);
     program.addVersion(versionRepository.getDraftVersion());
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
@@ -115,7 +143,9 @@ public class ProgramServiceImpl implements ProgramService {
       Locale locale,
       String adminDescription,
       String displayName,
-      String displayDescription)
+      String displayDescription,
+      String externalLink,
+      String displayMode)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
@@ -136,6 +166,8 @@ public class ProgramServiceImpl implements ProgramService {
                 programDefinition
                     .localizedDescription()
                     .updateTranslation(locale, displayDescription))
+            .setExternalLink(externalLink)
+            .setDisplayMode(DisplayMode.valueOf(displayMode))
             .build()
             .toProgram();
     return ErrorAnd.of(
@@ -219,12 +251,12 @@ public class ProgramServiceImpl implements ProgramService {
     long blockId = getNextBlockId(programDefinition);
     String blockName;
     if (enumeratorBlockId.isPresent()) {
-      blockName = String.format("Block %d (repeated from %d)", blockId, enumeratorBlockId.get());
+      blockName = String.format("Screen %d (repeated from %d)", blockId, enumeratorBlockId.get());
     } else {
-      blockName = String.format("Block %d", blockId);
+      blockName = String.format("Screen %d", blockId);
     }
     String blockDescription =
-        "What is the purpose of this block? Add a description that summarizes the information"
+        "What is the purpose of this screen? Add a description that summarizes the information"
             + " collected.";
 
     ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockName, blockDescription);
@@ -239,14 +271,31 @@ public class ProgramServiceImpl implements ProgramService {
             .setDescription(blockDescription)
             .setEnumeratorId(enumeratorBlockId)
             .build();
-
     Program program =
-        programDefinition.toBuilder().addBlockDefinition(blockDefinition).build().toProgram();
+        programDefinition.insertBlockDefinitionInTheRightPlace(blockDefinition).toProgram();
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
             .join());
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition moveBlock(
+      long programId, long blockId, ProgramDefinition.Direction direction)
+      throws ProgramNotFoundException, IllegalPredicateOrderingException {
+    Program program;
+    try {
+      program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(
+          "Something happened to the program's block while trying to move it", e);
+    }
+    return syncProgramDefinitionQuestions(
+            programRepository.updateProgramSync(program).getProgramDefinition())
+        .toCompletableFuture()
+        .join();
   }
 
   @Override
@@ -267,17 +316,23 @@ public class ProgramServiceImpl implements ProgramService {
             .setDescription(blockForm.getDescription())
             .build();
 
-    return ErrorAnd.of(
-        updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition));
+    try {
+      return ErrorAnd.of(
+          updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition));
+    } catch (IllegalPredicateOrderingException e) {
+      // Updating a block's metadata should never invalidate a predicate.
+      throw new RuntimeException(
+          "Unexpected error: updating this block invalidated a block condition");
+    }
   }
 
   private ImmutableSet<CiviFormError> validateBlockDefinition(String name, String description) {
-    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.<CiviFormError>builder();
+    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
     if (name.isBlank()) {
-      errors.add(CiviFormError.of("block name cannot be blank"));
+      errors.add(CiviFormError.of("screen name cannot be blank"));
     }
     if (description.isBlank()) {
-      errors.add(CiviFormError.of("block description cannot be blank"));
+      errors.add(CiviFormError.of("screen description cannot be blank"));
     }
     return errors.build();
   }
@@ -288,7 +343,8 @@ public class ProgramServiceImpl implements ProgramService {
       long programId,
       long blockDefinitionId,
       ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
@@ -327,7 +383,8 @@ public class ProgramServiceImpl implements ProgramService {
 
     for (long qid : questionIds) {
       newQuestionListBuilder.add(
-          ProgramQuestionDefinition.create(roQuestionService.getQuestionDefinition(qid)));
+          ProgramQuestionDefinition.create(
+              roQuestionService.getQuestionDefinition(qid), Optional.of(programId)));
     }
 
     ImmutableList<ProgramQuestionDefinition> newProgramQuestionDefinitions =
@@ -337,8 +394,15 @@ public class ProgramServiceImpl implements ProgramService {
         blockDefinition.toBuilder()
             .setProgramQuestionDefinitions(newProgramQuestionDefinitions)
             .build();
-
-    return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+    try {
+      return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
+    } catch (IllegalPredicateOrderingException e) {
+      // This should never happen
+      throw new RuntimeException(
+          String.format(
+              "Unexpected error: Adding a question to block %s invalidated a predicate",
+              blockDefinition.name()));
+    }
   }
 
   @Override
@@ -346,7 +410,7 @@ public class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition removeQuestionsFromBlock(
       long programId, long blockDefinitionId, ImmutableList<Long> questionIds)
       throws QuestionNotFoundException, ProgramNotFoundException,
-          ProgramBlockDefinitionNotFoundException {
+          ProgramBlockDefinitionNotFoundException, IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     for (long questionId : questionIds) {
@@ -373,13 +437,14 @@ public class ProgramServiceImpl implements ProgramService {
   @Override
   @Transactional
   public ProgramDefinition setBlockPredicate(
-      long programId, long blockDefinitionId, PredicateDefinition predicate)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+      long programId, long blockDefinitionId, @Nullable PredicateDefinition predicate)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
-            .setVisibilityPredicate(Optional.of(predicate))
+            .setVisibilityPredicate(Optional.ofNullable(predicate))
             .build();
 
     return updateProgramDefinitionWithBlockDefinition(programDefinition, blockDefinition);
@@ -387,8 +452,55 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
+  public ProgramDefinition removeBlockPredicate(long programId, long blockDefinitionId)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+    try {
+      return setBlockPredicate(programId, blockDefinitionId, null);
+    } catch (IllegalPredicateOrderingException e) {
+      // Removing a predicate should never invalidate another.
+      throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
+    }
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition setProgramQuestionDefinitionOptionality(
+      long programId, long blockDefinitionId, long questionDefinitionId, boolean optional)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
+          ProgramQuestionDefinitionNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
+
+    if (!blockDefinition.programQuestionDefinitions().stream()
+        .anyMatch(pqd -> pqd.id() == questionDefinitionId)) {
+      throw new ProgramQuestionDefinitionNotFoundException(
+          programId, blockDefinitionId, questionDefinitionId);
+    }
+
+    ImmutableList<ProgramQuestionDefinition> programQuestionDefinitions =
+        blockDefinition.programQuestionDefinitions().stream()
+            .map(pqd -> pqd.id() == questionDefinitionId ? pqd.setOptional(optional) : pqd)
+            .collect(ImmutableList.toImmutableList());
+
+    try {
+      return updateProgramDefinitionWithBlockDefinition(
+          programDefinition,
+          blockDefinition.toBuilder()
+              .setProgramQuestionDefinitions(programQuestionDefinitions)
+              .build());
+    } catch (IllegalPredicateOrderingException e) {
+      // Changing a question between required and optional should not affect predicates. If a
+      // question is optional and a predicate depends on its answer, the predicate will be false.
+      throw new RuntimeException(
+          "Unexpected error: updating this question invalidated a block condition");
+    }
+  }
+
+  @Override
+  @Transactional
   public ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
-      throws ProgramNotFoundException, ProgramNeedsABlockException {
+      throws ProgramNotFoundException, ProgramNeedsABlockException,
+          IllegalPredicateOrderingException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     ImmutableList<BlockDefinition> newBlocks =
@@ -399,29 +511,24 @@ public class ProgramServiceImpl implements ProgramService {
       throw new ProgramNeedsABlockException(programId);
     }
 
-    Program program =
-        programDefinition.toBuilder().setBlockDefinitions(newBlocks).build().toProgram();
-    return syncProgramDefinitionQuestions(
-            programRepository.updateProgramSync(program).getProgramDefinition())
-        .toCompletableFuture()
-        .join();
+    return updateProgramDefinitionWithBlockDefinitions(programDefinition, newBlocks);
   }
 
   @Override
-  public ImmutableList<Application> getProgramApplications(long programId)
+  public ImmutableList<Application> getSubmittedProgramApplications(long programId)
       throws ProgramNotFoundException {
     Optional<Program> programMaybe =
         programRepository.lookupProgram(programId).toCompletableFuture().join();
     if (programMaybe.isEmpty()) {
       throw new ProgramNotFoundException(programId);
     }
-    return programMaybe.get().getApplications();
+    return programMaybe.get().getSubmittedApplications();
   }
 
   @Override
-  public ImmutableList<Application> getProgramApplications(long programId, Optional<String> search)
-      throws ProgramNotFoundException {
-    return getProgramApplications(programId).stream()
+  public ImmutableList<Application> getSubmittedProgramApplications(
+      long programId, Optional<String> search) throws ProgramNotFoundException {
+    return getSubmittedProgramApplications(programId).stream()
         .filter(
             application ->
                 application
@@ -459,30 +566,54 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ImmutableList<Program> getOtherProgramVersions(long programId) {
-    return programRepository.getOtherProgramVersions(programId);
+    return programRepository.getAllProgramVersions(programId).stream()
+        .filter(program -> program.id != programId)
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
+  public ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId) {
+    return programRepository.getAllProgramVersions(programId).stream()
+        .map(program -> syncProgramAssociations(program).toCompletableFuture().join())
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  private ProgramDefinition updateProgramDefinitionWithBlockDefinitions(
+      ProgramDefinition programDefinition, ImmutableList<BlockDefinition> blocks)
+      throws IllegalPredicateOrderingException {
+    ProgramDefinition program = programDefinition.toBuilder().setBlockDefinitions(blocks).build();
+
+    if (!program.hasValidPredicateOrdering()) {
+      throw new IllegalPredicateOrderingException("This action would invalidate a block condition");
+    }
+
+    return syncProgramDefinitionQuestions(
+            programRepository.updateProgramSync(program.toProgram()).getProgramDefinition())
+        .toCompletableFuture()
+        .join();
   }
 
   private ProgramDefinition updateProgramDefinitionWithBlockDefinition(
-      ProgramDefinition programDefinition, BlockDefinition blockDefinition) {
+      ProgramDefinition programDefinition, BlockDefinition blockDefinition)
+      throws IllegalPredicateOrderingException {
 
     ImmutableList<BlockDefinition> updatedBlockDefinitions =
         programDefinition.blockDefinitions().stream()
             .map(b -> b.id() == blockDefinition.id() ? blockDefinition : b)
             .collect(ImmutableList.toImmutableList());
 
-    Program program =
-        programDefinition.toBuilder()
-            .setBlockDefinitions(updatedBlockDefinitions)
-            .build()
-            .toProgram();
-    return syncProgramDefinitionQuestions(
-            programRepository.updateProgramSync(program).getProgramDefinition())
-        .toCompletableFuture()
-        .join();
+    return updateProgramDefinitionWithBlockDefinitions(programDefinition, updatedBlockDefinitions);
   }
 
   private long getNextBlockId(ProgramDefinition programDefinition) {
     return programDefinition.getMaxBlockDefinitionId() + 1;
+  }
+
+  private boolean isActiveOrDraftProgram(Program program) {
+    return Streams.concat(
+            versionRepository.getActiveVersion().getPrograms().stream(),
+            versionRepository.getDraftVersion().getPrograms().stream())
+        .anyMatch(p -> p.id.equals(program.id));
   }
 
   /**
@@ -494,18 +625,40 @@ public class ProgramServiceImpl implements ProgramService {
     return questionService
         .getReadOnlyQuestionService()
         .thenApplyAsync(
-            roQuestionService ->
-                syncProgramDefinitionQuestions(programDefinition, roQuestionService),
+            roQuestionService -> {
+              try {
+                return syncProgramDefinitionQuestions(programDefinition, roQuestionService);
+              } catch (QuestionNotFoundException e) {
+                throw new RuntimeException(
+                    String.format("Question not found for Program %s", programDefinition.id()), e);
+              }
+            },
             httpExecutionContext.current());
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(
-      ProgramDefinition programDefinition, ReadOnlyQuestionService roQuestionService) {
-    ProgramDefinition.Builder programDefinitionBuilder = programDefinition.toBuilder();
+      ProgramDefinition programDefinition, Version version) {
+    try {
+      return syncProgramDefinitionQuestions(
+          programDefinition, questionService.getReadOnlyVersionedQuestionService(version));
+    } catch (QuestionNotFoundException e) {
+      throw new RuntimeException(
+          String.format(
+              "Question not found for Program %s at Version %s",
+              programDefinition.id(), version.id),
+          e);
+    }
+  }
 
+  private ProgramDefinition syncProgramDefinitionQuestions(
+      ProgramDefinition programDefinition, ReadOnlyQuestionService roQuestionService)
+      throws QuestionNotFoundException {
+    ProgramDefinition.Builder programDefinitionBuilder = programDefinition.toBuilder();
     ImmutableList.Builder<BlockDefinition> blockListBuilder = ImmutableList.builder();
+
     for (BlockDefinition block : programDefinition.blockDefinitions()) {
-      BlockDefinition syncedBlock = syncBlockDefinitionQuestions(block, roQuestionService);
+      BlockDefinition syncedBlock =
+          syncBlockDefinitionQuestions(programDefinition.id(), block, roQuestionService);
       blockListBuilder.add(syncedBlock);
     }
 
@@ -514,12 +667,16 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   private BlockDefinition syncBlockDefinitionQuestions(
-      BlockDefinition blockDefinition, ReadOnlyQuestionService roQuestionService) {
+      long programDefinitionId,
+      BlockDefinition blockDefinition,
+      ReadOnlyQuestionService roQuestionService)
+      throws QuestionNotFoundException {
     BlockDefinition.Builder blockBuilder = blockDefinition.toBuilder();
 
     ImmutableList.Builder<ProgramQuestionDefinition> pqdListBuilder = ImmutableList.builder();
     for (ProgramQuestionDefinition pqd : blockDefinition.programQuestionDefinitions()) {
-      ProgramQuestionDefinition syncedPqd = syncProgramQuestionDefinition(pqd, roQuestionService);
+      ProgramQuestionDefinition syncedPqd =
+          syncProgramQuestionDefinition(programDefinitionId, pqd, roQuestionService);
       pqdListBuilder.add(syncedPqd);
     }
 
@@ -528,13 +685,11 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   private ProgramQuestionDefinition syncProgramQuestionDefinition(
-      ProgramQuestionDefinition pqd, ReadOnlyQuestionService roQuestionService) {
-    QuestionDefinition questionDefinition;
-    try {
-      questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
-    } catch (QuestionNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-    return ProgramQuestionDefinition.create(questionDefinition);
+      long programDefinitionId,
+      ProgramQuestionDefinition pqd,
+      ReadOnlyQuestionService roQuestionService)
+      throws QuestionNotFoundException {
+    QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
+    return pqd.loadCompletely(programDefinitionId, questionDefinition);
   }
 }

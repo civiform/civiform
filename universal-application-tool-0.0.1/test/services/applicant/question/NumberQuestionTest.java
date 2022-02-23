@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Applicant;
@@ -25,14 +26,17 @@ public class NumberQuestionTest extends WithPostgresContainer {
 
   private static final NumberQuestionDefinition numberQuestionDefinition =
       new NumberQuestionDefinition(
+          OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"));
+          LocalizedStrings.of(Locale.US, "help text"),
+          NumberQuestionDefinition.NumberValidationPredicates.create());
 
   private static final NumberQuestionDefinition minAndMaxNumberQuestionDefinition =
       new NumberQuestionDefinition(
+          OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",
@@ -59,7 +63,7 @@ public class NumberQuestionTest extends WithPostgresContainer {
     NumberQuestion numberQuestion = new NumberQuestion(applicantQuestion);
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(numberQuestion.hasQuestionErrors()).isFalse();
+    assertThat(numberQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -99,7 +103,7 @@ public class NumberQuestionTest extends WithPostgresContainer {
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(numberQuestion.hasQuestionErrors()).isFalse();
+    assertThat(numberQuestion.hasConditionErrors()).isFalse();
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(value);
   }
 
@@ -137,6 +141,6 @@ public class NumberQuestionTest extends WithPostgresContainer {
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     assertThat(numberQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(numberQuestion.hasQuestionErrors()).isFalse();
+    assertThat(numberQuestion.hasConditionErrors()).isFalse();
   }
 }

@@ -30,7 +30,7 @@ public class RoleServiceTest extends WithPostgresContainer {
   @Test
   public void makeProgramAdmins_allPromoted() throws ProgramNotFoundException {
     String email1 = "fake@email.com";
-    String email2 = "fake2@email.com";
+    String email2 = "fake2.com";
     Account account1 = new Account();
     account1.setEmailAddress(email1);
     account1.save();
@@ -54,6 +54,44 @@ public class RoleServiceTest extends WithPostgresContainer {
   }
 
   @Test
+  public void makeProgramAdmins_emailsAreCaseSensitive() throws ProgramNotFoundException {
+    String emailUpperCase = "Fake.Person@email.com";
+    String emailLowerCase = "fake.person@email.com";
+    Account account = new Account();
+    account.setEmailAddress(emailUpperCase);
+    account.save();
+
+    String programName = "test program";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    // Make the lower case email a program admin.
+    Optional<CiviFormError> lowerCaseResult =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(emailLowerCase));
+
+    assertThat(lowerCaseResult)
+        .isEqualTo(
+            Optional.of(
+                CiviFormError.of(
+                    String.format(
+                        "%s does not have an admin account and cannot be added as a Program"
+                            + " Admin. ",
+                        emailLowerCase))));
+
+    // Lookup the upper case account. They do not have permission to any programs.
+    account = userRepository.lookupAccount(emailUpperCase).get();
+    assertThat(account.getAdministeredProgramNames()).isEmpty();
+
+    // Now make the upper case Email a program admin.
+    Optional<CiviFormError> result =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(emailUpperCase));
+    assertThat(result).isEmpty();
+
+    // Lookup the upper case account. They now have permissions to the program.
+    account = userRepository.lookupAccount(emailUpperCase).get();
+    assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
+  }
+
+  @Test
   public void makeProgramAdmins_emptyList_returnsEmptyOptional() throws ProgramNotFoundException {
     assertThat(service.makeProgramAdmins(1L, ImmutableSet.of())).isEmpty();
   }
@@ -68,6 +106,49 @@ public class RoleServiceTest extends WithPostgresContainer {
   public void makeProgramAdmins_programNotFound_throwsException() {
     assertThatThrownBy(() -> service.makeProgramAdmins(1234L, ImmutableSet.of("email@email.com")))
         .isInstanceOf(ProgramNotFoundException.class);
+  }
+
+  @Test
+  public void makeProgramAdmins_emailHasNoAccountReturnsError() throws ProgramNotFoundException {
+    String email = "admin_does_not_exist@email.com";
+
+    String programName = "test program";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    Optional<CiviFormError> lowerCaseResult =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(email));
+
+    assertThat(lowerCaseResult)
+        .isEqualTo(
+            Optional.of(
+                CiviFormError.of(
+                    String.format(
+                        "%s does not have an admin account and cannot be added as a Program"
+                            + " Admin. ",
+                        email))));
+  }
+
+  @Test
+  public void makeProgramAdmins_manyEmailsHaveNoAccountReturnsError()
+      throws ProgramNotFoundException {
+    String email1 = "first_admin_does_not_exist@email.com";
+    String email2 = "second_admin_does_not_exist@email.com";
+
+    String programName = "test program";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    Optional<CiviFormError> lowerCaseResult =
+        service.makeProgramAdmins(program.id, ImmutableSet.of(email1, email2));
+
+    assertThat(lowerCaseResult)
+        .isEqualTo(
+            Optional.of(
+                CiviFormError.of(
+                    String.format(
+                        "%1$s does not have an admin account and cannot be added as a Program"
+                            + " Admin. %2$s does not have an admin account and cannot be added as"
+                            + " a Program Admin. ",
+                        email1, email2))));
   }
 
   @Test

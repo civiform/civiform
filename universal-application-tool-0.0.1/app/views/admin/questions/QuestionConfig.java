@@ -1,29 +1,38 @@
 package views.admin.questions;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.label;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import forms.AddressQuestionForm;
 import forms.EnumeratorQuestionForm;
+import forms.IdQuestionForm;
 import forms.MultiOptionQuestionForm;
 import forms.NumberQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Optional;
+import play.i18n.Messages;
+import services.LocalizedStrings;
+import services.MessageKey;
+import services.applicant.ValidationErrorMessage;
+import services.question.LocalizedQuestionOption;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Contains methods for rendering type-specific question settings components. */
 public class QuestionConfig {
+
   private String id = "";
   private String headerText = "Question settings";
   private ContainerTag content = div();
@@ -57,7 +66,7 @@ public class QuestionConfig {
     return this;
   }
 
-  public static ContainerTag buildQuestionConfig(QuestionForm questionForm) {
+  public static ContainerTag buildQuestionConfig(QuestionForm questionForm, Messages messages) {
     QuestionConfig config = new QuestionConfig();
     switch (questionForm.getQuestionType()) {
       case ADDRESS:
@@ -69,13 +78,18 @@ public class QuestionConfig {
         MultiOptionQuestionForm form = (MultiOptionQuestionForm) questionForm;
         return config
             .setId("multi-select-question-config")
-            .addMultiOptionQuestionFields(form)
+            .addMultiOptionQuestionFields(form, messages)
             .addMultiSelectQuestionValidation(form)
             .getContainer();
       case ENUMERATOR:
         return config
             .setId("enumerator-question-config")
             .addEnumeratorQuestionConfig((EnumeratorQuestionForm) questionForm)
+            .getContainer();
+      case ID:
+        return config
+            .setId("id-question-config")
+            .addIdQuestionConfig((IdQuestionForm) questionForm)
             .getContainer();
       case NUMBER:
         return config
@@ -91,8 +105,9 @@ public class QuestionConfig {
       case RADIO_BUTTON:
         return config
             .setId("single-select-question-config")
-            .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm)
+            .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm, messages)
             .getContainer();
+      case CURRENCY: // fallthrough intended - no options
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended - no options
       case DATE: // fallthrough intended
@@ -121,12 +136,29 @@ public class QuestionConfig {
     return this;
   }
 
+  private QuestionConfig addIdQuestionConfig(IdQuestionForm idQuestionForm) {
+    content.with(
+        FieldWithLabel.number()
+            .setId("id-question-min-length-input")
+            .setFieldName("minLength")
+            .setLabelText("Minimum length")
+            .setValue(idQuestionForm.getMinLength())
+            .getContainer(),
+        FieldWithLabel.number()
+            .setId("id-question-max-length-input")
+            .setFieldName("maxLength")
+            .setLabelText("Maximum length")
+            .setValue(idQuestionForm.getMaxLength())
+            .getContainer());
+    return this;
+  }
+
   private QuestionConfig addTextQuestionConfig(TextQuestionForm textQuestionForm) {
     content.with(
         FieldWithLabel.number()
             .setId("text-question-min-length-input")
             .setFieldName("minLength")
-            .setLabelText("Min length")
+            .setLabelText("Minimum length")
             .setValue(textQuestionForm.getMinLength())
             .getContainer(),
         FieldWithLabel.number()
@@ -155,33 +187,64 @@ public class QuestionConfig {
    * Creates an individual text field where an admin can enter a single multi-option question
    * answer, along with a button to remove the option.
    */
-  public static ContainerTag multiOptionQuestionField(Optional<String> existingOption) {
+  public static ContainerTag multiOptionQuestionField(
+      Optional<LocalizedQuestionOption> existingOption, Messages messages) {
     ContainerTag optionInput =
         FieldWithLabel.input()
-            .setFieldName("options[]")
+            .setFieldName(existingOption.isPresent() ? "options[]" : "newOptions[]")
             .setLabelText("Question option")
-            .setValue(existingOption)
+            .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
+            .setValue(existingOption.map(LocalizedQuestionOption::optionText))
+            .setFieldErrors(
+                messages,
+                ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
+            .showFieldErrors(false)
             .getContainer()
-            .withClasses(Styles.FLEX, Styles.ML_2);
+            .withClasses(Styles.FLEX, Styles.ML_2, Styles.GAP_X_3);
+    ContainerTag optionIndexInput =
+        existingOption.isPresent()
+            ? FieldWithLabel.input()
+                .setFieldName("optionIds[]")
+                .setValue(String.valueOf(existingOption.get().id()))
+                .setScreenReaderText("option ids")
+                .getContainer()
+                .withClasses(Styles.HIDDEN)
+            : div();
     Tag removeOptionButton =
         button("Remove")
             .withType("button")
             .withClasses(Styles.FLEX, Styles.ML_4, "multi-option-question-field-remove-button");
 
     return div()
-        .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.MB_4)
-        .with(optionInput, removeOptionButton);
+        .withClasses(
+            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
+            Styles.FLEX,
+            Styles.FLEX_ROW,
+            Styles.MB_4)
+        .with(optionInput, optionIndexInput, removeOptionButton);
   }
 
   private QuestionConfig addMultiOptionQuestionFields(
-      MultiOptionQuestionForm multiOptionQuestionForm) {
-    ImmutableList<ContainerTag> existingOptions =
-        multiOptionQuestionForm.getOptions().stream()
-            .map(option -> multiOptionQuestionField(Optional.of(option)))
-            .collect(toImmutableList());
+      MultiOptionQuestionForm multiOptionQuestionForm, Messages messages) {
+    Preconditions.checkState(
+        multiOptionQuestionForm.getOptionIds().size()
+            == multiOptionQuestionForm.getOptions().size(),
+        "Options and Option Indexes need to be the same size.");
+    ImmutableList.Builder<ContainerTag> existingOptionsBuilder = ImmutableList.builder();
+    for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
+      existingOptionsBuilder.add(
+          multiOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      multiOptionQuestionForm.getOptionIds().get(i),
+                      i,
+                      multiOptionQuestionForm.getOptions().get(i),
+                      LocalizedStrings.DEFAULT_LOCALE)),
+              messages));
+    }
 
     content
-        .with(existingOptions)
+        .with(existingOptionsBuilder.build())
         .with(
             button("Add answer option")
                 .withType("button")
@@ -247,8 +310,7 @@ public class QuestionConfig {
    * I don't feel like hard-coding a list of states here, so this will do until we can think up a
    * better approach.
    */
-  private static ImmutableList<SimpleEntry<String, String>> stateOptions() {
-    return ImmutableList.of(
-        new SimpleEntry<>("-- Leave blank --", "-"), new SimpleEntry<>("Washington", "WA"));
+  private static ImmutableMap<String, String> stateOptions() {
+    return ImmutableMap.of("-- Leave blank --", "-", "Washington", "WA");
   }
 }

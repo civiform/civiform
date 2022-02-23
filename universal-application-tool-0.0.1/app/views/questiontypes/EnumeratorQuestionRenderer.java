@@ -19,10 +19,12 @@ import services.applicant.question.Scalar;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.ApplicantStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Renders an enumerator question. */
 public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
 
   private static final String ENUMERATOR_FIELDS_ID = "enumerator-fields";
@@ -69,8 +71,8 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
         div(enumeratorQuestion.getQuestionErrorMessage().getMessage(messages))
             .withClasses(
                 ReferenceClasses.ENUMERATOR_ERROR,
-                Styles.TEXT_RED_600,
-                enumeratorQuestion.hasQuestionErrors() ? "" : Styles.HIDDEN);
+                BaseStyles.FORM_ERROR_TEXT_BASE,
+                enumeratorQuestion.hasConditionErrors() ? "" : Styles.HIDDEN);
 
     Tag enumeratorQuestionFormContent =
         div()
@@ -107,16 +109,28 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
             .setValue(existingEntity)
+            .setScreenReaderText(
+                messages.at(
+                    MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
+                    localizedEntityType))
             .setPlaceholderText(
                 messages.at(
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
                     localizedEntityType))
             .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT)
             .getContainer();
+    String confirmationMessage =
+        messages.at(MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE.getKeyName(), localizedEntityType);
     Tag removeEntityButton =
         TagCreator.button()
             .withType("button")
             .withCondId(existingIndex.isPresent(), existingIndex.map(String::valueOf).orElse(""))
+            .attr(
+                "onclick",
+                String.format(
+                    "if(confirm('%s')){ return true; } else { var e = arguments[0] ||"
+                        + " window.event; e.stopImmediatePropagation(); return false; }",
+                    confirmationMessage))
             .withClasses(
                 existingEntity.isPresent()
                     ? StyleUtils.joinStyles(ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON)

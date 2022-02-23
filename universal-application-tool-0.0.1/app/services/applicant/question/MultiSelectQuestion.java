@@ -13,7 +13,15 @@ import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 
-public class MultiSelectQuestion implements PresentsErrors {
+/**
+ * Represents a multi-select question in the context of a specific applicant.
+ *
+ * <p>All multi-select question types are meant to share this class, although there is only checkbox
+ * question type in this category as of June 30, 2021.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
+public class MultiSelectQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<ImmutableList<LocalizedQuestionOption>> selectedOptionsValue;
@@ -24,7 +32,7 @@ public class MultiSelectQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public boolean hasConditionErrors() {
     return !getQuestionErrors().isEmpty();
   }
 
@@ -72,6 +80,11 @@ public class MultiSelectQuestion implements PresentsErrors {
 
   public boolean hasValue() {
     return getSelectedOptionsValue().isPresent();
+  }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    return ImmutableList.of(getSelectionPath());
   }
 
   @Override
@@ -136,7 +149,7 @@ public class MultiSelectQuestion implements PresentsErrors {
   }
 
   public Path getSelectionPath() {
-    return applicantQuestion.getContextualizedPath().join(Scalar.SELECTION);
+    return applicantQuestion.getContextualizedPath().join(Scalar.SELECTIONS);
   }
 
   /** Get options in the applicant's preferred locale. */

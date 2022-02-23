@@ -11,15 +11,22 @@ lazy val root = (project in file("."))
       guice,
       javaJdbc,
       // JSON libraries
-      "com.jayway.jsonpath" % "json-path" % "2.5.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.10.3",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.10.3",
+      "com.jayway.jsonpath" % "json-path" % "2.6.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.13.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.13.1",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.1",
+
+      "com.google.inject.extensions" % "guice-assistedinject" % "5.0.1",
 
       // Templating
       "com.j2html" % "j2html" % "1.4.0",
 
       // Amazon AWS SDK
       "software.amazon.awssdk" % "aws-sdk-java" % "2.15.81",
+
+      // Microsoft Azure SDK
+      "com.azure" % "azure-identity" % "1.4.2",
+      "com.azure" % "azure-storage-blob" % "12.14.2",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.2.18",
@@ -49,19 +56,19 @@ lazy val root = (project in file("."))
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
-      "org.pac4j" %% "play-pac4j" % "11.0.0-PLAY2.8-RC2",
-      "org.pac4j" % "pac4j-core" % "5.0.0-RC2",
+      "org.pac4j" %% "play-pac4j" % "11.0.0-PLAY2.8",
+      "org.pac4j" % "pac4j-core" % "5.2.1",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.0.0-RC2",
+      "org.pac4j" % "pac4j-http" % "5.2.1",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.0.0-RC2",
+      "org.pac4j" % "pac4j-oidc" % "5.2.1",
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.7.1",
 
       // Autovalue
-      "com.google.auto.value" % "auto-value-annotations" % "1.7.4",
-      "com.google.auto.value" % "auto-value" % "1.7.4",
-      "com.google.auto.value" % "auto-value-parent" % "1.7.4",
+      "com.google.auto.value" % "auto-value-annotations" % "1.8.2",
+      "com.google.auto.value" % "auto-value" % "1.8.2",
+      "com.google.auto.value" % "auto-value-parent" % "1.8.2",
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.5.1",
@@ -89,22 +96,24 @@ lazy val root = (project in file("."))
       "-Werror"
     ),
     // Make verbose tests
-    testOptions in Test := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v")),
+    Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v")),
     // Use test config for tests
-    javaOptions in Test += "-Dconfig.file=conf/application.test.conf",
+    Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
     // Turn off scaladoc link warnings
-    scalacOptions in (Compile, doc) += "-no-link-warnings"
+    Compile / doc / scalacOptions += "-no-link-warnings"
   )
+
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 resolvers += Resolver.bintrayRepo("webjars","maven")
 libraryDependencies ++= Seq(
     "org.webjars.npm" % "react" % "15.4.0",
-    "org.webjars.npm" % "types__react" % "15.0.34"
+    "org.webjars.npm" % "types__react" % "15.0.34",
+    "org.webjars.npm" % "azure__storage-blob" % "10.5.0",
 )
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.10.5",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.10.5",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.10.5",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.1",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.13.1",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.1",
 )
 resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)

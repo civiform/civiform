@@ -1,4 +1,4 @@
-name: Format (Java)
+name: Format
 
 on:
   # code review question: this commits directly to PR branches.
@@ -13,12 +13,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2 # v2 minimum required
+
       - uses: actions/setup-java@v1
         with:
           java-version: '11.0.10'
+
       - uses: axel-op/googlejavaformat-action@master
         with:
           version: 1.9
           skipCommit: true
+
       - name: show diff
         run: git add .; git diff --exit-code HEAD
+
+      - name: TS diff
+        if: contains(toJSON(steps.file_changes.outputs.files), 'browser-test/')
+        id: run_browser_test_formatter
+        run: browser-test/bin/fmt
+
+      - name: show diff
+        run: git add .; git diff --exit-code HEAD
+
+      - name: Check bin scripts have docstrings.
+        if: contains(toJSON(steps.file_changes.outputs.files), 'bin/')
+        id: check_bin_script_docs
+        run: bin/help

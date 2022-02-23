@@ -11,11 +11,11 @@ import org.pac4j.oidc.profile.OidcProfile;
 import repository.UserRepository;
 
 /**
- * This class takes an existing UAT profile and augments it with the information from an AD profile.
- * Right now this is only extracting the email address, since that is all that AD provides right
- * now.
+ * This class takes an existing CiviForm profile and augments it with the information from an AD
+ * profile. Right now this is only extracting the email address, since that is all that AD provides
+ * right now.
  */
-public class AdfsProfileAdapter extends UatProfileAdapter {
+public class AdfsProfileAdapter extends CiviFormProfileAdapter {
   private final String adminGroupName;
 
   public AdfsProfileAdapter(
@@ -34,16 +34,16 @@ public class AdfsProfileAdapter extends UatProfileAdapter {
   }
 
   @Override
-  protected ImmutableSet<Roles> roles(UatProfile profile, OidcProfile oidcProfile) {
+  protected ImmutableSet<Roles> roles(CiviFormProfile profile, OidcProfile oidcProfile) {
     if (this.isGlobalAdmin(oidcProfile)) {
-      return ImmutableSet.of(Roles.ROLE_UAT_ADMIN);
+      return ImmutableSet.of(Roles.ROLE_CIVIFORM_ADMIN);
     }
     return ImmutableSet.of(Roles.ROLE_PROGRAM_ADMIN);
   }
 
   @Override
-  protected void adaptForRole(UatProfile profile, ImmutableSet<Roles> roles) {
-    if (roles.contains(Roles.ROLE_UAT_ADMIN)) {
+  protected void adaptForRole(CiviFormProfile profile, ImmutableSet<Roles> roles) {
+    if (roles.contains(Roles.ROLE_CIVIFORM_ADMIN)) {
       profile
           .getAccount()
           .thenAccept(
@@ -61,12 +61,12 @@ public class AdfsProfileAdapter extends UatProfileAdapter {
   }
 
   @Override
-  public UatProfileData uatProfileFromOidcProfile(OidcProfile profile) {
+  public CiviFormProfileData civiformProfileFromOidcProfile(OidcProfile profile) {
     if (this.isGlobalAdmin(profile)) {
-      return mergeUatProfile(
+      return mergeCiviFormProfile(
           profileFactory.wrapProfileData(profileFactory.createNewAdmin()), profile);
     }
-    return mergeUatProfile(
+    return mergeCiviFormProfile(
         profileFactory.wrapProfileData(profileFactory.createNewProgramAdmin()), profile);
   }
 

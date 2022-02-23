@@ -24,6 +24,11 @@ public class QuestionAnswerer {
     applicantData.putString(contextualizedPath.join(Scalar.ZIP), zip);
   }
 
+  public static void answerCurrencyQuestion(
+      ApplicantData applicantData, Path contextualizedPath, String value) {
+    applicantData.putCurrencyDollars(contextualizedPath.join(Scalar.CURRENCY_CENTS), value);
+  }
+
   public static void answerEnumeratorQuestion(
       ApplicantData applicantData, Path contextualizedPath, ImmutableList<String> entityNames) {
     for (int i = 0; i < entityNames.size(); i++) {
@@ -40,7 +45,7 @@ public class QuestionAnswerer {
   public static void answerMultiSelectQuestion(
       ApplicantData applicantData, Path contextualizedPath, int index, long value) {
     applicantData.putLong(
-        contextualizedPath.join(Scalar.SELECTION + Path.ARRAY_SUFFIX).atIndex(index), value);
+        contextualizedPath.join(Scalar.SELECTIONS + Path.ARRAY_SUFFIX).atIndex(index), value);
   }
 
   public static void answerNameQuestion(
@@ -68,6 +73,11 @@ public class QuestionAnswerer {
   public static void answerSingleSelectQuestion(
       ApplicantData applicantData, Path contextualizedPath, long value) {
     applicantData.putLong(contextualizedPath.join(Scalar.SELECTION), value);
+  }
+
+  public static void answerIdQuestion(
+      ApplicantData applicantData, Path contextualizedPath, String value) {
+    applicantData.putString(contextualizedPath.join(Scalar.ID), value);
   }
 
   public static void answerTextQuestion(

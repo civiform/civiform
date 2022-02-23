@@ -1,7 +1,7 @@
 {
   "name": "universal-application-tool-0.0.1",
   "version": "0.0.1",
-  "description": "Universal Application Tool (UAT) that aims to simplify the application process for benefits programs.",
+  "description": "Universal Application Tool (UAT aka CiviForm) that aims to simplify the application process for benefits programs.",
   "directories": {
     "test": "test"
   },
@@ -10,10 +10,10 @@
   },
   "license": "CC0-1.0",
   "devDependencies": {
+    "@tailwindcss/line-clamp": "^0.2.1",
     "@tsconfig/recommended": "^1.0.1",
-    "tailwindcss": "^2.0.3"
-  },
-  "dependencies": {
-    "@tailwindcss/line-clamp": "^0.2.0"
+    "autoprefixer": "^10.2.6",
+    "postcss": "^8.3.5",
+    "tailwindcss": "^2.2.0"
   }
 }

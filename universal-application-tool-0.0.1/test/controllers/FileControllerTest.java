@@ -27,28 +27,39 @@ public class FileControllerTest extends WithMockedProfiles {
   @Test
   public void show_differentApplicant_returnsUnauthorizedResult() {
     Applicant applicant = createApplicantWithMockedProfile();
+    String fileKey = fakeFileKey(applicant.id, 1L);
     Request request = fakeRequest().build();
     Result result =
-        controller.show(request, applicant.id + 1, "fake-file-key").toCompletableFuture().join();
+        controller.show(request, applicant.id + 1, fileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void show_differentFileKey_returnsNotFound() {
+    Applicant applicant = createApplicantWithMockedProfile();
+    String fileKey = fakeFileKey(applicant.id + 1, 1L);
+    Request request = fakeRequest().build();
+    Result result = controller.show(request, applicant.id, fileKey).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
   public void show_TIManagedApplicant_redirects() {
     Applicant managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
+    String fileKey = fakeFileKey(managedApplicant.id, 1L);
     Request request = fakeRequest().build();
     Result result =
-        controller.show(request, managedApplicant.id, "fake-file-key").toCompletableFuture().join();
+        controller.show(request, managedApplicant.id, fileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
   @Test
   public void show_redirects() {
     Applicant applicant = createApplicantWithMockedProfile();
+    String fileKey = fakeFileKey(applicant.id, 1L);
     Request request = fakeRequest().build();
-    Result result =
-        controller.show(request, applicant.id, "fake-file-key").toCompletableFuture().join();
+    Result result = controller.show(request, applicant.id, fileKey).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
@@ -56,8 +67,9 @@ public class FileControllerTest extends WithMockedProfiles {
   public void adminShow_invalidProgram_returnsNotFound() {
     Program program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
+    String fileKey = fakeFileKey(1L, program.id);
     Request request = fakeRequest().build();
-    Result result = controller.adminShow(request, program.id + 1, "fake-file-key");
+    Result result = controller.adminShow(request, program.id + 1, fileKey);
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
@@ -66,9 +78,20 @@ public class FileControllerTest extends WithMockedProfiles {
     Program programOne = ProgramBuilder.newDraftProgram("one").build();
     Program programTwo = ProgramBuilder.newDraftProgram("two").build();
     createProgramAdminWithMockedProfile(programOne);
+    String fileKey = fakeFileKey(1L, programTwo.id);
     Request request = fakeRequest().build();
-    Result result = controller.adminShow(request, programTwo.id, "fake-file-key");
+    Result result = controller.adminShow(request, programTwo.id, fileKey);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void adminShow_differentFileKey_returnsNotFound() {
+    Program program = ProgramBuilder.newDraftProgram().build();
+    createProgramAdminWithMockedProfile(program);
+    String fileKey = fakeFileKey(1L, program.id + 1);
+    Request request = fakeRequest().build();
+    Result result = controller.adminShow(request, program.id, fileKey);
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
@@ -76,26 +99,33 @@ public class FileControllerTest extends WithMockedProfiles {
     Program program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
     createGlobalAdminWithMockedProfile();
+    String fileKey = fakeFileKey(1L, program.id);
     Request request = fakeRequest().build();
-    Result result = controller.adminShow(request, program.id, "fake-file-key");
+    Result result = controller.adminShow(request, program.id, fileKey);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test
-  public void adminShow_globalAdminWhenNoProgramAdmin_redirects() {
+  public void adminShow_globalAdminWhenNoProgramAdmin_returnsUnauthorizedResult() {
     Program program = ProgramBuilder.newDraftProgram().build();
     createGlobalAdminWithMockedProfile();
+    String fileKey = fakeFileKey(1L, program.id);
     Request request = fakeRequest().build();
-    Result result = controller.adminShow(request, program.id, "fake-file-key");
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    Result result = controller.adminShow(request, program.id, fileKey);
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test
   public void adminShow_redirects() {
     Program program = ProgramBuilder.newDraftProgram().build();
     createProgramAdminWithMockedProfile(program);
+    String fileKey = fakeFileKey(1L, program.id);
     Request request = fakeRequest().build();
-    Result result = controller.adminShow(request, program.id, "fake-file-key");
+    Result result = controller.adminShow(request, program.id, fileKey);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
+  }
+
+  private String fakeFileKey(long applicantId, long programId) {
+    return String.format("applicant-%d/program-%d/block-0", applicantId, programId);
   }
 }

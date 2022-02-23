@@ -6,6 +6,7 @@ import java.util.OptionalLong;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
 
+/** Defines a radio button question. */
 public class RadioButtonQuestionDefinition extends MultiOptionQuestionDefinition {
 
   public RadioButtonQuestionDefinition(

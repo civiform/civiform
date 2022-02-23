@@ -3,6 +3,10 @@ package views.style;
 /**
  * Class to hold constants for Tailwind CSS class names. see https://tailwindcss.com/docs for more
  * info.
+ *
+ * <p>This file is special - strings in this file, within double quotes, are *not* stripped from the
+ * tailwind CSS during production optimization. If you add a string here, run bin/refresh-styles or
+ * restart bin/run-dev.
  */
 public final class Styles {
   public static final String CONTAINER = "container";

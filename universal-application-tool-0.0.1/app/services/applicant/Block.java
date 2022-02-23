@@ -11,13 +11,18 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
-import services.applicant.question.PresentsErrors;
+import services.applicant.question.Question;
 import services.program.BlockDefinition;
-import services.program.ProgramQuestionDefinition;
 import services.program.predicate.PredicateDefinition;
+import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 
-/** Represents a block in the context of a specific user's application. */
+/**
+ * Represents a block in the context of a specific user's application.
+ *
+ * <p>"Block" is synonymous to "screen", which is what we show in the admin UI. At some point, it
+ * would be nice to rename the classes and methods to reflect the more desired name "screen".
+ */
 public final class Block {
 
   /**
@@ -106,10 +111,10 @@ public final class Block {
       this.questionsMemo =
           Optional.of(
               blockDefinition.programQuestionDefinitions().stream()
-                  .map(ProgramQuestionDefinition::getQuestionDefinition)
                   .map(
-                      questionDefinition ->
-                          new ApplicantQuestion(questionDefinition, applicantData, repeatedEntity))
+                      programQuestionDefinition ->
+                          new ApplicantQuestion(
+                              programQuestionDefinition, applicantData, repeatedEntity))
                   .collect(toImmutableList()));
     }
     return questionsMemo.get();
@@ -133,6 +138,16 @@ public final class Block {
   }
 
   /**
+   * Returns whether the block contains any static questions regardless of what other questions are
+   * present and whether they are answered or not.
+   */
+  public boolean containsStatic() {
+    return getQuestions().stream()
+        .map(ApplicantQuestion::getType)
+        .anyMatch(type -> type.equals(QuestionType.STATIC));
+  }
+
+  /**
    * Returns a map of contextualized {@link Path}s to all scalars (including metadata scalars) to
    * all questions in this block.
    */
@@ -153,37 +168,65 @@ public final class Block {
   }
 
   /**
-   * Checks whether the block is complete - that is, {@link ApplicantData} has values at all the
-   * paths for all required questions in this block and there are no errors. Note: this cannot be
-   * memoized, since we need to reflect internal changes to ApplicantData.
+   * Return true if any of this blocks questions are required but were skipped and left unanswered
+   * while filling out the current program.
    */
-  public boolean isCompleteWithoutErrors() {
+  public boolean hasRequiredQuestionsThatAreSkippedInCurrentProgram() {
+    return getQuestions().stream()
+        .anyMatch(ApplicantQuestion::isRequiredButWasSkippedInCurrentProgram);
+  }
+
+  /**
+   * Checks whether the block is answered - that is, {@link ApplicantData} has values at all the
+   * paths for all questions in this block and there are no errors. Note: this cannot be memoized,
+   * since we need to reflect internal changes to ApplicantData.
+   *
+   * <p>A block with optional questions that are not answered is not answered.
+   */
+  public boolean isAnsweredWithoutErrors() {
     // TODO(https://github.com/seattle-uat/civiform/issues/551): Stream only required scalar paths
     //  instead of all scalar paths.
-    return isComplete() && !hasErrors();
+    return isAnswered() && !hasErrors();
   }
 
-  /**
-   * A block is complete if all of its {@link ApplicantQuestion}s {@link
-   * PresentsErrors#isAnswered()}.
-   */
-  private boolean isComplete() {
+  /** A block is answered if all of its {@link ApplicantQuestion}s {@link Question#isAnswered()}. */
+  private boolean isAnswered() {
     return getQuestions().stream()
         .map(ApplicantQuestion::errorsPresenter)
-        .allMatch(PresentsErrors::isAnswered);
+        .allMatch(Question::isAnswered);
   }
 
   /**
-   * Checks that this block is complete and that at least one of the questions was answered during
+   * A block is complete with respect to a specific program if all of its questions are answered, or
+   * are optional questions that were skipped in the program.
+   */
+  public boolean isCompletedInProgramWithoutErrors() {
+    return isCompleteInProgram() && !hasErrors();
+  }
+
+  /**
+   * A block is considered complete in a program if 1) It has no questions (this is a bit of a
+   * bugfix hack so that empty blocks the admin hasn't added content to don't prevent applicants
+   * from being able to submit their applications). OR 2) Each of its required questions is answered
+   * AND each of its optional questions is answered or intentionally skipped.
+   */
+  private boolean isCompleteInProgram() {
+    return getQuestions().isEmpty()
+        || getQuestions().stream()
+            .allMatch(question -> question.isAnsweredOrSkippedOptionalInProgram());
+  }
+
+  /**
+   * Checks that this block is answered and that at least one of the questions was answered during
    * the program.
    *
    * @param programId the program ID to check
    * @return true if this block is complete at least one question was updated while filling out the
-   *     program with the given ID; false if this block is incomplete; if it is complete with
-   *     errors; or it is complete and all questions were answered in a different program.
+   *     program with the given ID; false if this block has unanswered questions, has errors, or if
+   *     all of its questions were answered in a different program.
    */
-  public boolean wasCompletedInProgram(long programId) {
-    return isCompleteWithoutErrors()
+  public boolean wasAnsweredInProgram(long programId) {
+    return isAnsweredWithoutErrors()
         && getQuestions().stream()
             .anyMatch(
                 q -> {
@@ -209,8 +252,9 @@ public final class Block {
     return Objects.hash(id, blockDefinition, applicantData);
   }
 
+  /** Blocks are called "Screen"s in user facing UI. */
   @Override
   public String toString() {
-    return "Block [id: " + this.id + "]";
+    return "Screen [id: " + this.id + "]";
   }
 }

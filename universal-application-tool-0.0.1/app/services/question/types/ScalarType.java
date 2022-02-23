@@ -7,7 +7,9 @@ package services.question.types;
  * models.Applicant} JSON column and serialized using {@link services.applicant.ApplicantData}.
  */
 public enum ScalarType {
+  CURRENCY_CENTS, // A currency represented as a number of cents.
   DATE,
+  LIST_OF_STRINGS,
   LONG,
   STRING;
 }

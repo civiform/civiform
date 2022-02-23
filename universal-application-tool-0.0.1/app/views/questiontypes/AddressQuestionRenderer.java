@@ -11,6 +11,7 @@ import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
+/** Renders an address question. */
 public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
 
   public AddressQuestionRenderer(ApplicantQuestion question) {

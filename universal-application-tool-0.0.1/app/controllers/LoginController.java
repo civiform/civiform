@@ -1,5 +1,7 @@
 package controllers;
 
+import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
+
 import auth.AdOidcClient;
 import auth.IdcsOidcClient;
 import com.google.common.base.Preconditions;
@@ -56,7 +58,8 @@ public class LoginController extends Controller {
     if (redirectTo.isEmpty()) {
       return idcsLogin(request);
     }
-    return login(request, idcsClient).addingToSession(request, "redirectTo", redirectTo.get());
+    return login(request, idcsClient)
+        .addingToSession(request, REDIRECT_TO_SESSION_KEY, redirectTo.get());
   }
 
   public Result register(Http.Request request) {
@@ -74,7 +77,7 @@ public class LoginController extends Controller {
     return redirect(registerUrl)
         .addingToSession(
             request,
-            "redirectTo",
+            REDIRECT_TO_SESSION_KEY,
             routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url());
   }
 

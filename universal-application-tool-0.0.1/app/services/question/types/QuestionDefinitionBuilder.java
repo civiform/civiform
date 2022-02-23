@@ -8,11 +8,13 @@ import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.types.IdQuestionDefinition.IdValidationPredicates;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 import services.question.types.NameQuestionDefinition.NameValidationPredicates;
 import services.question.types.QuestionDefinition.ValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
+/** Provides helper functions to build a QuestionDefinition. */
 public class QuestionDefinitionBuilder {
 
   private OptionalLong id = OptionalLong.empty();
@@ -71,7 +73,8 @@ public class QuestionDefinitionBuilder {
     if (questionType.isMultiOptionType()) {
       builder.setQuestionOptions(
           ImmutableList.of(
-              QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "Sample question option"))));
+              QuestionOption.create(
+                  1L, 1L, LocalizedStrings.of(Locale.US, "Sample question option"))));
     }
 
     return builder;
@@ -189,6 +192,10 @@ public class QuestionDefinitionBuilder {
             questionOptions,
             multiOptionValidationPredicates);
 
+      case CURRENCY:
+        return new CurrencyQuestionDefinition(
+            id, name, enumeratorId, description, questionText, questionHelpText);
+
       case DATE:
         return new DateQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText);
@@ -204,6 +211,20 @@ public class QuestionDefinitionBuilder {
       case FILEUPLOAD:
         return new FileUploadQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText);
+
+      case ID:
+        IdValidationPredicates idValidationPredicates = IdValidationPredicates.create();
+        if (!validationPredicatesString.isEmpty()) {
+          idValidationPredicates = IdValidationPredicates.parse(validationPredicatesString);
+        }
+        return new IdQuestionDefinition(
+            id,
+            name,
+            enumeratorId,
+            description,
+            questionText,
+            questionHelpText,
+            idValidationPredicates);
 
       case NAME:
         NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();
@@ -248,6 +269,10 @@ public class QuestionDefinitionBuilder {
         }
         return new EnumeratorQuestionDefinition(
             id, name, enumeratorId, description, questionText, questionHelpText, entityType);
+
+      case STATIC:
+        return new StaticContentQuestionDefinition(
+            id, name, enumeratorId, description, questionText, questionHelpText);
 
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();

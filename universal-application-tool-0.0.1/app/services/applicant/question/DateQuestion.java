@@ -1,5 +1,6 @@
 package services.applicant.question;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -9,7 +10,12 @@ import services.applicant.ValidationErrorMessage;
 import services.question.types.DateQuestionDefinition;
 import services.question.types.QuestionType;
 
-public class DateQuestion implements PresentsErrors {
+/**
+ * Represents a date question in the context of a specific applicant.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
+public class DateQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
 
@@ -21,7 +27,7 @@ public class DateQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public boolean hasConditionErrors() {
     return !getQuestionErrors().isEmpty();
   }
 
@@ -39,6 +45,11 @@ public class DateQuestion implements PresentsErrors {
   public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     // TODO: Need to add some date specific validation.
     return ImmutableSet.of();
+  }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    return ImmutableList.of(getDatePath());
   }
 
   @Override

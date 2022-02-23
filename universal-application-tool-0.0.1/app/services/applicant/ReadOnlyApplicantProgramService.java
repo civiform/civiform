@@ -9,17 +9,21 @@ public interface ReadOnlyApplicantProgramService {
   String getProgramTitle();
 
   /**
-   * Get the {@link Block}s for this program and applicant. This includes all blocks, whether the
-   * block was filled out in this program or a previous program.
+   * Get the {@link Block}s for this program and applicant. This includes all blocks an applicant
+   * must complete for this program, regardless of whether the block was filled out in this program
+   * or a previous program. This will not include blocks that are hidden from the applicant (i.e.
+   * they have a show/hide predicate).
    */
-  ImmutableList<Block> getAllBlocks();
+  ImmutableList<Block> getAllActiveBlocks();
 
   /**
    * Get the {@link Block}s this applicant needs to fill out or has filled out for this program.
    *
    * <p>This list includes any block that is incomplete or has errors (which indicate the applicant
    * needs to make a correction), or any block that was completed while filling out this program
-   * form.
+   * form. If a block has a show/hide predicate that depends on a question that has not been
+   * answered yet (i.e. we cannot determine whether the predicate is true or false), it is included
+   * in this list.
    *
    * <p>This list does not include blocks that were completely filled out in a different program.
    *
@@ -27,6 +31,14 @@ public interface ReadOnlyApplicantProgramService {
    *     need to be completed for this program
    */
   ImmutableList<Block> getInProgressBlocks();
+
+  /**
+   * Get the count of blocks in this program that the applicant should see which have all their
+   * questions answered or optional questions skipped.
+   *
+   * @return the count of active blocks completed in this program.
+   */
+  int getActiveAndCompletedInProgramBlockCount();
 
   /** Get the block with the given block ID */
   Optional<Block> getBlock(String blockId);
@@ -39,8 +51,17 @@ public interface ReadOnlyApplicantProgramService {
   /** Returns the index of the given block in the context of all blocks of the program. */
   int getBlockIndex(String blockId);
 
-  /** Get the program block with the lowest index that has missing answer data if there is one. */
+  /**
+   * Get the program block with the lowest index that has missing answer data if there is one.
+   * Static questions are marked as incomplete.
+   */
   Optional<Block> getFirstIncompleteBlock();
+
+  /**
+   * Get the program block with the lowest index that has missing answer data if there is one.
+   * Static questions are marked as complete.
+   */
+  Optional<Block> getFirstIncompleteBlockExcludingStatic();
 
   /** Returns summary data for each question in this application. */
   ImmutableList<AnswerData> getSummaryData();

@@ -36,6 +36,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Renders a page for viewing all active questions and draft questions. */
 public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
 
@@ -62,7 +63,9 @@ public final class QuestionsListView extends BaseHtmlView {
                 renderSummary(activeAndDraftQuestions));
 
     if (maybeFlash.isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.error(maybeFlash.get()).setDismissible(false));
+      // Right now, we only show success messages when this page is rendered with maybeFlash set,
+      // so we use the success ToastMessage type by default.
+      htmlBundle.addToastMessages(ToastMessage.success(maybeFlash.get()).setDismissible(false));
     }
 
     return layout.renderCentered(htmlBundle);
@@ -93,7 +96,7 @@ public final class QuestionsListView extends BaseHtmlView {
               .withId(String.format("create-%s-question", typeString))
               .withClasses(
                   Styles.BLOCK,
-                  Styles.P_4,
+                  Styles.P_3,
                   Styles.BG_WHITE,
                   Styles.TEXT_GRAY_600,
                   StyleUtils.hover(Styles.BG_GRAY_100, Styles.TEXT_GRAY_800))

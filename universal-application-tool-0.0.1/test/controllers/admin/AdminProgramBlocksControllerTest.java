@@ -151,7 +151,7 @@ public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
     ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
     Request request =
         fakeRequest()
-            .bodyForm(ImmutableMap.of("name", "updated name", "description", "udpated description"))
+            .bodyForm(ImmutableMap.of("name", "updated name", "description", "updated description"))
             .build();
 
     Result result =

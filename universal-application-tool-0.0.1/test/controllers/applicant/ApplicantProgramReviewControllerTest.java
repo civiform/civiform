@@ -31,7 +31,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
     applicant = createApplicantWithMockedProfile();
   }

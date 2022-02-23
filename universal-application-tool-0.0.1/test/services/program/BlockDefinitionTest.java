@@ -53,7 +53,8 @@ public class BlockDefinitionTest {
             .setDescription("Block Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    testQuestionBank.applicantHouseholdMembers().getQuestionDefinition()))
+                    testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                    Optional.empty()))
             .build();
 
     assertThat(blockDefinition.isEnumerator()).isTrue();
@@ -76,7 +77,7 @@ public class BlockDefinitionTest {
             .setDescription("Block Description")
             .addQuestion(
                 ProgramQuestionDefinition.create(
-                    testQuestionBank.applicantFile().getQuestionDefinition()))
+                    testQuestionBank.applicantFile().getQuestionDefinition(), Optional.empty()))
             .build();
 
     assertThat(blockDefinition.isFileUpload()).isTrue();
@@ -94,9 +95,9 @@ public class BlockDefinitionTest {
             .setId(123L)
             .setName("Block Name")
             .setDescription("Block Description")
-            .addQuestion(ProgramQuestionDefinition.create(nameQuestion))
-            .addQuestion(ProgramQuestionDefinition.create(addressQuestion))
-            .addQuestion(ProgramQuestionDefinition.create(colorQuestion))
+            .addQuestion(ProgramQuestionDefinition.create(nameQuestion, Optional.empty()))
+            .addQuestion(ProgramQuestionDefinition.create(addressQuestion, Optional.empty()))
+            .addQuestion(ProgramQuestionDefinition.create(colorQuestion, Optional.empty()))
             .build();
     return block;
   }

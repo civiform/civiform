@@ -1,13 +1,13 @@
 package views.questiontypes;
 
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Comparator;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.SingleSelectQuestion;
 import services.question.LocalizedQuestionOption;
@@ -16,6 +16,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Renders a radio button question. */
 public class RadioButtonQuestionRenderer extends ApplicantQuestionRenderer {
 
   public RadioButtonQuestionRenderer(ApplicantQuestion question) {
@@ -34,13 +35,14 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRenderer {
     Tag radioQuestionFormContent =
         div()
             .with(
-                each(
-                    singleOptionQuestion.getOptions(),
-                    option ->
-                        renderRadioOption(
-                            singleOptionQuestion.getSelectionPath().toString(),
-                            option,
-                            singleOptionQuestion.optionIsSelected(option))));
+                singleOptionQuestion.getOptions().stream()
+                    .sorted(Comparator.comparing(LocalizedQuestionOption::order))
+                    .map(
+                        option ->
+                            renderRadioOption(
+                                singleOptionQuestion.getSelectionPath().toString(),
+                                option,
+                                singleOptionQuestion.optionIsSelected(option))));
 
     return renderInternal(params.messages(), radioQuestionFormContent);
   }

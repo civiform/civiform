@@ -1,21 +1,104 @@
-#!/bin/bash
-pushd $(git rev-parse --show-toplevel)
+#! /usr/bin/env bash
 
-set -e
+# DOC: Run the app locally using Docker for use with running browser tests. Run with --help to print documentation.
 
-bin/pull-image
+source bin/lib.sh
 
-if [ -f ".secrets" ]; then
-  . .secrets
+# Default to continuous integration mode disabled.
+truth::declare_var_false continuous_integration
+
+# Default to using Localstack emulator.
+emulators::set_localstack_emulator_vars
+
+#######################################
+# Process the script's commandline args.
+# Globals:
+#   continuous_integration
+#   already_set_cloud_provider
+#   cloud_provider
+#   emulator
+#   emulator_url
+#   STORAGE_SERVICE_NAME
+# Arguments:
+#   1: "$@" - full args array for the script
+#######################################
+function set_args() {
+  while [ "${1:-}" != "" ]; do
+    case "$1" in
+      "--help")
+        cat <<-EOF
+Usage: bin/run-browser-test-env [options]
+
+Run a local civiform environment for the browser tests to exercise.
+
+Options:
+
+--ci    Run the environment in CI mode. Removes caching for SBT builds and
+        redirects log statements to a .dockerlogs file. Defaults to off.
+
+--aws   Use the AWS emulator (Localstack) for simulating cloud services,
+        cannot be used with --azure flag. This is the default.
+
+--azure Use the Azure emulator (Azurite) for simluating cloud services,
+        cannot be used with --aws flag.
+EOF
+        exit 0
+        ;;
+
+      "--ci")
+        truth::enable continuous_integration
+        ;;
+
+      "--azure")
+        emulators::ensure_only_one_cloud_provider_flag azure
+        emulators::set_azurite_emulator_vars
+        ;;
+
+      "--aws")
+        emulators::ensure_only_one_cloud_provider_flag aws
+        # Already defaulted to AWS.
+       ;;
+    esac
+
+    shift
+  done
+}
+
+set_args "$@"
+
+echo "Making sure we're up to date with the latest dev... "\
+  "set environment variable USE_LOCAL_CIVIFORM=1 to skip"
+bin/pull-image > /dev/null
+
+docker::set_network_name_browser_tests
+
+compose_command="docker-compose --profile ${cloud_provider}"
+compose_command="${compose_command} -f browser-test/browser-test-compose.yml"
+
+if truth::is_disabled continuous_integration; then
+  # If not running in CI, load the dev addition to the browser test compose
+  # this mounts the local SBT cache directories for faster subsequent builds.
+  compose_command="${compose_command} -f browser-test/browser-test-compose.dev.yml"
 fi
 
-# start localstack
-docker-compose -f browser-test/browser-test-compose.yml -f browser-test/browser-test-compose.dev.yml up -d localstack
+compose_command="${compose_command} up"
 
-# wait till localstack running
-bin/localstack/wait http://localhost:6645
+readonly START_EMULATOR_COMMAND="${compose_command} -d ${emulator}"
+echo "Running docker compose to start the cloud emulator:"
+echo "  ${START_EMULATOR_COMMAND}"
 
-# start everything else
-docker-compose -f browser-test/browser-test-compose.yml -f browser-test/browser-test-compose.dev.yml up
+# Start emulator.
+eval "${START_EMULATOR_COMMAND}"
 
-popd
+# Wait until the emulator is running.
+"bin/${emulator}/wait" "${emulator_url}"
+
+if truth::is_enabled continuous_integration; then
+  compose_command="${compose_command} > .dockerlogs 2>&1 &"
+fi
+
+echo "Running docker compose to start the CiviForm environment:"
+echo "  ${compose_command}"
+
+# Start everything else.
+eval "${compose_command}"

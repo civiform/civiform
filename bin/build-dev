@@ -1,11 +1,19 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
-set -e
-set +x
-export AWS_DEFAULT_REGION=us-west-2
-REGION=us-west-2
+# DOC: Build a new development docker image and push to Docker Hub.
 
-aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/t1q6b4h2
-docker build -t civiform-dev --cache-from public.ecr.aws/t1q6b4h2/civiform-dev:latest --build-arg BUILDKIT_INLINE_CACHE=1 .
-docker tag civiform-dev:latest public.ecr.aws/t1q6b4h2/civiform-dev:latest
-docker push public.ecr.aws/t1q6b4h2/civiform-dev:latest
+source bin/lib.sh
+
+# Build the new development image.
+docker build \
+  -t civiform-dev \
+  --cache-from civiform/civiform-browser-test:latest \
+  --build-arg BUILDKIT_INLINE_CACHE=1 \
+  .
+
+docker::do_dockerhub_login
+
+docker tag civiform-dev:latest civiform/civiform-dev:latest
+
+# Push the new image to the Docker Hub registry.
+docker push civiform/civiform-dev:latest

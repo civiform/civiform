@@ -1,5 +1,6 @@
 package services.applicant.question;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.MessageKey;
@@ -8,7 +9,12 @@ import services.applicant.ValidationErrorMessage;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionType;
 
-public class NumberQuestion implements PresentsErrors {
+/**
+ * Represents a number question in the context of a specific applicant.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
+public class NumberQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<Long> numberValue;
@@ -19,7 +25,12 @@ public class NumberQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public ImmutableList<Path> getAllPaths() {
+    return ImmutableList.of(getNumberPath());
+  }
+
+  @Override
+  public boolean hasConditionErrors() {
     return !getQuestionErrors().isEmpty();
   }
 

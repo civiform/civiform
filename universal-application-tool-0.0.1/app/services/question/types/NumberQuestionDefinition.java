@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 
+/** Defines a number question. */
 public class NumberQuestionDefinition extends QuestionDefinition {
 
   public NumberQuestionDefinition(

@@ -8,6 +8,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.p;
 
+import auth.CiviFormProfile;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.Tag;
@@ -25,7 +26,9 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Renders a page for program admins to view programs they administer. */
 public class ProgramAdministratorProgramListView extends BaseHtmlView {
+
   private final AdminLayout layout;
   private final String baseUrl;
 
@@ -35,7 +38,16 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
     this.baseUrl = checkNotNull(config).getString("base_url");
   }
 
-  public Content render(ActiveAndDraftPrograms programs, List<String> authorizedPrograms) {
+  public Content render(
+      ActiveAndDraftPrograms programs,
+      List<String> authorizedPrograms,
+      Optional<CiviFormProfile> civiformProfile) {
+    if (civiformProfile.isPresent()
+        && civiformProfile.get().isProgramAdmin()
+        && !civiformProfile.get().isCiviFormAdmin()) {
+      layout.setOnlyProgramAdminType();
+    }
+
     String title = "Your programs";
     Tag contentDiv =
         div()
@@ -52,6 +64,7 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
                                     programs.getDraftProgramDefinition(name)))));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
+
     return layout.renderCentered(htmlBundle);
   }
 
@@ -66,14 +79,15 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
   public Tag renderProgramListItem(
       Optional<ProgramDefinition> activeProgram, Optional<ProgramDefinition> draftProgram) {
     String programStatusText = extractProgramStatusText(draftProgram, activeProgram);
-    String lastEditText = "Last updated 2 hours ago."; // TODO: Need to generate this.
+    // String lastEditText = "Last updated 2 hours ago."; // TODO(Issue #1657): Need to generate
+    // this.
     String viewApplicationsLinkText = "Applications →";
 
     ProgramDefinition displayProgram = getDisplayProgram(draftProgram, activeProgram);
 
     String programTitleText = displayProgram.adminName();
     String programDescriptionText = displayProgram.adminDescription();
-    String blockCountText = "Blocks: " + displayProgram.getBlockCount();
+    String blockCountText = "Screens: " + displayProgram.getBlockCount();
     String questionCountText = "Questions: " + displayProgram.getQuestionCount();
 
     Tag topContent =
@@ -99,7 +113,8 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
 
     Tag bottomContent =
         div(
-                p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
+                // TODO(Issue #1657): Create accurate lastEditText and readd.
+                // p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
                 maybeRenderViewApplicationsLink(viewApplicationsLinkText, activeProgram))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);

@@ -30,6 +30,16 @@ public class QuestionAnswererTest {
   }
 
   @Test
+  public void answerCurrencyQuestion() {
+    Path path = Path.create("applicant.currency_cents");
+    QuestionAnswerer.answerCurrencyQuestion(applicantData, path, "2.33");
+
+    assertThat(applicantData.readCurrency(path.join(Scalar.CURRENCY_CENTS))).isPresent();
+    assertThat(applicantData.readCurrency(path.join(Scalar.CURRENCY_CENTS)).get().getCents())
+        .isEqualTo(233);
+  }
+
+  @Test
   public void answerFileQuestion() {
     Path path = Path.create("applicant.file");
     QuestionAnswerer.answerFileQuestion(applicantData, path, "file key");
@@ -43,7 +53,7 @@ public class QuestionAnswererTest {
     QuestionAnswerer.answerMultiSelectQuestion(applicantData, path, 0, 5L);
     QuestionAnswerer.answerMultiSelectQuestion(applicantData, path, 1, 6L);
 
-    assertThat(applicantData.readList(path.join(Scalar.SELECTION)))
+    assertThat(applicantData.readList(path.join(Scalar.SELECTIONS)))
         .contains(ImmutableList.of(5L, 6L));
   }
 
@@ -79,6 +89,14 @@ public class QuestionAnswererTest {
     QuestionAnswerer.answerSingleSelectQuestion(applicantData, path, 5L);
 
     assertThat(applicantData.readLong(path.join(Scalar.SELECTION))).contains(5L);
+  }
+
+  @Test
+  public void answerIdQuestion() {
+    Path path = Path.create("applicant.id");
+    QuestionAnswerer.answerIdQuestion(applicantData, path, "123");
+
+    assertThat(applicantData.readString(path.join(Scalar.ID))).contains("123");
   }
 
   @Test

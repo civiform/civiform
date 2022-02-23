@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +20,7 @@ public class SingleSelectQuestionTest {
 
   private static final DropdownQuestionDefinition dropdownQuestionDefinition =
       new DropdownQuestionDefinition(
+          OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",
@@ -48,8 +50,8 @@ public class SingleSelectQuestionTest {
 
     assertThat(singleSelectQuestion.getOptions())
         .containsOnly(
-            LocalizedQuestionOption.create(1L, "option 1", Locale.US),
-            LocalizedQuestionOption.create(2L, "option 2", Locale.US));
+            LocalizedQuestionOption.create(1L, 1L, "option 1", Locale.US),
+            LocalizedQuestionOption.create(2L, 2L, "option 2", Locale.US));
     assertThat(applicantQuestion.hasErrors()).isFalse();
   }
 
@@ -63,9 +65,9 @@ public class SingleSelectQuestionTest {
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
     assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(singleSelectQuestion.hasQuestionErrors()).isFalse();
+    assertThat(singleSelectQuestion.hasConditionErrors()).isFalse();
     assertThat(singleSelectQuestion.getSelectedOptionValue())
-        .hasValue(LocalizedQuestionOption.create(1L, "option 1", Locale.US));
+        .hasValue(LocalizedQuestionOption.create(1L, 1L, "option 1", Locale.US));
   }
 
   @Test
@@ -78,7 +80,7 @@ public class SingleSelectQuestionTest {
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
     assertThat(singleSelectQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(singleSelectQuestion.hasQuestionErrors()).isFalse();
+    assertThat(singleSelectQuestion.hasConditionErrors()).isFalse();
     assertThat(singleSelectQuestion.getSelectedOptionValue()).isEmpty();
   }
 

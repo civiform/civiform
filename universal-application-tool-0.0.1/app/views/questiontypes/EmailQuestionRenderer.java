@@ -6,6 +6,7 @@ import services.applicant.question.EmailQuestion;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
+/** Renders an email question. */
 public class EmailQuestionRenderer extends ApplicantQuestionRenderer {
 
   public EmailQuestionRenderer(ApplicantQuestion question) {
@@ -26,6 +27,7 @@ public class EmailQuestionRenderer extends ApplicantQuestionRenderer {
             .setFieldName(emailQuestion.getEmailPath().toString())
             .setValue(emailQuestion.getEmailValue().orElse(""))
             .setFieldErrors(params.messages(), emailQuestion.getQuestionErrors())
+            .setScreenReaderText(question.getQuestionText())
             .getContainer();
 
     return renderInternal(params.messages(), questionFormContent, false);

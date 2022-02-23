@@ -11,12 +11,16 @@ import java.util.Locale;
 public abstract class LocalizedQuestionOption {
 
   /** Create a LocalizedQuestionOption. */
-  public static LocalizedQuestionOption create(long id, String optionText, Locale locale) {
-    return new AutoValue_LocalizedQuestionOption(id, optionText, locale);
+  public static LocalizedQuestionOption create(
+      long id, long order, String optionText, Locale locale) {
+    return new AutoValue_LocalizedQuestionOption(id, order, optionText, locale);
   }
 
   /** The id for this option. */
   public abstract long id();
+
+  /** The order of the option. */
+  public abstract long order();
 
   /** The text strings to display to the user. */
   public abstract String optionText();

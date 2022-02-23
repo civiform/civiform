@@ -7,16 +7,21 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import models.Question;
+import models.QuestionTag;
 import models.Version;
 import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.export.ExporterService;
 import services.question.exceptions.InvalidUpdateException;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 
+/** Implementation class for {@link QuestionService} interface. */
 public final class QuestionServiceImpl implements QuestionService {
 
   private final QuestionRepository questionRepository;
@@ -50,12 +55,15 @@ public final class QuestionServiceImpl implements QuestionService {
 
   @Override
   public CompletionStage<ReadOnlyQuestionService> getReadOnlyQuestionService() {
-    return listQuestionDefinitionsAsync()
-        .thenApply(
-            questionDefinitions ->
-                new ReadOnlyQuestionServiceImpl(
-                    versionRepositoryProvider.get().getActiveVersion(),
-                    versionRepositoryProvider.get().getDraftVersion()));
+    return CompletableFuture.completedStage(
+        new ReadOnlyCurrentQuestionServiceImpl(
+            versionRepositoryProvider.get().getActiveVersion(),
+            versionRepositoryProvider.get().getDraftVersion()));
+  }
+
+  @Override
+  public ReadOnlyQuestionService getReadOnlyVersionedQuestionService(Version version) {
+    return new ReadOnlyVersionedQuestionServiceImpl(version);
   }
 
   @Override
@@ -129,16 +137,49 @@ public final class QuestionServiceImpl implements QuestionService {
       throw new InvalidUpdateException("Did not find question in draft version.");
     }
     question.get().save();
+    versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(id);
   }
 
-  private CompletionStage<ImmutableList<QuestionDefinition>> listQuestionDefinitionsAsync() {
-    return questionRepository
-        .listQuestions()
-        .thenApply(
-            questions ->
-                questions.stream()
-                    .map(question -> question.getQuestionDefinition())
-                    .collect(ImmutableList.toImmutableList()));
+  @Override
+  public ImmutableList<QuestionDefinition> getQuestionsForTag(QuestionTag tag) {
+    return questionRepository.getAllQuestionsForTag(tag);
+  }
+
+  @Override
+  public void setExportState(QuestionDefinition questionDefinition, QuestionTag questionExportState)
+      throws QuestionNotFoundException, InvalidUpdateException {
+    if (ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(
+        questionDefinition.getQuestionType())) {
+      return;
+    }
+
+    Optional<Question> questionMaybe =
+        questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
+    if (questionMaybe.isEmpty()) {
+      throw new QuestionNotFoundException(questionDefinition.getId());
+    }
+    Question question = questionMaybe.get();
+    switch (questionExportState) {
+      case DEMOGRAPHIC:
+        question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
+        question.removeTag(QuestionTag.NON_DEMOGRAPHIC);
+        question.addTag(QuestionTag.DEMOGRAPHIC);
+        break;
+      case DEMOGRAPHIC_PII:
+        question.removeTag(QuestionTag.DEMOGRAPHIC);
+        question.removeTag(QuestionTag.NON_DEMOGRAPHIC);
+        question.addTag(QuestionTag.DEMOGRAPHIC_PII);
+        break;
+      case NON_DEMOGRAPHIC:
+        question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
+        question.removeTag(QuestionTag.DEMOGRAPHIC);
+        question.addTag(QuestionTag.NON_DEMOGRAPHIC);
+        break;
+      default:
+        throw new InvalidUpdateException(
+            String.format("Unknown question export state: %s", questionExportState));
+    }
+    question.save();
   }
 
   /**

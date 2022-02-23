@@ -1,11 +1,14 @@
 package repository;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import com.google.common.collect.ImmutableSet;
+import io.ebean.DB;
+import io.ebean.Database;
 import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
@@ -21,39 +24,46 @@ import models.Question;
 import models.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.db.ebean.EbeanConfig;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.predicate.AndNode;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.OrNode;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
 
 /** A repository object for dealing with versioning of questions and programs. */
 public class VersionRepository {
 
-  private final EbeanServer ebeanServer;
+  private final Database database;
   private final Logger LOG = LoggerFactory.getLogger(VersionRepository.class);
   private final ProgramRepository programRepository;
 
   @Inject
-  public VersionRepository(EbeanConfig ebeanConfig, ProgramRepository programRepository) {
-    this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
+  public VersionRepository(ProgramRepository programRepository) {
+    this.database = DB.getDefault();
     this.programRepository = checkNotNull(programRepository);
   }
 
   /**
-   * Publish a new version of all programs and all questions. All DRAFT programs will become ACTIVE,
-   * and all ACTIVE programs without a draft will be copied to the next version.
+   * Publish a new version of all programs and questions. All DRAFT programs/questions will become
+   * ACTIVE, and all ACTIVE programs/questions without a draft will be copied to the next version.
    */
   public void publishNewSynchronizedVersion() {
     try {
-      ebeanServer.beginTransaction();
+      database.beginTransaction();
       Version draft = getDraftVersion();
       Version active = getActiveVersion();
       Preconditions.checkState(
           draft.getPrograms().size() > 0, "Must have at least 1 program in the draft version.");
+      // Associate any active programs that aren't present in the draft with the draft.
       active.getPrograms().stream()
+          // Exclude programs deleted in the draft.
           .filter(
               activeProgram ->
                   !draft.programIsTombstoned(activeProgram.getProgramDefinition().adminName()))
+          // Exclude programs that are in the draft already.
           .filter(
               activeProgram ->
                   draft.getPrograms().stream()
@@ -63,15 +73,20 @@ public class VersionRepository {
                                   .getProgramDefinition()
                                   .adminName()
                                   .equals(draftProgram.getProgramDefinition().adminName())))
+          // For each active program not associated with the draft, associate it with the draft.
           .forEach(
               activeProgramNotInDraft -> {
                 activeProgramNotInDraft.addVersion(draft);
                 activeProgramNotInDraft.save();
               });
+
+      // Associate any active questions that aren't present in the draft with the draft.
       active.getQuestions().stream()
+          // Exclude questions deleted in the draft.
           .filter(
               activeQuestion ->
                   !draft.questionIsTombstoned(activeQuestion.getQuestionDefinition().getName()))
+          // Exclude questions that are in the draft already.
           .filter(
               activeQuestion ->
                   draft.getQuestions().stream()
@@ -81,26 +96,28 @@ public class VersionRepository {
                                   .getQuestionDefinition()
                                   .getName()
                                   .equals(draftQuestion.getQuestionDefinition().getName())))
+          // For each active question not associated with the draft, associate it with the draft.
           .forEach(
               activeQuestionNotInDraft -> {
                 activeQuestionNotInDraft.addVersion(draft);
                 activeQuestionNotInDraft.save();
               });
+      // Move forward the ACTIVE version.
       active.setLifecycleStage(LifecycleStage.OBSOLETE);
       draft.setLifecycleStage(LifecycleStage.ACTIVE);
       active.save();
       draft.save();
       draft.refresh();
-      ebeanServer.commitTransaction();
+      database.commitTransaction();
     } finally {
-      ebeanServer.endTransaction();
+      database.endTransaction();
     }
   }
 
   /** Get the current draft version. Creates it if one does not exist. */
   public Version getDraftVersion() {
     Optional<Version> version =
-        ebeanServer
+        database
             .find(Version.class)
             .where()
             .eq("lifecycle_stage", LifecycleStage.DRAFT)
@@ -120,12 +137,11 @@ public class VersionRepository {
       // are very rare.  It is unlikely this will represent a real performance penalty
       // for any applicant - or even any admin, really.
       Transaction transaction =
-          ebeanServer.beginTransaction(
-              TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
+          database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
       try {
         Version newDraftVersion = new Version(LifecycleStage.DRAFT);
-        ebeanServer.insert(newDraftVersion);
-        ebeanServer
+        database.insert(newDraftVersion);
+        database
             .find(Version.class)
             .forUpdate()
             .where()
@@ -143,7 +159,7 @@ public class VersionRepository {
       } finally {
         // This may come after a prior call to `transaction.end` in the event of a
         // precondition failure - this is okay, since it a double-call to `end` on
-        // a particular transaction.  Only double calls to ebeanServer.endTransaction
+        // a particular transaction.  Only double calls to database.endTransaction
         // must be avoided.
         transaction.end();
       }
@@ -151,7 +167,7 @@ public class VersionRepository {
   }
 
   public Version getActiveVersion() {
-    return ebeanServer
+    return database
         .find(Version.class)
         .where()
         .eq("lifecycle_stage", LifecycleStage.ACTIVE)
@@ -160,7 +176,7 @@ public class VersionRepository {
 
   private Optional<Question> getLatestVersionOfQuestion(long questionId) {
     String questionName =
-        ebeanServer.find(Question.class).setId(questionId).select("name").findSingleAttribute();
+        database.find(Question.class).setId(questionId).select("name").findSingleAttribute();
     Optional<Question> draftQuestion =
         getDraftVersion().getQuestions().stream()
             .filter(question -> question.getQuestionDefinition().getName().equals(questionName))
@@ -186,12 +202,12 @@ public class VersionRepository {
     ProgramDefinition.Builder updatedDefinition =
         draftProgram.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
     for (BlockDefinition block : draftProgram.getProgramDefinition().blockDefinitions()) {
-      LOG.trace("Updating block {}.", block.id());
-      updatedDefinition.addBlockDefinition(updateQuestionVersions(block));
+      LOG.trace("Updating screen (block) {}.", block.id());
+      updatedDefinition.addBlockDefinition(updateQuestionVersions(draftProgram.id, block));
     }
     draftProgram = new Program(updatedDefinition.build());
     LOG.trace("Submitting update.");
-    ebeanServer.update(draftProgram);
+    database.update(draftProgram);
     draftProgram.refresh();
   }
 
@@ -215,17 +231,58 @@ public class VersionRepository {
         .anyMatch(draftProgram -> draftProgram.id.equals(program.id));
   }
 
-  private BlockDefinition updateQuestionVersions(BlockDefinition block) {
+  private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {
     BlockDefinition.Builder updatedBlock =
         block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of());
+    // Update questions contained in this block.
     for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
       Optional<Question> updatedQuestion = getLatestVersionOfQuestion(question.id());
       LOG.trace(
           "Updating question ID {} to new ID {}.", question.id(), updatedQuestion.orElseThrow().id);
       updatedBlock.addQuestion(
-          ProgramQuestionDefinition.create(updatedQuestion.orElseThrow().getQuestionDefinition()));
+          question.loadCompletely(
+              programDefinitionId, updatedQuestion.orElseThrow().getQuestionDefinition()));
+    }
+    // Update questions referenced in this block's predicate(s)
+    if (block.visibilityPredicate().isPresent()) {
+      PredicateDefinition oldPredicate = block.visibilityPredicate().get();
+      updatedBlock.setVisibilityPredicate(
+          PredicateDefinition.create(
+              updatePredicateNode(oldPredicate.rootNode()), oldPredicate.action()));
+    }
+    if (block.optionalPredicate().isPresent()) {
+      PredicateDefinition oldPredicate = block.optionalPredicate().get();
+      updatedBlock.setOptionalPredicate(
+          Optional.of(
+              PredicateDefinition.create(
+                  updatePredicateNode(oldPredicate.rootNode()), oldPredicate.action())));
     }
     return updatedBlock.build();
+  }
+
+  // Update the referenced question IDs in all leaf nodes. Since nodes are immutable, we
+  // recursively recreate the tree with updated leaf nodes.
+  @VisibleForTesting
+  protected PredicateExpressionNode updatePredicateNode(PredicateExpressionNode current) {
+    switch (current.getType()) {
+      case AND:
+        AndNode and = current.getAndNode();
+        ImmutableSet<PredicateExpressionNode> updatedAndChildren =
+            and.children().stream().map(this::updatePredicateNode).collect(toImmutableSet());
+        return PredicateExpressionNode.create(AndNode.create(updatedAndChildren));
+      case OR:
+        OrNode or = current.getOrNode();
+        ImmutableSet<PredicateExpressionNode> updatedOrChildren =
+            or.children().stream().map(this::updatePredicateNode).collect(toImmutableSet());
+        return PredicateExpressionNode.create(OrNode.create(updatedOrChildren));
+      case LEAF_OPERATION:
+        LeafOperationExpressionNode leaf = current.getLeafNode();
+        Optional<Question> updated = getLatestVersionOfQuestion(leaf.questionId());
+        return PredicateExpressionNode.create(
+            leaf.toBuilder().setQuestionId(updated.orElseThrow().id).build());
+      default:
+        return current;
+    }
   }
 
   public void updateProgramsForNewDraftQuestion(long oldId) {
@@ -244,13 +301,13 @@ public class VersionRepository {
   }
 
   public List<Version> listAllVersions() {
-    return ebeanServer.find(Version.class).findList();
+    return database.find(Version.class).findList();
   }
 
   public void setLive(long versionId) {
     Version draftVersion = getDraftVersion();
     Version activeVersion = getActiveVersion();
-    Version newActiveVersion = ebeanServer.find(Version.class).setId(versionId).findOne();
+    Version newActiveVersion = database.find(Version.class).setId(versionId).findOne();
     newActiveVersion.setLifecycleStage(LifecycleStage.ACTIVE);
     newActiveVersion.save();
     activeVersion.setLifecycleStage(LifecycleStage.OBSOLETE);

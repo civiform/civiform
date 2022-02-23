@@ -89,6 +89,7 @@ public class QuestionTranslationView extends TranslationFormView {
         EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) question;
         return enumeratorQuestionFields(enumerator.getEntityType(), toUpdate);
       case ADDRESS: // fallthrough intended
+      case CURRENCY: // fallthrough intended
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended
       case NUMBER: // fallthrough intended

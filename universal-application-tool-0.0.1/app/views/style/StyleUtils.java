@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/** Utility class for applying styles. */
 public class StyleUtils {
   public static String EVEN = "even";
   public static String FOCUS = "focus";
@@ -91,6 +92,22 @@ public class StyleUtils {
 
   public static String responsiveLarge(ImmutableList<String> styles) {
     return applyUtilityClass(RESPONSIVE_LG, styles);
+  }
+
+  public static String responsiveXLarge(String... styles) {
+    return applyUtilityClass(RESPONSIVE_XL, styles);
+  }
+
+  public static String responsiveXLarge(ImmutableList<String> styles) {
+    return applyUtilityClass(RESPONSIVE_XL, styles);
+  }
+
+  public static String responsive2XLarge(String... styles) {
+    return applyUtilityClass(RESPONSIVE_2XL, styles);
+  }
+
+  public static String responsive2XLarge(ImmutableList<String> styles) {
+    return applyUtilityClass(RESPONSIVE_2XL, styles);
   }
 
   public static String joinStyles(String... styles) {

@@ -2,20 +2,27 @@ package forms;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import models.Question;
+import models.QuestionTag;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
+import services.export.ExporterService;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
+/** Superclass for all forms updating a question. */
 public abstract class QuestionForm {
   private String questionName;
   private String questionDescription;
   private Optional<Long> enumeratorId;
   private String questionText;
   private String questionHelpText;
+  private String questionExportState;
+  private QuestionDefinition qd;
 
   protected QuestionForm() {
     questionName = "";
@@ -23,9 +30,12 @@ public abstract class QuestionForm {
     enumeratorId = Optional.empty();
     questionText = "";
     questionHelpText = "";
+    questionExportState = "";
   }
 
   protected QuestionForm(QuestionDefinition qd) {
+    this.qd = qd;
+    questionExportState = null;
     questionName = qd.getName();
     questionDescription = qd.getDescription();
     enumeratorId = qd.getEnumeratorId();
@@ -105,5 +115,32 @@ public abstract class QuestionForm {
             .setQuestionText(questionTextMap)
             .setQuestionHelpText(questionHelpTextMap);
     return builder;
+  }
+
+  public void setQuestionExportState(String questionExportState) {
+    this.questionExportState = questionExportState;
+  }
+
+  public void setQuestionExportStateFromTags(List<QuestionTag> questionTags) {
+    if (questionTags.contains(QuestionTag.DEMOGRAPHIC)) {
+      this.questionExportState = QuestionTag.DEMOGRAPHIC.getValue();
+    } else if (questionTags.contains(QuestionTag.DEMOGRAPHIC_PII)) {
+      this.questionExportState = QuestionTag.DEMOGRAPHIC_PII.getValue();
+    } else {
+      questionExportState = QuestionTag.NON_DEMOGRAPHIC.getValue();
+    }
+  }
+
+  public String getQuestionExportState() {
+    if (ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(this.getQuestionType())) {
+      return QuestionTag.NON_DEMOGRAPHIC.getValue();
+    }
+
+    if (this.questionExportState == null) {
+      Question q = new Question(this.qd);
+      q.refresh();
+      this.setQuestionExportStateFromTags(q.getQuestionTags());
+    }
+    return this.questionExportState;
   }
 }

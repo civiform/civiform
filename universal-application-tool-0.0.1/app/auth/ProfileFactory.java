@@ -7,34 +7,34 @@ import models.Account;
 import models.Applicant;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
-import repository.ProgramRepository;
 import repository.VersionRepository;
 
+/**
+ * This class helps create {@link CiviFormProfile} and {@link CiviFormProfileData} objects for
+ * existing and new accounts. New accounts are persisted in database.
+ */
 public class ProfileFactory {
 
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
-  private Provider<ProgramRepository> programRepositoryProvider;
   private Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
   public ProfileFactory(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
-      Provider<ProgramRepository> programRepositoryProvider,
       Provider<VersionRepository> versionRepositoryProvider) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
-    this.programRepositoryProvider = Preconditions.checkNotNull(programRepositoryProvider);
     this.versionRepositoryProvider = Preconditions.checkNotNull(versionRepositoryProvider);
   }
 
-  public UatProfileData createNewApplicant() {
-    return create(Roles.ROLE_APPLICANT);
+  public CiviFormProfileData createNewApplicant() {
+    return create(new Roles[] {Roles.ROLE_APPLICANT});
   }
 
-  public UatProfileData createNewAdmin() {
-    UatProfileData p = create(Roles.ROLE_UAT_ADMIN);
+  public CiviFormProfileData createNewAdmin() {
+    CiviFormProfileData p = create(new Roles[] {Roles.ROLE_CIVIFORM_ADMIN});
     wrapProfileData(p)
         .getAccount()
         .thenAccept(
@@ -46,39 +46,67 @@ public class ProfileFactory {
     return p;
   }
 
-  public UatProfile wrapProfileData(UatProfileData p) {
-    return new UatProfile(dbContext, httpContext, p, programRepositoryProvider.get());
+  public CiviFormProfile wrapProfileData(CiviFormProfileData p) {
+    return new CiviFormProfile(dbContext, httpContext, p);
   }
 
-  private UatProfileData create(Roles role) {
-    UatProfileData p = new UatProfileData();
+  /* One admin can have multiple roles; they can be both a program admin and a civiform admin. */
+  private CiviFormProfileData create(Roles[] roleList) {
+    CiviFormProfileData p = new CiviFormProfileData();
     p.init(dbContext);
-    p.addRole(role.toString());
+    for (Roles role : roleList) {
+      p.addRole(role.toString());
+    }
     return p;
   }
 
-  public UatProfile wrap(Account account) {
-    return wrapProfileData(new UatProfileData(account.id));
+  public CiviFormProfile wrap(Account account) {
+    return wrapProfileData(new CiviFormProfileData(account.id));
   }
 
-  public UatProfile wrap(Applicant applicant) {
-    return wrapProfileData(new UatProfileData(applicant.getAccount().id));
+  public CiviFormProfile wrap(Applicant applicant) {
+    return wrapProfileData(new CiviFormProfileData(applicant.getAccount().id));
   }
 
-  public UatProfileData createNewProgramAdmin() {
-    return create(Roles.ROLE_PROGRAM_ADMIN);
+  public CiviFormProfileData createNewProgramAdmin() {
+    return create(new Roles[] {Roles.ROLE_PROGRAM_ADMIN});
   }
 
   /**
    * This creates a program admin who is automatically the admin of all programs currently live,
    * with a fake email address.
    */
-  public UatProfileData createFakeProgramAdmin() {
-    UatProfileData p = create(Roles.ROLE_PROGRAM_ADMIN);
+  public CiviFormProfileData createFakeProgramAdmin() {
+    CiviFormProfileData p = create(new Roles[] {Roles.ROLE_PROGRAM_ADMIN});
     wrapProfileData(p)
         .getAccount()
         .thenAccept(
             account -> {
+              versionRepositoryProvider
+                  .get()
+                  .getActiveVersion()
+                  .getPrograms()
+                  .forEach(
+                      program -> account.addAdministeredProgram(program.getProgramDefinition()));
+              account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));
+              account.save();
+            })
+        .join();
+    return p;
+  }
+
+  /**
+   * This creates an admin who is both a civiform admin and a program admin of all currently live
+   * programs with a fake email address.
+   */
+  public CiviFormProfileData createFakeDualAdmin() {
+    CiviFormProfileData p =
+        create(new Roles[] {Roles.ROLE_PROGRAM_ADMIN, Roles.ROLE_CIVIFORM_ADMIN});
+    wrapProfileData(p)
+        .getAccount()
+        .thenAccept(
+            account -> {
+              account.setGlobalAdmin(true);
               versionRepositoryProvider
                   .get()
                   .getActiveVersion()

@@ -1,6 +1,7 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.img;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.script;
 
@@ -11,8 +12,6 @@ import javax.inject.Inject;
 /** Utility class for accessing stateful view dependencies. */
 public final class ViewUtils {
   private final AssetsFinder assetsFinder;
-
-  public static final String POST = "post";
 
   @Inject
   ViewUtils(AssetsFinder assetsFinder) {
@@ -30,11 +29,23 @@ public final class ViewUtils {
   }
 
   /**
+   * Generates a script tag for loading a javascript asset that is provided by a web JAR and found
+   * at the given asset route.
+   */
+  public Tag makeWebJarsTag(String assetsRoute) {
+    return script().withSrc(assetsFinder.path(assetsRoute));
+  }
+
+  /**
    * Generates an HTML link tag for loading the CSS file found at public/stylesheets/[filename].css.
    */
   Tag makeLocalCssTag(String filename) {
     return link()
         .withHref(assetsFinder.path("stylesheets/" + filename + ".css"))
         .withRel("stylesheet");
+  }
+
+  public Tag makeLocalImageTag(String filename) {
+    return img().withSrc(assetsFinder.path("Images/" + filename + ".png"));
   }
 }

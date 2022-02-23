@@ -8,6 +8,7 @@ import services.applicant.question.DateQuestion;
 import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
+/** Renders a date question. */
 public class DateQuestionRenderer extends ApplicantQuestionRenderer {
 
   public DateQuestionRenderer(ApplicantQuestion question) {
@@ -24,7 +25,9 @@ public class DateQuestionRenderer extends ApplicantQuestionRenderer {
     DateQuestion dateQuestion = question.createDateQuestion();
 
     FieldWithLabel dateField =
-        FieldWithLabel.date().setFieldName(dateQuestion.getDatePath().toString());
+        FieldWithLabel.date()
+            .setFieldName(dateQuestion.getDatePath().toString())
+            .setScreenReaderText(question.getQuestionText());
     if (dateQuestion.getDateValue().isPresent()) {
       Optional<String> value = dateQuestion.getDateValue().map(LocalDate::toString);
       dateField.setValue(value);

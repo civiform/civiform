@@ -32,7 +32,7 @@ public class MultiOptionQuestionTranslationFormTest {
         (RadioButtonQuestionDefinition) form.builderWithUpdates(question, Locale.CHINA).build();
 
     assertThat(updated.getOptionsForLocale(Locale.CHINA))
-        .containsExactly(LocalizedQuestionOption.create(1L, "new", Locale.CHINA));
+        .containsExactly(LocalizedQuestionOption.create(1L, 1L, "new", Locale.CHINA));
   }
 
   @Test
@@ -53,6 +53,6 @@ public class MultiOptionQuestionTranslationFormTest {
         (RadioButtonQuestionDefinition) form.builderWithUpdates(question, Locale.FRANCE).build();
 
     assertThat(updated.getOptionsForLocale(Locale.FRANCE))
-        .containsExactly(LocalizedQuestionOption.create(1L, "new", Locale.FRANCE));
+        .containsExactly(LocalizedQuestionOption.create(1L, 1L, "new", Locale.FRANCE));
   }
 }

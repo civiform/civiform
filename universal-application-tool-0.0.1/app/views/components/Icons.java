@@ -3,12 +3,19 @@ package views.components;
 import j2html.tags.ContainerTag;
 import services.question.types.QuestionType;
 
+/** Class to hold constants for icons and provide methods for rendering SVG components. */
 public class Icons {
   public static final String ADDRESS_SVG_PATH =
       "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38"
           + " 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z";
+  public static final String ANNOTATION_SVG_PATH =
+      "M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z";
   // Check
   public static final String CHECKBOX_SVG_PATH = "M5 13l4 4L19 7";
+  public static final String CURRENCY_SVG_PATH =
+      "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3"
+          + " 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11"
+          + " 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z";
   public static final String DATE_SVG_PATH =
       "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z";
   // Menu
@@ -24,6 +31,11 @@ public class Icons {
       "M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0"
           + " 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0"
           + " 01-1.414 0z";
+  public static final String ID_SVG_PATH =
+      "M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118"
+          + "0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839"
+          + "1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364"
+          + "0-1.457.39-2.823 1.07-4";
   public static final String NAME_SVG_PATH =
       "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34"
           + " 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99"
@@ -36,6 +48,8 @@ public class Icons {
           + " 100-2H7zm2 1a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm4-4a1 1 0 100 2h.01a1 1 0"
           + " 100-2H13zM9 9a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zM7 8a1 1 0 000 2h.01a1 1 0"
           + " 000-2H7z";
+  public static final String PLUS_SVG_PATH =
+      "M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z";
   public static final String SEARCH_SVG_PATH =
       "M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23"
           + "  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92"
@@ -57,6 +71,8 @@ public class Icons {
           + " 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012"
           + " 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z";
 
+  public static final String ACCORDION_BUTTON_PATH = "M19 9l-7 7-7-7";
+
   public static ContainerTag questionTypeSvg(QuestionType type, int size) {
     return questionTypeSvg(type, size, size);
   }
@@ -69,6 +85,12 @@ public class Icons {
         break;
       case CHECKBOX:
         return svg(Icons.CHECKBOX_SVG_PATH, width, height)
+            .attr("fill", "none")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2");
+      case CURRENCY:
+        return svg(Icons.CURRENCY_SVG_PATH, width, height)
             .attr("fill", "none")
             .attr("stroke-linecap", "round")
             .attr("stroke-linejoin", "round")
@@ -94,6 +116,8 @@ public class Icons {
         return svg(Icons.FILEUPLOAD_SVG_PATH, width, height)
             .attr("fill-rule", "evenodd")
             .attr("clip-rule", "evenodd");
+      case ID:
+        return svg(Icons.ID_SVG_PATH, width, height);
       case NAME:
         iconPath = Icons.NAME_SVG_PATH;
         break;
@@ -109,6 +133,12 @@ public class Icons {
       case ENUMERATOR:
         iconPath = Icons.ENUMERATOR_SVG_PATH;
         return svg(iconPath, width, height).attr("fill", "transparent").attr("stroke-width", "2");
+      case STATIC:
+        return svg(Icons.ANNOTATION_SVG_PATH, width, height)
+            .attr("fill", "none")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2");
       case TEXT:
       default:
         iconPath = Icons.TEXT_SVG_PATH;

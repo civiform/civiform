@@ -9,7 +9,14 @@ import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 
-public class SingleSelectQuestion implements PresentsErrors {
+/**
+ * Represents a single-select question in the context of a specific applicant.
+ *
+ * <p>All single-select question types share this class, e.g. dropdown and radio button questions.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
+public class SingleSelectQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<LocalizedQuestionOption> selectedOptionValue;
@@ -20,8 +27,13 @@ public class SingleSelectQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public boolean hasConditionErrors() {
     return !getQuestionErrors().isEmpty();
+  }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    return ImmutableList.of(getSelectionPath());
   }
 
   @Override

@@ -8,8 +8,8 @@ import static org.fluentlenium.core.filter.FilterConstructor.withText;
 import static play.test.Helpers.fakeApplication;
 
 import controllers.routes;
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import io.ebean.DB;
+import io.ebean.Database;
 import java.util.Optional;
 import models.LifecycleStage;
 import models.Models;
@@ -20,7 +20,6 @@ import org.junit.Before;
 import org.openqa.selenium.By;
 import play.Application;
 import play.api.mvc.Call;
-import play.db.ebean.EbeanConfig;
 import play.test.WithBrowser;
 import services.question.types.QuestionType;
 import support.TestConstants;
@@ -39,9 +38,8 @@ public class BaseBrowserTest extends WithBrowser {
 
   @Before
   public void resetTables() {
-    EbeanConfig config = app.injector().instanceOf(EbeanConfig.class);
-    EbeanServer server = Ebean.getServer(config.defaultServer());
-    Models.truncate(server);
+    Database database = DB.getDefault();
+    Models.truncate(database);
     Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
     newActiveVersion.save();
   }
@@ -187,7 +185,7 @@ public class BaseBrowserTest extends WithBrowser {
   protected void addQuestionsToProgramNewBlock(String programName, String... questionNames) {
     manageExistingProgramQuestions(programName);
 
-    browser.$("button", withText("Add Block")).click();
+    browser.$("button", withText("Add Screen")).click();
     addQuestionsToBlock(questionNames);
   }
 

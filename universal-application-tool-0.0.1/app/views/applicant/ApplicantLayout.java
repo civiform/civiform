@@ -7,17 +7,21 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.nav;
+import static j2html.TagCreator.text;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.Roles;
-import auth.UatProfile;
 import com.typesafe.config.Config;
 import controllers.routes;
+import io.jsonwebtoken.lang.Strings;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -32,11 +36,15 @@ import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Contains methods rendering common compoments used across applicant pages. */
 public class ApplicantLayout extends BaseHtmlLayout {
+
   private static final String CIVIFORM_TITLE = "CiviForm";
+  private static final Logger LOG = LoggerFactory.getLogger(ApplicantLayout.class);
 
   private final ProfileUtils profileUtils;
   public final LanguageSelector languageSelector;
+  public final String supportEmail;
 
   @Inject
   public ApplicantLayout(
@@ -47,18 +55,47 @@ public class ApplicantLayout extends BaseHtmlLayout {
     super(viewUtils, configuration);
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
+    this.supportEmail = checkNotNull(configuration).getString("support_email_address");
+  }
+
+  private Content renderWithSupportFooter(HtmlBundle bundle, Messages messages) {
+    ContainerTag supportLink =
+        div()
+            .with(
+                text(messages.at(MessageKey.FOOTER_SUPPORT_LINK_DESCRIPTION.getKeyName())),
+                text(" "),
+                a(supportEmail)
+                    .withHref("mailto:" + supportEmail)
+                    .withTarget("_blank")
+                    .withClasses(Styles.TEXT_BLUE_800))
+            .withClasses(Styles.MX_AUTO, Styles.MAX_W_SCREEN_SM, Styles.W_5_6);
+
+    bundle.addFooterContent(supportLink);
+
+    return render(bundle);
   }
 
   @Override
   public Content render(HtmlBundle bundle) {
     bundle.addBodyStyles(ApplicantStyles.BODY);
     String currentTitle = bundle.getTitle();
+
     if (currentTitle != null && !currentTitle.isEmpty()) {
       bundle.setTitle(String.format("%s — %s", currentTitle, CIVIFORM_TITLE));
     } else {
       bundle.setTitle(CIVIFORM_TITLE);
     }
-    return super.render(bundle);
+
+    bundle.addFooterStyles(Styles.MT_24);
+
+    Content rendered = super.render(bundle);
+    if (!rendered.body().contains("<h1")) {
+      LOG.error("Page does not contain an <h1>, which is important for screen readers.");
+    }
+    if (Strings.countOccurrencesOf(rendered.body(), "<h1") > 1) {
+      LOG.error("Page contains more than one <h1>, which is detrimental to screen readers.");
+    }
+    return rendered;
   }
 
   public Content renderWithNav(
@@ -66,11 +103,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBar(request, userName, messages));
-    return render(bundle);
+    return renderWithSupportFooter(bundle, messages);
   }
 
   private ContainerTag renderNavBar(Http.Request request, String userName, Messages messages) {
-    Optional<UatProfile> profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     return nav()
         .withClasses(
@@ -83,11 +120,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(branding())
         .with(maybeRenderTiButton(profile, userName))
         .with(
-            div(getLanguageForm(request, profile), logoutButton(messages))
+            div(getLanguageForm(request, profile, messages), logoutButton(userName, messages))
                 .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
-  private ContainerTag getLanguageForm(Http.Request request, Optional<UatProfile> profile) {
+  private ContainerTag getLanguageForm(
+      Http.Request request, Optional<CiviFormProfile> profile, Messages messages) {
     ContainerTag languageForm = div();
     if (profile.isPresent()) { // Show language switcher.
       long userId = profile.get().getApplicant().join().id;
@@ -107,7 +145,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
         ContainerTag languageDropdown =
             languageSelector
                 .renderDropdown(preferredLanguage)
-                .attr("onchange", "this.form.submit()");
+                .attr("onchange", "this.form.submit()")
+                .attr("aria-label", messages.at(MessageKey.LANGUAGE_LABEL_SR.getKeyName()));
         languageForm =
             form()
                 .withAction(updateLanguageAction)
@@ -130,7 +169,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withText("CiviForm"));
   }
 
-  private ContainerTag maybeRenderTiButton(Optional<UatProfile> profile, String userName) {
+  private ContainerTag maybeRenderTiButton(Optional<CiviFormProfile> profile, String userName) {
     if (profile.isPresent() && profile.get().getRoles().contains(Roles.ROLE_TI.toString())) {
       String tiDashboardText = "Trusted intermediary dashboard";
       String tiDashboardLink =
@@ -151,18 +190,13 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div();
   }
 
-  private ContainerTag logoutButton(Messages messages) {
+  private ContainerTag logoutButton(String userName, Messages messages) {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
-    return a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
-        .withHref(logoutLink)
-        .withClasses(ApplicantStyles.LINK_LOGOUT);
-  }
-
-  /**
-   * Use this one after the application has been submitted, to show a complete progress indicator.
-   */
-  protected ContainerTag renderProgramApplicationTitleAndProgressIndicator(String programTitle) {
-    return renderProgramApplicationTitleAndProgressIndicator(programTitle, 0, 0, true);
+    return div(
+        div(messages.at(MessageKey.USER_NAME.getKeyName(), userName)).withClasses(Styles.TEXT_SM),
+        a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
+            .withHref(logoutLink)
+            .withClasses(ApplicantStyles.LINK_LOGOUT));
   }
 
   /**
@@ -235,8 +269,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
    * non-summary views.
    */
   private int getPercentComplete(int blockIndex, int totalBlockCount, boolean forSummary) {
-    if (totalBlockCount == 0) return 100;
-    if (blockIndex == -1) return 0;
+    if (totalBlockCount == 0) {
+      return 100;
+    }
+    if (blockIndex == -1) {
+      return 0;
+    }
 
     // While in progress, add one to blockIndex for 1-based indexing, so that when applicant is on
     // first block, we show

@@ -1,13 +1,13 @@
 package views.questiontypes;
 
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Comparator;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.question.LocalizedQuestionOption;
@@ -16,6 +16,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Renders a checkbox question. */
 public class CheckboxQuestionRenderer extends ApplicantQuestionRenderer {
 
   @Override
@@ -42,13 +43,14 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRenderer {
                     .condAttr(!multiOptionQuestion.hasValue(), Attr.CHECKED, "")
                     .withClasses(ReferenceClasses.RADIO_DEFAULT, Styles.HIDDEN))
             .with(
-                each(
-                    multiOptionQuestion.getOptions(),
-                    option ->
-                        renderCheckboxOption(
-                            multiOptionQuestion.getSelectionPathAsArray(),
-                            option,
-                            multiOptionQuestion.optionIsSelected(option))));
+                multiOptionQuestion.getOptions().stream()
+                    .sorted(Comparator.comparing(LocalizedQuestionOption::order))
+                    .map(
+                        option ->
+                            renderCheckboxOption(
+                                multiOptionQuestion.getSelectionPathAsArray(),
+                                option,
+                                multiOptionQuestion.optionIsSelected(option))));
 
     return renderInternal(params.messages(), checkboxQuestionFormContent);
   }

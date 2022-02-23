@@ -1,0 +1,55 @@
+#! /usr/bin/env bash
+
+# DOC: Deploy the most recently registered production image to production along with cloudformation stack changes.
+
+set -e
+set +x
+
+export AWS_DEFAULT_REGION=us-west-2
+REGION=us-west-2
+
+aws ecr-public get-login-password --region us-east-1 |
+  docker login --username AWS --password-stdin public.ecr.aws/t1q6b4h2
+
+docker pull public.ecr.aws/t1q6b4h2/universal-application-tool:latest
+
+docker tag \
+  public.ecr.aws/t1q6b4h2/universal-application-tool:latest \
+  public.ecr.aws/t1q6b4h2/universal-application-tool:prod
+
+docker push public.ecr.aws/t1q6b4h2/universal-application-tool:prod
+
+TIMESTAMP=$(date +%s)
+
+aws s3 sync ./infra s3://seattle-civiform-cftmpl/${TIMESTAMP}
+aws cloudformation update-stack \
+  --region ${REGION} \
+  --stack-name civiform \
+  --template-url "https://seattle-civiform-cftmpl.s3-${REGION}.amazonaws.com/$TIMESTAMP/stack.yaml" \
+  --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}, {\"ParameterKey\": \"Environment\", \"ParameterValue\": \"prod\"}]"
+
+aws cloudformation wait stack-update-complete --stack-name civiform
+
+ECSSERVICE=$(aws cloudformation describe-stacks \
+  --region ${REGION} \
+  --stack-name civiform |
+    jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSService") | .OutputValue')
+
+ECSCLUSTER=$(aws cloudformation describe-stacks \
+  --region ${REGION} \
+  --stack-name civiform |
+    jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSCluster") | .OutputValue')
+
+aws ecs update-service \
+  --region=${REGION} \
+  --cluster "$ECSCLUSTER" \
+  --service "$ECSSERVICE" \
+  --force-new-deployment
+
+deadline=$(($(date +%s) + 900))
+until aws ecs wait services-stable --region=${REGION} --cluster "$ECSCLUSTER" --services "$ECSSERVICE"; do
+  if (( $(date +%s) > $deadline )); then
+    echo "deadline exceeded waiting for service update to stabilize"
+    exit 1
+  fi
+done

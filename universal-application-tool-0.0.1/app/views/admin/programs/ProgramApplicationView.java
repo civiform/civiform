@@ -27,19 +27,20 @@ import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
+/** Renders a page for a program admin to view a single submitted application. */
 public final class ProgramApplicationView extends BaseHtmlView {
   private final AdminLayout layout;
 
   @Inject
   public ProgramApplicationView(AdminLayout layout) {
-    this.layout = checkNotNull(layout);
+    this.layout = checkNotNull(layout).setOnlyProgramAdminType();
   }
 
   public Content render(
       long programId,
       String programName,
       long applicationId,
-      String applicantNameWithId,
+      String applicantNameWithApplicationId,
       ImmutableList<Block> blocks,
       ImmutableList<AnswerData> answers) {
     String title = "Program Application View";
@@ -55,10 +56,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
     Tag contentDiv =
         div()
+            .withId("application-view")
             .withClasses(Styles.PX_20)
             .with(
                 h2("Program: " + programName).withClasses(Styles.MY_4),
-                h1(applicantNameWithId).withClasses(Styles.MY_4),
+                h1(applicantNameWithApplicationId).withClasses(Styles.MY_4),
                 each(
                     blocks,
                     block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))),
@@ -78,7 +80,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .setText("Download (PDF)")
         .asButton()
         // TODO: when the download link works, un-hide.
-        .isHidden();
+        .withClasses(Styles.HIDDEN);
   }
 
   private Tag renderApplicationBlock(long programId, Block block, Collection<AnswerData> answers) {

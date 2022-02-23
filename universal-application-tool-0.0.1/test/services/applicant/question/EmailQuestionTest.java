@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import models.Applicant;
 import org.junit.Before;
@@ -19,6 +20,7 @@ import support.QuestionAnswerer;
 public class EmailQuestionTest extends WithPostgresContainer {
   private static final EmailQuestionDefinition emailQuestionDefinition =
       new EmailQuestionDefinition(
+          OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",
@@ -42,7 +44,7 @@ public class EmailQuestionTest extends WithPostgresContainer {
     EmailQuestion emailQuestion = new EmailQuestion(applicantQuestion);
 
     assertThat(emailQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(emailQuestion.hasQuestionErrors()).isFalse();
+    assertThat(emailQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -56,6 +58,6 @@ public class EmailQuestionTest extends WithPostgresContainer {
 
     assertThat(emailQuestion.getEmailValue().get()).isEqualTo("test1@gmail.com");
     assertThat(emailQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(emailQuestion.hasQuestionErrors()).isFalse();
+    assertThat(emailQuestion.hasConditionErrors()).isFalse();
   }
 }

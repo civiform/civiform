@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -12,6 +11,7 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.RepeatedEntity;
 import services.applicant.ValidationErrorMessage;
+import services.program.ProgramQuestionDefinition;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -26,7 +26,7 @@ import services.question.types.ScalarType;
  */
 public class ApplicantQuestion {
 
-  private final QuestionDefinition questionDefinition;
+  private final ProgramQuestionDefinition programQuestionDefinition;
   private final ApplicantData applicantData;
   private final Optional<RepeatedEntity> repeatedEntity;
 
@@ -36,10 +36,26 @@ public class ApplicantQuestion {
    * Optional.empty()} repeated entity.
    */
   public ApplicantQuestion(
+      ProgramQuestionDefinition programQuestionDefinition,
+      ApplicantData applicantData,
+      Optional<RepeatedEntity> repeatedEntity) {
+    this.programQuestionDefinition = checkNotNull(programQuestionDefinition);
+    this.applicantData = checkNotNull(applicantData);
+    this.repeatedEntity = checkNotNull(repeatedEntity);
+  }
+
+  /**
+   * DEPRECATED.
+   *
+   * <p>This constructor is only used in tests, which should eventually be converted to use the
+   * constructor that uses {@link ProgramQuestionDefinition}.
+   */
+  public ApplicantQuestion(
       QuestionDefinition questionDefinition,
       ApplicantData applicantData,
       Optional<RepeatedEntity> repeatedEntity) {
-    this.questionDefinition = checkNotNull(questionDefinition);
+    this.programQuestionDefinition =
+        ProgramQuestionDefinition.create(checkNotNull(questionDefinition), Optional.empty());
     this.applicantData = checkNotNull(applicantData);
     this.repeatedEntity = checkNotNull(repeatedEntity);
   }
@@ -49,11 +65,55 @@ public class ApplicantQuestion {
   }
 
   public QuestionDefinition getQuestionDefinition() {
-    return this.questionDefinition;
+    return this.programQuestionDefinition.getQuestionDefinition();
   }
 
   public QuestionType getType() {
-    return questionDefinition.getQuestionType();
+    return getQuestionDefinition().getQuestionType();
+  }
+
+  public boolean isOptional() {
+    return programQuestionDefinition.optional();
+  }
+
+  /**
+   * Return true if this question is answered or a skipped optional question in the program
+   * specified. Questions can only be skipped and left unanswered if they are optional.
+   *
+   * <p>For every applicant question, there are three possible states:
+   *
+   * <ol>
+   *   <li>unvisited - the applicant has not seen this question yet
+   *   <li>skipped - the applicant has visited the question but chose to leave it unanswered. Only
+   *       optional questions can be skipped and left unanswered.
+   *   <li>answered - the applicant has visited and provided an answer to the question
+   * </ol>
+   *
+   * For skipped optional questions, we care in which program it was skipped. For the program which
+   * the optional question was skipped and left unanswered, it counts as "completed" for that
+   * program.
+   *
+   * <p>Static questions evaluate as answered since they are not awaiting a response.
+   *
+   * @return true if this question is answered or it is an optional question that was skipped in the
+   *     program specified.
+   */
+  public boolean isAnsweredOrSkippedOptionalInProgram() {
+    return errorsPresenter().isAnswered() || (isOptional() && wasRecentlyUpdatedInThisProgram());
+  }
+
+  /**
+   * Return true if this question is required but was skipped and left unanswered while filling out
+   * the current program.
+   */
+  public boolean isRequiredButWasSkippedInCurrentProgram() {
+    return !isOptional() && !errorsPresenter().isAnswered() && wasRecentlyUpdatedInThisProgram();
+  }
+
+  /** Returns true if this question was most recently updated in this program. */
+  private boolean wasRecentlyUpdatedInThisProgram() {
+    return getUpdatedInProgramMetadata().stream()
+        .anyMatch(pid -> pid.equals(programQuestionDefinition.getProgramDefinitionId()));
   }
 
   /**
@@ -62,7 +122,7 @@ public class ApplicantQuestion {
    */
   public String getQuestionText() {
     String text =
-        questionDefinition.getQuestionText().getOrDefault(applicantData.preferredLocale());
+        getQuestionDefinition().getQuestionText().getOrDefault(applicantData.preferredLocale());
     return repeatedEntity.map(r -> r.contextualize(text)).orElse(text);
   }
 
@@ -72,7 +132,7 @@ public class ApplicantQuestion {
    */
   public String getQuestionHelpText() {
     String helpText =
-        questionDefinition.getQuestionHelpText().getOrDefault(applicantData.preferredLocale());
+        getQuestionDefinition().getQuestionHelpText().getOrDefault(applicantData.preferredLocale());
     return repeatedEntity.map(r -> r.contextualize(helpText)).orElse(helpText);
   }
 
@@ -85,7 +145,8 @@ public class ApplicantQuestion {
    * "applicant.household_member[3].name".
    */
   public Path getContextualizedPath() {
-    return questionDefinition.getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
+    return getQuestionDefinition()
+        .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
   }
 
   /**
@@ -96,15 +157,14 @@ public class ApplicantQuestion {
    */
   public ImmutableMap<Path, ScalarType> getContextualizedScalars() {
     try {
-      return ImmutableMap.<Scalar, ScalarType>builder()
-          .putAll(Scalar.getScalars(getType()))
-          .putAll(Scalar.getMetadataScalars())
+      return ImmutableSet.<Scalar>builder()
+          .addAll(Scalar.getScalars(getType()))
+          .addAll(Scalar.getMetadataScalars())
           .build()
-          .entrySet()
           .stream()
           .collect(
               ImmutableMap.toImmutableMap(
-                  entry -> getContextualizedPath().join(entry.getKey()), Map.Entry::getValue));
+                  scalar -> getContextualizedPath().join(scalar), scalar -> scalar.toScalarType()));
     } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }
@@ -115,36 +175,40 @@ public class ApplicantQuestion {
   }
 
   public boolean hasErrors() {
-    return errorsPresenter().hasQuestionErrors() || errorsPresenter().hasTypeSpecificErrors();
+    return errorsPresenter().hasConditionErrors() || errorsPresenter().hasTypeSpecificErrors();
   }
 
   public Optional<Long> getUpdatedInProgramMetadata() {
-    Path contextualizedMetadataPath = getContextualizedPath().join(Scalar.PROGRAM_UPDATED_IN);
-
-    // Metadata for enumerators is stored for each JSON array element, but we rely on metadata for
-    // the first one.
-    if (questionDefinition.isEnumerator()) {
-      contextualizedMetadataPath =
-          getContextualizedPath().atIndex(0).join(Scalar.PROGRAM_UPDATED_IN);
-    }
-
-    return applicantData.readLong(contextualizedMetadataPath);
+    return getMetadata(Scalar.PROGRAM_UPDATED_IN);
   }
 
   public Optional<Long> getLastUpdatedTimeMetadata() {
-    Path contextualizedMetadataPath = getContextualizedPath().join(Scalar.UPDATED_AT);
+    return getMetadata(Scalar.UPDATED_AT);
+  }
 
-    // Metadata for enumerators are stored for each JSON array element, but we rely on metadata for
-    // the first one.
-    if (questionDefinition.isEnumerator()) {
-      contextualizedMetadataPath = getContextualizedPath().atIndex(0).join(Scalar.UPDATED_AT);
-    }
-
+  private Optional<Long> getMetadata(Scalar metadataScalar) {
+    Path contextualizedMetadataPath = getMetadataPath(metadataScalar);
     return applicantData.readLong(contextualizedMetadataPath);
+  }
+
+  private Path getMetadataPath(Scalar metadataScalar) {
+    // For enumerator questions, rely on the metadata at the first repeated entity if it exists.
+    // If it doesn't exist, check for metadata stored when there are no repeated entities.
+    if (getQuestionDefinition().isEnumerator()) {
+      Path firstEntity = getContextualizedPath().atIndex(0);
+      return applicantData.hasPath(firstEntity)
+          ? firstEntity.join(metadataScalar)
+          : getContextualizedPath().withoutArrayReference().join(metadataScalar);
+    }
+    return getContextualizedPath().join(metadataScalar);
   }
 
   public AddressQuestion createAddressQuestion() {
     return new AddressQuestion(this);
+  }
+
+  public CurrencyQuestion createCurrencyQuestion() {
+    return new CurrencyQuestion(this);
   }
 
   public DateQuestion createDateQuestion() {
@@ -157,6 +221,10 @@ public class ApplicantQuestion {
 
   public FileUploadQuestion createFileUploadQuestion() {
     return new FileUploadQuestion(this);
+  }
+
+  public IdQuestion createIdQuestion() {
+    return new IdQuestion(this);
   }
 
   public MultiSelectQuestion createMultiSelectQuestion() {
@@ -179,22 +247,30 @@ public class ApplicantQuestion {
     return new SingleSelectQuestion(this);
   }
 
+  public StaticContentQuestion createStaticContentQuestion() {
+    return new StaticContentQuestion(this);
+  }
+
   public TextQuestion createTextQuestion() {
     return new TextQuestion(this);
   }
 
-  public PresentsErrors errorsPresenter() {
+  public Question errorsPresenter() {
     switch (getType()) {
       case ADDRESS:
         return createAddressQuestion();
       case CHECKBOX:
         return createMultiSelectQuestion();
+      case CURRENCY:
+        return createCurrencyQuestion();
       case DATE:
         return createDateQuestion();
       case EMAIL:
         return createEmailQuestion();
       case FILEUPLOAD:
         return createFileUploadQuestion();
+      case ID:
+        return createIdQuestion();
       case NAME:
         return createNameQuestion();
       case NUMBER:
@@ -206,6 +282,8 @@ public class ApplicantQuestion {
         return createEnumeratorQuestion();
       case TEXT:
         return createTextQuestion();
+      case STATIC:
+        return createStaticContentQuestion();
       default:
         throw new RuntimeException("Unrecognized question type: " + getType());
     }
@@ -215,7 +293,7 @@ public class ApplicantQuestion {
   public boolean equals(@Nullable Object object) {
     if (object instanceof ApplicantQuestion) {
       ApplicantQuestion that = (ApplicantQuestion) object;
-      return this.questionDefinition.equals(that.questionDefinition)
+      return this.getQuestionDefinition().equals(that.getQuestionDefinition())
           && this.applicantData.equals(that.applicantData);
     }
     return false;
@@ -223,6 +301,6 @@ public class ApplicantQuestion {
 
   @Override
   public int hashCode() {
-    return Objects.hash(questionDefinition, applicantData);
+    return Objects.hash(getQuestionDefinition(), applicantData);
   }
 }

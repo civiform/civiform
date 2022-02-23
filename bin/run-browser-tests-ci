@@ -1,14 +1,13 @@
-#! /bin/bash
-pushd $(git rev-parse --show-toplevel)
+#! /usr/bin/env bash
 
-set -e
-set +x
+# DOC: Run the browser tests in CI mode.
+
+source bin/lib.sh
 
 docker run \
   -v "$(pwd)/browser-test/src:/usr/src/civiform-browser-tests/src" \
   -v "$(pwd)/browser-test/bin:/usr/src/civiform-browser-tests/bin" \
   --network browser-test_default \
   civiform-browser-test:latest \
-  /usr/src/civiform-browser-tests/bin/wait_for_server_start_and_run_tests.sh
-
-popd
+  /usr/src/civiform-browser-tests/bin/wait_for_server_start_and_run_tests.sh \
+  $@

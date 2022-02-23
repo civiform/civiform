@@ -4,8 +4,6 @@
 
 /**
  * Add global styles and classes here.
- *
- * TODO: Note that the following styles are meant as how-to illustrations and do not yet reflect official UAT styles.
  */
 @layer base {
   h1 {
@@ -17,10 +15,22 @@
   }
 
   button {
-    @apply bg-blue-500 text-white font-bold py-2 px-4 rounded;
+    @apply bg-blue-600 border border-transparent text-white font-bold py-2 px-4 rounded;
   }
 
   button:hover {
     @apply bg-blue-700;
+  }
+
+  button:disabled {
+    @apply bg-white text-gray-400 border border-gray-400;
+  }
+
+  .cf-accordion-visible > .cf-accordion-header > .cf-accordion-button {
+    @apply rotate-180;
+  }
+
+  .cf-accordion-visible > .cf-accordion-content {
+    @apply h-auto mt-2 mb-1;
   }
 }

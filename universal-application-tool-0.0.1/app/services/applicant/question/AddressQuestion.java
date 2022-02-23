@@ -12,7 +12,12 @@ import services.applicant.ValidationErrorMessage;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionType;
 
-public class AddressQuestion implements PresentsErrors {
+/**
+ * Represents an address question in the context of a specific applicant.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
+public class AddressQuestion implements Question {
   private static final String PO_BOX_REGEX =
       "(?i)(.*(P(OST|.)?\\s*((O(FF(ICE)?)?)?.?\\s*(B(IN|OX|.?)))+)).*";
 
@@ -29,7 +34,7 @@ public class AddressQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public boolean hasConditionErrors() {
     return !getQuestionErrors().isEmpty();
   }
 
@@ -78,7 +83,7 @@ public class AddressQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getStreetErrors() {
-    if (isStreetAnswered() && getStreetValue().isEmpty()) {
+    if (isAnswered() && getStreetValue().isEmpty()) {
       return getStreetErrorMessage();
     }
 
@@ -91,7 +96,7 @@ public class AddressQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getCityErrors() {
-    if (isCityAnswered() && getCityValue().isEmpty()) {
+    if (isAnswered() && getCityValue().isEmpty()) {
       return getCityErrorMessage();
     }
 
@@ -105,7 +110,7 @@ public class AddressQuestion implements PresentsErrors {
 
   public ImmutableSet<ValidationErrorMessage> getStateErrors() {
     // TODO: Validate state further.
-    if (isStateAnswered() && getStateValue().isEmpty()) {
+    if (isAnswered() && getStateValue().isEmpty()) {
       return getStateErrorMessage();
     }
 
@@ -118,7 +123,7 @@ public class AddressQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getZipErrors() {
-    if (isZipAnswered()) {
+    if (isAnswered()) {
       Optional<String> zipValue = getZipValue();
       if (zipValue.isEmpty()) {
         return ImmutableSet.of(
@@ -240,10 +245,7 @@ public class AddressQuestion implements PresentsErrors {
     return applicantQuestion.getApplicantData().hasPath(getZipPath());
   }
 
-  /**
-   * Returns true if any one of the address fields is answered. Returns false if all are not
-   * answered.
-   */
+  /** Returns true if any field is answered. Returns false if all are not. */
   @Override
   public boolean isAnswered() {
     return isStreetAnswered()
@@ -270,5 +272,11 @@ public class AddressQuestion implements PresentsErrors {
     return ImmutableList.of(displayLine1, displayLine2, displayLine3).stream()
         .filter(line -> line.length() > 0)
         .collect(Collectors.joining("\n"));
+  }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    return ImmutableList.of(
+        getStreetPath(), getLine2Path(), getCityPath(), getStatePath(), getZipPath());
   }
 }

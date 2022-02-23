@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import services.LocalizedStrings;
 
+/** Defines a file upload question. */
 public class FileUploadQuestionDefinition extends QuestionDefinition {
 
   public FileUploadQuestionDefinition(

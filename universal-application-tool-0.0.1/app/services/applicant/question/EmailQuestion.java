@@ -1,13 +1,19 @@
 package services.applicant.question;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
-import services.question.types.DateQuestionDefinition;
+import services.question.types.EmailQuestionDefinition;
 import services.question.types.QuestionType;
 
-public class EmailQuestion implements PresentsErrors {
+/**
+ * Represents an email question in the context of a specific applicant.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
+public class EmailQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<String> emailValue;
@@ -18,7 +24,7 @@ public class EmailQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public boolean hasConditionErrors() {
     return !getQuestionErrors().isEmpty();
   }
 
@@ -43,6 +49,11 @@ public class EmailQuestion implements PresentsErrors {
     return applicantQuestion.getApplicantData().hasPath(getEmailPath());
   }
 
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    return ImmutableList.of(getEmailPath());
+  }
+
   public Path getEmailPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.EMAIL);
   }
@@ -62,9 +73,9 @@ public class EmailQuestion implements PresentsErrors {
     return emailValue;
   }
 
-  public DateQuestionDefinition getQuestionDefinition() {
+  public EmailQuestionDefinition getQuestionDefinition() {
     assertQuestionType();
-    return (DateQuestionDefinition) applicantQuestion.getQuestionDefinition();
+    return (EmailQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
   public void assertQuestionType() {

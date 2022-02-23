@@ -3,10 +3,12 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import com.google.common.collect.ImmutableList;
+import io.ebean.DB;
+import io.ebean.Database;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -14,36 +16,39 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Question;
+import models.QuestionTag;
 import models.Version;
-import play.db.ebean.EbeanConfig;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
+/**
+ * QuestionRepository performs complicated operations on {@link Question} that often involve other
+ * EBean models or asynchronous handling.
+ */
 public class QuestionRepository {
 
-  private final EbeanServer ebeanServer;
+  private final Database database;
   private final DatabaseExecutionContext executionContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
   public QuestionRepository(
-      EbeanConfig ebeanConfig,
       DatabaseExecutionContext executionContext,
       ProgramRepository programRepository,
       Provider<VersionRepository> versionRepositoryProvider) {
-    this.ebeanServer = Ebean.getServer(checkNotNull(ebeanConfig).defaultServer());
+    this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
   }
 
   public CompletionStage<Set<Question>> listQuestions() {
-    return supplyAsync(() -> ebeanServer.find(Question.class).findSet(), executionContext);
+    return supplyAsync(() -> database.find(Question.class).findSet(), executionContext);
   }
 
   public CompletionStage<Optional<Question>> lookupQuestion(long id) {
     return supplyAsync(
-        () -> ebeanServer.find(Question.class).setId(id).findOneOrEmpty(), executionContext);
+        () -> database.find(Question.class).setId(id).findOneOrEmpty(), executionContext);
   }
 
   /**
@@ -52,7 +57,7 @@ public class QuestionRepository {
    */
   public Question updateOrCreateDraft(QuestionDefinition definition) {
     Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
-    try (Transaction transaction = ebeanServer.beginTransaction(TxScope.requiresNew())) {
+    try (Transaction transaction = database.beginTransaction(TxScope.requiresNew())) {
       Optional<Question> existingDraft = draftVersion.getQuestionByName(definition.getName());
       try {
         if (existingDraft.isPresent()) {
@@ -66,6 +71,12 @@ public class QuestionRepository {
           Question newDraft =
               new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
           insertQuestionSync(newDraft);
+          // Fetch the tags off the old question.
+          Question oldQuestion = new Question(definition);
+          oldQuestion.refresh();
+          for (QuestionTag tag : oldQuestion.getQuestionTags()) {
+            newDraft.addTag(tag);
+          }
           newDraft.addVersion(draftVersion);
           newDraft.save();
           draftVersion.refresh();
@@ -129,10 +140,28 @@ public class QuestionRepository {
             newQuestionDefinition.getEnumeratorId(),
             newQuestionDefinition.getQuestionPathSegment(),
             newQuestionDefinition.getName());
-    ebeanServer
+    database
         .find(Question.class)
         .findEachWhile(question -> !conflictDetector.hasConflict(question));
     return conflictDetector.getConflictedQuestion();
+  }
+
+  /** Get the questions with the specified tag which are in the active version. */
+  public ImmutableList<QuestionDefinition> getAllQuestionsForTag(QuestionTag tag) {
+    Version active = versionRepositoryProvider.get().getActiveVersion();
+    return database
+        .find(Question.class)
+        .where()
+        .arrayContains("question_tags", tag)
+        .findList()
+        .stream()
+        .filter(
+            question ->
+                active.getQuestions().stream()
+                    .anyMatch(activeQuestion -> activeQuestion.id.equals(question.id)))
+        .sorted(Comparator.comparing(question -> question.getQuestionDefinition().getName()))
+        .map(Question::getQuestionDefinition)
+        .collect(ImmutableList.toImmutableList());
   }
 
   private static class ConflictDetector {
@@ -169,28 +198,28 @@ public class QuestionRepository {
   public CompletionStage<Question> insertQuestion(Question question) {
     return supplyAsync(
         () -> {
-          ebeanServer.insert(question);
+          database.insert(question);
           return question;
         },
         executionContext);
   }
 
   public Question insertQuestionSync(Question question) {
-    ebeanServer.insert(question);
+    database.insert(question);
     return question;
   }
 
   public CompletionStage<Question> updateQuestion(Question question) {
     return supplyAsync(
         () -> {
-          ebeanServer.update(question);
+          database.update(question);
           return question;
         },
         executionContext);
   }
 
   public Question updateQuestionSync(Question question) {
-    ebeanServer.update(question);
+    database.update(question);
     return question;
   }
 }

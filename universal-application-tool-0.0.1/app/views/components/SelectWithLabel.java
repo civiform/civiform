@@ -4,14 +4,16 @@ import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.AbstractMap.SimpleEntry;
 
+/** Utility class for rendering a select input field with an optional label. */
 public class SelectWithLabel extends FieldWithLabel {
 
-  private ImmutableList<SimpleEntry<String, String>> options = ImmutableList.of();
+  private ImmutableMap<String, String> options = ImmutableMap.of();
+  private ImmutableList<ContainerTag> customOptions = ImmutableList.of();
 
   public SelectWithLabel() {
     super(select());
@@ -23,8 +25,21 @@ public class SelectWithLabel extends FieldWithLabel {
     return this;
   }
 
-  public SelectWithLabel setOptions(ImmutableList<SimpleEntry<String, String>> options) {
+  /**
+   * Keys are the user-visible text; values are the html {@code value} that is submitted in the
+   * form.
+   */
+  public SelectWithLabel setOptions(ImmutableMap<String, String> options) {
     this.options = options;
+    return this;
+  }
+
+  /**
+   * If you want more flexibility over your options (for example, if you want to add individual
+   * classes or other attributes), set custom options here.
+   */
+  public SelectWithLabel setCustomOptions(ImmutableList<ContainerTag> options) {
+    this.customOptions = options;
     return this;
   }
 
@@ -72,13 +87,26 @@ public class SelectWithLabel extends FieldWithLabel {
 
   @Override
   public ContainerTag getContainer() {
-    for (SimpleEntry<String, String> option : this.options) {
-      Tag optionTag = option(option.getKey()).withValue(option.getValue());
-      if (option.getValue().equals(this.fieldValue)) {
-        optionTag.attr(Attr.SELECTED);
-      }
-      ((ContainerTag) fieldTag).with(optionTag);
+    Tag placeholder = option(placeholderText).withValue("").attr(Attr.HIDDEN);
+    if (this.fieldValue.isEmpty()) {
+      placeholder.attr(Attr.SELECTED);
     }
+    ((ContainerTag) fieldTag).with(placeholder);
+
+    // Either set the options to be custom options or create options from the (text, value) pairs.
+    if (!this.customOptions.isEmpty()) {
+      this.customOptions.forEach(option -> ((ContainerTag) fieldTag).with(option));
+    } else {
+      this.options.forEach(
+          (text, value) -> {
+            Tag optionTag = option(text).withValue(value);
+            if (value.equals(this.fieldValue)) {
+              optionTag.attr(Attr.SELECTED);
+            }
+            ((ContainerTag) fieldTag).with(optionTag);
+          });
+    }
+
     return super.getContainer();
   }
 }

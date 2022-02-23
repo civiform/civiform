@@ -1,12 +1,25 @@
 package services.export;
 
+import com.google.common.base.Preconditions;
+import com.typesafe.config.Config;
 import java.io.IOException;
 import java.util.Optional;
+import javax.inject.Inject;
 import models.Program;
+import repository.ProgramRepository;
 import services.program.CsvExportConfig;
 import services.program.PdfExportConfig;
 
+/** ExporterFactory helps create {@link CsvExporter} and {@link PdfExporter} objects. */
 public class ExporterFactory {
+  private final Config config;
+  private final ProgramRepository programRepository;
+
+  @Inject
+  public ExporterFactory(Config config, ProgramRepository programRepository) {
+    this.config = Preconditions.checkNotNull(config);
+    this.programRepository = Preconditions.checkNotNull(programRepository);
+  }
 
   public PdfExporter pdfExporter(Program program) throws NotConfiguredException, IOException {
     Optional<PdfExportConfig> exportConfig =
@@ -33,6 +46,7 @@ public class ExporterFactory {
   }
 
   public CsvExporter csvExporter(CsvExportConfig exportConfig) {
-    return new CsvExporter(exportConfig.columns());
+    return new CsvExporter(
+        exportConfig.columns(), config.getString("play.http.secret.key"), programRepository);
   }
 }

@@ -4,11 +4,17 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import services.MessageKey;
+import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionType;
 
-public class EnumeratorQuestion implements PresentsErrors {
+/**
+ * Represents an enumerator question in the context of a specific applicant.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
+public class EnumeratorQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
 
@@ -18,8 +24,14 @@ public class EnumeratorQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public boolean hasConditionErrors() {
     return !getQuestionErrors().isEmpty();
+  }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    // Not intended to return the leaf question paths.
+    return ImmutableList.of();
   }
 
   @Override
@@ -77,7 +89,7 @@ public class EnumeratorQuestion implements PresentsErrors {
   public boolean isAnswered() {
     return applicantQuestion
         .getApplicantData()
-        .hasPath(applicantQuestion.getContextualizedPath().withoutArrayReference());
+        .hasPath(applicantQuestion.getContextualizedPath().atIndex(0));
   }
 
   /** Return the repeated entity names associated with this enumerator question. */

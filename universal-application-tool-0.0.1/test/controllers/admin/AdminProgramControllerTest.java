@@ -8,6 +8,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableMap;
+import models.DisplayMode;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,7 +89,9 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
                         "localizedDisplayName",
                         "display name",
                         "localizedDisplayDescription",
-                        "display description")));
+                        "display description",
+                        "displayMode",
+                        DisplayMode.PUBLIC.getValue())));
 
     Result result = controller.create(requestBuilder.build());
 
@@ -115,7 +118,9 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
                         "localizedDisplayName",
                         "display name",
                         "localizedDisplayDescription",
-                        "display description")));
+                        "display description",
+                        "displayMode",
+                        DisplayMode.PUBLIC.getValue())));
 
     Result result = controller.create(requestBuilder.build());
 
@@ -190,7 +195,9 @@ public class AdminProgramControllerTest extends WithPostgresContainer {
                     "localizedDisplayName",
                     "test",
                     "localizedDisplayDescription",
-                    "test"));
+                    "test",
+                    "displayMode",
+                    DisplayMode.PUBLIC.getValue()));
 
     Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
 

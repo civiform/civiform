@@ -6,7 +6,6 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
-import static views.ViewUtils.POST;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
@@ -16,6 +15,7 @@ import j2html.tags.Tag;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Predicate;
+import play.mvc.Http.HttpVerbs;
 import services.program.BlockDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
@@ -26,7 +26,16 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Contains methods for rendering question bank for an admin to add questions to a program. */
 public class QuestionBank {
+  private static final ContainerTag PLUS_ICON =
+      Icons.svg(Icons.PLUS_SVG_PATH, 24)
+          .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6)
+          .attr("fill", "currentColor")
+          .attr("stroke-width", "2")
+          .attr("stroke-linecap", "round")
+          .attr("stroke-linejoin", "round");
+
   private ProgramDefinition program;
   private BlockDefinition blockDefinition;
   private Optional<Long> enumeratorQuestionId;
@@ -64,7 +73,8 @@ public class QuestionBank {
   }
 
   private ContainerTag questionBankPanel() {
-    ContainerTag questionForm = form(this.csrfTag).withMethod(POST).withAction(questionAction);
+    ContainerTag questionForm =
+        form(this.csrfTag).withMethod(HttpVerbs.POST).withAction(questionAction);
 
     div().withClasses(Styles.INLINE_BLOCK, Styles.W_1_4);
     ContainerTag innerDiv =
@@ -102,7 +112,6 @@ public class QuestionBank {
         div().withClasses(Styles.ABSOLUTE, Styles.ML_4, Styles.MT_3, Styles.MR_4).with(filterIcon);
     ContainerTag filterDiv =
         div().withClasses(Styles.RELATIVE).with(filterIconDiv).with(filterInput);
-
     contentDiv.with(filterDiv);
 
     ImmutableList<QuestionDefinition> filteredQuestions = filterQuestions();
@@ -129,6 +138,8 @@ public class QuestionBank {
                 Styles.FLEX,
                 Styles.ITEMS_START,
                 Styles.ROUNDED_LG,
+                Styles.BORDER,
+                Styles.BORDER_TRANSPARENT,
                 Styles.TRANSITION_ALL,
                 Styles.TRANSFORM,
                 StyleUtils.hover(
@@ -152,7 +163,7 @@ public class QuestionBank {
                 p(definition.getName()),
                 p(definition.getDescription()).withClasses(Styles.MT_1, Styles.TEXT_SM),
                 addButton);
-    return questionDiv.with(icon, content);
+    return questionDiv.with(PLUS_ICON, icon, content);
   }
 
   /**

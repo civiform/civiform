@@ -1,5 +1,6 @@
 package views.style;
 
+/** Styles for applicant pages. */
 public final class ApplicantStyles {
   public static final String BODY_BG_COLOR = BaseStyles.BG_CIVIFORM_WHITE;
   public static final String BODY =
@@ -17,12 +18,7 @@ public final class ApplicantStyles {
 
   public static final String PROGRAM_INDEX_TOP_CONTENT =
       StyleUtils.joinStyles(
-          BaseStyles.BG_SEATTLE_BLUE,
-          Styles.TEXT_WHITE,
-          Styles.TEXT_CENTER,
-          Styles.W_FULL,
-          Styles.P_6,
-          StyleUtils.responsiveSmall(Styles.P_10));
+          BaseStyles.BG_SEATTLE_BLUE, Styles.TEXT_WHITE, Styles.TEXT_CENTER, Styles.W_FULL);
 
   public static final String CIVIFORM_LOGO =
       StyleUtils.joinStyles(
@@ -40,11 +36,18 @@ public final class ApplicantStyles {
   public static final String H2_PROGRAM_TITLE =
       StyleUtils.joinStyles(BaseStyles.TEXT_SEATTLE_BLUE, Styles.TEXT_LG, Styles.FONT_BOLD);
 
-  public static final String PROGRAM_CARDS_CONTAINER =
-      StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_WRAP, Styles.GAP_4);
+  public static final String PROGRAM_CARDS_SUBTITLE =
+      StyleUtils.joinStyles(Styles.MY_4, Styles.TEXT_LG);
+  public static final String PROGRAM_CARDS_CONTAINER_BASE =
+      StyleUtils.joinStyles(
+          Styles.GRID,
+          Styles.GRID_COLS_1,
+          Styles.GAP_4,
+          Styles.PLACE_ITEMS_CENTER,
+          StyleUtils.responsiveSmall(Styles.GRID_COLS_1),
+          StyleUtils.responsiveLarge(Styles.GAP_8));
   public static final String PROGRAM_CARD =
       StyleUtils.joinStyles(
-          Styles.INLINE_BLOCK,
           Styles.W_FULL,
           StyleUtils.responsiveSmall(Styles.W_72),
           Styles.H_72,
@@ -62,12 +65,22 @@ public final class ApplicantStyles {
   public static final String QUESTION_HELP_TEXT =
       StyleUtils.joinStyles(Styles.TEXT_BLACK, Styles.TEXT_XL);
 
+  public static final String APPLICATION_NAV_BAR =
+      StyleUtils.joinStyles(
+          Styles.GAP_4, Styles.FLEX, Styles.FLEX_COL, StyleUtils.responsiveMedium(Styles.FLEX_ROW));
+
   /**
    * Base styles for buttons in the applicant UI. This is missing a specified text size, so that
    * should be added by other button style constants that use this as a base.
    */
   private static final String BUTTON_BASE =
-      StyleUtils.joinStyles(Styles.BLOCK, Styles.PY_2, Styles.TEXT_CENTER, Styles.ROUNDED_FULL);
+      StyleUtils.joinStyles(
+          Styles.BLOCK,
+          Styles.PY_2,
+          Styles.TEXT_CENTER,
+          Styles.ROUNDED_FULL,
+          Styles.BORDER,
+          Styles.BORDER_TRANSPARENT);
 
   /** Base styles for buttons with a solid background color. */
   private static final String BUTTON_BASE_SOLID =
@@ -102,6 +115,8 @@ public final class ApplicantStyles {
   public static final String BUTTON_PROGRAM_APPLY =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_SM, Styles.MX_AUTO);
   public static final String BUTTON_BLOCK_NEXT =
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE);
+  public static final String BUTTON_BLOCK_PREVIOUS =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE);
   public static final String BUTTON_REVIEW =
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_UPPERCASE, Styles.TEXT_BASE);

@@ -30,6 +30,9 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/**
+ * Renders a page for viewing one trusted intermediary group and editing the members in the group.
+ */
 public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   private final AdminLayout layout;
 

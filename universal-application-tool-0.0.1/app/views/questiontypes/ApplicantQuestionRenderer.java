@@ -6,12 +6,19 @@ import static j2html.TagCreator.div;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import play.i18n.Messages;
+import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
+import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
+/**
+ * Superclass for all applicant question renderers. An applicant question renderer renders a
+ * question to be seen by an applicant, including the input field(s) for the applicant to answer the
+ * question.
+ */
 public abstract class ApplicantQuestionRenderer {
 
   final ApplicantQuestion question;
@@ -23,6 +30,10 @@ public abstract class ApplicantQuestionRenderer {
   public abstract String getReferenceClass();
 
   public abstract Tag render(ApplicantQuestionRendererParams params);
+
+  private String getRequiredClass() {
+    return question.isOptional() ? "" : ReferenceClasses.REQUIRED_QUESTION;
+  }
 
   Tag renderInternal(Messages messages, Tag questionFormContent) {
     return renderInternal(messages, questionFormContent, true);
@@ -45,14 +56,14 @@ public abstract class ApplicantQuestionRenderer {
                 div()
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
-                    .with(BaseHtmlView.createLinksAndEscapeText(question.getQuestionText())))
+                    .with(TextFormatter.createLinksAndEscapeText(question.getQuestionText())))
             // Question help text
             .with(
                 div()
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)
-                    .with(BaseHtmlView.createLinksAndEscapeText(question.getQuestionHelpText())))
+                    .with(TextFormatter.createLinksAndEscapeText(question.getQuestionHelpText())))
             .withClasses(Styles.MB_4);
 
     if (shouldDisplayQuestionErrors) {
@@ -60,9 +71,17 @@ public abstract class ApplicantQuestionRenderer {
       questionTextDiv.with(BaseHtmlView.fieldErrors(messages, question.getQuestionErrors()));
     }
 
+    if (question.isRequiredButWasSkippedInCurrentProgram()) {
+      String requiredQuestionMessage = messages.at(MessageKey.VALIDATION_REQUIRED.getKeyName());
+      questionTextDiv.with(
+          div()
+              .withClasses(Styles.P_1, Styles.TEXT_RED_600)
+              .withText("*" + requiredQuestionMessage));
+    }
+
     return div()
         .withId(question.getContextualizedPath().toString())
-        .withClasses(Styles.MX_AUTO, Styles.MB_8, this.getReferenceClass())
+        .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
         .with(questionTextDiv)
         .with(questionFormContent);
   }

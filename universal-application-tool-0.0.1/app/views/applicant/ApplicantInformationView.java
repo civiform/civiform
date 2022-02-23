@@ -3,11 +3,13 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -17,6 +19,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
+import views.style.Styles;
 
 /**
  * Provides a form for selecting an applicant's preferred language. Note that we cannot use Play's
@@ -33,9 +36,14 @@ public class ApplicantInformationView extends BaseHtmlView {
   }
 
   public Content render(
-      Http.Request request, String userName, Messages messages, long applicantId) {
+      Http.Request request,
+      String userName,
+      Messages messages,
+      long applicantId,
+      Optional<String> redirectTo) {
     String formAction = routes.ApplicantInformationController.update(applicantId).url();
-    String redirectLink = routes.ApplicantProgramsController.index(applicantId).url();
+    String redirectLink =
+        redirectTo.orElse(routes.ApplicantProgramsController.index(applicantId).url());
     Tag redirectInput = input().isHidden().withValue(redirectLink).withName("redirectLink");
 
     String questionText = messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName());
@@ -59,9 +67,12 @@ public class ApplicantInformationView extends BaseHtmlView {
     HtmlBundle bundle =
         layout
             .getBundle()
-            .setTitle("Applicant information")
+            .setTitle(messages.at(MessageKey.CONTENT_APPLICANT_INFORMATION.getKeyName()))
             .addMainStyles(ApplicantStyles.MAIN_APPLICANT_INFO)
             .addMainContent(formContent);
+    bundle.addMainContent(
+        h1(messages.at(MessageKey.CONTENT_APPLICANT_INFORMATION.getKeyName()))
+            .withClasses(Styles.SR_ONLY));
 
     // We probably don't want the nav bar here (or we need it somewhat different - no dropdown.)
     return layout.renderWithNav(request, userName, messages, bundle);

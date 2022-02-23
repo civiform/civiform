@@ -1,0 +1,32 @@
+#! /usr/bin/env bash
+
+source lib/out.sh
+source azure/lib.sh
+
+# DOC: Create key vault instance, set permissions, and generate and set secrets
+
+while getopts g:v:l: flag
+do
+  case "${flag}" in
+    g) resource_group=${OPTARG};;
+    v) vault_name=${OPTARG};;
+    l) location=${OPTARG};;
+  esac
+done
+
+if [[ ! "${resource_group}" ]] \
+   || [[ ! "${vault_name}" ]] \
+   || [[ ! "${location}" ]]; then
+  out::error "arguments -g, -v , and -l must be provided"
+  exit 1
+fi
+
+echo "Creating resource group ${resource_group}"
+azure::create_resource_group "${resource_group}" "${location}"
+
+echo "Creating key vault ${vault_name}"
+azure::create_vault "${resource_group}" "${location}" "${vault_name}"
+
+echo "Generating and setting secrets"
+azure::add_generated_secrets "${vault_name}" "postgres-password" "app-secret-key"
+

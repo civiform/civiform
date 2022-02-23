@@ -53,7 +53,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    * @return a rendered {@link QuestionTranslationView} pre-populated with any existing translations
    *     for the given locale
    */
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> edit(Http.Request request, long id, String locale) {
     return questionService
         .getReadOnlyQuestionService()
@@ -79,7 +79,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    * @return redirects to the admin's home page if updates were successful; otherwise, renders the
    *     same {@link QuestionTranslationView} with error messages
    */
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> update(Http.Request request, long id, String locale) {
     Locale updatedLocale = Locale.forLanguageTag(locale);
 
@@ -132,6 +132,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
             .bindFromRequest(request)
             .get();
       case ADDRESS: // fallthrough intended
+      case CURRENCY: // fallthrough intended
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended
       case NUMBER: // fallthrough intended

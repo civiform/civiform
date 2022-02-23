@@ -40,9 +40,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().applicantName())
             .withBlock()
-            .withQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().applicantFile())
             .build();
     applicant = createApplicantWithMockedProfile();
   }
@@ -99,6 +99,37 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         subject.edit(request, applicant.id, program.id, "9999").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void edit_withMessages_returnsCorrectButtonText() {
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1"))
+                    .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
+            .build();
+
+    Result result =
+        subject.edit(request, applicant.id, program.id, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Siguiente");
+  }
+
+  @Test
+  public void previous_toAnExistingBlock_rendersTheBlock() {
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.previous(
+                        applicant.id, program.id, 0, true)))
+            .build();
+
+    Result result =
+        subject.previous(request, applicant.id, program.id, 0, true).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
   }
 
   @Test
@@ -229,9 +260,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newDraftProgram()
             .withBlock("block 1")
-            .withQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().applicantName())
             .withBlock("block 2")
-            .withQuestion(testQuestionBank().applicantAddress())
+            .withRequiredQuestion(testQuestionBank().applicantAddress())
             .build();
     Request request =
         fakeRequest(
@@ -263,7 +294,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newDraftProgram()
             .withBlock("block 1")
-            .withQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
 
     Request request =
@@ -290,22 +321,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         routes.ApplicantProgramReviewController.review(applicant.id, program.id).url();
 
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
-  }
-
-  @Test
-  public void edit_withMessages_returnsCorrectButtonText() {
-    Request request =
-        addCSRFToken(
-                fakeRequest(
-                        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1"))
-                    .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
-            .build();
-
-    Result result =
-        subject.edit(request, applicant.id, program.id, "1").toCompletableFuture().join();
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Próximo");
   }
 
   @Test
@@ -418,9 +433,9 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newDraftProgram()
             .withBlock("block 1")
-            .withQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().applicantFile())
             .withBlock("block 2")
-            .withQuestion(testQuestionBank().applicantAddress())
+            .withRequiredQuestion(testQuestionBank().applicantAddress())
             .build();
     RequestBuilder request =
         fakeRequest(
@@ -451,7 +466,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     program =
         ProgramBuilder.newDraftProgram()
             .withBlock("block 1")
-            .withQuestion(testQuestionBank().applicantFile())
+            .withRequiredQuestion(testQuestionBank().applicantFile())
             .build();
 
     RequestBuilder request =

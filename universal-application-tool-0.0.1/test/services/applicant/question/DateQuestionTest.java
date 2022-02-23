@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import models.Applicant;
 import org.junit.Before;
@@ -19,6 +20,7 @@ import support.QuestionAnswerer;
 public class DateQuestionTest extends WithPostgresContainer {
   private static final DateQuestionDefinition dateQuestionDefinition =
       new DateQuestionDefinition(
+          OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",
@@ -42,7 +44,7 @@ public class DateQuestionTest extends WithPostgresContainer {
     DateQuestion dateQuestion = new DateQuestion(applicantQuestion);
 
     assertThat(dateQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(dateQuestion.hasQuestionErrors()).isFalse();
+    assertThat(dateQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -56,6 +58,6 @@ public class DateQuestionTest extends WithPostgresContainer {
 
     assertThat(dateQuestion.getDateValue().get()).isEqualTo("2021-05-10");
     assertThat(dateQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(dateQuestion.hasQuestionErrors()).isFalse();
+    assertThat(dateQuestion.hasConditionErrors()).isFalse();
   }
 }

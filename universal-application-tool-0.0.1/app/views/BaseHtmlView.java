@@ -1,6 +1,5 @@
 package views;
 
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -9,25 +8,16 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.text;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.linkedin.urls.Url;
-import com.linkedin.urls.detection.UrlDetector;
-import com.linkedin.urls.detection.UrlDetectorOptions;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
-import j2html.tags.DomContent;
 import j2html.tags.Tag;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Call;
 import play.mvc.Http;
@@ -46,7 +36,6 @@ import views.style.Styles;
  * rendered.
  */
 public abstract class BaseHtmlView {
-  private static final Logger LOG = LoggerFactory.getLogger(BaseHtmlView.class);
 
   public static Tag renderHeader(String headerText, String... additionalClasses) {
     return h1(headerText).withClasses(Styles.MB_4, StyleUtils.joinStyles(additionalClasses));
@@ -82,7 +71,7 @@ public abstract class BaseHtmlView {
 
   /**
    * Generates a hidden HTML input tag containing a signed CSRF token. The token and tag must be
-   * present in all UAT forms.
+   * present in all CiviForm forms.
    */
   protected static Tag makeCsrfTokenInputTag(Http.Request request) {
     return input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken");
@@ -95,37 +84,6 @@ public abstract class BaseHtmlView {
   protected String renderDateTime(Instant time) {
     LocalDateTime datetime = LocalDateTime.ofInstant(time, ZoneId.of("America/Los_Angeles"));
     return datetime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a"));
-  }
-
-  public static ImmutableList<DomContent> createLinksAndEscapeText(String content) {
-    List<Url> urls = new UrlDetector(content, UrlDetectorOptions.Default).detect();
-    ImmutableList.Builder<DomContent> contentBuilder = ImmutableList.builder();
-    for (Url url : urls) {
-      int index = content.indexOf(url.getOriginalUrl());
-      // Find where this URL is in the text.
-      if (index == -1) {
-        LOG.error(
-            String.format(
-                "Detected URL %s not present in actual content, %s.",
-                url.getOriginalUrl(), content));
-        continue;
-      }
-      if (index > 0) {
-        // If it's not at the beginning, add the text from before the URL.
-        contentBuilder.add(text(content.substring(0, index)));
-      }
-      // Add the URL.
-      contentBuilder.add(
-          a().withText(url.getOriginalUrl())
-              .withHref(url.getFullUrl())
-              .withClasses(Styles.OPACITY_75));
-      content = content.substring(index + url.getOriginalUrl().length());
-    }
-    // If there's content leftover, add it.
-    if (!Strings.isNullOrEmpty(content)) {
-      contentBuilder.add(text(content));
-    }
-    return contentBuilder.build();
   }
 
   protected ContainerTag renderPaginationDiv(

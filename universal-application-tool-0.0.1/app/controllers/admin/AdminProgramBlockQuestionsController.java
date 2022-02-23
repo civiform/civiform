@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
+import forms.ProgramQuestionDefinitionOptionalityForm;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
@@ -12,11 +13,14 @@ import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.program.DuplicateProgramQuestionException;
+import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.QuestionNotFoundException;
 
+/** Controller for admins editing questions on a screen (block) of a program. */
 public class AdminProgramBlockQuestionsController extends Controller {
 
   private final ProgramService programService;
@@ -29,7 +33,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
     this.formFactory = checkNotNull(formFactory);
   }
 
-  @Secure(authorizers = Labels.UAT_ADMIN)
+  /** POST endpoint for adding one or more questions to a screen. */
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result create(Request request, long programId, long blockId) {
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     ImmutableList<Long> questionIds =
@@ -55,26 +60,59 @@ public class AdminProgramBlockQuestionsController extends Controller {
     return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId));
   }
 
-  @Secure(authorizers = Labels.UAT_ADMIN)
-  public Result destroy(Request request, long programId, long blockId) {
-    DynamicForm requestData = formFactory.form().bindFromRequest(request);
-
-    ImmutableList<Long> questionIds =
-        requestData.rawData().entrySet().stream()
-            .filter(formField -> formField.getKey().startsWith("block-question-"))
-            .map(formField -> Long.valueOf(formField.getValue()))
-            .collect(ImmutableList.toImmutableList());
-
+  /** POST endpoint for removing a question from a screen. */
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
+  public Result destroy(long programId, long blockDefinitionId, long questionDefinitionId) {
     try {
-      programService.removeQuestionsFromBlock(programId, blockId, questionIds);
+      programService.removeQuestionsFromBlock(
+          programId, blockDefinitionId, ImmutableList.of(questionDefinitionId));
+    } catch (IllegalPredicateOrderingException e) {
+      return redirect(
+              controllers.admin.routes.AdminProgramBlocksController.edit(
+                  programId, blockDefinitionId))
+          .flashing("error", e.getLocalizedMessage());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
-      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
+      return notFound(
+          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     } catch (QuestionNotFoundException e) {
-      return notFound(String.format("Question ID %s not found", questionIds));
+      return notFound(String.format("Question ID %s not found", questionDefinitionId));
     }
 
-    return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId));
+    return redirect(
+        controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockDefinitionId));
+  }
+
+  /** POST endpoint for editing whether or not a question is optional on a screen. */
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
+  public Result setOptional(
+      Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
+    ProgramQuestionDefinitionOptionalityForm programQuestionDefinitionOptionalityForm =
+        formFactory
+            .form(ProgramQuestionDefinitionOptionalityForm.class)
+            .bindFromRequest(request)
+            .get();
+
+    try {
+      programService.setProgramQuestionDefinitionOptionality(
+          programId,
+          blockDefinitionId,
+          questionDefinitionId,
+          programQuestionDefinitionOptionalityForm.getOptional());
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(
+          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
+    } catch (ProgramQuestionDefinitionNotFoundException e) {
+      return notFound(
+          String.format(
+              "Question ID %d not found in Block %d for program %d",
+              questionDefinitionId, blockDefinitionId, programId));
+    }
+
+    return redirect(
+        controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockDefinitionId));
   }
 }

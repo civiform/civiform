@@ -1,7 +1,7 @@
 package support;
 
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import io.ebean.DB;
+import io.ebean.Database;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,7 +11,6 @@ import models.Models;
 import models.Program;
 import models.Question;
 import models.TrustedIntermediaryGroup;
-import play.db.ebean.EbeanConfig;
 import play.inject.Injector;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
@@ -19,15 +18,24 @@ import services.question.types.TextQuestionDefinition;
 
 public class ResourceCreator {
 
-  private final EbeanServer ebeanServer;
+  private final Database database;
 
   public ResourceCreator(Injector injector) {
-    this.ebeanServer = Ebean.getServer(injector.instanceOf(EbeanConfig.class).defaultServer());
+    this.database = DB.getDefault();
     ProgramBuilder.setInjector(injector);
   }
 
   public void truncateTables() {
-    Models.truncate(ebeanServer);
+    Models.truncate(database);
+  }
+
+  public Question insertQuestion(String name) {
+    QuestionDefinition definition =
+        new TextQuestionDefinition(
+            name, Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+    Question question = new Question(definition);
+    question.save();
+    return question;
   }
 
   public Question insertQuestion() {
@@ -60,6 +68,13 @@ public class ResourceCreator {
 
   public Account insertAccount() {
     Account account = new Account();
+    account.save();
+    return account;
+  }
+
+  public Account insertAccountWithEmail(String email) {
+    Account account = new Account();
+    account.setEmailAddress(email);
     account.save();
     return account;
   }

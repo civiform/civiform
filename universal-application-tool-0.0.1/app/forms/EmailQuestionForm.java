@@ -1,15 +1,16 @@
 package forms;
 
-import services.question.types.QuestionDefinition;
+import services.question.types.EmailQuestionDefinition;
 import services.question.types.QuestionType;
 
+/** Form for updating an email question. */
 public class EmailQuestionForm extends QuestionForm {
 
   public EmailQuestionForm() {
     super();
   }
 
-  public EmailQuestionForm(QuestionDefinition qd) {
+  public EmailQuestionForm(EmailQuestionDefinition qd) {
     super(qd);
   }
 

@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableSet;
@@ -16,8 +17,9 @@ import services.CiviFormError;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.RepeatedEntity;
+import services.question.QuestionOption;
 
-/** Defines a single question. */
+/** Superclass for all question types. */
 public abstract class QuestionDefinition {
   private final OptionalLong id;
   private final String name;
@@ -66,6 +68,10 @@ public abstract class QuestionDefinition {
   public abstract static class ValidationPredicates {
     protected static final ObjectMapper mapper =
         new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
+
+    static {
+      mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    }
 
     public String serializeAsString() {
       try {
@@ -239,6 +245,16 @@ public abstract class QuestionDefinition {
       if (multiOptionQuestionDefinition.getOptions().stream()
           .anyMatch(option -> option.optionText().hasEmptyTranslation())) {
         errors.add(CiviFormError.of("Multi-option questions cannot have blank options"));
+      }
+      int numUniqueOptionDefaultValues =
+          multiOptionQuestionDefinition.getOptions().stream()
+              .map(QuestionOption::optionText)
+              .map(LocalizedStrings::getDefault)
+              .distinct()
+              .mapToInt(s -> 1)
+              .sum();
+      if (numUniqueOptionDefaultValues != multiOptionQuestionDefinition.getOptions().size()) {
+        errors.add(CiviFormError.of("Multi-option question options must be unique"));
       }
     }
     return errors.build();

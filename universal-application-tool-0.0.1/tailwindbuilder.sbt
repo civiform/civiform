@@ -3,7 +3,7 @@ import scala.sys.process.Process
 lazy val tailwindCli = TaskKey[Unit]("run tailwindCLI when packaging the application")
 
 def runTailwindCli(file: File) = {
-  Process("npx tailwindcss-cli@latest build ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css", file) !
+  Process("npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css", file) !
 }
 
 tailwindCli := {
@@ -11,7 +11,5 @@ tailwindCli := {
 }
 
 dist := (dist dependsOn tailwindCli).value
-
 stage := (stage dependsOn tailwindCli).value
-
-test := ((test in Test) dependsOn tailwindCli).value
+test := (Test / test dependsOn tailwindCli).value

@@ -1,13 +1,20 @@
 package services.applicant.question;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.QuestionType;
 
-public class FileUploadQuestion implements PresentsErrors {
+/**
+ * Represents a file upload question in the context of a specific applicant.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
+public class FileUploadQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<String> fileKeyValue;
@@ -18,7 +25,7 @@ public class FileUploadQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public boolean hasConditionErrors() {
     return !getQuestionErrors().isEmpty();
   }
 
@@ -26,6 +33,12 @@ public class FileUploadQuestion implements PresentsErrors {
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     // TODO: Implement admin-defined validation.
     return ImmutableSet.of();
+  }
+
+  @Override
+  public ImmutableList<Path> getAllPaths() {
+    // We can't predict ahead of time what the path will be.
+    return ImmutableList.of();
   }
 
   @Override
@@ -42,6 +55,10 @@ public class FileUploadQuestion implements PresentsErrors {
   @Override
   public boolean isAnswered() {
     return applicantQuestion.getApplicantData().hasPath(getFileKeyPath());
+  }
+
+  public ValidationErrorMessage fileRequiredMessage() {
+    return ValidationErrorMessage.create(MessageKey.FILEUPLOAD_VALIDATION_FILE_REQUIRED);
   }
 
   public Optional<String> getFileKeyValue() {
@@ -73,8 +90,18 @@ public class FileUploadQuestion implements PresentsErrors {
     return applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY);
   }
 
+  public Optional<String> getFilename() {
+    if (!isAnswered() || getFileKeyValue().isEmpty()) {
+      return Optional.empty();
+    }
+    return getFileKeyValue().map(key -> key.split("/", 4)).map(arr -> arr[arr.length - 1]);
+  }
+
   @Override
   public String getAnswerString() {
-    return isAnswered() ? "-- FILE UPLOADED (click to download) --" : "-- NO FILE SELECTED --";
+    if (getFilename().isEmpty()) {
+      return "-- NO FILE SELECTED --";
+    }
+    return String.format("-- %s UPLOADED (click to download) --", getFilename().get());
   }
 }

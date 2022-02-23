@@ -23,6 +23,7 @@ public class RadioButtonQuestionFormTest {
     form.setQuestionHelpText("help text");
     // Unique field
     form.setOptions(ImmutableList.of("cat", "dog", "rabbit"));
+    form.setOptionIds(ImmutableList.of(1L, 2L, 3L));
     QuestionDefinitionBuilder builder = form.getBuilder();
 
     RadioButtonQuestionDefinition expected =
@@ -34,8 +35,8 @@ public class RadioButtonQuestionFormTest {
             LocalizedStrings.of(Locale.US, "help text"),
             ImmutableList.of(
                 QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "cat")),
-                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "dog")),
-                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "rabbit"))));
+                QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "dog")),
+                QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "rabbit"))));
 
     assertThat(builder.build()).isEqualTo(expected);
   }

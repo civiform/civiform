@@ -1,20 +1,23 @@
-#! /bin/bash
-pushd $(git rev-parse --show-toplevel)
+#! /usr/bin/env bash
 
-set -e
-set +x
+# DOC: Build a new docker image for running the browser tests and optionally push to Docker Hub if PUSH_BROWSER_TEST_IMAGE is set to anything.
 
-docker build -t civiform-browser-test \
-  browser-test \
+source bin/lib.sh
+
+docker build \
+  -t civiform-browser-test:latest \
   -f browser-test/playwright.Dockerfile \
-  --cache-from public.ecr.aws/t1q6b4h2/civiform-browser-tests:latest \
-  --build-arg BUILDKIT_INLINE_CACHE=1
+  --cache-from civiform/civiform-browser-test:latest \
+  --build-arg BUILDKIT_INLINE_CACHE=1 \
+  browser-test/
 
-if [ "$PUSH_TO_CIVIFORM_ECR" ]; then
-  export AWS_DEFAULT_REGION=us-west-2
-  aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/t1q6b4h2
-  docker tag civiform-browser-test:latest public.ecr.aws/t1q6b4h2/civiform-browser-tests:latest
-  docker push public.ecr.aws/t1q6b4h2/civiform-browser-tests:latest
+if [[ "$PUSH_BROWSER_TEST_IMAGE" ]]; then
+  docker::do_dockerhub_login
+
+  # push the new image to the Docker Hub registry
+  docker tag \
+    civiform-browser-test:latest \
+    docker.io/civiform/civiform-browser-test:latest
+
+  docker push docker.io/civiform/civiform-browser-test:latest
 fi
-
-popd

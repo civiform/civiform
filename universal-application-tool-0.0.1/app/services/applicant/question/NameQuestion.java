@@ -1,5 +1,6 @@
 package services.applicant.question;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Optional;
@@ -10,7 +11,12 @@ import services.applicant.ValidationErrorMessage;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionType;
 
-public class NameQuestion implements PresentsErrors {
+/**
+ * Represents a name question in the context of a specific applicant.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
+public class NameQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<String> firstNameValue;
@@ -23,7 +29,12 @@ public class NameQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public ImmutableList<Path> getAllPaths() {
+    return ImmutableList.of(getFirstNamePath(), getMiddleNamePath(), getLastNamePath());
+  }
+
+  @Override
+  public boolean hasConditionErrors() {
     return !getQuestionErrors().isEmpty();
   }
 
@@ -47,7 +58,7 @@ public class NameQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getFirstNameErrors() {
-    if (isFirstNameAnswered() && getFirstNameValue().isEmpty()) {
+    if (isAnswered() && getFirstNameValue().isEmpty()) {
       return getFirstNameErrorMessage();
     }
 
@@ -60,7 +71,7 @@ public class NameQuestion implements PresentsErrors {
   }
 
   public ImmutableSet<ValidationErrorMessage> getLastNameErrors() {
-    if (isLastNameAnswered() && getLastNameValue().isEmpty()) {
+    if (isAnswered() && getLastNameValue().isEmpty()) {
       return getLastNameErrorMessage();
     }
 

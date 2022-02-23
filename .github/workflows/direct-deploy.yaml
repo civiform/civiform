@@ -1,0 +1,17 @@
+name: Dangerously deploy prod
+on:
+  # Setting this enables manually triggering workflow in the GitHub UI
+  # see https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
+  workflow_dispatch: {}
+
+jobs:
+  run_prober:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out pr branch
+        uses: actions/checkout@v2
+      - name: Deploy prod
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
+        run: cloud/deploys/seattle/bin/deploy-prod

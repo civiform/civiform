@@ -20,7 +20,7 @@ import support.TestConstants;
 
 public class SecurityBrowserTest extends BaseBrowserTest {
   public static final DockerImageName OIDC_IMAGE =
-      DockerImageName.parse("public.ecr.aws/t1q6b4h2/oidc-provider:latest");
+      DockerImageName.parse("docker.io/civiform/oidc-provider:latest");
 
   @ClassRule
   public static GenericContainer<?> oidcProvider =
@@ -156,7 +156,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
 
     goTo(routes.ProfileController.myProfile());
     assertThat(browser.pageSource()).contains("FakeAdminClient");
-    assertThat(browser.pageSource()).contains(Roles.ROLE_UAT_ADMIN.toString());
+    assertThat(browser.pageSource()).contains(Roles.ROLE_CIVIFORM_ADMIN.toString());
 
     goTo(controllers.admin.routes.AdminProgramController.index());
     assertThat(browser.pageSource()).contains("Programs");

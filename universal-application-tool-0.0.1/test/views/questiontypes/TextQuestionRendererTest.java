@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
@@ -22,6 +23,7 @@ import support.QuestionAnswerer;
 public class TextQuestionRendererTest extends WithPostgresContainer {
   private static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =
       new TextQuestionDefinition(
+          OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",

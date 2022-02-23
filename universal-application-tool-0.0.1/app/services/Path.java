@@ -1,5 +1,7 @@
 package services;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Joiner;
@@ -29,6 +31,7 @@ public abstract class Path {
     return create(ImmutableList.of());
   }
 
+  @JsonCreator
   public static Path create(String path) {
     path = path.trim();
     if (path.startsWith(JSON_PATH_START)) {
@@ -61,6 +64,7 @@ public abstract class Path {
    *
    * <p>Example: {@code "applicant.children[2].favorite_color.text"}
    */
+  @JsonValue
   @Memoized
   @Override
   public String toString() {

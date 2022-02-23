@@ -1,5 +1,6 @@
 package controllers.applicant;
 
+import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.ProfileUtils;
@@ -7,6 +8,7 @@ import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import forms.ApplicantInformationForm;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -19,6 +21,7 @@ import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
+import play.mvc.Http.Session;
 import play.mvc.Result;
 import play.mvc.Results;
 import repository.UserRepository;
@@ -61,6 +64,11 @@ public final class ApplicantInformationController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> edit(Http.Request request, long applicantId) {
+    Optional<String> redirectTo =
+        request.session().data().containsKey(REDIRECT_TO_SESSION_KEY)
+            ? Optional.of(request.session().data().get(REDIRECT_TO_SESSION_KEY))
+            : Optional.empty();
+
     CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
@@ -74,7 +82,8 @@ public final class ApplicantInformationController extends CiviFormController {
                         request,
                         applicantStage.toCompletableFuture().join(),
                         messagesApi.preferred(ImmutableSet.of(Lang.defaultLang())),
-                        applicantId)),
+                        applicantId,
+                        redirectTo)),
             httpExecutionContext.current())
         .exceptionally(
             ex -> {
@@ -83,6 +92,7 @@ public final class ApplicantInformationController extends CiviFormController {
                   return unauthorized();
                 }
               }
+
               throw new RuntimeException(ex);
             });
   }
@@ -90,15 +100,22 @@ public final class ApplicantInformationController extends CiviFormController {
   @Secure
   public CompletionStage<Result> update(Http.Request request, long applicantId) {
     Form<ApplicantInformationForm> form = formFactory.form(ApplicantInformationForm.class);
+
     if (form.hasErrors()) {
       return supplyAsync(Results::badRequest);
     }
+
     ApplicantInformationForm infoForm = form.bindFromRequest(request).get();
-    String postRedirect = infoForm.getRedirectLink();
-    String redirectLink =
-        postRedirect.isEmpty()
-            ? routes.ApplicantProgramsController.index(applicantId).url()
-            : postRedirect;
+    String redirectLocation;
+    Session session;
+
+    if (infoForm.getRedirectLink().isEmpty()) {
+      redirectLocation = routes.ApplicantProgramsController.index(applicantId).url();
+      session = request.session();
+    } else {
+      redirectLocation = infoForm.getRedirectLink();
+      session = request.session().removing(REDIRECT_TO_SESSION_KEY);
+    }
 
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
@@ -122,7 +139,10 @@ public final class ApplicantInformationController extends CiviFormController {
         .thenApplyAsync(
             applicant -> {
               Locale preferredLocale = applicant.getApplicantData().preferredLocale();
-              return redirect(redirectLink).withLang(preferredLocale, messagesApi);
+
+              return redirect(redirectLocation)
+                  .withLang(preferredLocale, messagesApi)
+                  .withSession(session);
             },
             httpExecutionContext.current())
         .exceptionally(
@@ -131,10 +151,12 @@ public final class ApplicantInformationController extends CiviFormController {
                 if (ex.getCause() instanceof SecurityException) {
                   return unauthorized();
                 }
+
                 if (ex.getCause() instanceof ApplicantNotFoundException) {
                   return badRequest(ex.getCause().getMessage());
                 }
               }
+
               throw new RuntimeException(ex);
             });
   }

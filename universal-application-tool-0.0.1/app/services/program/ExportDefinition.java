@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
 
+/** Defines how applications of a program are exported to external files. */
 @AutoValue
 @JsonDeserialize(builder = AutoValue_ExportDefinition.Builder.class)
 public abstract class ExportDefinition {
@@ -26,10 +27,13 @@ public abstract class ExportDefinition {
 
   @AutoValue.Builder
   public abstract static class Builder {
+    @JsonProperty("engine")
     public abstract ExportDefinition.Builder setEngine(ExportEngine engine);
 
+    @JsonProperty("csvConfig")
     public abstract ExportDefinition.Builder setCsvConfig(Optional<CsvExportConfig> csvConfig);
 
+    @JsonProperty("pdfConfig")
     public abstract ExportDefinition.Builder setPdfConfig(Optional<PdfExportConfig> pdfConfig);
 
     public abstract ExportDefinition build();

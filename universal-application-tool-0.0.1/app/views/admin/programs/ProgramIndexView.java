@@ -8,10 +8,11 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.p;
 
-import auth.UatProfile;
+import auth.CiviFormProfile;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -24,10 +25,12 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
+import views.components.Modal;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
 
+/** Renders a page so the admin can view all active programs and draft programs. */
 public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
@@ -39,16 +42,33 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   public Content render(
-      ActiveAndDraftPrograms programs, Http.Request request, Optional<UatProfile> profile) {
+      ActiveAndDraftPrograms programs, Http.Request request, Optional<CiviFormProfile> profile) {
+    if (profile.isPresent() && profile.get().isProgramAdmin() && !profile.get().isCiviFormAdmin()) {
+      layout.setOnlyProgramAdminType();
+    }
+
     String pageTitle = "All programs";
+    ContainerTag publishAllModalContent =
+        div()
+            .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
+            .with(p("Are you sure you want to publish all programs?").withClasses(Styles.P_2))
+            .with(maybeRenderPublishButton(programs, request));
+    Modal publishAllModal =
+        Modal.builder("publish-all-programs-modal", publishAllModalContent)
+            .setModalTitle("Confirmation")
+            .setTriggerButtonText("Publish all programs")
+            .build();
+
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(
                 h1(pageTitle).withClasses(Styles.MY_4),
                 div()
-                    .withClasses(Styles.INLINE_BLOCK)
-                    .with(renderNewProgramButton(), maybeRenderPublishButton(programs, request)),
+                    .withClasses(Styles.FLEX, Styles.ITEMS_CENTER)
+                    .with(renderNewProgramButton())
+                    .with(div().withClass(Styles.FLEX_GROW))
+                    .condWith(programs.anyDraft(), publishAllModal.getButton()),
                 each(
                     programs.getProgramNames(),
                     name ->
@@ -56,10 +76,24 @@ public final class ProgramIndexView extends BaseHtmlView {
                             programs.getActiveProgramDefinition(name),
                             programs.getDraftProgramDefinition(name),
                             request,
-                            profile)));
+                            profile)))
+            .with(renderDownloadExportCsvButton());
 
-    HtmlBundle htmlBundle = layout.getBundle().setTitle(pageTitle).addMainContent(contentDiv);
+    HtmlBundle htmlBundle =
+        layout
+            .getBundle()
+            .setTitle(pageTitle)
+            .addMainContent(contentDiv)
+            .addModals(publishAllModal);
     return layout.renderCentered(htmlBundle);
+  }
+
+  private ContainerTag renderDownloadExportCsvButton() {
+    return new LinkElement()
+        .setId("download-export-csv-button")
+        .setHref(routes.AdminApplicationController.downloadDemographics().url())
+        .setText("Download Exported Data (CSV)")
+        .asButton();
   }
 
   private Tag maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {
@@ -97,15 +131,16 @@ public final class ProgramIndexView extends BaseHtmlView {
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
-      Optional<UatProfile> profile) {
+      Optional<CiviFormProfile> profile) {
     String programStatusText = extractProgramStatusText(draftProgram, activeProgram);
-    String lastEditText = "Last updated 2 hours ago."; // TODO: Need to generate this.
+    // String lastEditText = "Last updated 2 hours ago."; // TODO(Issue #1657): Need to generate
+    // this.
 
     ProgramDefinition displayProgram = getDisplayProgram(draftProgram, activeProgram);
 
     String programTitleText = displayProgram.adminName();
     String programDescriptionText = displayProgram.adminDescription();
-    String blockCountText = "Blocks: " + displayProgram.getBlockCount();
+    String blockCountText = "Screens: " + displayProgram.getBlockCount();
     String questionCountText = "Questions: " + displayProgram.getQuestionCount();
 
     Tag topContent =
@@ -145,7 +180,8 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     Tag bottomContent =
         div(
-                p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
+                // TODO(Issue #1657): Create accurate lastEditText and readd.
+                // p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
                 maybeRenderManageTranslationsLink(draftProgram),
                 maybeRenderEditLink(draftProgram, activeProgram, request),
@@ -228,7 +264,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Tag maybeRenderViewApplicationsLink(
-      Optional<ProgramDefinition> activeProgram, Optional<UatProfile> userProfile) {
+      Optional<ProgramDefinition> activeProgram, Optional<CiviFormProfile> userProfile) {
     if (activeProgram.isPresent() && userProfile.isPresent()) {
       boolean userIsAuthorized = true;
       try {

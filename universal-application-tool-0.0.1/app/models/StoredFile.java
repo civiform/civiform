@@ -1,12 +1,11 @@
 package models;
 
-import java.net.URL;
+import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import play.data.validation.Constraints;
 
-/** The ebean mapped class for a file stored in AWS S3 */
+/** The EBean mapped class for a file stored in AWS S3 */
 @Entity
 @Table(name = "files")
 public class StoredFile extends BaseModel {
@@ -20,15 +19,14 @@ public class StoredFile extends BaseModel {
     this.name = name;
   }
 
+  public Optional<String> getOriginalFileName() {
+    return Optional.ofNullable(originalFileName);
+  }
+
+  public void setOriginalFileName(String originalFileName) {
+    this.originalFileName = originalFileName;
+  }
+
   @Constraints.Required String name;
-
-  public URL getPresignedURL() {
-    return presignedURL;
-  }
-
-  public void setPresignedURL(URL presignedURL) {
-    this.presignedURL = presignedURL;
-  }
-
-  @Transient URL presignedURL;
+  String originalFileName;
 }

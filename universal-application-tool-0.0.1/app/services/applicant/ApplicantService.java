@@ -1,11 +1,13 @@
 package services.applicant;
 
-import auth.UatProfile;
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Applicant;
 import models.Application;
+import models.LifecycleStage;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramDefinition;
 
@@ -57,7 +59,7 @@ public interface ApplicantService {
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   CompletionStage<Application> submitApplication(
-      long applicantId, long programId, UatProfile submittingProfile);
+      long applicantId, long programId, CiviFormProfile submittingProfile);
 
   /** Create a new {@link Applicant} for a given user. */
   CompletionStage<Applicant> createApplicant(long userId);
@@ -76,12 +78,25 @@ public interface ApplicantService {
   CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
       Application application);
 
-  /**
-   * Return all programs that are appropriate to serve to an applicant - which is any active
-   * program, plus any program where they have an application in the draft stage.
-   */
-  CompletionStage<ImmutableList<ProgramDefinition>> relevantPrograms(long applicantId);
+  /** Get a {@link ReadOnlyApplicantProgramService} from an application and program definition. */
+  ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
+      Application application, ProgramDefinition programDefinition);
 
-  /** Returns the name of the given applicant id. */
+  /**
+   * Return all programs that are appropriate to serve to an applicant - which is any active program
+   * that is public and any program where they have an application in the draft stage.
+   *
+   * <p>The programs do not have question definitions loaded into its program question definitions.
+   */
+  CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>> relevantPrograms(
+      long applicantId);
+
+  /** Return the name of the given applicant id. */
   CompletionStage<String> getName(long applicantId);
+
+  /** Return the email of the given applicant id if they have one. */
+  CompletionStage<Optional<String>> getEmail(long applicantId);
+
+  /** Return all applications, including applications from previous versions. */
+  ImmutableList<Application> getAllApplications();
 }

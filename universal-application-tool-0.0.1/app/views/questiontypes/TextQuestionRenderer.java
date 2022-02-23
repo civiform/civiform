@@ -5,6 +5,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.TextQuestion;
 import views.components.FieldWithLabel;
 
+/** Renders a text question. */
 public class TextQuestionRenderer extends ApplicantQuestionRenderer {
 
   public TextQuestionRenderer(ApplicantQuestion question) {
@@ -25,6 +26,7 @@ public class TextQuestionRenderer extends ApplicantQuestionRenderer {
             .setFieldName(textQuestion.getTextPath().toString())
             .setValue(textQuestion.getTextValue().orElse(""))
             .setFieldErrors(params.messages(), textQuestion.getQuestionErrors())
+            .setScreenReaderText(question.getQuestionText())
             .getContainer();
 
     return renderInternal(params.messages(), questionFormContent, false);

@@ -11,6 +11,8 @@ const configuration = {
     scopes: ['openid', 'profile'],
     redirect_uris: ['http://localhost:9000/callback/OidcClient', 'http://localhost:9000/callback/AdClient', 'http://localhost:19001/callback/OidcClient', 'http://localhost:19001/callback/AdClient'],
   }],
+
+  // Required method, we fake the account details.
   async findAccount(ctx, id) {
     return {
       accountId: id,

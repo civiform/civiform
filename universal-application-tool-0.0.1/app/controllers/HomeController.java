@@ -2,8 +2,8 @@ package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.UatProfile;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -18,6 +18,7 @@ import play.mvc.Result;
 import services.applicant.ApplicantData;
 import views.LoginForm;
 
+/** Controller for handling methods for the landing pages. */
 public class HomeController extends Controller {
 
   private final LoginForm loginForm;
@@ -38,16 +39,16 @@ public class HomeController extends Controller {
   }
 
   public CompletionStage<Result> index(Http.Request request) {
-    Optional<UatProfile> maybeProfile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> maybeProfile = profileUtils.currentUserProfile(request);
 
     if (maybeProfile.isEmpty()) {
       return CompletableFuture.completedFuture(
           redirect(controllers.routes.HomeController.loginForm(Optional.empty())));
     }
 
-    UatProfile profile = maybeProfile.get();
+    CiviFormProfile profile = maybeProfile.get();
 
-    if (profile.isUatAdmin()) {
+    if (profile.isCiviFormAdmin()) {
       return CompletableFuture.completedFuture(
           redirect(controllers.admin.routes.AdminProgramController.index()));
     } else if (profile.isProgramAdmin()) {
@@ -78,7 +79,7 @@ public class HomeController extends Controller {
 
   public Result loginForm(Http.Request request, Optional<String> message)
       throws TechnicalException {
-    return ok(loginForm.render(request, message));
+    return ok(loginForm.render(request, messagesApi.preferred(request), message));
   }
 
   public Result playIndex() {

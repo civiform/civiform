@@ -12,10 +12,10 @@ import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.QuestionTag;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
@@ -39,6 +39,7 @@ import services.question.types.QuestionType;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionsListView;
 
+/** Controller for handling methods for admins managing questions. */
 public class AdminQuestionController extends CiviFormController {
   private final QuestionService service;
   private final QuestionsListView listView;
@@ -60,7 +61,11 @@ public class AdminQuestionController extends CiviFormController {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  /**
+   * Return a HTML page displaying all questions of the current live version and all questions of
+   * the current draft version if any.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> index(Request request) {
     Optional<String> maybeFlash = request.flash().get("message");
     return service
@@ -73,7 +78,11 @@ public class AdminQuestionController extends CiviFormController {
             httpExecutionContext.current());
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  /**
+   * Return a HTML page displaying all configurations of a question without the ability to update
+   * it.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> show(long id) {
     return service
         .getReadOnlyQuestionService()
@@ -99,7 +108,8 @@ public class AdminQuestionController extends CiviFormController {
             httpExecutionContext.current());
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  /** Return a HTML page containing a form to create a new question in the draft version. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Request request, String type) {
     QuestionType questionType;
     try {
@@ -123,7 +133,8 @@ public class AdminQuestionController extends CiviFormController {
     }
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  /** POST endpoint for creating a new question in the draft version. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Request request, String questionType) {
     QuestionForm questionForm;
     try {
@@ -158,7 +169,8 @@ public class AdminQuestionController extends CiviFormController {
     return withMessage(redirect(routes.AdminQuestionController.index()), successMessage);
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  /** POST endpoint for un-archiving a question. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result restore(Request request, Long id) {
     try {
       service.restoreQuestion(id);
@@ -168,7 +180,8 @@ public class AdminQuestionController extends CiviFormController {
     return redirect(routes.AdminQuestionController.index());
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  /** POST endpoint for archiving a question so it will not be carried over to a new version. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result archive(Request request, Long id) {
     try {
       service.archiveQuestion(id);
@@ -178,7 +191,8 @@ public class AdminQuestionController extends CiviFormController {
     return redirect(routes.AdminQuestionController.index());
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  /** POST endpoint for discarding a draft for a question. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result discardDraft(Request request, Long id) {
     try {
       service.discardDraft(id);
@@ -188,7 +202,11 @@ public class AdminQuestionController extends CiviFormController {
     return redirect(routes.AdminQuestionController.index());
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  /**
+   * Return a HTML page containing all configurations of a question in the draft version and forms
+   * to edit them.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public CompletionStage<Result> edit(Request request, Long id) {
     return service
         .getReadOnlyQuestionService()
@@ -215,7 +233,8 @@ public class AdminQuestionController extends CiviFormController {
             httpExecutionContext.current());
   }
 
-  @Secure(authorizers = Authorizers.Labels.UAT_ADMIN)
+  /** POST endpoint for updating a question in the draft version. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, Long id, String questionType) {
     QuestionForm questionForm;
     try {
@@ -260,6 +279,13 @@ public class AdminQuestionController extends CiviFormController {
       return ok(
           editView.renderEditQuestionForm(
               request, id, questionForm, maybeEnumerationQuestion, errorMessage));
+    }
+    try {
+      service.setExportState(
+          errorAndUpdatedQuestionDefinition.getResult(),
+          QuestionTag.valueOf(questionForm.getQuestionExportState()));
+    } catch (InvalidUpdateException | QuestionNotFoundException e) {
+      return badRequest(e.toString());
     }
 
     String successMessage = String.format("question %s updated", questionForm.getQuestionName());
@@ -316,11 +342,16 @@ public class AdminQuestionController extends CiviFormController {
           ((EnumeratorQuestionForm) questionForm).getEntityType());
     }
 
-    if (existing.getQuestionType().isMultiOptionType()) {
+    if (questionForm instanceof MultiOptionQuestionForm) {
+      MultiOptionQuestionDefinition definition = null;
+      try {
+        definition = (MultiOptionQuestionDefinition) questionForm.getBuilder().build();
+      } catch (UnsupportedQuestionTypeException e) {
+        // Impossible - we checked the type above.
+        throw new RuntimeException(e);
+      }
       updateDefaultLocalizationForOptions(
-          updated,
-          (MultiOptionQuestionDefinition) existing,
-          ((MultiOptionQuestionForm) questionForm).getOptions());
+          updated, (MultiOptionQuestionDefinition) existing, definition.getOptions());
     }
   }
 
@@ -339,7 +370,7 @@ public class AdminQuestionController extends CiviFormController {
   private void updateDefaultLocalizationForOptions(
       QuestionDefinitionBuilder updated,
       MultiOptionQuestionDefinition existing,
-      List<String> updatedDefaultOptions) {
+      ImmutableList<QuestionOption> updatedOptions) {
 
     ImmutableMap<String, QuestionOption> existingTranslations =
         existing.getOptions().stream()
@@ -348,14 +379,19 @@ public class AdminQuestionController extends CiviFormController {
     // translations. If we do not have existing translations for a given string, create
     // a new, empty set of translations.
     ImmutableList.Builder<QuestionOption> updatedOptionsBuilder = ImmutableList.builder();
-    for (int i = 0; i < updatedDefaultOptions.size(); i++) {
-      String updatedDefaultOption = updatedDefaultOptions.get(i);
-      if (existingTranslations.containsKey(updatedDefaultOption)) {
+    for (QuestionOption updatedOption : updatedOptions) {
+      if (existingTranslations.containsKey(updatedOption.optionText().getDefault())
+          && existingTranslations.get(updatedOption.optionText().getDefault()).id()
+              == updatedOption.id()) {
+        QuestionOption existingOption =
+            existingTranslations.get(updatedOption.optionText().getDefault());
         updatedOptionsBuilder.add(
-            existingTranslations.get(updatedDefaultOption).toBuilder().setId(i).build());
+            existingOption.toBuilder()
+                .setId(updatedOption.id())
+                .setDisplayOrder(updatedOption.displayOrder())
+                .build());
       } else {
-        updatedOptionsBuilder.add(
-            QuestionOption.create(i, LocalizedStrings.withDefaultValue(updatedDefaultOption)));
+        updatedOptionsBuilder.add(updatedOption);
       }
     }
     updated.setQuestionOptions(updatedOptionsBuilder.build());

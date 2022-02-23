@@ -9,6 +9,7 @@ import static j2html.TagCreator.pre;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableList;
 import controllers.dev.routes;
 import j2html.tags.ContainerTag;
@@ -24,6 +25,10 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.style.Styles;
 
+/**
+ * Renders a page for a developer to seed the database. This is only available in non-prod
+ * environments.
+ */
 public class DatabaseSeedView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final ObjectMapper objectMapper;
@@ -32,6 +37,7 @@ public class DatabaseSeedView extends BaseHtmlView {
   public DatabaseSeedView(BaseHtmlLayout layout, ObjectMapper objectMapper) {
     this.layout = checkNotNull(layout);
     this.objectMapper = checkNotNull(objectMapper);
+    this.objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
   }
 
   public Content render(

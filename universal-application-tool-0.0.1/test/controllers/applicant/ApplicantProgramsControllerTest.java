@@ -12,7 +12,11 @@ import static play.test.Helpers.stubMessagesApi;
 
 import controllers.WithMockedProfiles;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import models.Applicant;
+import models.Application;
+import models.LifecycleStage;
 import models.Program;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -20,6 +24,7 @@ import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.question.types.QuestionDefinition;
@@ -30,6 +35,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   private Applicant currentApplicant;
   private ApplicantProgramsController controller;
+  private VersionRepository versionRepository;
 
   @Before
   public void setUp() {
@@ -72,6 +78,37 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void test_deduplicate_inProgressPrograms() {
+    versionRepository = instanceOf(VersionRepository.class);
+    String programName = "In Progress Program";
+    Program program = resourceCreator().insertActiveProgram(programName);
+
+    Application app = new Application(currentApplicant, program, LifecycleStage.DRAFT);
+    app.save();
+
+    resourceCreator().insertDraftProgram(programName);
+
+    this.versionRepository.publishNewSynchronizedVersion();
+
+    Request request = addCSRFToken(fakeRequest()).build();
+    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    // A program's name appears in the index view page content 4 times.
+    // If it appeared 8 times, that means there is a duplicate of the program.
+    assertThat(numberOfSubstringsInString(contentAsString(result), programName)).isEqualTo(4);
+  }
+
+  /** Returns the number of times a substring appears in the string. */
+  private int numberOfSubstringsInString(final String s, String substring) {
+    Pattern pattern = Pattern.compile(substring);
+    Matcher matcher = pattern.matcher(s);
+    int count = 0;
+    while (matcher.find()) count++;
+    return count;
+  }
+
+  @Test
   public void index_withProgram_includesApplyButtonWithRedirect() {
     Program program = resourceCreator().insertActiveProgram("program");
 
@@ -80,7 +117,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .contains(routes.ApplicantProgramsController.edit(currentApplicant.id, program.id).url());
+        .contains(routes.ApplicantProgramsController.view(currentApplicant.id, program.id).url());
   }
 
   @Test
@@ -116,6 +153,31 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void view_includesApplyButton() {
+    Program program = resourceCreator().insertActiveProgram("program");
+
+    Request request = addCSRFToken(fakeRequest()).build();
+    Result result =
+        controller.view(request, currentApplicant.id, program.id).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains(
+            routes.ApplicantProgramReviewController.preview(currentApplicant.id, program.id).url());
+  }
+
+  @Test
+  public void view_invalidProgram_returnsBadRequest() {
+    Result result =
+        controller
+            .view(fakeRequest().build(), currentApplicant.id, 9999L)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
   public void edit_differentApplicant_returnsUnauthorizedResult() {
     Request request = addCSRFToken(fakeRequest()).build();
     Result result =
@@ -139,7 +201,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Program program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withQuestion(testQuestionBank().applicantName())
+            .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
 
     Request request = addCSRFToken(fakeRequest()).build();
@@ -160,9 +222,9 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Program program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
-            .withQuestionDefinition(colorQuestion)
+            .withRequiredQuestionDefinition(colorQuestion)
             .withBlock()
-            .withQuestion(testQuestionBank().applicantAddress())
+            .withRequiredQuestion(testQuestionBank().applicantAddress())
             .build();
     // Answer the color question
     Path colorPath = ApplicantData.APPLICANT_PATH.join("applicant_favorite_color");

@@ -3,15 +3,46 @@ package views.questiontypes;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 
+import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import services.applicant.question.ApplicantQuestion;
-import services.aws.SignedS3UploadRequest;
+import services.applicant.question.FileUploadQuestion;
+import views.FileUploadViewStrategy;
+import views.components.FieldWithLabel;
+import views.style.ReferenceClasses;
 
+/**
+ * Renders a file upload question.
+ *
+ * <p>A file upload question requires a different form. See {@code
+ * views.applicant.ApplicantProgramBlockEditView#renderFileUploadBlockSubmitForms}.
+ */
 public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
+  private static final String IMAGES_AND_PDF = "image/*,.pdf";
 
-  public FileUploadQuestionRenderer(ApplicantQuestion question) {
+  private final FileUploadViewStrategy fileUploadViewStrategy;
+  private final FileUploadQuestion fileuploadQuestion;
+
+  public static Tag renderFileKeyField(
+      ApplicantQuestion question, ApplicantQuestionRendererParams params, boolean clearData) {
+    FileUploadQuestion fileuploadQuestion = question.createFileUploadQuestion();
+    String value = fileuploadQuestion.getFileKeyValue().orElse("");
+    if (clearData) {
+      value = "";
+    }
+    return FieldWithLabel.input()
+        .setFieldName(fileuploadQuestion.getFileKeyPath().toString())
+        .setValue(value)
+        .setFieldErrors(params.messages(), fileuploadQuestion.getQuestionErrors())
+        .getContainer();
+  }
+
+  public FileUploadQuestionRenderer(
+      ApplicantQuestion question, FileUploadViewStrategy fileUploadViewStrategy) {
     super(question);
+    this.fileuploadQuestion = question.createFileUploadQuestion();
+    this.fileUploadViewStrategy = fileUploadViewStrategy;
   }
 
   @Override
@@ -21,46 +52,22 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
 
   @Override
   public String getReferenceClass() {
-    return "cf-question-file";
+    return ReferenceClasses.FILEUPLOAD_QUESTION;
   }
 
   private ContainerTag fileUploadFields(ApplicantQuestionRendererParams params) {
     if (params.isSample()) {
       return fileUploadFieldsPreview();
     }
-    return signedFileUploadFields(params.signedFileUploadRequest().get());
+    return fileUploadViewStrategy.signedFileUploadFields(params, fileuploadQuestion);
   }
 
   private ContainerTag fileUploadFieldsPreview() {
-    return div().with(input().withType("file").withName("file"));
+    return div()
+        .with(input().withType("file").withName("file").attr(Attr.ACCEPT, acceptFileTypes()));
   }
 
-  private ContainerTag signedFileUploadFields(SignedS3UploadRequest request) {
-    ContainerTag fieldsTag =
-        div()
-            .with(input().withType("hidden").withName("key").withValue(request.key()))
-            .with(
-                input()
-                    .withType("hidden")
-                    .withName("success_action_redirect")
-                    .withValue(request.successActionRedirect()))
-            .with(
-                input()
-                    .withType("hidden")
-                    .withName("X-Amz-Credential")
-                    .withValue(request.credential()));
-    if (!request.securityToken().isEmpty()) {
-      fieldsTag.with(
-          input()
-              .withType("hidden")
-              .withName("X-Amz-Security-Token")
-              .withValue(request.securityToken()));
-    }
-    return fieldsTag
-        .with(input().withType("hidden").withName("X-Amz-Algorithm").withValue(request.algorithm()))
-        .with(input().withType("hidden").withName("X-Amz-Date").withValue(request.date()))
-        .with(input().withType("hidden").withName("Policy").withValue(request.policy()))
-        .with(input().withType("hidden").withName("X-Amz-Signature").withValue(request.signature()))
-        .with(input().withType("file").withName("file"));
+  private String acceptFileTypes() {
+    return IMAGES_AND_PDF;
   }
 }

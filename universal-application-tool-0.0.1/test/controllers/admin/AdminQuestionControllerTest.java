@@ -230,7 +230,8 @@ public class AdminQuestionControllerTest extends WithPostgresContainer {
         .put("questionDescription", "a new description")
         .put("questionType", nameQuestion.getQuestionType().name())
         .put("questionText", "question text updated")
-        .put("questionHelpText", "a new help text");
+        .put("questionHelpText", "a new help text")
+        .put("questionExportState", "NON_DEMOGRAPHIC");
     RequestBuilder requestBuilder = addCSRFToken(Helpers.fakeRequest().bodyForm(formData.build()));
 
     Result result =
@@ -273,8 +274,12 @@ public class AdminQuestionControllerTest extends WithPostgresContainer {
             .put("questionText", "new question text")
             .put("questionHelpText", "new help text")
             .put("options[0]", "coffee") // Unchanged but out of order
-            .put("options[1]", "lavender") // New flavor
-            .put("options[2]", "vanilla") // Unchanged and in order
+            .put("options[1]", "vanilla") // Unchanged and in order
+            .put("newOptions[0]", "lavender") // New flavor
+            .put("optionIds[0]", "4")
+            .put("optionIds[1]", "3")
+            .put("nextAvailableId", "5")
+            .put("questionExportState", "NON_DEMOGRAPHIC")
             // Has one fewer than the original question
             .build();
     RequestBuilder requestBuilder = addCSRFToken(Helpers.fakeRequest().bodyForm(formData));
@@ -296,10 +301,10 @@ public class AdminQuestionControllerTest extends WithPostgresContainer {
     ImmutableList<QuestionOption> expectedOptions =
         ImmutableList.of(
             QuestionOption.create(
-                0, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café")),
-            QuestionOption.create(1, LocalizedStrings.withDefaultValue("lavender")),
+                4, 0, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café")),
             QuestionOption.create(
-                2, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")));
+                3, 1, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
+            QuestionOption.create(5, 2, LocalizedStrings.withDefaultValue("lavender")));
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
   }

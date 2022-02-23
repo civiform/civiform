@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Applicant;
@@ -24,14 +25,17 @@ import support.QuestionAnswerer;
 public class TextQuestionTest extends WithPostgresContainer {
   private static final TextQuestionDefinition textQuestionDefinition =
       new TextQuestionDefinition(
+          OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",
           LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"));
+          LocalizedStrings.of(Locale.US, "help text"),
+          TextQuestionDefinition.TextValidationPredicates.create());
 
   private static final TextQuestionDefinition minAndMaxLengthTextQuestionDefinition =
       new TextQuestionDefinition(
+          OptionalLong.of(1),
           "question name",
           Optional.empty(),
           "description",
@@ -58,7 +62,7 @@ public class TextQuestionTest extends WithPostgresContainer {
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
     assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.hasQuestionErrors()).isFalse();
+    assertThat(textQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -72,7 +76,7 @@ public class TextQuestionTest extends WithPostgresContainer {
 
     assertThat(textQuestion.getTextValue().get()).isEqualTo("hello");
     assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.hasQuestionErrors()).isFalse();
+    assertThat(textQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test
@@ -88,7 +92,7 @@ public class TextQuestionTest extends WithPostgresContainer {
 
     assertThat(textQuestion.getTextValue().get()).isEqualTo(value);
     assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.hasQuestionErrors()).isFalse();
+    assertThat(textQuestion.hasConditionErrors()).isFalse();
   }
 
   @Test

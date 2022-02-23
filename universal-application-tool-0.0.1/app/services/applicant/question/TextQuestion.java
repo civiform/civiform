@@ -1,5 +1,6 @@
 package services.applicant.question;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.MessageKey;
@@ -8,7 +9,12 @@ import services.applicant.ValidationErrorMessage;
 import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
 
-public class TextQuestion implements PresentsErrors {
+/**
+ * Represents a text question in the context of a specific applicant.
+ *
+ * <p>See {@link ApplicantQuestion} for details.
+ */
+public class TextQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<String> textValue;
@@ -19,7 +25,12 @@ public class TextQuestion implements PresentsErrors {
   }
 
   @Override
-  public boolean hasQuestionErrors() {
+  public ImmutableList<Path> getAllPaths() {
+    return ImmutableList.of(getTextPath());
+  }
+
+  @Override
+  public boolean hasConditionErrors() {
     return !getQuestionErrors().isEmpty();
   }
 

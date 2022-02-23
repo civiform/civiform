@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.Optional;
 import models.Applicant;
 import models.Application;
+import models.DisplayMode;
 import models.LifecycleStage;
 import models.Program;
 import org.junit.Before;
@@ -30,6 +31,7 @@ public class ApplicationRepositoryTest extends WithPostgresContainer {
 
     Application appOne =
         repo.submitApplication(one, pOne, Optional.empty()).toCompletableFuture().join();
+    Instant initialSubmitTime = appOne.getSubmitTime();
     Application appTwo = repo.createOrUpdateDraft(one, pOne).toCompletableFuture().join();
     Application appThree =
         repo.submitApplication(two, pTwo, Optional.empty()).toCompletableFuture().join();
@@ -48,10 +50,14 @@ public class ApplicationRepositoryTest extends WithPostgresContainer {
     assertThat(
             repo.getApplication(appOne.id).toCompletableFuture().join().get().getLifecycleStage())
         .isEqualTo(LifecycleStage.OBSOLETE);
-    // And that the DRAFT is DELETED.
+    // Ensure the second submitted app has a later submit time than the first.
+    assertThat(appThree.getSubmitTime()).isAfter(appOne.getSubmitTime());
+    // Ensure the submit time didn't get changed when the application was set as obsolete.
+    assertThat(appOne.getSubmitTime()).isEqualTo(initialSubmitTime);
+    // And that the DRAFT is now ACTIVE.
     assertThat(
             repo.getApplication(appTwo.id).toCompletableFuture().join().get().getLifecycleStage())
-        .isEqualTo(LifecycleStage.DELETED);
+        .isEqualTo(LifecycleStage.ACTIVE);
   }
 
   @Test
@@ -60,12 +66,12 @@ public class ApplicationRepositoryTest extends WithPostgresContainer {
     Program program = saveProgram("Program");
     Application application =
         repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
-    Instant initialSubmitTime = application.getSubmitTime();
     Application applicationTwo =
         repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
 
     assertThat(application.id).isEqualTo(applicationTwo.id);
-    assertThat(applicationTwo.getSubmitTime()).isAfter(initialSubmitTime);
+    // Since this is a draft application, it shouldn't have a submit time set.
+    assertThat(applicationTwo.getSubmitTime()).isNull();
   }
 
   private Applicant saveApplicant(String name) {
@@ -76,7 +82,7 @@ public class ApplicationRepositoryTest extends WithPostgresContainer {
   }
 
   private Program saveProgram(String name) {
-    Program program = new Program(name, "desc", name, "desc");
+    Program program = new Program(name, "desc", name, "desc", "", DisplayMode.PUBLIC.getValue());
     program.save();
     return program;
   }
