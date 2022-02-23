@@ -14,6 +14,8 @@ import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -33,6 +35,7 @@ import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
+import java.net.URLEncoder;
 
 /** Shows all questions in the applying program and answers to the questions if present. */
 public final class ApplicantProgramSummaryView extends BaseHtmlView {
@@ -152,8 +155,15 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     ContainerTag answerContent;
     if (data.fileKey().isPresent()) {
+      String encodedUrl = "";
+      try {
+        encodedUrl = URLEncoder.encode(data.fileKey().get(),
+            StandardCharsets.UTF_8);
+      } catch (Exception e) {
+        // TODO: add logging
+      }
       String fileLink =
-          controllers.routes.FileController.show(applicantId, data.fileKey().get()).url();
+          controllers.routes.FileController.show(applicantId, encodedUrl).url();
       answerContent = a().withHref(fileLink).withClasses(Styles.W_2_3);
     } else {
       answerContent = div();
