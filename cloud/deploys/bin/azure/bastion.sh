@@ -116,20 +116,46 @@ function bastion::get_connect_to_postgres_command() {
     PGPASSWORD='${DB_PASSWORD}' psql -h ${1} -d postgres -U psqladmin@${1}"
 }
 
+# echo "install the correct thing to do the pg dump"
+# bastion::remove_ssh_key "${KEY_FILE}"
+# echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main 11" | sudo tee /etc/apt/sources.list.d/pgsql.list
+# wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+# sudo apt update && sudo apt install postgresql-11
+
+# https://www.postgresql.org/download/linux/ubuntu/
+# echo "do the pgdump"
+# bastion::deny_ip_security_group "${resource_group}"
+# /usr/bin/pg_restore -h civiform-full-mammal.postgres.database.azure.com -d postgres --clean < ~/pgdump/dev_programs.dump
 
 #######################################
-# Get the command to restore db data
+# Get the command to restore db data.
+# More details on the psql version # https://www.postgresql.org/download/linux/ubuntu/
+# the pg_restore is symlinked to that via a pg_wrapper
 # Arguments:
 #   1: the postgres host to connect to 
 #   2: the vaultname where secrets are stored
+#   3: path of the dump data
 #######################################
 function bastion::get_psql_restore() {
   local DB_PASSWORD=$(bastion::get_pg_password "${2}")
   echo "export DEBIAN_FRONTEND='noninteractive'; \
     yes | sudo apt-get update > /dev/null; \
-    yes | sudo apt-get install postgresql-client > /dev/null; \
-    PGPASSWORD='${DB_PASSWORD}' psql -h ${1} -d postgres -U psqladmin@${1}"
+    yes | sudo apt-get install postgresql-14 > /dev/null; \
+    PGPASSWORD='${DB_PASSWORD}' /usr/lib/postgresql/14/bin/pg_restore \
+      -U psqladmin@${1} \
+      -d postgres 
+      -h ${1} 
+      -a < ${3}"
 }
 
-ssh -i /Users/sgoldblatt/.ssh/bastion adminuser@137.135.99.27 
-scp -i ~/.ssh/bastion ~/Desktop/dev_programs.dump adminuser@137.135.99.27:~/pgdum
+#######################################
+# Copy a file to the bastion 
+# Arguments:
+#   1: the ip of the vm you will connect to
+#   2: the key name to use to connect to
+#   3: location of the file you want to copy
+#   4: destination location on the bastion 
+#######################################
+function bastion::scp_to_bastion() {
+  scp -i "${2}" "${3}" "adminuser@${1}:${4}"
+}

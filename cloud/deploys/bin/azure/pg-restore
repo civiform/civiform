@@ -6,25 +6,32 @@ source azure/bastion.sh
 # DOC: Required to pass in the resource group (-g), the database name (-d) and the keyvault name (-v). 
 # DOC: example: azure/db-connection -g sgdev -d civiform-artistic-halibut -v sgdev-civiform-kv
 key_name="bastion" 
-while getopts g:d:k:v: flag
+while getopts g:d:k:v:f:b: flag
 do
   case "${flag}" in
     g) resource_group=${OPTARG};;
     d) database_name=${OPTARG};;
     k) key_name=${OPTARG};;
     v) vault_name=${OPTARG};;
+    f) local_filename=${OPTARG};;
+    b) bastion_filename=${OPTARG};;
   esac
 done
 
-if [[ ! "${resource_group}" ]] \
-   || [[ ! "${database_name}" ]] \
-   || [[ ! "${vault_name}" ]]; then
-  out::error "arguments -g and -d and -v must be provided"
+# ssh -i /Users/sgoldblatt/.ssh/bastion adminuser@137.135.99.27 
+# scp -i ~/.ssh/bastion ~/Desktop/dev_programs.dump adminuser@137.135.99.27:~/pgdum
+
+if  [[ ! "${resource_group}" ]] \
+  || [[ ! "${database_name}" ]] \
+  || [[ ! "${vault_name}" ]] \
+  || [[ ! "${local_filename}" ]] \
+  || [[ ! "${bastion_filename}" ]]; then
+  out::error "arguments -g and -d and -v  and -f and -b must be provided"
   exit 1
 fi
 
 echo "Add my ip address to the security group for ssh"
-bastion::allow_ip_security_group "${resource_group}" "${vault_name}"
+# bastion::allow_ip_security_group "${resource_group}" "${vault_name}"
 
 readonly KEY_FILE="${HOME}/.ssh/${key_name}"
 if ! [[ -f "${KEY_FILE}" ]]; then
@@ -42,21 +49,22 @@ echo "postgreshost: ${POSTGRES_HOST}"
 echo "Adding the public key to the bastion vm"
 bastion::update_bastion_ssh_keys "${resource_group}" "${KEY_FILE}"
 
-readonly PSQL_CONNECT=$(bastion::get_psql_restore \
-  "${POSTGRES_HOST}" "${vault_name}")
+echo "Creating the pgdump directory if it doesn't exit"
+bastion::bastion_ssh_exec \
+  "${VM_IP_ADDRESS}" "${KEY_FILE}" "mkdir -p ~/pgdump"
+
+echo "Copying pg_dump to bastion"
+bastion::scp_to_bastion "${VM_IP_ADDRESS}" "${KEY_FILE}" "${local_filename}" "~/pgdump/${bastion_filename}.dump"
+
+readonly PG_RESTORE_COMMAND=$(bastion::get_psql_restore \
+  "${POSTGRES_HOST}" "${vault_name}" "~/pgdump/${bastion_filename}.dump")
 echo "SSHing into machine and opening postgres, \
 type command here and \\q to exit"
-echo "${PSQL_CONNECT}"
-# bastion::bastion_ssh_exec \
-#   "${VM_IP_ADDRESS}" "${KEY_FILE}" "${PSQL_CONNECT}"
+bastion::bastion_ssh_exec \
+  "${VM_IP_ADDRESS}" "${KEY_FILE}" "${PG_RESTORE_COMMAND}"
 
-# echo "install the correct thing to do the pg dump"
-# bastion::remove_ssh_key "${KEY_FILE}"
-# echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main 11" | sudo tee /etc/apt/sources.list.d/pgsql.list
-# wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-# sudo apt update && sudo apt install postgresql-11
+echo "install the correct thing to do the pg dump"
+bastion::remove_ssh_key "${KEY_FILE}"
 
-https://www.postgresql.org/download/linux/ubuntu/
-# echo "do the pgdump"
-# bastion::deny_ip_security_group "${resource_group}"
-# /usr/bin/pg_restore -h civiform-full-mammal.postgres.database.azure.com -d postgres --clean < ~/pgdump/dev_programs.dump
+echo "do the pgdump"
+bastion::deny_ip_security_group "${resource_group}"
