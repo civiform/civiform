@@ -117,4 +117,4 @@ To do that add the custom records via the domain provider webiste.
 1) CNAME record which points from the 'staging-azure.civiform.dev' to the hostname that gets generated from terraform (you can find this from the terraform output or via the azure portal)
 2) TXT record with key 'asuid.staging-azure.civiform.dev' and value that matches the custom domain verification id in the azure portal (you can find this by navigating to the custom domains in the app service setting). 
 
-Note it should take a few minutes to propogate
+Note it should take a few minutes to propagate.
