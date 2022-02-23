@@ -111,7 +111,7 @@ az keyvault secret set --name app-secret-key --vault-name [key vault name] --val
 Then, in order to use the Key Vault as a data source in Terraform, set the `key_vault_name` variable in your `auto.tfvars` file to the name of the key vault and the `key_vault_resource_group` to the resource group the key vault is in.
 
 ## Configuring the staging domain
-The terraform script configures the azure app service to be routed to the staging name, but you will need to manually add a cname and txt configuration to your domain provider (e.g https://domains.google.com). 
+The terraform script configures the azure app service to allow requests from the staging hostname that you pass in via the environment variables, but you will need to manually add a cname and txt configuration to your domain provider (e.g https://domains.google.com). 
 
 To do that add the custom records via the domain provider webiste. 
 1) CNAME record which points from the 'staging-azure.civiform.dev' to the hostname that gets generated from terraform (you can find this from the terraform output or via the azure portal)
