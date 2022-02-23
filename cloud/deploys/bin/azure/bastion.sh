@@ -112,20 +112,9 @@ function bastion::get_connect_to_postgres_command() {
   local DB_PASSWORD=$(bastion::get_pg_password "${2}")
   echo "export DEBIAN_FRONTEND='noninteractive'; \
     yes | sudo apt-get update > /dev/null; \
-    yes | sudo apt-get install n-client > /dev/null; \
+    yes | sudo apt-get install postgresql-client > /dev/null; \
     PGPASSWORD='${DB_PASSWORD}' psql -h ${1} -d postgres -U psqladmin@${1}"
 }
-
-# echo "install the correct thing to do the pg dump"
-# bastion::remove_ssh_key "${KEY_FILE}"
-# echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main 11" | sudo tee /etc/apt/sources.list.d/pgsql.list
-# wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-# sudo apt update && sudo apt install postgresql-11
-
-# https://www.postgresql.org/download/linux/ubuntu/
-# echo "do the pgdump"
-# bastion::deny_ip_security_group "${resource_group}"
-# /usr/bin/pg_restore -h civiform-full-mammal.postgres.database.azure.com -d postgres --clean < ~/pgdump/dev_programs.dump
 
 #######################################
 # Get the command to restore db data.
@@ -136,7 +125,7 @@ function bastion::get_connect_to_postgres_command() {
 #   2: the vaultname where secrets are stored
 #   3: path of the dump data
 #######################################
-function bastion::get_psql_restore() {
+function bastion::get_pg_restore_command() {
   local DB_PASSWORD=$(bastion::get_pg_password "${2}")
   echo "export DEBIAN_FRONTEND='noninteractive'; \
     yes | sudo apt-get update > /dev/null; \
@@ -158,4 +147,37 @@ function bastion::get_psql_restore() {
 #######################################
 function bastion::scp_to_bastion() {
   scp -i "${2}" "${3}" "adminuser@${1}:${4}"
+}
+
+#######################################
+# Add ssh keys to bastion
+# Arguments:
+#   1: the resource group name
+#   2: the key file to create and add to host
+#######################################
+function bastion::setup_bastion_ssh() {
+  echo "Add my ip address to the security group for ssh"
+  bastion::allow_ip_security_group "${1}"
+
+  if ! [[ -f "${2}" ]]; then
+    echo "Creating a new ssh key"
+    ssh-keygen -t rsa -b 4096 -f "${2}"
+  fi
+
+  echo "Adding the public key to the bastion vm"
+  bastion::update_bastion_ssh_keys "${1}" "${2}"
+}
+
+#######################################
+# Remove ssh keys from bastion
+# Arguments:
+#   1: the resource group name
+#   2: the key file to remove
+#######################################
+function bastion::teardown_bastion_ssh() {
+  echo "Removing the ssh keys from your machine"
+  bastion::remove_ssh_key "${2}"
+
+  echo "Update bastion security group to deny all ssh request"
+  bastion::deny_ip_security_group "${1}"
 }
