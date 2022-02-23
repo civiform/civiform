@@ -115,3 +115,69 @@ function bastion::get_connect_to_postgres_command() {
     yes | sudo apt-get install postgresql-client > /dev/null; \
     PGPASSWORD='${DB_PASSWORD}' psql -h ${1} -d postgres -U psqladmin@${1}"
 }
+
+#######################################
+# Get the command to restore db data.
+# More details on the psql version # https://www.postgresql.org/download/linux/ubuntu/
+# the pg_restore is symlinked to that via a pg_wrapper
+# Arguments:
+#   1: the postgres host to connect to 
+#   2: the vaultname where secrets are stored
+#   3: path of the dump data
+#######################################
+function bastion::get_pg_restore_command() {
+  local DB_PASSWORD=$(bastion::get_pg_password "${2}")
+  echo "export DEBIAN_FRONTEND='noninteractive'; \
+    yes | sudo apt-get update > /dev/null; \
+    yes | sudo apt-get install postgresql-14 > /dev/null; \
+    PGPASSWORD='${DB_PASSWORD}' /usr/lib/postgresql/14/bin/pg_restore \
+      -U psqladmin@${1} \
+      -d postgres 
+      -h ${1} 
+      -a < ${3}"
+}
+
+#######################################
+# Copy a file to the bastion 
+# Arguments:
+#   1: the ip of the vm you will connect to
+#   2: the key name to use to connect to
+#   3: location of the file you want to copy
+#   4: destination location on the bastion 
+#######################################
+function bastion::scp_to_bastion() {
+  scp -i "${2}" "${3}" "adminuser@${1}:${4}"
+}
+
+#######################################
+# Add ssh keys to bastion
+# Arguments:
+#   1: the resource group name
+#   2: the key file to create and add to host
+#######################################
+function bastion::setup_bastion_ssh() {
+  echo "Add my ip address to the security group for ssh"
+  bastion::allow_ip_security_group "${1}"
+
+  if ! [[ -f "${2}" ]]; then
+    echo "Creating a new ssh key"
+    ssh-keygen -t rsa -b 4096 -f "${2}"
+  fi
+
+  echo "Adding the public key to the bastion vm"
+  bastion::update_bastion_ssh_keys "${1}" "${2}"
+}
+
+#######################################
+# Remove ssh keys from bastion
+# Arguments:
+#   1: the resource group name
+#   2: the key file to remove
+#######################################
+function bastion::teardown_bastion_ssh() {
+  echo "Removing the ssh keys from your machine"
+  bastion::remove_ssh_key "${2}"
+
+  echo "Update bastion security group to deny all ssh request"
+  bastion::deny_ip_security_group "${1}"
+}
