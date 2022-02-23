@@ -5,6 +5,8 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -329,7 +331,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                     fileKey ->
                         baseUrl
                             + controllers.routes.FileController.adminShow(
-                                    programDefinition.id(), fileKey)
+                                    programDefinition.id(),
+                                    URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
                                 .url())
                 .orElse(""));
       case ENUMERATOR:

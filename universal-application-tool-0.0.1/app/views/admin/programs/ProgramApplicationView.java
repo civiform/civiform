@@ -13,6 +13,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 import j2html.tags.Tag;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -120,8 +122,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
         String.format("Question ID: %d", answerData.questionDefinition().getId());
     Tag answerContent;
     if (answerData.fileKey().isPresent()) {
-      String fileLink =
-          controllers.routes.FileController.adminShow(programId, answerData.fileKey().get()).url();
+      String encodedUrl = URLEncoder.encode(answerData.fileKey().get(), StandardCharsets.UTF_8);
+      String fileLink = controllers.routes.FileController.adminShow(programId, encodedUrl).url();
       answerContent = a(answerData.answerText()).withHref(fileLink);
     } else {
       answerContent = div(answerData.answerText());
