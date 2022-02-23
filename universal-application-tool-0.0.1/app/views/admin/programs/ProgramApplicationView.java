@@ -122,8 +122,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
         String.format("Question ID: %d", answerData.questionDefinition().getId());
     Tag answerContent;
     if (answerData.fileKey().isPresent()) {
-      String encodedUrl = URLEncoder.encode(answerData.fileKey().get(), StandardCharsets.UTF_8);
-      String fileLink = controllers.routes.FileController.adminShow(programId, encodedUrl).url();
+      String encodedFileKey = URLEncoder.encode(answerData.fileKey().get(), StandardCharsets.UTF_8);
+      String fileLink =
+          controllers.routes.FileController.adminShow(programId, encodedFileKey).url();
       answerContent = a(answerData.answerText()).withHref(fileLink);
     } else {
       answerContent = div(answerData.answerText());

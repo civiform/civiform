@@ -159,8 +159,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     ContainerTag answerContent;
     if (data.fileKey().isPresent()) {
       try {
-        String encodedUrl = URLEncoder.encode(data.fileKey().get(), StandardCharsets.UTF_8);
-        String fileLink = controllers.routes.FileController.show(applicantId, encodedUrl).url();
+        String encodedFileKey = URLEncoder.encode(data.fileKey().get(), StandardCharsets.UTF_8);
+        String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
         answerContent = a().withHref(fileLink).withClasses(Styles.W_2_3);
       } catch (Exception e) {
         LOG.error("Attempted to download file with invalid download URL");

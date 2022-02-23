@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -46,7 +48,9 @@ public class FileController extends CiviFormController {
               if (!fileKey.contains(String.format("applicant-%d", applicantId))) {
                 return notFound();
               }
-              return redirect(storageClient.getPresignedUrlString(fileKey));
+              return redirect(
+                  storageClient.getPresignedUrlString(
+                      URLDecoder.decode(fileKey, StandardCharsets.UTF_8)));
             },
             httpExecutionContext.current())
         .exceptionally(
@@ -70,7 +74,8 @@ public class FileController extends CiviFormController {
       if (!fileKey.contains(String.format("program-%d", programId))) {
         return notFound();
       }
-      return redirect(storageClient.getPresignedUrlString(fileKey));
+      return redirect(
+          storageClient.getPresignedUrlString(URLDecoder.decode(fileKey, StandardCharsets.UTF_8)));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (CompletionException e) {
