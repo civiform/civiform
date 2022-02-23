@@ -34,27 +34,9 @@ resource "azurerm_storage_account" "files_storage_account" {
 
   account_tier             = "Standard"
   account_replication_type = "LRS"
-}
 
-data "http" "myip" {
-  url = "https://ipv4.icanhazip.com"
+  allow_blob_public_access = false
 }
-
-# adding the bypass/ip_rules is a workaround for azure's firewall settings
-# if we don't add this we can't add storage containers to this storage_account
-# there might be a type of account we can create to run the tf command through
-# instead of doing this ip_rules bypass
-resource "azurerm_storage_account_network_rules" "files_storage_rules" {
-  storage_account_id         = azurerm_storage_account.files_storage_account.id
-  default_action             = "Deny"
-  virtual_network_subnet_ids = [azurerm_subnet.storage_subnet.id]
-  bypass                     = ["AzureServices"]
-  ip_rules                   = [chomp(data.http.myip.body)]
-  private_link_access {
-    endpoint_resource_id = azurerm_app_service.civiform_app.id
-  }
-}
-
 data "azurerm_key_vault" "civiform_key_vault" {
   name                = var.key_vault_name
   resource_group_name = var.key_vault_resource_group
