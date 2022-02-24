@@ -28,6 +28,7 @@ public class LoginForm extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
   private final boolean idcsIsAvailable;
+  private final String applicantIdp;
   private final Optional<String> maybeLogoUrl;
   private final String civicEntityFullName;
   private final String civicEntityShortName;
@@ -36,6 +37,7 @@ public class LoginForm extends BaseHtmlView {
   @Inject
   public LoginForm(BaseHtmlLayout layout, Config config, FakeAdminClient fakeAdminClient) {
     this.layout = checkNotNull(layout);
+    this.applicantIdp = checkNotNull(config).getString("auth.applicant_idp");
     this.idcsIsAvailable = checkNotNull(config).hasPath("idcs.register_uri");
     this.maybeLogoUrl =
         checkNotNull(config).hasPath("whitelabel.small_logo_url")
@@ -173,9 +175,16 @@ public class LoginForm extends BaseHtmlView {
 
   private Tag loginButton(Messages messages) {
     String msg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
-    return redirectButton(
-            "idcs", msg, routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url())
-        .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
+    // TODO: Make this an enum + clean up
+    if (applicantIdp.equals("login-radius")) {
+      return redirectButton(
+          "loginRadius", msg, routes.LoginController.loginRadiusLoginWithRedirect(Optional.empty()).url())
+          .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
+    } else {
+      return redirectButton(
+          "idcs", msg, routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url())
+          .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
+    }
   }
 
   private Tag createAccountButton(Messages messages) {

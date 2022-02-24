@@ -164,23 +164,22 @@ public class SecurityModule extends AbstractModule {
       return null;
     }
 
-    String metadataResourceUrl = String.format("%s?apikey=%s?appName=%s",
-        this.configuration.getString("login_radius.metadata_url"),
+    String metadataResourceUrl = String.format("%s?apikey=%s&appName=%s",
+        this.configuration.getString("login_radius.metadata_uri"),
         this.configuration.getString("login_radius.api_key"),
         this.configuration.getString("login_radius.saml_app_name")
     );
     SAML2Configuration config = new SAML2Configuration();
-    config.setKeystoreResourceClasspath(this.configuration.getString("login_radius.keystore_name"));
+    config.setKeystoreResourceFilepath(this.configuration.getString("login_radius.keystore_name"));
     config.setKeystorePassword(this.configuration.getString("login_radius.keystore_password"));
     config.setPrivateKeyPassword(this.configuration.getString("login_radius.private_key_password"));
     config.setIdentityProviderMetadataResourceUrl(metadataResourceUrl);
-    config.setServiceProviderEntityId(baseUrl + "/callback");
-    
     SAML2Client client = new SAML2Client(config);
 
     // TODO loginradiusprofileadapter
 
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
+    client.setCallbackUrl(baseUrl + "/callback");
     client.init();
     return client;
   }
@@ -223,11 +222,15 @@ public class SecurityModule extends AbstractModule {
       GuestClient guestClient,
       @AdOidcClient @Nullable OidcClient adClient,
       @IdcsOidcClient @Nullable OidcClient idcsClient,
+      @LoginRadiusSamlClient @Nullable SAML2Client loginRadiusClient,
       FakeAdminClient fakeAdminClient) {
     List<Client> clientList = new ArrayList<>();
     clientList.add(guestClient);
     if (idcsClient != null) {
       clientList.add(idcsClient);
+    }
+    if (loginRadiusClient != null) {
+      clientList.add(loginRadiusClient);
     }
     if (adClient != null) {
       clientList.add(adClient);
