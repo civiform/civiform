@@ -17,7 +17,10 @@ ENV SBT_URL "https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${
 
 RUN set -o pipefail && \
     apk update && \
+    apk add --upgrade apk-tools && \
+    apk upgrade --available && \
     apk add --no-cache --update bash wget npm git openssh && \
+    npm install -g npm@8.5.1 && \
     mkdir -p "${SBT_HOME}" && \
     wget -qO - "${SBT_URL}" | tar xz -C "${INSTALL_DIR}" && \
     echo -ne "- with sbt ${SBT_VERSION}\n" >> /root/.built
