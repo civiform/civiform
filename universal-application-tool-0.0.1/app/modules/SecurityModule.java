@@ -157,29 +157,26 @@ public class SecurityModule extends AbstractModule {
       return null;
     }
     OidcConfiguration config = new OidcConfiguration();
-    // this is the resource identifier that tells adfs that this is civiform
+    // Resource identifier that tells AD that this is civiform from the portal.
     config.setClientId(this.configuration.getString("adfs.client_id"));
 
-    // this is the token that we create within adfs
+    // The token that we created within AD and use to sign our requests.
     config.setSecret(this.configuration.getString("adfs.secret"));
 
-    // oidc convention that auth provider has an endpoint that can get text blob
-    // that gets back public key/etc (can just curl this if curious,
-    // get from endpoints in azure)
+    // Endpoint that app can use to get the public keys from.
     config.setDiscoveryURI(this.configuration.getString("adfs.discovery_uri"));
 
-    // tells AD to use a post response when it sends info back from
-    // the auth request
+    // Tells AD to use a post response when it sends info back from
+    // the auth request. 
     config.setResponseMode("form_post");
 
-    // we want adfs to give us an id token back from this request
+    // Tells AD to give us an id token back from this request. 
     config.setResponseType("id_token");
 
-    // scopes are the other things that we want from the adfs endpoint
-    // (needs to also be configured on adfs).
-    // note azure ad has the extra claim: allatclaims which returns
-    // access token in the id_token. might be used for
-    // the group that tells who are in what group.
+    // Scopes are the other things that we want from the AD endpoint
+    // (needs to also be configured on AD side).
+    // Note: ADFS has the extra claim: allatclaims which returns
+    // access token in the id_token.
     String[] defaultScopes = {"openid", "profile", "email"};
     String[] extraScopes = this.configuration.getString("adfs.additional_scopes").split(" ");
     ArrayList<String> allClaims = new ArrayList<>();
@@ -187,7 +184,7 @@ public class SecurityModule extends AbstractModule {
     Collections.addAll(allClaims, extraScopes);
     config.setScope(String.join(" ", allClaims));
 
-    // security setting that adds a random number to ensure cannot be reused
+    // Security setting that adds a random number to ensure cannot be reused.
     config.setUseNonce(true);
 
     // Don't have custom state data
@@ -196,13 +193,13 @@ public class SecurityModule extends AbstractModule {
     OidcClient client = new OidcClient(config);
     client.setName("AdClient");
 
-    // telling adfs where to send people where to go back to. this gets
-    // combined with the name to create the url. can see it in routes
+    // Telling AD where to send people back to. This gets
+    // combined with the name to create the url.
     client.setCallbackUrl(baseUrl + "/callback");
 
-    // this is specific to the implemention using pac4j. has concept of a profile
-    // for different identity profiles we have different creators. this is
-    // what links the user to the stuff they have access to within the application
+    // This is specific to the implemention using pac4j. pac4j has concept 
+    // of a profile for different identity profiles we have different creators. 
+    // This is what links the user to the stuff they have access to.
     client.setProfileCreator(
         new AdfsProfileAdapter(
             config, client, profileFactory, this.configuration, applicantRepositoryProvider));

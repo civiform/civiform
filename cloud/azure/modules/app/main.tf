@@ -126,10 +126,10 @@ resource "azurerm_app_service" "civiform_app" {
     ADFS_SECRET        = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.adfs_secret.id})"
     ADFS_DISCOVERY_URI = var.adfs_discovery_uri
 
-    # in HOCON env variables set to the empty string are 
-    # kept as such (set to empty string, rather than undefined)
-    # this allows for the default to include atallclaims and for 
-    # azure AD to not include that claim
+    # In HOCON, env variables set to the empty string are 
+    # kept as such (set to empty string, rather than undefined).
+    # This allows for the default to include atallclaims and for 
+    # azure AD to not include that claim.
     ADFS_ADDITIONAL_SCOPES = ""
   }
   # Configure Docker Image to load on start
