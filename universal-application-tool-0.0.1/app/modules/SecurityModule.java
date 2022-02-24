@@ -176,10 +176,10 @@ public class SecurityModule extends AbstractModule {
     config.setResponseType("id_token");
 
     // scopes are the other things that we want from the adfs endpoint
-    // (needs to also be configured on adfs). 
+    // (needs to also be configured on adfs).
     // note azure ad has the extra claim: allatclaims which returns
-    // access token in the id_token. might be used for 
-    // the group that tells who are in what group. 
+    // access token in the id_token. might be used for
+    // the group that tells who are in what group.
     String[] defaultScopes = {"openid", "profile", "email"};
     String[] extraScopes = this.configuration.getString("adfs.additional_scopes").split(" ");
     ArrayList<String> allClaims = new ArrayList<>();
