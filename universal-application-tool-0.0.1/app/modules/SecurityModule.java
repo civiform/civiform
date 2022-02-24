@@ -190,13 +190,14 @@ public class SecurityModule extends AbstractModule {
     // security setting that adds a random number to ensure cannot be reused
     config.setUseNonce(true);
 
-    // ? relationship with adfs is not stateful ?
+    // Don't have custom state data
     config.setWithState(false);
 
     OidcClient client = new OidcClient(config);
     client.setName("AdClient");
 
-    // telling adfs where to send people where to go back to
+    // telling adfs where to send people where to go back to. this gets
+    // combined with the name to create the url. can see it in routes
     client.setCallbackUrl(baseUrl + "/callback");
 
     // this is specific to the implemention using pac4j. has concept of a profile
