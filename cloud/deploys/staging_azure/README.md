@@ -139,7 +139,7 @@ az keyvault update --name=[your keyvault name] --enable-rbac-authorization
 This allows you to grant the App Service Managed Identity permission to access the key vault.
 
 Next, [grant yourself the Key Vault Secrets Officer role in the Azure portal](https://docs.microsoft.com/en-us/azure/key-vault/general/rbac-guide?tabs=azure-cli#key-vault-scope-role-assignment)
-Then set the secrets by running the key-vault-setup in 
+Then set the secrets by running:
 
 ```
 az keyvault secret set --name [KEY_NAME] --vault-name [key vault name] --value [KEY_VALUE]

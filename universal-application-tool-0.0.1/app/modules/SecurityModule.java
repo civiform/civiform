@@ -167,10 +167,10 @@ public class SecurityModule extends AbstractModule {
     config.setDiscoveryURI(this.configuration.getString("adfs.discovery_uri"));
 
     // Tells AD to use a post response when it sends info back from
-    // the auth request. 
+    // the auth request.
     config.setResponseMode("form_post");
 
-    // Tells AD to give us an id token back from this request. 
+    // Tells AD to give us an id token back from this request.
     config.setResponseType("id_token");
 
     // Scopes are the other things that we want from the AD endpoint
@@ -197,8 +197,8 @@ public class SecurityModule extends AbstractModule {
     // combined with the name to create the url.
     client.setCallbackUrl(baseUrl + "/callback");
 
-    // This is specific to the implemention using pac4j. pac4j has concept 
-    // of a profile for different identity profiles we have different creators. 
+    // This is specific to the implemention using pac4j. pac4j has concept
+    // of a profile for different identity profiles we have different creators.
     // This is what links the user to the stuff they have access to.
     client.setProfileCreator(
         new AdfsProfileAdapter(
