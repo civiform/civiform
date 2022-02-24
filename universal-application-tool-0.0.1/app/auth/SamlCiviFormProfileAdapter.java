@@ -1,7 +1,5 @@
 package auth;
 
-import static org.pac4j.core.util.CommonHelper.assertNotNull;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
@@ -15,23 +13,15 @@ import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.core.profile.creator.AuthenticatorProfileCreator;
-import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.core.profile.definition.CommonProfileDefinition;
-import org.pac4j.core.profile.definition.ProfileDefinitionAware;
-import org.pac4j.oidc.client.OidcClient;
-import org.pac4j.oidc.config.OidcConfiguration;
-import org.pac4j.oidc.profile.OidcProfile;
-import org.pac4j.oidc.profile.OidcProfileDefinition;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
-import org.pac4j.saml.credentials.SAML2Credentials;
 import org.pac4j.saml.profile.SAML2Profile;
-import org.pac4j.saml.profile.SAML2ProfileDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
-public class SamlCiviFormProfileAdapter extends Saml2ProfileCreator {
+public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
 
   private static final String EMAIL_ATTRIBUTE_NAME = "email";
 
@@ -47,10 +37,10 @@ public class SamlCiviFormProfileAdapter extends Saml2ProfileCreator {
       SAML2Client client,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {
-    super(configuration, client);
+    super();
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = applicantRepositoryProvider;
-    this.saml2Client = new SAML2Client(configuration);
+    this.saml2Client = client;
     this.saml2Configuration = configuration;
   }
 

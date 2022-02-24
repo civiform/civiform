@@ -15,6 +15,7 @@ import auth.IdcsProfileAdapter;
 import auth.LoginRadiusSamlClient;
 import auth.ProfileFactory;
 import auth.Roles;
+import auth.SamlCiviFormProfileAdapter;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -39,6 +40,7 @@ import org.pac4j.core.config.Config;
 import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.http.callback.PathParameterCallbackUrlResolver;
+import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.play.CallbackController;
@@ -176,7 +178,7 @@ public class SecurityModule extends AbstractModule {
     config.setIdentityProviderMetadataResourceUrl(metadataResourceUrl);
     SAML2Client client = new SAML2Client(config);
 
-    // TODO loginradiusprofileadapter
+    client.setProfileCreator(new SamlCiviFormProfileAdapter(config, client, profileFactory, applicantRepositoryProvider));
 
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.setCallbackUrl(baseUrl + "/callback");
