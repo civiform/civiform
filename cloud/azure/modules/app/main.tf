@@ -122,11 +122,15 @@ resource "azurerm_app_service" "civiform_app" {
     AWS_SES_SENDER = var.ses_sender_email
     SECRET_KEY     = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.app_secret_key.id})"
 
-    ADFS_CLIENT_ID          = var.adfs_client_id
-    ADFS_SECRET             = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.adfs_secret.id})"
-    ADFS_DISCOVERY_URI      = var.adfs_discovery_uri
-    ADFS_GLOBAL_ADMIN_GROUP = var.adfs_admin_group
+    ADFS_CLIENT_ID     = var.adfs_client_id
+    ADFS_SECRET        = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.adfs_secret.id})"
+    ADFS_DISCOVERY_URI = var.adfs_discovery_uri
 
+    # in HOCON env variables set to the empty string are 
+    # kept as such (set to empty string, rather than undefined)
+    # this allows for the default to include atallclaims and for 
+    # azure AD to not include that claim
+    ADFS_ADDITIONAL_SCOPES = ""
   }
   # Configure Docker Image to load on start
   site_config {

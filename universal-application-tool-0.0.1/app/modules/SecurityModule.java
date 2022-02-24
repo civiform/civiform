@@ -21,6 +21,7 @@ import com.google.inject.Singleton;
 import controllers.routes;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -176,9 +177,15 @@ public class SecurityModule extends AbstractModule {
 
     // scopes are the other things that we want from the adfs endpoint
     // (needs to also be configured on adfs). 
-    // allatclaims returns access token in the id_token. might be used for 
+    // note azure ad has the extra claim: allatclaims which returns
+    // access token in the id_token. might be used for 
     // the group that tells who are in what group. 
-    config.setScope("openid profile email");
+    String[] defaultScopes = {"openid", "profile", "email"};
+    String[] extraScopes = this.configuration.getString("adfs.additional_scopes").split(" ");
+    ArrayList<String> allClaims = new ArrayList<>();
+    Collections.addAll(allClaims, defaultScopes);
+    Collections.addAll(allClaims, extraScopes);
+    config.setScope(String.join(" ", allClaims));
 
     // security setting that adds a random number to ensure cannot be reused
     config.setUseNonce(true);

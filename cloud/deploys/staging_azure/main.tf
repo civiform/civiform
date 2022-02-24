@@ -24,7 +24,7 @@ module "app" {
   docker_username        = var.docker_username
   docker_repository_name = var.docker_repository_name
 
-  key_vault_name = var.key_vault_name
+  key_vault_name           = var.key_vault_name
   key_vault_resource_group = var.key_vault_resource_group
 
   application_name = var.application_name
@@ -33,7 +33,6 @@ module "app" {
   custom_hostname  = var.custom_hostname
 
   adfs_client_id     = var.adfs_client_id
-  adfs_secret        = var.adfs_secret
   adfs_discovery_uri = var.adfs_discovery_uri
   adfs_admin_group   = var.adfs_admin_group
 }
