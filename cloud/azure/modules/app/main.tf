@@ -276,12 +276,6 @@ resource "azurerm_private_endpoint" "endpoint" {
   }
 }
 
-resource "azurerm_role_assignment" "key_vault" {
-  scope                = data.azurerm_key_vault.civiform_key_vault.id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
-}
-
 resource "azurerm_role_assignment" "storage_blob_delegator" {
   scope                = azurerm_storage_account.files_storage_account.id
   role_definition_name = "Storage Blob Delegator"

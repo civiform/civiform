@@ -32,4 +32,3 @@ azure::add_generated_secrets \
   "${vault_name}" \
   "postgres-password" \
   "app-secret-key"
-
