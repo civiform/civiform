@@ -241,7 +241,6 @@ describe('normal application flow', () => {
     await logout(page)
     await loginAsProgramAdmin(page)
 
-    await adminPrograms.viewApplicationsForOldVersion(programName)
     await adminPrograms.viewApplicationForApplicant(userDisplayName())
     await adminPrograms.expectApplicationAnswers(
       'Screen 2',

@@ -387,24 +387,6 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
   }
 
-  async viewApplicationsInOldVersion() {
-    await this.page.click('a:text("Applications")')
-    await waitForPageJsLoad(this.page)
-  }
-
-  async viewApplicationsForOldVersion(programName: string) {
-    await this.page.click(
-      this.selectWithinProgramCard(
-        programName,
-        'ACTIVE',
-        ':text("Applications")'
-      )
-    )
-    await waitForPageJsLoad(this.page)
-    await this.page.click('a:has-text("Applications")')
-    await waitForPageJsLoad(this.page)
-  }
-
   selectApplicationCardForApplicant(applicantName: string) {
     return `.cf-admin-application-card:has-text("${applicantName}")`
   }
