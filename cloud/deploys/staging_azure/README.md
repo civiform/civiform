@@ -30,6 +30,32 @@ via the commands below), note that it does a pretty fuzzy regex match for
 the storage account name so if you are doing something special you might have
 to write your own script to do that!
 
+## Logging 
+In order to see the log stream for your app service; you have to manually allow the http logs. Do this by going to diagnostic settings and send the http logs to the log server we created (note I think this can be done via terraform).
+
+## Azure Ad Setup
+Add the adfs_client_id to your local configs. For the private adfs_secret add it via key vault.
+
+Configure the Microsoft provider:
+- Go To App Serice and select the authentication tab on the left panel
+- Add a new identity provider and select Microsoft
+- Make sure the identity provider allows all requests (this page is publicly visible but the login is restricted)
+- Make a note of the client id (as this will be the adfs_client_id to store in your client id)
+
+Within the identity provider you just created go to Authentication and add the following information:
+- Add the correct redirect url (should be: `https://<HOSTNAME>/callback/AdClient`) 
+- Select ID token 
+- Select Single Tenant 
+
+Within the API permissions
+- Select add permission
+- Select delegated permissions
+- Select microsoft graph
+- Find the openid Permissions and select: email, openid, profile
+
+Within the certificates & secrets
+- add a new client secret and add the value to your key vault
+
 ## Export your account key
 In order to use terraform with the azure backend you'll need to get the 
 `account_key` set up properly. The backend_vars file expects it to be provided 
@@ -90,9 +116,21 @@ portal the resource group name is 'tfstate' and the storage_account_name is
 'tfstate7307'.
 ![Image of Azure portal showing where to find the storage_account_name](img/how_to_find_backend_vars.png?raw=true)
 
-# Manually Configure Key Vault before running Terraform
+# Configure Key Vault before running Terraform
 Before applying the Terraform configuration, you'll need to make sure that Azure Key Vault is
-properly configured to store the `postgres-password` and `app-secret-key` secrets. To do this, run the command `az keyvault list` to list all the key vaults in your project. Find the key vault that stores the secrets for Civiform. Then run `az keyvault secret list --vault-name=[your vault name]`. The `postgres-password` and `app-secret-key` secrets should be listed.
+properly configured to store the secrets needed by the application. To do this, run the command `key-vault-setup` in bin/azure. 
+
+You will need to manually add the key vault values for:
+- Azure AD
+- AWS Secret
+
+Via azure portal or the CLI command:
+```
+az keyvault secret set --name [KEY_NAME] --vault-name [key vault name] --value [KEY_VALUE]
+```
+
+## Manually configure the keyvault
+If you want to do this all manually. List all the key vaults in your project. Find the key vault that stores the secrets for Civiform. Then run `az keyvault secret list --vault-name=[your vault name]`. The `postgres-password` and `app-secret-key` secrets should be listed.
 
 If the secrets are not listed, you'll need to [create a key vault](https://docs.microsoft.com/en-us/azure/key-vault/general/quick-create-cli) if you haven't already. Make a note of the resource group that is used. Next, run 
 ```
@@ -101,16 +139,15 @@ az keyvault update --name=[your keyvault name] --enable-rbac-authorization
 This allows you to grant the App Service Managed Identity permission to access the key vault.
 
 Next, [grant yourself the Key Vault Secrets Officer role in the Azure portal](https://docs.microsoft.com/en-us/azure/key-vault/general/rbac-guide?tabs=azure-cli#key-vault-scope-role-assignment)
-Then set the secrets:
+Then set the secrets by running:
 
 ```
-az keyvault secret set --name postgres-password --vault-name [key vault name] --value [password]
-az keyvault secret set --name app-secret-key --vault-name [key vault name] --value [secret key]
+az keyvault secret set --name [KEY_NAME] --vault-name [key vault name] --value [KEY_VALUE]
 ```
 
 Then, in order to use the Key Vault as a data source in Terraform, set the `key_vault_name` variable in your `auto.tfvars` file to the name of the key vault and the `key_vault_resource_group` to the resource group the key vault is in.
 
-## Configuring the staging domain
+# Configuring the staging domain
 The terraform script configures the azure app service to allow requests from the staging hostname that you pass in via the environment variables, but you will need to manually add a cname and txt configuration to your domain provider (e.g https://domains.google.com). 
 
 To do that add the custom records via the domain provider webiste. 
