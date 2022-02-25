@@ -3,6 +3,7 @@ package auth;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Provider;
@@ -116,7 +117,16 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
 
     final String firstName = saml2Profile.getAttribute("first_name", String.class);
     final boolean hasFirstName = !Strings.isNullOrEmpty(firstName);
-    final String lastName = saml2Profile.getAttribute("last_name", String.class);
+
+    // TODO: figure out why the last_name attribute is being returned as an ArrayList because this
+    // feels like it shouldn't be necessary.
+    final ArrayList lastNameArray = saml2Profile.getAttribute("last_name", ArrayList.class);
+    StringBuilder sb = new StringBuilder();
+    String lastName = "";
+    for (Object s : lastNameArray) {
+      sb.append((String) s);
+    }
+
     final boolean hasLastName = !Strings.isNullOrEmpty(lastName);
 
     if (hasLocale || hasFirstName || hasLastName) {
