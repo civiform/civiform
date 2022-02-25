@@ -187,7 +187,7 @@ public class SecurityModule extends AbstractModule {
     // Security setting that adds a random number to ensure cannot be reused.
     config.setUseNonce(true);
 
-    // Don't have custom state data. 
+    // Don't have custom state data.
     config.setWithState(false);
 
     OidcClient client = new OidcClient(config);
