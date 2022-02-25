@@ -55,19 +55,20 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     }
 
     if (!(samlProfile.get() instanceof SAML2Profile)) {
-      LOG.warn("Got a profile from SAML2 callback but it wasn't a SAML profile: %s",
-          samlProfile.get());
+      LOG.warn(
+          "Got a profile from SAML2 callback but it wasn't a SAML profile: %s", samlProfile.get());
       return Optional.empty();
     }
 
     SAML2Profile profile = (SAML2Profile) samlProfile.get();
 
     // Check if we already have a profile in the database for the user returned to us by SAML2
-    Optional<Applicant> existingApplicant = applicantRepositoryProvider
-        .get()
-        .lookupApplicant(profile.getAttribute("email", String.class))
-        .toCompletableFuture()
-        .join();
+    Optional<Applicant> existingApplicant =
+        applicantRepositoryProvider
+            .get()
+            .lookupApplicant(profile.getAttribute("email", String.class))
+            .toCompletableFuture()
+            .join();
 
     // Now we have a three-way merge situation.  We might have
     // 1) an applicant in the database (`existingApplicant`),
@@ -106,12 +107,12 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
   }
 
   public CiviFormProfileData civiformProfileFromSamlProfile(SAML2Profile profile) {
-    return mergeCiviFormProfile(profileFactory.wrapProfileData(profileFactory.createNewApplicant()),
-        profile);
+    return mergeCiviFormProfile(
+        profileFactory.wrapProfileData(profileFactory.createNewApplicant()), profile);
   }
 
-  public CiviFormProfileData mergeCiviFormProfile(CiviFormProfile civiFormProfile,
-      SAML2Profile saml2Profile) {
+  public CiviFormProfileData mergeCiviFormProfile(
+      CiviFormProfile civiFormProfile, SAML2Profile saml2Profile) {
     final String locale = saml2Profile.getAttribute("locale", String.class);
     final boolean hasLocale = !Strings.isNullOrEmpty(locale);
 
@@ -128,16 +129,19 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     }
     String lastName = sb.toString();
     final boolean hasLastName = !Strings.isNullOrEmpty(lastName);
-    LOG.debug(String.format("Got last name %s", lastName));
 
     if (hasLocale || hasFirstName || hasLastName) {
-      civiFormProfile.getApplicant().thenApplyAsync(
+      civiFormProfile
+          .getApplicant()
+          .thenApplyAsync(
               applicant -> {
                 if (hasLocale) {
                   applicant.getApplicantData().setPreferredLocale(Locale.forLanguageTag(locale));
                 }
                 if (hasFirstName && hasLastName) {
-                  applicant.getApplicantData().setUserName(String.format("%s %s", firstName, lastName));
+                  applicant
+                      .getApplicantData()
+                      .setUserName(String.format("%s %s", firstName, lastName));
                 } else if (hasFirstName) {
                   applicant.getApplicantData().setUserName(firstName);
                 } else if (hasLastName) {
@@ -161,12 +165,10 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     return civiFormProfile.getProfileData();
   }
 
-
   protected ImmutableSet<Roles> roles(CiviFormProfile profile) {
     if (profile.getAccount().join().getMemberOfGroup().isPresent()) {
       return ImmutableSet.of(Roles.ROLE_APPLICANT, Roles.ROLE_TI);
     }
     return ImmutableSet.of(Roles.ROLE_APPLICANT);
   }
-
 }

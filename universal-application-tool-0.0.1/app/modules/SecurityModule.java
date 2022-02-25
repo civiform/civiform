@@ -20,9 +20,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
-import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import controllers.routes;
 import java.net.URI;
 import java.util.ArrayList;
@@ -31,7 +28,6 @@ import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import javax.inject.Provider;
-import net.minidev.json.JSONObject;
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
 import org.pac4j.core.authorization.authorizer.RequireAnyRoleAuthorizer;
 import org.pac4j.core.client.Client;
@@ -40,7 +36,6 @@ import org.pac4j.core.config.Config;
 import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.http.callback.PathParameterCallbackUrlResolver;
-import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.play.CallbackController;
@@ -153,7 +148,10 @@ public class SecurityModule extends AbstractModule {
     return client;
   }
 
-  /** Creates a singleton object of OidcClient configured for LoginRadius and initializes it on startup. */
+  /**
+   * Creates a singleton object of OidcClient configured for LoginRadius and initializes it on
+   * startup.
+   */
   @Provides
   @Nullable
   @Singleton
@@ -166,11 +164,12 @@ public class SecurityModule extends AbstractModule {
       return null;
     }
 
-    String metadataResourceUrl = String.format("%s?apikey=%s&appName=%s",
-        this.configuration.getString("login_radius.metadata_uri"),
-        this.configuration.getString("login_radius.api_key"),
-        this.configuration.getString("login_radius.saml_app_name")
-    );
+    String metadataResourceUrl =
+        String.format(
+            "%s?apikey=%s&appName=%s",
+            this.configuration.getString("login_radius.metadata_uri"),
+            this.configuration.getString("login_radius.api_key"),
+            this.configuration.getString("login_radius.saml_app_name"));
     SAML2Configuration config = new SAML2Configuration();
     config.setKeystoreResourceFilepath(this.configuration.getString("login_radius.keystore_name"));
     config.setKeystorePassword(this.configuration.getString("login_radius.keystore_password"));
@@ -178,14 +177,15 @@ public class SecurityModule extends AbstractModule {
     config.setIdentityProviderMetadataResourceUrl(metadataResourceUrl);
     SAML2Client client = new SAML2Client(config);
 
-    client.setProfileCreator(new SamlCiviFormProfileAdapter(config, client, profileFactory, applicantRepositoryProvider));
+    client.setProfileCreator(
+        new SamlCiviFormProfileAdapter(
+            config, client, profileFactory, applicantRepositoryProvider));
 
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.setCallbackUrl(baseUrl + "/callback");
     client.init();
     return client;
   }
-
 
   /** Creates a singleton object of OidcClient configured for AD and initializes it on startup. */
   @Provides

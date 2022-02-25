@@ -45,7 +45,7 @@ public class LoginController extends Controller {
   public LoginController(
       @AdOidcClient @Nullable OidcClient adClient,
       @IdcsOidcClient @Nullable OidcClient idcsClient,
-      @LoginRadiusSamlClient  @Nullable SAML2Client loginRadiusClient,
+      @LoginRadiusSamlClient @Nullable SAML2Client loginRadiusClient,
       SessionStore sessionStore,
       Config config) {
     this.idcsClient = idcsClient;
@@ -98,7 +98,6 @@ public class LoginController extends Controller {
             REDIRECT_TO_SESSION_KEY,
             routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url());
   }
-
 
   public Result adfsLogin(Http.Request request) {
     return login(request, adClient);

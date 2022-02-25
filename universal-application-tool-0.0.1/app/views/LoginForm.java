@@ -8,6 +8,7 @@ import static j2html.TagCreator.img;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
+import auth.AuthIdentityProviderName;
 import auth.FakeAdminClient;
 import auth.GuestClient;
 import com.google.inject.Inject;
@@ -175,14 +176,17 @@ public class LoginForm extends BaseHtmlView {
 
   private Tag loginButton(Messages messages) {
     String msg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
-    // TODO: Make this an enum + clean up
-    if (applicantIdp.equals("login-radius")) {
+    if (applicantIdp.equals(AuthIdentityProviderName.LOGIN_RADIUS_APPLICANT.getString())) {
       return redirectButton(
-          "loginRadius", msg, routes.LoginController.loginRadiusLoginWithRedirect(Optional.empty()).url())
+              AuthIdentityProviderName.LOGIN_RADIUS_APPLICANT.getString(),
+              msg,
+              routes.LoginController.loginRadiusLoginWithRedirect(Optional.empty()).url())
           .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
     } else {
       return redirectButton(
-          "idcs", msg, routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url())
+              AuthIdentityProviderName.IDCS_APPLICANT.getString(),
+              msg,
+              routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url())
           .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
     }
   }
