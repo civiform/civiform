@@ -31,7 +31,7 @@ the storage account name so if you are doing something special you might have
 to write your own script to do that!
 
 ## Logging 
-In order to see the log stream for your app service; you have to manually allow the http logs. Do this by going to diagnostic settings and send the http logs to the log server we created (note I think this can be done via terraform) You will also have to enable application logging for Linux apps or custom containers in the Azure portal by navigating to your app and select App Service logs. In Application logging, select File System. In Quota (MB), specify the disk quota for the application logs. In Retention Period (Days), set the number of days the logs should be retained. When finished, select Save.
+In order to see the log stream for your app service; you have to manually allow the http logs. Do this by going to diagnostic settings and send the http logs to the log server we created (note I think this can be done via terraform).
 
 ## Azure Ad Setup
 Add the adfs_client_id to your local configs. For the private adfs_secret add it via key vault.
