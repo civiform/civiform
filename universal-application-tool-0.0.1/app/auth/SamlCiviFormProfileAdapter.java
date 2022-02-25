@@ -23,14 +23,11 @@ import repository.UserRepository;
 
 public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
 
-  private static final String EMAIL_ATTRIBUTE_NAME = "email";
-
+  private static Logger LOG = LoggerFactory.getLogger(SamlCiviFormProfileAdapter.class);
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
   protected final SAML2Configuration saml2Configuration;
   protected SAML2Client saml2Client;
-
-  private static Logger LOG = LoggerFactory.getLogger(SamlCiviFormProfileAdapter.class);
 
   public SamlCiviFormProfileAdapter(
       SAML2Configuration configuration,
@@ -67,7 +64,7 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     // Check if we already have a profile in the database for the user returned to us by SAML2
     Optional<Applicant> existingApplicant = applicantRepositoryProvider
         .get()
-        .lookupApplicant(profile.getEmail())
+        .lookupApplicant(profile.getAttribute("email", String.class))
         .toCompletableFuture()
         .join();
 
@@ -108,40 +105,48 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
   }
 
   public CiviFormProfileData civiformProfileFromSamlProfile(SAML2Profile profile) {
-    return mergeCiviFormProfile(profileFactory.wrapProfileData(profileFactory.createNewApplicant()), profile);
+    return mergeCiviFormProfile(profileFactory.wrapProfileData(profileFactory.createNewApplicant()),
+        profile);
   }
 
-  public CiviFormProfileData mergeCiviFormProfile(CiviFormProfile civiFormProfile, SAML2Profile saml2Profile) {
-    final String locale = saml2Profile.getLocation();
+  public CiviFormProfileData mergeCiviFormProfile(CiviFormProfile civiFormProfile,
+      SAML2Profile saml2Profile) {
+    final String locale = saml2Profile.getAttribute("locale", String.class);
     final boolean hasLocale = !Strings.isNullOrEmpty(locale);
 
-    final String displayName = saml2Profile.getDisplayName();
-    final boolean hasDisplayName = !Strings.isNullOrEmpty(displayName);
+    final String firstName = saml2Profile.getAttribute("first_name", String.class);
+    final boolean hasFirstName = !Strings.isNullOrEmpty(firstName);
+    final String lastName = saml2Profile.getAttribute("last_name", String.class);
+    final boolean hasLastName = !Strings.isNullOrEmpty(lastName);
 
-    if (hasLocale || hasDisplayName) {
+    if (hasLocale || hasFirstName || hasLastName) {
       civiFormProfile.getApplicant().thenApplyAsync(
-          applicant -> {
-                            if (hasLocale) {
-                              applicant.getApplicantData().setPreferredLocale(Locale.forLanguageTag(locale));
-                            }
-                            if (hasDisplayName) {
-                              applicant.getApplicantData().setUserName(displayName);
-                            }
-                            applicant.save();
-                            return null;
-                          })
-                      .toCompletableFuture()
-                      .join();
+              applicant -> {
+                if (hasLocale) {
+                  applicant.getApplicantData().setPreferredLocale(Locale.forLanguageTag(locale));
+                }
+                if (hasFirstName && hasLastName) {
+                  applicant.getApplicantData().setUserName(firstName + lastName);
+                } else if (hasFirstName){
+                  applicant.getApplicantData().setUserName(firstName);
+                } else if (hasLastName) {
+                  applicant.getApplicantData().setUserName(lastName);
+                }
+                applicant.save();
+                return null;
+              })
+          .toCompletableFuture()
+          .join();
     }
-      String emailAddress = saml2Profile.getEmail();
-      civiFormProfile.setEmailAddress(emailAddress).join();
-      civiFormProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
-      // Meaning: whatever you signed in with most recently is the role you have.
-      ImmutableSet<Roles> roles = roles(civiFormProfile);
-      for (Roles role : roles) {
-        civiFormProfile.getProfileData().addRole(role.toString());
-      }
-      return civiFormProfile.getProfileData();
+    String emailAddress = saml2Profile.getEmail();
+    civiFormProfile.setEmailAddress(emailAddress).join();
+    civiFormProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
+    // Meaning: whatever you signed in with most recently is the role you have.
+    ImmutableSet<Roles> roles = roles(civiFormProfile);
+    for (Roles role : roles) {
+      civiFormProfile.getProfileData().addRole(role.toString());
+    }
+    return civiFormProfile.getProfileData();
   }
 
 
