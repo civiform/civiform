@@ -72,7 +72,7 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     // Now we have a three-way merge situation.  We might have
     // 1) an applicant in the database (`existingApplicant`),
     // 2) a guest profile in the browser cookie (`existingProfile`)
-    // 3) an OIDC account in the callback from the OIDC server (`profile`).
+    // 3) a SAML2Profile in the callback from the Identity Provider (`profile`).
     // We will merge 1 and 2, if present, into `existingProfile`, then merge in `profile`.
 
     Optional<CiviFormProfile> existingProfile = profileUtils.currentUserProfile(context);
@@ -96,7 +96,7 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
       }
     }
 
-    // Now merge in the information sent to us by the OIDC server.
+    // Now merge in the information sent to us by the SAML Identity Provider.
     if (existingProfile.isEmpty()) {
       LOG.debug("Found no existing profile in session cookie.");
       return Optional.of(civiformProfileFromSamlProfile(profile));
@@ -117,17 +117,18 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
 
     final String firstName = saml2Profile.getAttribute("first_name", String.class);
     final boolean hasFirstName = !Strings.isNullOrEmpty(firstName);
+    LOG.debug(String.format("Got first name %s", firstName));
 
     // TODO: figure out why the last_name attribute is being returned as an ArrayList because this
     // feels like it shouldn't be necessary.
     final ArrayList lastNameArray = saml2Profile.getAttribute("last_name", ArrayList.class);
     StringBuilder sb = new StringBuilder();
-    String lastName = "";
     for (Object s : lastNameArray) {
-      sb.append((String) s);
+      sb.append(s);
     }
-
+    String lastName = sb.toString();
     final boolean hasLastName = !Strings.isNullOrEmpty(lastName);
+    LOG.debug(String.format("Got last name %s", lastName));
 
     if (hasLocale || hasFirstName || hasLastName) {
       civiFormProfile.getApplicant().thenApplyAsync(
@@ -136,8 +137,8 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
                   applicant.getApplicantData().setPreferredLocale(Locale.forLanguageTag(locale));
                 }
                 if (hasFirstName && hasLastName) {
-                  applicant.getApplicantData().setUserName(firstName + lastName);
-                } else if (hasFirstName){
+                  applicant.getApplicantData().setUserName(String.format("%s %s", firstName, lastName));
+                } else if (hasFirstName) {
                   applicant.getApplicantData().setUserName(firstName);
                 } else if (hasLastName) {
                   applicant.getApplicantData().setUserName(lastName);
@@ -149,6 +150,7 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
           .join();
     }
     String emailAddress = saml2Profile.getEmail();
+    LOG.debug(String.format("Got email %s", emailAddress));
     civiFormProfile.setEmailAddress(emailAddress).join();
     civiFormProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
     // Meaning: whatever you signed in with most recently is the role you have.
