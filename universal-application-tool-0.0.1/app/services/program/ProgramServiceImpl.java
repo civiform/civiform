@@ -526,6 +526,38 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  public ImmutableList<Application> getSubmittedProgramApplicationsAllVersions(long programId)
+      throws ProgramNotFoundException {
+    ImmutableList<Long> allProgramVersionIds = programRepository.getAllProgramVersionIds(programId);
+
+    if (allProgramVersionIds.isEmpty()) {
+      throw new ProgramNotFoundException(programId);
+    }
+
+    return programRepository.getApplicationsForVersions(allProgramVersionIds);
+  }
+
+  @Override
+  public ImmutableList<Application> getSubmittedProgramApplicationsAllVersions(
+      long programId, Optional<String> search) throws ProgramNotFoundException {
+    ImmutableList<Application> applications = getSubmittedProgramApplicationsAllVersions(programId);
+
+    if (search.isEmpty() || search.get().isBlank()) {
+      return applications;
+    }
+
+    return applications.stream()
+        .filter(
+            application ->
+                application
+                    .getApplicantData()
+                    .getApplicantName()
+                    .toLowerCase(Locale.ROOT)
+                    .contains(search.orElse("").toLowerCase(Locale.ROOT)))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
   public ImmutableList<Application> getSubmittedProgramApplications(
       long programId, Optional<String> search) throws ProgramNotFoundException {
     return getSubmittedProgramApplications(programId).stream()

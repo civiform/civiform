@@ -11,7 +11,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 import models.Application;
-import models.Program;
 import org.pac4j.play.java.Secure;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -191,10 +190,9 @@ public class AdminApplicationController extends CiviFormController {
 
     try {
       ImmutableList<Application> applications =
-          programService.getSubmittedProgramApplications(programId, search);
+          programService.getSubmittedProgramApplicationsAllVersions(programId, search);
       PaginationInfo<Application> pageInfo =
           PaginationInfo.paginate(applications, PAGE_SIZE, page.get());
-      ImmutableList<Program> previousVersions = programService.getOtherProgramVersions(programId);
 
       return ok(
           applicationListView.render(
@@ -203,8 +201,7 @@ public class AdminApplicationController extends CiviFormController {
               pageInfo.getPageItems(),
               pageInfo.getPage(),
               pageInfo.getPageCount(),
-              search,
-              previousVersions));
+              search));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     }

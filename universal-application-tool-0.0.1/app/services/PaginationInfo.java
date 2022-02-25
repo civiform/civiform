@@ -36,12 +36,16 @@ public class PaginationInfo<T> {
   public static <V> PaginationInfo<V> paginate(ImmutableList<V> allItems, int pageSize, int page) {
     int endOfListIndex = page * pageSize;
     int totalPageCount = (int) Math.ceil((double) allItems.size() / pageSize);
+
     if (allItems.size() <= endOfListIndex) {
       endOfListIndex = allItems.size();
     }
+
     ImmutableList<V> pageItems;
+
     if (allItems.size() <= (page - 1) * pageSize) {
       pageItems = ImmutableList.of();
+
       if (allItems.size() == 0) {
         // Display 1 page (which is empty)
         totalPageCount = 1;
@@ -53,6 +57,7 @@ public class PaginationInfo<T> {
     } else {
       pageItems = allItems.subList((page - 1) * pageSize, endOfListIndex);
     }
+
     return new PaginationInfo<V>(allItems, pageItems, page, totalPageCount);
   }
 }

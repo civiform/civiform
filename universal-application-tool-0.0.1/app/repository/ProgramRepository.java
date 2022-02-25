@@ -16,6 +16,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Account;
+import models.Application;
 import models.LifecycleStage;
 import models.Program;
 import models.Version;
@@ -161,6 +162,35 @@ public class ProgramRepository {
         .eq(
             "name",
             database.find(Program.class).setId(programId).select("name").findSingleAttribute())
+        .findList()
+        .stream()
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  public ImmutableList<Long> getAllProgramVersionIds(long programId) {
+    return database
+        .find(Program.class)
+        .select("id")
+        .where()
+        .eq(
+            "name",
+            database.find(Program.class).setId(programId).select("name").findSingleAttribute())
+        .findSingleAttributeList()
+        .stream()
+        .map((obj) -> (Long) obj)
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  public ImmutableList<Application> getApplicationsForVersions(ImmutableList<Long> versionIds) {
+    return database
+        .find(Application.class)
+        .fetch("program")
+        .where()
+        .in("program_id", versionIds)
+        .or()
+        .eq("lifecycle_stage", LifecycleStage.ACTIVE)
+        .eq("lifecycle_stage", LifecycleStage.OBSOLETE)
+        .endOr()
         .findList()
         .stream()
         .collect(ImmutableList.toImmutableList());
