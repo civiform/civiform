@@ -116,6 +116,13 @@ portal the resource group name is 'tfstate' and the storage_account_name is
 'tfstate7307'.
 ![Image of Azure portal showing where to find the storage_account_name](img/how_to_find_backend_vars.png?raw=true)
 
+## Can't find the .pub key for terraform
+We are required to pass in an initial pub key pair at `$HOME/.ssh/bastion` to set up the bastion vm. If terraform complains about this, you can generate a key via the following command. 
+
+```
+ssh-keygen -t rsa -b 4096 -f $HOME/.ssh/bastion
+```
+
 # Configure Key Vault before running Terraform
 Before applying the Terraform configuration, you'll need to make sure that Azure Key Vault is
 properly configured to store the secrets needed by the application. To do this, run the command `key-vault-setup` in bin/azure. 
@@ -155,3 +162,12 @@ To do that add the custom records via the domain provider webiste.
 2) TXT record with key 'asuid.staging-azure.civiform.dev' and value that matches the custom domain verification id in the azure portal (you can find this by navigating to the custom domains in the app service setting). 
 
 Note it should take a few minutes to propagate.
+
+# Configure AWS sending 
+You will need an aws key/secret that you can get from the AWS console. The key is specified via terraform and the secret lives in the azure secrets store. 
+
+Staging environment has a bunch of email accounts that get sent for testing purposes that are specified by env variables. 
+
+Verifying the email address you want to use is configured via terraform, but it's possible that the you will have to manually verify the email address you intend to use via the AWS console. Go to the SES portion and add verified identity providers and add the accounts you need to use. 
+
+You will also need to make sure that the region is specified and aligns with where the SES region is. 
