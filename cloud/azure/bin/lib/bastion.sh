@@ -132,8 +132,8 @@ function bastion::get_pg_restore_command() {
     yes | sudo apt-get install postgresql-14 > /dev/null; \
     PGPASSWORD='${DB_PASSWORD}' /usr/lib/postgresql/14/bin/pg_restore \
       -U psqladmin@${1} \
-      -d postgres 
-      -h ${1} 
+      -d postgres \
+      -h ${1} \
       -a < ${3}"
 }
 
