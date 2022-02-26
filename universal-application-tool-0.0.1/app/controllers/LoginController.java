@@ -12,6 +12,7 @@ import com.typesafe.config.ConfigException;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import org.pac4j.core.client.IndirectClient;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
@@ -69,14 +70,14 @@ public class LoginController extends Controller {
   }
 
   public Result loginRadiusLogin(Http.Request request) {
-    return samlLogin(request, loginRadiusClient);
+    return login(request, loginRadiusClient);
   }
 
   public Result loginRadiusLoginWithRedirect(Http.Request request, Optional<String> redirectTo) {
     if (redirectTo.isEmpty()) {
       return loginRadiusLogin(request);
     }
-    return samlLogin(request, loginRadiusClient)
+    return login(request, loginRadiusClient)
         .addingToSession(request, REDIRECT_TO_SESSION_KEY, redirectTo.get());
   }
 
@@ -104,12 +105,14 @@ public class LoginController extends Controller {
   }
 
   // Logic taken from org.pac4j.play.deadbolt2.Pac4jHandler.beforeAuthCheck.
-  private Result login(Http.Request request, OidcClient client) {
+  private Result login(Http.Request request, IndirectClient client) {
     if (client == null) {
       return badRequest("Identity provider secrets not configured.");
     }
     PlayWebContext webContext = new PlayWebContext(request);
-    webContext.setRequestAttribute(OidcConfiguration.SCOPE, client.getConfiguration().getScope());
+    if (client instanceof OidcClient) {
+      webContext.setRequestAttribute(OidcConfiguration.SCOPE, ((OidcClient) client).getConfiguration().getScope());
+    }
     Optional<RedirectionAction> redirect = client.getRedirectionAction(webContext, sessionStore);
     if (redirect.isPresent()) {
       return (Result) httpActionAdapter.adapt(redirect.get(), webContext);
@@ -117,16 +120,4 @@ public class LoginController extends Controller {
     return badRequest("cannot redirect to identity provider");
   }
 
-  // Logic taken from org.pac4j.play.deadbolt2.Pac4jHandler.beforeAuthCheck.
-  private Result samlLogin(Http.Request request, SAML2Client client) {
-    if (client == null) {
-      return badRequest("Identity provider secrets not configured.");
-    }
-    PlayWebContext webContext = new PlayWebContext(request);
-    Optional<RedirectionAction> redirect = client.getRedirectionAction(webContext, sessionStore);
-    if (redirect.isPresent()) {
-      return (Result) httpActionAdapter.adapt(redirect.get(), webContext);
-    }
-    return badRequest("cannot redirect to identity provider");
-  }
 }

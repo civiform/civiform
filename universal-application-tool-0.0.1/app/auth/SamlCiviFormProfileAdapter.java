@@ -118,7 +118,6 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
 
     final String firstName = saml2Profile.getAttribute("first_name", String.class);
     final boolean hasFirstName = !Strings.isNullOrEmpty(firstName);
-    LOG.debug(String.format("Got first name %s", firstName));
 
     // TODO: figure out why the last_name attribute is being returned as an ArrayList because this
     // feels like it shouldn't be necessary.
@@ -154,7 +153,6 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
           .join();
     }
     String emailAddress = saml2Profile.getEmail();
-    LOG.debug(String.format("Got email %s", emailAddress));
     civiFormProfile.setEmailAddress(emailAddress).join();
     civiFormProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
     // Meaning: whatever you signed in with most recently is the role you have.
