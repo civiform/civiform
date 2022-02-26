@@ -112,8 +112,8 @@ public class LoginController extends Controller {
     }
     PlayWebContext webContext = new PlayWebContext(request);
     if (client instanceof OidcClient) {
-      webContext.setRequestAttribute(OidcConfiguration.SCOPE,
-          ((OidcClient) client).getConfiguration().getScope());
+      webContext.setRequestAttribute(
+          OidcConfiguration.SCOPE, ((OidcClient) client).getConfiguration().getScope());
     }
     Optional<RedirectionAction> redirect = client.getRedirectionAction(webContext, sessionStore);
     if (redirect.isPresent()) {
@@ -121,5 +121,4 @@ public class LoginController extends Controller {
     }
     return badRequest("cannot redirect to identity provider");
   }
-
 }

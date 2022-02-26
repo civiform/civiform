@@ -49,9 +49,7 @@ import org.pac4j.saml.config.SAML2Configuration;
 import play.Environment;
 import repository.UserRepository;
 
-/**
- * SecurityModule configures and initializes all authentication and authorization classes.
- */
+/** SecurityModule configures and initializes all authentication and authorization classes. */
 public class SecurityModule extends AbstractModule {
 
   private final com.typesafe.config.Config configuration;
@@ -117,9 +115,7 @@ public class SecurityModule extends AbstractModule {
     return new FakeAdminClient(profileFactory, this.configuration);
   }
 
-  /**
-   * Creates a singleton object of OidcClient configured for IDCS and initializes it on startup.
-   */
+  /** Creates a singleton object of OidcClient configured for IDCS and initializes it on startup. */
   @Provides
   @Nullable
   @Singleton
@@ -192,9 +188,7 @@ public class SecurityModule extends AbstractModule {
     return client;
   }
 
-  /**
-   * Creates a singleton object of OidcClient configured for AD and initializes it on startup.
-   */
+  /** Creates a singleton object of OidcClient configured for AD and initializes it on startup. */
   @Provides
   @Nullable
   @Singleton

@@ -2,9 +2,7 @@ package auth;
 
 import java.util.Optional;
 
-/**
- * Enum representing supported options for auth IDP for applicants and admins.
- */
+/** Enum representing supported options for auth IDP for applicants and admins. */
 public enum AuthIdentityProviderName {
   IDCS_APPLICANT("idcs"),
   LOGIN_RADIUS_APPLICANT("login-radius"),
@@ -16,9 +14,7 @@ public enum AuthIdentityProviderName {
     this.authIdentityProviderNameString = authIdentityProviderNameString;
   }
 
-  /**
-   * Returns the enum associated with the provided string value.
-   */
+  /** Returns the enum associated with the provided string value. */
   public static Optional<AuthIdentityProviderName> forString(String string) {
     for (AuthIdentityProviderName authProvider : AuthIdentityProviderName.values()) {
       if (authProvider.getString().equals(string)) {
@@ -28,9 +24,7 @@ public enum AuthIdentityProviderName {
     return Optional.empty();
   }
 
-  /**
-   * Returns the string value associated with the enum
-   */
+  /** Returns the string value associated with the enum */
   public String getString() {
     return authIdentityProviderNameString;
   }
