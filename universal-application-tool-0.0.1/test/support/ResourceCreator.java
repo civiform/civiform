@@ -19,14 +19,20 @@ import services.question.types.TextQuestionDefinition;
 public class ResourceCreator {
 
   private final Database database;
+  private final Injector injector;
 
   public ResourceCreator(Injector injector) {
     this.database = DB.getDefault();
+    this.injector = injector;
     ProgramBuilder.setInjector(injector);
   }
 
   public void truncateTables() {
     Models.truncate(database);
+  }
+
+  public void publishNewSynchronizedVersion() {
+    injector.instanceOf(repository.VersionRepository.class).publishNewSynchronizedVersion();
   }
 
   public Question insertQuestion(String name) {

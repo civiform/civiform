@@ -7,7 +7,6 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.p;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.Tag;
@@ -17,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.PaginationResult;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -37,9 +37,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   public Content render(
       Http.Request request,
       long programId,
-      ImmutableList<Application> applications,
-      int page,
-      int pageCount,
+      PaginationResult<Application> paginatedApplications,
       Optional<String> search) {
     String title = "All Applications";
 
@@ -49,8 +47,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .with(
                 h1(title).withClasses(Styles.MY_4),
                 renderPaginationDiv(
-                        page,
-                        pageCount,
+                        paginatedApplications.getCurrentPage(),
+                        paginatedApplications.getNumPages(),
                         pageNumber ->
                             routes.AdminApplicationController.index(
                                 programId, search, Optional.of(pageNumber)))
@@ -62,7 +60,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                         routes.AdminApplicationController.index(
                             programId, Optional.empty(), Optional.empty()))
                     .withClasses(Styles.MT_6),
-                each(applications, application -> this.renderApplicationListItem(application)),
+                each(
+                    paginatedApplications.getPageContents(),
+                    application -> this.renderApplicationListItem(application)),
                 br(),
                 renderDownloadButton(programId))
             .withClasses(Styles.MB_16);

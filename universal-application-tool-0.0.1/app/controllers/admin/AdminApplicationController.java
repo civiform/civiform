@@ -15,7 +15,8 @@ import org.pac4j.play.java.Secure;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApplicationRepository;
-import services.PaginationInfo;
+import services.PaginationResult;
+import services.PaginationSpec;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
@@ -189,19 +190,11 @@ public class AdminApplicationController extends CiviFormController {
     }
 
     try {
-      ImmutableList<Application> applications =
-          programService.getSubmittedProgramApplicationsAllVersions(programId, search);
-      PaginationInfo<Application> pageInfo =
-          PaginationInfo.paginate(applications, PAGE_SIZE, page.get());
+      PaginationResult<Application> applications =
+          programService.getSubmittedProgramApplicationsAllVersions(
+              programId, new PaginationSpec(PAGE_SIZE, page.orElse(1)), search);
 
-      return ok(
-          applicationListView.render(
-              request,
-              programId,
-              pageInfo.getPageItems(),
-              pageInfo.getPage(),
-              pageInfo.getPageCount(),
-              search));
+      return ok(applicationListView.render(request, programId, applications, search));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     }

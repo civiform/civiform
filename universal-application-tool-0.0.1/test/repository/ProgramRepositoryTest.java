@@ -142,4 +142,12 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
     Program newDraft = repo.createOrUpdateDraft(withAdmins);
     assertThat(repo.getProgramAdministrators(newDraft.id)).containsExactly(admin);
   }
+
+  @Test
+  public void getApplicationsForAllProgramVersions_multipleVersions() {
+    Program originalVersion = resourceCreator.insertActiveProgram("test program");
+    Program currentVersion = resourceCreator.insertDraftProgram("test program");
+
+    resourceCreator.publishNewSynchronizedVersion();
+  }
 }
