@@ -30,6 +30,7 @@ import play.mvc.Result;
  * normally you need to be logged out in order to be redirected to a login page.
  */
 public class LoginController extends Controller {
+
   private final OidcClient idcsClient;
 
   private final OidcClient adClient;
@@ -111,7 +112,8 @@ public class LoginController extends Controller {
     }
     PlayWebContext webContext = new PlayWebContext(request);
     if (client instanceof OidcClient) {
-      webContext.setRequestAttribute(OidcConfiguration.SCOPE, ((OidcClient) client).getConfiguration().getScope());
+      webContext.setRequestAttribute(OidcConfiguration.SCOPE,
+          ((OidcClient) client).getConfiguration().getScope());
     }
     Optional<RedirectionAction> redirect = client.getRedirectionAction(webContext, sessionStore);
     if (redirect.isPresent()) {

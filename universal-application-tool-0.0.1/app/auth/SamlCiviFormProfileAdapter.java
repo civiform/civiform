@@ -30,11 +30,8 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
   protected final SAML2Configuration saml2Configuration;
   protected SAML2Client saml2Client;
 
-  public SamlCiviFormProfileAdapter(
-      SAML2Configuration configuration,
-      SAML2Client client,
-      ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
+  public SamlCiviFormProfileAdapter(SAML2Configuration configuration, SAML2Client client,
+      ProfileFactory profileFactory, Provider<UserRepository> applicantRepositoryProvider) {
     super();
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = applicantRepositoryProvider;
@@ -43,8 +40,8 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
   }
 
   @Override
-  public Optional<UserProfile> create(
-      Credentials cred, WebContext context, SessionStore sessionStore) {
+  public Optional<UserProfile> create(Credentials cred, WebContext context,
+      SessionStore sessionStore) {
     ProfileUtils profileUtils = new ProfileUtils(sessionStore, profileFactory);
 
     Optional<UserProfile> samlProfile = super.create(cred, context, sessionStore);
@@ -55,20 +52,16 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     }
 
     if (!(samlProfile.get() instanceof SAML2Profile)) {
-      LOG.warn(
-          "Got a profile from SAML2 callback but it wasn't a SAML profile: %s", samlProfile.get());
+      LOG.warn("Got a profile from SAML2 callback but it wasn't a SAML profile: %s",
+          samlProfile.get());
       return Optional.empty();
     }
 
     SAML2Profile profile = (SAML2Profile) samlProfile.get();
 
     // Check if we already have a profile in the database for the user returned to us by SAML2
-    Optional<Applicant> existingApplicant =
-        applicantRepositoryProvider
-            .get()
-            .lookupApplicant(profile.getAttribute("email", String.class))
-            .toCompletableFuture()
-            .join();
+    Optional<Applicant> existingApplicant = applicantRepositoryProvider.get()
+        .lookupApplicant(profile.getAttribute("email", String.class)).toCompletableFuture().join();
 
     // Now we have a three-way merge situation.  We might have
     // 1) an applicant in the database (`existingApplicant`),
@@ -87,12 +80,9 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
         // For account, use the existing account and ignore the guest account.
         Applicant guestApplicant = existingProfile.get().getApplicant().join();
         Account existingAccount = existingApplicant.get().getAccount();
-        Applicant mergedApplicant =
-            applicantRepositoryProvider
-                .get()
-                .mergeApplicants(guestApplicant, existingApplicant.get(), existingAccount)
-                .toCompletableFuture()
-                .join();
+        Applicant mergedApplicant = applicantRepositoryProvider.get()
+            .mergeApplicants(guestApplicant, existingApplicant.get(), existingAccount)
+            .toCompletableFuture().join();
         existingProfile = Optional.of(profileFactory.wrap(mergedApplicant));
       }
     }
@@ -107,12 +97,12 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
   }
 
   public CiviFormProfileData civiformProfileFromSamlProfile(SAML2Profile profile) {
-    return mergeCiviFormProfile(
-        profileFactory.wrapProfileData(profileFactory.createNewApplicant()), profile);
+    return mergeCiviFormProfile(profileFactory.wrapProfileData(profileFactory.createNewApplicant()),
+        profile);
   }
 
-  public CiviFormProfileData mergeCiviFormProfile(
-      CiviFormProfile civiFormProfile, SAML2Profile saml2Profile) {
+  public CiviFormProfileData mergeCiviFormProfile(CiviFormProfile civiFormProfile,
+      SAML2Profile saml2Profile) {
     final String locale = saml2Profile.getAttribute("locale", String.class);
     final boolean hasLocale = !Strings.isNullOrEmpty(locale);
 
@@ -130,27 +120,20 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     final boolean hasLastName = !Strings.isNullOrEmpty(lastName);
 
     if (hasLocale || hasFirstName || hasLastName) {
-      civiFormProfile
-          .getApplicant()
-          .thenApplyAsync(
-              applicant -> {
-                if (hasLocale) {
-                  applicant.getApplicantData().setPreferredLocale(Locale.forLanguageTag(locale));
-                }
-                if (hasFirstName && hasLastName) {
-                  applicant
-                      .getApplicantData()
-                      .setUserName(String.format("%s %s", firstName, lastName));
-                } else if (hasFirstName) {
-                  applicant.getApplicantData().setUserName(firstName);
-                } else if (hasLastName) {
-                  applicant.getApplicantData().setUserName(lastName);
-                }
-                applicant.save();
-                return null;
-              })
-          .toCompletableFuture()
-          .join();
+      civiFormProfile.getApplicant().thenApplyAsync(applicant -> {
+        if (hasLocale) {
+          applicant.getApplicantData().setPreferredLocale(Locale.forLanguageTag(locale));
+        }
+        if (hasFirstName && hasLastName) {
+          applicant.getApplicantData().setUserName(String.format("%s %s", firstName, lastName));
+        } else if (hasFirstName) {
+          applicant.getApplicantData().setUserName(firstName);
+        } else if (hasLastName) {
+          applicant.getApplicantData().setUserName(lastName);
+        }
+        applicant.save();
+        return null;
+      }).toCompletableFuture().join();
     }
     String emailAddress = saml2Profile.getEmail();
     civiFormProfile.setEmailAddress(emailAddress).join();
