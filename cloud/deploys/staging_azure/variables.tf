@@ -44,3 +44,18 @@ variable "custom_hostname" {
   description = "custom hostname for the app to map the dns (used also for CORS)"
   default     = "staging-azure.civiform.dev"
 }
+
+variable "adfs_client_id" {
+  type        = string
+  description = "Active Directory Federation Service client id"
+}
+
+variable "adfs_discovery_uri" {
+  type        = string
+  description = "Active Directory Federation Service url that handles adfs login"
+}
+
+variable "adfs_admin_group" {
+  type        = string
+  description = "Active Directory Federation Service group name"
+}

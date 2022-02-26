@@ -129,3 +129,17 @@ variable "key_vault_name" {
 variable "key_vault_resource_group" {
   type = string
 }
+variable "adfs_client_id" {
+  type        = string
+  description = "Active Directory Federation Service client id"
+}
+
+variable "adfs_discovery_uri" {
+  type        = string
+  description = "Active Directory Federation Service url that handles adfs login"
+}
+
+variable "adfs_admin_group" {
+  type        = string
+  description = "Active Directory Federation Service group name"
+}
