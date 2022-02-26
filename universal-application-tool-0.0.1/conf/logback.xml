@@ -31,7 +31,7 @@
   <logger name="s3client" level="INFO" />
   <logger name="io.ebean" level="INFO" />
   <logger name="org.pac4j" level="INFO" />
-  <logger name="auth" level="DEBUG" />
+  <logger name="auth" level="INFO" />
 
   <!-- Off these ones as they are annoying. -->
   <logger name="com.gargoylesoftware.htmlunit" level="OFF" />
