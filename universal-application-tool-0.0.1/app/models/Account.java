@@ -21,8 +21,9 @@ import services.program.ProgramDefinition;
  * <p>When a user logs in for the first time either using SSO or as a guest, CiviForm creates an
  * {@code Account} record for them.
  *
- * emailAddress serves as the unchanging unique identifier for accounts. When #1793 is resolved
- * though authorityId will serve that purpose.
+ * emailAddress serves as the unchanging unique identifier for accounts though it is not gauranteed
+ * to change in authentication providers. When #1793 is resolved though authorityId will serve that
+ * purpose.
  *
  * <p>Note that residents have a single {@code Account} and a single {@code Applicant} record,
  * despite the one to many relationship. This is technical debt that stems from earlier reasoning
