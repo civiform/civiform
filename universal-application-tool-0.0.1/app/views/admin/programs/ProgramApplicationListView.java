@@ -5,11 +5,14 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.iframe;
 import static j2html.TagCreator.p;
 
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.Tag;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import models.Application;
 import org.slf4j.Logger;
@@ -58,16 +61,28 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                         request,
                         search,
                         routes.AdminApplicationController.index(
-                            programId, Optional.empty(), Optional.empty()))
+                            programId, Optional.empty(), Optional.empty()),
+                        Optional.of(Styles.W_FULL))
                     .withClasses(Styles.MT_6),
                 each(
                     paginatedApplications.getPageContents(),
                     application -> this.renderApplicationListItem(application)),
                 br(),
                 renderDownloadButton(programId))
-            .withClasses(Styles.MB_16);
+            .withClasses(Styles.MB_16, Styles.MR_2);
 
-    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
+    Tag applicationShowDiv =
+        div()
+            .withClasses(Styles.W_FULL, Styles.H_FULL)
+            .with(iframe().withId("application-display-frame").withClasses(Styles.W_FULL));
+
+    HtmlBundle htmlBundle =
+        layout
+            .getBundle()
+            .setTitle(title)
+            .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_applications"))
+            .addMainStyles(Styles.FLEX)
+            .addMainContent(contentDiv, applicationShowDiv);
 
     return layout.renderCentered(htmlBundle);
   }
@@ -83,7 +98,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   private Tag renderApplicationListItem(Application application) {
-    String downloadLinkText = "Download (PDF)";
     String applicantNameWithApplicationId =
         String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
     String lastEditText = getLastEditText(application);
@@ -102,7 +116,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         div(
                 p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
-                renderDownloadLink(downloadLinkText, application),
                 renderViewLink(viewLinkText, application))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
@@ -120,7 +133,10 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     String lastEditText;
 
     try {
-      lastEditText = application.getSubmitTime().toString();
+      lastEditText =
+          DateTimeFormatter.RFC_1123_DATE_TIME
+              .withZone(ZoneId.systemDefault())
+              .format(application.getSubmitTime());
     } catch (NullPointerException e) {
       log.error("Application {} submitted without submission time marked.", application.id);
       lastEditText = "<ERROR>";
@@ -129,23 +145,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     lastEditText = "Last edited " + lastEditText;
 
     return lastEditText;
-  }
-
-  private Tag renderDownloadLink(String text, Application application) {
-    // This link doesn't work since we don't have PDF filling yet.  Disable.
-    String downloadLink =
-        controllers.admin.routes.AdminApplicationController.download(
-                application.getProgram().id, application.id)
-            .url();
-
-    return new LinkElement()
-        .setId("application-download-link-" + application.id)
-        .setHref(downloadLink)
-        .setText(text)
-        .setStyles(Styles.MR_2, ReferenceClasses.DOWNLOAD_BUTTON)
-        .asAnchorText()
-        // TODO: when the download link works, un-hide.
-        .isHidden();
   }
 
   private Tag renderViewLink(String text, Application application) {

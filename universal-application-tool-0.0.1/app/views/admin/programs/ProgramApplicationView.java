@@ -20,20 +20,20 @@ import java.util.Collection;
 import play.twirl.api.Content;
 import services.applicant.AnswerData;
 import services.applicant.Block;
+import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
-import views.admin.AdminLayout;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
 /** Renders a page for a program admin to view a single submitted application. */
 public final class ProgramApplicationView extends BaseHtmlView {
-  private final AdminLayout layout;
+  private final BaseHtmlLayout layout;
 
   @Inject
-  public ProgramApplicationView(AdminLayout layout) {
-    this.layout = checkNotNull(layout).setOnlyProgramAdminType();
+  public ProgramApplicationView(BaseHtmlLayout layout) {
+    this.layout = checkNotNull(layout);
   }
 
   public Content render(
@@ -67,7 +67,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 renderDownloadButton(programId, applicationId));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
-    return layout.renderCentered(htmlBundle);
+    return layout.render(htmlBundle);
   }
 
   private Tag renderDownloadButton(long programId, long applicationId) {
