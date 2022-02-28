@@ -163,7 +163,7 @@ variable "staging_program_admin_notification_mailing_list" {
 
 variable "staging_ti_notification_mailing_list" {
   type        = string
-  description = "Intermediarry notification mailing list for staging"
+  description = "intermediary notification mailing list for staging"
   default     = ""
 }
 
