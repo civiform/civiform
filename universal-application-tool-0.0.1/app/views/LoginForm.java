@@ -176,9 +176,7 @@ public class LoginForm extends BaseHtmlView {
   private Tag loginButton(Messages messages) {
     String msg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
     return redirectButton(
-            applicantIdp,
-            msg,
-            routes.LoginController.loginWithRedirect(Optional.empty()).url())
+            applicantIdp, msg, routes.LoginController.loginWithRedirect(Optional.empty()).url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
   }
 
