@@ -1,8 +1,10 @@
 package controllers;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 
 import auth.AdOidcClient;
+import auth.AuthIdentityProviderName;
 import auth.IdcsOidcClient;
 import auth.LoginRadiusSamlClient;
 import com.google.common.base.Preconditions;
@@ -43,6 +45,8 @@ public class LoginController extends Controller {
 
   private final Config config;
 
+  private final String applicantIdp;
+
   @Inject
   public LoginController(
       @AdOidcClient @Nullable OidcClient adClient,
@@ -54,8 +58,17 @@ public class LoginController extends Controller {
     this.adClient = adClient;
     this.loginRadiusClient = loginRadiusClient;
     this.sessionStore = Preconditions.checkNotNull(sessionStore);
+    this.applicantIdp = checkNotNull(config).getString("auth.applicant_idp");
     this.httpActionAdapter = PlayHttpActionAdapter.INSTANCE;
     this.config = config;
+  }
+
+  public Result loginWithRedirect(Http.Request request, Optional<String> redirectTo) {
+    if (applicantIdp.equals(AuthIdentityProviderName.LOGIN_RADIUS_APPLICANT.getString())) {
+      return loginRadiusLoginWithRedirect(request, redirectTo);
+    } else {
+      return idcsLoginWithRedirect(request, redirectTo);
+    }
   }
 
   public Result idcsLogin(Http.Request request) {

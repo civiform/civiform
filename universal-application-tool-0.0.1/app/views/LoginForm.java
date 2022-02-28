@@ -176,19 +176,11 @@ public class LoginForm extends BaseHtmlView {
 
   private Tag loginButton(Messages messages) {
     String msg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
-    if (applicantIdp.equals(AuthIdentityProviderName.LOGIN_RADIUS_APPLICANT.getString())) {
-      return redirectButton(
-              AuthIdentityProviderName.LOGIN_RADIUS_APPLICANT.getString(),
-              msg,
-              routes.LoginController.loginRadiusLoginWithRedirect(Optional.empty()).url())
-          .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
-    } else {
-      return redirectButton(
-              AuthIdentityProviderName.IDCS_APPLICANT.getString(),
-              msg,
-              routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url())
-          .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
-    }
+    return redirectButton(
+            AuthIdentityProviderName.LOGIN_RADIUS_APPLICANT.getString(),
+            msg,
+            routes.LoginController.loginWithRedirect(Optional.empty()).url())
+        .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
   }
 
   private Tag createAccountButton(Messages messages) {
