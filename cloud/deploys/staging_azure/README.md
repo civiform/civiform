@@ -155,3 +155,12 @@ To do that add the custom records via the domain provider webiste.
 2) TXT record with key 'asuid.staging-azure.civiform.dev' and value that matches the custom domain verification id in the azure portal (you can find this by navigating to the custom domains in the app service setting). 
 
 Note it should take a few minutes to propagate.
+
+# Configure AWS sending 
+You will need an aws key/secret that you can get from the AWS console. The key is specified via terraform and the secret lives in the azure secrets store. 
+
+Staging environment has a bunch of email accounts that get sent for testing purposes that are specified by env variables. 
+
+Verifying the email address you want to use is configured via terraform, but it's possible that the you will have to manually verify the email address you intend to use via the AWS console. Go to the SES portion and add verified identity providers and add the accounts you need to use. 
+
+You will also need to make sure that the region is specified and aligns with where the SES region is. 

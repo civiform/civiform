@@ -47,6 +47,11 @@ data "azurerm_key_vault_secret" "postgres_password" {
   key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
 }
 
+data "azurerm_key_vault_secret" "aws_secret_access_token" {
+  name         = local.aws_secret_access_token
+  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
+}
+
 data "azurerm_key_vault_secret" "app_secret_key" {
   name         = local.app_secret_key_keyvault_id
   key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
@@ -119,8 +124,16 @@ resource "azurerm_app_service" "civiform_app" {
     AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
 
-    AWS_SES_SENDER = var.ses_sender_email
-    SECRET_KEY     = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.app_secret_key.id})"
+    AWS_SES_SENDER        = var.ses_sender_email
+    AWS_ACCESS_KEY_ID     = var.aws_access_key_id
+    AWS_SECRET_ACCESS_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.aws_secret_access_token.id})"
+    AWS_REGION            = var.aws_region
+
+    STAGING_ADMIN_LIST     = var.staging_program_admin_notification_mailing_list
+    STAGING_TI_LIST        = var.staging_ti_notification_mailing_list
+    STAGING_APPLICANT_LIST = var.staging_applicant_notification_mailing_list
+
+    SECRET_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.app_secret_key.id})"
 
     ADFS_CLIENT_ID     = var.adfs_client_id
     ADFS_SECRET        = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.adfs_secret.id})"

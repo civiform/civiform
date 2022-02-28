@@ -8,4 +8,5 @@ locals {
   postgres_password_keyvault_id = "postgres-password"
   app_secret_key_keyvault_id    = "app-secret-key"
   adfs_secret_keyvault_id       = "adfs-secret"
+  aws_secret_access_token       = "aws-secret-access-token"
 }
