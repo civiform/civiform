@@ -63,7 +63,7 @@ variable "adfs_admin_group" {
 
 variable "aws_access_key_id" {
   type        = string
-  description = "The access key you need to send things via "
+  description = "The access key you need to send emails via AWS SES"
 }
 
 variable "staging_program_admin_notification_mailing_list" {
