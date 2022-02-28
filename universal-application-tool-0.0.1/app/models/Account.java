@@ -22,7 +22,7 @@ import services.program.ProgramDefinition;
  * {@code Account} record for them.
  *
  * <p>emailAddress serves as the unchanging unique identifier for accounts though it is not
- * gauranteed to not change in authentication protocols like OIDC. When #1793 is resolved though
+ * guaranteed to not change in authentication protocols like OIDC. When #1793 is resolved though
  * authorityId will serve that purpose.
  *
  * <p>Note that residents have a single {@code Account} and a single {@code Applicant} record,
