@@ -156,6 +156,15 @@ resource "azurerm_app_service" "civiform_app" {
   identity {
     type = "SystemAssigned"
   }
+
+  logs {
+    http_logs {
+      file_system {
+        retention_in_days = 1
+        retention_in_mb   = 35
+      }
+    }
+  }
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "appservice_vnet_connection" {
