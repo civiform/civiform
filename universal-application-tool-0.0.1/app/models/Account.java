@@ -21,6 +21,9 @@ import services.program.ProgramDefinition;
  * <p>When a user logs in for the first time either using SSO or as a guest, CiviForm creates an
  * {@code Account} record for them.
  *
+ * emailAddress serves as the unchanging unique identifier for accounts. When #1793 is resolved
+ * though authorityId will serve that purpose.
+ *
  * <p>Note that residents have a single {@code Account} and a single {@code Applicant} record,
  * despite the one to many relationship. This is technical debt that stems from earlier reasoning
  * about the approach wherein we expected we'd need to create multiple versions of the resident's
@@ -45,6 +48,7 @@ public class Account extends BaseModel {
   // This must be a mutable collection so we can add to the list later.
   @DbArray private List<String> adminOf = new ArrayList<>();
 
+  private String authorityId;
   private String emailAddress;
 
   public ImmutableList<Long> ownedApplicantIds() {
@@ -61,6 +65,14 @@ public class Account extends BaseModel {
 
   public void setApplicants(List<Applicant> applicants) {
     this.applicants = applicants;
+  }
+
+  public void setAuthorityId(String authorityId) {
+    this.authorityId = authorityId;
+  }
+
+  public String getAuthorityId() {
+    return this.authorityId;
   }
 
   public void setEmailAddress(String emailAddress) {
