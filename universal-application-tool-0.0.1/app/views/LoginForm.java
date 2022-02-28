@@ -8,7 +8,6 @@ import static j2html.TagCreator.img;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
-import auth.AuthIdentityProviderName;
 import auth.FakeAdminClient;
 import auth.GuestClient;
 import com.google.inject.Inject;
@@ -177,7 +176,7 @@ public class LoginForm extends BaseHtmlView {
   private Tag loginButton(Messages messages) {
     String msg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
     return redirectButton(
-            AuthIdentityProviderName.LOGIN_RADIUS_APPLICANT.getString(),
+            applicantIdp,
             msg,
             routes.LoginController.loginWithRedirect(Optional.empty()).url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
