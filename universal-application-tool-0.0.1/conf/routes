@@ -143,7 +143,8 @@ GET     /idcsLogin                   controllers.LoginController.idcsLoginWithRe
 GET     /idcsRegister                controllers.LoginController.register(request: Request)
 GET     /adfsLogin                   controllers.LoginController.adfsLogin(request: Request)
 GET     /loginRadiusLogin            controllers.LoginController.loginRadiusLoginWithRedirect(request: Request, redirectTo: java.util.Optional[String])
-GET     /login                       controllers.LoginController.loginWithRedirect(request: Request, redirectTo: java.util.Optional[String])
+GET     /applicantlogin              controllers.LoginController.loginWithRedirect(request: Request, redirectTo: java.util.Optional[String])
+
 # Log out of application
 GET     /logout                      @org.pac4j.play.LogoutController.logout(request: Request)
 
