@@ -134,10 +134,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   private Tag getSubmitTime(Application application) {
     try {
-      return span().withText(
-          DateTimeFormatter.RFC_1123_DATE_TIME
-              .withZone(ZoneId.systemDefault())
-              .format(application.getSubmitTime()));
+      return span()
+          .withText(
+              DateTimeFormatter.RFC_1123_DATE_TIME
+                  .withZone(ZoneId.systemDefault())
+                  .format(application.getSubmitTime()));
     } catch (NullPointerException e) {
       log.error("Application {} submitted without submission time marked.", application.id);
       return span();

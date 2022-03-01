@@ -72,7 +72,8 @@ public class ResourceCreator {
     return Application.createSync(applicant, program, LifecycleStage.ACTIVE);
   }
 
-  public Application insertApplication(Applicant applicant, Program program, LifecycleStage lifecycleStage) {
+  public Application insertApplication(
+      Applicant applicant, Program program, LifecycleStage lifecycleStage) {
     return Application.createSync(applicant, program, lifecycleStage);
   }
 
