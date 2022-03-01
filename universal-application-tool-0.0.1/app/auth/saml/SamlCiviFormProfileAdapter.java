@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.StringJoiner;
 import javax.inject.Provider;
 import models.Account;
 import models.Applicant;
@@ -124,7 +125,7 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     final String firstName = saml2Profile.getAttribute("first_name", String.class);
     final boolean hasFirstName = !Strings.isNullOrEmpty(firstName);
 
-    // TODO: figure out why the last_name attribute is being returned as an ArrayList
+    // TODO: figure out why the last_name attribute is being returned as an ArrayList.
     final String lastName = extractAttributeFromArrayList(saml2Profile, "last_name");
     final boolean hasLastName = !Strings.isNullOrEmpty(lastName);
 
@@ -164,11 +165,11 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
 
   private String extractAttributeFromArrayList(SAML2Profile profile, String attr) {
     ArrayList attributeArray = profile.getAttribute(attr, ArrayList.class);
-    StringBuilder sb = new StringBuilder();
+    StringJoiner sj = new StringJoiner(" ");
     for (Object s : attributeArray) {
-      sb.append(s);
+      sj.add((String) s);
     }
-    return sb.toString();
+    return sj.toString();
   }
 
   protected ImmutableSet<Roles> roles(CiviFormProfile profile) {
