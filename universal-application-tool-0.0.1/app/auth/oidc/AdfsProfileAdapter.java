@@ -4,7 +4,6 @@ import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.Roles;
-import auth.oidc.OidcCiviFormProfileAdapter;
 import com.google.common.collect.ImmutableSet;
 import com.nimbusds.jose.shaded.json.JSONArray;
 import com.typesafe.config.Config;

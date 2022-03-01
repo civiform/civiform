@@ -7,7 +7,7 @@ public enum AuthIdentityProviderName {
   IDCS_APPLICANT("idcs"),
   LOGIN_RADIUS_APPLICANT("login-radius"),
   ADFS_ADMIN("adfs");
-  
+
   private final String authIdentityProviderNameString;
 
   AuthIdentityProviderName(String authIdentityProviderNameString) {
