@@ -7,7 +7,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.ExpressionList;
 import io.ebean.PagedList;
+import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import java.util.List;
@@ -159,46 +161,24 @@ public class ProgramRepository {
   }
 
   public ImmutableList<Program> getAllProgramVersions(long programId) {
-    return database
-        .find(Program.class)
-        .where()
-        .eq(
-            "name",
-            database.find(Program.class).setId(programId).select("name").findSingleAttribute())
-        .findList()
-        .stream()
+    return allProgramVersionsQuery(programId).findList().stream()
         .collect(ImmutableList.toImmutableList());
   }
 
   public PaginationResult<Application> getApplicationsForAllProgramVersions(
-      long programId, PaginationSpec paginationSpec, Optional<String> maybeSearch) {
-    io.ebean.ExpressionList<Application> query =
+      long programId, PaginationSpec paginationSpec, Optional<String> searchNameFragment) {
+    ExpressionList<Application> query =
         database
             .find(Application.class)
             .fetch("program")
             .where()
+            .in("program_id", allProgramVersionsQuery(programId))
             .in(
-                "program_id",
-                database
-                    .find(Program.class)
-                    .select("id")
-                    .where()
-                    .in(
-                        "name",
-                        database
-                            .find(Program.class)
-                            .select("name")
-                            .where()
-                            .eq("id", programId)
-                            .query())
-                    .query())
-            .or()
-            .eq("lifecycle_stage", LifecycleStage.ACTIVE)
-            .eq("lifecycle_stage", LifecycleStage.OBSOLETE)
-            .endOr();
+                "lifecycle_stage",
+                ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE));
 
-    if (maybeSearch.isPresent() && !maybeSearch.get().isBlank()) {
-      String search = maybeSearch.get();
+    if (searchNameFragment.isPresent() && !searchNameFragment.get().isBlank()) {
+      String search = searchNameFragment.get();
 
       if (search.matches("^\\d+$")) {
         query = query.or().eq("id", search).eq("applicant_id", search).endOr();
@@ -231,6 +211,15 @@ public class ProgramRepository {
         paginationSpec,
         pagedQuery.getTotalPageCount(),
         pagedQuery.getList().stream().collect(ImmutableList.toImmutableList()));
+  }
+
+  private Query<Program> allProgramVersionsQuery(long programId) {
+    return database
+        .find(Program.class)
+        .select("id")
+        .where()
+        .in("name", database.find(Program.class).select("name").where().eq("id", programId).query())
+        .query();
   }
 
   private String getApplicationObjectPath(String... pathComponents) {

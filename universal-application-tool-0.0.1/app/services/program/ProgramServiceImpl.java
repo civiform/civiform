@@ -529,9 +529,9 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
-      long programId, PaginationSpec paginationSpec, Optional<String> search) {
+      long programId, PaginationSpec paginationSpec, Optional<String> searchNameFragment) {
     return programRepository.getApplicationsForAllProgramVersions(
-        programId, paginationSpec, search);
+        programId, paginationSpec, searchNameFragment);
   }
 
   @Override

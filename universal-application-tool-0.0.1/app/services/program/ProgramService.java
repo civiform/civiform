@@ -301,25 +301,22 @@ public interface ProgramService {
   /**
    * Get all the program's submitted applications. Does not include drafts or deleted applications.
    *
-   * @param programId the program id.
-   * @return A list of Application objects for the specified program.
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ImmutableList<Application> getSubmittedProgramApplications(long programId)
       throws ProgramNotFoundException;
 
   /**
-   * Get all submitted applications for this program and all programs of the same name where the
-   * applicant's name contains the search query. Does not include drafts or deleted applications.
+   * Get all submitted applications for this program and all other previous and future versions of
+   * it where the applicant's first name, last name, applicant ID, or application ID contains the
+   * search query. Does not include drafts or deleted applications.
    *
-   * @param programId the program id.
    * @param paginationSpec specification for paginating the results.
-   * @param search an applicant's name or fragment of an applicant's name.
-   * @return A list of Application objects.
+   * @param searchNameFragment a text fragment used for filtering the applications.
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
-      long programId, PaginationSpec paginationSpec, Optional<String> search)
+      long programId, PaginationSpec paginationSpec, Optional<String> searchNameFragment)
       throws ProgramNotFoundException;
 
   /** Create a new draft starting from the program specified by `id`. */

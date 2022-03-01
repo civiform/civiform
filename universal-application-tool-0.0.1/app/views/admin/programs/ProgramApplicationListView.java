@@ -62,11 +62,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                         search,
                         routes.AdminApplicationController.index(
                             programId, Optional.empty(), Optional.empty()),
-                        Optional.of(Styles.W_FULL))
+                        Optional.of(Styles.W_FULL),
+                        Optional.of(
+                            "Search first name, last name, applicant ID, or application ID"))
                     .withClasses(Styles.MT_6),
-                each(
-                    paginatedApplications.getPageContents(),
-                    application -> this.renderApplicationListItem(application)),
+                each(paginatedApplications.getPageContents(), this::renderApplicationListItem),
                 br(),
                 renderDownloadButton(programId))
             .withClasses(Styles.MB_16, Styles.MR_2);
