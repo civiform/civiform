@@ -1,5 +1,6 @@
 package auth;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 /** Enum representing supported options for auth IDP for applicants and admins. */
@@ -16,15 +17,12 @@ public enum AuthIdentityProviderName {
 
   /** Returns the enum associated with the provided string value. */
   public static Optional<AuthIdentityProviderName> forString(String string) {
-    for (AuthIdentityProviderName authProvider : AuthIdentityProviderName.values()) {
-      if (authProvider.getString().equals(string)) {
-        return Optional.of(authProvider);
-      }
-    }
-    return Optional.empty();
+    return Arrays.stream(AuthIdentityProviderName.values())
+        .filter(provider -> provider.getString().equals(string))
+        .findFirst();
   }
 
-  /** Returns the string value associated with the enum */
+  /** Returns the string value associated with the enum. */
   public String getString() {
     return authIdentityProviderNameString;
   }

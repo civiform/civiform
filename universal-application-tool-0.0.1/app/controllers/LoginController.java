@@ -66,9 +66,8 @@ public class LoginController extends Controller {
   public Result loginWithRedirect(Http.Request request, Optional<String> redirectTo) {
     if (applicantIdp.equals(AuthIdentityProviderName.LOGIN_RADIUS_APPLICANT.getString())) {
       return loginRadiusLoginWithRedirect(request, redirectTo);
-    } else {
-      return idcsLoginWithRedirect(request, redirectTo);
     }
+    return idcsLoginWithRedirect(request, redirectTo);
   }
 
   public Result idcsLogin(Http.Request request) {

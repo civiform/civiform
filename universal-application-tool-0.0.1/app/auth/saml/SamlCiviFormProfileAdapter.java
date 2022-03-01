@@ -29,7 +29,7 @@ import repository.UserRepository;
 
 public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
 
-  private static Logger LOG = LoggerFactory.getLogger(SamlCiviFormProfileAdapter.class);
+  private static final Logger logger = LoggerFactory.getLogger(SamlCiviFormProfileAdapter.class);
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
   protected final SAML2Configuration saml2Configuration;
@@ -55,23 +55,23 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     Optional<UserProfile> samlProfile = super.create(cred, context, sessionStore);
 
     if (samlProfile.isEmpty()) {
-      LOG.warn("Didn't get a valid profile back from SAML");
+      logger.warn("Didn't get a valid profile back from SAML");
       return Optional.empty();
     }
 
     if (!(samlProfile.get() instanceof SAML2Profile)) {
-      LOG.warn(
+      logger.warn(
           "Got a profile from SAML2 callback but it wasn't a SAML profile: %s", samlProfile.get());
       return Optional.empty();
     }
 
     SAML2Profile profile = (SAML2Profile) samlProfile.get();
 
-    // Check if we already have a profile in the database for the user returned to us by SAML2
+    // Check if we already have a profile in the database for the user returned to us by SAML2.
     Optional<Applicant> existingApplicant =
         applicantRepositoryProvider
             .get()
-            .lookupApplicant(profile.getAttribute("email", String.class))
+            .lookupApplicant(profile.getAttribute(CommonProfileDefinition.EMAIL, String.class))
             .toCompletableFuture()
             .join();
 
@@ -104,11 +104,10 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
 
     // Now merge in the information sent to us by the SAML Identity Provider.
     if (existingProfile.isEmpty()) {
-      LOG.debug("Found no existing profile in session cookie.");
+      logger.debug("Found no existing profile in session cookie.");
       return Optional.of(civiformProfileFromSamlProfile(profile));
-    } else {
-      return Optional.of(mergeCiviFormProfile(existingProfile.get(), profile));
     }
+    return Optional.of(mergeCiviFormProfile(existingProfile.get(), profile));
   }
 
   public CiviFormProfileData civiformProfileFromSamlProfile(SAML2Profile profile) {
@@ -124,14 +123,8 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     final String firstName = saml2Profile.getAttribute("first_name", String.class);
     final boolean hasFirstName = !Strings.isNullOrEmpty(firstName);
 
-    // TODO: figure out why the last_name attribute is being returned as an ArrayList because this
-    // feels like it shouldn't be necessary.
-    final ArrayList lastNameArray = saml2Profile.getAttribute("last_name", ArrayList.class);
-    StringBuilder sb = new StringBuilder();
-    for (Object s : lastNameArray) {
-      sb.append(s);
-    }
-    String lastName = sb.toString();
+    // TODO: figure out why the last_name attribute is being returned as an ArrayList
+    final String lastName = extractAttributeFromArrayList(saml2Profile,"last_name");
     final boolean hasLastName = !Strings.isNullOrEmpty(lastName);
 
     if (hasLocale || hasFirstName || hasLastName) {
@@ -166,6 +159,15 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
       civiFormProfile.getProfileData().addRole(role.toString());
     }
     return civiFormProfile.getProfileData();
+  }
+
+  private String extractAttributeFromArrayList(SAML2Profile profile, String attr) {
+    ArrayList attributeArray = profile.getAttribute(attr, ArrayList.class);
+    StringBuilder sb = new StringBuilder();
+    for (Object s : attributeArray) {
+      sb.append(s);
+    }
+    return sb.toString();
   }
 
   protected ImmutableSet<Roles> roles(CiviFormProfile profile) {

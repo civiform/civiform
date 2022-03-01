@@ -150,7 +150,7 @@ public class SecurityModule extends AbstractModule {
   }
 
   /**
-   * Creates a singleton object of OidcClient configured for LoginRadius and initializes it on
+   * Creates a singleton object of SAML2Client configured for LoginRadius and initializes it on
    * startup.
    */
   @Provides
