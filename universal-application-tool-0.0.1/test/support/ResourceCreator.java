@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.UUID;
 import models.Account;
 import models.Applicant;
+import models.Application;
+import models.LifecycleStage;
 import models.Models;
 import models.Program;
 import models.Question;
@@ -64,6 +66,14 @@ public class ResourceCreator {
 
   public Program insertDraftProgram(String name) {
     return ProgramBuilder.newDraftProgram(name, "description").build();
+  }
+
+  public Application insertActiveApplication(Applicant applicant, Program program) {
+    return Application.createSync(applicant, program, LifecycleStage.ACTIVE);
+  }
+
+  public Application insertApplication(Applicant applicant, Program program, LifecycleStage lifecycleStage) {
+    return Application.createSync(applicant, program, lifecycleStage);
   }
 
   public Applicant insertApplicant() {

@@ -171,6 +171,7 @@ public class ProgramRepository {
         database
             .find(Application.class)
             .fetch("program")
+            .orderBy("submit_time desc")
             .where()
             .in("program_id", allProgramVersionsQuery(programId))
             .in(

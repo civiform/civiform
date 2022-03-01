@@ -7,6 +7,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.iframe;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 
 import com.google.inject.Inject;
 import controllers.admin.routes;
@@ -103,7 +104,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private Tag renderApplicationListItem(Application application) {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
-    String lastEditText = getLastEditText(application);
     String viewLinkText = "View →";
 
     Tag topContent =
@@ -117,7 +117,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     Tag bottomContent =
         div(
-                p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
+                p(getSubmitTime(application)).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
                 renderViewLink(viewLinkText, application))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
@@ -132,22 +132,16 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             ReferenceClasses.ADMIN_APPLICATION_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
   }
 
-  private String getLastEditText(Application application) {
-    String lastEditText;
-
+  private Tag getSubmitTime(Application application) {
     try {
-      lastEditText =
+      return span().withText(
           DateTimeFormatter.RFC_1123_DATE_TIME
               .withZone(ZoneId.systemDefault())
-              .format(application.getSubmitTime());
+              .format(application.getSubmitTime()));
     } catch (NullPointerException e) {
       log.error("Application {} submitted without submission time marked.", application.id);
-      lastEditText = "<ERROR>";
+      return span();
     }
-
-    lastEditText = "Last edited " + lastEditText;
-
-    return lastEditText;
   }
 
   private Tag renderViewLink(String text, Application application) {

@@ -47,6 +47,12 @@ public class Application extends BaseModel {
     this.lifecycleStage = lifecycleStage;
   }
 
+  public static Application createSync(Applicant applicant, Program program, LifecycleStage lifecycleStage) {
+    Application application = new Application(applicant, program, lifecycleStage);
+    application.save();
+    return application;
+  }
+
   public Optional<String> getSubmitterEmail() {
     return Optional.ofNullable(this.submitterEmail);
   }
