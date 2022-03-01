@@ -74,7 +74,10 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     Tag applicationShowDiv =
         div()
             .withClasses(Styles.W_FULL, Styles.H_FULL)
-            .with(iframe().withId("application-display-frame").withClasses(Styles.W_FULL, Styles.H_FULL));
+            .with(
+                iframe()
+                    .withId("application-display-frame")
+                    .withClasses(Styles.W_FULL, Styles.H_FULL));
 
     HtmlBundle htmlBundle =
         layout
