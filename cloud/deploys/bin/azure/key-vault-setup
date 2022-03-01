@@ -2,6 +2,7 @@
 
 source lib/out.sh
 source azure/lib.sh
+source aws/lib.sh
 
 # DOC: Create key vault instance, set permissions, and generate and set secrets
 
@@ -32,3 +33,14 @@ azure::add_generated_secrets \
   "${vault_name}" \
   "postgres-password" \
   "app-secret-key"
+
+echo "Getting an AWS access key"
+created_key_result = aws::create_access_key
+access_key_id =$(aws::parse_access_key_id "${created_key_result}")
+secret_access_key =$(aws::parse_access_secret_key "${created_key_result}")
+
+echo "Adding the secret access key to the azure key vault"
+azure::add_secret "${vault_name}" "aws-secret-access-token" "${secret_access_key}"
+
+echo "Adding the access key id to the azure key vault"
+azure::add_secret "${vault_name}" "aws-access-key-id" "${access_key_id}"
