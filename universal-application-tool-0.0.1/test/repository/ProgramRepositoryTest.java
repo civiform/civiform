@@ -6,15 +6,11 @@ import io.ebean.DB;
 import java.util.Locale;
 import java.util.Optional;
 import models.Account;
-import models.Applicant;
-import models.Application;
 import models.DisplayMode;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
-import services.PaginationResult;
-import services.PaginationSpec;
 import services.program.ProgramNotFoundException;
 
 public class ProgramRepositoryTest extends WithPostgresContainer {
@@ -173,7 +169,8 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
   //   assertThat(paginationResult.getNumPages()).isEqualTo(2);
   //   assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
 
-  //   assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantThree);
+  //
+  // assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantThree);
   //   assertThat(paginationResult.getPageContents().get(1).getApplicant()).isEqualTo(applicantTwo);
 
   //   paginationResult =
