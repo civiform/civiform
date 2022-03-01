@@ -33,6 +33,9 @@
   <logger name="org.pac4j" level="INFO" />
   <logger name="auth" level="INFO" />
 
+  <!-- Increase the level of this one to avoid leaking PII into logs -->
+  <logger name="org.pac4j.saml.credentials.SAML2Credentials" level="WARN"/>
+
   <!-- Off these ones as they are annoying. -->
   <logger name="com.gargoylesoftware.htmlunit" level="OFF" />
   <logger name="org.apache.http.wire" level="OFF" />

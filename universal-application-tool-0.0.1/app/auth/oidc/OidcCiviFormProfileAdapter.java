@@ -85,7 +85,8 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
 
     if (!(oidcProfile.get() instanceof OidcProfile)) {
       LOG.warn(
-          "Got a profile from OIDC callback but it wasn't an OIDC profile: %s", oidcProfile.get());
+          "Got a profile from OIDC callback but it wasn't an OIDC profile: %s",
+          oidcProfile.get().getClass().getName());
       return Optional.empty();
     }
 

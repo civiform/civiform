@@ -61,7 +61,8 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
 
     if (!(samlProfile.get() instanceof SAML2Profile)) {
       logger.warn(
-          "Got a profile from SAML2 callback but it wasn't a SAML profile: %s", samlProfile.get());
+          "Got a profile from SAML2 callback but it wasn't a SAML profile: %s",
+          samlProfile.get().getClass().getName());
       return Optional.empty();
     }
 
@@ -124,7 +125,7 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     final boolean hasFirstName = !Strings.isNullOrEmpty(firstName);
 
     // TODO: figure out why the last_name attribute is being returned as an ArrayList
-    final String lastName = extractAttributeFromArrayList(saml2Profile,"last_name");
+    final String lastName = extractAttributeFromArrayList(saml2Profile, "last_name");
     final boolean hasLastName = !Strings.isNullOrEmpty(lastName);
 
     if (hasLocale || hasFirstName || hasLastName) {
