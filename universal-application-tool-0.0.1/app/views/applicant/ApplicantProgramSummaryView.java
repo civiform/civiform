@@ -163,7 +163,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
         answerContent = a().withHref(fileLink).withClasses(Styles.W_2_3);
       } catch (Exception e) {
-        LOG.error("Attempted to download file with invalid download URL");
+        LOG.error(
+            "Attempted to download file with invalid download URL: applicant id: %s, invalid URL:"
+                + " %s",
+            applicantId,
+            controllers.routes.FileController.show(applicantId, data.fileKey().get()).url());
         answerContent = div();
       }
     } else {
