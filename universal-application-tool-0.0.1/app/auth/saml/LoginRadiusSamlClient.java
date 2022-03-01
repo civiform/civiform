@@ -1,4 +1,4 @@
-package auth;
+package auth.saml;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

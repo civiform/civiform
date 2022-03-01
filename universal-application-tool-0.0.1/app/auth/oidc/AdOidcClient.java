@@ -1,14 +1,14 @@
-package auth;
+package auth.oidc;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import javax.inject.Qualifier;
 
 /**
- * IdcsOidcClient is an annotation for IDCS-flavored OidcClient.
+ * AdOidcClient is an annotation for AD-flavored OidcClient.
  *
- * <p>See {@link modules.SecurityModule#provideIDCSClient}.
+ * <p>See {@link modules.SecurityModule#provideAdClient}.
  */
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
-public @interface IdcsOidcClient {}
+public @interface AdOidcClient {}

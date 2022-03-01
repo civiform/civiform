@@ -3,10 +3,10 @@ package controllers;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 
-import auth.AdOidcClient;
+import auth.oidc.AdOidcClient;
 import auth.AuthIdentityProviderName;
-import auth.IdcsOidcClient;
-import auth.LoginRadiusSamlClient;
+import auth.oidc.IdcsOidcClient;
+import auth.saml.LoginRadiusSamlClient;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.typesafe.config.Config;

@@ -1,5 +1,9 @@
-package auth;
+package auth.oidc;
 
+import auth.CiviFormProfile;
+import auth.CiviFormProfileData;
+import auth.ProfileFactory;
+import auth.Roles;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.nimbusds.jose.util.DefaultResourceRetriever;
@@ -26,7 +30,7 @@ import repository.UserRepository;
  * This class takes an existing CiviForm profile and augments it with the information from an IDCS
  * profile.
  */
-public class IdcsProfileAdapter extends CiviFormProfileAdapter {
+public class IdcsProfileAdapter extends OidcCiviFormProfileAdapter {
   public static final Logger LOG = LoggerFactory.getLogger(IdcsProfileAdapter.class);
 
   public IdcsProfileAdapter(

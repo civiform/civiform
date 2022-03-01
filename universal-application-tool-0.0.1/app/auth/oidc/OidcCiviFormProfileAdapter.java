@@ -1,5 +1,10 @@
-package auth;
+package auth.oidc;
 
+import auth.CiviFormProfile;
+import auth.CiviFormProfileData;
+import auth.ProfileFactory;
+import auth.ProfileUtils;
+import auth.Roles;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
@@ -26,13 +31,13 @@ import repository.UserRepository;
  * - pac4j doesn't come with it. It's abstract because AD and IDCS need slightly different
  * implementations of the two abstract methods.
  */
-public abstract class CiviFormProfileAdapter extends OidcProfileCreator {
+public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
 
-  private static Logger LOG = LoggerFactory.getLogger(CiviFormProfileAdapter.class);
+  private static Logger LOG = LoggerFactory.getLogger(OidcCiviFormProfileAdapter.class);
 
-  public CiviFormProfileAdapter(
+  public OidcCiviFormProfileAdapter(
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,

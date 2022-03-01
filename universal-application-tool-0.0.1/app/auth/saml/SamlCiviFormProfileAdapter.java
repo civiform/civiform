@@ -1,5 +1,10 @@
-package auth;
+package auth.saml;
 
+import auth.CiviFormProfile;
+import auth.CiviFormProfileData;
+import auth.ProfileFactory;
+import auth.ProfileUtils;
+import auth.Roles;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
