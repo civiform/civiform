@@ -4,16 +4,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static play.mvc.Results.forbidden;
 import static play.mvc.Results.redirect;
 
-import auth.AdOidcClient;
-import auth.AdfsProfileAdapter;
 import auth.Authorizers;
 import auth.CiviFormProfileData;
 import auth.FakeAdminClient;
 import auth.GuestClient;
-import auth.IdcsOidcClient;
-import auth.IdcsProfileAdapter;
 import auth.ProfileFactory;
 import auth.Roles;
+import auth.oidc.AdOidcClient;
+import auth.oidc.AdfsProfileAdapter;
+import auth.oidc.IdcsOidcClient;
+import auth.oidc.IdcsProfileAdapter;
+import auth.saml.LoginRadiusSamlClient;
+import auth.saml.SamlCiviFormProfileAdapter;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -42,6 +44,8 @@ import org.pac4j.play.LogoutController;
 import org.pac4j.play.http.PlayHttpActionAdapter;
 import org.pac4j.play.store.PlayCookieSessionStore;
 import org.pac4j.play.store.ShiroAesDataEncrypter;
+import org.pac4j.saml.client.SAML2Client;
+import org.pac4j.saml.config.SAML2Configuration;
 import play.Environment;
 import repository.UserRepository;
 
@@ -145,6 +149,45 @@ public class SecurityModule extends AbstractModule {
     return client;
   }
 
+  /**
+   * Creates a singleton object of SAML2Client configured for LoginRadius and initializes it on
+   * startup.
+   */
+  @Provides
+  @Nullable
+  @Singleton
+  @LoginRadiusSamlClient
+  protected SAML2Client provideLoginRadiusClient(
+      ProfileFactory profileFactory, Provider<UserRepository> applicantRepositoryProvider) {
+    if (!this.configuration.hasPath("login_radius.keystore_password")
+        || !this.configuration.hasPath("login_radius.private_key_password")
+        || !this.configuration.hasPath("login_radius.api_key")) {
+      return null;
+    }
+
+    String metadataResourceUrl =
+        String.format(
+            "%s?apikey=%s&appName=%s",
+            this.configuration.getString("login_radius.metadata_uri"),
+            this.configuration.getString("login_radius.api_key"),
+            this.configuration.getString("login_radius.saml_app_name"));
+    SAML2Configuration config = new SAML2Configuration();
+    config.setKeystoreResourceFilepath(this.configuration.getString("login_radius.keystore_name"));
+    config.setKeystorePassword(this.configuration.getString("login_radius.keystore_password"));
+    config.setPrivateKeyPassword(this.configuration.getString("login_radius.private_key_password"));
+    config.setIdentityProviderMetadataResourceUrl(metadataResourceUrl);
+    SAML2Client client = new SAML2Client(config);
+
+    client.setProfileCreator(
+        new SamlCiviFormProfileAdapter(
+            config, client, profileFactory, applicantRepositoryProvider));
+
+    client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
+    client.setCallbackUrl(baseUrl + "/callback");
+    client.init();
+    return client;
+  }
+
   /** Creates a singleton object of OidcClient configured for AD and initializes it on startup. */
   @Provides
   @Nullable
@@ -214,11 +257,15 @@ public class SecurityModule extends AbstractModule {
       GuestClient guestClient,
       @AdOidcClient @Nullable OidcClient adClient,
       @IdcsOidcClient @Nullable OidcClient idcsClient,
+      @LoginRadiusSamlClient @Nullable SAML2Client loginRadiusClient,
       FakeAdminClient fakeAdminClient) {
     List<Client> clientList = new ArrayList<>();
     clientList.add(guestClient);
     if (idcsClient != null) {
       clientList.add(idcsClient);
+    }
+    if (loginRadiusClient != null) {
+      clientList.add(loginRadiusClient);
     }
     if (adClient != null) {
       clientList.add(adClient);

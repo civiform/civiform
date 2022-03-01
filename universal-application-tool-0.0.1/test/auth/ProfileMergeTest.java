@@ -3,6 +3,7 @@ package auth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import auth.oidc.IdcsProfileAdapter;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Provider;
 import org.junit.Before;
