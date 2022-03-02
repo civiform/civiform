@@ -241,6 +241,7 @@ describe('normal application flow', () => {
     await logout(page)
     await loginAsProgramAdmin(page)
 
+    await adminPrograms.viewApplications(programName)
     await adminPrograms.viewApplicationForApplicant(userDisplayName())
     await adminPrograms.expectApplicationAnswers(
       'Screen 2',
@@ -297,7 +298,6 @@ describe('normal application flow', () => {
         'fruit-text-q',
         answers[answers.length - i - 1]
       )
-      await page.goBack()
     }
 
     await logout(page)
