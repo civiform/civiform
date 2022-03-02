@@ -61,11 +61,6 @@ variable "adfs_admin_group" {
   description = "Active Directory Federation Service group name"
 }
 
-variable "aws_access_key_id" {
-  type        = string
-  description = "The access key you need to send emails via AWS SES"
-}
-
 variable "staging_program_admin_notification_mailing_list" {
   type        = string
   description = "Admin notification mailing list for staging"
