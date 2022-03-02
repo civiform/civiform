@@ -142,7 +142,7 @@ resource "azurerm_app_service" "civiform_app" {
     CIVIFORM_APPLICANT_IDP = var.civiform_applicant_idp
 
     # The values below are all defaulted to null. If SAML authentication is used, the values can be pulled from the
-    # saml-keystore module
+    # saml_keystore module
     LOGIN_RADIUS_METADATA_URI     = var.login_radius_metadata_uri
     LOGIN_RADIUS_API_KEY          = var.login_radius_api_key
     LOGIN_RADIUS_SAML_APP_NAME    = var.login_radius_saml_app_name

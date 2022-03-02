@@ -6,12 +6,6 @@ data "azurerm_key_vault_secret" "saml_keystore_pass" {
   name         = local.saml_keystore_pass_id
   key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
 }
-
-data "azurerm_key_vault_secret" "saml_private_key_pass" {
-  name         = local.saml_private_key_pass_id
-  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
-}
-
 data "azurerm_storage_account" "saml_keystore_account" {
   name                = var.saml_keystore_account_name
   resource_group_name = var.saml_keystore_resource_group

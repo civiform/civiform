@@ -8,11 +8,6 @@ output "keystore_password" {
   sensitive = true
 }
 
-output "private_key_password" {
-  value     = data.azurerm_key_vault_secret.saml_private_key_pass.value
-  sensitive = true
-}
-
 output "storage_account_name" {
   value = var.saml_keystore_account_name
 }
