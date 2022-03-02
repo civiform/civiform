@@ -17,8 +17,8 @@ public interface StorageClient {
   /**
    * Returns the string version of a URL that gives users temporary access to file storage. This URL
    * is used to access and download the users' files from cloud storage. The
-   * prefixedOriginalFileName will either be in the format "dev/${filename}" or
-   * applicant-%d/program-%d/block-%s/${filename}" where "${filename}" is the name of the uploaded
+   * prefixedOriginalFileName will either be in the format "dev/${fileKey}" or
+   * applicant-%d/program-%d/block-%s/${fileKey}" where "${fileKey}" is the name of the uploaded
    * file which is set by a user. For more information on prefixed filenames, see {@link
    * services.cloud.FileNameFormatter}
    *

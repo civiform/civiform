@@ -32,6 +32,7 @@ import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
+import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageClient;
 import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
@@ -258,23 +259,37 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               Optional<String> bucket = request.queryString("bucket");
               Optional<String> key = request.queryString("key");
+              Optional<String> originalFileName = request.queryString("originalFileName");
+
               if (!bucket.isPresent() || !key.isPresent()) {
                 return failedFuture(
                     new IllegalArgumentException("missing file key and bucket names"));
               }
-              Optional<String> originalFileName = request.queryString("originalFileName");
+              // Original file name is only set for Azure, where we have to generate a UUID when
+              // uploading a file to Azure Blob storage because we cannot upload a file without a
+              // name. For AWS, the file key and original file name are the same
+              if (!originalFileName.isPresent()) {
+                originalFileName = key;
+              }
 
-              String applicantFileUploadQuestionKeyPath =
+              FileUploadQuestion fileUploadQuestion =
                   block.get().getQuestions().stream()
                       .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
                       .findAny()
                       .get()
-                      .createFileUploadQuestion()
-                      .getFileKeyPath()
-                      .toString();
+                      .createFileUploadQuestion();
+
+              String applicantFileUploadQuestionKeyPath =
+                  fileUploadQuestion.getFileKeyPath().toString();
+              String applicantFileUploadQuestionOriginalFileNamePath =
+                  fileUploadQuestion.getOriginalFileNamePath().toString();
 
               ImmutableMap<String, String> formData =
-                  ImmutableMap.of(applicantFileUploadQuestionKeyPath, key.get());
+                  ImmutableMap.of(
+                      applicantFileUploadQuestionKeyPath,
+                      key.get(),
+                      applicantFileUploadQuestionOriginalFileNamePath,
+                      originalFileName.get());
 
               updateFileRecord(key.get(), originalFileName);
               return applicantService.stageAndUpdateIfValid(

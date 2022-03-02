@@ -72,7 +72,7 @@ public class BlobStorage implements StorageClient {
 
   @Override
   public String getPresignedUrlString(String fileKey) {
-    return getPresignedUrlString(fileKey, /* prefixedOriginalFileName= */ Optional.empty());
+    return getPresignedUrlString(fileKey, Optional.empty());
   }
 
   @Override

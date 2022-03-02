@@ -18,6 +18,7 @@ public class FileUploadQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
   private Optional<String> fileKeyValue;
+  private Optional<String> originalFileNameValue;
 
   public FileUploadQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
@@ -71,6 +72,16 @@ public class FileUploadQuestion implements Question {
     return fileKeyValue;
   }
 
+  public Optional<String> getOriginalFileName() {
+    if (originalFileNameValue != null) {
+      return originalFileNameValue;
+    }
+
+    originalFileNameValue =
+        applicantQuestion.getApplicantData().readString(getOriginalFileNamePath());
+    return originalFileNameValue;
+  }
+
   public void assertQuestionType() {
     if (!applicantQuestion.getType().equals(QuestionType.FILEUPLOAD)) {
       throw new RuntimeException(
@@ -90,6 +101,10 @@ public class FileUploadQuestion implements Question {
     return applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY);
   }
 
+  public Path getOriginalFileNamePath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.ORIGINAL_FILE_NAME);
+  }
+
   public Optional<String> getFilename() {
     if (!isAnswered() || getFileKeyValue().isEmpty()) {
       return Optional.empty();
@@ -102,6 +117,10 @@ public class FileUploadQuestion implements Question {
     if (getFilename().isEmpty()) {
       return "-- NO FILE SELECTED --";
     }
-    return String.format("-- %s UPLOADED (click to download) --", getFilename().get());
+    String fileDisplayName = getFilename().get();
+    if (getOriginalFileName().isPresent()) {
+      fileDisplayName = getOriginalFileName().get();
+    }
+    return String.format("-- %s UPLOADED (click to download) --", fileDisplayName);
   }
 }

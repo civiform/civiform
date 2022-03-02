@@ -113,7 +113,7 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
   Tag renderFileUploadBottomNavButtons(Params params) {
     Optional<Tag> maybeContinueButton = maybeRenderContinueButton(params);
-    Optional<Tag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
+    Optional<ContainerTag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
     ContainerTag ret =
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)

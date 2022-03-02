@@ -10,6 +10,7 @@ import static views.BaseHtmlView.makeCsrfTokenInputTag;
 import static views.BaseHtmlView.submitButton;
 
 import controllers.applicant.routes;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
@@ -94,7 +95,7 @@ public abstract class FileUploadViewStrategy {
    *
    * <p>See {@link renderDeleteAndContinueFileUploadForms}.
    */
-  Optional<Tag> maybeRenderSkipOrDeleteButton(Params params) {
+  Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params) {
     if (hasAtLeastOneRequiredQuestion(params)) {
       // If the file question is required, skip or delete is not allowed.
       return Optional.empty();
@@ -105,8 +106,9 @@ public abstract class FileUploadViewStrategy {
       buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
       buttonId = FILEUPLOAD_DELETE_BUTTON_ID;
     }
-    Tag button =
-        submitButton(buttonText)
+    ContainerTag button =
+        TagCreator.button(buttonText)
+            .withType("submit")
             .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
             .withClasses(ApplicantStyles.BUTTON_REVIEW)
             .withId(buttonId);

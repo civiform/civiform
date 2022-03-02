@@ -157,6 +157,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         String answerText = question.errorsPresenter().getAnswerString();
         Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
         Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
+        Optional<FileUploadQuestion> fileUploadQuestion = Optional.empty();
+        if (question.getType().equals(QuestionType.FILEUPLOAD)) {
+          fileUploadQuestion = Optional.of(question.createFileUploadQuestion());
+        }
         boolean isPreviousResponse =
             updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
         AnswerData data =
@@ -170,7 +174,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setQuestionText(questionText)
                 .setIsAnswered(isAnswered)
                 .setAnswerText(answerText)
-                .setFileKey(getFileKey(question))
+                .setFileKey(getFileKey(fileUploadQuestion))
+                .setOriginalFileName(getOriginalFileName(fileUploadQuestion))
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)
                 .setScalarAnswersInDefaultLocale(
@@ -277,17 +282,18 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   /** Returns the identifier of uploaded file if applicable. */
-  private Optional<String> getFileKey(ApplicantQuestion question) {
-    switch (question.getType()) {
-      case FILEUPLOAD:
-        FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
-        if (!fileUploadQuestion.isAnswered()) {
-          return Optional.empty();
-        }
-        return fileUploadQuestion.getFileKeyValue();
-      default:
-        return Optional.empty();
+  private Optional<String> getFileKey(Optional<FileUploadQuestion> question) {
+    if (question.isEmpty() || !question.get().isAnswered()) {
+      return Optional.empty();
     }
+    return question.get().getFileKeyValue();
+  }
+
+  private Optional<String> getOriginalFileName(Optional<FileUploadQuestion> question) {
+    if (question.isEmpty() || !question.get().isAnswered()) {
+      return Optional.empty();
+    }
+    return question.get().getOriginalFileName();
   }
 
   /**
@@ -322,10 +328,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                             .collect(Collectors.joining(", ", "[", "]")))
                 .orElse(""));
       case FILEUPLOAD:
+        FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
         return ImmutableMap.of(
             question.getContextualizedPath().join(Scalar.FILE_KEY),
-            question
-                .createFileUploadQuestion()
+            fileUploadQuestion
                 .getFileKeyValue()
                 .map(
                     fileKey ->
