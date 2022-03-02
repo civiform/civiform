@@ -262,6 +262,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 return failedFuture(
                     new IllegalArgumentException("missing file key and bucket names"));
               }
+              Optional<String> originalFileName = request.queryString("originalFileName");
 
               String applicantFileUploadQuestionKeyPath =
                   block.get().getQuestions().stream()
@@ -271,10 +272,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       .createFileUploadQuestion()
                       .getFileKeyPath()
                       .toString();
+
               ImmutableMap<String, String> formData =
                   ImmutableMap.of(applicantFileUploadQuestionKeyPath, key.get());
 
-              updateFileRecord(key.get());
+              updateFileRecord(key.get(), originalFileName);
               return applicantService.stageAndUpdateIfValid(
                   applicantId, programId, blockId, formData);
             },
@@ -417,9 +419,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .build();
   }
 
-  private void updateFileRecord(String key) {
+  private void updateFileRecord(String key, Optional<String> originalFileName) {
     StoredFile storedFile = new StoredFile();
     storedFile.setName(key);
+    if (originalFileName.isPresent()) {
+      storedFile.setOriginalFileName(originalFileName.get());
+    }
     storedFileRepository.insert(storedFile);
   }
 
