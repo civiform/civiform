@@ -3,6 +3,12 @@ variable "application_name" {
   description = "Azure Web App Name"
 }
 
+variable "aws_region" {
+  type        = string
+  description = "Region for the aws account, if using"
+  default     = "us-east-1"
+}
+
 variable "docker_username" {
   type        = string
   description = "Docker username"
@@ -106,6 +112,11 @@ variable "log_retention" {
   default     = 30
 }
 
+variable "aws_access_key_id" {
+  type        = string
+  description = "The access key you need to send things via "
+}
+
 variable "ses_sender_email" {
   type        = string
   description = "Email address of who is sending the email, passed to the app"
@@ -128,4 +139,36 @@ variable "key_vault_name" {
 
 variable "key_vault_resource_group" {
   type = string
+}
+variable "adfs_client_id" {
+  type        = string
+  description = "Active Directory Federation Service client id"
+}
+
+variable "adfs_discovery_uri" {
+  type        = string
+  description = "Active Directory Federation Service url that handles adfs login"
+}
+
+variable "adfs_admin_group" {
+  type        = string
+  description = "Active Directory Federation Service group name"
+}
+
+variable "staging_program_admin_notification_mailing_list" {
+  type        = string
+  description = "Admin notification mailing list for staging"
+  default     = ""
+}
+
+variable "staging_ti_notification_mailing_list" {
+  type        = string
+  description = "intermediary notification mailing list for staging"
+  default     = ""
+}
+
+variable "staging_applicant_notification_mailing_list" {
+  type        = string
+  description = "Applicant notification mailing list for staging"
+  default     = ""
 }

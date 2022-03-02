@@ -30,12 +30,12 @@ lazy val root = (project in file("."))
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.2.18",
-      "org.testcontainers" % "postgresql" % "1.15.1" % Test,
-      "org.testcontainers" % "testcontainers" % "1.15.1" % Test,
-      "org.testcontainers" % "junit-jupiter" % "1.15.1" % Test,
-      "org.junit.jupiter" % "junit-jupiter-engine" % "5.4.2" % Test,
-      "org.junit.jupiter" % "junit-jupiter-api" % "5.4.2" % Test,
-      "org.junit.jupiter" % "junit-jupiter-params" % "5.4.2" % Test,
+      "org.testcontainers" % "postgresql" % "1.16.3" % Test,
+      "org.testcontainers" % "testcontainers" % "1.16.3" % Test,
+      "org.testcontainers" % "junit-jupiter" % "1.16.3" % Test,
+      "org.junit.jupiter" % "junit-jupiter-engine" % "5.8.2" % Test,
+      "org.junit.jupiter" % "junit-jupiter-api" % "5.8.2" % Test,
+      "org.junit.jupiter" % "junit-jupiter-params" % "5.8.2" % Test,
       "com.h2database" % "h2" % "1.4.199" % Test,
 
       // Parameterized testing
@@ -62,6 +62,8 @@ lazy val root = (project in file("."))
       "org.pac4j" % "pac4j-http" % "5.2.1",
       // OIDC authentication
       "org.pac4j" % "pac4j-oidc" % "5.2.1",
+      // SAML authentication
+      "org.pac4j" % "pac4j-saml" % "5.2.1",
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.7.1",
 
@@ -105,6 +107,7 @@ lazy val root = (project in file("."))
 
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 resolvers += Resolver.bintrayRepo("webjars","maven")
+resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 libraryDependencies ++= Seq(
     "org.webjars.npm" % "react" % "15.4.0",
     "org.webjars.npm" % "types__react" % "15.0.34",

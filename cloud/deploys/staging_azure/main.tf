@@ -24,13 +24,23 @@ module "app" {
   docker_username        = var.docker_username
   docker_repository_name = var.docker_repository_name
 
-  key_vault_name = var.key_vault_name
+  key_vault_name           = var.key_vault_name
   key_vault_resource_group = var.key_vault_resource_group
 
   application_name = var.application_name
 
-  ses_sender_email = var.sender_email_address
-  custom_hostname  = var.custom_hostname
+  ses_sender_email  = var.sender_email_address
+  aws_access_key_id = var.aws_access_key_id
+
+  staging_program_admin_notification_mailing_list = var.staging_program_admin_notification_mailing_list
+  staging_ti_notification_mailing_list            = var.staging_ti_notification_mailing_list
+  staging_applicant_notification_mailing_list     = var.staging_applicant_notification_mailing_list
+
+  custom_hostname = var.custom_hostname
+
+  adfs_client_id     = var.adfs_client_id
+  adfs_discovery_uri = var.adfs_discovery_uri
+  adfs_admin_group   = var.adfs_admin_group
 }
 
 module "custom_hostname" {
@@ -43,4 +53,19 @@ module "custom_hostname" {
 module "email_service" {
   source               = "../../aws/modules/ses"
   sender_email_address = var.sender_email_address
+}
+
+module "program_admin_email" {
+  source               = "../../aws/modules/ses"
+  sender_email_address = var.staging_program_admin_notification_mailing_list
+}
+
+module "ti_admin_email" {
+  source               = "../../aws/modules/ses"
+  sender_email_address = var.staging_ti_notification_mailing_list
+}
+
+module "applicant_email" {
+  source               = "../../aws/modules/ses"
+  sender_email_address = var.staging_applicant_notification_mailing_list
 }
