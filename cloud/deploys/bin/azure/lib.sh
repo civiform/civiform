@@ -71,9 +71,8 @@ function azure::add_generated_secrets() {
 #   2: The name of the secret (used to identify it e.g. "postgres-password")
 #######################################
 function azure::get_secret_value() {
-  az keyvault secret show --vault-name "${1}" --name "${2}" -o tsv
+  az keyvault secret show --vault-name "${1}" --name "${2}" --query value -o tsv
 }
-
 
 #######################################
 # Assign the role 'Storage Blob Data Contributor' to the current user
@@ -81,11 +80,17 @@ function azure::get_secret_value() {
 function azure::assign_storage_blob_data_contributor_role_to_user() {
   local user_id=$(az ad signed-in-user show --query objectId -o tsv)
   local subscription_id=$(az account show --query id -o tsv)
-  az role assignment create \
-    --role "ba92f5b4-2d11-453d-a403-e96b0029c9fe" \
-    --scope "subscriptions/${subscription_id}/resourceGroups/${resource_group}" \
-    --assignee-object-id "${user_id}" \
-    --assignee-principal-type "User"
+  local role_assignments=$(az role assignment list --assignee ${user_id})
+  if [[ ("Storage Blob Data Contributor" == *$role_assignments*) ]];
+  then 
+    echo "Current user already has Storage Blob Data Contributor role"
+  else
+    az role assignment create \
+      --role "ba92f5b4-2d11-453d-a403-e96b0029c9fe" \
+      --scope "subscriptions/${subscription_id}/resourceGroups/${resource_group}" \
+      --assignee-object-id "${user_id}" \
+      --assignee-principal-type "User"
+  fi
 }
 
 #######################################
@@ -113,7 +118,7 @@ function azure::create_storage_account {
 function azure::create_storage_container {
   az storage container create \
     --account-name "${1}" \
-    --name "${2}" \
+    --name "${2}" 
 }
 
 #######################################

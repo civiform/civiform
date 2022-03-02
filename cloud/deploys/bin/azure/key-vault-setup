@@ -32,6 +32,5 @@ azure::add_generated_secrets \
   "${vault_name}" \
   "postgres-password" \
   "app-secret-key" \
-  "saml-keystore-pass" \
-  "saml-private-key-pass"
+  "saml-keystore-pass"
 
