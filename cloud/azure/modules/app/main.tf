@@ -52,6 +52,11 @@ data "azurerm_key_vault_secret" "aws_secret_access_token" {
   key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
 }
 
+data "azurerm_key_vault_secret" "aws_access_key_id" {
+  name         = local.aws_access_key_id
+  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
+}
+
 data "azurerm_key_vault_secret" "app_secret_key" {
   name         = local.app_secret_key_keyvault_id
   key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
@@ -125,7 +130,7 @@ resource "azurerm_app_service" "civiform_app" {
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
 
     AWS_SES_SENDER        = var.ses_sender_email
-    AWS_ACCESS_KEY_ID     = var.aws_access_key_id
+    AWS_ACCESS_KEY_ID     = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.aws_access_key_id.id})"
     AWS_SECRET_ACCESS_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.aws_secret_access_token.id})"
     AWS_REGION            = var.aws_region
 

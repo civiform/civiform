@@ -112,11 +112,6 @@ variable "log_retention" {
   default     = 30
 }
 
-variable "aws_access_key_id" {
-  type        = string
-  description = "The access key you need to send things via "
-}
-
 variable "ses_sender_email" {
   type        = string
   description = "Email address of who is sending the email, passed to the app"
