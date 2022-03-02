@@ -2,22 +2,25 @@
 
 source lib/out.sh
 source azure/lib.sh
+source aws/lib.sh
 
 # DOC: Create key vault instance, set permissions, and generate and set secrets
 
-while getopts g:v:l: flag
+while getopts g:v:l:u: flag
 do
   case "${flag}" in
     g) resource_group=${OPTARG};;
     v) vault_name=${OPTARG};;
     l) location=${OPTARG};;
+    u) username=${OPTARG};;
   esac
 done
 
 if [[ ! "${resource_group}" ]] \
    || [[ ! "${vault_name}" ]] \
-   || [[ ! "${location}" ]]; then
-  out::error "arguments -g, -v , and -l must be provided"
+   || [[ ! "${location}" ]] \
+   || [[ ! "${username}" ]]; then
+  out::error "arguments -g, -v , -l and -u must be provided"
   exit 1
 fi
 
@@ -27,8 +30,22 @@ azure::create_resource_group "${resource_group}" "${location}"
 echo "Creating key vault ${vault_name}"
 azure::create_vault "${resource_group}" "${location}" "${vault_name}"
 
+echo "Adding key vault secrets officer role to signed in user"
+azure::assign_secrets_officer_role_to_user
+
 echo "Generating and setting secrets"
 azure::add_generated_secrets \
   "${vault_name}" \
   "postgres-password" \
   "app-secret-key"
+
+echo "Getting an AWS access key"
+created_key_result=$(aws::create_access_key "${username}")
+access_key_id=$(aws::parse_access_key_id "${created_key_result}")
+secret_access_key=$(aws::parse_access_secret_key "${created_key_result}")
+
+echo "Adding the secret access key to the azure key vault"
+azure::add_secret "${vault_name}" "aws-secret-access-token" "${secret_access_key}"
+
+echo "Adding the access key id to the azure key vault"
+azure::add_secret "${vault_name}" "aws-access-key-id" "${access_key_id}"
