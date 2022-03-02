@@ -32,6 +32,19 @@ function azure::create_vault() {
 }
 
 #######################################
+# Assign the role 'Key Vault Secrets officer' to the current user
+#######################################
+function azure::assign_secrets_officer_role_to_user() {
+  local user_id=$(az ad signed-in-user show --query objectId -o tsv)
+  local subscription_id=$(az account show --query id -o tsv)
+  az role assignment create \
+    --role "b86a8fe4-44ce-4948-aee5-eccb2c155cd7" \
+    --scope "subscriptions/${subscription_id}/resourceGroups/${resource_group}" \
+    --assignee-object-id "${user_id}" \
+    --assignee-principal-type "User"
+}
+
+#######################################
 # Add a secret to the key vault
 # Arguments:
 #   1: The name of the key vault
@@ -42,7 +55,7 @@ function azure::add_secret() {
   az keyvault secret set \
     --vault-name "${1}" \
     --name "${2}" \
-    --value "${3}"
+    --value "${3}" > /dev/null
 }
 
 #######################################
