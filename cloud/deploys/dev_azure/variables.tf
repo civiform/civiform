@@ -18,10 +18,6 @@ variable "application_name" {
   description = "Azure Web App Name"
 }
 
-variable "app_secret_key" {
-  type        = string
-  description = "Secret Key For the app"
-}
 
 variable "aws_region" {
   type        = string
