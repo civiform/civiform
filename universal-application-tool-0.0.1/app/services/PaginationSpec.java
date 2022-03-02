@@ -2,6 +2,8 @@ package services;
 
 public class PaginationSpec {
 
+  public static PaginationSpec MAX_PAGE_SIZE_SPEC = new PaginationSpec(Integer.MAX_VALUE, 1);
+
   private final int pageSize;
   private final int currentPage;
 

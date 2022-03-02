@@ -91,7 +91,12 @@ describe('create and edit predicates', () => {
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
     await adminPrograms.viewApplicationForApplicant(userDisplayName())
-    expect(await page.innerText('#application-view')).not.toContain('Screen 2')
+
+    const applicationText = await adminPrograms
+      .applicationFrame()
+      .locator('#application-view')
+      .innerText()
+    expect(applicationText).not.toContain('Screen 2')
 
     await endSession(browser)
   })

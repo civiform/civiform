@@ -161,7 +161,13 @@ public class ProgramRepository {
   }
 
   public ImmutableList<Program> getAllProgramVersions(long programId) {
-    return allProgramVersionsQuery(programId).findList().stream()
+    return database
+        .find(Program.class)
+        .where()
+        .in("name", database.find(Program.class).select("name").where().eq("id", programId).query())
+        .query()
+        .findList()
+        .stream()
         .collect(ImmutableList.toImmutableList());
   }
 
