@@ -10,7 +10,7 @@ function aws::create_access_key() {
 }
 
 #######################################
-# Creates the access key via aws
+# Get the access key id from the create access key command
 # Arguments:
 #   1. the result json of the create_access_key call
 #######################################
@@ -24,7 +24,7 @@ function aws::parse_access_key_id() {
 }
 
 #######################################
-# Creates the access key via aws
+# Get the secret key from the create access key command
 # Arguments:
 #   1. the result json of the create_access_key call
 #######################################

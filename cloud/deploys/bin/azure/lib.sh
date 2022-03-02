@@ -33,12 +33,8 @@ function azure::create_vault() {
 
 #######################################
 # Assign the role 'Key Vault Secrets officer' to the current user
-# Arguments:
-#   1: The resource group name for the key vault
-#   2: The region (e.g. EastUS) to create the key vault in
-#   3: The name of the key vault 
 #######################################
-function azure::assign_secrets_officer_role_to_vault() {
+function azure::assign_secrets_officer_role_to_user() {
   local user_id=$(az ad signed-in-user show --query objectId -o tsv)
   local subscription_id=$(az account show --query id -o tsv)
   az role assignment create \
