@@ -63,3 +63,69 @@ function azure::add_generated_secrets() {
     azure::add_secret "${VAULT_NAME}" "${key}" "${SECRET_VALUE}"
   done
 }
+
+#######################################
+# Get a secret value from the key vault
+# Arguments:
+#   1: The name of the key vault
+#   2: The name of the secret (used to identify it e.g. "postgres-password")
+#######################################
+function azure::get_secret_value() {
+  az keyvault secret show --vault-name "${1}" --name "${2}" -o tsv
+}
+
+
+#######################################
+# Assign the role 'Storage Blob Data Contributor' to the current user
+#######################################
+function azure::assign_storage_blob_data_contributor_role_to_user() {
+  local user_id=$(az ad signed-in-user show --query objectId -o tsv)
+  local subscription_id=$(az account show --query id -o tsv)
+  az role assignment create \
+    --role "ba92f5b4-2d11-453d-a403-e96b0029c9fe" \
+    --scope "subscriptions/${subscription_id}/resourceGroups/${resource_group}" \
+    --assignee-object-id "${user_id}" \
+    --assignee-principal-type "User"
+}
+
+#######################################
+# Create storage account
+# Arguments:
+#   1: The resource group name for the storage account
+#   2: The region (e.g. EastUS) to create the storage account in
+#   3: The name of the storage account
+#######################################
+function azure::create_storage_account {
+  az storage account create \
+    --resource-group "${1}" \
+    --location "${2}" \
+    --name "${3}" \
+    --allow-blob-public-access false \
+    --min-tls-version "TLS1_2"
+}
+
+#######################################
+# Create storage container
+# Arguments:
+#   1: The storage account name to create the container in
+#   2: The name of the container to create
+#######################################
+function azure::create_storage_container {
+  az storage container create \
+    --account-name "${1}" \
+    --name "${2}" \
+}
+
+#######################################
+# Upload blob
+# Arguments:
+#   1: The storage account name
+#   2. The name of the container to upload to
+#   3: The path to the file to upload
+#######################################
+function azure::upload_blob {
+  az storage blob upload \
+    --account-name "${1}" \
+    --container-name "${2}" \
+    --file "${3}"
+}
