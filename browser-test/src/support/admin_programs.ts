@@ -406,9 +406,8 @@ export class AdminPrograms {
   }
 
   async viewApplicationForApplicant(applicantName: string) {
-    await this.applicationFrame()
-      .locator(this.selectWithinApplicationForApplicant(applicantName, 'a:text("View")'))
-      .click()
+    await this.page.click(this.selectWithinApplicationForApplicant(applicantName, 'a:text("View")'))
+    await this.waitForApplicationFrame()
   }
 
   applicationFrame() {
@@ -424,8 +423,6 @@ export class AdminPrograms {
     questionName: string,
     answer: string
   ) {
-    await this.waitForApplicationFrame()
-
     const blockText = await this.applicationFrame()
         .locator(this.selectApplicationBlock(blockName))
         .innerText()
