@@ -71,7 +71,7 @@ function azure::add_generated_secrets() {
   for key in "$@";
   do
     echo "Generating secret: ${key}"
-    local SECRET_VALUE="$(head /dev/urandom | LC_CTYPE=C tr -dc "${CHARSET}" | cut -c -40)"
+    local SECRET_VALUE="$(head /dev/urandom | LC_CTYPE=C tr -dc "${CHARSET}" |LC_CTYPE=C cut -c -40)"
     echo "Setting secret: ${key}"
     azure::add_secret "${VAULT_NAME}" "${key}" "${SECRET_VALUE}"
   done
