@@ -161,6 +161,7 @@ variable "civiform_applicant_auth_protocol" {
   description = "auth protocol to use for applicant auth. supported values are oidc and saml"
   default     = "saml"
 }
+
 variable "login_radius_api_key" {
   type        = string
   description = "Login Radius API Key"
@@ -183,6 +184,7 @@ variable "saml_keystore_filename" {
   description = "Name of Java Keystore file stored in Azure blob storage"
   default     = null
 }
+
 variable "saml_keystore_password" {
   description = "Password for Java Keystore file"
   default     = null
@@ -194,12 +196,12 @@ variable "saml_private_key_password" {
 }
 
 variable "saml_keystore_storage_account_name" {
-  description = "Name of storage account where Java Keystore is stores"
+  description = "Name of storage account where Java Keystore is stored"
   default     = null
 }
 
 variable "saml_keystore_storage_container_name" {
-  description = "Name of storage container where Java Keystore is stores"
+  description = "Name of storage container where Java Keystore is stored"
   default     = null
 }
 

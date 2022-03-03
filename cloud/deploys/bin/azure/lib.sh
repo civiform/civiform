@@ -3,6 +3,8 @@
 # CHARSET is a regex pattern that matches the acceptable characters to 
 # use when generating a secret value
 readonly CHARSET='A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~'
+readonly BLOB_DATA_CONTRIBUTOR_GUID="ba92f5b4-2d11-453d-a403-e96b0029c9fe"
+readonly KEY_VAULT_SECRETS_OFFICER_GUID="b86a8fe4-44ce-4948-aee5-eccb2c155cd7"
 
 #######################################
 # Create resource group
@@ -35,13 +37,19 @@ function azure::create_vault() {
 # Assign the role 'Key Vault Secrets officer' to the current user
 #######################################
 function azure::assign_secrets_officer_role_to_user() {
-  local user_id=$(az ad signed-in-user show --query objectId -o tsv)
-  local subscription_id=$(az account show --query id -o tsv)
-  az role assignment create \
-    --role "b86a8fe4-44ce-4948-aee5-eccb2c155cd7" \
-    --scope "subscriptions/${subscription_id}/resourceGroups/${resource_group}" \
-    --assignee-object-id "${user_id}" \
-    --assignee-principal-type "User"
+  local USER_ID=$(az ad signed-in-user show --query objectId -o tsv)
+  local SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+  local ROLE_ASSIGNMENTS=$(az role assignment list --assignee ${USER_ID})
+  if [[ ("Key Vault Secrets Officer" == *$ROLE_ASSIGNMENTS*) ]];
+  then 
+    echo "Current user already has Key Vault Secrets Officer role"
+  else
+    az role assignment create \
+      --role ${KEY_VAULT_SECRETS_OFFICER_GUID} \
+      --scope "subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${resource_group}" \
+      --assignee-object-id "${USER_ID}" \
+      --assignee-principal-type "User"
+  fi
 }
 
 #######################################
@@ -71,14 +79,17 @@ function azure::add_generated_secrets() {
   for key in "$@";
   do
     echo "Generating secret: ${key}"
-    local SECRET_VALUE="$(head /dev/urandom | LC_CTYPE=C tr -dc "${CHARSET}" |LC_CTYPE=C cut -c -40)"
+    local SECRET_VALUE="$(head /dev/urandom | \
+      LC_CTYPE=ALL tr -dc "${CHARSET}" | \
+      LC_CTYPE=ALL cut -c -40)"
     echo "Setting secret: ${key}"
     azure::add_secret "${VAULT_NAME}" "${key}" "${SECRET_VALUE}"
   done
 }
 
 #######################################
-# Get a secret value from the key vault
+# Get a secret value from the key vault. 
+# Ouputs the string that the secret is set to, ex. eRZE*8d-$EM*0tSxKXIp63yVnY~t2zI:=[Bm#FB*
 # Arguments:
 #   1: The name of the key vault
 #   2: The name of the secret (used to identify it e.g. "postgres-password")
@@ -91,17 +102,17 @@ function azure::get_secret_value() {
 # Assign the role 'Storage Blob Data Contributor' to the current user
 #######################################
 function azure::assign_storage_blob_data_contributor_role_to_user() {
-  local user_id=$(az ad signed-in-user show --query objectId -o tsv)
-  local subscription_id=$(az account show --query id -o tsv)
-  local role_assignments=$(az role assignment list --assignee ${user_id})
-  if [[ ("Storage Blob Data Contributor" == *$role_assignments*) ]];
+  local USER_ID=$(az ad signed-in-user show --query objectId -o tsv)
+  local SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+  local ROLE_ASSIGNMENTS=$(az role assignment list --assignee ${USER_ID})
+  if [[ ("Storage Blob Data Contributor" == *$ROLE_ASSIGNMENTS*) ]];
   then 
     echo "Current user already has Storage Blob Data Contributor role"
   else
     az role assignment create \
-      --role "ba92f5b4-2d11-453d-a403-e96b0029c9fe" \
-      --scope "subscriptions/${subscription_id}/resourceGroups/${resource_group}" \
-      --assignee-object-id "${user_id}" \
+      --role  "${BLOB_DATA_CONTRIBUTOR_GUID}" \
+      --scope "subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${resource_group}" \
+      --assignee-object-id "${USER_ID}" \
       --assignee-principal-type "User"
   fi
 }

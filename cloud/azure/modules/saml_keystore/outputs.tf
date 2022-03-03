@@ -15,6 +15,7 @@ output "storage_account_name" {
 output "storage_container_name" {
   value = var.saml_keystore_container_name
 }
+
 output "filename" {
   value = var.saml_keystore_filename
 }
