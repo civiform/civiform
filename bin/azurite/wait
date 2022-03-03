@@ -29,4 +29,4 @@ until healthy "$(curl --silent --max-time 2 "${azurite_endpoint}/")"; do
   fi
 done
 
-bin/localstack/ses-verify-identity "noreply@fake.identity"
+bin/azurite/ses-verify-identity "noreply@fake.identity"

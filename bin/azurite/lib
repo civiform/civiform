@@ -15,11 +15,8 @@ function azurite::run_command() {
   echo "Running azurite command:"
   echo "  azurite-cli ${azurite_command}"
 
-  # The command variable is referenced without quotes to allow word splitting.
-  docker run -it mcr.microsoft.com/azure-cli:<version>
 
-
-  docker run --rm \
+  docker run -it \
     --network "${DOCKER_NETWORK_NAME}" \
     -e "AWS_DEFAULT_REGION=us-west-2" \
     -e "AWS_ACCESS_KEY_ID=test" \
