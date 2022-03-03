@@ -22,11 +22,19 @@ function azurite::run_command() {
 #    -e "AWS_SECRET_ACCESS_KEY=test" \
 #    mcr.microsoft.com/azure-cli:latest \
 #    $azurite_command
+
+  eval docker-compose --profile aws -f browser-test/browser-test-compose.yml -d localstack
+
+  eval bin/localstack/wait
+
+  eval docker-compose --profile aws -f browser-test/browser-test-compose.yml
+
   docker run --rm \
     --network "${DOCKER_NETWORK_NAME}" \
     -e "AWS_DEFAULT_REGION=us-west-2" \
     -e "AWS_ACCESS_KEY_ID=test" \
     -e "AWS_SECRET_ACCESS_KEY=test" \
     amazon/aws-cli \
+    --endpoint-url="http://localstack:4566" \
     $azurite_command
 }
