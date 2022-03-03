@@ -173,7 +173,7 @@ public class ProgramRepository {
     return database
         .find(Program.class)
         .where()
-        .eq("name", programNameQuery)
+        .in("name", programNameQuery)
         .query()
         .findList()
         .stream()
