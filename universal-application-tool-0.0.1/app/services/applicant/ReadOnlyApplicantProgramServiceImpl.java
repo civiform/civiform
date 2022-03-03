@@ -330,7 +330,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       case FILEUPLOAD:
         return ImmutableMap.of(
             question.getContextualizedPath().join(Scalar.FILE_KEY),
-            question.createFileUploadQuestion()
+            question
+                .createFileUploadQuestion()
                 .getFileKeyValue()
                 .map(
                     fileKey ->
