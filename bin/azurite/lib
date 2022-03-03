@@ -21,6 +21,5 @@ function azurite::run_command() {
     -e "AWS_ACCESS_KEY_ID=test" \
     -e "AWS_SECRET_ACCESS_KEY=test" \
     mcr.microsoft.com/azure-cli:latest \
-    --endpoint-url="http://localhost:10000" \
     $azurite_command
 }
