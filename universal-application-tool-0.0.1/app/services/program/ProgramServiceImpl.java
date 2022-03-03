@@ -26,6 +26,8 @@ import repository.UserRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.PaginationResult;
+import services.PaginationSpec;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -526,17 +528,10 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public ImmutableList<Application> getSubmittedProgramApplications(
-      long programId, Optional<String> search) throws ProgramNotFoundException {
-    return getSubmittedProgramApplications(programId).stream()
-        .filter(
-            application ->
-                application
-                    .getApplicantData()
-                    .getApplicantName()
-                    .toLowerCase(Locale.ROOT)
-                    .contains(search.orElse("").toLowerCase(Locale.ROOT)))
-        .collect(ImmutableList.toImmutableList());
+  public PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
+      long programId, PaginationSpec paginationSpec, Optional<String> searchNameFragment) {
+    return programRepository.getApplicationsForAllProgramVersions(
+        programId, paginationSpec, searchNameFragment);
   }
 
   @Override

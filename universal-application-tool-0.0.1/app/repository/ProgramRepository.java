@@ -7,6 +7,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.ExpressionList;
+import io.ebean.PagedList;
+import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import java.util.List;
@@ -16,9 +19,12 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Account;
+import models.Application;
 import models.LifecycleStage;
 import models.Program;
 import models.Version;
+import services.PaginationResult;
+import services.PaginationSpec;
 import services.program.ProgramNotFoundException;
 
 /**
@@ -155,14 +161,116 @@ public class ProgramRepository {
   }
 
   public ImmutableList<Program> getAllProgramVersions(long programId) {
+    Query<Program> programNameQuery =
+        database
+            .find(Program.class)
+            .select("name")
+            .where()
+            .eq("id", programId)
+            .setMaxRows(1)
+            .query();
+
     return database
         .find(Program.class)
         .where()
-        .eq(
-            "name",
-            database.find(Program.class).setId(programId).select("name").findSingleAttribute())
+        .in("name", programNameQuery)
+        .query()
         .findList()
         .stream()
         .collect(ImmutableList.toImmutableList());
+  }
+
+  /**
+   * Get all submitted applications for this program and all other previous and future versions of
+   * it where the applicant's first name, last name, email, or application ID contains the search
+   * query. Does not include drafts or deleted applications. Results returned in reverse order that
+   * the applications were created.
+   *
+   * <p>If searchNameFragment is not an unsigned integer, the query will filter to applications with
+   * email, first name, or last name that contain it.
+   *
+   * <p>If searchNameFragment is an unsigned integer, the query will filter to applications with an
+   * application ID matching it.
+   */
+  public PaginationResult<Application> getApplicationsForAllProgramVersions(
+      long programId, PaginationSpec paginationSpec, Optional<String> searchNameFragment) {
+    ExpressionList<Application> query =
+        database
+            .find(Application.class)
+            .fetch("program")
+            .orderBy("id desc")
+            .where()
+            .in("program_id", allProgramVersionsQuery(programId))
+            .in(
+                "lifecycle_stage",
+                ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE));
+
+    if (searchNameFragment.isPresent() && !searchNameFragment.get().isBlank()) {
+      String search = searchNameFragment.get();
+
+      if (search.matches("^\\d+$")) {
+        query = query.eq("id", Integer.parseInt(search));
+      } else {
+        search = search.toLowerCase(java.util.Locale.ROOT);
+
+        query =
+            query
+                .or()
+                .eq("submitter_email", search)
+                .raw(
+                    getApplicationObjectPath("applicant", "name", "first_name") + " ILIKE ?",
+                    "%" + search + "%")
+                .raw(
+                    getApplicationObjectPath("applicant", "name", "last_name") + " ILIKE ?",
+                    "%" + search + "%")
+                .endOr();
+      }
+    }
+
+    PagedList<Application> pagedQuery =
+        query
+            .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
+            .setMaxRows(paginationSpec.getPageSize())
+            .findPagedList();
+
+    pagedQuery.loadCount();
+
+    return new PaginationResult<Application>(
+        paginationSpec,
+        pagedQuery.getTotalPageCount(),
+        pagedQuery.getList().stream().collect(ImmutableList.toImmutableList()));
+  }
+
+  private Query<Program> allProgramVersionsQuery(long programId) {
+    Query<Program> programNameQuery =
+        database.find(Program.class).select("name").where().eq("id", programId).query();
+
+    return database.find(Program.class).select("id").where().in("name", programNameQuery).query();
+  }
+
+  private String getApplicationObjectPath(String... pathComponents) {
+    StringBuilder path = new StringBuilder();
+
+    path.append("(");
+
+    // While the column type is JSONB, CiviForm writes the JSON object into the database as a
+    // string.
+    // This requires queries that interact with the JSON column to instruct postgres to parse the
+    // contents
+    // into JSON, which we do here with (object #>> '{}')::jsonb
+    path.append("(object #>> '{}')::jsonb");
+
+    int lastIndex = pathComponents.length - 1;
+    for (int i = 0; i < lastIndex; i++) {
+      path.append(" -> '");
+      path.append(pathComponents[i]);
+      path.append("'");
+    }
+
+    path.append(" ->> '");
+    path.append(pathComponents[lastIndex]);
+    path.append("')");
+
+    return path.toString();
   }
 }

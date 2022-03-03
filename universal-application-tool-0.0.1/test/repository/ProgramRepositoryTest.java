@@ -142,4 +142,45 @@ public class ProgramRepositoryTest extends WithPostgresContainer {
     Program newDraft = repo.createOrUpdateDraft(withAdmins);
     assertThat(repo.getProgramAdministrators(newDraft.id)).containsExactly(admin);
   }
+
+  // @Test
+  // public void getApplicationsForAllProgramVersions_multipleVersions() {
+  //   Applicant applicantOne =
+  //       resourceCreator.insertAccountWithEmail("one@example.com").newestApplicant().get();
+  //   Program originalVersion = resourceCreator.insertActiveProgram("test program");
+
+  //   resourceCreator.insertActiveApplication(applicantOne, originalVersion);
+
+  //   Program nextVersion = resourceCreator.insertDraftProgram("test program");
+  //   resourceCreator.publishNewSynchronizedVersion();
+
+  //   Applicant applicantTwo =
+  //       resourceCreator.insertAccountWithEmail("two@example.com").newestApplicant().get();
+  //   Applicant applicantThree =
+  //       resourceCreator.insertAccountWithEmail("three@example.com").newestApplicant().get();
+  //   resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
+  //   resourceCreator.insertActiveApplication(applicantThree, nextVersion);
+
+  //   PaginationResult<Application> paginationResult =
+  //       repo.getApplicationsForAllProgramVersions(
+  //           nextVersion.id, new PaginationSpec(2, 1), Optional.empty());
+
+  //   assertThat(paginationResult.getCurrentPage()).isEqualTo(1);
+  //   assertThat(paginationResult.getNumPages()).isEqualTo(2);
+  //   assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
+
+  //
+  // assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantThree);
+  //   assertThat(paginationResult.getPageContents().get(1).getApplicant()).isEqualTo(applicantTwo);
+
+  //   paginationResult =
+  //       repo.getApplicationsForAllProgramVersions(
+  //           nextVersion.id, new PaginationSpec(2, 2), Optional.empty());
+
+  //   assertThat(paginationResult.getCurrentPage()).isEqualTo(2);
+  //   assertThat(paginationResult.getNumPages()).isEqualTo(2);
+  //   assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
+
+  //   assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantOne);
+  // }
 }

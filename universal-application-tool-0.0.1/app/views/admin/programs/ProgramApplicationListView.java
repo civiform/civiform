@@ -5,22 +5,23 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.h2;
+import static j2html.TagCreator.iframe;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.Tag;
-import java.util.Comparator;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import models.Application;
-import models.Program;
-import models.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.PaginationResult;
+import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -40,69 +41,52 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   public Content render(
       Http.Request request,
-      long programId,
-      ImmutableList<Application> applications,
-      int page,
-      int pageCount,
-      Optional<String> search,
-      ImmutableList<Program> previousVersions) {
-    String title = "All Applications";
+      ProgramDefinition program,
+      PaginationResult<Application> paginatedApplications,
+      Optional<String> search) {
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(
-                h1(title).withClasses(Styles.MY_4),
+                h1(program.adminName()).withClasses(Styles.MY_4),
                 renderPaginationDiv(
-                        page,
-                        pageCount,
+                        paginatedApplications.getCurrentPage(),
+                        paginatedApplications.getNumPages(),
                         pageNumber ->
                             routes.AdminApplicationController.index(
-                                programId, search, Optional.of(pageNumber)))
+                                program.id(), search, Optional.of(pageNumber)))
                     .withClasses(Styles.MB_2),
                 br(),
                 renderSearchForm(
                         request,
                         search,
                         routes.AdminApplicationController.index(
-                            programId, Optional.empty(), Optional.empty()))
+                            program.id(), Optional.empty(), Optional.empty()),
+                        Optional.of(Styles.W_FULL),
+                        Optional.of("Search first name, last name, or application ID"))
                     .withClasses(Styles.MT_6),
-                each(
-                    applications,
-                    application -> this.renderApplicationListItem(programId, application)),
+                each(paginatedApplications.getPageContents(), this::renderApplicationListItem),
                 br(),
-                renderDownloadButton(programId))
-            .withClasses(Styles.MB_16);
+                renderDownloadButton(program.id()))
+            .withClasses(Styles.MB_16, Styles.MR_2);
 
-    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
-    if (!previousVersions.isEmpty()) {
-      htmlBundle.addMainContent(
-          br(),
-          h2("Applications for other versions"),
-          div(each(previousVersions, this::renderPreviousVersionDiv)));
-    }
+    Tag applicationShowDiv =
+        div()
+            .withClasses(Styles.W_FULL, Styles.H_FULL)
+            .with(
+                iframe()
+                    .withId("application-display-frame")
+                    .withClasses(Styles.W_FULL, Styles.H_FULL));
+
+    HtmlBundle htmlBundle =
+        layout
+            .getBundle()
+            .setTitle(program.adminName() + " - Applications")
+            .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_applications"))
+            .addMainStyles(Styles.FLEX)
+            .addMainContent(contentDiv, applicationShowDiv);
+
     return layout.renderCentered(htmlBundle);
-  }
-
-  private Tag renderPreviousVersionDiv(Program program) {
-    Optional<Version> lastContainingVersion =
-        program.getVersions().stream().max(Comparator.comparing(Version::getSubmitTime));
-    if (lastContainingVersion.isEmpty()) {
-      return div();
-    }
-    return div(
-            div(String.format("Version %d", lastContainingVersion.get().id))
-                .withClasses(Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.TEXT_LG, Styles.MB_2),
-            div(
-                    p("Last edited " + lastContainingVersion.get().getSubmitTime().toString())
-                        .withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
-                    p().withClasses(Styles.FLEX_GROW),
-                    renderApplicationsLink(
-                        String.format(
-                            "Applications (%d) →", program.getSubmittedApplications().size()),
-                        program.id))
-                .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL))
-        .withClasses(
-            Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
   }
 
   private Tag renderDownloadButton(long programId) {
@@ -115,19 +99,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .asButton();
   }
 
-  private Tag renderApplicationListItem(long programId, Application application) {
-    String downloadLinkText = "Download (PDF)";
-    long applicationId = application.id;
+  private Tag renderApplicationListItem(Application application) {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
-    String lastEditText;
-    try {
-      lastEditText = application.getSubmitTime().toString();
-    } catch (NullPointerException e) {
-      log.error("Application {} submitted without submission time marked.", applicationId);
-      lastEditText = "<ERROR>";
-    }
-    lastEditText = "Last edited " + lastEditText;
     String viewLinkText = "View →";
 
     Tag topContent =
@@ -141,10 +115,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     Tag bottomContent =
         div(
-                p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
+                p(getSubmitTime(application)).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
-                renderDownloadLink(downloadLinkText, programId, applicationId),
-                renderViewLink(viewLinkText, programId, applicationId))
+                renderViewLink(viewLinkText, application))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
     Tag innerDiv =
@@ -157,42 +130,27 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             ReferenceClasses.ADMIN_APPLICATION_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
   }
 
-  private Tag renderDownloadLink(String text, long programId, long applicationId) {
-    // This link doesn't work since we don't have PDF filling yet.  Disable.
-    String downloadLink =
-        controllers.admin.routes.AdminApplicationController.download(programId, applicationId)
+  private Tag getSubmitTime(Application application) {
+    try {
+      return span()
+          .withText(
+              DateTimeFormatter.RFC_1123_DATE_TIME
+                  .withZone(ZoneId.systemDefault())
+                  .format(application.getSubmitTime()));
+    } catch (NullPointerException e) {
+      log.error("Application {} submitted without submission time marked.", application.id);
+      return span();
+    }
+  }
+
+  private Tag renderViewLink(String text, Application application) {
+    String viewLink =
+        controllers.admin.routes.AdminApplicationController.show(
+                application.getProgram().id, application.id)
             .url();
 
     return new LinkElement()
-        .setId("application-download-link-" + applicationId)
-        .setHref(downloadLink)
-        .setText(text)
-        .setStyles(Styles.MR_2, ReferenceClasses.DOWNLOAD_BUTTON)
-        .asAnchorText()
-        // TODO: when the download link works, un-hide.
-        .isHidden();
-  }
-
-  private Tag renderViewLink(String text, long programId, long applicationId) {
-    String viewLink =
-        controllers.admin.routes.AdminApplicationController.show(programId, applicationId).url();
-
-    return new LinkElement()
-        .setId("application-view-link-" + applicationId)
-        .setHref(viewLink)
-        .setText(text)
-        .setStyles(Styles.MR_2, ReferenceClasses.VIEW_BUTTON)
-        .asAnchorText();
-  }
-
-  private Tag renderApplicationsLink(String text, long programId) {
-    String viewLink =
-        controllers.admin.routes.AdminApplicationController.index(
-                programId, Optional.empty(), Optional.empty())
-            .url();
-
-    return new LinkElement()
-        .setId("applications-view-program-link-" + programId)
+        .setId("application-view-link-" + application.id)
         .setHref(viewLink)
         .setText(text)
         .setStyles(Styles.MR_2, ReferenceClasses.VIEW_BUTTON)

@@ -241,7 +241,7 @@ describe('normal application flow', () => {
     await logout(page)
     await loginAsProgramAdmin(page)
 
-    await adminPrograms.viewApplicationsForOldVersion(programName)
+    await adminPrograms.viewApplications(programName)
     await adminPrograms.viewApplicationForApplicant(userDisplayName())
     await adminPrograms.expectApplicationAnswers(
       'Screen 2',
@@ -293,12 +293,13 @@ describe('normal application flow', () => {
       await page.click(
         `:nth-match(.cf-admin-application-card, ${i + 1}) a:text("View")`
       )
+      await adminPrograms.waitForApplicationFrame()
+
       await adminPrograms.expectApplicationAnswers(
         'Screen 1',
         'fruit-text-q',
         answers[answers.length - i - 1]
       )
-      await page.goBack()
     }
 
     await logout(page)

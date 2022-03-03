@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.UUID;
 import models.Account;
 import models.Applicant;
+import models.Application;
+import models.LifecycleStage;
 import models.Models;
 import models.Program;
 import models.Question;
@@ -19,14 +21,20 @@ import services.question.types.TextQuestionDefinition;
 public class ResourceCreator {
 
   private final Database database;
+  private final Injector injector;
 
   public ResourceCreator(Injector injector) {
     this.database = DB.getDefault();
+    this.injector = injector;
     ProgramBuilder.setInjector(injector);
   }
 
   public void truncateTables() {
     Models.truncate(database);
+  }
+
+  public void publishNewSynchronizedVersion() {
+    injector.instanceOf(repository.VersionRepository.class).publishNewSynchronizedVersion();
   }
 
   public Question insertQuestion(String name) {
@@ -58,6 +66,15 @@ public class ResourceCreator {
 
   public Program insertDraftProgram(String name) {
     return ProgramBuilder.newDraftProgram(name, "description").build();
+  }
+
+  public Application insertActiveApplication(Applicant applicant, Program program) {
+    return Application.create(applicant, program, LifecycleStage.ACTIVE);
+  }
+
+  public Application insertApplication(
+      Applicant applicant, Program program, LifecycleStage lifecycleStage) {
+    return Application.create(applicant, program, lifecycleStage);
   }
 
   public Applicant insertApplicant() {

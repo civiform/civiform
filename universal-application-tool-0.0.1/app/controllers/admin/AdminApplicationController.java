@@ -11,12 +11,12 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 import models.Application;
-import models.Program;
 import org.pac4j.play.java.Secure;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApplicationRepository;
-import services.PaginationInfo;
+import services.PaginationResult;
+import services.PaginationSpec;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
@@ -180,8 +180,9 @@ public class AdminApplicationController extends CiviFormController {
       return redirect(routes.AdminApplicationController.index(programId, search, Optional.of(1)));
     }
 
+    final ProgramDefinition program;
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
+      program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
@@ -190,21 +191,11 @@ public class AdminApplicationController extends CiviFormController {
     }
 
     try {
-      ImmutableList<Application> applications =
-          programService.getSubmittedProgramApplications(programId, search);
-      PaginationInfo<Application> pageInfo =
-          PaginationInfo.paginate(applications, PAGE_SIZE, page.get());
-      ImmutableList<Program> previousVersions = programService.getOtherProgramVersions(programId);
+      PaginationResult<Application> applications =
+          programService.getSubmittedProgramApplicationsAllVersions(
+              programId, new PaginationSpec(PAGE_SIZE, page.orElse(1)), search);
 
-      return ok(
-          applicationListView.render(
-              request,
-              programId,
-              pageInfo.getPageItems(),
-              pageInfo.getPage(),
-              pageInfo.getPageCount(),
-              search,
-              previousVersions));
+      return ok(applicationListView.render(request, program, applications, search));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     }

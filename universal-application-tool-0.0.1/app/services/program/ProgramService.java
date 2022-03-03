@@ -9,6 +9,8 @@ import models.Application;
 import models.Program;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.PaginationResult;
+import services.PaginationSpec;
 import services.program.predicate.PredicateDefinition;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
@@ -299,24 +301,29 @@ public interface ProgramService {
   /**
    * Get all the program's submitted applications. Does not include drafts or deleted applications.
    *
-   * @param programId the program id.
-   * @return A list of Application objects for the specified program.
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ImmutableList<Application> getSubmittedProgramApplications(long programId)
       throws ProgramNotFoundException;
 
   /**
-   * Get the program's submitted applications where the applicant's name contains the search query.
-   * Does not include drafts or deleted applications.
+   * Get all submitted applications for this program and all other previous and future versions of
+   * it where the applicant's first name, last name, email, or application ID contains the search
+   * query. Does not include drafts or deleted applications.
    *
-   * @param programId the program id.
-   * @param search an applicant's name or fragment of an applicant's name.
-   * @return A list of Application objects for the specified program.
+   * <p>If searchNameFragment is not an unsigned integer, the query will filter to applications with
+   * email, first name, or last name that contain it.
+   *
+   * <p>If searchNameFragment is an unsigned integer, query will filter to applications with an
+   * applicant ID matching it.
+   *
+   * @param paginationSpec specification for paginating the results.
+   * @param searchNameFragment a text fragment used for filtering the applications.
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
-  ImmutableList<Application> getSubmittedProgramApplications(
-      long programId, Optional<String> search) throws ProgramNotFoundException;
+  PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
+      long programId, PaginationSpec paginationSpec, Optional<String> searchNameFragment)
+      throws ProgramNotFoundException;
 
   /** Create a new draft starting from the program specified by `id`. */
   ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException;

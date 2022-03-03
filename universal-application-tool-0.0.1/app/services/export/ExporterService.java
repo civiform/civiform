@@ -21,6 +21,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
 import models.QuestionTag;
+import services.PaginationSpec;
 import services.Path;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantData;
@@ -77,25 +78,16 @@ public class ExporterService {
     ImmutableList<ProgramDefinition> allProgramVersions =
         programService.getAllProgramDefinitionVersions(programId).stream()
             .collect(ImmutableList.toImmutableList());
-
     CsvExportConfig exportConfig = generateDefaultCsvExportConfig(allProgramVersions);
     CsvExporter csvExporter = exporterFactory.csvExporter(exportConfig);
 
     ImmutableList<Application> applications =
-        allProgramVersions.stream()
-            .map(ProgramDefinition::id)
-            .flatMap(
-                (programVersionId) -> {
-                  try {
-                    return programService
-                        .getSubmittedProgramApplications(programVersionId)
-                        .stream();
-                  } catch (ProgramNotFoundException e) {
-                    throw new RuntimeException(
-                        "Cannot find a program we are trying to generate CSVs for.", e);
-                  }
-                })
-            .collect(ImmutableList.toImmutableList());
+        programService
+            .getSubmittedProgramApplicationsAllVersions(
+                programId,
+                PaginationSpec.MAX_PAGE_SIZE_SPEC,
+                /* searchNameFragment= */ Optional.empty())
+            .getPageContents();
 
     return exportCsv(csvExporter, applications);
   }

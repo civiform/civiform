@@ -110,6 +110,20 @@ public abstract class BaseHtmlView {
 
   protected ContainerTag renderSearchForm(
       Http.Request request, Optional<String> search, Call searchCall) {
+    return renderSearchForm(
+        request,
+        search,
+        searchCall,
+        /* htmlClasses= */ Optional.empty(),
+        /* labelText= */ Optional.empty());
+  }
+
+  protected ContainerTag renderSearchForm(
+      Http.Request request,
+      Optional<String> search,
+      Call searchCall,
+      Optional<String> htmlClasses,
+      Optional<String> labelText) {
     return form()
         .withMethod("GET")
         .withAction(searchCall.url())
@@ -117,11 +131,11 @@ public abstract class BaseHtmlView {
             FieldWithLabel.input()
                 .setId("search-field")
                 .setFieldName("search")
-                .setLabelText("Search")
+                .setLabelText(labelText.orElse("Search"))
                 .setValue(search.orElse(""))
                 .setPlaceholderText("Search")
                 .getContainer()
-                .withClasses(Styles.W_1_4),
+                .withClasses(htmlClasses.orElse(Styles.W_1_4)),
             makeCsrfTokenInputTag(request),
             submitButton("Search").withClasses(Styles.M_2));
   }
