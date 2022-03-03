@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 
+/** Contains a single page of results and pagination state for a paginated query. */
 public class PaginationResult<T> {
   private final PaginationSpec spec;
   private final int numPages;

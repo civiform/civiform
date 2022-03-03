@@ -110,7 +110,12 @@ public abstract class BaseHtmlView {
 
   protected ContainerTag renderSearchForm(
       Http.Request request, Optional<String> search, Call searchCall) {
-    return renderSearchForm(request, search, searchCall, Optional.empty(), Optional.empty());
+    return renderSearchForm(
+        request,
+        search,
+        searchCall,
+        /* htmlClasses= */ Optional.empty(),
+        /* labelText= */ Optional.empty());
   }
 
   protected ContainerTag renderSearchForm(

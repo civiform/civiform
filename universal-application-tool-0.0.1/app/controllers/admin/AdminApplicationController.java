@@ -180,8 +180,9 @@ public class AdminApplicationController extends CiviFormController {
       return redirect(routes.AdminApplicationController.index(programId, search, Optional.of(1)));
     }
 
+    ProgramDefinition program;
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
+      program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
@@ -194,7 +195,7 @@ public class AdminApplicationController extends CiviFormController {
           programService.getSubmittedProgramApplicationsAllVersions(
               programId, new PaginationSpec(PAGE_SIZE, page.orElse(1)), search);
 
-      return ok(applicationListView.render(request, programId, applications, search));
+      return ok(applicationListView.render(request, program, applications, search));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     }

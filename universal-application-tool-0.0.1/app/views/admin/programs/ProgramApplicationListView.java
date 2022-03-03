@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.PaginationResult;
+import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -40,36 +41,34 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   public Content render(
       Http.Request request,
-      long programId,
+      ProgramDefinition program,
       PaginationResult<Application> paginatedApplications,
       Optional<String> search) {
-    String title = "All Applications";
-
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(
-                h1(title).withClasses(Styles.MY_4),
+                h1(program.adminName()).withClasses(Styles.MY_4),
                 renderPaginationDiv(
                         paginatedApplications.getCurrentPage(),
                         paginatedApplications.getNumPages(),
                         pageNumber ->
                             routes.AdminApplicationController.index(
-                                programId, search, Optional.of(pageNumber)))
+                                program.id(), search, Optional.of(pageNumber)))
                     .withClasses(Styles.MB_2),
                 br(),
                 renderSearchForm(
                         request,
                         search,
                         routes.AdminApplicationController.index(
-                            programId, Optional.empty(), Optional.empty()),
+                            program.id(), Optional.empty(), Optional.empty()),
                         Optional.of(Styles.W_FULL),
                         Optional.of(
                             "Search first name, last name, applicant ID, or application ID"))
                     .withClasses(Styles.MT_6),
                 each(paginatedApplications.getPageContents(), this::renderApplicationListItem),
                 br(),
-                renderDownloadButton(programId))
+                renderDownloadButton(program.id()))
             .withClasses(Styles.MB_16, Styles.MR_2);
 
     Tag applicationShowDiv =
@@ -83,7 +82,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     HtmlBundle htmlBundle =
         layout
             .getBundle()
-            .setTitle(title)
+            .setTitle(program.adminName() + " - Applications")
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_applications"))
             .addMainStyles(Styles.FLEX)
             .addMainContent(contentDiv, applicationShowDiv);

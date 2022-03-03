@@ -1,5 +1,6 @@
 package services;
 
+/** Specifies pagination behavior for a paginated query. */
 public class PaginationSpec {
 
   public static PaginationSpec MAX_PAGE_SIZE_SPEC = new PaginationSpec(Integer.MAX_VALUE, 1);

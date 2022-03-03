@@ -308,8 +308,12 @@ public interface ProgramService {
 
   /**
    * Get all submitted applications for this program and all other previous and future versions of
-   * it where the applicant's first name, last name, applicant ID, or application ID contains the
-   * search query. Does not include drafts or deleted applications.
+   * it where the applicant's first name, last name, email, applicant ID, or application ID contains
+   * the search query. Does not include drafts or deleted applications.
+   *
+   * <p>If searchNameFragment is not an unsigned integer, the query will filter to applications with
+   * email, first name, or last name that contain it. If searchNameFragment is an unsigned integer,
+   * the query will filter to applications with an application or applicant ID matching it.
    *
    * @param paginationSpec specification for paginating the results.
    * @param searchNameFragment a text fragment used for filtering the applications.

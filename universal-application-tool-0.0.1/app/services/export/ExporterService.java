@@ -84,7 +84,9 @@ public class ExporterService {
     ImmutableList<Application> applications =
         programService
             .getSubmittedProgramApplicationsAllVersions(
-                programId, PaginationSpec.MAX_PAGE_SIZE_SPEC, Optional.empty())
+                programId,
+                PaginationSpec.MAX_PAGE_SIZE_SPEC,
+                /* searchNameFragment= */ Optional.empty())
             .getPageContents();
 
     return exportCsv(csvExporter, applications);

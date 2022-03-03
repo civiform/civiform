@@ -161,16 +161,37 @@ public class ProgramRepository {
   }
 
   public ImmutableList<Program> getAllProgramVersions(long programId) {
+    Query<Program> programNameQuery =
+        database
+            .find(Program.class)
+            .select("name")
+            .where()
+            .eq("id", programId)
+            .setMaxRows(1)
+            .query();
+
     return database
         .find(Program.class)
         .where()
-        .in("name", database.find(Program.class).select("name").where().eq("id", programId).query())
+        .eq("name", programNameQuery)
         .query()
         .findList()
         .stream()
         .collect(ImmutableList.toImmutableList());
   }
 
+  /**
+   * Get all submitted applications for this program and all other previous and future versions of
+   * it where the applicant's first name, last name, email, applicant ID, or application ID contains
+   * the search query. Does not include drafts or deleted applications. Results returned in reverse
+   * order that the applications were created.
+   *
+   * <p>If searchNameFragment is not an unsigned integer, the query will filter to applications with
+   * email, first name, or last name that contain it.
+   *
+   * <p>If searchNameFragment is an unsigned integer, the query will filter to applications with an
+   * application or applicant ID matching it.
+   */
   public PaginationResult<Application> getApplicationsForAllProgramVersions(
       long programId, PaginationSpec paginationSpec, Optional<String> searchNameFragment) {
     ExpressionList<Application> query =
@@ -241,14 +262,15 @@ public class ProgramRepository {
     // into JSON, which we do here with (object #>> '{}')::jsonb
     path.append("(object #>> '{}')::jsonb");
 
-    for (int i = 0; i < pathComponents.length - 1; i++) {
+    int lastIndex = pathComponents.length - 1;
+    for (int i = 0; i < lastIndex; i++) {
       path.append(" -> '");
       path.append(pathComponents[i]);
       path.append("'");
     }
 
     path.append(" ->> '");
-    path.append(pathComponents[pathComponents.length - 1]);
+    path.append(pathComponents[lastIndex]);
     path.append("')");
 
     return path.toString();
