@@ -15,7 +15,7 @@ function azurite::run_command() {
   echo "Running azurite command:"
   echo "  azurite-cli ${azurite_command}"
 
-  docker run --rm \
+  docker run --rm -it \
     --network "${DOCKER_NETWORK_NAME}" \
     -e "AWS_DEFAULT_REGION=us-west-2" \
     -e "AWS_ACCESS_KEY_ID=test" \

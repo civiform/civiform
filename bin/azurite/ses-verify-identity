@@ -5,7 +5,7 @@
 source bin/lib.sh
 source bin/azurite/lib
 
-verify_identity_cmd="ses verify-email-identity
+verify_identity_cmd="verify-email-identity
   --region us-west-2
   --email-address ${1}"
 
