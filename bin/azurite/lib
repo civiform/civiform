@@ -15,11 +15,19 @@ function azurite::run_command() {
   echo "Running azurite command:"
   echo "  azurite-cli ${azurite_command}"
 
+#  docker run --rm \
+#    --network "${DOCKER_NETWORK_NAME}" \
+#    -e "AWS_DEFAULT_REGION=us-west-2" \
+#    -e "AWS_ACCESS_KEY_ID=test" \
+#    -e "AWS_SECRET_ACCESS_KEY=test" \
+#    mcr.microsoft.com/azure-cli:latest \
+#    $azurite_command
   docker run --rm \
     --network "${DOCKER_NETWORK_NAME}" \
     -e "AWS_DEFAULT_REGION=us-west-2" \
     -e "AWS_ACCESS_KEY_ID=test" \
     -e "AWS_SECRET_ACCESS_KEY=test" \
-    mcr.microsoft.com/azure-cli:latest \
+    amazon/aws-cli \
+    --endpoint-url="http://localhost:10000" \
     $azurite_command
 }
