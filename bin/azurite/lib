@@ -27,8 +27,6 @@ function azurite::run_command() {
 
   eval bin/localstack/wait
 
-  eval docker-compose --profile aws -f browser-test/browser-test-compose.yml
-
   docker run --rm \
     --network "${DOCKER_NETWORK_NAME}" \
     -e "AWS_DEFAULT_REGION=us-west-2" \

@@ -28,5 +28,3 @@ until healthy "$(curl --silent --max-time 2 "${azurite_endpoint}/")"; do
     exit 1
   fi
 done
-
-bin/azurite/ses-verify-identity "noreply@fake.identity"
