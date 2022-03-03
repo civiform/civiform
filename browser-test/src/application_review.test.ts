@@ -295,6 +295,10 @@ describe('normal application flow', () => {
       )
       await adminPrograms.waitForApplicationFrame()
 
+      // TODO(https://github.com/seattle-uat/civiform/issues/2018):
+      //   make this more robust so an explicit wait time is not needed.
+      await page.waitForTimeout(2000)
+
       await adminPrograms.expectApplicationAnswers(
         'Screen 1',
         'fruit-text-q',
