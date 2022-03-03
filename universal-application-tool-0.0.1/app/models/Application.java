@@ -47,7 +47,7 @@ public class Application extends BaseModel {
     this.lifecycleStage = lifecycleStage;
   }
 
-  public static Application createSync(
+  public static Application create(
       Applicant applicant, Program program, LifecycleStage lifecycleStage) {
     Application application = new Application(applicant, program, lifecycleStage);
     application.save();

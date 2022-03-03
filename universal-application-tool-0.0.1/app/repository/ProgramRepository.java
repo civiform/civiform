@@ -182,15 +182,15 @@ public class ProgramRepository {
 
   /**
    * Get all submitted applications for this program and all other previous and future versions of
-   * it where the applicant's first name, last name, email, applicant ID, or application ID contains
-   * the search query. Does not include drafts or deleted applications. Results returned in reverse
-   * order that the applications were created.
+   * it where the applicant's first name, last name, email, or application ID contains the search
+   * query. Does not include drafts or deleted applications. Results returned in reverse order that
+   * the applications were created.
    *
    * <p>If searchNameFragment is not an unsigned integer, the query will filter to applications with
    * email, first name, or last name that contain it.
    *
    * <p>If searchNameFragment is an unsigned integer, the query will filter to applications with an
-   * application or applicant ID matching it.
+   * application ID matching it.
    */
   public PaginationResult<Application> getApplicationsForAllProgramVersions(
       long programId, PaginationSpec paginationSpec, Optional<String> searchNameFragment) {
@@ -209,7 +209,7 @@ public class ProgramRepository {
       String search = searchNameFragment.get();
 
       if (search.matches("^\\d+$")) {
-        query = query.or().eq("id", search).eq("applicant_id", search).endOr();
+        query = query.eq("id", Integer.parseInt(search));
       } else {
         search = search.toLowerCase(java.util.Locale.ROOT);
 
@@ -242,12 +242,10 @@ public class ProgramRepository {
   }
 
   private Query<Program> allProgramVersionsQuery(long programId) {
-    return database
-        .find(Program.class)
-        .select("id")
-        .where()
-        .in("name", database.find(Program.class).select("name").where().eq("id", programId).query())
-        .query();
+    Query<Program> programNameQuery =
+        database.find(Program.class).select("name").where().eq("id", programId).query();
+
+    return database.find(Program.class).select("id").where().in("name", programNameQuery).query();
   }
 
   private String getApplicationObjectPath(String... pathComponents) {

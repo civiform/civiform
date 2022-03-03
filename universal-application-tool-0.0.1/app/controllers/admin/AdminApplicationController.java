@@ -180,7 +180,7 @@ public class AdminApplicationController extends CiviFormController {
       return redirect(routes.AdminApplicationController.index(programId, search, Optional.of(1)));
     }
 
-    ProgramDefinition program;
+    final ProgramDefinition program;
     try {
       program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
