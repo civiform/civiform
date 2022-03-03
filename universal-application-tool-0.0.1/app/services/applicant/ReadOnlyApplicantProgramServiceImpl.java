@@ -328,10 +328,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                             .collect(Collectors.joining(", ", "[", "]")))
                 .orElse(""));
       case FILEUPLOAD:
-        FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
         return ImmutableMap.of(
             question.getContextualizedPath().join(Scalar.FILE_KEY),
-            fileUploadQuestion
+            question.createFileUploadQuestion()
                 .getFileKeyValue()
                 .map(
                     fileKey ->
