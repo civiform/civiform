@@ -9,8 +9,6 @@ import static j2html.attributes.Attr.HREF;
 import static views.BaseHtmlView.makeCsrfTokenInputTag;
 import static views.BaseHtmlView.submitButton;
 
-import controllers.applicant.routes;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
@@ -64,6 +62,15 @@ public abstract class FileUploadViewStrategy {
   public abstract Tag renderFileUploadBlockSubmitForms(
       Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory);
 
+  /**
+   * Renders a form submit button for delete form if the file upload question is optional.
+   *
+   * <p>If an uploaded file is present, render the button text as delete. Otherwise, skip.
+   *
+   * <p>See {@link renderDeleteAndContinueFileUploadForms}.
+   */
+  protected abstract Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params);
+
   protected Tag renderQuestion(
       ApplicantQuestion question,
       ApplicantQuestionRendererParams params,
@@ -85,33 +92,6 @@ public abstract class FileUploadViewStrategy {
             .attr(FORM, FILEUPLOAD_CONTINUE_FORM_ID)
             .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
             .withId(FILEUPLOAD_CONTINUE_BUTTON_ID);
-    return Optional.of(button);
-  }
-
-  /**
-   * Renders a form submit button for delete form if the file upload question is optional.
-   *
-   * <p>If an uploaded file is present, render the button text as delete. Otherwise, skip.
-   *
-   * <p>See {@link renderDeleteAndContinueFileUploadForms}.
-   */
-  Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params) {
-    if (hasAtLeastOneRequiredQuestion(params)) {
-      // If the file question is required, skip or delete is not allowed.
-      return Optional.empty();
-    }
-    String buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
-    String buttonId = FILEUPLOAD_SKIP_BUTTON_ID;
-    if (hasUploadedFile(params)) {
-      buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
-      buttonId = FILEUPLOAD_DELETE_BUTTON_ID;
-    }
-    ContainerTag button =
-        TagCreator.button(buttonText)
-            .withType("submit")
-            .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
-            .withClasses(ApplicantStyles.BUTTON_REVIEW)
-            .withId(buttonId);
     return Optional.of(button);
   }
 

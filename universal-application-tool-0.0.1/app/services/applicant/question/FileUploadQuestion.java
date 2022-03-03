@@ -76,7 +76,6 @@ public class FileUploadQuestion implements Question {
     if (originalFileNameValue != null) {
       return originalFileNameValue;
     }
-
     originalFileNameValue =
         applicantQuestion.getApplicantData().readString(getOriginalFileNamePath());
     return originalFileNameValue;
@@ -117,10 +116,8 @@ public class FileUploadQuestion implements Question {
     if (getFilename().isEmpty()) {
       return "-- NO FILE SELECTED --";
     }
-    String fileDisplayName = getFilename().get();
-    if (getOriginalFileName().isPresent()) {
-      fileDisplayName = getOriginalFileName().get();
-    }
-    return String.format("-- %s UPLOADED (click to download) --", fileDisplayName);
+    return String.format(
+        "-- %s UPLOADED (click to download) --",
+        getOriginalFileName().isPresent() ? getOriginalFileName().get() : getFilename().get());
   }
 }

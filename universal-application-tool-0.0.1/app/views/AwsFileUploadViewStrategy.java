@@ -1,10 +1,12 @@
 package views;
 
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 import static j2html.attributes.Attr.ENCTYPE;
+import static j2html.attributes.Attr.FORM;
 
 import controllers.applicant.routes;
 import j2html.attributes.Attr;
@@ -12,6 +14,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import play.mvc.Http.HttpVerbs;
+import services.MessageKey;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.FileNameFormatter;
 import services.cloud.StorageUploadRequest;
@@ -101,6 +104,27 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     Tag skipForms = renderDeleteAndContinueFileUploadForms(params);
     Tag buttons = renderFileUploadBottomNavButtons(params);
     return div(uploadForm, skipForms, buttons);
+  }
+
+  @Override
+  protected Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params) {
+    if (hasAtLeastOneRequiredQuestion(params)) {
+      // If the file question is required, skip or delete is not allowed.
+      return Optional.empty();
+    }
+    String buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
+    String buttonId = FILEUPLOAD_SKIP_BUTTON_ID;
+    if (hasUploadedFile(params)) {
+      buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
+      buttonId = FILEUPLOAD_DELETE_BUTTON_ID;
+    }
+    ContainerTag button =
+        button(buttonText)
+            .withType("submit")
+            .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
+            .withClasses(ApplicantStyles.BUTTON_REVIEW)
+            .withId(buttonId);
+    return Optional.of(button);
   }
 
   private SignedS3UploadRequest castStorageRequest(StorageUploadRequest request) {
