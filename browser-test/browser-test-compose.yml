@@ -18,9 +18,6 @@ services:
     container_name: azurite-test
     ports:
       - 10000:10000
-    environment:
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
 
   db:
     image: postgres:12.5

@@ -60,7 +60,9 @@ EOF
       ;;
 
     "--aws")
-      emulators::set_localstack_emulator_vars
+      # We don't need this check for Azurite because we want both emulators!
+      emulators::ensure_only_one_cloud_provider_flag aws
+      # Already defaulted to AWS.
       ;;
     esac
 
@@ -110,7 +112,7 @@ eval "${compose_command}"
 # local stack emulator is also required for Azurite. This should only run for
 # Azure browser tests.
 if truth::is_enabled both_emulators; then
-  echo "Bring up localstack emulator as well"
+  echo "Staring localstack emulator as well"
   second_compose_command="docker-compose --profile aws \
                                  -f browser-test/browser-test-compose.yml \
                                  -f browser-test/browser-test-compose.dev.yml \
@@ -118,5 +120,6 @@ if truth::is_enabled both_emulators; then
   if truth::is_enabled continuous_integration; then
     second_compose_command="${second_compose_command} > .dockerlogs 2>&1 &"
   fi
+  echo "  ${second_compose_command}"
   eval "${second_compose_command}"
 fi
