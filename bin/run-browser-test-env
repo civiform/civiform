@@ -8,7 +8,7 @@ source bin/lib.sh
 truth::declare_var_false continuous_integration
 
 # Default to  not using both emulators
-truth::declare_var_false both_emulators
+# truth::declare_var_false both_emulators
 
 # Default to using Localstack emulator.
 emulators::set_localstack_emulator_vars
@@ -53,12 +53,20 @@ EOF
       ;;
 
     "--azure")
-      emulators::set_azurite_emulator_vars
-      truth::enable both_emulators
+      cloud_provider="azure"
+      emulator="azurite"
+      emulator_url="http://localhost:10000"
+      export STORAGE_SERVICE_NAME="azure-blob"
+      # emulators::set_azurite_emulator_vars
+      # truth::enable both_emulators
       ;;
 
     "--aws")
-      emulators::set_localstack_emulator_vars
+      cloud_provider="aws"
+      emulator="localstack"
+      emulator_url="http://localhost:6645"
+      export STORAGE_SERVICE_NAME="s3"
+      # emulators::set_localstack_emulator_vars
       ;;
     esac
 
@@ -108,11 +116,7 @@ fi
 echo "Running docker compose to start the CiviForm environment:"
 echo "  ${compose_command}"
 
-docker-compose -f browser-test/browser-test-compose.yml -f browser-test/browser-test-compose.dev.yml up
-
-# local stack emulator is also required for Azurite
-if truth::is_enabled both_emulators; then
-  echo "Bring up localstack emulator as well"
+echo "Bring up localstack emulator as well"
   second_compose_command="docker-compose --profile aws \
                                  -f browser-test/browser-test-compose.yml \
                                  -f browser-test/browser-test-compose.dev.yml \
@@ -125,7 +129,25 @@ if truth::is_enabled both_emulators; then
   # wait till localstack running
   wait_command="bin/localstack/wait http://localhost:6645"
   eval "${wait_command}"
-fi
 
 docker-compose -f browser-test/browser-test-compose.yml -f browser-test/browser-test-compose.dev.yml up
+
+# local stack emulator is also required for Azurite
+#if truth::is_enabled both_emulators; then
+#  echo "Bring up localstack emulator as well"
+#  second_compose_command="docker-compose --profile aws \
+#                                 -f browser-test/browser-test-compose.yml \
+#                                 -f browser-test/browser-test-compose.dev.yml \
+#                                 up -d localstack"
+#  if truth::is_enabled continuous_integration; then
+#    second_compose_command="${second_compose_command} > .dockerlogs 2>&1 &"
+#  fi
+#
+#  eval "${second_compose_command}"
+#  # wait till localstack running
+#  wait_command="bin/localstack/wait http://localhost:6645"
+#  eval "${wait_command}"
+#fi
+
+# docker-compose -f browser-test/browser-test-compose.yml -f browser-test/browser-test-compose.dev.yml up
 
