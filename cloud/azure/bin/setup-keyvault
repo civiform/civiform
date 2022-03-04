@@ -3,8 +3,10 @@
 # TODO: figure out where in command flow to export PROJECT_BASE_DIR to
 # make it available in this file
 PROJECT_BASE_DIR="$(realpath "$(dirname "${BASH_SOURCE}")/../../../")"
-
 source "${PROJECT_BASE_DIR}/cloud/azure/bin/lib.sh"
+
+POSTGRES_PASSWORD_NAME="postgres-password"
+APP_SECRET_KEY_NAME="app-secret-key"
 
 # DOC: Create key vault instance, set permissions, and generate and set secrets
 
@@ -36,5 +38,5 @@ key_vault::assign_secrets_officer_role_to_user "${resource_group}"
 echo "Generating and setting secrets"
 key_vault::add_generated_secrets \
   "${vault_name}" \
-  "postgres-password" \
-  "app-secret-key"
+  "${POSTGRES_PASSWORD_NAME}" \
+  "${APP_SECRET_KEY_NAME}"
