@@ -120,6 +120,8 @@ fi
 echo "Running docker compose to start the CiviForm environment:"
 echo "  ${compose_command}"
 
+docker-compose -f browser-test/browser-test-compose.yml -f browser-test/browser-test-compose.dev.yml up
+
 # local stack emulator is also required for Azurite
 if truth::is_enabled both_emulators; then
   echo "Bring up localstack emulator as well"
@@ -138,3 +140,4 @@ if truth::is_enabled both_emulators; then
 fi
 
 docker-compose -f browser-test/browser-test-compose.yml -f browser-test/browser-test-compose.dev.yml up
+
