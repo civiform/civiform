@@ -53,18 +53,12 @@ EOF
       ;;
 
     "--azure")
-      cloudProvider="azure"
-      emulator="azurite"
-      devServer="http://localhost:10000"
-      export STORAGE_SERVICE_NAME="azure-blob"
+      emulators::set_azurite_emulator_vars
       truth::enable both_emulators
       ;;
 
     "--aws")
-      cloudProvider="aws"
-      emulator="localstack"
-      devServer="http://localhost:6645"
-      export STORAGE_SERVICE_NAME="s3"
+      emulators::set_localstack_emulator_vars
       ;;
     esac
 
@@ -80,19 +74,13 @@ bin/pull-image >/dev/null
 
 docker::set_network_name_browser_tests
 
-# default to AWS for now
-if [ -z "$cloudProvider" ]; then
-  cloudProvider="aws" && emulator="localstack" && devServer="http://localhost:6645"
-  export STORAGE_SERVICE_NAME="s3"
-fi
-
 if truth::is_disabled continuous_integration; then
   # If not running in CI, load the dev addition to the browser test compose
   # this mounts the local SBT cache directories for faster subsequent builds.
   compose_command="${compose_command} -f browser-test/browser-test-compose.dev.yml"
 fi
 
-compose_command="docker-compose --profile ${cloudProvider}"
+compose_command="docker-compose --profile ${cloud_provider}"
 compose_command="${compose_command} -f browser-test/browser-test-compose.yml"
 
 if truth::is_disabled continuous_integration; then
@@ -111,7 +99,7 @@ echo "  ${START_EMULATOR_COMMAND}"
 eval "${START_EMULATOR_COMMAND}"
 
 # Wait until the emulator is running.
-"bin/${emulator}/wait" "${devServer}"
+"bin/${emulator}/wait" "${emulator_url}"
 
 if truth::is_enabled continuous_integration; then
   compose_command="${compose_command} > .dockerlogs 2>&1 &"
