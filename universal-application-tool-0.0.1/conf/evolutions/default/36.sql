@@ -5,3 +5,6 @@
 # --- !Ups
 alter table accounts add authority_id varchar;
 alter table accounts add unique (authority_id);
+
+# --- !Downs
+alter table accounts drop column authority_id;
