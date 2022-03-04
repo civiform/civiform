@@ -1,0 +1,31 @@
+#! /usr/bin/env bash
+
+source bin/lib.sh
+source ../aws/bin/lib.sh
+
+# DOC: Get SES secrets from AWS CLI and add to Azure Key Vault
+
+while getopts g:v:l:u: flag
+do
+  case "${flag}" in
+    v) vault_name=${OPTARG};;
+    u) username=${OPTARG};;
+  esac
+done
+
+if || [[ ! "${vault_name}" ]] \
+   || [[ ! "${username}" ]]; then
+  out::error "arguments -v and -u must be provided"
+  exit 1
+fi
+
+echo "Getting an AWS access key"
+created_key_result=$(aws::create_access_key "${username}")
+access_key_id=$(aws::parse_access_key_id "${created_key_result}")
+secret_access_key=$(aws::parse_access_secret_key "${created_key_result}")
+
+echo "Adding the secret access key to the azure key vault"
+key_vault::add_secret "${vault_name}" "aws-secret-access-token" "${secret_access_key}"
+
+echo "Adding the access key id to the azure key vault"
+key_vault::add_secret "${vault_name}" "aws-access-key-id" "${access_key_id}"
