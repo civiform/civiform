@@ -90,7 +90,6 @@ variable "login_radius_saml_app_name" {
   default     = null
 }
 
-
 variable "saml_keystore_filename" {
   type        = string
   description = "The name of the keystore file to use for SAML auth"
