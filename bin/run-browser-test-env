@@ -7,7 +7,9 @@ source bin/lib.sh
 # Default to continuous integration mode disabled.
 truth::declare_var_false continuous_integration
 
-# Default to  not using both emulators
+# Default to  not using both emulators.
+# both_emulators should only be true for Azurite browser tests, because these
+# tests also require localstack for SES email sending.
 truth::declare_var_false both_emulators
 
 # Default to using Localstack emulator.
@@ -114,29 +116,8 @@ if truth::is_enabled both_emulators; then
                                  -f browser-test/browser-test-compose.yml \
                                  -f browser-test/browser-test-compose.dev.yml \
                                  up -d localstack"
-
+  if truth::is_enabled continuous_integration; then
+    second_compose_command="${second_compose_command} > .dockerlogs 2>&1 &"
+  fi
   eval "${second_compose_command}"
 fi
-
-
-
-
-# local stack emulator is also required for Azurite
-#if truth::is_enabled both_emulators; then
-#  echo "Bring up localstack emulator as well"
-#  second_compose_command="docker-compose --profile aws \
-#                                 -f browser-test/browser-test-compose.yml \
-#                                 -f browser-test/browser-test-compose.dev.yml \
-#                                 up -d localstack"
-#  if truth::is_enabled continuous_integration; then
-#    second_compose_command="${second_compose_command} > .dockerlogs 2>&1 &"
-#  fi
-#
-#  eval "${second_compose_command}"
-#  # wait till localstack running
-#  wait_command="bin/localstack/wait http://localhost:6645"
-#  eval "${wait_command}"
-#fi
-
-# docker-compose -f browser-test/browser-test-compose.yml -f browser-test/browser-test-compose.dev.yml up
-
