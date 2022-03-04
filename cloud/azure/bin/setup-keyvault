@@ -33,5 +33,4 @@ echo "Generating and setting secrets"
 key_vault::add_generated_secrets \
   "${vault_name}" \
   "postgres-password" \
-  "app-secret-key" \
-  "saml-keystore-pass"
+  "app-secret-key"

@@ -36,7 +36,7 @@ function storage::create_storage_account {
     --location "${2}" \
     --name "${3}" \
     --allow-blob-public-access false \
-    --min-tls-version "TLS1_2"
+    --min-tls-version "TLS1_2" \
     --sku Standard_ZRS \
     --encryption-services blob
 }
