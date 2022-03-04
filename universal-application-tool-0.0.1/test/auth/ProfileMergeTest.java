@@ -54,7 +54,8 @@ public class ProfileMergeTest extends WithPostgresContainer {
     OidcProfile oidcProfile = new OidcProfile();
     oidcProfile.addAttribute("user_emailid", "foo@example.com");
 
-    CiviFormProfileData profileData = idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
+    CiviFormProfileData profileData =
+        idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
     CiviFormProfile profile = profileFactory.wrapProfileData(profileData);
 
     assertThat(profileData.getEmail()).isEqualTo("foo@example.com");
@@ -66,7 +67,8 @@ public class ProfileMergeTest extends WithPostgresContainer {
     OidcProfile oidcProfile = new OidcProfile();
     oidcProfile.addAttribute("user_emailid", "foo@example.com");
 
-    CiviFormProfileData profileData = idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
+    CiviFormProfileData profileData =
+        idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
 
     assertThat(
             idcsProfileAdapter
@@ -82,7 +84,8 @@ public class ProfileMergeTest extends WithPostgresContainer {
     OidcProfile conflictingProfile = new OidcProfile();
     oidcProfile.addAttribute("user_emailid", "bar@example.com");
 
-    CiviFormProfileData profileData = idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
+    CiviFormProfileData profileData =
+        idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
 
     assertThatThrownBy(
             () ->
@@ -91,13 +94,13 @@ public class ProfileMergeTest extends WithPostgresContainer {
         .hasCauseInstanceOf(ProfileMergeConflictException.class);
   }
 
-
   @Test
   public void testSamlProfileCreation() throws ExecutionException, InterruptedException {
     SAML2Profile saml2Profile = new SAML2Profile();
     saml2Profile.addAttribute(CommonProfileDefinition.EMAIL, "foo@example.com");
 
-    CiviFormProfileData profileData = samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
+    CiviFormProfileData profileData =
+        samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
     CiviFormProfile profile = profileFactory.wrapProfileData(profileData);
 
     assertThat(profileData.getEmail()).isEqualTo("foo@example.com");
@@ -109,12 +112,13 @@ public class ProfileMergeTest extends WithPostgresContainer {
     SAML2Profile saml2Profile = new SAML2Profile();
     saml2Profile.addAttribute(CommonProfileDefinition.EMAIL, "foo@example.com");
 
-    CiviFormProfileData profileData = samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
+    CiviFormProfileData profileData =
+        samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
 
     assertThat(
-        samlProfileAdapter
-            .mergeCiviFormProfile(profileFactory.wrapProfileData(profileData), saml2Profile)
-            .getEmail())
+            samlProfileAdapter
+                .mergeCiviFormProfile(profileFactory.wrapProfileData(profileData), saml2Profile)
+                .getEmail())
         .isEqualTo("foo@example.com");
   }
 
@@ -125,12 +129,13 @@ public class ProfileMergeTest extends WithPostgresContainer {
     SAML2Profile conflictingProfile = new SAML2Profile();
     conflictingProfile.addAttribute(CommonProfileDefinition.EMAIL, "bar@example.com");
 
-    CiviFormProfileData profileData = samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
+    CiviFormProfileData profileData =
+        samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
 
     assertThatThrownBy(
-        () ->
-            samlProfileAdapter.mergeCiviFormProfile(
-                profileFactory.wrapProfileData(profileData), conflictingProfile))
+            () ->
+                samlProfileAdapter.mergeCiviFormProfile(
+                    profileFactory.wrapProfileData(profileData), conflictingProfile))
         .hasCauseInstanceOf(ProfileMergeConflictException.class);
   }
 }
