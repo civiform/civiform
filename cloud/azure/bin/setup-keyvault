@@ -1,6 +1,10 @@
 #! /usr/bin/env bash
 
-source bin/lib.sh
+# TODO: figure out where in command flow to export PROJECT_BASE_DIR to
+# make it available in this file
+PROJECT_BASE_DIR="$(realpath "$(dirname "${BASH_SOURCE}")/../../../")"
+
+source "${PROJECT_BASE_DIR}/cloud/azure/bin/lib.sh"
 
 # DOC: Create key vault instance, set permissions, and generate and set secrets
 
