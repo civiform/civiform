@@ -44,8 +44,8 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     super();
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = Preconditions.checkNotNull(applicantRepositoryProvider);
-    this.saml2Client = Preconditions.checkNotNull(client);
-    this.saml2Configuration = Preconditions.checkNotNull(configuration);
+    this.saml2Client = client;
+    this.saml2Configuration = configuration;
   }
 
   @Override
