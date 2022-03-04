@@ -10,7 +10,7 @@ truth::declare_var_false continuous_integration
 # Default to  not using both emulators.
 # both_emulators should only be true for Azurite browser tests, because these
 # tests also require localstack for SES email sending.
-truth::declare_var_false run_both_emulators
+truth::declare_var_false both_emulators
 
 # Default to using Localstack emulator.
 emulators::set_localstack_emulator_vars
