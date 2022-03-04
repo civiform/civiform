@@ -53,20 +53,12 @@ EOF
       ;;
 
     "--azure")
-      cloud_provider="azure"
-      emulator="azurite"
-      emulator_url="http://localhost:10000"
-      export STORAGE_SERVICE_NAME="azure-blob"
-      # emulators::set_azurite_emulator_vars
-      # truth::enable both_emulators
+      emulators::set_azurite_emulator_vars
+      truth::enable both_emulators
       ;;
 
     "--aws")
-      cloud_provider="aws"
-      emulator="localstack"
-      emulator_url="http://localhost:6645"
-      export STORAGE_SERVICE_NAME="s3"
-      # emulators::set_localstack_emulator_vars
+      emulators::set_localstack_emulator_vars
       ;;
     esac
 
@@ -76,17 +68,11 @@ EOF
 
 set_args "$@"
 
-echo "Making sure we're up to date with the latest dev... " \
+echo "Making sure we're up to date with the latest dev... "\
   "set environment variable USE_LOCAL_CIVIFORM=1 to skip"
-bin/pull-image >/dev/null
+bin/pull-image > /dev/null
 
 docker::set_network_name_browser_tests
-
-if truth::is_disabled continuous_integration; then
-  # If not running in CI, load the dev addition to the browser test compose
-  # this mounts the local SBT cache directories for faster subsequent builds.
-  compose_command="${compose_command} -f browser-test/browser-test-compose.dev.yml"
-fi
 
 compose_command="docker-compose --profile ${cloud_provider}"
 compose_command="${compose_command} -f browser-test/browser-test-compose.yml"
@@ -113,24 +99,27 @@ if truth::is_enabled continuous_integration; then
   compose_command="${compose_command} > .dockerlogs 2>&1 &"
 fi
 
+
+
 echo "Running docker compose to start the CiviForm environment:"
 echo "  ${compose_command}"
 
-echo "Bring up localstack emulator as well"
+# Start everything else.
+eval "${compose_command}"
+
+# local stack emulator is also required for Azurite
+if truth::is_enabled both_emulators; then
+  echo "Bring up localstack emulator as well"
   second_compose_command="docker-compose --profile aws \
                                  -f browser-test/browser-test-compose.yml \
                                  -f browser-test/browser-test-compose.dev.yml \
                                  up -d localstack"
-  if truth::is_enabled continuous_integration; then
-    second_compose_command="${second_compose_command} > .dockerlogs 2>&1 &"
-  fi
 
   eval "${second_compose_command}"
-  # wait till localstack running
-  wait_command="bin/localstack/wait http://localhost:6645"
-  eval "${wait_command}"
+fi
 
-docker-compose -f browser-test/browser-test-compose.yml -f browser-test/browser-test-compose.dev.yml up
+
+
 
 # local stack emulator is also required for Azurite
 #if truth::is_enabled both_emulators; then
