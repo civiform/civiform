@@ -8,7 +8,7 @@ source bin/lib.sh
 truth::declare_var_false continuous_integration
 
 # Default to  not using both emulators
-# truth::declare_var_false both_emulators
+truth::declare_var_false both_emulators
 
 # Default to using Localstack emulator.
 emulators::set_localstack_emulator_vars
