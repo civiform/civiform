@@ -16,6 +16,7 @@ do
     g) resource_group="${OPTARG}";;
     v) vault_name="${OPTARG}";;
     l) location="${OPTARG}";;
+    *) out::error "Unexpected getopts value ${flag}";;
   esac
 done
 
