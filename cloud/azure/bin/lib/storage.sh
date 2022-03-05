@@ -11,7 +11,7 @@ function storage::assign_storage_blob_data_contributor_role_to_user() {
   local USER_ID="$(az ad signed-in-user show --query objectId -o tsv)"
   local SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
   local ROLE_ASSIGNMENTS="$(az role assignment list --assignee ${USER_ID})"
-  if [[ ("Storage Blob Data Contributor" == *$ROLE_ASSIGNMENTS*) ]];
+  if [[ ("Storage Blob Data Contributor" == *"${ROLE_ASSIGNMENTS}"*) ]];
   then 
     echo "Current user already has Storage Blob Data Contributor role"
   else

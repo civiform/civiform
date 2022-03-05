@@ -30,7 +30,7 @@ function key_vault::assign_secrets_officer_role_to_user() {
   local USER_ID="$(az ad signed-in-user show --query objectId -o tsv)"
   local SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
   local ROLE_ASSIGNMENTS="$(az role assignment list --assignee ${USER_ID})"
-  if [[ ("Key Vault Secrets Officer" == *$ROLE_ASSIGNMENTS*) ]];
+  if [[ ("Key Vault Secrets Officer" == *"${ROLE_ASSIGNMENTS}"*) ]];
   then 
     echo "Current user already has Key Vault Secrets Officer role"
   else
