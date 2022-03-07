@@ -6,22 +6,16 @@ import static play.mvc.Results.redirect;
 
 import auth.AdminAuthClient;
 import auth.ApplicantAuthClient;
-import auth.AuthIdentityProviderName;
 import auth.Authorizers;
 import auth.CiviFormProfileData;
 import auth.FakeAdminClient;
 import auth.GuestClient;
 import auth.ProfileFactory;
 import auth.Roles;
-import auth.oidc.AdOidcClient;
 import auth.oidc.AdOidcProvider;
-import auth.oidc.IdcsOidcClient;
-import auth.oidc.IdcsOidcProvider;
-import auth.saml.LoginRadiusSamlClient;
 import auth.saml.LoginRadiusSamlProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
-import com.google.inject.ConfigurationException;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import controllers.routes;
@@ -116,16 +110,18 @@ public class SecurityModule extends AbstractModule {
   private void bindAdminIdpProvider() {
     // Currently the only supported admin auth provider. As we add other admin auth providers,
     // this can be converted into a switch statement.
-    bind(IndirectClient.class).annotatedWith(AdminAuthClient.class).toProvider(AdOidcProvider.class);
+    bind(IndirectClient.class)
+        .annotatedWith(AdminAuthClient.class)
+        .toProvider(AdOidcProvider.class);
   }
 
   private void bindApplicantIdpProvider() {
-    // AuthIdentityProviderName idpName = AuthIdentityProviderName.forString(applicantIdpName).get();
+    // AuthIdentityProviderName idpName =
+    // AuthIdentityProviderName.forString(applicantIdpName).get();
 
     bind(IndirectClient.class)
         .annotatedWith(ApplicantAuthClient.class)
         .toProvider(LoginRadiusSamlProvider.class);
-
 
     // switch (idpName) {
     //   case LOGIN_RADIUS_APPLICANT:
