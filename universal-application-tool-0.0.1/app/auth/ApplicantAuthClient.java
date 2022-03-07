@@ -5,9 +5,8 @@ import java.lang.annotation.RetentionPolicy;
 import javax.inject.Qualifier;
 
 /**
- * ApplicantAuthClient is the annotation for the auth client responsible for applicant authentication.
- * This client will implement IndirectClient.
- *
+ * ApplicantAuthClient is the annotation for the auth client responsible for applicant
+ * authentication. This client will implement IndirectClient.
  */
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)

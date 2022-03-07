@@ -177,7 +177,7 @@ public class LoginForm extends BaseHtmlView {
   private Tag loginButton(Messages messages) {
     String msg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
     return redirectButton(
-            applicantIdp, msg, routes.LoginController.loginWithRedirect(Optional.empty()).url())
+            applicantIdp, msg, routes.LoginController.applicantLogin(Optional.empty()).url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
   }
 
@@ -197,7 +197,7 @@ public class LoginForm extends BaseHtmlView {
   private Tag adminLink(Messages messages) {
     String msg = messages.at(MessageKey.LINK_ADMIN_LOGIN.getKeyName());
     return a(msg)
-        .withHref(routes.LoginController.adfsLogin().url())
+        .withHref(routes.LoginController.adminLogin().url())
         .withClasses(BaseStyles.ADMIN_LOGIN);
   }
 }

@@ -89,8 +89,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
                     .with(
                         new LinkElement()
                             .setHref(
-                                routes.LoginController.idcsLoginWithRedirect(
-                                        Optional.of(redirectTo))
+                                routes.LoginController.applicantLogin(Optional.of(redirectTo))
                                     .url())
                             .setText(
                                 messages.at(MessageKey.LINK_CREATE_ACCOUNT_OR_SIGN_IN.getKeyName()))

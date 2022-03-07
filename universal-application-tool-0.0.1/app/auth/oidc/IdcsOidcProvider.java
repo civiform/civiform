@@ -3,6 +3,7 @@ package auth.oidc;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileFactory;
+import com.google.inject.Inject;
 import javax.inject.Provider;
 import org.pac4j.core.http.callback.PathParameterCallbackUrlResolver;
 import org.pac4j.oidc.client.OidcClient;
@@ -16,14 +17,15 @@ public class IdcsOidcProvider implements Provider<OidcClient> {
   private final ProfileFactory profileFactory;
   private final Provider<UserRepository> applicantRepositoryProvider;
 
-
-  public IdcsOidcProvider(com.typesafe.config.Config configuration,
-      ProfileFactory profileFactory, Provider<UserRepository> applicantRepositoryProvider) {
+  @Inject
+  public IdcsOidcProvider(
+      com.typesafe.config.Config configuration,
+      ProfileFactory profileFactory,
+      Provider<UserRepository> applicantRepositoryProvider) {
     this.configuration = checkNotNull(configuration);
     this.baseUrl = configuration.getString("base_url");
     this.profileFactory = checkNotNull(profileFactory);
     this.applicantRepositoryProvider = applicantRepositoryProvider;
-
   }
 
   @Override

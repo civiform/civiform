@@ -2,7 +2,6 @@ package auth.saml;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import auth.ApplicantAuthClient;
 import auth.ProfileFactory;
 import com.google.inject.Inject;
 import javax.inject.Provider;
@@ -19,7 +18,8 @@ public class LoginRadiusSamlProvider implements Provider<SAML2Client> {
   private final String baseUrl;
 
   @Inject
-  public LoginRadiusSamlProvider(com.typesafe.config.Config configuration,
+  public LoginRadiusSamlProvider(
+      com.typesafe.config.Config configuration,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {
     this.configuration = checkNotNull(configuration);
