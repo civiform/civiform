@@ -11,7 +11,7 @@ import play.mvc.Result;
 import views.support.UnconfirmedIdcsEmailBugView;
 
 public class SupportController extends Controller {
-  private static Logger LOG = LoggerFactory.getLogger(SupportController.class);
+  private static final Logger logger = LoggerFactory.getLogger(SupportController.class);
 
   private final UnconfirmedIdcsEmailBugView unconfirmedIdcsEmailBugView;
 
@@ -21,7 +21,7 @@ public class SupportController extends Controller {
   }
 
   public Result handleUnconfirmedIdcsEmail(Http.Request request) {
-    LOG.info("UnconfirmedIdcsEmail-Support-Page: " + request.remoteAddress());
+    logger.info("UnconfirmedIdcsEmail-Support-Page: " + request.remoteAddress());
 
     return ok(unconfirmedIdcsEmailBugView.render());
   }

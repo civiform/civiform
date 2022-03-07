@@ -28,7 +28,7 @@ import software.amazon.awssdk.services.ses.model.SesException;
 @Singleton
 public class SimpleEmail {
   public static final String AWS_SES_SENDER_CONF_PATH = "aws.ses.sender";
-  private static final Logger LOG = LoggerFactory.getLogger(SimpleEmail.class);
+  private static final Logger logger = LoggerFactory.getLogger(SimpleEmail.class);
 
   private final String sender;
   private final Client client;
@@ -75,7 +75,7 @@ public class SimpleEmail {
           SendEmailRequest.builder().destination(destination).message(msg).source(sender).build();
       client.get().sendEmail(emailRequest);
     } catch (SesException e) {
-      LOG.error(e.toString());
+      logger.error(e.toString());
       e.printStackTrace();
     }
   }

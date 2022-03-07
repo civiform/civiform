@@ -29,7 +29,7 @@ public class ApplicationRepository {
   private final UserRepository userRepository;
   private final Database database;
   private final DatabaseExecutionContext executionContext;
-  private static final Logger LOG = LoggerFactory.getLogger(ApplicationRepository.class);
+  private static final Logger logger = LoggerFactory.getLogger(ApplicationRepository.class);
 
   @Inject
   public ApplicationRepository(
@@ -124,7 +124,7 @@ public class ApplicationRepository {
         .thenApplyAsync(application -> Optional.of(application))
         .exceptionally(
             exception -> {
-              LOG.error(exception.toString());
+              logger.error(exception.toString());
               exception.printStackTrace();
               return Optional.empty();
             });
