@@ -9,6 +9,21 @@ package views.style;
  * restart bin/run-dev.
  */
 public final class Styles {
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // CiviForm color classes
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  public static final String BG_CIVIFORM_WHITE = "bg-civiform-white";
+  public static final String BG_SEATTLE_BLUE = "bg-seattle-blue";
+  public static final String TEXT_SEATTLE_BLUE = "text-seattle-blue";
+  public static final String BORDER_SEATTLE_BLUE = "border-seattle-blue";
+
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Tailwind classes
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
   public static final String CONTAINER = "container";
   public static final String SR_ONLY = "sr-only";
   public static final String NOT_SR_ONLY = "not-sr-only";

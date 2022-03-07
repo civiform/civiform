@@ -326,7 +326,7 @@ public class ProgramIndexView extends BaseHtmlView {
                 .withClasses(
                     Styles.BLOCK,
                     Styles.FLEX_SHRINK_0,
-                    BaseStyles.BG_SEATTLE_BLUE,
+                    Styles.BG_SEATTLE_BLUE,
                     Styles.ROUNDED_T_XL,
                     Styles.H_3))
         .with(programData)

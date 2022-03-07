@@ -56,7 +56,7 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,
                 BaseStyles.RADIO_LABEL,
-                checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
+                checked ? Styles.BORDER_SEATTLE_BLUE : "")
             .with(
                 input()
                     .withId(id)

@@ -66,7 +66,7 @@ function getStyles() {
   const matches = {};
   let folder = './app/views/style/'
   try {
-    let specialFiles = ['Styles.java', 'BaseStyles.java', 'ReferenceClasses.java'];
+    let specialFiles = ['Styles.java', 'ReferenceClasses.java'];
     for (file of specialFiles) {
       let data = fs.readFileSync(folder+file, 'utf8').split('\n');
       let stylesReader = new StylesJavaReader(data);

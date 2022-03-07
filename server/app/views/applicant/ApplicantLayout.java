@@ -221,7 +221,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     ContainerTag progressInner =
         div()
             .withClasses(
-                BaseStyles.BG_SEATTLE_BLUE,
+                Styles.BG_SEATTLE_BLUE,
                 Styles.TRANSITION_ALL,
                 Styles.DURATION_300,
                 Styles.H_FULL,
@@ -237,7 +237,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .withId("progress-indicator")
             .withClasses(
                 Styles.BORDER,
-                BaseStyles.BORDER_SEATTLE_BLUE,
+                Styles.BORDER_SEATTLE_BLUE,
                 Styles.ROUNDED_FULL,
                 Styles.FONT_SEMIBOLD,
                 Styles.BG_WHITE,

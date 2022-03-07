@@ -33,7 +33,7 @@ public class LinkElement {
           Styles.RING_OFFSET_2,
           Styles.BORDER,
           Styles.BORDER_TRANSPARENT,
-          BaseStyles.BG_SEATTLE_BLUE,
+          Styles.BG_SEATTLE_BLUE,
           Styles.TEXT_WHITE,
           StyleUtils.hover(Styles.BG_BLUE_700),
           StyleUtils.focus(Styles.OUTLINE_NONE, Styles.RING_2));

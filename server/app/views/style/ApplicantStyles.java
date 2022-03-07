@@ -2,7 +2,7 @@ package views.style;
 
 /** Styles for applicant pages. */
 public final class ApplicantStyles {
-  public static final String BODY_BG_COLOR = BaseStyles.BG_CIVIFORM_WHITE;
+  public static final String BODY_BG_COLOR = Styles.BG_CIVIFORM_WHITE;
   public static final String BODY =
       StyleUtils.joinStyles(BODY_BG_COLOR, Styles.H_FULL, Styles.W_FULL);
 
@@ -18,7 +18,7 @@ public final class ApplicantStyles {
 
   public static final String PROGRAM_INDEX_TOP_CONTENT =
       StyleUtils.joinStyles(
-          BaseStyles.BG_SEATTLE_BLUE, Styles.TEXT_WHITE, Styles.TEXT_CENTER, Styles.W_FULL);
+          Styles.BG_SEATTLE_BLUE, Styles.TEXT_WHITE, Styles.TEXT_CENTER, Styles.W_FULL);
 
   public static final String CIVIFORM_LOGO =
       StyleUtils.joinStyles(
@@ -34,7 +34,7 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(
           Styles.TEXT_3XL, Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.MT_8, Styles.MB_4);
   public static final String H2_PROGRAM_TITLE =
-      StyleUtils.joinStyles(BaseStyles.TEXT_SEATTLE_BLUE, Styles.TEXT_LG, Styles.FONT_BOLD);
+      StyleUtils.joinStyles(Styles.TEXT_SEATTLE_BLUE, Styles.TEXT_LG, Styles.FONT_BOLD);
 
   public static final String PROGRAM_CARDS_SUBTITLE =
       StyleUtils.joinStyles(Styles.MY_4, Styles.TEXT_LG);
@@ -86,7 +86,7 @@ public final class ApplicantStyles {
   private static final String BUTTON_BASE_SOLID =
       StyleUtils.joinStyles(
           BUTTON_BASE,
-          BaseStyles.BG_SEATTLE_BLUE,
+          Styles.BG_SEATTLE_BLUE,
           Styles.TEXT_WHITE,
           Styles.ROUNDED_FULL,
           StyleUtils.hover(Styles.BG_BLUE_700),
@@ -101,9 +101,9 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(
           BUTTON_BASE,
           Styles.BG_TRANSPARENT,
-          BaseStyles.TEXT_SEATTLE_BLUE,
+          Styles.TEXT_SEATTLE_BLUE,
           Styles.BORDER,
-          BaseStyles.BORDER_SEATTLE_BLUE,
+          Styles.BORDER_SEATTLE_BLUE,
           StyleUtils.hover(Styles.BG_BLUE_100));
 
   private static final String BUTTON_BASE_OUTLINE_UPPERCASE =

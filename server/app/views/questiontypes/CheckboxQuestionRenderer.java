@@ -63,7 +63,7 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,
                 BaseStyles.CHECKBOX_LABEL,
-                isSelected ? BaseStyles.BORDER_SEATTLE_BLUE : "")
+                isSelected ? Styles.BORDER_SEATTLE_BLUE : "")
             .with(
                 input()
                     .withId(id)
