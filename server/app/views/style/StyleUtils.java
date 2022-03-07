@@ -30,6 +30,14 @@ public class StyleUtils {
     return styles.map(entry -> utility + ":" + entry).collect(Collectors.joining(" "));
   }
 
+  public static String joinStyles(String... styles) {
+    return String.join(" ", styles);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Style prefixes for media queries
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
   public static String disabled(ImmutableList<String> styles) {
     return applyUtilityClass(DISABLED, styles);
   }
@@ -108,9 +116,5 @@ public class StyleUtils {
 
   public static String responsive2XLarge(ImmutableList<String> styles) {
     return applyUtilityClass(RESPONSIVE_2XL, styles);
-  }
-
-  public static String joinStyles(String... styles) {
-    return String.join(" ", styles);
   }
 }
