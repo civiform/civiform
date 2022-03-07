@@ -31,7 +31,7 @@ import repository.UserRepository;
  * profile.
  */
 public class IdcsProfileAdapter extends OidcCiviFormProfileAdapter {
-  public static final Logger LOG = LoggerFactory.getLogger(IdcsProfileAdapter.class);
+  public static final Logger logger = LoggerFactory.getLogger(IdcsProfileAdapter.class);
 
   public IdcsProfileAdapter(
       OidcConfiguration configuration,
@@ -109,12 +109,12 @@ public class IdcsProfileAdapter extends OidcCiviFormProfileAdapter {
     // own modified resource retriever which has access to the required token.
 
     if (((OidcCredentials) cred).getAccessToken() == null) {
-      LOG.debug("No access token in the credentials.");
+      logger.debug("No access token in the credentials.");
       return;
     }
 
     if (this.configuration.getResourceRetriever() instanceof CachedResourceRetriever) {
-      LOG.debug("Already have jwk cached.");
+      logger.debug("Already have jwk cached.");
       return;
     }
 
@@ -127,7 +127,7 @@ public class IdcsProfileAdapter extends OidcCiviFormProfileAdapter {
                   .retrieveResource(jwkSetUri.toURL()));
       this.configuration.setResourceRetriever(new CachedResourceRetriever(configuration, jwkCache));
     } catch (IOException | NullPointerException e) {
-      LOG.error("Failed to fetch JWK", e);
+      logger.error("Failed to fetch JWK", e);
     }
   }
 
@@ -146,7 +146,7 @@ public class IdcsProfileAdapter extends OidcCiviFormProfileAdapter {
         headers = new HashMap<>();
       }
       String authHeader = ((OidcCredentials) cred).getAccessToken().toAuthorizationHeader();
-      LOG.debug("Auth header in the resource retriever: {}", authHeader);
+      logger.debug("Auth header in the resource retriever: {}", authHeader);
       headers.put("Authorization", List.of(authHeader));
       return headers;
     }
@@ -163,14 +163,14 @@ public class IdcsProfileAdapter extends OidcCiviFormProfileAdapter {
 
     @Override
     public Resource retrieveResource(URL url) throws IOException {
-      LOG.debug("Attempting to fetch {}", url.toString());
+      logger.debug("Attempting to fetch {}", url.toString());
       try {
         if (resources.containsKey(url.toURI())) {
-          LOG.debug("Cached: {}", url.toString());
+          logger.debug("Cached: {}", url.toString());
           return resources.get(url.toURI());
         }
       } catch (URISyntaxException e) {
-        LOG.debug("failed to convert to URI", e);
+        logger.debug("failed to convert to URI", e);
       }
       return super.retrieveResource(url);
     }

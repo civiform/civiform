@@ -38,7 +38,7 @@ import views.style.Styles;
  * </ul>
  */
 public class TextFormatter {
-  private static final Logger LOG = LoggerFactory.getLogger(TextFormatter.class);
+  private static final Logger logger = LoggerFactory.getLogger(TextFormatter.class);
 
   private static final String ACCORDION_CONTENT = ">";
   private static final String ACCORDION_HEADER = "### ";
@@ -55,7 +55,7 @@ public class TextFormatter {
         // is more likely to be part of the surrounding text, so we strip.
         url = Url.create(StringUtils.stripEnd(url.getOriginalUrl(), ".?!,:;"));
       } catch (MalformedURLException e) {
-        LOG.error(
+        logger.error(
             String.format(
                 "Failed to parse URL %s after stripping trailing punctuation",
                 url.getOriginalUrl()));
@@ -64,7 +64,7 @@ public class TextFormatter {
       int index = content.indexOf(url.getOriginalUrl());
       // Find where this URL is in the text.
       if (index == -1) {
-        LOG.error(
+        logger.error(
             String.format(
                 "Detected URL %s not present in actual content, %s.",
                 url.getOriginalUrl(), content));

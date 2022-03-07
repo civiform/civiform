@@ -36,8 +36,8 @@ import services.program.predicate.PredicateExpressionNode;
 /** A repository object for dealing with versioning of questions and programs. */
 public class VersionRepository {
 
+  private static final Logger logger = LoggerFactory.getLogger(VersionRepository.class);
   private final Database database;
-  private final Logger LOG = LoggerFactory.getLogger(VersionRepository.class);
   private final ProgramRepository programRepository;
 
   @Inject
@@ -202,11 +202,11 @@ public class VersionRepository {
     ProgramDefinition.Builder updatedDefinition =
         draftProgram.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
     for (BlockDefinition block : draftProgram.getProgramDefinition().blockDefinitions()) {
-      LOG.trace("Updating screen (block) {}.", block.id());
+      logger.trace("Updating screen (block) {}.", block.id());
       updatedDefinition.addBlockDefinition(updateQuestionVersions(draftProgram.id, block));
     }
     draftProgram = new Program(updatedDefinition.build());
-    LOG.trace("Submitting update.");
+    logger.trace("Submitting update.");
     database.update(draftProgram);
     draftProgram.refresh();
   }
@@ -237,7 +237,7 @@ public class VersionRepository {
     // Update questions contained in this block.
     for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
       Optional<Question> updatedQuestion = getLatestVersionOfQuestion(question.id());
-      LOG.trace(
+      logger.trace(
           "Updating question ID {} to new ID {}.", question.id(), updatedQuestion.orElseThrow().id);
       updatedBlock.addQuestion(
           question.loadCompletely(
