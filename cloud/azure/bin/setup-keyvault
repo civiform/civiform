@@ -20,15 +20,15 @@ do
   esac
 done
 
+readonly resource_group
+readonly vault_name
+readonly location
+
 if [[ ! "${resource_group}" ]] \
    || [[ ! "${vault_name}" ]] \
    || [[ ! "${location}" ]]; then
   out::error "arguments -g, -v, and -l must be provided"
   exit 1
-else
-  readonly resource_group
-  readonly vault_name
-  readonly location
 fi
 
 echo "Creating resource group ${resource_group}"

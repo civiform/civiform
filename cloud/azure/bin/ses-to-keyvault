@@ -20,13 +20,13 @@ do
   esac
 done
 
+readonly vault_name
+readonly username
+
 if [[ ! "${vault_name}" ]] \
    || [[ ! "${username}" ]]; then
   out::error "arguments -v and -u must be provided"
   exit 1
-else
-  readonly vault_name
-  readonly username
 fi
 
 echo "Getting an AWS access key"
