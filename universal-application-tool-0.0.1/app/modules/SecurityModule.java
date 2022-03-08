@@ -35,13 +35,11 @@ import org.pac4j.core.client.IndirectClient;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.play.CallbackController;
 import org.pac4j.play.LogoutController;
 import org.pac4j.play.http.PlayHttpActionAdapter;
 import org.pac4j.play.store.PlayCookieSessionStore;
 import org.pac4j.play.store.ShiroAesDataEncrypter;
-import org.pac4j.saml.client.SAML2Client;
 import org.springframework.lang.Nullable;
 import play.Environment;
 
@@ -114,7 +112,9 @@ public class SecurityModule extends AbstractModule {
   private void bindAdminIdpProvider() {
     // Currently the only supported admin auth provider. As we add other admin auth providers,
     // this can be converted into a switch statement.
-    bind(OidcClient.class).annotatedWith(AdminAuthClient.class).toProvider(AdOidcProvider.class);
+    bind(IndirectClient.class)
+        .annotatedWith(AdminAuthClient.class)
+        .toProvider(AdOidcProvider.class);
   }
 
   private void bindApplicantIdpProvider(String applicantIdpName) {
