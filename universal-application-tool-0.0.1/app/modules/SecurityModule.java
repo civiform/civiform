@@ -6,6 +6,7 @@ import static play.mvc.Results.redirect;
 
 import auth.AdminAuthClient;
 import auth.ApplicantAuthClient;
+import auth.AuthIdentityProviderName;
 import auth.Authorizers;
 import auth.CiviFormProfileData;
 import auth.FakeAdminClient;
@@ -13,9 +14,11 @@ import auth.GuestClient;
 import auth.ProfileFactory;
 import auth.Roles;
 import auth.oidc.AdOidcProvider;
+import auth.oidc.IdcsOidcProvider;
 import auth.saml.LoginRadiusSamlProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import com.google.inject.ConfigurationException;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import controllers.routes;
@@ -94,17 +97,16 @@ public class SecurityModule extends AbstractModule {
     bind(SessionStore.class).toInstance(sessionStore);
 
     // Default to these options
-    // String applicantAuthClient = "adfs";
-    //
-    // try {
-    //   applicantAuthClient = configuration.getString("auth.applicant_idp");
-    // } catch (ConfigurationException error) {
-    //   // Do nothing and default to adfs.
-    // }
+    String applicantAuthClient = "adfs";
+
+    try {
+      applicantAuthClient = configuration.getString("auth.applicant_idp");
+    } catch (ConfigurationException error) {
+      // Do nothing and default to adfs.
+    }
 
     bindAdminIdpProvider();
-    // bindApplicantIdpProvider(applicantAuthClient);
-    bindApplicantIdpProvider();
+    bindApplicantIdpProvider(applicantAuthClient);
   }
 
   private void bindAdminIdpProvider() {
@@ -115,26 +117,21 @@ public class SecurityModule extends AbstractModule {
         .toProvider(AdOidcProvider.class);
   }
 
-  private void bindApplicantIdpProvider() {
-    // AuthIdentityProviderName idpName =
-    // AuthIdentityProviderName.forString(applicantIdpName).get();
+  private void bindApplicantIdpProvider(String applicantIdpName) {
+    AuthIdentityProviderName idpName = AuthIdentityProviderName.forString(applicantIdpName).get();
 
-    bind(IndirectClient.class)
-        .annotatedWith(ApplicantAuthClient.class)
-        .toProvider(LoginRadiusSamlProvider.class);
-
-    // switch (idpName) {
-    //   case LOGIN_RADIUS_APPLICANT:
-    //     bind(IndirectClient.class)
-    //         .annotatedWith(ApplicantAuthClient.class)
-    //         .toProvider(LoginRadiusSamlProvider.class);
-    //     break;
-    //   case IDCS_APPLICANT:
-    //   default:
-    //     bind(IndirectClient.class)
-    //         .annotatedWith(ApplicantAuthClient.class)
-    //         .toProvider(IdcsOidcProvider.class);
-    // }
+    switch (idpName) {
+      case LOGIN_RADIUS_APPLICANT:
+        bind(IndirectClient.class)
+            .annotatedWith(ApplicantAuthClient.class)
+            .toProvider(LoginRadiusSamlProvider.class);
+        break;
+      case IDCS_APPLICANT:
+      default:
+        bind(IndirectClient.class)
+            .annotatedWith(ApplicantAuthClient.class)
+            .toProvider(IdcsOidcProvider.class);
+    }
   }
 
   @Provides
