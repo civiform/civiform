@@ -11,6 +11,7 @@ import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.pac4j.core.client.IndirectClient;
 import org.pac4j.core.context.session.SessionStore;
@@ -42,8 +43,8 @@ public class LoginController extends Controller {
 
   @Inject
   public LoginController(
-      @AdminAuthClient IndirectClient adminClient,
-      @ApplicantAuthClient IndirectClient applicantClient,
+      @AdminAuthClient @Nullable IndirectClient adminClient,
+      @ApplicantAuthClient @Nullable IndirectClient applicantClient,
       SessionStore sessionStore,
       Config config) {
     this.adminClient = checkNotNull(adminClient);
