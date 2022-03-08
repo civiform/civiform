@@ -2,14 +2,18 @@ package auth.oidc;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.AdminAuthClient;
 import auth.ProfileFactory;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
 import org.pac4j.core.http.callback.PathParameterCallbackUrlResolver;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import org.springframework.lang.Nullable;
 import repository.UserRepository;
 
 /** Provider class for the AD OIDC Client. */
@@ -32,6 +36,10 @@ public class AdOidcProvider implements Provider<OidcClient> {
   }
 
   @Override
+  @Provides
+  @Singleton
+  @Nullable
+  @AdminAuthClient
   public OidcClient get() {
     if (!this.configuration.hasPath("adfs.client_id")
         || !this.configuration.hasPath("adfs.secret")) {

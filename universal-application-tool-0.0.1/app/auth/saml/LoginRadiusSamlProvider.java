@@ -2,12 +2,16 @@ package auth.saml;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.ApplicantAuthClient;
 import auth.ProfileFactory;
 import com.google.inject.Inject;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import javax.inject.Provider;
 import org.pac4j.core.http.callback.PathParameterCallbackUrlResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
+import org.springframework.lang.Nullable;
 import repository.UserRepository;
 
 public class LoginRadiusSamlProvider implements Provider<SAML2Client> {
@@ -29,6 +33,10 @@ public class LoginRadiusSamlProvider implements Provider<SAML2Client> {
   }
 
   @Override
+  @Provides
+  @Singleton
+  @Nullable
+  @ApplicantAuthClient
   public SAML2Client get() {
     if (!this.configuration.hasPath("login_radius.keystore_password")
         || !this.configuration.hasPath("login_radius.private_key_password")
