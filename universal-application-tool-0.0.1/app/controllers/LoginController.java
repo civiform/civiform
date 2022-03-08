@@ -47,8 +47,8 @@ public class LoginController extends Controller {
       @ApplicantAuthClient @Nullable IndirectClient applicantClient,
       SessionStore sessionStore,
       Config config) {
-    this.adminClient = checkNotNull(adminClient);
-    this.applicantClient = checkNotNull(applicantClient);
+    this.adminClient = adminClient;
+    this.applicantClient = applicantClient;
     this.sessionStore = Preconditions.checkNotNull(sessionStore);
     this.httpActionAdapter = PlayHttpActionAdapter.INSTANCE;
     this.config = config;
