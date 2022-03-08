@@ -41,6 +41,12 @@ class Check():
         except FileNotFoundError:
             return False
 
+    def _get_command_output(self, args):
+        try:
+            return subprocess.run(args, capture_output=True)
+        except FileNotFoundError:
+            return None
+
 class DockerCheck(Check):
     remedy = "Need to install Docker CLI: https://docs.docker.com/engine/install/"
 
@@ -110,7 +116,7 @@ class AwsCliCheck(Check):
         return os.environ.get('CIVIFORM_CLOUD_PROVIDER', "").lower() not in ['aws', 'azure']
 
     def is_ok(self):
-        return self._check_command_succeeds(["aws"])
+        return self._check_command_succeeds(["aws", "help"])
 
 class AzureCliCheck(Check):
     remedy = """
@@ -125,7 +131,7 @@ class AzureCliCheck(Check):
         return os.environ.get('CIVIFORM_CLOUD_PROVIDER', "").lower() != "azure"
 
     def is_ok(self):
-        return self._check_command_succeeds(["azure"])
+        return self._check_command_succeeds(["az"])
 
     def remedy_mac(self):
         return """
@@ -147,12 +153,15 @@ class AwsLoginCheck(Check):
         return os.environ.get('CIVIFORM_CLOUD_PROVIDER', "").lower() not in ['aws', 'azure']
 
     def is_ok(self):
-        return self._check_command_succeeds(["aws", "configure", "list-profiles", "|", "grep", "-q", '.+'])
+        output = self._get_command_output(["aws", "configure", "list-profiles"]).stdout
+
+        # the default profile will be present if they are logged in
+        return 'default' in output.decode('ascii')
 
 class AzureLoginCheck(Check):
     remedy = """
-        Need to install the Azure CLI tool.
-        https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
+        Need to authenticate with the Azure CLI tool.
+        https://docs.microsoft.com/en-us/cli/azure/authenticate-azure-cli
     """
 
     def name(self):
@@ -162,7 +171,7 @@ class AzureLoginCheck(Check):
         return os.environ.get('CIVIFORM_CLOUD_PROVIDER', "").lower() != "azure"
 
     def is_ok(self):
-        return self._check_command_succeeds(["azure"])
+        return self._check_command_succeeds(["az", "ad", "signed-in-user", "show"])
 
 checks = [
     DockerCheck(),
