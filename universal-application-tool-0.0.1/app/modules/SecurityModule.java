@@ -122,13 +122,13 @@ public class SecurityModule extends AbstractModule {
 
     switch (idpName) {
       case LOGIN_RADIUS_APPLICANT:
-        bind(SAML2Client.class)
+        bind(IndirectClient.class)
             .annotatedWith(ApplicantAuthClient.class)
             .toProvider(LoginRadiusSamlProvider.class);
         break;
       case IDCS_APPLICANT:
       default:
-        bind(OidcClient.class)
+        bind(IndirectClient.class)
             .annotatedWith(ApplicantAuthClient.class)
             .toProvider(IdcsOidcProvider.class);
     }
@@ -150,8 +150,8 @@ public class SecurityModule extends AbstractModule {
   @Singleton
   protected Config provideConfig(
       GuestClient guestClient,
-      @Nullable @ApplicantAuthClient IndirectClient applicantAuthClient,
-      @Nullable @AdminAuthClient IndirectClient adminAuthClient,
+      @ApplicantAuthClient @Nullable IndirectClient applicantAuthClient,
+      @AdminAuthClient @Nullable IndirectClient adminAuthClient,
       FakeAdminClient fakeAdminClient) {
     List<Client> clientList = new ArrayList<>();
     clientList.add(applicantAuthClient);
