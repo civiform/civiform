@@ -154,8 +154,12 @@ public class SecurityModule extends AbstractModule {
       @AdminAuthClient @Nullable IndirectClient adminAuthClient,
       FakeAdminClient fakeAdminClient) {
     List<Client> clientList = new ArrayList<>();
-    clientList.add(applicantAuthClient);
-    clientList.add(adminAuthClient);
+    if (applicantAuthClient != null) {
+      clientList.add(applicantAuthClient);
+    }
+    if (adminAuthClient != null) {
+      clientList.add(adminAuthClient);
+    }
     clientList.add(guestClient);
     if (fakeAdminClient.canEnable(URI.create(baseUrl).getHost())) {
       clientList.add(fakeAdminClient);
