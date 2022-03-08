@@ -67,7 +67,13 @@ public class LoginController extends Controller {
   }
 
   public Result register(Http.Request request) {
-    String idpProvider = config.getString("auth.applicant_idp");
+    String idpProvider;
+    try {
+      idpProvider = config.getString("auth.applicant_idp");
+    } catch (ConfigException.Missing e) {
+      // Default to IDCS
+      idpProvider = AuthIdentityProviderName.IDCS_APPLICANT.toString();
+    }
     // This register behavior is specific to IDCS. Because this is only being called when we know
     // IDCS is available, it should technically never go into the second flow.
     if (idpProvider.equals(AuthIdentityProviderName.IDCS_APPLICANT.toString())) {
