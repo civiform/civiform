@@ -68,7 +68,7 @@ public class FileUploadQuestion implements Question {
   }
 
   public Optional<String> getFileKeyValue() {
-    if (fileKeyValue.isPresent()) {
+    if (fileKeyValue.get().isPresent()) {
       return fileKeyValue.get();
     }
 
@@ -78,7 +78,7 @@ public class FileUploadQuestion implements Question {
   }
 
   public Optional<String> getOriginalFileName() {
-    if (originalFileNameValue.isPresent()) {
+    if (originalFileNameValue.get().isPresent()) {
       return originalFileNameValue.get();
     }
 
