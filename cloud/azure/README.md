@@ -53,7 +53,7 @@ ACCOUNT_KEY=$(az storage account keys list \
 export ARM_ACCESS_KEY=$ACCOUNT_KEY
 ```
 
-## Running terraform with this config  
+## Running terraform with this config
 
 Since we are using a shared backend you'll need to run init specifying that 
 within the `cloud/deploys/staging_azure` directory.
@@ -91,6 +91,82 @@ Within the API permissions
 
 Within the certificates & secrets
 - add a new client secret and add the value to your key vault
+
+# Scripts
+
+## db-connection
+Establishes a db-connection via the bastion. 
+- Adds the IP address to the security rule & allows
+ssh connections to the bastion
+- Creates a new ssh key and associates it with the bastion instance.
+- Opens a postgres connection to the remote database and forwards the terminal along.
+- On closing the connection deletes the ssh key & updates the ssh security rule to deny all requests
+
+After running this you should be able to run postgres commands directly. 
+
+## pg-restore
+Does a data only pg_restore onto a remote database. Does the similar setting up the ip address & security rules as the db connection but instead of connecting to the database does a pg_restore instead.
+
+## Known issues
+To run a pg_dump/restore on a newly provisioned machine will need to 
+update the postgres version (instructions at the stack overflow below)
+if it's a newly provisioned machine. There are possible some version issues with this script (should read something like incompotible postgres versions). We try to correct for that in the script by downloading and using a pinned version of pg_restore. The non direct absolute path pg_restore uses a sym linked pg_wrapper class that points to an old version of postgres. 
+
+You might also run into an issue with pg_restore if you do not include the .dump at the end of your file name for the dump file. Postgres expects this and will not recognize it as a dump file if you don't include it!
+
+# Configure Key Vault before running Terraform
+
+Before applying the Terraform configuration, you'll need to make sure that Azure Key Vault is
+properly configured to store the secrets needed by the application. To do this, run the command `key-vault-setup` in bin/azure. 
+
+You will need to manually add the key vault values for:
+- Azure AD
+- AWS Secret
+
+Via azure portal or the CLI command:
+```
+az keyvault secret set --name [KEY_NAME] --vault-name [key vault name] --value [KEY_VALUE]
+```
+
+## Manually configure the keyvault
+
+If you want to do this all manually. List all the key vaults in your project. Find the key vault that stores the secrets for Civiform. Then run `az keyvault secret list --vault-name=[your vault name]`. The `postgres-password` and `app-secret-key` secrets should be listed.
+
+If the secrets are not listed, you'll need to [create a key vault](https://docs.microsoft.com/en-us/azure/key-vault/general/quick-create-cli) if you haven't already. Make a note of the resource group that is used. Next, run 
+```
+az keyvault update --name=[your keyvault name] --enable-rbac-authorization
+```
+This allows you to grant the App Service Managed Identity permission to access the key vault.
+
+Next, [grant yourself the Key Vault Secrets Officer role in the Azure portal](https://docs.microsoft.com/en-us/azure/key-vault/general/rbac-guide?tabs=azure-cli#key-vault-scope-role-assignment)
+Then set the secrets by running:
+
+```
+az keyvault secret set --name [KEY_NAME] --vault-name [key vault name] --value [KEY_VALUE]
+```
+
+Then, in order to use the Key Vault as a data source in Terraform, set the `key_vault_name` variable in your `auto.tfvars` file to the name of the key vault and the `key_vault_resource_group` to the resource group the key vault is in.
+
+# Configuring the staging domain
+
+The terraform script configures the azure app service to allow requests from the staging hostname that you pass in via the environment variables, but you will need to manually add a cname and txt configuration to your domain provider (e.g https://domains.google.com). 
+
+To do that add the custom records via the domain provider webiste. 
+1) CNAME record which points from the 'staging-azure.civiform.dev' to the hostname that gets generated from terraform (you can find this from the terraform output or via the azure portal)
+2) TXT record with key 'asuid.staging-azure.civiform.dev' and value that matches the custom domain verification id in the azure portal (you can find this by navigating to the custom domains in the app service setting). 
+
+Note it should take a few minutes to propagate.
+
+# Configure AWS SES email sending 
+
+You will need an aws key/secret that you can get from the AWS console. The key is specified via terraform and the secret lives in the azure secrets store. 
+
+Staging environment has a bunch of email accounts that get sent for testing purposes that are specified by env variables. 
+
+Verifying the email address you want to use is configured via terraform, but it's possible that the you will have to manually verify the email address you intend to use via the AWS console. Go to the SES portion and add verified identity providers and add the accounts you need to use. 
+
+You will also need to make sure that the region is specified and aligns with where the SES region is. 
+
 
 # Troubleshooting
 
@@ -137,56 +213,3 @@ We are required to pass in an initial pub key pair at `$HOME/.ssh/bastion` to se
 ```
 ssh-keygen -t rsa -b 4096 -f $HOME/.ssh/bastion
 ```
-
-# Configure Key Vault before running Terraform
-
-Before applying the Terraform configuration, you'll need to make sure that Azure Key Vault is
-properly configured to store the secrets needed by the application. To do this, run the command `key-vault-setup` in bin/azure. 
-
-You will need to manually add the key vault values for:
-- Azure AD
-- AWS Secret
-
-Via azure portal or the CLI command:
-```
-az keyvault secret set --name [KEY_NAME] --vault-name [key vault name] --value [KEY_VALUE]
-```
-
-## Manually configure the keyvault
-
-If you want to do this all manually. List all the key vaults in your project. Find the key vault that stores the secrets for Civiform. Then run `az keyvault secret list --vault-name=[your vault name]`. The `postgres-password` and `app-secret-key` secrets should be listed.
-
-If the secrets are not listed, you'll need to [create a key vault](https://docs.microsoft.com/en-us/azure/key-vault/general/quick-create-cli) if you haven't already. Make a note of the resource group that is used. Next, run 
-```
-az keyvault update --name=[your keyvault name] --enable-rbac-authorization
-```
-This allows you to grant the App Service Managed Identity permission to access the key vault.
-
-Next, [grant yourself the Key Vault Secrets Officer role in the Azure portal](https://docs.microsoft.com/en-us/azure/key-vault/general/rbac-guide?tabs=azure-cli#key-vault-scope-role-assignment)
-Then set the secrets by running:
-
-```
-az keyvault secret set --name [KEY_NAME] --vault-name [key vault name] --value [KEY_VALUE]
-```
-
-Then, in order to use the Key Vault as a data source in Terraform, set the `key_vault_name` variable in your `auto.tfvars` file to the name of the key vault and the `key_vault_resource_group` to the resource group the key vault is in.
-
-# Configuring the staging domain
-
-The terraform script configures the azure app service to allow requests from the staging hostname that you pass in via the environment variables, but you will need to manually add a cname and txt configuration to your domain provider (e.g https://domains.google.com). 
-
-To do that add the custom records via the domain provider webiste. 
-1) CNAME record which points from the 'staging-azure.civiform.dev' to the hostname that gets generated from terraform (you can find this from the terraform output or via the azure portal)
-2) TXT record with key 'asuid.staging-azure.civiform.dev' and value that matches the custom domain verification id in the azure portal (you can find this by navigating to the custom domains in the app service setting). 
-
-Note it should take a few minutes to propagate.
-
-# Configure AWS sending 
-
-You will need an aws key/secret that you can get from the AWS console. The key is specified via terraform and the secret lives in the azure secrets store. 
-
-Staging environment has a bunch of email accounts that get sent for testing purposes that are specified by env variables. 
-
-Verifying the email address you want to use is configured via terraform, but it's possible that the you will have to manually verify the email address you intend to use via the AWS console. Go to the SES portion and add verified identity providers and add the accounts you need to use. 
-
-You will also need to make sure that the region is specified and aligns with where the SES region is. 
