@@ -17,16 +17,16 @@ import services.question.types.QuestionType;
 public class FileUploadQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
-  private Optional<Optional<String>> fileKeyValue;
-  private Optional<Optional<String>> originalFileNameValue;
+  // This value is serving double duty as a singleton load of the value.
+  // This value is an optional of an optional because not all questions are file upload questions,
+  // and if they are this value could still not be set.
+  private Optional<Optional<String>> fileKeyValueCache;
+  private Optional<Optional<String>> originalFileNameValueCache;
 
   public FileUploadQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
-    // This value is serving double duty as a singleton load of the value.
-    // This value is an optional of an optional because not all questions are file upload questions,
-    // and if they are this value could still not be set.
-    this.fileKeyValue = Optional.of(Optional.empty());
-    this.originalFileNameValue = Optional.of(Optional.empty());
+    this.fileKeyValueCache = Optional.of(Optional.empty());
+    this.originalFileNameValueCache = Optional.of(Optional.empty());
     assertQuestionType();
   }
 
@@ -68,24 +68,25 @@ public class FileUploadQuestion implements Question {
   }
 
   public Optional<String> getFileKeyValue() {
-    if (fileKeyValue.get().isPresent()) {
-      return fileKeyValue.get();
+    if (fileKeyValueCache.isPresent()) {
+      return fileKeyValueCache.get();
     }
 
-    fileKeyValue = Optional.of(applicantQuestion.getApplicantData().readString(getFileKeyPath()));
+    fileKeyValueCache =
+        Optional.of(applicantQuestion.getApplicantData().readString(getFileKeyPath()));
 
-    return fileKeyValue.get();
+    return fileKeyValueCache.get();
   }
 
   public Optional<String> getOriginalFileName() {
-    if (originalFileNameValue.get().isPresent()) {
-      return originalFileNameValue.get();
+    if (originalFileNameValueCache.isPresent()) {
+      return originalFileNameValueCache.get();
     }
 
-    originalFileNameValue =
+    originalFileNameValueCache =
         Optional.of(applicantQuestion.getApplicantData().readString(getOriginalFileNamePath()));
 
-    return originalFileNameValue.get();
+    return originalFileNameValueCache.get();
   }
 
   public void assertQuestionType() {
