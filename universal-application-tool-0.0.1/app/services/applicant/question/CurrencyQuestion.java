@@ -59,7 +59,8 @@ public class CurrencyQuestion implements Question {
 
   public Optional<Currency> getValue() {
     if (currencyCache.isEmpty()) {
-      currencyCache = Optional.of(applicantQuestion.getApplicantData().readCurrency(getCurrencyPath()));
+      currencyCache =
+          Optional.of(applicantQuestion.getApplicantData().readCurrency(getCurrencyPath()));
     }
 
     return currencyCache.get();
