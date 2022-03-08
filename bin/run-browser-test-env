@@ -7,7 +7,7 @@ source bin/lib.sh
 # Default to continuous integration mode disabled.
 truth::declare_var_false continuous_integration
 
-# Default to  not using both emulators.
+# Default to not using both emulators.
 # both_emulators should only be true for Azurite browser tests, because these
 # tests also require localstack for SES email sending.
 truth::declare_var_false both_emulators
@@ -56,11 +56,13 @@ EOF
 
     "--azure")
       emulators::set_azurite_emulator_vars
+      # We do this because the Azurite tests need both emulators running to
+      # be successful. But, for AWS, we only want one emulator running,
+      # localstack.
       truth::enable both_emulators
       ;;
 
     "--aws")
-      # We don't need this check for Azurite because we want both emulators!
       emulators::ensure_only_one_cloud_provider_flag aws
       # Already defaulted to AWS.
       ;;
@@ -109,7 +111,7 @@ echo "  ${compose_command}"
 # Start everything else.
 eval "${compose_command}"
 
-# local stack emulator is also required for Azurite. This should only run for
+# localstack emulator is also required for Azurite. This should only run for
 # Azure browser tests.
 if truth::is_enabled both_emulators; then
   echo "Staring localstack emulator as well"

@@ -17,11 +17,16 @@ import services.question.types.QuestionType;
 public class FileUploadQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
-  private Optional<String> fileKeyValue;
-  private Optional<String> originalFileNameValue;
+  private Optional<Optional<String>> fileKeyValue;
+  private Optional<Optional<String>> originalFileNameValue;
 
   public FileUploadQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
+    // This value is serving double duty as a singleton load of the value.
+    // This value is an optional of an optional because not all questions are file upload questions,
+    // and if they are this value could still not be set.
+    this.fileKeyValue = Optional.of(Optional.empty());
+    this.originalFileNameValue = Optional.of(Optional.empty());
     assertQuestionType();
   }
 
@@ -63,22 +68,24 @@ public class FileUploadQuestion implements Question {
   }
 
   public Optional<String> getFileKeyValue() {
-    if (fileKeyValue != null) {
-      return fileKeyValue;
+    if (fileKeyValue.isPresent()) {
+      return fileKeyValue.get();
     }
 
-    fileKeyValue = applicantQuestion.getApplicantData().readString(getFileKeyPath());
+    fileKeyValue = Optional.of(applicantQuestion.getApplicantData().readString(getFileKeyPath()));
 
-    return fileKeyValue;
+    return fileKeyValue.get();
   }
 
   public Optional<String> getOriginalFileName() {
-    if (originalFileNameValue != null) {
-      return originalFileNameValue;
+    if (originalFileNameValue.isPresent()) {
+      return originalFileNameValue.get();
     }
+
     originalFileNameValue =
-        applicantQuestion.getApplicantData().readString(getOriginalFileNamePath());
-    return originalFileNameValue;
+        Optional.of(applicantQuestion.getApplicantData().readString(getOriginalFileNamePath()));
+
+    return originalFileNameValue.get();
   }
 
   public void assertQuestionType() {
@@ -116,8 +123,10 @@ public class FileUploadQuestion implements Question {
     if (getFilename().isEmpty()) {
       return "-- NO FILE SELECTED --";
     }
-    return String.format(
-        "-- %s UPLOADED (click to download) --",
-        getOriginalFileName().isPresent() ? getOriginalFileName().get() : getFilename().get());
+
+    String displayFileName =
+        getOriginalFileName().isPresent() ? getOriginalFileName().get() : getFilename().get();
+
+    return String.format("-- %s UPLOADED (click to download) --", displayFileName);
   }
 }

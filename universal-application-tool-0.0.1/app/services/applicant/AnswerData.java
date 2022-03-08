@@ -50,8 +50,8 @@ public abstract class AnswerData {
   public abstract Optional<String> fileKey();
 
   /**
-   * The original file name of the applicant's uploaded file, if applicable. This is only needed for
-   * Azure blob storage, where the original file name is different from the file key.
+   * The original file name of the applicant's uploaded file, if applicable. For example, this is
+   * needed for Azure blob storage, where the original file name is different from the file key.
    */
   public abstract Optional<String> originalFileName();
 

@@ -152,7 +152,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       questionContent.with(timestampContent);
     }
 
-    ContainerTag answerContent;
+    final ContainerTag answerContent;
     if (data.fileKey().isPresent()) {
       String encodedFileKey = URLEncoder.encode(data.fileKey().get(), StandardCharsets.UTF_8);
       String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();

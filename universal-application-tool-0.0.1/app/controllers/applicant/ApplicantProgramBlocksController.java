@@ -277,17 +277,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       .get()
                       .createFileUploadQuestion();
 
-              String applicantFileUploadQuestionKeyPath =
-                  fileUploadQuestion.getFileKeyPath().toString();
-              String applicantFileUploadQuestionOriginalFileNamePath =
-                  fileUploadQuestion.getOriginalFileNamePath().toString();
-
               ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
                   new ImmutableMap.Builder<String, String>();
-              fileUploadQuestionFormData.put(applicantFileUploadQuestionKeyPath, key.get());
+              fileUploadQuestionFormData.put(
+                  fileUploadQuestion.getFileKeyPath().toString(), key.get());
               if (originalFileName.isPresent()) {
                 fileUploadQuestionFormData.put(
-                    applicantFileUploadQuestionOriginalFileNamePath, originalFileName.get());
+                    fileUploadQuestion.getOriginalFileNamePath().toString(),
+                    originalFileName.get());
               }
 
               updateFileRecord(key.get(), originalFileName);

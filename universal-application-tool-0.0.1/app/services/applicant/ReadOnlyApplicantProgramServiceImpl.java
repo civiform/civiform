@@ -283,10 +283,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   /** Returns the identifier of uploaded file if applicable. */
   private Optional<String> getFileKey(Optional<FileUploadQuestion> question) {
-    if (question.isEmpty() || !question.get().isAnswered()) {
-      return Optional.empty();
-    }
-    return question.get().getFileKeyValue();
+    return question
+        .filter(FileUploadQuestion::isAnswered)
+        .map(FileUploadQuestion::getFileKeyValue)
+        .orElseGet(() -> Optional.empty());
   }
 
   private Optional<String> getOriginalFileName(Optional<FileUploadQuestion> question) {
