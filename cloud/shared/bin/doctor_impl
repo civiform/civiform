@@ -183,7 +183,7 @@ for check in checks:
     if check.should_skip():
         continue
 
-    print(f"{check.name()}...".ljust(30, "."), end="", flush=True)
+    print(check.name().ljust(30, "."), end="", flush=True)
 
     if check.is_ok():
         print("OK")
