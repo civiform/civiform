@@ -40,7 +40,7 @@ import views.style.Styles;
 public class ApplicantLayout extends BaseHtmlLayout {
 
   private static final String CIVIFORM_TITLE = "CiviForm";
-  private static final Logger LOG = LoggerFactory.getLogger(ApplicantLayout.class);
+  private static final Logger logger = LoggerFactory.getLogger(ApplicantLayout.class);
 
   private final ProfileUtils profileUtils;
   public final LanguageSelector languageSelector;
@@ -90,10 +90,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     Content rendered = super.render(bundle);
     if (!rendered.body().contains("<h1")) {
-      LOG.error("Page does not contain an <h1>, which is important for screen readers.");
+      logger.error("Page does not contain an <h1>, which is important for screen readers.");
     }
     if (Strings.countOccurrencesOf(rendered.body(), "<h1") > 1) {
-      LOG.error("Page contains more than one <h1>, which is detrimental to screen readers.");
+      logger.error("Page contains more than one <h1>, which is detrimental to screen readers.");
     }
     return rendered;
   }
