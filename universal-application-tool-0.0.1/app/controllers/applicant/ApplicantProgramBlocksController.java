@@ -262,7 +262,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               // Original file name is only set for Azure, where we have to generate a UUID when
               // uploading a file to Azure Blob storage because we cannot upload a file without a
-              // name. For AWS, the file key and original file name are the same
+              // name. For AWS, the file key and original file name are the same. For the future,
+              // GCS supports POST uploads so this field won't be needed either:
+              // <link> https://cloud.google.com/storage/docs/xml-api/post-object-forms </link>
+              // This is only really needed for Azure blob storage.
               Optional<String> originalFileName = request.queryString("originalFileName");
 
               if (!bucket.isPresent() || !key.isPresent()) {
