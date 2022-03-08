@@ -1,6 +1,5 @@
 package controllers;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 
 import auth.AdminAuthClient;
