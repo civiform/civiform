@@ -74,8 +74,7 @@ public class FileController extends CiviFormController {
         return notFound();
       }
       String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
-      return redirect(
-          storageClient.getPresignedUrlString(decodedFileKey));
+      return redirect(storageClient.getPresignedUrlString(decodedFileKey));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (CompletionException e) {
