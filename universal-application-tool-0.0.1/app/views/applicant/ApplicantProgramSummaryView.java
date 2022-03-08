@@ -41,9 +41,8 @@ import views.style.Styles;
 /** Shows all questions in the applying program and answers to the questions if present. */
 public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
+  private static Logger logger = LoggerFactory.getLogger(ApplicantProgramSummaryView.class);
   private final ApplicantLayout layout;
-
-  private static Logger LOG = LoggerFactory.getLogger(ApplicantProgramSummaryView.class);
 
   @Inject
   public ApplicantProgramSummaryView(ApplicantLayout layout) {
@@ -158,18 +157,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     ContainerTag answerContent;
     if (data.fileKey().isPresent()) {
-      try {
-        String encodedFileKey = URLEncoder.encode(data.fileKey().get(), StandardCharsets.UTF_8);
-        String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
-        answerContent = a().withHref(fileLink).withClasses(Styles.W_2_3);
-      } catch (Exception e) {
-        LOG.error(
-            "Attempted to download file with invalid download URL: applicant id: %s, invalid URL:"
-                + " %s",
-            applicantId,
-            controllers.routes.FileController.show(applicantId, data.fileKey().get()).url());
-        answerContent = div();
-      }
+      String encodedFileKey = URLEncoder.encode(data.fileKey().get(), StandardCharsets.UTF_8);
+      String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
+      answerContent = a().withHref(fileLink).withClasses(Styles.W_2_3);
     } else {
       answerContent = div();
     }
@@ -274,6 +264,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   @AutoValue
   public abstract static class Params {
+
     public static Builder builder() {
       return new AutoValue_ApplicantProgramSummaryView_Params.Builder();
     }
@@ -302,6 +293,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     @AutoValue.Builder
     public abstract static class Builder {
+
       public abstract Builder setRequest(Http.Request request);
 
       public abstract Builder setApplicantId(long applicantId);

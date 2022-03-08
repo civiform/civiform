@@ -44,8 +44,8 @@ Options:
 --aws   Use the AWS emulator (Localstack) for simulating cloud services,
         cannot be used with --azure flag. This is the default.
 
---azure Use the Azure emulator (Azurite) for simluating cloud services.
-        Also use localstack, since we need that for SES.
+--azure Use the Azure emulator (Azurite) for simulating cloud storage for file
+        upload and download. Also use localstack, since we need that for SES.
 EOF
       exit 0
       ;;
