@@ -1,4 +1,11 @@
-#!/bin/bash
+#! /usr/bin/env bash
+
+# DOC: Creates Azure resources for storing shared terraform state in the cloud
+# DOC: and stores variables for accessing the shared state in a new
+# DOC: backend_vars file written to `pwd`.
+
+set -e
+
 setopt KSH_ARRAYS BASH_REMATCH
 
 RESOURCE_GROUP_NAME="tfstate"
@@ -60,5 +67,3 @@ echo "resource_group_name  = \"${RESOURCE_GROUP_NAME}\"" > backend_vars
 echo "storage_account_name = \"${STORAGE_ACCOUNT_NAME}\"" >> backend_vars
 echo "container_name       = \"${CONTAINER_NAME}\"" >> backend_vars
 echo "key                  = \"terraform.tfstate\"" >> backend_vars
-
-

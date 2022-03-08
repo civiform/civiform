@@ -1,18 +1,23 @@
 # Azure Terraform Setup
+
 We use a remote backend to store state information to avoid conflicts when 
 multiple collaborators are updating resources managed by Terraform. 
 Follow the steps outlined in this doc to enable collaborators to access 
 the remote backend and shared state on their machines.
 
 # Setup
-In order to run for the first time run from the `cloud/deploys/staging_azure` 
-directory.
+
+For multiple hosts (and people) to collaborate on a Terraform project, they
+must be able to access shared Terraform state so, independent of which machine
+is running a terraform command, terraform is working with the same record of
+cloud resource state. 
  
 ```
-$ source setup
+$ cloud/azure/bin/setup_tf_shared_state
 ```
 
-This will: 
+This will:
+
 1. set up a resource group for terraform shared state to live in if it does
 not already exist
 2. make a blob storage account for the shared tfstate to live in if it does
@@ -30,10 +35,41 @@ via the commands below), note that it does a pretty fuzzy regex match for
 the storage account name so if you are doing something special you might have
 to write your own script to do that!
 
+## Export your account key
+
+In order to use terraform with the azure backend you'll need to get the 
+`account_key` set up properly. The backend_vars file expects it to be provided 
+via the `ARM_ACCESS_KEY` environment variable so you'll need to use the Azure CLI to provide it. 
+Get the `resource_group_name` and `storage_account_name` from the backend_vars
+file or via the azure cli/portal (details on how to do this in the 
+troubleshooting section below)
+
+```
+ACCOUNT_KEY=$(az storage account keys list \
+  --resource-group $RESOURCE_GROUP_NAME \
+  --account-name $STORAGE_ACCOUNT_NAME \
+  --query '[0].value' \
+  -o tsv)
+export ARM_ACCESS_KEY=$ACCOUNT_KEY
+```
+
+## Running terraform with this config  
+
+Since we are using a shared backend you'll need to run init specifying that 
+within the `cloud/deploys/staging_azure` directory.
+
+```
+$ terraform init -backend-config=backend_vars
+```
+
 ## Logging 
-In order to see the log stream for your app service; you have to manually allow the http logs. Do this by going to diagnostic settings and send the http logs to the log server we created (note I think this can be done via terraform).
+
+In order to see the log stream for your app service; you have to manually allow 
+the http logs. Do this by going to diagnostic settings and send the http logs
+to the log server we created (note I think this can be done via terraform).
 
 ## Azure Ad Setup
+
 Add the adfs_client_id to your local configs. For the private adfs_secret add it via key vault.
 
 Configure the Microsoft provider:
@@ -56,32 +92,10 @@ Within the API permissions
 Within the certificates & secrets
 - add a new client secret and add the value to your key vault
 
-## Export your account key
-In order to use terraform with the azure backend you'll need to get the 
-`account_key` set up properly. The backend_vars file expects it to be provided 
-via the `ARM_ACCESS_KEY` environment variable so you'll need to use the Azure CLI to provide it. 
-Get the `resource_group_name` and `storage_account_name` from the backend_vars
-file or via the azure cli/portal (details on how to do this in the 
-troubleshooting section below)
-```
-ACCOUNT_KEY=$(az storage account keys list \
-  --resource-group $RESOURCE_GROUP_NAME \
-  --account-name $STORAGE_ACCOUNT_NAME \
-  --query '[0].value' \
-  -o tsv)
-export ARM_ACCESS_KEY=$ACCOUNT_KEY
-```
-
-## Running terraform with this config  
-Since we are using a shared backend you'll need to run init specifying that 
-within the `cloud/deploys/staging_azure` directory.
-```
-$ terraform init -backend-config=backend_vars
-```
-
 # Troubleshooting
 
 ## Access Issues
+
 If you are running into access issues, you do need to have the ARM_ACCESS_KEY 
 exported to run terraform commands. So try re running
 ```
@@ -117,6 +131,7 @@ portal the resource group name is 'tfstate' and the storage_account_name is
 ![Image of Azure portal showing where to find the storage_account_name](img/how_to_find_backend_vars.png?raw=true)
 
 ## Can't find the .pub key for terraform
+
 We are required to pass in an initial pub key pair at `$HOME/.ssh/bastion` to set up the bastion vm. If terraform complains about this, you can generate a key via the following command. 
 
 ```
@@ -124,6 +139,7 @@ ssh-keygen -t rsa -b 4096 -f $HOME/.ssh/bastion
 ```
 
 # Configure Key Vault before running Terraform
+
 Before applying the Terraform configuration, you'll need to make sure that Azure Key Vault is
 properly configured to store the secrets needed by the application. To do this, run the command `key-vault-setup` in bin/azure. 
 
@@ -137,6 +153,7 @@ az keyvault secret set --name [KEY_NAME] --vault-name [key vault name] --value [
 ```
 
 ## Manually configure the keyvault
+
 If you want to do this all manually. List all the key vaults in your project. Find the key vault that stores the secrets for Civiform. Then run `az keyvault secret list --vault-name=[your vault name]`. The `postgres-password` and `app-secret-key` secrets should be listed.
 
 If the secrets are not listed, you'll need to [create a key vault](https://docs.microsoft.com/en-us/azure/key-vault/general/quick-create-cli) if you haven't already. Make a note of the resource group that is used. Next, run 
@@ -155,6 +172,7 @@ az keyvault secret set --name [KEY_NAME] --vault-name [key vault name] --value [
 Then, in order to use the Key Vault as a data source in Terraform, set the `key_vault_name` variable in your `auto.tfvars` file to the name of the key vault and the `key_vault_resource_group` to the resource group the key vault is in.
 
 # Configuring the staging domain
+
 The terraform script configures the azure app service to allow requests from the staging hostname that you pass in via the environment variables, but you will need to manually add a cname and txt configuration to your domain provider (e.g https://domains.google.com). 
 
 To do that add the custom records via the domain provider webiste. 
@@ -164,6 +182,7 @@ To do that add the custom records via the domain provider webiste.
 Note it should take a few minutes to propagate.
 
 # Configure AWS sending 
+
 You will need an aws key/secret that you can get from the AWS console. The key is specified via terraform and the secret lives in the azure secrets store. 
 
 Staging environment has a bunch of email accounts that get sent for testing purposes that are specified by env variables. 
