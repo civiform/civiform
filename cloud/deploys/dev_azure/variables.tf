@@ -18,10 +18,6 @@ variable "application_name" {
   description = "Azure Web App Name"
 }
 
-variable "app_secret_key" {
-  type        = string
-  description = "Secret Key For the app"
-}
 
 variable "aws_region" {
   type        = string
@@ -74,4 +70,44 @@ variable "staging_ti_notification_mailing_list" {
 variable "staging_applicant_notification_mailing_list" {
   type        = string
   description = "Applicant notification mailing list for staging"
+}
+
+variable "login_radius_api_key" {
+  type        = string
+  description = "Login Radius API Key"
+  default     = null
+}
+
+variable "login_radius_metadata_uri" {
+  type        = string
+  description = "LoginRadius endpoint for fetching IdP metadata"
+  default     = null
+}
+
+variable "login_radius_saml_app_name" {
+  type        = string
+  description = "The App Name for the LoginRadius SAML integration"
+  default     = null
+}
+
+variable "saml_keystore_filename" {
+  type        = string
+  description = "The name of the keystore file to use for SAML auth"
+  default     = "civiformSamlKeystore.jks"
+}
+
+variable "saml_keystore_account_name" {
+  type        = string
+  description = "The storage account where the SAML keystore file is hosted"
+}
+
+variable "saml_keystore_resource_group_name" {
+  type        = string
+  description = "The resource group for the storage account where the keystore file is hosted"
+}
+
+variable "saml_keystore_container_name" {
+  type        = string
+  description = "The name of the keystore file"
+  default     = "saml-keystore"
 }

@@ -150,6 +150,66 @@ variable "adfs_admin_group" {
   description = "Active Directory Federation Service group name"
 }
 
+variable "civiform_applicant_idp" {
+  type        = string
+  description = "identity provider to use for applicant auth. supported values are idcs and login-radius"
+  default     = "login-radius"
+}
+
+variable "civiform_applicant_auth_protocol" {
+  type        = string
+  description = "auth protocol to use for applicant auth. supported values are oidc and saml"
+  default     = "saml"
+}
+
+variable "login_radius_api_key" {
+  type        = string
+  description = "Login Radius API Key"
+  default     = null
+}
+
+variable "login_radius_metadata_uri" {
+  type        = string
+  description = "LoginRadius endpoint for fetching IdP metadata"
+  default     = null
+}
+
+variable "login_radius_saml_app_name" {
+  type        = string
+  description = "The App Name for the LoginRadius SAML integration"
+  default     = null
+}
+
+variable "saml_keystore_filename" {
+  description = "Name of Java Keystore file stored in Azure blob storage"
+  default     = null
+}
+
+variable "saml_keystore_password" {
+  description = "Password for Java Keystore file"
+  default     = null
+}
+
+variable "saml_private_key_password" {
+  description = "Password for Java Keystore private key"
+  default     = null
+}
+
+variable "saml_keystore_storage_account_name" {
+  description = "Name of storage account where Java Keystore is stored"
+  default     = null
+}
+
+variable "saml_keystore_storage_container_name" {
+  description = "Name of storage container where Java Keystore is stored"
+  default     = null
+}
+
+variable "saml_keystore_storage_access_key" {
+  description = "Key needed to access keystore file"
+  default     = null
+}
+
 variable "staging_program_admin_notification_mailing_list" {
   type        = string
   description = "Admin notification mailing list for staging"

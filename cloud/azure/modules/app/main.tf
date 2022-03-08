@@ -144,6 +144,17 @@ resource "azurerm_app_service" "civiform_app" {
     ADFS_SECRET        = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.adfs_secret.id})"
     ADFS_DISCOVERY_URI = var.adfs_discovery_uri
 
+    CIVIFORM_APPLICANT_IDP = var.civiform_applicant_idp
+
+    # The values below are all defaulted to null. If SAML authentication is used, the values can be pulled from the
+    # saml_keystore module
+    LOGIN_RADIUS_METADATA_URI     = var.login_radius_metadata_uri
+    LOGIN_RADIUS_API_KEY          = var.login_radius_api_key
+    LOGIN_RADIUS_SAML_APP_NAME    = var.login_radius_saml_app_name
+    LOGIN_RADIUS_KEYSTORE_NAME    = "/saml/${var.saml_keystore_filename}"
+    LOGIN_RADIUS_KEYSTORE_PASS    = var.saml_keystore_password
+    LOGIN_RADIUS_PRIVATE_KEY_PASS = var.saml_private_key_password
+
     # In HOCON, env variables set to the empty string are 
     # kept as such (set to empty string, rather than undefined).
     # This allows for the default to include atallclaims and for 
@@ -156,6 +167,22 @@ resource "azurerm_app_service" "civiform_app" {
     always_on                            = true
     acr_use_managed_identity_credentials = true
     vnet_route_all_enabled               = true
+  }
+
+  # We will only mount this storage container if SAML authentication is being used
+  dynamic "storage_account" {
+    for_each = var.civiform_applicant_auth_protocol == "saml" ? [1] : [0]
+
+    content {
+      name         = "civiform-saml-keystore"
+      type         = "AzureBlob"
+      account_name = var.saml_keystore_storage_account_name
+      share_name   = var.saml_keystore_storage_container_name
+      access_key   = var.saml_keystore_storage_access_key
+      mount_path   = "/saml"
+
+    }
+
   }
 
   identity {

@@ -1,0 +1,41 @@
+#! /usr/bin/env bash
+
+# TODO: figure out where in command flow to export PROJECT_BASE_DIR to
+# make it available in this file
+readonly PROJECT_BASE_DIR="$(realpath "$(dirname "${BASH_SOURCE}")/../../../")"
+source "${PROJECT_BASE_DIR}/cloud/azure/bin/lib.sh"
+source "${PROJECT_BASE_DIR}/cloud/aws/bin/lib.sh"
+
+readonly AWS_SECRET_ACCESS_TOKEN_NAME="aws-secret-access-token"
+readonly AWS_ACCESS_KEY_ID_NAME="aws-access-key-id"
+
+# DOC: Get SES secrets from AWS CLI and add to Azure Key Vault
+
+while getopts v:u: flag
+do
+  case "${flag}" in
+    v) vault_name="${OPTARG}";;
+    u) username="${OPTARG}";;
+    *) out::error "Unexpected getopts value ${flag}";;
+  esac
+done
+
+readonly vault_name
+readonly username
+
+if [[ ! "${vault_name}" ]] \
+   || [[ ! "${username}" ]]; then
+  out::error "arguments -v and -u must be provided"
+  exit 1
+fi
+
+echo "Getting an AWS access key"
+CREATED_KEY_RESULT="$(aws::create_access_key "${username}")"
+ACCESS_KEY_ID="$(aws::parse_access_key_id "${CREATED_KEY_RESULT}")"
+SECRET_ACCESS_KEY="$(aws::parse_access_secret_key "${CREATED_KEY_RESULTt}")"
+
+echo "Adding the secret access key to the azure key vault"
+key_vault::add_secret "${vault_name}" "${AWS_SECRET_ACCESS_TOKEN_NAME}" "${SECRET_ACCESS_KEY}"
+
+echo "Adding the access key id to the azure key vault"
+key_vault::add_secret "${vault_name}" "${AWS_ACCESS_KEY_ID_NAME}" "${ACCESS_KEY_ID}"
