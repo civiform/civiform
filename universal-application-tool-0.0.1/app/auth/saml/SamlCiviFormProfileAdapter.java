@@ -164,7 +164,8 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
   }
 
   private String extractAttributeFromArrayList(SAML2Profile profile, String attr) {
-    Optional<ArrayList> attributeArray = Optional.ofNullable(profile.getAttribute(attr, ArrayList.class));
+    Optional<ArrayList> attributeArray =
+        Optional.ofNullable(profile.getAttribute(attr, ArrayList.class));
     if (attributeArray.isEmpty()) {
       return "";
     }
