@@ -48,9 +48,8 @@ public class FileController extends CiviFormController {
               if (!fileKey.contains(String.format("applicant-%d", applicantId))) {
                 return notFound();
               }
-              return redirect(
-                  storageClient.getPresignedUrlString(
-                      URLDecoder.decode(fileKey, StandardCharsets.UTF_8)));
+              String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
+              return redirect(storageClient.getPresignedUrlString(decodedFileKey));
             },
             httpExecutionContext.current())
         .exceptionally(
