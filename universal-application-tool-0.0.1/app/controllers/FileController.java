@@ -73,8 +73,9 @@ public class FileController extends CiviFormController {
       if (!fileKey.contains(String.format("program-%d", programId))) {
         return notFound();
       }
+      String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
       return redirect(
-          storageClient.getPresignedUrlString(URLDecoder.decode(fileKey, StandardCharsets.UTF_8)));
+          storageClient.getPresignedUrlString(decodedFileKey));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (CompletionException e) {
