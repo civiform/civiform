@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableSet;
 
+import java.util.Optional;
+
 /**
  * Wraps two values, labeled "errors" and "result". Errors is intended to be an immutable collection
  * of error objects while result is the result of an action. If the action was successful only
@@ -23,38 +25,38 @@ public class ErrorAnd<T, E> {
   }
 
   private final ImmutableSet<E> errors;
-  private final T result;
+  private final Optional<T> result;
 
   /** Constructor for the error case. */
   private ErrorAnd(ImmutableSet<E> errors) {
     this.errors = checkNotNull(errors);
-    this.result = null;
+    this.result = Optional.empty();
   }
 
   /** Constructor for the error case but when result is also useful. */
   private ErrorAnd(ImmutableSet<E> errors, T result) {
     this.errors = checkNotNull(errors);
-    this.result = checkNotNull(result);
+    this.result = Optional.of(checkNotNull(result));
   }
 
   /** Constructor for the success case. */
   private ErrorAnd(T result) {
-    this.result = checkNotNull(result);
     this.errors = ImmutableSet.of();
+    this.result = Optional.of(checkNotNull(result));
   }
 
   /** Returns true if there is a result */
   public boolean hasResult() {
-    return result != null;
+    return result.isPresent();
   }
 
   /** Returns the result, throws a RuntimeException if there is no result. */
   public T getResult() {
-    if (result == null) {
+    if (result.isEmpty()) {
       throw new RuntimeException("There is no result");
     }
 
-    return result;
+    return result.get();
   }
 
   /** Returns true if there are errors. */

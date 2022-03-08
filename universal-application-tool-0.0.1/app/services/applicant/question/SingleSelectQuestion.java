@@ -19,7 +19,8 @@ import services.question.types.MultiOptionQuestionDefinition;
 public class SingleSelectQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
-  private Optional<LocalizedQuestionOption> selectedOptionValue;
+  // Stores the value, loading and caching it on first access.
+  private Optional<Optional<LocalizedQuestionOption>> selectedOptionValueCache;
 
   public SingleSelectQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
@@ -64,23 +65,25 @@ public class SingleSelectQuestion implements Question {
 
   /** Get the selected option in the applicant's preferred locale. */
   public Optional<LocalizedQuestionOption> getSelectedOptionValue() {
-    if (selectedOptionValue == null) {
-      selectedOptionValue =
-          getSelectedOptionValue(applicantQuestion.getApplicantData().preferredLocale());
+    if (selectedOptionValueCache.isEmpty()) {
+      selectedOptionValueCache =
+          Optional.of(
+              getSelectedOptionValue(applicantQuestion.getApplicantData().preferredLocale()));
     }
-    return selectedOptionValue;
+    return selectedOptionValueCache.get();
   }
 
   /** Get the selected option in the specified locale. */
   public Optional<LocalizedQuestionOption> getSelectedOptionValue(Locale locale) {
-    Optional<Long> selectedOptionId = getSelectedOptionId();
+    Optional<Long> selectedOptionIdOpt = getSelectedOptionId();
+    if (selectedOptionIdOpt.isEmpty()) {
+      return Optional.empty();
+    }
 
-    return selectedOptionId.isEmpty()
-        ? Optional.empty()
-        : getOptions(locale).stream()
-            .filter(option -> selectedOptionId.get() == option.id())
-            .findFirst()
-            .or(() -> Optional.empty());
+    Long selectedOptionId = selectedOptionIdOpt.get();
+    return getOptions(locale).stream()
+        .filter(option -> selectedOptionId == option.id())
+        .findFirst();
   }
 
   public void assertQuestionType() {
