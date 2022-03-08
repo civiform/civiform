@@ -21,8 +21,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -41,7 +39,6 @@ import views.style.Styles;
 /** Shows all questions in the applying program and answers to the questions if present. */
 public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
-  private static Logger logger = LoggerFactory.getLogger(ApplicantProgramSummaryView.class);
   private final ApplicantLayout layout;
 
   @Inject
