@@ -24,6 +24,7 @@ public class SingleSelectQuestion implements Question {
 
   public SingleSelectQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
+    selectedOptionValueCache = Optional.empty();
     assertQuestionType();
   }
 
