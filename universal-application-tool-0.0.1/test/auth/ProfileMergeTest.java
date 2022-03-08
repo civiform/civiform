@@ -27,8 +27,8 @@ public class ProfileMergeTest extends WithPostgresContainer {
     UserRepository repository = instanceOf(UserRepository.class);
     idcsProfileAdapter =
         new IdcsProfileAdapter(
-            /* configuration */ null,
-            /* client */ null,
+            /* configuration = */ null,
+            /* client = */ null,
             profileFactory,
             new Provider<UserRepository>() {
               @Override
@@ -38,8 +38,8 @@ public class ProfileMergeTest extends WithPostgresContainer {
             });
     samlProfileAdapter =
         new SamlCiviFormProfileAdapter(
-            /* configuration */ null,
-            /* client */ null,
+            /* configuration = */ null,
+            /* client = */ null,
             profileFactory,
             new Provider<UserRepository>() {
               @Override
