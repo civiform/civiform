@@ -39,9 +39,6 @@ variable "key_vault_name" {
   description = "Name of key vault where secrets are stored."
 }
 
-variable "key_vault_resource_group" {
-  type = string
-}
 variable "adfs_client_id" {
   type        = string
   description = "Active Directory Federation Service client id"
@@ -101,10 +98,6 @@ variable "saml_keystore_account_name" {
   description = "The storage account where the SAML keystore file is hosted"
 }
 
-variable "saml_keystore_resource_group_name" {
-  type        = string
-  description = "The resource group for the storage account where the keystore file is hosted"
-}
 
 variable "saml_keystore_container_name" {
   type        = string
