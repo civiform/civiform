@@ -1,0 +1,12 @@
+#! /usr/bin/env bash
+
+set -e
+
+if [[ -z "${1}" ]]; then
+    out::error "Must specify environment [dev/staging/prod]"
+    exit 1
+fi
+
+readonly ENV="${1}"
+# TODO: correclty handle the directory setup here
+python3 cloud/shared/bin/lib/setup.py -e "${ENV}" 
