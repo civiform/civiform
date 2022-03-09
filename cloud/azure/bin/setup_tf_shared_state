@@ -12,6 +12,7 @@ source "${PROJECT_BASE_DIR}/bin/lib.sh"
 
 if [[ -z "${1}" ]]; then
     out::error "Must specify backend vars filename."
+    exit 1
 fi
 
 readonly BACKEND_VARS_FILENAME="${1}"
