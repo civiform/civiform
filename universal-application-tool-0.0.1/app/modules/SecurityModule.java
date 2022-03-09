@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import javax.annotation.Nullable;
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
 import org.pac4j.core.authorization.authorizer.RequireAnyRoleAuthorizer;
 import org.pac4j.core.client.Client;
@@ -40,7 +41,6 @@ import org.pac4j.play.LogoutController;
 import org.pac4j.play.http.PlayHttpActionAdapter;
 import org.pac4j.play.store.PlayCookieSessionStore;
 import org.pac4j.play.store.ShiroAesDataEncrypter;
-import org.springframework.lang.Nullable;
 import play.Environment;
 
 /** SecurityModule configures and initializes all authentication and authorization classes. */
@@ -97,7 +97,7 @@ public class SecurityModule extends AbstractModule {
     bind(SessionStore.class).toInstance(sessionStore);
 
     // Default to these options
-    String applicantAuthClient = "adfs";
+    String applicantAuthClient = "idcs";
 
     try {
       applicantAuthClient = configuration.getString("auth.applicant_idp");
