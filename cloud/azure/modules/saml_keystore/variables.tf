@@ -4,7 +4,7 @@ variable "key_vault_name" {
 }
 
 variable "resource_group_name" {
-  type = string
+  type        = string
   description = "Name of the resource group where key vault and saml keystore are created"
 }
 variable "saml_keystore_filename" {
