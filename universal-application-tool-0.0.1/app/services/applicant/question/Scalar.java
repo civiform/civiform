@@ -28,6 +28,7 @@ public enum Scalar {
   LINE2("address line 2", ScalarType.STRING),
   MIDDLE_NAME("middle name", ScalarType.STRING),
   NUMBER("number", ScalarType.LONG),
+  ORIGINAL_FILE_NAME("original file name", ScalarType.STRING),
   SELECTION("selection", ScalarType.STRING),
   SELECTIONS("selections", ScalarType.LIST_OF_STRINGS),
   STATE("state", ScalarType.STRING),
@@ -70,7 +71,8 @@ public enum Scalar {
 
   private static final ImmutableSet<Scalar> EMAIL_SCALARS = ImmutableSet.of(EMAIL);
 
-  private static final ImmutableSet<Scalar> FILE_UPLOAD_SCALARS = ImmutableSet.of(FILE_KEY);
+  private static final ImmutableSet<Scalar> FILE_UPLOAD_SCALARS =
+      ImmutableSet.of(FILE_KEY, ORIGINAL_FILE_NAME);
 
   private static final ImmutableSet<Scalar> ID_SCALARS = ImmutableSet.of(ID);
 

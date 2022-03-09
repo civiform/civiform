@@ -49,6 +49,12 @@ public abstract class AnswerData {
   /** The identifier of the applicant's uploaded file if applicable. */
   public abstract Optional<String> fileKey();
 
+  /**
+   * The original file name of the applicant's uploaded file, if applicable. For example, this is
+   * needed for Azure blob storage, where the original file name is different from the file key.
+   */
+  public abstract Optional<String> originalFileName();
+
   /** The timestamp of when the answer was saved. */
   public abstract Long timestamp();
 
@@ -82,6 +88,8 @@ public abstract class AnswerData {
     public abstract Builder setAnswerText(String answerText);
 
     public abstract Builder setFileKey(Optional<String> fileKey);
+
+    public abstract Builder setOriginalFileName(Optional<String> originalFileName);
 
     public abstract Builder setTimestamp(Long timestamp);
 

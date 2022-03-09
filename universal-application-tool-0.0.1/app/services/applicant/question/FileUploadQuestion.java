@@ -17,10 +17,16 @@ import services.question.types.QuestionType;
 public class FileUploadQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
-  private Optional<String> fileKeyValue;
+  // This value is serving double duty as a singleton load of the value.
+  // This value is an optional of an optional because not all questions are file upload questions,
+  // and if they are this value could still not be set.
+  private Optional<Optional<String>> fileKeyValueCache;
+  private Optional<Optional<String>> originalFileNameValueCache;
 
   public FileUploadQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
+    this.fileKeyValueCache = Optional.empty();
+    this.originalFileNameValueCache = Optional.empty();
     assertQuestionType();
   }
 
@@ -62,13 +68,25 @@ public class FileUploadQuestion implements Question {
   }
 
   public Optional<String> getFileKeyValue() {
-    if (fileKeyValue != null) {
-      return fileKeyValue;
+    if (fileKeyValueCache.isPresent()) {
+      return fileKeyValueCache.get();
     }
 
-    fileKeyValue = applicantQuestion.getApplicantData().readString(getFileKeyPath());
+    fileKeyValueCache =
+        Optional.of(applicantQuestion.getApplicantData().readString(getFileKeyPath()));
 
-    return fileKeyValue;
+    return fileKeyValueCache.get();
+  }
+
+  public Optional<String> getOriginalFileName() {
+    if (originalFileNameValueCache.isPresent()) {
+      return originalFileNameValueCache.get();
+    }
+
+    originalFileNameValueCache =
+        Optional.of(applicantQuestion.getApplicantData().readString(getOriginalFileNamePath()));
+
+    return originalFileNameValueCache.get();
   }
 
   public void assertQuestionType() {
@@ -90,6 +108,10 @@ public class FileUploadQuestion implements Question {
     return applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY);
   }
 
+  public Path getOriginalFileNamePath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.ORIGINAL_FILE_NAME);
+  }
+
   public Optional<String> getFilename() {
     if (!isAnswered() || getFileKeyValue().isEmpty()) {
       return Optional.empty();
@@ -102,6 +124,10 @@ public class FileUploadQuestion implements Question {
     if (getFilename().isEmpty()) {
       return "-- NO FILE SELECTED --";
     }
-    return String.format("-- %s UPLOADED (click to download) --", getFilename().get());
+
+    String displayFileName =
+        getOriginalFileName().isPresent() ? getOriginalFileName().get() : getFilename().get();
+
+    return String.format("-- %s UPLOADED (click to download) --", displayFileName);
   }
 }

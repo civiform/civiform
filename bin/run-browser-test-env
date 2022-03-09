@@ -7,6 +7,11 @@ source bin/lib.sh
 # Default to continuous integration mode disabled.
 truth::declare_var_false continuous_integration
 
+# Default to not using both emulators.
+# both_emulators should only be true for Azurite browser tests, because these
+# tests also require localstack for SES email sending.
+truth::declare_var_false both_emulators
+
 # Default to using Localstack emulator.
 emulators::set_localstack_emulator_vars
 
@@ -25,8 +30,8 @@ emulators::set_localstack_emulator_vars
 function set_args() {
   while [ "${1:-}" != "" ]; do
     case "$1" in
-      "--help")
-        cat <<-EOF
+    "--help")
+      cat <<-EOF
 Usage: bin/run-browser-test-env [options]
 
 Run a local civiform environment for the browser tests to exercise.
@@ -39,25 +44,28 @@ Options:
 --aws   Use the AWS emulator (Localstack) for simulating cloud services,
         cannot be used with --azure flag. This is the default.
 
---azure Use the Azure emulator (Azurite) for simluating cloud services,
-        cannot be used with --aws flag.
+--azure Use the Azure emulator (Azurite) for simulating cloud storage for file
+        upload and download. Also use localstack, since we need that for SES.
 EOF
-        exit 0
-        ;;
+      exit 0
+      ;;
 
-      "--ci")
-        truth::enable continuous_integration
-        ;;
+    "--ci")
+      truth::enable continuous_integration
+      ;;
 
-      "--azure")
-        emulators::ensure_only_one_cloud_provider_flag azure
-        emulators::set_azurite_emulator_vars
-        ;;
+    "--azure")
+      emulators::set_azurite_emulator_vars
+      # We do this because the Azurite tests need both emulators running to
+      # be successful. But, for AWS, we only want one emulator running,
+      # localstack.
+      truth::enable both_emulators
+      ;;
 
-      "--aws")
-        emulators::ensure_only_one_cloud_provider_flag aws
-        # Already defaulted to AWS.
-       ;;
+    "--aws")
+      emulators::ensure_only_one_cloud_provider_flag aws
+      # Already defaulted to AWS.
+      ;;
     esac
 
     shift
@@ -66,7 +74,7 @@ EOF
 
 set_args "$@"
 
-echo "Making sure we're up to date with the latest dev... "\
+echo "Making sure we're up to date with the latest dev... " \
   "set environment variable USE_LOCAL_CIVIFORM=1 to skip"
 bin/pull-image > /dev/null
 
@@ -102,3 +110,18 @@ echo "  ${compose_command}"
 
 # Start everything else.
 eval "${compose_command}"
+
+# localstack emulator is also required for Azurite. This should only run for
+# Azure browser tests.
+if truth::is_enabled both_emulators; then
+  echo "Staring localstack emulator as well"
+  second_compose_command="docker-compose --profile aws \
+                                 -f browser-test/browser-test-compose.yml \
+                                 -f browser-test/browser-test-compose.dev.yml \
+                                 up -d localstack"
+  if truth::is_enabled continuous_integration; then
+    second_compose_command="${second_compose_command} > .dockerlogs 2>&1 &"
+  fi
+  echo "  ${second_compose_command}"
+  eval "${second_compose_command}"
+fi
