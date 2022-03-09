@@ -13,6 +13,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityNotFoundException;
 import models.Account;
 import models.Applicant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
 
@@ -22,6 +24,8 @@ import repository.DatabaseExecutionContext;
  * contain only server-local information, like execution contexts, database connections, etc.
  */
 public class CiviFormProfile {
+  // DO NOT SUBMIT remove logging
+  private static Logger LOG = LoggerFactory.getLogger(CiviFormProfile.class);
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
   private CiviFormProfileData profileData;
@@ -103,6 +107,36 @@ public class CiviFormProfile {
   }
 
   /**
+   * Sets the authority id for the associated {@link Account} if none is set.
+   *
+   * <p>If an id is already present this may only be called with the same exact ID.
+   *
+   * @param authorityId email address to be set for the account
+   * @return the future of the database operation
+   */
+  public CompletableFuture<Void> setAuthorityId(String authorityId) {
+    LOG.info("setAuthorityId: {}", authorityId);
+    return this.getAccount()
+        .thenApplyAsync(
+            a -> {
+              Optional<String> existingAuthorityId = Optional.ofNullable(a.getAuthorityId());
+              // We can never change the authority_id once set.
+              if (existingAuthorityId.isPresent()
+                  && !existingAuthorityId.get().equals(authorityId)) {
+                throw new ProfileMergeConflictException(
+                    String.format(
+                        "Profile already contains an authority ID: %s - which is different from"
+                            + " the new authority ID address %s.",
+                        existingAuthorityId, authorityId));
+              }
+              a.setAuthorityId(authorityId);
+              a.save();
+              return null;
+            },
+            dbContext);
+  }
+
+  /**
    * Set email address for the associated {@link Account} if none is set.
    *
    * <p>If email address is present and different from the address to be set, a
@@ -112,6 +146,7 @@ public class CiviFormProfile {
    * @return the future of the database operation
    */
   public CompletableFuture<Void> setEmailAddress(String emailAddress) {
+    LOG.info("setEmailAddress: {}", emailAddress);
     return this.getAccount()
         .thenApplyAsync(
             a -> {

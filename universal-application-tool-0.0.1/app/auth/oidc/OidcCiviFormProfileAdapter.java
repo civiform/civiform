@@ -32,10 +32,9 @@ import repository.UserRepository;
  * implementations of the two abstract methods.
  */
 public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
+  private static Logger LOG = LoggerFactory.getLogger(OidcCiviFormProfileAdapter.class);
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
-
-  private static Logger LOG = LoggerFactory.getLogger(OidcCiviFormProfileAdapter.class);
 
   public OidcCiviFormProfileAdapter(
       OidcConfiguration configuration,
@@ -53,11 +52,23 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
 
   protected abstract void adaptForRole(CiviFormProfile profile, ImmutableSet<Roles> roles);
 
+  protected String getAuthorityId(OidcProfile oidcProfile) {
+    // In OIDC the user is uniquely identified by the iss(user) and sub(ject) claims.
+    // We combine the two to create the unique authority id.
+    // Issuer is unintuitively necessary as CiviForm has different authentication systems for Admins
+    // and Applicants.
+    String issuer = oidcProfile.getAttribute("iss", String.class);
+    // Pac4j treats the subject as special, and you can't simply ask for the "sub" claim.
+    String subject = oidcProfile.getId();
+    return String.format("iss: %s sub: %s", issuer, subject);
+  }
   /** Merge the two provided profiles into a new CiviFormProfileData. */
   public CiviFormProfileData mergeCiviFormProfile(
       CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
     String emailAddress = oidcProfile.getAttribute(emailAttributeName(), String.class);
+    String authorityId = getAuthorityId(oidcProfile);
     civiformProfile.setEmailAddress(emailAddress).join();
+    civiformProfile.setAuthorityId(authorityId).join();
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
     // Meaning: whatever you signed in with most recently is the role you have.
     ImmutableSet<Roles> roles = roles(civiformProfile, oidcProfile);
@@ -74,6 +85,7 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
   @Override
   public Optional<UserProfile> create(
       Credentials cred, WebContext context, SessionStore sessionStore) {
+    LOG.info("create");
     ProfileUtils profileUtils = new ProfileUtils(sessionStore, profileFactory);
     possiblyModifyConfigBasedOnCred(cred);
     Optional<UserProfile> oidcProfile = super.create(cred, context, sessionStore);
@@ -82,6 +94,8 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
       LOG.warn("Didn't get a valid profile back from OIDC.");
       return Optional.empty();
     }
+
+    LOG.info("oidcProfile: {}", oidcProfile.get());
 
     if (!(oidcProfile.get() instanceof OidcProfile)) {
       LOG.warn(
