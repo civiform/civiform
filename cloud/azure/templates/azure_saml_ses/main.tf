@@ -24,8 +24,6 @@ module "app" {
   # note that we must use GP tier
   postgres_sku_name = "GP_Gen5_2"
 
-  docker_username        = var.docker_username
-  docker_repository_name = var.docker_repository_name
 
   civiform_applicant_auth_protocol = var.civiform_applicant_auth_protocol
   key_vault_name                   = var.key_vault_name
