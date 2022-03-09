@@ -25,8 +25,8 @@ public class FileUploadQuestion implements Question {
 
   public FileUploadQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
-    this.fileKeyValueCache = Optional.of(Optional.empty());
-    this.originalFileNameValueCache = Optional.of(Optional.empty());
+    this.fileKeyValueCache = Optional.empty();
+    this.originalFileNameValueCache = Optional.empty();
     assertQuestionType();
   }
 
