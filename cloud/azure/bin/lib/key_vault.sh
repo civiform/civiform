@@ -66,9 +66,10 @@ function key_vault::add_secret() {
 function key_vault::add_secret_from_input() {
   local SECRET
   echo "Please enter the value for ${2}: "
-  read -s $SECRET && unset REPLY
-  key_vault::add_secret "${1}" "${2}" "${SECRET}" && \
-    echo "Stored secret value for ${2} in key vault ${1}"
+  read -s $SECRET
+  unset REPLY
+  key_vault::add_secret "${1}" "${2}" "${SECRET}"  
+  echo "Stored secret value for ${2} in key vault ${1}"
 }
 
 #######################################
