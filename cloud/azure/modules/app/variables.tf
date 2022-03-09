@@ -159,7 +159,6 @@ variable "civiform_applicant_idp" {
 variable "civiform_applicant_auth_protocol" {
   type        = string
   description = "auth protocol to use for applicant auth. supported values are oidc and saml"
-  default     = "saml"
 }
 
 variable "login_radius_api_key" {

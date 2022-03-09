@@ -3,10 +3,18 @@
 # DOC: Creates Azure resources for storing shared terraform state in the cloud
 # DOC: and stores variables for accessing the shared state in a new
 # DOC: backend_vars file written to `pwd`.
+# DOC: setup_tf_shared_state BACKEND_VARS_FILENAME
 
 set -e
 
-setopt KSH_ARRAYS BASH_REMATCH
+readonly PROJECT_BASE_DIR="$(realpath "$(dirname "${BASH_SOURCE}")/../../../")"
+source "${PROJECT_BASE_DIR}/bin/lib.sh"
+
+if [[ -z "${1}" ]]; then
+    out::error "Must specify backend vars filename."
+fi
+
+readonly BACKEND_VARS_FILENAME="${1}"
 
 RESOURCE_GROUP_NAME="tfstate"
 STORAGE_ACCOUNT_NAME="tfstate${RANDOM}"
@@ -62,8 +70,8 @@ ACCOUNT_KEY="$(az storage account keys list \
   --query '[0].value' -o tsv)"
 export ARM_ACCESS_KEY="${ACCOUNT_KEY}"
 
-echo "generating the backend_vars file"
-echo "resource_group_name  = \"${RESOURCE_GROUP_NAME}\"" > backend_vars
-echo "storage_account_name = \"${STORAGE_ACCOUNT_NAME}\"" >> backend_vars
-echo "container_name       = \"${CONTAINER_NAME}\"" >> backend_vars
-echo "key                  = \"terraform.tfstate\"" >> backend_vars
+echo "generating the ${BACKEND_VARS_FILENAME} file"
+echo "resource_group_name  = \"${RESOURCE_GROUP_NAME}\"" > "${BACKEND_VARS_FILENAME}"
+echo "storage_account_name = \"${STORAGE_ACCOUNT_NAME}\"" >> "${BACKEND_VARS_FILENAME}"
+echo "container_name       = \"${CONTAINER_NAME}\"" >> "${BACKEND_VARS_FILENAME}"
+echo "key                  = \"terraform.tfstate\"" >> "${BACKEND_VARS_FILENAME}"
