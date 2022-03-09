@@ -25,8 +25,8 @@ module "app" {
   docker_repository_name = var.docker_repository_name
 
   civiform_applicant_auth_protocol = var.civiform_applicant_auth_protocol
-  key_vault_name           = var.key_vault_name
-  key_vault_resource_group = var.key_vault_resource_group
+  key_vault_name                   = var.key_vault_name
+  key_vault_resource_group         = var.key_vault_resource_group
 
   application_name = var.application_name
 

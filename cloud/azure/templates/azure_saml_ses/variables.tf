@@ -76,6 +76,6 @@ variable "staging_applicant_notification_mailing_list" {
 }
 
 variable "civiform_applicant_auth_protocol" {
-  type = string
+  type        = string
   description = "auth protocol to use for applicant auth. supported values are oidc and saml"
 }
