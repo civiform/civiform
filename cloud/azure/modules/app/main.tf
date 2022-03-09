@@ -133,8 +133,8 @@ resource "azurerm_app_service" "civiform_app" {
   }
   # Configure Docker Image to load on start
   site_config {
-    always_on                            = true
-    vnet_route_all_enabled               = true
+    always_on              = true
+    vnet_route_all_enabled = true
   }
 
   # We will only mount this storage container if SAML authentication is being used
@@ -171,12 +171,12 @@ resource "azurerm_app_service_slot" "canary" {
   resource_group_name = azurerm_resource_group.rg.name
   app_service_plan_id = azurerm_app_service_plan.plan.id
   app_service_name    = azurerm_app_service.civiform_app.name
-  
+
   app_settings = local.app_settings
 
   site_config {
-    always_on                            = true
-    vnet_route_all_enabled               = true
+    always_on              = true
+    vnet_route_all_enabled = true
   }
 
   # We will only mount this storage container if SAML authentication is being used
