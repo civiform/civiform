@@ -93,7 +93,7 @@ public class ApplicantData {
   public String getApplicantName() {
     try {
       String firstName = readString(WellKnownPaths.APPLICANT_FIRST_NAME).get();
-      if(hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
+      if (hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
         String lastName = readString(WellKnownPaths.APPLICANT_LAST_NAME).get();
         return String.format("%s, %s", lastName, firstName);
       }

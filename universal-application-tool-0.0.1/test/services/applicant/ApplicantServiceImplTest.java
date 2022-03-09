@@ -717,7 +717,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     String name = subject.getName(applicant.id).toCompletableFuture().join();
     assertThat(name).isEqualTo("World, Hello");
   }
-  
+
   @Test
   public void getName_applicantWithThreeNames() {
     Applicant applicant = resourceCreator.insertApplicant();
@@ -735,7 +735,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     String name = subject.getName(applicant.id).toCompletableFuture().join();
     assertThat(name).isEqualTo("First Second Third Fourth");
   }
-  
+
   @Test
   public void getName_applicantWithOneName() {
     Applicant applicant = resourceCreator.insertApplicant();
@@ -744,7 +744,7 @@ public class ApplicantServiceImplTest extends WithPostgresContainer {
     String name = subject.getName(applicant.id).toCompletableFuture().join();
     assertThat(name).isEqualTo("Mononymous");
   }
-  
+
   @Test
   public void getEmail_invalidApplicantId_doesNotFail() {
     subject.getEmail(9999L).toCompletableFuture().join();
