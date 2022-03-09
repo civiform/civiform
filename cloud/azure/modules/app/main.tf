@@ -151,7 +151,7 @@ resource "azurerm_app_service" "civiform_app" {
     LOGIN_RADIUS_METADATA_URI     = var.login_radius_metadata_uri
     LOGIN_RADIUS_API_KEY          = var.login_radius_api_key
     LOGIN_RADIUS_SAML_APP_NAME    = var.login_radius_saml_app_name
-    LOGIN_RADIUS_KEYSTORE_NAME    = "/saml/${var.saml_keystore_filename}"
+    LOGIN_RADIUS_KEYSTORE_NAME    = (var.saml_keystore_filename != null ? "/saml/${var.saml_keystore_filename}" : "")
     LOGIN_RADIUS_KEYSTORE_PASS    = var.saml_keystore_password
     LOGIN_RADIUS_PRIVATE_KEY_PASS = var.saml_private_key_password
 
@@ -171,7 +171,7 @@ resource "azurerm_app_service" "civiform_app" {
 
   # We will only mount this storage container if SAML authentication is being used
   dynamic "storage_account" {
-    for_each = var.civiform_applicant_auth_protocol == "saml" ? [1] : [0]
+    for_each = var.civiform_applicant_auth_protocol == "saml" ? [1] : []
 
     content {
       name         = "civiform-saml-keystore"

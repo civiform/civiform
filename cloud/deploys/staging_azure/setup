@@ -1,64 +1,37 @@
-#!/bin/bash
-setopt KSH_ARRAYS BASH_REMATCH
+#! /usr/bin/env bash
 
-RESOURCE_GROUP_NAME="tfstate"
-STORAGE_ACCOUNT_NAME="tfstate${RANDOM}"
-CONTAINER_NAME="tfstate"
+# DOC: Runs creates the azure staging environment
 
-echo "Check for Resource Group"
-GROUP_EXISTS=$(az group exists \
-  --name $RESOURCE_GROUP_NAME)
-if [ "${GROUP_EXISTS}" = "true" ]; then
-    echo "Resource Group ${RESOURCE_GROUP_NAME} already exists"
-else
-    echo "Create resource group"
-    az group create \
-      --name ${RESOURCE_GROUP_NAME} \
-      --location eastus
+set -e
+
+readonly THIS_DIR="$(realpath "$(dirname "${BASH_SOURCE}")")"
+readonly PROJECT_BASE_DIR="$(realpath "${THIS_DIR}/../../../")"
+
+source "${PROJECT_BASE_DIR}/cloud/azure/bin/lib.sh"
+
+readonly TF_VAR_FILE="${THIS_DIR}/staging.tfvars"
+readonly TEMPLATE_DIR="${PROJECT_BASE_DIR}/cloud/azure/templates/azure_saml_ses"
+readonly VARS_FILENAME="${THIS_DIR}/staging_azure_backend_vars"
+readonly RESOURCE_GROUP_NAME="tfstate"
+
+readonly SSH_KEY_FILE="${HOME}/.ssh/bastion"
+
+if ! [[ -f "${SSH_KEY_FILE}" ]]; then
+  echo "Creating a new ssh key"
+  ssh-keygen -t rsa -b 4096 -f "${SSH_KEY_FILE}"
 fi
 
-echo "Check storage accounts"
-CURRENT_ACCOUNTS=$(az storage account list \
-  -g ${RESOURCE_GROUP_NAME})
+key_vault::assign_secrets_officer_role_to_user "staging-kv-rg"
+storage::assign_storage_blob_data_contributor_role_to_user "${RESOURCE_GROUP_NAME}"
 
-STORAGE_ACCOUNT_PATTERN="\"name\"\: \"(tfstate[0-9]+)\""
-if [[ $CURRENT_ACCOUNTS =~ $STORAGE_ACCOUNT_PATTERN ]]; then
-    echo "You have a storage account already, using the name ${BASH_REMATCH[1]}"
-    STORAGE_ACCOUNT_NAME=${BASH_REMATCH[1]}
-else
-    echo "Create storage account"
-    az storage account create \
-      --resource-group ${RESOURCE_GROUP_NAME} \
-      --name ${STORAGE_ACCOUNT_NAME} \
-      --sku Standard_LRS \
-      --encryption-services blob
-fi
+cloud/azure/bin/setup_tf_shared_state "${VARS_FILENAME}"
 
-echo "Create blob container if it doesn't exist"
-CONTAINER_EXIST=$(az storage container exists \
-  --name ${CONTAINER_NAME} \
-  --account-name ${STORAGE_ACCOUNT_NAME})
-CONTAINER_EXISTS_PATTERN="\"exists\"\: true"
-if [[ "${CONTAINER_EXIST}" =~ "${CONTAINER_EXISTS_PATTERN}" ]]; then
-    echo "Container already exists"
-else
-    echo "Creating the container"
-    az storage container create \
-      --name ${CONTAINER_NAME} \
-      --account-name ${STORAGE_ACCOUNT_NAME}
-fi
+terraform \
+  -chdir="${TEMPLATE_DIR}" \
+  init \
+  -backend-config="${VARS_FILENAME}"
 
-echo "storing the account key"
-ACCOUNT_KEY="$(az storage account keys list \
-  --resource-group ${RESOURCE_GROUP_NAME} \
-  --account-name ${STORAGE_ACCOUNT_NAME} \
-  --query '[0].value' -o tsv)"
-export ARM_ACCESS_KEY="${ACCOUNT_KEY}"
-
-echo "generating the backend_vars file"
-echo "resource_group_name  = \"${RESOURCE_GROUP_NAME}\"" > backend_vars
-echo "storage_account_name = \"${STORAGE_ACCOUNT_NAME}\"" >> backend_vars
-echo "container_name       = \"${CONTAINER_NAME}\"" >> backend_vars
-echo "key                  = \"terraform.tfstate\"" >> backend_vars
-
-
+terraform \
+  -chdir="${TEMPLATE_DIR}" \
+  apply \
+  -var-file="${TF_VAR_FILE}"

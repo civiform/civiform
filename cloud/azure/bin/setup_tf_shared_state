@@ -1,0 +1,78 @@
+#! /usr/bin/env bash
+
+# DOC: Creates Azure resources for storing shared terraform state in the cloud
+# DOC: and stores variables for accessing the shared state in a new
+# DOC: backend_vars file written to `pwd`.
+# DOC: setup_tf_shared_state BACKEND_VARS_FILENAME
+
+set -e
+
+readonly PROJECT_BASE_DIR="$(realpath "$(dirname "${BASH_SOURCE}")/../../../")"
+source "${PROJECT_BASE_DIR}/bin/lib.sh"
+
+if [[ -z "${1}" ]]; then
+    out::error "Must specify backend vars filename."
+    exit 1
+fi
+
+readonly BACKEND_VARS_FILENAME="${1}"
+
+RESOURCE_GROUP_NAME="tfstate"
+STORAGE_ACCOUNT_NAME="tfstate${RANDOM}"
+CONTAINER_NAME="tfstate"
+
+echo "Check for Resource Group"
+GROUP_EXISTS=$(az group exists \
+  --name $RESOURCE_GROUP_NAME)
+if [ "${GROUP_EXISTS}" = "true" ]; then
+    echo "Resource Group ${RESOURCE_GROUP_NAME} already exists"
+else
+    echo "Create resource group"
+    az group create \
+      --name ${RESOURCE_GROUP_NAME} \
+      --location eastus
+fi
+
+echo "Check storage accounts"
+CURRENT_ACCOUNTS=$(az storage account list \
+  -g ${RESOURCE_GROUP_NAME})
+
+STORAGE_ACCOUNT_PATTERN="\"name\"\: \"(tfstate[0-9]+)\""
+if [[ $CURRENT_ACCOUNTS =~ $STORAGE_ACCOUNT_PATTERN ]]; then
+    echo "You have a storage account already, using the name ${BASH_REMATCH[1]}"
+    STORAGE_ACCOUNT_NAME=${BASH_REMATCH[1]}
+else
+    echo "Create storage account"
+    az storage account create \
+      --resource-group ${RESOURCE_GROUP_NAME} \
+      --name ${STORAGE_ACCOUNT_NAME} \
+      --sku Standard_LRS \
+      --encryption-services blob
+fi
+
+echo "Create blob container if it doesn't exist"
+CONTAINER_EXIST=$(az storage container exists \
+  --name ${CONTAINER_NAME} \
+  --account-name ${STORAGE_ACCOUNT_NAME})
+CONTAINER_EXISTS_PATTERN="\"exists\"\: true"
+if [[ "${CONTAINER_EXIST}" =~ "${CONTAINER_EXISTS_PATTERN}" ]]; then
+    echo "Container already exists"
+else
+    echo "Creating the container"
+    az storage container create \
+      --name ${CONTAINER_NAME} \
+      --account-name ${STORAGE_ACCOUNT_NAME}
+fi
+
+echo "storing the account key"
+ACCOUNT_KEY="$(az storage account keys list \
+  --resource-group ${RESOURCE_GROUP_NAME} \
+  --account-name ${STORAGE_ACCOUNT_NAME} \
+  --query '[0].value' -o tsv)"
+export ARM_ACCESS_KEY="${ACCOUNT_KEY}"
+
+echo "generating the ${BACKEND_VARS_FILENAME} file"
+echo "resource_group_name  = \"${RESOURCE_GROUP_NAME}\"" > "${BACKEND_VARS_FILENAME}"
+echo "storage_account_name = \"${STORAGE_ACCOUNT_NAME}\"" >> "${BACKEND_VARS_FILENAME}"
+echo "container_name       = \"${CONTAINER_NAME}\"" >> "${BACKEND_VARS_FILENAME}"
+echo "key                  = \"terraform.tfstate\"" >> "${BACKEND_VARS_FILENAME}"

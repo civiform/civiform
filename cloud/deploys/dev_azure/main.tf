@@ -49,8 +49,8 @@ module "app" {
   saml_keystore_filename     = module.saml_keystore.filename
 
   # These two values need to match for PKCS12 keys
-  saml_keystore_password     = module.saml_keystore.keystore_password
-  saml_private_key_password  = module.saml_keystore.keystore_password
+  saml_keystore_password    = module.saml_keystore.keystore_password
+  saml_private_key_password = module.saml_keystore.keystore_password
 
   saml_keystore_storage_access_key     = module.saml_keystore.storage_access_key
   saml_keystore_storage_account_name   = module.saml_keystore.storage_account_name
