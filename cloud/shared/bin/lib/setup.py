@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 import argparse
 import subprocess
 
@@ -14,9 +16,6 @@ Setup.py sets up and runs the initial terraform deployment. It's broken into
 
 The script generates a .tfvars file that is used to deploy via terraform.
 """
-parser = argparse.ArgumentParser()
-parser.add_argument("-e", "--env", type=str, help="environment to setup")
-parsed_args = parser.parse_args()
 
 ###############################################################################
 # Load and Validate Inputs
@@ -33,23 +32,21 @@ if not is_valid:
 
 ###############################################################################
 # Stack Specific Scripts
-# TODO: add the specific palns here, eg things like below
-# if config_loader.get_cloud_provider() == "azure":
-#     subprocess.call("deploys/bin/azure/key-vault-setup")
-#     subprocess.call("ssh-keygen -t rsa -b 4096 -f $HOME/.ssh/bastion", shell=True)
-# if (
-#     config_loader.get_email_sender == "SES"
-#     and config_loader.get_cloud_provider() == "azure"
-# ):
-#     subprocess.call("deploys/bin/ses-to-keyvault")
+###############################################################################
 
+template_dir = config_loader.get_template_dir()
+
+# TODO: each template setup needs to call and set the en
+# this generate values we need later
+# in the template bin there is a python class that handles setup for that 
+# template. load all 
+# subprocess.call(f"{template_dir}/bin/setup", shell=True)
 
 ###############################################################################
 # Terraform Init/Plan/Apply
 ###############################################################################
 
-terraform_directory = config_loader.get_template_dir()
-terraform_tfvars_filename = f"{terraform_directory}/setup.auto.tfvars"
+terraform_tfvars_filename = f"{template_dir}/setup.auto.tfvars"
 
 # Write the passthrough vars to a temporary file
 tf_var_writter =   TfVarWriter(terraform_tfvars_filename)
