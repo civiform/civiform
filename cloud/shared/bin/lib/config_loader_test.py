@@ -82,6 +82,5 @@ class TestConfigLoader(unittest.TestCase):
         self.assertFalse(is_valid)
         self.assertEqual(errors, [" not supported enum for FOO"])
 
-
 if __name__ == "__main__":
     unittest.main()
