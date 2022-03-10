@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileFactory;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import javax.inject.Provider;
 import org.pac4j.core.http.callback.PathParameterCallbackUrlResolver;
 import org.pac4j.oidc.client.OidcClient;
@@ -12,14 +13,14 @@ import repository.UserRepository;
 
 public class IdcsOidcProvider implements Provider<OidcClient> {
 
-  private final com.typesafe.config.Config configuration;
+  private final Config configuration;
   private final String baseUrl;
   private final ProfileFactory profileFactory;
   private final Provider<UserRepository> applicantRepositoryProvider;
 
   @Inject
   public IdcsOidcProvider(
-      com.typesafe.config.Config configuration,
+      Config configuration,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {
     this.configuration = checkNotNull(configuration);
@@ -30,14 +31,13 @@ public class IdcsOidcProvider implements Provider<OidcClient> {
 
   @Override
   public OidcClient get() {
-    if (!this.configuration.hasPath("idcs.client_id")
-        || !this.configuration.hasPath("idcs.secret")) {
+    if (!configuration.hasPath("idcs.client_id") || !configuration.hasPath("idcs.secret")) {
       return null;
     }
     OidcConfiguration config = new OidcConfiguration();
-    config.setClientId(this.configuration.getString("idcs.client_id"));
-    config.setSecret(this.configuration.getString("idcs.secret"));
-    config.setDiscoveryURI(this.configuration.getString("idcs.discovery_uri"));
+    config.setClientId(configuration.getString("idcs.client_id"));
+    config.setSecret(configuration.getString("idcs.secret"));
+    config.setDiscoveryURI(configuration.getString("idcs.discovery_uri"));
     config.setResponseMode("form_post");
     // Our local fake IDCS doesn't support 'token' auth.
     if (baseUrl.contains("localhost:")) {

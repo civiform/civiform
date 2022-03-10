@@ -4,22 +4,29 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileFactory;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
+import java.util.IllegalFormatException;
+import java.util.Optional;
 import javax.inject.Provider;
 import org.pac4j.core.http.callback.PathParameterCallbackUrlResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
 public class LoginRadiusSamlProvider implements Provider<SAML2Client> {
 
-  private final com.typesafe.config.Config configuration;
+  private static final Logger logger = LoggerFactory.getLogger(LoginRadiusSamlProvider.class);
+
+  private final Config configuration;
   private final ProfileFactory profileFactory;
   private final Provider<UserRepository> applicantRepositoryProvider;
   private final String baseUrl;
 
   @Inject
   public LoginRadiusSamlProvider(
-      com.typesafe.config.Config configuration,
+      Config configuration,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {
     this.configuration = checkNotNull(configuration);
@@ -30,22 +37,24 @@ public class LoginRadiusSamlProvider implements Provider<SAML2Client> {
 
   @Override
   public SAML2Client get() {
-    if (!this.configuration.hasPath("login_radius.keystore_password")
-        || !this.configuration.hasPath("login_radius.private_key_password")
-        || !this.configuration.hasPath("login_radius.api_key")) {
+    if (!configuration.hasPath("login_radius.keystore_password")
+        || !configuration.hasPath("login_radius.private_key_password")
+        || !configuration.hasPath("login_radius.api_key")) {
       return null;
     }
 
-    String metadataResourceUrl =
-        String.format(
-            "%s?apikey=%s&appName=%s",
-            this.configuration.getString("login_radius.metadata_uri"),
-            this.configuration.getString("login_radius.api_key"),
-            this.configuration.getString("login_radius.saml_app_name"));
+    Optional<String> metadataResourceUrlOpt = formatMetadataResourceUrl();
+
+    if (metadataResourceUrlOpt.isEmpty()) {
+      logger.warn("Invalid SAML metadata resource URL generated in LoginRadiusSamlProvider");
+      return null;
+    }
+
+    String metadataResourceUrl = metadataResourceUrlOpt.get();
     SAML2Configuration config = new SAML2Configuration();
-    config.setKeystoreResourceFilepath(this.configuration.getString("login_radius.keystore_name"));
-    config.setKeystorePassword(this.configuration.getString("login_radius.keystore_password"));
-    config.setPrivateKeyPassword(this.configuration.getString("login_radius.private_key_password"));
+    config.setKeystoreResourceFilepath(configuration.getString("login_radius.keystore_name"));
+    config.setKeystorePassword(configuration.getString("login_radius.keystore_password"));
+    config.setPrivateKeyPassword(configuration.getString("login_radius.private_key_password"));
     config.setIdentityProviderMetadataResourceUrl(metadataResourceUrl);
     SAML2Client client = new SAML2Client(config);
 
@@ -57,5 +66,20 @@ public class LoginRadiusSamlProvider implements Provider<SAML2Client> {
     client.setCallbackUrl(baseUrl + "/callback");
     client.init();
     return client;
+  }
+
+  private Optional<String> formatMetadataResourceUrl() {
+    String metadataResourceUrl;
+    try {
+      metadataResourceUrl =
+          String.format(
+              "%s?apikey=%s&appName=%s",
+              configuration.getString("login_radius.metadata_uri"),
+              configuration.getString("login_radius.api_key"),
+              configuration.getString("login_radius.saml_app_name"));
+      return Optional.of(metadataResourceUrl);
+    } catch (IllegalFormatException | NullPointerException e) {
+      return Optional.empty();
+    }
   }
 }

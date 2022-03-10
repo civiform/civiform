@@ -96,13 +96,11 @@ public class SecurityModule extends AbstractModule {
         new PlayCookieSessionStore(new ShiroAesDataEncrypter(aesKey));
     bind(SessionStore.class).toInstance(sessionStore);
 
-    // Default to these options
     String applicantAuthClient = "idcs";
 
     try {
       applicantAuthClient = configuration.getString("auth.applicant_idp");
-    } catch (ConfigurationException error) {
-      // Do nothing and default to adfs.
+    } catch (ConfigurationException ignore) {
     }
 
     bindAdminIdpProvider();

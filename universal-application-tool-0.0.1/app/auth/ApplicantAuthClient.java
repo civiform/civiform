@@ -6,7 +6,8 @@ import javax.inject.Qualifier;
 
 /**
  * ApplicantAuthClient is the annotation for the auth client responsible for applicant
- * authentication. This client will implement IndirectClient.
+ * authentication. This client must implement IndirectClient -> {@link
+ * org.pac4j.core.client.IndirectClient}.
  */
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)

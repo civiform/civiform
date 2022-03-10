@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.ProfileFactory;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.typesafe.config.Config;
 import java.util.ArrayList;
 import java.util.Collections;
 import org.pac4j.core.http.callback.PathParameterCallbackUrlResolver;
@@ -15,14 +16,14 @@ import repository.UserRepository;
 /** Provider class for the AD OIDC Client. */
 public class AdOidcProvider implements Provider<OidcClient> {
 
-  private final com.typesafe.config.Config configuration;
+  private final Config configuration;
   private final String baseUrl;
   private final ProfileFactory profileFactory;
   private final Provider<UserRepository> applicantRepositoryProvider;
 
   @Inject
   public AdOidcProvider(
-      com.typesafe.config.Config configuration,
+      Config configuration,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {
     this.configuration = checkNotNull(configuration);
@@ -33,19 +34,18 @@ public class AdOidcProvider implements Provider<OidcClient> {
 
   @Override
   public OidcClient get() {
-    if (!this.configuration.hasPath("adfs.client_id")
-        || !this.configuration.hasPath("adfs.secret")) {
+    if (!configuration.hasPath("adfs.client_id") || !configuration.hasPath("adfs.secret")) {
       return null;
     }
     OidcConfiguration config = new OidcConfiguration();
     // Resource identifier that tells AD that this is civiform from the portal.
-    config.setClientId(this.configuration.getString("adfs.client_id"));
+    config.setClientId(configuration.getString("adfs.client_id"));
 
     // The token that we created within AD and use to sign our requests.
-    config.setSecret(this.configuration.getString("adfs.secret"));
+    config.setSecret(configuration.getString("adfs.secret"));
 
     // Endpoint that app can use to get the public keys from.
-    config.setDiscoveryURI(this.configuration.getString("adfs.discovery_uri"));
+    config.setDiscoveryURI(configuration.getString("adfs.discovery_uri"));
 
     // Tells AD to use a post response when it sends info back from
     // the auth request.
@@ -59,7 +59,7 @@ public class AdOidcProvider implements Provider<OidcClient> {
     // Note: ADFS has the extra claim: allatclaims which returns
     // access token in the id_token.
     String[] defaultScopes = {"openid", "profile", "email"};
-    String[] extraScopes = this.configuration.getString("adfs.additional_scopes").split(" ");
+    String[] extraScopes = configuration.getString("adfs.additional_scopes").split(" ");
     ArrayList<String> allClaims = new ArrayList<>();
     Collections.addAll(allClaims, defaultScopes);
     Collections.addAll(allClaims, extraScopes);
@@ -83,7 +83,7 @@ public class AdOidcProvider implements Provider<OidcClient> {
     // This is what links the user to the stuff they have access to.
     client.setProfileCreator(
         new AdfsProfileAdapter(
-            config, client, profileFactory, this.configuration, applicantRepositoryProvider));
+            config, client, profileFactory, configuration, applicantRepositoryProvider));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.init();
     return client;
