@@ -266,7 +266,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 QuestionOption.create(
                     4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"))));
     // We can only update draft questions, so save this in the DRAFT version.
-    Question question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
+    testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
 
     ArrayList<String> newOptions = new ArrayList<>();
     newOptions.add("cookie");
