@@ -9,7 +9,6 @@ import json
 class VariableDefinitionLoader:
     def __init__(self, variable_definitions={}):
         self.variable_definitions: dict = variable_definitions
-        self.def_files = []
 
     def load_definition_file(self, definition_file_path: str):
         with open(definition_file_path, "r") as file:

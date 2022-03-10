@@ -21,11 +21,13 @@ class ConfigLoader:
         variable_def_loader = VariableDefinitionLoader()
         cwd = os.getcwd()
         definition_file_path = f'{cwd}/cloud/shared/variable_definitions.json'
-        self.variable_definitions = variable_def_loader.load_definition_file(definition_file_path)
-        self.configs = self.get_env_variables(self.shared_variable_definitions)
+        variable_def_loader.load_definition_file(definition_file_path)
+        shared_definitions = variable_def_loader.get_variable_definitions()
+        self.configs = self.get_env_variables(shared_definitions)
         
         template_definitions_file_path = f'{self.get_template_dir()}/variable_definitions.json'
-        self.variable_definitions = variable_def_loader.load_definition_file(template_definitions_file_path) 
+        variable_def_loader.load_definition_file(template_definitions_file_path) 
+        self.variable_definitions = variable_def_loader.get_variable_definitions()
         self.configs = self.get_env_variables(self.variable_definitions)
         
     def get_shared_variable_definitions(self):
