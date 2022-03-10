@@ -158,7 +158,6 @@ module.exports = {
               matches = line.matchAll(/["'][\.a-z0-9/:-]+["']/g);
               for (m of matches) {
                 let mr = m[0].replace(/['"]+/g, '');
-                console.log(mr);
                 output.push(mr);
               }
             }
