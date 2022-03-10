@@ -67,7 +67,7 @@ resource "google_cloud_run_service" "civiform_application_run_service" {
       annotations = {
         "autoscaling.knative.dev/maxScale"      = "5"
         "autoscaling.knative.dev/minScale"      = "2"
-        "run.googleapis.com/cloudsql-instances" = var.connection_name
+        "run.googleapis.com/cloudsql-instances" = var.db_connection_name
       }
     }
   }

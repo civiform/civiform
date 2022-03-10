@@ -22,6 +22,7 @@ provider "google" {
 module "IAM" {
   source = "./modules/IAM"
   terraform_service_account_email   = var.terraform_service_account
+  project_id                        = var.project_id
 }
 
 module "network" {

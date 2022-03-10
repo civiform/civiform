@@ -27,7 +27,7 @@ resource "google_secret_manager_secret_iam_binding" "binding" {
 }
 
 resource "google_sql_database_instance" "civiform_db" {
-  name             = "civiform-db-instance"
+  name             = "civiform-db-instance-3"
   database_version = "POSTGRES_12"
   region           = var.region
 

@@ -48,8 +48,8 @@ data "google_iam_policy" "application_service_account_policy" {
 }
 
 resource "google_storage_bucket_iam_binding" "binding" {
- role   = "roles/storage.owner"
- bucket = "artifacts.${var.project}.appspot.com"
+ role   = "roles/storage.legacyBucketOwner"
+ bucket = "artifacts.${var.project_id}.appspot.com"
 
  members = [
   "serviceAccount:${var.terraform_service_account_email}",
