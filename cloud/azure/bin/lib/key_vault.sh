@@ -58,6 +58,21 @@ function key_vault::add_secret() {
 }
 
 #######################################
+# Add a secret to the key vault
+# Arguments:
+#   1: The name of the key vault
+#   2: The name of the secret (used to identify it e.g. "postgres-password")
+#######################################
+function key_vault::add_secret_from_input() {
+  local SECRET
+  echo "Please enter the value for ${2}: "
+  read -s $SECRET
+  unset REPLY
+  key_vault::add_secret "${1}" "${2}" "${SECRET}"  
+  echo "Stored secret value for ${2} in key vault ${1}"
+}
+
+#######################################
 # For each argument after the first, generates a secret value and adds it to the
 # key vault, using the argument as the secret name.
 # Arguments:
