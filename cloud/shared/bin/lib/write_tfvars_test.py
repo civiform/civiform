@@ -2,7 +2,7 @@ import unittest
 import os
 import json
 
-from write_tfvars import   TfVarWriter
+from write_tfvars import TfVarWriter
 
 """
  Tests for the WriteTfVars, calls the I/O methods to match the actual 
