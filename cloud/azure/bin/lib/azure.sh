@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+readonly CIVIFORM_CONTAINER_NAME="civiform/civiform"
+
 #######################################
 # Create resource group
 # Arguments:
@@ -57,23 +59,16 @@ function azure::get_canary_url() {
 }
 
 #######################################
-# Set base urls for app service primary and canary slot. For now, this
+# Set base urls for app service canary slot. For now, this
 # step must be done via CLI because Terraform doesn't support the
-# slot settings feature. 
+# slot settings feature.
 # See https://github.com/hashicorp/terraform-provider-azurerm/pull/12809
 # Arguments:
-#   1. The resource group name 
+#   1. The resource group name
 #######################################
 function azure::set_app_base_urls() {
   local APP_NAME="$(azure::get_app_name "${1}")"
-  local PRIMARY_URL="$(azure::get_primary_url "${APP_NAME}")"
   local CANARY_URL="$(azure::get_canary_url "${APP_NAME}")"
-
-  echo "Setting base URL for primary slot to "${PRIMARY_URL}""
-  az webapp config appsettings set \
-    --resource_group "${1}" \
-    --name "${APP_NAME}" \
-    --slot-settings "BASE_URL=${PRIMARY_URL}"
 
   echo "Setting base URL for canary slot to "${CANARY_URL}""
   az webapp config appsettings set \
@@ -81,6 +76,38 @@ function azure::set_app_base_urls() {
     --name "${APP_NAME}" \
     --slot "canary"
     --slot-settings "BASE_URL=${CANARY_URL}"
-
 }
 
+
+#######################################
+# Set base urls for app service primary slot. For now, this
+# step must be done via CLI because Terraform doesn't support the
+# slot settings feature.
+# See https://github.com/hashicorp/terraform-provider-azurerm/pull/12809
+# Arguments:
+#   1. The resource group name
+#   2. The custom hostname for the primary slot (e.g. https://staging-azure.civiform.dev)
+#######################################
+function azure::set_app_base_urls() {
+  local APP_NAME="$(azure::get_app_name "${1}")"
+
+  echo "Setting base URL for canary slot to "${CANARY_URL}""
+  az webapp config appsettings set \
+    --resource_group "${1}" \
+    --name "${APP_NAME}" \
+    --slot-settings "BASE_URL=${2}"
+}
+
+#######################################
+# Sets the canary slot to point to a new container tag
+# Arguments:
+#   1. The resource group name
+#   2. The new tag version
+#######################################
+function azure::set_new_container_tag(){
+  az webapp config container set \
+    --resource_group "${1}" \
+    --name "${APP_NAME}" \
+    --slot "canary"
+    --docker-custom-image-name "DOCKER|${CIVIFORM_CONTAINER_NAME}:${2}"
+}
