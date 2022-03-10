@@ -25,6 +25,5 @@ class TestWriteTfVars(unittest.TestCase):
         with open(self.fake_tfvars_filename, "r") as tf_vars:
             self.assertEqual(tf_vars.read(), 'test="success"\nenv="test"\n')
 
-
 if __name__ == "__main__":
     unittest.main()
