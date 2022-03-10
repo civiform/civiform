@@ -143,27 +143,31 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
       predicateBuilder.setMaxChoicesAllowed(getMaxChoicesAllowed());
     }
 
-    ImmutableList.Builder<QuestionOption> questionOptions = ImmutableList.builder();
+    ImmutableList.Builder<QuestionOption> questionOptionsBuilder = ImmutableList.builder();
     Preconditions.checkState(
         this.optionIds.size() == this.options.size(),
         "Option ids and options are not the same size.");
 
     // Note: the question edit form only sets or updates the default locale.
     for (int i = 0; i < options.size(); i++) {
-      questionOptions.add(
+      questionOptionsBuilder.add(
           QuestionOption.create(
               optionIds.get(i), i, LocalizedStrings.withDefaultValue(options.get(i))));
     }
+    setNextAvailableId(options.size());
     for (int i = 0; i < newOptions.size(); i++) {
-      questionOptions.add(
+      questionOptionsBuilder.add(
           QuestionOption.create(
               nextAvailableId.orElse(0L) + i,
               options.size() + i,
               LocalizedStrings.withDefaultValue(newOptions.get(i))));
     }
+    ImmutableList<QuestionOption> questionOptions = questionOptionsBuilder.build();
+
+    setNextAvailableId(questionOptions.size());
 
     return super.getBuilder()
-        .setQuestionOptions(questionOptions.build())
+        .setQuestionOptions(questionOptions)
         .setValidationPredicates(predicateBuilder.build());
   }
 
