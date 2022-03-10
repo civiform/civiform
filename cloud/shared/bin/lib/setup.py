@@ -44,7 +44,7 @@ template_setup = Setup()
 terraform_tfvars_filename = f"{template_dir}/setup.auto.tfvars"
 
 # Write the passthrough vars to a temporary file
-tf_var_writter =   TfVarWriter(terraform_tfvars_filename)
+tf_var_writter = TfVarWriter(terraform_tfvars_filename)
 variables_to_write = config_loader.get_terraform_variables()
 tf_var_writter.write_variables(variables_to_write)
 
