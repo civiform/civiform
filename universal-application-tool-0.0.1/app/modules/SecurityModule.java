@@ -101,6 +101,7 @@ public class SecurityModule extends AbstractModule {
     try {
       applicantAuthClient = configuration.getString("auth.applicant_idp");
     } catch (ConfigurationException ignore) {
+      // Default to IDCS.
     }
 
     bindAdminIdpProvider();
