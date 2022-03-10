@@ -21,6 +21,7 @@ function health::wait_for_success() {
             echo "Deadline exceeded waiting for healthy endpoint" >&2
             exit 1
         fi
+        sleep 10
     done
 
 }
