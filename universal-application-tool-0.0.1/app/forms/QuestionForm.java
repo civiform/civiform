@@ -21,7 +21,7 @@ public abstract class QuestionForm {
   private Optional<Long> enumeratorId;
   private String questionText;
   private String questionHelpText;
-  private String questionExportState;
+  private Optional<String> questionExportState;
   private QuestionDefinition qd;
 
   protected QuestionForm() {
@@ -30,12 +30,12 @@ public abstract class QuestionForm {
     enumeratorId = Optional.empty();
     questionText = "";
     questionHelpText = "";
-    questionExportState = "";
+    questionExportState = Optional.of("");
   }
 
   protected QuestionForm(QuestionDefinition qd) {
     this.qd = qd;
-    questionExportState = null;
+    questionExportState = Optional.empty();
     questionName = qd.getName();
     questionDescription = qd.getDescription();
     enumeratorId = qd.getEnumeratorId();
@@ -118,29 +118,29 @@ public abstract class QuestionForm {
   }
 
   public void setQuestionExportState(String questionExportState) {
-    this.questionExportState = questionExportState;
+    this.questionExportState = Optional.of(questionExportState);
   }
 
   public void setQuestionExportStateFromTags(List<QuestionTag> questionTags) {
     if (questionTags.contains(QuestionTag.DEMOGRAPHIC)) {
-      this.questionExportState = QuestionTag.DEMOGRAPHIC.getValue();
+      questionExportState = Optional.of(QuestionTag.DEMOGRAPHIC.getValue());
     } else if (questionTags.contains(QuestionTag.DEMOGRAPHIC_PII)) {
-      this.questionExportState = QuestionTag.DEMOGRAPHIC_PII.getValue();
+      questionExportState = Optional.of(QuestionTag.DEMOGRAPHIC_PII.getValue());
     } else {
-      questionExportState = QuestionTag.NON_DEMOGRAPHIC.getValue();
+      questionExportState = Optional.of(QuestionTag.NON_DEMOGRAPHIC.getValue());
     }
   }
 
   public String getQuestionExportState() {
-    if (ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(this.getQuestionType())) {
+    if (ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(getQuestionType())) {
       return QuestionTag.NON_DEMOGRAPHIC.getValue();
     }
 
-    if (this.questionExportState == null) {
+    if (questionExportState.isEmpty()) {
       Question q = new Question(this.qd);
       q.refresh();
-      this.setQuestionExportStateFromTags(q.getQuestionTags());
+      setQuestionExportStateFromTags(q.getQuestionTags());
     }
-    return this.questionExportState;
+    return questionExportState.get();
   }
 }
