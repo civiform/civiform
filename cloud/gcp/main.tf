@@ -49,9 +49,9 @@ module "compute" {
   region                            = var.region
   http_port                         = var.http_port
   bucket_name                       = module.storage.bucket_name
-  connection_name                   = module.database.connection_name
+  db_connection_name                = module.database.db_connection_name
   application_service_account_email = module.IAM.application_service_account_email
-  secret_id                         = module.database.secret_id
+  db_secret_id                         = module.database.db_secret_id
   civiform_image_name               = var.civiform_image_name
   project_id                        = var.project_id
   terraform_service_account_email   = var.terraform_service_account

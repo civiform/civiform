@@ -1,9 +1,9 @@
 variable "region" {
   type        = string
-  description = "Default region for the db"
+  description = "Default region for the application"
 }
 
-variable "connection_name" {
+variable "db_connection_name" {
     type    = string
     description = "DB connection string"
 }
@@ -23,7 +23,7 @@ variable "application_service_account_email" {
     description = "The service account application runs with"
 }
 
-variable "secret_id" {
+variable "db_secret_id" {
     type = string
     description = "Secret Manager secret id for database password"
 }

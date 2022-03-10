@@ -46,16 +46,16 @@ resource "google_cloud_run_service" "civiform_application_run_service" {
           name = "GCS_BUCKET_NAME"
           value = var.bucket_name
         }
-        // CloudSql JDBC connector connects a little differently(see https://cloud.google.com/sql/docs/postgres/connect-run)
+        // CloudSql JDBC connector needs to use HikariDataSource to establish a jdbc connection (https://github.com/GoogleCloudPlatform/java-docs-samples/blob/HEAD/cloud-sql/postgres/servlet/src/main/java/com/example/cloudsql/ConnectionPoolContextListener.java)
         env {
           name = "DB_CONNECTION_STRING"
-          value = "/cloudsql/${var.connection_name}"
+          value = "/cloudsql/${var.db_connection_name}"
         }
         env {
           name = "DB_PASSWORD"
       value_from {
             secret_key_ref {
-              name = var.secret_id
+              name = var.db_secret_id
               key = "latest"
             }
           }
@@ -73,7 +73,7 @@ resource "google_cloud_run_service" "civiform_application_run_service" {
   }
   metadata { 
     annotations = { 
-      "run.googleapis.com/ingress"       = "internal-and-cloud-load-balancing"
+      "run.googleapis.com/ingress" = "internal-and-cloud-load-balancing"
     } 
   }
   autogenerate_revision_name = true
