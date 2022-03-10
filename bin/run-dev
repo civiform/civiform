@@ -38,15 +38,7 @@ function set_args() {
 
 set_args "$@"
 
-echo "Making sure we're up to date with the latest dev... "\
-  "set environment variable USE_LOCAL_CIVIFORM=1 to skip"\
-  "set environment variable PULL_PROGRESS=1 to show download progress"
-
-if [[ -z "${PULL_PROGRESS}" ]]; then
-  bin/pull-image
-else
-  bin/pull-image > /dev/null
-fi
+bin/pull-image
 
 docker::set_network_name_dev
 
