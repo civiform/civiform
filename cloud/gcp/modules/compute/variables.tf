@@ -27,3 +27,18 @@ variable "secret_id" {
     type = string
     description = "Secret Manager secret id for database password"
 }
+
+variable "civiform_image_name" {
+  type = string
+  description = "Suffix of the civiform image"
+}
+
+variable "project_id" {
+  type = string
+  description = "project id for the project"
+}
+
+variable "terraform_service_account_email" {
+    type = string
+    description = "service account that runs terraform."
+}

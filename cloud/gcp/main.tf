@@ -21,7 +21,9 @@ provider "google" {
 
 module "IAM" {
   source = "./modules/IAM"
+  terraform_service_account_email   = var.terraform_service_account
 }
+
 module "network" {
   source = "./modules/network"
   region = var.region
@@ -50,5 +52,8 @@ module "compute" {
   connection_name                   = module.database.connection_name
   application_service_account_email = module.IAM.application_service_account_email
   secret_id                         = module.database.secret_id
+  civiform_image_name               = var.civiform_image_name
+  project_id                        = var.project_id
+  terraform_service_account_email   = var.terraform_service_account
 }
 

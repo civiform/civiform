@@ -1,16 +1,29 @@
+/* ensure that the image registry bucket is created and push latest image to image to it .
+Interim solution. You should not have to run terraform apply to cut a release ideally. */
+# resource "null_resource" "docker-registry" {
+#  provisi "local-exec" {
+#   command = <<EOF
+#    gcloud components install docker-credential-gcr && \
+#    docker-credential-gcr configure-docker && \
+#    docker pull docker.io/civiform/${var.civiform_image_name} && \
+#    docker build -t gcr.io/${var.project}/civiform:latest - && \
+#    docker push gcr.io/${var.project}/civiform:latest
+#   EOF
+#  }
+# }
+
 resource "google_cloud_run_service" "civiform_application_run_service" {
   name     = "cloudrun-civiform"
   location = var.region
 
-  ##TODO(@ktoor): Change to correct docker image. Will need to push the image to gcr through some mechanism.
   template {
     spec {
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "gcr.io/${var.project_id}/${var.civiform_image_name}"
         resources {
             requests = {
-                "cpu"    = "1"
-                "memory" = "512Mi"
+                "cpu"    = "2"
+                "memory" = "4000Mi"
             }
             limits = {
                 cpu      = "4"
