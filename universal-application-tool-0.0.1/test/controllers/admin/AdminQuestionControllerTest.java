@@ -13,6 +13,7 @@ import forms.DropdownQuestionForm;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import models.LifecycleStage;
 import models.Question;
 import org.junit.Before;
@@ -279,7 +280,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     questionForm.getBuilder();
 
     assertThat(questionForm.getNextAvailableId()).isPresent();
-    assertThat(questionForm.getNextAvailableId()).isEqualTo(8L);
+    assertThat(questionForm.getNextAvailableId()).isEqualTo(OptionalLong.of(8));
   }
 
   @Test
