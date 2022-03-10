@@ -173,7 +173,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
     // Sets the next available ID as the previous ID + the size of new options, since each new
     // option ID is assigned in order.
-    setNextAvailableId(nextAvailableId.orElse(0L) + newOptions.size());
+    setNextAvailableId(nextAvailableId.orElse(0L) + newOptions.size() + 1L);
 
     return super.getBuilder()
         .setQuestionOptions(questionOptions)
