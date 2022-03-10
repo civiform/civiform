@@ -3,7 +3,7 @@
 import subprocess
 
 from config_loader import ConfigLoader
-from write_tfvars import   TfVarWriter
+from write_tfvars import TfVarWriter
 from setup_class_loader import load_class
 
 """
