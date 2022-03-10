@@ -37,7 +37,7 @@ function azure::get_primary_url() {
   az webapp show \
     --resource-group "${1}"
     --name "${2}" \
-    --query "[].name" \
+    --query "defaultHostname" \
     -o tsv
 }
 
@@ -54,7 +54,7 @@ function azure::get_canary_url() {
     --resource-group "${1}"
     --name "${2}" \
     --slot "canary" \
-    --query "[].name" \
+    --query "defaultHostname" \
     -o tsv
 }
 
@@ -65,10 +65,10 @@ function azure::get_canary_url() {
 # See https://github.com/hashicorp/terraform-provider-azurerm/pull/12809
 # Arguments:
 #   1. The resource group name
+#   2. The app service app name
 #######################################
-function azure::set_app_base_urls() {
-  local APP_NAME="$(azure::get_app_name "${1}")"
-  local CANARY_URL="$(azure::get_canary_url "${APP_NAME}")"
+function azure::set_app_base_url_canary() {
+  local CANARY_URL="$(azure::get_canary_url "${2}")"
 
   echo "Setting base URL for canary slot to "${CANARY_URL}""
   az webapp config appsettings set \
@@ -88,7 +88,7 @@ function azure::set_app_base_urls() {
 #   1. The resource group name
 #   2. The custom hostname for the primary slot (e.g. https://staging-azure.civiform.dev)
 #######################################
-function azure::set_app_base_urls() {
+function azure::set_app_base_url_primary() {
   local APP_NAME="$(azure::get_app_name "${1}")"
 
   echo "Setting base URL for canary slot to "${CANARY_URL}""
@@ -102,12 +102,13 @@ function azure::set_app_base_urls() {
 # Sets the canary slot to point to a new container tag
 # Arguments:
 #   1. The resource group name
-#   2. The new tag version
+#   2. The app service app name
+#   3. The new tag version
 #######################################
 function azure::set_new_container_tag(){
   az webapp config container set \
     --resource_group "${1}" \
-    --name "${APP_NAME}" \
+    --name "${2}" \
     --slot "canary"
     --docker-custom-image-name "DOCKER|${CIVIFORM_CONTAINER_NAME}:${2}"
 }
