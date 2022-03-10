@@ -148,13 +148,20 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
         this.optionIds.size() == this.options.size(),
         "Option ids and options are not the same size.");
 
+    if (this.optionIds.size() > 0) {
+      setNextAvailableId(this.optionIds.get(0) + 1);
+    }
+
     // Note: the question edit form only sets or updates the default locale.
     for (int i = 0; i < options.size(); i++) {
       questionOptionsBuilder.add(
           QuestionOption.create(
               optionIds.get(i), i, LocalizedStrings.withDefaultValue(options.get(i))));
+      if (optionIds.get(i) > nextAvailableId.orElse(0L)) {
+        setNextAvailableId(optionIds.get(i) + 1);
+      }
     }
-    setNextAvailableId(options.size());
+
     for (int i = 0; i < newOptions.size(); i++) {
       questionOptionsBuilder.add(
           QuestionOption.create(
@@ -164,7 +171,9 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     }
     ImmutableList<QuestionOption> questionOptions = questionOptionsBuilder.build();
 
-    setNextAvailableId(questionOptions.size());
+    // Sets the next available ID as the previous ID + the size of new options, since each new
+    // option ID is assigned in order.
+    setNextAvailableId(nextAvailableId.orElse(0L) + newOptions.size());
 
     return super.getBuilder()
         .setQuestionOptions(questionOptions)

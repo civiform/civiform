@@ -9,6 +9,8 @@ import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import forms.DropdownQuestionForm;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
@@ -24,7 +26,6 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.types.DropdownQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.html.helper.CSRF;
 
@@ -246,7 +247,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_mergesTranslations() {
+  public void update_setsIdsAsExpected() {
     QuestionDefinition definition =
         new DropdownQuestionDefinition(
             "applicant ice cream",
@@ -265,48 +266,41 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                     4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"))));
     // We can only update draft questions, so save this in the DRAFT version.
     Question question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
+  }
 
-    ImmutableMap<String, String> formData =
-        ImmutableMap.<String, String>builder()
-            .put("questionName", definition.getName())
-            .put("questionDescription", definition.getDescription())
-            .put("questionType", definition.getQuestionType().name())
-            .put("questionText", "new question text")
-            .put("questionHelpText", "new help text")
-            .put("options[0]", "coffee") // Unchanged but out of order
-            .put("options[1]", "vanilla") // Unchanged and in order
-            .put("newOptions[0]", "lavender") // New flavor
-            .put("optionIds[0]", "4")
-            .put("optionIds[1]", "3")
-            .put("nextAvailableId", "5")
-            .put("questionExportState", "NON_DEMOGRAPHIC")
-            // Has one fewer than the original question
-            .build();
-    RequestBuilder requestBuilder = addCSRFToken(Helpers.fakeRequest().bodyForm(formData));
+  @Test
+  public void update_mergesTranslations() {
+    DropdownQuestionDefinition definition =
+        new DropdownQuestionDefinition(
+            "applicant ice cream",
+            Optional.empty(),
+            "Select your favorite ice cream flavor",
+            LocalizedStrings.of(Locale.US, "Ice cream?", Locale.FRENCH, "crème glacée?"),
+            LocalizedStrings.of(Locale.US, "help", Locale.FRENCH, "aider"),
+            ImmutableList.of(
+                QuestionOption.create(
+                    1L, LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+                QuestionOption.create(
+                    2L, LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
+                QuestionOption.create(
+                    3L, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
+                QuestionOption.create(
+                    4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"))));
+    // We can only update draft questions, so save this in the DRAFT version.
+    Question question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
 
-    Result result =
-        controller.update(
-            requestBuilder.build(), question.id, definition.getQuestionType().toString());
+    ArrayList<String> newOptions = new ArrayList<>();
+    newOptions.add("cookie");
+    newOptions.add("mint");
+    newOptions.add("pistachio");
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    Question found = questionRepo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    DropdownQuestionForm questionForm = new DropdownQuestionForm(definition);
+    questionForm.setNewOptions(newOptions);
 
-    assertThat(found.getQuestionDefinition().getQuestionText().translations())
-        .containsExactlyInAnyOrderEntriesOf(
-            ImmutableMap.of(Locale.US, "new question text", Locale.FRENCH, "crème glacée?"));
-    assertThat(found.getQuestionDefinition().getQuestionHelpText().translations())
-        .containsExactlyInAnyOrderEntriesOf(
-            ImmutableMap.of(Locale.US, "new help text", Locale.FRENCH, "aider"));
+    questionForm.getBuilder();
 
-    ImmutableList<QuestionOption> expectedOptions =
-        ImmutableList.of(
-            QuestionOption.create(
-                4, 0, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café")),
-            QuestionOption.create(
-                3, 1, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
-            QuestionOption.create(5, 2, LocalizedStrings.withDefaultValue("lavender")));
-    assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
-        .isEqualTo(expectedOptions);
+    assertThat(questionForm.getNextAvailableId()).isPresent();
+    assertThat(questionForm.getNextAvailableId()).isEqualTo(8L);
   }
 
   @Test
