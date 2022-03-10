@@ -47,55 +47,55 @@
     "type": "enum",
     "values": ["OIDC", "SAML"]  
   },
-  "application_name": {
+  "APPLICATION_NAME": {
     "required": true,
     "secret": false,
     "tfvar": true,
     "type": "string"
   },
-  "docker_repository_name": {
+  "DOCKER_REPOSITORY_NAME": {
     "required": true,
     "secret": false,
     "tfvar": true,
     "type": "string"
   },
-  "docker_username": {
+  "DOCKER_USERNAME": {
     "required": true,
     "secret": false,
     "tfvar": true,
     "type": "string"
   },
-  "docker_tag": {
+  "DOCKER_TAG": {
     "required": true,
     "secret": false,
     "tfvar": true,
     "type": "string"
   },
-  "sender_email_address": {
+  "SENDER_EMAIL_ADDRESS": {
     "required": true,
     "secret": false,
     "tfvar": true,
     "type": "string"
   },
-  "staging_program_admin_notification_mailing_list": {
+  "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST": {
     "required": true,
     "secret": false,
     "tfvar": true,
     "type": "string"
   },
-  "staging_ti_notification_mailing_list": {
+  "STAGING_TI_NOTIFICATION_MAILING_LIST": {
     "required": true,
     "secret": false,
     "tfvar": true,
     "type": "string"
   },
-  "staging_applicant_notification_mailing_list": {
+  "STAGING_APPLICANT_NOTIFICATION_MAILING_LIST": {
     "required": true,
     "secret": false,
     "tfvar": true,
     "type": "string"
   },
-  "staging_hostname": {
+  "STAGING_HOSTNAME": {
     "required": true,
     "secret": false,
     "tfvar": true,
