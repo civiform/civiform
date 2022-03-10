@@ -28,7 +28,6 @@ if not is_valid:
     new_line = '\n\t'
     exit(f"Found the following validation errors: {new_line}{f'{new_line}'.join(validation_errors)}")
 
-
 ###############################################################################
 # Load Setup Class for the specific template directory
 ###############################################################################
