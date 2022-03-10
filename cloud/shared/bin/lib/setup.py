@@ -1,11 +1,10 @@
 #! /usr/bin/env python3
 
-import argparse
 import subprocess
 
 from config_loader import ConfigLoader
 from write_tfvars import   TfVarWriter
-
+from setup_class_loader import load_class
 
 """
 Setup.py sets up and runs the initial terraform deployment. It's broken into 
@@ -31,16 +30,12 @@ if not is_valid:
 
 
 ###############################################################################
-# Stack Specific Scripts
+# Load Setup Class for the specific template directory
 ###############################################################################
 
 template_dir = config_loader.get_template_dir()
-
-# TODO: each template setup needs to call and set the en
-# this generate values we need later
-# in the template bin there is a python class that handles setup for that 
-# template. load all 
-# subprocess.call(f"{template_dir}/bin/setup", shell=True)
+Setup = load_class(template_dir)
+template_setup = Setup()
 
 ###############################################################################
 # Terraform Init/Plan/Apply
@@ -57,5 +52,5 @@ tf_var_writter.write_variables(variables_to_write)
 subprocess.call(
     f"terraform apply -input=false -var-file={terraform_tfvars_filename}",
     shell=True,
-    cwd=terraform_directory,
+    cwd=template_dir,
 )

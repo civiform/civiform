@@ -1,5 +1,3 @@
-import os
-
 """
 Writes a tfvars file with the format
 name="value"\n 
@@ -12,7 +10,7 @@ class   TfVarWriter:
         self.filepath = filepath
 
     # a json of key: vals to turn into a tfvars
-    def write_variables(self, config_vars):
+    def write_variables(self, config_vars: dict):
         with open(self.filepath, "w") as tf_vars_file:
             for name, definition in config_vars.items():
-                tf_vars_file.write(f'{name}="{definition}"\n')
+                tf_vars_file.write(f'{name.lower()}="{definition}"\n')
