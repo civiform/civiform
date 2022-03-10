@@ -15,7 +15,10 @@ terraform {
 }
 
 module "app" {
-  source               = "../../modules/app"
+  source = "../../modules/app"
+
+  resource_group_name = var.resource_group_name
+
   postgres_admin_login = var.postgres_admin_login
 
   # note that we must use GP tier
@@ -26,7 +29,6 @@ module "app" {
 
   civiform_applicant_auth_protocol = var.civiform_applicant_auth_protocol
   key_vault_name                   = var.key_vault_name
-  key_vault_resource_group         = var.key_vault_resource_group
 
   application_name = var.application_name
 

@@ -22,8 +22,7 @@ module "app" {
   docker_username        = var.docker_username
   docker_repository_name = var.docker_repository_name
 
-  key_vault_name           = var.key_vault_name
-  key_vault_resource_group = var.key_vault_resource_group
+  key_vault_name = var.key_vault_name
 
   application_name = var.application_name
 
@@ -61,11 +60,10 @@ module "app" {
 module "saml_keystore" {
   source                       = "../../azure/modules/saml_keystore"
   key_vault_name               = var.key_vault_name
-  key_vault_resource_group     = var.key_vault_resource_group
+  resource_group_name          = var.resource_group_name
   saml_keystore_filename       = var.saml_keystore_filename
   saml_keystore_container_name = var.saml_keystore_container_name
   saml_keystore_account_name   = var.saml_keystore_account_name
-  saml_keystore_resource_group = var.saml_keystore_resource_group_name
 }
 
 module "email_service" {

@@ -6,21 +6,20 @@ resource "random_string" "resource_code" {
   upper   = false
 }
 
-resource "azurerm_resource_group" "rg" {
-  name     = var.resource_group_name
-  location = var.location_name
+data "azurerm_resource_group" "rg" {
+  name = var.resource_group_name
 }
 
 resource "azurerm_virtual_network" "civiform_vnet" {
   name                = "civiform-vnet"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   address_space       = var.vnet_address_space
 }
 
 resource "azurerm_subnet" "storage_subnet" {
   name                                           = "storage-subnet"
-  resource_group_name                            = azurerm_resource_group.rg.name
+  resource_group_name                            = data.azurerm_resource_group.rg.name
   virtual_network_name                           = azurerm_virtual_network.civiform_vnet.name
   address_prefixes                               = ["10.0.8.0/24"]
   service_endpoints                              = ["Microsoft.Storage"]
@@ -29,8 +28,8 @@ resource "azurerm_subnet" "storage_subnet" {
 
 resource "azurerm_storage_account" "files_storage_account" {
   name                = "${var.application_name}${random_string.resource_code.result}"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
 
   account_tier             = "Standard"
   account_replication_type = "LRS"
@@ -39,7 +38,7 @@ resource "azurerm_storage_account" "files_storage_account" {
 }
 data "azurerm_key_vault" "civiform_key_vault" {
   name                = var.key_vault_name
-  resource_group_name = var.key_vault_resource_group
+  resource_group_name = var.resource_group_name
 }
 
 data "azurerm_key_vault_secret" "postgres_password" {
@@ -75,7 +74,7 @@ resource "azurerm_storage_container" "files_container" {
 
 resource "azurerm_subnet" "server_subnet" {
   name                 = "server-subnet"
-  resource_group_name  = azurerm_resource_group.rg.name
+  resource_group_name  = data.azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.civiform_vnet.name
   address_prefixes     = var.subnet_address_prefixes
 
@@ -90,9 +89,9 @@ resource "azurerm_subnet" "server_subnet" {
 }
 
 resource "azurerm_app_service_plan" "plan" {
-  name                = "${azurerm_resource_group.rg.name}-plan"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${data.azurerm_resource_group.rg.name}-plan"
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
 
   # Define Linux as Host OS
   kind     = "Linux"
@@ -108,8 +107,8 @@ resource "azurerm_app_service_plan" "plan" {
 
 resource "azurerm_app_service" "civiform_app" {
   name                = "${var.application_name}-${random_pet.server.id}"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   app_service_plan_id = azurerm_app_service_plan.plan.id
   app_settings = {
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = false
@@ -206,8 +205,8 @@ resource "azurerm_app_service_virtual_network_swift_connection" "appservice_vnet
 
 resource "azurerm_log_analytics_workspace" "civiform_logs" {
   name                = "civiform-server-logs"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   sku                 = var.log_sku
   retention_in_days   = var.log_retention
 }
@@ -259,8 +258,8 @@ resource "azurerm_monitor_diagnostic_setting" "app_service_log_analytics" {
 
 resource "azurerm_postgresql_server" "civiform" {
   name                = "civiform-${random_pet.server.id}"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
 
   administrator_login          = var.postgres_admin_login
   administrator_login_password = data.azurerm_key_vault_secret.postgres_password.value
@@ -283,7 +282,7 @@ resource "azurerm_postgresql_server" "civiform" {
 
 resource "azurerm_postgresql_database" "civiform" {
   name                = "civiform"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = data.azurerm_resource_group.rg.name
   server_name         = azurerm_postgresql_server.civiform.name
   charset             = "utf8"
   collation           = "English_United States.1252"
@@ -292,7 +291,7 @@ resource "azurerm_postgresql_database" "civiform" {
 # Configure private link
 resource "azurerm_subnet" "postgres_subnet" {
   name                 = "postgres_subnet"
-  resource_group_name  = azurerm_resource_group.rg.name
+  resource_group_name  = data.azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.civiform_vnet.name
   address_prefixes     = var.postgres_subnet_address_prefixes
 
@@ -301,20 +300,20 @@ resource "azurerm_subnet" "postgres_subnet" {
 
 resource "azurerm_private_dns_zone" "privatelink" {
   name                = "privatelink.postgres.database.azure.com"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = data.azurerm_resource_group.rg.name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "vnet_link" {
   name                  = "vnet-link-private-dns"
-  resource_group_name   = azurerm_resource_group.rg.name
+  resource_group_name   = data.azurerm_resource_group.rg.name
   private_dns_zone_name = azurerm_private_dns_zone.privatelink.name
   virtual_network_id    = azurerm_virtual_network.civiform_vnet.id
 }
 
 resource "azurerm_private_endpoint" "endpoint" {
   name                = "${azurerm_postgresql_server.civiform.name}-endpoint"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   subnet_id           = azurerm_subnet.postgres_subnet.id
 
   private_dns_zone_group {
@@ -359,8 +358,8 @@ resource "azurerm_role_assignment" "storage_account_contributor" {
 module "bastion" {
   source = "../bastion"
 
-  resource_group_name      = azurerm_resource_group.rg.name
-  resource_group_location  = azurerm_resource_group.rg.location
+  resource_group_name      = data.azurerm_resource_group.rg.name
+  resource_group_location  = data.azurerm_resource_group.rg.location
   bastion_address_prefixes = var.bastion_address_prefixes
   vnet_name                = azurerm_virtual_network.civiform_vnet.name
 }

@@ -1,3 +1,8 @@
+variable "resource_group_name" {
+  type        = string
+  description = "Name of the resource group where key vault is already created."
+}
+
 variable "postgres_admin_login" {
   type        = string
   description = "Postgres admin login"
@@ -21,11 +26,6 @@ variable "application_name" {
 variable "key_vault_name" {
   type        = string
   description = "Name of key vault where secrets are stored."
-}
-
-variable "key_vault_resource_group" {
-  type        = string
-  description = "Resource group that key vault is in."
 }
 
 variable "aws_region" {
