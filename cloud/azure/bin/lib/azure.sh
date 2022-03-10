@@ -73,7 +73,7 @@ function azure::set_app_base_url_canary() {
   echo "Setting base URL for canary slot to "${CANARY_URL}""
   az webapp config appsettings set \
     --resource_group "${1}" \
-    --name "${APP_NAME}" \
+    --name "${2}" \
     --slot "canary"
     --slot-settings "BASE_URL=${CANARY_URL}"
 }
@@ -86,16 +86,15 @@ function azure::set_app_base_url_canary() {
 # See https://github.com/hashicorp/terraform-provider-azurerm/pull/12809
 # Arguments:
 #   1. The resource group name
-#   2. The custom hostname for the primary slot (e.g. https://staging-azure.civiform.dev)
+#   2. The app service app name
+#   3. The custom hostname for the primary slot (e.g. https://staging-azure.civiform.dev)
 #######################################
 function azure::set_app_base_url_primary() {
-  local APP_NAME="$(azure::get_app_name "${1}")"
-
   echo "Setting base URL for canary slot to "${CANARY_URL}""
   az webapp config appsettings set \
     --resource_group "${1}" \
-    --name "${APP_NAME}" \
-    --slot-settings "BASE_URL=${2}"
+    --name "${2}" \
+    --slot-settings "BASE_URL=${3}"
 }
 
 #######################################
