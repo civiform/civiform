@@ -4,7 +4,7 @@ locals {
   # and record set configured.
   postgres_private_link = azurerm_private_endpoint.endpoint.private_dns_zone_configs[0].record_sets[0].fqdn
   generated_hostname    = "${var.application_name}-${random_pet.server.id}.azurewebsites.net"
-  canary_hostname =  "${var.application_name}-${random_pet.server.id}-canary.azurewebsites.net"
+  canary_hostname       = "${var.application_name}-${random_pet.server.id}-canary.azurewebsites.net"
 
   postgres_password_keyvault_id = "postgres-password"
   app_secret_key_keyvault_id    = "app-secret-key"
@@ -12,7 +12,7 @@ locals {
   aws_secret_access_token       = "aws-secret-access-token"
   aws_access_key_id             = "aws-access-key-id"
 
-  app_settings =  {
+  app_settings = {
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = false
     PORT                                = 9000
 
