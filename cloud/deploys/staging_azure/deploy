@@ -1,0 +1,40 @@
+#! /usr/bin/env bash
+
+set -e
+
+readonly THIS_DIR="$(realpath "$(dirname "${BASH_SOURCE}")")"
+readonly PROJECT_BASE_DIR="$(realpath "${THIS_DIR}/../../../")"
+
+KEEP_ORIGINAL_PWD=true source "${PROJECT_BASE_DIR}/bin/lib.sh"
+source "${PROJECT_BASE_DIR}/cloud/shared/bin/lib.sh"
+source "${PROJECT_BASE_DIR}/cloud/azure/bin/lib.sh"
+
+readonly TF_VAR_FILE="${THIS_DIR}/staging.tfvars"
+readonly TEMPLATE_DIR="${PROJECT_BASE_DIR}/cloud/azure/templates/azure_saml_ses"
+readonly VARS_FILENAME="${THIS_DIR}/staging_azure_backend_vars"
+
+
+terraform \
+  -chdir="${TEMPLATE_DIR}" \
+  init \
+  -backend-config="${VARS_FILENAME}"
+
+# TODO: Make sure the vars required for the commands below are set.
+readonly APP_NAME="$(azure::get_app_name "${RESOURCE_GROUP}")"
+readonly CANARY_URL="$(azure::get_canary_url "${RESOURCE_GROUP}" "${APP_NAME}")"
+
+azure::set_new_container_tag ${RESOURCE_GROUP} ${APP_NAME} ${CONTAINER_TAG}
+
+if health::wait_for_success "${CANARY_URL}"; 
+then
+    echo "New container successfully started in canary slot"
+else
+    # TODO: log failure
+    exit 1
+fi
+
+# There should be at least one Terraform change to swap the slots
+terraform \
+  -chdir="${TEMPLATE_DIR}" \
+  apply \
+  -var-file="${TF_VAR_FILE}"
