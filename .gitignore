@@ -18,7 +18,8 @@ tailwind.css
 
 *.terraform
 *.terraform.lock.hcl
-cloud/deploys/dev_azure/*.tfvars
+*.tfvars
+!cloud/deploys/staging_azure/*.tfvars
 !*example.auto.tfvars
 terraform.tfstate**
 .terraform.tfstate**

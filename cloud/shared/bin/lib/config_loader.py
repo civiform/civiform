@@ -17,10 +17,18 @@ class ConfigLoader:
         return self.validate_config()
         
     def _load_config(self): 
-        self.variable_definitions = self.get_variable_definitions()
+        # get the shared variable definitions
+        variable_def_loader = VariableDefinitionLoader()
+        cwd = os.getcwd()
+        definition_file_path = f'{cwd}/cloud/shared/variable_definitions.json'
+        self.variable_definitions = variable_def_loader.load_definition_file(definition_file_path)
+        self.configs = self.get_env_variables(self.shared_variable_definitions)
+        
+        template_definitions_file_path = f'{self.get_template_dir()}/variable_definitions.json'
+        self.variable_definitions = variable_def_loader.load_definition_file(template_definitions_file_path) 
         self.configs = self.get_env_variables(self.variable_definitions)
         
-    def get_variable_definitions(self):
+    def get_shared_variable_definitions(self):
         variable_def_loader = VariableDefinitionLoader()
         variable_def_loader.load_repo_variable_definitions_files()
         return variable_def_loader.get_variable_definitions()
@@ -31,6 +39,8 @@ class ConfigLoader:
             configs[name] = os.environ.get(name, None)
         return configs
      
+    # TODO: we do not validate type of the variable as we only have 
+    # strings currently. If we add non-strings, will need to validate
     def _validate_config(self, variable_definitions: dict, configs: dict):
         is_valid = True
         validation_errors = []

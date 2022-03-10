@@ -21,7 +21,13 @@ class ValidateVariableDefinitions:
 
     def load_repo_variable_definitions_files(self):
         variable_def_loader = VariableDefinitionLoader(self.variable_definitions)
-        variable_def_loader.load_repo_variable_definitions_files()
+        # As more variable definition files are added for each cloud provider,
+        # add their paths here.
+        cwd = os.getcwd()
+        definition_file_paths = [cwd + "/cloud/shared/variable_definitions.json"]
+
+        for path in definition_file_paths:
+            variable_def_loader.load_definition_file(path)
         self.variable_definitions = variable_def_loader.get_variable_definitions()
 
     def get_validation_errors(self):
