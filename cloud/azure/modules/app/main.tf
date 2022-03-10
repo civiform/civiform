@@ -81,57 +81,9 @@ resource "azurerm_app_service" "civiform_app" {
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
   app_service_plan_id = azurerm_app_service_plan.plan.id
-  app_settings = {
-    WEBSITES_ENABLE_APP_SERVICE_STORAGE = false
-    PORT                                = 9000
+  
+  app_settings = local.app_settings
 
-    DOCKER_REGISTRY_SERVER_URL = "https://index.docker.io"
-
-    DB_USERNAME    = "${azurerm_postgresql_server.civiform.administrator_login}@${azurerm_postgresql_server.civiform.name}"
-    DB_PASSWORD    = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.postgres_password.id})"
-    DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
-
-    STORAGE_SERVICE_NAME = "azure-blob"
-    # this allows for the dev instances to get setup
-    STAGING_HOSTNAME = (var.staging_hostname != "" ? var.staging_hostname : local.generated_hostname)
-    BASE_URL         = "https://${var.custom_hostname != "" ? var.custom_hostname : local.generated_hostname}"
-
-    AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
-    AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
-
-    AWS_SES_SENDER        = var.ses_sender_email
-    AWS_ACCESS_KEY_ID     = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.aws_access_key_id.id})"
-    AWS_SECRET_ACCESS_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.aws_secret_access_token.id})"
-    AWS_REGION            = var.aws_region
-
-    STAGING_ADMIN_LIST     = var.staging_program_admin_notification_mailing_list
-    STAGING_TI_LIST        = var.staging_ti_notification_mailing_list
-    STAGING_APPLICANT_LIST = var.staging_applicant_notification_mailing_list
-
-    SECRET_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.app_secret_key.id})"
-
-    ADFS_CLIENT_ID     = var.adfs_client_id
-    ADFS_SECRET        = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.adfs_secret.id})"
-    ADFS_DISCOVERY_URI = var.adfs_discovery_uri
-
-    CIVIFORM_APPLICANT_IDP = var.civiform_applicant_idp
-
-    # The values below are all defaulted to null. If SAML authentication is used, the values can be pulled from the
-    # saml_keystore module
-    LOGIN_RADIUS_METADATA_URI     = var.login_radius_metadata_uri
-    LOGIN_RADIUS_API_KEY          = var.login_radius_api_key
-    LOGIN_RADIUS_SAML_APP_NAME    = var.login_radius_saml_app_name
-    LOGIN_RADIUS_KEYSTORE_NAME    = (var.saml_keystore_filename != null ? "/saml/${var.saml_keystore_filename}" : "")
-    LOGIN_RADIUS_KEYSTORE_PASS    = var.saml_keystore_password
-    LOGIN_RADIUS_PRIVATE_KEY_PASS = var.saml_private_key_password
-
-    # In HOCON, env variables set to the empty string are 
-    # kept as such (set to empty string, rather than undefined).
-    # This allows for the default to include atallclaims and for 
-    # azure AD to not include that claim.
-    ADFS_ADDITIONAL_SCOPES = ""
-  }
-  # Configure Docker Image to load on start
   site_config {
     always_on              = true
     vnet_route_all_enabled = true
@@ -181,7 +133,7 @@ resource "azurerm_app_service_slot" "canary" {
 
   # We will only mount this storage container if SAML authentication is being used
   dynamic "storage_account" {
-    for_each = var.civiform_applicant_auth_protocol == "saml" ? [1] : [0]
+    for_each = var.civiform_applicant_auth_protocol == "saml" ? [1] : []
     content {
       name         = "civiform-saml-keystore"
       type         = "AzureBlob"
@@ -204,6 +156,12 @@ resource "azurerm_app_service_slot" "canary" {
       }
     }
   }
+}
+
+resource "azurerm_app_service_active_slot" "active_slot" {
+  resource_group_name   = azurerm_resource_group.rg.name
+  app_service_name      = azurerm_app_service.civiform_app
+  app_service_slot_name = azurerm_app_service_slot.canary.name
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "appservice_vnet_connection" {
