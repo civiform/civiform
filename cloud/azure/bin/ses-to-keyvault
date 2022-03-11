@@ -1,10 +1,7 @@
 #! /usr/bin/env bash
 
-# TODO: figure out where in command flow to export PROJECT_BASE_DIR to
-# make it available in this file
-readonly PROJECT_BASE_DIR="$(realpath "$(dirname "${BASH_SOURCE}")/../../../")"
-source "${PROJECT_BASE_DIR}/cloud/azure/bin/lib.sh"
-source "${PROJECT_BASE_DIR}/cloud/aws/bin/lib.sh"
+source "cloud/azure/bin/lib.sh"
+source "cloud/aws/bin/lib.sh"
 
 readonly AWS_SECRET_ACCESS_TOKEN_NAME="aws-secret-access-token"
 readonly AWS_ACCESS_KEY_ID_NAME="aws-access-key-id"

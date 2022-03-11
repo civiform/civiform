@@ -1,9 +1,6 @@
 #! /usr/bin/env bash
 
-# TODO: figure out where in command flow to export PROJECT_BASE_DIR to
-# make it available in this file
-readonly PROJECT_BASE_DIR="$(realpath "$(dirname "${BASH_SOURCE}")/../../../")"
-source "${PROJECT_BASE_DIR}/cloud/azure/bin/lib.sh"
+source "cloud/azure/bin/lib.sh"
 
 readonly POSTGRES_PASSWORD_NAME="postgres-password"
 readonly APP_SECRET_KEY_NAME="app-secret-key"

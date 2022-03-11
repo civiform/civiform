@@ -34,7 +34,9 @@ if not is_valid:
 
 template_dir = config_loader.get_template_dir()
 Setup = load_class(template_dir)
-template_setup = Setup()
+template_setup = Setup(config_loader)
+template_setup.run()
+backend_vars = template_setup.get_backend_config_filename()
 
 ###############################################################################
 # Terraform Init/Plan/Apply
@@ -47,9 +49,16 @@ tf_var_writter = TfVarWriter(terraform_tfvars_filename)
 variables_to_write = config_loader.get_terraform_variables()
 tf_var_writter.write_variables(variables_to_write)
 
-# TODO need to call input/apply like how the setup script in staging_azure
-subprocess.call(
-    f"terraform apply -input=false -var-file={terraform_tfvars_filename}",
-    shell=True,
-    cwd=template_dir,
-)
+subprocess.check_call([
+    "terraform", 
+    f"-chdir={template_dir}", 
+    "init", 
+    f"-backend-config={backend_vars}"
+])
+
+subprocess.check_call([
+    "terraform", 
+    f"-chdir={template_dir}", 
+    "apply", 
+    f"-var-file={terraform_tfvars_filename}"
+])

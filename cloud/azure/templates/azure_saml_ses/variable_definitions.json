@@ -95,5 +95,15 @@
     "required": true,
     "secret": false,
     "type": "string"
-  }
+  }, 
+  "AWS_USERNAME": {
+      "required": true, 
+      "secret": false,
+      "type": "string"
+  }, 
+  "SAML_KEYSTORE_STORAGE_ACCOUNT":  {
+        "required": true, 
+        "secret": false,
+        "type": "string"
+    }
 }

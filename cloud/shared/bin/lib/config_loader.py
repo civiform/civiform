@@ -69,6 +69,9 @@ class ConfigLoader:
     def validate_config(self):
         return self._validate_config(self.variable_definitions, self.configs)
 
+    def get_config_var(self, variable_name): 
+        return self.configs.get(variable_name)
+
     def get_cloud_provider(self):
         return self.configs.get("CIVIFORM_CLOUD_PROVIDER")
 
