@@ -31,16 +31,16 @@ function key_vault::assign_secrets_officer_role_to_user() {
   local SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
   local ROLE_ASSIGNMENTS="$(az role assignment list --assignee ${USER_ID} --resource-group ${1})"
 
-#   if echo "${ROLE_ASSIGNMENTS}" | grep -q "Key Vault Secrets Officer";
-#   then 
-#     echo "Current user already has Key Vault Secrets Officer role"
-#   else
-  az role assignment create \
-      --role "${KEY_VAULT_SECRETS_OFFICER_GUID}" \
-      --scope "subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${1}" \
-      --assignee-object-id "${USER_ID}" \
-      --assignee-principal-type "User"
-#   fi
+  if echo "${ROLE_ASSIGNMENTS}" | grep -q "Key Vault Secrets Officer";
+  then 
+    echo "Current user already has Key Vault Secrets Officer role"
+  else
+    az role assignment create \
+        --role "${KEY_VAULT_SECRETS_OFFICER_GUID}" \
+        --scope "subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${1}" \
+        --assignee-object-id "${USER_ID}" \
+        --assignee-principal-type "User"
+  fi
 }
 
 #######################################

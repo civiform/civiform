@@ -26,13 +26,20 @@ if [[ ! "${vault_name}" ]] \
   exit 1
 fi
 
-echo "Getting an AWS access key"
-CREATED_KEY_RESULT="$(aws::create_access_key "${username}")"
-ACCESS_KEY_ID="$(aws::parse_access_key_id "${CREATED_KEY_RESULT}")"
-SECRET_ACCESS_KEY="$(aws::parse_access_secret_key "${CREATED_KEY_RESULTt}")"
+access_key_id="$(key_vault::get_secret_value "${vault_name}" "${AWS_ACCESS_KEY_ID_NAME}")"
 
-echo "Adding the secret access key to the azure key vault"
-key_vault::add_secret "${vault_name}" "${AWS_SECRET_ACCESS_TOKEN_NAME}" "${SECRET_ACCESS_KEY}"
+if [ "${access_key_id}" ]; then
+    echo "Access key, ${access_key_id}, exists in the secret store"
+    exit
+else
+    echo "Getting an AWS access key"
+    CREATED_KEY_RESULT="$(aws::create_access_key "${username}")"
+    access_key_id="$(aws::parse_access_key_id "${CREATED_KEY_RESULT}")"
+    SECRET_ACCESS_KEY="$(aws::parse_access_secret_key "${CREATED_KEY_RESULTt}")"
 
-echo "Adding the access key id to the azure key vault"
-key_vault::add_secret "${vault_name}" "${AWS_ACCESS_KEY_ID_NAME}" "${ACCESS_KEY_ID}"
+    echo "Adding the secret access key to the azure key vault"
+    key_vault::add_secret "${vault_name}" "${AWS_SECRET_ACCESS_TOKEN_NAME}" "${SECRET_ACCESS_KEY}"
+
+    echo "Adding the access key id to the azure key vault"
+    key_vault::add_secret "${vault_name}" "${AWS_ACCESS_KEY_ID_NAME}" "${access_key_id}"
+fi

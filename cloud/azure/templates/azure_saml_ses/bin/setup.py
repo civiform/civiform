@@ -5,7 +5,7 @@ class Setup:
     
     def __init__(self, config):
         self.config=config
-        self.backend_config_filename = f"{config.get_template_dir()}/staging_azure_backend_vars"
+        self.backend_config_filename = "staging_azure_backend_vars"
     
     def requires_post_terraform_setup(self):
         return True
@@ -48,7 +48,7 @@ class Setup:
             raise RuntimeError("Resource group required")
         subprocess.run([
             "cloud/azure/bin/setup_tf_shared_state", 
-            self.backend_config_filename], check=True)
+            f"{self.config.get_template_dir()}/{self.backend_config_filename}"], check=True)
     
     def setup_keyvault(self): 
         if not self.resource_group: 
