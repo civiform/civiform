@@ -24,6 +24,12 @@ class TestWriteTfVars(unittest.TestCase):
         config_loader.write_variables({"test": "success", "env": "test"})
         with open(self.fake_tfvars_filename, "r") as tf_vars:
             self.assertEqual(tf_vars.read(), 'test="success"\nenv="test"\n')
-
+            
+    def test_writes_file_with_none(self):
+        config_loader = TfVarWriter(self.fake_tfvars_filename)
+        config_loader.write_variables({"test": None})
+        with open(self.fake_tfvars_filename, "r") as tf_vars:
+            self.assertEqual(tf_vars.read(), 'test=""\n')
+            
 if __name__ == "__main__":
     unittest.main()

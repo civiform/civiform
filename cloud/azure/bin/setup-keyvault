@@ -4,6 +4,7 @@ source "cloud/azure/bin/lib.sh"
 
 readonly POSTGRES_PASSWORD_NAME="postgres-password"
 readonly APP_SECRET_KEY_NAME="app-secret-key"
+readonly ADFS_SECRET_NAME="adfs-secret"
 
 # DOC: Create key vault instance, set permissions, and generate and set secrets
 
@@ -41,4 +42,5 @@ echo "Generating and setting secrets"
 key_vault::add_generated_secrets \
   "${vault_name}" \
   "${POSTGRES_PASSWORD_NAME}" \
-  "${APP_SECRET_KEY_NAME}"
+  "${APP_SECRET_KEY_NAME}" \
+  "${ADFS_SECRET_NAME}"

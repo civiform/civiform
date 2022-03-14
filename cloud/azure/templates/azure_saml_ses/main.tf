@@ -17,7 +17,7 @@ terraform {
 module "app" {
   source = "../../modules/app"
 
-  resource_group_name = var.resource_group_name
+  resource_group_name = var.azure_resource_group
 
   postgres_admin_login = var.postgres_admin_login
 

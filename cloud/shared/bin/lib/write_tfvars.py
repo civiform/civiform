@@ -13,4 +13,4 @@ class TfVarWriter:
     def write_variables(self, config_vars: dict):
         with open(self.filepath, "w") as tf_vars_file:
             for name, definition in config_vars.items():
-                tf_vars_file.write(f'{name.lower()}="{definition}"\n')
+                tf_vars_file.write(f'{name.lower()}="{definition or ""}"\n')

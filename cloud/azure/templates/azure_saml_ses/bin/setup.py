@@ -1,10 +1,16 @@
 import subprocess
 class Setup:
+    resource_group = None
+    key_vault_name = None
+    
     def __init__(self, config):
         self.config=config
-        self.backend_config_filename = "staging_azure_backend_vars"
+        self.backend_config_filename = f"{config.get_template_dir()}/staging_azure_backend_vars"
     
-    def run(self):         
+    def requires_post_terraform_setup(self):
+        return True
+    
+    def pre_terraform_setup(self):         
         self.create_ssh_keyfile()
         self.setup_resource_group()
         self.setup_shared_state()
@@ -12,6 +18,17 @@ class Setup:
         self.setup_saml_keystore()
         self.setup_ses()    
     
+    def get_pre_terraform_variables(self):
+        # if we generated any terraform variables in setup
+        return {}
+    
+    def post_terraform_setup(self):
+        pass
+
+    def get_post_terraform_variables(self):
+        # TODO ask the user for their adfs information here
+        return {}
+
     def setup_resource_group(self): 
         resource_group = self.config.get_config_var("AZURE_RESOURCE_GROUP")
         resource_group_location = self.config.get_config_var("AZURE_LOCATION")
@@ -36,7 +53,7 @@ class Setup:
     def setup_keyvault(self): 
         if not self.resource_group: 
             raise RuntimeError("Resource group required")
-        key_vault_name = self.config.get_config_var("AZURE_RESOURCE_GROUP")
+        key_vault_name = self.config.get_config_var("KEY_VAULT_NAME")
         subprocess.run([
             "cloud/azure/bin/setup-keyvault", 
             "-g", self.resource_group, 

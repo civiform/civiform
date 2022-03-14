@@ -94,16 +94,41 @@
   "AZURE_RESOURCE_GROUP": {
     "required": true,
     "secret": false,
-    "type": "string"
-  }, 
+    "type": "string",
+    "tfvar": true
+  },
   "AWS_USERNAME": {
-      "required": true, 
-      "secret": false,
-      "type": "string"
-  }, 
-  "SAML_KEYSTORE_STORAGE_ACCOUNT":  {
-        "required": true, 
-        "secret": false,
-        "type": "string"
-    }
+    "required": true,
+    "secret": false,
+    "type": "string"
+  },
+  "SAML_KEYSTORE_STORAGE_ACCOUNT": {
+    "required": true,
+    "secret": false,
+    "type": "string"
+  },
+  "KEY_VAULT_NAME": {
+    "required": true,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "ADFS_ADMIN_GROUP": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "ADFS_CLIENT_ID": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "ADFS_DISCOVERY_URI": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  }
 }
