@@ -10,7 +10,7 @@ readonly BLOB_DATA_CONTRIBUTOR_GUID="ba92f5b4-2d11-453d-a403-e96b0029c9fe"
 function storage::assign_storage_blob_data_contributor_role_to_user() {
   local USER_ID="$(az ad signed-in-user show --query objectId -o tsv)"
   local SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
-  local ROLE_ASSIGNMENTS="$(az role assignment list --all --assignee ${USER_ID})"
+  local ROLE_ASSIGNMENTS="$(az role assignment list --assignee ${USER_ID} --resource-group ${1})"
 
   if echo "${ROLE_ASSIGNMENTS}" | grep -q "Storage Blob Data Contributor"; then
     echo "Current user already has Storage Blob Data Contributor role"
