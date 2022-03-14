@@ -6,7 +6,7 @@ terraform {
     }
     azurerm = {
       source  = "azurerm"
-      version = ">=2.65"
+      version = ">=2.99"
     }
     random = {}
   }
@@ -43,6 +43,19 @@ module "app" {
   adfs_client_id     = var.adfs_client_id
   adfs_discovery_uri = var.adfs_discovery_uri
   adfs_admin_group   = var.adfs_admin_group
+
+  login_radius_api_key       = var.login_radius_api_key
+  login_radius_metadata_uri  = var.login_radius_metadata_uri
+  login_radius_saml_app_name = var.login_radius_saml_app_name
+  saml_keystore_filename     = module.saml_keystore.filename
+
+  # These two values need to match for PKCS12 keys
+  saml_keystore_password    = module.saml_keystore.keystore_password
+  saml_private_key_password = module.saml_keystore.keystore_password
+
+  saml_keystore_storage_access_key     = module.saml_keystore.storage_access_key
+  saml_keystore_storage_account_name   = module.saml_keystore.storage_account_name
+  saml_keystore_storage_container_name = module.saml_keystore.storage_container_name
 }
 
 module "custom_hostname" {
@@ -50,6 +63,15 @@ module "custom_hostname" {
   custom_hostname     = var.custom_hostname
   app_service_name    = module.app.app_service_name
   resource_group_name = module.app.resource_group_name
+}
+
+module "saml_keystore" {
+  source                       = "../../modules/saml_keystore"
+  key_vault_name               = var.key_vault_name
+  saml_keystore_filename       = var.saml_keystore_filename
+  saml_keystore_container_name = var.saml_keystore_container_name
+  saml_keystore_account_name   = var.saml_keystore_account_name
+  resource_group_name          = var.resource_group_name
 }
 
 module "email_service" {
