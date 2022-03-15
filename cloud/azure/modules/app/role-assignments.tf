@@ -26,7 +26,6 @@ resource "azurerm_role_assignment" "storage_account_contributor" {
   principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
 }
 
-
 # Canary managed identity role assignments:
 
 resource "azurerm_role_assignment" "storage_blob_delegator_canary" {
