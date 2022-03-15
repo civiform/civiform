@@ -4,7 +4,7 @@ source "cloud/azure/bin/lib.sh"
 
 set -e
 
-while getopts g:s flag
+while getopts g:s: flag
 do
   case "${flag}" in
     g) resource_group="${OPTARG}";;
