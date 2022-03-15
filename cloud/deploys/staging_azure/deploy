@@ -1,8 +1,5 @@
 #! /usr/bin/env bash
 
-source "cloud/shared/bin/lib/health.sh"
-source "cloud/azure/bin/lib.sh"
-
 set -e
 
 readonly TF_VAR_FILE="cloud/deploys/staging_azure/staging.tfvars"
@@ -11,6 +8,7 @@ readonly VARS_FILENAME="cloud/deploys/staging_azure/staging_azure_backend_vars"
 
 # Apply any infra changes with terraform. This will unset the slot settings, so we'll
 # set them again after we run terraform apply
+# TODO: get terraform to ignore the slot settings
 terraform \
   -chdir="${TEMPLATE_DIR}" \
   init \
@@ -21,26 +19,6 @@ terraform \
   apply \
   -var-file="${TF_VAR_FILE}"
 
-readonly APP_NAME="$(azure::get_app_name "${AZURE_RESOURCE_GROUP}")"
-readonly CANARY_URL="$(azure::get_canary_url "${AZURE_RESOURCE_GROUP}" "${APP_NAME}")"
-
-azure::set_new_container_tag ${AZURE_RESOURCE_GROUP} ${APP_NAME} ${DOCKER_TAG}
-
-if health::wait_for_success "${CANARY_URL}/loginForm"; 
-then
-    echo "New container successfully started in canary slot"
-else
-    # TODO: log failure + exit early. don't do the swap
-    exit 1
-fi
-
-echo "Swapping deployment slot 'canary' into production. This may take up to 10 minutes."
-azure::swap_deployment_slot "${AZURE_RESOURCE_GROUP}" "${APP_NAME}"
-
 cloud/deploys/dev_azure/configure-slot-settings -g "${AZURE_RESOURCE_GROUP}" "${STAGING_HOSTNAME}"
 
-echo "Success! The new application version is up and running." 
-# TODO: log success
-
-
-
+cloud/azure/bin/deploy
