@@ -97,7 +97,7 @@ resource "azurerm_app_service" "civiform_app" {
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
   app_service_plan_id = azurerm_app_service_plan.plan.id
-  
+
   app_settings = local.app_settings
 
   site_config {
@@ -188,7 +188,7 @@ resource "azurerm_app_service_virtual_network_swift_connection" "appservice_vnet
 resource "azurerm_app_service_slot_virtual_network_swift_connection" "canary_vnet_connection" {
   app_service_id = azurerm_app_service.civiform_app.id
   subnet_id      = azurerm_subnet.server_subnet.id
-  slot_name = azurerm_app_service_slot.canary.name
+  slot_name      = azurerm_app_service_slot.canary.name
 }
 
 resource "azurerm_postgresql_server" "civiform" {
