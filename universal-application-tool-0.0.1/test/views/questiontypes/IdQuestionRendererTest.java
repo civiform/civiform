@@ -12,7 +12,7 @@ import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
@@ -20,7 +20,7 @@ import services.question.types.IdQuestionDefinition;
 import services.question.types.IdQuestionDefinition.IdValidationPredicates;
 import support.QuestionAnswerer;
 
-public class IdQuestionRendererTest extends WithPostgresContainer {
+public class IdQuestionRendererTest extends ResetPostgres {
   private static final IdQuestionDefinition ID_QUESTION_DEFINITION =
       new IdQuestionDefinition(
           OptionalLong.of(1),

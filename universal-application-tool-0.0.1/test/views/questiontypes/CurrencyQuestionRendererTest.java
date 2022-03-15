@@ -12,14 +12,14 @@ import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.CurrencyQuestionDefinition;
 import support.QuestionAnswerer;
 
-public class CurrencyQuestionRendererTest extends WithPostgresContainer {
+public class CurrencyQuestionRendererTest extends ResetPostgres {
   private static final CurrencyQuestionDefinition CURRENCY_QUESTION_DEFINITION =
       new CurrencyQuestionDefinition(
           OptionalLong.of(1),

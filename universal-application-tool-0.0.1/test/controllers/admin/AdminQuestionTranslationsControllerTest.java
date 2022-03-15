@@ -18,15 +18,15 @@ import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.QuestionRepository;
+import repository.ResetPostgres;
 import repository.VersionRepository;
-import repository.WithPostgresContainer;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import support.TestQuestionBank;
 
-public class AdminQuestionTranslationsControllerTest extends WithPostgresContainer {
+public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
   private Version draftVersion;
   private TestQuestionBank questionBank;

@@ -19,7 +19,7 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.Path;
 import services.program.ExportDefinition;
@@ -27,7 +27,7 @@ import services.program.ExportEngine;
 import services.program.PdfExportConfig;
 import services.program.ProgramDefinition;
 
-public class PdfExporterTest extends WithPostgresContainer {
+public class PdfExporterTest extends ResetPostgres {
   private static Program fakeProgramWithPdfExport;
   private Applicant fakeApplicant;
   private Writer writer;

@@ -24,7 +24,6 @@ import play.mvc.Http;
 import play.test.Helpers;
 import support.ProgramBuilder;
 import support.ResourceCreator;
-import support.TestConstants;
 import support.TestQuestionBank;
 
 public class WithMockedProfiles {
@@ -42,7 +41,6 @@ public class WithMockedProfiles {
   public static void setupInjector() {
     app =
         new GuiceApplicationBuilder()
-            .configure(TestConstants.TEST_DATABASE_CONFIG)
             .overrides(bind(ProfileUtils.class).toInstance(MOCK_UTILS))
             .build();
     injector = app.injector();

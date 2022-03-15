@@ -24,3 +24,6 @@ tailwind.css
 terraform.tfstate**
 .terraform.tfstate**
 *.pyc
+
+sbt_cache/*
+!sbt_cache/.keep

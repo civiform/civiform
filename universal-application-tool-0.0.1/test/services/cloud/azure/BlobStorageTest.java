@@ -1,33 +1,19 @@
 package services.cloud.azure;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.fakeApplication;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import play.Application;
-import play.test.WithApplication;
+import repository.ResetPostgres;
 import services.cloud.StorageServiceName;
 import services.cloud.azure.BlobStorage.Client;
 import services.cloud.azure.BlobStorage.NullClient;
 
-public class BlobStorageTest extends WithApplication {
+public class BlobStorageTest extends ResetPostgres {
 
   private static final String TEST_FILE_NAME = "fileName";
-  private static final ImmutableMap<String, Object> TEST_AZURE_CONTAINER_CONFIG =
-      ImmutableMap.of(
-          "azure.blob.container",
-          "super cool blob container name",
-          "azure.blob.account",
-          "my awesome azure account name");
   private BlobStorage blobStorage;
-
-  @Override
-  protected Application provideApplication() {
-    return fakeApplication(TEST_AZURE_CONTAINER_CONFIG);
-  }
 
   @Before
   public void setUp() {

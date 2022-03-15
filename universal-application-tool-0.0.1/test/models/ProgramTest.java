@@ -8,7 +8,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ProgramRepository;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
@@ -27,7 +27,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
-public class ProgramTest extends WithPostgresContainer {
+public class ProgramTest extends ResetPostgres {
 
   private ProgramRepository repo;
 

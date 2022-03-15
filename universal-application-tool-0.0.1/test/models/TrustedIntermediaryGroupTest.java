@@ -3,9 +3,9 @@ package models;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 
-public class TrustedIntermediaryGroupTest extends WithPostgresContainer {
+public class TrustedIntermediaryGroupTest extends ResetPostgres {
   @Test
   public void testTIOrg() {
     Account ti = new Account();

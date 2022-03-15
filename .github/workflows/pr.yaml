@@ -15,9 +15,9 @@ jobs:
       - name: Build test container
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -t civiform --cache-from docker.io/civiform/civiform:latest ./
+        run: docker build -t civiform-dev --cache-from docker.io/civiform/civiform-dev:latest ./
       - name: Run tests
-        run: docker run -v /var/run/docker.sock:/var/run/docker.sock civiform test
+        run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
 
   run_browser_tests_aws:
     runs-on: ubuntu-latest

@@ -24,8 +24,6 @@ module "app" {
   # note that we must use GP tier
   postgres_sku_name = "GP_Gen5_2"
 
-  docker_username        = var.docker_username
-  docker_repository_name = var.docker_repository_name
 
   civiform_applicant_auth_protocol = var.civiform_applicant_auth_protocol
   key_vault_name                   = var.key_vault_name
@@ -38,7 +36,6 @@ module "app" {
   staging_ti_notification_mailing_list            = var.staging_ti_notification_mailing_list
   staging_applicant_notification_mailing_list     = var.staging_applicant_notification_mailing_list
 
-  custom_hostname = var.custom_hostname
 
   adfs_client_id     = var.adfs_client_id
   adfs_discovery_uri = var.adfs_discovery_uri
