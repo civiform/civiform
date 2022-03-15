@@ -22,7 +22,6 @@ import play.Application;
 import play.api.mvc.Call;
 import play.test.WithBrowser;
 import services.question.types.QuestionType;
-import support.TestConstants;
 import views.style.ReferenceClasses;
 
 public class BaseBrowserTest extends WithBrowser {
@@ -33,7 +32,7 @@ public class BaseBrowserTest extends WithBrowser {
 
   @Override
   protected Application provideApplication() {
-    return fakeApplication(TestConstants.TEST_DATABASE_CONFIG);
+    return fakeApplication();
   }
 
   @Before

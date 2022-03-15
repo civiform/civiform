@@ -14,10 +14,10 @@ import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import support.ProgramBuilder;
 
-public class AdminProgramBlockPredicatesControllerTest extends WithPostgresContainer {
+public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   private Program programWithThreeBlocks;
 
   private AdminProgramBlockPredicatesController controller;

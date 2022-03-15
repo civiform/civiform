@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
@@ -25,7 +25,7 @@ import support.QuestionAnswerer;
 import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)
-public class EnumeratorQuestionTest extends WithPostgresContainer {
+public class EnumeratorQuestionTest extends ResetPostgres {
   private static final EnumeratorQuestionDefinition enumeratorQuestionDefinition =
       new EnumeratorQuestionDefinition(
           OptionalLong.of(1),

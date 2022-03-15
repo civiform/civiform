@@ -16,7 +16,7 @@ import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.test.Helpers;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.program.ProgramDefinition;
 import services.question.QuestionService;
 import services.question.exceptions.InvalidUpdateException;
@@ -25,7 +25,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import support.ProgramBuilder;
 
-public class AdminProgramBlocksControllerTest extends WithPostgresContainer {
+public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   private AdminProgramBlocksController controller;
   private QuestionService questionService;

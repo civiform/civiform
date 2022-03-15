@@ -9,32 +9,20 @@ import controllers.routes;
 import java.util.Optional;
 import models.Applicant;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.utility.DockerImageName;
 import play.Application;
 import repository.UserRepository;
 import services.WellKnownPaths;
 import support.TestConstants;
 
 public class SecurityBrowserTest extends BaseBrowserTest {
-  public static final DockerImageName OIDC_IMAGE =
-      DockerImageName.parse("docker.io/civiform/oidc-provider:latest");
-
-  @ClassRule
-  public static GenericContainer<?> oidcProvider =
-      new GenericContainer<>(OIDC_IMAGE).withExposedPorts(3380);
-
   private static UserRepository userRepository;
 
   @Override
   protected Application provideApplication() {
     ImmutableMap<String, Object> config =
         new ImmutableMap.Builder<String, Object>()
-            .putAll(TestConstants.TEST_DATABASE_CONFIG)
-            .putAll(
-                TestConstants.oidcConfig(oidcProvider.getHost(), oidcProvider.getMappedPort(3380)))
+            .putAll(TestConstants.oidcConfig("oidc", 3380))
             .build();
     return fakeApplication(config);
   }

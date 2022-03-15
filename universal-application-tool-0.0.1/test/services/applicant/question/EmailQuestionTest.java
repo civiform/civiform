@@ -10,14 +10,14 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.question.types.EmailQuestionDefinition;
 import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
-public class EmailQuestionTest extends WithPostgresContainer {
+public class EmailQuestionTest extends ResetPostgres {
   private static final EmailQuestionDefinition emailQuestionDefinition =
       new EmailQuestionDefinition(
           OptionalLong.of(1),

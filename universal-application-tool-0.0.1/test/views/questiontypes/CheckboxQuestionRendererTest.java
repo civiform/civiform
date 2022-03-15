@@ -13,7 +13,7 @@ import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
@@ -22,7 +22,7 @@ import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import support.QuestionAnswerer;
 
-public class CheckboxQuestionRendererTest extends WithPostgresContainer {
+public class CheckboxQuestionRendererTest extends ResetPostgres {
 
   private static final CheckboxQuestionDefinition CHECKBOX_QUESTION =
       new CheckboxQuestionDefinition(

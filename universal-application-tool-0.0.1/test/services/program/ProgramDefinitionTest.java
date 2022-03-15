@@ -9,7 +9,7 @@ import java.util.Optional;
 import models.DisplayMode;
 import models.Question;
 import org.junit.Test;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.applicant.question.Scalar;
@@ -23,7 +23,7 @@ import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
 
-public class ProgramDefinitionTest extends WithPostgresContainer {
+public class ProgramDefinitionTest extends ResetPostgres {
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(true);
 

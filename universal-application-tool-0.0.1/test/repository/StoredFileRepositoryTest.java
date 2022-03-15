@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import models.StoredFile;
 import org.junit.Test;
 
-public class StoredFileRepositoryTest extends WithPostgresContainer {
+public class StoredFileRepositoryTest extends ResetPostgres {
 
   @Test
   public void createFileRecord() {

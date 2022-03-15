@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.junit.Before;
 import org.junit.Test;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
@@ -19,7 +19,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
 
-public class QuestionServiceImplTest extends WithPostgresContainer {
+public class QuestionServiceImplTest extends ResetPostgres {
   QuestionServiceImpl questionService;
 
   QuestionDefinition questionDefinition =

@@ -19,7 +19,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.Before;
 import org.junit.Test;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
@@ -37,7 +37,7 @@ import services.question.types.QuestionType;
 import support.ProgramBuilder;
 import support.QuestionAnswerer;
 
-public class CsvExporterTest extends WithPostgresContainer {
+public class CsvExporterTest extends ResetPostgres {
   private Program fakeProgramWithCsvExport;
   private ImmutableList<Question> fakeQuestions;
 

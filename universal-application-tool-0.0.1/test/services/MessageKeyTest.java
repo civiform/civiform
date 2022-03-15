@@ -12,10 +12,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 
 @RunWith(JUnitParamsRunner.class)
-public class MessageKeyTest extends WithPostgresContainer {
+public class MessageKeyTest extends ResetPostgres {
 
   private MessagesApi messagesApi;
 
