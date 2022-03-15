@@ -22,8 +22,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
   protected Application provideApplication() {
     ImmutableMap<String, Object> config =
         new ImmutableMap.Builder<String, Object>()
-            .putAll(
-                TestConstants.oidcConfig("oidc", 3380))
+            .putAll(TestConstants.oidcConfig("oidc", 3380))
             .build();
     return fakeApplication(config);
   }

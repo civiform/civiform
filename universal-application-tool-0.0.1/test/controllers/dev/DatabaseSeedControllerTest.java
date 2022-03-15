@@ -13,7 +13,6 @@ import play.Mode;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Result;
 import repository.WithPostgresContainer;
-import support.TestConstants;
 
 public class DatabaseSeedControllerTest extends WithPostgresContainer {
 

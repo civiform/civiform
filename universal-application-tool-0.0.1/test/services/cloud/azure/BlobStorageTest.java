@@ -1,14 +1,10 @@
 package services.cloud.azure;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.fakeApplication;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import play.Application;
-import play.test.WithApplication;
 import repository.WithPostgresContainer;
 import services.cloud.StorageServiceName;
 import services.cloud.azure.BlobStorage.Client;

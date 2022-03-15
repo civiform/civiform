@@ -24,7 +24,6 @@ import play.mvc.Http;
 import play.test.Helpers;
 import support.ProgramBuilder;
 import support.ResourceCreator;
-import support.TestConstants;
 import support.TestQuestionBank;
 
 public class WithMockedProfiles {
