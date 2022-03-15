@@ -52,7 +52,7 @@ variable "app_sku" {
   description = "SKU tier/size/capacity information"
   default = {
     tier     = "Standard",
-    size     = "S1",
+    size     = "S2",
     capacity = "2"
   }
 }
