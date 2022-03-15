@@ -30,9 +30,6 @@ lazy val root = (project in file("."))
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.2.18",
-      "org.testcontainers" % "postgresql" % "1.16.3" % Test,
-      "org.testcontainers" % "testcontainers" % "1.16.3" % Test,
-      "org.testcontainers" % "junit-jupiter" % "1.16.3" % Test,
       "org.junit.jupiter" % "junit-jupiter-engine" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-api" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-params" % "5.8.2" % Test,

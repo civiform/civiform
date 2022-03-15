@@ -69,7 +69,6 @@ public class DatabaseSeedControllerTest extends WithPostgresContainer {
   private DatabaseSeedController createControllerInMode(Mode mode) {
     return new GuiceApplicationBuilder()
         .in(mode)
-        .configure(TestConstants.TEST_DATABASE_CONFIG)
         .build()
         .injector()
         .instanceOf(DatabaseSeedController.class);

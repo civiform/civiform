@@ -6,12 +6,5 @@ source bin/lib.sh
 
 bin/pull-image
 
-# Allocate a TTY for better output even though not strictly needed.
-docker run -it --rm \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v $(pwd)/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1 \
-  -v ~/.coursier:/root/.coursier \
-  -v ~/.sbt:/root/.sbt \
-  -v ~/.ivy:/root/.ivy2 \
-  civiform-dev \
-  $@
+docker::ensure_unit_test_env
+docker::run_dev_sbt_command $@

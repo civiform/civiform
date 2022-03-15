@@ -1,0 +1,19 @@
+# Use postgres/example user/password credentials
+version: '3.8'
+
+services:
+  db:
+    container_name: unit-test-postgres
+    image: postgres:12.5
+    restart: always
+    ports:
+      - 5555:5432
+    environment:
+      POSTGRES_PASSWORD: example
+
+  oidc:
+    container_name: unit-test-oidc-provider
+    image: civiform/oidc-provider
+    restart: always
+    ports:
+      - 3380:3380

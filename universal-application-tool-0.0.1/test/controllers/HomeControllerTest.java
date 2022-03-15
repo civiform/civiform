@@ -11,8 +11,9 @@ import org.pac4j.core.context.HttpConstants;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.WithApplication;
+import repository.WithPostgresContainer;
 
-public class HomeControllerTest extends WithApplication {
+public class HomeControllerTest extends WithPostgresContainer {
 
   @Test
   public void testUnauthenticatedSecurePage() {

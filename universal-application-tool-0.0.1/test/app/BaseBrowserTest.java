@@ -33,7 +33,7 @@ public class BaseBrowserTest extends WithBrowser {
 
   @Override
   protected Application provideApplication() {
-    return fakeApplication(TestConstants.TEST_DATABASE_CONFIG);
+    return fakeApplication();
   }
 
   @Before
