@@ -1,35 +1,46 @@
 import subprocess
+
+"""
+Template Setup
+
+This script handles the setup for the specific template. Calls out 
+to many different shell script in order to setup the environment
+outside of the terraform setup. The setup is in two phases: pre_terraform_setup
+and post_terraform_setup. 
+"""
 class Setup:
     resource_group = None
     key_vault_name = None
+    setup_terraform_variables = {}
     
     def __init__(self, config):
         self.config=config
-        self.backend_config_filename = "staging_azure_backend_vars"
     
     def requires_post_terraform_setup(self):
         return True
     
-    def pre_terraform_setup(self):         
-        self.create_ssh_keyfile()
-        self.setup_resource_group()
-        self.setup_shared_state()
-        self.setup_keyvault()
-        self.setup_saml_keystore()
-        self.setup_ses()    
-    
-    def get_pre_terraform_variables(self):
+    def get_setup_terraform_variables(self):
         # if we generated any terraform variables in setup
-        return {}
+        return self.setup_terraform_variables
+    
+    def pre_terraform_setup(self):         
+        self._create_ssh_keyfile()
+        self._setup_resource_group()
+        self._setup_shared_state()
+        self._setup_keyvault()
+        self._setup_saml_keystore()
+        self._setup_ses()    
     
     def post_terraform_setup(self):
+        # TODO ask the user for their adfs information here
         pass
 
-    def get_post_terraform_variables(self):
-        # TODO ask the user for their adfs information here
-        return {}
-
-    def setup_resource_group(self): 
+    def cleanup(self): 
+        # delete the keygen file? 
+        # delete the backend config
+        pass
+    
+    def _setup_resource_group(self): 
         resource_group = self.config.get_config_var("AZURE_RESOURCE_GROUP")
         resource_group_location = self.config.get_config_var("AZURE_LOCATION")
         subprocess.run([
@@ -40,17 +51,17 @@ class Setup:
         self.resource_group = resource_group
         self.resource_group_location = resource_group_location
 
-    def create_ssh_keyfile(self): 
+    def _create_ssh_keyfile(self): 
         subprocess.run("ssh-keygen -q -t rsa -b 4096 -N '' -f $HOME/.ssh/bastion <<< y", check=True, shell=True)
     
-    def setup_shared_state(self):
+    def _setup_shared_state(self):
         if not self.resource_group: 
             raise RuntimeError("Resource group required")
         subprocess.run([
             "cloud/azure/bin/setup_tf_shared_state", 
             f"{self.config.get_template_dir()}/{self.backend_config_filename}"], check=True)
     
-    def setup_keyvault(self): 
+    def _setup_keyvault(self): 
         if not self.resource_group: 
             raise RuntimeError("Resource group required")
         key_vault_name = self.config.get_config_var("KEY_VAULT_NAME")
@@ -61,7 +72,7 @@ class Setup:
                        check=True)
         self.key_vault_name = key_vault_name
     
-    def setup_saml_keystore(self): 
+    def _setup_saml_keystore(self): 
         if not self.resource_group: 
             raise RuntimeError("Resource group required")
         if not self.key_vault_name: 
@@ -76,7 +87,7 @@ class Setup:
             "-s", saml_keystore_storage_account],
                        check=True)
     
-    def setup_ses(self): 
+    def _setup_ses(self): 
         if not self.key_vault_name: 
             raise RuntimeError("Key Vault Setup Required")
         aws_username = self.config.get_config_var("AWS_USERNAME")
@@ -85,12 +96,4 @@ class Setup:
             "-v", self.key_vault_name,
             "-u", aws_username
         ], check=True)
-
-    def cleanup(self): 
-        # delete the keygen file? 
-        # delete the backend config
-        pass
-    
-    def get_backend_config_filename(self): 
-        return self.backend_config_filename
     
