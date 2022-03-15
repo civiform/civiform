@@ -115,19 +115,7 @@
         "type": "string"
     },
     "ADFS_ADMIN_GROUP": {
-        "required": false,
-        "secret": false,
-        "tfvar": true,
-        "type": "string"
-    },
-    "ADFS_CLIENT_ID": {
-        "required": false,
-        "secret": false,
-        "tfvar": true,
-        "type": "string"
-    },
-    "ADFS_DISCOVERY_URI": {
-        "required": false,
+        "required": true,
         "secret": false,
         "tfvar": true,
         "type": "string"

@@ -7,5 +7,5 @@ set -e
 # various cloud providers. 
 #
 # In order to properly run this first source your config file
-# then run ./cloud/shared/bin/set-up from the civiform repo 
+# then run ./cloud/shared/bin/setup from the civiform repo 
 exec cloud/shared/bin/lib/setup.py

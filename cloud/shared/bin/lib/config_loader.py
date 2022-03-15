@@ -81,6 +81,10 @@ class ConfigLoader:
     def get_template_dir(self):
         return self.configs.get("TERRAFORM_TEMPLATE_DIR")
     
+    def use_backend_config(self):
+        use_backend_config = self.configs.get("USE_BACKEND_CONFIG", "no")
+        return use_backend_config == "yes"
+    
     def get_config_variables(self):
         return self.configs
 

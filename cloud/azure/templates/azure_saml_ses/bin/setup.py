@@ -11,17 +11,13 @@ and post_terraform_setup.
 class Setup:
     resource_group = None
     key_vault_name = None
-    setup_terraform_variables = {}
     
-    def __init__(self, config):
+    def __init__(self, config, backend_config_filename):
         self.config=config
+        self.backend_config_filename = backend_config_filename
     
     def requires_post_terraform_setup(self):
         return True
-    
-    def get_setup_terraform_variables(self):
-        # if we generated any terraform variables in setup
-        return self.setup_terraform_variables
     
     def pre_terraform_setup(self):         
         self._create_ssh_keyfile()
@@ -36,9 +32,7 @@ class Setup:
         pass
 
     def cleanup(self): 
-        # delete the keygen file? 
-        # delete the backend config
-        pass
+        subprocess.run("rm $HOME/.ssh/bastion", check=True, shell=True)
     
     def _setup_resource_group(self): 
         resource_group = self.config.get_config_var("AZURE_RESOURCE_GROUP")
@@ -57,9 +51,11 @@ class Setup:
     def _setup_shared_state(self):
         if not self.resource_group: 
             raise RuntimeError("Resource group required")
-        subprocess.run([
-            "cloud/azure/bin/setup_tf_shared_state", 
-            f"{self.config.get_template_dir()}/{self.backend_config_filename}"], check=True)
+        if self.config.use_backend_config(): 
+            subprocess.run([
+                "cloud/azure/bin/setup_tf_shared_state", 
+                f"{self.config.get_template_dir()}/{self.backend_config_filename}"
+            ], check=True)
     
     def _setup_keyvault(self): 
         if not self.resource_group: 
@@ -68,8 +64,8 @@ class Setup:
         subprocess.run([
             "cloud/azure/bin/setup-keyvault", 
             "-g", self.resource_group, 
-            "-v", key_vault_name, "-l", self.resource_group_location], 
-                       check=True)
+            "-v", key_vault_name, "-l", self.resource_group_location
+        ], check=True)
         self.key_vault_name = key_vault_name
     
     def _setup_saml_keystore(self): 
@@ -84,8 +80,8 @@ class Setup:
             "-g", self.resource_group, 
             "-v", self.key_vault_name, 
             "-l", self.resource_group_location, 
-            "-s", saml_keystore_storage_account],
-                       check=True)
+            "-s", saml_keystore_storage_account
+        ], check=True)
     
     def _setup_ses(self): 
         if not self.key_vault_name: 

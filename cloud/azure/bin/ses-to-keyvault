@@ -11,35 +11,35 @@ readonly AWS_ACCESS_KEY_ID_NAME="aws-access-key-id"
 while getopts v:u: flag
 do
   case "${flag}" in
-    v) vault_name="${OPTARG}";;
-    u) username="${OPTARG}";;
+    v) VAULT_NAME="${OPTARG}";;
+    u) USERNAME="${OPTARG}";;
     *) out::error "Unexpected getopts value ${flag}";;
   esac
 done
 
-readonly vault_name
-readonly username
+readonly VAULT_NAME
+readonly USERNAME
 
-if [[ ! "${vault_name}" ]] \
-   || [[ ! "${username}" ]]; then
+if [[ ! "${VAULT_NAME}" ]] \
+   || [[ ! "${USERNAME}" ]]; then
   out::error "arguments -v and -u must be provided"
   exit 1
 fi
 
-access_key_id="$(key_vault::get_secret_value "${vault_name}" "${AWS_ACCESS_KEY_ID_NAME}")"
+HAS_SECRET="$(key_vault::has_secret "${VAULT_NAME}" "${AWS_ACCESS_KEY_ID_NAME}")"
 
-if [ "${access_key_id}" ]; then
-    echo "Access key, ${access_key_id}, exists in the secret store"
-    exit
-else
-    echo "Getting an AWS access key"
-    CREATED_KEY_RESULT="$(aws::create_access_key "${username}")"
-    access_key_id="$(aws::parse_access_key_id "${CREATED_KEY_RESULT}")"
-    SECRET_ACCESS_KEY="$(aws::parse_access_secret_key "${CREATED_KEY_RESULTt}")"
+if [[ "${HAS_SECRET}" = true ]]; then
+    echo "Access key exists in the secret store"
+    exit 0
+fi 
 
-    echo "Adding the secret access key to the azure key vault"
-    key_vault::add_secret "${vault_name}" "${AWS_SECRET_ACCESS_TOKEN_NAME}" "${SECRET_ACCESS_KEY}"
+echo "Getting an AWS access key"
+CREATED_KEY_RESULT="$(aws::create_access_key "${USERNAME}")"
+ACCESS_KEY_ID="$(aws::parse_access_key_id "${CREATED_KEY_RESULT}")"
+SECRET_ACCESS_KEY="$(aws::parse_access_secret_key "${CREATED_KEY_RESULTt}")"
 
-    echo "Adding the access key id to the azure key vault"
-    key_vault::add_secret "${vault_name}" "${AWS_ACCESS_KEY_ID_NAME}" "${access_key_id}"
-fi
+echo "Adding the secret access key to the azure key vault"
+key_vault::add_secret "${VAULT_NAME}" "${AWS_SECRET_ACCESS_TOKEN_NAME}" "${SECRET_ACCESS_KEY}"
+
+echo "Adding the access key id to the azure key vault"
+key_vault::add_secret "${VAULT_NAME}" "${AWS_ACCESS_KEY_ID_NAME}" "${ACCESS_KEY_ID}"

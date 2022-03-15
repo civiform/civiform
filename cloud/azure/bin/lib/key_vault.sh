@@ -36,10 +36,10 @@ function key_vault::assign_secrets_officer_role_to_user() {
     echo "Current user already has Key Vault Secrets Officer role"
   else
     az role assignment create \
-        --role "${KEY_VAULT_SECRETS_OFFICER_GUID}" \
-        --scope "subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${1}" \
-        --assignee-object-id "${USER_ID}" \
-        --assignee-principal-type "User"
+      --role "${KEY_VAULT_SECRETS_OFFICER_GUID}" \
+      --scope "subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${1}" \
+      --assignee-object-id "${USER_ID}" \
+      --assignee-principal-type "User"
   fi
 }
 
@@ -104,4 +104,22 @@ function key_vault::get_secret_value() {
   az keyvault secret show --vault-name "${1}" --name "${2}" --query value -o tsv
 }
 
-
+#######################################
+# Shows if the secret exists in the keyvault. if it does return true!
+# Ouputs the string that the secret is set to, ex. eRZE*8d-$EM*0tSxKXIp63yVnY~t2zI:=[Bm#FB*
+# Arguments:
+#   1: The name of the key vault
+#   2: The name of the secret (used to identify it e.g. "postgres-password")
+#######################################
+function key_vault::has_secret() {
+  local SECRET_RESULT="$(az keyvault secret show \
+    --vault-name "${1}" \
+    --name "${2}" \
+    --query value \
+    -o tsv)"
+  
+  if echo "${SECRET_RESULT}" | grep -q "SecretNotFound"; then
+    return true
+  fi
+  return false
+}

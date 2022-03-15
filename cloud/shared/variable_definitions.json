@@ -122,5 +122,14 @@
         "secret": false,
         "tfvar": true,
         "type": "string"
+    },
+    "USE_BACKEND_CONFIG": {
+        "required": true,
+        "secret": false,
+        "type": "enum",
+        "values": [
+            "yes",
+            "no"
+        ]
     }
 }

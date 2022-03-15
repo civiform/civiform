@@ -5,6 +5,9 @@ source "cloud/azure/bin/lib.sh"
 readonly POSTGRES_PASSWORD_NAME="postgres-password"
 readonly APP_SECRET_KEY_NAME="app-secret-key"
 readonly ADFS_SECRET_NAME="adfs-secret"
+readonly ADFS_CLIENT_ID="adfs-client-id"
+readonly ADFS_DISCOVERY_URI="adfs-discovery-uri"
+readonly TEMPORARY_SECRET="CHANGE ME"
 
 # DOC: Create key vault instance, set permissions, and generate and set secrets
 
@@ -43,4 +46,19 @@ key_vault::add_generated_secrets \
   "${vault_name}" \
   "${POSTGRES_PASSWORD_NAME}" \
   "${APP_SECRET_KEY_NAME}" \
-  "${ADFS_SECRET_NAME}"
+
+echo "Adding placeholder values for secrets we set later"
+key_vault::add_secret \
+  "${vault_name}" \
+  "${ADFS_SECRET_NAME}" \
+  "${TEMPORARY_SECRET}"
+
+key_vault::add_secret \
+  "${vault_name}" \
+  "${ADFS_CLIENT_ID}" \
+  "${TEMPORARY_SECRET}"
+
+key_vault::add_secret \
+  "${vault_name}" \
+  "${ADFS_DISCOVERY_URI}" \
+  "${TEMPORARY_SECRET}"

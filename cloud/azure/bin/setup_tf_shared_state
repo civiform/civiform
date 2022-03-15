@@ -49,7 +49,7 @@ else
       --encryption-services blob
 fi
 
-echo "Assingning correct role to the user"
+echo "Assigning storage blob data contributer role to the user"
 storage::assign_storage_blob_data_contributor_role_to_user "${RESOURCE_GROUP_NAME}"
 
 echo "Create blob container if it doesn't exist"

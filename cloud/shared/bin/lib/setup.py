@@ -34,10 +34,9 @@ if not is_valid:
 
 template_dir = config_loader.get_template_dir()
 Setup = load_class(template_dir)
-template_setup = Setup(config_loader)
+backend_vars = "backend_vars" if config_loader.use_backend_config() else None 
+template_setup = Setup(config_loader, backend_vars)
 template_setup.pre_terraform_setup()
-backend_vars = "backend_vars"
-setup_terraform_variables = template_setup.get_setup_terraform_variables()
 
 ###############################################################################
 # Terraform Init/Plan/Apply
@@ -49,10 +48,7 @@ terraform_tfvars_path = f"{template_dir}/{terraform_tfvars_filename}"
 # Write the passthrough vars to a temporary file
 tf_var_writter = TfVarWriter(terraform_tfvars_path)
 conf_variables = config_loader.get_terraform_variables()
-tf_var_writter.write_variables({
-    **conf_variables,
-    **setup_terraform_variables
-})
+tf_var_writter.write_variables(conf_variables)
 
 # Note that the -chdir means we use the relative paths for 
 # both the backend config and the var file
@@ -76,11 +72,6 @@ subprocess.check_call([
 
 if template_setup.requires_post_terraform_setup():
     template_setup.post_terraform_setup()
-    setup_terraform_variables = template_setup.get_setup_terraform_variables()
-    tf_var_writter.write_variables({
-        **conf_variables, 
-        **setup_terraform_variables
-    })
     
     subprocess.check_call([
         "terraform", 
@@ -88,3 +79,5 @@ if template_setup.requires_post_terraform_setup():
         "apply", 
         f"-var-file={terraform_tfvars_filename}"
     ])
+
+template_setup.cleanup()
