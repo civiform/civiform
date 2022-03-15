@@ -37,7 +37,7 @@ template_dir = config_loader.get_template_dir()
 Setup = load_class(template_dir)
 backend_vars = "backend_vars" if config_loader.use_backend_config() else None 
 template_setup = Setup(config_loader, backend_vars)
-template_setup.pre_terraform_setup()
+# template_setup.pre_terraform_setup()
 
 ###############################################################################
 # Terraform Init/Plan/Apply
@@ -61,14 +61,14 @@ terraform_init_args = [
 if backend_vars:
     terraform_init_args.append(f"-backend-config={backend_vars}")
 
-subprocess.check_call(terraform_init_args)
+# subprocess.check_call(terraform_init_args)
 
-subprocess.check_call([
-    "terraform", 
-    f"-chdir={template_dir}", 
-    "apply", 
-    f"-var-file={terraform_tfvars_filename}"
-])
+# subprocess.check_call([
+#     "terraform", 
+#     f"-chdir={template_dir}", 
+#     "apply", 
+#     f"-var-file={terraform_tfvars_filename}"
+# ])
 
 ###############################################################################
 # Post Run Setup Tasks (if needed)

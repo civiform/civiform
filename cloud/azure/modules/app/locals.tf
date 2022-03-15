@@ -37,9 +37,9 @@ locals {
 
     SECRET_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.app_secret_key.id})"
 
-    ADFS_CLIENT_ID     = var.adfs_client_id
     ADFS_SECRET        = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.adfs_secret.id})"
-    ADFS_DISCOVERY_URI = var.adfs_discovery_uri
+    ADFS_CLIENT_ID     = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.adfs_client_id.id})"
+    ADFS_DISCOVERY_URI = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.adfs_discovery_uri.id})"
 
     CIVIFORM_APPLICANT_IDP = var.civiform_applicant_idp
 
@@ -58,4 +58,6 @@ locals {
     # azure AD to not include that claim.
     ADFS_ADDITIONAL_SCOPES = ""
   }
+  adfs_client_id     = "adfs-client-id"
+  adfs_discovery_uri = "adfs-discovery-uri"
 }
