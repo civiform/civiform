@@ -141,6 +141,10 @@ resource "azurerm_app_service" "civiform_app" {
       }
     }
   }
+
+  lifecycle {
+    ignore_changes = [ app_settings["STAGING_HOSTNAME"], app_settings["BASE_URL"] ]
+  }
 }
 
 resource "azurerm_app_service_slot" "canary" {
@@ -181,6 +185,10 @@ resource "azurerm_app_service_slot" "canary" {
         retention_in_mb   = 35
       }
     }
+  }
+
+  lifecycle {
+    ignore_changes = [ app_settings["STAGING_HOSTNAME"], app_settings["BASE_URL"] ]
   }
 }
 

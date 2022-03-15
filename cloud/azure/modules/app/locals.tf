@@ -23,6 +23,11 @@ locals {
 
     STORAGE_SERVICE_NAME = "azure-blob"
 
+    # STAGING_HOSTNAME and BASE_URL are slot settings which are managed outside of Terraform
+    # but we need to set an initial value for them here so that the ignore_changes block will work
+    STAGING_HOSTNAME="placeholder"
+    BASE_URL="placeholder"
+
     AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
 

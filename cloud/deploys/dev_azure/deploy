@@ -7,7 +7,6 @@ readonly TEMPLATE_DIR="cloud/deploys/dev_azure"
 
 # Apply any infra changes with terraform. This will unset the slot settings, so we'll
 # set them again after we run terraform apply
-# TODO: get terraform to ignore the slot settings
 terraform \
   -chdir="${TEMPLATE_DIR}" \
   init 
@@ -15,7 +14,5 @@ terraform \
 terraform \
   -chdir="${TEMPLATE_DIR}" \
   apply 
-
-cloud/deploys/dev_azure/configure-slot-settings -g "${AZURE_RESOURCE_GROUP}"
 
 cloud/azure/bin/deploy
