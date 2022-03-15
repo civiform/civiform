@@ -22,7 +22,7 @@ function azure::create_resource_group() {
 #   1: The resource group name for the terraform deployment
 #######################################
 function azure::get_app_name() {
-  az webapp list --resource-group="${}" --query "[].name" -o tsv
+  az webapp list --resource-group="${1}" --query "[].name" -o tsv
 }
 
 #######################################
@@ -35,10 +35,10 @@ function azure::get_app_name() {
 #######################################
 function azure::get_primary_url() {
   az webapp show \
-    --resource-group "${1}"
+    --resource-group "${1}" \
     --name "${2}" \
-    --query "defaultHostname" \
-    -o tsv
+    --query "defaultHostName" \
+    --output tsv
 }
 
 #######################################
@@ -51,54 +51,47 @@ function azure::get_primary_url() {
 #######################################
 function azure::get_canary_url() {
   az webapp show \
-    --resource-group "${1}"
+    --resource-group "${1}" \
     --name "${2}" \
     --slot "canary" \
-    --query "defaultHostname" \
-    -o tsv
+    --query "defaultHostName" \
+    --output tsv
 }
 
 #######################################
-# Set base urls for app service canary slot. For now, this
+# Sets a slot setting for app service canary slot. For now, this
 # step must be done via CLI because Terraform doesn't support the
 # slot settings feature.
 # See https://github.com/hashicorp/terraform-provider-azurerm/pull/12809
 # Arguments:
-#   1. The resource group name
+#   1. The slot name (either "primary" or "canary")
 #   2. The app service app name
+#   3. The key for the slot setting (e.g. BASE_URL)
+#   4. The value for the slot setting (e.g. https://staging-azure.civiform.dev)
+#   5. The resource group name
 #######################################
-function azure::set_app_base_url_canary() {
-  local CANARY_URL="$(azure::get_canary_url "${2}")"
-
-  echo "Setting base URL for canary slot to "${CANARY_URL}""
-  az webapp config appsettings set \
-    --resource_group "${1}" \
-    --name "${2}" \
-    --slot "canary"
-    --slot-settings "BASE_URL=${CANARY_URL}"
-}
-
-
-#######################################
-# Set base urls for app service primary slot. For now, this
-# step must be done via CLI because Terraform doesn't support the
-# slot settings feature.
-# See https://github.com/hashicorp/terraform-provider-azurerm/pull/12809
-# Arguments:
-#   1. The resource group name
-#   2. The app service app name
-#   3. The custom hostname for the primary slot (e.g. https://staging-azure.civiform.dev)
-#######################################
-function azure::set_app_base_url_primary() {
-  echo "Setting base URL for canary slot to "${CANARY_URL}""
-  az webapp config appsettings set \
-    --resource_group "${1}" \
-    --name "${2}" \
-    --slot-settings "BASE_URL=${3}"
+function azure::slot_setting {
+  echo "Setting ${3} for ${1} slot to ${4}"
+  if [[ "${1}" == "canary" ]] ; then
+    az webapp config appsettings set \
+      --name "${2}" \
+      --slot "canary" \
+      --slot-settings "${3}=${4}" \
+      --resource-group "${5}"  \
+      --output "none" 
+  elif [[ "${1}" == "primary" ]] ; then
+    az webapp config appsettings set \
+      --name "${2}" \
+      --slot-settings "${3}=${4}" \
+      --resource-group "${5}" \
+      --output "none" 
+  else 
+    echo "${1} is not a valid slot option." >&2
+  fi
 }
 
 #######################################
-# Sets the canary slot to point to a new container tag
+# Sets the canary slot to point to a new container tag.
 # Arguments:
 #   1. The resource group name
 #   2. The app service app name
@@ -106,8 +99,21 @@ function azure::set_app_base_url_primary() {
 #######################################
 function azure::set_new_container_tag(){
   az webapp config container set \
-    --resource_group "${1}" \
+    --resource-group "${1}" \
     --name "${2}" \
-    --slot "canary"
-    --docker-custom-image-name "DOCKER|${CIVIFORM_CONTAINER_NAME}:${2}"
+    --slot "canary" \
+    --docker-custom-image-name "DOCKER|${CIVIFORM_CONTAINER_NAME}:${3}"
 }
+
+#######################################
+# Swap the canary slot into production.
+# Arguments:
+#   1. The resource group name
+#   2. The app service app name
+#######################################
+function azure::swap_deployment_slot() {
+  az webapp deployment slot swap --slot "canary" \
+    --resource-group "${1}" \
+    --name "${2}"
+}
+

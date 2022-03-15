@@ -10,18 +10,21 @@ function health::wait_for_success() {
     local TIMEOUT=300 # 5 min
     local START_TIME="$(date +%s)"
 
-    if [[-z "${2}"]];
-    then
+    if [[  -n "${2}" ]] ; then
       TIMEOUT=${2}
     fi
     local DEADLINE="$(($START_TIME + $TIMEOUT))"
-    echo "Polling ${1} for successful response"
-    until [[ health::get_status "${1}" == "200" ]] ;  do
-        if (( "$(date +%s)" > "${DEADLINE}" )); then
+    echo "Polling ${1} for successful response. This may take a few minutes"
+    local health_status="$(health::get_status "${1}")"
+    until [ "${health_status}" -eq "200" ] ;  do
+        sleep 10
+        local CURRENT_TIME=$(date +%s)
+        if (( "${CURRENT_TIME}" > "${DEADLINE}" )); then
             echo "Deadline exceeded waiting for healthy endpoint" >&2
             exit 1
         fi
-        sleep 10
+        echo "Time elapsed: $((${CURRENT_TIME} - ${START_TIME})) seconds"
+        health_status="$(health::get_status "${1}")"
     done
 
 }
