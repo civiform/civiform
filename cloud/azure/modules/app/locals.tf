@@ -22,8 +22,6 @@ locals {
     DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
 
     STORAGE_SERVICE_NAME = "azure-blob"
-    # this allows for the dev instances to get setup
-    STAGING_HOSTNAME = (var.staging_hostname != "" ? var.staging_hostname : local.generated_hostname)
 
     AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name

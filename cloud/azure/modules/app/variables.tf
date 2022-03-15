@@ -109,16 +109,7 @@ variable "ses_sender_email" {
   description = "Email address of who is sending the email, passed to the app"
 }
 
-variable "staging_hostname" {
-  type        = string
-  description = "hostname for staging (used by the code to allow dev features)"
-  default     = "staging-azure.civiform.dev"
-}
 
-variable "custom_hostname" {
-  type        = string
-  description = "custom hostname for the app to map the dns (used also for CORS)"
-}
 variable "key_vault_name" {
   type        = string
   description = "Name of key vault where secrets are stored."
