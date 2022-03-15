@@ -67,7 +67,7 @@ class Setup:
         if not self.key_vault_name: 
             raise RuntimeError("Key Vault Setup Required")
         
-        saml_keystore_storage_account = self.config.get_config_var("SAML_KEYSTORE_STORAGE_ACCOUNT")
+        saml_keystore_storage_account = self.config.get_config_var("SAML_KEYSTORE_ACCOUNT_NAME")
         subprocess.run([
             "cloud/azure/bin/setup-saml-keystore",
             "-g", self.resource_group, 
