@@ -10,8 +10,8 @@ docker run \
   -it \
   --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  -v $(pwd)/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1 \
-  -v ~/.coursier:/root/.coursier \
+  -v "$(pwd)/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1" \
+  -v "$(pwd)/sbt_cache/coursier:/root/.cache/coursier" \
   -v ~/.sbt:/root/.sbt \
   -v ~/.ivy:/root/.ivy2 \
   --entrypoint /bin/bash \

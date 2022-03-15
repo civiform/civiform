@@ -11,7 +11,9 @@ function docker::run_dev_sbt_command() {
   docker run -it --rm \
     --network test-support_default \
     -v "$(pwd)/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1" \
-    -v "$(pwd)/sbt_cache:/root/sbt_cache" \
+    -v "$(pwd)/sbt_cache/coursier:/root/.cache/coursier" \
+    -v ~/.sbt:/root/.sbt \
+    -v ~/.ivy:/root/.ivy2 \
     civiform-dev \
     $@
 }
