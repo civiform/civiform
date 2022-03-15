@@ -31,6 +31,14 @@ variable "subnet_address_prefixes" {
   ]
 }
 
+variable "canary_subnet_address_prefixes" {
+  type        = list(string)
+  description = "List of the apps subnet address prefixes (must be distinct from the postgress subnet)"
+  default = [
+    "10.0.0.0/24"
+  ]
+}
+
 variable "bastion_address_prefixes" {
   type        = list(string)
   description = "Prefixes for the bastion instance (must be distinct from other subnets)"

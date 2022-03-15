@@ -1,7 +1,7 @@
 resource "azurerm_log_analytics_workspace" "civiform_logs" {
   name                = "civiform-server-logs"
   location            = data.azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = data.azurerm_resource_group.rg.name
   sku                 = var.log_sku
   retention_in_days   = var.log_retention
 }

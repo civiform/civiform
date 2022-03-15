@@ -59,6 +59,22 @@ resource "azurerm_subnet" "server_subnet" {
   }
 }
 
+resource "azurerm_subnet" "canary_subnet" {
+  name                 = "canary-subnet"
+  resource_group_name  = data.azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.civiform_vnet.name
+  address_prefixes     = var.canary_subnet_address_prefixes
+
+  delegation {
+    name = "app-service-delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+}
+
 resource "azurerm_app_service_plan" "plan" {
   name                = "${data.azurerm_resource_group.rg.name}-plan"
   location            = data.azurerm_resource_group.rg.location
@@ -119,8 +135,8 @@ resource "azurerm_app_service" "civiform_app" {
 
 resource "azurerm_app_service_slot" "canary" {
   name                = "canary"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   app_service_plan_id = azurerm_app_service_plan.plan.id
   app_service_name    = azurerm_app_service.civiform_app.name
 
@@ -159,14 +175,20 @@ resource "azurerm_app_service_slot" "canary" {
 }
 
 resource "azurerm_app_service_active_slot" "active_slot" {
-  resource_group_name   = azurerm_resource_group.rg.name
-  app_service_name      = azurerm_app_service.civiform_app
+  resource_group_name   = data.azurerm_resource_group.rg.name
+  app_service_name      = azurerm_app_service.civiform_app.name
   app_service_slot_name = azurerm_app_service_slot.canary.name
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "appservice_vnet_connection" {
   app_service_id = azurerm_app_service.civiform_app.id
   subnet_id      = azurerm_subnet.server_subnet.id
+}
+
+resource "azurerm_app_service_slot_virtual_network_swift_connection" "canary_vnet_connection" {
+  app_service_id = azurerm_app_service.civiform_app.id
+  subnet_id      = azurerm_subnet.server_subnet.id
+  slot_name = azurerm_app_service_slot.canary.name
 }
 
 resource "azurerm_postgresql_server" "civiform" {

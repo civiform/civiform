@@ -19,9 +19,6 @@ module "app" {
   postgres_admin_login = var.postgres_admin_login
   postgres_sku_name    = "GP_Gen5_2"
 
-  docker_username        = var.docker_username
-  docker_repository_name = var.docker_repository_name
-
   key_vault_name = var.key_vault_name
 
   application_name = var.application_name
