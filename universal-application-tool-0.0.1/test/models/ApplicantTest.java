@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
-import repository.UserRepository;
 import repository.ResetPostgres;
+import repository.UserRepository;
 import services.Path;
 import services.applicant.ApplicantData;
 

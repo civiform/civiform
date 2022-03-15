@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
-import repository.UserRepository;
 import repository.ResetPostgres;
+import repository.UserRepository;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 

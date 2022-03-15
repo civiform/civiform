@@ -15,8 +15,8 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.UserRepository;
 import repository.ResetPostgres;
+import repository.UserRepository;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
