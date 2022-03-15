@@ -36,35 +36,6 @@ resource "azurerm_storage_account" "files_storage_account" {
 
   allow_blob_public_access = false
 }
-data "azurerm_key_vault" "civiform_key_vault" {
-  name                = var.key_vault_name
-  resource_group_name = var.resource_group_name
-}
-
-data "azurerm_key_vault_secret" "postgres_password" {
-  name         = local.postgres_password_keyvault_id
-  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
-}
-
-data "azurerm_key_vault_secret" "aws_secret_access_token" {
-  name         = local.aws_secret_access_token
-  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
-}
-
-data "azurerm_key_vault_secret" "aws_access_key_id" {
-  name         = local.aws_access_key_id
-  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
-}
-
-data "azurerm_key_vault_secret" "app_secret_key" {
-  name         = local.app_secret_key_keyvault_id
-  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
-}
-
-data "azurerm_key_vault_secret" "adfs_secret" {
-  name         = local.adfs_secret_keyvault_id
-  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
-}
 
 resource "azurerm_storage_container" "files_container" {
   name                  = "files"
@@ -77,6 +48,22 @@ resource "azurerm_subnet" "server_subnet" {
   resource_group_name  = data.azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.civiform_vnet.name
   address_prefixes     = var.subnet_address_prefixes
+
+  delegation {
+    name = "app-service-delegation"
+
+    service_delegation {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+}
+
+resource "azurerm_subnet" "canary_subnet" {
+  name                 = "canary-subnet"
+  resource_group_name  = data.azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.civiform_vnet.name
+  address_prefixes     = var.canary_subnet_address_prefixes
 
   delegation {
     name = "app-service-delegation"
@@ -110,62 +97,12 @@ resource "azurerm_app_service" "civiform_app" {
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
   app_service_plan_id = azurerm_app_service_plan.plan.id
-  app_settings = {
-    WEBSITES_ENABLE_APP_SERVICE_STORAGE = false
-    PORT                                = 9000
 
-    DOCKER_REGISTRY_SERVER_URL = "https://index.docker.io"
+  app_settings = local.app_settings
 
-    DB_USERNAME    = "${azurerm_postgresql_server.civiform.administrator_login}@${azurerm_postgresql_server.civiform.name}"
-    DB_PASSWORD    = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.postgres_password.id})"
-    DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
-
-    STORAGE_SERVICE_NAME = "azure-blob"
-    # this allows for the dev instances to get setup
-    STAGING_HOSTNAME = (var.staging_hostname != "" ? var.staging_hostname : local.generated_hostname)
-    BASE_URL         = "https://${var.custom_hostname != "" ? var.custom_hostname : local.generated_hostname}"
-
-    AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
-    AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
-
-    AWS_SES_SENDER        = var.ses_sender_email
-    AWS_ACCESS_KEY_ID     = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.aws_access_key_id.id})"
-    AWS_SECRET_ACCESS_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.aws_secret_access_token.id})"
-    AWS_REGION            = var.aws_region
-
-    STAGING_ADMIN_LIST     = var.staging_program_admin_notification_mailing_list
-    STAGING_TI_LIST        = var.staging_ti_notification_mailing_list
-    STAGING_APPLICANT_LIST = var.staging_applicant_notification_mailing_list
-
-    SECRET_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.app_secret_key.id})"
-
-    ADFS_CLIENT_ID     = var.adfs_client_id
-    ADFS_SECRET        = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.adfs_secret.id})"
-    ADFS_DISCOVERY_URI = var.adfs_discovery_uri
-
-    CIVIFORM_APPLICANT_IDP = var.civiform_applicant_idp
-
-    # The values below are all defaulted to null. If SAML authentication is used, the values can be pulled from the
-    # saml_keystore module
-    LOGIN_RADIUS_METADATA_URI     = var.login_radius_metadata_uri
-    LOGIN_RADIUS_API_KEY          = var.login_radius_api_key
-    LOGIN_RADIUS_SAML_APP_NAME    = var.login_radius_saml_app_name
-    LOGIN_RADIUS_KEYSTORE_NAME    = (var.saml_keystore_filename != null ? "/saml/${var.saml_keystore_filename}" : "")
-    LOGIN_RADIUS_KEYSTORE_PASS    = var.saml_keystore_password
-    LOGIN_RADIUS_PRIVATE_KEY_PASS = var.saml_private_key_password
-
-    # In HOCON, env variables set to the empty string are 
-    # kept as such (set to empty string, rather than undefined).
-    # This allows for the default to include atallclaims and for 
-    # azure AD to not include that claim.
-    ADFS_ADDITIONAL_SCOPES = ""
-  }
-  # Configure Docker Image to load on start
   site_config {
-    linux_fx_version                     = "DOCKER|${var.docker_username}/${var.docker_repository_name}:${var.image_tag_name}"
-    always_on                            = true
-    acr_use_managed_identity_credentials = true
-    vnet_route_all_enabled               = true
+    always_on              = true
+    vnet_route_all_enabled = true
   }
 
   # We will only mount this storage container if SAML authentication is being used
@@ -179,9 +116,48 @@ resource "azurerm_app_service" "civiform_app" {
       share_name   = var.saml_keystore_storage_container_name
       access_key   = var.saml_keystore_storage_access_key
       mount_path   = "/saml"
-
     }
+  }
 
+  identity {
+    type = "SystemAssigned"
+  }
+
+  logs {
+    http_logs {
+      file_system {
+        retention_in_days = 1
+        retention_in_mb   = 35
+      }
+    }
+  }
+}
+
+resource "azurerm_app_service_slot" "canary" {
+  name                = "canary"
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  app_service_plan_id = azurerm_app_service_plan.plan.id
+  app_service_name    = azurerm_app_service.civiform_app.name
+
+  app_settings = local.app_settings
+
+  site_config {
+    always_on              = true
+    vnet_route_all_enabled = true
+  }
+
+  # We will only mount this storage container if SAML authentication is being used
+  dynamic "storage_account" {
+    for_each = var.civiform_applicant_auth_protocol == "saml" ? [1] : []
+    content {
+      name         = "civiform-saml-keystore"
+      type         = "AzureBlob"
+      account_name = var.saml_keystore_storage_account_name
+      share_name   = var.saml_keystore_storage_container_name
+      access_key   = var.saml_keystore_storage_access_key
+      mount_path   = "/saml"
+    }
   }
 
   identity {
@@ -203,57 +179,10 @@ resource "azurerm_app_service_virtual_network_swift_connection" "appservice_vnet
   subnet_id      = azurerm_subnet.server_subnet.id
 }
 
-resource "azurerm_log_analytics_workspace" "civiform_logs" {
-  name                = "civiform-server-logs"
-  location            = data.azurerm_resource_group.rg.location
-  resource_group_name = data.azurerm_resource_group.rg.name
-  sku                 = var.log_sku
-  retention_in_days   = var.log_retention
-}
-
-resource "azurerm_monitor_diagnostic_setting" "app_service_log_analytics" {
-  name                       = "${var.application_name}_log_analytics"
-  target_resource_id         = azurerm_app_service.civiform_app.id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.civiform_logs.id
-
-  log {
-    category = "AppServiceAppLogs"
-
-    retention_policy {
-      enabled = false
-    }
-  }
-
-  log {
-    category = "AppServiceConsoleLogs"
-
-    retention_policy {
-      enabled = false
-    }
-  }
-
-  log {
-    category = "AppServiceHTTPLogs"
-
-    retention_policy {
-      enabled = false
-    }
-  }
-
-  log {
-    category = "AppServiceAuditLogs"
-
-    retention_policy {
-      enabled = false
-    }
-  }
-  metric {
-    category = "AllMetrics"
-
-    retention_policy {
-      enabled = false
-    }
-  }
+resource "azurerm_app_service_slot_virtual_network_swift_connection" "canary_vnet_connection" {
+  app_service_id = azurerm_app_service.civiform_app.id
+  subnet_id      = azurerm_subnet.server_subnet.id
+  slot_name      = azurerm_app_service_slot.canary.name
 }
 
 resource "azurerm_postgresql_server" "civiform" {
@@ -328,33 +257,6 @@ resource "azurerm_private_endpoint" "endpoint" {
     is_manual_connection           = false
   }
 }
-
-resource "azurerm_role_assignment" "storage_blob_delegator" {
-  scope                = azurerm_storage_account.files_storage_account.id
-  role_definition_name = "Storage Blob Delegator"
-  principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
-}
-
-resource "azurerm_role_assignment" "key_vault_secrets_user" {
-  scope                = data.azurerm_key_vault.civiform_key_vault.id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
-}
-
-resource "azurerm_role_assignment" "storage_blob_data_contributor" {
-  scope                = azurerm_storage_account.files_storage_account.id
-  role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
-}
-
-# Grant the app the role of storage account contributor, as the app needs 
-# to set its own CORs
-resource "azurerm_role_assignment" "storage_account_contributor" {
-  scope                = azurerm_storage_account.files_storage_account.id
-  role_definition_name = "Storage Account Contributor"
-  principal_id         = azurerm_app_service.civiform_app.identity.0.principal_id
-}
-
 module "bastion" {
   source = "../bastion"
 

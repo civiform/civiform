@@ -1,8 +1,6 @@
 postgres_admin_login = "psqladmin"
 
 application_name       = "sgtest"
-docker_repository_name = "civiform"
-docker_username        = "civiform"
 
 sender_email_address                            = "sender@example.com"
 staging_program_admin_notification_mailing_list = "admin@example.com"

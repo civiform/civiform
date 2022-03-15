@@ -9,22 +9,6 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
-variable "docker_username" {
-  type        = string
-  description = "Docker username"
-}
-
-variable "docker_repository_name" {
-  type        = string
-  description = "Name of container image"
-}
-
-variable "image_tag_name" {
-  type        = string
-  description = "Tag for container image"
-  default     = "latest"
-}
-
 variable "location_name" {
   type        = string
   description = "Name of the location for the resource group"
@@ -44,6 +28,14 @@ variable "subnet_address_prefixes" {
   description = "List of the apps subnet address prefixes (must be distinct from the postgress subnet)"
   default = [
     "10.0.2.0/24"
+  ]
+}
+
+variable "canary_subnet_address_prefixes" {
+  type        = list(string)
+  description = "List of the apps subnet address prefixes (must be distinct from the postgress subnet)"
+  default = [
+    "10.0.0.0/24"
   ]
 }
 
@@ -117,16 +109,7 @@ variable "ses_sender_email" {
   description = "Email address of who is sending the email, passed to the app"
 }
 
-variable "staging_hostname" {
-  type        = string
-  description = "hostname for staging (used by the code to allow dev features)"
-  default     = "staging-azure.civiform.dev"
-}
 
-variable "custom_hostname" {
-  type        = string
-  description = "custom hostname for the app to map the dns (used also for CORS)"
-}
 variable "key_vault_name" {
   type        = string
   description = "Name of key vault where secrets are stored."
