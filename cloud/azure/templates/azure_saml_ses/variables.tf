@@ -1,3 +1,8 @@
+variable "resource_group_name" {
+  type        = string
+  description = "Name of the resource group where key vault is already created."
+}
+
 variable "postgres_admin_login" {
   type        = string
   description = "Postgres admin login"
@@ -21,11 +26,6 @@ variable "application_name" {
 variable "key_vault_name" {
   type        = string
   description = "Name of key vault where secrets are stored."
-}
-
-variable "key_vault_resource_group" {
-  type        = string
-  description = "Resource group that key vault is in."
 }
 
 variable "aws_region" {
@@ -73,4 +73,45 @@ variable "staging_ti_notification_mailing_list" {
 variable "staging_applicant_notification_mailing_list" {
   type        = string
   description = "Applicant notification mailing list for staging"
+}
+
+variable "civiform_applicant_auth_protocol" {
+  type        = string
+  description = "auth protocol to use for applicant auth. supported values are oidc and saml"
+}
+
+variable "login_radius_api_key" {
+  type        = string
+  description = "Login Radius API Key"
+  default     = null
+}
+
+variable "login_radius_metadata_uri" {
+  type        = string
+  description = "LoginRadius endpoint for fetching IdP metadata"
+  default     = null
+}
+
+variable "login_radius_saml_app_name" {
+  type        = string
+  description = "The App Name for the LoginRadius SAML integration"
+  default     = null
+}
+
+variable "saml_keystore_filename" {
+  type        = string
+  description = "The name of the keystore file to use for SAML auth"
+  default     = "civiformSamlKeystore.jks"
+}
+
+variable "saml_keystore_account_name" {
+  type        = string
+  description = "The storage account where the SAML keystore file is hosted"
+}
+
+
+variable "saml_keystore_container_name" {
+  type        = string
+  description = "The name of the keystore file"
+  default     = "saml-keystore"
 }

@@ -14,6 +14,8 @@ import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -150,10 +152,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       questionContent.with(timestampContent);
     }
 
-    ContainerTag answerContent;
+    final ContainerTag answerContent;
     if (data.fileKey().isPresent()) {
-      String fileLink =
-          controllers.routes.FileController.show(applicantId, data.fileKey().get()).url();
+      String encodedFileKey = URLEncoder.encode(data.fileKey().get(), StandardCharsets.UTF_8);
+      String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
       answerContent = a().withHref(fileLink).withClasses(Styles.W_2_3);
     } else {
       answerContent = div();
@@ -259,6 +261,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   @AutoValue
   public abstract static class Params {
+
     public static Builder builder() {
       return new AutoValue_ApplicantProgramSummaryView_Params.Builder();
     }
@@ -287,6 +290,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     @AutoValue.Builder
     public abstract static class Builder {
+
       public abstract Builder setRequest(Http.Request request);
 
       public abstract Builder setApplicantId(long applicantId);

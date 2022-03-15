@@ -36,6 +36,8 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
 
+  private static final Logger logger = LoggerFactory.getLogger(OidcCiviFormProfileAdapter.class);
+
   public OidcCiviFormProfileAdapter(
       OidcConfiguration configuration,
       OidcClient client,
@@ -91,14 +93,14 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     Optional<UserProfile> oidcProfile = super.create(cred, context, sessionStore);
 
     if (oidcProfile.isEmpty()) {
-      LOG.warn("Didn't get a valid profile back from OIDC.");
+      logger.warn("Didn't get a valid profile back from OIDC.");
       return Optional.empty();
     }
 
     LOG.info("oidcProfile: {}", oidcProfile.get());
 
     if (!(oidcProfile.get() instanceof OidcProfile)) {
-      LOG.warn(
+      logger.warn(
           "Got a profile from OIDC callback but it wasn't an OIDC profile: %s",
           oidcProfile.get().getClass().getName());
       return Optional.empty();
@@ -142,7 +144,7 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
 
     // Now merge in the information sent to us by the OIDC server.
     if (existingProfile.isEmpty()) {
-      LOG.debug("Found no existing profile in session cookie.");
+      logger.debug("Found no existing profile in session cookie.");
       return Optional.of(civiformProfileFromOidcProfile(profile));
     } else {
       return Optional.of(mergeCiviFormProfile(existingProfile.get(), profile));

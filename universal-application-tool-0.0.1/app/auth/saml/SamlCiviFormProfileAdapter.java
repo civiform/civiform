@@ -44,8 +44,8 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     super();
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = Preconditions.checkNotNull(applicantRepositoryProvider);
-    this.saml2Client = Preconditions.checkNotNull(client);
-    this.saml2Configuration = Preconditions.checkNotNull(configuration);
+    this.saml2Client = client;
+    this.saml2Configuration = configuration;
   }
 
   @Override
@@ -164,9 +164,13 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
   }
 
   private String extractAttributeFromArrayList(SAML2Profile profile, String attr) {
-    ArrayList attributeArray = profile.getAttribute(attr, ArrayList.class);
+    Optional<ArrayList> attributeArray =
+        Optional.ofNullable(profile.getAttribute(attr, ArrayList.class));
+    if (attributeArray.isEmpty()) {
+      return "";
+    }
     StringJoiner sj = new StringJoiner(" ");
-    for (Object s : attributeArray) {
+    for (Object s : attributeArray.get()) {
       sj.add((String) s);
     }
     return sj.toString();

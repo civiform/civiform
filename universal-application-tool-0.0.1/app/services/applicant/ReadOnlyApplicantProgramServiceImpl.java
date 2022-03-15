@@ -5,6 +5,8 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -155,6 +157,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         String answerText = question.errorsPresenter().getAnswerString();
         Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
         Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
+        Optional<FileUploadQuestion> fileUploadQuestion = Optional.empty();
+        if (question.getType().equals(QuestionType.FILEUPLOAD)) {
+          fileUploadQuestion = Optional.of(question.createFileUploadQuestion());
+        }
         boolean isPreviousResponse =
             updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
         AnswerData data =
@@ -168,7 +174,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setQuestionText(questionText)
                 .setIsAnswered(isAnswered)
                 .setAnswerText(answerText)
-                .setFileKey(getFileKey(question))
+                .setFileKey(getFileKey(fileUploadQuestion))
+                .setOriginalFileName(getOriginalFileName(fileUploadQuestion))
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)
                 .setScalarAnswersInDefaultLocale(
@@ -275,17 +282,18 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   /** Returns the identifier of uploaded file if applicable. */
-  private Optional<String> getFileKey(ApplicantQuestion question) {
-    switch (question.getType()) {
-      case FILEUPLOAD:
-        FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
-        if (!fileUploadQuestion.isAnswered()) {
-          return Optional.empty();
-        }
-        return fileUploadQuestion.getFileKeyValue();
-      default:
-        return Optional.empty();
+  private Optional<String> getFileKey(Optional<FileUploadQuestion> question) {
+    return question
+        .filter(FileUploadQuestion::isAnswered)
+        .map(FileUploadQuestion::getFileKeyValue)
+        .orElseGet(() -> Optional.empty());
+  }
+
+  private Optional<String> getOriginalFileName(Optional<FileUploadQuestion> question) {
+    if (question.isEmpty() || !question.get().isAnswered()) {
+      return Optional.empty();
     }
+    return question.get().getOriginalFileName();
   }
 
   /**
@@ -329,7 +337,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                     fileKey ->
                         baseUrl
                             + controllers.routes.FileController.adminShow(
-                                    programDefinition.id(), fileKey)
+                                    programDefinition.id(),
+                                    URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
                                 .url())
                 .orElse(""));
       case ENUMERATOR:

@@ -32,6 +32,7 @@ import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
+import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageClient;
 import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
@@ -258,25 +259,40 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
               Optional<String> bucket = request.queryString("bucket");
               Optional<String> key = request.queryString("key");
+
+              // Original file name is only set for Azure, where we have to generate a UUID when
+              // uploading a file to Azure Blob storage because we cannot upload a file without a
+              // name. For AWS, the file key and original file name are the same. For the future,
+              // GCS supports POST uploads so this field won't be needed either:
+              // <link> https://cloud.google.com/storage/docs/xml-api/post-object-forms </link>
+              // This is only really needed for Azure blob storage.
+              Optional<String> originalFileName = request.queryString("originalFileName");
+
               if (!bucket.isPresent() || !key.isPresent()) {
                 return failedFuture(
                     new IllegalArgumentException("missing file key and bucket names"));
               }
 
-              String applicantFileUploadQuestionKeyPath =
+              FileUploadQuestion fileUploadQuestion =
                   block.get().getQuestions().stream()
                       .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
                       .findAny()
                       .get()
-                      .createFileUploadQuestion()
-                      .getFileKeyPath()
-                      .toString();
-              ImmutableMap<String, String> formData =
-                  ImmutableMap.of(applicantFileUploadQuestionKeyPath, key.get());
+                      .createFileUploadQuestion();
 
-              updateFileRecord(key.get());
+              ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
+                  new ImmutableMap.Builder<String, String>();
+              fileUploadQuestionFormData.put(
+                  fileUploadQuestion.getFileKeyPath().toString(), key.get());
+              if (originalFileName.isPresent()) {
+                fileUploadQuestionFormData.put(
+                    fileUploadQuestion.getOriginalFileNamePath().toString(),
+                    originalFileName.get());
+              }
+
+              updateFileRecord(key.get(), originalFileName);
               return applicantService.stageAndUpdateIfValid(
-                  applicantId, programId, blockId, formData);
+                  applicantId, programId, blockId, fileUploadQuestionFormData.build());
             },
             httpExecutionContext.current())
         .thenComposeAsync(
@@ -417,9 +433,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .build();
   }
 
-  private void updateFileRecord(String key) {
+  private void updateFileRecord(String key, Optional<String> originalFileName) {
     StoredFile storedFile = new StoredFile();
     storedFile.setName(key);
+    if (originalFileName.isPresent()) {
+      storedFile.setOriginalFileName(originalFileName.get());
+    }
     storedFileRepository.insert(storedFile);
   }
 

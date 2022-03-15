@@ -17,10 +17,12 @@ import services.question.types.QuestionType;
 public class CurrencyQuestion implements Question {
 
   private final ApplicantQuestion applicantQuestion;
-  private Optional<Currency> currency;
+  // Stores the value, loading and caching it on first access.
+  private Optional<Optional<Currency>> currencyCache;
 
   public CurrencyQuestion(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = applicantQuestion;
+    this.currencyCache = Optional.empty();
     assertQuestionType();
   }
 
@@ -56,12 +58,12 @@ public class CurrencyQuestion implements Question {
   }
 
   public Optional<Currency> getValue() {
-    if (currency != null) {
-      return currency;
+    if (currencyCache.isEmpty()) {
+      currencyCache =
+          Optional.of(applicantQuestion.getApplicantData().readCurrency(getCurrencyPath()));
     }
 
-    currency = applicantQuestion.getApplicantData().readCurrency(getCurrencyPath());
-    return currency;
+    return currencyCache.get();
   }
 
   public void assertQuestionType() {

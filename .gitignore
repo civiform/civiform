@@ -16,10 +16,10 @@ tailwind.css
 .dockerlogs
 *.pem
 
-backend_vars
 *.terraform
 *.terraform.lock.hcl
-**.tfvars
+*.tfvars
+!cloud/deploys/staging_azure/*.tfvars
 !*example.auto.tfvars
 terraform.tfstate**
 .terraform.tfstate**

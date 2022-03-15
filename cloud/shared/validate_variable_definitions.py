@@ -1,41 +1,34 @@
 import os
 import json
 
+from bin.lib.variable_definition_loader import VariableDefinitionLoader
+
 # Loads all configuration variable definition files and validates each
 # definition for correctness. Exercised by the accompanying test file
 # which is run for every pull request.
 #
 # Requires that:
-#     - Each variable definition file is referenced in
-#       def load_repo_variable_definitions_files():
+#   - Each variable definition file is referenced in
+#     def load_repo_variable_definitions_files():
 #
-#     - All variables have, at minimum, 'type', 'required', and 'secret' fields
+#   - All variables have, at minimum, 'type', 'required', and 'secret' fields
 #
-#     - Variable definitions may include additional configuration based on their
-#       type.
-class ValidateVariableDefinitions():
-    def __init__(self, variable_definitions = {}):
+#   - Variable definitions may include additional configuration based on their
+#     type.
+class ValidateVariableDefinitions:
+    def __init__(self, variable_definitions={}):
         self.variable_definitions = variable_definitions
 
     def load_repo_variable_definitions_files(self):
-        self.variable_definitions = {}
-        cwd = os.getcwd()
-
+        variable_def_loader = VariableDefinitionLoader(self.variable_definitions)
         # As more variable definition files are added for each cloud provider,
         # add their paths here.
-        definition_file_paths = [
-            cwd + '/cloud/shared/variable_definitions.json'
-        ]
+        cwd = os.getcwd()
+        definition_file_paths = [cwd + "/cloud/shared/variable_definitions.json"]
 
         for path in definition_file_paths:
-            with open(path, 'r') as file:
-                definitions = json.loads(file.read())
-
-                for name, definition in definitions.items():
-                    if name in self.variable_definitions:
-                        raise RuntimeError(f"Duplicate variable name: {name} at {path}")
-
-                    self.variable_definitions[name] = definition
+            variable_def_loader.load_definition_file(path)
+        self.variable_definitions = variable_def_loader.get_variable_definitions()
 
     def get_validation_errors(self):
         all_errors = {}
@@ -56,7 +49,10 @@ class ValidateVariableDefinitions():
 
         if not isinstance(variable_definition.get("secret", None), bool):
             errors.append("Missing 'secret' field.")
-
+        
+        if not isinstance(variable_definition.get("tfvar", None), bool):
+            errors.append("Missing 'tfvar' field.")
+            
         if not isinstance(variable_definition.get("type", None), str):
             errors.append("Missing 'type' field.")
             return errors

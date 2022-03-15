@@ -15,6 +15,7 @@ class TestValidateVariableDefinitions(unittest.TestCase):
             "FOO": {
                 "required": True,
                 "secret": False,
+                "tfvar": False,
                 "type": "float"
             }
         }
@@ -28,6 +29,7 @@ class TestValidateVariableDefinitions(unittest.TestCase):
             "FOO": {
                 "required": True,
                 "secret": False,
+                "tfvar": False,
                 "type": "integer"
             }
         }
@@ -41,6 +43,7 @@ class TestValidateVariableDefinitions(unittest.TestCase):
             "FOO": {
                 "required": True,
                 "secret": False,
+                "tfvar": False,
                 "type": "string"
             }
         }
@@ -53,6 +56,7 @@ class TestValidateVariableDefinitions(unittest.TestCase):
         defs = {
             "FOO": {
                 "required": True,
+                "tfvar": False,
                 "type": "string"
             }
         }
@@ -65,6 +69,7 @@ class TestValidateVariableDefinitions(unittest.TestCase):
         defs = {
             "FOO": {
                 "required": True,
+                "tfvar": False,
                 "secret": False
             }
         }
@@ -77,6 +82,7 @@ class TestValidateVariableDefinitions(unittest.TestCase):
         defs = {
             "FOO": {
                 "secret": False,
+                "tfvar": False,
                 "type": "string"
             }
         }
@@ -90,6 +96,7 @@ class TestValidateVariableDefinitions(unittest.TestCase):
             "CIVIFORM_CLOUD_PROVIDER": {
                 "required": True,
                 "secret": False,
+                "tfvar": False,
                 "type": "enum",
                 "values": ["gcp", "azure", "aws"]
             }
@@ -104,6 +111,7 @@ class TestValidateVariableDefinitions(unittest.TestCase):
             "CIVIFORM_CLOUD_PROVIDER": {
                 "required": True,
                 "secret": False,
+                "tfvar": False,
                 "type": "enum"
             }
         }
@@ -115,6 +123,23 @@ class TestValidateVariableDefinitions(unittest.TestCase):
         }
 
         self.assertEqual(errors, expected_errors)
+        
+    def test_get_validation_errors_tf_var_missing(self):
+        defs = {
+            "CIVIFORM_CLOUD_PROVIDER": {
+                "required": True,
+                "secret": False,
+                "type": "string"
+            }
+        }
 
+        errors = ValidateVariableDefinitions(defs).get_validation_errors()
+
+        expected_errors = {
+            "CIVIFORM_CLOUD_PROVIDER": ["Missing 'tfvar' field."]
+        }
+
+        self.assertEqual(errors, expected_errors)
+        
 if __name__ == '__main__':
     unittest.main()

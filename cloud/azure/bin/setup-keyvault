@@ -1,0 +1,47 @@
+#! /usr/bin/env bash
+
+# TODO: figure out where in command flow to export PROJECT_BASE_DIR to
+# make it available in this file
+readonly PROJECT_BASE_DIR="$(realpath "$(dirname "${BASH_SOURCE}")/../../../")"
+source "${PROJECT_BASE_DIR}/cloud/azure/bin/lib.sh"
+
+readonly POSTGRES_PASSWORD_NAME="postgres-password"
+readonly APP_SECRET_KEY_NAME="app-secret-key"
+
+# DOC: Create key vault instance, set permissions, and generate and set secrets
+
+while getopts g:v:l: flag
+do
+  case "${flag}" in
+    g) resource_group="${OPTARG}";;
+    v) vault_name="${OPTARG}";;
+    l) location="${OPTARG}";;
+    *) out::error "Unexpected getopts value ${flag}";;
+  esac
+done
+
+readonly resource_group
+readonly vault_name
+readonly location
+
+if [[ ! "${resource_group}" ]] \
+   || [[ ! "${vault_name}" ]] \
+   || [[ ! "${location}" ]]; then
+  out::error "arguments -g, -v, and -l must be provided"
+  exit 1
+fi
+
+echo "Creating resource group ${resource_group}"
+azure::create_resource_group "${resource_group}" "${location}"
+
+echo "Creating key vault ${vault_name}"
+key_vault::create_vault "${resource_group}" "${location}" "${vault_name}"
+
+echo "Adding key vault secrets officer role to signed in user"
+key_vault::assign_secrets_officer_role_to_user "${resource_group}"
+
+echo "Generating and setting secrets"
+key_vault::add_generated_secrets \
+  "${vault_name}" \
+  "${POSTGRES_PASSWORD_NAME}" \
+  "${APP_SECRET_KEY_NAME}"

@@ -1,0 +1,5 @@
+#! /usr/bin/env bash
+
+set -e
+
+exec cloud/shared/bin/lib/setup.py

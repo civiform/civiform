@@ -151,16 +151,15 @@ public class CiviFormProfile {
         .thenApplyAsync(
             a -> {
               String existingEmail = a.getEmailAddress();
-              if (existingEmail == null || existingEmail.isEmpty()) {
-                a.setEmailAddress(emailAddress);
-                a.save();
-              } else if (!existingEmail.equals(emailAddress)) {
+              if (existingEmail != null && !existingEmail.equals(emailAddress)) {
                 throw new ProfileMergeConflictException(
                     String.format(
                         "Profile already contains an email address: %s - which is different from"
                             + " the new email address %s.",
                         existingEmail, emailAddress));
               }
+              a.setEmailAddress(emailAddress);
+              a.save();
               return null;
             },
             dbContext);
