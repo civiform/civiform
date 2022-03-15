@@ -54,9 +54,3 @@ terraform \
   -chdir="${TEMPLATE_DIR}" \
   apply \
   -var-file="${TF_VAR_FILE}"
-
-# TODO: Make sure the vars required for the commands below are set.
-# This needs to be done outside of Terraform because the Terraform provider doesn't
-# support app settings that are bound to specific slots
-azure::set_app_base_url_canary "${RESOURCE_GROUP_NAME}"
-azure::set_app_base_url_primary "${RESOURCE_GROUP_NAME}" "${APP_HOSTNAME}"
