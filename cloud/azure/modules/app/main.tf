@@ -174,12 +174,6 @@ resource "azurerm_app_service_slot" "canary" {
   }
 }
 
-resource "azurerm_app_service_active_slot" "active_slot" {
-  resource_group_name   = data.azurerm_resource_group.rg.name
-  app_service_name      = azurerm_app_service.civiform_app.name
-  app_service_slot_name = azurerm_app_service_slot.canary.name
-}
-
 resource "azurerm_app_service_virtual_network_swift_connection" "appservice_vnet_connection" {
   app_service_id = azurerm_app_service.civiform_app.id
   subnet_id      = azurerm_subnet.server_subnet.id
