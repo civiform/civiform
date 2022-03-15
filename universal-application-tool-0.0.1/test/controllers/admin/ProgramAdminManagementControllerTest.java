@@ -16,11 +16,11 @@ import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.UserRepository;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
-public class ProgramAdminManagementControllerTest extends WithPostgresContainer {
+public class ProgramAdminManagementControllerTest extends ResetPostgres {
 
   private UserRepository userRepository;
   private ProgramAdminManagementController controller;

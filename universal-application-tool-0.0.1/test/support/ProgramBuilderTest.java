@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Locale;
 import models.Program;
 import org.junit.Test;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
@@ -14,7 +14,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
-public class ProgramBuilderTest extends WithPostgresContainer {
+public class ProgramBuilderTest extends ResetPostgres {
   @Test
   public void fluentlyCreateProgramWithBlocks() {
     ProgramDefinition programDefinition =

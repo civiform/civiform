@@ -13,7 +13,7 @@ import services.Path;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
-public class UserRepositoryTest extends WithPostgresContainer {
+public class UserRepositoryTest extends ResetPostgres {
 
   private UserRepository repo;
 

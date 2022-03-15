@@ -13,9 +13,9 @@ import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.saml.profile.SAML2Profile;
 import repository.UserRepository;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 
-public class ProfileMergeTest extends WithPostgresContainer {
+public class ProfileMergeTest extends ResetPostgres {
 
   private IdcsProfileAdapter idcsProfileAdapter;
   private SamlCiviFormProfileAdapter samlProfileAdapter;

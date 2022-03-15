@@ -13,7 +13,7 @@ import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
@@ -21,7 +21,7 @@ import services.question.QuestionOption;
 import services.question.types.DropdownQuestionDefinition;
 import support.QuestionAnswerer;
 
-public class DropdownQuestionRendererTest extends WithPostgresContainer {
+public class DropdownQuestionRendererTest extends ResetPostgres {
 
   private static final DropdownQuestionDefinition QUESTION =
       new DropdownQuestionDefinition(

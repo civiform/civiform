@@ -20,7 +20,7 @@ import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.QuestionRepository;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.types.DropdownQuestionDefinition;
@@ -28,7 +28,7 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.html.helper.CSRF;
 
-public class AdminQuestionControllerTest extends WithPostgresContainer {
+public class AdminQuestionControllerTest extends ResetPostgres {
   private QuestionRepository questionRepo;
   private AdminQuestionController controller;
 

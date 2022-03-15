@@ -13,7 +13,7 @@ import org.junit.Test;
 import services.LocalizedStrings;
 import services.program.ProgramNotFoundException;
 
-public class ProgramRepositoryTest extends WithPostgresContainer {
+public class ProgramRepositoryTest extends ResetPostgres {
 
   private ProgramRepository repo;
   private VersionRepository versionRepo;

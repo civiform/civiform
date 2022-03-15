@@ -10,13 +10,13 @@ import models.Program;
 import org.junit.Before;
 import org.junit.Test;
 import repository.UserRepository;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import support.ProgramBuilder;
 
-public class RoleServiceTest extends WithPostgresContainer {
+public class RoleServiceTest extends ResetPostgres {
 
   private UserRepository userRepository;
   private RoleService service;

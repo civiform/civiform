@@ -12,9 +12,9 @@ import org.junit.Test;
 import play.Mode;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Result;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 
-public class DatabaseSeedControllerTest extends WithPostgresContainer {
+public class DatabaseSeedControllerTest extends ResetPostgres {
 
   private DatabaseSeedController controller;
 

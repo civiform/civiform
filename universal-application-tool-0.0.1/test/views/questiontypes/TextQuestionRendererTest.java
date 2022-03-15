@@ -12,7 +12,7 @@ import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
@@ -20,7 +20,7 @@ import services.question.types.TextQuestionDefinition;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 import support.QuestionAnswerer;
 
-public class TextQuestionRendererTest extends WithPostgresContainer {
+public class TextQuestionRendererTest extends ResetPostgres {
   private static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =
       new TextQuestionDefinition(
           OptionalLong.of(1),

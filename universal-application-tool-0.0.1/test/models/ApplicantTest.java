@@ -7,11 +7,11 @@ import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
 import repository.UserRepository;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.Path;
 import services.applicant.ApplicantData;
 
-public class ApplicantTest extends WithPostgresContainer {
+public class ApplicantTest extends ResetPostgres {
 
   private UserRepository repo;
 

@@ -10,13 +10,13 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.question.types.StaticContentQuestionDefinition;
 
 @RunWith(JUnitParamsRunner.class)
-public class StaticContentQuestionTest extends WithPostgresContainer {
+public class StaticContentQuestionTest extends ResetPostgres {
 
   private static final StaticContentQuestionDefinition questionDefinition =
       new StaticContentQuestionDefinition(

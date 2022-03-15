@@ -5,11 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 import repository.UserRepository;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
-public class AccountTest extends WithPostgresContainer {
+public class AccountTest extends ResetPostgres {
 
   private UserRepository repository;
 

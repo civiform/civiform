@@ -9,7 +9,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import repository.QuestionRepository;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -22,7 +22,7 @@ import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
-public class QuestionTest extends WithPostgresContainer {
+public class QuestionTest extends ResetPostgres {
 
   private QuestionRepository repo;
 

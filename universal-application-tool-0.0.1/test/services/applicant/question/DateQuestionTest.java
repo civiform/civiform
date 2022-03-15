@@ -10,14 +10,14 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.question.types.DateQuestionDefinition;
 import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
-public class DateQuestionTest extends WithPostgresContainer {
+public class DateQuestionTest extends ResetPostgres {
   private static final DateQuestionDefinition dateQuestionDefinition =
       new DateQuestionDefinition(
           OptionalLong.of(1),

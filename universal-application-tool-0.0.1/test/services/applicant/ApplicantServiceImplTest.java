@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import repository.ApplicationRepository;
 import repository.UserRepository;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
@@ -39,7 +39,7 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 
-public class ApplicantServiceImplTest extends WithPostgresContainer {
+public class ApplicantServiceImplTest extends ResetPostgres {
 
   private ApplicantServiceImpl subject;
   private QuestionService questionService;

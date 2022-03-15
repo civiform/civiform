@@ -5,12 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.cloud.StorageServiceName;
 import services.cloud.azure.BlobStorage.Client;
 import services.cloud.azure.BlobStorage.NullClient;
 
-public class BlobStorageTest extends WithPostgresContainer {
+public class BlobStorageTest extends ResetPostgres {
 
   private static final String TEST_FILE_NAME = "fileName";
   private BlobStorage blobStorage;

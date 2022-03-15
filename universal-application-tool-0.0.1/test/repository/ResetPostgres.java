@@ -17,7 +17,7 @@ import support.ProgramBuilder;
 import support.ResourceCreator;
 import support.TestQuestionBank;
 
-public class WithPostgresContainer {
+public class ResetPostgres {
 
   protected static Application app;
 

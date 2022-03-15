@@ -7,9 +7,9 @@ import j2html.tags.Tag;
 import org.junit.Before;
 import org.junit.Test;
 import play.twirl.api.Content;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 
-public class BaseHtmlLayoutTest extends WithPostgresContainer {
+public class BaseHtmlLayoutTest extends ResetPostgres {
 
   private BaseHtmlLayout layout;
 
