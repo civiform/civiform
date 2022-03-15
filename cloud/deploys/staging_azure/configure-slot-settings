@@ -2,6 +2,8 @@
 
 source "cloud/azure/bin/lib.sh"
 
+set -e
+
 while getopts g:s flag
 do
   case "${flag}" in

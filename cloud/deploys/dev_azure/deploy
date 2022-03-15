@@ -3,6 +3,8 @@
 source "cloud/shared/bin/lib/health.sh"
 source "cloud/azure/bin/lib.sh"
 
+set -e
+
 readonly TF_VAR_FILE="cloud/deploys/dev_azure/.auto.tfvars"
 readonly TEMPLATE_DIR="cloud/deploys/dev_azure"
 

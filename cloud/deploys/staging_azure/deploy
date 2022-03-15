@@ -3,6 +3,8 @@
 source "cloud/shared/bin/lib/health.sh"
 source "cloud/azure/bin/lib.sh"
 
+set -e
+
 readonly TF_VAR_FILE="cloud/deploys/staging_azure/staging.tfvars"
 readonly TEMPLATE_DIR="cloud/azure/templates/azure_saml_ses"
 readonly VARS_FILENAME="cloud/deploys/staging_azure/staging_azure_backend_vars"
