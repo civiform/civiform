@@ -15,7 +15,7 @@ import org.pac4j.saml.profile.SAML2Profile;
 import repository.ResetPostgres;
 import repository.UserRepository;
 
-public class IdcsProfileMergeTest extends ResetPostgres {
+public class ProfileMergeTest extends ResetPostgres {
 
   private IdcsProfileAdapter idcsProfileAdapter;
   private SamlCiviFormProfileAdapter samlProfileAdapter;
@@ -53,9 +53,6 @@ public class IdcsProfileMergeTest extends ResetPostgres {
   public void testProfileCreation() throws ExecutionException, InterruptedException {
     OidcProfile oidcProfile = new OidcProfile();
     oidcProfile.addAttribute("user_emailid", "foo@example.com");
-    // authority_id values.
-    oidcProfile.addAttribute("iss", "issuer");
-    oidcProfile.setId("subject");
 
     CiviFormProfileData profileData =
         idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
@@ -63,16 +60,12 @@ public class IdcsProfileMergeTest extends ResetPostgres {
 
     assertThat(profileData.getEmail()).isEqualTo("foo@example.com");
     assertThat(profile.getEmailAddress().get()).isEqualTo("foo@example.com");
-    assertThat(profile.getAuthorityId().get()).isEqualTo("iss: issuer sub: subject");
   }
 
   @Test
   public void testSuccessfulProfileMerge() {
     OidcProfile oidcProfile = new OidcProfile();
     oidcProfile.addAttribute("user_emailid", "foo@example.com");
-    // authority_id values.
-    oidcProfile.addAttribute("iss", "issuer");
-    oidcProfile.setId("subject");
 
     CiviFormProfileData profileData =
         idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
