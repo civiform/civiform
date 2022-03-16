@@ -14,8 +14,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityNotFoundException;
 import models.Account;
 import models.Applicant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
 
@@ -25,8 +23,6 @@ import repository.DatabaseExecutionContext;
  * contain only server-local information, like execution contexts, database connections, etc.
  */
 public class CiviFormProfile {
-  // DO NOT SUBMIT remove logging
-  private static Logger LOG = LoggerFactory.getLogger(CiviFormProfile.class);
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
   private CiviFormProfileData profileData;
@@ -112,16 +108,15 @@ public class CiviFormProfile {
    *
    * <p>If an id is already present this may only be called with the same exact ID.
    *
-   * @param authorityId email address to be set for the account
-   * @return the future of the database operation
+   * @param authorityId ID that uniquely identifies the user of the Account.
+   * @return the future of the database operation.
    */
   public CompletableFuture<Void> setAuthorityId(String authorityId) {
-    LOG.info("setAuthorityId: {}", authorityId);
     return this.getAccount()
         .thenApplyAsync(
             a -> {
               Optional<String> existingAuthorityId = Optional.ofNullable(a.getAuthorityId());
-              // We can never change the authority_id once set.
+              // The authority id can never change once set.
               if (existingAuthorityId.isPresent()
                   && !existingAuthorityId.get().equals(authorityId)) {
                 throw new ProfileMergeConflictException(
@@ -147,7 +142,6 @@ public class CiviFormProfile {
    * @return the future of the database operation
    */
   public CompletableFuture<Void> setEmailAddress(String emailAddress) {
-    LOG.info("setEmailAddress: {}", emailAddress);
     return this.getAccount()
         .thenApplyAsync(
             a -> {

@@ -55,12 +55,11 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
   protected Optional<String> getAuthorityId(OidcProfile oidcProfile) {
     // In OIDC the user is uniquely identified by the iss(user) and sub(ject) claims.
     // We combine the two to create the unique authority id.
-    // Issuer is unintuitively necessary as CiviForm has different authentication systems for Admins
-    // and Applicants.
+    // Issuer is necessary as CiviForm has different authentication systems for Admins and Applicants.
     String issuer = oidcProfile.getAttribute("iss", String.class);
     // Pac4j treats the subject as special, and you can't simply ask for the "sub" claim.
     String subject = oidcProfile.getId();
-    // This should throw an error but this allows us to unit test for pre-existing Accounts without
+    // This should throw an error in production, however this allows us to unit test for pre-existing Accounts without
     // an authority_id.
     // TODO(#2059): remove null allowance after Seattle data cleanup.
     if (issuer == null || subject == null) {
@@ -97,7 +96,6 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
   @Override
   public Optional<UserProfile> create(
       Credentials cred, WebContext context, SessionStore sessionStore) {
-    logger.info("create");
     ProfileUtils profileUtils = new ProfileUtils(sessionStore, profileFactory);
     possiblyModifyConfigBasedOnCred(cred);
     Optional<UserProfile> oidcProfile = super.create(cred, context, sessionStore);
@@ -107,7 +105,7 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
       return Optional.empty();
     }
 
-    logger.info("oidcProfile: {}", oidcProfile.get());
+    logger.debug("oidcProfile: {}", oidcProfile.get());
 
     if (!(oidcProfile.get() instanceof OidcProfile)) {
       logger.warn(
