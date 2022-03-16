@@ -1,131 +1,137 @@
 {
-  "CIVIFORM_CLOUD_PROVIDER": {
-    "required": true,
-    "secret": false,
-    "type": "enum",
-    "tfvar": false,
-    "values": ["gcp", "azure", "aws"]
-  },
-  "CIVIFORM_MODE": {
-    "required": true,
-    "secret": false,
-    "type": "enum",
-    "tfvar": false,
-    "values": ["prod", "staging", "dev"]
-  },
-
-  "TERRAFORM_TEMPLATE_DIR": {
-    "required": true,
-    "secret": false, 
-    "tfvar": false,
-    "type": "string"
-  },
-  "EMAIL_SENDER": {
-    "required": true,
-    "secret": false,
-    "type": "enum",
-    "tfvar": false,
-    "values": ["ses"]  
-  },
-  "ADMIN_AUTH_PROVIDER": {
-    "required": true,
-    "secret": false,
-    "type": "enum",
-    "tfvar": false,
-    "values": ["activeDirectory"]  
-  },
-  "ADMIN_AUTH_FORMAT": {
-    "required": true,
-    "secret": false,
-    "tfvar": false,
-    "type": "enum",
-    "values": ["OIDC"]  
-  },
-  "RESIDENT_AUTH_PROVIDER": {
-    "required": true,
-    "secret": false,
-    "tfvar": false,
-    "type": "enum",
-    "values": ["loginRadius", "idcs"]  
-  },
-  "RESIDENT_AUTH_FORMAT": {
-    "required": true,
-    "secret": false,
-    "tfvar": false,
-    "type": "enum",
-    "values": [
-      "oidc",
-      "saml"
-    ]
-  },
-  "APPLICATION_NAME": {
-    "required": true,
-    "secret": false,
-    "tfvar": true,
-    "type": "string"
-  },
-  "DOCKER_REPOSITORY_NAME": {
-    "required": true,
-    "secret": false,
-    "tfvar": true,
-    "type": "string"
-  },
-  "DOCKER_USERNAME": {
-    "required": true,
-    "secret": false,
-    "tfvar": true,
-    "type": "string"
-  },
-  "DOCKER_TAG": {
-    "required": true,
-    "secret": false,
-    "tfvar": true,
-    "type": "string"
-  },
-  "SENDER_EMAIL_ADDRESS": {
-    "required": true,
-    "secret": false,
-    "tfvar": true,
-    "type": "string"
-  },
-  "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST": {
-    "required": true,
-    "secret": false,
-    "tfvar": true,
-    "type": "string"
-  },
-  "STAGING_TI_NOTIFICATION_MAILING_LIST": {
-    "required": true,
-    "secret": false,
-    "tfvar": true,
-    "type": "string"
-  },
-  "STAGING_APPLICANT_NOTIFICATION_MAILING_LIST": {
-    "required": true,
-    "secret": false,
-    "tfvar": true,
-    "type": "string"
-  },
-  "STAGING_HOSTNAME": {
-    "required": true,
-    "secret": false,
-    "tfvar": true,
-    "type": "string"
-  },
-  "CUSTOM_HOSTNAME": {
-    "required": true,
-    "secret": false,
-    "tfvar": true,
-    "type": "string"
-},
-  "USE_BACKEND_CONFIG": {
-    "required": true,
-    "secret": false,
-    "tfvar": false,
-    "type": "enum",
-    "values": [
-        "yes",
-        "no"
-    ]
-  }
+    "CIVIFORM_CLOUD_PROVIDER": {
+        "required": true,
+        "secret": false,
+        "type": "enum",
+        "tfvar": false,
+        "values": [
+            "gcp",
+            "azure",
+            "aws"
+        ]
+    },
+    "CIVIFORM_MODE": {
+        "required": true,
+        "secret": false,
+        "type": "enum",
+        "tfvar": false,
+        "values": [
+            "prod",
+            "staging",
+            "dev"
+        ]
+    },
+    "TERRAFORM_TEMPLATE_DIR": {
+        "required": true,
+        "secret": false,
+        "tfvar": false,
+        "type": "string"
+    },
+    "EMAIL_SENDER": {
+        "required": true,
+        "secret": false,
+        "type": "enum",
+        "tfvar": false,
+        "values": [
+            "ses"
+        ]
+    },
+    "ADMIN_AUTH_PROVIDER": {
+        "required": true,
+        "secret": false,
+        "type": "enum",
+        "tfvar": false,
+        "values": [
+            "activeDirectory"
+        ]
+    },
+    "ADMIN_AUTH_FORMAT": {
+        "required": true,
+        "secret": false,
+        "tfvar": false,
+        "type": "enum",
+        "values": [
+            "OIDC"
+        ]
+    },
+    "RESIDENT_AUTH_PROVIDER": {
+        "required": true,
+        "secret": false,
+        "tfvar": false,
+        "type": "enum",
+        "values": [
+            "loginRadius",
+            "idcs"
+        ]
+    },
+    "CIVIFORM_APPLICANT_AUTH_PROTOCOL": {
+        "required": true,
+        "secret": false,
+        "tfvar": false,
+        "type": "enum",
+        "values": [
+            "oidc",
+            "saml"
+        ]
+    },
+    "APPLICATION_NAME": {
+        "required": true,
+        "secret": false,
+        "tfvar": true,
+        "type": "string"
+    },
+    "DOCKER_REPOSITORY_NAME": {
+        "required": true,
+        "secret": false,
+        "tfvar": true,
+        "type": "string"
+    },
+    "DOCKER_USERNAME": {
+        "required": true,
+        "secret": false,
+        "tfvar": true,
+        "type": "string"
+    },
+    "DOCKER_TAG": {
+        "required": true,
+        "secret": false,
+        "tfvar": true,
+        "type": "string"
+    },
+    "SENDER_EMAIL_ADDRESS": {
+        "required": true,
+        "secret": false,
+        "tfvar": true,
+        "type": "string"
+    },
+    "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST": {
+        "required": true,
+        "secret": false,
+        "tfvar": true,
+        "type": "string"
+    },
+    "STAGING_TI_NOTIFICATION_MAILING_LIST": {
+        "required": true,
+        "secret": false,
+        "tfvar": true,
+        "type": "string"
+    },
+    "STAGING_APPLICANT_NOTIFICATION_MAILING_LIST": {
+        "required": true,
+        "secret": false,
+        "tfvar": true,
+        "type": "string"
+    },
+    "STAGING_HOSTNAME": {
+        "required": true,
+        "secret": false,
+        "tfvar": true,
+        "type": "string"
+    },
+    "CUSTOM_HOSTNAME": {
+        "required": true,
+        "secret": false,
+        "tfvar": true,
+        "type": "string"
+    }
 }
