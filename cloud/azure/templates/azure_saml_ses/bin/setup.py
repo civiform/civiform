@@ -34,13 +34,18 @@ class Setup:
         subprocess.run("rm $HOME/.ssh/bastion", check=True, shell=True)
     
     def _get_adfs_user_inputs(self):
-        print(">>>> You will need to navigate to the app_service that was created and select authentication. Under the authentication provider enable authentication add a new microsfot provider and get the App (client) id")
+        print(">>>> You will need to navigate to the app_service"
+              + "that was created and select authentication. Under"
+              + " the authentication provider enable authentication "
+              + "add a new Microsoft provider and get the App (client) id")
         self._input_to_keystore("adfs-client-id")
         
-        print(">>>> You will need to navigate created provider click the endpoints button from the overview")
+        print(">>>> You will need to navigate created provider click the "
+              +" endpoints button from the overview")
         self._input_to_keystore("adfs-discovery-uri")
 
-        print(">>>> You will need to navigate created provider and add a client secret")
+        print(">>>> You will need to navigate created provider and add"
+              + " a client secret")
         self._input_to_keystore("adfs-secret")
 
     def _input_to_keystore(self, secret_id):
