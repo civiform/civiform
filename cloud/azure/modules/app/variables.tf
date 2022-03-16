@@ -9,6 +9,24 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "docker_username" {
+  type        = string
+  description = "Docker username"
+  default     = "civiform"
+}
+
+variable "docker_repository_name" {
+  type        = string
+  description = "Name of container image"
+  default     = "civiform"
+}
+
+variable "image_tag_name" {
+  type        = string
+  description = "Tag for container image"
+  default     = "latest"
+}
+
 variable "location_name" {
   type        = string
   description = "Name of the location for the resource group"
@@ -52,7 +70,7 @@ variable "app_sku" {
   description = "SKU tier/size/capacity information"
   default = {
     tier     = "Standard",
-    size     = "S1",
+    size     = "S2",
     capacity = "2"
   }
 }

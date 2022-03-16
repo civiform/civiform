@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+
+source "cloud/azure/bin/lib.sh"
+
+set -e
+
+readonly APP_NAME="$(azure::get_app_name "${AZURE_RESOURCE_GROUP}")"
+readonly PRIMARY_URL="$(azure::get_primary_url "${AZURE_RESOURCE_GROUP}" "${APP_NAME}")"
+
+if [[ "${CIVIFORM_MODE}" == "prod"]]; then
+  readonly BASE_URL="https://${CUSTOM_HOSTNAME}"
+  readonly STAGING_HOSTNAME=""
+elif [[ "${CIVIFORM_MODE}" == "staging" ]]; then
+  readonly BASE_URL="https://${CUSTOM_HOSTNAME}"
+  readonly STAGING_HOSTNAME="${CUSTOM_HOSTNAME}"
+else
+  readonly BASE_URL="https://${PRIMARY_URL}"
+  readonly STAGING_HOSTNAME="${PRIMARY_URL}"
+fi
+
+azure::slot_setting "canary" "${APP_NAME}" "BASE_URL" "${BASE_URL}" "${AZURE_RESOURCE_GROUP}"
+azure::slot_setting "primary" "${APP_NAME}" "BASE_URL" "${BASE_URL}" "${AZURE_RESOURCE_GROUP}"
+
+azure::slot_setting "canary" "${APP_NAME}" "STAGING_HOSTNAME" "${STAGING_HOSTNAME}" "${AZURE_RESOURCE_GROUP}"
+azure::slot_setting "primary" "${APP_NAME}" "STAGING_HOSTNAME" "${STAGING_HOSTNAME}" "${AZURE_RESOURCE_GROUP}"

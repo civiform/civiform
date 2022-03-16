@@ -107,16 +107,8 @@ function azure_log::initialize_log_file() {
     export LOG_TEMPFILE="$(mktemp)"
   fi
 
-  log::initialized "$(azure_log::get_current_user_id)"
+  log::initialized "$(azure::get_current_user_id)"
   azure_log::upload_log_file
 
   echo "Done azure_log::initialize_log_file"
-}
-
-#######################################
-# Writes the current signed in Azure user to stdout with whitespace replaced
-# by underscores for suitability as a token in the deploy log.
-#######################################
-function azure_log::get_current_user_id() {
-  az ad signed-in-user show --query mail | sed -E 's/ +/_/g'
 }

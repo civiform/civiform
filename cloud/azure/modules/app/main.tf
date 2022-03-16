@@ -111,6 +111,7 @@ resource "azurerm_app_service" "civiform_app" {
   app_settings = local.app_settings
 
   site_config {
+    linux_fx_version = "DOCKER|${var.docker_username}/${var.docker_repository_name}:${var.image_tag_name}"
     always_on              = true
     vnet_route_all_enabled = true
   }
@@ -140,6 +141,14 @@ resource "azurerm_app_service" "civiform_app" {
         retention_in_mb   = 35
       }
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      app_settings["STAGING_HOSTNAME"],
+      app_settings["BASE_URL"],
+      site_config[0].linux_fx_version
+      ]
   }
 }
 
@@ -153,6 +162,7 @@ resource "azurerm_app_service_slot" "canary" {
   app_settings = local.app_settings
 
   site_config {
+    linux_fx_version = "DOCKER|${var.docker_username}/${var.docker_repository_name}:${var.image_tag_name}"
     always_on              = true
     vnet_route_all_enabled = true
   }
@@ -181,6 +191,14 @@ resource "azurerm_app_service_slot" "canary" {
         retention_in_mb   = 35
       }
     }
+  }
+
+  lifecycle {
+    ignore_changes = [ 
+      app_settings["STAGING_HOSTNAME"],
+      app_settings["BASE_URL"],
+      site_config[0].linux_fx_version
+      ]
   }
 }
 

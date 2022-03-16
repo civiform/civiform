@@ -1,4 +1,5 @@
 export CIVIFORM_CLOUD_PROVIDER="azure"
+export CIVIFORM_MODE="staging"
 export EMAIL_SENDER="ses"
 export ADMIN_AUTH_PROVIDER="activeDirectory"
 export ADMIN_AUTH_FORMAT="OIDC"
