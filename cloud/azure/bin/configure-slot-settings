@@ -7,7 +7,7 @@ set -e
 readonly APP_NAME="$(azure::get_app_name "${AZURE_RESOURCE_GROUP}")"
 readonly PRIMARY_URL="$(azure::get_primary_url "${AZURE_RESOURCE_GROUP}" "${APP_NAME}")"
 
-if [[ "${CIVIFORM_MODE}" == "prod"]]; then
+if [[ "${CIVIFORM_MODE}" == "prod" ]]; then
   readonly BASE_URL="https://${CUSTOM_HOSTNAME}"
   readonly STAGING_HOSTNAME=""
 elif [[ "${CIVIFORM_MODE}" == "staging" ]]; then
