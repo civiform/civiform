@@ -69,7 +69,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
     ContainerTag titleDiv =
         h2().withText(programTitle)
             .withClasses(
-                BaseStyles.TEXT_SEATTLE_BLUE,
+                Styles.TEXT_SEATTLE_BLUE,
                 Styles.TEXT_2XL,
                 Styles.FONT_SEMIBOLD,
                 Styles.TEXT_GRAY_700,
