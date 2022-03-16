@@ -36,6 +36,12 @@ class Setup:
     
     def post_terraform_setup(self):
         self._get_adfs_user_inputs()
+        self._configure_slot_settings()
+
+    def _configure_slot_settings(self):
+        subprocess.run([
+            "cloud/azure/bin/configure-slot-settings"
+        ], check=True)  
 
     def _upload_log_file(self):
         subprocess.run([
