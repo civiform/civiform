@@ -1,10 +1,14 @@
 #! /usr/bin/env bash
 
+source "cloud/shared/bin/lib.sh"
+
 readonly AZURE_LOG_CONTAINER_NAME="civiformdeploymentlogstoragecontainer"
 readonly AZURE_LOG_FILE_NAME="civiform_deployment_log.txt"
 
 #######################################
 # Download the deploy log to a temporary file.
+# Arguments:
+#   1: (optional) filepath for log file
 # Globals read:
 #   AZURE_LOG_STORAGE_ACCOUNT_NAME
 #   AZURE_LOG_CONTAINER_NAME
@@ -13,7 +17,11 @@ readonly AZURE_LOG_FILE_NAME="civiform_deployment_log.txt"
 #   LOG_TEMPFILE: the path to a tempfile containing the deploy log.
 #######################################
 function azure_log::fetch_log_file() {
-  export LOG_TEMPFILE="$(mktemp)"
+  if [[ -n "${1}" ]]; then 
+    export LOG_TEMPFILE="${1}"
+  else
+    export LOG_TEMPFILE="$(mktemp)"
+  fi
 
   az storage blob download \
     --auth-mode login \
@@ -25,6 +33,8 @@ function azure_log::fetch_log_file() {
 
 #######################################
 # Uploads the deploy log to Azure and removes the local tempfile.
+# Arguments:
+#   1: (optional) filepath for log file
 # Globals read:
 #   AZURE_LOG_STORAGE_ACCOUNT_NAME
 #   AZURE_LOG_CONTAINER_NAME
@@ -32,6 +42,10 @@ function azure_log::fetch_log_file() {
 #   LOG_TEMPFILE
 #######################################
 function azure_log::upload_log_file() {
+  if [[ -n "${1}" ]]; then 
+    LOG_TEMPFILE="${1}"
+  fi
+
   echo "Uploading deployment log file..."
   az storage blob upload \
     --auth-mode login \
