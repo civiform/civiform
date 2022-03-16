@@ -40,7 +40,6 @@ Setup = load_class(template_dir)
 template_setup = Setup(config_loader)
 template_setup.setup_log_file()
 
-docker_tag = config_loader.get_config_var("DOCKER_TAG")
 current_user_function = subprocess.run([
     "/bin/bash", "-c", 
     f"source cloud/azure/bin/lib.sh && azure::get_current_user_id"
@@ -48,7 +47,7 @@ current_user_function = subprocess.run([
 
 if current_user_function:
     current_user = current_user_function.stdout.decode("ascii")
-
+docker_tag = config_loader.get_config_var("DOCKER_TAG")
 log_args = f"\"{docker_tag}\" {current_user}"
 
 try: 
@@ -57,7 +56,6 @@ try:
     ###############################################################################
     # Terraform Init/Plan/Apply
     ###############################################################################
-
     terraform_tfvars_path = f"{template_dir}/{config_loader.tfvars_filename}"
 
     # Write the passthrough vars to a temporary file
