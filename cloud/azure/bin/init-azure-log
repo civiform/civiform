@@ -1,0 +1,11 @@
+#! /usr/bin/env bash
+
+set -e
+
+source "cloud/azure/bin/lib.sh"
+
+if ! azure_log::log_file_exists; then
+    azure_log::initialize_log_file
+fi
+
+azure_log::fetch_log_file "$@"

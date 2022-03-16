@@ -1,4 +1,5 @@
 import subprocess
+import tempfile
 
 """
 Template Setup
@@ -11,6 +12,7 @@ and post_terraform_setup.
 class Setup:
     resource_group = None
     key_vault_name = None
+    log_file_path = None
     
     def __init__(self, config):
         self.config=config
@@ -26,11 +28,23 @@ class Setup:
         self._setup_saml_keystore()
         self._setup_ses()    
     
+    def setup_log_file(self):
+        _, self.log_file_path = tempfile.mkstemp()
+        subprocess.run([
+            "cloud/azure/bin/init-azure-log", self.log_file_path
+        ], check=True)
+    
     def post_terraform_setup(self):
         self._get_adfs_user_inputs()
 
+    def _upload_log_file(self):
+        subprocess.run([
+            "cloud/azure/bin/upload-log-file", self.log_file_path
+        ], check=True)
+    
     def cleanup(self): 
-        subprocess.run("rm $HOME/.ssh/bastion", check=True, shell=True)
+        self._upload_log_file()
+        subprocess.run("rm -f $HOME/.ssh/bastion", check=True, shell=True)
     
     def _get_adfs_user_inputs(self):
         print(">>>> You will need to navigate to the app_service"
