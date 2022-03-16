@@ -8,6 +8,10 @@ variable "application_name" {
   description = "Azure Web App Name"
 }
 
+variable "docker_tag" {
+  type        = string
+  description = "Tag for docker image to deploy"
+}
 
 variable "aws_region" {
   type        = string
