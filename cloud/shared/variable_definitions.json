@@ -13,12 +13,7 @@
     "tfvar": false,
     "values": ["prod", "staging", "dev"]
   },
-  "CIVIFORM_DOMAIN": {
-    "required": false,
-    "secret": false,
-    "tfvar": false,
-    "type": "string"
-  },
+
   "TERRAFORM_TEMPLATE_DIR": {
     "required": true,
     "secret": false, 

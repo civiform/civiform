@@ -8,11 +8,11 @@ readonly APP_NAME="$(azure::get_app_name "${AZURE_RESOURCE_GROUP}")"
 readonly PRIMARY_URL="$(azure::get_primary_url "${AZURE_RESOURCE_GROUP}" "${APP_NAME}")"
 
 if [[ "${CIVIFORM_MODE}" == "prod"]]; then
-  readonly BASE_URL="https://${CIVIFORM_DOMAIN}"
+  readonly BASE_URL="https://${CUSTOM_HOSTNAME}"
   readonly STAGING_HOSTNAME=""
 elif [[ "${CIVIFORM_MODE}" == "staging" ]]; then
-  readonly BASE_URL="https://${CIVIFORM_DOMAIN}"
-  readonly STAGING_HOSTNAME="${CIVIFORM_DOMAIN}"
+  readonly BASE_URL="https://${CUSTOM_HOSTNAME}"
+  readonly STAGING_HOSTNAME="${CUSTOM_HOSTNAME}"
 else
   readonly BASE_URL="https://${PRIMARY_URL}"
   readonly STAGING_HOSTNAME="${PRIMARY_URL}"
