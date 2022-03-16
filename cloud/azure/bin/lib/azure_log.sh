@@ -112,5 +112,3 @@ function azure_log::initialize_log_file() {
 
   echo "Done azure_log::initialize_log_file"
 }
-
-
