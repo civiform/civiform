@@ -92,4 +92,3 @@ class Setup:
             "-v", self.key_vault_name,
             "-u", aws_username
         ], check=True)
-    

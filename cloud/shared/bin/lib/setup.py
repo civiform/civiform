@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+from distutils.command.config import config
 import subprocess
 
 from config_loader import ConfigLoader
@@ -52,12 +53,15 @@ tf_var_writter.write_variables(conf_variables)
 
 # Note that the -chdir means we use the relative paths for 
 # both the backend config and the var file
-subprocess.check_call([
+terraform_init_args = [
     "terraform", 
     f"-chdir={template_dir}", 
     "init", 
-    f"-backend-config={backend_vars}"
-])
+]
+if backend_vars:
+    terraform_init_args.append(f"-backend-config={backend_vars}")
+
+subprocess.check_call(terraform_init_args)
 
 subprocess.check_call([
     "terraform", 
