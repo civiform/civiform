@@ -37,6 +37,16 @@ resource "azurerm_storage_account" "files_storage_account" {
   allow_blob_public_access = false
 }
 
+data "azurerm_key_vault_secret" "adfs_client_id" {
+  name         = local.adfs_client_id
+  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
+}
+
+data "azurerm_key_vault_secret" "adfs_discovery_uri" {
+  name         = local.adfs_discovery_uri
+  key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
+}
+
 resource "azurerm_storage_container" "files_container" {
   name                  = "files"
   storage_account_name  = azurerm_storage_account.files_storage_account.name

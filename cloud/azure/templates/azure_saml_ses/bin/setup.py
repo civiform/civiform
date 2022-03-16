@@ -28,11 +28,33 @@ class Setup:
         self._setup_ses()    
     
     def post_terraform_setup(self):
-        # TODO ask the user for their adfs information here
-        pass
+        self._get_adfs_user_inputs()
 
     def cleanup(self): 
         subprocess.run("rm $HOME/.ssh/bastion", check=True, shell=True)
+    
+    def _get_adfs_user_inputs(self):
+        print(">>>> You will need to navigate to the app_service"
+              + "that was created and select authentication. Under"
+              + " the authentication provider enable authentication "
+              + "add a new Microsoft provider and get the App (client) id")
+        self._input_to_keystore("adfs-client-id")
+        
+        print(">>>> You will need to navigate created provider click the "
+              +" endpoints button from the overview")
+        self._input_to_keystore("adfs-discovery-uri")
+
+        print(">>>> You will need to navigate created provider and add"
+              + " a client secret")
+        self._input_to_keystore("adfs-secret")
+
+    def _input_to_keystore(self, secret_id):
+        key_vault_name = self.config.get_config_var("KEY_VAULT_NAME")
+        subprocess.run([
+            "cloud/azure/bin/input-secrets-to-keystore", 
+            "-k", key_vault_name, 
+            "-s", secret_id], 
+            check=True)
     
     def _setup_resource_group(self): 
         resource_group = self.config.get_config_var("AZURE_RESOURCE_GROUP")
