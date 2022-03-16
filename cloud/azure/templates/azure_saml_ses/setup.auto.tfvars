@@ -1,4 +1,3 @@
-civiform_applicant_auth_protocol="saml"
 application_name="staging"
 docker_repository_name="civiform"
 docker_username="civiform"
