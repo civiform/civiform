@@ -126,6 +126,7 @@
     "USE_BACKEND_CONFIG": {
         "required": true,
         "secret": false,
+        "tfvar": false,
         "type": "enum",
         "values": [
             "yes",
