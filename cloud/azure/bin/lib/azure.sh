@@ -117,3 +117,10 @@ function azure::swap_deployment_slot() {
     --name "${2}"
 }
 
+#######################################
+# Writes the current signed in Azure user to stdout with whitespace replaced
+# by underscores for suitability as a token in the deploy log.
+#######################################
+function azure::get_current_user_id() {
+  az ad signed-in-user show --query mail | sed -E 's/ +/_/g'
+}
