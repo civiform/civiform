@@ -18,7 +18,7 @@ locals {
     DOCKER_REGISTRY_SERVER_URL = "https://index.docker.io"
 
     DB_USERNAME    = "${azurerm_postgresql_server.civiform.administrator_login}@${azurerm_postgresql_server.civiform.name}"
-    DB_PASSWORD    = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.postgres_password.id})"
+    DB_PASSWORD    = data.azurerm_key_vault_secret.postgres_password.value
     DB_JDBC_STRING = "jdbc:postgresql://${local.postgres_private_link}:5432/postgres?ssl=true&sslmode=require"
 
     STORAGE_SERVICE_NAME = "azure-blob"
@@ -32,19 +32,19 @@ locals {
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
 
     AWS_SES_SENDER        = var.ses_sender_email
-    AWS_ACCESS_KEY_ID     = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.aws_access_key_id.id})"
-    AWS_SECRET_ACCESS_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.aws_secret_access_token.id})"
+    AWS_ACCESS_KEY_ID     = data.azurerm_key_vault_secret.aws_access_key_id.value
+    AWS_SECRET_ACCESS_KEY = data.azurerm_key_vault_secret.aws_secret_access_token.value
     AWS_REGION            = var.aws_region
 
     STAGING_ADMIN_LIST     = var.staging_program_admin_notification_mailing_list
     STAGING_TI_LIST        = var.staging_ti_notification_mailing_list
     STAGING_APPLICANT_LIST = var.staging_applicant_notification_mailing_list
 
-    SECRET_KEY = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.app_secret_key.id})"
+    SECRET_KEY = data.azurerm_key_vault_secret.app_secret_key.value
 
-    ADFS_SECRET        = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.adfs_secret.id})"
-    ADFS_CLIENT_ID     = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.adfs_client_id.id})"
-    ADFS_DISCOVERY_URI = "@Microsoft.KeyVault(SecretUri=${data.azurerm_key_vault_secret.adfs_discovery_uri.id})"
+    ADFS_SECRET        = data.azurerm_key_vault_secret.adfs_secret.value
+    ADFS_CLIENT_ID     = data.azurerm_key_vault_secret.adfs_client_id.id.value
+    ADFS_DISCOVERY_URI = data.azurerm_key_vault_secret.adfs_discovery_uri.value
 
     CIVIFORM_APPLICANT_IDP = var.civiform_applicant_idp
 
