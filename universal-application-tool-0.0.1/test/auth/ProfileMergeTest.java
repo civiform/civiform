@@ -78,11 +78,12 @@ public class ProfileMergeTest extends ResetPostgres {
   }
 
   @Test
-  public void testFailedProfileMerge() {
+  public void testProfileMerge_fails_emailsDoNotMatch() {
     OidcProfile oidcProfile = new OidcProfile();
     oidcProfile.addAttribute("user_emailid", "foo@example.com");
+
     OidcProfile conflictingProfile = new OidcProfile();
-    oidcProfile.addAttribute("user_emailid", "bar@example.com");
+    conflictingProfile.addAttribute("user_emailid", "bar@example.com");
 
     CiviFormProfileData profileData =
         idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
