@@ -53,6 +53,9 @@ public class ProfileMergeTest extends ResetPostgres {
   public void testProfileCreation() throws ExecutionException, InterruptedException {
     OidcProfile oidcProfile = new OidcProfile();
     oidcProfile.addAttribute("user_emailid", "foo@example.com");
+    // authority_id values.
+    oidcProfile.addAttribute("iss", "issuer");
+    oidcProfile.setId("subject");
 
     CiviFormProfileData profileData =
         idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
@@ -60,10 +63,33 @@ public class ProfileMergeTest extends ResetPostgres {
 
     assertThat(profileData.getEmail()).isEqualTo("foo@example.com");
     assertThat(profile.getEmailAddress().get()).isEqualTo("foo@example.com");
+    assertThat(profile.getAuthorityId().get()).isEqualTo("iss: issuer sub: subject");
   }
 
   @Test
-  public void testSuccessfulProfileMerge() {
+  public void testProfileMerge_oidc_succeeds_authorityPreviouslyMissing() throws Exception {
+    OidcProfile oidcProfile = new OidcProfile();
+    oidcProfile.addAttribute("user_emailid", "foo@example.com");
+
+    CiviFormProfileData existingProfileWithoutAuthority =
+        idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
+
+    OidcProfile oidcProfileWithAuthority = new OidcProfile();
+    oidcProfileWithAuthority.addAttribute("user_emailid", "foo@example.com");
+    // authority_id values.
+    oidcProfileWithAuthority.addAttribute("iss", "issuer");
+    oidcProfileWithAuthority.setId("subject");
+
+    CiviFormProfile mergedProfile =
+        profileFactory.wrapProfileData(
+            idcsProfileAdapter.mergeCiviFormProfile(
+                profileFactory.wrapProfileData(existingProfileWithoutAuthority), oidcProfileWithAuthority));
+    assertThat(mergedProfile.getEmailAddress().get()).isEqualTo("foo@example.com");
+    assertThat(mergedProfile.getAuthorityId().get()).isEqualTo("iss: issuer sub: subject");
+  }
+
+  @Test
+  public void testProfileMerge_oidc_succeeds() {
     OidcProfile oidcProfile = new OidcProfile();
     oidcProfile.addAttribute("user_emailid", "foo@example.com");
 
@@ -83,6 +109,54 @@ public class ProfileMergeTest extends ResetPostgres {
     oidcProfile.addAttribute("user_emailid", "foo@example.com");
     OidcProfile conflictingProfile = new OidcProfile();
     oidcProfile.addAttribute("user_emailid", "bar@example.com");
+
+    CiviFormProfileData profileData =
+        idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
+
+    assertThatThrownBy(
+            () ->
+                idcsProfileAdapter.mergeCiviFormProfile(
+                    profileFactory.wrapProfileData(profileData), conflictingProfile))
+        .hasCauseInstanceOf(ProfileMergeConflictException.class);
+  }
+
+  @Test
+  public void testProfileMerge_oidc_fails_differentAuthoritySubject() {
+    OidcProfile oidcProfile = new OidcProfile();
+    oidcProfile.addAttribute("user_emailid", "foo@example.com");
+    // authority_id values.
+    oidcProfile.addAttribute("iss", "issuer");
+    oidcProfile.setId("subject");
+
+    OidcProfile conflictingProfile = new OidcProfile();
+    conflictingProfile.addAttribute("user_emailid", "bar@example.com");
+    // authority_id values.
+    conflictingProfile.addAttribute("iss", "issuer");
+    conflictingProfile.setId("a different subject");
+
+    CiviFormProfileData profileData =
+        idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
+
+    assertThatThrownBy(
+            () ->
+                idcsProfileAdapter.mergeCiviFormProfile(
+                    profileFactory.wrapProfileData(profileData), conflictingProfile))
+        .hasCauseInstanceOf(ProfileMergeConflictException.class);
+  }
+
+  @Test
+  public void testProfileMerge_oidc_fails_differentAuthorityIssuer() {
+    OidcProfile oidcProfile = new OidcProfile();
+    oidcProfile.addAttribute("user_emailid", "foo@example.com");
+    // authority_id values.
+    oidcProfile.addAttribute("iss", "issuer");
+    oidcProfile.setId("subject");
+
+    OidcProfile conflictingProfile = new OidcProfile();
+    conflictingProfile.addAttribute("user_emailid", "bar@example.com");
+    // authority_id values.
+    conflictingProfile.addAttribute("iss", "a different issuer");
+    conflictingProfile.setId("subject");
 
     CiviFormProfileData profileData =
         idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
