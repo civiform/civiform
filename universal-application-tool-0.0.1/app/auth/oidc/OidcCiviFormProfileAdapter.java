@@ -60,9 +60,10 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     String issuer = oidcProfile.getAttribute("iss", String.class);
     // Pac4j treats the subject as special, and you can't simply ask for the "sub" claim.
     String subject = oidcProfile.getId();
-    // This should throw an error but this allows us to unit test for pre-existing Accounts without an authority_id.
+    // This should throw an error but this allows us to unit test for pre-existing Accounts without
+    // an authority_id.
     // TODO(#2059): remove null allowance after Seattle data cleanup.
-    if(issuer == null || subject == null) {
+    if (issuer == null || subject == null) {
       return Optional.empty();
     }
     // This string format can never change. It is the unique ID for OIDC based account.
@@ -77,7 +78,7 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     civiformProfile.setEmailAddress(emailAddress).join();
     // This allows us to unit test for pre-existing Accounts without an authority_id.
     // TODO(#2059): remove optional allowance after Seattle data cleanup.
-    if(authorityId.isPresent()) {
+    if (authorityId.isPresent()) {
       civiformProfile.setAuthorityId(authorityId.get()).join();
     }
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);

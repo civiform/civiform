@@ -83,7 +83,8 @@ public class ProfileMergeTest extends ResetPostgres {
     CiviFormProfile mergedProfile =
         profileFactory.wrapProfileData(
             idcsProfileAdapter.mergeCiviFormProfile(
-                profileFactory.wrapProfileData(existingProfileWithoutAuthority), oidcProfileWithAuthority));
+                profileFactory.wrapProfileData(existingProfileWithoutAuthority),
+                oidcProfileWithAuthority));
     assertThat(mergedProfile.getEmailAddress().get()).isEqualTo("foo@example.com");
     assertThat(mergedProfile.getAuthorityId().get()).isEqualTo("iss: issuer sub: subject");
   }
