@@ -116,6 +116,11 @@ module.exports = {
 
         getStyles(output, content)
 
+        return output
+      },
+      ts: (content) => {
+        const output = [];
+
         if (processedTs === false) {
           processTypescript(output)
           processHtmlTags(output)

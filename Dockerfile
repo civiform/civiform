@@ -20,7 +20,7 @@ RUN set -o pipefail && \
     apk add --upgrade apk-tools && \
     apk upgrade --available && \
     apk add --no-cache --update bash wget npm git openssh && \
-    npm install -g npm@latest && \
+    npm install -g npm@8.5.4 && \
     mkdir -p "${SBT_HOME}" && \
     wget -qO - "${SBT_URL}" | tar xz -C "${INSTALL_DIR}" && \
     echo -ne "- with sbt ${SBT_VERSION}\n" >> /root/.built
