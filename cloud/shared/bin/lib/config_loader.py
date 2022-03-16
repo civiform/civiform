@@ -12,6 +12,17 @@ Config Loader
   Provides getters to return values from the config. 
 """
 class ConfigLoader:
+    TF_VARS_FILENAME = "setup.auto.tfvars"
+    BACKEND_CONFIG_FILENAME = "backend_vars"
+    
+    @property
+    def tfvars_filename(self):
+        return self.TF_VARS_FILENAME
+    
+    @property
+    def backend_vars_filename(self):
+        return self.BACKEND_CONFIG_FILENAME
+    
     def load_config(self):
         self._load_config()
         return self.validate_config()
@@ -69,6 +80,9 @@ class ConfigLoader:
     def validate_config(self):
         return self._validate_config(self.variable_definitions, self.configs)
 
+    def get_config_var(self, variable_name): 
+        return self.configs.get(variable_name)
+
     def get_cloud_provider(self):
         return self.configs.get("CIVIFORM_CLOUD_PROVIDER")
 
@@ -77,6 +91,13 @@ class ConfigLoader:
     
     def get_template_dir(self):
         return self.configs.get("TERRAFORM_TEMPLATE_DIR")
+    
+    def is_dev(self):
+        civiform_mode = self.configs.get("CIVIFORM_MODE")
+        return civiform_mode == "dev"
+    
+    def use_backend_config(self):
+        return not self.is_dev()
     
     def get_config_variables(self):
         return self.configs

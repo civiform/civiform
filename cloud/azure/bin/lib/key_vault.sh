@@ -66,7 +66,7 @@ function key_vault::add_secret() {
 function key_vault::add_secret_from_input() {
   local SECRET
   echo "Please enter the value for ${2}: "
-  read -s $SECRET
+  read -s SECRET
   unset REPLY
   key_vault::add_secret "${1}" "${2}" "${SECRET}"  
   echo "Stored secret value for ${2} in key vault ${1}"
@@ -104,4 +104,18 @@ function key_vault::get_secret_value() {
   az keyvault secret show --vault-name "${1}" --name "${2}" --query value -o tsv
 }
 
-
+#######################################
+# Succeeds if the secret exists in the keyvault
+# Arguments:
+#   1: The name of the key vault
+#   2: The name of the secret (used to identify it e.g. "postgres-password")
+#######################################
+function key_vault::has_secret() {
+  local SECRET_RESULT="$(az keyvault secret show \
+    --vault-name "${1}" \
+    --name "${2}" \
+    --query value \
+    -o tsv)"
+  
+  echo "${SECRET_RESULT}" | grep -q -v "SecretNotFound"
+}

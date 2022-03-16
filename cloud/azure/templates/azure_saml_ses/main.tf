@@ -17,7 +17,7 @@ terraform {
 module "app" {
   source = "../../modules/app"
 
-  resource_group_name = var.resource_group_name
+  resource_group_name = var.azure_resource_group
 
   postgres_admin_login = var.postgres_admin_login
 
@@ -36,10 +36,7 @@ module "app" {
   staging_ti_notification_mailing_list            = var.staging_ti_notification_mailing_list
   staging_applicant_notification_mailing_list     = var.staging_applicant_notification_mailing_list
 
-
-  adfs_client_id     = var.adfs_client_id
-  adfs_discovery_uri = var.adfs_discovery_uri
-  adfs_admin_group   = var.adfs_admin_group
+  adfs_admin_group = var.adfs_admin_group
 
   login_radius_api_key       = var.login_radius_api_key
   login_radius_metadata_uri  = var.login_radius_metadata_uri
@@ -68,7 +65,7 @@ module "saml_keystore" {
   saml_keystore_filename       = var.saml_keystore_filename
   saml_keystore_container_name = var.saml_keystore_container_name
   saml_keystore_account_name   = var.saml_keystore_account_name
-  resource_group_name          = var.resource_group_name
+  resource_group_name          = var.azure_resource_group
 }
 
 module "email_service" {

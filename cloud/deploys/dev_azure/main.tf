@@ -29,9 +29,7 @@ module "app" {
   staging_ti_notification_mailing_list            = var.staging_ti_notification_mailing_list
   staging_applicant_notification_mailing_list     = var.staging_applicant_notification_mailing_list
 
-  adfs_client_id     = var.adfs_client_id
-  adfs_discovery_uri = var.adfs_discovery_uri
-  adfs_admin_group   = var.adfs_admin_group
+  adfs_admin_group = var.adfs_admin_group
 
   civiform_applicant_idp           = "login-radius"
   civiform_applicant_auth_protocol = "saml"
