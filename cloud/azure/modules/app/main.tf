@@ -41,6 +41,7 @@ data "azurerm_key_vault_secret" "adfs_client_id" {
   name         = local.adfs_client_id
   key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
 }
+
 data "azurerm_key_vault_secret" "adfs_discovery_uri" {
   name         = local.adfs_discovery_uri
   key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
