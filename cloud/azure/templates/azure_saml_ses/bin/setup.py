@@ -75,7 +75,7 @@ class Setup:
         if self.config.use_backend_config():
             subprocess.run([
                 "cloud/azure/bin/setup_tf_shared_state",
-                f"{self.config.get_template_dir()}/{self.config.get_backend_vars_filename()}"
+                f"{self.config.get_template_dir()}/{self.config.backend_vars_filename}"
             ], check=True)
     
     def _setup_keyvault(self): 

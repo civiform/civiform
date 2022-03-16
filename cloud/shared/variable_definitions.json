@@ -64,7 +64,7 @@
             "idcs"
         ]
     },
-    "RESIDENT_AUTH_FORMAT": {
+    "CIVIFORM_APPLICANT_AUTH_PROTOCOL": {
         "required": true,
         "secret": false,
         "tfvar": false,

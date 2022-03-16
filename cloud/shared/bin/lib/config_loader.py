@@ -15,6 +15,14 @@ class ConfigLoader:
     TF_VARS_FILENAME = "setup.auto.tfvars"
     BACKEND_CONFIG_FILENAME = "backend_vars"
     
+    @property
+    def tfvars_filename(self):
+        return self.TF_VARS_FILENAME
+    
+    @property
+    def backend_vars_filename(self):
+        return self.BACKEND_CONFIG_FILENAME
+    
     def load_config(self):
         self._load_config()
         return self.validate_config()
@@ -90,12 +98,6 @@ class ConfigLoader:
     
     def use_backend_config(self):
         return not self.is_dev()
-    
-    def get_tfvars_filename(self):
-        return self.TF_VARS_FILENAME
-    
-    def get_backend_vars_filename(self):
-        return self.BACKEND_CONFIG_FILENAME
     
     def get_config_variables(self):
         return self.configs

@@ -43,7 +43,7 @@ template_setup.pre_terraform_setup()
 # Terraform Init/Plan/Apply
 ###############################################################################
 
-terraform_tfvars_path = f"{template_dir}/{config_loader.get_tfvars_filename()}"
+terraform_tfvars_path = f"{template_dir}/{config_loader.tfvars_filename}"
 
 # Write the passthrough vars to a temporary file
 tf_var_writter = TfVarWriter(terraform_tfvars_path)
@@ -58,7 +58,7 @@ terraform_init_args = [
     "init", 
 ]
 if not config_loader.use_backend_config():
-    terraform_init_args.append(f"-backend-config={config_loader.get_backend_vars_filename()}")
+    terraform_init_args.append(f"-backend-config={config_loader.backend_vars_filename}")
 
 subprocess.check_call(terraform_init_args)
 
@@ -66,7 +66,7 @@ subprocess.check_call([
     "terraform", 
     f"-chdir={template_dir}", 
     "apply", 
-    f"-var-file={config_loader.get_tfvars_filename()}"
+    f"-var-file={config_loader.tfvars_filename}"
 ])
 
 ###############################################################################
@@ -80,7 +80,7 @@ if template_setup.requires_post_terraform_setup():
         "terraform", 
         f"-chdir={template_dir}", 
         "apply", 
-        f"-var-file={config_loader.get_tfvars_filename()}"
+        f"-var-file={config_loader.tfvars_filename}"
     ])
 
 template_setup.cleanup()
