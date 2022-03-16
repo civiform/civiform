@@ -15,10 +15,9 @@ import play.Application;
 import play.test.Helpers;
 import support.ProgramBuilder;
 import support.ResourceCreator;
-import support.TestConstants;
 import support.TestQuestionBank;
 
-public class WithPostgresContainer {
+public class ResetPostgres {
 
   protected static Application app;
 
@@ -30,7 +29,7 @@ public class WithPostgresContainer {
 
   @BeforeClass
   public static void startPlay() {
-    app = provideApplication();
+    app = fakeApplication();
     resourceCreator = new ResourceCreator(app.injector());
     Helpers.start(app);
     mat = app.asScala().materializer();
@@ -43,10 +42,6 @@ public class WithPostgresContainer {
       Helpers.stop(app);
       app = null;
     }
-  }
-
-  protected static Application provideApplication() {
-    return fakeApplication(TestConstants.TEST_DATABASE_CONFIG);
   }
 
   protected <T> T instanceOf(Class<T> clazz) {

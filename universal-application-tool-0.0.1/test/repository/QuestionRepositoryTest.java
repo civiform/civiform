@@ -15,7 +15,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.TextQuestionDefinition;
 
-public class QuestionRepositoryTest extends WithPostgresContainer {
+public class QuestionRepositoryTest extends ResetPostgres {
 
   private QuestionRepository repo;
 

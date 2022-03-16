@@ -19,9 +19,6 @@ module "app" {
   postgres_admin_login = var.postgres_admin_login
   postgres_sku_name    = "GP_Gen5_2"
 
-  docker_username        = var.docker_username
-  docker_repository_name = var.docker_repository_name
-
   key_vault_name = var.key_vault_name
 
   application_name = var.application_name
@@ -31,9 +28,6 @@ module "app" {
   staging_program_admin_notification_mailing_list = var.staging_program_admin_notification_mailing_list
   staging_ti_notification_mailing_list            = var.staging_ti_notification_mailing_list
   staging_applicant_notification_mailing_list     = var.staging_applicant_notification_mailing_list
-
-  custom_hostname  = ""
-  staging_hostname = ""
 
   adfs_client_id     = var.adfs_client_id
   adfs_discovery_uri = var.adfs_discovery_uri

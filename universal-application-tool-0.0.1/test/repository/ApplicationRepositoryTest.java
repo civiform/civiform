@@ -13,7 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import services.Path;
 
-public class ApplicationRepositoryTest extends WithPostgresContainer {
+public class ApplicationRepositoryTest extends ResetPostgres {
   private ApplicationRepository repo;
 
   @Before

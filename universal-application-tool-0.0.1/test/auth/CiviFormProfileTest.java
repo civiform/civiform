@@ -9,9 +9,9 @@ import models.Account;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 
-public class CiviFormProfileTest extends WithPostgresContainer {
+public class CiviFormProfileTest extends ResetPostgres {
 
   private ProfileFactory profileFactory;
 

@@ -12,7 +12,7 @@ import models.Applicant;
 import models.DisplayMode;
 import org.junit.Before;
 import org.junit.Test;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.Scalar;
@@ -28,7 +28,7 @@ import services.question.types.ScalarType;
 import support.ProgramBuilder;
 import support.QuestionAnswerer;
 
-public class ReadOnlyApplicantProgramServiceImplTest extends WithPostgresContainer {
+public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   private static final String FAKE_BASE_URL = "http://fake-base-url";
 
   private QuestionDefinition nameQuestion;

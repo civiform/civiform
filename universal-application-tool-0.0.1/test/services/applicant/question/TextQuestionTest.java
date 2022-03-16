@@ -15,14 +15,14 @@ import org.junit.runner.RunWith;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.question.types.TextQuestionDefinition;
 import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
-public class TextQuestionTest extends WithPostgresContainer {
+public class TextQuestionTest extends ResetPostgres {
   private static final TextQuestionDefinition textQuestionDefinition =
       new TextQuestionDefinition(
           OptionalLong.of(1),

@@ -24,7 +24,7 @@ import services.program.predicate.PredicateExpressionNodeType;
 import services.program.predicate.PredicateValue;
 import support.ProgramBuilder;
 
-public class VersionRepositoryTest extends WithPostgresContainer {
+public class VersionRepositoryTest extends ResetPostgres {
   private VersionRepository versionRepository;
 
   @Before

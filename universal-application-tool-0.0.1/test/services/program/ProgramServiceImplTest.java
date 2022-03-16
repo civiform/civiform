@@ -20,7 +20,7 @@ import models.Program;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
-import repository.WithPostgresContainer;
+import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.applicant.question.Scalar;
@@ -37,7 +37,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import support.ProgramBuilder;
 
-public class ProgramServiceImplTest extends WithPostgresContainer {
+public class ProgramServiceImplTest extends ResetPostgres {
 
   private QuestionDefinition addressQuestion;
   private QuestionDefinition colorQuestion;
