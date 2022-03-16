@@ -21,6 +21,5 @@ fi
 azure::slot_setting "canary" "${APP_NAME}" "BASE_URL" "${BASE_URL}" "${AZURE_RESOURCE_GROUP}"
 azure::slot_setting "primary" "${APP_NAME}" "BASE_URL" "${BASE_URL}" "${AZURE_RESOURCE_GROUP}"
 
-# If we're deploying a dev instance, we want the staging hostname to match the app's BASE_URL
 azure::slot_setting "canary" "${APP_NAME}" "STAGING_HOSTNAME" "${STAGING_HOSTNAME}" "${AZURE_RESOURCE_GROUP}"
 azure::slot_setting "primary" "${APP_NAME}" "STAGING_HOSTNAME" "${STAGING_HOSTNAME}" "${AZURE_RESOURCE_GROUP}"
