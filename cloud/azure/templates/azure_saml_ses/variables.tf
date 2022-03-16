@@ -1,4 +1,4 @@
-variable "resource_group_name" {
+variable "azure_resource_group" {
   type        = string
   description = "Name of the resource group where key vault is already created."
 }
@@ -6,6 +6,7 @@ variable "resource_group_name" {
 variable "postgres_admin_login" {
   type        = string
   description = "Postgres admin login"
+  default     = "psqladmin"
 }
 
 variable "application_name" {

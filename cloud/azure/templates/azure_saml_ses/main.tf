@@ -17,7 +17,7 @@ terraform {
 module "app" {
   source = "../../modules/app"
 
-  resource_group_name = var.resource_group_name
+  resource_group_name = var.azure_resource_group
 
   postgres_admin_login = var.postgres_admin_login
 
@@ -68,7 +68,7 @@ module "saml_keystore" {
   saml_keystore_filename       = var.saml_keystore_filename
   saml_keystore_container_name = var.saml_keystore_container_name
   saml_keystore_account_name   = var.saml_keystore_account_name
-  resource_group_name          = var.resource_group_name
+  resource_group_name          = var.azure_resource_group
 }
 
 module "email_service" {

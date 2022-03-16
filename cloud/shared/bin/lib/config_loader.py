@@ -69,6 +69,9 @@ class ConfigLoader:
     def validate_config(self):
         return self._validate_config(self.variable_definitions, self.configs)
 
+    def get_config_var(self, variable_name): 
+        return self.configs.get(variable_name)
+
     def get_cloud_provider(self):
         return self.configs.get("CIVIFORM_CLOUD_PROVIDER")
 
@@ -77,6 +80,10 @@ class ConfigLoader:
     
     def get_template_dir(self):
         return self.configs.get("TERRAFORM_TEMPLATE_DIR")
+    
+    def use_backend_config(self):
+        use_backend_config = self.configs.get("USE_BACKEND_CONFIG", "no")
+        return use_backend_config == "yes"
     
     def get_config_variables(self):
         return self.configs

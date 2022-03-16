@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+from distutils.command.config import config
 import subprocess
 
 from config_loader import ConfigLoader
@@ -34,22 +35,53 @@ if not is_valid:
 
 template_dir = config_loader.get_template_dir()
 Setup = load_class(template_dir)
-template_setup = Setup()
+backend_vars = "backend_vars" if config_loader.use_backend_config() else None 
+template_setup = Setup(config_loader, backend_vars)
+template_setup.pre_terraform_setup()
 
 ###############################################################################
 # Terraform Init/Plan/Apply
 ###############################################################################
 
-terraform_tfvars_filename = f"{template_dir}/setup.auto.tfvars"
+terraform_tfvars_filename = "setup.auto.tfvars"
+terraform_tfvars_path = f"{template_dir}/{terraform_tfvars_filename}"
 
 # Write the passthrough vars to a temporary file
-tf_var_writter = TfVarWriter(terraform_tfvars_filename)
-variables_to_write = config_loader.get_terraform_variables()
-tf_var_writter.write_variables(variables_to_write)
+tf_var_writter = TfVarWriter(terraform_tfvars_path)
+conf_variables = config_loader.get_terraform_variables()
+tf_var_writter.write_variables(conf_variables)
 
-# TODO need to call input/apply like how the setup script in staging_azure
-subprocess.call(
-    f"terraform apply -input=false -var-file={terraform_tfvars_filename}",
-    shell=True,
-    cwd=template_dir,
-)
+# Note that the -chdir means we use the relative paths for 
+# both the backend config and the var file
+terraform_init_args = [
+    "terraform", 
+    f"-chdir={template_dir}", 
+    "init", 
+]
+if backend_vars:
+    terraform_init_args.append(f"-backend-config={backend_vars}")
+
+subprocess.check_call(terraform_init_args)
+
+subprocess.check_call([
+    "terraform", 
+    f"-chdir={template_dir}", 
+    "apply", 
+    f"-var-file={terraform_tfvars_filename}"
+])
+
+###############################################################################
+# Post Run Setup Tasks (if needed)
+###############################################################################
+
+if template_setup.requires_post_terraform_setup():
+    template_setup.post_terraform_setup()
+    
+    subprocess.check_call([
+        "terraform", 
+        f"-chdir={template_dir}", 
+        "apply", 
+        f"-var-file={terraform_tfvars_filename}"
+    ])
+
+template_setup.cleanup()

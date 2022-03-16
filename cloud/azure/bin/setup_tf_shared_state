@@ -7,8 +7,7 @@
 
 set -e
 
-readonly PROJECT_BASE_DIR="$(realpath "$(dirname "${BASH_SOURCE}")/../../../")"
-source "${PROJECT_BASE_DIR}/bin/lib.sh"
+source "cloud/azure/bin/lib.sh"
 
 if [[ -z "${1}" ]]; then
     out::error "Must specify backend vars filename."
@@ -49,6 +48,9 @@ else
       --sku Standard_LRS \
       --encryption-services blob
 fi
+
+echo "Assigning storage blob data contributer role to the user"
+storage::assign_storage_blob_data_contributor_role_to_user "${RESOURCE_GROUP_NAME}"
 
 echo "Create blob container if it doesn't exist"
 CONTAINER_EXIST=$(az storage container exists \
