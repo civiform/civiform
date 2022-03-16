@@ -67,7 +67,7 @@
     "CIVIFORM_APPLICANT_AUTH_PROTOCOL": {
         "required": true,
         "secret": false,
-        "tfvar": false,
+        "tfvar": true,
         "type": "enum",
         "values": [
             "oidc",
