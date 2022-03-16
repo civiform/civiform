@@ -118,8 +118,5 @@ function key_vault::has_secret() {
     --query value \
     -o tsv)"
   
-  if echo "${SECRET_RESULT}" | grep -q "SecretNotFound"; then
-    return true
-  fi
-  return false
+  echo "${SECRET_RESULT}" | grep -q -v "SecretNotFound"
 }
