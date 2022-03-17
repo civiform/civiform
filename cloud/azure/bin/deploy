@@ -31,7 +31,7 @@ readonly TF_STATUS=$?
 set -e
 
 if (( $TF_STATUS != 0 )); then
-    log::deploy_failed "${DOCKER_TAG}" "${USER_ID}"
+    log::deploy_failed "${IMAGE_TAG}" "${USER_ID}"
     out::error "Terraform deployment failed."
     exit $TF_STATUS
 fi
@@ -39,12 +39,12 @@ fi
 readonly APP_NAME="$(azure::get_app_name "${AZURE_RESOURCE_GROUP}")"
 readonly CANARY_URL="$(azure::get_canary_url "${AZURE_RESOURCE_GROUP}" "${APP_NAME}")"
 
-azure::set_new_container_tag "${AZURE_RESOURCE_GROUP}" "${APP_NAME}" "${DOCKER_TAG}"
+azure::set_new_container_tag "${AZURE_RESOURCE_GROUP}" "${APP_NAME}" "${IMAGE_TAG}"
 
 if health::wait_for_success "${CANARY_URL}/loginForm"; then
     echo "New container successfully started in canary slot"
 else
-    log::deploy_failed "${DOCKER_TAG}" "${USER_ID}"
+    log::deploy_failed "${IMAGE_TAG}" "${USER_ID}"
     exit 1
 fi
 
@@ -52,5 +52,5 @@ echo "Swapping deployment slot 'canary' into production. This may take up to 10 
 azure::swap_deployment_slot "${AZURE_RESOURCE_GROUP}" "${APP_NAME}"
 
 echo "Success! The new application version is up and running." 
-log::deploy_succeeded "${DOCKER_TAG}" "${USER_ID}"
+log::deploy_succeeded "${IMAGE_TAG}" "${USER_ID}"
 azure_log::upload_log_file
