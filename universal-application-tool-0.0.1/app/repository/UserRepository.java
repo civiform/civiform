@@ -104,7 +104,7 @@ public class UserRepository {
     return database.find(Account.class).where().eq("email_address", emailAddress).findOneOrEmpty();
   }
 
-  public CompletionStage<Optional<Applicant>> lookupApplicant(String emailAddress) {
+  public CompletionStage<Optional<Applicant>> lookupApplicantByEmail(String emailAddress) {
     return supplyAsync(
         () -> {
           Optional<Account> accountMaybe = lookupAccountByEmail(emailAddress);
