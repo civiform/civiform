@@ -1,5 +1,5 @@
 #! /usr/bin/env bash
-source bin/lib.sh
+source cloud/azure/bin/lib.sh
 
 
 # DOC: Load data into an existing database. 
