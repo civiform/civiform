@@ -50,6 +50,9 @@ class Check():
 class DockerCheck(Check):
     remedy = "Need to install Docker CLI: https://docs.docker.com/engine/install/"
 
+    def should_skip(self):
+        return os.environ.get('CIVIFORM_CLOUD_PROVIDER', "").lower() == 'azure'
+
     def name(self):
         return "Docker CLI"
 
