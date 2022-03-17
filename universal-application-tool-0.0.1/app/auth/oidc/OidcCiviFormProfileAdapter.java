@@ -54,14 +54,15 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
 
   protected Optional<String> getAuthorityId(OidcProfile oidcProfile) {
     // In OIDC the user is uniquely identified by the iss(user) and sub(ject) claims.
+    // https://openid.net/specs/openid-connect-core-1_0.html#IDToken
+    //
     // We combine the two to create the unique authority id.
-    // Issuer is necessary as CiviForm has different authentication systems for Admins and Applicants.
+    // Issuer is necessary as CiviForm has different authentication systems for Admins and
+    // Applicants.
     String issuer = oidcProfile.getAttribute("iss", String.class);
+    // Subject identifies the specific user in the issuer.
     // Pac4j treats the subject as special, and you can't simply ask for the "sub" claim.
     String subject = oidcProfile.getId();
-    // This should throw an error in production, however this allows us to unit test for pre-existing Accounts without
-    // an authority_id.
-    // TODO(#2059): remove null allowance after Seattle data cleanup.
     if (issuer == null || subject == null) {
       return Optional.empty();
     }
@@ -73,13 +74,15 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
   public CiviFormProfileData mergeCiviFormProfile(
       CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
     String emailAddress = oidcProfile.getAttribute(emailAttributeName(), String.class);
-    Optional<String> authorityId = getAuthorityId(oidcProfile);
-    civiformProfile.setEmailAddress(emailAddress).join();
-    // This allows us to unit test for pre-existing Accounts without an authority_id.
-    // TODO(#2059): remove optional allowance after Seattle data cleanup.
-    if (authorityId.isPresent()) {
-      civiformProfile.setAuthorityId(authorityId.get()).join();
+    if (emailAddress == null) {
+      throw new InvalidOidcProfileException("Unable to get email from profile.");
     }
+    Optional<String> authorityId = getAuthorityId(oidcProfile);
+    if (authorityId.isEmpty()) {
+      throw new InvalidOidcProfileException("Unable to get authority ID from profile.");
+    }
+    civiformProfile.setEmailAddress(emailAddress).join();
+    civiformProfile.setAuthorityId(authorityId.get()).join();
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
     // Meaning: whatever you signed in with most recently is the role you have.
     ImmutableSet<Roles> roles = roles(civiformProfile, oidcProfile);
