@@ -46,8 +46,8 @@ current_user_function = subprocess.run([
 
 if current_user_function:
     current_user = current_user_function.stdout.decode("ascii")
-docker_tag = config_loader.get_config_var("DOCKER_TAG")
-log_args = f"\"{docker_tag}\" {current_user}"
+image_tag = config_loader.get_config_var("IMAGE_TAG")
+log_args = f"\"{image_tag}\" {current_user}"
 
 try: 
     template_setup.pre_terraform_setup()

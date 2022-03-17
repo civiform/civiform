@@ -61,12 +61,6 @@
     "tfvar": true,
     "type": "string"
   },
-  "DOCKER_TAG": {
-    "required": true,
-    "secret": false,
-    "tfvar": true,
-    "type": "string"
-  },
   "DOCKER_USERNAME": {
     "required": true,
     "secret": false,
