@@ -31,7 +31,7 @@ public class AccountTest extends ResetPostgres {
 
     account.save();
 
-    Account found = repository.lookupAccount(email).get();
+    Account found = repository.lookupAccountByEmail(email).get();
     assertThat(found.getAdministeredProgramNames()).containsExactly("one", "two");
   }
 

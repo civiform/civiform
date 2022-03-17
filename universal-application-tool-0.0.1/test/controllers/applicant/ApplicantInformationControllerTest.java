@@ -80,7 +80,11 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
     Result result = controller.update(request, currentApplicant.id).toCompletableFuture().join();
 
     currentApplicant =
-        userRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
+        userRepository
+            .lookupApplicantByEmail(currentApplicant.id)
+            .toCompletableFuture()
+            .join()
+            .get();
     assertThat(currentApplicant.getApplicantData().preferredLocale())
         .isEqualTo(Locale.forLanguageTag("es-US"));
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -99,7 +103,11 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
     Result result = controller.update(request, currentApplicant.id).toCompletableFuture().join();
 
     currentApplicant =
-        userRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
+        userRepository
+            .lookupApplicantByEmail(currentApplicant.id)
+            .toCompletableFuture()
+            .join()
+            .get();
     assertThat(currentApplicant.getApplicantData().preferredLocale())
         .isEqualTo(Locale.forLanguageTag("es-US"));
     assertThat(result.status()).isEqualTo(SEE_OTHER);

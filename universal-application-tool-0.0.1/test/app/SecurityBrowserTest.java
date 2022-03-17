@@ -97,7 +97,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
     assertThat(browser.pageSource()).contains("username@example.com");
 
     Applicant applicant =
-        userRepository.lookupApplicant(getApplicantId()).toCompletableFuture().join().get();
+        userRepository.lookupApplicantByEmail(getApplicantId()).toCompletableFuture().join().get();
     Optional<String> applicantName =
         applicant.getApplicantData().readString(WellKnownPaths.APPLICANT_FIRST_NAME);
     assertThat(applicantName).isPresent();

@@ -119,7 +119,7 @@ public final class ApplicantInformationController extends CiviFormController {
 
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
-            v -> repository.lookupApplicant(applicantId), httpExecutionContext.current())
+            v -> repository.lookupApplicantByEmail(applicantId), httpExecutionContext.current())
         .thenComposeAsync(
             maybeApplicant -> {
               // Set preferred locale.

@@ -73,7 +73,8 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     Optional<Applicant> existingApplicant =
         applicantRepositoryProvider
             .get()
-            .lookupApplicant(profile.getAttribute(CommonProfileDefinition.EMAIL, String.class))
+            .lookupApplicantByEmail(
+                profile.getAttribute(CommonProfileDefinition.EMAIL, String.class))
             .toCompletableFuture()
             .join();
 

@@ -46,8 +46,8 @@ public class RoleServiceTest extends ResetPostgres {
 
     assertThat(result).isEmpty();
 
-    account1 = userRepository.lookupAccount(email1).get();
-    account2 = userRepository.lookupAccount(email2).get();
+    account1 = userRepository.lookupAccountByEmail(email1).get();
+    account2 = userRepository.lookupAccountByEmail(email2).get();
 
     assertThat(account1.getAdministeredProgramNames()).containsOnly(programName);
     assertThat(account2.getAdministeredProgramNames()).containsOnly(programName);
@@ -78,7 +78,7 @@ public class RoleServiceTest extends ResetPostgres {
                         emailLowerCase))));
 
     // Lookup the upper case account. They do not have permission to any programs.
-    account = userRepository.lookupAccount(emailUpperCase).get();
+    account = userRepository.lookupAccountByEmail(emailUpperCase).get();
     assertThat(account.getAdministeredProgramNames()).isEmpty();
 
     // Now make the upper case Email a program admin.
@@ -87,7 +87,7 @@ public class RoleServiceTest extends ResetPostgres {
     assertThat(result).isEmpty();
 
     // Lookup the upper case account. They now have permissions to the program.
-    account = userRepository.lookupAccount(emailUpperCase).get();
+    account = userRepository.lookupAccountByEmail(emailUpperCase).get();
     assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
   }
 
@@ -176,9 +176,9 @@ public class RoleServiceTest extends ResetPostgres {
 
     service.removeProgramAdmins(toRemove.id(), ImmutableSet.of(emailOne, emailTwo));
 
-    assertThat(userRepository.lookupAccount(emailOne).get().getAdministeredProgramNames())
+    assertThat(userRepository.lookupAccountByEmail(emailOne).get().getAdministeredProgramNames())
         .isEmpty();
-    assertThat(userRepository.lookupAccount(emailTwo).get().getAdministeredProgramNames())
+    assertThat(userRepository.lookupAccountByEmail(emailTwo).get().getAdministeredProgramNames())
         .containsOnly(extraName);
   }
 
