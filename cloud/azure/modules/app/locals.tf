@@ -25,8 +25,8 @@ locals {
 
     # STAGING_HOSTNAME and BASE_URL are slot settings which are managed outside of Terraform
     # but we need to set an initial value for them here so that the ignore_changes block will work
-    STAGING_HOSTNAME="placeholder"
-    BASE_URL="placeholder"
+    STAGING_HOSTNAME = "placeholder"
+    BASE_URL         = "placeholder"
 
     AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
@@ -43,7 +43,7 @@ locals {
     SECRET_KEY = data.azurerm_key_vault_secret.app_secret_key.value
 
     ADFS_SECRET        = data.azurerm_key_vault_secret.adfs_secret.value
-    ADFS_CLIENT_ID     = data.azurerm_key_vault_secret.adfs_client_id.id.value
+    ADFS_CLIENT_ID     = data.azurerm_key_vault_secret.adfs_client_id.value
     ADFS_DISCOVERY_URI = data.azurerm_key_vault_secret.adfs_discovery_uri.value
 
     CIVIFORM_APPLICANT_IDP = var.civiform_applicant_idp
