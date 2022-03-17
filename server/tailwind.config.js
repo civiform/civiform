@@ -11,8 +11,6 @@ const STR_LITERAL = /["'][\.a-z0-9/:-]+["']/g
 
 const PREFIXES = [ 'even', 'focus', 'focus-within', 'hover', 'disabled', 'sm', 'md', 'lg', 'xl', '2xl', ]
 
-let processedTs = false;
-
 // Used to read Styles.java and ReferenceClasses.java to get dictionary mapping 
 // for all possible base styles (no prefixes)
 function addStyleDictMatches(matches, file_contents) {
@@ -54,56 +52,13 @@ function getStylesDict() {
 
 const styleDict = getStylesDict();
 
-function getStyles(output, code) {
-
-  let matchIter = code.match(STYLE_RGX)
-
-  if (matchIter) {
-    for (const tailwindClassId of matchIter) {
-      let tailwindClass = styleDict[tailwindClassId]
-      
-      if (tailwindClass !== undefined) {
-        output.push(tailwindClass)
-        // We don't know which, if any, of these prefixes are in use for any class in particular.
-        // We therefore have to use every combination of them.
-        for (const prefix of PREFIXES) {
-          output.push(prefix + ':' + tailwindClass)
-        }
-      }
-    }
-  }
-}
-
-function processTypescript(output) {
-  const assetsFolder = './app/assets/javascripts/';
-  let files = fs.readdirSync(assetsFolder);
-
-  // Just get every string literal
-  for (const f of files) {
-    let data = fs.readFileSync(assetsFolder + f, 'utf8').split('\n');
-    for (const line of data) {
-      matches = line.matchAll(STR_LITERAL);
-      for (m of matches) {
-        let mr = m[0].replace(/['"]+/g, '');
-        output.push(mr);
-      }
-    }
-  }
-}
-
-function processHtmlTags(output) {
-  // Its faster and easier to just manually push all html tags instead of parsing them in code
-  const htmlTags = fs.readFileSync('./htmltags.txt', 'utf8').split('\n');
-  for (const t of htmlTags) {
-    output.push(t);
-  }
-}
 
 module.exports = {
   purge: {
     enabled: true,
     content: [
       './app/views/**/*.java',
+      './app/assets/javascripts/*.ts',
     ],
     extract: {
       java: (content) => {
@@ -111,20 +66,24 @@ module.exports = {
       },
     },
     transform: {
-      java: (content) => {
+      java: (code) => {
         const output = [];
 
-        getStyles(output, content)
+        let matchIter = code.match(STYLE_RGX)
 
-        return output
-      },
-      ts: (content) => {
-        const output = [];
-
-        if (processedTs === false) {
-          processTypescript(output)
-          processHtmlTags(output)
-          processedTs = true;
+        if (matchIter) {
+          for (const tailwindClassId of matchIter) {
+            let tailwindClass = styleDict[tailwindClassId]
+            
+            if (tailwindClass !== undefined) {
+              output.push(tailwindClass)
+              // We don't know which, if any, of these prefixes are in use for any class in particular.
+              // We therefore have to use every combination of them.
+              for (const prefix of PREFIXES) {
+                output.push(prefix + ':' + tailwindClass)
+              }
+            }
+          }
         }
 
         return output
