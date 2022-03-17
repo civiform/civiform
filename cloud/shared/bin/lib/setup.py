@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from distutils.command.config import config
 import subprocess
 import sys
 
