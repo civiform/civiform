@@ -34,7 +34,7 @@ public class ApplicantTest extends ResetPostgres {
     applicant.getApplicantData().putString(path, "1/1/2021");
     applicant.save();
 
-    applicant = repo.lookupApplicantByEmail(applicant.id).toCompletableFuture().join().get();
+    applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
 
     assertThat(applicant.getApplicantData().readString(path)).hasValue("1/1/2021");
   }
@@ -49,7 +49,7 @@ public class ApplicantTest extends ResetPostgres {
     applicant.getApplicantData().setPreferredLocale(Locale.FRANCE);
     applicant.save();
 
-    applicant = repo.lookupApplicantByEmail(applicant.id).toCompletableFuture().join().get();
+    applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
 
     assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.FRANCE);
   }
@@ -59,7 +59,7 @@ public class ApplicantTest extends ResetPostgres {
     Applicant applicant = new Applicant();
     applicant.save();
 
-    applicant = repo.lookupApplicantByEmail(applicant.id).toCompletableFuture().join().get();
+    applicant = repo.lookupApplicant(applicant.id).toCompletableFuture().join().get();
 
     assertThat(applicant.getApplicantData().hasPreferredLocale()).isFalse();
   }

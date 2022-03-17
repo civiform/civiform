@@ -91,7 +91,7 @@ public class ApplicantServiceImpl implements ApplicantService {
   public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
       long applicantId, long programId) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
-        userRepository.lookupApplicantByEmail(applicantId).toCompletableFuture();
+        userRepository.lookupApplicant(applicantId).toCompletableFuture();
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getProgramDefinitionAsync(programId).toCompletableFuture();
 
@@ -153,7 +153,7 @@ public class ApplicantServiceImpl implements ApplicantService {
   private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
       long applicantId, long programId, String blockId, ImmutableSet<Update> updates) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
-        userRepository.lookupApplicantByEmail(applicantId).toCompletableFuture();
+        userRepository.lookupApplicant(applicantId).toCompletableFuture();
 
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getProgramDefinitionAsync(programId).toCompletableFuture();
@@ -321,7 +321,7 @@ public class ApplicantServiceImpl implements ApplicantService {
   @Override
   public CompletionStage<String> getName(long applicantId) {
     return userRepository
-        .lookupApplicantByEmail(applicantId)
+        .lookupApplicant(applicantId)
         .thenApplyAsync(
             applicant -> {
               if (applicant.isEmpty()) {
@@ -335,7 +335,7 @@ public class ApplicantServiceImpl implements ApplicantService {
   @Override
   public CompletionStage<Optional<String>> getEmail(long applicantId) {
     return userRepository
-        .lookupApplicantByEmail(applicantId)
+        .lookupApplicant(applicantId)
         .thenApplyAsync(
             applicant -> {
               if (applicant.isEmpty()) {

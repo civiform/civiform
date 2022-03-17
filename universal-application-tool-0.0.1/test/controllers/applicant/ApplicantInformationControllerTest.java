@@ -81,7 +81,7 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
 
     currentApplicant =
         userRepository
-            .lookupApplicantByEmail(currentApplicant.id)
+            .lookupApplicant(currentApplicant.id)
             .toCompletableFuture()
             .join()
             .get();
@@ -104,7 +104,7 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
 
     currentApplicant =
         userRepository
-            .lookupApplicantByEmail(currentApplicant.id)
+            .lookupApplicant(currentApplicant.id)
             .toCompletableFuture()
             .join()
             .get();
