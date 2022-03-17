@@ -8,8 +8,6 @@ import auth.oidc.InvalidOidcProfileException;
 import auth.saml.SamlCiviFormProfileAdapter;
 import io.ebean.DB;
 import io.ebean.Database;
-
-import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Provider;
 import models.Account;
@@ -86,7 +84,8 @@ public class ProfileMergeTest extends ResetPostgres {
   public void testProfileMerge_oidc_succeeds_authorityPreviouslyMissing() throws Exception {
     // Setup an Account, but clear the authority_id to simulate the migration from IDing accounts by
     // email to authority_id.
-    OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer to delete", "subject to delete");
+    OidcProfile oidcProfile =
+        createOidcProfile("foo@example.com", "issuer to delete", "subject to delete");
 
     CiviFormProfileData existingProfileWithoutAuthority =
         idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
@@ -96,7 +95,8 @@ public class ProfileMergeTest extends ResetPostgres {
     account.save();
 
     // Setup the expected OIDC state with authority_id data.
-    OidcProfile oidcProfileWithAuthority = createOidcProfile("foo@example.com", "issuer", "subject");
+    OidcProfile oidcProfileWithAuthority =
+        createOidcProfile("foo@example.com", "issuer", "subject");
 
     CiviFormProfile mergedProfile =
         profileFactory.wrapProfileData(
@@ -193,7 +193,8 @@ public class ProfileMergeTest extends ResetPostgres {
   @Test
   public void testProfileMerge_oidc_fails_differentAuthoritySubject() {
     OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer", "subject");
-    OidcProfile conflictingProfile = createOidcProfile("foo@example.com", "issuer", "a different subject");
+    OidcProfile conflictingProfile =
+        createOidcProfile("foo@example.com", "issuer", "a different subject");
 
     CiviFormProfileData profileData =
         idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
@@ -208,7 +209,8 @@ public class ProfileMergeTest extends ResetPostgres {
   @Test
   public void testProfileMerge_oidc_fails_differentAuthorityIssuer() {
     OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer", "subject");
-    OidcProfile conflictingProfile = createOidcProfile("foo@example.com", "a different issuer", "subject");
+    OidcProfile conflictingProfile =
+        createOidcProfile("foo@example.com", "a different issuer", "subject");
 
     CiviFormProfileData profileData =
         idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
