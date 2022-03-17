@@ -8,6 +8,8 @@ import auth.oidc.InvalidOidcProfileException;
 import auth.saml.SamlCiviFormProfileAdapter;
 import io.ebean.DB;
 import io.ebean.Database;
+
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Provider;
 import models.Account;
@@ -59,12 +61,17 @@ public class ProfileMergeTest extends ResetPostgres {
             });
   }
 
+  private OidcProfile createOidcProfile(String email, String issuer, String subject) {
+    OidcProfile profile = new OidcProfile();
+    profile.addAttribute("user_emailid", email);
+    profile.addAttribute("iss", issuer);
+    profile.setId(subject);
+    return profile;
+  }
+
   @Test
   public void testProfileCreation() throws ExecutionException, InterruptedException {
-    OidcProfile oidcProfile = new OidcProfile();
-    oidcProfile.addAttribute("user_emailid", "foo@example.com");
-    oidcProfile.addAttribute("iss", "issuer");
-    oidcProfile.setId("subject");
+    OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
         idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
@@ -77,13 +84,9 @@ public class ProfileMergeTest extends ResetPostgres {
 
   @Test
   public void testProfileMerge_oidc_succeeds_authorityPreviouslyMissing() throws Exception {
-
     // Setup an Account, but clear the authority_id to simulate the migration from IDing accounts by
     // email to authority_id.
-    OidcProfile oidcProfile = new OidcProfile();
-    oidcProfile.addAttribute("user_emailid", "foo@example.com");
-    oidcProfile.addAttribute("iss", "issuer to delete");
-    oidcProfile.setId("subject to delete");
+    OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer to delete", "subject to delete");
 
     CiviFormProfileData existingProfileWithoutAuthority =
         idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
@@ -93,10 +96,7 @@ public class ProfileMergeTest extends ResetPostgres {
     account.save();
 
     // Setup the expected OIDC state with authority_id data.
-    OidcProfile oidcProfileWithAuthority = new OidcProfile();
-    oidcProfileWithAuthority.addAttribute("user_emailid", "foo@example.com");
-    oidcProfileWithAuthority.addAttribute("iss", "issuer");
-    oidcProfileWithAuthority.setId("subject");
+    OidcProfile oidcProfileWithAuthority = createOidcProfile("foo@example.com", "issuer", "subject");
 
     CiviFormProfile mergedProfile =
         profileFactory.wrapProfileData(
@@ -109,10 +109,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
   @Test
   public void testProfileMerge_oidc_succeeds() {
-    OidcProfile oidcProfile = new OidcProfile();
-    oidcProfile.addAttribute("user_emailid", "foo@example.com");
-    oidcProfile.addAttribute("iss", "issuer");
-    oidcProfile.setId("subject");
+    OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
         idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
@@ -126,10 +123,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
   @Test
   public void testProfileMerge_fails_noUserEmailid() {
-    OidcProfile oidcProfile = new OidcProfile();
-    oidcProfile.addAttribute("user_emailid", "foo@example.com");
-    oidcProfile.addAttribute("iss", "issuer");
-    oidcProfile.setId("subject");
+    OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer", "subject");
 
     OidcProfile newProfile = new OidcProfile();
     newProfile.addAttribute("iss", "issuer");
@@ -147,10 +141,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
   @Test
   public void testProfileMerge_fails_noSubject() {
-    OidcProfile oidcProfile = new OidcProfile();
-    oidcProfile.addAttribute("user_emailid", "foo@example.com");
-    oidcProfile.addAttribute("iss", "issuer");
-    oidcProfile.setId("subject");
+    OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer", "subject");
 
     OidcProfile newProfile = new OidcProfile();
     newProfile.addAttribute("user_emailid", "foo@example.com");
@@ -168,10 +159,7 @@ public class ProfileMergeTest extends ResetPostgres {
 
   @Test
   public void testProfileMerge_fails_noIssuer() {
-    OidcProfile oidcProfile = new OidcProfile();
-    oidcProfile.addAttribute("user_emailid", "foo@example.com");
-    oidcProfile.addAttribute("iss", "issuer");
-    oidcProfile.setId("subject");
+    OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer", "subject");
 
     OidcProfile newProfile = new OidcProfile();
     newProfile.addAttribute("user_emailid", "foo@example.com");
@@ -189,15 +177,8 @@ public class ProfileMergeTest extends ResetPostgres {
 
   @Test
   public void testProfileMerge_fails_emailsDoNotMatch() {
-    OidcProfile oidcProfile = new OidcProfile();
-    oidcProfile.addAttribute("user_emailid", "foo@example.com");
-    oidcProfile.addAttribute("iss", "issuer");
-    oidcProfile.setId("subject");
-
-    OidcProfile conflictingProfile = new OidcProfile();
-    conflictingProfile.addAttribute("user_emailid", "bar@example.com");
-    conflictingProfile.addAttribute("iss", "issuer");
-    conflictingProfile.setId("subject");
+    OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer", "subject");
+    OidcProfile conflictingProfile = createOidcProfile("bar@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
         idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
@@ -211,15 +192,8 @@ public class ProfileMergeTest extends ResetPostgres {
 
   @Test
   public void testProfileMerge_oidc_fails_differentAuthoritySubject() {
-    OidcProfile oidcProfile = new OidcProfile();
-    oidcProfile.addAttribute("user_emailid", "foo@example.com");
-    oidcProfile.addAttribute("iss", "issuer");
-    oidcProfile.setId("subject");
-
-    OidcProfile conflictingProfile = new OidcProfile();
-    conflictingProfile.addAttribute("user_emailid", "bar@example.com");
-    conflictingProfile.addAttribute("iss", "issuer");
-    conflictingProfile.setId("a different subject");
+    OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer", "subject");
+    OidcProfile conflictingProfile = createOidcProfile("foo@example.com", "issuer", "a different subject");
 
     CiviFormProfileData profileData =
         idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
@@ -233,15 +207,8 @@ public class ProfileMergeTest extends ResetPostgres {
 
   @Test
   public void testProfileMerge_oidc_fails_differentAuthorityIssuer() {
-    OidcProfile oidcProfile = new OidcProfile();
-    oidcProfile.addAttribute("user_emailid", "foo@example.com");
-    oidcProfile.addAttribute("iss", "issuer");
-    oidcProfile.setId("subject");
-
-    OidcProfile conflictingProfile = new OidcProfile();
-    conflictingProfile.addAttribute("user_emailid", "bar@example.com");
-    conflictingProfile.addAttribute("iss", "a different issuer");
-    conflictingProfile.setId("subject");
+    OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer", "subject");
+    OidcProfile conflictingProfile = createOidcProfile("foo@example.com", "a different issuer", "subject");
 
     CiviFormProfileData profileData =
         idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
