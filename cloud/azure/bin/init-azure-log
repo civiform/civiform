@@ -4,6 +4,8 @@ set -e
 
 source "cloud/azure/bin/lib.sh"
 
+storage::assign_storage_account_contributor_role_to_user "${AZURE_RESOURCE_GROUP}"
+
 if ! azure_log::log_file_exists; then
     azure_log::initialize_log_file
 fi

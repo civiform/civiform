@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
 readonly BLOB_DATA_CONTRIBUTOR_GUID="ba92f5b4-2d11-453d-a403-e96b0029c9fe"
+readonly STORAGE_ACCOUNT_CONTRIBUTOR_GUID="17d1049b-9a84-46fb-8f53-869881c3d3ab"
 
 #######################################
 # Assign the role 'Storage Blob Data Contributor' to the current user
@@ -17,6 +18,27 @@ function storage::assign_storage_blob_data_contributor_role_to_user() {
   else
     az role assignment create \
       --role  "${BLOB_DATA_CONTRIBUTOR_GUID}" \
+      --scope "subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${1}" \
+      --assignee-object-id "${USER_ID}" \
+      --assignee-principal-type "User"
+  fi
+}
+
+#######################################
+# Assign the role 'Storage Account Contributor' to the current user
+# Arguments:
+#   1. The resource group to scope the role assignment to
+#######################################
+function storage::assign_storage_account_contributor_role_to_user() {
+  local USER_ID="$(az ad signed-in-user show --query objectId -o tsv)"
+  local SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
+  local ROLE_ASSIGNMENTS="$(az role assignment list --assignee ${USER_ID} --resource-group ${1})"
+
+  if echo "${ROLE_ASSIGNMENTS}" | grep -q "Storage Account Contributor"; then
+    echo "Current user already has Storage Blob Data Contributor role"
+  else
+    az role assignment create \
+      --role  "${STORAGE_ACCOUNT_CONTRIBUTOR_GUID}" \
       --scope "subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${1}" \
       --assignee-object-id "${USER_ID}" \
       --assignee-principal-type "User"
