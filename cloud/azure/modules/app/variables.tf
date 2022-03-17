@@ -24,7 +24,6 @@ variable "docker_repository_name" {
 variable "image_tag_name" {
   type        = string
   description = "Tag for container image"
-  default     = "latest"
 }
 
 variable "location_name" {

@@ -86,9 +86,6 @@ class ConfigLoader:
     def get_cloud_provider(self):
         return self.configs.get("CIVIFORM_CLOUD_PROVIDER")
 
-    def get_email_sender(self):
-        return self.configs.get("EMAIL_SENDER")
-    
     def get_template_dir(self):
         return self.configs.get("TERRAFORM_TEMPLATE_DIR")
     

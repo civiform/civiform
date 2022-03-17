@@ -9,6 +9,11 @@ variable "postgres_admin_login" {
   default     = "psqladmin"
 }
 
+variable "docker_tag" {
+  type        = string
+  description = "Tag for docker image to deploy"
+}
+
 variable "application_name" {
   type        = string
   description = "Azure Web App Name"
