@@ -5,10 +5,7 @@ const RGX_KEY = /(?<= +public +static +final +String +)([0-9A-Z_]+)/g
 const RGX_VAL =
   /(?<= +public +static +final +String +[0-9A-Z_]+ += +")([a-z0-9-/]+)/g
 
-//const STYLE_RGX = /(?<=(Styles|ReferenceClasses)\.[0-9A-Z_]+)(/g
 const STYLE_RGX = /(?<=(Styles|ReferenceClasses)\.)([0-9A-Z_]+)/g
-
-const STR_LITERAL = /["'][\.a-z0-9/:-]+["']/g
 
 const PREFIXES = [
   'even',
@@ -68,6 +65,7 @@ const styleDict = getStylesDict()
 module.exports = {
   purge: {
     enabled: true,
+    // Files we process to identify which styles are being used
     content: ['./app/views/**/*.java', './app/assets/javascripts/*.ts'],
     extract: {
       java: (content) => {
@@ -75,6 +73,8 @@ module.exports = {
       },
     },
     transform: {
+      // Our routine to process java code. It seems like tailwind has a builtin routine
+      // that processes the typescript code in the `content` var so we dont need to add one
       java: (code) => {
         const output = []
 
@@ -87,7 +87,7 @@ module.exports = {
             if (tailwindClass !== undefined) {
               output.push(tailwindClass)
               // We don't know which, if any, of these prefixes are in use for any class in particular.
-              // We therefore have to use every combination of them.
+              // We therefore use every combination of them.
               for (const prefix of PREFIXES) {
                 output.push(prefix + ':' + tailwindClass)
               }
