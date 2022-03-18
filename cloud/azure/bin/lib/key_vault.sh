@@ -115,7 +115,7 @@ function key_vault::has_secret() {
     --vault-name "${1}" \
     --name "${2}" \
     --query value \
-    -o tsv)"
+    -o tsv 2>&1 >/dev/null)"
   
   echo "${SECRET_RESULT}" | grep -q -v "SecretNotFound"
 }
