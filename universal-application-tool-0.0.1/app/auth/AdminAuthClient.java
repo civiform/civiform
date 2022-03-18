@@ -6,7 +6,7 @@ import javax.inject.Qualifier;
 
 /**
  * AdminAuthClient is the annotation for the auth client responsible for admin authentication. This
- * client must implement IndirectClient -> {@link org.pac4j.core.client.IndirectClient}.
+ * client must implement {@link org.pac4j.core.client.IndirectClient}.
  */
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)

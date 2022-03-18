@@ -73,27 +73,38 @@ public class LoginController extends Controller {
       // Default to IDCS.
       idp = AuthIdentityProviderName.IDCS_APPLICANT.toString();
     }
-    // This register behavior is specific to IDCS. Because this is only being called when we know
-    // IDCS is available, it should technically never go into the second flow.
-    if (idp.equals(AuthIdentityProviderName.IDCS_APPLICANT.toString())) {
-      String registerUrl = null;
-      try {
-        registerUrl = config.getString("idcs.register_uri");
-      } catch (ConfigException.Missing e) {
-        // leave it as null / empty.
-      }
-      if (Strings.isNullOrEmpty(registerUrl)) {
-        return badRequest("Registration is not enabled.");
-      }
-      // Redirect to the registration URL - then, when the user visits the site again, automatically
-      // log them in.
-      return redirect(registerUrl)
-          .addingToSession(
-              request,
-              REDIRECT_TO_SESSION_KEY,
-              routes.LoginController.applicantLogin(Optional.empty()).url());
+
+    boolean isIDCS = idp.equals(AuthIdentityProviderName.IDCS_APPLICANT.toString());
+
+    // Because this is only being called when we know IDCS is available, this route should
+    // technically
+    // never happen.
+    if (!isIDCS) {
+      return login(request, applicantClient);
     }
-    return login(request, applicantClient);
+
+    return idcsRegister(request);
+  }
+
+  // IDCS has specific register behavior that is different from other IDPs, which have the register
+  // option on the same screen as the login page.
+  private Result idcsRegister(Http.Request request) {
+    String registerUrl = null;
+    try {
+      registerUrl = config.getString("idcs.register_uri");
+    } catch (ConfigException.Missing e) {
+      // leave it as null / empty.
+    }
+    if (Strings.isNullOrEmpty(registerUrl)) {
+      return badRequest("Registration is not enabled.");
+    }
+    // Redirect to the registration URL - then, when the user visits the site again, automatically
+    // log them in.
+    return redirect(registerUrl)
+        .addingToSession(
+            request,
+            REDIRECT_TO_SESSION_KEY,
+            routes.LoginController.applicantLogin(Optional.empty()).url());
   }
 
   // Logic taken from org.pac4j.play.deadbolt2.Pac4jHandler.beforeAuthCheck.

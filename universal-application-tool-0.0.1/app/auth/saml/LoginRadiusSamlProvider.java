@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.ProfileFactory;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import java.util.IllegalFormatException;
 import java.util.Optional;
 import javax.inject.Provider;
@@ -69,16 +70,18 @@ public class LoginRadiusSamlProvider implements Provider<SAML2Client> {
   }
 
   private Optional<String> formatMetadataResourceUrl() {
-    String metadataResourceUrl;
     try {
-      metadataResourceUrl =
+      String metadataResourceUrl =
           String.format(
               "%s?apikey=%s&appName=%s",
               configuration.getString("login_radius.metadata_uri"),
               configuration.getString("login_radius.api_key"),
               configuration.getString("login_radius.saml_app_name"));
       return Optional.of(metadataResourceUrl);
-    } catch (IllegalFormatException | NullPointerException e) {
+    } catch (IllegalFormatException
+        | NullPointerException
+        | ConfigException.Missing
+        | ConfigException.WrongType e) {
       return Optional.empty();
     }
   }
