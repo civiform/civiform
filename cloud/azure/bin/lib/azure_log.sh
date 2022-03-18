@@ -52,7 +52,8 @@ function azure_log::upload_log_file() {
     --account-name "${AZURE_LOG_STORAGE_ACCOUNT_NAME}" \
     --container-name "${AZURE_LOG_CONTAINER_NAME}" \
     --name "${AZURE_LOG_FILE_NAME}" \
-    --file "${LOG_TEMPFILE}"
+    --file "${LOG_TEMPFILE}" \
+    --overwrite "true"
   echo "Done uploading deployment log file."
 
   rm "${LOG_TEMPFILE}"
