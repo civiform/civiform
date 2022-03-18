@@ -104,7 +104,10 @@ function azure_log::initialize_log_file() {
     --name "${AZURE_LOG_CONTAINER_NAME}"
   echo "Done creating deploy log storage container."
 
-  echo "Granting current user access deploy log storage account..."
+  echo "Granting current user access to deploy log storage account..."
+
+  storage::assign_storage_account_contributor_role_to_user "${AZURE_RESOURCE_GROUP}"
+
   local CURRENT_USER_ID="$(az ad signed-in-user show --query objectId -o tsv)"
   az role assignment create \
     --role "Storage Blob Data Contributor" \
