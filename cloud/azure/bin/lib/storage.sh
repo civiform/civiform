@@ -86,5 +86,6 @@ function storage::upload_blob {
   az storage blob upload \
     --account-name "${1}" \
     --container-name "${2}" \
-    --file "${3}"
+    --file "${3}" \
+    --overwrite "true"
 }
