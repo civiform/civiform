@@ -69,7 +69,7 @@ try:
         f"-chdir={template_dir}", 
         "init", 
     ]
-    if not config_loader.use_backend_config():
+    if config_loader.use_backend_config():
         terraform_init_args.append(f"-backend-config={config_loader.backend_vars_filename}")
 
     subprocess.check_call(terraform_init_args)
