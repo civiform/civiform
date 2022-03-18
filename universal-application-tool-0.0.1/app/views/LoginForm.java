@@ -90,7 +90,8 @@ public class LoginForm extends BaseHtmlView {
             .with(p(civicEntityShortName).withClasses(Styles.FONT_BOLD))
             .with(p("CiviForm")));
 
-    String loginMessage = messages.at(MessageKey.CONTENT_LOGIN_PROMPT.getKeyName());
+    String loginMessage =
+        messages.at(MessageKey.CONTENT_LOGIN_PROMPT.getKeyName(), civicEntityFullName);
     content.with(
         div()
             .withClasses(

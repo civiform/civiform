@@ -41,8 +41,8 @@ validation.isRequired=This question is required.
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
-# Prompt for applicant to log in
-content.loginPrompt=Please log in with your City of Seattle account
+# Prompt for applicant to log in, input is the full civic entity name.
+content.loginPrompt=Please log in with your {0} account
 
 # The text on the button an applicant clicks to log in to their session.
 button.login=Log in
