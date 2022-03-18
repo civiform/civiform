@@ -2,7 +2,6 @@
 
 set -e
 
-export PROJECT_BASE_DIR="$(realpath "$(dirname "${BASH_SOURCE}")/../../../")"
-"${PROJECT_BASE_DIR}/cloud/shared/bin/validate_cloud_provider"
+cloud/shared/bin/validate_cloud_provider
 
-exec "${PROJECT_BASE_DIR}/cloud/${CLOUD_PROVIDER}/bin/deploy" "$@"
+exec "cloud/${CLOUD_PROVIDER}/bin/deploy" "$@"
