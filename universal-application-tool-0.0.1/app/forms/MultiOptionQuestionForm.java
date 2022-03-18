@@ -162,7 +162,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
               optionIds.get(i), i, LocalizedStrings.withDefaultValue(options.get(i))));
       // The IDs are not guaranteed to be in any type of order, so doing this ensures that we find
       // the largest ID in the list and accurately set the next largest.
-      if (optionIds.get(i) > nextAvailableId.orElse(0L)) {
+      if (optionIds.get(i) == nextAvailableId.orElse(0L)) {
         setNextAvailableId(optionIds.get(i) + 1);
       }
     }
