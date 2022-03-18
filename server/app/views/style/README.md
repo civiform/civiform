@@ -13,14 +13,14 @@ by parsing our code for calls to styles in style definition files with regex.
 
 The list of all possible tailwind style literals are in Styles.java and ReferenceClasses.java
 
-## The constraints 
+## The constraints
 
 - If tailwind style literals are added to any other file they will not be registered unless that file is added
   in the tailwind.config.js
 
-- If not obvious already, *fields in any styles definition files which are assigned with string literals can only have uppercase letters, 
-	numbers, and underscores.* In other words, they should match the /[0-9A-Z_]+/ regular expression, otherwise they will not 
-	show up in the final CSS style file without modifying the parse code
+- If not obvious already, _fields in any styles definition files which are assigned with string literals can only have uppercase letters,
+  numbers, and underscores._ In other words, they should match the /[0-9A-Z_]+/ regular expression, otherwise they will not
+  show up in the final CSS style file without modifying the parse code
 
 - Though it is legal in Java to have a a field declaraion span multiple lines, doing so in Styles.java or ReferencesClasses.java
   will break the ability to parse those specific lines
@@ -31,5 +31,5 @@ The final CSS file is `/universal-application-tool-0.0.1/public/stylesheets/tail
 
 Our regex parsing happens in `/universal-application-tool-0.0.1/tailwind.config.js`
 
-You can refresh the styles by running `./bin/refresh-styles` or restarting the server. This probably needs to happen every time 
+You can refresh the styles by running `./bin/refresh-styles` or restarting the server. This probably needs to happen every time
 you make a change to which styles are being called in the code

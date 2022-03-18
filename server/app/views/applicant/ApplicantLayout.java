@@ -33,7 +33,6 @@ import views.LanguageSelector;
 import views.ViewUtils;
 import views.html.helper.CSRF;
 import views.style.ApplicantStyles;
-import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 

@@ -22,7 +22,6 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.TextFormatter;
 import views.style.ApplicantStyles;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
