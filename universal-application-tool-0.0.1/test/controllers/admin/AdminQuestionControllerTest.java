@@ -10,7 +10,6 @@ import static play.test.Helpers.contentAsString;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import forms.DropdownQuestionForm;
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -252,9 +251,9 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   public void update_setsIdsAsExpected() {
     DropdownQuestionDefinition definition =
         new DropdownQuestionDefinition(
-            "applicant ice cream",
-            Optional.empty(),
-            "Select your favorite ice cream flavor",
+            /* name= */ "applicant ice cream",
+            /* enumeratorId= */ Optional.empty(),
+            /* description= */ "Select your favorite ice cream flavor",
             LocalizedStrings.of(Locale.US, "Ice cream?", Locale.FRENCH, "crème glacée?"),
             LocalizedStrings.of(Locale.US, "help", Locale.FRENCH, "aider"),
             ImmutableList.of(
@@ -269,13 +268,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     // We can only update draft questions, so save this in the DRAFT version.
     testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
 
-    ArrayList<String> newOptions = new ArrayList<>();
-    newOptions.add("cookie");
-    newOptions.add("mint");
-    newOptions.add("pistachio");
-
     DropdownQuestionForm questionForm = new DropdownQuestionForm(definition);
-    questionForm.setNewOptions(newOptions);
+    questionForm.setNewOptions(ImmutableList.of("cookie", "mint", "pistachio"));
 
     questionForm.getBuilder();
 
