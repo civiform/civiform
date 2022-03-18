@@ -15,9 +15,9 @@ and then update the azure app service to point to the local image.
 This should take like 30 minutes (the push takes the longest).
 
 ```
-docker build -f prod.Dockerfile -t <DOCKER_TAG> --cache-from docker.io/civiform/civiform-browser-test:latest --build-arg BUILDKIT_INLINE_CACHE=1 .
-docker tag <DOCKER_TAG> <DOCKER_USERNAME>/<DOCKER_REPO_NAME>:<DOCKER_TAG>
-docker push <DOCKER_USERNAME>/<DOCKER_REPO_NAME>:<DOCKER_TAG>
+docker build -f prod.Dockerfile -t <IMAGE_TAG> --cache-from docker.io/civiform/civiform-browser-test:latest --build-arg BUILDKIT_INLINE_CACHE=1 .
+docker tag <IMAGE_TAG> <DOCKER_USERNAME>/<DOCKER_REPO_NAME>:<IMAGE_TAG>
+docker push <DOCKER_USERNAME>/<DOCKER_REPO_NAME>:<IMAGE_TAG>
 ```
 
 ## 2. Update the image name/tag for your remote azure deploy
@@ -37,4 +37,4 @@ deploy via `terraform apply`
 ### Update via the azure portal
 Within the app service resource, you can select Deployment Center, and within
 the registry settings change the 'Full Image Name and Tag' to be 
-`<DOCKER_USERNAME>/<DOCKER_REPO_NAME>:<DOCKER_TAG>`
+`<DOCKER_USERNAME>/<DOCKER_REPO_NAME>:<IMAGE_TAG>`

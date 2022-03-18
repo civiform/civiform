@@ -22,13 +22,13 @@ class Setup:
     
     def pre_terraform_setup(self):         
         self._create_ssh_keyfile()
-        self._setup_resource_group()
         self._setup_shared_state()
         self._setup_keyvault()
         self._setup_saml_keystore()
         self._setup_ses()    
     
     def setup_log_file(self):
+        self._setup_resource_group()
         _, self.log_file_path = tempfile.mkstemp()
         subprocess.run([
             "cloud/azure/bin/init-azure-log", self.log_file_path
