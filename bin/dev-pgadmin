@@ -1,0 +1,40 @@
+#! /usr/bin/env bash
+
+# DOC: Loads the pgadmin gui tool and connects to the dev environment database
+
+source bin/lib.sh
+
+docker::set_network_name_dev
+
+# The servers.json file is used to automatically configure 
+# our database to show up in the pgadmin server tree
+tee /tmp/servers.json > /dev/null <<EOT
+{
+    "Servers": {
+        "1": {
+            "Name": "localhost",
+            "Group": "Servers",
+            "Host": "db",
+            "Port": 5432,
+            "MaintenanceDB": "postgres",
+            "Username": "postgres",
+            "SSLMode": "prefer"
+        }
+    }
+}
+EOT
+
+docker rm --force pgadmin
+
+docker run \
+  --name pgadmin \
+  -p 8012:80 \
+  --network "${DOCKER_NETWORK_NAME}" \
+  -e 'PGADMIN_DEFAULT_EMAIL=user@localhost.localdomain' \
+  -e 'PGADMIN_DEFAULT_PASSWORD=password' \
+  -e 'PGADMIN_CONFIG_SERVER_MODE=False' \
+  -e 'PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False' \
+  -v /tmp/servers.json:/pgadmin4/servers.json \
+  -d dpage/pgadmin4 
+
+echo "Running pgadmin at http://localhost:8012"
