@@ -47,8 +47,14 @@ class Check():
         except FileNotFoundError:
             return None
 
+    def _get_cloud_provider(self):
+        return os.environ.get('CIVIFORM_CLOUD_PROVIDER', "").lower()
+
 class DockerCheck(Check):
     remedy = "Need to install Docker CLI: https://docs.docker.com/engine/install/"
+
+    def should_skip(self):
+        return self._get_cloud_provider() == 'azure'
 
     def name(self):
         return "Docker CLI"
@@ -113,7 +119,7 @@ class AwsCliCheck(Check):
         return "AWS CLI"
 
     def should_skip(self):
-        return os.environ.get('CIVIFORM_CLOUD_PROVIDER', "").lower() not in ['aws', 'azure']
+        return self._get_cloud_provider() in ['aws', 'azure']
 
     def is_ok(self):
         return self._check_command_succeeds(["aws", "help"])
@@ -128,7 +134,7 @@ class AzureCliCheck(Check):
         return "Azure CLI"
 
     def should_skip(self):
-        return os.environ.get('CIVIFORM_CLOUD_PROVIDER', "").lower() != "azure"
+        return self._get_cloud_provider() != "azure"
 
     def is_ok(self):
         return self._check_command_succeeds(["az"])
@@ -144,7 +150,7 @@ class AwsLoginCheck(Check):
         return "AWS login"
 
     def should_skip(self):
-        return os.environ.get('CIVIFORM_CLOUD_PROVIDER', "").lower() not in ['aws', 'azure']
+        return self._get_cloud_provider() not in ['aws', 'azure']
 
     def is_ok(self):
         output = self._get_command_output(["aws", "configure", "list-profiles"])
@@ -162,7 +168,7 @@ class AzureLoginCheck(Check):
         return "Azure login"
 
     def should_skip(self):
-        return os.environ.get('CIVIFORM_CLOUD_PROVIDER', "").lower() != "azure"
+        return self._get_cloud_provider() != "azure"
 
     def is_ok(self):
         return self._check_command_succeeds(["az", "ad", "signed-in-user", "show"])
