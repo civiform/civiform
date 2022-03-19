@@ -114,6 +114,24 @@
     "secret": false,
     "type": "string"
   },
+  "CIVIC_ENTITY_FULL_NAME ": {
+    "required": true,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "CIVIC_ENTITY_SHORT_NAME ": {
+    "required": true,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "CIVIC_ENTITY_SUPPORT_EMAIL_ADDRESS": {
+    "required": true,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
   "KEY_VAULT_NAME": {
     "required": true,
     "secret": false,

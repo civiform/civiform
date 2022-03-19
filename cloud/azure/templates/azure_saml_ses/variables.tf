@@ -3,6 +3,21 @@ variable "azure_resource_group" {
   description = "Name of the resource group where key vault is already created."
 }
 
+variable civic_entity_short_name {
+  type = string
+  description = "Short name for civic entity (example: Rochester, Seattle)."
+}
+
+variable civic_entity_full_name {
+  type = string
+  description = "Full name for civic entity (example: City of Rochester, City of Seattle)."
+}
+
+variable civic_entity_support_email_address {
+  type = string
+  description = "Email address where applicants can contact civic entity for support with Civiform."
+}
+
 variable "postgres_admin_login" {
   type        = string
   description = "Postgres admin login"

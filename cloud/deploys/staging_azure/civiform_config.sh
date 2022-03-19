@@ -1,5 +1,8 @@
 export CIVIFORM_CLOUD_PROVIDER="azure"
 export CIVIFORM_MODE="staging"
+export CIVIC_ENTITY_SHORT_NAME="Seattle"
+export CIVIC_ENTITY_FULL_NAME="City of Seattle"
+export CIVIC_ENTITY_SUPPORT_EMAIL_ADDRESS="CiviForm@seattle.gov"
 export EMAIL_SENDER="ses"
 export ADMIN_AUTH_PROVIDER="activeDirectory"
 export ADMIN_AUTH_FORMAT="OIDC"

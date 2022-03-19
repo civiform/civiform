@@ -37,6 +37,10 @@ module "app" {
   staging_ti_notification_mailing_list            = var.staging_ti_notification_mailing_list
   staging_applicant_notification_mailing_list     = var.staging_applicant_notification_mailing_list
 
+  civic_entity_short_name = var.civic_entity_short_name
+  civic_entity_full_name = var.civic_entity_full_name
+  civic_entity_support_email_address = var.civic_entity_support_email_address
+
   adfs_admin_group = var.adfs_admin_group
 
   login_radius_api_key       = var.login_radius_api_key
