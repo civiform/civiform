@@ -344,7 +344,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     questionForm.getBuilder();
 
     assertThat(questionForm.getNextAvailableId()).isPresent();
-    assertThat(questionForm.getNextAvailableId().getAsLong()).isEqualTo(6L);
+    assertThat(questionForm.getNextAvailableId().getAsLong()).isEqualTo(5L);
   }
 
   @Test
