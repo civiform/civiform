@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableMap;
 import forms.DropdownQuestionForm;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.OptionalLong;
 import models.LifecycleStage;
 import models.Question;
 import org.junit.Before;
@@ -274,7 +273,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     questionForm.getBuilder();
 
     assertThat(questionForm.getNextAvailableId()).isPresent();
-    assertThat(questionForm.getNextAvailableId()).isEqualTo(OptionalLong.of(8));
+    assertThat(questionForm.getNextAvailableId().getAsLong()).isEqualTo(8L);
   }
 
   @Test
@@ -339,6 +338,13 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             QuestionOption.create(5, 2, LocalizedStrings.withDefaultValue("lavender")));
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
+
+    DropdownQuestionForm questionForm =
+        new DropdownQuestionForm((DropdownQuestionDefinition) definition);
+    questionForm.getBuilder();
+
+    assertThat(questionForm.getNextAvailableId()).isPresent();
+    assertThat(questionForm.getNextAvailableId().getAsLong()).isEqualTo(6L);
   }
 
   @Test

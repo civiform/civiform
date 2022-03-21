@@ -25,7 +25,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   // The IDs of each option are not expected to be in any particular order.
   private List<Long> optionIds;
   // This value is the max existing ID + 1. The max ID will not necessarily be the last one in the
-  // optionIds list,we do not store options by order of their IDs.
+  // optionIds list, we do not store options by order of their IDs.
   private OptionalLong nextAvailableId;
   private OptionalInt minChoicesRequired;
   private OptionalInt maxChoicesAllowed;
@@ -160,12 +160,12 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
       questionOptionsBuilder.add(
           QuestionOption.create(
               optionIds.get(i), i, LocalizedStrings.withDefaultValue(options.get(i))));
-      // The IDs are not guaranteed to be in any type of order, so doing this ensures that we find
-      // the largest ID in the list and accurately set the next largest.
-      if (optionIds.get(i) == nextAvailableId.orElse(0L)) {
-        setNextAvailableId(optionIds.get(i) + 1);
-      }
     }
+
+    // The IDs are not guaranteed to be in any type of order, so doing this ensures that we find
+    // the largest ID in the list and accurately set the next largest.
+    Long maxId = optionIds.stream().max(Long::compareTo).orElse(0L);
+    setNextAvailableId(maxId);
 
     for (int i = 0; i < newOptions.size(); i++) {
       questionOptionsBuilder.add(
@@ -178,7 +178,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
     // Sets the next available ID as the previous ID + the size of new options, since each new
     // option ID is assigned in order.
-    setNextAvailableId(nextAvailableId.orElse(0L) + newOptions.size());
+    setNextAvailableId(nextAvailableId.getAsLong() + newOptions.size());
 
     return super.getBuilder()
         .setQuestionOptions(questionOptions)

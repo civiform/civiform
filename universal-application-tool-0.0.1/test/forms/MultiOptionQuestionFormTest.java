@@ -95,7 +95,7 @@ public class MultiOptionQuestionFormTest {
   }
 
   @Test
-  public void getBuilder_setsNextIdCorrectly() throws Exception {
+  public void getBuilder_setsNextIdCorrectly_initialOptions() throws Exception {
     MultiOptionQuestionForm form = new DropdownQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
@@ -120,12 +120,13 @@ public class MultiOptionQuestionFormTest {
     form.setQuestionHelpText("help text");
     form.setMinChoicesRequired("");
     form.setMaxChoicesAllowed("");
+    // Add two existing options with IDs 1 and 2
     form.setOptions(ImmutableList.of("one", "two"));
-    form.setOptionIds(ImmutableList.of(4L, 1L));
+    form.setOptionIds(ImmutableList.of(1L, 2L));
     form.setNewOptions(ImmutableList.of("three", "four"));
 
     form.getBuilder();
 
-    assertThat(form.getNextAvailableId()).isEqualTo(OptionalLong.of(7));
+    assertThat(form.getNextAvailableId()).isEqualTo(OptionalLong.of(5));
   }
 }
