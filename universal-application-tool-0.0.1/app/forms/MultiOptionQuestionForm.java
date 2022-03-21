@@ -165,7 +165,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     // The IDs are not guaranteed to be in any type of order, so doing this ensures that we find
     // the largest ID in the list and accurately set the next largest.
     Long maxId = optionIds.stream().max(Long::compareTo).orElse(0L);
-    setNextAvailableId(maxId);
+    setNextAvailableId(maxId + 1);
 
     for (int i = 0; i < newOptions.size(); i++) {
       questionOptionsBuilder.add(
