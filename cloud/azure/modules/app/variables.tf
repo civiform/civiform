@@ -9,6 +9,31 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "civic_entity_short_name" {
+  type        = string
+  description = "Short name for civic entity (example: Rochester, Seattle)."
+}
+
+variable "civic_entity_full_name" {
+  type        = string
+  description = "Full name for civic entity (example: City of Rochester, City of Seattle)."
+}
+
+variable "civic_entity_support_email_address" {
+  type        = string
+  description = "Email address where applicants can contact civic entity for support with Civiform."
+}
+
+variable "civic_entity_logo_with_name_url" {
+  type        = string
+  description = "Logo with name used on the applicant-facing program index page"
+}
+
+variable "civic_entity_small_logo_url" {
+  type        = string
+  description = "Logo with name used on the applicant-facing program index page"
+}
+
 variable "docker_username" {
   type        = string
   description = "Docker username"

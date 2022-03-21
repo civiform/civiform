@@ -17,6 +17,36 @@
       "activeDirectory"
     ]
   },
+  "CIVIC_ENTITY_FULL_NAME ": {
+    "required": true,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "CIVIC_ENTITY_SHORT_NAME ": {
+    "required": true,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "CIVIC_ENTITY_SUPPORT_EMAIL_ADDRESS": {
+    "required": true,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "CIVIC_ENTITY_LOGO_WITH_NAME_URL": {
+    "required": true,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "CIVIC_ENTITY_SMALL_LOGO_URL": {
+    "required": true,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
   "CIVIFORM_APPLICANT_AUTH_PROTOCOL": {
     "required": true,
     "secret": false,

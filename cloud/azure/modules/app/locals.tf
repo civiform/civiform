@@ -28,6 +28,12 @@ locals {
     STAGING_HOSTNAME = "placeholder"
     BASE_URL         = "placeholder"
 
+    WHITELABEL_CIVIC_ENTITY_SHORT_NAME = var.civic_entity_short_name
+    WHITELABEL_CIVIC_ENTITY_FULL_NAME  = var.civic_entity_full_name
+    WHITELABEL_SMALL_LOGO_URL          = var.civic_entity_small_logo_url
+    WHITELABEL_LOGO_WITH_NAME_URL      = var.civic_entity_logo_with_name_url
+    SUPPORT_EMAIL_ADDRESS              = var.civic_entity_support_email_address
+
     AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
     AZURE_STORAGE_ACCOUNT_CONTAINER = azurerm_storage_container.files_container.name
 
