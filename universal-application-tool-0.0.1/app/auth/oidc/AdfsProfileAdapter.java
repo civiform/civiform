@@ -12,6 +12,8 @@ import org.pac4j.core.credentials.Credentials;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
 /**
@@ -20,6 +22,8 @@ import repository.UserRepository;
  * right now.
  */
 public class AdfsProfileAdapter extends OidcCiviFormProfileAdapter {
+  private static final Logger logger = LoggerFactory.getLogger(AdfsProfileAdapter.class);
+
   private final String adminGroupName;
 
   public AdfsProfileAdapter(
@@ -61,6 +65,12 @@ public class AdfsProfileAdapter extends OidcCiviFormProfileAdapter {
 
   private boolean isGlobalAdmin(OidcProfile profile) {
     JSONArray groups = profile.getAttribute("group", JSONArray.class);
+
+    if (groups == null) {
+      logger.error("Missing group claim in ADFS OIDC profile.");
+      return false;
+    }
+
     return groups.contains(this.adminGroupName);
   }
 
