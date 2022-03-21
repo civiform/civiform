@@ -97,17 +97,17 @@ public class UserRepository {
         executionContext.current());
   }
 
-  public Optional<Account> lookupAccount(String emailAddress) {
+  public Optional<Account> lookupAccountByEmail(String emailAddress) {
     if (emailAddress == null || emailAddress.isEmpty()) {
       return Optional.empty();
     }
     return database.find(Account.class).where().eq("email_address", emailAddress).findOneOrEmpty();
   }
 
-  public CompletionStage<Optional<Applicant>> lookupApplicant(String emailAddress) {
+  public CompletionStage<Optional<Applicant>> lookupApplicantByEmail(String emailAddress) {
     return supplyAsync(
         () -> {
-          Optional<Account> accountMaybe = lookupAccount(emailAddress);
+          Optional<Account> accountMaybe = lookupAccountByEmail(emailAddress);
           // Return the applicant which was most recently created.
           // If no applicant exists, this is probably an account waiting for
           // a trusted intermediary - create one.
@@ -215,7 +215,7 @@ public class UserRepository {
     if (tiGroup.isEmpty()) {
       throw new NoSuchTrustedIntermediaryGroupError();
     }
-    Optional<Account> accountMaybe = lookupAccount(emailAddress);
+    Optional<Account> accountMaybe = lookupAccountByEmail(emailAddress);
     Account account =
         accountMaybe.orElseGet(
             () -> {
@@ -269,7 +269,7 @@ public class UserRepository {
       throws EmailAddressExistsException {
     Account newAccount = new Account();
     if (!Strings.isNullOrEmpty(form.getEmailAddress())) {
-      if (lookupAccount(form.getEmailAddress()).isPresent()) {
+      if (lookupAccountByEmail(form.getEmailAddress()).isPresent()) {
         throw new EmailAddressExistsException();
       }
       newAccount.setEmailAddress(form.getEmailAddress());
@@ -297,7 +297,7 @@ public class UserRepository {
       return Optional.empty();
     }
 
-    Optional<Account> maybeAccount = lookupAccount(accountEmail);
+    Optional<Account> maybeAccount = lookupAccountByEmail(accountEmail);
     if (maybeAccount.isEmpty()) {
       return Optional.of(
           CiviFormError.of(
@@ -322,7 +322,7 @@ public class UserRepository {
    * @param program the {@link ProgramDefinition} to remove from the given account
    */
   public void removeAdministeredProgram(String accountEmail, ProgramDefinition program) {
-    Optional<Account> maybeAccount = lookupAccount(accountEmail);
+    Optional<Account> maybeAccount = lookupAccountByEmail(accountEmail);
     maybeAccount.ifPresent(
         account -> {
           account.removeAdministeredProgram(program);

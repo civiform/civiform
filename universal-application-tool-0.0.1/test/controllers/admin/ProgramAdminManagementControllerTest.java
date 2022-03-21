@@ -84,8 +84,8 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
-    account1 = userRepository.lookupAccount("one").get();
-    account2 = userRepository.lookupAccount("two").get();
+    account1 = userRepository.lookupAccountByEmail("one").get();
+    account2 = userRepository.lookupAccountByEmail("two").get();
     assertThat(account1.getAdministeredProgramNames()).containsOnly(programName);
     assertThat(account2.getAdministeredProgramNames()).containsOnly(programName);
   }
@@ -107,7 +107,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
             .build();
 
     Result result = controller.update(request, program.id);
-    account1 = userRepository.lookupAccount(email1).get();
+    account1 = userRepository.lookupAccountByEmail(email1).get();
 
     // Assert the update succeeded (for email1)
     assertThat(result.status()).isEqualTo(OK);
@@ -117,7 +117,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     Account account2 = new Account();
     account2.setEmailAddress(email2);
     account2.save();
-    account2 = userRepository.lookupAccount(email2).get();
+    account2 = userRepository.lookupAccountByEmail(email2).get();
 
     // Account 2 should not have any programs because the account was nonexistent when we addded
     // email2 as a program admin.
@@ -149,9 +149,9 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     Result result = controller.update(request, program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(userRepository.lookupAccount(addEmail).get().getAdministeredProgramNames())
+    assertThat(userRepository.lookupAccountByEmail(addEmail).get().getAdministeredProgramNames())
         .containsExactly(programName);
-    assertThat(userRepository.lookupAccount(removeEmail).get().getAdministeredProgramNames())
+    assertThat(userRepository.lookupAccountByEmail(removeEmail).get().getAdministeredProgramNames())
         .isEmpty();
   }
 

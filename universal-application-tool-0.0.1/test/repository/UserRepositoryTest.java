@@ -114,7 +114,7 @@ public class UserRepositoryTest extends ResetPostgres {
 
     Optional<CiviFormError> result = repo.addAdministeredProgram(email, program);
 
-    assertThat(repo.lookupAccount(email).get().getAdministeredProgramNames())
+    assertThat(repo.lookupAccountByEmail(email).get().getAdministeredProgramNames())
         .containsOnly(programName);
     assertThat(result).isEqualTo(Optional.empty());
   }
@@ -127,7 +127,7 @@ public class UserRepositoryTest extends ResetPostgres {
 
     Optional<CiviFormError> result = repo.addAdministeredProgram(email, program);
 
-    assertThat(repo.lookupAccount(email)).isEqualTo(Optional.empty());
+    assertThat(repo.lookupAccountByEmail(email)).isEqualTo(Optional.empty());
     assertThat(result)
         .isEqualTo(
             Optional.of(
@@ -145,7 +145,7 @@ public class UserRepositoryTest extends ResetPostgres {
 
     repo.addAdministeredProgram(blankEmail, program);
 
-    assertThat(repo.lookupAccount(blankEmail)).isEmpty();
+    assertThat(repo.lookupAccountByEmail(blankEmail)).isEmpty();
   }
 
   @Test
@@ -162,7 +162,7 @@ public class UserRepositoryTest extends ResetPostgres {
 
     repo.removeAdministeredProgram(email, program);
 
-    assertThat(repo.lookupAccount(email).get().getAdministeredProgramNames())
+    assertThat(repo.lookupAccountByEmail(email).get().getAdministeredProgramNames())
         .doesNotContain(programName);
   }
 
@@ -179,7 +179,7 @@ public class UserRepositoryTest extends ResetPostgres {
 
     repo.removeAdministeredProgram(email, program);
 
-    assertThat(repo.lookupAccount(email).get().getAdministeredProgramNames())
+    assertThat(repo.lookupAccountByEmail(email).get().getAdministeredProgramNames())
         .doesNotContain(programName);
   }
 

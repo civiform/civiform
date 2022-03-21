@@ -122,7 +122,7 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     Optional<Applicant> existingApplicant =
         applicantRepositoryProvider
             .get()
-            .lookupApplicant(profile.getAttribute(emailAttributeName(), String.class))
+            .lookupApplicantByEmail(profile.getAttribute(emailAttributeName(), String.class))
             .toCompletableFuture()
             .join();
 
