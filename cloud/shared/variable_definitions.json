@@ -17,13 +17,13 @@
       "activeDirectory"
     ]
   },
-  "CIVIC_ENTITY_FULL_NAME ": {
+  "CIVIC_ENTITY_FULL_NAME": {
     "required": true,
     "secret": false,
     "tfvar": true,
     "type": "string"
   },
-  "CIVIC_ENTITY_SHORT_NAME ": {
+  "CIVIC_ENTITY_SHORT_NAME": {
     "required": true,
     "secret": false,
     "tfvar": true,
