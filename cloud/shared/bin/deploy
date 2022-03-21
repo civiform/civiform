@@ -4,4 +4,4 @@ set -e
 
 cloud/shared/bin/validate_cloud_provider
 
-exec "cloud/${CLOUD_PROVIDER}/bin/deploy" "$@"
+exec "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/deploy" "$@"
