@@ -1,8 +1,7 @@
 #! /usr/bin/env python3
 
+from lib.check import Check
 import platform
-import os
-import subprocess
 
 detected_platform = platform.system()
 is_linux = detected_platform == 'Linux'
@@ -11,44 +10,11 @@ is_mac = detected_platform == 'Darwin'
 if not is_linux and not is_mac:
     raise RuntimeError("Only Linux and macOS are supported.")
 
-class Check():
-    remedy = None
-
-    def name(self):
-        raise NotImplementedError
-
-    def is_ok(self):
-        raise NotImplementedError
-
-    def remedy_linux(self):
-        if self.remedy == None:
-            raise NotImplementedError
-
-        return self.remedy
-
-    def remedy_mac(self):
-        if self.remedy == None:
-            raise NotImplementedError
-
-        return self.remedy
-
-    def should_skip(self):
-        return False
-
-    def _check_command_succeeds(self, args):
-        try:
-            return subprocess.run(args, capture_output=True).returncode == 0
-        except FileNotFoundError:
-            return False
-
-    def _get_command_output(self, args):
-        try:
-            return subprocess.run(args, capture_output=True)
-        except FileNotFoundError:
-            return None
-
 class DockerCheck(Check):
     remedy = "Need to install Docker CLI: https://docs.docker.com/engine/install/"
+
+    def should_skip(self):
+        return self._get_cloud_provider() == 'azure'
 
     def name(self):
         return "Docker CLI"
@@ -113,7 +79,7 @@ class AwsCliCheck(Check):
         return "AWS CLI"
 
     def should_skip(self):
-        return os.environ.get('CIVIFORM_CLOUD_PROVIDER', "").lower() not in ['aws', 'azure']
+        return self._get_cloud_provider() in ['aws', 'azure']
 
     def is_ok(self):
         return self._check_command_succeeds(["aws", "help"])
@@ -128,10 +94,33 @@ class AzureCliCheck(Check):
         return "Azure CLI"
 
     def should_skip(self):
-        return os.environ.get('CIVIFORM_CLOUD_PROVIDER', "").lower() != "azure"
+        return self._get_cloud_provider() != "azure"
 
     def is_ok(self):
         return self._check_command_succeeds(["az"])
+
+class AzureCliVersionCheck(Check):
+    MIN_VERSION = "2.34.1"
+
+    remedy = f"""
+        Azure CLI tool must be at version {MIN_VERSION}.
+        https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
+    """
+
+    def name(self):
+        return "Azure CLI version"
+
+    def should_skip(self):
+        return self._get_cloud_provider() != "azure"
+
+    def is_ok(self):
+        azure_cli_version_string = self._get_command_output([
+            "/bin/bash",
+            "-c",
+            "az --version 2> /dev/null | grep -oP '^azure-cli\s+[0-9]+\.[0-9]+\.[0-9]' | grep -oP '[0-9]+\.[0-9]+\.[0-9]'"
+        ])
+
+        return azure_cli_version_string and self.version_greater_than(self.MIN_VERSION, azure_cli_version_string)
 
 class AwsLoginCheck(Check):
     remedy = """
@@ -144,13 +133,13 @@ class AwsLoginCheck(Check):
         return "AWS login"
 
     def should_skip(self):
-        return os.environ.get('CIVIFORM_CLOUD_PROVIDER', "").lower() not in ['aws', 'azure']
+        return self._get_cloud_provider() not in ['aws', 'azure']
 
     def is_ok(self):
         output = self._get_command_output(["aws", "configure", "list-profiles"])
 
         # the default profile will be present if they are logged in
-        return output and 'default' in output.stdout.decode('ascii')
+        return 'default' in output
 
 class AzureLoginCheck(Check):
     remedy = """
@@ -162,7 +151,7 @@ class AzureLoginCheck(Check):
         return "Azure login"
 
     def should_skip(self):
-        return os.environ.get('CIVIFORM_CLOUD_PROVIDER', "").lower() != "azure"
+        return self._get_cloud_provider() != "azure"
 
     def is_ok(self):
         return self._check_command_succeeds(["az", "ad", "signed-in-user", "show"])
@@ -174,6 +163,7 @@ checks = [
     KeytoolCheck(),
     AwsCliCheck(),
     AzureCliCheck(),
+    AzureCliVersionCheck(),
     AwsLoginCheck(),
     AzureLoginCheck()
 ]

@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from distutils.command.config import config
 import subprocess
 import sys
 
@@ -47,8 +46,8 @@ current_user_function = subprocess.run([
 
 if current_user_function:
     current_user = current_user_function.stdout.decode("ascii")
-docker_tag = config_loader.get_config_var("DOCKER_TAG")
-log_args = f"\"{docker_tag}\" {current_user}"
+image_tag = config_loader.get_config_var("IMAGE_TAG")
+log_args = f"\"{image_tag}\" {current_user}"
 
 try: 
     template_setup.pre_terraform_setup()
@@ -70,7 +69,7 @@ try:
         f"-chdir={template_dir}", 
         "init", 
     ]
-    if not config_loader.use_backend_config():
+    if config_loader.use_backend_config():
         terraform_init_args.append(f"-backend-config={config_loader.backend_vars_filename}")
 
     subprocess.check_call(terraform_init_args)

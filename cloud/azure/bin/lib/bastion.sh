@@ -128,6 +128,10 @@ function bastion::get_connect_to_postgres_command() {
 function bastion::get_pg_restore_command() {
   local DB_PASSWORD=$(bastion::get_pg_password "${2}")
   echo "export DEBIAN_FRONTEND='noninteractive'; \
+    sudo sh -c 'echo \"deb http://apt.postgresql.org/pub/repos/apt \
+      \$(lsb_release -cs)-pgdg main\" > /etc/apt/sources.list.d/pgdg.list'; \
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+      | sudo apt-key add -; \
     yes | sudo apt-get update > /dev/null; \
     yes | sudo apt-get install postgresql-14 > /dev/null; \
     PGPASSWORD='${DB_PASSWORD}' /usr/lib/postgresql/14/bin/pg_restore \
@@ -161,7 +165,7 @@ function bastion::setup_bastion_ssh() {
 
   if ! [[ -f "${2}" ]]; then
     echo "Creating a new ssh key"
-    ssh-keygen -t rsa -b 4096 -f "${2}"
+    ssh-keygen -q -t rsa -b 4096 -N '' -f "${2}"
   fi
 
   echo "Adding the public key to the bastion vm"

@@ -2,7 +2,7 @@
 
 # CHARSET is a regex pattern that matches the acceptable characters to 
 # use when generating a secret value
-readonly CHARSET='A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~'
+readonly CHARSET='A-Za-z0-9!#$%&()*+,-./:;<=>?@[\]^_{|}~'
 readonly KEY_VAULT_SECRETS_OFFICER_GUID="b86a8fe4-44ce-4948-aee5-eccb2c155cd7"
 
 
@@ -115,7 +115,7 @@ function key_vault::has_secret() {
     --vault-name "${1}" \
     --name "${2}" \
     --query value \
-    -o tsv)"
+    -o tsv 2>&1 >/dev/null)"
   
   echo "${SECRET_RESULT}" | grep -q -v "SecretNotFound"
 }

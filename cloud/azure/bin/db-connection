@@ -1,5 +1,5 @@
 #! /usr/bin/env bash
-source bin/lib.sh
+source cloud/azure/bin/lib.sh
 
 # DOC: Connect to the database via the bastion. 
 # DOC: Required to pass in the resource group (-g), the database name (-d) and the keyvault name (-v). 

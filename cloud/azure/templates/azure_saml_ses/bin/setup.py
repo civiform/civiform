@@ -22,13 +22,13 @@ class Setup:
     
     def pre_terraform_setup(self):         
         self._create_ssh_keyfile()
-        self._setup_resource_group()
         self._setup_shared_state()
         self._setup_keyvault()
         self._setup_saml_keystore()
         self._setup_ses()    
     
     def setup_log_file(self):
+        self._setup_resource_group()
         _, self.log_file_path = tempfile.mkstemp()
         subprocess.run([
             "cloud/azure/bin/init-azure-log", self.log_file_path
@@ -50,7 +50,7 @@ class Setup:
     
     def cleanup(self): 
         self._upload_log_file()
-        subprocess.run("rm -f $HOME/.ssh/bastion", check=True, shell=True)
+        subprocess.run(["/bin/bash", "-c", "rm -f $HOME/.ssh/bastion*"], check=True)
     
     def _get_adfs_user_inputs(self):
         print(">>>> You will need to navigate to the app_service"
@@ -87,7 +87,9 @@ class Setup:
         self.resource_group_location = resource_group_location
 
     def _create_ssh_keyfile(self): 
-        subprocess.run("ssh-keygen -q -t rsa -b 4096 -N '' -f $HOME/.ssh/bastion <<< y", check=True, shell=True)
+        subprocess.run(["/bin/bash", 
+            "-c", "ssh-keygen -q -t rsa -b 4096 -N '' -f $HOME/.ssh/bastion <<< y"
+        ], check=True)
     
     def _setup_shared_state(self):
         if not self.resource_group: 
