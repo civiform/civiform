@@ -2,6 +2,7 @@ package auth;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.Comparator;
@@ -103,6 +104,35 @@ public class CiviFormProfile {
   }
 
   /**
+   * Sets the authority id for the associated {@link Account} if none is set.
+   *
+   * <p>If an id is already present this may only be called with the same exact ID.
+   *
+   * @param authorityId ID that uniquely identifies the user of the Account.
+   * @return the future of the database operation.
+   */
+  public CompletableFuture<Void> setAuthorityId(String authorityId) {
+    return this.getAccount()
+        .thenApplyAsync(
+            a -> {
+              Optional<String> existingAuthorityId = Optional.ofNullable(a.getAuthorityId());
+              // The authority id can never change once set.
+              if (existingAuthorityId.isPresent()
+                  && !existingAuthorityId.get().equals(authorityId)) {
+                throw new ProfileMergeConflictException(
+                    String.format(
+                        "Profile already contains an authority ID: %s - which is different from"
+                            + " the new authority ID address %s.",
+                        existingAuthorityId, authorityId));
+              }
+              a.setAuthorityId(authorityId);
+              a.save();
+              return null;
+            },
+            dbContext);
+  }
+
+  /**
    * Set email address for the associated {@link Account} if none is set.
    *
    * <p>If email address is present and different from the address to be set, a
@@ -128,6 +158,12 @@ public class CiviFormProfile {
               return null;
             },
             dbContext);
+  }
+
+  /** Returns the authority id from the {@link Account} associated with the profile. */
+  @VisibleForTesting
+  CompletableFuture<String> getAuthorityId() {
+    return this.getAccount().thenApplyAsync(Account::getAuthorityId, httpContext.current());
   }
 
   /**
