@@ -5,10 +5,10 @@ source "cloud/shared/bin/lib/health.sh"
 source "cloud/azure/bin/lib.sh"
 
 python3 "cloud/shared/bin/lib/tf_apply_setup.py"
-readonly TF_VAR_FILE="${TERRAFORM_TEMPLATE_DIR}/setup.auto.tfvars"
-readonly BACKEND_VARS_FILENAME="${TERRAFORM_TEMPLATE_DIR}/backend_vars"
+readonly TF_VAR_FILE="setup.auto.tfvars"
+readonly BACKEND_VARS_FILENAME="backend_vars"
 
-cloud/azure/bin/setup_tf_shared_state "${BACKEND_VARS_FILENAME}"
+cloud/azure/bin/setup_tf_shared_state "${TERRAFORM_TEMPLATE_DIR}/${BACKEND_VARS_FILENAME}"
 
 readonly USER_ID="$(azure::get_current_user_id)"
 
