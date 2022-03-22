@@ -1,6 +1,24 @@
 #! /usr/bin/env bash
 
 #######################################
+# Write the last successfully deployed image tag to stdout, not including
+# the tag passed to the function.
+# Arguments:
+#   1: The tag to ignore when fiding the previously successful tag.
+#######################################
+function log::get_last_deployed_image_tag() {
+  if [[ -z "${1}" ]]; then
+    out::error "Must specify currently deployed tag tag."
+    exit 1
+  fi
+
+  grep 'DEPLOY SUCCESS' "${LOG_TEMPFILE}" \
+    | grep -v "${1}" \
+    | tail -n1 \
+    | awk '{ print $4 }'
+}
+
+#######################################
 # Record a deployment success event in the log.
 # Args:
 #   1: The tag of the deployed server binary.
@@ -10,9 +28,39 @@
 #######################################
 function log::deploy_succeeded() {
   log::ensure_log_file_fetched
-  log::check_deploy_args "$@"
+  log::check_log_entry_args "$@"
 
   echo "$(log::timestamp) DEPLOY SUCCESS ${1} ${2}" >> "${LOG_TEMPFILE}"
+}
+
+#######################################
+# Record a rollback failure event in the log.
+# Args:
+#   1: The tag of the server binary to roll back to.
+#   2: Identifier for the user who initiated the command.
+# Globals read:
+#   LOG_TEMPFILE
+#######################################
+function log::rollback_failed() {
+  log::ensure_log_file_fetched
+  log::check_log_entry_args "$@"
+
+  echo "$(log::timestamp) ROLLBACK FAILED ${1} ${2}" >> "${LOG_TEMPFILE}"
+}
+
+#######################################
+# Record a rollback success event in the log.
+# Args:
+#   1: The tag of the server binary to roll back to.
+#   2: Identifier for the user who initiated the command.
+# Globals read:
+#   LOG_TEMPFILE
+#######################################
+function log::rollback_succeeded() {
+  log::ensure_log_file_fetched
+  log::check_log_entry_args "$@"
+
+  echo "$(log::timestamp) ROLLBACK SUCCESS ${1} ${2}" >> "${LOG_TEMPFILE}"
 }
 
 #######################################
@@ -25,7 +73,7 @@ function log::deploy_succeeded() {
 #######################################
 function log::deploy_failed() {
   log::ensure_log_file_fetched
-  log::check_deploy_args "$@"
+  log::check_log_entry_args "$@"
 
   echo "$(log::timestamp) DEPLOY FAILED ${1} ${2}" >> "${LOG_TEMPFILE}"
 }
@@ -50,7 +98,7 @@ function log::initialized() {
 # Args:
 #   1..2: Strings suitable as tokens in the deployment log.
 #######################################
-function log::check_deploy_args() {
+function log::check_log_entry_args() {
   for i in {1..2}; do
     if [[ -z "${!i}" ]]; then
       out::error "Missing arguments to deployment log function."
