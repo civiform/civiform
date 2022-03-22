@@ -170,6 +170,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
               nextAvailableId.getAsLong() + i,
               options.size() + i,
               LocalizedStrings.withDefaultValue(newOptions.get(i))));
+      optionIds.add(nextAvailableId.getAsLong() + i);
     }
     ImmutableList<QuestionOption> questionOptions = questionOptionsBuilder.build();
 
