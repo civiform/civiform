@@ -247,7 +247,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_setsIdsAsExpected() {
+  public void update_setsIdsAsExpected() throws Exception {
     DropdownQuestionDefinition definition =
         new DropdownQuestionDefinition(
             /* name= */ "applicant ice cream",
@@ -270,13 +270,14 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     DropdownQuestionForm questionForm = new DropdownQuestionForm(definition);
     questionForm.setNewOptions(ImmutableList.of("cookie", "mint", "pistachio"));
 
-    questionForm.getBuilder();
+    DropdownQuestionForm newQuestionForm =
+        new DropdownQuestionForm((DropdownQuestionDefinition) questionForm.getBuilder().build());
 
-    assertThat(questionForm.getOptionIds().get(4)).isEqualTo(5L);
-    assertThat(questionForm.getOptionIds().get(5)).isEqualTo(6L);
-    assertThat(questionForm.getOptionIds().get(6)).isEqualTo(7L);
-    assertThat(questionForm.getNextAvailableId()).isPresent();
-    assertThat(questionForm.getNextAvailableId().getAsLong()).isEqualTo(8L);
+    assertThat(newQuestionForm.getOptionIds().get(4)).isEqualTo(5L);
+    assertThat(newQuestionForm.getOptionIds().get(5)).isEqualTo(6L);
+    assertThat(newQuestionForm.getOptionIds().get(6)).isEqualTo(7L);
+    assertThat(newQuestionForm.getNextAvailableId()).isPresent();
+    assertThat(newQuestionForm.getNextAvailableId().getAsLong()).isEqualTo(8L);
   }
 
   @Test
