@@ -89,8 +89,9 @@ public class Applicant extends BaseModel {
     return account;
   }
 
-  public void setAccount(Account account) {
+  public Applicant setAccount(Account account) {
     this.account = account;
+    return this;
   }
 
   public ImmutableList<Application> getApplications() {
