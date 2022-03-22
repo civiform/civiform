@@ -120,7 +120,6 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
 
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     // Check if we already have a profile in the database for the user returned to us by OIDC.
-    // Lookup on authority first.
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
 
     // Now we have a three-way merge situation.  We might have
@@ -167,14 +166,15 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     // In March 2022 the code base changed to using authority_id which is unique and stable per
     // authentication provider.
 
-    Optional<String> authorityId = getAuthorityId(profile);
-    if (authorityId.isEmpty()) {
-      throw new InvalidOidcProfileException("Unable to get authority ID from profile.");
-    }
+    String authorityId =
+        getAuthorityId(profile)
+            .orElseThrow(
+                () -> new InvalidOidcProfileException("Unable to get authority ID from profile."));
+
     Optional<Applicant> applicantOpt =
         applicantRepositoryProvider
             .get()
-            .lookupApplicantByAuthorityId(authorityId.get())
+            .lookupApplicantByAuthorityId(authorityId)
             .toCompletableFuture()
             .join();
     if (applicantOpt.isPresent()) {
