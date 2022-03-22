@@ -143,6 +143,12 @@ GET     /adminLogin                  controllers.LoginController.adminLogin(requ
 GET     /applicantLogin              controllers.LoginController.applicantLogin(request: Request, redirectTo: java.util.Optional[String])
 GET     /idcsRegister                controllers.LoginController.register(request: Request)
 
+# Legacy login routes -- to be deleted
+# Log into application
+GET     /idcsLogin                   controllers.LegacyRoutesController.idcsLoginWithRedirect(request: Request, redirectTo: java.util.Optional[String])
+GET     /adfsLogin                   controllers.LegacyRoutesController.adfsLogin(request: Request)
+GET     /loginRadiusLogin            controllers.LegacyRoutesController.loginRadiusLoginWithRedirect(request: Request, redirectTo: java.util.Optional[String])
+
 # Log out of application
 GET     /logout                      @org.pac4j.play.LogoutController.logout(request: Request)
 
