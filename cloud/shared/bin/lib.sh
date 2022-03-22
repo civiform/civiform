@@ -3,7 +3,7 @@
 set -e
 set -o pipefail
 
-export TF_VAR_FILE="setup.auto.tfvars"
+export TF_VAR_FILENAME="setup.auto.tfvars"
 export BACKEND_VARS_FILENAME="backend_vars"
 
 readonly CLOUD_LIB_DIR="${BASH_SOURCE%/*}/lib"

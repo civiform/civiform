@@ -6,10 +6,10 @@
 # Globals:
 #   TERRAFORM_TEMPLATE_DIR
 #   BACKEND_VARS_FILENAME
-#   TF_VAR_FILE
+#   TF_VAR_FILENAME
 #######################################
 function terraform::perform_apply() {
-  cloud/azure/bin/setup_tf_shared_state \
+  "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/setup_tf_shared_state" \
     "${TERRAFORM_TEMPLATE_DIR}/${BACKEND_VARS_FILENAME}"
 
   terraform \
@@ -20,5 +20,5 @@ function terraform::perform_apply() {
   terraform \
     -chdir="${TERRAFORM_TEMPLATE_DIR}" \
     apply \
-    -var-file="${TF_VAR_FILE}"
+    -var-file="${TF_VAR_FILENAME}"
 }

@@ -3,6 +3,7 @@
 set -e
 
 source bin/lib/out.sh
+source cloud/shared/bin/lib.sh
 cloud/shared/bin/validate_cloud_provider
 
 if [[ "${IMAGE_TAG}" == "latest" ]]; then

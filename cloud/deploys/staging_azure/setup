@@ -9,7 +9,7 @@ readonly PROJECT_BASE_DIR="$(realpath "${THIS_DIR}/../../../")"
 
 source "${PROJECT_BASE_DIR}/cloud/azure/bin/lib.sh"
 
-readonly TF_VAR_FILE="${THIS_DIR}/staging.tfvars"
+readonly TF_VAR_FILENAME="${THIS_DIR}/staging.tfvars"
 readonly TEMPLATE_DIR="${PROJECT_BASE_DIR}/cloud/azure/templates/azure_saml_ses"
 readonly VARS_FILENAME="${THIS_DIR}/staging_azure_backend_vars"
 readonly TFSTATE_RESOURCE_GROUP_NAME="tfstate"
@@ -53,4 +53,4 @@ terraform \
 terraform \
   -chdir="${TEMPLATE_DIR}" \
   apply \
-  -var-file="${TF_VAR_FILE}"
+  -var-file="${TF_VAR_FILENAME}"
