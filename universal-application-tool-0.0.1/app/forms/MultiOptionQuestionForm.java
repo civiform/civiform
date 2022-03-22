@@ -14,8 +14,11 @@ import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
-/** Superclass for all forms for updating a multi-option question. */
+/**
+ * Superclass for all forms for updating a multi-option question.
+ */
 public abstract class MultiOptionQuestionForm extends QuestionForm {
+
   // Caution: This must be a mutable list type, or else Play's form binding cannot add elements to
   // the list. This means the constructors MUST set this field to a mutable List type, NOT
   // ImmutableList.
@@ -63,9 +66,9 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
         this.nextAvailableId =
             OptionalLong.of(
                 qd.getOptionsForLocale(LocalizedStrings.DEFAULT_LOCALE).stream()
-                        .mapToLong(LocalizedQuestionOption::id)
-                        .max()
-                        .getAsLong()
+                    .mapToLong(LocalizedQuestionOption::id)
+                    .max()
+                    .getAsLong()
                     + 1);
       }
     } catch (TranslationNotFoundException e) {
@@ -77,8 +80,16 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     return this.options;
   }
 
+  public void setOptions(List<String> options) {
+    this.options = options;
+  }
+
   public List<String> getNewOptions() {
     return this.newOptions;
+  }
+
+  public void setNewOptions(List<String> options) {
+    this.newOptions = options;
   }
 
   public List<Long> getOptionIds() {
@@ -87,14 +98,6 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
   public void setOptionIds(List<Long> optionIds) {
     this.optionIds = optionIds;
-  }
-
-  public void setNewOptions(List<String> options) {
-    this.newOptions = options;
-  }
-
-  public void setOptions(List<String> options) {
-    this.options = options;
   }
 
   public OptionalInt getMinChoicesRequired() {
@@ -151,10 +154,6 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
         this.optionIds.size() == this.options.size(),
         "Option ids and options are not the same size.");
 
-    if (this.optionIds.size() > 0) {
-      setNextAvailableId(this.optionIds.get(0) + 1);
-    }
-
     // Note: the question edit form only sets or updates the default locale.
     for (int i = 0; i < options.size(); i++) {
       questionOptionsBuilder.add(
@@ -170,7 +169,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     for (int i = 0; i < newOptions.size(); i++) {
       questionOptionsBuilder.add(
           QuestionOption.create(
-              nextAvailableId.orElse(0L) + i,
+              nextAvailableId.getAsLong() + i,
               options.size() + i,
               LocalizedStrings.withDefaultValue(newOptions.get(i))));
     }
