@@ -1,5 +1,7 @@
 package controllers;
 
+import static play.mvc.Results.redirect;
+
 import java.util.Optional;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -11,14 +13,14 @@ import play.mvc.Result;
 public class LegacyRoutesController {
 
   public Result idcsLoginWithRedirect(Http.Request request, Optional<String> redirectTo) {
-    return routes.LoginController.applicantLogin(redirectTo);
+    return redirect(routes.LoginController.applicantLogin(redirectTo));
   }
 
   public Result adfsLogin(Http.Request request) {
-    return routes.LoginController.adminLogin();
+    return redirect(routes.LoginController.adminLogin());
   }
 
   public Result loginRadiusLoginWithRedirect(Http.Request request, Optional<String> redirectTo) {
-    return routes.LoginController.applicantLogin(redirectTo);
+    return redirect(routes.LoginController.applicantLogin(redirectTo));
   }
 }
