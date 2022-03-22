@@ -14,9 +14,7 @@ import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
-/**
- * Superclass for all forms for updating a multi-option question.
- */
+/** Superclass for all forms for updating a multi-option question. */
 public abstract class MultiOptionQuestionForm extends QuestionForm {
 
   // Caution: This must be a mutable list type, or else Play's form binding cannot add elements to
@@ -66,9 +64,9 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
         this.nextAvailableId =
             OptionalLong.of(
                 qd.getOptionsForLocale(LocalizedStrings.DEFAULT_LOCALE).stream()
-                    .mapToLong(LocalizedQuestionOption::id)
-                    .max()
-                    .getAsLong()
+                        .mapToLong(LocalizedQuestionOption::id)
+                        .max()
+                        .getAsLong()
                     + 1);
       }
     } catch (TranslationNotFoundException e) {
