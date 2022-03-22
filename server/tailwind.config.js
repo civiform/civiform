@@ -3,7 +3,7 @@ const fs = require('fs')
 // For stylesDict from Styles.java and ReferenceClasses.java
 const RGX_KEY = /(?<= +public +static +final +String +)([0-9A-Z_]+)/g
 const RGX_VAL =
-  /(?<= +public +static +final +String +[0-9A-Z_]+ += +")([a-z0-9-/]+)/g
+  /(?<= +public +static +final +String +[0-9A-Z_]+ += +")([a-z0-9-/.]+)/g
 
 const STYLE_RGX = /(?<=(Styles|ReferenceClasses)\.)([0-9A-Z_]+)/g
 
