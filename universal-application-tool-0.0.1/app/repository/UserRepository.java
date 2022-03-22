@@ -110,6 +110,7 @@ public class UserRepository {
     }
     return database.find(Account.class).where().eq("email_address", emailAddress).findOneOrEmpty();
   }
+
   /**
    * Returns the most recent Applicant identified by Account, creating one if necessary.
    *
@@ -117,12 +118,13 @@ public class UserRepository {
    * we create one.
    */
   private Applicant getOrCreateApplicant(Account account) {
-    Optional<Applicant> applicantMaybe =
+    Optional<Applicant> applicantOpt =
         account.getApplicants().stream()
             .max(Comparator.comparing(compared -> compared.getWhenCreated()));
-    if (applicantMaybe.isPresent()) {
-      return applicantMaybe.get();
+    if (applicantOpt.isPresent()) {
+      return applicantOpt.get();
     }
+
     Applicant newApplicant = new Applicant().setAccount(account);
     newApplicant.save();
     return newApplicant;
