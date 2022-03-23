@@ -11,6 +11,30 @@ package views.style;
 public final class Styles {
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
+  // IMPORTANT: This file is parsed with regex when trimming unused styles
+  //
+  // See style/README.md
+  //
+  // Code constraints:
+  //
+  // - Though it is legal in Java to have a field declaration span multiple lines, doing so
+  //   here will break the ability to parse those specific lines
+  //
+  // - Field variables can only have uppercase letters, numbers, and underscores. In other words,
+  //   they should match /[0-9A-Z_]+/
+  //   otherwise they will not show up in the final CSS style file without modifying the parse code
+  //
+  //   See RGX_KEY in tailwind.config.js
+  //
+  // - Field variable values can have lowercase letters, numbers, dash, period, and forward slash
+  //   In other words, they need to match /[a-z0-9-/.]+/
+  //   otherwise they will not show up in the final CSS style file without modifying the parse code
+  //
+  //   See RGX_VAL in tailwin.config.js
+  //
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
   // CiviForm color classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
