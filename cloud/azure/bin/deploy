@@ -12,6 +12,7 @@ cloud/azure/bin/setup_tf_shared_state "${TERRAFORM_TEMPLATE_DIR}/${BACKEND_VARS_
 
 readonly USER_ID="$(azure::get_current_user_id)"
 
+azure_log::grant_log_role_assignments
 azure_log::fetch_log_file
 
 set +e
