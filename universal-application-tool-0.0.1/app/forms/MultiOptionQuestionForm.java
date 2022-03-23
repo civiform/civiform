@@ -16,13 +16,17 @@ import services.question.types.QuestionDefinitionBuilder;
 
 /** Superclass for all forms for updating a multi-option question. */
 public abstract class MultiOptionQuestionForm extends QuestionForm {
+
   // Caution: This must be a mutable list type, or else Play's form binding cannot add elements to
   // the list. This means the constructors MUST set this field to a mutable List type, NOT
   // ImmutableList.
   private List<String> options;
   // Options added to the list during the edit.
   private List<String> newOptions;
+  // The IDs of each option are not expected to be in any particular order.
   private List<Long> optionIds;
+  // This value is the max existing ID + 1. The max ID will not necessarily be the last one in the
+  // optionIds list, we do not store options by order of their IDs.
   private OptionalLong nextAvailableId;
   private OptionalInt minChoicesRequired;
   private OptionalInt maxChoicesAllowed;
@@ -74,8 +78,16 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     return this.options;
   }
 
+  public void setOptions(List<String> options) {
+    this.options = options;
+  }
+
   public List<String> getNewOptions() {
     return this.newOptions;
+  }
+
+  public void setNewOptions(List<String> options) {
+    this.newOptions = options;
   }
 
   public List<Long> getOptionIds() {
@@ -84,14 +96,6 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
   public void setOptionIds(List<Long> optionIds) {
     this.optionIds = optionIds;
-  }
-
-  public void setNewOptions(List<String> options) {
-    this.newOptions = options;
-  }
-
-  public void setOptions(List<String> options) {
-    this.options = options;
   }
 
   public OptionalInt getMinChoicesRequired() {
@@ -143,27 +147,38 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
       predicateBuilder.setMaxChoicesAllowed(getMaxChoicesAllowed());
     }
 
-    ImmutableList.Builder<QuestionOption> questionOptions = ImmutableList.builder();
+    ImmutableList.Builder<QuestionOption> questionOptionsBuilder = ImmutableList.builder();
     Preconditions.checkState(
         this.optionIds.size() == this.options.size(),
         "Option ids and options are not the same size.");
 
     // Note: the question edit form only sets or updates the default locale.
     for (int i = 0; i < options.size(); i++) {
-      questionOptions.add(
+      questionOptionsBuilder.add(
           QuestionOption.create(
               optionIds.get(i), i, LocalizedStrings.withDefaultValue(options.get(i))));
     }
+
+    // The IDs are not guaranteed to be in any type of order, so doing this ensures that we find
+    // the largest ID in the list and accurately set the next largest.
+    Long maxId = optionIds.stream().max(Long::compareTo).orElse(-1L);
+    setNextAvailableId(maxId + 1);
+
     for (int i = 0; i < newOptions.size(); i++) {
-      questionOptions.add(
+      questionOptionsBuilder.add(
           QuestionOption.create(
-              nextAvailableId.orElse(0L) + i,
+              nextAvailableId.getAsLong() + i,
               options.size() + i,
               LocalizedStrings.withDefaultValue(newOptions.get(i))));
     }
+    ImmutableList<QuestionOption> questionOptions = questionOptionsBuilder.build();
+
+    // Sets the next available ID as the previous ID + the size of new options, since each new
+    // option ID is assigned in order.
+    setNextAvailableId(nextAvailableId.getAsLong() + newOptions.size());
 
     return super.getBuilder()
-        .setQuestionOptions(questionOptions.build())
+        .setQuestionOptions(questionOptions)
         .setValidationPredicates(predicateBuilder.build());
   }
 

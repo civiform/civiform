@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalLong;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
@@ -91,5 +92,41 @@ public class MultiOptionQuestionFormTest {
     QuestionDefinition actual = builder.build();
 
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  public void getBuilder_setsNextIdCorrectly_initialOptions() throws Exception {
+    MultiOptionQuestionForm form = new DropdownQuestionForm();
+    form.setQuestionName("name");
+    form.setQuestionDescription("description");
+    form.setQuestionText("What is the question text?");
+    form.setQuestionHelpText("help text");
+    form.setMinChoicesRequired("");
+    form.setMaxChoicesAllowed("");
+    form.setOptions(ImmutableList.of("one", "two"));
+    form.setOptionIds(ImmutableList.of(4L, 1L));
+
+    form.getBuilder();
+
+    assertThat(form.getNextAvailableId()).isEqualTo(OptionalLong.of(5L));
+  }
+
+  @Test
+  public void getBuilder_addNewOptions_setsNextIdCorrectly() throws Exception {
+    MultiOptionQuestionForm form = new DropdownQuestionForm();
+    form.setQuestionName("name");
+    form.setQuestionDescription("description");
+    form.setQuestionText("What is the question text?");
+    form.setQuestionHelpText("help text");
+    form.setMinChoicesRequired("");
+    form.setMaxChoicesAllowed("");
+    // Add two existing options with IDs 1 and 2
+    form.setOptions(ImmutableList.of("one", "two"));
+    form.setOptionIds(ImmutableList.of(1L, 2L));
+    form.setNewOptions(ImmutableList.of("three", "four"));
+
+    form.getBuilder();
+
+    assertThat(form.getNextAvailableId()).isEqualTo(OptionalLong.of(5));
   }
 }
