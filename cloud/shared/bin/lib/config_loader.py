@@ -14,10 +14,10 @@ Config Loader
 class ConfigLoader:
 
     def tfvars_filename(self):
-        return os.environ.get('TF_VAR_FILENAME', None)
+        return os.environ['TF_VAR_FILENAME']
     
     def backend_vars_filename(self):
-        return os.environ.get('BACKEND_VARS_FILENAME', None)
+        return os.environ['BACKEND_VARS_FILENAME']
     
     def load_config(self):
         self._load_config()
