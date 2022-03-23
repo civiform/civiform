@@ -63,22 +63,24 @@ function getStylesDict() {
 const styleDict = getStylesDict()
 
 module.exports = {
-  purge: {
+  // See: 
+  //     https://tailwindcss.com/docs/content-configuration
+  //
+  // And sections:
+  //     https://tailwindcss.com/docs/content-configuration#transforming-source-files
+  //     https://tailwindcss.com/docs/content-configuration#customizing-extraction-logic
+  content: {
     enabled: true,
     // Files we process to identify which styles are being used
     content: ['./app/views/**/*.java', './app/assets/javascripts/*.ts'],
     extract: {
+      // Routine to process contents with .java extention. Tailwind has a builtin routine that 
+      // processes .ts extention files in the `content` list so we dont need to add a method for
+      // that
       java: (content) => {
-        return content
-      },
-    },
-    transform: {
-      // Our routine to process java code. It seems like tailwind has a builtin routine
-      // that processes the typescript code in the `content` var so we dont need to add one
-      java: (code) => {
         const output = []
 
-        let matchIter = code.match(STYLE_RGX)
+        let matchIter = content.match(STYLE_RGX)
 
         if (matchIter) {
           for (const tailwindClassId of matchIter) {
@@ -100,7 +102,6 @@ module.exports = {
     },
   },
 
-  darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
       colors: {
@@ -111,13 +112,6 @@ module.exports = {
           DEFAULT: '#113f9f',
         },
       },
-    },
-  },
-  variants: {
-    extend: {
-      backgroundColor: ['disabled', 'odd'],
-      textColor: ['disabled'],
-      opacity: ['disabled'],
     },
   },
   plugins: [require('@tailwindcss/line-clamp')],
