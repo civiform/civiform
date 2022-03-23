@@ -70,8 +70,7 @@ public class BaseHtmlLayout {
     // Add basic page metadata.
     bundle.addMetadata(
         meta().attr("name", "viewport").attr("content", "width=device-width, initial-scale=1"));
-    bundle.addMetadata(
-        meta().attr("name", "civiform-build-tag").attr("content", civiformImageTag));
+    bundle.addMetadata(meta().attr("name", "civiform-build-tag").attr("content", civiformImageTag));
 
     // Add the warning toast, only for staging
     if (isStaging) {
