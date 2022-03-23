@@ -98,8 +98,6 @@ public class Applicant extends BaseModel {
     return ImmutableList.copyOf(this.applications);
   }
 
-  public Instant getWhenCreated() {}
-
   /** Convenience to save the model and return it. */
   public Applicant saveAndReturn() {
     save();
