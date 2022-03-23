@@ -57,6 +57,27 @@ public class UserRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void lookupByAuthorityId() {
+    String email = "happy@test.com";
+    String authorityId = "I'm an authority ID";
+
+    new Account().setEmailAddress(email).setAuthorityId(authorityId).save();
+
+    assertThat(repo.lookupAccountByAuthorityId(authorityId).get().getEmailAddress())
+        .isEqualTo(email);
+  }
+
+  @Test
+  public void lookupByEmailAddress() {
+    String email = "happy@test.com";
+    String authorityId = "I'm an authority ID";
+
+    new Account().setEmailAddress(email).setAuthorityId(authorityId).save();
+
+    assertThat(repo.lookupAccountByEmail(email).get().getAuthorityId()).isEqualTo(authorityId);
+  }
+
+  @Test
   public void insertApplicant() {
     Applicant applicant = new Applicant();
     String path = "$.applicant.birthdate";

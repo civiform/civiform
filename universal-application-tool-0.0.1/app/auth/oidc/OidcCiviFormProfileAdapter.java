@@ -5,6 +5,7 @@ import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
 import auth.Roles;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
@@ -119,12 +120,7 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
 
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     // Check if we already have a profile in the database for the user returned to us by OIDC.
-    Optional<Applicant> existingApplicant =
-        applicantRepositoryProvider
-            .get()
-            .lookupApplicantByEmail(profile.getAttribute(emailAttributeName(), String.class))
-            .toCompletableFuture()
-            .join();
+    Optional<Applicant> existingApplicant = getExistingApplicant(profile);
 
     // Now we have a three-way merge situation.  We might have
     // 1) an applicant in the database (`existingApplicant`),
@@ -160,6 +156,41 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     } else {
       return Optional.of(mergeCiviFormProfile(existingProfile.get(), profile));
     }
+  }
+
+  @VisibleForTesting
+  Optional<Applicant> getExistingApplicant(OidcProfile profile) {
+    // User keying changed in March 2022 and is reflected and managed here.
+    // Originally users were keyed on their email address, however this is not guaranteed to be a
+    // unique stable ID.
+    // In March 2022 the code base changed to using authority_id which is unique and stable per
+    // authentication provider.
+
+    String authorityId =
+        getAuthorityId(profile)
+            .orElseThrow(
+                () -> new InvalidOidcProfileException("Unable to get authority ID from profile."));
+
+    Optional<Applicant> applicantOpt =
+        applicantRepositoryProvider
+            .get()
+            .lookupApplicantByAuthorityId(authorityId)
+            .toCompletableFuture()
+            .join();
+    if (applicantOpt.isPresent()) {
+      logger.debug("Found user using authority ID: {}", authorityId);
+      return applicantOpt;
+    }
+
+    // For pre-existing deployments before April 2022, users will exist without an authority ID and
+    // will be keyed on their email.
+    String userEmail = profile.getAttribute(emailAttributeName(), String.class);
+    logger.debug("Looking up user using email {}", userEmail);
+    return applicantRepositoryProvider
+        .get()
+        .lookupApplicantByEmail(userEmail)
+        .toCompletableFuture()
+        .join();
   }
 
   protected abstract void possiblyModifyConfigBasedOnCred(Credentials cred);

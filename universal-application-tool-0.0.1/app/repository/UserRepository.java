@@ -97,6 +97,13 @@ public class UserRepository {
         executionContext.current());
   }
 
+  public Optional<Account> lookupAccountByAuthorityId(String authorityId) {
+    if (authorityId == null || authorityId.isEmpty()) {
+      return Optional.empty();
+    }
+    return database.find(Account.class).where().eq("authority_id", authorityId).findOneOrEmpty();
+  }
+
   public Optional<Account> lookupAccountByEmail(String emailAddress) {
     if (emailAddress == null || emailAddress.isEmpty()) {
       return Optional.empty();
@@ -104,30 +111,34 @@ public class UserRepository {
     return database.find(Account.class).where().eq("email_address", emailAddress).findOneOrEmpty();
   }
 
+  /**
+   * Returns the most recent Applicant identified by Account, creating one if necessary.
+   *
+   * <p>If no applicant exists, this is probably an account waiting for a trusted intermediary, so
+   * we create one.
+   */
+  private Applicant getOrCreateApplicant(Account account) {
+    Optional<Applicant> applicantOpt =
+        account.getApplicants().stream()
+            .max(Comparator.comparing(compared -> compared.getWhenCreated()));
+    if (applicantOpt.isPresent()) {
+      return applicantOpt.get();
+    }
+
+    Applicant newApplicant = new Applicant().setAccount(account);
+    newApplicant.save();
+    return newApplicant;
+  }
+
+  public CompletionStage<Optional<Applicant>> lookupApplicantByAuthorityId(String authorityId) {
+    return supplyAsync(
+        () -> lookupAccountByAuthorityId(authorityId).map(this::getOrCreateApplicant),
+        executionContext);
+  }
+
   public CompletionStage<Optional<Applicant>> lookupApplicantByEmail(String emailAddress) {
     return supplyAsync(
-        () -> {
-          Optional<Account> accountMaybe = lookupAccountByEmail(emailAddress);
-          // Return the applicant which was most recently created.
-          // If no applicant exists, this is probably an account waiting for
-          // a trusted intermediary - create one.
-          if (accountMaybe.isEmpty()) {
-            return Optional.empty();
-          }
-          Optional<Applicant> applicantMaybe =
-              accountMaybe.flatMap(
-                  account ->
-                      account.getApplicants().stream()
-                          .max(Comparator.comparing(compared -> compared.getWhenCreated())));
-          if (applicantMaybe.isPresent()) {
-            return applicantMaybe;
-          }
-          Applicant newApplicant = new Applicant();
-          newApplicant.setAccount(accountMaybe.get());
-          newApplicant.save();
-          return Optional.of(newApplicant);
-        },
-        executionContext);
+        () -> lookupAccountByEmail(emailAddress).map(this::getOrCreateApplicant), executionContext);
   }
 
   public CompletionStage<Void> insertApplicant(Applicant applicant) {
