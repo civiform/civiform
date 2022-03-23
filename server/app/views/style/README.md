@@ -11,11 +11,11 @@ Since we use Java with J2html, Tailwind's builtin mechanism for trimming out unu
 Therefore we are doing that ourselves, trimming out a massive 1.7M CSS file and reducing it to 155K
 by parsing our code for calls to styles in style definition files with regex.
 
-The list of all possible tailwind style literals are in Styles.java and ReferenceClasses.java
+The list of all possible tailwind style literals, denoted as reference styles, are in Styles.java and ReferenceClasses.java
 
 ## The constraints
 
-- If tailwind style literals are added to any other file they will not be registered unless that file is added
+- If reference styles are added to any other file they will not be registered unless that file is added
   in the tailwind.config.js
 
 - If not obvious already, _fields in any styles definition files which are assigned with string literals can only have uppercase letters,
