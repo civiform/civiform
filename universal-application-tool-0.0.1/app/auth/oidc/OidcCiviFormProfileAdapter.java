@@ -74,22 +74,24 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
   /** Merge the two provided profiles into a new CiviFormProfileData. */
   public CiviFormProfileData mergeCiviFormProfile(
       CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
-    String emailAddress = oidcProfile.getAttribute(emailAttributeName(), String.class);
-    if (emailAddress == null) {
-      throw new InvalidOidcProfileException("Unable to get email from profile.");
-    }
-    Optional<String> authorityId = getAuthorityId(oidcProfile);
-    if (authorityId.isEmpty()) {
-      throw new InvalidOidcProfileException("Unable to get authority ID from profile.");
-    }
+    String emailAddress =
+        Optional.ofNullable(oidcProfile.getAttribute(emailAttributeName(), String.class))
+            .orElseThrow(
+                () -> new InvalidOidcProfileException("Unable to get email from profile."));
+
+    String authorityId =
+        getAuthorityId(oidcProfile)
+            .orElseThrow(
+                () -> new InvalidOidcProfileException("Unable to get authority ID from profile."));
+
     civiformProfile.setEmailAddress(emailAddress).join();
-    civiformProfile.setAuthorityId(authorityId.get()).join();
+    civiformProfile.setAuthorityId(authorityId).join();
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
     // Meaning: whatever you signed in with most recently is the role you have.
     ImmutableSet<Roles> roles = roles(civiformProfile, oidcProfile);
-    for (Roles role : roles) {
-      civiformProfile.getProfileData().addRole(role.toString());
-    }
+    roles.stream()
+        .map(Roles::toString)
+        .forEach(role -> civiformProfile.getProfileData().addRole(role));
     adaptForRole(civiformProfile, roles);
     return civiformProfile.getProfileData();
   }
@@ -150,12 +152,12 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     }
 
     // Now merge in the information sent to us by the OIDC server.
-    if (existingProfile.isEmpty()) {
-      logger.debug("Found no existing profile in session cookie.");
-      return Optional.of(civiformProfileFromOidcProfile(profile));
-    } else {
+    if (existingProfile.isPresent()) {
       return Optional.of(mergeCiviFormProfile(existingProfile.get(), profile));
     }
+
+    logger.debug("Found no existing profile in session cookie.");
+    return Optional.of(civiformProfileFromOidcProfile(profile));
   }
 
   @VisibleForTesting
