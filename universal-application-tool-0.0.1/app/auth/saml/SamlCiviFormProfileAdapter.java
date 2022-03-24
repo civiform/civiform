@@ -128,16 +128,16 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     // In SAML the user is uniquely identified by the issuer and subject claims.
     // https://docs.oasis-open.org/security/saml-subject-id-attr/v1.0/cs01/saml-subject-id-attr-v1.0-cs01.html#_Toc536097226
     //
-    // Wee combine the two to create the unique authority id.
+    // We combine the two to create the unique authority id.
     String issuer = profile.getIssuerEntityID();
-    // Subject identifies the specific user in the issuer.
+    // Subject in SAML is the NameID. It identifies the specific user in the issuer.
     // Pac4j treats the subject as special, and you can't simply ask for the "sub" claim.
     String subject = profile.getId();
     if (issuer == null || subject == null) {
       return Optional.empty();
     }
     // This string format can never change. It is the unique ID for OIDC based account.
-    return Optional.of(String.format("iss: %s sub: %s", issuer, subject));
+    return Optional.of(String.format("Issuer: %s NameID: %s", issuer, subject));
   }
 
   public CiviFormProfileData civiformProfileFromSamlProfile(SAML2Profile profile) {
@@ -180,14 +180,13 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
           .toCompletableFuture()
           .join();
     }
+
+    String authorityId = getAuthorityId(saml2Profile).orElseThrow(()
+        -> new InvalidSamlProfileException("Unable to get authority ID from profile"));
+    civiFormProfile.setAuthorityId(authorityId).join();
+
     String emailAddress = saml2Profile.getEmail();
     civiFormProfile.setEmailAddress(emailAddress).join();
-
-    Optional<String> authorityId = getAuthorityId(saml2Profile);
-    if (authorityId.isEmpty()) {
-      throw new InvalidSamlProfileException("Unable to get authority ID from profile.");
-    }
-    civiFormProfile.setAuthorityId(authorityId.get()).join();
 
     civiFormProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
     // Meaning: whatever you signed in with most recently is the role you have.
