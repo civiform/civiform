@@ -122,7 +122,7 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_UPPERCASE, Styles.TEXT_BASE);
   public static final String BUTTON_SUBMIT_APPLICATION =
       StyleUtils.joinStyles(
-          BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MX_AUTO, Styles.BG_GREEN_700);
+          BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MX_AUTO);
   public static final String BUTTON_ENUMERATOR_ADD_ENTITY =
       StyleUtils.joinStyles(
           BUTTON_BASE_SOLID, Styles.TEXT_BASE, Styles.NORMAL_CASE, Styles.FONT_NORMAL, Styles.PX_4);
