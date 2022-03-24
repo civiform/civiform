@@ -147,6 +147,12 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
 
   public CiviFormProfileData mergeCiviFormProfile(
       CiviFormProfile civiFormProfile, SAML2Profile saml2Profile) {
+    String authorityId =
+        getAuthorityId(saml2Profile)
+            .orElseThrow(
+                () -> new InvalidSamlProfileException("Unable to get authority ID from profile"));
+    civiFormProfile.setAuthorityId(authorityId).join();
+
     final String locale = saml2Profile.getAttribute("locale", String.class);
     final boolean hasLocale = !Strings.isNullOrEmpty(locale);
 
@@ -180,13 +186,6 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
           .toCompletableFuture()
           .join();
     }
-
-    String authorityId =
-        getAuthorityId(saml2Profile)
-            .orElseThrow(
-                () -> new InvalidSamlProfileException("Unable to get authority ID from profile"));
-    civiFormProfile.setAuthorityId(authorityId).join();
-
     String emailAddress = saml2Profile.getEmail();
     civiFormProfile.setEmailAddress(emailAddress).join();
 
