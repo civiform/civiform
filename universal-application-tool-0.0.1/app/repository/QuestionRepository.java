@@ -67,30 +67,28 @@ public class QuestionRepository {
           this.updateQuestionSync(updatedDraft);
           transaction.commit();
           return updatedDraft;
-        } else {
-          Question newDraft =
-              new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
-          insertQuestionSync(newDraft);
-          // Fetch the tags off the old question.
-          Question oldQuestion = new Question(definition);
-          oldQuestion.refresh();
-          for (QuestionTag tag : oldQuestion.getQuestionTags()) {
-            newDraft.addTag(tag);
-          }
-          newDraft.addVersion(draftVersion);
-          newDraft.save();
-          draftVersion.refresh();
-
-          if (definition.isEnumerator()) {
-            transaction.setNestedUseSavepoint();
-            updateAllRepeatedQuestions(newDraft.id, definition.getId());
-          }
-
-          transaction.setNestedUseSavepoint();
-          versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(definition.getId());
-          transaction.commit();
-          return newDraft;
         }
+        Question newDraft =
+            new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
+        insertQuestionSync(newDraft);
+        // Fetch the tags off the old question.
+        Question oldQuestion = new Question(definition);
+        oldQuestion.refresh();
+        oldQuestion.getQuestionTags().forEach(newDraft::addTag);
+
+        newDraft.addVersion(draftVersion);
+        newDraft.save();
+        draftVersion.refresh();
+
+        if (definition.isEnumerator()) {
+          transaction.setNestedUseSavepoint();
+          updateAllRepeatedQuestions(newDraft.id, definition.getId());
+        }
+
+        transaction.setNestedUseSavepoint();
+        versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(definition.getId());
+        transaction.commit();
+        return newDraft;
       } catch (UnsupportedQuestionTypeException e) {
         // This should not be able to happen since the provided question definition is inherently
         // valid.
@@ -182,12 +180,11 @@ public class QuestionRepository {
     }
 
     private boolean hasConflict(Question question) {
-      if (question.getQuestionDefinition().getName().equals(questionName)
-          || (question.getQuestionDefinition().getEnumeratorId().equals(enumeratorId)
-              && question
-                  .getQuestionDefinition()
-                  .getQuestionPathSegment()
-                  .equals(questionPathSegment))) {
+      QuestionDefinition definition = question.getQuestionDefinition();
+      boolean isSameName = definition.getName().equals(questionName);
+      boolean isSameEnumId = definition.getEnumeratorId().equals(enumeratorId);
+      boolean isSamePath = definition.getQuestionPathSegment().equals(questionPathSegment);
+      if (isSameName || (isSameEnumId && isSamePath)) {
         conflictedQuestion = Optional.of(question);
         return true;
       }

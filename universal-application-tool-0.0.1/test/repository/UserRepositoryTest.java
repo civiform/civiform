@@ -14,6 +14,9 @@ import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
 public class UserRepositoryTest extends ResetPostgres {
+  public static final String EMAIL = "email@email.com";
+  public static final String PROGRAM_NAME = "program";
+  public static final String AUTHORITY_ID = "I'm an authority ID";
 
   private UserRepository repo;
 
@@ -58,23 +61,18 @@ public class UserRepositoryTest extends ResetPostgres {
 
   @Test
   public void lookupByAuthorityId() {
-    String email = "happy@test.com";
-    String authorityId = "I'm an authority ID";
 
-    new Account().setEmailAddress(email).setAuthorityId(authorityId).save();
+    new Account().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
 
-    assertThat(repo.lookupAccountByAuthorityId(authorityId).get().getEmailAddress())
-        .isEqualTo(email);
+    assertThat(repo.lookupAccountByAuthorityId(AUTHORITY_ID).get().getEmailAddress())
+        .isEqualTo(EMAIL);
   }
 
   @Test
   public void lookupByEmailAddress() {
-    String email = "happy@test.com";
-    String authorityId = "I'm an authority ID";
+    new Account().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
 
-    new Account().setEmailAddress(email).setAuthorityId(authorityId).save();
-
-    assertThat(repo.lookupAccountByEmail(email).get().getAuthorityId()).isEqualTo(authorityId);
+    assertThat(repo.lookupAccountByEmail(EMAIL).get().getAuthorityId()).isEqualTo(AUTHORITY_ID);
   }
 
   @Test
@@ -125,43 +123,38 @@ public class UserRepositoryTest extends ResetPostgres {
 
   @Test
   public void addAdministeredProgram_existingAccount_succeeds() {
-    String email = "email@email.com";
     Account account = new Account();
-    account.setEmailAddress(email);
+    account.setEmailAddress(EMAIL);
     account.save();
 
-    String programName = "name";
-    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(PROGRAM_NAME).buildDefinition();
 
-    Optional<CiviFormError> result = repo.addAdministeredProgram(email, program);
+    Optional<CiviFormError> result = repo.addAdministeredProgram(EMAIL, program);
 
-    assertThat(repo.lookupAccountByEmail(email).get().getAdministeredProgramNames())
-        .containsOnly(programName);
+    assertThat(repo.lookupAccountByEmail(EMAIL).get().getAdministeredProgramNames())
+        .containsOnly(PROGRAM_NAME);
     assertThat(result).isEqualTo(Optional.empty());
   }
 
   @Test
   public void addAdministeredProgram_missingAccount_returnsError() {
-    String email = "test@test.com";
-    String programName = "name";
-    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(PROGRAM_NAME).buildDefinition();
 
-    Optional<CiviFormError> result = repo.addAdministeredProgram(email, program);
+    Optional<CiviFormError> result = repo.addAdministeredProgram(EMAIL, program);
 
-    assertThat(repo.lookupAccountByEmail(email)).isEqualTo(Optional.empty());
+    assertThat(repo.lookupAccountByEmail(EMAIL)).isEqualTo(Optional.empty());
     assertThat(result)
         .isEqualTo(
             Optional.of(
                 CiviFormError.of(
                     String.format(
                         "%s does not have an admin account and cannot be added as a Program Admin.",
-                        email))));
+                        EMAIL))));
   }
 
   @Test
   public void addAdministeredProgram_blankEmail_doesNotCreateAccount() {
-    String programName = "name";
-    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(PROGRAM_NAME).buildDefinition();
     String blankEmail = "    ";
 
     repo.addAdministeredProgram(blankEmail, program);
@@ -171,37 +164,33 @@ public class UserRepositoryTest extends ResetPostgres {
 
   @Test
   public void removeAdministeredProgram_succeeds() {
-    String programName = "program";
-    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(PROGRAM_NAME).buildDefinition();
 
-    String email = "happy@test.com";
     Account account = new Account();
-    account.setEmailAddress(email);
+    account.setEmailAddress(EMAIL);
     account.addAdministeredProgram(program);
     account.save();
-    assertThat(account.getAdministeredProgramNames()).contains(programName);
+    assertThat(account.getAdministeredProgramNames()).contains(PROGRAM_NAME);
 
-    repo.removeAdministeredProgram(email, program);
+    repo.removeAdministeredProgram(EMAIL, program);
 
-    assertThat(repo.lookupAccountByEmail(email).get().getAdministeredProgramNames())
-        .doesNotContain(programName);
+    assertThat(repo.lookupAccountByEmail(EMAIL).get().getAdministeredProgramNames())
+        .doesNotContain(PROGRAM_NAME);
   }
 
   @Test
   public void removeAdministeredProgram_accountNotAdminForProgram_doesNothing() {
-    String programName = "program";
-    ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
+    ProgramDefinition program = ProgramBuilder.newDraftProgram(PROGRAM_NAME).buildDefinition();
 
-    String email = "happy@test.com";
     Account account = new Account();
-    account.setEmailAddress(email);
+    account.setEmailAddress(EMAIL);
     account.save();
-    assertThat(account.getAdministeredProgramNames()).doesNotContain(programName);
+    assertThat(account.getAdministeredProgramNames()).doesNotContain(PROGRAM_NAME);
 
-    repo.removeAdministeredProgram(email, program);
+    repo.removeAdministeredProgram(EMAIL, program);
 
-    assertThat(repo.lookupAccountByEmail(email).get().getAdministeredProgramNames())
-        .doesNotContain(programName);
+    assertThat(repo.lookupAccountByEmail(EMAIL).get().getAdministeredProgramNames())
+        .doesNotContain(PROGRAM_NAME);
   }
 
   private Applicant saveApplicant(String name) {

@@ -33,13 +33,7 @@ public class StoredFileRepository {
 
   public CompletionStage<Optional<StoredFile>> lookupFile(Long id) {
     return supplyAsync(
-        () -> {
-          StoredFile file = database.find(StoredFile.class).setId(id).findOne();
-          if (file == null) {
-            return Optional.empty();
-          }
-          return Optional.of(file);
-        },
+        () -> Optional.ofNullable(database.find(StoredFile.class).setId(id).findOne()),
         executionContext);
   }
 
