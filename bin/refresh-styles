@@ -4,12 +4,36 @@
 
 source bin/lib.sh
 
+TRIM=0
+
+if [[ $* == **--trim** ]]
+then
+  TRIM=1
+fi
+
+# Minifying when not trimming is excrutiatingly slow
+# so we prevent that possible combo
+if [[ $* == **--minify** && $TRIM == "1" ]]
+then
+  MINIFY='--minify'
+fi
+
+if [[ $TRIM == "1" ]]
+then
+  echo "trimming unused css styles"
+fi
+
+if [[ $MINIFY == "--minify" ]]
+then
+  echo "minifying css"
+fi
+
 # Pass --minify to this script to minify the tailwind.css file in dev
 docker run -it --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $(pwd)/server:/usr/src/server \
-  --entrypoint npx \
+  --entrypoint npx -e TRIM=$TRIM \
   civiform/civiform-dev:latest \
   tailwindcss build \
   -i ./app/assets/stylesheets/styles.css \
-  -o ./public/stylesheets/tailwind.css $@
+  -o ./public/stylesheets/tailwind.css ${MINIFY}
