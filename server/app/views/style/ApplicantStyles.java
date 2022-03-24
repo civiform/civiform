@@ -79,8 +79,7 @@ public final class ApplicantStyles {
           Styles.PY_2,
           Styles.TEXT_CENTER,
           Styles.ROUNDED_FULL,
-          Styles.BORDER,
-          Styles.BORDER_TRANSPARENT);
+          Styles.BORDER);
 
   /** Base styles for buttons with a solid background color. */
   private static final String BUTTON_BASE_SOLID =
@@ -89,6 +88,7 @@ public final class ApplicantStyles {
           Styles.BG_SEATTLE_BLUE,
           Styles.TEXT_WHITE,
           Styles.ROUNDED_FULL,
+          Styles.BORDER_TRANSPARENT,
           StyleUtils.hover(Styles.BG_BLUE_700),
           StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400));
 
