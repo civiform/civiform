@@ -73,6 +73,7 @@ public class ProfileMergeTest extends ResetPostgres {
     profile.setId(subject);
     profile.addAuthenticationAttribute("issuerId", issuer);
     profile.addAttribute(CommonProfileDefinition.EMAIL, email);
+    return profile;
   }
 
   @Test
