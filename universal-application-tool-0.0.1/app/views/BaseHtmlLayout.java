@@ -21,6 +21,7 @@ import views.components.ToastMessage;
  * #render(HtmlBundle)} method.
  */
 public class BaseHtmlLayout {
+  private final String civiformImageTag;
 
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
   private static final String[] FOOTER_SCRIPTS = {"main", "accordion", "modal", "radio", "toast"};
@@ -41,6 +42,8 @@ public class BaseHtmlLayout {
     this.hostName = URI.create(baseUrl).getHost();
     String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
     this.isStaging = hostName.equals(stagingHostname);
+
+    civiformImageTag = configuration.getString("civiform_image_tag");
   }
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
@@ -67,6 +70,7 @@ public class BaseHtmlLayout {
     // Add basic page metadata.
     bundle.addMetadata(
         meta().attr("name", "viewport").attr("content", "width=device-width, initial-scale=1"));
+    bundle.addMetadata(meta().attr("name", "civiform-build-tag").attr("content", civiformImageTag));
 
     // Add the warning toast, only for staging
     if (isStaging) {

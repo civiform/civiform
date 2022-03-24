@@ -134,14 +134,10 @@ public class ProgramRepository {
               versionRepository.get().getActiveVersion().getPrograms();
           List<Program> programsMatchingSlug =
               database.find(Program.class).where().eq("slug", slug).findList();
-          Optional<Program> programMaybe =
-              activePrograms.stream()
-                  .filter(activeProgram -> programsMatchingSlug.contains(activeProgram))
-                  .findFirst();
-          if (programMaybe.isPresent()) {
-            return programMaybe.get();
-          }
-          throw new RuntimeException(new ProgramNotFoundException(slug));
+          return activePrograms.stream()
+              .filter(programsMatchingSlug::contains)
+              .findFirst()
+              .orElseThrow(() -> new RuntimeException(new ProgramNotFoundException(slug)));
         },
         executionContext.current());
   }

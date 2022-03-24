@@ -34,7 +34,7 @@ variable "postgres_admin_login" {
   default     = "psqladmin"
 }
 
-variable "docker_tag" {
+variable "image_tag" {
   type        = string
   description = "Tag for docker image to deploy"
 }

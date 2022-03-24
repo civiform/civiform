@@ -14,6 +14,7 @@ docker build -f prod.Dockerfile \
   -t civiform:latest \
   --cache-from civiform/civiform:latest \
   --build-arg BUILDKIT_INLINE_CACHE=1 \
+  --build-arg "image_tag=${SNAPSHOT_TAG}" \
   .
 
 docker::do_dockerhub_login

@@ -25,7 +25,7 @@ lazy val root = (project in file("."))
       "software.amazon.awssdk" % "aws-sdk-java" % "2.15.81",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.4.2",
+      "com.azure" % "azure-identity" % "1.4.6",
       "com.azure" % "azure-storage-blob" % "12.14.2",
 
       // Database and database testing libraries
@@ -113,7 +113,7 @@ libraryDependencies ++= Seq(
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.1",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.13.1",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.1",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.2",
 )
 resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)

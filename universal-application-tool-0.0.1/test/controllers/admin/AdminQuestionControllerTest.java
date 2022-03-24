@@ -9,6 +9,7 @@ import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import forms.DropdownQuestionForm;
 import java.util.Locale;
 import java.util.Optional;
 import models.LifecycleStage;
@@ -246,6 +247,40 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void update_setsIdsAsExpected() throws Exception {
+    DropdownQuestionDefinition definition =
+        new DropdownQuestionDefinition(
+            /* name= */ "applicant ice cream",
+            /* enumeratorId= */ Optional.empty(),
+            /* description= */ "Select your favorite ice cream flavor",
+            LocalizedStrings.of(Locale.US, "Ice cream?", Locale.FRENCH, "crème glacée?"),
+            LocalizedStrings.of(Locale.US, "help", Locale.FRENCH, "aider"),
+            ImmutableList.of(
+                QuestionOption.create(
+                    1L, LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+                QuestionOption.create(
+                    2L, LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
+                QuestionOption.create(
+                    3L, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
+                QuestionOption.create(
+                    4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"))));
+    // We can only update draft questions, so save this in the DRAFT version.
+    testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
+
+    DropdownQuestionForm questionForm = new DropdownQuestionForm(definition);
+    questionForm.setNewOptions(ImmutableList.of("cookie", "mint", "pistachio"));
+
+    DropdownQuestionForm newQuestionForm =
+        new DropdownQuestionForm((DropdownQuestionDefinition) questionForm.getBuilder().build());
+
+    assertThat(newQuestionForm.getOptionIds().get(4)).isEqualTo(5L);
+    assertThat(newQuestionForm.getOptionIds().get(5)).isEqualTo(6L);
+    assertThat(newQuestionForm.getOptionIds().get(6)).isEqualTo(7L);
+    assertThat(newQuestionForm.getNextAvailableId()).isPresent();
+    assertThat(newQuestionForm.getNextAvailableId().getAsLong()).isEqualTo(8L);
+  }
+
+  @Test
   public void update_mergesTranslations() {
     QuestionDefinition definition =
         new DropdownQuestionDefinition(
@@ -307,6 +342,13 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             QuestionOption.create(5, 2, LocalizedStrings.withDefaultValue("lavender")));
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
+
+    DropdownQuestionForm questionForm =
+        new DropdownQuestionForm((DropdownQuestionDefinition) definition);
+    questionForm.getBuilder();
+
+    assertThat(questionForm.getNextAvailableId()).isPresent();
+    assertThat(questionForm.getNextAvailableId().getAsLong()).isEqualTo(5L);
   }
 
   @Test
