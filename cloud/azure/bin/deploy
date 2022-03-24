@@ -1,56 +1,37 @@
 #! /usr/bin/env bash
 set -e
 
-source "cloud/shared/bin/lib/health.sh"
+source "cloud/shared/bin/lib.sh"
 source "cloud/azure/bin/lib.sh"
 
+# loads and validates config variables and generates tfvars file
 python3 "cloud/shared/bin/lib/tf_apply_setup.py"
-readonly TF_VAR_FILE="setup.auto.tfvars"
-readonly BACKEND_VARS_FILENAME="backend_vars"
 
-cloud/azure/bin/setup_tf_shared_state "${TERRAFORM_TEMPLATE_DIR}/${BACKEND_VARS_FILENAME}"
-
-readonly USER_ID="$(azure::get_current_user_id)"
-
+azure::set_common_vars
 azure_log::fetch_log_file
 
-set +e
-(
-    set -e
-    terraform \
-        -chdir="${TERRAFORM_TEMPLATE_DIR}" \
-        init \
-        -backend-config="${BACKEND_VARS_FILENAME}"
-
-    terraform \
-        -chdir="${TERRAFORM_TEMPLATE_DIR}" \
-        apply \
-        -var-file="${TF_VAR_FILE}"
-)
-readonly TF_STATUS=$?
-set -e
-
-if (( $TF_STATUS != 0 )); then
-    log::deploy_failed "${IMAGE_TAG}" "${USER_ID}"
+if ! terraform::perform_apply; then
     out::error "Terraform deployment failed."
-    exit $TF_STATUS
+    log::deploy_failed "${IMAGE_TAG}" "${AZURE_USER_ID}"
+    azure_log::upload_log_file
+    exit 1
 fi
 
-readonly APP_NAME="$(azure::get_app_name "${AZURE_RESOURCE_GROUP}")"
-readonly CANARY_URL="$(azure::get_canary_url "${AZURE_RESOURCE_GROUP}" "${APP_NAME}")"
+azure::set_new_container_tag "${AZURE_RESOURCE_GROUP}" "${AZURE_APP_NAME}" "${IMAGE_TAG}"
 
-azure::set_new_container_tag "${AZURE_RESOURCE_GROUP}" "${APP_NAME}" "${IMAGE_TAG}"
-
-if health::wait_for_success "${CANARY_URL}/loginForm"; then
+if health::wait_for_success "${AZURE_CANARY_URL}/loginForm"; then
     echo "New container successfully started in canary slot"
 else
-    log::deploy_failed "${IMAGE_TAG}" "${USER_ID}"
+    log::deploy_failed "${IMAGE_TAG}" "${AZURE_USER_ID}"
+    azure_log::upload_log_file
     exit 1
 fi
 
 echo "Swapping deployment slot 'canary' into production. This may take up to 10 minutes."
-azure::swap_deployment_slot "${AZURE_RESOURCE_GROUP}" "${APP_NAME}"
+azure::swap_deployment_slot "${AZURE_RESOURCE_GROUP}" "${AZURE_APP_NAME}"
+echo "Success! The new application version is up and running."
 
-echo "Success! The new application version is up and running." 
-log::deploy_succeeded "${IMAGE_TAG}" "${USER_ID}"
+echo "Updating deployment log."
+log::deploy_succeeded "${IMAGE_TAG}" "${AZURE_USER_ID}"
 azure_log::upload_log_file
+echo "Deployment log updated."

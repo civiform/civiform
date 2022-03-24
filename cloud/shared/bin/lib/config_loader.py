@@ -12,16 +12,12 @@ Config Loader
   Provides getters to return values from the config. 
 """
 class ConfigLoader:
-    TF_VARS_FILENAME = "setup.auto.tfvars"
-    BACKEND_CONFIG_FILENAME = "backend_vars"
-    
-    @property
+
     def tfvars_filename(self):
-        return self.TF_VARS_FILENAME
+        return os.environ['TF_VAR_FILENAME']
     
-    @property
     def backend_vars_filename(self):
-        return self.BACKEND_CONFIG_FILENAME
+        return os.environ['BACKEND_VARS_FILENAME']
     
     def load_config(self):
         self._load_config()

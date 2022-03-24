@@ -1,0 +1,48 @@
+#! /usr/bin/env bash
+set -e
+
+source "cloud/shared/bin/lib.sh"
+source "cloud/azure/bin/lib.sh"
+
+# loads and validates config variables and generates tfvars file
+python3 "cloud/shared/bin/lib/tf_apply_setup.py"
+
+azure_log::fetch_log_file
+azure::set_common_vars
+
+readonly CURRENT_PROD_TAG="$(azure::get_container_tag \
+  "${AZURE_RESOURCE_GROUP}" \
+  "${AZURE_APP_NAME}")"
+
+# Set the target image tag to the last successfully deployed tag
+# that is not the current production tag.
+readonly IMAGE_TAG="$(log::get_last_deployed_image_tag "${CURRENT_PROD_TAG}")"
+
+if ! terraform::perform_apply; then
+  out::error "Terraform deployment failed."
+  log::rollback_failed "${IMAGE_TAG}" "${AZURE_USER_ID}"
+  azure_log::upload_log_file
+  exit 1
+fi
+
+readonly CURRENT_CANARY_TAG="$(azure::get_container_tag \
+  "${AZURE_RESOURCE_GROUP}" \
+  "${AZURE_APP_NAME}" \
+  canary)"
+
+if [[ "${CURRENT_CANARY_TAG}" != "${IMAGE_TAG}" ]]; then
+  echo "Setting canary container tag to ${IMAGE_TAG}"
+  azure::set_new_container_tag \
+    "${AZURE_RESOURCE_GROUP}" \
+    "${AZURE_APP_NAME}" \
+    "${IMAGE_TAG}"
+fi
+
+echo "Swapping deployment slot 'canary' into production. This may take up to 10 minutes."
+azure::swap_deployment_slot "${AZURE_RESOURCE_GROUP}" "${AZURE_APP_NAME}"
+echo "Rollback succeded."
+
+echo "Updating deployment log."
+log::rollback_succeeded "${IMAGE_TAG}" "${AZURE_USER_ID}"
+azure_log::upload_log_file
+echo "Deployment log updated."
