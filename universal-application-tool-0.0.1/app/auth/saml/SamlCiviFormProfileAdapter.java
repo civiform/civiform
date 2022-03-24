@@ -181,8 +181,10 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
           .join();
     }
 
-    String authorityId = getAuthorityId(saml2Profile).orElseThrow(()
-        -> new InvalidSamlProfileException("Unable to get authority ID from profile"));
+    String authorityId =
+        getAuthorityId(saml2Profile)
+            .orElseThrow(
+                () -> new InvalidSamlProfileException("Unable to get authority ID from profile"));
     civiFormProfile.setAuthorityId(authorityId).join();
 
     String emailAddress = saml2Profile.getEmail();
