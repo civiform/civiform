@@ -64,8 +64,13 @@ public class AdfsProfileAdapter extends OidcCiviFormProfileAdapter {
   }
 
   private boolean isGlobalAdmin(OidcProfile profile) {
-    JSONArray groups = profile.getAttribute("group", JSONArray.class);
-
+    JSONArray groups = (JSONArray) null;
+    if (profile.containsAttribute("group")) {
+        groups = profile.getAttribute("group", JSONArray.class);
+    } else if (profile.containsAttribute("groups")) {
+        groups = profile.getAttribute("groups", JSONArray.class);
+    }
+     
     if (groups == null) {
       logger.error("Missing group claim in ADFS OIDC profile.");
       return false;
