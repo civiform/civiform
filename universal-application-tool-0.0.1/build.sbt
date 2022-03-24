@@ -111,7 +111,7 @@ libraryDependencies ++= Seq(
     "org.webjars.npm" % "azure__storage-blob" % "10.5.0",
 )
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.1",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.2",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.13.2",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.2",
 )
