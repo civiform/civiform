@@ -75,11 +75,7 @@ public final class ApplicantStyles {
    */
   private static final String BUTTON_BASE =
       StyleUtils.joinStyles(
-          Styles.BLOCK,
-          Styles.PY_2,
-          Styles.TEXT_CENTER,
-          Styles.ROUNDED_FULL,
-          Styles.BORDER);
+          Styles.BLOCK, Styles.PY_2, Styles.TEXT_CENTER, Styles.ROUNDED_FULL, Styles.BORDER);
 
   /** Base styles for buttons with a solid background color. */
   private static final String BUTTON_BASE_SOLID =
@@ -121,8 +117,7 @@ public final class ApplicantStyles {
   public static final String BUTTON_REVIEW =
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_UPPERCASE, Styles.TEXT_BASE);
   public static final String BUTTON_SUBMIT_APPLICATION =
-      StyleUtils.joinStyles(
-          BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MX_AUTO);
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MX_AUTO);
   public static final String BUTTON_ENUMERATOR_ADD_ENTITY =
       StyleUtils.joinStyles(
           BUTTON_BASE_SOLID, Styles.TEXT_BASE, Styles.NORMAL_CASE, Styles.FONT_NORMAL, Styles.PX_4);

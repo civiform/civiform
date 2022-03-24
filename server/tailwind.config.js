@@ -63,7 +63,7 @@ function getStylesDict() {
 const styleDict = getStylesDict()
 
 module.exports = {
-  // See: 
+  // See:
   //     https://tailwindcss.com/docs/content-configuration
   //
   // And sections:
@@ -74,7 +74,7 @@ module.exports = {
     // Files we process to identify which styles are being used
     content: ['./app/views/**/*.java', './app/assets/javascripts/*.ts'],
     extract: {
-      // Routine to process contents with .java extention. Tailwind has a builtin routine that 
+      // Routine to process contents with .java extention. Tailwind has a builtin routine that
       // processes .ts extention files in the `content` list so we dont need to add a method for
       // that
       java: (content) => {
