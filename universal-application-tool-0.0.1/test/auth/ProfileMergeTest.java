@@ -322,7 +322,7 @@ public class ProfileMergeTest extends ResetPostgres {
             () ->
                 samlProfileAdapter.mergeCiviFormProfile(
                     profileFactory.wrapProfileData(profileData), conflictingProfile))
-        .isInstanceOf(InvalidSamlProfileException.class);
+        .isInstanceOf(ProfileMergeConflictException.class);
   }
 
   @Test
@@ -338,6 +338,6 @@ public class ProfileMergeTest extends ResetPostgres {
             () ->
                 samlProfileAdapter.mergeCiviFormProfile(
                     profileFactory.wrapProfileData(profileData), conflictingProfile))
-        .isInstanceOf(InvalidSamlProfileException.class);
+        .isInstanceOf(ProfileMergeConflictException.class);
   }
 }
