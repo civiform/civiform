@@ -9,13 +9,17 @@
 #   TF_VAR_FILENAME
 #######################################
 function terraform::perform_apply() {
-  "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/setup_tf_shared_state" \
-    "${TERRAFORM_TEMPLATE_DIR}/${BACKEND_VARS_FILENAME}"
+  if [[ "${CIVIFORM_MODE}" == "dev" ]]; then
+    terraform -chdir="${TERRAFORM_TEMPLATE_DIR}" init
+  else
+    "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/setup_tf_shared_state" \
+      "${TERRAFORM_TEMPLATE_DIR}/${BACKEND_VARS_FILENAME}"
 
-  terraform \
-    -chdir="${TERRAFORM_TEMPLATE_DIR}" \
-    init \
-    -backend-config="${BACKEND_VARS_FILENAME}"
+    terraform \
+      -chdir="${TERRAFORM_TEMPLATE_DIR}" \
+      init \
+      -backend-config="${BACKEND_VARS_FILENAME}"
+  fi
 
   terraform \
     -chdir="${TERRAFORM_TEMPLATE_DIR}" \
