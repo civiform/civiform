@@ -1,12 +1,26 @@
 const fs = require('fs')
 
+/* IMPORTANT
+ *
+ * If you modify this file, make sure to modify any comments in a
+ *    `app/views/style/Styles.java`
+ *    `app/views/style/ReferenceClasses.java`
+ *    `app/views/style/README.md
+ */
+
 // For stylesDict from Styles.java and ReferenceClasses.java
-const RGX_KEY = /(?<= +public +static +final +String +)([0-9A-Z_]+)/g
-const RGX_VAL =
+const JAVA_STYLE_KEY_REGEX =
+  /(?<= +public +static +final +String +)([0-9A-Z_]+)/g
+const JAVA_STYLE_VALUE_REGEX =
   /(?<= +public +static +final +String +[0-9A-Z_]+ += +")([a-z0-9-/.]+)/g
 
-const STYLE_RGX = /(?<=(Styles|ReferenceClasses)\.)([0-9A-Z_]+)/g
+const STYLE_USAGE_REGEX = /(?<=(Styles|ReferenceClasses)\.)([0-9A-Z_]+)/g
 
+// Files to parse for style dictonary using regex
+const styleFolder = './app/views/style/'
+const styleFiles = ['Styles.java', 'ReferenceClasses.java']
+
+// Prefixes for media queries
 const PREFIXES = [
   'even',
   'focus',
@@ -23,10 +37,12 @@ const PREFIXES = [
 // Used to read Styles.java and ReferenceClasses.java to get dictionary mapping
 // for all possible base styles (no prefixes)
 function addStyleDictMatches(matches, file_contents) {
-  let count = 1
+  let lineNmbr = 0
   for (const line of file_contents) {
-    let match_key = line.match(RGX_KEY)
-    let match_val = line.match(RGX_VAL)
+    lineNmbr++
+
+    let match_key = line.match(JAVA_STYLE_KEY_REGEX)
+    let match_val = line.match(JAVA_STYLE_VALUE_REGEX)
 
     // Both 'variable' and tailwind str are probably on same line
     // Even though java probably doesn't require it
@@ -34,27 +50,17 @@ function addStyleDictMatches(matches, file_contents) {
       if (match_key.length === 1 && match_val.length === 1) {
         matches[match_key[0]] = match_val[0]
       } else {
-        throw "strange line in 'Styles.java' at line " + count.toString()
+        throw "strange line in 'Styles.java' at line " + lineNmbr.toString()
       }
     }
-
-    count++
   }
 }
 
 function getStylesDict() {
   const matches = {}
-  let folder = './app/views/style/'
-  try {
-    let specialFiles = ['Styles.java', 'ReferenceClasses.java']
-    for (file of specialFiles) {
-      let data = fs.readFileSync(folder + file, 'utf8').split('\n')
-      addStyleDictMatches(matches, data)
-    }
-  } catch (error) {
-    throw (
-      'error reading Styles.java for tailwindcss processing: ' + error.message
-    )
+  for (const file of styleFiles) {
+    const data = fs.readFileSync(styleFolder + file, 'utf8').split('\n')
+    addStyleDictMatches(matches, data)
   }
 
   return matches
@@ -80,7 +86,7 @@ module.exports = {
       java: (content) => {
         const output = []
 
-        let matchIter = content.match(STYLE_RGX)
+        let matchIter = content.match(STYLE_USAGE_REGEX)
 
         if (matchIter) {
           for (const tailwindClassId of matchIter) {
