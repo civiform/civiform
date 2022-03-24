@@ -5,6 +5,7 @@ import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
 import auth.Roles;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
@@ -70,13 +71,7 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     SAML2Profile profile = (SAML2Profile) samlProfile.get();
 
     // Check if we already have a profile in the database for the user returned to us by SAML2.
-    Optional<Applicant> existingApplicant =
-        applicantRepositoryProvider
-            .get()
-            .lookupApplicantByEmail(
-                profile.getAttribute(CommonProfileDefinition.EMAIL, String.class))
-            .toCompletableFuture()
-            .join();
+    Optional<Applicant> existingApplicant = getExistingApplicant(profile);
 
     // Now we have a three-way merge situation.  We might have
     // 1) an applicant in the database (`existingApplicant`),
@@ -111,6 +106,38 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
       return Optional.of(civiformProfileFromSamlProfile(profile));
     }
     return Optional.of(mergeCiviFormProfile(existingProfile.get(), profile));
+  }
+
+  @VisibleForTesting
+  Optional<Applicant> getExistingApplicant(SAML2Profile profile) {
+    // authority_id is used as the unique stable key for users. This is unique and stable per
+    // authentication provider.
+    String authorityId =
+        getAuthorityId(profile)
+            .orElseThrow(
+                () -> new InvalidSamlProfileException("Unable to get authority ID from profile."));
+
+    return applicantRepositoryProvider
+        .get()
+        .lookupApplicantByAuthorityId(authorityId)
+        .toCompletableFuture()
+        .join();
+  }
+
+  protected Optional<String> getAuthorityId(SAML2Profile profile) {
+    // In SAML the user is uniquely identified by the issuer and subject claims.
+    // https://docs.oasis-open.org/security/saml-subject-id-attr/v1.0/cs01/saml-subject-id-attr-v1.0-cs01.html#_Toc536097226
+    //
+    // Wee combine the two to create the unique authority id.
+    String issuer = profile.getIssuerEntityID();
+    // Subject identifies the specific user in the issuer.
+    // Pac4j treats the subject as special, and you can't simply ask for the "sub" claim.
+    String subject = profile.getId();
+    if (issuer == null || subject == null) {
+      return Optional.empty();
+    }
+    // This string format can never change. It is the unique ID for OIDC based account.
+    return Optional.of(String.format("iss: %s sub: %s", issuer, subject));
   }
 
   public CiviFormProfileData civiformProfileFromSamlProfile(SAML2Profile profile) {
@@ -155,6 +182,13 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     }
     String emailAddress = saml2Profile.getEmail();
     civiFormProfile.setEmailAddress(emailAddress).join();
+
+    Optional<String> authorityId = getAuthorityId(saml2Profile);
+    if (authorityId.isEmpty()) {
+      throw new InvalidSamlProfileException("Unable to get authority ID from profile.");
+    }
+    civiFormProfile.setAuthorityId(authorityId.get()).join();
+
     civiFormProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
     // Meaning: whatever you signed in with most recently is the role you have.
     ImmutableSet<Roles> roles = roles(civiFormProfile);
