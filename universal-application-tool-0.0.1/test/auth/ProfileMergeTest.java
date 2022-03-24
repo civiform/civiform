@@ -9,6 +9,7 @@ import auth.saml.InvalidSamlProfileException;
 import auth.saml.SamlCiviFormProfileAdapter;
 import io.ebean.DB;
 import io.ebean.Database;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Provider;
 import models.Account;
@@ -322,7 +323,7 @@ public class ProfileMergeTest extends ResetPostgres {
             () ->
                 samlProfileAdapter.mergeCiviFormProfile(
                     profileFactory.wrapProfileData(profileData), conflictingProfile))
-        .isInstanceOf(ProfileMergeConflictException.class);
+        .isInstanceOf(CompletionException.class);
   }
 
   @Test
@@ -338,6 +339,6 @@ public class ProfileMergeTest extends ResetPostgres {
             () ->
                 samlProfileAdapter.mergeCiviFormProfile(
                     profileFactory.wrapProfileData(profileData), conflictingProfile))
-        .isInstanceOf(ProfileMergeConflictException.class);
+        .isInstanceOf(CompletionException.class);
   }
 }
