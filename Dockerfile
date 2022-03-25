@@ -5,7 +5,7 @@ ARG PLATFORM="amd64"
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
 FROM adoptopenjdk/openjdk11:jdk-11.0.10_9-alpine-slim as amd64
-FROM bellsoft/liberica-openjdk-alpine:11.0.14-9-aarch64 as arm64
+FROM bellsoft/liberica-openjdk-alpine:11.0.10-9-aarch64 as arm64
 
 FROM ${PLATFORM}
 
