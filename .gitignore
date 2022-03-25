@@ -27,3 +27,14 @@ terraform.tfstate**
 
 sbt_cache/*
 !sbt_cache/.keep
+
+*/.classpath
+*/.vscode
+*/.project
+**/.data
+**/.metals/
+**/.bloop/
+**/.ammonite/
+**/metals.sbt
+**/pom.xml
+

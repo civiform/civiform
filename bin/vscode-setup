@@ -1,0 +1,31 @@
+#! /usr/bin/env bash
+
+# DOC: Open an sbt CLI in the dev environment container.
+
+source bin/lib.sh
+
+bin/pull-image
+
+bin/sbt makePom && cp universal-application-tool-0.0.1/target/scala-*/*.pom universal-application-tool-0.0.1/pom.xml
+
+BUILD=$(cat <<END
+<build>
+        <sourceDirectory>app</sourceDirectory>
+        <testSourceDirectory>test</testSourceDirectory>
+        <resources>
+            <resource>
+            <directory>conf</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+            <directory>test/conf</directory>
+            </testResource>
+        </testResources>
+    </build>
+    <modelVersion>
+END
+)
+cp universal-application-tool-0.0.1/pom.xml universal-application-tool-0.0.1/pom.bkp
+
+perl -i -pe "s|<modelVersion>|$BUILD|g" universal-application-tool-0.0.1/pom.xml
