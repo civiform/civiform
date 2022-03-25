@@ -170,13 +170,13 @@ function azure::get_current_user_id() {
 }
 
 #######################################
-# Swap the canary slot into production.
+# Ensure that the given role is assigned at the given scope:
 # Arguments:
 #   1. The resource group name
 #   2. role guid
 #   3. scope name
 #######################################
-function azure::create_role_assignment() {
+function azure::ensure_role_assignment() {
   local USER_ID="$(az ad signed-in-user show --query objectId -o tsv)"
   local ROLE_ASSIGNMENTS="$(az role assignment list --assignee ${USER_ID} --resource-group ${1})"
 

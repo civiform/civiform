@@ -6,7 +6,7 @@ source "cloud/azure/bin/lib.sh"
 
 # Try to grant yourself permissions to the log file and check if it exists
 # if either fails we want to initialize the log file
-if ! azure_log::grant_log_role_assignments || ! azure_log::log_file_exists; then
+if ! azure_log::ensure_log_role_assignments || ! azure_log::log_file_exists; then
   azure_log::initialize_log_file
 fi
 

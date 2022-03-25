@@ -82,10 +82,10 @@ function azure_log::log_file_exists() {
 #   AZURE_SUBSCRIPTION
 #   AZURE_LOG_STORAGE_ACCOUNT_NAME
 #######################################
-function azure_log::grant_log_role_assignments() {
+function azure_log::ensure_log_role_assignments() {
   echo "Granting current user access to deploy log storage account..."
   storage::assign_storage_account_contributor_role_to_user "${AZURE_RESOURCE_GROUP}"
-  azure::create_role_assignment \
+  azure::ensure_role_assignment \
    "${AZURE_RESOURCE_GROUP}" \
    "Storage Blob Data Contributor" \
    "/subscriptions/${AZURE_SUBSCRIPTION}/resourceGroups/${AZURE_RESOURCE_GROUP}/providers/Microsoft.Storage/storageAccounts/${AZURE_LOG_STORAGE_ACCOUNT_NAME}"
@@ -121,7 +121,7 @@ function azure_log::initialize_log_file() {
     --name "${AZURE_LOG_CONTAINER_NAME}"
   echo "Done creating deploy log storage container."
 
-  azure_log::grant_log_role_assignments
+  azure_log::ensure_log_role_assignments
   # If the logfile already exists, we fetch it and append the initialized
   # event into the log. Otherwise we create a new file and upload it.
   if azure_log::log_file_exists; then

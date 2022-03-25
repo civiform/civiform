@@ -28,7 +28,7 @@ function key_vault::create_vault() {
 #######################################
 function key_vault::assign_secrets_officer_role_to_user() { 
   local SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
-  azure::create_role_assignment \
+  azure::ensure_role_assignment \
     "${1}" \
     ${KEY_VAULT_SECRETS_OFFICER_GUID} \
     "subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${1}" 

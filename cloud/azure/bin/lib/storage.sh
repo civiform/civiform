@@ -10,7 +10,7 @@ readonly STORAGE_ACCOUNT_CONTRIBUTOR_GUID="17d1049b-9a84-46fb-8f53-869881c3d3ab"
 #######################################
 function storage::assign_storage_blob_data_contributor_role_to_user() {
   local SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
-  azure::create_role_assignment \
+  azure::ensure_role_assignment \
     "${1}" \
     ${BLOB_DATA_CONTRIBUTOR_GUID} \
     "subscriptions/${SUBSCRIPTION_ID}/resourcegroups/${1}" 
@@ -23,7 +23,7 @@ function storage::assign_storage_blob_data_contributor_role_to_user() {
 #######################################
 function storage::assign_storage_account_contributor_role_to_user() {
   local SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
-  azure::create_role_assignment \
+  azure::ensure_role_assignment \
     "${1}" \
     ${STORAGE_ACCOUNT_CONTRIBUTOR_GUID} \
     "subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${1}" 
