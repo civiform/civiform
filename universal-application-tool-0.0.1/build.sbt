@@ -36,7 +36,7 @@ lazy val root = (project in file("."))
       "com.h2database" % "h2" % "1.4.200" % Test,
 
       // Parameterized testing
-      "pl.pragmatists" % "JUnitParams" % "1.1.0" % Test,
+      "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.14.0" % Test,
