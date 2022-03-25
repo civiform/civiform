@@ -1,12 +1,10 @@
 package controllers;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 
+import auth.AdminAuthClient;
+import auth.ApplicantAuthClient;
 import auth.AuthIdentityProviderName;
-import auth.oidc.AdOidcClient;
-import auth.oidc.IdcsOidcClient;
-import auth.saml.LoginRadiusSamlClient;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.typesafe.config.Config;
@@ -22,7 +20,6 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.play.PlayWebContext;
 import org.pac4j.play.http.PlayHttpActionAdapter;
-import org.pac4j.saml.client.SAML2Client;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -33,11 +30,9 @@ import play.mvc.Result;
  */
 public class LoginController extends Controller {
 
-  private final OidcClient idcsClient;
+  private final IndirectClient adminClient;
 
-  private final OidcClient adClient;
-
-  private final SAML2Client loginRadiusClient;
+  private final IndirectClient applicantClient;
 
   private final SessionStore sessionStore;
 
@@ -45,56 +40,55 @@ public class LoginController extends Controller {
 
   private final Config config;
 
-  private final String applicantIdp;
-
   @Inject
   public LoginController(
-      @AdOidcClient @Nullable OidcClient adClient,
-      @IdcsOidcClient @Nullable OidcClient idcsClient,
-      @LoginRadiusSamlClient @Nullable SAML2Client loginRadiusClient,
+      @AdminAuthClient @Nullable IndirectClient adminClient,
+      @ApplicantAuthClient @Nullable IndirectClient applicantClient,
       SessionStore sessionStore,
       Config config) {
-    this.idcsClient = idcsClient;
-    this.adClient = adClient;
-    this.loginRadiusClient = loginRadiusClient;
+    this.adminClient = adminClient;
+    this.applicantClient = applicantClient;
     this.sessionStore = Preconditions.checkNotNull(sessionStore);
-    this.applicantIdp = checkNotNull(config).getString("auth.applicant_idp");
     this.httpActionAdapter = PlayHttpActionAdapter.INSTANCE;
     this.config = config;
   }
 
-  public Result loginWithRedirect(Http.Request request, Optional<String> redirectTo) {
-    if (applicantIdp.equals(AuthIdentityProviderName.LOGIN_RADIUS_APPLICANT.getString())) {
-      return loginRadiusLoginWithRedirect(request, redirectTo);
-    }
-    return idcsLoginWithRedirect(request, redirectTo);
+  public Result adminLogin(Http.Request request) {
+    return login(request, adminClient);
   }
 
-  public Result idcsLogin(Http.Request request) {
-    return login(request, idcsClient);
-  }
-
-  public Result idcsLoginWithRedirect(Http.Request request, Optional<String> redirectTo) {
+  public Result applicantLogin(Http.Request request, Optional<String> redirectTo) {
     if (redirectTo.isEmpty()) {
-      return idcsLogin(request);
+      return login(request, applicantClient);
     }
-    return login(request, idcsClient)
-        .addingToSession(request, REDIRECT_TO_SESSION_KEY, redirectTo.get());
-  }
-
-  public Result loginRadiusLogin(Http.Request request) {
-    return login(request, loginRadiusClient);
-  }
-
-  public Result loginRadiusLoginWithRedirect(Http.Request request, Optional<String> redirectTo) {
-    if (redirectTo.isEmpty()) {
-      return loginRadiusLogin(request);
-    }
-    return login(request, loginRadiusClient)
+    return login(request, applicantClient)
         .addingToSession(request, REDIRECT_TO_SESSION_KEY, redirectTo.get());
   }
 
   public Result register(Http.Request request) {
+    String idp;
+    try {
+      idp = config.getString("auth.applicant_idp");
+    } catch (ConfigException.Missing e) {
+      // Default to IDCS.
+      idp = AuthIdentityProviderName.IDCS_APPLICANT.toString();
+    }
+
+    boolean isIDCS = idp.equals(AuthIdentityProviderName.IDCS_APPLICANT.toString());
+
+    // Because this is only being called when we know IDCS is available, this route should
+    // technically
+    // never happen.
+    if (!isIDCS) {
+      return login(request, applicantClient);
+    }
+
+    return idcsRegister(request);
+  }
+
+  // IDCS has specific register behavior that is different from other IDPs, which have the register
+  // option on the same screen as the login page.
+  private Result idcsRegister(Http.Request request) {
     String registerUrl = null;
     try {
       registerUrl = config.getString("idcs.register_uri");
@@ -110,11 +104,7 @@ public class LoginController extends Controller {
         .addingToSession(
             request,
             REDIRECT_TO_SESSION_KEY,
-            routes.LoginController.idcsLoginWithRedirect(Optional.empty()).url());
-  }
-
-  public Result adfsLogin(Http.Request request) {
-    return login(request, adClient);
+            routes.LoginController.applicantLogin(Optional.empty()).url());
   }
 
   // Logic taken from org.pac4j.play.deadbolt2.Pac4jHandler.beforeAuthCheck.
