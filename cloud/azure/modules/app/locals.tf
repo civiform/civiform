@@ -48,11 +48,11 @@ locals {
 
     SECRET_KEY = data.azurerm_key_vault_secret.app_secret_key.value
 
-    ADFS_SECRET        = data.azurerm_key_vault_secret.adfs_secret.value
-    ADFS_CLIENT_ID     = data.azurerm_key_vault_secret.adfs_client_id.value
-    ADFS_DISCOVERY_URI = data.azurerm_key_vault_secret.adfs_discovery_uri.value
-
-    CIVIFORM_APPLICANT_IDP = var.civiform_applicant_idp
+    ADFS_SECRET             = data.azurerm_key_vault_secret.adfs_secret.value
+    ADFS_CLIENT_ID          = data.azurerm_key_vault_secret.adfs_client_id.value
+    ADFS_DISCOVERY_URI      = data.azurerm_key_vault_secret.adfs_discovery_uri.value
+    ADFS_GLOBAL_ADMIN_GROUP = var.adfs_admin_group
+    CIVIFORM_APPLICANT_IDP  = var.civiform_applicant_idp
 
     # The values below are all defaulted to null. If SAML authentication is used, the values can be pulled from the
     # saml_keystore module
