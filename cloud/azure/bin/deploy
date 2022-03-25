@@ -8,6 +8,7 @@ source "cloud/azure/bin/lib.sh"
 python3 "cloud/shared/bin/lib/tf_apply_setup.py"
 
 azure::set_common_vars
+azure_log::ensure_log_role_assignments
 azure_log::fetch_log_file
 
 if ! terraform::perform_apply; then
