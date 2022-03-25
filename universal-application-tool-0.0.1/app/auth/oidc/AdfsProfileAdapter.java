@@ -25,6 +25,7 @@ public class AdfsProfileAdapter extends OidcCiviFormProfileAdapter {
   private static final Logger logger = LoggerFactory.getLogger(AdfsProfileAdapter.class);
 
   private final String adminGroupName;
+  private final String ad_groups_attribute_name;
 
   public AdfsProfileAdapter(
       OidcConfiguration configuration,
@@ -34,6 +35,7 @@ public class AdfsProfileAdapter extends OidcCiviFormProfileAdapter {
       Provider<UserRepository> applicantRepositoryProvider) {
     super(configuration, client, profileFactory, applicantRepositoryProvider);
     this.adminGroupName = appConfig.getString("adfs.admin_group");
+    this.ad_groups_attribute_name = appConfig.getString("adfs.ad_groups_attribute_name");
   }
 
   @Override
@@ -65,10 +67,8 @@ public class AdfsProfileAdapter extends OidcCiviFormProfileAdapter {
 
   private boolean isGlobalAdmin(OidcProfile profile) {
     JSONArray groups = (JSONArray) null;
-    if (profile.containsAttribute("group")) {
-      groups = profile.getAttribute("group", JSONArray.class);
-    } else if (profile.containsAttribute("groups")) {
-      groups = profile.getAttribute("groups", JSONArray.class);
+    if (profile.containsAttribute(this.ad_groups_attribute_name)) {
+      groups = profile.getAttribute(this.ad_groups_attribute_name, JSONArray.class);
     }
 
     if (groups == null) {
