@@ -33,7 +33,7 @@ lazy val root = (project in file("."))
       "org.junit.jupiter" % "junit-jupiter-engine" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-api" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-params" % "5.8.2" % Test,
-      "com.h2database" % "h2" % "1.4.199" % Test,
+      "com.h2database" % "h2" % "1.4.200" % Test,
 
       // Parameterized testing
       "pl.pragmatists" % "JUnitParams" % "1.1.0" % Test,
