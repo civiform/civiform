@@ -5,7 +5,7 @@ lazy val root = (project in file("."))
   .settings(
     name := """universal-application-tool""",
     version := "0.0.1",
-    scalaVersion := "2.13.1",
+    scalaVersion := "2.13.8",
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
       guice,
