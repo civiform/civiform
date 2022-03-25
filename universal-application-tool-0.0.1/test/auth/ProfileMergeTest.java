@@ -5,9 +5,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import auth.oidc.IdcsProfileAdapter;
 import auth.oidc.InvalidOidcProfileException;
+import auth.saml.InvalidSamlProfileException;
 import auth.saml.SamlCiviFormProfileAdapter;
 import io.ebean.DB;
 import io.ebean.Database;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Provider;
 import models.Account;
@@ -64,6 +66,14 @@ public class ProfileMergeTest extends ResetPostgres {
     profile.addAttribute("user_emailid", email);
     profile.addAttribute("iss", issuer);
     profile.setId(subject);
+    return profile;
+  }
+
+  private SAML2Profile createSamlProfile(String email, String issuer, String subject) {
+    SAML2Profile profile = new SAML2Profile();
+    profile.setId(subject);
+    profile.addAuthenticationAttribute("issuerId", issuer);
+    profile.addAttribute(CommonProfileDefinition.EMAIL, email);
     return profile;
   }
 
@@ -223,9 +233,8 @@ public class ProfileMergeTest extends ResetPostgres {
   }
 
   @Test
-  public void testSamlProfileCreation() throws ExecutionException, InterruptedException {
-    SAML2Profile saml2Profile = new SAML2Profile();
-    saml2Profile.addAttribute(CommonProfileDefinition.EMAIL, "foo@example.com");
+  public void testSamlProfileCreation() throws Exception {
+    SAML2Profile saml2Profile = createSamlProfile("foo@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
         samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
@@ -233,12 +242,12 @@ public class ProfileMergeTest extends ResetPostgres {
 
     assertThat(profileData.getEmail()).isEqualTo("foo@example.com");
     assertThat(profile.getEmailAddress().get()).isEqualTo("foo@example.com");
+    assertThat(profile.getAuthorityId().get()).isEqualTo("Issuer: issuer NameID: subject");
   }
 
   @Test
-  public void testSuccessfulSamlProfileMerge() {
-    SAML2Profile saml2Profile = new SAML2Profile();
-    saml2Profile.addAttribute(CommonProfileDefinition.EMAIL, "foo@example.com");
+  public void testProfileMerge_saml_succeeds() {
+    SAML2Profile saml2Profile = createSamlProfile("foo@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
         samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
@@ -251,11 +260,9 @@ public class ProfileMergeTest extends ResetPostgres {
   }
 
   @Test
-  public void testFailedSamlProfileMerge() {
-    SAML2Profile saml2Profile = new SAML2Profile();
-    saml2Profile.addAttribute(CommonProfileDefinition.EMAIL, "foo@example.com");
-    SAML2Profile conflictingProfile = new SAML2Profile();
-    conflictingProfile.addAttribute(CommonProfileDefinition.EMAIL, "bar@example.com");
+  public void testProfileMerge_saml_fails_differentEmails() {
+    SAML2Profile saml2Profile = createSamlProfile("foo@example.com", "issuer", "subject");
+    SAML2Profile conflictingProfile = createSamlProfile("bar@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
         samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
@@ -265,5 +272,73 @@ public class ProfileMergeTest extends ResetPostgres {
                 samlProfileAdapter.mergeCiviFormProfile(
                     profileFactory.wrapProfileData(profileData), conflictingProfile))
         .hasCauseInstanceOf(ProfileMergeConflictException.class);
+  }
+
+  @Test
+  public void testProfileMerge_saml_fails_noSubject() {
+    SAML2Profile saml2Profile = createSamlProfile("foo@example.com", "issuer", "subject");
+
+    SAML2Profile newProfile = new SAML2Profile();
+    newProfile.addAttribute(CommonProfileDefinition.EMAIL, "foo@example.com");
+    newProfile.addAuthenticationAttribute("issuerId", "issuer");
+
+    CiviFormProfileData profileData =
+        samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
+
+    assertThatThrownBy(
+            () ->
+                samlProfileAdapter.mergeCiviFormProfile(
+                    profileFactory.wrapProfileData(profileData), newProfile))
+        .isInstanceOf(InvalidSamlProfileException.class);
+  }
+
+  @Test
+  public void testProfileMerge_saml_fails_noIssuer() {
+    SAML2Profile saml2Profile = createSamlProfile("foo@example.com", "issuer", "subject");
+
+    SAML2Profile newProfile = new SAML2Profile();
+    newProfile.addAttribute(CommonProfileDefinition.EMAIL, "foo@example.com");
+    newProfile.setId("subject");
+
+    CiviFormProfileData profileData =
+        samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
+
+    assertThatThrownBy(
+            () ->
+                samlProfileAdapter.mergeCiviFormProfile(
+                    profileFactory.wrapProfileData(profileData), newProfile))
+        .isInstanceOf(InvalidSamlProfileException.class);
+  }
+
+  @Test
+  public void testProfileMerge_saml_fails_differentAuthoritySubject() {
+    SAML2Profile saml2Profile = createSamlProfile("foo@example.com", "issuer", "subject");
+    SAML2Profile conflictingProfile =
+        createSamlProfile("foo@example.com", "issuer", "a different subject");
+
+    CiviFormProfileData profileData =
+        samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
+
+    assertThatThrownBy(
+            () ->
+                samlProfileAdapter.mergeCiviFormProfile(
+                    profileFactory.wrapProfileData(profileData), conflictingProfile))
+        .isInstanceOf(CompletionException.class);
+  }
+
+  @Test
+  public void testProfileMerge_saml_fails_differentAuthorityIssuer() {
+    SAML2Profile saml2Profile = createSamlProfile("foo@example.com", "issuer", "subject");
+    SAML2Profile conflictingProfile =
+        createSamlProfile("foo@example.com", "a different issuer", "subject");
+
+    CiviFormProfileData profileData =
+        samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
+
+    assertThatThrownBy(
+            () ->
+                samlProfileAdapter.mergeCiviFormProfile(
+                    profileFactory.wrapProfileData(profileData), conflictingProfile))
+        .isInstanceOf(CompletionException.class);
   }
 }
