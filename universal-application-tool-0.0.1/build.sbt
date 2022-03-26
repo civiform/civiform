@@ -67,7 +67,7 @@ lazy val root = (project in file("."))
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.8.2",
       "com.google.auto.value" % "auto-value" % "1.8.2",
-      "com.google.auto.value" % "auto-value-parent" % "1.8.2",
+      "com.google.auto.value" % "auto-value-parent" % "1.9",
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.5.1",
