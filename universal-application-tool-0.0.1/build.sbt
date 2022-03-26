@@ -99,7 +99,10 @@ lazy val root = (project in file("."))
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
     // Turn off scaladoc link warnings
-    Compile / doc / scalacOptions += "-no-link-warnings"
+    Compile / doc / scalacOptions += "-no-link-warnings",
+    // Turn off scaladoc
+    Compile / packageDoc / publishArtifact := false,
+    Compile / doc / sources := Seq.empty
   )
 
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
