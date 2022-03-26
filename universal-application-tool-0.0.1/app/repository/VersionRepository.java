@@ -2,6 +2,7 @@ package repository;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static java.util.function.Predicate.not;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -15,6 +16,7 @@ import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import javax.inject.Inject;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.RollbackException;
@@ -57,56 +59,48 @@ public class VersionRepository {
       Version active = getActiveVersion();
       Preconditions.checkState(
           draft.getPrograms().size() > 0, "Must have at least 1 program in the draft version.");
+
+      ImmutableSet<String> draftProgramsNames =
+          draft.getPrograms().stream()
+              .map(program -> program.getProgramDefinition().adminName())
+              .collect(ImmutableSet.toImmutableSet());
+
+      ImmutableSet<String> draftQuestionNames =
+          draft.getQuestions().stream()
+              .map(question -> question.getQuestionDefinition().getName())
+              .collect(ImmutableSet.toImmutableSet());
+
+      // Is a program being deleted in the draft version?
+      Predicate<Program> programIsDeletedInDraft =
+          program -> draft.programIsTombstoned(program.getProgramDefinition().adminName());
+      // Is a question being deleted in the draft version?
+      Predicate<Question> questionIsDeletedInDraft =
+          question -> draft.questionIsTombstoned(question.getQuestionDefinition().getName());
+
       // Associate any active programs that aren't present in the draft with the draft.
       active.getPrograms().stream()
           // Exclude programs deleted in the draft.
-          .filter(
-              activeProgram ->
-                  !draft.programIsTombstoned(activeProgram.getProgramDefinition().adminName()))
+          .filter(not(programIsDeletedInDraft))
           // Exclude programs that are in the draft already.
           .filter(
               activeProgram ->
-                  draft.getPrograms().stream()
-                      .noneMatch(
-                          draftProgram ->
-                              activeProgram
-                                  .getProgramDefinition()
-                                  .adminName()
-                                  .equals(draftProgram.getProgramDefinition().adminName())))
+                  !draftProgramsNames.contains(activeProgram.getProgramDefinition().adminName()))
           // For each active program not associated with the draft, associate it with the draft.
-          .forEach(
-              activeProgramNotInDraft -> {
-                activeProgramNotInDraft.addVersion(draft);
-                activeProgramNotInDraft.save();
-              });
+          .forEach(activeProgramNotInDraft -> activeProgramNotInDraft.addVersion(draft).save());
 
       // Associate any active questions that aren't present in the draft with the draft.
       active.getQuestions().stream()
           // Exclude questions deleted in the draft.
-          .filter(
-              activeQuestion ->
-                  !draft.questionIsTombstoned(activeQuestion.getQuestionDefinition().getName()))
+          .filter(not(questionIsDeletedInDraft))
           // Exclude questions that are in the draft already.
           .filter(
               activeQuestion ->
-                  draft.getQuestions().stream()
-                      .noneMatch(
-                          draftQuestion ->
-                              activeQuestion
-                                  .getQuestionDefinition()
-                                  .getName()
-                                  .equals(draftQuestion.getQuestionDefinition().getName())))
+                  !draftQuestionNames.contains(activeQuestion.getQuestionDefinition().getName()))
           // For each active question not associated with the draft, associate it with the draft.
-          .forEach(
-              activeQuestionNotInDraft -> {
-                activeQuestionNotInDraft.addVersion(draft);
-                activeQuestionNotInDraft.save();
-              });
+          .forEach(activeQuestionNotInDraft -> activeQuestionNotInDraft.addVersion(draft).save());
       // Move forward the ACTIVE version.
-      active.setLifecycleStage(LifecycleStage.OBSOLETE);
-      draft.setLifecycleStage(LifecycleStage.ACTIVE);
-      active.save();
-      draft.save();
+      active.setLifecycleStage(LifecycleStage.OBSOLETE).save();
+      draft.setLifecycleStage(LifecycleStage.ACTIVE).save();
       draft.refresh();
       database.commitTransaction();
     } finally {
@@ -174,6 +168,10 @@ public class VersionRepository {
         .findOne();
   }
 
+  /**
+   * Given any revision of a question, return the most recent conceptual version of it. Will return
+   * the current DRAFT version if present then the current ACTIVE version.
+   */
   private Optional<Question> getLatestVersionOfQuestion(long questionId) {
     String questionName =
         database.find(Question.class).setId(questionId).select("name").findSingleAttribute();
@@ -191,7 +189,7 @@ public class VersionRepository {
 
   /**
    * For each question in this program, check whether it is the most up-to-date version of the
-   * question which is either DRAFT or ACTIVE. If it is not, update the pointer to the most
+   * question, which is either DRAFT or ACTIVE. If it is not, update the pointer to the most
    * up-to-date version of the question, using the given transaction. This method can only be called
    * on a draft program.
    */
@@ -285,11 +283,17 @@ public class VersionRepository {
     }
   }
 
-  public void updateProgramsForNewDraftQuestion(long oldId) {
+  /**
+   * Update all ACTIVE and DRAFT programs that refer to the question revision {@param oldId}, to
+   * refer to the latest revision of all their questions.
+   */
+  public void updateProgramsThatReferenceQuestion(long oldId) {
+    // Update all DRAFT programs that reference the question.
     getDraftVersion().getPrograms().stream()
         .filter(program -> program.getProgramDefinition().hasQuestion(oldId))
-        .forEach(program -> updateQuestionVersions(program));
+        .forEach(this::updateQuestionVersions);
 
+    // Update any ACTIVE program that references the question and does not have a DRAFT already
     getActiveVersion().getPrograms().stream()
         .filter(program -> program.getProgramDefinition().hasQuestion(oldId))
         .filter(
@@ -304,15 +308,18 @@ public class VersionRepository {
     return database.find(Version.class).findList();
   }
 
-  public void setLive(long versionId) {
-    Version draftVersion = getDraftVersion();
-    Version activeVersion = getActiveVersion();
+  /** Sets a previous version to ACTIVE again, and hides any DRAFT version. */
+  public void setLiveVersion(long versionId) {
+    Version currentDraftVersion = getDraftVersion();
+    Version currentActiveVersion = getActiveVersion();
     Version newActiveVersion = database.find(Version.class).setId(versionId).findOne();
-    newActiveVersion.setLifecycleStage(LifecycleStage.ACTIVE);
-    newActiveVersion.save();
-    activeVersion.setLifecycleStage(LifecycleStage.OBSOLETE);
-    activeVersion.save();
-    draftVersion.setLifecycleStage(LifecycleStage.DELETED);
-    draftVersion.save();
+    Preconditions.checkState(
+        currentDraftVersion.id != versionId, "Can't rollback to the DRAFT version.");
+    Preconditions.checkState(
+        currentActiveVersion.id != versionId, "Can't rollback to the current ACTIVE version.");
+
+    newActiveVersion.setLifecycleStage(LifecycleStage.ACTIVE).save();
+    currentActiveVersion.setLifecycleStage(LifecycleStage.OBSOLETE).save();
+    currentDraftVersion.setLifecycleStage(LifecycleStage.DELETED).save();
   }
 }

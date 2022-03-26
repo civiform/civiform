@@ -60,8 +60,9 @@ public class Version extends BaseModel {
     this.lifecycleStage = lifecycleStage;
   }
 
-  public void setLifecycleStage(LifecycleStage lifecycleStage) {
+  public Version setLifecycleStage(LifecycleStage lifecycleStage) {
     this.lifecycleStage = lifecycleStage;
+    return this;
   }
 
   public ImmutableList<Program> getPrograms() {

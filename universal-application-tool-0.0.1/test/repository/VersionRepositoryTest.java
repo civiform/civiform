@@ -61,14 +61,14 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
 
-    this.versionRepository.setLive(oldActive.id);
+    this.versionRepository.setLiveVersion(oldActive.id);
 
     oldActive.refresh();
     oldDraft.refresh();
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
 
-    this.versionRepository.setLive(oldDraft.id);
+    this.versionRepository.setLiveVersion(oldDraft.id);
 
     oldActive.refresh();
     oldDraft.refresh();
