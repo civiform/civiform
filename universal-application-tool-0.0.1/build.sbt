@@ -5,7 +5,7 @@ lazy val root = (project in file("."))
   .settings(
     name := """universal-application-tool""",
     version := "0.0.1",
-    scalaVersion := "2.13.1",
+    scalaVersion := "2.13.8",
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
       guice,
@@ -99,7 +99,10 @@ lazy val root = (project in file("."))
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
     // Turn off scaladoc link warnings
-    Compile / doc / scalacOptions += "-no-link-warnings"
+    Compile / doc / scalacOptions += "-no-link-warnings",
+    // Turn off scaladoc
+    Compile / packageDoc / publishArtifact := false,
+    Compile / doc / sources := Seq.empty
   )
 
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
