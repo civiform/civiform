@@ -3,6 +3,19 @@
 readonly CIVIFORM_CONTAINER_NAME="civiform/civiform"
 
 #######################################
+# Set common env variables for working with Azure.
+# Globals:
+#   AZURE_USER_ID
+#   AZURE_APP_NAME
+#   AZURE_CANARY_URL
+#######################################
+function azure::set_common_vars() {
+  export AZURE_USER_ID="$(azure::get_current_user_id)"
+  export AZURE_APP_NAME="$(azure::get_app_name "${AZURE_RESOURCE_GROUP}")"
+  export AZURE_CANARY_URL="$(azure::get_canary_url "${AZURE_RESOURCE_GROUP}" "${APP_NAME}")"
+}
+
+#######################################
 # Create resource group
 # Arguments:
 #   1: The resource group name 
@@ -91,13 +104,44 @@ function azure::slot_setting {
 }
 
 #######################################
+# Retrieves the tag associated with a slot.
+# With no slot arg, retrieves the default slot (production).
+# Arguments:
+#   1. The resource group name
+#   2. The app service app name
+#   3. (optional) The slot name
+#######################################
+function azure::get_container_tag() {
+  if [[ -n "${3}" ]]; then
+    az webapp config container show \
+      --resource-group "${1}" \
+      --name "${2}" \
+      --query "[?name=='DOCKER_CUSTOM_IMAGE_NAME']" \
+      --slot "${3}" \
+      --output tsv \
+      | grep -oP '\:\w+' \
+      | sed 's/://g'
+  else
+    # The default (i.e. production) slot does not have a
+    # slot name, as best we can tell.
+    az webapp config container show \
+      --resource-group "${1}" \
+      --name "${2}" \
+      --query "[?name=='DOCKER_CUSTOM_IMAGE_NAME']" \
+      --output tsv \
+      | grep -oP '\:\w+' \
+      | sed 's/://g'
+  fi
+}
+
+#######################################
 # Sets the canary slot to point to a new container tag.
 # Arguments:
 #   1. The resource group name
 #   2. The app service app name
 #   3. The new tag version
 #######################################
-function azure::set_new_container_tag(){
+function azure::set_new_container_tag() {
   az webapp config container set \
     --resource-group "${1}" \
     --name "${2}" \
@@ -123,4 +167,27 @@ function azure::swap_deployment_slot() {
 #######################################
 function azure::get_current_user_id() {
   az ad signed-in-user show --query mail | sed -E 's/ +/_/g'
+}
+
+#######################################
+# Ensure that the given role is assigned at the given scope:
+# Arguments:
+#   1. The resource group name
+#   2. role guid
+#   3. scope name
+#######################################
+function azure::ensure_role_assignment() {
+  local USER_ID="$(az ad signed-in-user show --query objectId -o tsv)"
+  local ROLE_ASSIGNMENTS="$(az role assignment list --assignee ${USER_ID} --resource-group ${1})"
+
+  if echo "${ROLE_ASSIGNMENTS}" | grep -q "${2}";
+  then 
+    echo "Current user already has role ${2}"
+  else
+    az role assignment create \
+      --role "${2}" \
+      --scope "${3}" \
+      --assignee-object-id "${USER_ID}" \
+      --assignee-principal-type "User"
+  fi
 }

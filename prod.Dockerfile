@@ -30,6 +30,9 @@ RUN cd "${PROJECT_HOME}/${PROJECT_NAME}" && \
 FROM adoptopenjdk/openjdk11:jdk-11.0.10_9-alpine-slim AS stage2
 COPY --from=stage1 /usr/src/universal-application-tool-0.0.1/target/universal/universal-application-tool-0.0.1.zip /civiform.zip
 
+ARG image_tag
+ENV CIVIFORM_IMAGE_TAG=$image_tag
+
 RUN apk add bash
 
 RUN unzip /civiform.zip; chmod +x /universal-application-tool-0.0.1/bin/universal-application-tool

@@ -33,7 +33,7 @@ variable "civic_entity_small_logo_url" {
   description = "Logo with name used on the applicant-facing program index page"
 }
 
-variable "docker_tag" {
+variable "image_tag" {
   type        = string
   description = "Tag for docker image to deploy"
 }

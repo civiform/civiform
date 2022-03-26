@@ -12,9 +12,9 @@ lazy val root = (project in file("."))
       javaJdbc,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.6.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.13.1",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.13.1",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.13.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.13.2",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.2",
 
       "com.google.inject.extensions" % "guice-assistedinject" % "5.0.1",
 
@@ -25,7 +25,7 @@ lazy val root = (project in file("."))
       "software.amazon.awssdk" % "aws-sdk-java" % "2.15.81",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.4.2",
+      "com.azure" % "azure-identity" % "1.4.6",
       "com.azure" % "azure-storage-blob" % "12.14.2",
 
       // Database and database testing libraries
@@ -33,10 +33,10 @@ lazy val root = (project in file("."))
       "org.junit.jupiter" % "junit-jupiter-engine" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-api" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-params" % "5.8.2" % Test,
-      "com.h2database" % "h2" % "1.4.199" % Test,
+      "com.h2database" % "h2" % "1.4.200" % Test,
 
       // Parameterized testing
-      "pl.pragmatists" % "JUnitParams" % "1.1.0" % Test,
+      "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.14.0" % Test,
@@ -44,12 +44,12 @@ lazy val root = (project in file("."))
 
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "30.1-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "30.1.1-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
       "javax.activation" % "activation" % "1.1.1",
-      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2",
+      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.6",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
@@ -73,7 +73,7 @@ lazy val root = (project in file("."))
       "com.google.errorprone" % "error_prone_core" % "2.5.1",
 
       // Apache libraries for export
-      "org.apache.pdfbox" % "pdfbox" % "2.0.22",
+      "org.apache.pdfbox" % "pdfbox" % "2.0.25",
       "org.apache.commons" % "commons-csv" % "1.4",
 
       // Slugs for deeplinking.
@@ -111,9 +111,9 @@ libraryDependencies ++= Seq(
     "org.webjars.npm" % "azure__storage-blob" % "10.5.0",
 )
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.1",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.13.1",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.1",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.2.1",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.13.2",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.2",
 )
 resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)

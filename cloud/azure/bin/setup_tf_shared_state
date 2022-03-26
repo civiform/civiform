@@ -5,8 +5,7 @@
 # DOC: backend_vars file written to `pwd`.
 # DOC: setup_tf_shared_state BACKEND_VARS_FILENAME
 
-set -e
-
+source "cloud/shared/bin/lib.sh"
 source "cloud/azure/bin/lib.sh"
 
 if [[ -z "${1}" ]]; then
