@@ -16,7 +16,7 @@ lazy val root = (project in file("."))
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.13.2",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.2",
 
-      "com.google.inject.extensions" % "guice-assistedinject" % "5.0.1",
+      "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
       "com.j2html" % "j2html" % "1.4.0",
@@ -67,7 +67,7 @@ lazy val root = (project in file("."))
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.9",
       "com.google.auto.value" % "auto-value" % "1.9",
-      "com.google.auto.value" % "auto-value-parent" % "1.8.2",
+      "com.google.auto.value" % "auto-value-parent" % "1.9",
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.5.1",
