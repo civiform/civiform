@@ -10,7 +10,7 @@
     "@types/jest": "26.0.24",
     "@types/node": "14.18.12",
     "jest": "26.6.3",
-    "jest-playwright-preset": "1.5.1",
+    "jest-playwright-preset": "1.7.0",
     "playwright": "1.17.2",
     "ts-jest": "26.5.6",
     "ts-node": "9.1.1",
