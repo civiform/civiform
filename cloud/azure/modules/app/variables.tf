@@ -162,6 +162,12 @@ variable "adfs_admin_group" {
   description = "Active Directory Federation Service group name"
 }
 
+variable "ad_groups_attribute_name" {
+  type        = string
+  description = "Name of the Active Directory claim that returns groups a user is in"
+  default     = "groups"
+}
+
 variable "civiform_applicant_idp" {
   type        = string
   description = "identity provider to use for applicant auth. supported values are idcs and login-radius"
