@@ -103,7 +103,7 @@ public class QuestionRepository {
   }
 
   /**
-   * Update DRAFT and ACTIVE questions that reference {@param oldEnumeratorId} to reference {@param
+   * Update DRAFT and ACTIVE questions that reference {@code oldEnumeratorId} to reference {@code
    * newEnumeratorId}.
    */
   private void updateAllRepeatedQuestions(long newEnumeratorId, long oldEnumeratorId) {

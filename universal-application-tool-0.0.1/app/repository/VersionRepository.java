@@ -284,7 +284,7 @@ public class VersionRepository {
   }
 
   /**
-   * Update all ACTIVE and DRAFT programs that refer to the question revision {@param oldId}, to
+   * Update all ACTIVE and DRAFT programs that refer to the question revision {@code oldId}, to
    * refer to the latest revision of all their questions.
    */
   public void updateProgramsThatReferenceQuestion(long oldId) {

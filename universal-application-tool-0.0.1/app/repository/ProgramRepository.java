@@ -63,7 +63,7 @@ public class ProgramRepository {
   }
 
   /**
-   * Makes {@param existingProgram} the DRAFT revision configuration of the question, creating a new
+   * Makes {@code existingProgram} the DRAFT revision configuration of the question, creating a new
    * DRAFT if necessary.
    */
   public Program createOrUpdateDraft(Program existingProgram) {
