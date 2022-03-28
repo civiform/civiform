@@ -14,7 +14,6 @@ import models.Application;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
-import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.Before;
@@ -189,7 +188,7 @@ public class CsvExporterTest extends ResetPostgres {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramCsv(fakeProgramWithCsvExport.id),
-            CSVFormat.DEFAULT.withHeader().withSkipHeaderRecord());
+            CsvExporter.DEFAULT_CSV_FORMAT);
     List<CSVRecord> records = parser.getRecords();
     assertThat(records).hasSize(3);
     Streams.mapWithIndex(
@@ -374,9 +373,7 @@ public class CsvExporterTest extends ResetPostgres {
     // Generate default CSV
     ExporterService exporterService = instanceOf(ExporterService.class);
     CSVParser parser =
-        CSVParser.parse(
-            exporterService.getProgramCsv(program.id),
-            CSVFormat.DEFAULT.withHeader().withSkipHeaderRecord());
+        CSVParser.parse(exporterService.getProgramCsv(program.id), CsvExporter.DEFAULT_CSV_FORMAT);
 
     int id = 0;
     assertThat(parser.getHeaderMap())
