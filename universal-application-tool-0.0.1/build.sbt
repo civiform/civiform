@@ -56,7 +56,7 @@ lazy val root = (project in file("."))
       "org.pac4j" %% "play-pac4j" % "11.0.0-PLAY2.8",
       "org.pac4j" % "pac4j-core" % "5.2.1",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.2.1",
+      "org.pac4j" % "pac4j-http" % "5.4.0",
       // OIDC authentication
       "org.pac4j" % "pac4j-oidc" % "5.2.1",
       // SAML authentication
