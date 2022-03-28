@@ -68,26 +68,6 @@ function getStylesDict() {
 
 const styleDict = getStylesDict()
 
-const process = require('process')
-const TRIM = process.env.TRIM === '1'
-
-let CONTENT = []
-let SAFELIST = []
-
-if (TRIM) {
-  CONTENT = ['./app/views/**/*.java', './app/assets/javascripts/*.ts']
-} else {
-  const values = Object.values(styleDict)
-
-  for (const val of values) {
-    SAFELIST.push(val)
-    
-    for (const prefix of PREFIXES) {
-      SAFELIST.push(prefix+':'+val)
-    }
-  }
-}
-
 module.exports = {
   // See:
   //     https://tailwindcss.com/docs/content-configuration
@@ -98,8 +78,7 @@ module.exports = {
   content: {
     enabled: true,
     // Files we process to identify which styles are being used
-    content: CONTENT,
-    safelist: SAFELIST,
+    content: ['./app/views/**/*.java', './app/assets/javascripts/*.ts'],
     extract: {
       // Routine to process contents with .java extention. Tailwind has a builtin routine that
       // processes .ts extention files in the `content` list so we dont need to add a method for

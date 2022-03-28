@@ -12,7 +12,7 @@ tailwindCli := {
 }
 
 def runTailwindCliProd(file: File) = {
-  Process("npx -e TRIM=1 tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css --minify", file, "NODE_ENV" -> "production") !
+  Process("npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css --minify", file, "NODE_ENV" -> "production") !
 }
 
 tailwindCliProd := {
