@@ -41,7 +41,7 @@ lazy val root = (project in file("."))
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.14.0" % Test,
       "org.mockito" % "mockito-core" % "3.12.4",
-
+      "org.assertj" % "assertj-core" % "3.22.0" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "30.1.1-jre" % Test,
@@ -62,7 +62,7 @@ lazy val root = (project in file("."))
       // SAML authentication
       "org.pac4j" % "pac4j-saml" % "5.2.1",
       // Encrypted cookies require encryption.
-      "org.apache.shiro" % "shiro-crypto-cipher" % "1.7.1",
+      "org.apache.shiro" % "shiro-crypto-cipher" % "1.9.0",
 
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.9",
