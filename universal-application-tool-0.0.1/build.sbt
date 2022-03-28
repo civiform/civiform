@@ -58,7 +58,7 @@ lazy val root = (project in file("."))
       // basic http authentication (for the anonymous client)
       "org.pac4j" % "pac4j-http" % "5.2.1",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.2.1",
+      "org.pac4j" % "pac4j-oidc" % "5.4.0",
       // SAML authentication
       "org.pac4j" % "pac4j-saml" % "5.2.1",
       // Encrypted cookies require encryption.
