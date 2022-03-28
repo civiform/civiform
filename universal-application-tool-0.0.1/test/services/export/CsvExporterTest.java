@@ -189,7 +189,7 @@ public class CsvExporterTest extends ResetPostgres {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramCsv(fakeProgramWithCsvExport.id),
-            CSVFormat.DEFAULT.withFirstRecordAsHeader());
+            CSVFormat.DEFAULT.withHeader().withSkipHeaderRecord());
     List<CSVRecord> records = parser.getRecords();
     assertThat(records).hasSize(3);
     Streams.mapWithIndex(
@@ -375,7 +375,8 @@ public class CsvExporterTest extends ResetPostgres {
     ExporterService exporterService = instanceOf(ExporterService.class);
     CSVParser parser =
         CSVParser.parse(
-            exporterService.getProgramCsv(program.id), CSVFormat.DEFAULT.withFirstRecordAsHeader());
+            exporterService.getProgramCsv(program.id),
+            CSVFormat.DEFAULT.withHeader().withSkipHeaderRecord());
 
     int id = 0;
     assertThat(parser.getHeaderMap())

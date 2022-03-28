@@ -69,7 +69,8 @@ public class CsvExporter {
   public void export(
       Application application, ReadOnlyApplicantProgramService roApplicantService, Writer writer)
       throws IOException {
-    CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withFirstRecordAsHeader());
+    CSVPrinter printer =
+        new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader().withSkipHeaderRecord());
 
     this.writeHeadersOnFirstExport(printer);
 
