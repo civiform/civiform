@@ -20,7 +20,7 @@ services:
       - 10000:10000
 
   db:
-    image: postgres:12.5
+    image: postgres:12.10
     restart: always
     container_name: postgres
     ports:
