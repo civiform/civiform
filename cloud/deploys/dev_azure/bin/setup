@@ -3,4 +3,14 @@
 set -e
 
 source cloud/deploys/dev_azure/civiform_config.sh
+
+for i in "$@"; do
+    case "${i}" in
+        --tag=*)
+        export IMAGE_TAG="${i#*=}"
+        export TF_VAR_image_tag="${i#*=}"
+        ;;
+    esac
+done
+
 cloud/shared/bin/setup  

@@ -38,7 +38,7 @@ once we set up the certs so look back at the staging one to fill out.
 After that you can start the setup by running and following the instructions:
 
 ```
-cloud/deploys/dev_azure/bin/setup  
+cloud/deploys/dev_azure/bin/setup --tag=<IMAGE_TAG>
 ```
 
 # Local Docker Build to Remote Azure Deploy
@@ -47,12 +47,12 @@ and then update the azure app service to point to the local image.
 
 ## 1. Build, Tag and Push the Docker Image
 Run the following script which takes the IMAGE_TAG, DOCKER_REPOSITORY, 
-DOCKER_USERNAME from your civiform_config.sh and builds, tags and pushes 
-it up to docker hub. You will need a custom docker hub in order to do this. 
+DOCKER_USERNAME from your civiform_config.sh and builds/tags/pushes your local 
+up to docker hub. You will need a custom docker hub in order to do this. 
 Check with team on how to pay for docker hub pro.
 
 ```
-cloud/deploys/dev_azure/bin/docker-build-tag-push
+cloud/deploys/dev_azure/bin/docker-build-tag-push --tag=<IMAGE_TAG>
 ```
 
 ## 2. Update the image name/tag for your remote azure deploy
