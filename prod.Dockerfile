@@ -19,7 +19,7 @@ ENV PROJECT_HOME /usr/src
 ENV PROJECT_NAME universal-application-tool-0.0.1
 ENV PROJECT_LOC "${PROJECT_HOME}/${PROJECT_NAME}"
 
-COPY "${PROJECT_NAME}"
+COPY "${PROJECT_NAME}" "${PROJECT_LOC}"
 RUN cd "${PROJECT_LOC}" && \
     npm install -g npm@8.5.1 && \
     npm install && \
