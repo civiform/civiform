@@ -38,8 +38,10 @@ public class FakeAdminClient extends IndirectClient {
         .anyMatch(acceptedHost -> host.equals(acceptedHost) || host.startsWith(acceptedHost + ":"));
   }
 
-  // forceReinit is a variable added in Pac4j 5.4.0 seen here: https://github.com/pac4j/pac4j/commit/8b8ad4ddfaa6525804d5b94383dfb292a8da5622
-  // It sets whether the object should be reinitialized. We do not need to set it ourselves as the value
+  // forceReinit is a variable added in Pac4j 5.4.0 seen here:
+  // https://github.com/pac4j/pac4j/commit/8b8ad4ddfaa6525804d5b94383dfb292a8da5622
+  // It sets whether the object should be reinitialized. We do not need to set it ourselves as the
+  // value
   // is being handled by the parent class.
   @Override
   protected void internalInit(final boolean forceReinit) {
