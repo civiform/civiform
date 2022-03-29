@@ -13,4 +13,9 @@ COPY .prettierignore /.prettierignore
 
 VOLUME /code
 
-CMD ["sh", "-c", "java -jar /fmt.jar --replace $(find /code -name '*.java'); cd /code; npx prettier --write --config /.prettierrc.js --ignore-path /.prettierignore /code"]
+ENV EXCLUDE_FILE_A="/code/app/views/style/Styles.java"
+ENV EXCLUDE_FILE_B="/code/app/views/style/ReferenceClasses.java"
+ENV SUB_CMD="$(find /code -name '*.java' | grep -vF $EXCLUDE_FILE_A | grep -vF $EXCLUDE_FILE_B)"
+ENV JAVA_CMD="java -jar /fmt.jar --replace $SUB_CMD; cd /code; npx prettier --write --config /.prettierrc.js --ignore-path /.prettierignore /code"
+
+CMD ["sh", "-c", "eval $JAVA_CMD"]
