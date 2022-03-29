@@ -46,19 +46,21 @@ public class JsonExporter {
         applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
     CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext(makeEmptyJsonObject());
 
-    for (AnswerData answerData : roApplicantProgramService.getSummaryData()) {
-      jsonApplication.putLong(Path.create("applicant_id"), application.getApplicant().id);
-      jsonApplication.putLong(Path.create("application_id"), application.id);
-      jsonApplication.putString(
-          Path.create("language"),
-          roApplicantProgramService.getApplicantData().preferredLocale().toLanguageTag());
-      jsonApplication.putString(Path.create("create_time"), application.getCreateTime().toString());
-      jsonApplication.putString(
-          Path.create("submit_time"),
-          application.getSubmitTime() == null ? "" : application.getSubmitTime().toString());
-      jsonApplication.putString(
-          Path.create("submitter_email"), application.getSubmitterEmail().orElse("Applicant"));
+    jsonApplication.putLong(Path.create("program_name"), application.getProgram().getProgramDefinition().adminName());
+    jsonApplication.putLong(Path.create("program_version_id"), application.getProgram().id);
+    jsonApplication.putLong(Path.create("applicant_id"), application.getApplicant().id);
+    jsonApplication.putLong(Path.create("application_id"), application.id);
+    jsonApplication.putString(
+        Path.create("language"),
+        roApplicantProgramService.getApplicantData().preferredLocale().toLanguageTag());
+    jsonApplication.putString(Path.create("create_time"), application.getCreateTime().toString());
+    jsonApplication.putString(
+        Path.create("submit_time"),
+        application.getSubmitTime() == null ? "" : application.getSubmitTime().toString());
+    jsonApplication.putString(
+        Path.create("submitter_email"), application.getSubmitterEmail().orElse("Applicant"));
 
+    for (AnswerData answerData : roApplicantProgramService.getSummaryData()) {
       for (Map.Entry<Path, String> answer : answerData.scalarAnswersInDefaultLocale().entrySet()) {
         jsonApplication.putString(answer.getKey().asApplicationPath(), answer.getValue());
       }
