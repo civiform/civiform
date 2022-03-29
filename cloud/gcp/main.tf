@@ -25,8 +25,8 @@ module "network" {
 }
 
 module "storage" {
-  source           = "./modules/storage"
-  region           = var.region
+  source                   = "./modules/storage"
+  region                   = var.region
   application_name_postfix = var.application_name_postfix
 }
 
