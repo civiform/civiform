@@ -127,8 +127,9 @@ public abstract class Path {
 
   /**
    * Substitute "applicant" for "application" and return in a new path.
+   *
    * @throws IllegalStateException if the first segment is not "applicant".
-   *  */
+   */
   public Path asApplicationPath() {
     if (segments().isEmpty()
         || !segments().stream().findFirst().orElseThrow().equals("applicant")) {
