@@ -107,10 +107,18 @@ public class JsonExporterTest extends ResetPostgres {
                     fakeApplicantTwo.getApplicantData()));
     fakeApplicantOne.save();
     fakeApplicantTwo.save();
-    new Application(fakeApplicantOne, fakeProgram, LifecycleStage.ACTIVE).save();
-    new Application(fakeApplicantOne, fakeProgram, LifecycleStage.OBSOLETE).save();
-    new Application(fakeApplicantOne, fakeProgram, LifecycleStage.DRAFT).save();
-    new Application(fakeApplicantTwo, fakeProgram, LifecycleStage.ACTIVE).save();
+    new Application(fakeApplicantOne, fakeProgram, LifecycleStage.ACTIVE)
+        .setSubmitTimeToNow()
+        .save();
+    new Application(fakeApplicantOne, fakeProgram, LifecycleStage.OBSOLETE)
+        .setSubmitTimeToNow()
+        .save();
+    new Application(fakeApplicantOne, fakeProgram, LifecycleStage.DRAFT)
+        .setSubmitTimeToNow()
+        .save();
+    new Application(fakeApplicantTwo, fakeProgram, LifecycleStage.ACTIVE)
+        .setSubmitTimeToNow()
+        .save();
   }
 
   private void createFakeQuestions() {

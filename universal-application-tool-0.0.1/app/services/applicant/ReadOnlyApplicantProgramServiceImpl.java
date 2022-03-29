@@ -53,6 +53,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public ApplicantData getApplicantData() {
+    return applicantData;
+  }
+
+  @Override
   public String getProgramTitle() {
     return programDefinition.localizedName().getOrDefault(applicantData.preferredLocale());
   }

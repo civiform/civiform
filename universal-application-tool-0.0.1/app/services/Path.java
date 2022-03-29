@@ -9,6 +9,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import services.applicant.question.Scalar;
 
 /**
@@ -122,6 +123,22 @@ public abstract class Path {
       return "";
     }
     return segments().get(segments().size() - 1);
+  }
+
+  /**
+   * Substitute "applicant" for "application" and return in a new path.
+   * @throws IllegalStateException if the first segment is not "applicant".
+   *  */
+  public Path asApplicationPath() {
+    if (segments().isEmpty()
+        || !segments().stream().findFirst().orElseThrow().equals("applicant")) {
+      throw new IllegalStateException(
+          "Only Paths referencing 'applicant' can be converted to application paths: " + this);
+    }
+
+    return Path.create(
+        Stream.concat(Stream.of("application"), segments().stream().skip(1))
+            .collect(ImmutableList.toImmutableList()));
   }
 
   /**

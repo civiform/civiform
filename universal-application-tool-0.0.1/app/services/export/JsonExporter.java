@@ -33,27 +33,36 @@ public class JsonExporter {
     ProgramDefinition programDefinition = program.getProgramDefinition();
     ImmutableList<Application> applications = program.getSubmittedApplications();
 
-    applications.stream()
-        .forEach(
-            application -> {
-              ReadOnlyApplicantProgramService applicantProgramService =
-                  applicantService.getReadOnlyApplicantProgramService(
-                      application, programDefinition);
-              DocumentContext applicationJson = buildJsonApplication(applicantProgramService);
-              jsonApplications.add("$", applicationJson.json());
-            });
+    for (Application application : applications) {
+      DocumentContext applicationJson = buildJsonApplication(application, programDefinition);
+      jsonApplications.add("$", applicationJson.json());
+    }
 
     return jsonApplications.jsonString();
   }
 
   private DocumentContext buildJsonApplication(
-      ReadOnlyApplicantProgramService roApplicantProgramService) {
+      Application application, ProgramDefinition programDefinition) {
+    ReadOnlyApplicantProgramService roApplicantProgramService =
+        applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
     DocumentContext jsonApplication = makeEmptyJsonObject();
     CfJsonObject cfJsonObject = new CfJsonObject(jsonApplication);
 
     for (AnswerData answerData : roApplicantProgramService.getSummaryData()) {
+      cfJsonObject.putLong(Path.create("applicant_id"), application.getApplicant().id);
+      cfJsonObject.putLong(Path.create("application_id"), application.id);
+      cfJsonObject.putString(
+          Path.create("language"),
+          roApplicantProgramService.getApplicantData().preferredLocale().toLanguageTag());
+      cfJsonObject.putString(Path.create("create_time"), application.getCreateTime().toString());
+      cfJsonObject.putString(
+          Path.create("submit_time"),
+          application.getSubmitTime() == null ? null : application.getSubmitTime().toString());
+      cfJsonObject.putString(
+          Path.create("submitter_email"), application.getSubmitterEmail().orElse("Applicant"));
+
       for (Map.Entry<Path, String> answer : answerData.scalarAnswersInDefaultLocale().entrySet()) {
-        cfJsonObject.putString(answer.getKey(), answer.getValue());
+        cfJsonObject.putString(answer.getKey().asApplicationPath(), answer.getValue());
       }
     }
 
@@ -81,6 +90,10 @@ public class JsonExporter {
       } else {
         put(path, value);
       }
+    }
+
+    public void putLong(Path path, long value) {
+      put(path, value);
     }
 
     private void putNull(Path path) {
