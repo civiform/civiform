@@ -10,7 +10,7 @@
 #######################################
 function terraform::perform_apply() {
   if [[ "${CIVIFORM_MODE}" == "dev" ]]; then
-    terraform -chdir="${TERRAFORM_TEMPLATE_DIR}" init
+    terraform -chdir="${TERRAFORM_TEMPLATE_DIR}" init -upgrade
   else
     "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/setup_tf_shared_state" \
       "${TERRAFORM_TEMPLATE_DIR}/${BACKEND_VARS_FILENAME}"
@@ -18,6 +18,7 @@ function terraform::perform_apply() {
     terraform \
       -chdir="${TERRAFORM_TEMPLATE_DIR}" \
       init \
+      -upgrade \
       -backend-config="${BACKEND_VARS_FILENAME}"
   fi
 
