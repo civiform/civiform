@@ -20,12 +20,12 @@
       "matchPackagePrefixes": [
         "org.junit.jupiter:"
       ]
-    }
+    },
     {
       "groupName": "pac4j", 
       "matchPackagePrefixes": [
         "org.pac4j:pac4j"
       ]
-    },
+    }
   ]
 }
