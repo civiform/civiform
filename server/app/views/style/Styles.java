@@ -2404,8 +2404,6 @@ public final class Styles {
   public static final String RING_OPACITY_90 = "ring-opacity-90";
   public static final String RING_OPACITY_95 = "ring-opacity-95";
   public static final String RING_OPACITY_100 = "ring-opacity-100";
-  public static final String FILL_CURRENT = "fill-current";
-  public static final String STROKE_CURRENT = "stroke-current";
   public static final String STROKE_0 = "stroke-0";
   public static final String STROKE_1 = "stroke-1";
   public static final String STROKE_2 = "stroke-2";
@@ -2515,8 +2513,8 @@ public final class Styles {
   public static final String TEXT_OPACITY_95 = "text-opacity-95";
   public static final String TEXT_OPACITY_100 = "text-opacity-100";
   public static final String TRUNCATE = "truncate";
-  public static final String OVERFLOW_ELLIPSIS = "overflow-ellipsis";
-  public static final String OVERFLOW_CLIP = "overflow-clip";
+  public static final String TEXT_ELLIPSIS = "text-ellipsis";
+  public static final String TEXT_CLIP = "text-clip";
   public static final String ITALIC = "italic";
   public static final String NOT_ITALIC = "not-italic";
   public static final String UPPERCASE = "uppercase";
