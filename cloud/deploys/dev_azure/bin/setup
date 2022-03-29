@@ -1,0 +1,6 @@
+#! /usr/bin/env bash
+
+set -e
+
+source cloud/deploys/dev_azure/civiform_config.sh
+cloud/shared/bin/setup  
