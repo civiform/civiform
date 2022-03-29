@@ -97,6 +97,19 @@ jobs:
       - name: Run deployment variable definition validation test
         run: python3 cloud/shared/validate_variable_definitions_test.py
 
+  validate_terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out pr branch
+        uses: actions/checkout@v3
+      - name: setup terraform
+        uses: hashicorp/setup-terraform@v1
+      # as we add more templates, we will add checks to validate them. for now, we only have one
+      - name: terraform init azure_saml_ses 
+        run: terraform -chdir=cloud/azure/templates/azure_saml_ses init -backend=false 
+      - name: terraform validate azure_saml_ses
+        run: terraform -chdir=cloud/azure/templates/azure_saml_ses validate 
+
   cloudformation:
     runs-on: ubuntu-18.04 # for older version of awscli.
     steps:
