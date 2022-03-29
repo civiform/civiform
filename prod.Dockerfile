@@ -26,7 +26,7 @@ RUN cd "${PROJECT_LOC}" && \
     sbt update && \
     sbt dist && \
     mv "${PROJECT_LOC}/target/universal/universal-application-tool-0.0.1.zip" /civiform.zip && \
-    unzip /civiform.zip && \
+    unzip /civiform.zip -d / && \
     chmod +x /universal-application-tool-0.0.1/bin/universal-application-tool
 
 # This is a common trick to shrink container sizes. We discard everything added
