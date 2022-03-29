@@ -178,7 +178,6 @@ public class CfJsonDocumentContextTest {
     assertThat(data.asJsonString()).isEqualTo(expected);
   }
 
-  // TODO(#624): get rid of this recursion
   @Test
   public void putString_withNthRepeatedEntity_withoutFirstRepeatedEntity_isOK() {
     CfJsonDocumentContext data = new CfJsonDocumentContext();
