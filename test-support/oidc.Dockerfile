@@ -1,4 +1,4 @@
-FROM node:15-alpine
+FROM node:17-alpine
 
 WORKDIR /usr/app
 RUN npm install oidc-provider
