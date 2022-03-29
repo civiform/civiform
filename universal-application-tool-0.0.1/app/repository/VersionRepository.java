@@ -60,15 +60,8 @@ public class VersionRepository {
       Preconditions.checkState(
           draft.getPrograms().size() > 0, "Must have at least 1 program in the draft version.");
 
-      ImmutableSet<String> draftProgramsNames =
-          draft.getPrograms().stream()
-              .map(program -> program.getProgramDefinition().adminName())
-              .collect(ImmutableSet.toImmutableSet());
-
-      ImmutableSet<String> draftQuestionNames =
-          draft.getQuestions().stream()
-              .map(question -> question.getQuestionDefinition().getName())
-              .collect(ImmutableSet.toImmutableSet());
+      ImmutableSet<String> draftProgramsNames = draft.getProgramsNames();
+      ImmutableSet<String> draftQuestionNames = draft.getQuestionNames();
 
       // Is a program being deleted in the draft version?
       Predicate<Program> programIsDeletedInDraft =
@@ -287,15 +280,16 @@ public class VersionRepository {
    * Update all ACTIVE and DRAFT programs that refer to the question revision {@code oldId}, to
    * refer to the latest revision of all their questions.
    */
-  public void updateProgramsThatReferenceQuestion(long oldId) {
-    // Update all DRAFT programs that reference the question.
+  public void updateProgramsThatReferenceQuestion(long oldQuestionId) {
+    // Update all DRAFT program revisions that reference the question.
     getDraftVersion().getPrograms().stream()
-        .filter(program -> program.getProgramDefinition().hasQuestion(oldId))
+        .filter(program -> program.getProgramDefinition().hasQuestion(oldQuestionId))
         .forEach(this::updateQuestionVersions);
 
-    // Update any ACTIVE program that references the question and does not have a DRAFT already
+    // Update any ACTIVE program without a DRAFT that references the question, a new DRAFT is
+    // created.
     getActiveVersion().getPrograms().stream()
-        .filter(program -> program.getProgramDefinition().hasQuestion(oldId))
+        .filter(program -> program.getProgramDefinition().hasQuestion(oldQuestionId))
         .filter(
             program ->
                 getDraftVersion()
@@ -310,6 +304,7 @@ public class VersionRepository {
 
   /** Sets a previous version to ACTIVE again, and hides any DRAFT version. */
   public void setLiveVersion(long versionId) {
+    // TODO: Verify if these are done in a transaction.
     Version currentDraftVersion = getDraftVersion();
     Version currentActiveVersion = getActiveVersion();
     Version newActiveVersion = database.find(Version.class).setId(versionId).findOne();

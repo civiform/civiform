@@ -48,7 +48,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void testSetLive() {
+  public void testRollback() {
     resourceCreator.insertActiveProgram("foo");
     resourceCreator.insertDraftProgram("bar");
     Version oldDraft = this.versionRepository.getDraftVersion();
