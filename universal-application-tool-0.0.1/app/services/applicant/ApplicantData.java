@@ -302,7 +302,6 @@ public class ApplicantData {
       return;
     }
 
-    // TODO(#624): get rid of this recursion.
     putParentIfMissing(parentPath);
 
     if (parentPath.isArrayElement()) {
@@ -329,8 +328,6 @@ public class ApplicantData {
       // For n>0, only add the nth element if the n-1 element exists.
     } else if (hasPath(parentPath.atIndex(index - 1))) {
       addAt(parentPath, new HashMap<>());
-
-      // TODO(#624): remove this recursion.
     } else {
       Path fakePathForRecursion = path.parentPath().atIndex(index - 1).join("fake");
       putParentIfMissing(fakePathForRecursion);
