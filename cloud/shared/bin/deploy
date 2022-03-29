@@ -11,4 +11,5 @@ if [[ "${IMAGE_TAG}" == "latest" ]]; then
   exit 1
 fi
 
+export TF_VAR_image_tag="${IMAGE_TAG}"
 exec "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/deploy" "$@"

@@ -46,7 +46,7 @@ variable "docker_repository_name" {
   default     = "civiform"
 }
 
-variable "image_tag_name" {
+variable "image_tag" {
   type        = string
   description = "Tag for container image"
 }
