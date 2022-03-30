@@ -110,7 +110,7 @@ resolvers += Resolver.bintrayRepo("webjars","maven")
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 libraryDependencies ++= Seq(
     "org.webjars.npm" % "react" % "15.7.0",
-    "org.webjars.npm" % "types__react" % "15.0.34",
+    "org.webjars.npm" % "types__react" % "7946.0.8",
     "org.webjars.npm" % "azure__storage-blob" % "10.5.0",
 )
 dependencyOverrides ++= Seq(
