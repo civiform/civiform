@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "vscjava.vscode-java-pack",
+    "eamodio.gitlens",
+    "github.vscode-pull-request-github",
+    "knisterpeter.vscode-github",
+    "ms-azuretools.vscode-docker",
+    "hashicorp.terraform",
+    "ms-ossdata.vscode-postgresql",
+    "bradlc.vscode-tailwindcss",
+    "scala-lang.scala"
+  ]
+}
