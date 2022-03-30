@@ -22,6 +22,18 @@ function key_vault::create_vault() {
 }
 
 #######################################
+# Check if key vault exists
+# Arguments:
+#   1: The resource group name for the key vault
+#   2: The name of the key vault 
+#######################################
+function key_vault::check_if_vault_exists() {
+  az keyvault show \
+    --name "${2}" \
+    --resource-group "${1}"
+}
+
+#######################################
 # Assign the role 'Key Vault Secrets officer' to the current user
 # Arguments:
 #   1. The resource group to scope the role assignment to
