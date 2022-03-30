@@ -47,10 +47,12 @@ public class QuestionConfigTest {
     assertThat(QuestionConfig.buildQuestionConfig(new NumberQuestionForm(), messages).toString())
         .contains("number-question-min-value-input");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new RadioButtonQuestionForm(), messages).toString())
+    assertThat(
+            QuestionConfig.buildQuestionConfig(new RadioButtonQuestionForm(), messages).toString())
         .contains("single-select-question-config");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new EnumeratorQuestionForm(), messages).toString())
+    assertThat(
+            QuestionConfig.buildQuestionConfig(new EnumeratorQuestionForm(), messages).toString())
         .contains("enumerator-question-config");
   }
 
