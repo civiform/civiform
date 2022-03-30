@@ -64,9 +64,13 @@ Check with team on how to pay for docker hub pro.
 cloud/deploys/dev_azure/bin/docker-build-tag-push --tag=<IMAGE_TAG>
 ```
 
-## 2. Update the image name/tag for your remote azure deploy
+## 2. Deploy the new version 
 
-Within the app service resource, you can select Deployment Center, and within
+Deploy via the deploy script 
+```
+cloud/deploys/dev_azure/bin/deploy --tag=<IMAGE_TAG>
+```
+or Within the app service resource, you can select Deployment Center, and within
 the registry settings change the 'Full Image Name and Tag' to be (the image_tag
 is what you specified in the build/tag/push)
 `<DOCKER_USERNAME>/<DOCKER_REPOSITORY>:<IMAGE_TAG>`

@@ -27,3 +27,13 @@ function terraform::perform_apply() {
     apply \
     -var-file="${TF_VAR_FILENAME}"
 }
+
+#######################################
+# Generates terraform variable files and runs terraform init and apply.
+# Also initializes the storage bucket for tfstate if it's not setup yet.
+# Globals:
+#   TERRAFORM_TEMPLATE_DIR
+#######################################
+function terraform::copy_override() {
+    cp "${TERRAFORM_TEMPLATE_DIR}/backend_override" "${TERRAFORM_TEMPLATE_DIR}/backend_override.tf"
+}
