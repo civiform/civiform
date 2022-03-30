@@ -141,8 +141,7 @@ public class QuestionBank {
                 Styles.BORDER,
                 Styles.BORDER_TRANSPARENT,
                 Styles.TRANSITION_ALL,
-                StyleUtils.hover(
-                    Styles.SCALE_105, Styles.TEXT_GRAY_800, Styles.BORDER, Styles.BORDER_GRAY_100));
+                StyleUtils.hover(Styles.SCALE_105, Styles.TEXT_GRAY_800, Styles.BORDER, Styles.BORDER_GRAY_100));
 
     Tag addButton =
         TagCreator.button(text(definition.getName()))

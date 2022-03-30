@@ -1,4 +1,6 @@
 const fs = require('fs')
+const assert = require('assert')
+const colors = require('colors')
 
 /* IMPORTANT
  *
@@ -16,22 +18,28 @@ const JAVA_STYLE_VALUE_REGEX =
 
 const STYLE_USAGE_REGEX = /(?<=(Styles|ReferenceClasses)\.)([0-9A-Z_]+)/g
 
+let MEDIA_QUERY_CALL_STR_START = '/(?<=StyleUtils.('
+
+const MEDIA_QUERY_BEGIN = "StyleUtils."
+const MEDIA_QUERY_CALL_END = "\\(([a-zA-Z0-9_.,\\s]+)\\)"
+const MEDIA_QUERY_ERR_END = "\\(([a-zA-Z0-9_.,\\s]*)$"
+
 // Files to parse for style dictonary using regex
 const styleFolder = './app/views/style/'
 const styleFiles = ['Styles.java', 'ReferenceClasses.java']
 
 // Prefixes for media queries
 const PREFIXES = [
-  'even',
-  'focus',
-  'focus-within',
-  'hover',
-  'disabled',
-  'sm',
-  'md',
-  'lg',
-  'xl',
-  '2xl',
+  ['even', 'even'],
+  ['focus', 'focus'],
+  ['focusWithin', 'focus-within'],
+  ['hover', 'hover'],
+  ['disabled', 'disabled'],
+  ['responsiveSmall', 'sm'],
+  ['responsiveMedium', 'md'],
+  ['responsiveLarge', 'lg'],
+  ['responsiveXLarge', 'xl'],
+  ['responsive2XLarge', '2xl']
 ]
 
 // Used to read Styles.java and ReferenceClasses.java to get dictionary mapping
@@ -59,7 +67,8 @@ function addStyleDictMatches(matches, file_contents) {
 function getStylesDict() {
   const matches = {}
   for (const file of styleFiles) {
-    const data = fs.readFileSync(styleFolder + file, 'utf8').split('\n')
+    let contents = fs.readFileSync(styleFolder + file, 'utf8')
+    const data = contents.split('\n')
     addStyleDictMatches(matches, data)
   }
 
@@ -67,6 +76,46 @@ function getStylesDict() {
 }
 
 const styleDict = getStylesDict()
+
+function getStyleUsage(content, output, prefix='') {
+  const matchIter = content.match(STYLE_USAGE_REGEX)
+
+  if (matchIter) {
+    for (const tailwindClassId of matchIter) {
+      let tailwindClass = styleDict[tailwindClassId]
+
+      if (tailwindClass !== undefined) {
+        if (prefix !== '') {
+          tailwindClass = prefix+':'+tailwindClass
+        }
+        output.push(tailwindClass)
+      }
+    }
+  }
+}
+
+function getMediaQueryUsage(content, output) {
+  for (const [methodName, mediaQueryPrefix] of PREFIXES) {
+    const MEDIA_QUERY_CALL = new RegExp(MEDIA_QUERY_BEGIN + methodName + MEDIA_QUERY_CALL_END)
+    const MEDIA_QUERY_ERR = new RegExp(MEDIA_QUERY_BEGIN + methodName + MEDIA_QUERY_ERR_END)
+    const mediaQueryMatchIter = content.match(MEDIA_QUERY_CALL)
+    const mediaQueryErrIter = content.match(MEDIA_QUERY_ERR)
+
+    if (mediaQueryErrIter) {
+      for (const match of mediaQueryErrIter) {
+        let msg = "ERROR:".red + " You have multiple lines in a StyleUtils mediaQuery call: '" + content + "'"
+        const space = "- ".repeat(22).cyan
+        msg += "\n"+space+"We are parsing java with regex so some valid java code will break this!"
+        msg += "\n"+space+"Please refer to 'app/views/style/README.md' for constraints on style usage call"
+        throw msg
+      }
+    } else if (mediaQueryMatchIter) {
+      assert(mediaQueryMatchIter.length > 1)
+      let mediaQueriedContent = mediaQueryMatchIter[1]
+      getStyleUsage(mediaQueriedContent, output, mediaQueryPrefix)
+    }
+  }
+}
 
 module.exports = {
   // See:
@@ -86,22 +135,9 @@ module.exports = {
       java: (content) => {
         const output = []
 
-        let matchIter = content.match(STYLE_USAGE_REGEX)
+        getStyleUsage(content, output)
 
-        if (matchIter) {
-          for (const tailwindClassId of matchIter) {
-            let tailwindClass = styleDict[tailwindClassId]
-
-            if (tailwindClass !== undefined) {
-              output.push(tailwindClass)
-              // We don't know which, if any, of these prefixes are in use for any class in particular.
-              // We therefore use every combination of them.
-              for (const prefix of PREFIXES) {
-                output.push(prefix + ':' + tailwindClass)
-              }
-            }
-          }
-        }
+        getMediaQueryUsage(content, output)
 
         return output
       },
