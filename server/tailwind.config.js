@@ -20,9 +20,8 @@ const STYLE_USAGE_REGEX = /(?<=(Styles|ReferenceClasses)\.)([0-9A-Z_]+)/g
 
 let MEDIA_QUERY_CALL_STR_START = '/(?<=StyleUtils.('
 
-const MEDIA_QUERY_BEGIN = 'StyleUtils.'
-const MEDIA_QUERY_CALL_END = '\\(([a-zA-Z0-9_.,\\s]+)\\)'
-const MEDIA_QUERY_ERR_END = '\\(([a-zA-Z0-9_.,\\s]*)$'
+const MEDIA_QUERY_BEGIN = '(?<=StyleUtils.'
+const MEDIA_QUERY_CALL_END = '\\()([a-zA-Z0-9_.,\\s]+\\))'
 
 // Files to parse for style dictonary using regex
 const styleFolder = './app/views/style/'
@@ -88,24 +87,23 @@ function getStyleUsage(content, output, prefix = '') {
         if (prefix !== '') {
           tailwindClass = prefix + ':' + tailwindClass
         }
-        output.push(tailwindClass)
+        output += "['"+tailwindClass+"']"
       }
     }
   }
+
+  return output
 }
 
 function getMediaQueryUsage(content, output) {
   for (const [methodName, mediaQueryPrefix] of PREFIXES) {
     const MEDIA_QUERY_CALL = new RegExp(
-      MEDIA_QUERY_BEGIN + methodName + MEDIA_QUERY_CALL_END
+      MEDIA_QUERY_BEGIN + methodName + MEDIA_QUERY_CALL_END, 'g'
     )
-    const MEDIA_QUERY_ERR = new RegExp(
-      MEDIA_QUERY_BEGIN + methodName + MEDIA_QUERY_ERR_END
-    )
-    const mediaQueryMatchIter = content.match(MEDIA_QUERY_CALL)
-    const mediaQueryErrIter = content.match(MEDIA_QUERY_ERR)
 
-    if (mediaQueryErrIter) {
+    const mediaQueryMatchIter = content.match(MEDIA_QUERY_CALL)
+
+    /*if (mediaQueryErrIter) {
       for (const match of mediaQueryErrIter) {
         const space = '- '.repeat(22).cyan
         let msg = 'ERROR:'.red + ' tailwind.css was not written to'
@@ -125,12 +123,15 @@ function getMediaQueryUsage(content, output) {
           "Please refer to 'app/views/style/README.md' for constraints on style usage call"
         throw msg
       }
-    } else if (mediaQueryMatchIter) {
-      assert(mediaQueryMatchIter.length > 1)
-      let mediaQueriedContent = mediaQueryMatchIter[1]
-      getStyleUsage(mediaQueriedContent, output, mediaQueryPrefix)
+    } else */
+    if (mediaQueryMatchIter) {
+      for (const mediaQueriedContent of mediaQueryMatchIter) {
+        output=getStyleUsage(mediaQueriedContent, output, mediaQueryPrefix)
+      }
     }
   }
+
+  return output
 }
 
 module.exports = {
@@ -144,16 +145,17 @@ module.exports = {
     enabled: true,
     // Files we process to identify which styles are being used
     content: ['./app/views/**/*.java', './app/assets/javascripts/*.ts'],
-    extract: {
+    transform: {
       // Routine to process contents with .java extention. Tailwind has a builtin routine that
       // processes .ts extention files in the `content` list so we dont need to add a method for
       // that
       java: (content) => {
-        const output = []
+        const contentOneLine = content.replace(/(\r\n|\n|\r|\n\r)/gm, "")
+        let output = ""
 
-        getStyleUsage(content, output)
+        output = getStyleUsage(contentOneLine, output)
 
-        getMediaQueryUsage(content, output)
+        output = getMediaQueryUsage(contentOneLine, output)
 
         return output
       },
