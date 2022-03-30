@@ -20,9 +20,9 @@ const STYLE_USAGE_REGEX = /(?<=(Styles|ReferenceClasses)\.)([0-9A-Z_]+)/g
 
 let MEDIA_QUERY_CALL_STR_START = '/(?<=StyleUtils.('
 
-const MEDIA_QUERY_BEGIN = "StyleUtils."
-const MEDIA_QUERY_CALL_END = "\\(([a-zA-Z0-9_.,\\s]+)\\)"
-const MEDIA_QUERY_ERR_END = "\\(([a-zA-Z0-9_.,\\s]*)$"
+const MEDIA_QUERY_BEGIN = 'StyleUtils.'
+const MEDIA_QUERY_CALL_END = '\\(([a-zA-Z0-9_.,\\s]+)\\)'
+const MEDIA_QUERY_ERR_END = '\\(([a-zA-Z0-9_.,\\s]*)$'
 
 // Files to parse for style dictonary using regex
 const styleFolder = './app/views/style/'
@@ -39,7 +39,7 @@ const PREFIXES = [
   ['responsiveMedium', 'md'],
   ['responsiveLarge', 'lg'],
   ['responsiveXLarge', 'xl'],
-  ['responsive2XLarge', '2xl']
+  ['responsive2XLarge', '2xl'],
 ]
 
 // Used to read Styles.java and ReferenceClasses.java to get dictionary mapping
@@ -77,7 +77,7 @@ function getStylesDict() {
 
 const styleDict = getStylesDict()
 
-function getStyleUsage(content, output, prefix='') {
+function getStyleUsage(content, output, prefix = '') {
   const matchIter = content.match(STYLE_USAGE_REGEX)
 
   if (matchIter) {
@@ -86,7 +86,7 @@ function getStyleUsage(content, output, prefix='') {
 
       if (tailwindClass !== undefined) {
         if (prefix !== '') {
-          tailwindClass = prefix+':'+tailwindClass
+          tailwindClass = prefix + ':' + tailwindClass
         }
         output.push(tailwindClass)
       }
@@ -96,17 +96,33 @@ function getStyleUsage(content, output, prefix='') {
 
 function getMediaQueryUsage(content, output) {
   for (const [methodName, mediaQueryPrefix] of PREFIXES) {
-    const MEDIA_QUERY_CALL = new RegExp(MEDIA_QUERY_BEGIN + methodName + MEDIA_QUERY_CALL_END)
-    const MEDIA_QUERY_ERR = new RegExp(MEDIA_QUERY_BEGIN + methodName + MEDIA_QUERY_ERR_END)
+    const MEDIA_QUERY_CALL = new RegExp(
+      MEDIA_QUERY_BEGIN + methodName + MEDIA_QUERY_CALL_END
+    )
+    const MEDIA_QUERY_ERR = new RegExp(
+      MEDIA_QUERY_BEGIN + methodName + MEDIA_QUERY_ERR_END
+    )
     const mediaQueryMatchIter = content.match(MEDIA_QUERY_CALL)
     const mediaQueryErrIter = content.match(MEDIA_QUERY_ERR)
 
     if (mediaQueryErrIter) {
       for (const match of mediaQueryErrIter) {
-        let msg = "ERROR:".red + " You have multiple lines in a StyleUtils mediaQuery call: '" + content + "'"
-        const space = "- ".repeat(22).cyan
-        msg += "\n"+space+"We are parsing java with regex so some valid java code will break this!"
-        msg += "\n"+space+"Please refer to 'app/views/style/README.md' for constraints on style usage call"
+        const space = '- '.repeat(22).cyan
+        let msg = 'ERROR:'.red + ' tailwind.css was not written to'
+        msg +=
+          '\n' +
+          space +
+          "A StyleUtils mediaQuery call spans multiple lines: '" +
+          content +
+          "'"
+        msg +=
+          '\n' +
+          space +
+          'We are parsing java with regex so some valid java code will break our parsing!'
+        msg +=
+          '\n' +
+          space +
+          "Please refer to 'app/views/style/README.md' for constraints on style usage call"
         throw msg
       }
     } else if (mediaQueryMatchIter) {
