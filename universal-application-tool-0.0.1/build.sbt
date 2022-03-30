@@ -49,7 +49,7 @@ lazy val root = (project in file("."))
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
       "javax.activation" % "activation" % "1.1.1",
-      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.6",
+      "org.glassfish.jaxb" % "jaxb-runtime" % "3.0.2",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
