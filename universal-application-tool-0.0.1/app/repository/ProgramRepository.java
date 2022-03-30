@@ -62,6 +62,10 @@ public class ProgramRepository {
     return program;
   }
 
+  /**
+   * Makes {@code existingProgram} the DRAFT revision configuration of the question, creating a new
+   * DRAFT if necessary.
+   */
   public Program createOrUpdateDraft(Program existingProgram) {
     Version draftVersion = versionRepository.get().getDraftVersion();
     Optional<Program> existingDraft =
@@ -72,7 +76,7 @@ public class ProgramRepository {
               .setId(existingDraft.get().id)
               .build()
               .toProgram();
-      this.updateProgramSync(updatedDraft);
+      updateProgramSync(updatedDraft);
       return updatedDraft;
     } else {
       // Inside a question update, this will be a savepoint rather than a
@@ -83,8 +87,7 @@ public class ProgramRepository {
         // in the program (for example, version information).
         Program newDraft = existingProgram.getProgramDefinition().toBuilder().build().toProgram();
         newDraft = insertProgramSync(newDraft);
-        newDraft.addVersion(draftVersion);
-        newDraft.save();
+        newDraft.addVersion(draftVersion).save();
         draftVersion.refresh();
         Preconditions.checkState(
             draftVersion.getPrograms().contains(newDraft),

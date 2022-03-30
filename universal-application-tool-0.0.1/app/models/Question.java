@@ -100,17 +100,18 @@ public class Question extends BaseModel {
   @JoinTable(name = "versions_questions")
   private List<Version> versions;
 
+  public Question(QuestionDefinition questionDefinition) {
+    this.questionDefinition = checkNotNull(questionDefinition);
+    setFieldsFromQuestionDefinition(questionDefinition);
+  }
+
   public ImmutableList<Version> getVersions() {
     return ImmutableList.copyOf(versions);
   }
 
-  public void addVersion(Version version) {
-    this.versions.add(version);
-  }
-
-  public Question(QuestionDefinition questionDefinition) {
-    this.questionDefinition = checkNotNull(questionDefinition);
-    setFieldsFromQuestionDefinition(questionDefinition);
+  public Question addVersion(Version version) {
+    versions.add(version);
+    return this;
   }
 
   /** Populates column values from {@link QuestionDefinition}. */
@@ -155,12 +156,12 @@ public class Question extends BaseModel {
    *
    * <p>The majority of questions should have `questionText` and not `legacyQuestionText`.
    */
-  private void setQuestionText(QuestionDefinitionBuilder builder) {
-    if (questionText != null) {
-      builder.setQuestionText(questionText);
-      return;
-    }
-    builder.setQuestionText(LocalizedStrings.create(legacyQuestionText));
+  private Question setQuestionText(QuestionDefinitionBuilder builder) {
+    LocalizedStrings textToSet =
+        Optional.ofNullable(questionText)
+            .orElseGet(() -> LocalizedStrings.create(legacyQuestionText));
+    builder.setQuestionText(textToSet);
+    return this;
   }
 
   /**
@@ -169,12 +170,13 @@ public class Question extends BaseModel {
    *
    * <p>The majority of questions should have `questionHelpText` and not `legacyQuestionHelpText`.
    */
-  private void setQuestionHelpText(QuestionDefinitionBuilder builder) {
-    if (questionHelpText != null) {
-      builder.setQuestionHelpText(questionHelpText);
-      return;
-    }
-    builder.setQuestionHelpText(LocalizedStrings.create(legacyQuestionHelpText, true));
+  private Question setQuestionHelpText(QuestionDefinitionBuilder builder) {
+    LocalizedStrings textToSet =
+        Optional.ofNullable(questionHelpText)
+            .orElseGet(
+                () -> LocalizedStrings.create(legacyQuestionHelpText, /* canBeEmpty= */ true));
+    builder.setQuestionHelpText(textToSet);
+    return this;
   }
 
   /**
@@ -182,10 +184,10 @@ public class Question extends BaseModel {
    *
    * <p>The majority of questions should have a `questionOptions` and not `legacyQuestionOptions`.
    */
-  private void setQuestionOptions(QuestionDefinitionBuilder builder)
+  private Question setQuestionOptions(QuestionDefinitionBuilder builder)
       throws InvalidQuestionTypeException {
     if (!QuestionType.of(questionType).isMultiOptionType()) {
-      return;
+      return this;
     }
 
     // The majority of multi option questions should have `questionOptions` and not
@@ -193,7 +195,7 @@ public class Question extends BaseModel {
     // `legacyQuestionOptions` is a legacy implementation that only supported a single locale.
     if (questionOptions != null) {
       builder.setQuestionOptions(questionOptions);
-      return;
+      return this;
     }
 
     // If the multi option question does have legacyQuestionOptions, we can assume there is only one
@@ -211,20 +213,22 @@ public class Question extends BaseModel {
             .collect(toImmutableList());
 
     builder.setQuestionOptions(options);
+    return this;
   }
 
-  private void setEnumeratorEntityType(QuestionDefinitionBuilder builder)
+  private Question setEnumeratorEntityType(QuestionDefinitionBuilder builder)
       throws InvalidQuestionTypeException {
     if (QuestionType.of(questionType).equals(QuestionType.ENUMERATOR)) {
       builder.setEntityType(enumeratorEntityType);
     }
+    return this;
   }
 
   public QuestionDefinition getQuestionDefinition() {
     return checkNotNull(questionDefinition);
   }
 
-  private void setFieldsFromQuestionDefinition(QuestionDefinition questionDefinition) {
+  private Question setFieldsFromQuestionDefinition(QuestionDefinition questionDefinition) {
     if (questionDefinition.isPersisted()) {
       id = questionDefinition.getId();
     }
@@ -246,6 +250,7 @@ public class Question extends BaseModel {
       EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) questionDefinition;
       enumeratorEntityType = enumerator.getEntityType();
     }
+    return this;
   }
 
   public boolean removeVersion(Version draftVersion) {
