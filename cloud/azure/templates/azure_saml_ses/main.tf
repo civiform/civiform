@@ -60,6 +60,7 @@ module "app" {
 }
 
 module "custom_hostname" {
+  for_each            = var.custom_hostname != "" ? toset([1]) : toset([])
   source              = "../../modules/custom_hostname"
   custom_hostname     = var.custom_hostname
   app_service_name    = module.app.app_service_name
@@ -76,21 +77,12 @@ module "saml_keystore" {
 }
 
 module "email_service" {
+  for_each = toset([
+    var.sender_email_address,
+    var.staging_applicant_notification_mailing_list,
+    var.staging_ti_notification_mailing_list,
+    var.staging_program_admin_notification_mailing_list
+  ])
   source               = "../../../aws/modules/ses"
-  sender_email_address = var.sender_email_address
-}
-
-module "program_admin_email" {
-  source               = "../../../aws/modules/ses"
-  sender_email_address = var.staging_program_admin_notification_mailing_list
-}
-
-module "ti_admin_email" {
-  source               = "../../../aws/modules/ses"
-  sender_email_address = var.staging_ti_notification_mailing_list
-}
-
-module "applicant_email" {
-  source               = "../../../aws/modules/ses"
-  sender_email_address = var.staging_applicant_notification_mailing_list
+  sender_email_address = each.key
 }

@@ -27,3 +27,14 @@ function terraform::perform_apply() {
     apply \
     -var-file="${TF_VAR_FILENAME}"
 }
+
+#######################################
+# Copies the terraform backend_override to backend_override.tf (used to 
+# make backend local instead of a shared state for dev deploys)
+# Globals:
+#   TERRAFORM_TEMPLATE_DIR
+#######################################
+function terraform::copy_override() {
+    cp "${TERRAFORM_TEMPLATE_DIR}/backend_override" \
+      "${TERRAFORM_TEMPLATE_DIR}/backend_override.tf"
+}

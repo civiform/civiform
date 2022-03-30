@@ -2,6 +2,8 @@
 
 readonly LIB_DIR="${BASH_SOURCE%/*}/lib"
 
+set -e
+
 if [[ "${SOURCED_AZURE_LIB}" != "true" ]]; then
   source "${LIB_DIR}/out.sh"
   source "${LIB_DIR}/azure.sh"
