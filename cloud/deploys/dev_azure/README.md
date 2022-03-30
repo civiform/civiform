@@ -14,6 +14,14 @@ You will need to reach out to team members to get accounts for the following:
 - AWS
 - Login Radius Civiform-Staging 
 
+## Setup Local Machine
+Run through the doctor script to make sure you have the right things on 
+your machine: 
+
+```
+cloud/shared/bin/doctor
+```
+
 ## Setup Login Radius For Local Development
 Go to [Login Radius Dashboard](https://dashboard.loginradius.com/) and click
 configure a civiform integration. Choose the outbound SSO Saml.
