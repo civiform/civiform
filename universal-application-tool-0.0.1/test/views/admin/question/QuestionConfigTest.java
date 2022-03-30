@@ -29,36 +29,28 @@ public class QuestionConfigTest {
 
   @Test
   public void allHandledTypesHaveCustomConfig() {
-    assertThat(QuestionConfig.buildQuestionConfig(new TextQuestionForm(), messages))
-        .toString()
+    assertThat(QuestionConfig.buildQuestionConfig(new TextQuestionForm(), messages).toString())
         .contains("text-question-min-length-input");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new AddressQuestionForm(), messages))
-        .toString()
+    assertThat(QuestionConfig.buildQuestionConfig(new AddressQuestionForm(), messages).toString())
         .contains("address-question-default-state-select");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new DropdownQuestionForm(), messages))
-        .toString()
+    assertThat(QuestionConfig.buildQuestionConfig(new DropdownQuestionForm(), messages).toString())
         .contains("multi-select-question-config");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new DropdownQuestionForm(), messages))
-        .toString()
+    assertThat(QuestionConfig.buildQuestionConfig(new DropdownQuestionForm(), messages).toString())
         .contains("single-select-question-config");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new IdQuestionForm(), messages))
-        .toString()
+    assertThat(QuestionConfig.buildQuestionConfig(new IdQuestionForm(), messages).toString())
         .contains("id-question-min-length-input");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new NumberQuestionForm(), messages))
-        .toString()
+    assertThat(QuestionConfig.buildQuestionConfig(new NumberQuestionForm(), messages).toString())
         .contains("number-question-min-value-input");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new RadioButtonQuestionForm(), messages))
-        .toString()
+    assertThat(QuestionConfig.buildQuestionConfig(new RadioButtonQuestionForm(), messages).toString())
         .contains("single-select-question-config");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new EnumeratorQuestionForm(), messages))
-        .toString()
+    assertThat(QuestionConfig.buildQuestionConfig(new EnumeratorQuestionForm(), messages).toString())
         .contains("enumerator-question-config");
   }
 
