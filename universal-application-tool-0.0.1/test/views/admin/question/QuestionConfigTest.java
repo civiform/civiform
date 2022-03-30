@@ -29,30 +29,44 @@ public class QuestionConfigTest {
 
   @Test
   public void allHandledTypesHaveCustomConfig() {
-    assertThat(QuestionConfig.buildQuestionConfig(new TextQuestionForm(), messages).toString())
+    assertThat(
+            QuestionConfig.buildQuestionConfig(new TextQuestionForm(), messages)
+                .renderFormatted())
         .contains("text-question-min-length-input");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new AddressQuestionForm(), messages).toString())
+    assertThat(
+            QuestionConfig.buildQuestionConfig(new AddressQuestionForm(), messages)
+                .renderFormatted())
         .contains("address-question-default-state-select");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new DropdownQuestionForm(), messages).toString())
+    assertThat(
+            QuestionConfig.buildQuestionConfig(new DropdownQuestionForm(), messages)
+                .renderFormatted())
         .contains("multi-select-question-config");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new DropdownQuestionForm(), messages).toString())
+    assertThat(
+            QuestionConfig.buildQuestionConfig(new DropdownQuestionForm(), messages)
+                .renderFormatted())
         .contains("single-select-question-config");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new IdQuestionForm(), messages).toString())
+    assertThat(
+            QuestionConfig.buildQuestionConfig(new IdQuestionForm(), messages)
+                .renderFormatted())
         .contains("id-question-min-length-input");
 
-    assertThat(QuestionConfig.buildQuestionConfig(new NumberQuestionForm(), messages).toString())
+    assertThat(
+            QuestionConfig.buildQuestionConfig(new NumberQuestionForm(), messages)
+                .renderFormatted())
         .contains("number-question-min-value-input");
 
     assertThat(
-            QuestionConfig.buildQuestionConfig(new RadioButtonQuestionForm(), messages).toString())
+            QuestionConfig.buildQuestionConfig(new RadioButtonQuestionForm(), messages)
+                .renderFormatted())
         .contains("single-select-question-config");
 
     assertThat(
-            QuestionConfig.buildQuestionConfig(new EnumeratorQuestionForm(), messages).toString())
+            QuestionConfig.buildQuestionConfig(new EnumeratorQuestionForm(), messages)
+                .renderFormatted())
         .contains("enumerator-question-config");
   }
 
