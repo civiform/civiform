@@ -178,24 +178,26 @@ public class Program extends BaseModel {
   }
 
   /** The majority of programs should have `localizedName` and not `legacyLocalizedName`. */
-  private void setLocalizedName(ProgramDefinition.Builder builder) {
+  private Program setLocalizedName(ProgramDefinition.Builder builder) {
     if (localizedName != null) {
       builder.setLocalizedName(localizedName);
-      return;
+    } else {
+      builder.setLocalizedName(LocalizedStrings.create(legacyLocalizedName));
     }
-    builder.setLocalizedName(LocalizedStrings.create(legacyLocalizedName));
+    return this;
   }
 
   /**
    * The majority of programs should have `localizedDescription` and not
    * `legacyLocalizedDescription`.
    */
-  private void setLocalizedDescription(ProgramDefinition.Builder builder) {
+  private Program setLocalizedDescription(ProgramDefinition.Builder builder) {
     if (localizedDescription != null) {
       builder.setLocalizedDescription(localizedDescription);
-      return;
+    } else {
+      builder.setLocalizedDescription(LocalizedStrings.create(legacyLocalizedDescription));
     }
-    builder.setLocalizedDescription(LocalizedStrings.create(legacyLocalizedDescription));
+    return this;
   }
 
   /**
@@ -212,8 +214,9 @@ public class Program extends BaseModel {
         .collect(ImmutableList.toImmutableList());
   }
 
-  public void addVersion(Version version) {
+  public Program addVersion(Version version) {
     this.versions.add(version);
+    return this;
   }
 
   public String getSlug() {
