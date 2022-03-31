@@ -60,7 +60,7 @@ module "app" {
 }
 
 module "custom_hostname" {
-  for_each            = var.custom_hostname != "" ? toset([1]) : toset([])
+  for_each            = var.custom_hostname != "" ? toset([var.custom_hostname]) : toset([])
   source              = "../../modules/custom_hostname"
   custom_hostname     = var.custom_hostname
   app_service_name    = module.app.app_service_name
