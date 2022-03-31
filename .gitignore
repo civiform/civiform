@@ -28,6 +28,8 @@ terraform.tfstate**
 
 sbt_cache/*
 !sbt_cache/.keep
+/browser-test/sbt_cache/*
+!/browser-test/sbt_cache/.keep
 
 */.classpath
 */.vscode
@@ -38,4 +40,3 @@ sbt_cache/*
 **/.ammonite/
 **/metals.sbt
 **/pom.xml
-
