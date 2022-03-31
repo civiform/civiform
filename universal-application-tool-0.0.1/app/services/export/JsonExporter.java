@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
-import models.Program;
 import repository.ProgramRepository;
 import services.CfJsonDocumentContext;
 import services.PaginationResult;
@@ -35,12 +34,11 @@ public class JsonExporter {
     this.programRepository = checkNotNull(programRepository);
   }
 
-  public String export(Program program) {
+  public String export(ProgramDefinition programDefinition) {
     DocumentContext jsonApplications = makeEmptyJsonArray();
-    ProgramDefinition programDefinition = program.getProgramDefinition();
     PaginationResult<Application> applicationPaginationResult =
         programRepository.getApplicationsForAllProgramVersions(
-            program.id, PaginationSpec.MAX_PAGE_SIZE_SPEC, Optional.empty());
+            programDefinition.id(), PaginationSpec.MAX_PAGE_SIZE_SPEC, Optional.empty());
 
     for (Application application : applicationPaginationResult.getPageContents()) {
       CfJsonDocumentContext applicationJson = buildJsonApplication(application, programDefinition);

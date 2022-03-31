@@ -19,7 +19,7 @@ public class JsonExporterTest extends AbstractExporterTest {
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
-    String resultJsonString = exporter.export(fakeProgram);
+    String resultJsonString = exporter.export(fakeProgram.getProgramDefinition());
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertLengthOf(3);
@@ -82,7 +82,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     createFakeProgramWithEnumerator();
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
-    String resultJsonString = exporter.export(fakeProgramWithEnumerator);
+    String resultJsonString = exporter.export(fakeProgramWithEnumerator.getProgramDefinition());
 
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
     resultAsserter.assertLengthOf(3);
