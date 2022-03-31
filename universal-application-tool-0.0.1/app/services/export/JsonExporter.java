@@ -2,14 +2,16 @@ package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.DocumentContext;
-import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
 import models.Program;
+import repository.ProgramRepository;
 import services.CfJsonDocumentContext;
+import services.PaginationResult;
+import services.PaginationSpec;
 import services.Path;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
@@ -25,18 +27,22 @@ import services.question.LocalizedQuestionOption;
 public class JsonExporter {
 
   private final ApplicantService applicantService;
+  private final ProgramRepository programRepository;
 
   @Inject
-  JsonExporter(ApplicantService applicantService) {
+  JsonExporter(ApplicantService applicantService, ProgramRepository programRepository) {
     this.applicantService = checkNotNull(applicantService);
+    this.programRepository = checkNotNull(programRepository);
   }
 
-  public String export(Program program) throws IOException {
+  public String export(Program program) {
     DocumentContext jsonApplications = makeEmptyJsonArray();
     ProgramDefinition programDefinition = program.getProgramDefinition();
-    ImmutableList<Application> applications = program.getSubmittedApplications();
+    PaginationResult<Application> applicationPaginationResult =
+        programRepository.getApplicationsForAllProgramVersions(
+            program.id, PaginationSpec.MAX_PAGE_SIZE_SPEC, Optional.empty());
 
-    for (Application application : applications) {
+    for (Application application : applicationPaginationResult.getPageContents()) {
       CfJsonDocumentContext applicationJson = buildJsonApplication(application, programDefinition);
       jsonApplications.add("$", applicationJson.getDocumentContext().json());
     }
@@ -60,17 +66,19 @@ public class JsonExporter {
         roApplicantProgramService.getApplicantData().preferredLocale().toLanguageTag());
     jsonApplication.putString(Path.create("create_time"), application.getCreateTime().toString());
     jsonApplication.putString(
-        Path.create("submit_time"),
-        application.getSubmitTime() == null ? "" : application.getSubmitTime().toString());
-    jsonApplication.putString(
         Path.create("submitter_email"), application.getSubmitterEmail().orElse("Applicant"));
 
+    if (application.getSubmitTime() == null) {
+      jsonApplication.putNull(Path.create("submit_time"));
+    } else {
+      jsonApplication.putString(Path.create("submit_time"), application.getSubmitTime().toString());
+    }
+
     for (AnswerData answerData : roApplicantProgramService.getSummaryData()) {
-      // Answers to enumerator questions should not be included because the bath is incompatible
-      // with the
-      // JSON export schema. This is because enumerators store an identifier value for each repeated
-      // entity, which
-      // with the current export logic conflicts with the answers stored for repeated entities.
+      // Answers to enumerator questions should not be included because the path is incompatible
+      // with the JSON export schema. This is because enumerators store an identifier value for
+      // each repeated entity, which with the current export logic conflicts with the answers
+      // stored for repeated entities.
       if (answerData.questionDefinition().isEnumerator()) {
         continue;
       }
