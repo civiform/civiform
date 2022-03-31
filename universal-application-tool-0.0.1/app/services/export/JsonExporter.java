@@ -38,7 +38,9 @@ public class JsonExporter {
     DocumentContext jsonApplications = makeEmptyJsonArray();
     PaginationResult<Application> applicationPaginationResult =
         programRepository.getApplicationsForAllProgramVersions(
-            programDefinition.id(), PaginationSpec.MAX_PAGE_SIZE_SPEC, Optional.empty());
+            programDefinition.id(),
+            PaginationSpec.MAX_PAGE_SIZE_SPEC,
+            /* searchNameFragment= */ Optional.empty());
 
     for (Application application : applicationPaginationResult.getPageContents()) {
       CfJsonDocumentContext applicationJson = buildJsonApplication(application, programDefinition);
@@ -93,7 +95,7 @@ public class JsonExporter {
               for (LocalizedQuestionOption localizedQuestionOption :
                   multiSelectQuestion.getSelectedOptionsValue().get()) {
                 jsonApplication.putString(
-                    path.asArrayElement().atIndex(i), localizedQuestionOption.optionText());
+                    path.asArrayElement().atIndex(i++), localizedQuestionOption.optionText());
               }
             }
             break;

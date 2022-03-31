@@ -68,21 +68,23 @@ public class AdminApplicationController extends CiviFormController {
   /** Download a JSON file containing all applications to all versions of the specified program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result downloadAllJson(Http.Request request, long programId) {
+    final ProgramDefinition program;
+
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
+      program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-      String filename =
-          String.format("%s-%s.json", program.adminName(), clock.instant().toString());
-      String json = jsonExporter.export(program);
-      return ok(json)
-          .as(Http.MimeTypes.JSON)
-          .withHeader(
-              "Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (CompletionException e) {
       return unauthorized();
     }
+
+    String filename = String.format("%s-%s.json", program.adminName(), clock.instant().toString());
+    String json = jsonExporter.export(program);
+
+    return ok(json)
+        .as(Http.MimeTypes.JSON)
+        .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
   }
 
   /** Download a CSV file containing all applications to all versions of the specified program. */
