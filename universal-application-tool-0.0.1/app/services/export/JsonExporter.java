@@ -16,8 +16,10 @@ import services.applicant.ApplicantService;
 import services.applicant.JsonPathProvider;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.CurrencyQuestion;
+import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NumberQuestion;
 import services.program.ProgramDefinition;
+import services.question.LocalizedQuestionOption;
 
 /** Exports all applications for a given program as JSON. */
 public class JsonExporter {
@@ -74,17 +76,20 @@ public class JsonExporter {
       }
 
       switch (answerData.questionDefinition().getQuestionType()) {
-        case NUMBER:
+        case CHECKBOX:
           {
-            NumberQuestion numberQuestion = answerData.applicantQuestion().createNumberQuestion();
-            Path path = numberQuestion.getNumberPath().asApplicationPath();
+            MultiSelectQuestion multiSelectQuestion =
+                answerData.applicantQuestion().createMultiSelectQuestion();
+            Path path = multiSelectQuestion.getSelectionPath().asApplicationPath();
 
-            if (numberQuestion.getNumberValue().isPresent()) {
-              jsonApplication.putLong(path, numberQuestion.getNumberValue().get());
-            } else {
-              jsonApplication.putNull(path);
+            if (multiSelectQuestion.getSelectedOptionsValue().isPresent()) {
+              int i = 0;
+              for (LocalizedQuestionOption localizedQuestionOption :
+                  multiSelectQuestion.getSelectedOptionsValue().get()) {
+                jsonApplication.putString(
+                    path.asArrayElement().atIndex(i), localizedQuestionOption.optionText());
+              }
             }
-
             break;
           }
         case CURRENCY:
@@ -95,6 +100,19 @@ public class JsonExporter {
 
             if (currencyQuestion.getValue().isPresent()) {
               jsonApplication.putLong(path, currencyQuestion.getValue().get().getCents());
+            } else {
+              jsonApplication.putNull(path);
+            }
+
+            break;
+          }
+        case NUMBER:
+          {
+            NumberQuestion numberQuestion = answerData.applicantQuestion().createNumberQuestion();
+            Path path = numberQuestion.getNumberPath().asApplicationPath();
+
+            if (numberQuestion.getNumberValue().isPresent()) {
+              jsonApplication.putLong(path, numberQuestion.getNumberValue().get());
             } else {
               jsonApplication.putNull(path);
             }

@@ -534,7 +534,6 @@ public class CfJsonDocumentContext {
           pathsRemoved.addAll(mergeFrom(path, (Map) entry.getValue()));
         } else if (entry.getValue() instanceof List) {
           // Add items from lists.
-          // TODO(github.com/seattle-uat/civiform/issues/405): improve merge for repeated fields.
           for (Object item : (List) entry.getValue()) {
             jsonData.add(path.toString(), item);
           }

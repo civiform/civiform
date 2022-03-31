@@ -24,7 +24,34 @@ public class JsonExporterTest extends AbstractExporterTest {
 
     resultAsserter.assertLengthOf(3);
     testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationOne, 2);
+    resultAsserter.assertValueAtPath(2, ".applicant_name.first_name", "Alice");
+    resultAsserter.assertNullValueAtPath(2, ".applicant_name.middle_name");
+    resultAsserter.assertValueAtPath(2, ".applicant_name.last_name", "Appleton");
+    resultAsserter.assertValueAtPath(2, ".applicant_birth_date.date", "01/01/1980");
+    resultAsserter.assertValueAtPath(2, ".applicant_email_address.email", "one@example.com");
+    resultAsserter.assertValueAtPath(2, ".applicant_address.zip", "54321");
+    resultAsserter.assertValueAtPath(2, ".applicant_address.city", "city");
+    resultAsserter.assertValueAtPath(2, ".applicant_address.street", "street st");
+    resultAsserter.assertValueAtPath(2, ".applicant_address.state", "AB");
+    resultAsserter.assertValueAtPath(2, ".applicant_address.line2", "apt 100");
+    resultAsserter.assertValueAtPath(
+        2, ".applicant_favorite_color.text", "Some Value \" containing ,,, special characters");
+    resultAsserter.assertValueAtPath(2, ".applicant_monthly_income.currency_cents", 123456);
+    resultAsserter.assertValueAtPath(
+        2,
+        ".applicant_file.file_key",
+        "http://localhost:9000/admin/programs/" + fakeProgram.id + "/files/my-file-key");
+    resultAsserter.assertValueAtPath(2, ".number_of_items_applicant_can_juggle.number", 123456);
+    resultAsserter.assertValueAtPath(2, ".kitchen_tools.selections[0]", "toaster");
+    resultAsserter.assertValueAtPath(2, ".kitchen_tools.selections[1]", "pepper grinder");
+    resultAsserter.assertValueAtPath(2, ".applicant_ice_cream.selection", "strawberry");
+    resultAsserter.assertValueAtPath(2, ".radio.selection", "winter");
+
     testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationTwo, 1);
+    resultAsserter.assertValueAtPath(1, ".applicant_name.first_name", "Alice");
+    resultAsserter.assertNullValueAtPath(1, ".applicant_name.middle_name");
+    resultAsserter.assertValueAtPath(1, ".applicant_name.last_name", "Appleton");
+    resultAsserter.assertValueAtPath(1, ".applicant_birth_date.date", "01/01/1980");
     resultAsserter.assertValueAtPath(1, ".applicant_email_address.email", "one@example.com");
     resultAsserter.assertValueAtPath(1, ".applicant_address.zip", "54321");
     resultAsserter.assertValueAtPath(1, ".applicant_address.city", "city");
@@ -39,6 +66,10 @@ public class JsonExporterTest extends AbstractExporterTest {
         ".applicant_file.file_key",
         "http://localhost:9000/admin/programs/" + fakeProgram.id + "/files/my-file-key");
     resultAsserter.assertValueAtPath(1, ".number_of_items_applicant_can_juggle.number", 123456);
+    resultAsserter.assertValueAtPath(1, ".kitchen_tools.selections[0]", "toaster");
+    resultAsserter.assertValueAtPath(1, ".kitchen_tools.selections[1]", "pepper grinder");
+    resultAsserter.assertValueAtPath(1, ".applicant_ice_cream.selection", "strawberry");
+    resultAsserter.assertValueAtPath(1, ".radio.selection", "winter");
 
     testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationFour, 0);
     resultAsserter.assertValueAtPath(0, ".applicant_name.first_name", "Bob");
@@ -59,6 +90,29 @@ public class JsonExporterTest extends AbstractExporterTest {
     testApplicationTopLevelAnswers(fakeProgramWithEnumerator, resultAsserter, applicationOne, 2);
     testApplicationTopLevelAnswers(fakeProgramWithEnumerator, resultAsserter, applicationTwo, 1);
     testApplicationTopLevelAnswers(fakeProgramWithEnumerator, resultAsserter, applicationThree, 0);
+    resultAsserter.assertValueAtPath(0, ".applicant_name.first_name", "John");
+    resultAsserter.assertNullValueAtPath(0, ".applicant_name.middle_name");
+    resultAsserter.assertValueAtPath(0, ".applicant_name.last_name", "Doe");
+    resultAsserter.assertValueAtPath(0, ".applicant_favorite_color.text", "brown");
+    resultAsserter.assertNullValueAtPath(0, ".applicant_monthly_income.currency_cents");
+    resultAsserter.assertValueAtPath(
+        0, ".applicant_household_members[0].household_members_name.last_name", "Jameson");
+    resultAsserter.assertNullValueAtPath(
+        0, ".applicant_household_members[0].household_members_name.middle_name");
+    resultAsserter.assertValueAtPath(
+        0, ".applicant_household_members[0].household_members_name.first_name", "James");
+    resultAsserter.assertValueAtPath(
+        0,
+        ".applicant_household_members[0].household_members_jobs[0].household_members_days_worked.number",
+        111);
+    resultAsserter.assertValueAtPath(
+        0,
+        ".applicant_household_members[0].household_members_jobs[1].household_members_days_worked.number",
+        222);
+    resultAsserter.assertValueAtPath(
+        0,
+        ".applicant_household_members[0].household_members_jobs[2].household_members_days_worked.number",
+        333);
   }
 
   private void testApplicationTopLevelAnswers(
