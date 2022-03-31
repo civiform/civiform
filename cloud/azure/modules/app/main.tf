@@ -34,7 +34,7 @@ resource "azurerm_storage_account" "files_storage_account" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
 
-  allow_blob_public_access = false
+  allow_nested_items_to_be_public = false
 }
 
 data "azurerm_key_vault_secret" "adfs_client_id" {
@@ -111,7 +111,7 @@ resource "azurerm_app_service" "civiform_app" {
   app_settings = local.app_settings
 
   site_config {
-    linux_fx_version       = "DOCKER|${var.docker_username}/${var.docker_repository_name}:${var.image_tag_name}"
+    linux_fx_version       = "DOCKER|${var.docker_username}/${var.docker_repository_name}:${var.image_tag}"
     always_on              = true
     vnet_route_all_enabled = true
   }
@@ -162,7 +162,7 @@ resource "azurerm_app_service_slot" "canary" {
   app_settings = local.app_settings
 
   site_config {
-    linux_fx_version       = "DOCKER|${var.docker_username}/${var.docker_repository_name}:${var.image_tag_name}"
+    linux_fx_version       = "DOCKER|${var.docker_username}/${var.docker_repository_name}:${var.image_tag}"
     always_on              = true
     vnet_route_all_enabled = true
   }

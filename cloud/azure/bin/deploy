@@ -11,6 +11,10 @@ azure::set_common_vars
 azure_log::ensure_log_role_assignments
 azure_log::fetch_log_file
 
+if [[ "${CIVIFORM_MODE}" == "dev" ]];then
+    terraform::copy_override
+fi
+
 if ! terraform::perform_apply; then
     out::error "Terraform deployment failed."
     log::deploy_failed "${IMAGE_TAG}" "${AZURE_USER_ID}"

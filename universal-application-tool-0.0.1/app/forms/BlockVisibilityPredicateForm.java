@@ -26,7 +26,7 @@ public class BlockVisibilityPredicateForm implements Validatable<List<Validation
 
   /**
    * Either predicateValue OR predicateValues must be present. But because this validation logic is
-   * more complex than can be described by {@link @Constraints.Required}, we add it to the validate
+   * more complex than can be described by {@link Constraints.Required}, we add it to the validate
    * method below.
    */
   private String predicateValue;

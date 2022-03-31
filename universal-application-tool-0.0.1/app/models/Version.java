@@ -1,6 +1,7 @@
 package models;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.WhenModified;
 import java.time.Instant;
@@ -11,6 +12,8 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
+import services.program.ProgramDefinition;
+import services.question.types.QuestionDefinition;
 
 /**
  * An EBean mapped class that stores a reference object for coordinating the CiviForm data model.
@@ -60,8 +63,9 @@ public class Version extends BaseModel {
     this.lifecycleStage = lifecycleStage;
   }
 
-  public void setLifecycleStage(LifecycleStage lifecycleStage) {
+  public Version setLifecycleStage(LifecycleStage lifecycleStage) {
     this.lifecycleStage = lifecycleStage;
+    return this;
   }
 
   public ImmutableList<Program> getPrograms() {
@@ -98,6 +102,22 @@ public class Version extends BaseModel {
     return getQuestions().stream()
         .filter(q -> q.getQuestionDefinition().getName().equals(name))
         .findAny();
+  }
+
+  /** Returns the names of all the programs. */
+  public ImmutableSet<String> getProgramsNames() {
+    return getPrograms().stream()
+        .map(Program::getProgramDefinition)
+        .map(ProgramDefinition::adminName)
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  /** Returns the names of all the questions. */
+  public ImmutableSet<String> getQuestionNames() {
+    return getQuestions().stream()
+        .map(Question::getQuestionDefinition)
+        .map(QuestionDefinition::getName)
+        .collect(ImmutableSet.toImmutableSet());
   }
 
   public ImmutableList<String> getTombstonedProgramNames() {
