@@ -201,6 +201,18 @@ public class CfJsonDocumentContext {
   }
 
   /**
+   * Puts an array at a given path, building parent objects as needed.
+   *
+   * @param path the {@link Path} where the array should be added.
+   * @param list a {@link List} containing scalar values such as strings or longs.
+   */
+  public void putArray(Path path, List list) {
+    checkLocked();
+    putParentIfMissing(path);
+    jsonData.put(path.parentPath().toString(), path.keyName(), list);
+  }
+
+  /**
    * Adds a JSON array at the given path, if it is not there already.
    *
    * @param path the path to the new array - must not end with array suffix [] or [index]

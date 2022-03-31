@@ -211,12 +211,36 @@ public class CfJsonDocumentContextTest {
   }
 
   @Test
+  public void putString_addsSeveralElementsToArray_withReusedIndex() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+
+    data.putString(Path.create("applicant.allergies[0]"), "peanut");
+    data.putString(Path.create("applicant.allergies[0]"), "strawberry");
+    data.putString(Path.create("applicant.allergies[0]"), "shellfish");
+
+    assertThat(data.asJsonString())
+        .isEqualTo("{\"applicant\":{\"allergies\":[\"peanut\",\"strawberry\",\"shellfish\"]}}");
+  }
+
+  @Test
   public void putLong_writesNullIfStringIsEmpty() {
     CfJsonDocumentContext data = new CfJsonDocumentContext();
     Path path = Path.create("applicant.age");
     String expected = "{\"applicant\":{\"age\":null}}";
 
     data.putLong(path, "");
+
+    assertThat(data.asJsonString()).isEqualTo(expected);
+    assertThat(data.readLong(path)).isEmpty();
+  }
+
+  @Test
+  public void putArray_writesAnArray() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+    Path path = Path.create("applicant.kitchen_tools");
+    String expected = "{\"applicant\":{\"kitchen_tools\":[\"pepper grinder\",\"salt shaker\"]}}";
+
+    data.putArray(path, ImmutableList.of("pepper grinder", "salt shaker"));
 
     assertThat(data.asJsonString()).isEqualTo(expected);
     assertThat(data.readLong(path)).isEmpty();

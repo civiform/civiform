@@ -1,7 +1,9 @@
 package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static services.question.types.QuestionType.CURRENCY;
 
+import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.DocumentContext;
 import java.util.Map;
 import java.util.Optional;
@@ -91,12 +93,12 @@ public class JsonExporter {
             Path path = multiSelectQuestion.getSelectionPath().asApplicationPath();
 
             if (multiSelectQuestion.getSelectedOptionsValue().isPresent()) {
-              int i = 0;
-              for (LocalizedQuestionOption localizedQuestionOption :
-                  multiSelectQuestion.getSelectedOptionsValue().get()) {
-                jsonApplication.putString(
-                    path.asArrayElement().atIndex(i++), localizedQuestionOption.optionText());
-              }
+              ImmutableList<String> selectedOptions =
+                  multiSelectQuestion.getSelectedOptionsValue().get().stream()
+                      .map(LocalizedQuestionOption::optionText)
+                      .collect(ImmutableList.toImmutableList());
+
+              jsonApplication.putArray(path, selectedOptions);
             }
             break;
           }
