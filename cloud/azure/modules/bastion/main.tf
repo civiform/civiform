@@ -90,4 +90,8 @@ resource "azurerm_linux_virtual_machine" "bastion_vm" {
     sku       = "18.04-LTS"
     version   = "latest"
   }
+
+  lifecycle {
+    ignore_changes = [admin_ssh_key]
+  }
 }
