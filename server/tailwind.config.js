@@ -102,28 +102,6 @@ function getMediaQueryUsage(content, output) {
     )
 
     const mediaQueryMatchIter = content.match(MEDIA_QUERY_CALL)
-
-    /*if (mediaQueryErrIter) {
-      for (const match of mediaQueryErrIter) {
-        const space = '- '.repeat(22).cyan
-        let msg = 'ERROR:'.red + ' tailwind.css was not written to'
-        msg +=
-          '\n' +
-          space +
-          "A StyleUtils mediaQuery call spans multiple lines: '" +
-          content +
-          "'"
-        msg +=
-          '\n' +
-          space +
-          'We are parsing java with regex so some valid java code will break our parsing!'
-        msg +=
-          '\n' +
-          space +
-          "Please refer to 'app/views/style/README.md' for constraints on style usage call"
-        throw msg
-      }
-    } else */
     if (mediaQueryMatchIter) {
       for (const mediaQueriedContent of mediaQueryMatchIter) {
         output=getStyleUsage(mediaQueriedContent, output, mediaQueryPrefix)
@@ -154,7 +132,6 @@ module.exports = {
         let output = ""
 
         output = getStyleUsage(contentOneLine, output)
-
         output = getMediaQueryUsage(contentOneLine, output)
 
         return output
