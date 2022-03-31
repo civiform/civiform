@@ -15,6 +15,8 @@ import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.JsonPathProvider;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applicant.question.CurrencyQuestion;
+import services.applicant.question.NumberQuestion;
 import services.program.ProgramDefinition;
 
 /** Exports all applications for a given program as JSON. */
@@ -46,7 +48,8 @@ public class JsonExporter {
         applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
     CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext(makeEmptyJsonObject());
 
-    jsonApplication.putLong(Path.create("program_name"), application.getProgram().getProgramDefinition().adminName());
+    jsonApplication.putString(
+        Path.create("program_name"), application.getProgram().getProgramDefinition().adminName());
     jsonApplication.putLong(Path.create("program_version_id"), application.getProgram().id);
     jsonApplication.putLong(Path.create("applicant_id"), application.getApplicant().id);
     jsonApplication.putLong(Path.create("application_id"), application.id);
@@ -61,8 +64,50 @@ public class JsonExporter {
         Path.create("submitter_email"), application.getSubmitterEmail().orElse("Applicant"));
 
     for (AnswerData answerData : roApplicantProgramService.getSummaryData()) {
-      for (Map.Entry<Path, String> answer : answerData.scalarAnswersInDefaultLocale().entrySet()) {
-        jsonApplication.putString(answer.getKey().asApplicationPath(), answer.getValue());
+      // Answers to enumerator questions should not be included because the bath is incompatible
+      // with the
+      // JSON export schema. This is because enumerators store an identifier value for each repeated
+      // entity, which
+      // with the current export logic conflicts with the answers stored for repeated entities.
+      if (answerData.questionDefinition().isEnumerator()) {
+        continue;
+      }
+
+      switch (answerData.questionDefinition().getQuestionType()) {
+        case NUMBER:
+          {
+            NumberQuestion numberQuestion = answerData.applicantQuestion().createNumberQuestion();
+            Path path = numberQuestion.getNumberPath().asApplicationPath();
+
+            if (numberQuestion.getNumberValue().isPresent()) {
+              jsonApplication.putLong(path, numberQuestion.getNumberValue().get());
+            } else {
+              jsonApplication.putNull(path);
+            }
+
+            break;
+          }
+        case CURRENCY:
+          {
+            CurrencyQuestion currencyQuestion =
+                answerData.applicantQuestion().createCurrencyQuestion();
+            Path path = currencyQuestion.getCurrencyPath().asApplicationPath();
+
+            if (currencyQuestion.getValue().isPresent()) {
+              jsonApplication.putLong(path, currencyQuestion.getValue().get().getCents());
+            } else {
+              jsonApplication.putNull(path);
+            }
+
+            break;
+          }
+        default:
+          {
+            for (Map.Entry<Path, String> answer :
+                answerData.scalarAnswersInDefaultLocale().entrySet()) {
+              jsonApplication.putString(answer.getKey().asApplicationPath(), answer.getValue());
+            }
+          }
       }
     }
 

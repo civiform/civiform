@@ -91,7 +91,8 @@ lazy val root = (project in file("."))
       // Turn off the AutoValueSubclassLeaked error since the generated
       // code contains it - we can't control that.
       "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF",
-      "-implicit:class"
+      "-implicit:class",
+      "-Werror"
     ),
     // Make verbose tests
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v")),

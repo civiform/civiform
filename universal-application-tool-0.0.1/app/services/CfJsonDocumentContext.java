@@ -166,7 +166,12 @@ public class CfJsonDocumentContext {
     }
   }
 
-  private void putNull(Path path) {
+  /**
+   * Puts null at the provided path.
+   *
+   * @param path a path
+   */
+  public void putNull(Path path) {
     if (!path.isArrayElement()) {
       put(path, null);
     }

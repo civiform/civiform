@@ -4,6 +4,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import services.Path;
+import services.applicant.question.ApplicantQuestion;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -28,8 +29,11 @@ public abstract class AnswerData {
   /** The {@link Path} for this answer in the applicant's {@code ApplicantData}. */
   public abstract Path contextualizedPath();
 
-  /** The {@link models.Question} ID this is an answer for. */
+  /** The {@link QuestionDefinition} for this question. */
   public abstract QuestionDefinition questionDefinition();
+
+  /** The {@link ApplicantQuestion} for this question. */
+  public abstract ApplicantQuestion applicantQuestion();
 
   /** The repeated entity if this is an answer to a repeated question. Otherwise, empty. */
   public abstract Optional<RepeatedEntity> repeatedEntity();
@@ -76,6 +80,8 @@ public abstract class AnswerData {
     public abstract Builder setContextualizedPath(Path path);
 
     public abstract Builder setQuestionDefinition(QuestionDefinition questionDefinition);
+
+    public abstract Builder setApplicantQuestion(ApplicantQuestion applicantQuestion);
 
     public abstract Builder setRepeatedEntity(Optional<RepeatedEntity> repeatedEntity);
 

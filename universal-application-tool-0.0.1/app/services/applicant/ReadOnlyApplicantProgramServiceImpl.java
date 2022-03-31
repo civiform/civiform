@@ -174,6 +174,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setBlockId(block.getId())
                 .setContextualizedPath(question.getContextualizedPath())
                 .setQuestionDefinition(question.getQuestionDefinition())
+                .setApplicantQuestion(question)
                 .setRepeatedEntity(block.getRepeatedEntity())
                 .setQuestionIndex(questionIndex)
                 .setQuestionText(questionText)
