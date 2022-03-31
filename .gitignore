@@ -27,3 +27,4 @@ terraform.tfstate**
 
 sbt_cache/*
 !sbt_cache/.keep
+/browser-test/sbt_cache/

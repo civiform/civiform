@@ -28,7 +28,7 @@ describe('normal application flow', () => {
     const adminPrograms = new AdminPrograms(page)
     const applicantQuestions = new ApplicantQuestions(page)
 
-    const programName = 'test program for csv export'
+    const programName = 'test program for export'
     await adminQuestions.addNameQuestion({ questionName: 'name-csv-download' })
     await adminQuestions.addDropdownQuestion({
       questionName: 'dropdown-csv-download',
@@ -111,10 +111,12 @@ describe('normal application flow', () => {
     await applicantQuestions.submitFromPreviewPage(programName)
     await logout(page)
 
+    // #######################################
+    // Test program applications export
+    // #######################################
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
     const postEditCsvContent = await adminPrograms.getCsv()
-
     expect(postEditCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
     expect(postEditCsvContent).toContain('Gus,,Guest,op2,01/01/1990,2000.00')
 
@@ -122,8 +124,23 @@ describe('normal application flow', () => {
       postEditCsvContent.split('Gus,,Guest,op2,01/01/1990,2000.00').length - 1
     expect(numberOfGusEntries).toEqual(2)
 
+    const postEditJSonContent = JSON.parse(await adminPrograms.getJson())
+    expect(postEditJSonContent.length).toEqual(3)
+    expect(postEditJSonContent[0].program_name).toEqual(programName)
+    expect(postEditJSonContent[0].language).toEqual("en-US")
+    expect(postEditJSonContent[0].application.csvcurrency.currency_cents).toEqual(200000)
+    expect(postEditJSonContent[0].application.dropdowncsvdownload.selection).toEqual("op2")
+    expect(postEditJSonContent[0].application.namecsvdownload.first_name).toEqual("Gus")
+    expect(postEditJSonContent[0].application.namecsvdownload.middle_name).toBeNull()
+    expect(postEditJSonContent[0].application.namecsvdownload.last_name).toEqual("Guest")
+    expect(postEditJSonContent[0].application.csvdate.date).toEqual("01/01/1990")
+    expect(postEditJSonContent[0].application.numbercsvdownload.number).toEqual(1600)
+
     await logout(page)
 
+    // #######################################
+    // Test demography export
+    // #######################################
     await loginAsAdmin(page)
     await adminPrograms.gotoAdminProgramsPage()
     const demographicsCsvContent = await adminPrograms.getDemographicsCsv()
