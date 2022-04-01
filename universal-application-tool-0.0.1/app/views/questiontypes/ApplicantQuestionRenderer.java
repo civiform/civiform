@@ -2,6 +2,7 @@ package views.questiontypes;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.span;
 
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
@@ -52,11 +53,7 @@ public abstract class ApplicantQuestionRenderer {
     ContainerTag questionTextDiv =
         div()
             // Question text
-            .with(
-                div()
-                    .withClasses(
-                        ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
-                    .with(TextFormatter.createLinksAndEscapeText(question.getQuestionText())))
+            .with(createQuestionTextTag())
             // Question help text
             .with(
                 div()
@@ -84,5 +81,20 @@ public abstract class ApplicantQuestionRenderer {
         .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
         .with(questionTextDiv)
         .with(questionFormContent);
+  }
+
+  private ContainerTag createQuestionTextTag() {
+    ContainerTag containerTag =
+        div()
+            .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
+            .with(TextFormatter.createLinksAndEscapeText(question.getQuestionText()));
+
+    if (!question.isOptional()) {
+      containerTag.with(span("*").withClasses(Styles.P_1, Styles.TEXT_RED_600));
+    } else {
+      containerTag.with(span("(optional)").withClass(Styles.P_1));
+    }
+
+    return containerTag;
   }
 }
