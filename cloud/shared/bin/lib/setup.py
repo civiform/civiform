@@ -50,11 +50,13 @@ image_tag = config_loader.get_config_var("IMAGE_TAG")
 log_args = f"\"{image_tag}\" {current_user}"
 
 try: 
+    print("Starting pre-terraform setup")
     template_setup.pre_terraform_setup()
 
     ###############################################################################
     # Terraform Init/Plan/Apply
     ###############################################################################
+    print("Starting terraform setup")
     terraform_tfvars_path = f"{template_dir}/{config_loader.tfvars_filename}"
 
     # Write the passthrough vars to a temporary file
@@ -62,48 +64,68 @@ try:
     conf_variables = config_loader.get_terraform_variables()
     tf_var_writter.write_variables(conf_variables)
 
-    # Note that the -chdir means we use the relative paths for 
+    print(" - Use dev terraform workspace")
+    subprocess.check_call([
+        "terraform",
+        f"-chdir={template_dir}",
+        "use dev",
+        "||",
+        "terraform",
+        f"-chdir={template_dir}",
+        "new dev",
+    ])
+    # Note that the -chdir means we use the relative paths for
     # both the backend config and the var file
     terraform_init_args = [
-        "terraform", 
-        f"-chdir={template_dir}", 
-        "init", 
+        "terraform",
+        f"-chdir={template_dir}",
+        "init",
         "-upgrade",
     ]
     if config_loader.use_backend_config():
         terraform_init_args.append(f"-backend-config={config_loader.backend_vars_filename}")
 
+    print(" - Run terraform init")
     subprocess.check_call(terraform_init_args)
 
+    print(" - Run terraform apply")
     subprocess.check_call([
-        "terraform", 
-        f"-chdir={template_dir}", 
-        "apply", 
+        "terraform",
+        f"-chdir={template_dir}",
+        "apply",
         f"-var-file={config_loader.tfvars_filename}"
     ])
 
     ###############################################################################
     # Post Run Setup Tasks (if needed)
     ###############################################################################
-
     if template_setup.requires_post_terraform_setup():
+        print("Starting port-terraform setup")
         template_setup.post_terraform_setup()
-        
+
         subprocess.check_call([
-            "terraform", 
-            f"-chdir={template_dir}", 
-            "apply", 
+            "terraform",
+            f"-chdir={template_dir}",
+            "apply",
             f"-var-file={config_loader.tfvars_filename}"
         ])
     subprocess.run([
-        "/bin/bash", "-c", 
+        "/bin/bash", "-c",
         f"source cloud/shared/bin/lib.sh && LOG_TEMPFILE={template_setup.log_file_path} log::deploy_succeeded {log_args}"
     ], check=True)
 except:
     subprocess.run([
-        "/bin/bash", "-c", 
+        "/bin/bash", "-c",
         f"source cloud/shared/bin/lib.sh && LOG_TEMPFILE={template_setup.log_file_path} log::deploy_failed {log_args}"
     ], check=True)
     print("Deployment Failed :(", file=sys.stderr)
-finally: 
+finally:
     template_setup.cleanup()
+
+    print(" - Return to default terraform workspace")
+    subprocess.check_call([
+        "terraform",
+        f"-chdir={template_dir}",
+        "use default",
+    ])
+

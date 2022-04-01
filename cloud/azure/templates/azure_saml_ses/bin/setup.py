@@ -22,10 +22,15 @@ class Setup:
         return True
     
     def pre_terraform_setup(self):         
+        print(" - Generating ssh keyfile")
         self._create_ssh_keyfile()
+        print(" - Setting up shared state")
         self._setup_shared_state()
+        print(" - Setting up the keyvault")
         self._setup_keyvault()
+        print(" - Setting up the SAML keystore")
         self._setup_saml_keystore()
+        print(" - Setting up SES")
         self._setup_ses()    
         if self.config.use_backend_config(): 
             self._make_backend_override()
@@ -53,7 +58,7 @@ class Setup:
     
     def cleanup(self): 
         self._upload_log_file()
-        subprocess.run(["/bin/bash", "-c", "rm -f $HOME/.ssh/bastion*"], check=True)
+        # subprocess.run(["/bin/bash", "-c", "rm -f $HOME/.ssh/bastion*"], check=True)
     
     def _get_adfs_user_inputs(self):
         print(">>>> You will need to navigate to the app_service"
@@ -122,7 +127,7 @@ class Setup:
         if not self.resource_group: 
             raise RuntimeError("Resource group required")
         if not self.key_vault_name: 
-            raise RuntimeError("Key Vault Setup Required")
+            raise RuntimeError("Key Vault Name Required")
         
         saml_keystore_storage_account = self.config.get_config_var("SAML_KEYSTORE_ACCOUNT_NAME")
         subprocess.run([
