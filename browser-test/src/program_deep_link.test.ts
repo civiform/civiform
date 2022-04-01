@@ -50,7 +50,7 @@ describe('navigating to a deep link', () => {
     // Assert
     await page.click('#continue-application-button')
     expect(await page.innerText('.cf-applicant-question-text')).toEqual(
-      questionText
+      questionText + "*"
     )
 
     await logout(page)
@@ -64,7 +64,7 @@ describe('navigating to a deep link', () => {
     // Assert
     await page.click('#continue-application-button')
     expect(await page.innerText('.cf-applicant-question-text')).toEqual(
-      questionText
+      questionText + "*"
     )
 
     await endSession(browser)
