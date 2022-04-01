@@ -25,6 +25,9 @@ import services.program.Column;
  * answer from {@link ReadOnlyApplicantProgramService} if present.
  */
 public class CsvExporter {
+  public static final CSVFormat DEFAULT_CSV_FORMAT =
+      CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build();
+
   private final String EMPTY_VALUE = "";
 
   private boolean wroteHeaders;
@@ -69,7 +72,7 @@ public class CsvExporter {
   public void export(
       Application application, ReadOnlyApplicantProgramService roApplicantService, Writer writer)
       throws IOException {
-    CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withFirstRecordAsHeader());
+    CSVPrinter printer = new CSVPrinter(writer, DEFAULT_CSV_FORMAT);
 
     this.writeHeadersOnFirstExport(printer);
 

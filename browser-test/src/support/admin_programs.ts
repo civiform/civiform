@@ -444,6 +444,19 @@ export class AdminPrograms {
     ).not.toBeNull()
   }
 
+  async getJson() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.click('text="Download all versions (JSON)"'),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+
+    return readFileSync(path, 'utf8')
+  }
+
   async getCsv() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),

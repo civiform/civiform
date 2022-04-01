@@ -19,7 +19,8 @@ tailwind.css
 *.terraform
 *.terraform.lock.hcl
 *.tfvars
-!cloud/deploys/staging_azure/*.tfvars
+/cloud/deploys/dev_azure/civiform_config.sh
+*_override.tf
 !*example.auto.tfvars
 terraform.tfstate**
 .terraform.tfstate**
@@ -27,3 +28,15 @@ terraform.tfstate**
 
 sbt_cache/*
 !sbt_cache/.keep
+/browser-test/sbt_cache/*
+!/browser-test/sbt_cache/.keep
+
+*/.classpath
+*/.vscode
+*/.project
+**/.data
+**/.metals/
+**/.bloop/
+**/.ammonite/
+**/metals.sbt
+**/pom.xml

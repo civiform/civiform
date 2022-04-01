@@ -80,10 +80,11 @@ public class Application extends BaseModel {
     return new ApplicantData(Optional.of(Locale.forLanguageTag(preferredLocale)), this.object);
   }
 
-  public void setApplicantData(ApplicantData data) {
+  public Application setApplicantData(ApplicantData data) {
     this.preferredLocale =
         data.hasPreferredLocale() ? data.preferredLocale().toLanguageTag() : null;
     this.object = data.asJsonString();
+    return this;
   }
 
   public LifecycleStage getLifecycleStage() {
@@ -98,11 +99,13 @@ public class Application extends BaseModel {
     return this.createTime;
   }
 
-  public void setLifecycleStage(LifecycleStage stage) {
+  public Application setLifecycleStage(LifecycleStage stage) {
     this.lifecycleStage = stage;
+    return this;
   }
 
-  public void setSubmitTimeToNow() {
+  public Application setSubmitTimeToNow() {
     this.submitTime = Instant.now();
+    return this;
   }
 }

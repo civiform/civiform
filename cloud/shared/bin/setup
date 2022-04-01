@@ -7,7 +7,9 @@ source cloud/shared/bin/lib.sh
 # This setups the environment of civiform
 # it will execute a bunch of scripts that help setup terraform, and the 
 # various cloud providers. 
-#
+
+export TF_VAR_image_tag="${IMAGE_TAG}"
+
 # In order to properly run this first source your config file
 # then run ./cloud/shared/bin/setup from the civiform repo 
 exec cloud/shared/bin/lib/setup.py

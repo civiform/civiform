@@ -5,6 +5,10 @@ import java.util.Optional;
 
 /** Provides synchronous, read-only behavior relevant to an applicant for a specific program. */
 public interface ReadOnlyApplicantProgramService {
+
+  /** Returns the locked applicant data for this application. */
+  ApplicantData getApplicantData();
+
   /** Returns the program title, localized to the applicant's preferred locale. */
   String getProgramTitle();
 

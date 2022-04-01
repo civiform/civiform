@@ -68,6 +68,7 @@ try:
         "terraform", 
         f"-chdir={template_dir}", 
         "init", 
+        "-upgrade",
     ]
     if config_loader.use_backend_config():
         terraform_init_args.append(f"-backend-config={config_loader.backend_vars_filename}")
