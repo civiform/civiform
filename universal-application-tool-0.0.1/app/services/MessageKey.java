@@ -43,6 +43,7 @@ public enum MessageKey {
   CONTENT_GET_BENEFITS("content.benefits"),
   CONTENT_LOGIN_PROMPT("content.loginPrompt"),
   CONTENT_LOGIN_PROMPT_ALTERNATIVE("content.alternativeLoginPrompt"),
+  CONTENT_OPTIONAL_QUESTION_TEXT("content.optionalQuestionText"),
   CONTENT_OR("content.or"),
   CONTENT_PLEASE_CREATE_ACCOUNT("content.pleaseCreateAccount"),
   CONTENT_SELECT_LANGUAGE("label.selectLanguage"),

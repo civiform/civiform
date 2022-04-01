@@ -53,7 +53,7 @@ public abstract class ApplicantQuestionRenderer {
     ContainerTag questionTextDiv =
         div()
             // Question text
-            .with(createQuestionTextTag())
+            .with(createQuestionTextTag(messages))
             // Question help text
             .with(
                 div()
@@ -83,7 +83,7 @@ public abstract class ApplicantQuestionRenderer {
         .with(questionFormContent);
   }
 
-  private ContainerTag createQuestionTextTag() {
+  private ContainerTag createQuestionTextTag(Messages messages) {
     ContainerTag containerTag =
         div()
             .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
@@ -92,7 +92,9 @@ public abstract class ApplicantQuestionRenderer {
     if (!question.isOptional()) {
       containerTag.with(span("*").withClasses(Styles.P_1, Styles.TEXT_RED_600));
     } else {
-      containerTag.with(span("(optional)").withClass(Styles.P_1));
+      containerTag.with(
+          span(messages.at(MessageKey.CONTENT_OPTIONAL_QUESTION_TEXT.getKeyName()))
+              .withClass(Styles.P_1));
     }
 
     return containerTag;

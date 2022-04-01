@@ -90,6 +90,9 @@ button.skipFileUpload=Skip
 # The text on the button an applicant clicks to upload a file and continue to the next screen.
 button.upload=Upload
 
+# The text shown next to a question indicating that it is optional
+content.optionalQuestionText=(optional)
+
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=We''re sorry, this program is not fully translated to your preferred language.
 

@@ -18,6 +18,7 @@ button.review=Review
 button.skipFileUpload=Skip
 button.submit=Submit
 button.upload=Upload
+content.optionalQuestionText=(optional)
 footer.supportLinkDescription=For technical support, contact
 toast.localeNotSupported=We''re sorry, this program is not fully translated to English.
 toast.programCompleted=Application was already completed.
