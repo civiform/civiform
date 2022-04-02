@@ -75,7 +75,7 @@ public class ProgramRepository {
         draftVersion.getProgramByName(existingProgram.getProgramDefinition().adminName());
     if (existingDraftOpt.isPresent()) {
       Program existingDraft = existingDraftOpt.get();
-      if (existingDraft.id != existingProgram.id) {
+      if (!existingDraft.id.equals(existingProgram.id)) {
         // This may be indicative of a coding error, as it implies a reset of the draft and not an
         // update of the draft, so log it.
         logger.warn(
