@@ -536,6 +536,11 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException {
+    // Note: It's unclear that we actually want to update an existing draft this way, as it would
+    // effectively reset the
+    //  draft which is not part of any user flow. Given the interdependency of draft updates this is
+    // likely to cause
+    // issues as in #2179.
     return programRepository
         .createOrUpdateDraft(this.getProgramDefinition(id).toProgram())
         .getProgramDefinition();

@@ -9,6 +9,7 @@ import controllers.CiviFormController;
 import forms.ProgramForm;
 import java.util.Optional;
 import javax.inject.Inject;
+import models.Program;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -116,7 +117,22 @@ public class AdminProgramController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newVersionFrom(Request request, long id) {
     try {
-      return redirect(routes.AdminProgramController.edit(service.newDraftOf(id).id()));
+      // If there's already a draft then use that, likely the client is out of date and unaware a
+      // draft exists.
+      // TODO(#2246): Implement FE staleness detection system to handle this more robustly.
+      Optional<Program> existingDraft =
+          versionRepository
+              .getDraftVersion()
+              .getProgramByName(service.getProgramDefinition(id).adminName());
+      final Long idToEdit;
+      if (existingDraft.isPresent()) {
+        idToEdit = existingDraft.get().id;
+      } else {
+        // Make a new draft from the provided id.
+        idToEdit = service.newDraftOf(id).id();
+      }
+
+      return redirect(routes.AdminProgramController.edit(idToEdit));
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (Exception e) {
