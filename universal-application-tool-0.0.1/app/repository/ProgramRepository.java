@@ -23,6 +23,8 @@ import models.Application;
 import models.LifecycleStage;
 import models.Program;
 import models.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.PaginationResult;
 import services.PaginationSpec;
 import services.program.ProgramNotFoundException;
@@ -32,6 +34,7 @@ import services.program.ProgramNotFoundException;
  * EBean models or asynchronous handling.
  */
 public class ProgramRepository {
+  private static final Logger logger = LoggerFactory.getLogger(ProgramRepository.class);
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;
@@ -68,17 +71,26 @@ public class ProgramRepository {
    */
   public Program createOrUpdateDraft(Program existingProgram) {
     Version draftVersion = versionRepository.get().getDraftVersion();
-    Optional<Program> existingDraft =
+    Optional<Program> existingDraftOpt =
         draftVersion.getProgramByName(existingProgram.getProgramDefinition().adminName());
-    if (existingDraft.isPresent()) {
+    if (existingDraftOpt.isPresent()) {
+      Program existingDraft = existingDraftOpt.get();
+      if (existingDraft.id != existingProgram.id) {
+        // This may be indicative of a coding error, as it implies a reset of the draft not and
+        // update, so log it.
+        logger.warn(
+            "Replacing Draft revision {} with definition from a different revision {}.",
+            existingDraft.id,
+            existingProgram.id);
+      }
       Program updatedDraft =
           existingProgram.getProgramDefinition().toBuilder()
-              .setId(existingDraft.get().id)
+              .setId(existingDraft.id)
               .build()
               .toProgram();
-      updateProgramSync(updatedDraft);
-      return updatedDraft;
+      return updateProgramSync(updatedDraft);
     }
+
     // Inside a question update, this will be a savepoint rather than a full transaction.  Otherwise
     // it will be creating a new transaction.
     Transaction transaction = database.beginTransaction(TxScope.required());
