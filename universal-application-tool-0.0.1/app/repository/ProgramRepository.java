@@ -78,51 +78,43 @@ public class ProgramRepository {
               .toProgram();
       updateProgramSync(updatedDraft);
       return updatedDraft;
-    } else {
-      // Inside a question update, this will be a savepoint rather than a
-      // full transaction.  Otherwise it will be creating a new transaction.
-      Transaction transaction = database.beginTransaction(TxScope.required());
-      try {
-        // Program -> builder -> back to program in order to clear any metadata stored
-        // in the program (for example, version information).
-        Program newDraft = existingProgram.getProgramDefinition().toBuilder().build().toProgram();
-        newDraft = insertProgramSync(newDraft);
-        newDraft.addVersion(draftVersion).save();
-        draftVersion.refresh();
-        Preconditions.checkState(
-            draftVersion.getPrograms().contains(newDraft),
-            "Must have successfully added draft version.");
-        Preconditions.checkState(
-            draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
-            "Draft version must remain a draft throughout this transaction.");
-        Preconditions.checkState(
-            draftVersion.getPrograms().stream()
-                    .filter(
-                        program ->
-                            program
-                                .getProgramDefinition()
-                                .adminName()
-                                .equals(existingProgram.getProgramDefinition().adminName()))
-                    .count()
-                == 1,
-            "Must be exactly one program with this name in the draft.");
-        versionRepository.get().updateQuestionVersions(newDraft);
-        transaction.commit();
-        return newDraft;
-      } catch (IllegalStateException e) {
-        transaction.rollback();
-        // We must end the transaction here since we are going to recurse and try again.
-        // We cannot have this transaction on the thread-local transaction stack when that
-        // happens.
-        transaction.end();
-        return createOrUpdateDraft(existingProgram);
-      } finally {
-        // This may come after a prior call to `transaction.end` in the event of a
-        // precondition failure - this is okay, since it a double-call to `end` on
-        // a particular transaction.  Only double calls to database.endTransaction
-        // must be avoided.
-        transaction.end();
-      }
+    }
+    // Inside a question update, this will be a savepoint rather than a full transaction.  Otherwise
+    // it will be creating a new transaction.
+    Transaction transaction = database.beginTransaction(TxScope.required());
+    try {
+      // Program -> builder -> back to program in order to clear any metadata stored in the program
+      // (for example, version information).
+      Program newDraft = existingProgram.getProgramDefinition().toBuilder().build().toProgram();
+      newDraft = insertProgramSync(newDraft);
+      newDraft.addVersion(draftVersion).save();
+      draftVersion.refresh();
+      Preconditions.checkState(
+          draftVersion.getPrograms().contains(newDraft),
+          "Must have successfully added draft version.");
+      Preconditions.checkState(
+          draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
+          "Draft version must remain a draft throughout this transaction.");
+      Preconditions.checkState(
+          draftVersion
+              .getProgramByName(existingProgram.getProgramDefinition().adminName())
+              .isPresent(),
+          "Must be exactly one program with this name in the draft.");
+      versionRepository.get().updateQuestionVersions(newDraft);
+      transaction.commit();
+      return newDraft;
+    } catch (IllegalStateException e) {
+      transaction.rollback();
+      // We must end the transaction here since we are going to recurse and try again.
+      // We cannot have this transaction on the thread-local transaction stack when that
+      // happens.
+      transaction.end();
+      return createOrUpdateDraft(existingProgram);
+    } finally {
+      // This may come after a prior call to `transaction.end` in the event of a precondition
+      // failure - this is okay, since it a double-call to `end` on a particular transaction.  Only
+      // double calls to database.endTransaction must be avoided.
+      transaction.end();
     }
   }
 
