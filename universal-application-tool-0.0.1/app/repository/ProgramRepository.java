@@ -76,7 +76,7 @@ public class ProgramRepository {
     if (existingDraftOpt.isPresent()) {
       Program existingDraft = existingDraftOpt.get();
       if (!existingDraft.id.equals(existingProgram.id)) {
-        // This may be indicative of a coding error, as it implies a reset of the draft and not an
+        // This may be indicative of a coding error, as it does a reset of the draft and not an
         // update of the draft, so log it.
         logger.warn(
             "Replacing Draft revision {} with definition from a different revision {}.",
