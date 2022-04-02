@@ -76,8 +76,8 @@ public class ProgramRepository {
     if (existingDraftOpt.isPresent()) {
       Program existingDraft = existingDraftOpt.get();
       if (existingDraft.id != existingProgram.id) {
-        // This may be indicative of a coding error, as it implies a reset of the draft not and
-        // update, so log it.
+        // This may be indicative of a coding error, as it implies a reset of the draft and not an
+        // update of the draft, so log it.
         logger.warn(
             "Replacing Draft revision {} with definition from a different revision {}.",
             existingDraft.id,
@@ -107,10 +107,17 @@ public class ProgramRepository {
       Preconditions.checkState(
           draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
           "Draft version must remain a draft throughout this transaction.");
+      // Ensure we didn't add a duplicate with other code running at the same time.
       Preconditions.checkState(
-          draftVersion
-              .getProgramByName(existingProgram.getProgramDefinition().adminName())
-              .isPresent(),
+          draftVersion.getPrograms().stream()
+                  .filter(
+                      program ->
+                          program
+                              .getProgramDefinition()
+                              .adminName()
+                              .equals(existingProgram.getProgramDefinition().adminName()))
+                  .count()
+              == 1,
           "Must be exactly one program with this name in the draft.");
       versionRepository.get().updateQuestionVersions(newDraft);
       transaction.commit();
