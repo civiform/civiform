@@ -40,7 +40,7 @@ template_setup = Setup(config_loader)
 template_setup.setup_log_file()
 
 current_user_function = subprocess.run([
-    "/bin/bash", "-c", 
+    "/bin/bash", "-c",
     f"source cloud/azure/bin/lib.sh && azure::get_current_user_id"
 ], capture_output=True)
 
@@ -63,22 +63,6 @@ try:
     tf_var_writter = TfVarWriter(terraform_tfvars_path)
     conf_variables = config_loader.get_terraform_variables()
     tf_var_writter.write_variables(conf_variables)
-
-    print(" - Use dev terraform workspace")
-    try:
-      subprocess.check_call([
-          "terraform",
-          f"-chdir={template_dir}",
-          "workspace","select","dev",
-      ])
-    except subprocess.CalledProcessError as err:
-      print ("error:", err)
-
-      subprocess.check_call([
-          "terraform",
-          f"-chdir={template_dir}",
-          "workspace","new","dev",
-      ])
 
     # Note that the -chdir means we use the relative paths for
     # both the backend config and the var file
@@ -129,11 +113,3 @@ except BaseException as err:
 
 finally:
     template_setup.cleanup()
-
-    print(" - Return to default terraform workspace")
-    subprocess.check_call([
-        "terraform",
-        f"-chdir={template_dir}",
-        "workspace","select","default",
-    ])
-
