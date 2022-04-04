@@ -8,8 +8,8 @@ from write_tfvars import TfVarWriter
 from setup_class_loader import load_class
 
 """
-Setup.py sets up and runs the initial terraform deployment. It's broken into 
-3 parts: 
+Setup.py sets up and runs the initial terraform deployment. It's broken into
+3 parts:
 1) Load and Validate Inputs
 2) Run Setup scripts
 3) Terraform Init/Plan/Apply
@@ -49,7 +49,7 @@ if current_user_function:
 image_tag = config_loader.get_config_var("IMAGE_TAG")
 log_args = f"\"{image_tag}\" {current_user}"
 
-try: 
+try:
     print("Starting pre-terraform setup")
     template_setup.pre_terraform_setup()
 
@@ -65,15 +65,21 @@ try:
     tf_var_writter.write_variables(conf_variables)
 
     print(" - Use dev terraform workspace")
-    subprocess.check_call([
-        "terraform",
-        f"-chdir={template_dir}",
-        "use dev",
-        "||",
-        "terraform",
-        f"-chdir={template_dir}",
-        "new dev",
-    ])
+    try:
+      subprocess.check_call([
+          "terraform",
+          f"-chdir={template_dir}",
+          "workspace","select","dev",
+      ])
+    except subprocess.CalledProcessError as err:
+      print ("error:", err)
+
+      subprocess.check_call([
+          "terraform",
+          f"-chdir={template_dir}",
+          "workspace","new","dev",
+      ])
+
     # Note that the -chdir means we use the relative paths for
     # both the backend config and the var file
     terraform_init_args = [
@@ -113,12 +119,14 @@ try:
         "/bin/bash", "-c",
         f"source cloud/shared/bin/lib.sh && LOG_TEMPFILE={template_setup.log_file_path} log::deploy_succeeded {log_args}"
     ], check=True)
-except:
+except BaseException as err:
     subprocess.run([
         "/bin/bash", "-c",
         f"source cloud/shared/bin/lib.sh && LOG_TEMPFILE={template_setup.log_file_path} log::deploy_failed {log_args}"
     ], check=True)
     print("Deployment Failed :(", file=sys.stderr)
+    print ("error:", err)
+
 finally:
     template_setup.cleanup()
 
@@ -126,6 +134,6 @@ finally:
     subprocess.check_call([
         "terraform",
         f"-chdir={template_dir}",
-        "use default",
+        "workspace","select","default",
     ])
 
