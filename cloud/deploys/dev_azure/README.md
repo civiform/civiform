@@ -77,13 +77,6 @@ is what you specified in the build/tag/push)
 
 ## Troubleshooting
 
-### First step
-Run the doctor script to ensure the proper CLIs are setup & configured
-
-```
-cloud/shared/bin/doctor
-```
-
 ### Azure "SkuNotAvailable" Error
 
 #### Error
