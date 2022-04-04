@@ -10,6 +10,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.play.java.Secure;
+import play.Environment;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
@@ -25,17 +26,20 @@ public class HomeController extends Controller {
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;
   private final HttpExecutionContext httpExecutionContext;
+  private final Environment environment;
 
   @Inject
   public HomeController(
       LoginForm form,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
-      HttpExecutionContext httpExecutionContext) {
+      HttpExecutionContext httpExecutionContext,
+      Environment environment) {
     this.loginForm = checkNotNull(form);
     this.profileUtils = checkNotNull(profileUtils);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.environment = checkNotNull(environment);
   }
 
   public CompletionStage<Result> index(Http.Request request) {
@@ -80,6 +84,18 @@ public class HomeController extends Controller {
   public Result loginForm(Http.Request request, Optional<String> message)
       throws TechnicalException {
     return ok(loginForm.render(request, messagesApi.preferred(request), message));
+  }
+
+  public Result robotsTxt() {
+    if (environment.isProd()) {
+      return ok("User-agent: *\n" +
+              "Allow: /$\n" +
+              "Allow: /loginForm$\n" +
+              "Disallow: /\n");
+    } else {
+      return ok("User-agent: *\n" +
+              "Disallow: /\n");
+    }
   }
 
   public Result playIndex() {
