@@ -78,7 +78,9 @@ public class TextFormatter {
       contentBuilder.add(
           a().withText(url.getOriginalUrl())
               .withHref(url.getFullUrl())
-              .withClasses(Styles.OPACITY_75));
+              .withClasses(Styles.OPACITY_75)
+              .withTarget("_blank"));
+
       content = content.substring(index + url.getOriginalUrl().length());
     }
     // If there's content leftover, add it.
