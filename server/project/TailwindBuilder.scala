@@ -14,15 +14,19 @@ object TailwindBuilder {
         )
 
         process = Option(
+          Process("ls node_modules/grunt-cli/bin/grunt", base).run()
+        )
+
+        process = Option(
           Process("npx grunt dist", base).run()
         )
       }
 
-      override def afterStarted() = {
-        process = Some(
-          Process("grunt watch", base).run()
-        )
-      }
+      //override def afterStarted() = {
+      //  process = Some(
+      //    Process("grunt watch", base).run()
+      //  )
+      //}
 
       override def afterStopped() = {
         process.foreach(_.destroy())
