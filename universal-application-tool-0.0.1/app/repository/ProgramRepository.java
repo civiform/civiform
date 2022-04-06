@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.PaginationResult;
 import services.PaginationSpec;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 
 /**
@@ -110,12 +111,9 @@ public class ProgramRepository {
       // Ensure we didn't add a duplicate with other code running at the same time.
       Preconditions.checkState(
           draftVersion.getPrograms().stream()
-                  .filter(
-                      program ->
-                          program
-                              .getProgramDefinition()
-                              .adminName()
-                              .equals(existingProgram.getProgramDefinition().adminName()))
+                  .map(Program::getProgramDefinition)
+                  .map(ProgramDefinition::adminName)
+                  .filter(name -> name.equals(existingProgram.getProgramDefinition().adminName()))
                   .count()
               == 1,
           "Must be exactly one program with this name in the draft.");
