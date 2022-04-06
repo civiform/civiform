@@ -85,7 +85,11 @@ is what you specified in the build/tag/push)
 
 #### Resolution
 
-Make sure you've upgraded Azure to a paid subscription.
+Make sure you've upgraded Azure to a paid subscription.  If you cannot create
+any VMs (including in the Azure portal - no sizes are avalible, with error
+NotAvailableForSubscription), you'll need to file a support request.  Follow
+[this help article](https://docs.microsoft.com/en-us/troubleshoot/azure/general/region-access-request-process)
+to request access.
 
 ### Terraform already exists Error
 

@@ -70,8 +70,14 @@ function key_vault::add_secret_from_input() {
   local SECRET
   echo "Please enter the value for ${2}: "
   read -s SECRET
+
+  while [[ -z "$SECRET" ]]; do
+    printf '%s\n' "No input entered"
+    read -s SECRET
+  done
+
   unset REPLY
-  key_vault::add_secret "${1}" "${2}" "${SECRET}"  
+  key_vault::add_secret "${1}" "${2}" "${SECRET}"
   echo "Stored secret value for ${2} in key vault ${1}"
 }
 

@@ -68,8 +68,9 @@ class Setup:
               + "add a new Microsoft provider and get the App (client) id")
         self._input_to_keystore("adfs-client-id")
 
-        print(">>>> You will need to navigate created provider click the "
-              +" endpoints button from the overview")
+        print(">>>> Navigate to the created authentication"
+              + " provider and click the endpoints button from the overview and"
+              + " find the OpenID uri (ends with /openid-configuration)")
         self._input_to_keystore("adfs-discovery-uri")
 
         print(">>>> You will need to navigate created provider and add"
