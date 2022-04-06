@@ -114,7 +114,7 @@ public class ProgramRepository {
           draftVersion.getPrograms().stream()
                   .map(Program::getProgramDefinition)
                   .map(ProgramDefinition::adminName)
-                  .filter(name -> name.equals(programName))
+                  .filter(programName::equals)
                   .count()
               == 1,
           "Must be exactly one program with this name in the draft.");
