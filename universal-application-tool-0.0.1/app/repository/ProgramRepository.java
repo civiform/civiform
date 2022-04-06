@@ -109,11 +109,12 @@ public class ProgramRepository {
           draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
           "Draft version must remain a draft throughout this transaction.");
       // Ensure we didn't add a duplicate with other code running at the same time.
+      String programName = existingProgram.getProgramDefinition().adminName();
       Preconditions.checkState(
           draftVersion.getPrograms().stream()
                   .map(Program::getProgramDefinition)
                   .map(ProgramDefinition::adminName)
-                  .filter(name -> name.equals(existingProgram.getProgramDefinition().adminName()))
+                  .filter(name -> name.equals(programName))
                   .count()
               == 1,
           "Must be exactly one program with this name in the draft.");
