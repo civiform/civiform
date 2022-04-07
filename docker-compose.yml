@@ -19,6 +19,13 @@ services:
      ports:
       - 10000:10000
 
+  dev-idcs:
+    image: docker.io/civiform/oidc-provider:latest
+    restart: always
+    container_name: dev-idcs
+    ports:
+      - 3380:3380
+
   db:
     image: postgres:12.5
     restart: always
@@ -34,6 +41,7 @@ services:
     container_name: civiform
     links:
       - "db:database"
+      - "dev-idcs"
     ports:
       - 9000:9000
       - 8457:8457
@@ -57,8 +65,9 @@ services:
       - LOGIN_RADIUS_KEYSTORE_NAME
       - CIVIFORM_APPLICANT_IDP
       - CIVIFORM_ADMIN_IDP 
-      - IDCS_CLIENT_ID
-      - IDCS_SECRET
+      - IDCS_CLIENT_ID=foo
+      - IDCS_SECRET=bar
+      - IDCS_DISCOVERY_URI=http://dev-idcs:3380/.well-known/openid-configuration
       - ADFS_CLIENT_ID
       - ADFS_SECRET
       - CF_OPTIONAL_QUESTIONS
@@ -68,3 +77,5 @@ services:
       - WHITELABEL_CIVIC_ENTITY_FULL_NAME
 
     command: -jvm-debug "*:8457" ~run -Dconfig.file=conf/application.dev.conf
+
+# - IDCS_REGISTER_URI=http://localhost:3380/.well-known/openid-configuration
