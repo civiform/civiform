@@ -10,3 +10,4 @@ services:
       - ./sbt_cache/coursier:/root/.cache/coursier
       - ~/.sbt:/root/.sbt
       - ~/.ivy:/root/.ivy2
+      - ~/.m2:/root/.m2

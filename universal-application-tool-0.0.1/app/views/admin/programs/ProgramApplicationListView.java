@@ -67,7 +67,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     .withClasses(Styles.MT_6),
                 each(paginatedApplications.getPageContents(), this::renderApplicationListItem),
                 br(),
-                renderDownloadButton(program.id()))
+                renderCsvDownloadButton(program.id()),
+                renderJsonDownloadButton(program.id()))
             .withClasses(Styles.MB_16, Styles.MR_2);
 
     Tag applicationShowDiv =
@@ -89,12 +90,23 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private Tag renderDownloadButton(long programId) {
+  private Tag renderCsvDownloadButton(long programId) {
     String link = controllers.admin.routes.AdminApplicationController.downloadAll(programId).url();
     return new LinkElement()
         .setId("download-all-button")
         .setHref(link)
         .setText("Download all versions (CSV)")
+        .setStyles(ReferenceClasses.DOWNLOAD_ALL_BUTTON)
+        .asButton();
+  }
+
+  private Tag renderJsonDownloadButton(long programId) {
+    String link =
+        controllers.admin.routes.AdminApplicationController.downloadAllJson(programId).url();
+    return new LinkElement()
+        .setId("download-all-json-button")
+        .setHref(link)
+        .setText("Download all versions (JSON)")
         .setStyles(ReferenceClasses.DOWNLOAD_ALL_BUTTON)
         .asButton();
   }

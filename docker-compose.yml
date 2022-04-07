@@ -27,7 +27,7 @@ services:
       - 3380:3380
 
   db:
-    image: postgres:12.5
+    image: postgres:12.10
     restart: always
     container_name: postgres
     ports:

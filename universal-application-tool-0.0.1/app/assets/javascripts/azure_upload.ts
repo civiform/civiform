@@ -30,12 +30,19 @@ class AzureUploadController {
     // window["azblob"] was used because the TS compiler complained about using
     // window.azblob.
     const azblob = window['azblob']
+
     if (uploadContainer == null) {
       throw new Error('Attempted to upload to null container')
     }
     const azureUploadProps = this.getAzureUploadProps(uploadContainer)
 
     const redirectUrl = new URL(azureUploadProps.successActionRedirect)
+
+    const options = {
+      blobHTTPHeaders: {
+        blobContentType: azureUploadProps.file.type,
+      },
+    }
 
     const blockBlobUrl = azblob.BlockBlobURL.fromBlobURL(
       new azblob.BlobURL(
@@ -48,7 +55,8 @@ class AzureUploadController {
       .uploadBrowserDataToBlockBlob(
         azblob.Aborter.none,
         azureUploadProps.file,
-        blockBlobUrl
+        blockBlobUrl,
+        options
       )
       .then((resp, err) => {
         if (err) {

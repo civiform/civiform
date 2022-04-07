@@ -22,6 +22,7 @@ import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.export.ExporterService;
+import services.export.JsonExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -37,6 +38,7 @@ public class AdminApplicationController extends CiviFormController {
   private final ProgramApplicationListView applicationListView;
   private final ProgramApplicationView applicationView;
   private final ExporterService exporterService;
+  private final JsonExporter jsonExporter;
   private final ProfileUtils profileUtils;
   private final Clock clock;
   private static final int PAGE_SIZE = 10;
@@ -46,6 +48,7 @@ public class AdminApplicationController extends CiviFormController {
       ProgramService programService,
       ApplicantService applicantService,
       ExporterService exporterService,
+      JsonExporter jsonExporter,
       ProgramApplicationListView applicationListView,
       ProgramApplicationView applicationView,
       ApplicationRepository applicationRepository,
@@ -57,8 +60,31 @@ public class AdminApplicationController extends CiviFormController {
     this.profileUtils = checkNotNull(profileUtils);
     this.applicationView = checkNotNull(applicationView);
     this.applicationRepository = checkNotNull(applicationRepository);
-    this.clock = clock;
+    this.clock = checkNotNull(clock);
     this.exporterService = checkNotNull(exporterService);
+    this.jsonExporter = checkNotNull(jsonExporter);
+  }
+
+  /** Download a JSON file containing all applications to all versions of the specified program. */
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
+  public Result downloadAllJson(Http.Request request, long programId) {
+    final ProgramDefinition program;
+
+    try {
+      program = programService.getProgramDefinition(programId);
+      checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.toString());
+    } catch (CompletionException e) {
+      return unauthorized();
+    }
+
+    String filename = String.format("%s-%s.json", program.adminName(), clock.instant().toString());
+    String json = jsonExporter.export(program);
+
+    return ok(json)
+        .as(Http.MimeTypes.JSON)
+        .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
   }
 
   /** Download a CSV file containing all applications to all versions of the specified program. */

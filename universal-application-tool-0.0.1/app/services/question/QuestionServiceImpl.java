@@ -137,7 +137,7 @@ public final class QuestionServiceImpl implements QuestionService {
       throw new InvalidUpdateException("Did not find question in draft version.");
     }
     question.get().save();
-    versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(id);
+    versionRepositoryProvider.get().updateProgramsThatReferenceQuestion(id);
   }
 
   @Override

@@ -21,7 +21,7 @@ public class AdminVersionController extends Controller {
     this.versionListView = versionListView;
   }
 
-  /** Return a HTML page displaying all current and past verions. */
+  /** Return an HTML page displaying all current and past verions. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request) {
     return ok(versionListView.render(versionRepository.listAllVersions(), request));
@@ -30,7 +30,7 @@ public class AdminVersionController extends Controller {
   /** POST endpoint for setting a certain version to live. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result setVersionLive(long versionId, Http.Request request) {
-    versionRepository.setLive(versionId);
+    versionRepository.setLiveVersion(versionId);
     return redirect(routes.AdminVersionController.index());
   }
 }

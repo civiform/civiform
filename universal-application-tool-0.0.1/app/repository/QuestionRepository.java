@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
@@ -52,8 +53,8 @@ public class QuestionRepository {
   }
 
   /**
-   * Find and update the draft of the question with this name, if one already exists. Create a new
-   * draft if there isn't one.
+   * Find and update the DRAFT of the question with this name, if one already exists. Create a new
+   * DRAFT if there isn't one.
    */
   public Question updateOrCreateDraft(QuestionDefinition definition) {
     Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
@@ -67,30 +68,31 @@ public class QuestionRepository {
           this.updateQuestionSync(updatedDraft);
           transaction.commit();
           return updatedDraft;
-        } else {
-          Question newDraft =
-              new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
-          insertQuestionSync(newDraft);
-          // Fetch the tags off the old question.
-          Question oldQuestion = new Question(definition);
-          oldQuestion.refresh();
-          for (QuestionTag tag : oldQuestion.getQuestionTags()) {
-            newDraft.addTag(tag);
-          }
-          newDraft.addVersion(draftVersion);
-          newDraft.save();
-          draftVersion.refresh();
-
-          if (definition.isEnumerator()) {
-            transaction.setNestedUseSavepoint();
-            updateAllRepeatedQuestions(newDraft.id, definition.getId());
-          }
-
-          transaction.setNestedUseSavepoint();
-          versionRepositoryProvider.get().updateProgramsForNewDraftQuestion(definition.getId());
-          transaction.commit();
-          return newDraft;
         }
+        Question newDraftQuestion =
+            new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
+        insertQuestionSync(newDraftQuestion);
+        // Fetch the tags off the old question.
+        Question oldQuestion = new Question(definition);
+        oldQuestion.refresh();
+        oldQuestion.getQuestionTags().forEach(newDraftQuestion::addTag);
+
+        newDraftQuestion.addVersion(draftVersion).save();
+        draftVersion.refresh();
+
+        // Update other questions that may reference the previous revision.
+        if (definition.isEnumerator()) {
+          transaction.setNestedUseSavepoint();
+          updateAllRepeatedQuestions(newDraftQuestion.id, definition.getId());
+        }
+
+        // Update programs that reference the previous question. A bit round about but this will
+        // update all questions
+        // in the program to their latest version, including the one here.
+        transaction.setNestedUseSavepoint();
+        versionRepositoryProvider.get().updateProgramsThatReferenceQuestion(definition.getId());
+        transaction.commit();
+        return newDraftQuestion;
       } catch (UnsupportedQuestionTypeException e) {
         // This should not be able to happen since the provided question definition is inherently
         // valid.
@@ -100,16 +102,24 @@ public class QuestionRepository {
     }
   }
 
+  /**
+   * Update DRAFT and ACTIVE questions that reference {@code oldEnumeratorId} to reference {@code
+   * newEnumeratorId}.
+   */
   private void updateAllRepeatedQuestions(long newEnumeratorId, long oldEnumeratorId) {
+    // TODO: This seems error prone as a question could be present as a DRAFT and ACTIVE.
+    // Investigate further.
     Stream.concat(
             versionRepositoryProvider.get().getDraftVersion().getQuestions().stream(),
             versionRepositoryProvider.get().getActiveVersion().getQuestions().stream())
+        // Find questions that reference the old enumerator ID.
         .filter(
             question ->
                 question
                     .getQuestionDefinition()
                     .getEnumeratorId()
                     .equals(Optional.of(oldEnumeratorId)))
+        // Update to the new enumerator ID.
         .forEach(
             question -> {
               try {
@@ -149,16 +159,15 @@ public class QuestionRepository {
   /** Get the questions with the specified tag which are in the active version. */
   public ImmutableList<QuestionDefinition> getAllQuestionsForTag(QuestionTag tag) {
     Version active = versionRepositoryProvider.get().getActiveVersion();
+    ImmutableSet<Long> activeQuestionIds =
+        active.getQuestions().stream().map(q -> q.id).collect(ImmutableSet.toImmutableSet());
     return database
         .find(Question.class)
         .where()
         .arrayContains("question_tags", tag)
         .findList()
         .stream()
-        .filter(
-            question ->
-                active.getQuestions().stream()
-                    .anyMatch(activeQuestion -> activeQuestion.id.equals(question.id)))
+        .filter(question -> activeQuestionIds.contains(question.id))
         .sorted(Comparator.comparing(question -> question.getQuestionDefinition().getName()))
         .map(Question::getQuestionDefinition)
         .collect(ImmutableList.toImmutableList());
@@ -182,12 +191,11 @@ public class QuestionRepository {
     }
 
     private boolean hasConflict(Question question) {
-      if (question.getQuestionDefinition().getName().equals(questionName)
-          || (question.getQuestionDefinition().getEnumeratorId().equals(enumeratorId)
-              && question
-                  .getQuestionDefinition()
-                  .getQuestionPathSegment()
-                  .equals(questionPathSegment))) {
+      QuestionDefinition definition = question.getQuestionDefinition();
+      boolean isSameName = definition.getName().equals(questionName);
+      boolean isSameEnumId = definition.getEnumeratorId().equals(enumeratorId);
+      boolean isSamePath = definition.getQuestionPathSegment().equals(questionPathSegment);
+      if (isSameName || (isSameEnumId && isSamePath)) {
         conflictedQuestion = Optional.of(question);
         return true;
       }

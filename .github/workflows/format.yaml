@@ -12,7 +12,7 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2 # v2 minimum required
+      - uses: actions/checkout@v3
 
       - uses: actions/setup-java@v1
         with:
@@ -38,3 +38,10 @@ jobs:
         if: contains(toJSON(steps.file_changes.outputs.files), 'bin/')
         id: check_bin_script_docs
         run: bin/help
+      
+      - name: setup terraform
+        uses: hashicorp/setup-terraform@v1
+      
+      - name: terraform fmt
+        id: tf_fmt
+        run: terraform fmt -check -recursive -diff cloud

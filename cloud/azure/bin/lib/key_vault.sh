@@ -22,25 +22,28 @@ function key_vault::create_vault() {
 }
 
 #######################################
+# Check if key vault exists
+# Arguments:
+#   1: The resource group name for the key vault
+#   2: The name of the key vault 
+#######################################
+function key_vault::check_if_vault_exists() {
+  az keyvault show \
+    --name "${2}" \
+    --resource-group "${1}"
+}
+
+#######################################
 # Assign the role 'Key Vault Secrets officer' to the current user
 # Arguments:
 #   1. The resource group to scope the role assignment to
 #######################################
-function key_vault::assign_secrets_officer_role_to_user() {
-  local USER_ID="$(az ad signed-in-user show --query objectId -o tsv)"
+function key_vault::assign_secrets_officer_role_to_user() { 
   local SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
-  local ROLE_ASSIGNMENTS="$(az role assignment list --assignee ${USER_ID} --resource-group ${1})"
-
-  if echo "${ROLE_ASSIGNMENTS}" | grep -q "Key Vault Secrets Officer";
-  then 
-    echo "Current user already has Key Vault Secrets Officer role"
-  else
-    az role assignment create \
-      --role "${KEY_VAULT_SECRETS_OFFICER_GUID}" \
-      --scope "subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${1}" \
-      --assignee-object-id "${USER_ID}" \
-      --assignee-principal-type "User"
-  fi
+  azure::ensure_role_assignment \
+    "${1}" \
+    ${KEY_VAULT_SECRETS_OFFICER_GUID} \
+    "subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${1}" 
 }
 
 #######################################

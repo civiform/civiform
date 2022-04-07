@@ -8,6 +8,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import models.DisplayMode;
 import models.Program;
 import org.junit.Before;
@@ -16,17 +17,31 @@ import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
+import repository.ProgramRepository;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import support.ProgramBuilder;
 import views.html.helper.CSRF;
 
 public class AdminProgramControllerTest extends ResetPostgres {
 
   private AdminProgramController controller;
+  private ProgramRepository programRepository;
+  private VersionRepository versionRepository;
 
   @Before
-  public void setup() {
+  public void setupController() {
     controller = instanceOf(AdminProgramController.class);
+  }
+
+  @Before
+  public void setupProgramRepository() {
+    programRepository = instanceOf(ProgramRepository.class);
+  }
+
+  @Before
+  public void setupVersionRepository() {
+    versionRepository = instanceOf(VersionRepository.class);
   }
 
   @Test
@@ -153,6 +168,50 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("Edit program");
     assertThat(contentAsString(result)).contains("test program");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
+  }
+
+  @Test
+  public void newVersionFrom_onlyActive_editActiveReturnsNewDraft() {
+    // When there's a draft, editing the active one instead edits the existing draft.
+    String programName = "test program";
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Program activeProgram =
+        ProgramBuilder.newActiveProgram(programName, "active description").build();
+
+    Result result = controller.newVersionFrom(request, activeProgram.id);
+    Optional<Program> newDraft = versionRepository.getDraftVersion().getProgramByName(programName);
+
+    // A new draft is made and redirected to.
+    assertThat(newDraft).isPresent();
+    assertThat(newDraft.get().getProgramDefinition().adminDescription())
+        .isEqualTo("active description");
+
+    // Redirect is to the  draft.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramController.edit(newDraft.get().id).url());
+  }
+
+  @Test
+  public void newVersionFrom_withDraft_editActiveReturnsDraft() {
+    // When there's a draft, editing the active one instead edits the existing draft.
+    String programName = "test program";
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Program activeProgram =
+        ProgramBuilder.newActiveProgram(programName, "active description").build();
+    Program draftProgram = ProgramBuilder.newDraftProgram(programName, "draft description").build();
+
+    Result result = controller.newVersionFrom(request, activeProgram.id);
+
+    // Redirect is to the existing draft.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramController.edit(draftProgram.id).url());
+
+    Program updatedDraft =
+        programRepository.lookupProgram(draftProgram.id).toCompletableFuture().join().get();
+    assertThat(updatedDraft.getProgramDefinition().adminDescription())
+        .isEqualTo("draft description");
   }
 
   @Test

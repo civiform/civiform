@@ -46,7 +46,7 @@ variable "docker_repository_name" {
   default     = "civiform"
 }
 
-variable "image_tag_name" {
+variable "image_tag" {
   type        = string
   description = "Tag for container image"
 }
@@ -160,6 +160,12 @@ variable "key_vault_name" {
 variable "adfs_admin_group" {
   type        = string
   description = "Active Directory Federation Service group name"
+}
+
+variable "ad_groups_attribute_name" {
+  type        = string
+  description = "Name of the Active Directory claim that returns groups a user is in"
+  default     = "groups"
 }
 
 variable "civiform_applicant_idp" {

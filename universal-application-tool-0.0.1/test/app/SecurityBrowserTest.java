@@ -33,7 +33,7 @@ public class SecurityBrowserTest extends BaseBrowserTest {
   }
 
   protected void loginWithSimulatedIdcs() {
-    goTo(routes.LoginController.idcsLoginWithRedirect(Optional.empty()));
+    goTo(routes.LoginController.applicantLogin(Optional.empty()));
     // If we are not cookied, enter a username and password.
     if (browser.pageSource().contains("Enter any login")) {
       browser.$("[name='login']").click();

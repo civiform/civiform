@@ -101,4 +101,10 @@ public class Applicant extends BaseModel {
   public Instant getWhenCreated() {
     return this.whenCreated;
   }
+
+  /** Convenience to save the model and return it. */
+  public Applicant saveAndReturn() {
+    save();
+    return this;
+  }
 }

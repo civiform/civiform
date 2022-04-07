@@ -135,7 +135,7 @@ public class BlobStorage implements StorageClient {
                           // and passed along, more info on the headers:
                           // https://docs.microsoft.com/en-us/rest/api/storageservices/put-blob
                           .setAllowedHeaders(
-                              "content-type,x-ms-blob-type,x-ms-client-request-id,x-ms-version")
+                              "content-type,x-ms-blob-type,x-ms-client-request-id,x-ms-version,x-ms-blob-content-type")
                           .setAllowedMethods("GET,PUT,OPTIONS")
                           .setMaxAgeInSeconds(500)));
       blobServiceClient.setProperties(properties);

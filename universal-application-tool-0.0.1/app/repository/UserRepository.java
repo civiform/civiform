@@ -121,13 +121,7 @@ public class UserRepository {
     Optional<Applicant> applicantOpt =
         account.getApplicants().stream()
             .max(Comparator.comparing(compared -> compared.getWhenCreated()));
-    if (applicantOpt.isPresent()) {
-      return applicantOpt.get();
-    }
-
-    Applicant newApplicant = new Applicant().setAccount(account);
-    newApplicant.save();
-    return newApplicant;
+    return applicantOpt.orElseGet(() -> new Applicant().setAccount(account).saveAndReturn());
   }
 
   public CompletionStage<Optional<Applicant>> lookupApplicantByAuthorityId(String authorityId) {
@@ -168,13 +162,9 @@ public class UserRepository {
       Applicant left, Applicant right, Account account) {
     return supplyAsync(
         () -> {
-          left.setAccount(account);
-          left.save();
-          right.setAccount(account);
-          right.save();
-          Applicant merged = mergeApplicants(left, right);
-          merged.save();
-          return merged;
+          left.setAccount(account).save();
+          right.setAccount(account).save();
+          return mergeApplicants(left, right).saveAndReturn();
         },
         executionContext);
   }
