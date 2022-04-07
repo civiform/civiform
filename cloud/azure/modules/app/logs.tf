@@ -15,6 +15,7 @@ resource "azurerm_monitor_diagnostic_setting" "app_service_log_analytics" {
     category = "AppServiceAppLogs"
 
     retention_policy {
+      days    = 0
       enabled = false
     }
   }
@@ -23,6 +24,7 @@ resource "azurerm_monitor_diagnostic_setting" "app_service_log_analytics" {
     category = "AppServiceConsoleLogs"
 
     retention_policy {
+      days    = 0
       enabled = false
     }
   }
@@ -31,6 +33,7 @@ resource "azurerm_monitor_diagnostic_setting" "app_service_log_analytics" {
     category = "AppServiceHTTPLogs"
 
     retention_policy {
+      days    = 0
       enabled = false
     }
   }
@@ -39,6 +42,7 @@ resource "azurerm_monitor_diagnostic_setting" "app_service_log_analytics" {
     category = "AppServiceAuditLogs"
 
     retention_policy {
+      days    = 0
       enabled = false
     }
   }
@@ -46,6 +50,7 @@ resource "azurerm_monitor_diagnostic_setting" "app_service_log_analytics" {
     category = "AllMetrics"
 
     retention_policy {
+      days    = 0
       enabled = false
     }
   }
