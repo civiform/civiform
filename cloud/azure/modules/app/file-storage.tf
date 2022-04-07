@@ -26,13 +26,13 @@ resource "azurerm_storage_container" "files_container" {
 }
 
 resource "azurerm_data_protection_backup_policy_blob_storage" "blob_storage_backup_policy" {
-  name               = "example-backup-policy"
+  name               = "storage-backup-policy"
   vault_id           = azurerm_data_protection_backup_vault.backup_vault.id
   retention_duration = "P30D"
 }
 
 resource "azurerm_data_protection_backup_instance_blob_storage" "blob_storage_backup_instance" {
-  name               = "example-backup-instance"
+  name               = "storage-backup-instance"
   vault_id           = azurerm_data_protection_backup_vault.backup_vault.id
   location           = data.azurerm_resource_group.rg.location
   storage_account_id = azurerm_storage_account.files_storage_account.id
