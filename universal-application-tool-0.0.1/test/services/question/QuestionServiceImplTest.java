@@ -6,9 +6,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import models.LifecycleStage;
+import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
@@ -20,9 +23,7 @@ import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
 
 public class QuestionServiceImplTest extends ResetPostgres {
-  QuestionServiceImpl questionService;
-
-  QuestionDefinition questionDefinition =
+  private static final QuestionDefinition questionDefinition =
       new TextQuestionDefinition(
           "my name",
           Optional.empty(),
@@ -30,9 +31,17 @@ public class QuestionServiceImplTest extends ResetPostgres {
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"));
 
+  QuestionServiceImpl questionService;
+  VersionRepository versionRepository;
+
   @Before
   public void setProgramServiceImpl() {
     questionService = instanceOf(QuestionServiceImpl.class);
+  }
+
+  @Before
+  public void setVersionRepository() {
+    versionRepository = instanceOf(VersionRepository.class);
   }
 
   @Test
@@ -157,5 +166,64 @@ public class QuestionServiceImplTest extends ResetPostgres {
                 String.format(
                     "question types mismatch: %s does not match %s",
                     nameQuestion.getQuestionType(), toUpdate.getQuestionType())));
+  }
+
+  @Test
+  public void discardDraft() throws Exception {
+    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+    long draftId = nameQuestion.getId() + 100000;
+    QuestionDefinition toUpdate =
+        new QuestionDefinitionBuilder(nameQuestion)
+            .setId(draftId)
+            .setQuestionText(LocalizedStrings.withDefaultValue("a different string"))
+            .build();
+    testQuestionBank.maybeSave(toUpdate, LifecycleStage.DRAFT);
+
+    // Verify the draft is there.
+    Optional<Question> draftQuestion =
+        versionRepository.getDraftVersion().getQuestionByName(nameQuestion.getName());
+    assertThat(draftQuestion).isPresent();
+    assertThat(draftQuestion.get().getQuestionDefinition().getQuestionText())
+        .isEqualTo(toUpdate.getQuestionText());
+
+    // Execute.
+    questionService.discardDraft(draftId);
+
+    // Verify.
+    assertThat(versionRepository.getDraftVersion().getQuestionByName(nameQuestion.getName()))
+        .isNotPresent();
+  }
+
+  @Test
+  public void discardDraft_updatesQuestionReferences() throws Exception {
+    // Make a draft of an enumerator, and set a question to reference that draft.
+    QuestionDefinition enumeratorQuestion =
+        testQuestionBank
+            .getSampleQuestionsForAllTypes()
+            .get(QuestionType.ENUMERATOR)
+            .getQuestionDefinition();
+    long enumeratorDraftId = enumeratorQuestion.getId() + 100000;
+
+    testQuestionBank.maybeSave(
+        new QuestionDefinitionBuilder(enumeratorQuestion).setId(enumeratorDraftId).build(),
+        LifecycleStage.DRAFT);
+
+    QuestionDefinition dependentQuestion =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setEnumeratorId(Optional.of(enumeratorDraftId))
+            .build();
+    testQuestionBank.maybeSave(dependentQuestion, LifecycleStage.DRAFT);
+
+    // Execute.
+    questionService.discardDraft(enumeratorDraftId);
+
+    // Verify.
+    Optional<Question> dependentDraft =
+        versionRepository.getDraftVersion().getQuestionByName(dependentQuestion.getName());
+    assertThat(dependentDraft).isPresent();
+    // TODO(#2249): This should actually have been updated to a valid id, and not still be the one
+    // that was discarded.
+    assertThat(dependentDraft.get().getQuestionDefinition().getEnumeratorId().get())
+        .isEqualTo(enumeratorDraftId);
   }
 }
