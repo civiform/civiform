@@ -1,6 +1,42 @@
 #! /usr/bin/env bash
 
 #######################################
+# Starts a bash shell in the civiform-shell container
+#######################################
+function docker::run_shell_container() {
+  # Allocate a TTY for better output even though not strictly needed.
+  docker-compose \
+    -f docker-compose.yml \
+    -f docker-compose.dev.yml \
+    -f docker-compose.shell.yml \
+    up civiform \
+    --no-deps \
+    -d
+}
+
+#######################################
+# Executes a bash command in the running civiform-shell container
+# Arguments:
+#   @: command to run
+#######################################
+function docker::run_shell_command() {
+  # Allocate a TTY for better output even though not strictly needed.
+  docker exec -it civiform-shell "$@"
+}
+
+#######################################
+# Stops the civiform-shell container
+#######################################
+function docker::stop_shell_container() {
+  # Allocate a TTY for better output even though not strictly needed.
+  docker-compose \
+    -f docker-compose.yml \
+    -f docker-compose.dev.yml \
+    -f docker-compose.shell.yml \
+    stop civiform
+}
+
+#######################################
 # Runs a command in the civiform-dev container using the default sbt entrypoint
 # and volume mounts for sbt caching.
 # Arguments:
@@ -8,7 +44,7 @@
 #######################################
 function docker::run_dev_sbt_command() {
   # Allocate a TTY for better output even though not strictly needed.
-  docker run -it --rm \
+  docker run -it \
     --network test-support_default \
     -v "$(pwd)/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1" \
     -v "$(pwd)/sbt_cache/coursier:/root/.cache/coursier" \

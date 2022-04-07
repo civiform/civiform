@@ -21,15 +21,15 @@ emulators::set_localstack_emulator_vars
 function set_args() {
   while [ "${1:-}" != "" ]; do
     case "$1" in
-      "--azure")
-        emulators::ensure_only_one_cloud_provider_flag azure
-        emulators::set_azurite_emulator_vars
-        ;;
+    "--azure")
+      emulators::ensure_only_one_cloud_provider_flag azure
+      emulators::set_azurite_emulator_vars
+      ;;
 
-      "--aws")
-        emulators::ensure_only_one_cloud_provider_flag aws
-        # Already defaulted to AWS.
-        ;;
+    "--aws")
+      emulators::ensure_only_one_cloud_provider_flag aws
+      # Already defaulted to AWS.
+      ;;
     esac
 
     shift
@@ -38,9 +38,7 @@ function set_args() {
 
 set_args "$@"
 
-echo "Making sure we're up to date with the latest dev... "\
-  "set environment variable USE_LOCAL_CIVIFORM=1 to skip"
-bin/pull-image > /dev/null
+bin/pull-image
 
 docker::set_network_name_dev
 
@@ -54,15 +52,12 @@ docker-compose --profile "${cloud_provider}" \
 # Wait until the emulator is running.
 "bin/${emulator}/wait"
 
-# Start a warmup request loop so that when the subsequent server startup is ready, we trigger lazy
-# loading its edit-refresh resources so save developer time.
-for i in {1..60}; do
-  sleep 5
-  curl --output /dev/null --silent --fail http://localhost:9000/loginForm && break
-done &
-
 # start everything else
 docker-compose \
   -f docker-compose.yml \
   -f docker-compose.dev.yml \
-  up
+  up \
+  --wait \
+  -d
+
+bin/attach-dev

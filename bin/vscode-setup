@@ -8,12 +8,22 @@ source bin/lib.sh
 
 bin/pull-image
 
+if [ -e universal-application-tool-0.0.1/pom.xml ]; then
+  cp universal-application-tool-0.0.1/pom.xml \
+    universal-application-tool-0.0.1/pom.bkp
+fi
+
 bin/sbt makePom
 
-cp universal-application-tool-0.0.1/target/scala-*/*.pom \
-    universal-application-tool-0.0.1/pom.xml
+docker cp civiform-shell:/usr/src/universal-application-tool-0.0.1/target universal-application-tool-0.0.1/temp
 
-BUILD=$(cat <<END
+cp universal-application-tool-0.0.1/temp/scala-*/*.pom \
+  universal-application-tool-0.0.1/pom.xml
+
+rm -rf universal-application-tool-0.0.1/temp
+
+BUILD=$(
+         cat <<END
 <build>
         <sourceDirectory>app</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
@@ -31,8 +41,6 @@ BUILD=$(cat <<END
     <modelVersion>
 END
 )
-cp universal-application-tool-0.0.1/pom.xml \
-    universal-application-tool-0.0.1/pom.bkp
 
 perl -i -pe "s|<modelVersion>|${BUILD}|g" \
-    universal-application-tool-0.0.1/pom.xml
+  universal-application-tool-0.0.1/pom.xml

@@ -6,5 +6,6 @@ source bin/lib.sh
 
 bin/pull-image
 
-docker::ensure_unit_test_env
-docker::run_dev_sbt_command $@
+docker::run_shell_container
+docker::run_shell_command sbt "$@"
+docker::stop_shell_container

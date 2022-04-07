@@ -74,9 +74,7 @@ EOF
 
 set_args "$@"
 
-echo "Making sure we're up to date with the latest dev... " \
-  "set environment variable USE_LOCAL_CIVIFORM=1 to skip"
-bin/pull-image > /dev/null
+bin/pull-image
 
 docker::set_network_name_browser_tests
 

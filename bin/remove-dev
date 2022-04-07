@@ -1,0 +1,9 @@
+#! /usr/bin/env bash
+
+# DOC: Connect to the app running locally using Docker. Useful for manual testing.
+
+source bin/lib.sh
+
+echo "Deleting local civiform container"
+
+docker rm -f civiform

@@ -1,0 +1,21 @@
+#! /usr/bin/env bash
+
+# DOC: Connect to the app running locally using Docker. Alias of 'docker attach civiform'.
+
+source bin/lib.sh
+
+echo "Attaching to civiform.  Run Ctrl-P, followed by Ctrl-Q, to detach"
+echo "Ctrl-C will quit sbt, re-attach to restart"
+
+# Start a warmup request loop so that when the subsequent server startup is ready, we trigger lazy
+# loading its edit-refresh resources so save developer time.
+for i in {1..60}; do
+  sleep 5
+  curl --output /dev/null --silent --fail http://localhost:9000/loginForm && break
+done &
+
+echo "Civiform starting locally at http://localhost:9000/loginForm"
+
+echo "Run bin/stop-dev to stop the server"
+
+docker attach civiform
