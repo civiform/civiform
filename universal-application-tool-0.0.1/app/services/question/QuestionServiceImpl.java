@@ -137,6 +137,15 @@ public final class QuestionServiceImpl implements QuestionService {
       throw new InvalidUpdateException("Did not find question in draft version.");
     }
     question.get().save();
+
+    // Update any repeated questions that may have referenced the discarded question.
+    Version activeVersion = versionRepositoryProvider.get().getActiveVersion();
+    Optional<Question> activeQuestion =
+        activeVersion.getQuestionByName(question.get().getQuestionDefinition().getName());
+    questionRepository.updateAllRepeatedQuestions(
+        /* newEnumeratorId= */ activeQuestion.get().id, /* oldEnumeratorId= */ id);
+
+    // Update any programs that may have referenced the discarded question.
     versionRepositoryProvider.get().updateProgramsThatReferenceQuestion(id);
   }
 
