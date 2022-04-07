@@ -7,7 +7,28 @@ services:
     build: .
     volumes:
       - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
-      - ./sbt_cache/coursier:/root/.cache/coursier
-      - ~/.sbt:/root/.sbt
-      - ~/.ivy:/root/.ivy2
-      - ~/.m2:/root/.m2
+      - target:/usr/src/universal-application-tool-0.0.1/target
+      - coursier-data:/root/.cache/coursier
+      - sbt-data:/root/.sbt
+      - ivy2-data:/root/.ivy2
+      - m2-data:/root/.m2
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+
+  db:
+    image: postgres:12.5
+    volumes:
+      - db-data:/var/lib/postgresql/data
+volumes:
+  db-data:
+    driver: local
+  coursier-data:
+    driver: local
+  sbt-data:
+    driver: local
+  ivy2-data:
+    driver: local
+  m2-data:
+    driver: local
+  target:
+    driver: local
