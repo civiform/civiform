@@ -125,9 +125,10 @@ module.exports = {
     content: ['./app/views/**/*.java', './app/assets/javascripts/*.ts'],
     transform: {
       // Routine to process contents with .java extention. Tailwind has a builtin routine that
-      // processes .ts extention files in the `content` list so we dont need to add a method for
-      // that
+      // processes .ts extention files in the `content` list so we dont need to add a method 
+      // for that
       java: (content) => {
+        // It was easier just doing this than incorporating multiline handling into regex
         const contentOneLine = content.replace(/(\r\n|\n|\r|\n\r)/gm, "")
         let output = ""
 
