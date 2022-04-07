@@ -118,8 +118,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private Tag renderAnswer(long programId, AnswerData answerData) {
     LocalDate date =
         Instant.ofEpochMilli(answerData.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
-    String questionIdentifier =
-        String.format("Question ID: %d", answerData.questionDefinition().getId());
     Tag answerContent;
     if (answerData.fileKey().isPresent()) {
       String encodedFileKey = URLEncoder.encode(answerData.fileKey().get(), StandardCharsets.UTF_8);
@@ -134,10 +132,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .with(
             div()
                 .withClasses(Styles.MB_8)
-                .with(
-                    div(questionIdentifier)
-                        .withClasses(
-                            Styles.TEXT_GRAY_400, Styles.TEXT_XL, Styles.MB_2, Styles.LINE_CLAMP_3))
                 .with(
                     div(answerData.questionDefinition().getName())
                         .withClasses(Styles.TEXT_GRAY_400, Styles.TEXT_BASE, Styles.LINE_CLAMP_3)))
