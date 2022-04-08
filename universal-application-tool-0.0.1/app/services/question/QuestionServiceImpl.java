@@ -137,10 +137,11 @@ public final class QuestionServiceImpl implements QuestionService {
 
     // Find the Active version.
     Version activeVersion = versionRepositoryProvider.get().getActiveVersion();
-    long activeId =
+    Long activeId =
         activeVersion
             .getQuestionByName(question.getQuestionDefinition().getName())
-            .orElseThrow()
+            // TODO: If nothing depends on this question then it could be removed.
+            .orElseThrow(() -> new InvalidUpdateException("Deleting the first version of a question is not supported."))
             .id;
     Preconditions.checkArgument(
         !draftId.equals(activeId),
