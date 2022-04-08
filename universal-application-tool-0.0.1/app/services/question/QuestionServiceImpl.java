@@ -2,6 +2,7 @@ package services.question;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
@@ -126,27 +127,39 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public void discardDraft(Long id) throws InvalidUpdateException {
-    Optional<Question> question =
-        questionRepository.lookupQuestion(id).toCompletableFuture().join();
-    if (question.isEmpty()) {
-      throw new InvalidUpdateException("Did not find question.");
-    }
+  public void discardDraft(Long draftId) throws InvalidUpdateException {
+    Question question =
+        questionRepository
+            .lookupQuestion(draftId)
+            .toCompletableFuture()
+            .join()
+            .orElseThrow(() -> new InvalidUpdateException("Did not find question."));
+
+    // Find the Active version.
+    Version activeVersion = versionRepositoryProvider.get().getActiveVersion();
+    long activeId =
+        activeVersion
+            .getQuestionByName(question.getQuestionDefinition().getName())
+            .orElseThrow()
+            .id;
+    Preconditions.checkArgument(
+        !draftId.equals(activeId),
+        "Draft and Active IDs are the same ({}) for Question {}, this should not be possible.",
+        draftId,
+        question.getQuestionDefinition().getName());
+
     Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
-    if (!question.get().removeVersion(draftVersion)) {
+    if (!question.removeVersion(draftVersion)) {
       throw new InvalidUpdateException("Did not find question in draft version.");
     }
-    question.get().save();
+    question.save();
 
     // Update any repeated questions that may have referenced the discarded question.
-    Version activeVersion = versionRepositoryProvider.get().getActiveVersion();
-    Optional<Question> activeQuestion =
-        activeVersion.getQuestionByName(question.get().getQuestionDefinition().getName());
     questionRepository.updateAllRepeatedQuestions(
-        /* newEnumeratorId= */ activeQuestion.get().id, /* oldEnumeratorId= */ id);
+        /* newEnumeratorId= */ activeId, /* oldEnumeratorId= */ draftId);
 
     // Update any programs that may have referenced the discarded question.
-    versionRepositoryProvider.get().updateProgramsThatReferenceQuestion(id);
+    versionRepositoryProvider.get().updateProgramsThatReferenceQuestion(draftId);
   }
 
   @Override
