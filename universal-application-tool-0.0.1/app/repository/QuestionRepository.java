@@ -106,7 +106,7 @@ public class QuestionRepository {
    * Update DRAFT and ACTIVE questions that reference {@code oldEnumeratorId} to reference {@code
    * newEnumeratorId}.
    */
-  private void updateAllRepeatedQuestions(long newEnumeratorId, long oldEnumeratorId) {
+  public void updateAllRepeatedQuestions(long newEnumeratorId, long oldEnumeratorId) {
     // TODO: This seems error prone as a question could be present as a DRAFT and ACTIVE.
     // Investigate further.
     Stream.concat(
