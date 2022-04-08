@@ -73,7 +73,7 @@ button.deleteFile=Eliminar
 button.keepFile=Continuar
 
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
-button.nextScreen=Siguiente
+button.saveAndNextScreen=Siguiente
 
 # The button text for navigating to the previous screen in the form.
 button.previousScreen=Atrás

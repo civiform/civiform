@@ -30,11 +30,9 @@ import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.LanguageSelector;
 import views.ViewUtils;
+import views.components.LinkElement;
 import views.html.helper.CSRF;
-import views.style.ApplicantStyles;
-import views.style.BaseStyles;
-import views.style.StyleUtils;
-import views.style.Styles;
+import views.style.*;
 
 /** Contains methods rendering common compoments used across applicant pages. */
 public class ApplicantLayout extends BaseHtmlLayout {
@@ -178,12 +176,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
               .url();
       return div(
           a(tiDashboardText)
-              .withHref(tiDashboardLink)
-              .withClasses(
-                  Styles.PX_3,
-                  Styles.TEXT_SM,
-                  Styles.OPACITY_75,
-                  StyleUtils.hover(Styles.OPACITY_100)),
+              .with(
+                      new LinkElement()
+                              .setId("ti-Dashboard")
+                              .setHref(tiDashboardLink)
+                              .setText(tiDashboardText)
+                              .setStyles(ReferenceClasses.SUBMIT_BUTTON)
+                              .asButton()
+              ),
           div("(applying as: " + userName + ")")
               .withClasses(Styles.TEXT_SM, Styles.PX_3, Styles.OPACITY_75));
     }
