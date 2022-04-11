@@ -17,26 +17,6 @@ resource "azurerm_virtual_network" "civiform_vnet" {
   address_space       = var.vnet_address_space
 }
 
-resource "azurerm_subnet" "storage_subnet" {
-  name                                           = "storage-subnet"
-  resource_group_name                            = data.azurerm_resource_group.rg.name
-  virtual_network_name                           = azurerm_virtual_network.civiform_vnet.name
-  address_prefixes                               = ["10.0.8.0/24"]
-  service_endpoints                              = ["Microsoft.Storage"]
-  enforce_private_link_endpoint_network_policies = true
-}
-
-resource "azurerm_storage_account" "files_storage_account" {
-  name                = "${var.application_name}${random_string.resource_code.result}"
-  location            = data.azurerm_resource_group.rg.location
-  resource_group_name = data.azurerm_resource_group.rg.name
-
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-
-  allow_nested_items_to_be_public = false
-}
-
 data "azurerm_key_vault_secret" "adfs_client_id" {
   name         = local.adfs_client_id
   key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
@@ -47,11 +27,17 @@ data "azurerm_key_vault_secret" "adfs_discovery_uri" {
   key_vault_id = data.azurerm_key_vault.civiform_key_vault.id
 }
 
-resource "azurerm_storage_container" "files_container" {
-  name                  = "files"
-  storage_account_name  = azurerm_storage_account.files_storage_account.name
-  container_access_type = "private"
+resource "azurerm_data_protection_backup_vault" "backup_vault" {
+  name                = "backup-vault"
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  datastore_type      = "VaultStore"
+  redundancy          = "LocallyRedundant"
+  identity {
+    type = "SystemAssigned"
+  }
 }
+
 
 resource "azurerm_subnet" "server_subnet" {
   name                 = "server-subnet"
@@ -227,6 +213,7 @@ resource "azurerm_postgresql_server" "civiform" {
   version    = "11"
   storage_mb = var.postgres_storage_mb
 
+  # https://docs.microsoft.com/en-us/azure/postgresql/concepts-backup?WT.mc_id=Portal-Microsoft_Azure_Support
   backup_retention_days        = var.postgres_backup_retention_days
   geo_redundant_backup_enabled = false
   auto_grow_enabled            = true
