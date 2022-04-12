@@ -47,7 +47,7 @@ public class LanguageSelector {
         select()
             .withId("select-language")
             .withName("locale")
-            .withValue(preferredLanguage)
+            .attr("value", preferredLanguage)
             .withClasses(
                 Styles.BLOCK,
                 Styles.OUTLINE_NONE,
