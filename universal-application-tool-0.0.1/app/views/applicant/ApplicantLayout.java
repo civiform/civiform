@@ -177,12 +177,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
       return div(
           a(tiDashboardText)
               .with(
-                      new LinkElement()
-                              .setId("ti-Dashboard")
-                              .setHref(tiDashboardLink)
-                              .setText(tiDashboardText)
-                              .setStyles(ReferenceClasses.SUBMIT_BUTTON)
-                              .asButton()),
+                  new LinkElement()
+                      .setId("ti-Dashboard")
+                      .setHref(tiDashboardLink)
+                      .setText(tiDashboardText)
+                      .setStyles(ReferenceClasses.SUBMIT_BUTTON)
+                      .asButton()),
           div("(applying as: " + userName + ")")
               .withClasses(Styles.TEXT_SM, Styles.PX_3, Styles.OPACITY_75));
     }
