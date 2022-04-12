@@ -191,7 +191,7 @@ export class ApplicantQuestions {
   }
 
   async clickNext() {
-    await this.page.click('text="Save And Next"')
+    await this.page.click('text="Save and next"')
     await waitForPageJsLoad(this.page)
   }
 
