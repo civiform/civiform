@@ -195,40 +195,5 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
         .join();
   }
 
-  @VisibleForTesting
-  Optional<Applicant> getExistingApplicant(OidcProfile profile) {
-    // User keying changed in March 2022 and is reflected and managed here.
-    // Originally users were keyed on their email address, however this is not guaranteed to be a
-    // unique stable ID.
-    // In March 2022 the code base changed to using authority_id which is unique and stable per
-    // authentication provider.
-
-    String authorityId =
-        getAuthorityId(profile)
-            .orElseThrow(
-                () -> new InvalidOidcProfileException("Unable to get authority ID from profile."));
-
-    Optional<Applicant> applicantOpt =
-        applicantRepositoryProvider
-            .get()
-            .lookupApplicantByAuthorityId(authorityId)
-            .toCompletableFuture()
-            .join();
-    if (applicantOpt.isPresent()) {
-      logger.debug("Found user using authority ID: {}", authorityId);
-      return applicantOpt;
-    }
-
-    // For pre-existing deployments before April 2022, users will exist without an authority ID and
-    // will be keyed on their email.
-    String userEmail = profile.getAttribute(emailAttributeName(), String.class);
-    logger.debug("Looking up user using email {}", userEmail);
-    return applicantRepositoryProvider
-        .get()
-        .lookupApplicantByEmail(userEmail)
-        .toCompletableFuture()
-        .join();
-  }
-
   protected abstract void possiblyModifyConfigBasedOnCred(Credentials cred);
 }
