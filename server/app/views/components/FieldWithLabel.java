@@ -289,7 +289,7 @@ public class FieldWithLabel {
         .withId(this.id)
         .attr("name", this.fieldName)
         .condAttr(this.disabled, Attr.DISABLED, "true")
-        .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
+        .condAttr(!Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
 
     if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
