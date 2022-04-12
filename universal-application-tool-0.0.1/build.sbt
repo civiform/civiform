@@ -114,8 +114,10 @@ lazy val root = (project in file("."))
   )
   .settings(excludeTailwindGeneration: _*)
 
+// Ignore the tailwind.sbt generated css file when watching for recompilation.
+// Since this file is generated when build.sbt is loaded, it causes the server
+// to reload when stopping/starting the server on watch mode.
 lazy val excludeTailwindGeneration = Seq(watchSources := {
-  // Ignore the tailwind.sbt generated css file when watching for recompilation.
   val fileToExclude =
     "universal-application-tool-0.0.1/public/stylesheets/tailwind.css"
   val customSourcesFilter = new FileFilter {
