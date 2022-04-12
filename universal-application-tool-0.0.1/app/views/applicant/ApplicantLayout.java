@@ -182,8 +182,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                               .setHref(tiDashboardLink)
                               .setText(tiDashboardText)
                               .setStyles(ReferenceClasses.SUBMIT_BUTTON)
-                              .asButton()
-              ),
+                              .asButton()),
           div("(applying as: " + userName + ")")
               .withClasses(Styles.TEXT_SM, Styles.PX_3, Styles.OPACITY_75));
     }
