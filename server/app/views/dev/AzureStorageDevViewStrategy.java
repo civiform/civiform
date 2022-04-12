@@ -13,6 +13,7 @@ import static j2html.TagCreator.text;
 import static j2html.TagCreator.tr;
 
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TableTag;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
@@ -36,7 +37,7 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
   }
 
   @Override
-  public ContainerTag getFileUploadForm(
+  public DivTag getFileUploadForm(
       ViewUtils viewUtils, StorageUploadRequest storageUploadRequest, HtmlBundle bundle)
       throws RuntimeException {
     if (!(storageUploadRequest instanceof BlobStorageUploadRequest)) {
@@ -54,21 +55,21 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
             .with(input().attr("type", "file").withName("file"))
             .with(input().attr("type", "hidden"))
             .withName("key")
-            .withValue(request.fileName())
-            .with(input().attr("type", "hidden").withName("sasToken").withValue(request.sasToken()))
-            .with(input().attr("type", "hidden").withName("blobUrl").withValue(request.blobUrl()))
+            .attr("value", request.fileName())
+            .with(input().attr("type", "hidden").withName("sasToken").attr("value", request.sasToken()))
+            .with(input().attr("type", "hidden").withName("blobUrl").attr("value", request.blobUrl()))
             .with(
                 input()
                   .attr("type", "hidden")
                   .withName("containerName")
-                  .withValue(request.containerName()))
-            .with(input().attr("type", "hidden").withName("fileName").withValue(request.fileName()))
-            .with(input().attr("type", "hidden").withName("accountName").withValue(request.accountName()))
+                  .attr("value", request.containerName()))
+            .with(input().attr("type", "hidden").withName("fileName").attr("value", request.fileName()))
+            .with(input().attr("type", "hidden").withName("accountName").attr("value", request.accountName()))
             .with(
                 input()
                     .attr("type", "hidden")
                     .withName("successActionRedirect")
-                    .withValue(request.successActionRedirect()))
+                    .attr("value", request.successActionRedirect()))
             .with(
                 TagCreator.button(text("Upload to Azure Blob Storage"))
                     .attr("type", "submit")
@@ -77,7 +78,7 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
   }
 
   @Override
-  public ContainerTag renderFiles(ImmutableList<StoredFile> files) {
+  public TableTag renderFiles(ImmutableList<StoredFile> files) {
     return table()
         .with(
             tbody(

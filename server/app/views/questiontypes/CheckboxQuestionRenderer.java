@@ -45,7 +45,7 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
                 input()
                     .attr("type", "checkbox")
                     .withName(multiOptionQuestion.getSelectionPathAsArray())
-                    .withValue("")
+                    .attr("value", "")
                     .condAttr(!multiOptionQuestion.hasValue(), Attr.CHECKED, "")
                     .withClasses(ReferenceClasses.RADIO_DEFAULT, Styles.HIDDEN))
             .with(
@@ -75,7 +75,7 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .withId(id)
                     .attr("type", "checkbox")
                     .withName(selectionPath)
-                    .withValue(String.valueOf(option.id()))
+                    .attr("value", String.valueOf(option.id()))
                     .condAttr(isSelected, Attr.CHECKED, "")
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)))

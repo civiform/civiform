@@ -150,7 +150,7 @@ public class QuestionBank {
             .attr("type", "submit")
             .withId("question-" + definition.getId())
             .withName("question-" + definition.getId())
-            .withValue(definition.getId() + "")
+            .attr("value", definition.getId() + "")
             .withClasses(ReferenceClasses.ADD_QUESTION_BUTTON, AdminStyles.CLICK_TARGET_BUTTON);
 
     ContainerTag icon =

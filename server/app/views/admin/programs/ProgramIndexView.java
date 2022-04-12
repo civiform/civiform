@@ -174,7 +174,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withClasses(Styles.W_FULL)
             .with(
                 input()
-                    .withValue(
+                    .attr("value", 
                         baseUrl
                             + controllers.applicant.routes.RedirectController.programByName(
                                     displayProgram.slug())

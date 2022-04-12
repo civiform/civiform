@@ -87,7 +87,7 @@ public class SelectWithLabel extends FieldWithLabel {
 
   @Override
   public ContainerTag getContainer() {
-    Tag placeholder = option(placeholderText).withValue("").attr(Attr.HIDDEN);
+    Tag placeholder = option(placeholderText).attr("value", "").attr(Attr.HIDDEN);
     if (this.fieldValue.isEmpty()) {
       placeholder.attr(Attr.SELECTED);
     }
@@ -99,7 +99,7 @@ public class SelectWithLabel extends FieldWithLabel {
     } else {
       this.options.forEach(
           (text, value) -> {
-            Tag optionTag = option(text).withValue(value);
+            Tag optionTag = option(text).attr("value", value);
             if (value.equals(this.fieldValue)) {
               optionTag.attr(Attr.SELECTED);
             }

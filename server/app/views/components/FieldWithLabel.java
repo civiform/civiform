@@ -275,10 +275,10 @@ public class FieldWithLabel {
       // For number types, only set the value if it's present since there is no empty string
       // equivalent for numbers.
       if (this.fieldValueNumber.isPresent()) {
-        fieldTag.withValue(String.valueOf(this.fieldValueNumber.getAsLong()));
+        fieldTag.attr("value", String.valueOf(this.fieldValueNumber.getAsLong()));
       }
     } else {
-      fieldTag.withValue(this.fieldValue);
+      fieldTag.attr("value", this.fieldValue);
     }
 
     boolean hasFieldErrors = !fieldErrors.isEmpty() && showFieldErrors;

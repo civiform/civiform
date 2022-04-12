@@ -68,7 +68,7 @@ public class LanguageSelector {
             locale -> {
               String value = locale.toLanguageTag();
               String label = formatLabel(locale);
-              Tag optionTag = option(label).withValue(value);
+              Tag optionTag = option(label).attr("value", value);
               if (value.equals(preferredLanguage)) {
                 optionTag.attr(Attr.SELECTED);
               }
@@ -101,7 +101,7 @@ public class LanguageSelector {
                 input()
                     .attr("type", "radio")
                     .withName("locale")
-                    .withValue(value)
+                    .attr("value", value)
                     .condAttr(checked, Attr.CHECKED, "")
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO)))

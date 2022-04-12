@@ -301,11 +301,11 @@ public final class QuestionEditView extends BaseHtmlView {
           input()
               .isHidden()
               .withName(QUESTION_NAME_FIELD)
-              .withValue(questionForm.getQuestionName()),
+              .attr("value", questionForm.getQuestionName()),
           input()
               .isHidden()
               .withName(QUESTION_ENUMERATOR_FIELD)
-              .withValue(
+              .attr("value", 
                   questionForm
                       .getEnumeratorId()
                       .map(String::valueOf)

@@ -259,7 +259,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     .withAction(moveUpFormAction)
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
-                    .with(input().isHidden().withName("direction").withValue(Direction.UP.name()))
+                    .with(input().isHidden().withName("direction").attr("value", Direction.UP.name()))
                     .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
 
     String moveDownFormAction =
@@ -277,7 +277,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     .withAction(moveDownFormAction)
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
-                    .with(input().isHidden().withName("direction").withValue(Direction.DOWN.name()))
+                    .with(input().isHidden().withName("direction").attr("value", Direction.DOWN.name()))
                     .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
     ContainerTag moveButtons =
         div().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.SELF_CENTER).with(moveUp, moveDown);
@@ -481,7 +481,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
         form(csrfTag)
             .withMethod(HttpVerbs.POST)
             .withAction(toggleOptionalAction)
-            .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
+            .with(input().isHidden().withName("optional").attr("value", isOptional ? "false" : "true"))
             .with(optionalButton));
   }
 
@@ -496,7 +496,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .attr("type", "submit")
             .withId("block-question-" + questionDefinition.getId())
             .withName("questionDefinitionId")
-            .withValue(String.valueOf(questionDefinition.getId()))
+            .attr("value", String.valueOf(questionDefinition.getId()))
             .condAttr(!canRemove, Attr.DISABLED, "")
             .condAttr(
                 !canRemove,

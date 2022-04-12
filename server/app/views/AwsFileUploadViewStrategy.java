@@ -37,29 +37,29 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     ContainerTag fieldsTag =
         div()
             .with(div().withText(uploaded.orElse("")))
-            .with(input().attr("type", "hidden").withName("key").withValue(request.key()))
+            .with(input().attr("type", "hidden").withName("key").attr("value", request.key()))
             .with(
                 input()
                     .attr("type", "hidden")
                     .withName("success_action_redirect")
-                    .withValue(request.successActionRedirect()))
+                    .attr("value", request.successActionRedirect()))
             .with(
                 input()
                     .attr("type", "hidden")
                     .withName("X-Amz-Credential")
-                    .withValue(request.credential()));
+                    .attr("value", request.credential()));
     if (!request.securityToken().isEmpty()) {
       fieldsTag.with(
           input()
               .attr("type", "hidden")
               .withName("X-Amz-Security-Token")
-              .withValue(request.securityToken()));
+              .attr("value", request.securityToken()));
     }
     return fieldsTag
-        .with(input().attr("type", "hidden").withName("X-Amz-Algorithm").withValue(request.algorithm()))
-        .with(input().attr("type", "hidden").withName("X-Amz-Date").withValue(request.date()))
-        .with(input().attr("type", "hidden").withName("Policy").withValue(request.policy()))
-        .with(input().attr("type", "hidden").withName("X-Amz-Signature").withValue(request.signature()))
+        .with(input().attr("type", "hidden").withName("X-Amz-Algorithm").attr("value", request.algorithm()))
+        .with(input().attr("type", "hidden").withName("X-Amz-Date").attr("value", request.date()))
+        .with(input().attr("type", "hidden").withName("Policy").attr("value", request.policy()))
+        .with(input().attr("type", "hidden").withName("X-Amz-Signature").attr("value", request.signature()))
         .with(input().attr("type", "file").withName("file").attr(Attr.ACCEPT, acceptFileTypes()))
         .with(errorDiv(params.messages(), fileUploadQuestion));
   }
