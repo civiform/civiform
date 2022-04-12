@@ -1,7 +1,5 @@
 #! /usr/bin/env bash
 
-readonly CIVIFORM_CONTAINER_NAME="civiform/civiform"
-
 #######################################
 # Set common env variables for working with Azure.
 # Globals:
@@ -146,7 +144,7 @@ function azure::set_new_container_tag() {
     --resource-group "${1}" \
     --name "${2}" \
     --slot "canary" \
-    --docker-custom-image-name "DOCKER|${CIVIFORM_CONTAINER_NAME}:${3}"
+    --docker-custom-image-name "DOCKER|${DOCKER_USERNAME}/${DOCKER_REPOSITORY_NAME}:${3}"
 }
 
 #######################################
