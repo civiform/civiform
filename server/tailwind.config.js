@@ -87,7 +87,7 @@ function getStyleUsage(content, output, prefix = '') {
         if (prefix !== '') {
           tailwindClass = prefix + ':' + tailwindClass
         }
-        output += "['"+tailwindClass+"']"
+        output += "['" + tailwindClass + "']"
       }
     }
   }
@@ -98,13 +98,14 @@ function getStyleUsage(content, output, prefix = '') {
 function getMediaQueryUsage(content, output) {
   for (const [methodName, mediaQueryPrefix] of PREFIXES) {
     const MEDIA_QUERY_CALL = new RegExp(
-      MEDIA_QUERY_BEGIN + methodName + MEDIA_QUERY_CALL_END, 'g'
+      MEDIA_QUERY_BEGIN + methodName + MEDIA_QUERY_CALL_END,
+      'g'
     )
 
     const mediaQueryMatchIter = content.match(MEDIA_QUERY_CALL)
     if (mediaQueryMatchIter) {
       for (const mediaQueriedContent of mediaQueryMatchIter) {
-        output=getStyleUsage(mediaQueriedContent, output, mediaQueryPrefix)
+        output = getStyleUsage(mediaQueriedContent, output, mediaQueryPrefix)
       }
     }
   }
@@ -125,12 +126,12 @@ module.exports = {
     content: ['./app/views/**/*.java', './app/assets/javascripts/*.ts'],
     transform: {
       // Routine to process contents with .java extention. Tailwind has a builtin routine that
-      // processes .ts extention files in the `content` list so we dont need to add a method 
+      // processes .ts extention files in the `content` list so we dont need to add a method
       // for that
       java: (content) => {
         // It was easier just doing this than incorporating multiline handling into regex
-        const contentOneLine = content.replace(/(\r\n|\n|\r|\n\r)/gm, "")
-        let output = ""
+        const contentOneLine = content.replace(/(\r\n|\n|\r|\n\r)/gm, '')
+        let output = ''
 
         output = getStyleUsage(contentOneLine, output)
         output = getMediaQueryUsage(contentOneLine, output)

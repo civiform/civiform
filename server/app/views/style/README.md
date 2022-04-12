@@ -16,12 +16,12 @@ The list of all possible tailwind style literals, denoted as reference styles, a
 ## The constraints
 
 - You must pass direct style literal references to `StyleUtils.mediaQueryMethod(args..)` calls. If you pass a variable referencing
-  those, it simply wont show up. 
+  those, it simply wont show up.
 
-  E.g. `StyleUtils.responsiveLarge(Styles.BG_BLUE_200, Styles.MT_1)` will work. However, with something like 
+  E.g. `StyleUtils.responsiveLarge(Styles.BG_BLUE_200, Styles.MT_1)` will work. However, with something like
   `String S = Styles.BG_BLUE_200; StylesUtils.responsiveLarge(S);` the style will not register.
 
-- All styles must be defined in Styles.java or ReferenceClasses.java. If added to any other file they will not be registered 
+- All styles must be defined in Styles.java or ReferenceClasses.java. If added to any other file they will not be registered
   without modifying tailwind.config.js
 
 - If not obvious already, _fields denoting style literals in Styles.java and ReferenceClasses.java can only have uppercase letters,
