@@ -43,7 +43,6 @@ describe('name applicant flow', () => {
           ['name-test-q'],
           programName
       )
-      debugger;
       await logout(pageObject)
     })
 
