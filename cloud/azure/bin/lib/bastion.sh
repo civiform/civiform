@@ -142,15 +142,27 @@ function bastion::get_pg_restore_command() {
 }
 
 #######################################
-# Copy a file to the bastion 
+# Copy a file to the bastion
 # Arguments:
 #   1: the ip of the vm you will connect to
 #   2: the key name to use to connect to
 #   3: location of the file you want to copy
-#   4: destination location on the bastion 
+#   4: destination location on the bastion
 #######################################
 function bastion::scp_to_bastion() {
   scp -i "${2}" "${3}" "adminuser@${1}:${4}"
+}
+
+#######################################
+# Generate an ssh keys for bastion
+# Arguments:
+#   1: the key file to create
+#######################################
+function bastion::ssh_keygen() {
+  if ! [[ -f "${1}" ]]; then
+    echo "Creating a new ssh key"
+    ssh-keygen -q -t rsa -b 4096 -N '' -f "${1}"
+  fi
 }
 
 #######################################
@@ -163,10 +175,7 @@ function bastion::setup_bastion_ssh() {
   echo "Add my ip address to the security group for ssh"
   bastion::allow_ip_security_group "${1}"
 
-  if ! [[ -f "${2}" ]]; then
-    echo "Creating a new ssh key"
-    ssh-keygen -q -t rsa -b 4096 -N '' -f "${2}"
-  fi
+  bastion::ssh_keygen "${2}"
 
   echo "Adding the public key to the bastion vm"
   bastion::update_bastion_ssh_keys "${1}" "${2}"

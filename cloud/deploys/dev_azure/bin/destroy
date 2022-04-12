@@ -1,0 +1,10 @@
+#! /usr/bin/env bash
+
+source cloud/deploys/dev_azure/bin/lib.sh
+source cloud/azure/bin/lib/bastion.sh
+
+bastion::ssh_keygen "$HOME/.ssh/bastion"
+
+cloud/shared/bin/destroy
+
+bastion::remove_ssh_key "$HOME/.ssh/bastion"
