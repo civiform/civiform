@@ -110,7 +110,7 @@ public class BaseHtmlLayout {
         script()
             .withSrc("https://www.googletagmanager.com/gtag/js?id=" + trackingTag)
             .attr("async", "true")
-            .withType("text/javascript");
+            .attr("type", "text/javascript");
     String googleAnalyticsCode =
         "window.dataLayer = window.dataLayer || [];"
             + "\nfunction gtag() {"
@@ -121,7 +121,7 @@ public class BaseHtmlLayout {
     Tag rawScript =
         script()
             .with(rawHtml(String.format(googleAnalyticsCode, trackingTag)))
-            .withType("text/javascript");
+            .attr("type", "text/javascript");
     return new ImmutableList.Builder<Tag>().add(scriptImport).add(rawScript).build();
   }
 }

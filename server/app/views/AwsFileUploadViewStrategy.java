@@ -37,30 +37,30 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     ContainerTag fieldsTag =
         div()
             .with(div().withText(uploaded.orElse("")))
-            .with(input().withType("hidden").withName("key").withValue(request.key()))
+            .with(input().attr("type", "hidden").withName("key").withValue(request.key()))
             .with(
                 input()
-                    .withType("hidden")
+                    .attr("type", "hidden")
                     .withName("success_action_redirect")
                     .withValue(request.successActionRedirect()))
             .with(
                 input()
-                    .withType("hidden")
+                    .attr("type", "hidden")
                     .withName("X-Amz-Credential")
                     .withValue(request.credential()));
     if (!request.securityToken().isEmpty()) {
       fieldsTag.with(
           input()
-              .withType("hidden")
+              .attr("type", "hidden")
               .withName("X-Amz-Security-Token")
               .withValue(request.securityToken()));
     }
     return fieldsTag
-        .with(input().withType("hidden").withName("X-Amz-Algorithm").withValue(request.algorithm()))
-        .with(input().withType("hidden").withName("X-Amz-Date").withValue(request.date()))
-        .with(input().withType("hidden").withName("Policy").withValue(request.policy()))
-        .with(input().withType("hidden").withName("X-Amz-Signature").withValue(request.signature()))
-        .with(input().withType("file").withName("file").attr(Attr.ACCEPT, acceptFileTypes()))
+        .with(input().attr("type", "hidden").withName("X-Amz-Algorithm").withValue(request.algorithm()))
+        .with(input().attr("type", "hidden").withName("X-Amz-Date").withValue(request.date()))
+        .with(input().attr("type", "hidden").withName("Policy").withValue(request.policy()))
+        .with(input().attr("type", "hidden").withName("X-Amz-Signature").withValue(request.signature()))
+        .with(input().attr("type", "file").withName("file").attr(Attr.ACCEPT, acceptFileTypes()))
         .with(errorDiv(params.messages(), fileUploadQuestion));
   }
 
@@ -120,8 +120,8 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
       buttonId = FILEUPLOAD_DELETE_BUTTON_ID;
     }
     ContainerTag button =
-        TagCreator.button(buttonText)
-            .withType("submit")
+        button(buttonText)
+            .attr("type", "submit")
             .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
             .withClasses(ApplicantStyles.BUTTON_REVIEW)
             .withId(buttonId);

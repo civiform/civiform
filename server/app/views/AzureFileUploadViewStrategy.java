@@ -48,16 +48,16 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     ContainerTag formTag = form();
     return formTag
         .with(div().withText(uploaded.orElse("")))
-        .with(input().withType("file").withName("file"))
-        .with(input().withType("hidden").withName("fileName").withValue(request.fileName()))
-        .with(input().withType("hidden").withName("sasToken").withValue(request.sasToken()))
-        .with(input().withType("hidden").withName("blobUrl").withValue(request.blobUrl()))
+        .with(input().attr("type", "file").withName("file"))
+        .with(input().attr("type", "hidden").withName("fileName").withValue(request.fileName()))
+        .with(input().attr("type", "hidden").withName("sasToken").withValue(request.sasToken()))
+        .with(input().attr("type", "hidden").withName("blobUrl").withValue(request.blobUrl()))
         .with(
-            input().withType("hidden").withName("containerName").withValue(request.containerName()))
-        .with(input().withType("hidden").withName("accountName").withValue(request.accountName()))
+            input().attr("type", "hidden").withName("containerName").withValue(request.containerName()))
+        .with(input().attr("type", "hidden").withName("accountName").withValue(request.accountName()))
         .with(
             input()
-                .withType("hidden")
+                .attr("type", "hidden")
                 .withName("successActionRedirect")
                 .withValue(request.successActionRedirect()))
         .with(errorDiv(params.messages(), fileUploadQuestion));

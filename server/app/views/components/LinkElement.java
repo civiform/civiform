@@ -150,7 +150,7 @@ public class LinkElement {
                 input().isHidden().withValue(csrfToken).withName("csrfToken"),
                 button(TagCreator.text(text))
                     .withClasses(DEFAULT_LINK_BUTTON_STYLES)
-                    .withType("submit"))
+                    .attr("type", "submit"))
             .withMethod("POST")
             .withAction(href)
             .condAttr(!Strings.isNullOrEmpty(onsubmit), "onsubmit", onsubmit)
@@ -174,7 +174,7 @@ public class LinkElement {
                 input().isHidden().withValue(csrfToken).withName("csrfToken"),
                 button(TagCreator.text(text))
                     .withClasses(BUTTON_LOOKS_LIKE_LINK_STYLES)
-                    .withType("submit"))
+                    .attr("type", "submit"))
             .withClasses(Styles.INLINE)
             .withMethod("POST")
             .withAction(href)

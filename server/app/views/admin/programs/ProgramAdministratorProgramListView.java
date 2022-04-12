@@ -135,7 +135,7 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
                                 .url())
                     .attr("disabled", "readonly")
                     .withClasses(Styles.W_FULL, Styles.MB_2)
-                    .withType("text"));
+                    .attr("type", "text"));
 
     Tag innerDiv =
         div(topContent, midContent, programDeepLink, bottomContent)

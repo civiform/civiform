@@ -43,7 +43,7 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
             // Hidden input that's always selected to allow for clearing mutli-select data.
             .with(
                 input()
-                    .withType("checkbox")
+                    .attr("type", "checkbox")
                     .withName(multiOptionQuestion.getSelectionPathAsArray())
                     .withValue("")
                     .condAttr(!multiOptionQuestion.hasValue(), Attr.CHECKED, "")
@@ -73,7 +73,7 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
             .with(
                 input()
                     .withId(id)
-                    .withType("checkbox")
+                    .attr("type", "checkbox")
                     .withName(selectionPath)
                     .withValue(String.valueOf(option.id()))
                     .condAttr(isSelected, Attr.CHECKED, "")

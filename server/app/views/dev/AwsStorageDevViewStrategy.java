@@ -47,32 +47,32 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
     ContainerTag formTag =
         form()
             .attr(ENCTYPE, "multipart/form-data")
-            .with(input().withType("input").withName("key").withValue(request.key()))
+            .with(input().attr("type", "input").withName("key").withValue(request.key()))
             .with(
                 input()
-                    .withType("hidden")
+                    .attr("type", "hidden")
                     .withName("success_action_redirect")
                     .withValue(request.successActionRedirect()))
             .with(
                 input()
-                    .withType("text")
+                    .attr("type", "text")
                     .withName("X-Amz-Credential")
                     .withValue(request.credential()));
     if (!request.securityToken().isEmpty()) {
       formTag.with(
           input()
-              .withType("hidden")
+              .attr("type", "hidden")
               .withName("X-Amz-Security-Token")
               .withValue(request.securityToken()));
     }
 
     return formTag
-        .with(input().withType("text").withName("X-Amz-Algorithm").withValue(request.algorithm()))
-        .with(input().withType("text").withName("X-Amz-Date").withValue(request.date()))
-        .with(input().withType("hidden").withName("Policy").withValue(request.policy()))
-        .with(input().withType("hidden").withName("X-Amz-Signature").withValue(request.signature()))
-        .with(input().withType("file").withName("file"))
-        .with(TagCreator.button(text("Upload to Amazon S3")).withType("submit"))
+        .with(input().attr("type", "text").withName("X-Amz-Algorithm").withValue(request.algorithm()))
+        .with(input().attr("type", "text").withName("X-Amz-Date").withValue(request.date()))
+        .with(input().attr("type", "hidden").withName("Policy").withValue(request.policy()))
+        .with(input().attr("type", "hidden").withName("X-Amz-Signature").withValue(request.signature()))
+        .with(input().attr("type", "file").withName("file"))
+        .with(TagCreator.button(text("Upload to Amazon S3")).attr("type", "submit"))
         .withMethod("post")
         .withAction(request.actionLink());
   }

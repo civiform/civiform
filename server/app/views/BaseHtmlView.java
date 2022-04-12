@@ -48,7 +48,7 @@ public abstract class BaseHtmlView {
   }
 
   public static Tag button(String textContents) {
-    return TagCreator.button(text(textContents)).withType("button");
+    return TagCreator.button(text(textContents)).attr("type", "button");
   }
 
   public static Tag button(String id, String textContents) {
@@ -56,7 +56,7 @@ public abstract class BaseHtmlView {
   }
 
   protected static Tag submitButton(String textContents) {
-    return TagCreator.button(text(textContents)).withType("submit");
+    return TagCreator.button(text(textContents)).attr("type", "submit");
   }
 
   protected static Tag submitButton(String id, String textContents) {

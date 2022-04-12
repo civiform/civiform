@@ -37,7 +37,7 @@ public final class ViewUtils {
   public Tag makeLocalJsTag(String filename) {
     return script()
         .withSrc(assetsFinder.path("javascripts/" + filename + ".js"))
-        .withType("text/javascript");
+        .attr("type", "text/javascript");
   }
 
   /**

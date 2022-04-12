@@ -181,7 +181,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                                 .url())
                     .attr("disabled", "readonly")
                     .withClasses(Styles.W_FULL, Styles.MB_2)
-                    .withType("text"));
+                    .attr("type", "text"));
 
     Tag bottomContent =
         div(

@@ -91,7 +91,7 @@ public class QuestionBank {
     Tag filterInput =
         input()
             .withId("question-bank-filter")
-            .withType("text")
+            .attr("type", "text")
             .withName("questionFilter")
             .attr(Attr.PLACEHOLDER, "Filter questions")
             .withClasses(
@@ -147,7 +147,7 @@ public class QuestionBank {
 
     Tag addButton =
         TagCreator.button(text(definition.getName()))
-            .withType("submit")
+            .attr("type", "submit")
             .withId("question-" + definition.getId())
             .withName("question-" + definition.getId())
             .withValue(definition.getId() + "")

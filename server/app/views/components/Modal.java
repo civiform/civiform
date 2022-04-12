@@ -43,7 +43,7 @@ public class Modal {
     String triggerButtonId = modalId + "-button";
     if (triggerButtonContent.isPresent()) {
       return TagCreator.button()
-          .withType("button")
+          .attr("type", "button")
           .withClasses(buttonStyles)
           .withId(triggerButtonId)
           .with(triggerButtonContent.get());

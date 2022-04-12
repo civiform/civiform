@@ -451,7 +451,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 Styles.BG_TRANSPARENT,
                 Styles.ROUNDED_FULL,
                 StyleUtils.hover(Styles.BG_GRAY_400, Styles.TEXT_GRAY_300))
-            .withType("submit")
+            .attr("type", "submit")
             .with(p("optional").withClasses("hover-group:text-white"))
             .with(
                 div()
@@ -493,7 +493,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       boolean canRemove) {
     Tag removeButton =
         TagCreator.button(text("DELETE"))
-            .withType("submit")
+            .attr("type", "submit")
             .withId("block-question-" + questionDefinition.getId())
             .withName("questionDefinitionId")
             .withValue(String.valueOf(questionDefinition.getId()))
