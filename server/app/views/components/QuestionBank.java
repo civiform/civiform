@@ -92,7 +92,7 @@ public class QuestionBank {
         input()
             .withId("question-bank-filter")
             .attr("type", "text")
-            .withName("questionFilter")
+            .attr("name", "questionFilter")
             .attr(Attr.PLACEHOLDER, "Filter questions")
             .withClasses(
                 Styles.H_10,
@@ -149,7 +149,7 @@ public class QuestionBank {
         TagCreator.button(text(definition.getName()))
             .attr("type", "submit")
             .withId("question-" + definition.getId())
-            .withName("question-" + definition.getId())
+            .attr("name", "question-" + definition.getId())
             .attr("value", definition.getId() + "")
             .withClasses(ReferenceClasses.ADD_QUESTION_BUTTON, AdminStyles.CLICK_TARGET_BUTTON);
 

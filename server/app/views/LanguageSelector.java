@@ -46,7 +46,7 @@ public class LanguageSelector {
     ContainerTag dropdownTag =
         select()
             .withId("select-language")
-            .withName("locale")
+            .attr("name", "locale")
             .attr("value", preferredLanguage)
             .withClasses(
                 Styles.BLOCK,
@@ -100,7 +100,7 @@ public class LanguageSelector {
             .with(
                 input()
                     .attr("type", "radio")
-                    .withName("locale")
+                    .attr("name", "locale")
                     .attr("value", value)
                     .condAttr(checked, Attr.CHECKED, "")
                     .withClasses(

@@ -69,7 +69,7 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   private ContainerTag fileUploadFieldsPreview() {
     return div()
-        .with(input().attr("type", "file").withName("file").attr(Attr.ACCEPT, acceptFileTypes()));
+        .with(input().attr("type", "file").attr("name", "file").attr(Attr.ACCEPT, acceptFileTypes()));
   }
 
   private String acceptFileTypes() {

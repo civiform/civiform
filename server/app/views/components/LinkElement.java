@@ -147,7 +147,7 @@ public class LinkElement {
 
     ContainerTag form =
         form(
-                input().isHidden().attr("value", csrfToken).withName("csrfToken"),
+                input().isHidden().attr("value", csrfToken).attr("name", "csrfToken"),
                 button(TagCreator.text(text))
                     .withClasses(DEFAULT_LINK_BUTTON_STYLES)
                     .attr("type", "submit"))
@@ -156,7 +156,7 @@ public class LinkElement {
             .condAttr(!Strings.isNullOrEmpty(onsubmit), "onsubmit", onsubmit)
             .withCondId(!Strings.isNullOrEmpty(id), id);
     hiddenFormValues.entrySet().stream()
-        .map(entry -> input().isHidden().withName(entry.getKey()).attr("value", entry.getValue()))
+        .map(entry -> input().isHidden().attr("name", entry.getKey()).attr("value", entry.getValue()))
         .forEach(tag -> form.with(tag));
     return form;
   }
@@ -171,7 +171,7 @@ public class LinkElement {
 
     ContainerTag form =
         form(
-                input().isHidden().attr("value", csrfToken).withName("csrfToken"),
+                input().isHidden().attr("value", csrfToken).attr("name", "csrfToken"),
                 button(TagCreator.text(text))
                     .withClasses(BUTTON_LOOKS_LIKE_LINK_STYLES)
                     .attr("type", "submit"))

@@ -144,8 +144,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
       boolean showLanguageSwitcher = !request.uri().equals(applicantInfoUrl);
       if (showLanguageSwitcher) {
         String csrfToken = CSRF.getToken(request.asScala()).value();
-        Tag csrfInput = input().isHidden().attr("value", csrfToken).withName("csrfToken");
-        Tag redirectInput = input().isHidden().attr("value", request.uri()).withName("redirectLink");
+        Tag csrfInput = input().isHidden().attr("value", csrfToken).attr("name", "csrfToken");
+        Tag redirectInput = input().isHidden().attr("value", request.uri()).attr("name", "redirectLink");
         String preferredLanguage = languageSelector.getPreferredLangage(request).code();
         ContainerTag languageDropdown =
             languageSelector

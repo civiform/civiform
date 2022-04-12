@@ -74,7 +74,7 @@ public abstract class BaseHtmlView {
    * present in all CiviForm forms.
    */
   protected static Tag makeCsrfTokenInputTag(Http.Request request) {
-    return input().isHidden().attr("value", getCsrfToken(request)).withName("csrfToken");
+    return input().isHidden().attr("value", getCsrfToken(request)).attr("name", "csrfToken");
   }
 
   private static String getCsrfToken(Http.Request request) {

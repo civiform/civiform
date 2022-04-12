@@ -47,31 +47,31 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
     ContainerTag formTag =
         form()
             .attr(ENCTYPE, "multipart/form-data")
-            .with(input().attr("type", "input").withName("key").attr("value", request.key()))
+            .with(input().attr("type", "input").attr("name", "key").attr("value", request.key()))
             .with(
                 input()
                     .attr("type", "hidden")
-                    .withName("success_action_redirect")
+                    .attr("name", "success_action_redirect")
                     .attr("value", request.successActionRedirect()))
             .with(
                 input()
                     .attr("type", "text")
-                    .withName("X-Amz-Credential")
+                    .attr("name", "X-Amz-Credential")
                     .attr("value", request.credential()));
     if (!request.securityToken().isEmpty()) {
       formTag.with(
           input()
               .attr("type", "hidden")
-              .withName("X-Amz-Security-Token")
+              .attr("name", "X-Amz-Security-Token")
               .attr("value", request.securityToken()));
     }
 
     return formTag
-        .with(input().attr("type", "text").withName("X-Amz-Algorithm").attr("value", request.algorithm()))
-        .with(input().attr("type", "text").withName("X-Amz-Date").attr("value", request.date()))
-        .with(input().attr("type", "hidden").withName("Policy").attr("value", request.policy()))
-        .with(input().attr("type", "hidden").withName("X-Amz-Signature").attr("value", request.signature()))
-        .with(input().attr("type", "file").withName("file"))
+        .with(input().attr("type", "text").attr("name", "X-Amz-Algorithm").attr("value", request.algorithm()))
+        .with(input().attr("type", "text").attr("name", "X-Amz-Date").attr("value", request.date()))
+        .with(input().attr("type", "hidden").attr("name", "Policy").attr("value", request.policy()))
+        .with(input().attr("type", "hidden").attr("name", "X-Amz-Signature").attr("value", request.signature()))
+        .with(input().attr("type", "file").attr("name", "file"))
         .with(TagCreator.button(text("Upload to Amazon S3")).attr("type", "submit"))
         .withMethod("post")
         .withAction(request.actionLink());

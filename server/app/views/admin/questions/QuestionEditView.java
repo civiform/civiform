@@ -300,11 +300,11 @@ public final class QuestionEditView extends BaseHtmlView {
       formTag.with(
           input()
               .isHidden()
-              .withName(QUESTION_NAME_FIELD)
+              .attr("name", QUESTION_NAME_FIELD)
               .attr("value", questionForm.getQuestionName()),
           input()
               .isHidden()
-              .withName(QUESTION_ENUMERATOR_FIELD)
+              .attr("name", QUESTION_ENUMERATOR_FIELD)
               .attr("value", 
                   questionForm
                       .getEnumeratorId()
