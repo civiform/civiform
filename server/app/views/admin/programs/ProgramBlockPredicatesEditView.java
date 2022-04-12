@@ -276,7 +276,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
   private Tag createHiddenQuestionDefinitionInput(QuestionDefinition questionDefinition) {
     return input()
         .withName("questionId")
-        .withType("hidden")
+        .attr("type", "hidden")
         .withValue(String.valueOf(questionDefinition.getId()));
   }
 

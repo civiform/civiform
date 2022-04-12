@@ -114,7 +114,7 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setFieldType(String fieldType) {
-    this.fieldTag.withType(fieldType);
+    this.fieldTag.attr("type", fieldType);
     this.fieldType = fieldType;
     return this;
   }
@@ -254,7 +254,7 @@ public class FieldWithLabel {
     }
     if (fieldTag.getTagName().equals("textarea")) {
       // Have to recreate the field here in case the value is modified.
-      ContainerTag textAreaTag = textarea().withType("text").withText(this.fieldValue);
+      ContainerTag textAreaTag = textarea().attr("type", "text").withText(this.fieldValue);
       fieldTag = textAreaTag;
     } else if (this.fieldType.equals("number")) {
       // Setting inputmode to decimal gives iOS users a more accessible keyboard

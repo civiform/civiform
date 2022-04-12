@@ -99,7 +99,7 @@ public class LanguageSelector {
                 checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
             .with(
                 input()
-                    .withType("radio")
+                    .attr("type", "radio")
                     .withName("locale")
                     .withValue(value)
                     .condAttr(checked, Attr.CHECKED, "")
