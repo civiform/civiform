@@ -178,7 +178,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
           a(tiDashboardText)
               .with(
                   new LinkElement()
-                      .setId("ti-Dashboard")
+                      .setId("ti-dashboard")
                       .setHref(tiDashboardLink)
                       .setText(tiDashboardText)
                       .setStyles(ReferenceClasses.SUBMIT_BUTTON)
