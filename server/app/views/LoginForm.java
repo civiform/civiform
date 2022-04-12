@@ -79,7 +79,7 @@ public class LoginForm extends BaseHtmlView {
           this.layout
               .viewUtils
               .makeLocalImageTag("ChiefSeattle_Blue")
-              .withAlt(civicEntityFullName + " Logo")
+              .attr("alt", civicEntityFullName + " Logo")
               .attr("aria-hidden", "true")
               .withClasses(Styles.W_1_4, Styles.PT_4));
     }
