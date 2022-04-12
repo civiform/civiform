@@ -486,7 +486,7 @@ class ValidationController {
 
   /** Validates that first and last name are not empty. */
   validateNameQuestion(): boolean {
-    let isValid = true
+    let isAllValid = true
     const nameQuestions = Array.from(
       document.querySelectorAll(ValidationController.NAME_QUESTION_CLASS)
     )
@@ -518,10 +518,10 @@ class ValidationController {
       const emptyOptional =
         isOptional && firstNameEmpty && lastNameEmpty && middleNameEmpty
 
-      // TODO: Fix bug where only the last questions validity is used.
-      isValid = emptyOptional || (!firstNameEmpty && !lastNameEmpty)
+      let isValid = emptyOptional || (!firstNameEmpty && !lastNameEmpty)
+      isAllValid = isValid && isAllValid
     }
-    return isValid
+    return isAllValid
   }
 
   /** Validates that numbers are positive integers. */
