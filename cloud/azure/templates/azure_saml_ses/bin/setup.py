@@ -73,9 +73,9 @@ class Setup:
     def _input_to_keystore(self, secret_id):
         key_vault_name = self.config.get_config_var("KEY_VAULT_NAME")
         subprocess.run([
-            "cloud/azure/bin/input-secrets-to-keystore", 
-            "-k", key_vault_name, 
-            "-s", secret_id], 
+            "cloud/azure/bin/input-secrets-to-keystore",
+            "-k", key_vault_name,
+            "-s", secret_id],
             check=True)
     
     def _setup_resource_group(self): 
@@ -89,8 +89,8 @@ class Setup:
         self.resource_group = resource_group
         self.resource_group_location = resource_group_location
 
-    def _create_ssh_keyfile(self): 
-        subprocess.run(["/bin/bash", 
+    def _create_ssh_keyfile(self):
+        subprocess.run(["/bin/bash",
             "-c", "ssh-keygen -q -t rsa -b 4096 -N '' -f $HOME/.ssh/bastion <<< y"
         ], check=True)
     
@@ -106,39 +106,39 @@ class Setup:
                 "cloud/azure/bin/setup_tf_shared_state",
                 f"{self.config.get_template_dir()}/{self.config.backend_vars_filename}"
             ], check=True)
-    
-    def _setup_keyvault(self): 
-        if not self.resource_group: 
+
+    def _setup_keyvault(self):
+        if not self.resource_group:
             raise RuntimeError("Resource group required")
         key_vault_name = self.config.get_config_var("KEY_VAULT_NAME")
         subprocess.run([
-            "cloud/azure/bin/setup-keyvault", 
-            "-g", self.resource_group, 
+            "cloud/azure/bin/setup-keyvault",
+            "-g", self.resource_group,
             "-v", key_vault_name, "-l", self.resource_group_location
         ], check=True)
         self.key_vault_name = key_vault_name
-    
-    def _setup_saml_keystore(self): 
-        if not self.resource_group: 
+
+    def _setup_saml_keystore(self):
+        if not self.resource_group:
             raise RuntimeError("Resource group required")
-        if not self.key_vault_name: 
-            raise RuntimeError("Key Vault Setup Required")
-        
+        if not self.key_vault_name:
+            raise RuntimeError("Key Vault Name Required")
+
         saml_keystore_storage_account = self.config.get_config_var("SAML_KEYSTORE_ACCOUNT_NAME")
         subprocess.run([
             "cloud/azure/bin/setup-saml-keystore",
-            "-g", self.resource_group, 
-            "-v", self.key_vault_name, 
-            "-l", self.resource_group_location, 
+            "-g", self.resource_group,
+            "-v", self.key_vault_name,
+            "-l", self.resource_group_location,
             "-s", saml_keystore_storage_account
         ], check=True)
-    
-    def _setup_ses(self): 
-        if not self.key_vault_name: 
+
+    def _setup_ses(self):
+        if not self.key_vault_name:
             raise RuntimeError("Key Vault Setup Required")
         aws_username = self.config.get_config_var("AWS_USERNAME")
         subprocess.run([
-            "cloud/azure/bin/ses-to-keyvault", 
+            "cloud/azure/bin/ses-to-keyvault",
             "-v", self.key_vault_name,
             "-u", aws_username
         ], check=True)
