@@ -35,16 +35,17 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setName("Screen Name")
             .setDescription("Screen Description")
             .build();
-    ProgramDefinition def = ProgramDefinition.builder()
-        .setId(123L)
-        .setAdminName("Admin name")
-        .setAdminDescription("Admin description")
-        .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
-        .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
-        .setExternalLink("")
-        .setDisplayMode(DisplayMode.PUBLIC)
-        .addBlockDefinition(blockA)
-        .build();
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .addBlockDefinition(blockA)
+            .build();
 
     assertThat(def.id()).isEqualTo(123L);
   }
