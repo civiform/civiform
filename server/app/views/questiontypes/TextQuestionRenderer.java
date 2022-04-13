@@ -5,6 +5,9 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
+
+import j2html.tags.specialized.DivTag;
+
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.TextQuestion;
 import views.components.FieldWithLabel;
@@ -22,12 +25,12 @@ public class TextQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(
+  protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     TextQuestion textQuestion = question.createTextQuestion();
 
-    Tag questionFormContent =
+    DivTag questionFormContent =
         FieldWithLabel.input()
             .setFieldName(textQuestion.getTextPath().toString())
             .setValue(textQuestion.getTextValue().orElse(""))

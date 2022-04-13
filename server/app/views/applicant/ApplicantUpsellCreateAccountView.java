@@ -8,7 +8,7 @@ import static j2html.TagCreator.h2;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import controllers.routes;
-import j2html.tags.ContainerTag;
+
 import java.util.Optional;
 import models.Account;
 import play.i18n.Messages;

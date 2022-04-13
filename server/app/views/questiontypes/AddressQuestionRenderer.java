@@ -4,7 +4,9 @@ import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
+
+import j2html.tags.specialized.DivTag;
+
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -28,13 +30,13 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(
+  protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     Messages messages = params.messages();
     AddressQuestion addressQuestion = question.createAddressQuestion();
 
-    Tag addressQuestionFormContent =
+    DivTag addressQuestionFormContent =
         div()
             .with(
                 /** First line of address entry: Address line 1 AKA street address */

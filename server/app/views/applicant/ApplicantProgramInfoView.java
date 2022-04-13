@@ -9,7 +9,7 @@ import static j2html.TagCreator.span;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.routes;
-import j2html.tags.ContainerTag;
+
 import j2html.tags.DomContent;
 import java.util.Locale;
 import java.util.Optional;

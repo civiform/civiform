@@ -2,9 +2,10 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
+import j2html.tags.specialized.DivTag;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -27,13 +28,13 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(
+  protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     Messages messages = params.messages();
     NameQuestion nameQuestion = question.createNameQuestion();
 
-    Tag nameQuestionFormContent =
+    DivTag nameQuestionFormContent =
         div()
             .with(
                 FieldWithLabel.input()

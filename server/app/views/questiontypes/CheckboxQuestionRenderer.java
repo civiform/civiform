@@ -7,8 +7,10 @@ import static j2html.TagCreator.label;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.attributes.Attr;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LabelTag;
+
 import java.util.Comparator;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -33,12 +35,12 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(
+  protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     MultiSelectQuestion multiOptionQuestion = question.createMultiSelectQuestion();
 
-    Tag checkboxQuestionFormContent =
+    DivTag checkboxQuestionFormContent =
         div()
             // Hidden input that's always selected to allow for clearing mutli-select data.
             .with(
@@ -61,10 +63,10 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
     return checkboxQuestionFormContent;
   }
 
-  private Tag renderCheckboxOption(
+  private DivTag renderCheckboxOption(
       String selectionPath, LocalizedQuestionOption option, boolean isSelected) {
     String id = "checkbox-" + question.getContextualizedPath() + "-" + option.id();
-    ContainerTag labelTag =
+    LabelTag labelTag =
         label()
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,

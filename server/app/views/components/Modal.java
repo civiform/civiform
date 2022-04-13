@@ -4,7 +4,7 @@ import static j2html.TagCreator.div;
 import static views.BaseHtmlView.button;
 
 import j2html.TagCreator;
-import j2html.tags.Tag;
+
 import java.util.Optional;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;

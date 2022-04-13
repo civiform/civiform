@@ -6,8 +6,8 @@ import static j2html.TagCreator.form;
 import static j2html.attributes.Attr.FORM;
 
 import controllers.applicant.routes;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+
+
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;

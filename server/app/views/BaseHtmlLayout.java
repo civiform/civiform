@@ -7,7 +7,7 @@ import static j2html.TagCreator.script;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
-import j2html.tags.Tag;
+
 import java.net.URI;
 import javax.inject.Inject;
 import play.twirl.api.Content;

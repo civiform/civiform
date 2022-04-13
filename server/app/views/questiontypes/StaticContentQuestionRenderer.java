@@ -3,8 +3,8 @@ package views.questiontypes;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
+
 import services.applicant.question.ApplicantQuestion;
 import views.components.TextFormatter;
 import views.style.ReferenceClasses;
@@ -24,8 +24,8 @@ public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer 
   }
 
   @Override
-  public Tag render(ApplicantQuestionRendererParams params) {
-    ContainerTag questionTextDiv =
+  public DivTag render(ApplicantQuestionRendererParams params) {
+    DivTag questionTextDiv =
         div()
             .withClasses(
                 ReferenceClasses.APPLICANT_QUESTION_TEXT,

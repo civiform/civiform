@@ -2,9 +2,11 @@ package views.questiontypes;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
+
+import j2html.tags.specialized.DivTag;
+
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.EmailQuestion;
 import views.components.FieldWithLabel;
@@ -23,12 +25,12 @@ public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(
+  protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     EmailQuestion emailQuestion = question.createEmailQuestion();
 
-    Tag questionFormContent =
+    DivTag questionFormContent =
         FieldWithLabel.email()
             .setFieldName(emailQuestion.getEmailPath().toString())
             .setValue(emailQuestion.getEmailValue().orElse(""))

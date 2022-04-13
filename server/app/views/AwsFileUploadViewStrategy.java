@@ -11,8 +11,8 @@ import static j2html.attributes.Attr.FORM;
 import controllers.applicant.routes;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+
+
 import java.util.Optional;
 import play.mvc.Http.HttpVerbs;
 import services.MessageKey;

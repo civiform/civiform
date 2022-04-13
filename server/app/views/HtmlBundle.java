@@ -18,7 +18,7 @@ import j2html.tags.specialized.MainTag;
 import j2html.tags.specialized.FooterTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.EmptyTag;
-import j2html.tags.Tag;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import play.twirl.api.Content;

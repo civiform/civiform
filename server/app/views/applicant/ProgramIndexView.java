@@ -14,9 +14,9 @@ import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
-import j2html.tags.ContainerTag;
+
 import j2html.tags.DomContent;
-import j2html.tags.Tag;
+
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;

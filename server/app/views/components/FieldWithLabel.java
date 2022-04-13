@@ -11,8 +11,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.TextareaTag;
+
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -25,12 +28,12 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Utility class for rendering an input field with an optional label. */
-public class FieldWithLabel {
+public class FieldWithLabel<T> {
 
   private static final ImmutableSet<String> STRING_TYPES =
       ImmutableSet.of("text", "checkbox", "radio", "date", "email");
 
-  protected Tag fieldTag;
+  protected T fieldTag;
   protected String fieldName = "";
   protected String fieldType = "text";
   protected String fieldValue = "";
@@ -53,47 +56,53 @@ public class FieldWithLabel {
   protected boolean disabled = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
 
-  public FieldWithLabel(Tag fieldTag) {
+  // Uses a private constructor to effectively limit possible types of <T>
+  // for security. This couldn't be done using `extends` because <T> can be 
+  // an <InputTag> or a <TextareaTag>, which inherit from different superclasses
+  //
+  // Otherwise, splitting this class into two classes would be a big undertaking
+  // since it is used in many places
+  private FieldWithLabel(T fieldTag) {
     this.fieldTag = checkNotNull(fieldTag);
   }
 
-  public static FieldWithLabel checkbox() {
-    Tag fieldTag = TagCreator.input();
+  public static FieldWithLabel<InputTag> checkbox() {
+    InputTag fieldTag = TagCreator.input();
     return new FieldWithLabel(fieldTag).setFieldType("checkbox");
   }
 
-  public static FieldWithLabel currency() {
-    Tag fieldTag = TagCreator.input();
+  public static FieldWithLabel<InputTag> currency() {
+    InputTag fieldTag = TagCreator.input();
     return new FieldWithLabel(fieldTag).setFieldType("text").setIsCurrency();
   }
 
-  public static FieldWithLabel radio() {
-    Tag fieldTag = TagCreator.input();
+  public static FieldWithLabel<InputTag> radio() {
+    InputTag fieldTag = TagCreator.input();
     return new FieldWithLabel(fieldTag).setFieldType("radio");
   }
 
-  public static FieldWithLabel input() {
-    Tag fieldTag = TagCreator.input();
+  public static FieldWithLabel<InputTag> input() {
+    InputTag fieldTag = TagCreator.input();
     return new FieldWithLabel(fieldTag).setFieldType("text");
   }
 
-  public static FieldWithLabel number() {
-    Tag fieldTag = TagCreator.input();
+  public static FieldWithLabel<InputTag> number() {
+    InputTag fieldTag = TagCreator.input();
     return new FieldWithLabel(fieldTag).setFieldType("number");
   }
 
-  public static FieldWithLabel date() {
-    Tag fieldTag = TagCreator.input();
+  public static FieldWithLabel<InputTag> date() {
+    InputTag fieldTag = TagCreator.input();
     return new FieldWithLabel(fieldTag).setFieldType("date");
   }
 
-  public static FieldWithLabel textArea() {
-    Tag fieldTag = textarea();
+  public static FieldWithLabel<TextareaTag> textArea() {
+    TextareaTag fieldTag = textarea();
     return new FieldWithLabel(fieldTag).setFieldType("text");
   }
 
-  public static FieldWithLabel email() {
-    Tag fieldTag = TagCreator.input();
+  public static FieldWithLabel<InputTag> email() {
+    InputTag fieldTag = TagCreator.input();
     return new FieldWithLabel(fieldTag).setFieldType("email");
   }
 
@@ -246,7 +255,7 @@ public class FieldWithLabel {
     return this;
   }
 
-  public ContainerTag getContainer() {
+  public DivTag getContainer() {
     // In order for the labels to be associated with the fields (mandatory for screen readers)
     // we need an id.  Generate a reasonable one if none is provided.
     if (this.id.isEmpty()) {
@@ -254,7 +263,7 @@ public class FieldWithLabel {
     }
     if (fieldTag.getTagName().equals("textarea")) {
       // Have to recreate the field here in case the value is modified.
-      ContainerTag textAreaTag = textarea().attr("type", "text").withText(this.fieldValue);
+      TextareaTag textAreaTag = textarea().attr("type", "text").withText(this.fieldValue);
       fieldTag = textAreaTag;
     } else if (this.fieldType.equals("number")) {
       // Setting inputmode to decimal gives iOS users a more accessible keyboard
@@ -296,7 +305,7 @@ public class FieldWithLabel {
       return getCheckboxContainer();
     }
 
-    ContainerTag labelTag =
+    LabelTag labelTag =
         label()
             .attr(Attr.FOR, this.id)
             // If the text is screen-reader text, then we want the label to be screen-reader
@@ -316,7 +325,7 @@ public class FieldWithLabel {
    * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
    * attribute.
    */
-  private ContainerTag getCheckboxContainer() {
+  private LabelTag getCheckboxContainer() {
     if (this.checked) {
       fieldTag.attr("checked");
     }
@@ -332,7 +341,7 @@ public class FieldWithLabel {
         .withText(this.labelText);
   }
 
-  private Tag buildFieldErrorsTag() {
+  private DivTag buildFieldErrorsTag() {
     String[] referenceClasses =
         referenceClassesBuilder.build().stream().map(ref -> ref + "-error").toArray(String[]::new);
     return div(each(fieldErrors, error -> div(error.format(messages))))

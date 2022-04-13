@@ -13,7 +13,7 @@ import com.google.common.collect.Iterables;
 import com.linkedin.urls.Url;
 import com.linkedin.urls.detection.UrlDetector;
 import com.linkedin.urls.detection.UrlDetectorOptions;
-import j2html.tags.ContainerTag;
+
 import j2html.tags.DomContent;
 import java.net.MalformedURLException;
 import java.util.ArrayList;

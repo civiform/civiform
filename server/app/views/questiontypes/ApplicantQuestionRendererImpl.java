@@ -5,8 +5,8 @@ import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+
+
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -17,6 +17,8 @@ import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
+
+import j2html.tags.specialized.DivTag;
 
 /**
  * Superclass for all applicant question renderers with input field(s) for the applicant to answer
@@ -39,9 +41,9 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors);
 
   @Override
-  public final Tag render(ApplicantQuestionRendererParams params) {
+  public final DivTag render(ApplicantQuestionRendererParams params) {
     Messages messages = params.messages();
-    ContainerTag questionTextDiv =
+    DivTag questionTextDiv =
         div()
             // Question text
             .with(

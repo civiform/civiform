@@ -6,7 +6,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 
 import com.google.common.collect.ImmutableList;
-import j2html.tags.ContainerTag;
+
 import java.util.Locale;
 import play.i18n.Lang;
 import play.i18n.Langs;

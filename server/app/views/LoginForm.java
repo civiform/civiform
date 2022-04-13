@@ -13,8 +13,8 @@ import auth.GuestClient;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.routes;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+
+
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;

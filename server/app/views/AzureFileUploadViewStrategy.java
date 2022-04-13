@@ -11,9 +11,6 @@ import static j2html.attributes.Attr.ENCTYPE;
 import static j2html.attributes.Attr.FORM;
 
 import controllers.applicant.routes;
-import j2html.TagCreator;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
 import java.util.Optional;
 import javax.inject.Inject;
 import services.MessageKey;

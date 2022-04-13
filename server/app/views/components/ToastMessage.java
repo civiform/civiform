@@ -2,7 +2,8 @@ package views.components;
 
 import static j2html.TagCreator.div;
 
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+
 import java.util.UUID;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -87,7 +88,7 @@ public class ToastMessage {
     return this;
   }
 
-  public ContainerTag getContainerTag() {
+  public DivTag getContainerTag() {
     ContainerTag ret =
         div(this.message)
             .withClasses(Styles.HIDDEN, ReferenceClasses.TOAST_MESSAGE)

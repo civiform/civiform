@@ -2,12 +2,13 @@ package views.questiontypes;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.IdQuestion;
 import views.components.FieldWithLabel;
+
+import j2html.tags.specialized.DivTag;
 
 /** Renders an id question. */
 public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
@@ -22,12 +23,12 @@ public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(
+  protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     IdQuestion idQuestion = question.createIdQuestion();
 
-    Tag questionFormContent =
+    DivTag questionFormContent =
         FieldWithLabel.input()
             .setFieldName(idQuestion.getIdPath().toString())
             .setValue(idQuestion.getIdValue().orElse(""))

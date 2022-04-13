@@ -7,8 +7,8 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 
 import controllers.applicant.routes;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+
+
 import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;

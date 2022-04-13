@@ -6,7 +6,7 @@ import static j2html.TagCreator.link;
 import static j2html.TagCreator.script;
 
 import controllers.AssetsFinder;
-import j2html.tags.Tag;
+
 import javax.inject.Inject;
 
 /** Utility class for accessing stateful view dependencies. */

@@ -6,7 +6,7 @@ import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
 import auth.CiviFormProfile;
-import j2html.tags.Tag;
+
 import javax.inject.Inject;
 import models.Applicant;
 import play.twirl.api.Content;
