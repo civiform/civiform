@@ -9,8 +9,10 @@ import static j2html.TagCreator.select;
 
 import com.google.common.collect.ImmutableList;
 import j2html.attributes.Attr;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.SelectTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LabelTag;
+import j2html.tags.specialized.OptionTag;
 import java.util.Locale;
 import javax.inject.Inject;
 import play.i18n.Lang;
@@ -42,8 +44,8 @@ public class LanguageSelector {
     return messagesApi.preferred(request).lang();
   }
 
-  public ContainerTag renderDropdown(String preferredLanguage) {
-    ContainerTag dropdownTag =
+  public SelectTag renderDropdown(String preferredLanguage) {
+    SelectTag dropdownTag =
         select()
             .withId("select-language")
             .attr("name", "locale")
@@ -68,7 +70,7 @@ public class LanguageSelector {
             locale -> {
               String value = locale.toLanguageTag();
               String label = formatLabel(locale);
-              Tag optionTag = option(label).attr("value", value);
+              OptionTag optionTag = option(label).attr("value", value);
               if (value.equals(preferredLanguage)) {
                 optionTag.attr(Attr.SELECTED);
               }
@@ -77,8 +79,8 @@ public class LanguageSelector {
     return dropdownTag;
   }
 
-  public ContainerTag renderRadios(String preferredLanguage) {
-    ContainerTag options = div();
+  public DivTag renderRadios(String preferredLanguage) {
+    DivTag options = div();
     this.supportedLanguages.stream()
         .forEach(
             locale ->
@@ -90,8 +92,8 @@ public class LanguageSelector {
     return options;
   }
 
-  private Tag renderRadioOption(String text, String value, boolean checked) {
-    ContainerTag labelTag =
+  private DivTag renderRadioOption(String text, String value, boolean checked) {
+    LabelTag labelTag =
         label()
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,
