@@ -28,7 +28,7 @@ else
     echo "Create resource group"
     az group create \
       --name ${RESOURCE_GROUP_NAME} \
-      --location eastus
+      --location ${AZURE_LOCATION}
 fi
 
 echo "Check storage accounts"
