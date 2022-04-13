@@ -1,10 +1,9 @@
 #! /usr/bin/env bash
 
-# DOC: Regenerate tailwind stylesheets.
+# DOC: Regenerate tailwind stylesheets. Pass --minify to this script to minify the tailwind.css file in dev.
 
 source bin/lib.sh
 
-# Pass --minify to this script to minify the tailwind.css file in dev
 docker run -it --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $(pwd)/server:/usr/src/server \
