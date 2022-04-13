@@ -257,28 +257,30 @@ public final class QuestionsListView extends BaseHtmlView {
       DeletionStatus deletionStatus,
       Http.Request request) {
     ContainerTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT);
-    if (active.isPresent() && draft.isEmpty()) {
-      td.with(renderQuestionViewLink(active.get(), "View →")).with(br());
-      td.with(renderQuestionEditLink(active.get(), "New Version →")).with(br());
-    } else if (active.isEmpty() && draft.isPresent()) {
-      td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
-      td.with(renderQuestionTranslationLink(draft.get(), "Manage Translations →")).with(br());
-    } else if (active.isPresent() && draft.isPresent()) {
-      td.with(renderQuestionViewLink(active.get(), "View Published →")).with(br());
-      td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
-      td.with(renderQuestionTranslationLink(draft.get(), "Manage Draft Translations →")).with(br());
-    } else if (active.isEmpty() && draft.isEmpty()) {
-      td.with(renderQuestionViewLink(definition, "View →")).with(br());
+    if (active.isPresent()) {
+      if (draft.isEmpty()) {
+        td.with(renderQuestionViewLink(active.get(), "View →")).with(br());
+        td.with(renderQuestionEditLink(active.get(), "New Version →")).with(br());
+      } else if (draft.isPresent()) {
+        td.with(renderQuestionViewLink(active.get(), "View Published →")).with(br());
+        td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
+        td.with(renderQuestionTranslationLink(draft.get(), "Manage Draft Translations →"))
+            .with(br());
+        td.with(renderDiscardDraftLink(draft.get(), "Discard Draft →", request)).with(br());
+      }
+    } else {  // No active question.
+      if (draft.isPresent()) {
+        td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
+        td.with(renderQuestionTranslationLink(draft.get(), "Manage Translations →")).with(br());
+      }
     }
+    // Add Archive options.
     if (active.isPresent()) {
       if (deletionStatus.equals(DeletionStatus.PENDING_DELETION)) {
         td.with(renderRestoreQuestionLink(active.get(), "Restore Archived →", request)).with(br());
       } else if (deletionStatus.equals(DeletionStatus.DELETABLE)) {
         td.with(renderArchiveQuestionLink(active.get(), "Archive →", request)).with(br());
       }
-    }
-    if (draft.isPresent()) {
-      td.with(renderDiscardDraftLink(draft.get(), "Discard Draft →", request)).with(br());
     }
     return td;
   }
