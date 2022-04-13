@@ -15,6 +15,8 @@ fi
 
 bin/sbt makePom
 
+# Copy the generated target directory from the docker container to a local dir
+# so that we can use globs to copy the correct file out.
 docker cp civiform-shell:/usr/src/universal-application-tool-0.0.1/target universal-application-tool-0.0.1/temp
 
 cp universal-application-tool-0.0.1/temp/scala-*/*.pom \

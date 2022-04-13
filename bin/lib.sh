@@ -4,13 +4,14 @@
 # in the base bin/ directory should begin by sourcing it.
 
 if [[ "${KEEP_ORIGINAL_PWD}" != "true" ]]; then
-  pushd $(git rev-parse --show-toplevel) > /dev/null
+  pushd $(git rev-parse --show-toplevel) >/dev/null
 fi
 
 set -e
 set +x
 
 readonly LIB_DIR="${BASH_SOURCE%/*}/lib"
+readonly COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:=$(basename $(pwd))}"
 
 if [[ "${SOURCED_LIB}" != "true" ]]; then
   source "${LIB_DIR}/out.sh"

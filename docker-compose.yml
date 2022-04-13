@@ -1,11 +1,11 @@
 # Use postgres/example user/password credentials
-version: '3.1'
+version: '3.4'
 
 services:
 
   localstack:
     image: localstack/localstack
-    profiles: ["aws"]
+    profiles: ["aws", "emulator"]
     container_name: localstack
     ports:
       - 4566:4566
@@ -14,7 +14,7 @@ services:
 
   azurite:
      image: mcr.microsoft.com/azure-storage/azurite
-     profiles: ["azure"]
+     profiles: ["azure", "emulator"]
      container_name: azurite
      ports:
       - 10000:10000
@@ -56,7 +56,7 @@ services:
       - LOGIN_RADIUS_KEYSTORE_PASS
       - LOGIN_RADIUS_KEYSTORE_NAME
       - CIVIFORM_APPLICANT_IDP
-      - CIVIFORM_ADMIN_IDP 
+      - CIVIFORM_ADMIN_IDP
       - IDCS_CLIENT_ID
       - IDCS_SECRET
       - ADFS_CLIENT_ID

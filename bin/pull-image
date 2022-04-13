@@ -13,5 +13,4 @@ if [[ -z "${USE_LOCAL_CIVIFORM}" ]]; then
 
 else
   echo "Using local civiform docker images"
-
 fi

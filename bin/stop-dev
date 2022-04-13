@@ -1,5 +1,10 @@
 #! /usr/bin/env bash
 
-# DOC: Stop the running dev environment. Alias of 'docker-compose down'.
+# DOC: Stop the running dev environment. Alias of 'docker-compose stop'.
 
-docker-compose down
+source bin/lib.sh
+
+echo "Stopping local civiform container"
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml stop
+echo "Stopping local civiform shell container"
+docker::stop_shell_container

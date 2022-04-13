@@ -1,9 +1,18 @@
 #! /usr/bin/env bash
 
-# DOC: Connect to the app running locally using Docker. Useful for manual testing.
+# DOC: Stop and delete the running dev environment.
+# Alias of 'docker-compose down' using default, shell, and emulator profiles.
 
 source bin/lib.sh
+set +e # errors are OK
 
-echo "Deleting local civiform container"
+echo "Stopping & deletng local civiform emulators"
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml --profile emulator down
+echo "Stopping & deletng local civiform shell"
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml --profile shell down
+echo "Stopping & deletng local civiform container"
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml down
 
-docker rm -f civiform
+docker network rm "${COMPOSE_PROJECT_NAME}_default"  2>/dev/null
+
+echo "Run 'docker volume prune' to delete all local state (db, sbt, npm)"

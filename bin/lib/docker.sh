@@ -4,13 +4,15 @@
 # Starts a bash shell in the civiform-shell container
 #######################################
 function docker::run_shell_container() {
-  # Allocate a TTY for better output even though not strictly needed.
+  # Start up the "civiform" service with the shell overrides.
+  # Use the compose project "civiform-shell".
   docker-compose \
     -f docker-compose.yml \
     -f docker-compose.dev.yml \
-    -f docker-compose.shell.yml \
-    up civiform \
+    --profile shell \
+    up civiform-shell \
     --no-deps \
+    --wait \
     -d
 }
 
@@ -20,7 +22,7 @@ function docker::run_shell_container() {
 #   @: command to run
 #######################################
 function docker::run_shell_command() {
-  # Allocate a TTY for better output even though not strictly needed.
+  # Sends a command to the running "civiform-shell" container.
   docker exec -it civiform-shell "$@"
 }
 
@@ -28,12 +30,24 @@ function docker::run_shell_command() {
 # Stops the civiform-shell container
 #######################################
 function docker::stop_shell_container() {
-  # Allocate a TTY for better output even though not strictly needed.
+  # Stop the compose project "civiform-shell".
   docker-compose \
     -f docker-compose.yml \
     -f docker-compose.dev.yml \
-    -f docker-compose.shell.yml \
-    stop civiform
+    --profile shell \
+    stop civiform-shell
+}
+
+#######################################
+# Deletes the civiform-shell container
+#######################################
+function docker::remove_shell_container() {
+  # Deletes the containers for the "civiform-shell" project.
+  docker-compose \
+    -f docker-compose.yml \
+    -f docker-compose.dev.yml \
+    --profile shell \
+    down civiform-shell
 }
 
 #######################################
