@@ -152,8 +152,8 @@ public class LinkElement {
                     .withClasses(DEFAULT_LINK_BUTTON_STYLES)
                     .attr("type", "submit"))
             .withMethod("POST")
-            .withAction(href)
             .condAttr(!Strings.isNullOrEmpty(onsubmit), "onsubmit", onsubmit)
+            .attr("action", href)
             .withCondId(!Strings.isNullOrEmpty(id), id);
     hiddenFormValues.entrySet().stream()
         .map(entry -> input().isHidden().attr("name", entry.getKey()).attr("value", entry.getValue()))
@@ -177,8 +177,8 @@ public class LinkElement {
                     .attr("type", "submit"))
             .withClasses(Styles.INLINE)
             .withMethod("POST")
-            .withAction(href)
             .condAttr(!Strings.isNullOrEmpty(onsubmit), "onsubmit", onsubmit)
+            .attr("action", href)
             .withCondId(!Strings.isNullOrEmpty(id), id);
     return form;
   }

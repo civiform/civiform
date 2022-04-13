@@ -126,7 +126,7 @@ public abstract class BaseHtmlView {
       Optional<String> labelText) {
     return form()
         .withMethod("GET")
-        .withAction(searchCall.url())
+        .attr("action", searchCall.url())
         .with(
             FieldWithLabel.input()
                 .setId("search-field")

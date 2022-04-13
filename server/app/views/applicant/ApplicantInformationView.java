@@ -53,7 +53,7 @@ public class ApplicantInformationView extends BaseHtmlView {
     String preferredLanguage = layout.languageSelector.getPreferredLangage(request).code();
     ContainerTag formContent =
         form()
-            .withAction(formAction)
+            .attr("action", formAction)
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(request))
             .with(redirectInput)

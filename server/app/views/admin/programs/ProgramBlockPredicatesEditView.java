@@ -92,7 +92,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         form(csrfTag)
             .withId(removePredicateFormId)
             .withMethod(POST)
-            .withAction(removePredicateUrl)
+            .attr("action", removePredicateUrl)
             .with(
                 submitButton("Remove visibility condition")
                     .attr(Attr.FORM, removePredicateFormId)
@@ -215,7 +215,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
     return form(csrfTag)
         .withId(formId)
         .withMethod(POST)
-        .withAction(predicateUpdateUrl)
+        .attr("action", predicateUpdateUrl)
         .with(createActionDropdown(blockName))
         .with(renderQuestionDefinitionBox(questionDefinition))
         // Need to pass in the question ID with the rest of the form data in order to save the

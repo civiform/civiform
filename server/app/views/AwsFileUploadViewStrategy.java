@@ -94,7 +94,7 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
         form()
             .withId(BLOCK_FORM_ID)
             .attr(ENCTYPE, "multipart/form-data")
-            .withAction(signedRequest.actionLink())
+            .attr("action", signedRequest.actionLink())
             .withMethod(HttpVerbs.POST)
             .with(
                 each(

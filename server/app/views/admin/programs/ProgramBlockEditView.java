@@ -139,13 +139,13 @@ public class ProgramBlockEditView extends BaseHtmlView {
         form(csrfTag)
             .withId(CREATE_BLOCK_FORM_ID)
             .withMethod(HttpVerbs.POST)
-            .withAction(blockCreateAction);
+            .attr("action", blockCreateAction);
 
     ContainerTag createRepeatedBlockForm =
         form(csrfTag)
             .withId(CREATE_REPEATED_BLOCK_FORM_ID)
             .withMethod(HttpVerbs.POST)
-            .withAction(blockCreateAction)
+            .attr("action", blockCreateAction)
             .with(
                 FieldWithLabel.number()
                     .setFieldName(ENUMERATOR_ID_FORM_FIELD)
@@ -159,7 +159,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
         form(csrfTag)
             .withId(DELETE_BLOCK_FORM_ID)
             .withMethod(HttpVerbs.POST)
-            .withAction(blockDeleteAction);
+            .attr("action", blockDeleteAction);
 
     return div(createBlockForm, createRepeatedBlockForm, deleteBlockForm)
         .withClasses(Styles.HIDDEN);
@@ -256,7 +256,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withClass(moveUpInvisible)
             .with(
                 form()
-                    .withAction(moveUpFormAction)
+                    .attr("action", moveUpFormAction)
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
                     .with(input().isHidden().attr("name", "direction").attr("value", Direction.UP.name()))
@@ -274,7 +274,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withClasses(Styles.TRANSFORM, Styles.ROTATE_180, moveDownInvisible)
             .with(
                 form()
-                    .withAction(moveDownFormAction)
+                    .attr("action", moveDownFormAction)
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
                     .with(input().isHidden().attr("name", "direction").attr("value", Direction.DOWN.name()))
@@ -480,7 +480,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return Optional.of(
         form(csrfTag)
             .withMethod(HttpVerbs.POST)
-            .withAction(toggleOptionalAction)
+            .attr("action", toggleOptionalAction)
             .with(input().isHidden().attr("name", "optional").attr("value", isOptional ? "false" : "true"))
             .with(optionalButton));
   }
@@ -512,7 +512,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return form(csrfTag)
         .withId("block-questions-form")
         .withMethod(HttpVerbs.POST)
-        .withAction(deleteQuestionAction)
+        .attr("action", deleteQuestionAction)
         .with(removeButton);
   }
 

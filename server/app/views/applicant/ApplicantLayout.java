@@ -154,7 +154,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .attr("aria-label", messages.at(MessageKey.LANGUAGE_LABEL_SR.getKeyName()));
         languageForm =
             form()
-                .withAction(updateLanguageAction)
+                .attr("action", updateLanguageAction)
                 .withMethod(Http.HttpVerbs.POST)
                 .with(csrfInput)
                 .with(redirectInput)

@@ -89,7 +89,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
 
     return form()
         .with(makeCsrfTokenInputTag(request))
-        .withAction(routes.ProgramAdminManagementController.update(programId).url())
+        .attr("action", routes.ProgramAdminManagementController.update(programId).url())
         .withMethod("POST")
         .with(emailFields)
         .with(submitButton(SUBMIT_BUTTON).withClasses(Styles.MY_4));

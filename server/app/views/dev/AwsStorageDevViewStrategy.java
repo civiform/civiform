@@ -74,7 +74,7 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
         .with(input().attr("type", "file").attr("name", "file"))
         .with(TagCreator.button(text("Upload to Amazon S3")).attr("type", "submit"))
         .withMethod("post")
-        .withAction(request.actionLink());
+        .attr("action", request.actionLink());
   }
 
   @Override

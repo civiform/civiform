@@ -127,7 +127,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
 
     return form()
         .withId(BLOCK_FORM_ID)
-        .withAction(formAction)
+        .attr("action", formAction)
         .withMethod(HttpVerbs.POST)
         .with(makeCsrfTokenInputTag(params.request()))
         .with(

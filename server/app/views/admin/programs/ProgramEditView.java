@@ -29,7 +29,7 @@ public class ProgramEditView extends BaseHtmlView {
         ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))
-            .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
+            .attr("action", controllers.admin.routes.AdminProgramController.update(program.id()).url());
 
     String title = String.format("Edit program: %s", program.adminName());
 
@@ -44,7 +44,7 @@ public class ProgramEditView extends BaseHtmlView {
         ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(id))
-            .withAction(controllers.admin.routes.AdminProgramController.update(id).url());
+            .attr("action", controllers.admin.routes.AdminProgramController.update(id).url());
 
     String title = String.format("Edit program: %s", program.getAdminName());
 
