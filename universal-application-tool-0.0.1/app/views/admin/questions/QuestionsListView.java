@@ -149,9 +149,10 @@ public final class QuestionsListView extends BaseHtmlView {
                         Styles.W_1_6)));
   }
 
-  /** Display this as a table row with all fields.
+  /**
+   * Display this as a table row with all fields.
    *
-   * <p>One of {@code activeDefinition} and {@code draftDefinition} must be specified.</p>
+   * <p>One of {@code activeDefinition} and {@code draftDefinition} must be specified.
    */
   private Tag renderQuestionTableRow(
       Optional<QuestionDefinition> activeDefinition,
@@ -161,7 +162,7 @@ public final class QuestionsListView extends BaseHtmlView {
     if (draftDefinition.isEmpty() && activeDefinition.isEmpty()) {
       throw new IllegalArgumentException("Did not receive a valid question.");
     }
-    QuestionDefinition latestDefinition = draftDefinition.orElseGet( () -> activeDefinition.get());
+    QuestionDefinition latestDefinition = draftDefinition.orElseGet(() -> activeDefinition.get());
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             Styles.BORDER_B,
@@ -170,9 +171,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .with(renderInfoCell(latestDefinition))
         .with(renderQuestionTextCell(latestDefinition))
         .with(renderSupportedLanguages(latestDefinition))
-        .with(
-            renderActionsCell(
-                activeDefinition, draftDefinition, deletionStatus, request));
+        .with(renderActionsCell(activeDefinition, draftDefinition, deletionStatus, request));
   }
 
   private Tag renderInfoCell(QuestionDefinition definition) {
