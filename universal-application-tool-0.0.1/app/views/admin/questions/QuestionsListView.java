@@ -259,20 +259,21 @@ public final class QuestionsListView extends BaseHtmlView {
     ContainerTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT);
     if (active.isPresent()) {
       if (draft.isEmpty()) {
+        // Active without a draft.
         td.with(renderQuestionViewLink(active.get(), "View →")).with(br());
         td.with(renderQuestionEditLink(active.get(), "New Version →")).with(br());
       } else if (draft.isPresent()) {
+        // Active with a draft.
         td.with(renderQuestionViewLink(active.get(), "View Published →")).with(br());
         td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
         td.with(renderQuestionTranslationLink(draft.get(), "Manage Draft Translations →"))
             .with(br());
         td.with(renderDiscardDraftLink(draft.get(), "Discard Draft →", request)).with(br());
       }
-    } else {  // No active question.
-      if (draft.isPresent()) {
-        td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
-        td.with(renderQuestionTranslationLink(draft.get(), "Manage Translations →")).with(br());
-      }
+    } else if (draft.isPresent()) {
+      // First revision of a question.
+      td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
+      td.with(renderQuestionTranslationLink(draft.get(), "Manage Translations →")).with(br());
     }
     // Add Archive options.
     if (active.isPresent()) {
