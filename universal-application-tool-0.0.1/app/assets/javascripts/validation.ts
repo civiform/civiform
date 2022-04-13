@@ -465,7 +465,7 @@ class ValidationController {
   validateFileUploadQuestions(): boolean {
     let isAllValid = true
     const questions = Array.from(
-        document.querySelectorAll(ValidationController.FILEUPLOAD_QUESTION_CLASS)
+      document.querySelectorAll(ValidationController.FILEUPLOAD_QUESTION_CLASS)
     )
     for (const question of questions) {
       // validate a file is selected.
