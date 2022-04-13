@@ -1,15 +1,15 @@
 import {
-    AdminPrograms,
-    AdminQuestions,
-    ApplicantQuestions,
-    loginAsAdmin,
-    loginAsGuest,
-    logout,
-    resetSession,
-    selectApplicantLanguage,
-    startSession,
-  } from './support'
-  
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  resetSession,
+  selectApplicantLanguage,
+  startSession,
+} from './support'
+
 describe('file upload applicant flow', () => {
   let pageObject
 
@@ -115,7 +115,7 @@ describe('file upload applicant flow', () => {
       const error = await pageObject.$('.cf-fileupload-error')
       expect(await error.isHidden()).toEqual(false)
       await applicantQuestions.clickSkip()
-      
+
       await applicantQuestions.submitFromReviewPage(programName)
     })
 
