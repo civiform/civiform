@@ -11,7 +11,9 @@ echo "Ctrl-C will quit sbt, re-attach to restart"
 # loading its edit-refresh resources so save developer time.
 for i in {1..60}; do
   sleep 5
-  curl --output /dev/null --silent --fail http://localhost:9000/loginForm && break
+  if curl --output /dev/null --silent --fail http://localhost:9000/loginForm; then
+    break
+  fi
 done &
 
 echo "Civiform starting locally at http://localhost:9000/loginForm"
