@@ -4,8 +4,7 @@ version: '3.4'
 # Shared yaml extensions (https://docs.docker.com/compose/compose-file/compose-file-v3/#extension-fields)
 # Volume mapping shared between containers.
 x-sbt-volumes:
-  &sbt-volumes
-  # volumes:
+  volumes: &sbt-volumes
     - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
     - target:/usr/src/universal-application-tool-0.0.1/target
     - node_modules-data:/usr/src/universal-application-tool-0.0.1/node_modules
