@@ -10,7 +10,13 @@ import static j2html.TagCreator.html;
 import static j2html.TagCreator.main;
 import static j2html.TagCreator.title;
 
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.HtmlTag;
+import j2html.tags.specialized.HeadTag;
+import j2html.tags.specialized.BodyTag;
+import j2html.tags.specialized.HeaderTag;
+import j2html.tags.specialized.MainTag;
+import j2html.tags.specialized.FooterTag;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.EmptyTag;
 import j2html.tags.Tag;
 import java.util.ArrayList;
@@ -104,7 +110,7 @@ public class HtmlBundle {
     return this;
   }
 
-  private ContainerTag getContent() {
+  private HtmlTag getContent() {
     return html(renderHead(), renderBody()).attr("lang", language);
   }
 
@@ -123,8 +129,8 @@ public class HtmlBundle {
   }
 
   /** The page body contains: - header - main - footer */
-  private ContainerTag renderBody() {
-    ContainerTag bodyTag = j2html.TagCreator.body().with(renderHeader()).with(renderMain());
+  private BodyTag renderBody() {
+    BodyTag bodyTag = j2html.TagCreator.body().with(renderHeader()).with(renderMain());
     bodyTag.with(renderModals());
     bodyTag.with(renderFooter());
 
@@ -135,8 +141,8 @@ public class HtmlBundle {
     return bodyTag;
   }
 
-  private ContainerTag renderFooter() {
-    ContainerTag footerTag = footer().with(footerContent).with(footerScripts);
+  private FooterTag renderFooter() {
+    FooterTag footerTag = footer().with(footerContent).with(footerScripts);
 
     if (footerStyles.size() > 0) {
       footerTag.withClasses(footerStyles.toArray(new String[0]));
@@ -155,14 +161,14 @@ public class HtmlBundle {
    *   <li>javascript that needs to run immediately
    * </ul>
    */
-  private ContainerTag renderHead() {
+  private HeadTag renderHead() {
     // TODO: Throw exception if page title is not set.
     return head().with(title(pageTitle)).with(metadata).with(stylesheets).with(headScripts);
   }
 
-  private ContainerTag renderHeader() {
+  private HeaderTag renderHeader() {
     // TODO: Sort toastMessages by priority before displaying.
-    ContainerTag headerTag =
+    HeaderTag headerTag =
         header()
             .with(each(toastMessages, toastMessage -> toastMessage.getContainerTag()))
             .with(headerContent);
@@ -174,8 +180,8 @@ public class HtmlBundle {
     return headerTag;
   }
 
-  private ContainerTag renderMain() {
-    ContainerTag mainTag = main().with(mainContent);
+  private MainTag renderMain() {
+    MainTag mainTag = main().with(mainContent);
 
     if (mainStyles.size() > 0) {
       mainTag.withClasses(mainStyles.toArray(new String[0]));
@@ -184,8 +190,8 @@ public class HtmlBundle {
     return mainTag;
   }
 
-  private ContainerTag renderModals() {
-    ContainerTag modalContainer =
+  private DivTag renderModals() {
+    DivTag modalContainer =
         div()
             .withId("modal-container")
             .withClasses(BaseStyles.MODAL_CONTAINER)
@@ -199,9 +205,9 @@ public class HtmlBundle {
   }
 
   private static class HtmlBundleContent implements Content {
-    ContainerTag bundleContent;
+    HtmlTag bundleContent;
 
-    public HtmlBundleContent(ContainerTag bundleContent) {
+    public HtmlBundleContent(HtmlTag bundleContent) {
       this.bundleContent = bundleContent;
     }
 
