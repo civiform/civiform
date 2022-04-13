@@ -35,7 +35,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setName("Screen Name")
             .setDescription("Screen Description")
             .build();
-    ProgramDefinition.builder()
+    ProgramDefinition def = ProgramDefinition.builder()
         .setId(123L)
         .setAdminName("Admin name")
         .setAdminDescription("Admin description")
@@ -45,6 +45,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
         .setDisplayMode(DisplayMode.PUBLIC)
         .addBlockDefinition(blockA)
         .build();
+
+    assertThat(def.id()).isEqualTo(123L);
   }
 
   @Test
