@@ -149,34 +149,30 @@ public final class QuestionsListView extends BaseHtmlView {
                         Styles.W_1_6)));
   }
 
-  /** Display this as a table row with all fields. */
+  /** Display this as a table row with all fields.
+   *
+   * <p>One of {@code activeDefinition} and {@code draftDefinition} must be specified.</p>
+   */
   private Tag renderQuestionTableRow(
       Optional<QuestionDefinition> activeDefinition,
       Optional<QuestionDefinition> draftDefinition,
       DeletionStatus deletionStatus,
       Http.Request request) {
-    QuestionDefinition definition;
-    // Find the main definition to display information from.  Prefer the latest draft.  If there
-    // is no draft, choose an active one if exists.  There will be at least one or we
-    // wouldn't have gotten here!
-    if (draftDefinition.isPresent()) {
-      definition = draftDefinition.get();
-    } else if (activeDefinition.isPresent()) {
-      definition = activeDefinition.get();
-    } else {
+    if (draftDefinition.isEmpty() && activeDefinition.isEmpty()) {
       throw new IllegalArgumentException("Did not receive a valid question.");
     }
+    QuestionDefinition latestDefinition = draftDefinition.orElseGet( () -> activeDefinition.get());
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             Styles.BORDER_B,
             Styles.BORDER_GRAY_300,
             StyleUtils.even(Styles.BG_GRAY_100))
-        .with(renderInfoCell(definition))
-        .with(renderQuestionTextCell(definition))
-        .with(renderSupportedLanguages(definition))
+        .with(renderInfoCell(latestDefinition))
+        .with(renderQuestionTextCell(latestDefinition))
+        .with(renderSupportedLanguages(latestDefinition))
         .with(
             renderActionsCell(
-                activeDefinition, draftDefinition, definition, deletionStatus, request));
+                activeDefinition, draftDefinition, deletionStatus, request));
   }
 
   private Tag renderInfoCell(QuestionDefinition definition) {
@@ -253,7 +249,6 @@ public final class QuestionsListView extends BaseHtmlView {
   private Tag renderActionsCell(
       Optional<QuestionDefinition> active,
       Optional<QuestionDefinition> draft,
-      QuestionDefinition definition,
       DeletionStatus deletionStatus,
       Http.Request request) {
     ContainerTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT);
