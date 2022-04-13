@@ -1,4 +1,5 @@
 import play.sbt.PlayImport.PlayKeys.playRunHooks
+import sbt.internal.io.{Source, WatchState}
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayJava, PlayEbean)
@@ -15,7 +16,6 @@ lazy val root = (project in file("."))
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.13.2",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.13.2",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.2",
-
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
@@ -83,7 +83,8 @@ lazy val root = (project in file("."))
       "com.linkedin.urls" % "url-detector" % "0.1.17"
     ),
     javacOptions ++= Seq(
-      "-encoding", "UTF-8",
+      "-encoding",
+      "UTF-8",
       "-parameters",
       "-Xlint:unchecked",
       "-Xlint:deprecation",
@@ -94,6 +95,13 @@ lazy val root = (project in file("."))
       "-implicit:class",
       "-Werror"
     ),
+    // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
+    // Recompile everything if >10% files have changed
+    incOptions := incOptions.value.withRecompileAllFraction(.1),
+    // After 2 transitive steps, do more aggressive invalidation
+    // https://github.com/sbt/zinc/issues/911
+    incOptions := incOptions.value.withTransitiveStep(2),
+
     // Make verbose tests
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v")),
     // Use test config for tests
@@ -104,17 +112,42 @@ lazy val root = (project in file("."))
     Compile / packageDoc / publishArtifact := false,
     Compile / doc / sources := Seq.empty
   )
+  .settings(excludeTailwindGeneration: _*)
+
+// Ignore the tailwind.sbt generated css file when watching for recompilation.
+// Since this file is generated when build.sbt is loaded, it causes the server
+// to reload when stopping/starting the server on watch mode.
+lazy val excludeTailwindGeneration = Seq(watchSources := {
+  val fileToExclude =
+    "universal-application-tool-0.0.1/public/stylesheets/tailwind.css"
+  val customSourcesFilter = new FileFilter {
+    override def accept(f: File): Boolean =
+      f.getPath.contains(fileToExclude)
+    override def toString = s"CustomSourcesFilter($fileToExclude)"
+  }
+
+  watchSources.value.map { source =>
+    new Source(
+      source.base,
+      source.includeFilter,
+      source.excludeFilter || customSourcesFilter,
+      source.recursive
+    )
+  }
+})
 
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
-resolvers += Resolver.bintrayRepo("webjars","maven")
+resolvers += Resolver.bintrayRepo("webjars", "maven")
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 libraryDependencies ++= Seq(
-    "org.webjars.npm" % "azure__storage-blob" % "10.5.0",
+  "org.webjars.npm" % "azure__storage-blob" % "10.5.0"
 )
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.2.2",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.13.2",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.2",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.2"
 )
 resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)
+// Reload when the build.sbt file changes.
+Global / onChangedBuildSource := ReloadOnSourceChanges
