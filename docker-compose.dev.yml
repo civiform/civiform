@@ -1,3 +1,4 @@
+# Builds on docker-compose.yml
 # Mount code for hot reloading and cache for faster compile in dev mode.
 version: '3.4'
 
@@ -22,17 +23,19 @@ services:
     tty: true        # docker run -t
 
   civiform-shell:
+    container_name: civiform-shell
     image: civiform-dev
-    stdin_open: true # docker run -i
-    tty: true        # docker run -t
-    volumes: *sbt-volumes
     entrypoint: /bin/bash
     profiles: ["shell"]
-    container_name: civiform-shell
+    volumes: *sbt-volumes
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
 
   db:
     image: postgres:12.5
     volumes:
+      # isolate and persist dev database.
+      - project-data:/project
       - db-data:/var/lib/postgresql/data
 
 volumes:

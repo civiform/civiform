@@ -2,10 +2,9 @@
 version: '3.4'
 
 services:
-
   localstack:
     image: localstack/localstack
-    profiles: ["aws", "emulator"]
+    profiles: [ "aws", "emulator" ]
     container_name: localstack
     ports:
       - 4566:4566

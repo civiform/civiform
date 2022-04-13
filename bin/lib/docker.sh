@@ -62,6 +62,15 @@ function docker::ensure_unit_test_env() {
 }
 
 #######################################
+# Stops the services needed for the unit test suite
+#######################################
+function docker::remove_unit_test_env() {
+  docker-compose \
+    -f test-support/unit-test-docker-compose.yml \
+    down
+}
+
+#######################################
 # Set DOCKER_NETWORK_NAME to the network name used by the
 # dev environment.
 # Globals:
