@@ -140,7 +140,7 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 resolvers += Resolver.bintrayRepo("webjars", "maven")
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 libraryDependencies ++= Seq(
-  "org.webjars.npm" % "azure__storage-blob" % "10.5.0"
+  "org.webjars.npm" % "azure__storage-blob" % "12.8.0"
 )
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.2.2",
