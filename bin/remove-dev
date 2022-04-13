@@ -13,6 +13,6 @@ docker-compose -f docker-compose.yml -f docker-compose.dev.yml --profile shell d
 echo "Stopping & deletng local civiform container"
 docker-compose -f docker-compose.yml -f docker-compose.dev.yml down
 
-docker network rm "${COMPOSE_PROJECT_NAME}_default"  2>/dev/null
+docker network rm "${COMPOSE_PROJECT_NAME}_default" 2>/dev/null
 
 echo "Run 'docker volume prune' to delete all local state (db, sbt, npm)"
