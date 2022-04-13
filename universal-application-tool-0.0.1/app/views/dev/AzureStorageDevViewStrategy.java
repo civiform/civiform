@@ -2,6 +2,7 @@ package views.dev;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
@@ -47,9 +48,7 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
         viewUtils.makeWebJarsTag(/* assetsRoute= */ WebJarJsPaths.AZURE_STORAGE_BLOB));
     bundle.addFooterScripts(viewUtils.makeLocalJsTag(/* filename= */ "azure_upload"));
 
-    ContainerTag formTag = form().withId("azure-upload-form-component");
-
-    return formTag
+    ContainerTag formTag = form().withId("cf-block-form")
         .with(input().withType("file").withName("file"))
         .with(input().withType("hidden"))
         .withName("key")
@@ -69,6 +68,8 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
             TagCreator.button(text("Upload to Azure Blob Storage"))
                 .withType("submit")
                 .withId("cf-block-submit"));
+    return div(formTag)
+        .withId("azure-upload-form-component");
   }
 
   @Override
