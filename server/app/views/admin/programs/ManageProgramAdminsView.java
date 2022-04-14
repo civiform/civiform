@@ -8,6 +8,8 @@ import static j2html.TagCreator.form;
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 
 import java.util.Optional;
 import javax.inject.Inject;
@@ -78,9 +80,9 @@ public class ManageProgramAdminsView extends BaseHtmlView {
    * Render a form with inputs for program admin emails. If program admins exist, the input fields
    * will be pre-populated with their email addresses.
    */
-  private ContainerTag renderAdminForm(
+  private FormTag renderAdminForm(
       Http.Request request, long programId, ImmutableList<String> existingAdminEmails) {
-    ContainerTag emailFields =
+    DivTag emailFields =
         div()
             .withId(EMAIL_CONTAINER_DIV_ID)
             .withClasses(Styles.ML_4)
@@ -95,14 +97,14 @@ public class ManageProgramAdminsView extends BaseHtmlView {
         .with(submitButton(SUBMIT_BUTTON).withClasses(Styles.MY_4));
   }
 
-  private ContainerTag adminEmailInput(Optional<String> existing) {
+  private DivTag adminEmailInput(Optional<String> existing) {
     // When there are existing admins, the only option is to remove that admin. The field is
     // disabled, so that no changes except removal can be made. The form does not submit disabled
     // fields, so these existing admins will not be removed unless the remove button is clicked,
     // which sets disabled to false (see TypeScript file).
     String inputFieldName = existing.isPresent() ? REMOVE_EMAIL_FIELD_NAME : ADD_EMAIL_FIELD_NAME;
 
-    ContainerTag input =
+    InputTag input =
         FieldWithLabel.email()
             .setFieldName(inputFieldName)
             .setPlaceholderText(INPUT_PLACEHOLDER)
@@ -113,7 +115,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             .getContainer()
             .withClasses(Styles.FLEX, Styles.M_2);
 
-    Tag removeAdminButton =
+    DivTag removeAdminButton =
         button(REMOVE_BUTTON)
             .withClasses(ReferenceClasses.PROGRAM_ADMIN_REMOVE_BUTTON, Styles.FLEX, Styles.M_2);
 
@@ -121,7 +123,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
   }
 
   /** A hidden template for adding and removing admins of a given program. */
-  private ContainerTag adminEmailTemplate() {
+  private DivTag adminEmailTemplate() {
     return adminEmailInput(Optional.empty())
         .withId(EMAIL_INPUT_TEMPLATE_ID)
         .withClasses(Styles.HIDDEN, EMAIL_FIELD_STYLES);
