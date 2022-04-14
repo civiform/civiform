@@ -6,19 +6,16 @@ import java.io.IOException;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Program;
-import repository.ProgramRepository;
 import services.program.CsvExportConfig;
 import services.program.PdfExportConfig;
 
 /** ExporterFactory helps create {@link CsvExporter} and {@link PdfExporter} objects. */
 public class ExporterFactory {
   private final Config config;
-  private final ProgramRepository programRepository;
 
   @Inject
-  public ExporterFactory(Config config, ProgramRepository programRepository) {
+  public ExporterFactory(Config config) {
     this.config = Preconditions.checkNotNull(config);
-    this.programRepository = Preconditions.checkNotNull(programRepository);
   }
 
   public PdfExporter pdfExporter(Program program) throws NotConfiguredException, IOException {
@@ -46,7 +43,6 @@ public class ExporterFactory {
   }
 
   public CsvExporter csvExporter(CsvExportConfig exportConfig) {
-    return new CsvExporter(
-        exportConfig.columns(), config.getString("play.http.secret.key"), programRepository);
+    return new CsvExporter(exportConfig.columns(), config.getString("play.http.secret.key"));
   }
 }

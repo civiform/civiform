@@ -97,6 +97,9 @@ public interface ApplicantService {
   /** Return the email of the given applicant id if they have one. */
   CompletionStage<Optional<String>> getEmail(long applicantId);
 
-  /** Return all applications, including applications from previous versions. */
+  /**
+   * Return all applications, including applications from previous versions, with program,
+   * applicant, and account associations eager loaded.
+   */
   ImmutableList<Application> getAllApplications();
 }

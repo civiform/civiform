@@ -102,8 +102,8 @@ abstract class AbstractExporterTest extends ResetPostgres {
   }
 
   protected void createFakeApplications() {
-    Applicant applicantOne = new Applicant();
-    Applicant applicantTwo = new Applicant();
+    Applicant applicantOne = resourceCreator.insertApplicantWithAccount();
+    Applicant applicantTwo = resourceCreator.insertApplicantWithAccount();
     testQuestionBank.getSampleQuestionsForAllTypes().entrySet().stream()
         .forEach(
             entry ->
@@ -172,7 +172,7 @@ abstract class AbstractExporterTest extends ResetPostgres {
             .build();
 
     // First applicant has two household members, and the second one has one job.
-    applicantOne = new Applicant();
+    applicantOne = resourceCreator.insertApplicantWithAccount();
     QuestionAnswerer.answerNameQuestion(
         applicantOne.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -222,7 +222,7 @@ abstract class AbstractExporterTest extends ResetPostgres {
     applicationOne.save();
 
     // Second applicant has one household member that has two jobs.
-    applicantTwo = new Applicant();
+    applicantTwo = resourceCreator.insertApplicantWithAccount();
     QuestionAnswerer.answerNameQuestion(
         applicantTwo.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
