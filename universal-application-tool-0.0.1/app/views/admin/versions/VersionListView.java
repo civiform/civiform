@@ -53,7 +53,7 @@ public class VersionListView extends BaseHtmlView {
     ImmutableList<Version> olderVersions =
         allVersions.stream()
             .filter(version -> version.getLifecycleStage().equals(LifecycleStage.OBSOLETE))
-            .collect(ImmutableList.toImmutableList());
+            .collect(ImmutableList.toImmutableList()).reverse();
 
     String title = "Program Versions";
     HtmlBundle htmlBundle =
