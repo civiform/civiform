@@ -4,6 +4,7 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 
+import j2html.tags.specialized.FormTag;
 import forms.ProgramForm;
 
 import models.DisplayMode;
@@ -18,7 +19,7 @@ import views.components.FieldWithLabel;
 public class ProgramFormBuilder extends BaseHtmlView {
 
   /** Builds the form using program form data. */
-  public static ContainerTag buildProgramForm(ProgramForm program, boolean editExistingProgram) {
+  public static FormTag buildProgramForm(ProgramForm program, boolean editExistingProgram) {
     return buildProgramForm(
         program.getAdminName(),
         program.getAdminDescription(),
@@ -30,7 +31,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
   }
 
   /** Builds the form using program definition data. */
-  public static ContainerTag buildProgramForm(
+  public static FormTag buildProgramForm(
       ProgramDefinition program, boolean editExistingProgram) {
     return buildProgramForm(
         program.adminName(),
@@ -42,7 +43,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         editExistingProgram);
   }
 
-  private static ContainerTag buildProgramForm(
+  private static FormTag buildProgramForm(
       String adminName,
       String adminDescription,
       String displayName,
@@ -50,7 +51,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
       String externalLink,
       String displayMode,
       boolean editExistingProgram) {
-    ContainerTag formTag = form().withMethod("POST");
+    FormTag formTag = form().withMethod("POST");
     formTag.with(
         h2("Internal program information"),
         h3("This will only be visible to administrators"),
