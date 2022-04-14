@@ -9,5 +9,6 @@ source bin/lib.sh
 
 docker::ensure_unit_test_env
 
-bin/sbt test
+docker::run_shell_container
+docker exec civiform-shell sbt test
 docker::remove_shell_container
