@@ -15,6 +15,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TrTag;
+import j2html.tags.specialized.TdTag;
+import j2html.tags.specialized.TheadTag;
 
 import models.Account;
 import models.TrustedIntermediaryGroup;
@@ -64,8 +69,8 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private Tag renderAddNewButton(TrustedIntermediaryGroup tiGroup, Http.Request request) {
-    ContainerTag formTag =
+  private DivTag renderAddNewButton(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+    FormTag formTag =
         form()
             .withMethod("POST")
             .attr("action", 
@@ -86,7 +91,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.MT_6);
   }
 
-  private Tag renderTIRow(TrustedIntermediaryGroup tiGroup, Account ti, Http.Request request) {
+  private TrTag renderTIRow(TrustedIntermediaryGroup tiGroup, Account ti, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             Styles.BORDER_B,
@@ -97,13 +102,13 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         .with(renderActionsCell(tiGroup, ti, request));
   }
 
-  private Tag renderInfoCell(Account ti) {
+  private TdTag renderInfoCell(Account ti) {
     return td().with(div(ti.getApplicantName()).withClasses(Styles.FONT_SEMIBOLD))
         .with(div(ti.getEmailAddress()).withClasses(Styles.TEXT_XS))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderStatusCell(Account ti) {
+  private TdTag renderStatusCell(Account ti) {
     String accountStatus = "OK";
     if (ti.ownedApplicantIds().isEmpty()) {
       accountStatus = "Not yet signed in.";
@@ -112,12 +117,12 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderActionsCell(
+  private TdTag renderActionsCell(
       TrustedIntermediaryGroup tiGroup, Account account, Http.Request request) {
     return td().with(renderDeleteButton(tiGroup, account, request));
   }
 
-  private Tag renderDeleteButton(
+  private FormTag renderDeleteButton(
       TrustedIntermediaryGroup tiGroup, Account account, Http.Request request) {
     return new LinkElement()
         .setText("Delete")
@@ -127,7 +132,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         .asHiddenForm(request, ImmutableMap.of("accountId", account.id.toString()));
   }
 
-  private Tag renderGroupTableHeader() {
+  private TheadTag renderGroupTableHeader() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
             .with(th("Members").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_2))
