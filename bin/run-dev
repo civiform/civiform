@@ -43,7 +43,7 @@ bin/pull-image
 docker::set_network_name_dev
 
 # Start containers w/ specified emulator.
-docker-compose --profile "${cloud_provider}" \
+docker compose --profile "${cloud_provider}" \
   -f docker-compose.yml \
   -f docker-compose.dev.yml \
   up \
@@ -53,7 +53,7 @@ docker-compose --profile "${cloud_provider}" \
 "bin/${emulator}/wait"
 
 # Attach to the civiform container
-docker-compose \
+docker compose \
   -f docker-compose.yml \
   -f docker-compose.dev.yml \
   up \

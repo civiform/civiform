@@ -6,12 +6,11 @@
 function docker::run_shell_container() {
   # Start up the "civiform" service with the shell overrides.
   # Use the compose project "civiform-shell".
-  docker-compose \
+  docker compose \
     -f docker-compose.yml \
     -f docker-compose.dev.yml \
     --profile shell \
     up civiform-shell \
-    --no-deps \
     --wait \
     -d
 }
@@ -31,7 +30,7 @@ function docker::run_shell_command() {
 #######################################
 function docker::stop_shell_container() {
   # Stop the compose project "civiform-shell".
-  docker-compose \
+  docker compose \
     -f docker-compose.yml \
     -f docker-compose.dev.yml \
     --profile shell \
@@ -43,7 +42,7 @@ function docker::stop_shell_container() {
 #######################################
 function docker::remove_shell_container() {
   # Deletes the containers for the "civiform-shell" project.
-  docker-compose \
+  docker compose \
     -f docker-compose.yml \
     -f docker-compose.dev.yml \
     --profile shell \
@@ -55,7 +54,7 @@ function docker::remove_shell_container() {
 # successfully if they are already up.
 #######################################
 function docker::ensure_unit_test_env() {
-  docker-compose \
+  docker compose \
     -f test-support/unit-test-docker-compose.yml \
     up \
     -d
@@ -65,7 +64,7 @@ function docker::ensure_unit_test_env() {
 # Stops the services needed for the unit test suite
 #######################################
 function docker::remove_unit_test_env() {
-  docker-compose \
+  docker compose \
     -f test-support/unit-test-docker-compose.yml \
     down
 }

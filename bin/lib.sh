@@ -12,7 +12,7 @@ set +x
 
 readonly LIB_DIR="${BASH_SOURCE%/*}/lib"
 
-# Control the name that docker-compose preprends resources with.
+# Control the name that `docker compose` preprends resources with.
 readonly COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:=$(basename $(pwd))}"
 
 if [[ "${SOURCED_LIB}" != "true" ]]; then

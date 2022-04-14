@@ -83,7 +83,7 @@ jobs:
       - name: Build the stack
         env:
           SECRET_KEY: notarealsecret
-        run: docker-compose -f infra/prod-simulator-compose.yml up -d
+        run: docker compose -f infra/prod-simulator-compose.yml up -d
       - name: Test
         # Confirm that we get a response on port 9000.
         run: while ! docker run --network host appropriate/curl -v -s --retry-max-time 180 --retry-connrefused http://localhost:9000/ ; do sleep 5; done
@@ -107,10 +107,10 @@ jobs:
       - name: setup terraform
         uses: hashicorp/setup-terraform@v1
       # as we add more templates, we will add checks to validate them. for now, we only have one
-      - name: terraform init azure_saml_ses 
-        run: terraform -chdir=cloud/azure/templates/azure_saml_ses init -backend=false 
+      - name: terraform init azure_saml_ses
+        run: terraform -chdir=cloud/azure/templates/azure_saml_ses init -backend=false
       - name: terraform validate azure_saml_ses
-        run: terraform -chdir=cloud/azure/templates/azure_saml_ses validate 
+        run: terraform -chdir=cloud/azure/templates/azure_saml_ses validate
 
   cloudformation:
     runs-on: ubuntu-18.04 # for older version of awscli.

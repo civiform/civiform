@@ -1,17 +1,17 @@
 #! /usr/bin/env bash
 
 # DOC: Stop and delete the running dev environment.
-# Alias of 'docker-compose down' using default, shell, and emulator profiles.
+# Alias of 'docker compose down' using default, shell, and emulator profiles.
 
 source bin/lib.sh
 set +e # errors are OK
 
-echo "Stopping & deletng local civiform emulators"
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml --profile emulator down
+echo "Stopping & deleting local civiform emulators"
+docker compose -f docker-compose.yml -f docker-compose.dev.yml --profile emulator down
 echo "Stopping & deletng local civiform shell"
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml --profile shell down
+docker compose -f docker-compose.yml -f docker-compose.dev.yml --profile shell down
 echo "Stopping & deletng local civiform container"
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml down
+docker compose -f docker-compose.yml -f docker-compose.dev.yml down
 
 docker network rm "${COMPOSE_PROJECT_NAME}_default" 2>/dev/null
 
