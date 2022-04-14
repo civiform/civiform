@@ -9,6 +9,11 @@ source bin/lib.sh
 
 docker::ensure_unit_test_env
 
-docker::run_shell_container
-docker exec civiform-shell sbt test
-docker::remove_shell_container
+docker compose -f docker-compose.yml \
+  up civiform \
+  -d
+
+docker exec civiform sbt test
+docker compose -f docker-compose.yml \
+  down civiform \
+  -d

@@ -12,11 +12,9 @@ jobs:
         uses: actions/checkout@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-      - name: Build test container
+      - name: Run tests
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -t civiform-dev --cache-from docker.io/civiform/civiform-dev:latest ./
-      - name: Run tests
         run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
 
   run_browser_tests_aws:

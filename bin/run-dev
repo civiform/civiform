@@ -52,7 +52,7 @@ docker compose --profile "${cloud_provider}" \
 # Wait until the emulator is running.
 "bin/${emulator}/wait"
 
-# Attach to the civiform container
+# Attach to the civiform container.
 docker compose \
   -f docker-compose.yml \
   -f docker-compose.dev.yml \
