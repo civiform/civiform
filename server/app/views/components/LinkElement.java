@@ -10,6 +10,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import j2html.TagCreator;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 
 import play.filters.csrf.CSRF;
 import play.mvc.Http;
@@ -106,37 +108,37 @@ public class LinkElement {
     return this;
   }
 
-  public ContainerTag asAnchorText() {
-    ContainerTag tag = Strings.isNullOrEmpty(href) ? div(text) : a(text).withHref(href);
+  public DivTag asAnchorText() {
+    DivTag tag = Strings.isNullOrEmpty(href) ? div(text) : div().with(a(text).withHref(href));
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withCondHref(!Strings.isNullOrEmpty(href), href)
         .withCondTarget(doesOpenInNewTab, "_blank")
         .withClasses(DEFAULT_LINK_STYLES, styles);
   }
 
-  public ContainerTag asButton() {
-    ContainerTag tag =
+  public DivTag asButton() {
+    DivTag tag =
         Strings.isNullOrEmpty(href)
             ? div(text)
-            : a(text).withHref(href).withCondTarget(doesOpenInNewTab, "_blank");
+            : div().with(a(text).withHref(href).withCondTarget(doesOpenInNewTab, "_blank"));
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);
   }
 
-  public ContainerTag asRightAlignedButton() {
-    ContainerTag tag =
+  public DivTag asRightAlignedButton() {
+    DivTag tag =
         Strings.isNullOrEmpty(href)
             ? div(text)
-            : a(text).withHref(href).withCondTarget(doesOpenInNewTab, "_blank");
+            : div().with(a(text).withHref(href).withCondTarget(doesOpenInNewTab, "_blank"));
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withClasses(RIGHT_ALIGNED_LINK_BUTTON_STYLES, styles);
   }
 
-  public ContainerTag asHiddenForm(Http.Request request) {
+  public FormTag asHiddenForm(Http.Request request) {
     return this.asHiddenForm(request, ImmutableMap.of());
   }
 
-  public ContainerTag asHiddenForm(
+  public FormTag asHiddenForm(
       Http.Request request, ImmutableMap<String, String> hiddenFormValues) {
     Preconditions.checkNotNull(href);
     Option<CSRF.Token> csrfTokenMaybe = CSRF.getToken(request.asScala());
@@ -145,7 +147,7 @@ public class LinkElement {
       csrfToken = csrfTokenMaybe.get().value();
     }
 
-    ContainerTag form =
+    FormTag form =
         form(
                 input().isHidden().attr("value", csrfToken).attr("name", "csrfToken"),
                 button(TagCreator.text(text))
@@ -161,7 +163,7 @@ public class LinkElement {
     return form;
   }
 
-  public ContainerTag asHiddenFormLink(Http.Request request) {
+  public FormTag asHiddenFormLink(Http.Request request) {
     Preconditions.checkNotNull(href);
     Option<CSRF.Token> csrfTokenMaybe = CSRF.getToken(request.asScala());
     String csrfToken = "";
@@ -169,7 +171,7 @@ public class LinkElement {
       csrfToken = csrfTokenMaybe.get().value();
     }
 
-    ContainerTag form =
+    FormTag form =
         form(
                 input().isHidden().attr("value", csrfToken).attr("name", "csrfToken"),
                 button(TagCreator.text(text))
