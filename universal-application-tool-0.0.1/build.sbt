@@ -70,7 +70,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value-parent" % "1.9",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.12.1",
+      "com.google.errorprone" % "error_prone_core" % "2.13.0",
 
       // Apache libraries for export
       "org.apache.pdfbox" % "pdfbox" % "2.0.25",
