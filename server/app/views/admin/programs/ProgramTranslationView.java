@@ -5,6 +5,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 
+import j2html.tags.specialized.FormTag;
+
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -54,7 +56,7 @@ public class ProgramTranslationView extends TranslationFormView {
         controllers.admin.routes.AdminProgramTranslationsController.update(
                 programId, locale.toLanguageTag())
             .url();
-    ContainerTag form =
+    FormTag form =
         renderTranslationForm(
             request, locale, formAction, formFields(localizedName, localizedDescription));
 
