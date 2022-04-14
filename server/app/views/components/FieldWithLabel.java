@@ -12,9 +12,16 @@ import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 
+<<<<<<< HEAD:server/app/views/components/FieldWithLabel.java
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.TextareaTag;
+=======
+import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.TextareaTag;
+import j2html.tags.specialized.TextareaTag;
+import j2html.tags.ContainerTag;
+>>>>>>> d3eecab6 (FieldWithLabel.java conversion):universal-application-tool-0.0.1/app/views/components/FieldWithLabel.java
 
 import java.util.Optional;
 import java.util.OptionalInt;
