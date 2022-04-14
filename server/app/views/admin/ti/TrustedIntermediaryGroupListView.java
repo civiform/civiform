@@ -14,6 +14,11 @@ import static j2html.TagCreator.tr;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TrTag;
+import j2html.tags.specialized.TdTag;
+import j2html.tags.specialized.TheadTag;
+import j2html.tags.specialized.FormTag;
 
 import java.util.List;
 import models.TrustedIntermediaryGroup;
@@ -65,7 +70,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private Tag renderTiGroupCards(List<TrustedIntermediaryGroup> tis, Http.Request request) {
+  private DivTag renderTiGroupCards(List<TrustedIntermediaryGroup> tis, Http.Request request) {
     return div(
         table()
             .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
@@ -73,8 +78,8 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             .with(tbody(each(tis, ti -> renderGroupRow(ti, request)))));
   }
 
-  private Tag renderAddNewButton(Http.Request request) {
-    ContainerTag formTag =
+  private DivTag renderAddNewButton(Http.Request request) {
+    FormTag formTag =
         form()
             .withMethod("POST")
             .attr("action", routes.TrustedIntermediaryManagementController.create().url());
@@ -103,7 +108,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_1_2, Styles.MT_6);
   }
 
-  private Tag renderGroupRow(TrustedIntermediaryGroup ti, Http.Request request) {
+  private TrTag renderGroupRow(TrustedIntermediaryGroup ti, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_TI_GROUP_ROW,
             Styles.BORDER_B,
@@ -114,13 +119,13 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         .with(renderActionsCell(ti, request));
   }
 
-  private Tag renderInfoCell(TrustedIntermediaryGroup tiGroup) {
+  private TdTag renderInfoCell(TrustedIntermediaryGroup tiGroup) {
     return td().with(div(tiGroup.getName()).withClasses(Styles.FONT_SEMIBOLD))
         .with(div(tiGroup.getDescription()).withClasses(Styles.TEXT_XS))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderMemberCountCell(TrustedIntermediaryGroup tiGroup) {
+  private TdTag renderMemberCountCell(TrustedIntermediaryGroup tiGroup) {
     return td().with(
             div("Members: " + tiGroup.getTrustedIntermediaries().size())
                 .withClasses(Styles.FONT_SEMIBOLD))
@@ -128,11 +133,11 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderActionsCell(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+  private TdTag renderActionsCell(TrustedIntermediaryGroup tiGroup, Http.Request request) {
     return td().with(renderEditButton(tiGroup), renderDeleteButton(tiGroup, request));
   }
 
-  private Tag renderDeleteButton(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+  private FormTag renderDeleteButton(TrustedIntermediaryGroup tiGroup, Http.Request request) {
     return new LinkElement()
         .setText("Delete")
         .setId("delete-" + tiGroup.id + "-button")
@@ -140,7 +145,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         .asHiddenForm(request);
   }
 
-  private Tag renderEditButton(TrustedIntermediaryGroup tiGroup) {
+  private DivTag renderEditButton(TrustedIntermediaryGroup tiGroup) {
     return new LinkElement()
         .setText("Edit")
         .setId("edit-" + tiGroup.id + "-button")
@@ -148,7 +153,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         .asButton();
   }
 
-  private Tag renderGroupTableHeader() {
+  private TheadTag renderGroupTableHeader() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
             .with(th("Name / Description").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_2))
