@@ -5,9 +5,11 @@
 source bin/lib.sh
 
 if [[ -z "${USE_LOCAL_CIVIFORM}" ]]; then
-  echo "Making sure we're up to date with the latest dev... "\
+  echo "Making sure we're up to date with the latest dev... " \
     "set environment variable USE_LOCAL_CIVIFORM=1 to skip"
 
-  docker pull civiform/civiform-dev:latest
+  docker pull -q civiform/civiform-dev:latest
   docker tag civiform/civiform-dev:latest civiform-dev
+else
+  echo "Using local civiform docker images"
 fi

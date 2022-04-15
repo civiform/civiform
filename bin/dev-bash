@@ -6,13 +6,6 @@ source bin/lib.sh
 
 bin/pull-image
 
-docker run \
-  -it \
-  --rm \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v "$(pwd)/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1" \
-  -v "$(pwd)/sbt_cache/coursier:/root/.cache/coursier" \
-  -v ~/.sbt:/root/.sbt \
-  -v ~/.ivy:/root/.ivy2 \
-  --entrypoint /bin/bash \
-  civiform-dev
+docker::run_shell_container
+docker::run_shell_command /bin/bash "$@"
+docker::stop_shell_container

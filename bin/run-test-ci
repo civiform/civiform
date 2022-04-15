@@ -2,6 +2,8 @@
 
 # DOC: Run the unit tests in CI mode.
 
+export COMPOSE_PROJECT_NAME=test-support
+
 source bin/lib.sh
 
 docker::ensure_unit_test_env
