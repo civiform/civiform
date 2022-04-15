@@ -11,6 +11,10 @@ import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.FormTag;
 
 import java.util.Comparator;
 import java.util.Optional;
@@ -28,7 +32,7 @@ import views.style.Styles;
 
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
 public class QuestionBank {
-  private static final ContainerTag PLUS_ICON =
+  private static final SvgTag PLUS_ICON =
       Icons.svg(Icons.PLUS_SVG_PATH, 24)
           .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6)
           .attr("fill", "currentColor")
@@ -40,7 +44,7 @@ public class QuestionBank {
   private BlockDefinition blockDefinition;
   private Optional<Long> enumeratorQuestionId;
   private ImmutableList<QuestionDefinition> questions = ImmutableList.of();
-  private Tag csrfTag = div();
+  private DivTag csrfTag = div();
   private String questionAction = "";
 
   public QuestionBank setProgram(ProgramDefinition program) {
@@ -68,27 +72,26 @@ public class QuestionBank {
     return this;
   }
 
-  public ContainerTag getContainer() {
+  public FormTag getContainer() {
     return questionBankPanel();
   }
 
-  private ContainerTag questionBankPanel() {
-    ContainerTag questionForm =
+  private FormTag questionBankPanel() {
+    FormTag questionForm =
         form(this.csrfTag).withMethod(HttpVerbs.POST).attr("action", questionAction);
 
-    div().withClasses(Styles.INLINE_BLOCK, Styles.W_1_4);
-    ContainerTag innerDiv =
+    DivTag innerDiv =
         div().withClasses(Styles.SHADOW_LG, Styles.OVERFLOW_HIDDEN, Styles.H_FULL);
     questionForm.with(innerDiv);
-    ContainerTag contentDiv =
+    DivTag contentDiv =
         div().withClasses(Styles.RELATIVE, Styles.GRID, Styles.GAP_6, Styles.PX_5, Styles.PY_6);
     innerDiv.with(contentDiv);
 
-    ContainerTag headerDiv =
+    H1Tag headerDiv =
         h1("Question bank").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
     contentDiv.withId("question-bank-questions").with(headerDiv);
 
-    Tag filterInput =
+    InputTag filterInput =
         input()
             .withId("question-bank-filter")
             .attr("type", "text")
@@ -106,11 +109,11 @@ public class QuestionBank {
                 Styles.SHADOW,
                 StyleUtils.focus(Styles.OUTLINE_NONE));
 
-    ContainerTag filterIcon =
+    SvgTag filterIcon =
         Icons.svg(Icons.SEARCH_SVG_PATH, 56).withClasses(Styles.H_4, Styles.W_4);
-    ContainerTag filterIconDiv =
+    DivTag filterIconDiv =
         div().withClasses(Styles.ABSOLUTE, Styles.ML_4, Styles.MT_3, Styles.MR_4).with(filterIcon);
-    ContainerTag filterDiv =
+    DivTag filterDiv =
         div().withClasses(Styles.RELATIVE).with(filterIconDiv).with(filterInput);
     contentDiv.with(filterDiv);
 
@@ -126,8 +129,8 @@ public class QuestionBank {
     return questionForm;
   }
 
-  private ContainerTag renderQuestionDefinition(QuestionDefinition definition) {
-    ContainerTag questionDiv =
+  private DivTag renderQuestionDefinition(QuestionDefinition definition) {
+    DivTag questionDiv =
         div()
             .withId("add-question-" + definition.getId())
             .withClasses(
@@ -145,7 +148,7 @@ public class QuestionBank {
                 StyleUtils.hover(
                     Styles.SCALE_105, Styles.TEXT_GRAY_800, Styles.BORDER, Styles.BORDER_GRAY_100));
 
-    Tag addButton =
+    ButtonTag addButton =
         TagCreator.button(text(definition.getName()))
             .attr("type", "submit")
             .withId("question-" + definition.getId())
@@ -153,10 +156,10 @@ public class QuestionBank {
             .attr("value", definition.getId() + "")
             .withClasses(ReferenceClasses.ADD_QUESTION_BUTTON, AdminStyles.CLICK_TARGET_BUTTON);
 
-    ContainerTag icon =
+    SvgTag icon =
         Icons.questionTypeSvg(definition.getQuestionType(), 24)
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
-    ContainerTag content =
+    DivTag content =
         div()
             .withClasses(Styles.ML_4)
             .with(
