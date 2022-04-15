@@ -116,11 +116,11 @@ public class Icons {
 
   public static final String ACCORDION_BUTTON_PATH = "M19 9l-7 7-7-7";
 
-  public static ContainerTag questionTypeSvg(QuestionType type, int size) {
+  public static SvgTag questionTypeSvg(QuestionType type, int size) {
     return questionTypeSvg(type, size, size);
   }
 
-  public static ContainerTag questionTypeSvg(QuestionType type, int width, int height) {
+  public static SvgTag questionTypeSvg(QuestionType type, int width, int height) {
     String iconPath = "";
     switch (type) {
       case ADDRESS:
@@ -177,20 +177,20 @@ public class Icons {
     return svg(iconPath, width, height);
   }
 
-  public static ContainerTag svg(String pathString, int pixelSize) {
+  public static SvgTag svg(String pathString, int pixelSize) {
     return svg(pathString, pixelSize, pixelSize);
   }
 
-  public static ContainerTag svg(String pathString, int width, int height) {
+  public static SvgTag svg(String pathString, int width, int height) {
     return svg(pathString).attr("viewBox", String.format("0 0 %1$d %2$d", width, height));
   }
 
-  private static ContainerTag svg(String pathString) {
+  private static SvgTag svg(String pathString) {
     return svg().with(path(pathString));
   }
 
-  private static ContainerTag svg() {
-    return new ContainerTag("svg")
+  private static SvgTag svg() {
+    return new SvgTag()
         .attr("xmlns", "http://www.w3.org/2000/svg")
         .attr("fill", "currentColor")
         .attr("stroke", "currentColor")
@@ -198,7 +198,7 @@ public class Icons {
         .attr("aria-hidden", "true");
   }
 
-  private static ContainerTag path(String pathString) {
-    return new ContainerTag("path").attr("d", pathString);
+  private static PathTag path(String pathString) {
+    return new PathTag().attr("d", pathString);
   }
 }
