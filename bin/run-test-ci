@@ -3,17 +3,16 @@
 # DOC: Run the unit tests in CI mode.
 
 export COMPOSE_PROJECT_NAME=test-support
-export COMPOSE_INTERACTIVE_NO_CLI=1
 
 source bin/lib.sh
 
 docker::ensure_unit_test_env
 
-docker compose -f docker-compose.yml \
-  up civiform \
-  -d
-
-docker exec civiform sbt test
-docker compose -f docker-compose.yml \
-  down civiform \
-  -d
+docker run --rm \
+  --network test-support_default \
+  -v "$(pwd)/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1" \
+  -v "$(pwd)/sbt_cache/coursier:/root/.cache/coursier" \
+  -v ~/.sbt:/root/.sbt \
+  -v ~/.ivy:/root/.ivy2 \
+  civiform-dev \
+  test
