@@ -188,28 +188,27 @@ class ValidationController {
 
   /** Add listeners to file input to update validation on changes. */
   private addFileUploadListener() {
-    // Assumption: There is only ever zero or one file input per block.
-    const fileQuestion = document.querySelector(
-      ValidationController.FILEUPLOAD_QUESTION_CLASS
+    const fileQuestions = Array.from(
+      <NodeListOf<HTMLInputElement>>(
+        document.querySelectorAll(
+          `${ValidationController.FILEUPLOAD_QUESTION_CLASS} input[type=file]`
+        )
+      )
     )
-    if (fileQuestion) {
-      const fileInput = fileQuestion.querySelector('input[type=file]')
-      // Whenever the input changes we need to revalidate.
-      if (fileInput) {
-        fileInput.addEventListener('input', () => {
-          this.onFileChanged()
-        })
-      }
-    }
+    fileQuestions.forEach((fileQuestion) => {
+      fileQuestion.addEventListener('input', () => {
+        this.onFileChanged()
+      })
+    })
   }
 
   checkAllQuestionTypes() {
-    this.isAddressValid = this.validateAddressQuestion()
-    this.isCurrencyValid = this.validateCurrencyQuestion()
+    this.isAddressValid = this.validateAddressQuestions()
+    this.isCurrencyValid = this.validateCurrencyQuestions()
     this.isEnumeratorValid = this.validateEnumeratorQuestion()
-    this.isFileUploadValid = this.validateFileUploadQuestion()
-    this.isNameValid = this.validateNameQuestion()
-    this.isNumberValid = this.validateNumberQuestion()
+    this.isFileUploadValid = this.validateFileUploadQuestions()
+    this.isNameValid = this.validateNameQuestions()
+    this.isNumberValid = this.validateNumberQuestions()
     this.updateSubmitButton()
   }
 
@@ -225,12 +224,12 @@ class ValidationController {
   }
 
   onAddressChanged() {
-    this.isAddressValid = this.validateAddressQuestion()
+    this.isAddressValid = this.validateAddressQuestions()
     this.updateSubmitButton()
   }
 
   onCurrencyChanged() {
-    this.isCurrencyValid = this.validateCurrencyQuestion()
+    this.isCurrencyValid = this.validateCurrencyQuestions()
     this.updateSubmitButton()
   }
 
@@ -240,17 +239,17 @@ class ValidationController {
   }
 
   onFileChanged() {
-    this.isFileUploadValid = this.validateFileUploadQuestion()
+    this.isFileUploadValid = this.validateFileUploadQuestions()
     this.updateSubmitButton()
   }
 
   onNameChanged() {
-    this.isNameValid = this.validateNameQuestion()
+    this.isNameValid = this.validateNameQuestions()
     this.updateSubmitButton()
   }
 
   onNumberChanged() {
-    this.isNumberValid = this.validateNumberQuestion()
+    this.isNumberValid = this.validateNumberQuestions()
     this.updateSubmitButton()
   }
 
@@ -292,7 +291,7 @@ class ValidationController {
   }
 
   /** Validates all address questions. */
-  validateAddressQuestion(): boolean {
+  validateAddressQuestions(): boolean {
     let allValid = true
     const addressQuestions = Array.from(
       document.querySelectorAll(ValidationController.ADDRESS_QUESTION_CLASS)
@@ -370,7 +369,7 @@ class ValidationController {
    * Validates that the value is present and in integer format (optionally with
    * commas), optionally with exactly 2 decimals.
    */
-  validateCurrencyQuestion(): boolean {
+  validateCurrencyQuestions(): boolean {
     let isAllValid = true
     const questions = Array.from(
       document.querySelectorAll(ValidationController.CURRENCY_QUESTION_CLASS)
@@ -463,29 +462,30 @@ class ValidationController {
   }
 
   /** Validates that a file is selected. */
-  validateFileUploadQuestion(): boolean {
-    let isValid = true
-    const fileUploadQuestion = document.querySelector(
-      ValidationController.FILEUPLOAD_QUESTION_CLASS
+  validateFileUploadQuestions(): boolean {
+    let isAllValid = true
+    const questions = Array.from(
+      document.querySelectorAll(ValidationController.FILEUPLOAD_QUESTION_CLASS)
     )
-    if (fileUploadQuestion) {
+    for (const question of questions) {
       // validate a file is selected.
       const fileInput = <HTMLInputElement>(
-        fileUploadQuestion.querySelector('input[type=file]')
+        question.querySelector('input[type=file]')
       )
-      isValid = fileInput.value != ''
+      const isValid = fileInput.value != ''
 
       // Toggle the error div if invalid.
-      const errorDiv = fileUploadQuestion.querySelector('.cf-fileupload-error')
+      const errorDiv = question.querySelector('.cf-fileupload-error')
       if (errorDiv) {
         errorDiv.classList.toggle('hidden', isValid)
       }
+      isAllValid = isAllValid && isValid
     }
-    return isValid
+    return isAllValid
   }
 
   /** Validates that first and last name are not empty. */
-  validateNameQuestion(): boolean {
+  validateNameQuestions(): boolean {
     let isAllValid = true
     const nameQuestions = Array.from(
       document.querySelectorAll(ValidationController.NAME_QUESTION_CLASS)
@@ -525,7 +525,7 @@ class ValidationController {
   }
 
   /** Validates that numbers are positive integers. */
-  validateNumberQuestion(): boolean {
+  validateNumberQuestions(): boolean {
     let isAllValid = true
     const numberQuestions = Array.from(
       <NodeListOf<HTMLInputElement>>(
