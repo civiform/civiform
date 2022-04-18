@@ -20,6 +20,6 @@
     "tailwindcss": "3.0.23"
   },
   "dependencies": {
-    "npm": "^8.5.0"
+    "npm": "^8.7.0"
   }
 }
