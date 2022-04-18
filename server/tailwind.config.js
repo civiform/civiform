@@ -1,6 +1,5 @@
 const fs = require('fs')
 const assert = require('assert')
-const colors = require('colors')
 
 /* IMPORTANT
  *
