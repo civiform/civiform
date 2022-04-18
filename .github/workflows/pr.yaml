@@ -104,7 +104,7 @@ jobs:
       - name: generate bastion key
         run:  ssh-keygen -q -t rsa -b 4096 -N '' -f "${HOME}/.ssh/bastion"
       - name: setup terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2
       # as we add more templates, we will add checks to validate them. for now, we only have one
       - name: terraform init azure_saml_ses
         run: terraform -chdir=cloud/azure/templates/azure_saml_ses init -backend=false
