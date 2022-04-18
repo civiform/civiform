@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.DbJsonB;
+
+import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
@@ -20,6 +22,9 @@ import javax.persistence.PostPersist;
 import javax.persistence.PostUpdate;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+
+import io.ebean.annotation.WhenCreated;
+import io.ebean.annotation.WhenModified;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
@@ -80,6 +85,10 @@ public class Program extends BaseModel {
 
   @Constraints.Required @DbJson private ImmutableList<ExportDefinition> exportDefinitions;
 
+  @WhenCreated private Instant createTime;
+
+  @WhenModified private Instant lastModifiedTime;
+
   @ManyToMany
   @JoinTable(name = "versions_programs")
   private List<Version> versions;
@@ -107,6 +116,8 @@ public class Program extends BaseModel {
     this.blockDefinitions = definition.blockDefinitions();
     this.exportDefinitions = definition.exportDefinitions();
     this.displayMode = definition.displayMode().getValue();
+//    this.createTime = definition.createTime();
+//    this.lastModifiedTime = definition.lastModifiedTime();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -138,6 +149,9 @@ public class Program extends BaseModel {
             .build();
     this.exportDefinitions = ImmutableList.of();
     this.blockDefinitions = ImmutableList.of(emptyBlock);
+//    Instant now = Instant.now();
+//    this.createTime = now;
+//    this.lastModifiedTime = now;
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -153,6 +167,8 @@ public class Program extends BaseModel {
     exportDefinitions = programDefinition.exportDefinitions();
     slug = programDefinition.slug();
     displayMode = programDefinition.displayMode().getValue();
+//    createTime = programDefinition.createTime();
+//    lastModifiedTime = programDefinition.lastModifiedTime();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -170,7 +186,9 @@ public class Program extends BaseModel {
             .setBlockDefinitions(blockDefinitions)
             .setExportDefinitions(exportDefinitions)
             .setExternalLink(externalLink)
-            .setDisplayMode(DisplayMode.valueOf(displayMode));
+            .setDisplayMode(DisplayMode.valueOf(displayMode))
+            .setCreateTime(createTime)
+            .setLastModifiedTime(lastModifiedTime);
 
     setLocalizedName(builder);
     setLocalizedDescription(builder);
