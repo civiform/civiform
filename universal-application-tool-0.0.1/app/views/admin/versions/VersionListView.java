@@ -53,8 +53,9 @@ public class VersionListView extends BaseHtmlView {
     ImmutableList<Version> olderVersions =
         allVersions.stream()
             .filter(version -> version.getLifecycleStage().equals(LifecycleStage.OBSOLETE))
-            .collect(ImmutableList.toImmutableList())
-            .reverse();
+            // Sort from newest to oldest. IDs are DB-generated and increment monotonically.
+            .sorted((a, b) -> (int) (b.id - a.id))
+            .collect(ImmutableList.toImmutableList());
 
     String title = "Program Versions";
     HtmlBundle htmlBundle =
