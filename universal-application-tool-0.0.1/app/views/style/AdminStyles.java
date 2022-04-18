@@ -72,7 +72,7 @@ public class AdminStyles {
           Styles.FLEX);
 
   public static final String MAIN_CENTERED =
-      StyleUtils.joinStyles(Styles.PX_2, Styles.MAX_W_SCREEN_XL, Styles.MX_AUTO);
+      StyleUtils.joinStyles(Styles.PX_2, Styles.MAX_W_SCREEN_2XL, Styles.MX_AUTO);
 
   public static final String MAIN_FULL = StyleUtils.joinStyles(Styles.FLEX, Styles.FLEX_ROW);
 

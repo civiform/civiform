@@ -29,7 +29,7 @@ lazy val root = (project in file("."))
       "com.azure" % "azure-storage-blob" % "12.14.2",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.3.3",
+      "org.postgresql" % "postgresql" % "42.3.4",
       "org.junit.jupiter" % "junit-jupiter-engine" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-api" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-params" % "5.8.2" % Test,
@@ -70,7 +70,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value-parent" % "1.9",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.12.1",
+      "com.google.errorprone" % "error_prone_core" % "2.13.1",
 
       // Apache libraries for export
       "org.apache.pdfbox" % "pdfbox" % "2.0.25",

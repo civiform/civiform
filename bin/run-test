@@ -2,9 +2,11 @@
 
 # DOC: Run the Java test suite in Docker.
 
+export COMPOSE_PROJECT_NAME=test-support
 source bin/lib.sh
 
 bin/pull-image
-
 docker::ensure_unit_test_env
-docker::run_dev_sbt_command test
+
+bin/sbt test
+docker::remove_shell_container

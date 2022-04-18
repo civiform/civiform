@@ -4,20 +4,19 @@
 
 class AzureUploadController {
   static UPLOAD_CONTAINER_ID = 'azure-upload-form-component'
-  static FILEUPLOAD_SUBMIT_FORM_ID = 'cf-block-submit'
+  static FILEUPLOAD_FORM_ID = 'cf-block-form'
 
   constructor() {
     const uploadContainer = document.getElementById(
       AzureUploadController.UPLOAD_CONTAINER_ID
     )
 
-    const uploadButton = document.getElementById(
-      AzureUploadController.FILEUPLOAD_SUBMIT_FORM_ID
+    const blockForm = document.getElementById(
+      AzureUploadController.FILEUPLOAD_FORM_ID
     )
-
-    uploadButton.addEventListener('click', (event) =>
+    blockForm.addEventListener('submit', (event) => {
       this.attemptUpload(event, uploadContainer)
-    )
+    })
   }
 
   getValueFromInputLabel(label: string): string {
