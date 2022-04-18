@@ -169,7 +169,8 @@ public final class QuestionServiceImpl implements QuestionService {
     questionRepository.updateAllRepeatedQuestions(
         /* newEnumeratorId= */ activeId, /* oldEnumeratorId= */ draftId);
 
-    // Update any programs that may have referenced the discarded question.
+    // Update any programs that reference the discarded question to the latest revision for all of
+    // its referenced questions.
     versionRepositoryProvider.get().updateProgramsThatReferenceQuestion(draftId);
   }
 
