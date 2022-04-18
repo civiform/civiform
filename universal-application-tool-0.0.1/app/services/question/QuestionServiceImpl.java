@@ -162,7 +162,7 @@ public final class QuestionServiceImpl implements QuestionService {
     // enmasse program update below sees the relevant latest version of the question.  However if
     // there's an error below, Those pertinent configurations are left invalid which will break the
     // site.
-    // TODO(#2047): Address errors that occure after this point so that program/question state isn't
+    // TODO(#2047): Address errors that occur after this point so that program/question state isn't
     // left invalid.
 
     // Update any repeated questions that may have referenced the discarded question.
