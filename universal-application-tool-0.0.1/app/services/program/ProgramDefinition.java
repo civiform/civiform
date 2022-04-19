@@ -8,7 +8,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-
 import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -21,13 +20,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import models.DisplayMode;
 import models.Program;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-
-import javax.annotation.Nullable;
 
 /** Defines configuration of a program. */
 @AutoValue
@@ -73,8 +71,26 @@ public abstract class ProgramDefinition {
   /** The list of {@link ExportDefinition}s that make up the program. */
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
 
-  public abstract @Nullable Instant createTime();
+  /** When was this program created. Could be null for older programs. */
   public abstract @Nullable Instant lastModifiedTime();
+
+  /** When was this program last modified. Could be null for older programs. */
+  public abstract @Nullable Instant createTime();
+
+  static final Instant DEFAULT_TIME = Instant.parse("2020-01-01T00:00:00.00Z");
+
+  /** Returns creation time of the program if it's available or a default timestamp if it's not. */
+  public Instant getLastModifiedTimeOrDefault() {
+    return lastModifiedTime() == null ? DEFAULT_TIME : lastModifiedTime();
+  }
+
+  /**
+   * Returns last modification time of the program if it's available or a default timestamp if it's
+   * not.
+   */
+  public Instant getCreateTimeOrDefault() {
+    return createTime() == null ? DEFAULT_TIME : createTime();
+  }
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
