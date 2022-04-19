@@ -89,6 +89,16 @@ public class ResourceCreator {
     return account;
   }
 
+  public Applicant insertApplicantWithAccount() {
+    Applicant applicant = insertApplicant();
+    Account account = insertAccount();
+
+    applicant.setAccount(account);
+    applicant.save();
+
+    return applicant;
+  }
+
   public Account insertAccountWithEmail(String email) {
     Account account = new Account();
     account.setEmailAddress(email);

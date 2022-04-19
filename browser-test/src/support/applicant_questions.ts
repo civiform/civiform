@@ -48,11 +48,12 @@ export class ApplicantQuestions {
   async answerNameQuestion(
     firstName: string,
     lastName: string,
-    middleName = ''
+    middleName = '',
+    index = 0
   ) {
-    await this.page.fill('.cf-name-first input', firstName)
-    await this.page.fill('.cf-name-middle input', middleName)
-    await this.page.fill('.cf-name-last input', lastName)
+    await this.page.fill(`.cf-name-first input >> nth=${index}`, firstName)
+    await this.page.fill(`.cf-name-middle input >> nth=${index}`, middleName)
+    await this.page.fill(`.cf-name-last input >> nth=${index}`, lastName)
   }
 
   async checkNameQuestionValue(
@@ -191,7 +192,7 @@ export class ApplicantQuestions {
   }
 
   async clickNext() {
-    await this.page.click('text="Next"')
+    await this.page.click('text="Save and next"')
     await waitForPageJsLoad(this.page)
   }
 

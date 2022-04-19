@@ -46,23 +46,37 @@ echo "Adding key vault secrets officer role to signed in user"
 key_vault::assign_secrets_officer_role_to_user "${resource_group}"
 
 echo "Generating and setting secrets"
-key_vault::add_generated_secrets \
-  "${vault_name}" \
-  "${POSTGRES_PASSWORD_NAME}" \
-  "${APP_SECRET_KEY_NAME}" \
+if key_vault::has_secret "${vault_name}" "${POSTGRES_PASSWORD_NAME}"; then
+  echo "Key ${POSTGRES_PASSWORD_NAME} exists in the secret store"
+else
+  key_vault::add_generated_secrets \
+    "${vault_name}" \
+    "${POSTGRES_PASSWORD_NAME}"
+fi
+
+if key_vault::has_secret "${vault_name}" "${APP_SECRET_KEY_NAME}"; then
+  echo "Key ${APP_SECRET_KEY_NAME} exists in the secret store"
+else
+  key_vault::add_generated_secrets \
+    "${vault_name}" \
+    "${APP_SECRET_KEY_NAME}"
+fi
 
 echo "Adding placeholder values for secrets we set later"
-key_vault::add_secret \
-  "${vault_name}" \
-  "${ADFS_SECRET_NAME}" \
-  "${TEMPORARY_SECRET}"
+if key_vault::has_secret "${vault_name}" "${ADFS_SECRET_NAME}"; then
+  echo "Key ${ADFS_SECRET_NAME} exists in the secret store"
+else
+  key_vault::add_secret \
+    "${vault_name}" \
+    "${ADFS_SECRET_NAME}" \
+    "${TEMPORARY_SECRET}"
+fi
 
-key_vault::add_secret \
-  "${vault_name}" \
-  "${ADFS_CLIENT_ID}" \
-  "${TEMPORARY_SECRET}"
-
-key_vault::add_secret \
-  "${vault_name}" \
-  "${ADFS_DISCOVERY_URI}" \
-  "${TEMPORARY_SECRET}"
+if key_vault::has_secret "${vault_name}" "${ADFS_DISCOVERY_URI}"; then
+  echo "Key ${ADFS_DISCOVERY_URI} exists in the secret store"
+else
+  key_vault::add_secret \
+    "${vault_name}" \
+    "${ADFS_DISCOVERY_URI}" \
+    "${TEMPORARY_SECRET}"
+fi

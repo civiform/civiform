@@ -1,16 +1,7 @@
 package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
-import static j2html.TagCreator.p;
-import static j2html.TagCreator.table;
-import static j2html.TagCreator.tbody;
-import static j2html.TagCreator.td;
-import static j2html.TagCreator.th;
-import static j2html.TagCreator.thead;
-import static j2html.TagCreator.tr;
+import static j2html.TagCreator.*;
 
 import com.google.inject.Inject;
 import j2html.tags.ContainerTag;
@@ -158,34 +149,29 @@ public final class QuestionsListView extends BaseHtmlView {
                         Styles.W_1_6)));
   }
 
-  /** Display this as a table row with all fields. */
+  /**
+   * Display this as a table row with all fields.
+   *
+   * <p>One of {@code activeDefinition} and {@code draftDefinition} must be specified.
+   */
   private Tag renderQuestionTableRow(
       Optional<QuestionDefinition> activeDefinition,
       Optional<QuestionDefinition> draftDefinition,
       DeletionStatus deletionStatus,
       Http.Request request) {
-    QuestionDefinition definition;
-    // Find the main definition to display information from.  Prefer the latest draft.  If there
-    // is no draft, choose an active one if exists.  There will be at least one or we
-    // wouldn't have gotten here!
-    if (draftDefinition.isPresent()) {
-      definition = draftDefinition.get();
-    } else if (activeDefinition.isPresent()) {
-      definition = activeDefinition.get();
-    } else {
+    if (draftDefinition.isEmpty() && activeDefinition.isEmpty()) {
       throw new IllegalArgumentException("Did not receive a valid question.");
     }
+    QuestionDefinition latestDefinition = draftDefinition.orElseGet(() -> activeDefinition.get());
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             Styles.BORDER_B,
             Styles.BORDER_GRAY_300,
             StyleUtils.even(Styles.BG_GRAY_100))
-        .with(renderInfoCell(definition))
-        .with(renderQuestionTextCell(definition))
-        .with(renderSupportedLanguages(definition))
-        .with(
-            renderActionsCell(
-                activeDefinition, draftDefinition, definition, deletionStatus, request));
+        .with(renderInfoCell(latestDefinition))
+        .with(renderQuestionTextCell(latestDefinition))
+        .with(renderSupportedLanguages(latestDefinition))
+        .with(renderActionsCell(activeDefinition, draftDefinition, deletionStatus, request));
   }
 
   private Tag renderInfoCell(QuestionDefinition definition) {
@@ -262,32 +248,34 @@ public final class QuestionsListView extends BaseHtmlView {
   private Tag renderActionsCell(
       Optional<QuestionDefinition> active,
       Optional<QuestionDefinition> draft,
-      QuestionDefinition definition,
       DeletionStatus deletionStatus,
       Http.Request request) {
     ContainerTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT);
-    if (active.isPresent() && draft.isEmpty()) {
-      td.with(renderQuestionViewLink(active.get(), "View →"));
-      td.with(renderQuestionEditLink(active.get(), "New Version →"));
-    } else if (active.isEmpty() && draft.isPresent()) {
-      td.with(renderQuestionEditLink(draft.get(), "Edit Draft →"));
-      td.with(renderQuestionTranslationLink(draft.get(), "Manage Translations →"));
-    } else if (active.isPresent() && draft.isPresent()) {
-      td.with(renderQuestionViewLink(active.get(), "View Published →"));
-      td.with(renderQuestionEditLink(draft.get(), "Edit Draft →"));
-      td.with(renderQuestionTranslationLink(draft.get(), "Manage Draft Translations →"));
-    } else if (active.isEmpty() && draft.isEmpty()) {
-      td.with(renderQuestionViewLink(definition, "View →"));
+    if (active.isPresent()) {
+      if (draft.isEmpty()) {
+        // Active without a draft.
+        td.with(renderQuestionViewLink(active.get(), "View →")).with(br());
+        td.with(renderQuestionEditLink(active.get(), "New Version →")).with(br());
+      } else if (draft.isPresent()) {
+        // Active with a draft.
+        td.with(renderQuestionViewLink(active.get(), "View Published →")).with(br());
+        td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
+        td.with(renderQuestionTranslationLink(draft.get(), "Manage Draft Translations →"))
+            .with(br());
+        td.with(renderDiscardDraftLink(draft.get(), "Discard Draft →", request)).with(br());
+      }
+    } else if (draft.isPresent()) {
+      // First revision of a question.
+      td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
+      td.with(renderQuestionTranslationLink(draft.get(), "Manage Translations →")).with(br());
     }
+    // Add Archive options.
     if (active.isPresent()) {
       if (deletionStatus.equals(DeletionStatus.PENDING_DELETION)) {
-        td.with(renderRestoreQuestionLink(active.get(), "Restore Archived →", request));
+        td.with(renderRestoreQuestionLink(active.get(), "Restore Archived →", request)).with(br());
       } else if (deletionStatus.equals(DeletionStatus.DELETABLE)) {
-        td.with(renderArchiveQuestionLink(active.get(), "Archive →", request));
+        td.with(renderArchiveQuestionLink(active.get(), "Archive →", request)).with(br());
       }
-    }
-    if (draft.isPresent()) {
-      td.with(renderDiscardDraftLink(draft.get(), "Discard Draft →", request));
     }
     return td;
   }

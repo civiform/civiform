@@ -121,8 +121,7 @@ ssh -q -o "UserKnownHostsFile=/dev/null" \
         -t questions \
         -t versions \
         -t versions_programs \
-        -t versions_questions \
-        postgres > program_data.dump"
+        -t versions_questions > program_data.dump"
 
 echo "Copying file to local computer using scp"
 scp -o "UserKnownHostsFile=/dev/null" \

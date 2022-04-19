@@ -202,7 +202,8 @@ public class QuestionServiceImplTest extends ResetPostgres {
             .getSampleQuestionsForAllTypes()
             .get(QuestionType.ENUMERATOR)
             .getQuestionDefinition();
-    long enumeratorDraftId = enumeratorQuestion.getId() + 100000;
+    long enumeratorActiveId = enumeratorQuestion.getId();
+    long enumeratorDraftId = enumeratorActiveId + 100000;
 
     testQuestionBank.maybeSave(
         new QuestionDefinitionBuilder(enumeratorQuestion).setId(enumeratorDraftId).build(),
@@ -221,9 +222,7 @@ public class QuestionServiceImplTest extends ResetPostgres {
     Optional<Question> dependentDraft =
         versionRepository.getDraftVersion().getQuestionByName(dependentQuestion.getName());
     assertThat(dependentDraft).isPresent();
-    // TODO(#2249): This should actually have been updated to a valid id, and not still be the one
-    // that was discarded.
     assertThat(dependentDraft.get().getQuestionDefinition().getEnumeratorId().get())
-        .isEqualTo(enumeratorDraftId);
+        .isEqualTo(enumeratorActiveId);
   }
 }

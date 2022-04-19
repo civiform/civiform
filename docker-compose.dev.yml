@@ -1,13 +1,57 @@
+# Builds on docker-compose.yml
 # Mount code for hot reloading and cache for faster compile in dev mode.
-version: '3.1'
+version: '3.4'
+
+# Shared yaml extensions (https://docs.docker.com/compose/compose-file/compose-file-v3/#extension-fields)
+# Volume mapping shared between containers.
+x-sbt-volumes:
+  volumes: &sbt-volumes
+    - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
+    - target:/usr/src/universal-application-tool-0.0.1/target
+    - node_modules-data:/usr/src/universal-application-tool-0.0.1/node_modules
+    - project-data:/usr/src/universal-application-tool-0.0.1/project
+    - coursier-data:/root/.cache/coursier
+    - sbt-data:/root/.sbt
+    - ivy2-data:/root/.ivy2
+    - m2-data:/root/.m2
 
 services:
-
   civiform:
     build: .
+    volumes: *sbt-volumes
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+
+  civiform-shell:
+    container_name: civiform-shell
+    image: civiform-dev
+    entrypoint: /bin/bash
+    profiles: ["shell"]
+    volumes: *sbt-volumes
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+
+  db:
+    image: postgres:12.5
     volumes:
-      - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
-      - ./sbt_cache/coursier:/root/.cache/coursier
-      - ~/.sbt:/root/.sbt
-      - ~/.ivy:/root/.ivy2
-      - ~/.m2:/root/.m2
+      # isolate and persist dev database.
+      - project-data:/project
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
+    driver: local
+  node_modules-data:
+    driver: local
+  project-data:
+    driver: local
+  coursier-data:
+    driver: local
+  sbt-data:
+    driver: local
+  ivy2-data:
+    driver: local
+  m2-data:
+    driver: local
+  target:
+    driver: local

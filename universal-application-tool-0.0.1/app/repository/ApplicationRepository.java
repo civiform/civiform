@@ -131,7 +131,8 @@ public class ApplicationRepository {
   }
 
   public ImmutableList<Application> getAllApplications() {
-    return ImmutableList.copyOf(database.find(Application.class).findList());
+    return ImmutableList.copyOf(
+        database.find(Application.class).fetch("program").fetch("applicant.account").findList());
   }
 
   // Need to transmit both arguments to submitApplication through the CompletionStage pipeline.

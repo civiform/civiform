@@ -8,6 +8,7 @@
     "hashicorp.terraform",
     "ms-ossdata.vscode-postgresql",
     "bradlc.vscode-tailwindcss",
-    "scala-lang.scala"
+    "scala-lang.scala",
+    "redhat.vscode-yaml"
   ]
 }

@@ -133,6 +133,27 @@ public class CsvExporterTest extends AbstractExporterTest {
   }
 
   @Test
+  public void demographyExport_withRepeatedEntities() throws Exception {
+    createFakeProgramWithEnumerator();
+
+    ExporterService exporterService = instanceOf(ExporterService.class);
+    CSVParser parser =
+        CSVParser.parse(exporterService.getDemographicsCsv(), CsvExporter.DEFAULT_CSV_FORMAT);
+
+    int id = 0;
+    assertThat(parser.getHeaderMap())
+        .containsExactlyEntriesOf(
+            ImmutableMap.<String, Integer>builder()
+                .put("Opaque ID", id++)
+                .put("Program", id++)
+                .put("Submitter Email (Opaque)", id++)
+                .put("TI Organization", id++)
+                .put("Create time", id++)
+                .put("Submit time", id++)
+                .build());
+  }
+
+  @Test
   public void useDefaultCsvConfig_withRepeatedEntities() throws Exception {
     createFakeProgramWithEnumerator();
 

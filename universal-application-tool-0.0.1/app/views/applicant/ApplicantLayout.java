@@ -183,9 +183,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
                   Styles.PX_3,
                   Styles.TEXT_SM,
                   Styles.OPACITY_75,
-                  StyleUtils.hover(Styles.OPACITY_100)),
+                  StyleUtils.hover(Styles.OPACITY_100),
+                  ApplicantStyles.BUTTON_PROGRAM_APPLY),
           div("(applying as: " + userName + ")")
-              .withClasses(Styles.TEXT_SM, Styles.PX_3, Styles.OPACITY_75));
+              .withClasses(Styles.TEXT_SM, Styles.TEXT_BLACK, Styles.TEXT_CENTER));
     }
     return div();
   }
