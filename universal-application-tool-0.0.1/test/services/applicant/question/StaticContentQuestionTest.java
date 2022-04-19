@@ -43,7 +43,7 @@ public class StaticContentQuestionTest extends ResetPostgres {
 
     StaticContentQuestion question = new StaticContentQuestion(applicantQuestion);
 
-    assertThat(question.hasConditionErrors()).isFalse();
-    assertThat(question.hasTypeSpecificErrors()).isFalse();
+    assertThat(question.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(question.getAllTypeSpecificErrors().isEmpty()).isTrue();
   }
 }

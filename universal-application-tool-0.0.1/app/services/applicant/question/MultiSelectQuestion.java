@@ -32,11 +32,6 @@ public class MultiSelectQuestion implements Question {
   }
 
   @Override
-  public boolean hasConditionErrors() {
-    return !getQuestionErrors().isEmpty();
-  }
-
-  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     if (!isAnswered()) {
       return ImmutableSet.of();
@@ -66,11 +61,6 @@ public class MultiSelectQuestion implements Question {
       }
     }
     return errors.build();
-  }
-
-  @Override
-  public boolean hasTypeSpecificErrors() {
-    return !getAllTypeSpecificErrors().isEmpty();
   }
 
   @Override
