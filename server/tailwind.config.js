@@ -27,6 +27,7 @@ const styleFolder = './app/views/style/'
 const styleFiles = ['Styles.java', 'ReferenceClasses.java']
 
 // Prefixes for media queries
+// Each list tuple represents ['j2hml method call', 'tailwind css media query']
 const PREFIXES = [
   ['even', 'even'],
   ['focus', 'focus'],
