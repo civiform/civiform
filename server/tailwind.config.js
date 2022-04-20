@@ -17,7 +17,7 @@ const JAVA_STYLE_VALUE_REGEX =
 
 const STYLE_USAGE_REGEX = /(?<=(Styles|ReferenceClasses)\.)([0-9A-Z_]+)/g
 
-let MEDIA_QUERY_CALL_STR_START = '/(?<=StyleUtils.('
+const MEDIA_QUERY_CALL_STR_START = '/(?<=StyleUtils.('
 
 const MEDIA_QUERY_BEGIN = '(?<=StyleUtils.'
 const MEDIA_QUERY_CALL_END = '\\()([a-zA-Z0-9_.,\\s]+\\))'
