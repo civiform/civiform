@@ -10,7 +10,6 @@ import javax.annotation.Nullable;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.RepeatedEntity;
-import services.applicant.ValidationErrorMessage;
 import services.program.ProgramQuestionDefinition;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;

@@ -116,7 +116,8 @@ public class TextQuestionTest extends ResetPostgres {
     }
     assertThat(textQuestion.getQuestionErrors().isEmpty()).isTrue();
     assertThat(textQuestion.getAllTypeSpecificErrors()).hasSize(1);
-    String errorMessage = textQuestion.getAllTypeSpecificErrors().iterator().next().getMessage(messages);
+    String errorMessage =
+        textQuestion.getAllTypeSpecificErrors().iterator().next().getMessage(messages);
     assertThat(errorMessage).isEqualTo(expectedErrorMessage);
   }
 }

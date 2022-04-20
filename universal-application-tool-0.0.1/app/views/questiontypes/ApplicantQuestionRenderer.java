@@ -3,8 +3,8 @@ package views.questiontypes;
 import j2html.tags.Tag;
 
 /**
- * Interface for all applicant question renderers. An applicant question renderer renders a
- * question to be seen by an applicant
+ * Interface for all applicant question renderers. An applicant question renderer renders a question
+ * to be seen by an applicant
  */
 public interface ApplicantQuestionRenderer {
 

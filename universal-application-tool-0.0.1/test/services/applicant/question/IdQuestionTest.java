@@ -115,7 +115,8 @@ public class IdQuestionTest extends ResetPostgres {
     }
     assertThat(idQuestion.getQuestionErrors().isEmpty()).isTrue();
     assertThat(idQuestion.getAllTypeSpecificErrors()).hasSize(1);
-    String errorMessage = idQuestion.getAllTypeSpecificErrors().iterator().next().getMessage(messages);
+    String errorMessage =
+        idQuestion.getAllTypeSpecificErrors().iterator().next().getMessage(messages);
     assertThat(errorMessage).isEqualTo(expectedErrorMessage);
   }
 }

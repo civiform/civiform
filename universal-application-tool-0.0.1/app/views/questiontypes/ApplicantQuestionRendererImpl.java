@@ -17,8 +17,8 @@ import views.style.ReferenceClasses;
 import views.style.Styles;
 
 /**
- * Superclass for all applicant question renderers with input field(s) for
- * the applicant to answer the question.
+ * Superclass for all applicant question renderers with input field(s) for the applicant to answer
+ * the question.
  */
 public abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRenderer {
 
@@ -54,7 +54,8 @@ public abstract class ApplicantQuestionRendererImpl implements ApplicantQuestion
                     .with(TextFormatter.createLinksAndEscapeText(question.getQuestionHelpText())))
             .withClasses(Styles.MB_4);
 
-    ImmutableSet<ValidationErrorMessage> questionErrors = question.errorsPresenter().getQuestionErrors();
+    ImmutableSet<ValidationErrorMessage> questionErrors =
+        question.errorsPresenter().getQuestionErrors();
     if (!questionErrors.isEmpty()) {
       // Question error text
       questionTextDiv.with(BaseHtmlView.fieldErrors(messages, questionErrors));
