@@ -70,7 +70,8 @@ services:
       - LOGIN_RADIUS_KEYSTORE_PASS
       - LOGIN_RADIUS_KEYSTORE_NAME
       - CIVIFORM_APPLICANT_IDP
-      - CIVIFORM_ADMIN_IDP 
+      - CIVIFORM_ADMIN_IDP
+      # Hard coded in test-support/test_oidc_provider.js
       - IDCS_CLIENT_ID=foo
       - IDCS_SECRET=bar
       - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
