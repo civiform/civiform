@@ -6,7 +6,7 @@ source bin/lib.sh
 
 docker run -it --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  -v $(pwd)/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1 \
+  -v $(pwd)/civiform-server:/usr/src/civiform-server \
   --entrypoint npx \
   civiform \
   tailwindcss build \

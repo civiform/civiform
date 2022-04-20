@@ -6,10 +6,10 @@ version: '3.4'
 # Volume mapping shared between containers.
 x-sbt-volumes:
   volumes: &sbt-volumes
-    - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
-    - target:/usr/src/universal-application-tool-0.0.1/target
-    - node_modules-data:/usr/src/universal-application-tool-0.0.1/node_modules
-    - project-data:/usr/src/universal-application-tool-0.0.1/project
+    - ./civiform-server:/usr/src/civiform-server
+    - target:/usr/src/civiform-server/target
+    - node_modules-data:/usr/src/civiform-server/node_modules
+    - project-data:/usr/src/civiform-server/project
     - coursier-data:/root/.cache/coursier
     - sbt-data:/root/.sbt
     - ivy2-data:/root/.ivy2

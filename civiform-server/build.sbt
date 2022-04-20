@@ -119,7 +119,7 @@ lazy val root = (project in file("."))
 // to reload when stopping/starting the server on watch mode.
 lazy val excludeTailwindGeneration = Seq(watchSources := {
   val fileToExclude =
-    "universal-application-tool-0.0.1/public/stylesheets/tailwind.css"
+    "civiform-server/public/stylesheets/tailwind.css"
   val customSourcesFilter = new FileFilter {
     override def accept(f: File): Boolean =
       f.getPath.contains(fileToExclude)

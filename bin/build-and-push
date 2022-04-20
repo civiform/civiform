@@ -17,10 +17,10 @@ docker build -f prod.Dockerfile \
   --build-arg "image_tag=${SNAPSHOT_TAG}" \
   .
 
-docker::do_dockerhub_login
+# docker::do_dockerhub_login
 
-docker tag civiform:latest civiform/civiform:latest
-docker tag civiform:latest "civiform/civiform:${SNAPSHOT_TAG}"
+# docker tag civiform:latest civiform/civiform:latest
+# docker tag civiform:latest "civiform/civiform:${SNAPSHOT_TAG}"
 
-# push the new image to the Docker Hub registry
-docker push --all-tags civiform/civiform
+# # push the new image to the Docker Hub registry
+# docker push --all-tags civiform/civiform

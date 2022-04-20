@@ -8,21 +8,19 @@ source bin/lib.sh
 
 bin/pull-image
 
-if [ -e universal-application-tool-0.0.1/pom.xml ]; then
-  cp universal-application-tool-0.0.1/pom.xml \
-    universal-application-tool-0.0.1/pom.bkp
+if [ -e civiform-server/pom.xml ]; then
+  cp civiform-server/pom.xml civiform-server/pom.bkp
 fi
 
 bin/sbt makePom
 
 # Copy the generated target directory from the docker container to a local dir
 # so that we can use globs to copy the correct file out.
-docker cp civiform-shell:/usr/src/universal-application-tool-0.0.1/target universal-application-tool-0.0.1/temp
+docker cp civiform-shell:/usr/src/civiform-server/target civiform-server/temp
 
-cp universal-application-tool-0.0.1/temp/scala-*/*.pom \
-  universal-application-tool-0.0.1/pom.xml
+cp civiform-server/temp/scala-*/*.pom civiform-server/pom.xml
 
-rm -rf universal-application-tool-0.0.1/temp
+rm -rf civiform-server/temp
 
 BUILD=$(
          cat <<END
@@ -44,5 +42,4 @@ BUILD=$(
 END
 )
 
-perl -i -pe "s|<modelVersion>|${BUILD}|g" \
-  universal-application-tool-0.0.1/pom.xml
+perl -i -pe "s|<modelVersion>|${BUILD}|g" civiform-server/pom.xml

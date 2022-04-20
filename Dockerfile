@@ -26,7 +26,7 @@ RUN set -o pipefail && \
     echo -ne "- with sbt ${SBT_VERSION}\n" >> /root/.built
 
 ENV PROJECT_HOME /usr/src
-ENV PROJECT_NAME universal-application-tool-0.0.1
+ENV PROJECT_NAME civiform-server
 
 COPY "${PROJECT_NAME}" "${PROJECT_HOME}/${PROJECT_NAME}"
 
