@@ -23,8 +23,8 @@ const MEDIA_QUERY_BEGIN = '(?<=StyleUtils.'
 const MEDIA_QUERY_CALL_END = '\\()([a-zA-Z0-9_.,\\s]+\\))'
 
 // Files to parse for style dictonary using regex
-const styleFolder = './app/views/style/'
-const styleFiles = ['Styles.java', 'ReferenceClasses.java']
+const STYLE_FOLDER = './app/views/style/'
+const STYLE_FILES = ['Styles.java', 'ReferenceClasses.java']
 
 // Prefixes for media queries
 // Each list tuple represents ['j2hml method call', 'tailwind css media query']
@@ -65,8 +65,8 @@ function addStyleDictMatches(matches, file_contents) {
 
 function getStylesDict() {
   const matches = {}
-  for (const file of styleFiles) {
-    let contents = fs.readFileSync(styleFolder + file, 'utf8')
+  for (const file of STYLE_FILES) {
+    let contents = fs.readFileSync(STYLE_FOLDER + file, 'utf8')
     const data = contents.split('\n')
     addStyleDictMatches(matches, data)
   }
