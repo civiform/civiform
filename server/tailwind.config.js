@@ -44,9 +44,9 @@ const PREFIXES = [
 // Used to read Styles.java and ReferenceClasses.java to get dictionary mapping
 // for all possible base styles (no prefixes)
 function addStyleDictMatches(matches, file_contents) {
-  let lineNmbr = 0
+  let lineNumber = 0
   for (const line of file_contents) {
-    lineNmbr++
+    lineNumber++
 
     let match_key = line.match(JAVA_STYLE_KEY_REGEX)
     let match_val = line.match(JAVA_STYLE_VALUE_REGEX)
@@ -57,7 +57,7 @@ function addStyleDictMatches(matches, file_contents) {
       if (match_key.length === 1 && match_val.length === 1) {
         matches[match_key[0]] = match_val[0]
       } else {
-        throw "strange line in 'Styles.java' at line " + lineNmbr.toString()
+        throw "strange line in 'Styles.java' at line " + lineNumber.toString()
       }
     }
   }
