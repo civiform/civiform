@@ -4,11 +4,11 @@
 
 source bin/lib.sh
 
-CIVIFORM_SOURCE=civiform/civiform-dev:latest
-OIDC_SOURCE=docker.io/civiform/oidc-provider:latest
-AZURE_SOURCE=mcr.microsoft.com/azure-storage/azurite
-AWS_SOURCE=localstack/localstack
-LOCAL_TAG=civiform-dev
+readonly CIVIFORM_SOURCE=civiform/civiform-dev:latest
+readonly OIDC_SOURCE=docker.io/civiform/oidc-provider:latest
+readonly AZURE_SOURCE=mcr.microsoft.com/azure-storage/azurite
+readonly AWS_SOURCE=localstack/localstack
+readonly LOCAL_TAG=civiform-dev
 
 echo "Making sure we're up to date with the latest dev"
 
