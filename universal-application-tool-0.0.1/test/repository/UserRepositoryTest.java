@@ -61,6 +61,7 @@ public class UserRepositoryTest extends ResetPostgres {
 
   @Test
   public void lookupByAuthorityId() {
+
     new Account().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
 
     assertThat(repo.lookupAccountByAuthorityId(AUTHORITY_ID).get().getEmailAddress())
