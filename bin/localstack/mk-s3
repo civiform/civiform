@@ -16,4 +16,5 @@ create_s3_bucket="s3api create-bucket
 
 # We first check to see if the desired bucket already exists
 # prior to trying to create it.
-localstack::run_command "${check_bucket}" || localstack::run_command "${create_s3_bucket}"
+localstack::run_command "${check_bucket}" \
+  || localstack::run_command "${create_s3_bucket}"
