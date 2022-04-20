@@ -34,14 +34,17 @@ const configuration = {
   }
 };
 
-const oidc = new Provider('http://localhost:3380', configuration);
+const oidc_port = process.env.OIDC_PORT ? process.env.OIDC_PORT : 3380;
+const oidc = new Provider('http://localhost:' + oidc_port, configuration);
 
-var process = require('process');
 process.on('SIGINT', () => {
   console.info("Interrupted")
   process.exit(0)
 });
 
-const server = oidc.listen(3380, () => {
-  console.log('oidc-provider listening on port 3380, check http://localhost:3380/.well-known/openid-configuration');
+const server = oidc.listen(oidc_port, () => {
+  console.log(
+    'oidc-provider listening on port %d, check http://localhost:%d/.well-known/openid-configuration',
+    oidc_port,
+    oidc_port);
 });
