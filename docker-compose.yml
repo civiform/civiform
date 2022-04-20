@@ -18,14 +18,19 @@ services:
      ports:
       - 10000:10000
 
-  dev-idcs:
+  # The dev oidc server needs to be visible to the Civiform server and web browsers
+  # on the same host:port. Developers need to add an localhost IP alias for this
+  # container name in their /etc/hosts file.
+  # EG: 127.0.0.1 dev-oidc
+  dev-oidc:
     image: docker.io/civiform/oidc-provider:latest
     restart: always
-    container_name: dev-idcs
+    container_name: dev-oidc
     ports:
-      - 3381:3381
+      - 3390:3390
     environment:
-      - OIDC_PORT=3381
+      # Use an explicit port to not conflict with other test instances.
+      - OIDC_PORT=3390
 
   db:
     image: postgres:12.10
@@ -42,7 +47,7 @@ services:
     container_name: civiform
     links:
       - "db:database"
-      - "dev-idcs"
+      - "dev-oidc"
     ports:
       - 9000:9000
       - 8457:8457
@@ -68,7 +73,7 @@ services:
       - CIVIFORM_ADMIN_IDP 
       - IDCS_CLIENT_ID=foo
       - IDCS_SECRET=bar
-      - IDCS_DISCOVERY_URI=http://dev-idcs:3381/.well-known/openid-configuration
+      - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
       - ADFS_CLIENT_ID
       - ADFS_SECRET
       - CF_OPTIONAL_QUESTIONS
