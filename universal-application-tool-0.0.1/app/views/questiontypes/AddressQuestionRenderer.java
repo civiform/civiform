@@ -24,11 +24,6 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected boolean shouldDisplayQuestionErrors() {
-      return true;
-  }
-
-  @Override
   protected Tag renderTag(ApplicantQuestionRendererParams params) {
     Messages messages = params.messages();
     AddressQuestion addressQuestion = question.createAddressQuestion();

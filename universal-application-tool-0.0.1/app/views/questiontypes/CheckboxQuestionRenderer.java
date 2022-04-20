@@ -29,11 +29,6 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected boolean shouldDisplayQuestionErrors() {
-      return true;
-  }
-
-  @Override
   protected Tag renderTag(ApplicantQuestionRendererParams params) {
     MultiSelectQuestion multiOptionQuestion = question.createMultiSelectQuestion();
 

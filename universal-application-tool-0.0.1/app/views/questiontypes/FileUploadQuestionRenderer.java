@@ -34,7 +34,7 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
     return FieldWithLabel.input()
         .setFieldName(fileuploadQuestion.getFileKeyPath().toString())
         .setValue(value)
-        .setFieldErrors(params.messages(), fileuploadQuestion.getQuestionErrors())
+        .setFieldErrors(params.messages(), fileuploadQuestion.getAllTypeSpecificErrors())
         .getContainer();
   }
 
@@ -43,11 +43,6 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
     super(question);
     this.fileuploadQuestion = question.createFileUploadQuestion();
     this.fileUploadViewStrategy = fileUploadViewStrategy;
-  }
-
-  @Override
-  protected boolean shouldDisplayQuestionErrors() {
-      return true;
   }
 
   @Override

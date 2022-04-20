@@ -170,10 +170,6 @@ public class ApplicantQuestion {
     }
   }
 
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    return errorsPresenter().getQuestionErrors();
-  }
-
   public boolean hasErrors() {
     return !errorsPresenter().getQuestionErrors().isEmpty()
         || !errorsPresenter().getAllTypeSpecificErrors().isEmpty();

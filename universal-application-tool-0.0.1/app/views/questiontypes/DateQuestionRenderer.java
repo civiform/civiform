@@ -21,11 +21,6 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected boolean shouldDisplayQuestionErrors() {
-      return false;
-  }
-
-  @Override
   protected Tag renderTag(ApplicantQuestionRendererParams params) {
     DateQuestion dateQuestion = question.createDateQuestion();
 

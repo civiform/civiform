@@ -30,14 +30,14 @@ public class EnumeratorQuestion implements Question {
   }
 
   @Override
-  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
+  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {  
     // There are no inherent requirements in an enumerator question.
     return ImmutableSet.of();
   }
 
-  /** No blank values are allowed. No duplicated entity names are allowed. */
+    /** No blank values are allowed. No duplicated entity names are allowed. */
   @Override
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     if (!isAnswered()) {
       return ImmutableSet.of();
     }

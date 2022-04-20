@@ -16,10 +16,6 @@ public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
   public String getReferenceClass() {
     return "cf-question-id";
   }
-  @Override
-  protected boolean shouldDisplayQuestionErrors() {
-      return false;
-  }
 
   @Override
   protected Tag renderTag(ApplicantQuestionRendererParams params) {
@@ -29,7 +25,7 @@ public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
         FieldWithLabel.input()
             .setFieldName(idQuestion.getIdPath().toString())
             .setValue(idQuestion.getIdValue().orElse(""))
-            .setFieldErrors(params.messages(), idQuestion.getQuestionErrors())
+            .setFieldErrors(params.messages(), idQuestion.getAllTypeSpecificErrors())
             .setScreenReaderText(question.getQuestionText())
             .getContainer();
 

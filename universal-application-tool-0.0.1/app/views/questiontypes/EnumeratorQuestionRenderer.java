@@ -50,11 +50,6 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected boolean shouldDisplayQuestionErrors() {
-      return false;
-  }
-
-  @Override
   protected Tag renderTag(ApplicantQuestionRendererParams params) {
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
@@ -77,7 +72,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
             .withClasses(
                 ReferenceClasses.ENUMERATOR_ERROR,
                 BaseStyles.FORM_ERROR_TEXT_BASE,
-                enumeratorQuestion.getQuestionErrors().isEmpty() ? Styles.HIDDEN : "");
+                enumeratorQuestion.getAllTypeSpecificErrors().isEmpty() ? Styles.HIDDEN : "");
 
     Tag enumeratorQuestionFormContent =
         div()

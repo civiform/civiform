@@ -31,6 +31,11 @@ public class TextQuestion implements Question {
 
   @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+    return ImmutableSet.of();
+  }
+
+  @Override
+  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     if (!isAnswered()) {
       return ImmutableSet.of();
     }
@@ -54,12 +59,6 @@ public class TextQuestion implements Question {
     }
 
     return errors.build();
-  }
-
-  @Override
-  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    // There are no inherent requirements in a text question.
-    return ImmutableSet.of();
   }
 
   @Override

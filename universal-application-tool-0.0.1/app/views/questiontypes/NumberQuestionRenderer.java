@@ -24,11 +24,6 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected boolean shouldDisplayQuestionErrors() {
-      return false;
-  }
-
-  @Override
   protected Tag renderTag(ApplicantQuestionRendererParams params) {
     NumberQuestion numberQuestion = question.createNumberQuestion();
 

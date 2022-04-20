@@ -18,11 +18,6 @@ public class TextQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected boolean shouldDisplayQuestionErrors() {
-      return false;
-  }
-
-  @Override
   protected Tag renderTag(ApplicantQuestionRendererParams params) {
     TextQuestion textQuestion = question.createTextQuestion();
 
@@ -30,7 +25,7 @@ public class TextQuestionRenderer extends ApplicantQuestionRendererImpl {
         FieldWithLabel.input()
             .setFieldName(textQuestion.getTextPath().toString())
             .setValue(textQuestion.getTextValue().orElse(""))
-            .setFieldErrors(params.messages(), textQuestion.getQuestionErrors())
+            .setFieldErrors(params.messages(), textQuestion.getAllTypeSpecificErrors())
             .setScreenReaderText(question.getQuestionText())
             .getContainer();
 

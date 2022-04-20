@@ -3,10 +3,12 @@ package views.questiontypes;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableSet;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import play.i18n.Messages;
 import services.MessageKey;
+import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import views.BaseHtmlView;
 import views.components.TextFormatter;
@@ -32,8 +34,6 @@ public abstract class ApplicantQuestionRendererImpl implements ApplicantQuestion
 
   protected abstract Tag renderTag(ApplicantQuestionRendererParams params);
 
-  protected abstract boolean shouldDisplayQuestionErrors();
-
   @Override
   public final Tag render(ApplicantQuestionRendererParams params) {
     Messages messages = params.messages();
@@ -54,9 +54,10 @@ public abstract class ApplicantQuestionRendererImpl implements ApplicantQuestion
                     .with(TextFormatter.createLinksAndEscapeText(question.getQuestionHelpText())))
             .withClasses(Styles.MB_4);
 
-    if (shouldDisplayQuestionErrors()) {
+    ImmutableSet<ValidationErrorMessage> questionErrors = question.errorsPresenter().getQuestionErrors();
+    if (!questionErrors.isEmpty()) {
       // Question error text
-      questionTextDiv.with(BaseHtmlView.fieldErrors(messages, question.getQuestionErrors()));
+      questionTextDiv.with(BaseHtmlView.fieldErrors(messages, questionErrors));
     }
 
     if (question.isRequiredButWasSkippedInCurrentProgram()) {

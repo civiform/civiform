@@ -19,11 +19,6 @@ public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected boolean shouldDisplayQuestionErrors() {
-      return false;
-  }
-
-  @Override
   protected Tag renderTag(ApplicantQuestionRendererParams params) {
     EmailQuestion emailQuestion = question.createEmailQuestion();
 
@@ -31,7 +26,7 @@ public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
         FieldWithLabel.email()
             .setFieldName(emailQuestion.getEmailPath().toString())
             .setValue(emailQuestion.getEmailValue().orElse(""))
-            .setFieldErrors(params.messages(), emailQuestion.getQuestionErrors())
+            .setFieldErrors(params.messages(), emailQuestion.getAllTypeSpecificErrors())
             .setScreenReaderText(question.getQuestionText())
             .getContainer();
 

@@ -29,11 +29,6 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected boolean shouldDisplayQuestionErrors() {
-      return true;
-  }
-
-  @Override
   protected Tag renderTag(ApplicantQuestionRendererParams params) {
     SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
 

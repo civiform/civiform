@@ -24,11 +24,6 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected boolean shouldDisplayQuestionErrors() {
-      return false;
-  }
-
-  @Override
   protected Tag renderTag(ApplicantQuestionRendererParams params) {
     CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
 
