@@ -27,7 +27,7 @@ public final class Styles {
   //   See JAVA_STYLES_KEY_REGEX in tailwind.config.js
   //
   // - Field variable values can have lowercase letters, numbers, dash, period, and forward slash
-  //   In other words, they need to match /[a-z0-9-/.]+/
+  //   In other words, they need to match the regular expression /[a-z0-9-/.]+/
   //   otherwise they will not show up in the final CSS style file without modifying the parse code
   //
   //   See  in tailwin.config.js

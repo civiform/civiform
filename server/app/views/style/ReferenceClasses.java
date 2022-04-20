@@ -17,13 +17,13 @@ public final class ReferenceClasses {
   //   they should match /[0-9A-Z_]+/
   //   otherwise they will not show up in the final CSS style file without modifying the parse code
   //
-  //   See RGX_KEY in tailwind.config.js
+  //   See JAVA_STYLES_KEY_REGEX in tailwind.config.js
   //
   // - Field variable values can have lowercase letters, numbers, dash, period, and forward slash
-  //   In other words, they need to match /[a-z0-9-/.]+/
+  //   In other words, they need to match the regular expression /[a-z0-9-/.]+/
   //   otherwise they will not show up in the final CSS style file without modifying the parse code
   //
-  //   See RGX_VAL in tailwin.config.js
+  //   See  in tailwin.config.js
   //
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
