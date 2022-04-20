@@ -34,7 +34,7 @@ const configuration = {
   }
 };
 
-const oidcPort = process.env.OIDC_PORT ? process.env.OIDC_PORT : 3380;
+const oidcPort = process.env.OIDC_PORT || 3380;
 const oidc = new Provider('http://localhost:' + oidcPort, configuration);
 
 process.on('SIGINT', () => {
