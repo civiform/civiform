@@ -19,8 +19,8 @@ services:
       - 10000:10000
 
   # The dev oidc server needs to be visible to the Civiform server and web browsers
-  # on the same host:port. Developers need to add an localhost IP alias for this
-  # container name in their /etc/hosts file.
+  # on the same host:port. Developers need to add a localhost IP alias for this
+  # container name in their /etc/hosts file for the web brower to load the auth url.
   # EG: 127.0.0.1 dev-oidc
   dev-oidc:
     image: docker.io/civiform/oidc-provider:latest
