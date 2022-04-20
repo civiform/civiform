@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim AS stage1
+FROM adoptopenjdk/openjdk11:jdk-11.0.14.1_1-alpine-slim AS stage1
 
 ENV SBT_VERSION "1.6.2"
 ENV INSTALL_DIR /usr/local
