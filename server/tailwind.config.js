@@ -48,14 +48,14 @@ function addStyleDictMatches(matches, file_contents) {
   for (const line of file_contents) {
     lineNumber++
 
-    let match_key = line.match(JAVA_STYLE_KEY_REGEX)
-    let match_val = line.match(JAVA_STYLE_VALUE_REGEX)
+    let matchKey = line.match(JAVA_STYLE_KEY_REGEX)
+    let matchVal = line.match(JAVA_STYLE_VALUE_REGEX)
 
     // Both 'variable' and tailwind str are probably on same line
     // Even though java probably doesn't require it
-    if (Array.isArray(match_key) && Array.isArray(match_val)) {
-      if (match_key.length === 1 && match_val.length === 1) {
-        matches[match_key[0]] = match_val[0]
+    if (Array.isArray(matchKey) && Array.isArray(matchVal)) {
+      if (matchKey.length === 1 && matchVal.length === 1) {
+        matches[matchKey[0]] = matchVal[0]
       } else {
         throw "strange line in 'Styles.java' at line " + lineNumber.toString()
       }
