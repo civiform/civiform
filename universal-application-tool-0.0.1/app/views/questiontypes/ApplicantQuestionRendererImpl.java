@@ -20,11 +20,11 @@ import views.style.Styles;
  * Superclass for all applicant question renderers with input field(s) for the applicant to answer
  * the question.
  */
-public abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRenderer {
+abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRenderer {
 
   protected final ApplicantQuestion question;
 
-  public ApplicantQuestionRendererImpl(ApplicantQuestion question) {
+  ApplicantQuestionRendererImpl(ApplicantQuestion question) {
     this.question = checkNotNull(question);
   }
 
