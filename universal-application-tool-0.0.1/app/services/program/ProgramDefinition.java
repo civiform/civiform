@@ -74,22 +74,11 @@ public abstract class ProgramDefinition {
   /** When was this program created. Could be null for older programs. */
   public abstract @Nullable Instant lastModifiedTime();
 
-  /** When was this program last modified. Could be null for older programs. */
-  public abstract @Nullable Instant createTime();
-
   static final Instant DEFAULT_TIME = Instant.parse("2020-01-01T00:00:00.00Z");
 
   /** Returns creation time of the program if it's available or a default timestamp if it's not. */
   public Instant getLastModifiedTimeOrDefault() {
     return lastModifiedTime() == null ? DEFAULT_TIME : lastModifiedTime();
-  }
-
-  /**
-   * Returns last modification time of the program if it's available or a default timestamp if it's
-   * not.
-   */
-  public Instant getCreateTimeOrDefault() {
-    return createTime() == null ? DEFAULT_TIME : createTime();
   }
 
   /**
@@ -603,8 +592,6 @@ public abstract class ProgramDefinition {
     public abstract LocalizedStrings.Builder localizedNameBuilder();
 
     public abstract LocalizedStrings.Builder localizedDescriptionBuilder();
-
-    public abstract Builder setCreateTime(@Nullable Instant createTime);
 
     public abstract Builder setLastModifiedTime(@Nullable Instant lastModifiedTime);
 

@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.DbJsonB;
-import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
 import java.time.Instant;
 import java.util.List;
@@ -82,9 +81,6 @@ public class Program extends BaseModel {
   @Constraints.Required @DbJson private ImmutableList<BlockDefinition> blockDefinitions;
 
   @Constraints.Required @DbJson private ImmutableList<ExportDefinition> exportDefinitions;
-
-  /** When was this program created. */
-  @WhenCreated private Instant createTime;
 
   /** When was this program last modified. */
   @WhenModified private Instant lastModifiedTime;
@@ -180,7 +176,6 @@ public class Program extends BaseModel {
             .setExportDefinitions(exportDefinitions)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
-            .setCreateTime(createTime)
             .setLastModifiedTime(lastModifiedTime);
 
     setLocalizedName(builder);
