@@ -24,19 +24,9 @@ public class EnumeratorQuestion implements Question {
   }
 
   @Override
-  public boolean hasConditionErrors() {
-    return !getQuestionErrors().isEmpty();
-  }
-
-  @Override
   public ImmutableList<Path> getAllPaths() {
     // Not intended to return the leaf question paths.
     return ImmutableList.of();
-  }
-
-  @Override
-  public boolean hasTypeSpecificErrors() {
-    return !getAllTypeSpecificErrors().isEmpty();
   }
 
   @Override

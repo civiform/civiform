@@ -47,8 +47,8 @@ public class NameQuestionTest {
     assertThat(nameQuestion.getFirstNameValue()).isEmpty();
     assertThat(nameQuestion.getMiddleNameValue()).isEmpty();
     assertThat(nameQuestion.getLastNameValue()).isEmpty();
-    assertThat(nameQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(nameQuestion.hasConditionErrors()).isFalse();
+    assertThat(nameQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(nameQuestion.getQuestionErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -62,8 +62,8 @@ public class NameQuestionTest {
 
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
-    assertThat(nameQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(nameQuestion.hasConditionErrors()).isFalse();
+    assertThat(nameQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(nameQuestion.getQuestionErrors().isEmpty()).isTrue();
     assertThat(nameQuestion.getFirstNameValue().get()).isEqualTo(firstName);
     if (nameQuestion.getMiddleNameValue().isPresent()) {
       assertThat(nameQuestion.getMiddleNameValue().get()).isEqualTo(middleName);
@@ -82,7 +82,7 @@ public class NameQuestionTest {
 
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
-    assertThat(nameQuestion.hasConditionErrors()).isFalse();
-    assertThat(nameQuestion.hasTypeSpecificErrors()).isTrue();
+    assertThat(nameQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(nameQuestion.getAllTypeSpecificErrors().isEmpty()).isFalse();
   }
 }

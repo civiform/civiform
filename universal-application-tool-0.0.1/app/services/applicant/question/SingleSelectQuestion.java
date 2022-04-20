@@ -29,11 +29,6 @@ public class SingleSelectQuestion implements Question {
   }
 
   @Override
-  public boolean hasConditionErrors() {
-    return !getQuestionErrors().isEmpty();
-  }
-
-  @Override
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of(getSelectionPath());
   }
@@ -42,11 +37,6 @@ public class SingleSelectQuestion implements Question {
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     // Only one selection is possible - there is no admin-configured validation.
     return ImmutableSet.of();
-  }
-
-  @Override
-  public boolean hasTypeSpecificErrors() {
-    return !getAllTypeSpecificErrors().isEmpty();
   }
 
   @Override

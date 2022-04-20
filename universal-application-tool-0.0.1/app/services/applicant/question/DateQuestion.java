@@ -27,18 +27,8 @@ public class DateQuestion implements Question {
   }
 
   @Override
-  public boolean hasConditionErrors() {
-    return !getQuestionErrors().isEmpty();
-  }
-
-  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     return ImmutableSet.of();
-  }
-
-  @Override
-  public boolean hasTypeSpecificErrors() {
-    return !getAllTypeSpecificErrors().isEmpty();
   }
 
   @Override

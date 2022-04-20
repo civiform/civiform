@@ -58,8 +58,8 @@ public class EnumeratorQuestionTest extends ResetPostgres {
     EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
 
     assertThat(enumeratorQuestion.isAnswered()).isFalse();
-    assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(enumeratorQuestion.hasConditionErrors()).isFalse();
+    assertThat(enumeratorQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(enumeratorQuestion.getQuestionErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -75,8 +75,8 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).contains("first", "second", "third");
-    assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(enumeratorQuestion.hasConditionErrors()).isFalse();
+    assertThat(enumeratorQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(enumeratorQuestion.getQuestionErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -91,8 +91,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly(value);
-    assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(enumeratorQuestion.hasConditionErrors()).isTrue();
+    assertThat(enumeratorQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
     assertThat(enumeratorQuestion.getQuestionErrors()).hasSize(1);
     assertThat(enumeratorQuestion.getQuestionErrors().asList().get(0).getMessage(messages))
         .isEqualTo("Please enter a value for each line.");
@@ -111,8 +110,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly("hello", "hello");
-    assertThat(enumeratorQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(enumeratorQuestion.hasConditionErrors()).isTrue();
+    assertThat(enumeratorQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
     assertThat(enumeratorQuestion.getQuestionErrors()).hasSize(1);
     assertThat(enumeratorQuestion.getQuestionErrors().asList().get(0).getMessage(messages))
         .isEqualTo("Please enter a unique value for each line.");

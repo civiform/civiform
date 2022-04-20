@@ -57,8 +57,8 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = new AddressQuestion(applicantQuestion);
 
-    assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(addressQuestion.hasConditionErrors()).isFalse();
+    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(addressQuestion.getQuestionErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -76,8 +76,8 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(addressQuestion.hasConditionErrors()).isFalse();
+    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(addressQuestion.getQuestionErrors().isEmpty()).isTrue();
     assertThat(addressQuestion.getStreetValue().get()).isEqualTo("PO Box 123");
     assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Line 2");
     assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
@@ -94,7 +94,7 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
+    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isFalse();
     assertThat(addressQuestion.getStreetErrors())
         .contains(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED));
     assertThat(addressQuestion.getCityErrors())
@@ -121,7 +121,7 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.hasTypeSpecificErrors()).isTrue();
+    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isFalse();
     assertThat(addressQuestion.getZipErrors())
         .contains(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE));
     assertThat(addressQuestion.getStreetErrors()).isEmpty();
@@ -145,8 +145,8 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(addressQuestion.hasConditionErrors()).isFalse();
+    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(addressQuestion.getQuestionErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -176,7 +176,7 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.hasTypeSpecificErrors()).isFalse();
+    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
     assertThat(addressQuestion.getQuestionErrors())
         .containsOnly(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_NO_PO_BOX));
   }

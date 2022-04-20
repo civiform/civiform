@@ -34,19 +34,9 @@ public class NameQuestion implements Question {
   }
 
   @Override
-  public boolean hasConditionErrors() {
-    return !getQuestionErrors().isEmpty();
-  }
-
-  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     // TODO: Implement admin-defined validation.
     return ImmutableSet.of();
-  }
-
-  @Override
-  public boolean hasTypeSpecificErrors() {
-    return !getAllTypeSpecificErrors().isEmpty();
   }
 
   @Override
