@@ -213,7 +213,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
     ProgramDefinition found = ps.getProgramDefinition(updatedProgram.id());
 
     assertThat(ps.getActiveAndDraftPrograms().getDraftSize()).isEqualTo(1);
-    assertThat(found).isEqualTo(updatedProgram);
+    assertThat(found.adminName()).isEqualTo(updatedProgram.adminName());
+    assertThat(found.lastModifiedTime()).isNotEqualTo(originalProgram.lastModifiedTime());
   }
 
   @Test
@@ -260,7 +261,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
     ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
     ProgramDefinition found = ps.getProgramDefinition(programDefinition.id());
 
-    assertThat(found).isEqualTo(programDefinition);
+    assertThat(found.adminName()).isEqualTo(programDefinition.adminName());
   }
 
   @Test
@@ -289,7 +290,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
     CompletionStage<ProgramDefinition> found = ps.getProgramDefinitionAsync(programDefinition.id());
 
-    assertThat(found.toCompletableFuture().join()).isEqualTo(programDefinition);
+    assertThat(found.toCompletableFuture().join().adminName())
+        .isEqualTo(programDefinition.adminName());
   }
 
   @Test
@@ -485,7 +487,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
     // Returns the unmodified program definition.
     assertThat(result.hasResult()).isTrue();
-    assertThat(result.getResult()).isEqualTo(program);
+    assertThat(result.getResult().adminName()).isEqualTo(program.adminName());
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
         .containsOnly(

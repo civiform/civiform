@@ -137,7 +137,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ProgramDefinition displayProgram = getDisplayProgram(draftProgram, activeProgram);
 
     String lastEditText =
-        "Last modified on " + renderDateTime(displayProgram.getLastModifiedTimeOrDefault());
+        "Last updated: " + renderDateTime(displayProgram.getLastModifiedTimeOrDefault());
     String programTitleText = displayProgram.adminName();
     String programDescriptionText = displayProgram.adminDescription();
     String blockCountText = "Screens: " + displayProgram.getBlockCount();

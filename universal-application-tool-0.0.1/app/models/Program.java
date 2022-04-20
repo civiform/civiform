@@ -83,8 +83,8 @@ public class Program extends BaseModel {
 
   @Constraints.Required @DbJson private ImmutableList<ExportDefinition> exportDefinitions;
 
-  /** When was this program created. */
-  @WhenCreated private Instant createTime;
+  /** When was current version of this program created. */
+  @WhenCreated private Instant currentVersionCreateTime;
 
   /** When was this program last modified. */
   @WhenModified private Instant lastModifiedTime;
@@ -180,7 +180,7 @@ public class Program extends BaseModel {
             .setExportDefinitions(exportDefinitions)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
-            .setCreateTime(createTime)
+            .setCurrentVersionCreateTime(currentVersionCreateTime)
             .setLastModifiedTime(lastModifiedTime);
 
     setLocalizedName(builder);
