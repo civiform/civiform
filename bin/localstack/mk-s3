@@ -7,8 +7,7 @@ source bin/localstack/lib.sh
 
 BUCKET_NAME="civiform-local-s3"
 
-check_bucket="s3api get-bucket-location
-  --bucket ${BUCKET_NAME}"
+check_bucket="s3api get-bucket-location --bucket ${BUCKET_NAME}"
 
 create_s3_bucket="s3api create-bucket
   --bucket ${BUCKET_NAME}
