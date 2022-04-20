@@ -1,5 +1,6 @@
 package views.questiontypes;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import j2html.tags.ContainerTag;
@@ -10,10 +11,11 @@ import views.style.ReferenceClasses;
 import views.style.Styles;
 
 /** This renders the question text as formatted text. */
-public class StaticContentQuestionRenderer extends ApplicantQuestionRenderer {
+public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer {
+  private final ApplicantQuestion question;
 
   public StaticContentQuestionRenderer(ApplicantQuestion question) {
-    super(question);
+    this.question = checkNotNull(question);
   }
 
   @Override

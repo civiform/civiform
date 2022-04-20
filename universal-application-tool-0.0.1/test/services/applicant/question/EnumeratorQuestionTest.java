@@ -91,9 +91,9 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly(value);
-    assertThat(enumeratorQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(enumeratorQuestion.getQuestionErrors()).hasSize(1);
-    assertThat(enumeratorQuestion.getQuestionErrors().asList().get(0).getMessage(messages))
+    assertThat(enumeratorQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(enumeratorQuestion.getAllTypeSpecificErrors()).hasSize(1);
+    assertThat(enumeratorQuestion.getAllTypeSpecificErrors().asList().get(0).getMessage(messages))
         .isEqualTo("Please enter a value for each line.");
   }
 
@@ -110,9 +110,9 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly("hello", "hello");
-    assertThat(enumeratorQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(enumeratorQuestion.getQuestionErrors()).hasSize(1);
-    assertThat(enumeratorQuestion.getQuestionErrors().asList().get(0).getMessage(messages))
+    assertThat(enumeratorQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(enumeratorQuestion.getAllTypeSpecificErrors()).hasSize(1);
+    assertThat(enumeratorQuestion.getAllTypeSpecificErrors().asList().get(0).getMessage(messages))
         .isEqualTo("Please enter a unique value for each line.");
   }
 

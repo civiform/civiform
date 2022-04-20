@@ -12,7 +12,7 @@ import views.style.ReferenceClasses;
 import views.style.Styles;
 
 /** Renders an address question. */
-public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
+public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public AddressQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -24,7 +24,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public Tag render(ApplicantQuestionRendererParams params) {
+  protected Tag renderTag(ApplicantQuestionRendererParams params) {
     Messages messages = params.messages();
     AddressQuestion addressQuestion = question.createAddressQuestion();
 
@@ -81,6 +81,6 @@ public class AddressQuestionRenderer extends ApplicantQuestionRenderer {
                             .addReferenceClass(ReferenceClasses.ADDRESS_ZIP)
                             .getContainer()));
 
-    return renderInternal(messages, addressQuestionFormContent);
+    return addressQuestionFormContent;
   }
 }
