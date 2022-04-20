@@ -17,7 +17,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a radio button question. */
-public class RadioButtonQuestionRenderer extends ApplicantQuestionRenderer {
+public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public RadioButtonQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -29,7 +29,12 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public Tag render(ApplicantQuestionRendererParams params) {
+  protected boolean shouldDisplayQuestionErrors() {
+      return true;
+  }
+
+  @Override
+  protected Tag renderTag(ApplicantQuestionRendererParams params) {
     SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
 
     Tag radioQuestionFormContent =
@@ -44,7 +49,7 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRenderer {
                                 option,
                                 singleOptionQuestion.optionIsSelected(option))));
 
-    return renderInternal(params.messages(), radioQuestionFormContent);
+    return radioQuestionFormContent;
   }
 
   private Tag renderRadioOption(

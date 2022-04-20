@@ -9,7 +9,7 @@ import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
 /** Renders a date question. */
-public class DateQuestionRenderer extends ApplicantQuestionRenderer {
+public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public DateQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -21,7 +21,12 @@ public class DateQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public Tag render(ApplicantQuestionRendererParams params) {
+  protected boolean shouldDisplayQuestionErrors() {
+      return false;
+  }
+
+  @Override
+  protected Tag renderTag(ApplicantQuestionRendererParams params) {
     DateQuestion dateQuestion = question.createDateQuestion();
 
     FieldWithLabel dateField =
@@ -34,6 +39,6 @@ public class DateQuestionRenderer extends ApplicantQuestionRenderer {
     }
     Tag dateQuestionFormContent = dateField.getContainer();
 
-    return renderInternal(params.messages(), dateQuestionFormContent, false);
+    return dateQuestionFormContent;
   }
 }

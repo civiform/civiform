@@ -6,7 +6,7 @@ import services.applicant.question.TextQuestion;
 import views.components.FieldWithLabel;
 
 /** Renders a text question. */
-public class TextQuestionRenderer extends ApplicantQuestionRenderer {
+public class TextQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public TextQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -18,7 +18,12 @@ public class TextQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public Tag render(ApplicantQuestionRendererParams params) {
+  protected boolean shouldDisplayQuestionErrors() {
+      return false;
+  }
+
+  @Override
+  protected Tag renderTag(ApplicantQuestionRendererParams params) {
     TextQuestion textQuestion = question.createTextQuestion();
 
     Tag questionFormContent =
@@ -29,6 +34,6 @@ public class TextQuestionRenderer extends ApplicantQuestionRenderer {
             .setScreenReaderText(question.getQuestionText())
             .getContainer();
 
-    return renderInternal(params.messages(), questionFormContent, false);
+    return questionFormContent;
   }
 }

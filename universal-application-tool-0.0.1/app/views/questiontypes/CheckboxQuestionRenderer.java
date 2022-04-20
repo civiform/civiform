@@ -17,7 +17,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a checkbox question. */
-public class CheckboxQuestionRenderer extends ApplicantQuestionRenderer {
+public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   @Override
   public String getReferenceClass() {
@@ -29,7 +29,12 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public Tag render(ApplicantQuestionRendererParams params) {
+  protected boolean shouldDisplayQuestionErrors() {
+      return true;
+  }
+
+  @Override
+  protected Tag renderTag(ApplicantQuestionRendererParams params) {
     MultiSelectQuestion multiOptionQuestion = question.createMultiSelectQuestion();
 
     Tag checkboxQuestionFormContent =
@@ -52,7 +57,7 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRenderer {
                                 option,
                                 multiOptionQuestion.optionIsSelected(option))));
 
-    return renderInternal(params.messages(), checkboxQuestionFormContent);
+    return checkboxQuestionFormContent;
   }
 
   private Tag renderCheckboxOption(

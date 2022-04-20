@@ -12,7 +12,7 @@ import services.applicant.question.NumberQuestion;
 import views.components.FieldWithLabel;
 
 /** Renders a number question. */
-public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
+public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public NumberQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -24,7 +24,12 @@ public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public Tag render(ApplicantQuestionRendererParams params) {
+  protected boolean shouldDisplayQuestionErrors() {
+      return false;
+  }
+
+  @Override
+  protected Tag renderTag(ApplicantQuestionRendererParams params) {
     NumberQuestion numberQuestion = question.createNumberQuestion();
 
     FieldWithLabel numberField =
@@ -47,6 +52,6 @@ public class NumberQuestionRenderer extends ApplicantQuestionRenderer {
 
     Tag numberQuestionFormContent = div().with(numberField.getContainer());
 
-    return renderInternal(params.messages(), numberQuestionFormContent, false);
+    return numberQuestionFormContent;
   }
 }

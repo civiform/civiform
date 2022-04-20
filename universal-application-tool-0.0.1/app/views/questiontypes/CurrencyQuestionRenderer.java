@@ -12,7 +12,7 @@ import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
-public class CurrencyQuestionRenderer extends ApplicantQuestionRenderer {
+public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public CurrencyQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -24,7 +24,12 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public Tag render(ApplicantQuestionRendererParams params) {
+  protected boolean shouldDisplayQuestionErrors() {
+      return false;
+  }
+
+  @Override
+  protected Tag renderTag(ApplicantQuestionRendererParams params) {
     CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
 
     FieldWithLabel currencyField =
@@ -58,6 +63,6 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRenderer {
     Tag currencyQuestionFormContent =
         div().withClasses(Styles.FLEX).with(dollarSign).with(currencyField.getContainer());
 
-    return renderInternal(params.messages(), currencyQuestionFormContent, false);
+    return currencyQuestionFormContent;
   }
 }

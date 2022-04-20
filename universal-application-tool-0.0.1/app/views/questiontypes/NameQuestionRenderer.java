@@ -11,7 +11,7 @@ import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
 /** Renders a name question. */
-public class NameQuestionRenderer extends ApplicantQuestionRenderer {
+public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public NameQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -23,7 +23,12 @@ public class NameQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public Tag render(ApplicantQuestionRendererParams params) {
+  protected boolean shouldDisplayQuestionErrors() {
+      return true;
+  }
+
+  @Override
+  protected Tag renderTag(ApplicantQuestionRendererParams params) {
     Messages messages = params.messages();
     NameQuestion nameQuestion = question.createNameQuestion();
 
@@ -55,6 +60,6 @@ public class NameQuestionRenderer extends ApplicantQuestionRenderer {
                     .addReferenceClass(ReferenceClasses.NAME_LAST)
                     .getContainer());
 
-    return renderInternal(messages, nameQuestionFormContent);
+    return nameQuestionFormContent;
   }
 }

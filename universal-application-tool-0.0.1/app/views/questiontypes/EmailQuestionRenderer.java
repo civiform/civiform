@@ -7,7 +7,7 @@ import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 
 /** Renders an email question. */
-public class EmailQuestionRenderer extends ApplicantQuestionRenderer {
+public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public EmailQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -19,7 +19,12 @@ public class EmailQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public Tag render(ApplicantQuestionRendererParams params) {
+  protected boolean shouldDisplayQuestionErrors() {
+      return false;
+  }
+
+  @Override
+  protected Tag renderTag(ApplicantQuestionRendererParams params) {
     EmailQuestion emailQuestion = question.createEmailQuestion();
 
     Tag questionFormContent =
@@ -30,6 +35,6 @@ public class EmailQuestionRenderer extends ApplicantQuestionRenderer {
             .setScreenReaderText(question.getQuestionText())
             .getContainer();
 
-    return renderInternal(params.messages(), questionFormContent, false);
+    return questionFormContent;
   }
 }

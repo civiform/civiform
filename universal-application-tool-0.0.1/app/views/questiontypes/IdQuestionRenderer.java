@@ -6,7 +6,7 @@ import services.applicant.question.IdQuestion;
 import views.components.FieldWithLabel;
 
 /** Renders an id question. */
-public class IdQuestionRenderer extends ApplicantQuestionRenderer {
+public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public IdQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -16,9 +16,13 @@ public class IdQuestionRenderer extends ApplicantQuestionRenderer {
   public String getReferenceClass() {
     return "cf-question-id";
   }
+  @Override
+  protected boolean shouldDisplayQuestionErrors() {
+      return false;
+  }
 
   @Override
-  public Tag render(ApplicantQuestionRendererParams params) {
+  protected Tag renderTag(ApplicantQuestionRendererParams params) {
     IdQuestion idQuestion = question.createIdQuestion();
 
     Tag questionFormContent =
@@ -29,6 +33,6 @@ public class IdQuestionRenderer extends ApplicantQuestionRenderer {
             .setScreenReaderText(question.getQuestionText())
             .getContainer();
 
-    return renderInternal(params.messages(), questionFormContent, false);
+    return questionFormContent;
   }
 }
