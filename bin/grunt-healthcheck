@@ -1,9 +1,0 @@
-#! /usr/bin/env bash
-
-# DOC: Run the unit tests in CI mode.
-
-source bin/lib.sh
-
-LNS=$(docker exec civiform bash -c "ps -e | grep -i 'npm exec grunt watch' | grep -v bash | grep -v grep | wc -l")
-
-assert_ge $LNS 1 "Grunt watch not running!"
