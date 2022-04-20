@@ -111,45 +111,42 @@ public class VersionRepository {
             .findOneOrEmpty();
     if (version.isPresent()) {
       return version.get();
-    } else {
-      // Suspends any existing thread-local transaction if one exists.
-      // This method is often called by two portions of the same outer transaction,
-      // microseconds apart.  It's extremely important that there only ever be one
-      // draft version, so we need the highest transaction isolation level -
-      // `SERIALIZABLE` means that the two transactions run as if each transaction
-      // was the only transaction running on the whole database.  That is, if any
-      // other code accesses these rows or executes any query which would modify them,
-      // the transaction is rolled back (a RollbackException is thrown).  We
-      // are forced to retry.  This is expensive in relative terms, but new drafts
-      // are very rare.  It is unlikely this will represent a real performance penalty
-      // for any applicant - or even any admin, really.
-      Transaction transaction =
-          database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
-      try {
-        Version newDraftVersion = new Version(LifecycleStage.DRAFT);
-        database.insert(newDraftVersion);
-        database
-            .find(Version.class)
-            .forUpdate()
-            .where()
-            .eq("lifecycle_stage", LifecycleStage.DRAFT)
-            .findOne();
-        transaction.commit();
-        return newDraftVersion;
-      } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
-        transaction.rollback(e);
-        // We must end the transaction here since we are going to recurse and try again.
-        // We cannot have this transaction on the thread-local transaction stack when that
-        // happens.
-        transaction.end();
-        return getDraftVersion();
-      } finally {
-        // This may come after a prior call to `transaction.end` in the event of a
-        // precondition failure - this is okay, since it a double-call to `end` on
-        // a particular transaction.  Only double calls to database.endTransaction
-        // must be avoided.
-        transaction.end();
-      }
+    }
+    // Suspends any existing thread-local transaction if one exists.
+    // This method is often called by two portions of the same outer transaction, microseconds
+    // apart.  It's extremely important that there only ever be one draft version, so we need the
+    // highest transaction isolation level; `SERIALIZABLE` means that the two transactions run as if
+    // each transaction was the only transaction running on the whole database.  That is, if any
+    // other code accesses these rows or executes any query which would modify them, the transaction
+    // is rolled back (a RollbackException is thrown).  We are forced to retry.  This is expensive
+    // in relative terms, but new drafts are very rare.  It is unlikely this will represent a real
+    // performance penalty for any applicant - or even any admin, really.
+    Transaction transaction =
+        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
+    try {
+      Version newDraftVersion = new Version(LifecycleStage.DRAFT);
+      database.insert(newDraftVersion);
+      database
+          .find(Version.class)
+          .forUpdate()
+          .where()
+          .eq("lifecycle_stage", LifecycleStage.DRAFT)
+          .findOne();
+      transaction.commit();
+      return newDraftVersion;
+    } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
+      transaction.rollback(e);
+      // We must end the transaction here since we are going to recurse and try again.
+      // We cannot have this transaction on the thread-local transaction stack when that
+      // happens.
+      transaction.end();
+      return getDraftVersion();
+    } finally {
+      // This may come after a prior call to `transaction.end` in the event of a
+      // precondition failure - this is okay, since it a double-call to `end` on
+      // a particular transaction.  Only double calls to database.endTransaction
+      // must be avoided.
+      transaction.end();
     }
   }
 
