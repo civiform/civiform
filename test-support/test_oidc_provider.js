@@ -43,8 +43,5 @@ process.on('SIGINT', () => {
 });
 
 const server = oidc.listen(oidcPort, () => {
-  console.log(
-    'oidc-provider listening on port %d, check http://localhost:%d/.well-known/openid-configuration',
-    oidcPort,
-    oidcPort);
+  console.log(`oidc-provider listening on port ${oidcPort}, check http://localhost:${oidcPort}/.well-known/openid-configuration`);
 });
