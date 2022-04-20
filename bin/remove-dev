@@ -11,7 +11,7 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml --profile emulato
 echo "Stopping & deletng local civiform shell"
 docker compose -f docker-compose.yml -f docker-compose.dev.yml --profile shell down
 echo "Stopping & deletng local civiform container"
-docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+docker compose -f docker-compose.yml -f docker-compose.dev.yml down --remove-orphans
 
 docker network rm "${COMPOSE_PROJECT_NAME}_default" 2>/dev/null
 

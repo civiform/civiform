@@ -6,10 +6,18 @@ source bin/lib.sh
 
 docker::set_network_name_dev
 
-docker run --rm -it \
+readonly COMPOSE_CMD="docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml"
+
+${COMPOSE_CMD} \
+  up db \
+  --no-deps \
+  --wait \
+  -d
+${COMPOSE_CMD} exec \
   -e "PGPASSWORD=example" \
-  --network "${DOCKER_NETWORK_NAME}" \
-  postgres:12.5 \
+  db \
   /usr/bin/psql \
   -h db \
   -U postgres

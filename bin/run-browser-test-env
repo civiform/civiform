@@ -2,6 +2,7 @@
 
 # DOC: Run the app locally using Docker for use with running browser tests. Run with --help to print documentation.
 
+export COMPOSE_PROJECT_NAME="browser-test"
 source bin/lib.sh
 
 # Default to continuous integration mode disabled.
@@ -80,16 +81,16 @@ bin/pull-image
 
 docker::set_network_name_browser_tests
 
-compose_command="docker compose --profile ${cloud_provider}"
-compose_command="${compose_command} -f browser-test/browser-test-compose.yml"
+base_compose_command="docker compose \
+  -f docker-compose.yml \
+  -f browser-test/browser-test-compose.yml"
 
 if truth::is_disabled continuous_integration; then
   # If not running in CI, load the dev addition to the browser test compose
   # this mounts the local SBT cache directories for faster subsequent builds.
-  compose_command="${compose_command} -f browser-test/browser-test-compose.dev.yml"
+  base_compose_command="${base_compose_command} -f docker-compose.dev.yml"
 fi
-
-compose_command="${compose_command} up"
+compose_command="${base_compose_command} --profile ${cloud_provider} up"
 
 readonly START_EMULATOR_COMMAND="${compose_command} -d ${emulator}"
 echo "Running docker compose to start the cloud emulator:"
@@ -115,10 +116,7 @@ eval "${compose_command}"
 # Azure browser tests.
 if truth::is_enabled both_emulators; then
   echo "Staring localstack emulator as well"
-  second_compose_command="docker compose --profile aws \
-                                 -f browser-test/browser-test-compose.yml \
-                                 -f browser-test/browser-test-compose.dev.yml \
-                                 up -d localstack"
+  second_compose_command="${base_compose_command} --profile aws up -d localstack"
   if truth::is_enabled continuous_integration; then
     second_compose_command="${second_compose_command} > .dockerlogs 2>&1 &"
   fi

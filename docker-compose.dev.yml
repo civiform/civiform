@@ -23,7 +23,6 @@ services:
     tty: true        # docker run -t
 
   civiform-shell:
-    container_name: civiform-shell
     image: civiform-dev
     entrypoint: /bin/bash
     profiles: ["shell"]
@@ -33,10 +32,27 @@ services:
 
   db:
     image: postgres:12.5
+    stdin_open: true
+    tty: true
     volumes:
       # isolate and persist dev database.
-      - project-data:/project
       - db-data:/var/lib/postgresql/data
+      - project-data:/project
+
+  pgadmin:
+    profiles: ["pgadmin"]
+    image: dpage/pgadmin4
+    restart: always
+    volumes:
+      - /tmp/servers.json:/pgadmin4/servers.json
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - 8012:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@localhost.localdomain
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
 
 volumes:
   db-data:

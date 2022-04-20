@@ -3,7 +3,6 @@ version: '3.8'
 
 services:
   db:
-    container_name: unit-test-postgres
     image: postgres:12.5
     restart: always
     ports:
@@ -12,7 +11,6 @@ services:
       POSTGRES_PASSWORD: example
 
   oidc:
-    container_name: unit-test-oidc-provider
     image: civiform/oidc-provider
     restart: always
     ports:

@@ -20,4 +20,4 @@ echo "Civiform starting locally at http://localhost:9000/loginForm"
 
 echo "Run bin/stop-dev to stop the server"
 
-docker attach civiform
+docker attach "${COMPOSE_PROJECT_NAME}-civiform-1"

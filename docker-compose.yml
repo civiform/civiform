@@ -5,7 +5,6 @@ services:
   localstack:
     image: localstack/localstack
     profiles: [ "aws", "emulator" ]
-    container_name: localstack
     ports:
       - 4566:4566
     environment:
@@ -14,7 +13,6 @@ services:
   azurite:
      image: mcr.microsoft.com/azure-storage/azurite
      profiles: ["azure", "emulator"]
-     container_name: azurite
      ports:
       - 10000:10000
 
@@ -25,7 +23,6 @@ services:
   dev-oidc:
     image: docker.io/civiform/oidc-provider:latest
     restart: always
-    container_name: dev-oidc
     ports:
       - 3390:3390
     environment:
@@ -35,7 +32,6 @@ services:
   db:
     image: postgres:12.10
     restart: always
-    container_name: postgres
     ports:
       - 5432:5432
     environment:
@@ -44,7 +40,6 @@ services:
   civiform:
     image: civiform-dev
     restart: always
-    container_name: civiform
     links:
       - "db:database"
       - "dev-oidc"

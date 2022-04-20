@@ -24,17 +24,12 @@ tee /tmp/servers.json > /dev/null <<EOT
 }
 EOT
 
-docker rm --force pgadmin
-
-docker run \
-  --name pgadmin \
-  -p 8012:80 \
-  --network "${DOCKER_NETWORK_NAME}" \
-  -e 'PGADMIN_DEFAULT_EMAIL=user@localhost.localdomain' \
-  -e 'PGADMIN_DEFAULT_PASSWORD=password' \
-  -e 'PGADMIN_CONFIG_SERVER_MODE=False' \
-  -e 'PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False' \
-  -v /tmp/servers.json:/pgadmin4/servers.json \
-  -d dpage/pgadmin4 
+docker compose \
+    -f docker-compose.yml \
+    -f docker-compose.dev.yml \
+    --profile pgadmin \
+    up pgadmin \
+    --wait \
+    -d
 
 echo "Running pgadmin at http://localhost:8012"

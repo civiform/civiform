@@ -22,7 +22,11 @@ function docker::run_shell_container() {
 #######################################
 function docker::run_shell_command() {
   # Sends a command to the running "civiform-shell" container.
-  docker exec -it civiform-shell "$@"
+    docker compose \
+    -f docker-compose.yml \
+    -f docker-compose.dev.yml \
+    --profile shell \
+    exec -it civiform-shell "$@"
 }
 
 #######################################
