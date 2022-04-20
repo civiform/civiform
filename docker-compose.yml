@@ -23,7 +23,9 @@ services:
     restart: always
     container_name: dev-idcs
     ports:
-      - 3380:3380
+      - 3381:3381
+    environment:
+      - OIDC_PORT=3381
 
   db:
     image: postgres:12.10
@@ -66,7 +68,7 @@ services:
       - CIVIFORM_ADMIN_IDP 
       - IDCS_CLIENT_ID=foo
       - IDCS_SECRET=bar
-      - IDCS_DISCOVERY_URI=http://dev-idcs:3380/.well-known/openid-configuration
+      - IDCS_DISCOVERY_URI=http://dev-idcs:3381/.well-known/openid-configuration
       - ADFS_CLIENT_ID
       - ADFS_SECRET
       - CF_OPTIONAL_QUESTIONS
