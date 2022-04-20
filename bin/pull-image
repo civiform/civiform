@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
-# DOC: Pull the latest development environment docker image from Docker Hub unless USE_LOCAL_CIVIFORM is set.
+# DOC: Pulls the latest development environment docker image from Docker Hub unless USE_LOCAL_CIVIFORM is set.
+#      If pulling, use PULL_PROGERSS=1 to show download progress.
 
 source bin/lib.sh
 
