@@ -72,7 +72,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
             .withClasses(
                 ReferenceClasses.ENUMERATOR_ERROR,
                 BaseStyles.FORM_ERROR_TEXT_BASE,
-                enumeratorQuestion.hasConditionErrors() ? "" : Styles.HIDDEN);
+                enumeratorQuestion.getQuestionErrors().isEmpty() ? Styles.HIDDEN : "");
 
     Tag enumeratorQuestionFormContent =
         div()

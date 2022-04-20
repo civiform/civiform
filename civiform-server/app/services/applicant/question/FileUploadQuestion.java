@@ -31,11 +31,6 @@ public class FileUploadQuestion implements Question {
   }
 
   @Override
-  public boolean hasConditionErrors() {
-    return !getQuestionErrors().isEmpty();
-  }
-
-  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     // TODO: Implement admin-defined validation.
     return ImmutableSet.of();
@@ -45,11 +40,6 @@ public class FileUploadQuestion implements Question {
   public ImmutableList<Path> getAllPaths() {
     // We can't predict ahead of time what the path will be.
     return ImmutableList.of();
-  }
-
-  @Override
-  public boolean hasTypeSpecificErrors() {
-    return !getAllTypeSpecificErrors().isEmpty();
   }
 
   @Override

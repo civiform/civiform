@@ -34,18 +34,8 @@ public class StaticContentQuestion implements Question {
   }
 
   @Override
-  public boolean hasConditionErrors() {
-    return false;
-  }
-
-  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     return ImmutableSet.of();
-  }
-
-  @Override
-  public boolean hasTypeSpecificErrors() {
-    return false;
   }
 
   @Override
