@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:jdk-11.0.10_9-alpine-slim AS stage1
+FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim AS stage1
 
 ENV SBT_VERSION "1.6.2"
 ENV INSTALL_DIR /usr/local
@@ -27,7 +27,7 @@ RUN cd "${PROJECT_HOME}/${PROJECT_NAME}" && \
 
 # This is a common trick to shrink container sizes.  we just throw away all that build stuff and use only the jars
 # we built with sbt dist.
-FROM adoptopenjdk/openjdk11:jdk-11.0.10_9-alpine-slim AS stage2
+FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim AS stage2
 COPY --from=stage1 /usr/src/universal-application-tool-0.0.1/target/universal/universal-application-tool-0.0.1.zip /civiform.zip
 
 ARG image_tag
