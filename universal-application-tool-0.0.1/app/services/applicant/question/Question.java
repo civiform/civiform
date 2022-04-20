@@ -18,17 +18,8 @@ import services.applicant.ValidationErrorMessage;
  * </ul>
  */
 public interface Question {
-  /** Returns true if values do not meet conditions defined by admins. */
-  boolean hasConditionErrors();
-
   /** Returns a set of {@link ValidationErrorMessage}s related to conditions defined by admins. */
   ImmutableSet<ValidationErrorMessage> getQuestionErrors();
-
-  /**
-   * Returns true if there is any type specific errors. The validation does not consider
-   * admin-defined conditions.
-   */
-  boolean hasTypeSpecificErrors();
 
   /**
    * Returns a set of {@link ValidationErrorMessage}s to be shown to the applicant. These errors are
