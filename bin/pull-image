@@ -11,7 +11,6 @@ readonly AWS_SOURCE=localstack/localstack
 readonly LOCAL_TAG=civiform-dev
 
 echo "Making sure we're up to date with the latest dev"
-
 if [[ -z "${USE_LOCAL_CIVIFORM}" ]]; then
   echo "Set environment variable USE_LOCAL_CIVIFORM=1 to skip"
   if [[ -z "${PULL_PROGRESS}" ]]; then
@@ -33,4 +32,6 @@ if [[ -z "${USE_LOCAL_CIVIFORM}" ]]; then
     docker pull -q "${AZURE_SOURCE}"
     docker pull -q "${AWS_SOURCE}"
   fi
+else
+  echo "Using local civiform docker images"
 fi
