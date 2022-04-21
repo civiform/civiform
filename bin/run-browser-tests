@@ -12,4 +12,4 @@ docker run --ipc=host --rm -it \
   --network "${DOCKER_NETWORK_NAME}" \
   civiform/civiform-browser-test:latest \
   /usr/src/civiform-browser-tests/bin/wait_for_server_start_and_run_tests.sh \
-  $@
+  "$@"

@@ -13,4 +13,4 @@ docker run \
   --network "${DOCKER_NETWORK_NAME}" \
   civiform-browser-test:latest \
   /usr/src/civiform-browser-tests/bin/wait_for_server_start_and_run_tests.sh \
-  $@
+  "$@"

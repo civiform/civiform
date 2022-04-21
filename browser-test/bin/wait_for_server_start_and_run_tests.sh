@@ -26,7 +26,7 @@ for arg do
 done
 
 if (( $debug == 1 )); then
-    DEBUG="pw:api" BASE_URL="${SERVER_URL}" yarn test $@
+    DEBUG="pw:api" BASE_URL="${SERVER_URL}" yarn test "$@"
 else
-    BASE_URL="${SERVER_URL}" yarn test $@
+    BASE_URL="${SERVER_URL}" yarn test "$@"
 fi
