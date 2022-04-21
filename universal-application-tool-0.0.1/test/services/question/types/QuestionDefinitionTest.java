@@ -325,7 +325,6 @@ public class QuestionDefinitionTest {
     assertThat(question.validate())
         .containsOnly(
             CiviFormError.of("Name cannot be blank"),
-            CiviFormError.of("Description cannot be blank"),
             CiviFormError.of("Question text cannot be blank"));
   }
 
