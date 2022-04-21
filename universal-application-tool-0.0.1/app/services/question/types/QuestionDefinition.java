@@ -215,9 +215,6 @@ public abstract class QuestionDefinition {
     if (name.isBlank()) {
       errors.add(CiviFormError.of("Name cannot be blank"));
     }
-    if (description.isBlank()) {
-      errors.add(CiviFormError.of("Description cannot be blank"));
-    }
     if (questionText.isEmpty()) {
       errors.add(CiviFormError.of("Question text cannot be blank"));
     }

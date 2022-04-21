@@ -86,7 +86,6 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("New text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
-    assertThat(contentAsString(result)).contains("Description cannot be blank");
     assertThat(contentAsString(result)).contains("Question text cannot be blank");
     assertThat(contentAsString(result)).contains("name");
   }
@@ -366,7 +365,6 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
-    assertThat(contentAsString(result)).contains("Description cannot be blank");
     assertThat(contentAsString(result)).contains("question text updated!");
   }
 

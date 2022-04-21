@@ -32,6 +32,11 @@ public class IdQuestion implements Question {
 
   @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+    return ImmutableSet.of();
+  }
+
+  @Override
+  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     if (!isAnswered()) {
       return ImmutableSet.of();
     }
@@ -60,12 +65,6 @@ public class IdQuestion implements Question {
     }
 
     return errors.build();
-  }
-
-  @Override
-  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    // Add id specific errors
-    return ImmutableSet.of();
   }
 
   @Override
