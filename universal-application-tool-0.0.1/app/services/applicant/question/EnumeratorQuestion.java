@@ -26,6 +26,14 @@ public class EnumeratorQuestion extends QuestionImpl {
   }
 
   @Override
+  public boolean isAnswered() {
+    // This is answered if the the path to the enumerator question answer array exists.
+    return applicantQuestion
+        .getApplicantData()
+        .hasPath(applicantQuestion.getContextualizedPath().atIndex(0));
+  }
+
+  @Override
   public ImmutableList<Path> getAllPaths() {
     // Not intended to return the leaf question paths.
     return ImmutableList.of();

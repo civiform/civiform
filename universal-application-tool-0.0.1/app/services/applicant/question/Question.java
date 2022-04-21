@@ -29,6 +29,12 @@ public interface Question {
   ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors();
 
   /**
+   * Returns true any part of the question has been answered by the applicant. Blank answers should
+   * not count. If a question is not answered, it should not have errors associated with it.
+   */
+  boolean isAnswered();
+
+  /**
    * Returns the answer as a text string.
    *
    * <p>This is the canonical representation to users in static contexts such as the review page and

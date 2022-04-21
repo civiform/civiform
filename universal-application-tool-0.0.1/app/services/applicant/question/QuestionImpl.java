@@ -21,7 +21,8 @@ abstract class QuestionImpl implements Question {
 
   protected abstract ImmutableSet<QuestionType> validQuestionTypes();
 
-  protected final boolean isAnswered() {
-    return applicantQuestion.isAnswered();
+  @Override
+  public boolean isAnswered() {
+    return getAllPaths().stream().anyMatch(p -> applicantQuestion.getApplicantData().hasPath(p));
   }
 }

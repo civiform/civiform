@@ -2,7 +2,6 @@ package services.applicant.question;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Objects;
@@ -111,16 +110,7 @@ public class ApplicantQuestion {
   }
 
   public boolean isAnswered() {
-    if (getType() == QuestionType.ENUMERATOR) {
-      // This is answered if the the path to the enumerator question answer array exists.
-      return getApplicantData().hasPath(getContextualizedPath().atIndex(0));
-    }
-    ImmutableList<Path> questionPaths = errorsPresenter().getAllPaths();
-    if (questionPaths.isEmpty()) {
-      // If there aren't any paths, consider the question answered
-      return true;
-    }
-    return questionPaths.stream().anyMatch(p -> getApplicantData().hasPath(p));
+    return errorsPresenter().isAnswered();
   }
 
   /** Returns true if this question was most recently updated in this program. */

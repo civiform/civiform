@@ -36,6 +36,11 @@ public class StaticContentQuestion extends QuestionImpl {
   }
 
   @Override
+  public boolean isAnswered() {
+    return true;
+  }
+
+  @Override
   public String getAnswerString() {
     return "";
   }
