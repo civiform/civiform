@@ -76,6 +76,7 @@ public class QuestionRepository {
         Question oldQuestion = new Question(definition);
         oldQuestion.refresh();
         oldQuestion.getQuestionTags().forEach(newDraftQuestion::addTag);
+        // some change
 
         newDraftQuestion.addVersion(draftVersion).save();
         draftVersion.refresh();
