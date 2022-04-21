@@ -83,8 +83,9 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
 
     ProgramDefinition displayProgram = getDisplayProgram(draftProgram, activeProgram);
 
-    String lastEditText = displayProgram.lastModifiedTime().isPresent() ?
-            "Last updated: " + renderDateTime(displayProgram.lastModifiedTime().get())
+    String lastEditText =
+        displayProgram.lastModifiedTime().isPresent()
+            ? "Last updated: " + renderDateTime(displayProgram.lastModifiedTime().get())
             : "Could not find latest update time";
     String programTitleText = displayProgram.adminName();
     String programDescriptionText = displayProgram.adminDescription();

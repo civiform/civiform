@@ -216,7 +216,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThat(found.adminName()).isEqualTo(updatedProgram.adminName());
     assertThat(found.lastModifiedTime().isPresent()).isTrue();
     assertThat(originalProgram.lastModifiedTime().isPresent()).isTrue();
-    assertThat(found.lastModifiedTime().get().isAfter(originalProgram.lastModifiedTime().get())).isTrue();
+    assertThat(found.lastModifiedTime().get().isAfter(originalProgram.lastModifiedTime().get()))
+        .isTrue();
   }
 
   @Test
