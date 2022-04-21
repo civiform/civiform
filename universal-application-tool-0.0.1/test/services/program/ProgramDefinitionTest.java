@@ -44,7 +44,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
-            .setCurrentVersionCreateTime(Instant.now())
+            .setCreateTime(Instant.now())
             .setLastModifiedTime(Instant.now())
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
@@ -638,9 +638,9 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
-            .setCurrentVersionCreateTime(now)
+            .setCreateTime(now)
             .build();
-    assertThat(def.getCurrentVersionCreateTimeOrDefault()).isEqualTo(now);
+    assertThat(def.createTime().get()).isEqualTo(now);
   }
 
   @Test
@@ -655,8 +655,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .build();
-    assertThat(def.getCurrentVersionCreateTimeOrDefault())
-        .isEqualTo(ProgramDefinition.DEFAULT_TIME);
+    assertThat(def.createTime().isPresent()).isFalse();
   }
 
   @Test
@@ -673,7 +672,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setLastModifiedTime(now)
             .build();
-    assertThat(def.getLastModifiedTimeOrDefault()).isEqualTo(now);
+    assertThat(def.lastModifiedTime().get()).isEqualTo(now);
   }
 
   @Test
@@ -688,6 +687,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setExternalLink("")
             .setDisplayMode(DisplayMode.PUBLIC)
             .build();
-    assertThat(def.getLastModifiedTimeOrDefault()).isEqualTo(ProgramDefinition.DEFAULT_TIME);
+    assertThat(def.lastModifiedTime().isPresent()).isFalse();
   }
 }
