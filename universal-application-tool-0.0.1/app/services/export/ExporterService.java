@@ -241,8 +241,9 @@ public class ExporterService {
 
     // Add columns for each path to an answer.
     for (AnswerData answerData : answerDataList) {
-      if (answerData.questionDefinition().isEnumerator()) {
-        continue; // Do not include Enumerator answers in CSVs.
+      if (answerData.questionDefinition().isEnumerator() ||
+          answerData.questionDefinition().getQuestionType() == QuestionType.FILEUPLOAD) {
+        continue; // Do not include Enumerator or file upload answers in CSVs.
       }
       for (Path path : answerData.scalarAnswersInDefaultLocale().keySet()) {
         columnsBuilder.add(

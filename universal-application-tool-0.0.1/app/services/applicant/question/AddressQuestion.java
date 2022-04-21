@@ -17,11 +17,10 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class AddressQuestion implements Question {
+public class AddressQuestion extends QuestionImpl {
   private static final String PO_BOX_REGEX =
       "(?i)(.*(P(OST|.)?\\s*((O(FF(ICE)?)?)?.?\\s*(B(IN|OX|.?)))+)).*";
 
-  private final ApplicantQuestion applicantQuestion;
   private Optional<String> streetValue;
   private Optional<String> line2Value;
   private Optional<String> cityValue;
@@ -29,8 +28,12 @@ public class AddressQuestion implements Question {
   private Optional<String> zipValue;
 
   public AddressQuestion(ApplicantQuestion applicantQuestion) {
-    this.applicantQuestion = applicantQuestion;
-    assertQuestionType();
+    super(applicantQuestion);
+  }
+
+  @Override
+  protected ImmutableSet<QuestionType> validQuestionTypes() {
+    return ImmutableSet.of(QuestionType.ADDRESS);
   }
 
   @Override
@@ -180,18 +183,7 @@ public class AddressQuestion implements Question {
     return zipValue;
   }
 
-  public void assertQuestionType() {
-    if (!applicantQuestion.getType().equals(QuestionType.ADDRESS)) {
-      throw new RuntimeException(
-          String.format(
-              "Question is not an ADDRESS question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
-    }
-  }
-
   public AddressQuestionDefinition getQuestionDefinition() {
-    assertQuestionType();
     return (AddressQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
@@ -213,36 +205,6 @@ public class AddressQuestion implements Question {
 
   public Path getZipPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.ZIP);
-  }
-
-  private boolean isStreetAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getStreetPath());
-  }
-
-  private boolean isLine2Answered() {
-    return applicantQuestion.getApplicantData().hasPath(getLine2Path());
-  }
-
-  private boolean isCityAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getCityPath());
-  }
-
-  private boolean isStateAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getStatePath());
-  }
-
-  private boolean isZipAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getZipPath());
-  }
-
-  /** Returns true if any field is answered. Returns false if all are not. */
-  @Override
-  public boolean isAnswered() {
-    return isStreetAnswered()
-        || isLine2Answered()
-        || isCityAnswered()
-        || isStateAnswered()
-        || isZipAnswered();
   }
 
   @Override

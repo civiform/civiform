@@ -13,14 +13,17 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class EmailQuestion implements Question {
+public class EmailQuestion extends QuestionImpl {
 
-  private final ApplicantQuestion applicantQuestion;
   private Optional<String> emailValue;
 
   public EmailQuestion(ApplicantQuestion applicantQuestion) {
-    this.applicantQuestion = applicantQuestion;
-    assertQuestionType();
+    super(applicantQuestion);
+  }
+
+  @Override
+  protected ImmutableSet<QuestionType> validQuestionTypes() {
+    return ImmutableSet.of(QuestionType.EMAIL);
   }
 
   @Override
@@ -32,11 +35,6 @@ public class EmailQuestion implements Question {
   public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     // TODO: Need to add some Email specific validation.
     return ImmutableSet.of();
-  }
-
-  @Override
-  public boolean isAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getEmailPath());
   }
 
   @Override
@@ -64,17 +62,6 @@ public class EmailQuestion implements Question {
   }
 
   public EmailQuestionDefinition getQuestionDefinition() {
-    assertQuestionType();
     return (EmailQuestionDefinition) applicantQuestion.getQuestionDefinition();
-  }
-
-  public void assertQuestionType() {
-    if (!applicantQuestion.getType().equals(QuestionType.EMAIL)) {
-      throw new RuntimeException(
-          String.format(
-              "Question is not an Email question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
-    }
   }
 }

@@ -12,6 +12,7 @@ import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionType;
 
 /**
  * Represents a multi-select question in the context of a specific applicant.
@@ -21,14 +22,18 @@ import services.question.types.MultiOptionQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class MultiSelectQuestion implements Question {
+public class MultiSelectQuestion extends QuestionImpl {
 
-  private final ApplicantQuestion applicantQuestion;
   private Optional<ImmutableList<LocalizedQuestionOption>> selectedOptionsValue;
 
   public MultiSelectQuestion(ApplicantQuestion applicantQuestion) {
-    this.applicantQuestion = applicantQuestion;
-    assertQuestionType();
+    super(applicantQuestion);
+  }
+
+  @Override
+  protected ImmutableSet<QuestionType> validQuestionTypes() {
+    return ImmutableSet.of(
+      QuestionType.CHECKBOX, QuestionType.DROPDOWN, QuestionType.RADIO_BUTTON);
   }
 
   @Override
@@ -77,11 +82,6 @@ public class MultiSelectQuestion implements Question {
     return ImmutableList.of(getSelectionPath());
   }
 
-  @Override
-  public boolean isAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getSelectionPath());
-  }
-
   /** Get the selected options in the applicant's preferred locale. */
   public Optional<ImmutableList<LocalizedQuestionOption>> getSelectedOptionsValue() {
     if (selectedOptionsValue == null) {
@@ -114,18 +114,7 @@ public class MultiSelectQuestion implements Question {
         && getSelectedOptionsValue().get().contains(option);
   }
 
-  public void assertQuestionType() {
-    if (!applicantQuestion.getType().isMultiOptionType()) {
-      throw new RuntimeException(
-          String.format(
-              "Question is not a multi-option question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
-    }
-  }
-
   public MultiOptionQuestionDefinition getQuestionDefinition() {
-    assertQuestionType();
     return (MultiOptionQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 

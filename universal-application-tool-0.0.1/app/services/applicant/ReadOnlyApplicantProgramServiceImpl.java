@@ -157,14 +157,17 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         if (question.getType().equals(QuestionType.STATIC)) {
           continue;
         }
-        boolean isAnswered = question.errorsPresenter().isAnswered();
+        boolean isAnswered = question.isAnswered();
         String questionText = question.getQuestionText();
         String answerText = question.errorsPresenter().getAnswerString();
         Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
         Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
-        Optional<FileUploadQuestion> fileUploadQuestion = Optional.empty();
-        if (question.getType().equals(QuestionType.FILEUPLOAD)) {
-          fileUploadQuestion = Optional.of(question.createFileUploadQuestion());
+        Optional<String> originalFileName = Optional.empty();
+        Optional<String> fileKey = Optional.empty();
+        if (isAnswered && question.getType().equals(QuestionType.FILEUPLOAD)) {
+          FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
+          originalFileName = fileUploadQuestion.getOriginalFileName();
+          fileKey = fileUploadQuestion.getFileKeyValue();
         }
         boolean isPreviousResponse =
             updatedProgram.isPresent() && updatedProgram.get() != programDefinition.id();
@@ -180,8 +183,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setQuestionText(questionText)
                 .setIsAnswered(isAnswered)
                 .setAnswerText(answerText)
-                .setFileKey(getFileKey(fileUploadQuestion))
-                .setOriginalFileName(getOriginalFileName(fileUploadQuestion))
+                .setFileKey(fileKey)
+                .setOriginalFileName(originalFileName)
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)
                 .setScalarAnswersInDefaultLocale(
@@ -285,21 +288,6 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       default:
         return true;
     }
-  }
-
-  /** Returns the identifier of uploaded file if applicable. */
-  private Optional<String> getFileKey(Optional<FileUploadQuestion> question) {
-    return question
-        .filter(FileUploadQuestion::isAnswered)
-        .map(FileUploadQuestion::getFileKeyValue)
-        .orElseGet(() -> Optional.empty());
-  }
-
-  private Optional<String> getOriginalFileName(Optional<FileUploadQuestion> question) {
-    if (question.isEmpty() || !question.get().isAnswered()) {
-      return Optional.empty();
-    }
-    return question.get().getOriginalFileName();
   }
 
   /**

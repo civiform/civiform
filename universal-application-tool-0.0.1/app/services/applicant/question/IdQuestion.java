@@ -15,14 +15,17 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class IdQuestion implements Question {
+public class IdQuestion extends QuestionImpl {
 
-  private final ApplicantQuestion applicantQuestion;
   private Optional<String> idValue;
 
   public IdQuestion(ApplicantQuestion applicantQuestion) {
-    this.applicantQuestion = applicantQuestion;
-    assertQuestionType();
+    super(applicantQuestion);
+  }
+
+  @Override
+  protected ImmutableSet<QuestionType> validQuestionTypes() {
+    return ImmutableSet.of(QuestionType.ID);
   }
 
   @Override
@@ -67,11 +70,6 @@ public class IdQuestion implements Question {
     return errors.build();
   }
 
-  @Override
-  public boolean isAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getIdPath());
-  }
-
   public Optional<String> getIdValue() {
     if (idValue != null) {
       return idValue;
@@ -80,18 +78,7 @@ public class IdQuestion implements Question {
     return idValue;
   }
 
-  public void assertQuestionType() {
-    if (!applicantQuestion.getType().equals(QuestionType.ID)) {
-      throw new RuntimeException(
-          String.format(
-              "Question is not an Id question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
-    }
-  }
-
   public IdQuestionDefinition getQuestionDefinition() {
-    assertQuestionType();
     return (IdQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
