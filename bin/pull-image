@@ -10,6 +10,11 @@ if [[ -z "${USE_LOCAL_CIVIFORM}" ]]; then
 
   docker pull -q civiform/civiform-dev:latest
   docker tag civiform/civiform-dev:latest civiform-dev
+
+  # Explicitly pull dev dependencies.
+  docker pull -q docker.io/civiform/oidc-provider:latest
+  docker pull -q mcr.microsoft.com/azure-storage/azurite
+  docker pull -q localstack/localstack
 else
-  echo "Using local civiform docker images"
+  echo "Using local civiform and dependency docker images"
 fi
