@@ -11,7 +11,7 @@ abstract class QuestionImpl implements Question {
     this.applicantQuestion = applicantQuestion;
     if (!validQuestionTypes().contains(applicantQuestion.getType())) {
       throw new RuntimeException(
-        String.format(
+          String.format(
               "Question is not a question of the following types: [%s]: %s (type: %s)",
               Joiner.on(", ").join(validQuestionTypes().stream().toArray()),
               applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),

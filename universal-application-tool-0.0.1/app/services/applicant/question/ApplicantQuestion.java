@@ -120,8 +120,7 @@ public class ApplicantQuestion {
       // If there aren't any paths, consider the question answered
       return true;
     }
-    return questionPaths.stream()
-        .anyMatch(p -> getApplicantData().hasPath(p));
+    return questionPaths.stream().anyMatch(p -> getApplicantData().hasPath(p));
   }
 
   /** Returns true if this question was most recently updated in this program. */

@@ -191,8 +191,7 @@ public final class Block {
 
   /** A block is answered if all of its {@link ApplicantQuestion}s {@link Question#isAnswered()}. */
   private boolean isAnswered() {
-    return getQuestions().stream()
-        .allMatch(ApplicantQuestion::isAnswered);
+    return getQuestions().stream().allMatch(ApplicantQuestion::isAnswered);
   }
 
   /**

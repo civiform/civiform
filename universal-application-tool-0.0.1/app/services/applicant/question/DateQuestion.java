@@ -27,7 +27,7 @@ public class DateQuestion extends QuestionImpl {
   protected ImmutableSet<QuestionType> validQuestionTypes() {
     return ImmutableSet.of(QuestionType.DATE);
   }
-  
+
   @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     return ImmutableSet.of();

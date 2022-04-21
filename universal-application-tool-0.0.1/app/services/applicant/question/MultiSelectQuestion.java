@@ -32,8 +32,7 @@ public class MultiSelectQuestion extends QuestionImpl {
 
   @Override
   protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(
-      QuestionType.CHECKBOX, QuestionType.DROPDOWN, QuestionType.RADIO_BUTTON);
+    return ImmutableSet.of(QuestionType.CHECKBOX, QuestionType.DROPDOWN, QuestionType.RADIO_BUTTON);
   }
 
   @Override
