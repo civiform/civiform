@@ -32,8 +32,8 @@ abstract class QuestionImpl implements Question {
 
   /**
    * A question is considered answered if the applicant data has been set for any of the paths
-   * associated with the question. If a question type contains no paths, then it will be considered
-   * as not answered.
+   * associated with the question. If the applicant data does not contain the question's path,
+   * then it will be considered unanswered.
    */
   @Override
   public boolean isAnswered() {
