@@ -41,13 +41,21 @@ public class FileUploadQuestion extends QuestionImpl {
 
   @Override
   public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of(getFileKeyPath());
+    return ImmutableList.of();
   }
 
   @Override
   public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     // There are no inherent requirements in a file upload question.
     return ImmutableSet.of();
+  }
+
+  @Override
+  public boolean isAnswered() {
+    // TODO(#1944): Consider adding getFileKeyPath to getAllPaths.
+    // Adding it currently would cause the value to start being exported
+    // by the demographics exporter.
+    return applicantQuestion.getApplicantData().hasPath(getFileKeyPath());
   }
 
   public ValidationErrorMessage fileRequiredMessage() {
