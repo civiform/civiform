@@ -5,13 +5,17 @@
 export COMPOSE_PROJECT_NAME=test-support
 source bin/lib.sh
 
-docker::ensure_unit_test_env
+docker compose \
+  -f test-support/unit-test-docker-compose.yml \
+  -f test-support/unit-test-docker-compose.ci.yml \
+  up -d
 
-readonly COMPOSE_CMD="docker compose \
-  -f docker-compose.yml"
+docker compose \
+  -f test-support/unit-test-docker-compose.yml \
+  -f test-support/unit-test-docker-compose.ci.yml \
+  exec civiform sbt test
 
-${COMPOSE_CMD} up civiform -d
-${COMPOSE_CMD} exec civiform sbt test
-${COMPOSE_CMD} down
-
-docker::remove_unit_test_env
+docker compose \
+  -f test-support/unit-test-docker-compose.yml \
+  -f test-support/unit-test-docker-compose.ci.yml \
+  down

@@ -55,7 +55,7 @@ ${COMPOSE_CMD} --profile "${cloud_provider}" \
 "bin/${emulator}/wait"
 
 # Attach to the civiform container.
-${COMPOSE_CMD}  up \
+${COMPOSE_CMD} up \
   --wait \
   -d
 

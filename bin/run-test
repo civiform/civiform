@@ -6,7 +6,14 @@ export COMPOSE_PROJECT_NAME=test-support
 source bin/lib.sh
 
 bin/pull-image
-docker::ensure_unit_test_env
+docker compose \
+  -f test-support/unit-test-docker-compose.yml \
+  up -d
 
-bin/sbt test
-docker::remove_shell_container
+docker compose \
+  -f test-support/unit-test-docker-compose.yml \
+  exec civiform "sbt test"
+
+docker compose \
+  -f test-support/unit-test-docker-compose.yml \
+  down

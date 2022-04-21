@@ -1,0 +1,10 @@
+#! /usr/bin/env bash
+
+# DOC: Stop and delete the running browser test environment.
+
+export COMPOSE_PROJECT_NAME="browser-test"
+source bin/lib.sh
+
+docker compose \
+  -f docker-compose.yml \
+  -f browser-test/browser-test-compose.yml down --remove-orphans
