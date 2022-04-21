@@ -1,6 +1,7 @@
 package services.applicant.question;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import services.question.types.QuestionType;
 
@@ -12,7 +13,7 @@ abstract class QuestionImpl implements Question {
   protected final ApplicantQuestion applicantQuestion;
 
   public QuestionImpl(ApplicantQuestion applicantQuestion) {
-    this.applicantQuestion = Preconditinos.checkNotNull(applicantQuestion);
+    this.applicantQuestion = Preconditions.checkNotNull(applicantQuestion);
     if (!validQuestionTypes().contains(applicantQuestion.getType())) {
       throw new RuntimeException(
           String.format(
