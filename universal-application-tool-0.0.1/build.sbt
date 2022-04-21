@@ -137,7 +137,7 @@ lazy val excludeTailwindGeneration = Seq(watchSources := {
 })
 
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
-resolvers += Resolver.bintrayRepo("webjars", "maven")
+
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 libraryDependencies ++= Seq(
   "org.webjars.npm" % "azure__storage-blob" % "10.5.0"
