@@ -97,10 +97,11 @@ public final class QuestionEditView extends BaseHtmlView {
                     .with(makeCsrfTokenInputTag(request)));
 
     if (message.isPresent()) {
-      formContent.with(ToastMessage.error(message.get())
-        .setDismissible(true)
-        .setDuration(ERROR_TOAST_DURATION)
-        .getContainerTag());
+      formContent.with(
+          ToastMessage.error(message.get())
+              .setDismissible(true)
+              .setDuration(ERROR_TOAST_DURATION)
+              .getContainerTag());
     }
 
     return renderWithPreview(formContent, questionType, title);
@@ -149,10 +150,11 @@ public final class QuestionEditView extends BaseHtmlView {
                     .with(makeCsrfTokenInputTag(request)));
 
     if (message.isPresent()) {
-      formContent.with(ToastMessage.error(message.get())
-        .setDismissible(true)
-        .setDuration(ERROR_TOAST_DURATION)
-        .getContainerTag());
+      formContent.with(
+          ToastMessage.error(message.get())
+              .setDismissible(true)
+              .setDuration(ERROR_TOAST_DURATION)
+              .getContainerTag());
     }
 
     return renderWithPreview(formContent, questionType, title);
@@ -218,7 +220,7 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag multiOptionQuestionField =
         div()
             .with(
-                QuestionConfig.multiOptionQuestionField(Optional.empty(), messages)
+                QuestionConfig.multiOptionQuestionFieldTemplate(messages)
                     .withId("multi-option-question-answer-template")
                     // Add "hidden" to other classes, so that the template is not shown
                     .withClasses(
