@@ -15,15 +15,17 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class DateQuestion implements Question {
-
-  private final ApplicantQuestion applicantQuestion;
+public class DateQuestion extends QuestionImpl {
 
   private Optional<LocalDate> dateValue;
 
   public DateQuestion(ApplicantQuestion applicantQuestion) {
-    this.applicantQuestion = applicantQuestion;
-    assertQuestionType();
+    super(applicantQuestion);
+  }
+
+  @Override
+  protected ImmutableSet<QuestionType> validQuestionTypes() {
+    return ImmutableSet.of(QuestionType.DATE);
   }
 
   @Override
@@ -40,11 +42,6 @@ public class DateQuestion implements Question {
   @Override
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of(getDatePath());
-  }
-
-  @Override
-  public boolean isAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getDatePath());
   }
 
   public Path getDatePath() {
@@ -69,17 +66,6 @@ public class DateQuestion implements Question {
   }
 
   public DateQuestionDefinition getQuestionDefinition() {
-    assertQuestionType();
     return (DateQuestionDefinition) applicantQuestion.getQuestionDefinition();
-  }
-
-  public void assertQuestionType() {
-    if (!applicantQuestion.getType().equals(QuestionType.DATE)) {
-      throw new RuntimeException(
-          String.format(
-              "Question is not a DATE question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
-    }
   }
 }

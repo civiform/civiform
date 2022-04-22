@@ -14,14 +14,17 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class NumberQuestion implements Question {
+public class NumberQuestion extends QuestionImpl {
 
-  private final ApplicantQuestion applicantQuestion;
   private Optional<Long> numberValue;
 
   public NumberQuestion(ApplicantQuestion applicantQuestion) {
-    this.applicantQuestion = applicantQuestion;
-    assertQuestionType();
+    super(applicantQuestion);
+  }
+
+  @Override
+  protected ImmutableSet<QuestionType> validQuestionTypes() {
+    return ImmutableSet.of(QuestionType.NUMBER);
   }
 
   @Override
@@ -71,11 +74,6 @@ public class NumberQuestion implements Question {
     return ImmutableSet.of();
   }
 
-  @Override
-  public boolean isAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getNumberPath());
-  }
-
   public Optional<Long> getNumberValue() {
     if (numberValue != null) {
       return numberValue;
@@ -86,18 +84,7 @@ public class NumberQuestion implements Question {
     return numberValue;
   }
 
-  public void assertQuestionType() {
-    if (!applicantQuestion.getType().equals(QuestionType.NUMBER)) {
-      throw new RuntimeException(
-          String.format(
-              "Question is not a NUMBER question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
-    }
-  }
-
   public NumberQuestionDefinition getQuestionDefinition() {
-    assertQuestionType();
     return (NumberQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 

@@ -98,7 +98,7 @@ public class ApplicantQuestion {
    *     program specified.
    */
   public boolean isAnsweredOrSkippedOptionalInProgram() {
-    return errorsPresenter().isAnswered() || (isOptional() && wasRecentlyUpdatedInThisProgram());
+    return isAnswered() || (isOptional() && wasRecentlyUpdatedInThisProgram());
   }
 
   /**
@@ -106,7 +106,11 @@ public class ApplicantQuestion {
    * the current program.
    */
   public boolean isRequiredButWasSkippedInCurrentProgram() {
-    return !isOptional() && !errorsPresenter().isAnswered() && wasRecentlyUpdatedInThisProgram();
+    return !isOptional() && !isAnswered() && wasRecentlyUpdatedInThisProgram();
+  }
+
+  public boolean isAnswered() {
+    return errorsPresenter().isAnswered();
   }
 
   /** Returns true if this question was most recently updated in this program. */

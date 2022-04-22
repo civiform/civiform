@@ -8,6 +8,7 @@ import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionType;
 
 /**
  * Represents a single-select question in the context of a specific applicant.
@@ -16,16 +17,19 @@ import services.question.types.MultiOptionQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class SingleSelectQuestion implements Question {
+public class SingleSelectQuestion extends QuestionImpl {
 
-  private final ApplicantQuestion applicantQuestion;
   // Stores the value, loading and caching it on first access.
   private Optional<Optional<LocalizedQuestionOption>> selectedOptionValueCache;
 
   public SingleSelectQuestion(ApplicantQuestion applicantQuestion) {
-    this.applicantQuestion = applicantQuestion;
+    super(applicantQuestion);
     selectedOptionValueCache = Optional.empty();
-    assertQuestionType();
+  }
+
+  @Override
+  protected ImmutableSet<QuestionType> validQuestionTypes() {
+    return ImmutableSet.of(QuestionType.CHECKBOX, QuestionType.DROPDOWN, QuestionType.RADIO_BUTTON);
   }
 
   @Override
@@ -77,18 +81,7 @@ public class SingleSelectQuestion implements Question {
         .findFirst();
   }
 
-  public void assertQuestionType() {
-    if (!applicantQuestion.getType().isMultiOptionType()) {
-      throw new RuntimeException(
-          String.format(
-              "Question is not a multi-option question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
-    }
-  }
-
   public MultiOptionQuestionDefinition getQuestionDefinition() {
-    assertQuestionType();
     return (MultiOptionQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
@@ -108,11 +101,6 @@ public class SingleSelectQuestion implements Question {
   /** Get options in the specified locale. */
   public ImmutableList<LocalizedQuestionOption> getOptions(Locale locale) {
     return getQuestionDefinition().getOptionsForLocaleOrDefault(locale);
-  }
-
-  @Override
-  public boolean isAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getSelectionPath());
   }
 
   @Override

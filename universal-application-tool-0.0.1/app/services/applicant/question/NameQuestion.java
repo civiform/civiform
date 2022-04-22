@@ -16,16 +16,19 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class NameQuestion implements Question {
+public class NameQuestion extends QuestionImpl {
 
-  private final ApplicantQuestion applicantQuestion;
   private Optional<String> firstNameValue;
   private Optional<String> middleNameValue;
   private Optional<String> lastNameValue;
 
   public NameQuestion(ApplicantQuestion applicantQuestion) {
-    this.applicantQuestion = applicantQuestion;
-    assertQuestionType();
+    super(applicantQuestion);
+  }
+
+  @Override
+  protected ImmutableSet<QuestionType> validQuestionTypes() {
+    return ImmutableSet.of(QuestionType.NAME);
   }
 
   @Override
@@ -102,18 +105,7 @@ public class NameQuestion implements Question {
     return lastNameValue;
   }
 
-  public void assertQuestionType() {
-    if (!applicantQuestion.getType().equals(QuestionType.NAME)) {
-      throw new RuntimeException(
-          String.format(
-              "Question is not a NAME question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
-    }
-  }
-
   public NameQuestionDefinition getQuestionDefinition() {
-    assertQuestionType();
     return (NameQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 
@@ -127,26 +119,6 @@ public class NameQuestion implements Question {
 
   public Path getLastNamePath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.LAST_NAME);
-  }
-
-  private boolean isFirstNameAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getFirstNamePath());
-  }
-
-  private boolean isMiddleNameAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getMiddleNamePath());
-  }
-
-  private boolean isLastNameAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getLastNamePath());
-  }
-
-  /**
-   * Returns true if any one of the name fields is answered. Returns false if all are not answered.
-   */
-  @Override
-  public boolean isAnswered() {
-    return isFirstNameAnswered() || isMiddleNameAnswered() || isLastNameAnswered();
   }
 
   @Override
