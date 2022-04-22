@@ -255,14 +255,18 @@ public abstract class QuestionDefinition {
         errors.add(CiviFormError.of("Multi-option question options must be unique"));
       }
       int numOptions = multiOptionQuestionDefinition.getOptions().size();
-      OptionalInt minChoicesRequired = multiOptionQuestionDefinition.getMultiOptionValidationPredicates().minChoicesRequired();
-      OptionalInt maxChoicesAllowed = multiOptionQuestionDefinition.getMultiOptionValidationPredicates().maxChoicesAllowed();
+      OptionalInt minChoicesRequired =
+          multiOptionQuestionDefinition.getMultiOptionValidationPredicates().minChoicesRequired();
+      OptionalInt maxChoicesAllowed =
+          multiOptionQuestionDefinition.getMultiOptionValidationPredicates().maxChoicesAllowed();
       if (minChoicesRequired.isPresent()) {
         if (minChoicesRequired.getAsInt() < 0) {
           errors.add(CiviFormError.of("Minimum number of choices required cannot be negative"));
         }
         if (minChoicesRequired.getAsInt() > numOptions) {
-          errors.add(CiviFormError.of("Minimum number of choices required cannot exceed the number of options"));
+          errors.add(
+              CiviFormError.of(
+                  "Minimum number of choices required cannot exceed the number of options"));
         }
       }
       if (maxChoicesAllowed.isPresent()) {
@@ -270,7 +274,9 @@ public abstract class QuestionDefinition {
           errors.add(CiviFormError.of("Maximum number of choices allowed cannot be negative"));
         }
         if (maxChoicesAllowed.getAsInt() > numOptions) {
-          errors.add(CiviFormError.of("Maximum number of choices allowed cannot exceed the number of options"));
+          errors.add(
+              CiviFormError.of(
+                  "Maximum number of choices allowed cannot exceed the number of options"));
         }
       }
       if (minChoicesRequired.isPresent() && maxChoicesAllowed.isPresent()) {
@@ -278,7 +284,10 @@ public abstract class QuestionDefinition {
           errors.add(CiviFormError.of("Cannot require exactly 0 choices"));
         }
         if (minChoicesRequired.getAsInt() > maxChoicesAllowed.getAsInt()) {
-          errors.add(CiviFormError.of("Minimum number of choices required must be less than or equal to the maximum choices allowed"));
+          errors.add(
+              CiviFormError.of(
+                  "Minimum number of choices required must be less than or equal to the maximum"
+                      + " choices allowed"));
         }
       }
     }

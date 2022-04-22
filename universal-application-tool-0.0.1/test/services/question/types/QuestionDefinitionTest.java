@@ -467,29 +467,58 @@ public class QuestionDefinitionTest {
 
   private static ImmutableList<Object[]> getMultiOptionQuestionValidationTestData() {
     return ImmutableList.of(
-      // Valid cases.
-      new Object[] {OptionalInt.empty(), OptionalInt.empty(), Optional.<String>empty()},
-      new Object[] {OptionalInt.of(1), OptionalInt.empty(), Optional.<String>empty()},
-      new Object[] {OptionalInt.empty(), OptionalInt.of(1), Optional.<String>empty()},
-      new Object[] {OptionalInt.of(1), OptionalInt.of(2), Optional.<String>empty()},
-      new Object[] {OptionalInt.of(1), OptionalInt.of(1), Optional.<String>empty()},
+        // Valid cases.
+        new Object[] {OptionalInt.empty(), OptionalInt.empty(), Optional.<String>empty()},
+        new Object[] {OptionalInt.of(1), OptionalInt.empty(), Optional.<String>empty()},
+        new Object[] {OptionalInt.empty(), OptionalInt.of(1), Optional.<String>empty()},
+        new Object[] {OptionalInt.of(1), OptionalInt.of(2), Optional.<String>empty()},
+        new Object[] {OptionalInt.of(1), OptionalInt.of(1), Optional.<String>empty()},
 
-      // Edge cases.
-      new Object[] {OptionalInt.of(-1), OptionalInt.empty(), Optional.<String>of("Minimum number of choices required cannot be negative")},
-      new Object[] {OptionalInt.empty(), OptionalInt.of(-1), Optional.<String>of("Maximum number of choices allowed cannot be negative")},
-      new Object[] {OptionalInt.of(2), OptionalInt.of(1), Optional.<String>of("Minimum number of choices required must be less than or equal to the maximum choices allowed")},
-      new Object[] {OptionalInt.of(0), OptionalInt.of(0), Optional.<String>of("Cannot require exactly 0 choices")},
-      // Note: In the test code, we configure two options.
-      new Object[] {OptionalInt.empty(), OptionalInt.of(3), Optional.<String>of("Minimum number of choices required cannot exceed the number of options")},
-      new Object[] {OptionalInt.of(3), OptionalInt.empty(), Optional.<String>of("Maximum number of choices allowed cannot exceed the number of options")}
-    );
+        // Edge cases.
+        new Object[] {
+          OptionalInt.of(-1),
+          OptionalInt.empty(),
+          Optional.<String>of("Minimum number of choices required cannot be negative")
+        },
+        new Object[] {
+          OptionalInt.empty(),
+          OptionalInt.of(-1),
+          Optional.<String>of("Maximum number of choices allowed cannot be negative")
+        },
+        new Object[] {
+          OptionalInt.of(2),
+          OptionalInt.of(1),
+          Optional.<String>of(
+              "Minimum number of choices required must be less than or equal to the maximum"
+                  + " choices allowed")
+        },
+        new Object[] {
+          OptionalInt.of(0),
+          OptionalInt.of(0),
+          Optional.<String>of("Cannot require exactly 0 choices")
+        },
+        // Note: In the test code, we configure two options.
+        new Object[] {
+          OptionalInt.empty(),
+          OptionalInt.of(3),
+          Optional.<String>of(
+              "Maximum number of choices allowed cannot exceed the number of options")
+        },
+        new Object[] {
+          OptionalInt.of(3),
+          OptionalInt.empty(),
+          Optional.<String>of(
+              "Minimum number of choices required cannot exceed the number of options")
+        });
   }
 
   @Test
   @Parameters(method = "getMultiOptionQuestionValidationTestData")
   public void validate_multiOptionQuestion_validationConstraints(
-    OptionalInt minChoicesRequired, OptionalInt maxChoicesAllowed, Optional<String> wantErrorMessage) {
-      QuestionDefinition question =
+      OptionalInt minChoicesRequired,
+      OptionalInt maxChoicesAllowed,
+      Optional<String> wantErrorMessage) {
+    QuestionDefinition question =
         new CheckboxQuestionDefinition(
             "test",
             Optional.empty(),
@@ -503,13 +532,12 @@ public class QuestionDefinitionTest {
                 .setMinChoicesRequired(minChoicesRequired)
                 .setMaxChoicesAllowed(maxChoicesAllowed)
                 .build());
-    
+
     ImmutableSet<CiviFormError> errors = question.validate();
     if (wantErrorMessage.isEmpty()) {
       assertThat(errors).isEmpty();
     } else {
-      assertThat(question.validate())
-          .containsOnly(CiviFormError.of(wantErrorMessage.get()));
+      assertThat(question.validate()).containsOnly(CiviFormError.of(wantErrorMessage.get()));
     }
   }
 
