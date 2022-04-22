@@ -19,6 +19,7 @@ import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
+import java.util.OptionalLong;
 import play.i18n.Messages;
 import services.LocalizedStrings;
 import services.MessageKey;
@@ -263,12 +264,18 @@ public class QuestionConfig {
             .setId("multi-select-min-choices-input")
             .setFieldName("minChoicesRequired")
             .setLabelText("Minimum number of choices required")
+            // Negative numbers aren't allowed. Force the admin to provide
+            // a positive number.
+            .setMin(OptionalLong.of(0L))
             .setValue(multiOptionForm.getMinChoicesRequired())
             .getContainer(),
         FieldWithLabel.number()
             .setId("multi-select-max-choices-input")
             .setFieldName("maxChoicesAllowed")
             .setLabelText("Maximum number of choices allowed")
+            // Negative numbers aren't allowed. Force the admin to provide
+            // a positive number.
+            .setMin(OptionalLong.of(0L))
             .setValue(multiOptionForm.getMaxChoicesAllowed())
             .getContainer());
     return this;
