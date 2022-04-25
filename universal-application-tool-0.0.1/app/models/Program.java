@@ -86,7 +86,10 @@ public class Program extends BaseModel {
   /** When was this program created. */
   @WhenCreated private Instant createTime;
 
-  /** When was this program last modified. */
+  /**
+   * When was this program last modified. Also updates every time any of the joinTable tables are
+   * modified, for example a new Version is published.
+   */
   @WhenModified private Instant lastModifiedTime;
 
   @ManyToMany
