@@ -13,8 +13,10 @@ public abstract class ProgramBlockAdditionResult {
       ProgramDefinition programDefinition, Optional<BlockDefinition> maybeAddedBlockDefinition) {
     return new AutoValue_ProgramBlockAdditionResult(programDefinition, maybeAddedBlockDefinition);
   }
-  /** The program containing the block that was added. */
+
+    /** The program containing the block that was added. */
   public abstract ProgramDefinition program();
+
   /** The newly added block, if no errors were encountered. */
   public abstract Optional<BlockDefinition> maybeAddedBlock();
 }
