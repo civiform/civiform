@@ -17,6 +17,7 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.program.BlockDefinition;
 import services.program.IllegalPredicateOrderingException;
+import services.program.ProgramBlockAdditionResult;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramDefinition.Direction;
@@ -72,14 +73,17 @@ public class AdminProgramBlocksController extends CiviFormController {
                 formFactory.form().bindFromRequest(request).get(editView.ENUMERATOR_ID_FORM_FIELD))
             .map(Long::valueOf);
     try {
-      ErrorAnd<ProgramDefinition, CiviFormError> result;
+      ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result;
       if (enumeratorId.isPresent()) {
         result = programService.addRepeatedBlockToProgram(programId, enumeratorId.get());
       } else {
         result = programService.addBlockToProgram(programId);
       }
-      ProgramDefinition program = result.getResult();
-      BlockDefinition block = program.getLastBlockDefinition();
+      ProgramDefinition program = result.getResult().program();
+      BlockDefinition block =
+          result.getResult().maybeAddedBlock().isEmpty()
+              ? program.getLastBlockDefinition()
+              : result.getResult().maybeAddedBlock().get();
       if (result.isError()) {
         String errorMessage = joinErrors(result.getErrors());
         return renderEditViewWithMessage(request, program, block, errorMessage);
