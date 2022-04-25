@@ -105,7 +105,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     return div(formTag, skipForms, buttons)
         .withId("azure-upload-form-component")
         .with(
-            footer(viewUtils.makeWebJarsTag(WebJarJsPaths.AZURE_STORAGE_BLOB)),
+            footer(viewUtils.makeAzureBlobStoreScriptTag()),
             footer(viewUtils.makeLocalJsTag("azure_upload")));
   }
 

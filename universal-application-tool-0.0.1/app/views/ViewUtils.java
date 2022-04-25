@@ -19,6 +19,16 @@ public final class ViewUtils {
   }
 
   /**
+   * Generates an HTML script tag for loading the Azure Blob Storage client library from the
+   * jsdelivr.net CDN.
+   */
+  public Tag makeAzureBlobStoreScriptTag() {
+    return script()
+        .withSrc("https://cdn.jsdelivr.net/npm/@azure/storage-blob@10.5.0")
+        .withType("text/javascript");
+  }
+
+  /**
    * Generates an HTML script tag for loading the javascript file found at
    * public/javascripts/[filename].js.
    */

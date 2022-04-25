@@ -139,9 +139,6 @@ lazy val excludeTailwindGeneration = Seq(watchSources := {
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
-libraryDependencies ++= Seq(
-  "org.webjars.npm" % "azure__storage-blob" % "10.5.0"
-)
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.2.2",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.13.2",
