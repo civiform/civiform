@@ -14,7 +14,7 @@ public abstract class ProgramBlockAdditionResult {
     return new AutoValue_ProgramBlockAdditionResult(programDefinition, maybeAddedBlockDefinition);
   }
 
-    /** The program containing the block that was added. */
+  /** The program containing the block that was added. */
   public abstract ProgramDefinition program();
 
   /** The newly added block, if no errors were encountered. */
