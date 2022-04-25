@@ -49,6 +49,9 @@ public final class QuestionEditView extends BaseHtmlView {
   private static final String QUESTION_NAME_FIELD = "questionName";
   private static final String QUESTION_ENUMERATOR_FIELD = "enumeratorId";
 
+  // Setting a value of 0 causes the toast to be displayed indefinitely.
+  private static final int ERROR_TOAST_DURATION = 0;
+
   @Inject
   public QuestionEditView(
       AdminLayout layout, MessagesApi messagesApi, FileUploadViewStrategy fileUploadViewStrategy) {
@@ -94,7 +97,11 @@ public final class QuestionEditView extends BaseHtmlView {
                     .with(makeCsrfTokenInputTag(request)));
 
     if (message.isPresent()) {
-      formContent.with(ToastMessage.error(message.get()).setDismissible(false).getContainerTag());
+      formContent.with(
+          ToastMessage.error(message.get())
+              .setDismissible(true)
+              .setDuration(ERROR_TOAST_DURATION)
+              .getContainerTag());
     }
 
     return renderWithPreview(formContent, questionType, title);
@@ -143,7 +150,11 @@ public final class QuestionEditView extends BaseHtmlView {
                     .with(makeCsrfTokenInputTag(request)));
 
     if (message.isPresent()) {
-      formContent.with(ToastMessage.error(message.get()).setDismissible(false).getContainerTag());
+      formContent.with(
+          ToastMessage.error(message.get())
+              .setDismissible(true)
+              .setDuration(ERROR_TOAST_DURATION)
+              .getContainerTag());
     }
 
     return renderWithPreview(formContent, questionType, title);
@@ -209,7 +220,7 @@ public final class QuestionEditView extends BaseHtmlView {
     ContainerTag multiOptionQuestionField =
         div()
             .with(
-                QuestionConfig.multiOptionQuestionField(Optional.empty(), messages)
+                QuestionConfig.multiOptionQuestionFieldTemplate(messages)
                     .withId("multi-option-question-answer-template")
                     // Add "hidden" to other classes, so that the template is not shown
                     .withClasses(
