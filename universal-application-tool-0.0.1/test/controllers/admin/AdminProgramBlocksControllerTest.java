@@ -85,11 +85,9 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
-    Request request = fakeRequest()
-      .bodyForm(ImmutableMap.of("enumeratorId", "1"))
-      .build();
+    Request request = fakeRequest().bodyForm(ImmutableMap.of("enumeratorId", "1")).build();
     Result result = controller.create(request, program.id);
-    
+
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     // Ensures we're redirected to the newly created block rather than the last
     // block in the program (see issue #1885).
