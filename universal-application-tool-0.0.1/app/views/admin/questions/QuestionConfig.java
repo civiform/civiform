@@ -189,7 +189,7 @@ public class QuestionConfig {
    * along with a button to remove the option.
    */
   public static ContainerTag multiOptionQuestionFieldTemplate(Messages messages) {
-    return multiOptionQuestionField(Optional.empty(), messages, true);
+    return multiOptionQuestionField(Optional.empty(), messages, /* isForNewOption= */ true);
   }
 
   /**
@@ -251,7 +251,7 @@ public class QuestionConfig {
                       multiOptionQuestionForm.getOptions().get(i),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
-              false));
+              /* isForNewOption= */ false));
       optionIndex++;
     }
     for (String newOption : multiOptionQuestionForm.getNewOptions()) {
@@ -261,7 +261,7 @@ public class QuestionConfig {
                   LocalizedQuestionOption.create(
                       -1, optionIndex, newOption, LocalizedStrings.DEFAULT_LOCALE)),
               messages,
-              true));
+              /* isForNewOption= */ true));
       optionIndex++;
     }
 
