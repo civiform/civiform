@@ -20,8 +20,7 @@ public final class ViewUtils {
 
   /**
    * Generates an HTML script tag for loading the Azure Blob Storage client library from the
-   * jsdelivr.net CDN.
-   * TOOD(https://github.com/seattle-uat/civiform/issues/2349): Stop using this.
+   * jsdelivr.net CDN. TOOD(https://github.com/seattle-uat/civiform/issues/2349): Stop using this.
    */
   public Tag makeAzureBlobStoreScriptTag() {
     return script()
