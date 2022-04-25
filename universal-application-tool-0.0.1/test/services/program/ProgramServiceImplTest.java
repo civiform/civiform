@@ -338,12 +338,14 @@ public class ProgramServiceImplTest extends ResetPostgres {
   public void addBlockToProgram_emptyBlock_returnsProgramDefinitionWithBlock() throws Exception {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram().withBlock("Screen 1").buildDefinition();
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
+    ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
         ps.addBlockToProgram(programDefinition.id());
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
-    ProgramDefinition updatedProgramDefinition = result.getResult();
+    ProgramDefinition updatedProgramDefinition = result.getResult().program();
+    assertThat(result.getResult().maybeAddedBlock()).isNotEmpty();
+    BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
     ProgramDefinition found = ps.getProgramDefinition(programDefinition.id());
 
@@ -357,6 +359,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThat(emptyBlock.programQuestionDefinitions()).hasSize(0);
 
     BlockDefinition newBlock = found.blockDefinitions().get(1);
+    assertThat(newBlock.id()).isEqualTo(addedBlock.id());
     assertThat(newBlock.name()).isEqualTo("Screen 2");
     assertThat(newBlock.description()).isNotEmpty();
     assertThat(newBlock.programQuestionDefinitions()).hasSize(0);
@@ -367,18 +370,21 @@ public class ProgramServiceImplTest extends ResetPostgres {
     ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
     long programId = programDefinition.id();
 
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
+    ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
         ps.addBlockToProgram(programDefinition.id());
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
-    ProgramDefinition updatedProgramDefinition = result.getResult();
+    ProgramDefinition updatedProgramDefinition = result.getResult().program();
+    assertThat(result.getResult().maybeAddedBlock()).isNotEmpty();
+    BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
     ProgramDefinition found = ps.getProgramDefinition(programId);
 
     assertThat(found.blockDefinitions()).hasSize(2);
     assertThat(found.blockDefinitions())
         .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
+    assertThat(found.blockDefinitions().get(1).id()).isEqualTo(addedBlock.id());
   }
 
   @Test
@@ -393,12 +399,14 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
 
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
+    ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
         ps.addRepeatedBlockToProgram(program.id, 1L);
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
-    ProgramDefinition updatedProgramDefinition = result.getResult();
+    ProgramDefinition updatedProgramDefinition = result.getResult().program();
+    assertThat(result.getResult().maybeAddedBlock()).isNotEmpty();
+    BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
     ProgramDefinition found = ps.getProgramDefinition(program.id);
 
@@ -407,15 +415,23 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThat(found.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+
     assertThat(found.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().isRepeated()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().enumeratorId()).contains(1L);
     assertThat(found.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
+
+    // The newly added block.
     assertThat(found.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(1L);
     assertThat(found.getBlockDefinitionByIndex(2).get().getQuestionCount()).isEqualTo(0);
+    assertThat(found.getBlockDefinitionByIndex(2).get().id()).isEqualTo(addedBlock.id());
+
     assertThat(found.getBlockDefinitionByIndex(3).get().isRepeated()).isFalse();
+    assertThat(found.getBlockDefinitionByIndex(3).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantFavoriteColor().getQuestionDefinition());
+
     assertThat(found.blockDefinitions())
         .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
   }
@@ -432,32 +448,41 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
             .build();
 
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
+    ErrorAnd<ProgramBlockAdditionResult, CiviFormError> result =
         ps.addRepeatedBlockToProgram(program.id, 2L);
 
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
-    ProgramDefinition updatedProgramDefinition = result.getResult();
+    ProgramDefinition updatedProgramDefinition = result.getResult().program();
+    assertThat(result.getResult().maybeAddedBlock()).isNotEmpty();
+    BlockDefinition addedBlock = result.getResult().maybeAddedBlock().get();
 
     ProgramDefinition found = ps.getProgramDefinition(program.id);
 
     assertThat(found.blockDefinitions()).hasSize(4);
     assertThat(found.getBlockDefinitionByIndex(0).get().isEnumerator()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(0).get().isRepeated()).isFalse();
+    assertThat(found.getBlockDefinitionByIndex(0).get().getQuestionDefinition(0))
+        .isEqualTo(testQuestionBank.applicantFavoriteColor().getQuestionDefinition());
+
     assertThat(found.getBlockDefinitionByIndex(1).get().isEnumerator()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(1).get().isRepeated()).isFalse();
     assertThat(found.getBlockDefinitionByIndex(1).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.applicantHouseholdMembers().getQuestionDefinition());
+
     assertThat(found.getBlockDefinitionByIndex(2).get().isEnumerator()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(2).get().isRepeated()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(2).get().enumeratorId()).contains(2L);
     assertThat(found.getBlockDefinitionByIndex(2).get().getQuestionDefinition(0))
         .isEqualTo(testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition());
+
+    // The newly added block.
     assertThat(found.getBlockDefinitionByIndex(3).get().isRepeated()).isTrue();
     assertThat(found.getBlockDefinitionByIndex(3).get().enumeratorId()).contains(2L);
     assertThat(found.getBlockDefinitionByIndex(3).get().getQuestionCount()).isEqualTo(0);
     assertThat(found.blockDefinitions())
         .containsExactlyElementsOf(updatedProgramDefinition.blockDefinitions());
+    assertThat(found.getBlockDefinitionByIndex(3).get().id()).isEqualTo(addedBlock.id());
   }
 
   @Test
