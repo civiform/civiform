@@ -25,7 +25,9 @@ public final class ViewUtils {
   public Tag makeAzureBlobStoreScriptTag() {
     return script()
         .withSrc("https://cdn.jsdelivr.net/npm/@azure/storage-blob@10.5.0")
-        .withType("text/javascript");
+        .withType("text/javascript")
+        .attr("crossorigin", "anonymous")
+        .attr("integrity", "sha256-VFdCcG0JBuOTN0p15rwVT5EIuL7bzWMYi4aD6KeDqus=");
   }
 
   /**
