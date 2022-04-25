@@ -77,6 +77,30 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void create_withProgram_addsRepeatedBlock() {
+    Program program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    Request request = fakeRequest()
+      .bodyForm(ImmutableMap.of("enumeratorId", "1"))
+      .build();
+    Result result = controller.create(request, program.id);
+    
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    // Ensures we're redirected to the newly created block rather than the last
+    // block in the program (see issue #1885).
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramBlocksController.edit(program.id, 3L).url());
+
+    program.refresh();
+    assertThat(program.getProgramDefinition().blockDefinitions()).hasSize(3);
+  }
+
+  @Test
   public void edit_withInvalidProgram_notFound() {
     Request request = fakeRequest().build();
     Result result = controller.edit(request, 1L, 1L);
