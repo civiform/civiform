@@ -35,5 +35,5 @@ ENV CIVIFORM_IMAGE_TAG=$image_tag
 
 RUN apk add bash
 
-RUN unzip /civiform.zip; chmod +x /universal-application-tool-0.0.1/bin/universal-application-tool
-CMD ["/universal-application-tool-0.0.1/bin/civiform-server", "-Dconfig.file=/universal-application-tool-0.0.1/conf/application.conf"]
+RUN unzip /civiform.zip; chmod +x /civiform-server-0.0.1/bin/civiform-server
+CMD ["/civiform-server-0.0.1/bin/civiform-server", "-Dconfig.file=/civiform-server-0.0.1/conf/application.conf"]
