@@ -38,11 +38,7 @@ public class AddressQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
-    if (!isAnswered()) {
-      return ImmutableMap.of();
-    }
-
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     return ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>builder()
         .put(applicantQuestion.getContextualizedPath(), getQuestionErrors())
         .put(getStreetPath(), validateStreet())

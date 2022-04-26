@@ -2,7 +2,10 @@ package services.applicant.question;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import services.Path;
+import services.applicant.ValidationErrorMessage;
 import services.question.types.QuestionType;
 
 /**
@@ -29,6 +32,19 @@ abstract class QuestionImpl implements Question {
    * constructor. This is used for validation purposes.
    */
   protected abstract ImmutableSet<QuestionType> validQuestionTypes();
+
+  @Override
+  public final ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
+    // TODO(#1944): Don't consult isAnswered for determining validation errors.
+    // Instead, make callers responsible for determining whether the question should
+    // be validated.
+    return isAnswered() ? getValidationErrorsInternal() : ImmutableMap.of();
+  }
+
+  /**
+    * Question-type specific implementation of {@link Question.getValidationErrors}.
+    */
+  protected abstract ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal();
 
   /**
    * A question is considered answered if the applicant data has been set for any of the paths

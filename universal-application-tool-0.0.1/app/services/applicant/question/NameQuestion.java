@@ -38,11 +38,8 @@ public class NameQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // TODO: Implement admin-defined validation.
-    if (!isAnswered()) {
-      return ImmutableMap.of();
-    }
     return ImmutableMap.of(
       getFirstNamePath(), validateFirstName(),
       getLastNamePath(), validateLastName());

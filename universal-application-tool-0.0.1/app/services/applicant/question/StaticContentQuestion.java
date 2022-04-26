@@ -27,7 +27,7 @@ public class StaticContentQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     return ImmutableMap.of();
   }
 

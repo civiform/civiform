@@ -39,7 +39,7 @@ public class SingleSelectQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // Only one selection is possible - there is no admin-configured validation.
     return ImmutableMap.of();
   }

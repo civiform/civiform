@@ -28,7 +28,7 @@ public class EmailQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // TODO: Need to add some Email specific validation.
     return ImmutableMap.of();
   }

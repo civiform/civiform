@@ -35,7 +35,7 @@ public class FileUploadQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // TODO: Implement admin-defined validation.
     // TODO(#1944): Validate that the file has been uploaded.
     return ImmutableMap.of();

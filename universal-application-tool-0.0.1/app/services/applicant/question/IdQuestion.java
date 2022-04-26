@@ -35,11 +35,7 @@ public class IdQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
-    if (!isAnswered()) {
-      return ImmutableMap.of();
-    }
-
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     return ImmutableMap.of(getIdPath(), validateId());
   }
 

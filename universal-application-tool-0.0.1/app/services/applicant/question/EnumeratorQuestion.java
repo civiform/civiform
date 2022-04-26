@@ -41,12 +41,8 @@ public class EnumeratorQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // No blank values are allowed. No duplicated entity names are allowed.
-    if (!isAnswered()) {
-      return ImmutableMap.of();
-    }
-
     return ImmutableMap.of(applicantQuestion.getContextualizedPath(), validateEntities());
   }
 

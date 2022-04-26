@@ -34,11 +34,7 @@ public class NumberQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
-    if (!isAnswered()) {
-      return ImmutableMap.of();
-    }
-
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // TODO(#1944): Move this validation from the top-level to a field-specific error.
     // Presently, the renderer displays a hidden error when the input can't be converted
     // to the correct currency.
