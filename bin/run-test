@@ -6,14 +6,10 @@ export COMPOSE_PROJECT_NAME=test-support
 source bin/lib.sh
 
 bin/pull-image
-docker compose \
-  -f test-support/unit-test-docker-compose.yml \
-  up -d
 
-docker compose \
-  -f test-support/unit-test-docker-compose.yml \
-  exec civiform "sbt test"
+readonly COMPOSE_CMD="docker compose \
+  -f test-support/unit-test-docker-compose.yml"
 
-docker compose \
-  -f test-support/unit-test-docker-compose.yml \
-  down
+${COMPOSE_CMD} up civiform -d
+${COMPOSE_CMD} exec civiform sbt test
+${COMPOSE_CMD} down

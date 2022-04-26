@@ -10,7 +10,8 @@ if [[ ! -f "${1}" ]]; then
 fi
 
 # set TRUNCATE_SQL to heredoc contents
-TRUNCATE_SQL=$(cat <<EOF
+TRUNCATE_SQL=$(
+               cat <<EOF
 TRUNCATE TABLE files;
 TRUNCATE TABLE applications CASCADE;
 TRUNCATE TABLE applicants CASCADE;
@@ -27,7 +28,7 @@ EOF
 TRUNCATE_SQL="${TRUNCATE_SQL//$'\n'/}"
 
 # location of dump file in docker container
-readonly DUMP_FILE="project/${1}"
+readonly DUMP_FILE="${1}"
 
 readonly COMPOSE_CMD="docker compose \
   -f docker-compose.yml \
@@ -40,7 +41,9 @@ ${COMPOSE_CMD} up db \
   --wait \
   -d
 
-${COMPOSE_CMD} cp ${1} db:/${DUMP_FILE}
+${COMPOSE_CMD} cp ${DUMP_FILE} db:/${DUMP_FILE}
+
+echo "start truncate"
 
 # command for invoking psql with the dev database
 ${COMPOSE_CMD} \
@@ -48,8 +51,10 @@ ${COMPOSE_CMD} \
   /usr/bin/psql -h db -U postgres \
   -c "${TRUNCATE_SQL}" postgres
 
+echo "start restore"
+
 # command for invoking pg_restore with the dev database
 ${COMPOSE_CMD} \
   exec -it -e "PGPASSWORD=example" db \
-  /usr/bin/pg_restore -h db -U postgres \
-   -f "${DUMP_FILE}"
+  /bin/sh -c "/usr/bin/pg_restore --clean -v -h db -U postgres -d postgres\
+  <\"${DUMP_FILE}\""

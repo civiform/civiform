@@ -5,17 +5,10 @@
 export COMPOSE_PROJECT_NAME=test-support
 source bin/lib.sh
 
-docker compose \
+readonly COMPOSE_CMD="docker compose \
   -f test-support/unit-test-docker-compose.yml \
-  -f test-support/unit-test-docker-compose.ci.yml \
-  up -d
+  -f test-support/unit-test-docker-compose.ci.yml "
 
-docker compose \
-  -f test-support/unit-test-docker-compose.yml \
-  -f test-support/unit-test-docker-compose.ci.yml \
-  exec civiform sbt test
-
-docker compose \
-  -f test-support/unit-test-docker-compose.yml \
-  -f test-support/unit-test-docker-compose.ci.yml \
-  down
+${COMPOSE_CMD} up civiform -d
+${COMPOSE_CMD} exec civiform sbt test
+${COMPOSE_CMD} down
