@@ -51,8 +51,8 @@ public class MultiSelectQuestionTest {
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
-    assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(multiSelectQuestion.hasConditionErrors()).isFalse();
+    assertThat(multiSelectQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(multiSelectQuestion.getQuestionErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -66,8 +66,8 @@ public class MultiSelectQuestionTest {
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
-    assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(multiSelectQuestion.hasConditionErrors()).isFalse();
+    assertThat(multiSelectQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(multiSelectQuestion.getQuestionErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -117,8 +117,8 @@ public class MultiSelectQuestionTest {
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    assertThat(multiSelectQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(multiSelectQuestion.hasConditionErrors()).isFalse();
+    assertThat(multiSelectQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(multiSelectQuestion.getQuestionErrors().isEmpty()).isTrue();
   }
 
   @Test

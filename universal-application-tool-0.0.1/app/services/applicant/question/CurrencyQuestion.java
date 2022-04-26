@@ -14,16 +14,19 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class CurrencyQuestion implements Question {
+public class CurrencyQuestion extends QuestionImpl {
 
-  private final ApplicantQuestion applicantQuestion;
   // Stores the value, loading and caching it on first access.
   private Optional<Optional<Currency>> currencyCache;
 
   public CurrencyQuestion(ApplicantQuestion applicantQuestion) {
-    this.applicantQuestion = applicantQuestion;
+    super(applicantQuestion);
     this.currencyCache = Optional.empty();
-    assertQuestionType();
+  }
+
+  @Override
+  protected ImmutableSet<QuestionType> validQuestionTypes() {
+    return ImmutableSet.of(QuestionType.CURRENCY);
   }
 
   @Override
@@ -32,29 +35,14 @@ public class CurrencyQuestion implements Question {
   }
 
   @Override
-  public boolean hasConditionErrors() {
-    return !getQuestionErrors().isEmpty();
-  }
-
-  @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     return ImmutableSet.of();
-  }
-
-  @Override
-  public boolean hasTypeSpecificErrors() {
-    return !getAllTypeSpecificErrors().isEmpty();
   }
 
   @Override
   public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
     // There are no inherent requirements in a currency question.
     return ImmutableSet.of();
-  }
-
-  @Override
-  public boolean isAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getCurrencyPath());
   }
 
   public Optional<Currency> getValue() {
@@ -66,18 +54,7 @@ public class CurrencyQuestion implements Question {
     return currencyCache.get();
   }
 
-  public void assertQuestionType() {
-    if (!applicantQuestion.getType().equals(QuestionType.CURRENCY)) {
-      throw new RuntimeException(
-          String.format(
-              "Question is not a CURRENCY question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
-    }
-  }
-
   public CurrencyQuestionDefinition getQuestionDefinition() {
-    assertQuestionType();
     return (CurrencyQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 

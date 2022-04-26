@@ -13,8 +13,8 @@ import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.function.Function;
@@ -82,8 +82,8 @@ public abstract class BaseHtmlView {
   }
 
   protected String renderDateTime(Instant time) {
-    LocalDateTime datetime = LocalDateTime.ofInstant(time, ZoneId.of("America/Los_Angeles"));
-    return datetime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a"));
+    ZonedDateTime dateTime = time.atZone(ZoneId.of("America/Los_Angeles"));
+    return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a z"));
   }
 
   protected ContainerTag renderPaginationDiv(

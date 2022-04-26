@@ -61,8 +61,8 @@ public class TextQuestionTest extends ResetPostgres {
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
-    assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.hasConditionErrors()).isFalse();
+    assertThat(textQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(textQuestion.getQuestionErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -75,8 +75,8 @@ public class TextQuestionTest extends ResetPostgres {
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
     assertThat(textQuestion.getTextValue().get()).isEqualTo("hello");
-    assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.hasConditionErrors()).isFalse();
+    assertThat(textQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(textQuestion.getQuestionErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -91,8 +91,8 @@ public class TextQuestionTest extends ResetPostgres {
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
     assertThat(textQuestion.getTextValue().get()).isEqualTo(value);
-    assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.hasConditionErrors()).isFalse();
+    assertThat(textQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(textQuestion.getQuestionErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -114,9 +114,10 @@ public class TextQuestionTest extends ResetPostgres {
     if (textQuestion.getTextValue().isPresent()) {
       assertThat(textQuestion.getTextValue().get()).isEqualTo(value);
     }
-    assertThat(textQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(textQuestion.getQuestionErrors()).hasSize(1);
-    String errorMessage = textQuestion.getQuestionErrors().iterator().next().getMessage(messages);
+    assertThat(textQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(textQuestion.getAllTypeSpecificErrors()).hasSize(1);
+    String errorMessage =
+        textQuestion.getAllTypeSpecificErrors().iterator().next().getMessage(messages);
     assertThat(errorMessage).isEqualTo(expectedErrorMessage);
   }
 }

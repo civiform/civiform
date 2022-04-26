@@ -10,7 +10,6 @@ import javax.annotation.Nullable;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.RepeatedEntity;
-import services.applicant.ValidationErrorMessage;
 import services.program.ProgramQuestionDefinition;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -99,7 +98,7 @@ public class ApplicantQuestion {
    *     program specified.
    */
   public boolean isAnsweredOrSkippedOptionalInProgram() {
-    return errorsPresenter().isAnswered() || (isOptional() && wasRecentlyUpdatedInThisProgram());
+    return isAnswered() || (isOptional() && wasRecentlyUpdatedInThisProgram());
   }
 
   /**
@@ -107,7 +106,11 @@ public class ApplicantQuestion {
    * the current program.
    */
   public boolean isRequiredButWasSkippedInCurrentProgram() {
-    return !isOptional() && !errorsPresenter().isAnswered() && wasRecentlyUpdatedInThisProgram();
+    return !isOptional() && !isAnswered() && wasRecentlyUpdatedInThisProgram();
+  }
+
+  public boolean isAnswered() {
+    return errorsPresenter().isAnswered();
   }
 
   /** Returns true if this question was most recently updated in this program. */
@@ -170,12 +173,9 @@ public class ApplicantQuestion {
     }
   }
 
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    return errorsPresenter().getQuestionErrors();
-  }
-
   public boolean hasErrors() {
-    return errorsPresenter().hasConditionErrors() || errorsPresenter().hasTypeSpecificErrors();
+    return !errorsPresenter().getQuestionErrors().isEmpty()
+        || !errorsPresenter().getAllTypeSpecificErrors().isEmpty();
   }
 
   public Optional<Long> getUpdatedInProgramMetadata() {

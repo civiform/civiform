@@ -13,7 +13,7 @@ describe('the dev file upload page', () => {
     expect(await page.textContent('h1')).toContain('Dev file upload')
 
     await page.setInputFiles('input[type=file]', {
-      name: 'file.txt',
+      name: 'my-test-file.txt',
       mimeType: 'text/plain',
       buffer: Buffer.from('this is test'),
     })
@@ -22,7 +22,7 @@ describe('the dev file upload page', () => {
     await waitForPageJsLoad(page)
 
     expect(await page.textContent('h1')).toContain('Dev file upload')
-    expect(await page.content()).toContain('dev/file.txt')
+    expect(await page.textContent('table')).toContain('my-test-file.txt')
 
     await endSession(browser)
   })

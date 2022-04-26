@@ -4,9 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalInt;
 import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -325,7 +328,6 @@ public class QuestionDefinitionTest {
     assertThat(question.validate())
         .containsOnly(
             CiviFormError.of("Name cannot be blank"),
-            CiviFormError.of("Description cannot be blank"),
             CiviFormError.of("Question text cannot be blank"));
   }
 
@@ -461,6 +463,82 @@ public class QuestionDefinitionTest {
             MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Multi-option question options must be unique"));
+  }
+
+  private static ImmutableList<Object[]> getMultiOptionQuestionValidationTestData() {
+    return ImmutableList.of(
+        // Valid cases.
+        new Object[] {OptionalInt.empty(), OptionalInt.empty(), Optional.<String>empty()},
+        new Object[] {OptionalInt.of(1), OptionalInt.empty(), Optional.<String>empty()},
+        new Object[] {OptionalInt.empty(), OptionalInt.of(1), Optional.<String>empty()},
+        new Object[] {OptionalInt.of(1), OptionalInt.of(2), Optional.<String>empty()},
+        new Object[] {OptionalInt.of(1), OptionalInt.of(1), Optional.<String>empty()},
+
+        // Edge cases.
+        new Object[] {
+          OptionalInt.of(-1),
+          OptionalInt.empty(),
+          Optional.<String>of("Minimum number of choices required cannot be negative")
+        },
+        new Object[] {
+          OptionalInt.empty(),
+          OptionalInt.of(-1),
+          Optional.<String>of("Maximum number of choices allowed cannot be negative")
+        },
+        new Object[] {
+          OptionalInt.of(2),
+          OptionalInt.of(1),
+          Optional.<String>of(
+              "Minimum number of choices required must be less than or equal to the maximum"
+                  + " choices allowed")
+        },
+        new Object[] {
+          OptionalInt.of(0),
+          OptionalInt.of(0),
+          Optional.<String>of("Cannot require exactly 0 choices")
+        },
+        // Note: In the test code, we configure two options.
+        new Object[] {
+          OptionalInt.empty(),
+          OptionalInt.of(3),
+          Optional.<String>of(
+              "Maximum number of choices allowed cannot exceed the number of options")
+        },
+        new Object[] {
+          OptionalInt.of(3),
+          OptionalInt.empty(),
+          Optional.<String>of(
+              "Minimum number of choices required cannot exceed the number of options")
+        });
+  }
+
+  @Test
+  @Parameters(method = "getMultiOptionQuestionValidationTestData")
+  public void validate_multiOptionQuestion_validationConstraints(
+      OptionalInt minChoicesRequired,
+      OptionalInt maxChoicesAllowed,
+      Optional<String> wantErrorMessage) {
+    QuestionDefinition question =
+        new CheckboxQuestionDefinition(
+            "test",
+            Optional.empty(),
+            "test",
+            LocalizedStrings.withDefaultValue("test"),
+            LocalizedStrings.empty(),
+            ImmutableList.of(
+                QuestionOption.create(1L, LocalizedStrings.withDefaultValue("a")),
+                QuestionOption.create(2L, LocalizedStrings.withDefaultValue("b"))),
+            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder()
+                .setMinChoicesRequired(minChoicesRequired)
+                .setMaxChoicesAllowed(maxChoicesAllowed)
+                .build());
+
+    ImmutableSet<CiviFormError> errors = question.validate();
+    if (wantErrorMessage.isEmpty()) {
+      assertThat(errors).isEmpty();
+    } else {
+      assertThat(question.validate()).containsOnly(CiviFormError.of(wantErrorMessage.get()));
+    }
   }
 
   @Test

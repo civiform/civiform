@@ -40,7 +40,7 @@ lazy val root = (project in file("."))
 
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.14.0" % Test,
-      "org.mockito" % "mockito-core" % "4.5.0",
+      "org.mockito" % "mockito-core" % "4.5.1",
       "org.assertj" % "assertj-core" % "3.22.0" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
@@ -73,7 +73,7 @@ lazy val root = (project in file("."))
       "com.google.errorprone" % "error_prone_core" % "2.13.1",
 
       // Apache libraries for export
-      "org.apache.pdfbox" % "pdfbox" % "2.0.25",
+      "org.apache.pdfbox" % "pdfbox" % "2.0.26",
       "org.apache.commons" % "commons-csv" % "1.9.0",
 
       // Slugs for deeplinking.
@@ -137,11 +137,8 @@ lazy val excludeTailwindGeneration = Seq(watchSources := {
 })
 
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
-resolvers += Resolver.bintrayRepo("webjars", "maven")
+
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
-libraryDependencies ++= Seq(
-  "org.webjars.npm" % "azure__storage-blob" % "10.5.0"
-)
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.2.2",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.13.2",

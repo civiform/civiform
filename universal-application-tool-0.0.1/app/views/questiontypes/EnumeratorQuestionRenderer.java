@@ -25,7 +25,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders an enumerator question. */
-public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
+public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   private static final String ENUMERATOR_FIELDS_ID = "enumerator-fields";
   private static final String ADD_ELEMENT_BUTTON_ID = "enumerator-field-add-button";
@@ -50,7 +50,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public Tag render(ApplicantQuestionRendererParams params) {
+  protected Tag renderTag(ApplicantQuestionRendererParams params) {
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
     String localizedEntityType = enumeratorQuestion.getEntityType();
@@ -72,7 +72,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
             .withClasses(
                 ReferenceClasses.ENUMERATOR_ERROR,
                 BaseStyles.FORM_ERROR_TEXT_BASE,
-                enumeratorQuestion.hasConditionErrors() ? "" : Styles.HIDDEN);
+                enumeratorQuestion.getAllTypeSpecificErrors().isEmpty() ? Styles.HIDDEN : "");
 
     Tag enumeratorQuestionFormContent =
         div()
@@ -91,7 +91,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRenderer {
                         ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
                         StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400)));
 
-    return renderInternal(messages, enumeratorQuestionFormContent, false);
+    return enumeratorQuestionFormContent;
   }
 
   /**

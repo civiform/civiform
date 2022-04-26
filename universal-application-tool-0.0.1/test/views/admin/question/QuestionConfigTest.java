@@ -4,6 +4,7 @@ import static j2html.TagCreator.div;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.stubMessagesApi;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.AddressQuestionForm;
 import forms.CheckboxQuestionForm;
@@ -75,5 +76,20 @@ public class QuestionConfigTest {
 
     assertThat(QuestionConfig.buildQuestionConfig(new NameQuestionForm(), messages))
         .isEqualTo(DEFAULT_CONFIG);
+  }
+
+  @Test
+  public void checkboxForm_preservesNewOptions() {
+    CheckboxQuestionForm form = new CheckboxQuestionForm();
+    form.setOptions(ImmutableList.of("existing-option-a", "existing-option-b"));
+    form.setOptionIds(ImmutableList.of(1L, 2L));
+    form.setNewOptions(ImmutableList.of("new-option-c", "new-option-d"));
+
+    String result = QuestionConfig.buildQuestionConfig(form, messages).renderFormatted();
+
+    assertThat(result).contains("existing-option-a");
+    assertThat(result).contains("existing-option-b");
+    assertThat(result).contains("new-option-c");
+    assertThat(result).contains("new-option-d");
   }
 }

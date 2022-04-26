@@ -61,8 +61,8 @@ public class IdQuestionTest extends ResetPostgres {
 
     IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
-    assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(idQuestion.hasConditionErrors()).isFalse();
+    assertThat(idQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(idQuestion.getQuestionErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -75,8 +75,8 @@ public class IdQuestionTest extends ResetPostgres {
     IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
     assertThat(idQuestion.getIdValue().get()).isEqualTo("12345");
-    assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(idQuestion.hasConditionErrors()).isFalse();
+    assertThat(idQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(idQuestion.getQuestionErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -90,8 +90,8 @@ public class IdQuestionTest extends ResetPostgres {
     IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
     assertThat(idQuestion.getIdValue().get()).isEqualTo(value);
-    assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(idQuestion.hasConditionErrors()).isFalse();
+    assertThat(idQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(idQuestion.getQuestionErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -113,9 +113,10 @@ public class IdQuestionTest extends ResetPostgres {
     if (idQuestion.getIdValue().isPresent()) {
       assertThat(idQuestion.getIdValue().get()).isEqualTo(value);
     }
-    assertThat(idQuestion.hasTypeSpecificErrors()).isFalse();
-    assertThat(idQuestion.getQuestionErrors()).hasSize(1);
-    String errorMessage = idQuestion.getQuestionErrors().iterator().next().getMessage(messages);
+    assertThat(idQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(idQuestion.getAllTypeSpecificErrors()).hasSize(1);
+    String errorMessage =
+        idQuestion.getAllTypeSpecificErrors().iterator().next().getMessage(messages);
     assertThat(errorMessage).isEqualTo(expectedErrorMessage);
   }
 }

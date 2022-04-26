@@ -7,6 +7,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.DbJsonB;
+import io.ebean.annotation.WhenCreated;
+import io.ebean.annotation.WhenModified;
+import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
@@ -79,6 +82,15 @@ public class Program extends BaseModel {
   @Constraints.Required @DbJson private ImmutableList<BlockDefinition> blockDefinitions;
 
   @Constraints.Required @DbJson private ImmutableList<ExportDefinition> exportDefinitions;
+
+  /** When was this program created. */
+  @WhenCreated private Instant createTime;
+
+  /**
+   * When was this program last modified. Also updates every time any of the joinTable tables are
+   * modified, for example a new Version is published.
+   */
+  @WhenModified private Instant lastModifiedTime;
 
   @ManyToMany
   @JoinTable(name = "versions_programs")
@@ -170,7 +182,9 @@ public class Program extends BaseModel {
             .setBlockDefinitions(blockDefinitions)
             .setExportDefinitions(exportDefinitions)
             .setExternalLink(externalLink)
-            .setDisplayMode(DisplayMode.valueOf(displayMode));
+            .setDisplayMode(DisplayMode.valueOf(displayMode))
+            .setCreateTime(createTime)
+            .setLastModifiedTime(lastModifiedTime);
 
     setLocalizedName(builder);
     setLocalizedDescription(builder);

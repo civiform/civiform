@@ -13,7 +13,7 @@ import services.question.LocalizedQuestionOption;
 import views.components.SelectWithLabel;
 
 /** Renders a dropdown question. */
-public class DropdownQuestionRenderer extends ApplicantQuestionRenderer {
+public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   public DropdownQuestionRenderer(ApplicantQuestion question) {
     super(question);
@@ -25,7 +25,7 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public Tag render(ApplicantQuestionRendererParams params) {
+  protected Tag renderTag(ApplicantQuestionRendererParams params) {
     Messages messages = params.messages();
     SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();
 
@@ -49,6 +49,6 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRenderer {
 
     Tag dropdownQuestionFormContent = div().with(select.getContainer());
 
-    return renderInternal(params.messages(), dropdownQuestionFormContent);
+    return dropdownQuestionFormContent;
   }
 }

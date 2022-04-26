@@ -18,17 +18,8 @@ import services.applicant.ValidationErrorMessage;
  * </ul>
  */
 public interface Question {
-  /** Returns true if values do not meet conditions defined by admins. */
-  boolean hasConditionErrors();
-
   /** Returns a set of {@link ValidationErrorMessage}s related to conditions defined by admins. */
   ImmutableSet<ValidationErrorMessage> getQuestionErrors();
-
-  /**
-   * Returns true if there is any type specific errors. The validation does not consider
-   * admin-defined conditions.
-   */
-  boolean hasTypeSpecificErrors();
 
   /**
    * Returns a set of {@link ValidationErrorMessage}s to be shown to the applicant. These errors are
@@ -39,7 +30,7 @@ public interface Question {
 
   /**
    * Returns true any part of the question has been answered by the applicant. Blank answers should
-   * not count. In general, if a question is not answered, it cannot have errors associated with it.
+   * not count. If a question is not answered, it should not have errors associated with it.
    */
   boolean isAnswered();
 

@@ -18,7 +18,7 @@ import views.style.ReferenceClasses;
  * <p>A file upload question requires a different form. See {@code
  * views.applicant.ApplicantProgramBlockEditView#renderFileUploadBlockSubmitForms}.
  */
-public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
+public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
   private static final String IMAGES_AND_PDF = "image/*,.pdf";
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
@@ -34,7 +34,7 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
     return FieldWithLabel.input()
         .setFieldName(fileuploadQuestion.getFileKeyPath().toString())
         .setValue(value)
-        .setFieldErrors(params.messages(), fileuploadQuestion.getQuestionErrors())
+        .setFieldErrors(params.messages(), fileuploadQuestion.getAllTypeSpecificErrors())
         .getContainer();
   }
 
@@ -46,8 +46,8 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRenderer {
   }
 
   @Override
-  public Tag render(ApplicantQuestionRendererParams params) {
-    return renderInternal(params.messages(), fileUploadFields(params));
+  protected Tag renderTag(ApplicantQuestionRendererParams params) {
+    return fileUploadFields(params);
   }
 
   @Override

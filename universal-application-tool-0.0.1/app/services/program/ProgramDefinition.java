@@ -8,6 +8,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
@@ -19,6 +20,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import models.DisplayMode;
 import models.Program;
 import services.LocalizedStrings;
@@ -68,6 +70,12 @@ public abstract class ProgramDefinition {
 
   /** The list of {@link ExportDefinition}s that make up the program. */
   public abstract ImmutableList<ExportDefinition> exportDefinitions();
+
+  /** When was this program created. Could be null for older programs. */
+  public abstract Optional<Instant> createTime();
+
+  /** When was this program last modified. Could be null for older programs. */
+  public abstract Optional<Instant> lastModifiedTime();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -580,6 +588,10 @@ public abstract class ProgramDefinition {
     public abstract LocalizedStrings.Builder localizedNameBuilder();
 
     public abstract LocalizedStrings.Builder localizedDescriptionBuilder();
+
+    public abstract Builder setCreateTime(@Nullable Instant createTime);
+
+    public abstract Builder setLastModifiedTime(@Nullable Instant lastModifiedTime);
 
     public abstract ProgramDefinition build();
 

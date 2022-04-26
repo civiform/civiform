@@ -14,38 +14,20 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class StaticContentQuestion implements Question {
-
-  private final ApplicantQuestion applicantQuestion;
+public class StaticContentQuestion extends QuestionImpl {
 
   public StaticContentQuestion(ApplicantQuestion applicantQuestion) {
-    this.applicantQuestion = applicantQuestion;
-    assertQuestionType();
-  }
-
-  public void assertQuestionType() {
-    if (!applicantQuestion.getType().equals(QuestionType.STATIC)) {
-      throw new RuntimeException(
-          String.format(
-              "Question is not a STATIC question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
-    }
+    super(applicantQuestion);
   }
 
   @Override
-  public boolean hasConditionErrors() {
-    return false;
+  protected ImmutableSet<QuestionType> validQuestionTypes() {
+    return ImmutableSet.of(QuestionType.STATIC);
   }
 
   @Override
   public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     return ImmutableSet.of();
-  }
-
-  @Override
-  public boolean hasTypeSpecificErrors() {
-    return false;
   }
 
   @Override
@@ -65,10 +47,6 @@ public class StaticContentQuestion implements Question {
 
   @Override
   public ImmutableList<Path> getAllPaths() {
-    return ImmutableList.of(getPath());
-  }
-
-  public Path getPath() {
-    return applicantQuestion.getContextualizedPath();
+    return ImmutableList.of();
   }
 }
