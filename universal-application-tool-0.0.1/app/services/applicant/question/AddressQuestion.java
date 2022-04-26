@@ -53,6 +53,9 @@ public class AddressQuestion extends QuestionImpl {
     AddressQuestionDefinition definition = getQuestionDefinition();
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
+    // TODO(#1944): Move this to a field specific validation once client-side validation
+    // is removed and we no longer assume a single error message is shown in the
+    // rendered form per field.
     if (definition.getDisallowPoBox()) {
       Pattern poBoxPattern = Pattern.compile(PO_BOX_REGEX);
       Matcher poBoxMatcher1 = poBoxPattern.matcher(getStreetValue().orElse(""));
