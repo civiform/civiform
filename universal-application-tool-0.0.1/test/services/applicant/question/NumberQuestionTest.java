@@ -128,7 +128,7 @@ public class NumberQuestionTest extends ResetPostgres {
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = numberQuestion.getValidationErrors();
     assertThat(validationErrors.size()).isEqualTo(1);
-    ImmutableSet<ValidationErrorMessage> numberErrors = validationErrors.getOrDefault(numberQuestion.getNumberPath(), ImmutableSet.of());
+    ImmutableSet<ValidationErrorMessage> numberErrors = validationErrors.getOrDefault(applicantQuestion.getContextualizedPath(), ImmutableSet.of());
     assertThat(numberErrors).hasSize(1);
     String errorMessage = numberErrors.iterator().next().getMessage(messages);
     assertThat(errorMessage).isEqualTo(expectedErrorMessage);
