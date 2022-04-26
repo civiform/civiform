@@ -12,10 +12,10 @@
 # diff of just that one translation.
 #
 # Example output:
-#  There are no translations in universal-application-tool-0.0.1/conf/messages.am
-#  Missing translations in universal-application-tool-0.0.1/conf/messages.en-US:
+#  There are no translations in server/conf/messages.am
+#  Missing translations in server/conf/messages.en-US:
 #    content.selectLanguage
-#  Missing translations in universal-application-tool-0.0.1/conf/messages.es-US:
+#  Missing translations in server/conf/messages.es-US:
 #      content.selectLanguage
 #      validation.tooFewSelections
 #    Something weird is going on with these messages:
@@ -53,7 +53,7 @@ function diff_messages() {
   fi
 }
 
-readonly MESSAGES_FILE="universal-application-tool-0.0.1/conf/messages"
+readonly MESSAGES_FILE="server/conf/messages"
 readonly MESSAGES="$(get_messages ${MESSAGES_FILE})"
 
 if [ $# -eq 1 ]; then
