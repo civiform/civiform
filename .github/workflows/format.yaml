@@ -8,6 +8,8 @@ on:
     branches:
       - main
 
+permissions: read-all
+
 jobs:
   formatting:
     runs-on: ubuntu-latest

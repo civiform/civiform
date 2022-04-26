@@ -8,6 +8,8 @@ on:
   # see https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
   workflow_dispatch: {}
 
+permissions: read-all
+
 # Two probers running at once can break each other.
 concurrency:
   group: stagingenvironment
