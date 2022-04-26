@@ -25,7 +25,6 @@ if [[ -z "${USE_LOCAL_CIVIFORM}" ]]; then
     docker pull "${AZURE_SOURCE}"
     docker pull "${AWS_SOURCE}"
   else
-    echo "Using local civiform and dependency docker images"
     docker pull -q "${CIVIFORM_SOURCE}"
     docker tag "${CIVIFORM_SOURCE}" "${LOCAL_TAG}"
 
