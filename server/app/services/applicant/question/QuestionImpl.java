@@ -39,6 +39,11 @@ abstract class QuestionImpl implements Question {
     if (!isAnswered()) {
       return ImmutableMap.of();
     }
+    // Why not just return the result of getValidationErrorsInternal()?
+    // For ease of implementation, subclasses may build the error list by putting a field key
+    // in the map along with a call to a validator method that may return an empty set of errors.
+    // We remove keys with an empty set of errors here to help defend against downstream consumers
+    // assumes that calling isEmpty on the map means that there are no errors.
     return ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>builder()
         .putAll(Maps.filterEntries(getValidationErrorsInternal(), e -> !e.getValue().isEmpty()))
         .build();
