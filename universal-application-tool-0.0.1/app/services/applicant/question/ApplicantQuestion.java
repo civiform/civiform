@@ -174,8 +174,7 @@ public class ApplicantQuestion {
   }
 
   public boolean hasErrors() {
-    return !errorsPresenter().getQuestionErrors().isEmpty()
-        || !errorsPresenter().getAllTypeSpecificErrors().isEmpty();
+    return errorsPresenter.getValidationErrors().values().stream().anyMatch(v -> !v.isEmpty());
   }
 
   public Optional<Long> getUpdatedInProgramMetadata() {

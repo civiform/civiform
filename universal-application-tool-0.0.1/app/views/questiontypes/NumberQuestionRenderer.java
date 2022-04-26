@@ -35,6 +35,7 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setMax(numberQuestion.getQuestionDefinition().getMax())
             .setFieldErrors(
                 params.messages(),
+                // TODO(#1944): Replicate the client-side validation on the server-side.
                 ImmutableSet.of(
                     ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER)))
             .showFieldErrors(false)

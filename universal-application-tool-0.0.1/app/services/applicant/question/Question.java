@@ -1,6 +1,7 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -18,15 +19,11 @@ import services.applicant.ValidationErrorMessage;
  * </ul>
  */
 public interface Question {
-  /** Returns a set of {@link ValidationErrorMessage}s related to conditions defined by admins. */
-  ImmutableSet<ValidationErrorMessage> getQuestionErrors();
-
   /**
-   * Returns a set of {@link ValidationErrorMessage}s to be shown to the applicant. These errors are
-   * inherent to the question type itself - for example, an applicant providing a zip code with
-   * letters would be a type error for an address question.
-   */
-  ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors();
+    * Returns any {@link ValidationErrorMessage}s to be shown to the applicant, keyed by the
+    * relevant field path. Top-level question errors use the root question path.
+    */
+  ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors();
 
   /**
    * Returns true any part of the question has been answered by the applicant. Blank answers should

@@ -1,6 +1,7 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.MessageKey;
@@ -33,16 +34,15 @@ public class TextQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    return ImmutableSet.of();
-  }
-
-  @Override
-  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
+  public ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
     if (!isAnswered()) {
       return ImmutableSet.of();
     }
 
+    return ImmutableMap.of(getTextPath(), validateText());
+  }
+
+  private ImmutableSet<ValidationErrorMessage> validateText() {
     TextQuestionDefinition definition = getQuestionDefinition();
     int textLength = getTextValue().map(s -> s.length()).orElse(0);
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();

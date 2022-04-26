@@ -2,9 +2,13 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 import play.i18n.Messages;
 import services.MessageKey;
+import services.Path;
+import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.NameQuestion;
 import views.components.FieldWithLabel;
@@ -27,6 +31,8 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
     Messages messages = params.messages();
     NameQuestion nameQuestion = question.createNameQuestion();
 
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = question.getValidationErrors();
+
     Tag nameQuestionFormContent =
         div()
             .with(
@@ -35,7 +41,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
                     .setValue(nameQuestion.getFirstNameValue().orElse(""))
                     .setFieldErrors(messages, nameQuestion.getFirstNameErrorMessage())
-                    .showFieldErrors(!nameQuestion.getFirstNameErrors().isEmpty())
+                    .showFieldErrors(!validationErrors.getOrDefault(nameQuestion.getFirstNamePath(), ImmutableSet.of()).isEmpty())
                     .addReferenceClass(ReferenceClasses.NAME_FIRST)
                     .getContainer())
             .with(
@@ -51,7 +57,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
                     .setValue(nameQuestion.getLastNameValue().orElse(""))
                     .setFieldErrors(messages, nameQuestion.getLastNameErrorMessage())
-                    .showFieldErrors(!nameQuestion.getLastNameErrors().isEmpty())
+                    .showFieldErrors(!validationErrors.getOrDefault(nameQuestion.getLastNamePath(), ImmutableSet.of()).isEmpty())
                     .addReferenceClass(ReferenceClasses.NAME_LAST)
                     .getContainer());
 

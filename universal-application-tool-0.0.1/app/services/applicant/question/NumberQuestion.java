@@ -1,6 +1,7 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.MessageKey;
@@ -33,11 +34,18 @@ public class NumberQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+  public ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
     if (!isAnswered()) {
-      return ImmutableSet.of();
+      return ImmutableMap.of();
     }
 
+    // TODO(#1944): Move this validation from the top-level to a field-specific error.
+    // Presently, the renderer displays a hidden error when the input can't be converted
+    // to the correct currency.
+    return ImmutableMap.of(applicantQuestion.getContextualizedPath(), validateNumber());
+  }
+
+  private ImmutableSet<ValidationErrorMessage> validateNumber() {
     NumberQuestionDefinition questionDefinition = getQuestionDefinition();
 
     // If there is no minimum or maximum value configured, accept a blank answer.
@@ -66,12 +74,6 @@ public class NumberQuestion extends QuestionImpl {
     }
 
     return errors.build();
-  }
-
-  @Override
-  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    // There are no inherent requirements in a number question.
-    return ImmutableSet.of();
   }
 
   public Optional<Long> getNumberValue() {
