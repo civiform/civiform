@@ -12,8 +12,8 @@ readonly AZURE_SOURCE=mcr.microsoft.com/azure-storage/azurite
 readonly AWS_SOURCE=localstack/localstack
 readonly LOCAL_TAG=civiform-dev
 
-echo "Making sure we're up to date with the latest dev"
 if [[ -z "${USE_LOCAL_CIVIFORM}" ]]; then
+  echo "Making sure we're up to date with the latest dev"
   echo "Set environment variable USE_LOCAL_CIVIFORM=1 to skip"
   if [[ -z "${PULL_PROGRESS}" ]]; then
     echo "Set environment variable PULL_PROGRESS=1 to show download progress"
