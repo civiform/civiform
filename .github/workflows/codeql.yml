@@ -52,8 +52,9 @@ jobs:
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
-    # - name: Autobuild
-    #   uses: github/codeql-action/autobuild@v2
+    - if: matrix.language == 'python' || matrix.language == 'javascript'
+      name: Autobuild
+      uses: github/codeql-action/autobuild@v2
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
@@ -62,8 +63,17 @@ jobs:
     #    and modify them (or add more) to build your code if your project
     #    uses a compiled language
 
-    - run: |
-        ./bin/sbt dist
+    - if: matrix.language == 'java'
+      name: Setup JDK
+      uses: actions/setup-java@v2
+      with:
+        distribution: adopt
+        java-version: 11
+
+    - if: matrix.language == 'java'
+      name: Build Java
+      run: |
+        cd server && sbt dist
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
