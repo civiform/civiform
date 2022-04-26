@@ -325,7 +325,7 @@ public class ApplicantServiceImpl implements ApplicantService {
         .thenApplyAsync(
             applicant -> {
               if (applicant.isEmpty()) {
-                return "<Anonymous Applicant>";
+                return "Guest";
               }
               return applicant.get().getApplicantData().getApplicantName();
             },

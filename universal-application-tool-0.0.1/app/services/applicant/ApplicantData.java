@@ -74,7 +74,7 @@ public class ApplicantData extends CfJsonDocumentContext {
       return firstName;
     } catch (NoSuchElementException e) {
       logger.error("Application {} does not include an applicant name.");
-      return "<Anonymous Applicant>";
+      return "Guest";
     }
   }
 

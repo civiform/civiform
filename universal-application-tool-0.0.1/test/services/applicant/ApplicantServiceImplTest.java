@@ -703,10 +703,10 @@ public class ApplicantServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getName_anonymousApplicant() {
+  public void getName_Guest() {
     Applicant applicant = resourceCreator.insertApplicant();
     String name = subject.getName(applicant.id).toCompletableFuture().join();
-    assertThat(name).isEqualTo("<Anonymous Applicant>");
+    assertThat(name).isEqualTo("Guest");
   }
 
   @Test
