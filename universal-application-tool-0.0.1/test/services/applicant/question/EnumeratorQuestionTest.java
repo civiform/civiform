@@ -14,11 +14,9 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import play.i18n.Lang;
-import play.i18n.Messages;
-import play.i18n.MessagesApi;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
@@ -41,7 +39,6 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
   private Applicant applicant;
   private ApplicantData applicantData;
-  private Messages messages;
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
@@ -50,7 +47,6 @@ public class EnumeratorQuestionTest extends ResetPostgres {
     applicant = new Applicant();
     applicantData = applicant.getApplicantData();
     testQuestionBank.reset();
-    messages = instanceOf(MessagesApi.class).preferred(ImmutableList.of(Lang.defaultLang()));
   }
 
   @Test

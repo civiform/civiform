@@ -85,7 +85,6 @@ public class MultiSelectQuestionTest {
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = multiSelectQuestion.getValidationErrors();
     assertThat(validationErrors.size()).isEqualTo(1);
-    ImmutableSet<ValidationErrorMessage> idErrors = validationErrors.getOrDefault(idQuestion.getIdPath, ImmutableSet.of());
     assertThat(validationErrors.getOrDefault(applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
         .containsOnly(ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, 2));
   }
@@ -108,7 +107,6 @@ public class MultiSelectQuestionTest {
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = multiSelectQuestion.getValidationErrors();
     assertThat(validationErrors.size()).isEqualTo(1);
-    ImmutableSet<ValidationErrorMessage> idErrors = validationErrors.getOrDefault(idQuestion.getIdPath, ImmutableSet.of());
     assertThat(validationErrors.getOrDefault(applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
         .containsOnly(ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, 3));
   }

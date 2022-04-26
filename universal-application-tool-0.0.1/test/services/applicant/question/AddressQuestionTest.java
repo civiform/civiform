@@ -95,15 +95,11 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isFalse();
-    assertThat(addressQuestion.getStreetErrors())
-        .contains(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED));
-    assertThat(addressQuestion.getCityErrors())
-        .contains(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_CITY_REQUIRED));
-    assertThat(addressQuestion.getStateErrors())
-        .contains(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STATE_REQUIRED));
-    assertThat(addressQuestion.getZipErrors())
-        .contains(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_ZIPCODE_REQUIRED));
+    assertThat(addressQuestion.getValidationErrors()).isEqualTo(ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>of(
+      addressQuestion.getStreetPath(), ImmutableSet.of(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED)),
+      addressQuestion.getCityPath(), ImmutableSet.of(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_CITY_REQUIRED)),
+      addressQuestion.getStatePath(), ImmutableSet.of(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STATE_REQUIRED)),
+      addressQuestion.getZipPath(), ImmutableSet.of(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_ZIPCODE_REQUIRED))));
   }
 
   @Test
@@ -122,12 +118,8 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isFalse();
-    assertThat(addressQuestion.getZipErrors())
-        .contains(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE));
-    assertThat(addressQuestion.getStreetErrors()).isEmpty();
-    assertThat(addressQuestion.getCityErrors()).isEmpty();
-    assertThat(addressQuestion.getStateErrors()).isEmpty();
+    assertThat(addressQuestion.getValidationErrors()).isEqualTo(ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>of(
+      addressQuestion.getZipPath(), ImmutableSet.of(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE))));
   }
 
   @Test

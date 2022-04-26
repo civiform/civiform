@@ -78,7 +78,7 @@ public class NumberQuestionTest extends ResetPostgres {
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
-    assertThat(numberQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(numberQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(numberQuestion.getNumberValue()).isEmpty();
   }
 
@@ -91,7 +91,7 @@ public class NumberQuestionTest extends ResetPostgres {
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
-    assertThat(numberQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(numberQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(800);
   }
 
