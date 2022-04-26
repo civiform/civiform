@@ -36,9 +36,6 @@ abstract class QuestionImpl implements Question {
 
   @Override
   public final ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
-    // TODO(#1944): Don't consult isAnswered for determining validation errors.
-    // Instead, make callers responsible for determining whether the question should
-    // be validated.
     if (!isAnswered()) {
       return ImmutableMap.of();
     }
