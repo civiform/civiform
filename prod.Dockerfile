@@ -16,7 +16,7 @@ RUN set -o pipefail && \
     echo -ne "- with sbt $SBT_VERSION\n" >> /root/.built
 
 ENV PROJECT_HOME /usr/src
-ENV PROJECT_NAME universal-application-tool-0.0.1
+ENV PROJECT_NAME server
 
 COPY "${PROJECT_NAME}" "${PROJECT_HOME}/${PROJECT_NAME}"
 RUN cd "${PROJECT_HOME}/${PROJECT_NAME}" && \
@@ -28,7 +28,7 @@ RUN cd "${PROJECT_HOME}/${PROJECT_NAME}" && \
 # This is a common trick to shrink container sizes.  we just throw away all that build stuff and use only the jars
 # we built with sbt dist.
 FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim AS stage2
-COPY --from=stage1 /usr/src/universal-application-tool-0.0.1/target/universal/civiform-server-0.0.1.zip /civiform.zip
+COPY --from=stage1 /usr/src/server/target/universal/civiform-server-0.0.1.zip /civiform.zip
 
 ARG image_tag
 ENV CIVIFORM_IMAGE_TAG=$image_tag
