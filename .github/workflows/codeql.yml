@@ -69,7 +69,6 @@ jobs:
       name: Build Java
       run: |
         docker run --rm \
-          --network test-support_default \
           -v "$(pwd)/server:/usr/src/server" \
           -v "$(pwd)/sbt_cache/coursier:/root/.cache/coursier" \
           -v ~/.sbt:/root/.sbt \
