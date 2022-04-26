@@ -4,7 +4,7 @@ import sbt.internal.io.{Source, WatchState}
 lazy val root = (project in file("."))
   .enablePlugins(PlayJava, PlayEbean)
   .settings(
-    name := """universal-application-tool""",
+    name := """civiform-server""",
     version := "0.0.1",
     scalaVersion := "2.13.8",
     maintainer := "uat-public-contact@google.com",
