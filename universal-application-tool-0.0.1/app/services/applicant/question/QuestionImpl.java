@@ -44,10 +44,9 @@ abstract class QuestionImpl implements Question {
         .build();
   }
 
-  /**
-    * Question-type specific implementation of {@link Question.getValidationErrors}.
-    */
-  protected abstract ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal();
+  /** Question-type specific implementation of {@link Question.getValidationErrors}. */
+  protected abstract ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>>
+      getValidationErrorsInternal();
 
   /**
    * A question is considered answered if the applicant data has been set for any of the paths

@@ -81,7 +81,8 @@ public class AddressQuestion extends QuestionImpl {
   }
 
   public ImmutableSet<ValidationErrorMessage> getStreetErrorMessage() {
-    return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED));
+    return ImmutableSet.of(
+        ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED));
   }
 
   private ImmutableSet<ValidationErrorMessage> validateCity() {

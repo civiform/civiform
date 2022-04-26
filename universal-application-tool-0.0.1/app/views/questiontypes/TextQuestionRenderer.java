@@ -25,13 +25,16 @@ public class TextQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected Tag renderTag(ApplicantQuestionRendererParams params) {
     TextQuestion textQuestion = question.createTextQuestion();
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = textQuestion.getValidationErrors();
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        textQuestion.getValidationErrors();
 
     Tag questionFormContent =
         FieldWithLabel.input()
             .setFieldName(textQuestion.getTextPath().toString())
             .setValue(textQuestion.getTextValue().orElse(""))
-            .setFieldErrors(params.messages(), validationErrors.getOrDefault(textQuestion.getTextPath(), ImmutableSet.of()))
+            .setFieldErrors(
+                params.messages(),
+                validationErrors.getOrDefault(textQuestion.getTextPath(), ImmutableSet.of()))
             .setScreenReaderText(question.getQuestionText())
             .getContainer();
 

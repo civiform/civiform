@@ -115,9 +115,11 @@ public class TextQuestionTest extends ResetPostgres {
     if (textQuestion.getTextValue().isPresent()) {
       assertThat(textQuestion.getTextValue().get()).isEqualTo(value);
     }
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = textQuestion.getValidationErrors();
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        textQuestion.getValidationErrors();
     assertThat(validationErrors.size()).isEqualTo(1);
-    ImmutableSet<ValidationErrorMessage> textErrors = validationErrors.getOrDefault(textQuestion.getTextPath(), ImmutableSet.of());
+    ImmutableSet<ValidationErrorMessage> textErrors =
+        validationErrors.getOrDefault(textQuestion.getTextPath(), ImmutableSet.of());
     assertThat(textErrors).hasSize(1);
     String errorMessage = textErrors.iterator().next().getMessage(messages);
     assertThat(errorMessage).isEqualTo(expectedErrorMessage);

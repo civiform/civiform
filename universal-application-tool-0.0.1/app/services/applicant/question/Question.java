@@ -20,9 +20,9 @@ import services.applicant.ValidationErrorMessage;
  */
 public interface Question {
   /**
-    * Returns any {@link ValidationErrorMessage}s to be shown to the applicant, keyed by the
-    * relevant field path. Top-level question errors use the root question path.
-    */
+   * Returns any {@link ValidationErrorMessage}s to be shown to the applicant, keyed by the relevant
+   * field path. Top-level question errors use the root question path.
+   */
   ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors();
 
   /**

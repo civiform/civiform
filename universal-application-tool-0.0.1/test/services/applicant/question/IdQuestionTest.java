@@ -114,12 +114,13 @@ public class IdQuestionTest extends ResetPostgres {
     if (idQuestion.getIdValue().isPresent()) {
       assertThat(idQuestion.getIdValue().get()).isEqualTo(value);
     }
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = idQuestion.getValidationErrors();
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        idQuestion.getValidationErrors();
     assertThat(validationErrors.size()).isEqualTo(1);
-    ImmutableSet<ValidationErrorMessage> idErrors = validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of());
+    ImmutableSet<ValidationErrorMessage> idErrors =
+        validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of());
     assertThat(idErrors.size()).isEqualTo(1);
-    String errorMessage =
-        idErrors.iterator().next().getMessage(messages);
+    String errorMessage = idErrors.iterator().next().getMessage(messages);
     assertThat(errorMessage).isEqualTo(expectedErrorMessage);
   }
 }

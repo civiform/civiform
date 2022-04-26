@@ -13,7 +13,6 @@ import org.junit.Test;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.Path;
-import services.applicant.ValidationErrorMessage;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.QuestionOption;
@@ -83,9 +82,12 @@ public class MultiSelectQuestionTest {
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = multiSelectQuestion.getValidationErrors();
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        multiSelectQuestion.getValidationErrors();
     assertThat(validationErrors.size()).isEqualTo(1);
-    assertThat(validationErrors.getOrDefault(applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
+    assertThat(
+            validationErrors.getOrDefault(
+                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
         .containsOnly(ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, 2));
   }
 
@@ -105,10 +107,14 @@ public class MultiSelectQuestionTest {
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = multiSelectQuestion.getValidationErrors();
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        multiSelectQuestion.getValidationErrors();
     assertThat(validationErrors.size()).isEqualTo(1);
-    assertThat(validationErrors.getOrDefault(applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
-        .containsOnly(ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, 3));
+    assertThat(
+            validationErrors.getOrDefault(
+                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
+        .containsOnly(
+            ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, 3));
   }
 
   @Test

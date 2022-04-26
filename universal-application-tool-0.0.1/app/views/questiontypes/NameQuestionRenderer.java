@@ -31,7 +31,8 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
     Messages messages = params.messages();
     NameQuestion nameQuestion = question.createNameQuestion();
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = nameQuestion.getValidationErrors();
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        nameQuestion.getValidationErrors();
 
     Tag nameQuestionFormContent =
         div()
@@ -41,7 +42,10 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
                     .setValue(nameQuestion.getFirstNameValue().orElse(""))
                     .setFieldErrors(messages, nameQuestion.getFirstNameErrorMessage())
-                    .showFieldErrors(!validationErrors.getOrDefault(nameQuestion.getFirstNamePath(), ImmutableSet.of()).isEmpty())
+                    .showFieldErrors(
+                        !validationErrors
+                            .getOrDefault(nameQuestion.getFirstNamePath(), ImmutableSet.of())
+                            .isEmpty())
                     .addReferenceClass(ReferenceClasses.NAME_FIRST)
                     .getContainer())
             .with(
@@ -57,7 +61,10 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
                     .setValue(nameQuestion.getLastNameValue().orElse(""))
                     .setFieldErrors(messages, nameQuestion.getLastNameErrorMessage())
-                    .showFieldErrors(!validationErrors.getOrDefault(nameQuestion.getLastNamePath(), ImmutableSet.of()).isEmpty())
+                    .showFieldErrors(
+                        !validationErrors
+                            .getOrDefault(nameQuestion.getLastNamePath(), ImmutableSet.of())
+                            .isEmpty())
                     .addReferenceClass(ReferenceClasses.NAME_LAST)
                     .getContainer());
 

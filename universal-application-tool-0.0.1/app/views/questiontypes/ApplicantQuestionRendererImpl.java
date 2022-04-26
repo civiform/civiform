@@ -8,7 +8,6 @@ import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import play.i18n.Messages;
 import services.MessageKey;
-import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.QuestionType;
@@ -57,7 +56,10 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
             .withClasses(Styles.MB_4);
 
     ImmutableSet<ValidationErrorMessage> questionErrors =
-        question.errorsPresenter().getValidationErrors().getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
+        question
+            .errorsPresenter()
+            .getValidationErrors()
+            .getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
     // TODO(#1944): Remove special handling for enumerators once client-side validation is removed
     // and they don't render a separate div.
     if (!questionErrors.isEmpty() && question.getType() != QuestionType.ENUMERATOR) {

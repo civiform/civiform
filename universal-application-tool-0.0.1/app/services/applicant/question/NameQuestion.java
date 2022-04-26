@@ -41,8 +41,8 @@ public class NameQuestion extends QuestionImpl {
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // TODO: Implement admin-defined validation.
     return ImmutableMap.of(
-      getFirstNamePath(), validateFirstName(),
-      getLastNamePath(), validateLastName());
+        getFirstNamePath(), validateFirstName(),
+        getLastNamePath(), validateLastName());
   }
 
   private ImmutableSet<ValidationErrorMessage> validateFirstName() {

@@ -81,6 +81,10 @@ public class NameQuestionTest {
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
     assertThat(nameQuestion.getValidationErrors().isEmpty()).isFalse();
-    assertThat(nameQuestion.getValidationErrors().containsKey(applicantQuestion.getContextualizedPath())).isFalse();
+    assertThat(
+            nameQuestion
+                .getValidationErrors()
+                .containsKey(applicantQuestion.getContextualizedPath()))
+        .isFalse();
   }
 }
