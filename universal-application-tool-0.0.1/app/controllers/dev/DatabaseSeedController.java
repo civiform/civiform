@@ -225,7 +225,7 @@ public class DatabaseSeedController extends DevController {
                   insertColorQuestionDefinition(), Optional.of(programId))));
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().getLastBlockDefinition().id();
+          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
       blockForm.setName("Block 2");
       blockForm.setDescription("address");
       programService.updateBlock(programId, blockId, blockForm);
@@ -233,7 +233,7 @@ public class DatabaseSeedController extends DevController {
           programId, blockId, ImmutableList.of(insertAddressQuestionDefinition().getId()));
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().getLastBlockDefinition().id();
+          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
       blockForm.setName("Block 3");
       blockForm.setDescription("Ice Cream Information");
       programService.updateBlock(programId, blockId, blockForm);
@@ -241,7 +241,7 @@ public class DatabaseSeedController extends DevController {
           programId, blockId, ImmutableList.of(insertDropdownQuestionDefinition().getId()));
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().getLastBlockDefinition().id();
+          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
       blockForm.setName("Block 4");
       blockForm.setDescription("Random information");
       programService.updateBlock(programId, blockId, blockForm);
@@ -250,7 +250,7 @@ public class DatabaseSeedController extends DevController {
           programId, blockId, ImmutableList.of(radioButtonQuestionId));
 
       blockId =
-          programService.addBlockToProgram(programId).getResult().getLastBlockDefinition().id();
+          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
       blockForm.setName("Block with Predicate");
       blockForm.setDescription("May be hidden");
       programService.updateBlock(programId, blockId, blockForm);

@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim AS stage1
+FROM adoptopenjdk/openjdk11:jdk-11.0.14.1_1-alpine-slim AS stage1
 
 ENV SBT_VERSION "1.6.2"
 ENV INSTALL_DIR /usr/local
@@ -28,12 +28,12 @@ RUN cd "${PROJECT_HOME}/${PROJECT_NAME}" && \
 # This is a common trick to shrink container sizes.  we just throw away all that build stuff and use only the jars
 # we built with sbt dist.
 FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim AS stage2
-COPY --from=stage1 /usr/src/universal-application-tool-0.0.1/target/universal/universal-application-tool-0.0.1.zip /civiform.zip
+COPY --from=stage1 /usr/src/universal-application-tool-0.0.1/target/universal/civiform-server-0.0.1.zip /civiform.zip
 
 ARG image_tag
 ENV CIVIFORM_IMAGE_TAG=$image_tag
 
 RUN apk add bash
 
-RUN unzip /civiform.zip; chmod +x /universal-application-tool-0.0.1/bin/universal-application-tool
-CMD ["/universal-application-tool-0.0.1/bin/universal-application-tool", "-Dconfig.file=/universal-application-tool-0.0.1/conf/application.conf"]
+RUN unzip /civiform.zip; chmod +x /civiform-server-0.0.1/bin/civiform-server
+CMD ["/civiform-server-0.0.1/bin/civiform-server", "-Dconfig.file=/civiform-server-0.0.1/conf/application.conf"]

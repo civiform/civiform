@@ -222,7 +222,7 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(long programId)
+  public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(long programId)
       throws ProgramNotFoundException {
     try {
       return addBlockToProgram(programId, Optional.empty());
@@ -235,13 +235,13 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public ErrorAnd<ProgramDefinition, CiviFormError> addRepeatedBlockToProgram(
+  public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addRepeatedBlockToProgram(
       long programId, long enumeratorBlockId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     return addBlockToProgram(programId, Optional.of(enumeratorBlockId));
   }
 
-  private ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(
+  private ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
       long programId, Optional<Long> enumeratorBlockId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
@@ -263,7 +263,8 @@ public class ProgramServiceImpl implements ProgramService {
 
     ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockName, blockDescription);
     if (!errors.isEmpty()) {
-      return ErrorAnd.errorAnd(errors, programDefinition);
+      return ErrorAnd.errorAnd(
+          errors, ProgramBlockAdditionResult.of(programDefinition, Optional.empty()));
     }
 
     BlockDefinition blockDefinition =
@@ -275,11 +276,14 @@ public class ProgramServiceImpl implements ProgramService {
             .build();
     Program program =
         programDefinition.insertBlockDefinitionInTheRightPlace(blockDefinition).toProgram();
-    return ErrorAnd.of(
+    ProgramDefinition updatedProgram =
         syncProgramDefinitionQuestions(
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
-            .join());
+            .join();
+    BlockDefinition updatedBlockDefinition = updatedProgram.getBlockDefinition(blockId);
+    return ErrorAnd.of(
+        ProgramBlockAdditionResult.of(updatedProgram, Optional.of(updatedBlockDefinition)));
   }
 
   @Override

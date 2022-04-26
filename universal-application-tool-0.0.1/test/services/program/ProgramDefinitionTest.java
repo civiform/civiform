@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import models.DisplayMode;
@@ -43,6 +44,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
             .setExternalLink("")
+            .setCreateTime(Instant.now())
+            .setLastModifiedTime(Instant.now())
             .setDisplayMode(DisplayMode.PUBLIC)
             .addBlockDefinition(blockA)
             .build();
@@ -621,5 +624,69 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .getProgramDefinition();
 
     assertThat(programDefinition.hasValidPredicateOrdering()).isFalse();
+  }
+
+  @Test
+  public void getCreateTimeWhenExist() {
+    Instant now = Instant.now();
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setCreateTime(now)
+            .build();
+    assertThat(def.createTime().get()).isEqualTo(now);
+  }
+
+  @Test
+  public void getCreateTimeWhenDoesntExist() {
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .build();
+    assertThat(def.createTime().isPresent()).isFalse();
+  }
+
+  @Test
+  public void getLastModifiedTimeWhenExist() {
+    Instant now = Instant.now();
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setLastModifiedTime(now)
+            .build();
+    assertThat(def.lastModifiedTime().get()).isEqualTo(now);
+  }
+
+  @Test
+  public void getLastModifiedTimeWhenDoesntExist() {
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .build();
+    assertThat(def.lastModifiedTime().isPresent()).isFalse();
   }
 }

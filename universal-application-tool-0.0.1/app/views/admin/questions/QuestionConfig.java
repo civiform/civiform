@@ -19,6 +19,7 @@ import forms.TextQuestionForm;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
+import java.util.OptionalLong;
 import play.i18n.Messages;
 import services.LocalizedStrings;
 import services.MessageKey;
@@ -184,14 +185,22 @@ public class QuestionConfig {
   }
 
   /**
+   * Creates a template text field where an admin can enter a single multi-option question answer,
+   * along with a button to remove the option.
+   */
+  public static ContainerTag multiOptionQuestionFieldTemplate(Messages messages) {
+    return multiOptionQuestionField(Optional.empty(), messages, /* isForNewOption= */ true);
+  }
+
+  /**
    * Creates an individual text field where an admin can enter a single multi-option question
    * answer, along with a button to remove the option.
    */
-  public static ContainerTag multiOptionQuestionField(
-      Optional<LocalizedQuestionOption> existingOption, Messages messages) {
+  private static ContainerTag multiOptionQuestionField(
+      Optional<LocalizedQuestionOption> existingOption, Messages messages, boolean isForNewOption) {
     ContainerTag optionInput =
         FieldWithLabel.input()
-            .setFieldName(existingOption.isPresent() ? "options[]" : "newOptions[]")
+            .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
             .setLabelText("Question option")
             .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
             .setValue(existingOption.map(LocalizedQuestionOption::optionText))
@@ -202,14 +211,14 @@ public class QuestionConfig {
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2, Styles.GAP_X_3);
     ContainerTag optionIndexInput =
-        existingOption.isPresent()
-            ? FieldWithLabel.input()
+        isForNewOption
+            ? div()
+            : FieldWithLabel.input()
                 .setFieldName("optionIds[]")
                 .setValue(String.valueOf(existingOption.get().id()))
                 .setScreenReaderText("option ids")
                 .getContainer()
-                .withClasses(Styles.HIDDEN)
-            : div();
+                .withClasses(Styles.HIDDEN);
     Tag removeOptionButton =
         button("Remove")
             .withType("button")
@@ -230,21 +239,34 @@ public class QuestionConfig {
         multiOptionQuestionForm.getOptionIds().size()
             == multiOptionQuestionForm.getOptions().size(),
         "Options and Option Indexes need to be the same size.");
-    ImmutableList.Builder<ContainerTag> existingOptionsBuilder = ImmutableList.builder();
+    ImmutableList.Builder<ContainerTag> optionsBuilder = ImmutableList.builder();
+    int optionIndex = 0;
     for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
-      existingOptionsBuilder.add(
+      optionsBuilder.add(
           multiOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
                       multiOptionQuestionForm.getOptionIds().get(i),
-                      i,
+                      optionIndex,
                       multiOptionQuestionForm.getOptions().get(i),
                       LocalizedStrings.DEFAULT_LOCALE)),
-              messages));
+              messages,
+              /* isForNewOption= */ false));
+      optionIndex++;
+    }
+    for (String newOption : multiOptionQuestionForm.getNewOptions()) {
+      optionsBuilder.add(
+          multiOptionQuestionField(
+              Optional.of(
+                  LocalizedQuestionOption.create(
+                      -1, optionIndex, newOption, LocalizedStrings.DEFAULT_LOCALE)),
+              messages,
+              /* isForNewOption= */ true));
+      optionIndex++;
     }
 
     content
-        .with(existingOptionsBuilder.build())
+        .with(optionsBuilder.build())
         .with(
             button("Add answer option")
                 .withType("button")
@@ -263,12 +285,18 @@ public class QuestionConfig {
             .setId("multi-select-min-choices-input")
             .setFieldName("minChoicesRequired")
             .setLabelText("Minimum number of choices required")
+            // Negative numbers aren't allowed. Force the admin to provide
+            // a positive number.
+            .setMin(OptionalLong.of(0L))
             .setValue(multiOptionForm.getMinChoicesRequired())
             .getContainer(),
         FieldWithLabel.number()
             .setId("multi-select-max-choices-input")
             .setFieldName("maxChoicesAllowed")
             .setLabelText("Maximum number of choices allowed")
+            // Negative numbers aren't allowed. Force the admin to provide
+            // a positive number.
+            .setMin(OptionalLong.of(0L))
             .setValue(multiOptionForm.getMaxChoicesAllowed())
             .getContainer());
     return this;

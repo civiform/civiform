@@ -14,9 +14,8 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class FileUploadQuestion implements Question {
+public class FileUploadQuestion extends QuestionImpl {
 
-  private final ApplicantQuestion applicantQuestion;
   // This value is serving double duty as a singleton load of the value.
   // This value is an optional of an optional because not all questions are file upload questions,
   // and if they are this value could still not be set.
@@ -24,10 +23,14 @@ public class FileUploadQuestion implements Question {
   private Optional<Optional<String>> originalFileNameValueCache;
 
   public FileUploadQuestion(ApplicantQuestion applicantQuestion) {
-    this.applicantQuestion = applicantQuestion;
+    super(applicantQuestion);
     this.fileKeyValueCache = Optional.empty();
     this.originalFileNameValueCache = Optional.empty();
-    assertQuestionType();
+  }
+
+  @Override
+  protected ImmutableSet<QuestionType> validQuestionTypes() {
+    return ImmutableSet.of(QuestionType.FILEUPLOAD);
   }
 
   @Override
@@ -38,7 +41,6 @@ public class FileUploadQuestion implements Question {
 
   @Override
   public ImmutableList<Path> getAllPaths() {
-    // We can't predict ahead of time what the path will be.
     return ImmutableList.of();
   }
 
@@ -50,6 +52,9 @@ public class FileUploadQuestion implements Question {
 
   @Override
   public boolean isAnswered() {
+    // TODO(#1944): Consider adding getFileKeyPath to getAllPaths.
+    // Adding it currently would cause the value to start being exported
+    // by the demographics exporter.
     return applicantQuestion.getApplicantData().hasPath(getFileKeyPath());
   }
 
@@ -79,18 +84,7 @@ public class FileUploadQuestion implements Question {
     return originalFileNameValueCache.get();
   }
 
-  public void assertQuestionType() {
-    if (!applicantQuestion.getType().equals(QuestionType.FILEUPLOAD)) {
-      throw new RuntimeException(
-          String.format(
-              "Question is not a FILEUPLOAD question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
-    }
-  }
-
   public FileUploadQuestionDefinition getQuestionDefinition() {
-    assertQuestionType();
     return (FileUploadQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 

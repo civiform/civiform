@@ -14,14 +14,17 @@ import services.question.types.TextQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class TextQuestion implements Question {
+public class TextQuestion extends QuestionImpl {
 
-  private final ApplicantQuestion applicantQuestion;
   private Optional<String> textValue;
 
   public TextQuestion(ApplicantQuestion applicantQuestion) {
-    this.applicantQuestion = applicantQuestion;
-    assertQuestionType();
+    super(applicantQuestion);
+  }
+
+  @Override
+  protected ImmutableSet<QuestionType> validQuestionTypes() {
+    return ImmutableSet.of(QuestionType.TEXT);
   }
 
   @Override
@@ -61,11 +64,6 @@ public class TextQuestion implements Question {
     return errors.build();
   }
 
-  @Override
-  public boolean isAnswered() {
-    return applicantQuestion.getApplicantData().hasPath(getTextPath());
-  }
-
   public Optional<String> getTextValue() {
     if (textValue != null) {
       return textValue;
@@ -74,18 +72,7 @@ public class TextQuestion implements Question {
     return textValue;
   }
 
-  public void assertQuestionType() {
-    if (!applicantQuestion.getType().equals(QuestionType.TEXT)) {
-      throw new RuntimeException(
-          String.format(
-              "Question is not a TEXT question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
-    }
-  }
-
   public TextQuestionDefinition getQuestionDefinition() {
-    assertQuestionType();
     return (TextQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
 

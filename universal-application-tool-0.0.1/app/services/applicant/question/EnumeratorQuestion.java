@@ -14,13 +14,23 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class EnumeratorQuestion implements Question {
-
-  private final ApplicantQuestion applicantQuestion;
+public class EnumeratorQuestion extends QuestionImpl {
 
   public EnumeratorQuestion(ApplicantQuestion applicantQuestion) {
-    this.applicantQuestion = applicantQuestion;
-    assertQuestionType();
+    super(applicantQuestion);
+  }
+
+  @Override
+  protected ImmutableSet<QuestionType> validQuestionTypes() {
+    return ImmutableSet.of(QuestionType.ENUMERATOR);
+  }
+
+  @Override
+  public boolean isAnswered() {
+    // This is answered if the the path to the enumerator question answer array exists.
+    return applicantQuestion
+        .getApplicantData()
+        .hasPath(applicantQuestion.getContextualizedPath().atIndex(0));
   }
 
   @Override
@@ -59,27 +69,8 @@ public class EnumeratorQuestion implements Question {
     return ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME);
   }
 
-  public void assertQuestionType() {
-    if (!applicantQuestion.getType().equals(QuestionType.ENUMERATOR)) {
-      throw new RuntimeException(
-          String.format(
-              "Question is not a ENUMERATOR question: %s (type: %s)",
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
-    }
-  }
-
   public EnumeratorQuestionDefinition getQuestionDefinition() {
-    assertQuestionType();
     return (EnumeratorQuestionDefinition) applicantQuestion.getQuestionDefinition();
-  }
-
-  /** This is answered if the the path to the enumerator question answer array exists. */
-  @Override
-  public boolean isAnswered() {
-    return applicantQuestion
-        .getApplicantData()
-        .hasPath(applicantQuestion.getContextualizedPath().atIndex(0));
   }
 
   /** Return the repeated entity names associated with this enumerator question. */

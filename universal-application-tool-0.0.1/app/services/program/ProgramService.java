@@ -116,11 +116,11 @@ public interface ProgramService {
    * Adds an empty {@link BlockDefinition} to the end of a given program.
    *
    * @param programId the ID of the program to update
-   * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors with
-   *     the unmodified program definition if failed
+   * @return the {@link ProgramBlockAdditionResult} including the updated program and block if it
+   *     succeeded, or a set of errors with the unmodified program and no block if failed.
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
-  ErrorAnd<ProgramDefinition, CiviFormError> addBlockToProgram(long programId)
+  ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(long programId)
       throws ProgramNotFoundException;
 
   /**
@@ -130,13 +130,14 @@ public interface ProgramService {
    *
    * @param programId the ID of the program to update
    * @param enumeratorBlockId ID of the enumerator block
-   * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors with
-   *     the unmodified program definition if failed
+   * @return a {@link ProgramBlockAdditionResult} including the updated program and block if it
+   *     succeeded, or a set of errors with the unmodified program definition and no block if
+   *     failed.
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when enumeratorBlockId does not correspond to
    *     an enumerator block in the Program.
    */
-  ErrorAnd<ProgramDefinition, CiviFormError> addRepeatedBlockToProgram(
+  ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addRepeatedBlockToProgram(
       long programId, long enumeratorBlockId)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException;
 
