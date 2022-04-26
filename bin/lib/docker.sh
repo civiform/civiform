@@ -17,12 +17,18 @@ function docker::run_shell_container() {
 
 #######################################
 # Executes a bash command in the running civiform-shell container
+# Sends a command to the running "civiform-shell" container.
 # Arguments:
 #   @: command to run
+# Globals:
+#   NO_TTY: if set will not allocate a TTY
 #######################################
 function docker::run_shell_command() {
-  # Sends a command to the running "civiform-shell" container.
-  docker exec -it civiform-shell "$@"
+  if [[ -z "${NO_TTY}" ]]; then
+    docker exec -it civiform-shell "$@"
+  else
+    docker exec civiform-shell "$@"
+  fi
 }
 
 #######################################

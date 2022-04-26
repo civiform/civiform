@@ -73,7 +73,7 @@ jobs:
     - if: matrix.language == 'java'
       name: Build Java
       run: |
-        cd server && sbt dist
+        NO_TTY=1 ./bin/sbt dist
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
