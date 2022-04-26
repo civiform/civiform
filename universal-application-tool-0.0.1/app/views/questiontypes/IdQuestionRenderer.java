@@ -25,14 +25,14 @@ public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected Tag renderTag(ApplicantQuestionRendererParams params) {
     IdQuestion idQuestion = question.createIdQuestion();
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = question.getValidationErrors();
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = idQuestion.getValidationErrors();
 
     Tag questionFormContent =
         FieldWithLabel.input()
             .setFieldName(idQuestion.getIdPath().toString())
             .setValue(idQuestion.getIdValue().orElse(""))
             .setFieldErrors(params.messages(),
-              validationErrors.getOrDefault(idQuestion.getStreetPath(), ImmutableSet.of().isEmpty()))
+              validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of()))
             .setScreenReaderText(question.getQuestionText())
             .getContainer();
 

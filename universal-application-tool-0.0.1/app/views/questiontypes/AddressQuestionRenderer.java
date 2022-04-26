@@ -32,7 +32,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
     Messages messages = params.messages();
     AddressQuestion addressQuestion = question.createAddressQuestion();
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = question.getValidationErrors();
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = addressQuestion.getValidationErrors();
 
     Tag addressQuestionFormContent =
         div()
@@ -44,7 +44,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setPlaceholderText(
                         messages.at(MessageKey.ADDRESS_PLACEHOLDER_STREET.getKeyName()))
                     .setValue(addressQuestion.getStreetValue().orElse(""))
-                    .setFieldErrors(ˇmessages, addressQuestion.getStreetErrorMessage())
+                    .setFieldErrors(messages, addressQuestion.getStreetErrorMessage())
                     .showFieldErrors(!validationErrors.getOrDefault(addressQuestion.getStreetPath(), ImmutableSet.of()).isEmpty())
                     .addReferenceClass(ReferenceClasses.ADDRESS_STREET_1)
                     .getContainer(),

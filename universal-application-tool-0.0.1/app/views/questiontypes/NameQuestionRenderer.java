@@ -31,7 +31,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
     Messages messages = params.messages();
     NameQuestion nameQuestion = question.createNameQuestion();
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = question.getValidationErrors();
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = nameQuestion.getValidationErrors();
 
     Tag nameQuestionFormContent =
         div()

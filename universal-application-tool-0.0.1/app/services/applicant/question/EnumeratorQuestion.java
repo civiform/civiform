@@ -47,7 +47,7 @@ public class EnumeratorQuestion extends QuestionImpl {
       return ImmutableMap.of();
     }
 
-    return ImmutableMap.of(applicantQuestion.getContextualizedPath(), validateEntities())
+    return ImmutableMap.of(applicantQuestion.getContextualizedPath(), validateEntities());
   }
 
   private ImmutableSet<ValidationErrorMessage> validateEntities() {

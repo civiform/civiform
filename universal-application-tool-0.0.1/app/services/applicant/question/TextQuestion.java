@@ -36,7 +36,7 @@ public class TextQuestion extends QuestionImpl {
   @Override
   public ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
     if (!isAnswered()) {
-      return ImmutableSet.of();
+      return ImmutableMap.of();
     }
 
     return ImmutableMap.of(getTextPath(), validateText());

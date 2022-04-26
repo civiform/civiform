@@ -26,13 +26,13 @@ public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected Tag renderTag(ApplicantQuestionRendererParams params) {
     EmailQuestion emailQuestion = question.createEmailQuestion();
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = question.getValidationErrors();
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = emailQuestion.getValidationErrors();
     
     Tag questionFormContent =
         FieldWithLabel.email()
             .setFieldName(emailQuestion.getEmailPath().toString())
             .setValue(emailQuestion.getEmailValue().orElse(""))
-            .setFieldErrors(validationErrors.getOrDefault(emailQuestion.getEmailPath(), ImmutableSet.of()))
+            .setFieldErrors(params.messages(), validationErrors.getOrDefault(emailQuestion.getEmailPath(), ImmutableSet.of()))
             .setScreenReaderText(question.getQuestionText())
             .getContainer();
 
