@@ -36,8 +36,8 @@ services:
     tty: true
     volumes:
       # isolate and persist dev database.
-      - db-data:/var/lib/postgresql/data
       - project-data:/project
+      - db-data:/var/lib/postgresql/data
 
   pgadmin:
     profiles: ["pgadmin"]

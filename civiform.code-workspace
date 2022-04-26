@@ -17,8 +17,5 @@
 			"**/.bloop": true
 		},
 		"java.configuration.updateBuildConfiguration": "automatic"
-	},
-	"extensions": {
-		"recommendations": []
 	}
 }

@@ -10,6 +10,6 @@ bin/pull-image
 readonly COMPOSE_CMD="docker compose \
   -f test-support/unit-test-docker-compose.yml"
 
-${COMPOSE_CMD} up civiform -d
+${COMPOSE_CMD} up -d
 ${COMPOSE_CMD} exec civiform sbt test
 ${COMPOSE_CMD} down
