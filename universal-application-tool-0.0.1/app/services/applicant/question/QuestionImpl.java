@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.QuestionType;
@@ -38,7 +39,12 @@ abstract class QuestionImpl implements Question {
     // TODO(#1944): Don't consult isAnswered for determining validation errors.
     // Instead, make callers responsible for determining whether the question should
     // be validated.
-    return isAnswered() ? getValidationErrorsInternal() : ImmutableMap.of();
+    if (!isAnswered()) {
+      return ImmutableMap.of();
+    }
+    return ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>builder()
+        .putAll(Maps.filterEntries(getValidationErrorsInternal(), e -> !e.getValue().isEmpty()))
+        .build();
   }
 
   /**

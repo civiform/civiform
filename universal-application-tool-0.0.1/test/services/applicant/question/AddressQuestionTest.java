@@ -2,6 +2,8 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -13,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.LocalizedStrings;
 import services.MessageKey;
+import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.AddressQuestionDefinition;
@@ -57,8 +60,7 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = new AddressQuestion(applicantQuestion);
 
-    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(addressQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(addressQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -76,8 +78,7 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(addressQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(addressQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(addressQuestion.getStreetValue().get()).isEqualTo("PO Box 123");
     assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Line 2");
     assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
@@ -145,8 +146,7 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(addressQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(addressQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -176,8 +176,9 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(addressQuestion.getQuestionErrors())
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = addressQuestion.getValidationErrors();
+    assertThat(validationErrors.size()).isEqualTo(1);
+    assertThat(validationErrors.getOrDefault(applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
         .containsOnly(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_NO_PO_BOX));
   }
 
