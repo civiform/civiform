@@ -58,11 +58,6 @@ jobs:
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-
-    # ✏️ If the Autobuild fails above, remove it and uncomment the following three lines
-    #    and modify them (or add more) to build your code if your project
-    #    uses a compiled language
-
     - if: matrix.language == 'java'
       name: Setup JDK
       uses: actions/setup-java@v2
@@ -73,7 +68,14 @@ jobs:
     - if: matrix.language == 'java'
       name: Build Java
       run: |
-        NO_TTY=1 ./bin/sbt dist
+        docker run --rm \
+          --network test-support_default \
+          -v "$(pwd)/server:/usr/src/server" \
+          -v "$(pwd)/sbt_cache/coursier:/root/.cache/coursier" \
+          -v ~/.sbt:/root/.sbt \
+          -v ~/.ivy:/root/.ivy2 \
+          civiform/civiform-dev:latest \
+          dist
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
