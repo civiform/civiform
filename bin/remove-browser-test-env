@@ -2,7 +2,7 @@
 
 # DOC: Stop and delete the running browser test environment.
 
-export COMPOSE_PROJECT_NAME="browser-test"
+export COMPOSE_PROJECT_NAME="$(basename $(pwd))-browser-test"
 source bin/lib.sh
 
 docker compose \

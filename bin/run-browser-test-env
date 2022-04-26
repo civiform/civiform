@@ -2,7 +2,7 @@
 
 # DOC: Run the app locally using Docker for use with running browser tests. Run with --help to print documentation.
 
-export COMPOSE_PROJECT_NAME="browser-test"
+export COMPOSE_PROJECT_NAME="$(basename $(pwd))-browser-test"
 source bin/lib.sh
 
 # Default to continuous integration mode disabled.

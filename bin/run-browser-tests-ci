@@ -3,7 +3,7 @@
 # DOC: Run the browser tests in CI mode.
 
 export COMPOSE_INTERACTIVE_NO_CLI=1
-export COMPOSE_PROJECT_NAME="browser-test"
+export COMPOSE_PROJECT_NAME="$(basename $(pwd))-browser-test"
 
 source bin/lib.sh
 

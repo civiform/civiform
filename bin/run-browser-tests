@@ -2,7 +2,7 @@
 
 # DOC: Run the browser tests using Docker. Requires browser test env already running.
 
-export COMPOSE_PROJECT_NAME="browser-test"
+export COMPOSE_PROJECT_NAME="$(basename $(pwd))-browser-test"
 
 source bin/lib.sh
 

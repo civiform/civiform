@@ -2,7 +2,7 @@
 
 # DOC: Run the Java test suite in Docker.
 
-export COMPOSE_PROJECT_NAME=test-support
+export COMPOSE_PROJECT_NAME="$(basename $(pwd))-test-support"
 source bin/lib.sh
 
 bin/pull-image
