@@ -68,13 +68,7 @@ jobs:
     - if: matrix.language == 'java'
       name: Build Java
       run: |
-        docker run --rm \
-          -v "$(pwd)/server:/usr/src/server" \
-          -v "$(pwd)/sbt_cache/coursier:/root/.cache/coursier" \
-          -v ~/.sbt:/root/.sbt \
-          -v ~/.ivy:/root/.ivy2 \
-          civiform/civiform-dev:latest \
-          dist
+        cd server && npm install && sbt dist
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
