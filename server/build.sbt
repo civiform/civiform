@@ -75,6 +75,9 @@ lazy val root = (project in file("."))
       // Apache libraries for export
       "org.apache.pdfbox" % "pdfbox" % "2.0.26",
       "org.apache.commons" % "commons-csv" % "1.9.0",
+      
+      //pdf library for export
+       "com.itextpdf" % "itextpdf" % "5.5.13.2",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "2.5",
