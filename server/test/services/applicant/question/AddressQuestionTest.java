@@ -18,6 +18,7 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.program.ProgramQuestionDefinition;
 import services.question.types.AddressQuestionDefinition;
 import support.QuestionAnswerer;
 
@@ -54,9 +55,13 @@ public class AddressQuestionTest {
   }
 
   @Test
-  public void withEmptyApplicantData() {
+  public void withEmptyApplicantData_optionalQuestion() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(addressQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            ProgramQuestionDefinition.create(addressQuestionDefinition, Optional.empty())
+                .setOptional(true),
+            applicantData,
+            Optional.empty());
 
     AddressQuestion addressQuestion = new AddressQuestion(applicantQuestion);
 

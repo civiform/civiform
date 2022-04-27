@@ -1,8 +1,12 @@
 package views.questiontypes;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 import java.time.LocalDate;
 import java.util.Optional;
+import services.Path;
+import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.DateQuestion;
 import views.components.FieldWithLabel;
@@ -21,7 +25,7 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(ApplicantQuestionRendererParams params) {
+  protected Tag renderTag(ApplicantQuestionRendererParams params, ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     DateQuestion dateQuestion = question.createDateQuestion();
 
     FieldWithLabel dateField =

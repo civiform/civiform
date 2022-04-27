@@ -22,11 +22,8 @@ public class TextQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(ApplicantQuestionRendererParams params) {
+  protected Tag renderTag(ApplicantQuestionRendererParams params, ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     TextQuestion textQuestion = question.createTextQuestion();
-
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        textQuestion.getValidationErrors();
 
     Tag questionFormContent =
         FieldWithLabel.input()

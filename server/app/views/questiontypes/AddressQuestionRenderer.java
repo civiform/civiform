@@ -28,12 +28,9 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(ApplicantQuestionRendererParams params) {
+  protected Tag renderTag(ApplicantQuestionRendererParams params, ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     Messages messages = params.messages();
     AddressQuestion addressQuestion = question.createAddressQuestion();
-
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        addressQuestion.getValidationErrors();
 
     Tag addressQuestionFormContent =
         div()

@@ -14,7 +14,7 @@ public abstract class ApplicantQuestionRendererParams {
   }
 
   public static ApplicantQuestionRendererParams sample(Messages messages) {
-    return builder().setIsSample(true).setMessages(messages).build();
+    return builder().setIsSample(true).setDisplayErrors(false).setMessages(messages).build();
   }
 
   public abstract boolean isSample();
@@ -22,6 +22,8 @@ public abstract class ApplicantQuestionRendererParams {
   public abstract Messages messages();
 
   public abstract Optional<StorageUploadRequest> signedFileUploadRequest();
+
+  public abstract boolean displayErrors();
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -31,6 +33,8 @@ public abstract class ApplicantQuestionRendererParams {
 
     public abstract Builder setSignedFileUploadRequest(
         StorageUploadRequest signedFileUploadRequest);
+
+    public abstract Builder setDisplayErrors(boolean displayErrors);
 
     public abstract ApplicantQuestionRendererParams build();
   }

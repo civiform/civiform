@@ -36,7 +36,7 @@ abstract class QuestionImpl implements Question {
 
   @Override
   public final ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
-    if (!isAnswered()) {
+    if (!isAnswered() && applicantQuestion.isOptional()) {
       return ImmutableMap.of();
     }
     // Why not just return the result of getValidationErrorsInternal()?

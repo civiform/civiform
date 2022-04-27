@@ -125,7 +125,10 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
                 params.applicantId(), params.programId(), params.block().getId(), params.inReview())
             .url();
     ApplicantQuestionRendererParams rendererParams =
-        ApplicantQuestionRendererParams.builder().setMessages(params.messages()).build();
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(params.messages())
+            .setDisplayErrors(params.displayErrors())
+            .build();
 
     return form()
         .withId(BLOCK_FORM_ID)
@@ -225,6 +228,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     public abstract String applicantName();
 
+    public abstract boolean displayErrors();
+
     @AutoValue.Builder
     public abstract static class Builder {
       public abstract Builder setRequest(Http.Request request);
@@ -252,6 +257,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       public abstract Builder setBaseUrl(String baseUrl);
 
       public abstract Builder setApplicantName(String applicantName);
+
+      public abstract Builder setDisplayErrors(boolean displayErrors);
 
       public abstract Params build();
     }

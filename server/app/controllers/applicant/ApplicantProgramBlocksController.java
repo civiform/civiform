@@ -159,7 +159,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             inReview,
                             roApplicantProgramService,
                             block.get(),
-                            applicantName)));
+                            applicantName,
+                            /* displayErrors= */ false)));
               } else {
                 return notFound();
               }
@@ -209,7 +210,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             inReview,
                             roApplicantProgramService,
                             block.get(),
-                            applicantName)));
+                            applicantName,
+                            /* displayErrors= */ false)));
               } else {
                 return notFound();
               }
@@ -371,7 +373,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           inReview,
                           roApplicantProgramService,
                           thisBlockUpdated,
-                          applicantName))));
+                          applicantName,
+                          /* displayErrors= */ true))));
     }
 
     if (inReview) {
@@ -415,7 +418,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Block block,
-      String applicantName) {
+      String applicantName,
+      boolean displayErrors) {
     return ApplicantProgramBlockEditView.Params.builder()
         .setRequest(request)
         .setMessages(messagesApi.preferred(request))
@@ -430,6 +434,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setPreferredLanguageSupported(roApplicantProgramService.preferredLanguageSupported())
         .setStorageClient(storageClient)
         .setBaseUrl(baseUrl)
+        .setDisplayErrors(displayErrors)
         .build();
   }
 
