@@ -57,8 +57,9 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
   public void insert_missingRequiredAttributes_raisesAnException() {
     ApiKey apiKey = new ApiKey();
 
-    CompletionException exception = assertThrows(CompletionException.class,
-        () -> repo.insert(apiKey).toCompletableFuture().join());
+    CompletionException exception =
+        assertThrows(
+            CompletionException.class, () -> repo.insert(apiKey).toCompletableFuture().join());
 
     assertThat(exception.getCause()).isInstanceOf(DataIntegrityException.class);
     assertThat(exception.getCause().getMessage()).contains("violates not-null constraint");

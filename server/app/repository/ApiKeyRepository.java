@@ -31,14 +31,20 @@ public class ApiKeyRepository {
         executionContext);
   }
 
-  /** Find an ApiKey record by database primary ID using a thread from {@link DatabaseExecutionContext}. */
+  /**
+   * Find an ApiKey record by database primary ID using a thread from {@link
+   * DatabaseExecutionContext}.
+   */
   public CompletionStage<Optional<ApiKey>> lookupApiKey(long id) {
     return supplyAsync(
         () -> Optional.ofNullable(database.find(ApiKey.class).setId(id).findOne()),
         executionContext);
   }
 
-  /** Find an ApiKey record by the key's string ID using a thread from {@link DatabaseExecutionContext}. */
+  /**
+   * Find an ApiKey record by the key's string ID using a thread from {@link
+   * DatabaseExecutionContext}.
+   */
   public CompletionStage<Optional<ApiKey>> lookupApiKey(String keyId) {
     return supplyAsync(
         () ->

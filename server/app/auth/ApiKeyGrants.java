@@ -27,9 +27,7 @@ public class ApiKeyGrants {
     this.programGrants = HashMultimap.create();
   }
 
-  /**
-   * Used by EBean to deserialize an instance of ApiKeyGrants stored in the database.
-   */
+  /** Used by EBean to deserialize an instance of ApiKeyGrants stored in the database. */
   @JsonCreator
   public ApiKeyGrants(@JsonProperty("programGrants") Multimap<String, Permission> programGrants) {
     this.programGrants = checkNotNull(programGrants);

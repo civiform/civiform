@@ -7,11 +7,8 @@ import io.ebean.annotation.WhenModified;
 import java.time.Instant;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import play.data.validation.Constraints;
 
-/**
- * An EBean mapped class that represents an API key in CiviForm.
- */
+/** An EBean mapped class that represents an API key in CiviForm. */
 @Entity
 @Table(name = "api_keys")
 public class ApiKey extends BaseModel {
