@@ -72,6 +72,15 @@ else
     "${TEMPORARY_SECRET}"
 fi
 
+if key_vault::has_secret "${vault_name}" "${ADFS_CLIENT_ID}"; then
+  echo "Key ${ADFS_CLIENT_ID} exists in the secret store"
+else
+  key_vault::add_secret \
+    "${vault_name}" \
+    "${ADFS_CLIENT_ID}" \
+    "${TEMPORARY_SECRET}"
+fi
+
 if key_vault::has_secret "${vault_name}" "${ADFS_DISCOVERY_URI}"; then
   echo "Key ${ADFS_DISCOVERY_URI} exists in the secret store"
 else
