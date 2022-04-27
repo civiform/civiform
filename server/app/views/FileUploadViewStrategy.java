@@ -113,7 +113,10 @@ public abstract class FileUploadViewStrategy {
                 params.applicantId(), params.programId(), params.block().getId(), params.inReview())
             .url();
     ApplicantQuestionRendererParams rendererParams =
-        ApplicantQuestionRendererParams.builder().setMessages(params.messages()).build();
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(params.messages())
+            .setDisplayErrors(params.displayErrors())
+            .build();
 
     Tag continueForm =
         form()

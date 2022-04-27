@@ -33,7 +33,9 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(ApplicantQuestionRendererParams params, ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+  protected Tag renderTag(
+      ApplicantQuestionRendererParams params,
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
 
     Tag radioQuestionFormContent =

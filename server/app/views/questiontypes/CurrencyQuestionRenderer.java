@@ -26,7 +26,9 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(ApplicantQuestionRendererParams params, ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+  protected Tag renderTag(
+      ApplicantQuestionRendererParams params,
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
 
     FieldWithLabel currencyField =

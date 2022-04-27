@@ -5,7 +5,6 @@ import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import play.i18n.Messages;
@@ -36,7 +35,9 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     return question.isOptional() ? "" : ReferenceClasses.REQUIRED_QUESTION;
   }
 
-  protected abstract Tag renderTag(ApplicantQuestionRendererParams params, ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors);
+  protected abstract Tag renderTag(
+      ApplicantQuestionRendererParams params,
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors);
 
   @Override
   public final Tag render(ApplicantQuestionRendererParams params) {
@@ -58,11 +59,13 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                     .with(TextFormatter.createLinksAndEscapeText(question.getQuestionHelpText())))
             .withClasses(Styles.MB_4);
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors = params.displayErrors() ?
-      question.errorsPresenter().getValidationErrors() : ImmutableMap.of();
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        params.displayErrors()
+            ? question.errorsPresenter().getValidationErrors()
+            : ImmutableMap.of();
 
-    ImmutableSet<ValidationErrorMessage> questionErrors = validationErrors.getOrDefault(
-      question.getContextualizedPath(), ImmutableSet.of());
+    ImmutableSet<ValidationErrorMessage> questionErrors =
+        validationErrors.getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
     // TODO(#1944): Remove special handling for enumerators once client-side validation is removed
     // and they don't render a separate div.
     if (!questionErrors.isEmpty() && question.getType() != QuestionType.ENUMERATOR) {

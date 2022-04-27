@@ -3,8 +3,8 @@ package views.questiontypes;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
@@ -53,7 +53,9 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(ApplicantQuestionRendererParams params, ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+  protected Tag renderTag(
+      ApplicantQuestionRendererParams params,
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
     String localizedEntityType = enumeratorQuestion.getEntityType();
