@@ -25,14 +25,13 @@ RUN cd "${PROJECT_LOC}" && \
     npm install && \
     sbt update && \
     sbt dist && \
-    mv "${PROJECT_LOC}/target/universal/universal-application-tool-0.0.1.zip" /civiform.zip && \
-    unzip /civiform.zip -d / && \
-    chmod +x /universal-application-tool-0.0.1/bin/universal-application-tool
+    unzip "${PROJECT_LOC}/target/universal/civiform-server-0.0.1.zip" -d / && \
+    chmod +x /civiform-server-0.0.1/bin/civiform-server
 
 # This is a common trick to shrink container sizes. We discard everything added
 # during the build phase and use only the inflated artifacts created by sbt dist.
 FROM adoptopenjdk/openjdk11:jdk-11.0.14.1_1-alpine-slim AS stage2
-COPY --from=stage1 /usr/src/server/target/universal/civiform-server-0.0.1.zip /civiform.zip
+COPY --from=stage1 /civiform-server-0.0.1 /civiform-server-0.0.1
 
 # Upgrade packages for stage2 to include latest versions.
 RUN set -o pipefail && \
@@ -44,7 +43,4 @@ RUN set -o pipefail && \
 ARG image_tag
 ENV CIVIFORM_IMAGE_TAG=$image_tag
 
-RUN apk add bash
-
-RUN unzip /civiform.zip; chmod +x /civiform-server-0.0.1/bin/civiform-server
 CMD ["/civiform-server-0.0.1/bin/civiform-server", "-Dconfig.file=/civiform-server-0.0.1/conf/application.conf"]
