@@ -1,21 +1,52 @@
 #! /usr/bin/env bash
 
 #######################################
-# Runs a command in the civiform-dev container using the default sbt entrypoint
-# and volume mounts for sbt caching.
-# Arguments:
-#   @: optional arguments passed to sbt
+# Starts a bash shell in the civiform-shell container
 #######################################
-function docker::run_dev_sbt_command() {
-  # Allocate a TTY for better output even though not strictly needed.
-  docker run -it --rm \
-    --network test-support_default \
-    -v "$(pwd)/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1" \
-    -v "$(pwd)/sbt_cache/coursier:/root/.cache/coursier" \
-    -v ~/.sbt:/root/.sbt \
-    -v ~/.ivy:/root/.ivy2 \
-    civiform-dev \
-    $@
+function docker::run_shell_container() {
+  # Start up the "civiform" service with the shell overrides.
+  # Use the compose project "civiform-shell".
+  docker compose \
+    -f docker-compose.yml \
+    -f docker-compose.dev.yml \
+    --profile shell \
+    up civiform-shell \
+    --wait \
+    -d
+}
+
+#######################################
+# Executes a bash command in the running civiform-shell container
+# Arguments:
+#   @: command to run
+#######################################
+function docker::run_shell_command() {
+  # Sends a command to the running "civiform-shell" container.
+  docker exec -it civiform-shell "$@"
+}
+
+#######################################
+# Stops the civiform-shell container
+#######################################
+function docker::stop_shell_container() {
+  # Stop the compose project "civiform-shell".
+  docker compose \
+    -f docker-compose.yml \
+    -f docker-compose.dev.yml \
+    --profile shell \
+    stop civiform-shell
+}
+
+#######################################
+# Deletes the civiform-shell container
+#######################################
+function docker::remove_shell_container() {
+  # Deletes the containers for the "civiform-shell" project.
+  docker compose \
+    -f docker-compose.yml \
+    -f docker-compose.dev.yml \
+    --profile shell \
+    down civiform-shell
 }
 
 #######################################
@@ -23,10 +54,19 @@ function docker::run_dev_sbt_command() {
 # successfully if they are already up.
 #######################################
 function docker::ensure_unit_test_env() {
-  docker-compose \
+  docker compose \
     -f test-support/unit-test-docker-compose.yml \
     up \
     -d
+}
+
+#######################################
+# Stops the services needed for the unit test suite
+#######################################
+function docker::remove_unit_test_env() {
+  docker compose \
+    -f test-support/unit-test-docker-compose.yml \
+    down
 }
 
 #######################################

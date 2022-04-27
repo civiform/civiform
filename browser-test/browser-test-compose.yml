@@ -36,7 +36,7 @@ services:
       - 8033:3380
 
   civiform:
-    image: civiform
+    image: civiform-dev
     restart: always
     container_name: civiform-test
     links:

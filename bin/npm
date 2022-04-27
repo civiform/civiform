@@ -4,10 +4,8 @@
 
 source bin/lib.sh
 
-# allocate a tty for better test output even though not strictly needed.
-docker run -it --rm \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v $(pwd)/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1 \
-  --entrypoint npm \
-  civiform-dev \
-  $@
+bin/pull-image
+
+docker::run_shell_container
+docker::run_shell_command npm "$@"
+docker::stop_shell_container

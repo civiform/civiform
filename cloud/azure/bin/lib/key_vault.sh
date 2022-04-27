@@ -22,6 +22,18 @@ function key_vault::create_vault() {
 }
 
 #######################################
+# Check if key vault exists
+# Arguments:
+#   1: The resource group name for the key vault
+#   2: The name of the key vault 
+#######################################
+function key_vault::check_if_vault_exists() {
+  az keyvault show \
+    --name "${2}" \
+    --resource-group "${1}"
+}
+
+#######################################
 # Assign the role 'Key Vault Secrets officer' to the current user
 # Arguments:
 #   1. The resource group to scope the role assignment to
@@ -58,8 +70,14 @@ function key_vault::add_secret_from_input() {
   local SECRET
   echo "Please enter the value for ${2}: "
   read -s SECRET
+
+  while [[ -z "$SECRET" ]]; do
+    printf '%s\n' "No input entered"
+    read -s SECRET
+  done
+
   unset REPLY
-  key_vault::add_secret "${1}" "${2}" "${SECRET}"  
+  key_vault::add_secret "${1}" "${2}" "${SECRET}"
   echo "Stored secret value for ${2} in key vault ${1}"
 }
 

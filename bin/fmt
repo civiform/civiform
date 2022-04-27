@@ -5,5 +5,5 @@
 source bin/lib.sh
 
 docker run --rm -it \
-  -v "$(pwd)/universal-application-tool-0.0.1/:/code" \
+  -v "$(pwd)/server/:/code" \
   civiform/formatter:latest

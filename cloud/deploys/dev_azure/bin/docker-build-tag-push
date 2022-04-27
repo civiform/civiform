@@ -1,0 +1,15 @@
+#! /usr/bin/env bash
+
+source cloud/deploys/dev_azure/bin/lib.sh
+
+docker build \
+  -f "prod.Dockerfile" \
+  -t "${IMAGE_TAG}" \
+  --cache-from "docker.io/civiform/civiform-browser-test:latest" \
+  --build-arg "BUILDKIT_INLINE_CACHE=1" .
+
+docker tag \
+  "${IMAGE_TAG}" \
+  "${DOCKER_USERNAME}/${DOCKER_REPOSITORY_NAME}:${IMAGE_TAG}"
+  
+docker push "${DOCKER_USERNAME}/${DOCKER_REPOSITORY_NAME}:${IMAGE_TAG}"

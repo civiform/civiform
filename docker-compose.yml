@@ -1,11 +1,10 @@
 # Use postgres/example user/password credentials
-version: '3.1'
+version: '3.4'
 
 services:
-
   localstack:
     image: localstack/localstack
-    profiles: ["aws"]
+    profiles: [ "aws", "emulator" ]
     container_name: localstack
     ports:
       - 4566:4566
@@ -14,10 +13,24 @@ services:
 
   azurite:
      image: mcr.microsoft.com/azure-storage/azurite
-     profiles: ["azure"]
+     profiles: ["azure", "emulator"]
      container_name: azurite
      ports:
       - 10000:10000
+
+  # The dev oidc server needs to be visible to the Civiform server and web browsers
+  # on the same host:port. Developers need to add a localhost IP alias for this
+  # container name in their /etc/hosts file for the web brower to load the auth url.
+  # EG: 127.0.0.1 dev-oidc
+  dev-oidc:
+    image: docker.io/civiform/oidc-provider:latest
+    restart: always
+    container_name: dev-oidc
+    ports:
+      - 3390:3390
+    environment:
+      # Use an explicit port to not conflict with other test instances.
+      - OIDC_PORT=3390
 
   db:
     image: postgres:12.10
@@ -34,6 +47,7 @@ services:
     container_name: civiform
     links:
       - "db:database"
+      - "dev-oidc"
     ports:
       - 9000:9000
       - 8457:8457
@@ -56,9 +70,11 @@ services:
       - LOGIN_RADIUS_KEYSTORE_PASS
       - LOGIN_RADIUS_KEYSTORE_NAME
       - CIVIFORM_APPLICANT_IDP
-      - CIVIFORM_ADMIN_IDP 
-      - IDCS_CLIENT_ID
-      - IDCS_SECRET
+      - CIVIFORM_ADMIN_IDP
+      # Hard coded in test-support/test_oidc_provider.js
+      - IDCS_CLIENT_ID=foo
+      - IDCS_SECRET=bar
+      - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
       - ADFS_CLIENT_ID
       - ADFS_SECRET
       - CF_OPTIONAL_QUESTIONS

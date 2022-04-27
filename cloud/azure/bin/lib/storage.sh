@@ -73,3 +73,18 @@ function storage::upload_blob {
     --file "${3}" \
     --overwrite "true"
 }
+
+
+#######################################
+# Succeeds if the blob exists in the container
+# Arguments:
+#   1: The storage account name
+#   2. The name of the container 
+#   3: The name of the file 
+#######################################
+function storage::has_blob {
+  az storage blob exists \
+    --account-name "${1}" \
+    --container-name "${2}" \
+    --name "${3}" 
+}

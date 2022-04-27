@@ -2,6 +2,8 @@
 
 # DOC: Run the browser tests in CI mode.
 
+export COMPOSE_INTERACTIVE_NO_CLI=1
+
 source bin/lib.sh
 
 docker run \

@@ -5,8 +5,16 @@
 source bin/lib.sh
 source bin/localstack/lib.sh
 
-create_s3_bucket="s3api create-bucket
-  --bucket civiform-local-s3
-  --region us-west-2"
+BUCKET_NAME="civiform-local-s3"
 
-localstack::run_command "${create_s3_bucket}"
+check_bucket="s3api get-bucket-location --bucket ${BUCKET_NAME}"
+
+create_s3_bucket="s3api create-bucket
+  --bucket ${BUCKET_NAME}
+  --region us-west-2
+  --create-bucket-configuration LocationConstraint=us-west-2"
+
+# We first check to see if the desired bucket already exists
+# prior to trying to create it.
+localstack::run_command "${check_bucket}" \
+  || localstack::run_command "${create_s3_bucket}"

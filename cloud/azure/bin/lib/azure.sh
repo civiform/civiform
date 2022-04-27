@@ -1,7 +1,5 @@
 #! /usr/bin/env bash
 
-readonly CIVIFORM_CONTAINER_NAME="civiform/civiform"
-
 #######################################
 # Set common env variables for working with Azure.
 # Globals:
@@ -12,7 +10,7 @@ readonly CIVIFORM_CONTAINER_NAME="civiform/civiform"
 function azure::set_common_vars() {
   export AZURE_USER_ID="$(azure::get_current_user_id)"
   export AZURE_APP_NAME="$(azure::get_app_name "${AZURE_RESOURCE_GROUP}")"
-  export AZURE_CANARY_URL="$(azure::get_canary_url "${AZURE_RESOURCE_GROUP}" "${APP_NAME}")"
+  export AZURE_CANARY_URL="$(azure::get_canary_url "${AZURE_RESOURCE_GROUP}" "${AZURE_APP_NAME}")"
 }
 
 #######################################
@@ -146,7 +144,7 @@ function azure::set_new_container_tag() {
     --resource-group "${1}" \
     --name "${2}" \
     --slot "canary" \
-    --docker-custom-image-name "DOCKER|${CIVIFORM_CONTAINER_NAME}:${3}"
+    --docker-custom-image-name "DOCKER|${DOCKER_USERNAME}/${DOCKER_REPOSITORY_NAME}:${3}"
 }
 
 #######################################
@@ -166,7 +164,7 @@ function azure::swap_deployment_slot() {
 # by underscores for suitability as a token in the deploy log.
 #######################################
 function azure::get_current_user_id() {
-  az ad signed-in-user show --query mail | sed -E 's/ +/_/g'
+  az account show --query user.name -o tsv | sed -E 's/ +/_/g'
 }
 
 #######################################
@@ -177,8 +175,16 @@ function azure::get_current_user_id() {
 #   3. scope name
 #######################################
 function azure::ensure_role_assignment() {
-  local USER_ID="$(az ad signed-in-user show --query objectId -o tsv)"
-  local ROLE_ASSIGNMENTS="$(az role assignment list --assignee ${USER_ID} --resource-group ${1})"
+  local USER_TYPE="$(az account show --query user.type -o tsv)"
+  local object_id=""
+  
+  if echo "${USER_TYPE}" | grep -iq "serviceprincipal"; then
+    object_id="$(az account show --query user.name -o tsv)"
+  else
+    object_id="$(az ad signed-in-user show --query objectId -o tsv)"
+  fi
+
+  local ROLE_ASSIGNMENTS="$(az role assignment list --assignee ${object_id} --resource-group ${1})"
 
   if echo "${ROLE_ASSIGNMENTS}" | grep -q "${2}";
   then 
@@ -187,7 +193,6 @@ function azure::ensure_role_assignment() {
     az role assignment create \
       --role "${2}" \
       --scope "${3}" \
-      --assignee-object-id "${USER_ID}" \
-      --assignee-principal-type "User"
+      --assignee "${object_id}"
   fi
 }

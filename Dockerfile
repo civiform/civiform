@@ -4,8 +4,8 @@ ARG PLATFORM="amd64"
 # workaround uses an aarch64 (arm64) image instead when an optional platform argument is set to arm64.
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
-FROM adoptopenjdk/openjdk11:jdk-11.0.10_9-alpine-slim as amd64
-FROM bellsoft/liberica-openjdk-alpine:11.0.10-9-aarch64 as arm64
+FROM adoptopenjdk/openjdk11:jdk-11.0.14.1_1-alpine-slim as amd64
+FROM bellsoft/liberica-openjdk-alpine:11.0.11-9-aarch64 as arm64
 
 FROM ${PLATFORM}
 
@@ -26,7 +26,7 @@ RUN set -o pipefail && \
     echo -ne "- with sbt ${SBT_VERSION}\n" >> /root/.built
 
 ENV PROJECT_HOME /usr/src
-ENV PROJECT_NAME universal-application-tool-0.0.1
+ENV PROJECT_NAME server
 
 COPY "${PROJECT_NAME}" "${PROJECT_HOME}/${PROJECT_NAME}"
 
