@@ -4,6 +4,7 @@
 
 CREATE TABLE IF NOT EXISTS api_keys (
   id BIGSERIAL PRIMARY KEY NOT NULL,
+  name VARCHAR NOT NULL,
   create_time TIMESTAMP NOT NULL,
   update_time TIMESTAMP NOT NULL,
   created_by VARCHAR NOT NULL,
@@ -13,7 +14,7 @@ CREATE TABLE IF NOT EXISTS api_keys (
   salted_key_secret VARCHAR UNIQUE NOT NULL,
   subnet VARCHAR NOT NULL,
   expiration TIMESTAMP NOT NULL,
-  call_count BIGINT NOT NULL,
+  call_count BIGINT NOT NULL DEFAULT 0,
   last_call_ip_address VARCHAR,
   grants JSONB NOT NULL
 );
