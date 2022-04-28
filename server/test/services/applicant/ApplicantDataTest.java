@@ -33,12 +33,12 @@ public class ApplicantDataTest {
   public void getApplicantName_exists() {
     ApplicantData data = new ApplicantData();
     data.setUserName("First Last");
-    assertThat(data.getApplicantName()).isEqualTo("Last, First");
+    assertThat(data.getApplicantName()).isEqualTo(Optional.of("Last, First"));
   }
 
   @Test
   public void getApplicantName_noName() {
     ApplicantData data = new ApplicantData();
-    assertThat(data.getApplicantName()).isEqualTo("Guest");
+    assertThat(data.getApplicantName()).isEmpty();
   }
 }

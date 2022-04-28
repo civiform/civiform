@@ -703,7 +703,7 @@ public class ApplicantServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getName_Guest() {
+  public void getName_noName() {
     Applicant applicant = resourceCreator.insertApplicant();
     assertThat(subject.getName(applicant.id).toCompletableFuture().join()).isEmpty();
   }
@@ -713,7 +713,7 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("Hello World");
     applicant.save();
-    assertThat(subject.getName(applicant.id).toCompletableFuture().join()).isEqualTo("World, Hello");
+    assertThat(subject.getName(applicant.id).toCompletableFuture().join()).isEqualTo(Optional.of("World, Hello"));
   }
 
   @Test
@@ -721,7 +721,7 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("First Middle Last");
     applicant.save();
-    assertThat(subject.getName(applicant.id).toCompletableFuture().join()).isEqualTo("Last, First");
+    assertThat(subject.getName(applicant.id).toCompletableFuture().join()).isEqualTo(Optional.of("Last, First"));
   }
 
   @Test
@@ -729,7 +729,7 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("First Second Third Fourth");
     applicant.save();
-    assertThat(subject.getName(applicant.id).toCompletableFuture().join()).isEqualTo("First Second Third Fourth");
+    assertThat(subject.getName(applicant.id).toCompletableFuture().join()).isEqualTo(Optional.of("First Second Third Fourth"));
   }
 
   @Test
@@ -737,7 +737,7 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("Mononymous");
     applicant.save();
-    assertThat(subject.getName(applicant.id).toCompletableFuture().join()).isEqualTo("Mononymous");
+    assertThat(subject.getName(applicant.id).toCompletableFuture().join()).isEqualTo(Optional.of("Mononymous"));
   }
 
   @Test
