@@ -11,6 +11,7 @@ import static j2html.attributes.Attr.HREF;
 import com.google.auto.value.AutoValue;
 import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
+import java.util.Optional;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import javax.inject.Inject;
@@ -254,6 +255,10 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       public abstract Builder setBaseUrl(String baseUrl);
 
       public abstract Builder setApplicantName(Optional<String> applicantName);
+
+      abstract Optional<String> applicantName();
+      
+      abstract Messages messages();
 
       abstract Params autoBuild();
 

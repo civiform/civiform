@@ -20,6 +20,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 
+import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import play.i18n.Messages;
@@ -314,6 +315,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       public abstract Builder setSummaryData(ImmutableList<AnswerData> summaryData);
 
       public abstract Builder setTotalBlockCount(int totalBlockCount);
+
+      abstract Optional<String> applicantName();
+      
+      abstract Messages messages();
 
       abstract Params autoBuild();
 

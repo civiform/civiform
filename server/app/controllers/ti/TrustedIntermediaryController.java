@@ -76,7 +76,7 @@ public class TrustedIntermediaryController {
         trustedIntermediaryGroup.get().getManagedAccounts(search);
     PaginationInfo<Account> pageInfo =
         PaginationInfo.paginate(managedAccounts, PAGE_SIZE, page.get());
-    Messages messsages = messagesApi.preferred(request);
+        
     return ok(
         tiDashboardView.render(
             trustedIntermediaryGroup.get(),
@@ -86,7 +86,7 @@ public class TrustedIntermediaryController {
             pageInfo.getPage(),
             search,
             request,
-            messages));
+            messagesApi.preferred(request)));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
