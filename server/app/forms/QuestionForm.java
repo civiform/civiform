@@ -132,8 +132,8 @@ public abstract class QuestionForm {
   }
 
   /**
-   * The {@link QuestionTag} to use for export state. Callers external to this
-   * class should use this rather than {@link getQuestionExportState}.
+   * The {@link QuestionTag} to use for export state. Callers external to this class should use this
+   * rather than {@link getQuestionExportState}.
    */
   public QuestionTag getQuestionExportStateTag() {
     String rawState = getQuestionExportState();
@@ -141,9 +141,9 @@ public abstract class QuestionForm {
   }
 
   /**
-   * The string representation of export state. This is only public since
-   * the Play framework requires public getters and setters. Callers external
-   * to this class should prefer {@link getQuestionExportStateTag}.
+   * The string representation of export state. This is only public since the Play framework
+   * requires public getters and setters. Callers external to this class should prefer {@link
+   * getQuestionExportStateTag}.
    */
   public String getQuestionExportState() {
     if (ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(getQuestionType())) {

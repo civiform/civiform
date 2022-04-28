@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.QuestionTag;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
@@ -288,8 +287,7 @@ public class AdminQuestionController extends CiviFormController {
     }
     try {
       service.setExportState(
-          errorAndUpdatedQuestionDefinition.getResult(),
-          questionForm.getQuestionExportStateTag());
+          errorAndUpdatedQuestionDefinition.getResult(), questionForm.getQuestionExportStateTag());
     } catch (InvalidUpdateException | QuestionNotFoundException e) {
       return badRequest(e.toString());
     }
