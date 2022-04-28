@@ -8,12 +8,6 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.attributes.Attr.HREF;
 
-import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
-import controllers.applicant.routes;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -21,12 +15,20 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Optional;
+
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
+
+import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.RepeatedEntity;
+import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
@@ -270,7 +272,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract long applicantId();
 
-    abstract String applicantName();
+    abstract Optional<String> applicantName();
 
     abstract String banner();
 
@@ -295,7 +297,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
       public abstract Builder setApplicantId(long applicantId);
 
-      public abstract Builder setApplicantName(String applicantName);
+      public abstract Builder setApplicantName(Optional<String> applicantName);
 
       public abstract Builder setBanner(String banner);
 
@@ -313,7 +315,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
       public abstract Builder setTotalBlockCount(int totalBlockCount);
 
-      public abstract Params build();
+      abstract Params autoBuild();
+
+      public final Params build() {
+        setApplicantName(Optional.of(ApplicantUtils.getApplicantName(
+          applicantName(), messages())));
+        return autoBuild();
+      }
     }
   }
 }

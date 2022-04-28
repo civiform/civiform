@@ -64,17 +64,17 @@ public class ApplicantData extends CfJsonDocumentContext {
     this.preferredLocale = Optional.of(locale);
   }
 
-  public String getApplicantName() {
+  public Optional<String> getApplicantName() {
     try {
       String firstName = readString(WellKnownPaths.APPLICANT_FIRST_NAME).get();
       if (hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
         String lastName = readString(WellKnownPaths.APPLICANT_LAST_NAME).get();
-        return String.format("%s, %s", lastName, firstName);
+        return Optional.of(String.format("%s, %s", lastName, firstName));
       }
-      return firstName;
+      return Optional.of(firstName);
     } catch (NoSuchElementException e) {
       logger.error("Application {} does not include an applicant name.");
-      return "Guest";
+      return Optional.empty();
     }
   }
 
