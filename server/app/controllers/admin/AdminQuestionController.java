@@ -165,12 +165,8 @@ public class AdminQuestionController extends CiviFormController {
               request, questionForm, enumeratorQuestionDefinitions, errorMessage));
     }
 
-    QuestionTag exportStateTag =
-        questionForm.getQuestionExportState().isEmpty()
-            ? QuestionTag.NON_DEMOGRAPHIC
-            : QuestionTag.valueOf(questionForm.getQuestionExportState());
     try {
-      service.setExportState(result.getResult(), exportStateTag);
+      service.setExportState(result.getResult(), questionForm.getQuestionExportStateTag());
     } catch (InvalidUpdateException | QuestionNotFoundException e) {
       return badRequest(e.toString());
     }
@@ -293,7 +289,7 @@ public class AdminQuestionController extends CiviFormController {
     try {
       service.setExportState(
           errorAndUpdatedQuestionDefinition.getResult(),
-          QuestionTag.valueOf(questionForm.getQuestionExportState()));
+          questionForm.getQuestionExportStateTag());
     } catch (InvalidUpdateException | QuestionNotFoundException e) {
       return badRequest(e.toString());
     }
