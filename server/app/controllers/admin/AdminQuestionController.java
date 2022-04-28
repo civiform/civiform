@@ -165,6 +165,16 @@ public class AdminQuestionController extends CiviFormController {
               request, questionForm, enumeratorQuestionDefinitions, errorMessage));
     }
 
+    QuestionTag exportStateTag =
+        questionForm.getQuestionExportState().isEmpty()
+            ? QuestionTag.NON_DEMOGRAPHIC
+            : QuestionTag.valueOf(questionForm.getQuestionExportState());
+    try {
+      service.setExportState(result.getResult(), exportStateTag);
+    } catch (InvalidUpdateException | QuestionNotFoundException e) {
+      return badRequest(e.toString());
+    }
+
     String successMessage = String.format("question %s created", questionForm.getQuestionName());
     return withMessage(redirect(routes.AdminQuestionController.index()), successMessage);
   }
