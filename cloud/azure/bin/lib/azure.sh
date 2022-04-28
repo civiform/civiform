@@ -175,6 +175,7 @@ function azure::get_current_user_id() {
 #   3. scope name
 #######################################
 function azure::ensure_role_assignment() {
+  echo "creating role assignment for ${2}"
   local USER_TYPE="$(az account show --query user.type -o tsv)"
   local object_id=""
   
