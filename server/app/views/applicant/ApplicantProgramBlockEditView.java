@@ -11,9 +11,9 @@ import static j2html.attributes.Attr.HREF;
 import com.google.auto.value.AutoValue;
 import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
-import java.util.Optional;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -94,7 +94,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("validation"));
 
     return layout.renderWithNav(
-      // TODO(clouser): Make sure applicant name is resolved.
+        // TODO(clouser): Make sure applicant name is resolved.
         params.request(), params.applicantName(), params.messages(), bundle);
   }
 
@@ -257,14 +257,13 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       public abstract Builder setApplicantName(Optional<String> applicantName);
 
       abstract Optional<String> applicantName();
-      
+
       abstract Messages messages();
 
       abstract Params autoBuild();
 
       public final Params build() {
-        setApplicantName(Optional.of(ApplicantUtils.getApplicantName(
-          applicantName(), messages())));
+        setApplicantName(Optional.of(ApplicantUtils.getApplicantName(applicantName(), messages())));
         return autoBuild();
       }
     }

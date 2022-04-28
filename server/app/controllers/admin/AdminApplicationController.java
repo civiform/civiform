@@ -2,26 +2,21 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.Authorizers;
+import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
+import controllers.CiviFormController;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
-
 import javax.inject.Inject;
-
-import com.google.common.collect.ImmutableList;
-
-import org.pac4j.play.java.Secure;
-
-import auth.Authorizers;
-import auth.ProfileUtils;
-import controllers.CiviFormController;
 import models.Application;
+import org.pac4j.play.java.Secure;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApplicationRepository;
-import services.MessageKey;
 import services.PaginationResult;
 import services.PaginationSpec;
 import services.applicant.AnswerData;
@@ -190,9 +185,11 @@ public class AdminApplicationController extends CiviFormController {
     Application application = applicationMaybe.get();
     Messages messages = messagesApi.preferred(request);
     String applicantNameWithApplicationId =
-        String.format("%s (%d)",
-          ApplicantUtils.getApplicantName(application.getApplicantData().getApplicantName(),
-            messages), application.id);
+        String.format(
+            "%s (%d)",
+            ApplicantUtils.getApplicantName(
+                application.getApplicantData().getApplicantName(), messages),
+            application.id);
 
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService

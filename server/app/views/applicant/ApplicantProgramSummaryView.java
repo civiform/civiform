@@ -8,6 +8,12 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.attributes.Attr.HREF;
 
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
+import controllers.applicant.routes;
+import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -15,14 +21,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Optional;
-
-import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
-
-import controllers.applicant.routes;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -317,14 +315,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       public abstract Builder setTotalBlockCount(int totalBlockCount);
 
       abstract Optional<String> applicantName();
-      
+
       abstract Messages messages();
 
       abstract Params autoBuild();
 
       public final Params build() {
-        setApplicantName(Optional.of(ApplicantUtils.getApplicantName(
-          applicantName(), messages())));
+        setApplicantName(Optional.of(ApplicantUtils.getApplicantName(applicantName(), messages())));
         return autoBuild();
       }
     }

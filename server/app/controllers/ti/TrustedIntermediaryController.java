@@ -76,7 +76,7 @@ public class TrustedIntermediaryController {
         trustedIntermediaryGroup.get().getManagedAccounts(search);
     PaginationInfo<Account> pageInfo =
         PaginationInfo.paginate(managedAccounts, PAGE_SIZE, page.get());
-        
+
     return ok(
         tiDashboardView.render(
             trustedIntermediaryGroup.get(),

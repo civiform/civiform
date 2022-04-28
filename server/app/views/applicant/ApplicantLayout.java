@@ -107,7 +107,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return renderWithSupportFooter(bundle, messages);
   }
 
-  private ContainerTag renderNavBar(Http.Request request, Optional<String> userName, Messages messages) {
+  private ContainerTag renderNavBar(
+      Http.Request request, Optional<String> userName, Messages messages) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     String displayUserName = ApplicantUtils.getApplicantName(userName, messages);
@@ -122,7 +123,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(branding())
         .with(maybeRenderTiButton(profile, displayUserName))
         .with(
-            div(getLanguageForm(request, profile, messages), logoutButton(displayUserName, messages))
+            div(
+                    getLanguageForm(request, profile, messages),
+                    logoutButton(displayUserName, messages))
                 .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
