@@ -9,6 +9,7 @@ permissions: read-all
 jobs:
   run_junit_tests:
     runs-on: ubuntu-latest
+    if: contains(toJSON(steps.file_changes.outputs.files), 'server/')
     steps:
       - name: check out pr branch
         uses: actions/checkout@v3
@@ -20,8 +21,10 @@ jobs:
         run: docker build -t civiform-dev --cache-from docker.io/civiform/civiform-dev:latest ./
       - name: Run tests
         run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
+
   run_browser_tests_aws:
     runs-on: ubuntu-latest
+    if: contains(toJSON(steps.file_changes.outputs.files), 'browser-test/') || contains(toJSON(steps.file_changes.outputs.files), 'server/')
     steps:
       - name: check out pr branch
         uses: actions/checkout@v3
@@ -47,6 +50,7 @@ jobs:
 
   run_browser_tests_azure:
     runs-on: ubuntu-latest
+    if: contains(toJSON(steps.file_changes.outputs.files), 'browser-test/') || contains(toJSON(steps.file_changes.outputs.files), 'server/')
     steps:
       - name: check out pr branch
         uses: actions/checkout@v3
@@ -91,6 +95,7 @@ jobs:
         timeout-minutes: 3
 
   validate_deployment_variable_definitions:
+    if: contains(toJSON(steps.file_changes.outputs.files), 'cloud/')
     runs-on: ubuntu-latest
     steps:
       - name: check out pr branch
@@ -100,6 +105,7 @@ jobs:
 
   validate_terraform:
     runs-on: ubuntu-latest
+    if: contains(toJSON(steps.file_changes.outputs.files), 'cloud/')
     steps:
       - name: check out pr branch
         uses: actions/checkout@v3
