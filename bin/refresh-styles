@@ -12,3 +12,4 @@ docker run -it --rm \
   tailwindcss build \
   -i ./app/assets/stylesheets/styles.css \
   -o ./public/stylesheets/tailwind.css
+  
