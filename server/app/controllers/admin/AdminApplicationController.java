@@ -23,6 +23,7 @@ import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.export.ExporterService;
 import services.export.JsonExporter;
+import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -39,6 +40,7 @@ public class AdminApplicationController extends CiviFormController {
   private final ProgramApplicationView applicationView;
   private final ExporterService exporterService;
   private final JsonExporter jsonExporter;
+  private final PdfExporter pdfExporter;
   private final ProfileUtils profileUtils;
   private final Clock clock;
   private static final int PAGE_SIZE = 10;
@@ -49,6 +51,7 @@ public class AdminApplicationController extends CiviFormController {
       ApplicantService applicantService,
       ExporterService exporterService,
       JsonExporter jsonExporter,
+      PdfExporter pdfExporter,
       ProgramApplicationListView applicationListView,
       ProgramApplicationView applicationView,
       ApplicationRepository applicationRepository,
@@ -63,6 +66,7 @@ public class AdminApplicationController extends CiviFormController {
     this.clock = checkNotNull(clock);
     this.exporterService = checkNotNull(exporterService);
     this.jsonExporter = checkNotNull(jsonExporter);
+    this.pdfExporter = checkNotNull(pdfExporter);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -145,14 +149,49 @@ public class AdminApplicationController extends CiviFormController {
   /** Download a PDF file of the application to the program. This feature is not implemented yet. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result download(Http.Request request, long programId, long applicationId) {
+    ProgramDefinition program;
     try {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
+      program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-      throw new UnsupportedOperationException("Not yet implemented.");
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
+    } catch (CompletionException e) {
+      return unauthorized();
     }
+
+    Optional<Application> applicationMaybe =
+            this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
+
+    if (!applicationMaybe.isPresent()) {
+      return notFound(String.format("Application %d does not exist.", applicationId));
+    }
+
+    Application application = applicationMaybe.get();
+    String applicantNameWithApplicationId =
+            String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
+
+    ReadOnlyApplicantProgramService roApplicantService =
+            applicantService
+                    .getReadOnlyApplicantProgramService(application)
+                    .toCompletableFuture()
+                    .join();
+    ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+
+    String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, clock.instant().toString());
+    byte[] pdf = null;
+    try{
+      pdf = pdfExporter.export(answers,applicantNameWithApplicationId,program.adminName());
+    }
+    catch(Exception e)
+    {
+      return  notFound(e.toString());
+    }
+    return ok(pdf)
+            .as("application/pdf")
+            .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
   }
+
+
 
   /** Return a HTML page displaying the summary of the specified application. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)

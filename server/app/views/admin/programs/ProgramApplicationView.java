@@ -63,6 +63,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(
                 h2("Program: " + programName).withClasses(Styles.MY_4),
                 h1(applicantNameWithApplicationId).withClasses(Styles.MY_4),
+                h2(renderDownloadButton(programId, applicationId)).withClasses(Styles.TEXT_RIGHT, Styles.TEXT_RED_400),
                 each(
                     blocks,
                     block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))),
@@ -79,10 +80,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
     return new LinkElement()
         .setId("download-button")
         .setHref(link)
-        .setText("Download (PDF)")
+        .setText("Export to PDF")
         .asButton()
         // TODO: when the download link works, un-hide.
-        .withClasses(Styles.HIDDEN);
+
+        .withClasses(Styles.BORDER, Styles.BORDER_GRAY_700, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_1);
   }
 
   private Tag renderApplicationBlock(long programId, Block block, Collection<AnswerData> answers) {

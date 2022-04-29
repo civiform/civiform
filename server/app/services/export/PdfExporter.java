@@ -1,27 +1,31 @@
 package services.export;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import models.Applicant;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
-import services.Path;
 
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfDocument;
+import com.itextpdf.text.pdf.PdfWriter;
+import models.Applicant;
+
+import services.Path;
+import services.applicant.AnswerData;
+//import com.itextpdf.*;
 /** PdfExporter is meant to generate PDF files. The functionality is not fully implemented yet. */
 public class PdfExporter {
-  private PDDocument baseDocument;
-  private ImmutableMap<String, String> fieldToValue;
 
-  public PdfExporter(URI documentUrl, Map<String, String> fieldToValue) throws IOException {
-    baseDocument = PDDocument.load(documentUrl.toURL().openStream());
-    this.fieldToValue = ImmutableMap.copyOf(fieldToValue);
-  }
 
   /**
    * Write a PDF containing the filled-in base form to the provided writer. For the PDF to be valid,
@@ -29,18 +33,35 @@ public class PdfExporter {
    * This function marshals the output document in memory due to restrictions of the PDDocument
    * class.
    */
-  public void export(Applicant applicant, Writer writer) throws IOException {
-    PDAcroForm form = baseDocument.getDocumentCatalog().getAcroForm();
-    for (Map.Entry<String, String> fToV : fieldToValue.entrySet()) {
-      Optional<String> applicantValue =
-          applicant.getApplicantData().readAsString(Path.create(fToV.getValue()));
-      if (applicantValue.isPresent()) {
-        form.getField(fToV.getKey()).setValue(applicantValue.get());
-      }
+  public byte[] export(ImmutableList<AnswerData> answers, String applicantNameWithApplicationId, String programName) throws IOException, DocumentException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    Document document = new Document();
+    PdfWriter.getInstance(document, baos);
+    document.open();
+
+    //List<String> lines = new ArrayList<>();
+    for(AnswerData answerData : answers)
+    {
+      Paragraph question = new Paragraph(answerData.questionDefinition().getName(),
+              FontFactory.getFont(FontFactory.HELVETICA_BOLD,14));
+      Paragraph answer = new Paragraph(answerData.answerText(),
+              FontFactory.getFont(FontFactory.HELVETICA,12));
+      LocalDate date =
+              Instant.ofEpochMilli(answerData.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
+      Paragraph time = new Paragraph("Answered on : " + date,FontFactory.getFont(FontFactory.HELVETICA,10));
+              time.setAlignment(Paragraph.ALIGN_RIGHT);
+
+              document.add(question);
+              document.add(answer);
+              document.add(time);
+
     }
-    ByteArrayOutputStream inMemoryFile = new ByteArrayOutputStream();
-    baseDocument.save(inMemoryFile);
-    inMemoryFile.close();
-    writer.write(inMemoryFile.toString(StandardCharsets.UTF_8));
+    //document.
+    /*for(String line: lines)
+    {
+      document.add(new Paragraph(line));
+    }*/
+    document.close();
+    return baos.toByteArray();
   }
 }

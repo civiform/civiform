@@ -18,17 +18,6 @@ public class ExporterFactory {
     this.config = Preconditions.checkNotNull(config);
   }
 
-  public PdfExporter pdfExporter(Program program) throws NotConfiguredException, IOException {
-    Optional<PdfExportConfig> exportConfig =
-        program.getProgramDefinition().exportDefinitions().stream()
-            .filter(exportDefinition -> exportDefinition.pdfConfig().isPresent())
-            .map(exportDefinition -> exportDefinition.pdfConfig().get())
-            .findAny();
-    if (exportConfig.isEmpty()) {
-      throw new NotConfiguredException();
-    }
-    return new PdfExporter(exportConfig.get().baseDocument(), exportConfig.get().mappings());
-  }
 
   public CsvExporter csvExporter(Program program) throws NotConfiguredException {
     Optional<CsvExportConfig> exportConfig =
