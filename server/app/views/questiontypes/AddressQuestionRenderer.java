@@ -45,6 +45,8 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setPlaceholderText(
                         messages.at(MessageKey.ADDRESS_PLACEHOLDER_STREET.getKeyName()))
                     .setValue(addressQuestion.getStreetValue().orElse(""))
+                    // TODO(#1944): Once client-side validation is removed, instead
+                    // set errors to the result from validationErrors.
                     .setFieldErrors(messages, addressQuestion.getStreetErrorMessage())
                     .showFieldErrors(
                         !validationErrors

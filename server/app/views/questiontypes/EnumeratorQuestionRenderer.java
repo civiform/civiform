@@ -74,10 +74,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
             .withClasses(
                 ReferenceClasses.ENUMERATOR_ERROR,
                 BaseStyles.FORM_ERROR_TEXT_BASE,
-                enumeratorQuestion.getValidationErrors().values().stream()
-                        .anyMatch(v -> !v.isEmpty())
-                    ? Styles.HIDDEN
-                    : "");
+                enumeratorQuestion.getValidationErrors().isEmpty() ? Styles.HIDDEN : "");
 
     Tag enumeratorQuestionFormContent =
         div()

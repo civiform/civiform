@@ -37,6 +37,8 @@ public class CurrencyQuestion extends QuestionImpl {
 
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
+    // TODO(#1944): Validate that the provided currency is a valid number. Presently,
+    // this is only implemented in client-side validation.
     return ImmutableMap.of();
   }
 
