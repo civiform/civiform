@@ -52,7 +52,8 @@ abstract class QuestionImpl implements Question {
   /**
    * Question-type specific implementation of {@link Question.getValidationErrors}. Note that keys
    * with an empty set of errors will be filtered out by {@link Question.getValidationErrors} so
-   * that calls to isEmpty on the result are sufficient to indicate if there any errors.
+   * that calls to isEmpty on the getvalidationErrors result are sufficient to indicate if there any
+   * errors.
    */
   protected abstract ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>>
       getValidationErrorsInternal();
