@@ -5,6 +5,7 @@
 source bin/lib.sh
 docker::set_project_name_dev
 readonly COMPOSE_CMD="${DOCKER_COMPOSE_DEV}"
+readonly DUMPFILE="${1:-dev_programs.dump}"
 
 readonly CMD="/usr/bin/pg_dump \
     -w \
@@ -16,7 +17,7 @@ readonly CMD="/usr/bin/pg_dump \
     -t versions \
     -t versions_programs \
     -t versions_questions \
-    postgres -f /project/dev_programs.dump"
+    postgres -f /project/${DUMPFILE}"
 
 ${COMPOSE_CMD} \
   up db \
@@ -25,4 +26,6 @@ ${COMPOSE_CMD} \
   -d
 
 ${COMPOSE_CMD} exec -it -e "PGPASSWORD=example" db ${CMD}
-${COMPOSE_CMD} cp db:/project/dev_programs.dump dev_programs.dump
+${COMPOSE_CMD} cp "db:/project/${DUMPFILE}" "${DUMPFILE}"
+
+echo "Saved db dump to ${DUMPFILE}"

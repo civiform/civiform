@@ -10,9 +10,9 @@ readonly DOCKER_COMPOSE_DEV="docker compose \
 readonly DOCKER_COMPOSE_UNIT_TEST="docker compose \
   -f test-support/unit-test-docker-compose.yml"
 
-readonly DOCKER_COMPOSE_UNIT_TEST_CI="docker compose \
+readonly DOCKER_COMPOSE_UNIT_TEST_DEV="docker compose \
   -f test-support/unit-test-docker-compose.yml \
-  -f test-support/unit-test-docker-compose.ci.yml "
+  -f test-support/unit-test-docker-compose.dev.yml "
 
 readonly DOCKER_COMPOSE_BROWSER_TEST="docker compose \
   -f docker-compose.yml \
@@ -20,7 +20,8 @@ readonly DOCKER_COMPOSE_BROWSER_TEST="docker compose \
 
 readonly DOCKER_COMPOSE_BROWSER_TEST_DEV="docker compose \
   -f docker-compose.yml \
-  -f browser-test/browser-test-compose.yml"
+  -f browser-test/browser-test-compose.yml \
+  -f browser-test/browser-test-compose.dev.yml"
 
 #######################################
 # Starts a bash shell in the civiform-shell container

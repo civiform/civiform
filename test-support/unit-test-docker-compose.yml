@@ -1,20 +1,18 @@
 # Use postgres/example user/password credentials
-version: '3.8'
-
 services:
   db:
     image: postgres:12.5
     restart: always
-    ports:
-      - 5555:5432
+    expose:
+      - "5432"
     environment:
       POSTGRES_PASSWORD: example
 
   oidc:
     image: civiform/oidc-provider
     restart: always
-    ports:
-      - 3380:3380
+    expose:
+      - "3380"
 
   civiform:
     image: civiform-dev
@@ -24,26 +22,6 @@ services:
       - "oidc"
     volumes:
       - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
-      - target:/usr/src/universal-application-tool-0.0.1/target
-      - node_modules-data:/usr/src/universal-application-tool-0.0.1/node_modules
-      - project-data:/usr/src/universal-application-tool-0.0.1/project
-      - coursier-data:/root/.cache/coursier
-      - sbt-data:/root/.sbt
-      - ivy2-data:/root/.ivy2
-      - m2-data:/root/.m2
-
-volumes:
-  node_modules-data:
-    driver: local
-  project-data:
-    driver: local
-  coursier-data:
-    driver: local
-  sbt-data:
-    driver: local
-  ivy2-data:
-    driver: local
-  m2-data:
-    driver: local
-  target:
-    driver: local
+      - ./sbt_cache/coursier:/root/.cache/coursier
+      - ~/.sbt:/root/.sbt
+      - ~/.ivy:/root/.ivy2

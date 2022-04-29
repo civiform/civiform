@@ -7,7 +7,7 @@ docker::set_project_name_unit_tests
 
 bin/pull-image
 
-readonly COMPOSE_CMD="${DOCKER_COMPOSE_UNIT_TEST}"
+readonly COMPOSE_CMD="${DOCKER_COMPOSE_UNIT_TEST_DEV}"
 
 ${COMPOSE_CMD} up -d
 ${COMPOSE_CMD} exec civiform sbt test

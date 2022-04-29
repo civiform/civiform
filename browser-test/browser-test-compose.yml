@@ -10,10 +10,6 @@ services:
     ports:
       - 10000:10000
 
-  db:
-    ports:
-      - 2345:5432
-
   fake-idcs:
     image: docker.io/civiform/oidc-provider:latest
     restart: always

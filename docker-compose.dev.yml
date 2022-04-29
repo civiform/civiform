@@ -21,6 +21,10 @@ services:
     volumes: *sbt-volumes
     stdin_open: true # docker run -i
     tty: true        # docker run -t
+    ports:
+      - 9000:9000
+      - 8457:8457
+    command: -jvm-debug "*:8457" ~run -Dconfig.file=conf/application.dev.conf
 
   civiform-shell:
     image: civiform-dev
@@ -29,6 +33,13 @@ services:
     volumes: *sbt-volumes
     stdin_open: true # docker run -i
     tty: true        # docker run -t
+
+  localstack:
+    ports:
+      - 4566:4566
+  azurite:
+     ports:
+      - 10000:10000
 
   db:
     image: postgres:12.5
@@ -43,6 +54,8 @@ services:
     profiles: ["pgadmin"]
     image: dpage/pgadmin4
     restart: always
+    depends_on:
+      - db
     volumes:
       - /tmp/servers.json:/pgadmin4/servers.json
       - db-data:/var/lib/postgresql/data

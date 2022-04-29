@@ -80,7 +80,6 @@ set_args "$@"
 bin/pull-image
 
 base_compose_command="${DOCKER_COMPOSE_BROWSER_TEST}"
-
 if truth::is_disabled continuous_integration; then
   # If not running in CI, load the dev addition to the browser test compose
   # this mounts the local SBT cache directories for faster subsequent builds.
@@ -102,12 +101,6 @@ if truth::is_enabled continuous_integration; then
   compose_command="${compose_command} > .dockerlogs 2>&1 &"
 fi
 
-echo "Running docker compose to start the CiviForm environment:"
-echo "  ${compose_command}"
-
-# Start everything else.
-eval "${compose_command}"
-
 # localstack emulator is also required for Azurite. This should only run for
 # Azure browser tests.
 if truth::is_enabled both_emulators; then
@@ -119,3 +112,9 @@ if truth::is_enabled both_emulators; then
   echo "  ${second_compose_command}"
   eval "${second_compose_command}"
 fi
+
+echo "Running docker compose to start the CiviForm environment:"
+echo "  ${compose_command}"
+
+# Start everything else.
+eval "${compose_command}"
