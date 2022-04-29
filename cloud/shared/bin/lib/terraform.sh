@@ -7,6 +7,7 @@
 #   TERRAFORM_TEMPLATE_DIR
 #   BACKEND_VARS_FILENAME
 #   TF_VAR_FILENAME
+#   
 #######################################
 function terraform::perform_apply() {
   if [[ "${CIVIFORM_MODE}" == "dev" ]]; then
@@ -23,12 +24,20 @@ function terraform::perform_apply() {
       -backend-config="${BACKEND_VARS_FILENAME}"
   fi
   
-  terraform \
-    -chdir="${TERRAFORM_TEMPLATE_DIR}" \
-    apply \
-    -input=false \
-    -auto-approve \
-    -var-file="${TF_VAR_FILENAME}"
+  if azure::is_service_principal; then
+    terraform \
+        -chdir="${TERRAFORM_TEMPLATE_DIR}" \
+        apply \
+        -input=false \
+        -auto-approve \
+        -var-file="${TF_VAR_FILENAME}"
+  else
+    terraform \
+      -chdir="${TERRAFORM_TEMPLATE_DIR}" \
+      apply \
+      -input=false \
+      -var-file="${TF_VAR_FILENAME}"
+  fi
 }
 
 #######################################
