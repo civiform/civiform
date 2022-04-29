@@ -48,8 +48,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     // Execute.
     Request request =
         fakeRequest(
-            controllers.admin.routes.AdminProgramBlockQuestionsController.create(
-                program.id, 1))
+                controllers.admin.routes.AdminProgramBlockQuestionsController.create(program.id, 1))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
             .bodyForm(ImmutableMap.of("question-", activeId.toString()))
             .build();
