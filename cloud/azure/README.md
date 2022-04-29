@@ -205,11 +205,3 @@ storage account within that resource group. For example in the below azure
 portal the resource group name is 'tfstate' and the storage_account_name is 
 'tfstate7307'.
 ![Image of Azure portal showing where to find the storage_account_name](img/how_to_find_backend_vars.png?raw=true)
-
-## Can't find the .pub key for terraform
-
-We are required to pass in an initial pub key pair at `$HOME/.ssh/bastion` to set up the bastion vm. If terraform complains about this, you can generate a key via the following command. 
-
-```
-ssh-keygen -t rsa -b 4096 -f $HOME/.ssh/bastion
-```
