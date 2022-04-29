@@ -51,8 +51,8 @@ export class AdminQuestions {
     // expect(await this.page.isDisabled(`text=${questionName}`)).toEqual(true)
   }
 
-  async expectExportState(exportOption: string) {
-    expect(await this.page.isChecked(`label:has-text("${exportOption}") input`)).toEqual(true)
+  selectorForExportOption(exportOption: string) {
+    return `label:has-text("${exportOption}") input`
   }
 
   async expectAdminQuestionsPageWithSuccessToast(successText: string) {
