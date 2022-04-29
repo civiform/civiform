@@ -39,6 +39,8 @@ public class PdfExporter {
     PdfWriter.getInstance(document, baos);
     document.open();
 
+    document.addTitle(applicantNameWithApplicationId);
+    document.addHeader("Program Name : " , programName);
     //List<String> lines = new ArrayList<>();
     for(AnswerData answerData : answers)
     {

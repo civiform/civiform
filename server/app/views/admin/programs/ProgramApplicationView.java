@@ -1,12 +1,7 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
-import static j2html.TagCreator.h1;
-import static j2html.TagCreator.h2;
-import static j2html.TagCreator.p;
+import static j2html.TagCreator.*;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
@@ -61,13 +56,13 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withId("application-view")
             .withClasses(Styles.PX_20)
             .with(
+
                 h2("Program: " + programName).withClasses(Styles.MY_4),
                 h1(applicantNameWithApplicationId).withClasses(Styles.MY_4),
-                h2(renderDownloadButton(programId, applicationId)).withClasses(Styles.TEXT_RIGHT, Styles.TEXT_RED_400),
+                renderDownloadButton(programId, applicationId),
                 each(
                     blocks,
-                    block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))),
-                renderDownloadButton(programId, applicationId));
+                    block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
     return layout.render(htmlBundle);
@@ -81,10 +76,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .setId("download-button")
         .setHref(link)
         .setText("Export to PDF")
-        .asButton()
-        // TODO: when the download link works, un-hide.
-
-        .withClasses(Styles.BORDER, Styles.BORDER_GRAY_700, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_1);
+        .setStyles(ReferenceClasses.APPLY_BUTTON, Styles.FLOAT_RIGHT, Styles._MT_14)
+        .asButton();
   }
 
   private Tag renderApplicationBlock(long programId, Block block, Collection<AnswerData> answers) {
