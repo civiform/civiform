@@ -4,6 +4,8 @@ on:
   # see https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
   workflow_dispatch: {}
 
+permissions: read-all
+
 jobs:
   run_prober:
     runs-on: ubuntu-latest
