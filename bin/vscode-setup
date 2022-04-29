@@ -25,7 +25,7 @@ rm -rf server/temp
 
 BUILD=$(
          cat <<END
-<properties>
+    <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
@@ -47,4 +47,4 @@ BUILD=$(
 END
 )
 
-perl -i -pe "s|<modelVersion>|${BUILD}|g" server/pom.xml
+perl -i -pe "s|\s+<modelVersion>|${BUILD}|g" server/pom.xml
