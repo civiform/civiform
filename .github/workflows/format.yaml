@@ -40,10 +40,23 @@ jobs:
         if: contains(toJSON(steps.file_changes.outputs.files), 'bin/')
         id: check_bin_script_docs
         run: bin/help
-      
+
       - name: setup terraform
         uses: hashicorp/setup-terraform@v1
-      
+
       - name: terraform fmt
         id: tf_fmt
         run: terraform fmt -check -recursive -diff cloud
+  sh-checker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run the sh-checker
+        uses: luizm/action-sh-checker@master
+        env:
+          SHELLCHECK_OPTS: -s bash -S error
+          sh_checker_exclude: "*.md cloud/shared/bin/doctor_impl"
+          SHFMT_OPTS: -bn -ci -i 2
+            # -i 2   indent 2 spaces
+            # -bn    binary ops like && and | may start a line
+            # -ci    switch cases will be indented

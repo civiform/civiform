@@ -1,0 +1,20 @@
+# Allow opening any 'source'd file, even if not specified as input
+external-sources=true
+
+# Turn on warnings for unquoted variables with safe values
+enable=quote-safe-variables
+
+# Turn on warnings for unassigned uppercase variables
+enable=check-unassigned-uppercase
+
+# Allow [ ! -z foo ] instead of suggesting -n
+disable=SC2236
+
+# Don't warn about masked return values in `export foo=$(exit 1)`
+disable=SC2155
+
+# Don't warn about using $? to check return values
+disable=SC2181
+
+# Don't warn about $/${} is unnecessary on arithmetic variables
+disable=SC2004
