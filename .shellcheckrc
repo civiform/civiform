@@ -1,3 +1,7 @@
+# Customize the bash linter (https://github.com/koalaman/shellcheck)
+# We remove some common errors that don't need warnings, and enable other
+# optional patterns that should be enforced.
+
 # Allow opening any 'source'd file, even if not specified as input
 external-sources=true
 
