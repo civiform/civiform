@@ -31,7 +31,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create() throws UnsupportedQuestionTypeException {
+  public void create_addOldRevisionAddsLatestRevision() throws UnsupportedQuestionTypeException {
     // Setup.
     QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
     Long activeId = nameQuestion.getId();
@@ -47,7 +47,9 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
     // Execute.
     Request request =
-        fakeRequest(routes.AdminProgramBlockQuestionsController.create(program.id, 1))
+        fakeRequest(
+            controllers.admin.routes.AdminProgramBlockQuestionsController.create(
+                program.id, 1))
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
             .bodyForm(ImmutableMap.of("question-", activeId.toString()))
             .build();
