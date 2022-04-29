@@ -27,6 +27,7 @@ function terraform::perform_apply() {
     -chdir="${TERRAFORM_TEMPLATE_DIR}" \
     apply \
     -input=false \
+    -auto-approve \
     -var-file="${TF_VAR_FILENAME}"
 }
 
