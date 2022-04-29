@@ -3,12 +3,8 @@
 # DOC: Connect to dev environment PostgreSQL database.
 
 source bin/lib.sh
-
-docker::set_network_name_dev
-
-readonly COMPOSE_CMD="docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.dev.yml"
+docker::set_project_name_dev
+readonly COMPOSE_CMD="${DOCKER_COMPOSE_DEV}"
 
 ${COMPOSE_CMD} \
   up db \

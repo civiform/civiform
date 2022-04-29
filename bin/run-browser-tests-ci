@@ -3,14 +3,14 @@
 # DOC: Run the browser tests in CI mode.
 
 export COMPOSE_INTERACTIVE_NO_CLI=1
-export COMPOSE_PROJECT_NAME="$(basename $(pwd))-browser-test"
 
 source bin/lib.sh
+docker::set_project_name_browser_tests
 
 docker run \
   -v "$(pwd)/browser-test/src:/usr/src/civiform-browser-tests/src" \
   -v "$(pwd)/browser-test/bin:/usr/src/civiform-browser-tests/bin" \
-  --network "${COMPOSE_PROJECT_NAME}_default" \
+  --network "${DOCKER_NETWORK_NAME}" \
   civiform-browser-test:latest \
   /usr/src/civiform-browser-tests/bin/wait_for_server_start_and_run_tests.sh \
   $@

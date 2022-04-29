@@ -3,6 +3,8 @@
 # DOC: Run the app locally using Docker. Useful for manual testing.
 
 source bin/lib.sh
+docker::set_project_name_dev
+readonly COMPOSE_CMD="${DOCKER_COMPOSE_DEV}"
 
 # Default to using Localstack emulator.
 emulators::set_localstack_emulator_vars
@@ -39,12 +41,6 @@ function set_args() {
 set_args "$@"
 
 bin/pull-image
-
-docker::set_network_name_dev
-
-readonly COMPOSE_CMD="docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.dev.yml"
 
 # Start containers w/ specified emulator.
 ${COMPOSE_CMD} --profile "${cloud_provider}" \

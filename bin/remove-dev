@@ -4,15 +4,16 @@
 # Alias of 'docker compose down' using default, shell, and emulator profiles.
 
 source bin/lib.sh
+docker::set_project_name_dev
 set +e # errors are OK
 
 echo "Stopping & deleting local civiform emulators"
-docker compose -f docker-compose.yml -f docker-compose.dev.yml --profile emulator down
+${DOCKER_COMPOSE_DEV} --profile emulator down
 echo "Stopping & deletng local civiform shell"
-docker compose -f docker-compose.yml -f docker-compose.dev.yml --profile shell down
+${DOCKER_COMPOSE_DEV} --profile shell down
 echo "Stopping & deletng local civiform container"
-docker compose -f docker-compose.yml -f docker-compose.dev.yml down --remove-orphans
+${DOCKER_COMPOSE_DEV} down --remove-orphans
 
-docker network rm "${COMPOSE_PROJECT_NAME}_default" 2>/dev/null
+docker network rm "${DOCKER_NETWORK_NAME}" 2>/dev/null
 
 echo "Run 'docker volume prune' to delete all local state (db, sbt, npm)"

@@ -3,6 +3,7 @@
 # DOC: Connect to the app running locally using Docker. Alias of 'docker attach civiform'.
 
 source bin/lib.sh
+docker::set_project_name_dev
 
 echo "Attaching to civiform.  Run Ctrl-P, followed by Ctrl-Q, to detach"
 echo "Ctrl-C will quit sbt, re-attach to restart"

@@ -3,8 +3,8 @@
 # DOC: Loads the pgadmin gui tool and connects to the dev environment database
 
 source bin/lib.sh
-
-docker::set_network_name_dev
+docker::set_project_name_dev
+readonly COMPOSE_CMD="${DOCKER_COMPOSE_DEV}"
 
 # The servers.json file is used to automatically configure
 # our database to show up in the pgadmin server tree
@@ -23,10 +23,6 @@ tee /tmp/servers.json >/dev/null  <<EOT
     }
 }
 EOT
-
-readonly COMPOSE_CMD="docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.dev.yml"
 
 ${COMPOSE_CMD} \
     up db \

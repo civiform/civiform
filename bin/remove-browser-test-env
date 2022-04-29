@@ -2,9 +2,7 @@
 
 # DOC: Stop and delete the running browser test environment.
 
-export COMPOSE_PROJECT_NAME="$(basename $(pwd))-browser-test"
 source bin/lib.sh
+docker::set_project_name_browser_tests
 
-docker compose \
-  -f docker-compose.yml \
-  -f browser-test/browser-test-compose.yml down --remove-orphans
+${DOCKER_COMPOSE_BROWSER_TEST} down --remove-orphans

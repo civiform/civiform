@@ -3,6 +3,8 @@
 # DOC: Load a postgres dump into the dev database (pg_restore), replacing whatever state is currently in it. Takes a file name argument, file must be in project base directory.
 
 source bin/lib.sh
+docker::set_project_name_dev
+readonly COMPOSE_CMD="${DOCKER_COMPOSE_DEV}"
 
 if [[ ! -f "${1}" ]]; then
   echo "Usage: bin/dev-restore-db DUMP_FILE_NAME"
@@ -29,12 +31,6 @@ TRUNCATE_SQL="${TRUNCATE_SQL//$'\n'/}"
 
 # location of dump file in docker container
 readonly DUMP_FILE="${1}"
-
-readonly COMPOSE_CMD="docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.dev.yml"
-
-docker::set_network_name_dev
 
 ${COMPOSE_CMD} up db \
   --no-deps \

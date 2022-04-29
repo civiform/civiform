@@ -2,8 +2,8 @@
 
 # DOC: Run the app locally using Docker for use with running browser tests. Run with --help to print documentation.
 
-export COMPOSE_PROJECT_NAME="$(basename $(pwd))-browser-test"
 source bin/lib.sh
+docker::set_project_name_browser_tests
 
 # Default to continuous integration mode disabled.
 truth::declare_var_false continuous_integration
@@ -31,8 +31,8 @@ emulators::set_localstack_emulator_vars
 function set_args() {
   while [ "${1:-}" != "" ]; do
     case "$1" in
-    "--help")
-      cat <<-EOF
+      "--help")
+        cat <<-EOF
 Usage: bin/run-browser-test-env [options]
 
 Run a local civiform environment for the browser tests to exercise.
@@ -48,27 +48,27 @@ Options:
 --azure Use the Azure emulator (Azurite) for simulating cloud storage for file
         upload and download. Also use localstack, since we need that for SES.
 EOF
-      exit 0
-      ;;
+        exit 0
+        ;;
 
-    "--ci")
-      truth::enable continuous_integration
-      readonly COMPOSE_INTERACTIVE_NO_CLI=1
+      "--ci")
+        truth::enable continuous_integration
+        readonly COMPOSE_INTERACTIVE_NO_CLI=1
 
-      ;;
+        ;;
 
-    "--azure")
-      emulators::set_azurite_emulator_vars
-      # We do this because the Azurite tests need both emulators running to
-      # be successful. But, for AWS, we only want one emulator running,
-      # localstack.
-      truth::enable both_emulators
-      ;;
+      "--azure")
+        emulators::set_azurite_emulator_vars
+        # We do this because the Azurite tests need both emulators running to
+        # be successful. But, for AWS, we only want one emulator running,
+        # localstack.
+        truth::enable both_emulators
+        ;;
 
-    "--aws")
-      emulators::ensure_only_one_cloud_provider_flag aws
-      # Already defaulted to AWS.
-      ;;
+      "--aws")
+        emulators::ensure_only_one_cloud_provider_flag aws
+        # Already defaulted to AWS.
+        ;;
     esac
 
     shift
@@ -79,16 +79,12 @@ set_args "$@"
 
 bin/pull-image
 
-docker::set_network_name_browser_tests
-
-base_compose_command="docker compose \
-  -f docker-compose.yml \
-  -f browser-test/browser-test-compose.yml"
+base_compose_command="${DOCKER_COMPOSE_BROWSER_TEST}"
 
 if truth::is_disabled continuous_integration; then
   # If not running in CI, load the dev addition to the browser test compose
   # this mounts the local SBT cache directories for faster subsequent builds.
-  base_compose_command="${base_compose_command} -f docker-compose.dev.yml"
+  base_compose_command="${DOCKER_COMPOSE_BROWSER_TEST_DEV}"
 fi
 compose_command="${base_compose_command} --profile ${cloud_provider} up"
 

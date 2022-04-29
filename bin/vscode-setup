@@ -5,6 +5,7 @@
 # compleation.  Needs to be rerun when dependancies are changed.
 
 source bin/lib.sh
+docker::set_project_name_dev
 
 bin/pull-image
 
