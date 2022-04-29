@@ -5,13 +5,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
 import forms.ProgramQuestionDefinitionOptionalityForm;
+import java.util.Map.Entry;
+import java.util.Optional;
 import javax.inject.Inject;
+import models.Question;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.program.DuplicateProgramQuestionException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockDefinitionNotFoundException;
@@ -24,12 +28,14 @@ import services.question.exceptions.QuestionNotFoundException;
 public class AdminProgramBlockQuestionsController extends Controller {
 
   private final ProgramService programService;
+  private final VersionRepository versionRepository;
   private final FormFactory formFactory;
 
   @Inject
   public AdminProgramBlockQuestionsController(
-      ProgramService programService, FormFactory formFactory) {
+      ProgramService programService, VersionRepository versionRepository, FormFactory formFactory) {
     this.programService = checkNotNull(programService);
+    this.versionRepository = checkNotNull(versionRepository);
     this.formFactory = checkNotNull(formFactory);
   }
 
@@ -40,21 +46,33 @@ public class AdminProgramBlockQuestionsController extends Controller {
     ImmutableList<Long> questionIds =
         requestData.rawData().entrySet().stream()
             .filter(formField -> formField.getKey().startsWith("question-"))
-            .map(formField -> Long.valueOf(formField.getValue()))
+            .map(Entry::getValue)
+            .map(Long::valueOf)
             .collect(ImmutableList.toImmutableList());
 
+    // The users' browser may be out of date. Find the last revision of each question.
+    ImmutableList.Builder<Long> idBuilder = new ImmutableList.Builder<Long>();
+    for (Long qId : questionIds) {
+      Optional<Question> latestQuestion = versionRepository.getLatestVersionOfQuestion(qId);
+      if (latestQuestion.isEmpty()) {
+        return notFound(String.format("Question ID %s not found", qId));
+      }
+      idBuilder.add(latestQuestion.get().id);
+    }
+    ImmutableList<Long> latestQuestionIds = idBuilder.build();
+
     try {
-      programService.addQuestionsToBlock(programId, blockId, questionIds);
+      programService.addQuestionsToBlock(programId, blockId, latestQuestionIds);
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
     } catch (QuestionNotFoundException e) {
-      return notFound(String.format("Question IDs %s not found", questionIds));
+      return notFound(String.format("Question IDs %s not found", latestQuestionIds));
     } catch (DuplicateProgramQuestionException e) {
       return notFound(
           String.format(
-              "Some Question IDs %s already exist in Program ID %d", questionIds, programId));
+              "Some Question IDs %s already exist in Program ID %d", latestQuestionIds, programId));
     }
 
     return redirect(controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId));
