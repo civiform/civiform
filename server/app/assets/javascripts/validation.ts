@@ -8,12 +8,10 @@ class ValidationController {
    */
   static readonly VALIDATE_ON_INPUT = false
 
-  static readonly ADDRESS_QUESTION_CLASS = '.cf-question-address'
   static readonly CURRENCY_QUESTION_CLASS = '.cf-question-currency'
   static readonly CURRENCY_VALUE_CLASS = '.cf-currency-value'
   static readonly ENUMERATOR_QUESTION_CLASS = '.cf-question-enumerator'
   static readonly FILEUPLOAD_QUESTION_CLASS = '.cf-question-fileupload'
-  static readonly NAME_QUESTION_CLASS = '.cf-question-name'
   static readonly NUMBER_QUESTION_CLASS = '.cf-question-number'
   static readonly REQUIRED_QUESTION_CLASS = 'cf-question-required'
 
@@ -32,11 +30,9 @@ class ValidationController {
   // Integer with no decimal points or non-numeric characters
   static readonly NUMBER_POSITIVE_INTEGER = /^[0-9]+$/
 
-  isAddressValid = true
   isCurrencyValid = true
   isEnumeratorValid = true
   isFileUploadValid = true
-  isNameValid = true
   isNumberValid = true
 
   constructor() {
@@ -58,10 +54,8 @@ class ValidationController {
     this.addEnumeratorListeners()
 
     if (ValidationController.VALIDATE_ON_INPUT) {
-      this.addAddressListeners()
       this.addCurrencyListeners()
       this.addFileUploadListener()
-      this.addNameListeners()
       this.addNumberListeners()
     }
   }
@@ -73,22 +67,6 @@ class ValidationController {
       return false
     }
     return true
-  }
-
-  /** Add listeners to all address inputs to update validation on changes. */
-  private addAddressListeners() {
-    const addressQuestions = Array.from(
-      document.querySelectorAll(ValidationController.ADDRESS_QUESTION_CLASS)
-    )
-    for (const question of addressQuestions) {
-      const addressInputs = Array.from(question.querySelectorAll('input'))
-      // Whenever an input changes we need to revalidate.
-      addressInputs.forEach((addressInput) => {
-        addressInput.addEventListener('input', () => {
-          this.onAddressChanged()
-        })
-      })
-    }
   }
 
   /** Add listeners to all currency inputs to update validation on changes. */
@@ -155,22 +133,6 @@ class ValidationController {
     }
   }
 
-  /** Add listeners to all address inputs to update validation on changes. */
-  private addNameListeners() {
-    const addressQuestions = Array.from(
-      document.querySelectorAll(ValidationController.NAME_QUESTION_CLASS)
-    )
-    for (const question of addressQuestions) {
-      const addressInputs = Array.from(question.querySelectorAll('input'))
-      // Whenever an input changes we need to revalidate.
-      addressInputs.forEach((addressInput) => {
-        addressInput.addEventListener('input', () => {
-          this.onNameChanged()
-        })
-      })
-    }
-  }
-
   private addNumberListeners() {
     const numberQuestions = Array.from(
       <NodeListOf<HTMLInputElement>>(
@@ -203,29 +165,20 @@ class ValidationController {
   }
 
   checkAllQuestionTypes() {
-    this.isAddressValid = this.validateAddressQuestions()
     this.isCurrencyValid = this.validateCurrencyQuestions()
     this.isEnumeratorValid = this.validateEnumeratorQuestion()
     this.isFileUploadValid = this.validateFileUploadQuestions()
-    this.isNameValid = this.validateNameQuestions()
     this.isNumberValid = this.validateNumberQuestions()
     this.updateSubmitButton()
   }
 
   isValid() {
     return (
-      this.isAddressValid &&
       this.isCurrencyValid &&
       this.isEnumeratorValid &&
       this.isFileUploadValid &&
-      this.isNameValid &&
       this.isNumberValid
     )
-  }
-
-  onAddressChanged() {
-    this.isAddressValid = this.validateAddressQuestions()
-    this.updateSubmitButton()
   }
 
   onCurrencyChanged() {
@@ -240,11 +193,6 @@ class ValidationController {
 
   onFileChanged() {
     this.isFileUploadValid = this.validateFileUploadQuestions()
-    this.updateSubmitButton()
-  }
-
-  onNameChanged() {
-    this.isNameValid = this.validateNameQuestions()
     this.updateSubmitButton()
   }
 
@@ -288,81 +236,6 @@ class ValidationController {
     if (field) {
       field.classList.toggle('border-red-600', !isValid)
     }
-  }
-
-  /** Validates all address questions. */
-  validateAddressQuestions(): boolean {
-    let allValid = true
-    const addressQuestions = Array.from(
-      document.querySelectorAll(ValidationController.ADDRESS_QUESTION_CLASS)
-    )
-    for (const question of addressQuestions) {
-      // validate address line 1 not empty.
-      const addressLine1 = <HTMLInputElement>(
-        question.querySelector('.cf-address-street-1 input')
-      )
-      const addressLine1Empty = addressLine1.value.length == 0
-      const addressLine1Valid = !addressLine1Empty
-      // Change styling of '.cf-address-street-1-error' as necessary.
-      this.updateFieldErrorState(
-        question,
-        '.cf-address-street-1',
-        addressLine1Valid
-      )
-
-      const addressLine2 = <HTMLInputElement>(
-        question.querySelector('.cf-address-street-2 input')
-      )
-      const addressLine2Empty = addressLine2.value.length == 0
-
-      // validate city not empty.
-      const city = <HTMLInputElement>(
-        question.querySelector('.cf-address-city input')
-      )
-      const cityEmpty = city.value.length == 0
-      const cityValid = !cityEmpty
-      // Change styling of '.cf-address-city-error' as necessary.
-      this.updateFieldErrorState(question, '.cf-address-city', cityValid)
-
-      // validate state.
-      const state = <HTMLInputElement>(
-        question.querySelector('.cf-address-state input')
-      )
-      const stateEmpty = state.value.length == 0
-      const stateValid = !stateEmpty
-      // Change styling of '.cf-address-state-error' as necessary.
-      this.updateFieldErrorState(question, '.cf-address-state', stateValid)
-
-      // validate zip code.
-      const zipCode = <HTMLInputElement>(
-        question.querySelector('.cf-address-zip input')
-      )
-      const zipEmpty = zipCode.value.length == 0
-      const hasValidZip =
-        zipCode.value.length == 5 && /^\d+$/.test(zipCode.value)
-      // Change styling of '.cf-address-zip-error' as necessary.
-      this.updateFieldErrorState(question, '.cf-address-zip', hasValidZip)
-
-      const hasEmptyInputs =
-        addressLine1Empty || cityEmpty || stateEmpty || zipEmpty
-      const hasValidPresentInputs = !hasEmptyInputs && hasValidZip
-
-      // If this question isn't required then it's also valid if it is empty.
-      const isOptional = !question.classList.contains(
-        ValidationController.REQUIRED_QUESTION_CLASS
-      )
-      const emptyOptional =
-        isOptional &&
-        addressLine1Empty &&
-        addressLine2Empty &&
-        cityEmpty &&
-        stateEmpty &&
-        zipEmpty
-
-      const isValid = emptyOptional || hasValidPresentInputs
-      allValid = allValid && isValid
-    }
-    return allValid
   }
 
   /**
@@ -480,46 +353,6 @@ class ValidationController {
         errorDiv.classList.toggle('hidden', isValid)
       }
       isAllValid = isAllValid && isValid
-    }
-    return isAllValid
-  }
-
-  /** Validates that first and last name are not empty. */
-  validateNameQuestions(): boolean {
-    let isAllValid = true
-    const nameQuestions = Array.from(
-      document.querySelectorAll(ValidationController.NAME_QUESTION_CLASS)
-    )
-    for (const question of nameQuestions) {
-      // validate first name is not empty.
-      const firstNameInput = <HTMLInputElement>(
-        question.querySelector('.cf-name-first input')
-      )
-      const firstNameEmpty = firstNameInput.value.length == 0
-      this.updateFieldErrorState(question, '.cf-name-first', !firstNameEmpty)
-
-      // validate last name is not empty.
-      const lastNameInput = <HTMLInputElement>(
-        question.querySelector('.cf-name-last input')
-      )
-      const lastNameEmpty = lastNameInput.value.length == 0
-      this.updateFieldErrorState(question, '.cf-name-last', !lastNameEmpty)
-
-      // check if middle name is empty.
-      const middleNameInput = <HTMLInputElement>(
-        question.querySelector('.cf-name-middle input')
-      )
-      const middleNameEmpty = middleNameInput.value.length == 0
-
-      // If this question isn't required then it's also valid if it is empty.
-      const isOptional = !question.classList.contains(
-        ValidationController.REQUIRED_QUESTION_CLASS
-      )
-      const emptyOptional =
-        isOptional && firstNameEmpty && lastNameEmpty && middleNameEmpty
-
-      let isValid = emptyOptional || (!firstNameEmpty && !lastNameEmpty)
-      isAllValid = isValid && isAllValid
     }
     return isAllValid
   }

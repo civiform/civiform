@@ -77,42 +77,30 @@ public class AddressQuestion extends QuestionImpl {
 
   private ImmutableSet<ValidationErrorMessage> validateStreet() {
     if (getStreetValue().isEmpty()) {
-      return getStreetErrorMessage();
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED));
     }
 
     return ImmutableSet.of();
-  }
-
-  public ImmutableSet<ValidationErrorMessage> getStreetErrorMessage() {
-    return ImmutableSet.of(
-        ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED));
   }
 
   private ImmutableSet<ValidationErrorMessage> validateCity() {
     if (getCityValue().isEmpty()) {
-      return getCityErrorMessage();
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_CITY_REQUIRED));
     }
 
     return ImmutableSet.of();
-  }
-
-  public ImmutableSet<ValidationErrorMessage> getCityErrorMessage() {
-    return ImmutableSet.of(
-        ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_CITY_REQUIRED));
   }
 
   private ImmutableSet<ValidationErrorMessage> validateState() {
     // TODO: Validate state further.
     if (getStateValue().isEmpty()) {
-      return getStateErrorMessage();
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STATE_REQUIRED));
     }
 
     return ImmutableSet.of();
-  }
-
-  public ImmutableSet<ValidationErrorMessage> getStateErrorMessage() {
-    return ImmutableSet.of(
-        ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STATE_REQUIRED));
   }
 
   private ImmutableSet<ValidationErrorMessage> validateZipCode() {
@@ -125,14 +113,10 @@ public class AddressQuestion extends QuestionImpl {
     Pattern pattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
     Matcher matcher = pattern.matcher(zipValue.get());
     if (!matcher.matches()) {
-      return getZipErrorMessage();
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE));
     }
     return ImmutableSet.of();
-  }
-
-  public ImmutableSet<ValidationErrorMessage> getZipErrorMessage() {
-    return ImmutableSet.of(
-        ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE));
   }
 
   public Optional<String> getStreetValue() {
