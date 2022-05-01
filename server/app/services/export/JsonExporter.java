@@ -108,8 +108,8 @@ public class JsonExporter {
                 answerData.applicantQuestion().createCurrencyQuestion();
             Path path = currencyQuestion.getCurrencyPath().asApplicationPath();
 
-            if (currencyQuestion.getValue().isPresent()) {
-              jsonApplication.putLong(path, currencyQuestion.getValue().get().getCents());
+            if (currencyQuestion.getCurrencyValue().isPresent()) {
+              jsonApplication.putLong(path, currencyQuestion.getCurrencyValue().get().getCents());
             } else {
               jsonApplication.putNull(path);
             }

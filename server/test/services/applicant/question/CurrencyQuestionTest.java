@@ -71,7 +71,7 @@ public class CurrencyQuestionTest {
     CurrencyQuestion currencyQuestion = applicantQuestion.createCurrencyQuestion();
 
     assertThat(currencyQuestion.getValidationErrors().isEmpty()).isTrue();
-    assertThat(currencyQuestion.getValue().isPresent()).isTrue();
-    assertThat(currencyQuestion.getValue().get().getCents()).isEqualTo(cents);
+    assertThat(currencyQuestion.getCurrencyValue().isPresent()).isTrue();
+    assertThat(currencyQuestion.getCurrencyValue().get().getCents()).isEqualTo(cents);
   }
 }

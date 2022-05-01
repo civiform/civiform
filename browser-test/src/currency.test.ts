@@ -60,15 +60,15 @@ describe('currency applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      const error = await pageObject.$('.cf-currency-value-error')
-      expect(await error.isHidden()).toEqual(true)
+      const currencyError = '.cf-currency-value-error'
+      expect(await pageObject.isHidden(currencyError)).toEqual(true)
 
       // Input has not enough decimal points.
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency)
       await applicantQuestions.clickNext()
 
       // The block should be displayed still with the error shown.
-      expect(await error.isHidden()).toEqual(false)
+      expect(await pageObject.isHidden(currencyError)).toEqual(false)
     })
   })
 
@@ -113,14 +113,14 @@ describe('currency applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      const error = await pageObject.$('.cf-currency-value-error >> nth=0')
-      expect(await error.isHidden()).toEqual(true)
+      const currencyError = '.cf-currency-value-error >> nth=0'
+      expect(await pageObject.isHidden(currencyError)).toEqual(true)
 
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency, 0)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
 
-      expect(await error.isHidden()).toEqual(false)
+      expect(await pageObject.isHidden(currencyError)).toEqual(false)
     })
 
     it('with second invalid does not submit', async () => {
@@ -128,14 +128,14 @@ describe('currency applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      const error = await pageObject.$('.cf-currency-value-error >> nth=1')
-      expect(await error.isHidden()).toEqual(true)
+      const currencyError = '.cf-currency-value-error >> nth=1'
+      expect(await pageObject.isHidden(currencyError)).toEqual(true)
 
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 0)
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency, 1)
       await applicantQuestions.clickNext()
 
-      expect(await error.isHidden()).toEqual(false)
+      expect(await pageObject.isHidden(currencyError)).toEqual(false)
     })
   })
 })

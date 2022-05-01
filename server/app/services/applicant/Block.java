@@ -164,7 +164,8 @@ public final class Block {
 
   /** A block has errors if any one of its {@link ApplicantQuestion}s has errors. */
   public boolean hasErrors() {
-    return getQuestions().stream().anyMatch(ApplicantQuestion::hasErrors);
+    return getQuestions().stream().anyMatch(ApplicantQuestion::hasErrors)
+        || !applicantData.getFailedUpdates().isEmpty();
   }
 
   /**

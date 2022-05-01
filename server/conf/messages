@@ -211,6 +211,9 @@ placeholder.state=State
 placeholder.street=Street address
 placeholder.zipcode=ZIP Code
 
+# Validation error that is shown when the user input couldn't be converted for any reason.
+validation.invalidInput=Please enter valid input.
+
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Please enter valid street name and number.
 validation.cityRequired=Please enter city.

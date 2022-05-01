@@ -3,6 +3,7 @@ package services.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
@@ -36,6 +37,8 @@ public class ApplicantData extends CfJsonDocumentContext {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
   private Optional<Locale> preferredLocale;
 
+  private Optional<ImmutableMap<Path, String>> failedUpdates;
+
   public ApplicantData() {
     this(EMPTY_APPLICANT_DATA_JSON);
   }
@@ -47,6 +50,7 @@ public class ApplicantData extends CfJsonDocumentContext {
   public ApplicantData(Optional<Locale> preferredLocale, String jsonData) {
     super(JsonPathProvider.getJsonPath().parse(checkNotNull(jsonData)));
     this.preferredLocale = preferredLocale;
+    this.failedUpdates = Optional.empty();
   }
 
   /** Returns true if this applicant has set their preferred locale, and false otherwise. */
@@ -113,5 +117,23 @@ public class ApplicantData extends CfJsonDocumentContext {
     if (lastName != null && !hasPath(WellKnownPaths.APPLICANT_LAST_NAME)) {
       putString(WellKnownPaths.APPLICANT_LAST_NAME, lastName);
     }
+  }
+
+  @Override
+  public String asJsonString() {
+    if (!getFailedUpdates().isEmpty()) {
+      throw new IllegalStateException(
+          "data cannot be serialized since there " + "were failed updates");
+    }
+    return super.asJsonString();
+  }
+
+  void setFailedUpdates(ImmutableMap<Path, String> updates) {
+    checkLocked();
+    failedUpdates = Optional.of(checkNotNull(updates));
+  }
+
+  public ImmutableMap<Path, String> getFailedUpdates() {
+    return failedUpdates.orElse(ImmutableMap.of());
   }
 }

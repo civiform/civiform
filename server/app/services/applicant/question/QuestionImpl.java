@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.QuestionType;
@@ -36,7 +37,9 @@ abstract class QuestionImpl implements Question {
 
   @Override
   public final ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
-    if (!isAnswered() && applicantQuestion.isOptional()) {
+    ImmutableMap<Path, String> failedUpdates =
+        applicantQuestion.getApplicantData().getFailedUpdates();
+    if (!isAnswered() && applicantQuestion.isOptional() && failedUpdates.isEmpty()) {
       return ImmutableMap.of();
     }
     // Why not just return the result of getValidationErrorsInternal()?
@@ -44,9 +47,27 @@ abstract class QuestionImpl implements Question {
     // in the map along with a call to a validator method that may return an empty set of errors.
     // We remove keys with an empty set of errors here to help defend against downstream consumers
     // assumes that calling isEmpty on the map means that there are no errors.
-    return ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>builder()
-        .putAll(Maps.filterEntries(getValidationErrorsInternal(), e -> !e.getValue().isEmpty()))
-        .build();
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> result =
+        ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>builder()
+            .putAll(Maps.filterEntries(getValidationErrorsInternal(), e -> !e.getValue().isEmpty()))
+            .build();
+    // We shouldn't have an empty error map if we failed to convert some of the input. If there
+    // aren't
+    // already errors, append a top-level error that the input couldn't be converted. In practice,
+    // this shouldn't happen as long as each question type is properly accounting for bad input.
+    if (result.isEmpty()
+        && !failedUpdates.isEmpty()
+        && getAllPaths().stream().anyMatch(failedUpdates::containsKey)) {
+      result =
+          ImmutableMap.of(
+              applicantQuestion.getContextualizedPath(),
+              ImmutableSet.of(ValidationErrorMessage.create(MessageKey.INVALID_INPUT)));
+    }
+    return result;
+  }
+
+  public final ImmutableMap<Path, String> getFailedUpdates() {
+    return applicantQuestion.getApplicantData().getFailedUpdates();
   }
 
   /**
