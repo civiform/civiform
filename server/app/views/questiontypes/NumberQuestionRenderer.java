@@ -45,6 +45,9 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
       OptionalLong value = OptionalLong.of(numberQuestion.getNumberValue().orElse(0L));
       numberField.setValue(value);
     }
+    // TODO(#1944): Consider updating FieldWithLabel to allow setting a string
+    // value for a number type so invalid input can be round-tripped back to the
+    // user when rendering a form with errors.
 
     return div().with(numberField.getContainer());
   }
