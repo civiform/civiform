@@ -35,6 +35,9 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setFieldName(dateQuestion.getDatePath().toString())
             .setScreenReaderText(question.getQuestionText());
     if (dateQuestion.getDateValue().isPresent()) {
+      // Note: If the provided input was invalid, there's no use rendering
+      // the value on roundtrip since inputs with type="date" won't allow
+      // setting a value that doesn't conform to the expected format.
       Optional<String> value = dateQuestion.getDateValue().map(LocalDate::toString);
       dateField.setValue(value);
     }
