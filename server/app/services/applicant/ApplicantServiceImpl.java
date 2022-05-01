@@ -2,6 +2,14 @@ package services.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.CiviFormProfile;
+import com.google.auto.value.AutoValue;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import com.typesafe.config.Config;
 import java.net.URI;
 import java.time.Clock;
 import java.time.format.DateTimeParseException;
@@ -11,18 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-
 import javax.inject.Inject;
-
-import com.google.auto.value.AutoValue;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
-import com.typesafe.config.Config;
-
-import auth.CiviFormProfile;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
