@@ -107,7 +107,7 @@ public class AddressQuestion extends QuestionImpl {
     Optional<String> zipValue = getZipValue();
     if (zipValue.isEmpty()) {
       return ImmutableSet.of(
-          ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_ZIPCODE_REQUIRED));
+          ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE));
     }
 
     Pattern pattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
