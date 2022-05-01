@@ -31,7 +31,14 @@ public class DateQuestion extends QuestionImpl {
 
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
-    // TODO: Need to add some date specific validation.
+    // When staging updates, the attempt to update ApplicantData would have failed to
+    // convert to a date and been noted as a failed update. We check for that here.
+    if (applicantQuestion.getApplicantData().getFailedUpdates().containsKey(getDatePath())) {
+      return ImmutableMap.of(
+          getDatePath(),
+          ImmutableSet.of(
+              ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_MISFORMATTED)));
+    }
     return ImmutableMap.of();
   }
 

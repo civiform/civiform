@@ -42,6 +42,9 @@ header.userName=Logged in as {0}
 # Error message to answer a required question
 validation.isRequired=This question is required.
 
+# Validation error that is shown when the user input couldn't be converted for any reason.
+validation.invalidInput=Please enter valid input.
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -211,9 +214,6 @@ placeholder.state=State
 placeholder.street=Street address
 placeholder.zipcode=ZIP Code
 
-# Validation error that is shown when the user input couldn't be converted for any reason.
-validation.invalidInput=Please enter valid input.
-
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Please enter valid street name and number.
 validation.cityRequired=Please enter city.
@@ -229,6 +229,12 @@ validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
 
 # Placeholder text shown in a dropdown selector before the user has made a selection.
 placeholder.noDropdownSelection=Choose an option:
+
+
+#----------------------------------------------------------------------------------------------------------#
+# DATE QUESTION - text shown when answering a question where a user must select date. #
+#----------------------------------------------------------------------------------------------------------#
+validaton.dateMisformatted=Please enter a date in the format YYYY/MM/DD.
 
 #--------------------------------------------------------------------------------------------------------#
 # ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
