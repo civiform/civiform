@@ -41,13 +41,13 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
                 validationErrors.getOrDefault(numberQuestion.getNumberPath(), ImmutableSet.of()))
             .addReferenceClass(getReferenceClass());
     if (numberQuestion.getNumberValue().isPresent()) {
+      // Note: If the provided input was invalid, there's no use rendering
+      // the value on roundtrip since inputs with type="number" won't allow
+      // setting a value that doesn't conform to the expected format.
       // TODO: [Refactor] Oof! Converting Optional<Long> to OptionalLong.
       OptionalLong value = OptionalLong.of(numberQuestion.getNumberValue().orElse(0L));
       numberField.setValue(value);
     }
-    // TODO(#1944): Consider updating FieldWithLabel to allow setting a string
-    // value for a number type so invalid input can be round-tripped back to the
-    // user when rendering a form with errors.
 
     return div().with(numberField.getContainer());
   }
