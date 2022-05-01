@@ -44,7 +44,7 @@ public class CurrencyQuestionTest {
 
     CurrencyQuestion currencyQuestion = new CurrencyQuestion(applicantQuestion);
 
-    assertThat(currencyQuestion.getValue()).isEmpty();
+    assertThat(currencyQuestion.getCurrencyValue()).isEmpty();
     assertThat(currencyQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
