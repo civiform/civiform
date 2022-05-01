@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 import java.util.OptionalLong;
-import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -39,10 +38,7 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setMax(numberQuestion.getQuestionDefinition().getMax())
             .setFieldErrors(
                 params.messages(),
-                // TODO(#1944): Replicate the client-side validation on the server-side.
-                ImmutableSet.of(
-                    ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER)))
-            .showFieldErrors(false)
+                validationErrors.getOrDefault(numberQuestion.getNumberPath(), ImmutableSet.of()))
             .addReferenceClass(getReferenceClass());
     if (numberQuestion.getNumberValue().isPresent()) {
       // TODO: [Refactor] Oof! Converting Optional<Long> to OptionalLong.
@@ -50,8 +46,6 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
       numberField.setValue(value);
     }
 
-    Tag numberQuestionFormContent = div().with(numberField.getContainer());
-
-    return numberQuestionFormContent;
+    return div().with(numberField.getContainer());
   }
 }

@@ -35,17 +35,23 @@ public class NumberQuestion extends QuestionImpl {
 
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
-    // TODO(#1944): Move this validation from the top-level to a field-specific error.
-    // Presently, the renderer displays a hidden error when the input can't be converted
-    // to the correct currency.
-    return ImmutableMap.of(applicantQuestion.getContextualizedPath(), validateNumber());
+    return ImmutableMap.of(getNumberPath(), validateNumber());
   }
 
   private ImmutableSet<ValidationErrorMessage> validateNumber() {
+    Optional<Long> numberValue = getNumberValue();
+    // When staging updates, the attempt to update ApplicantData would have failed to
+    // convert to a number and been noted as a failed update. We check for that here.
+    if (applicantQuestion.getApplicantData().getFailedUpdates().containsKey(getNumberPath())
+      || (!numberValue.isEmpty() && numberValue.get() < 0)) {
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER));
+    }
+
     NumberQuestionDefinition questionDefinition = getQuestionDefinition();
 
     // If there is no minimum or maximum value configured, accept a blank answer.
-    if (getNumberValue().isEmpty()
+    if (numberValue.isEmpty()
         && questionDefinition.getMin().isEmpty()
         && questionDefinition.getMax().isEmpty()) {
       return ImmutableSet.of();

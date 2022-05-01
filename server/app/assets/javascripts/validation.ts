@@ -10,18 +10,12 @@ class ValidationController {
 
   static readonly ENUMERATOR_QUESTION_CLASS = '.cf-question-enumerator'
   static readonly FILEUPLOAD_QUESTION_CLASS = '.cf-question-fileupload'
-  static readonly NUMBER_QUESTION_CLASS = '.cf-question-number'
-  static readonly REQUIRED_QUESTION_CLASS = 'cf-question-required'
 
   static readonly ENUMERATOR_DELETE_TEMPLATE = 'enumerator-delete-template'
   static readonly BLOCK_SUBMIT_BUTTON_ID = 'cf-block-submit'
 
-  // Integer with no decimal points or non-numeric characters
-  static readonly NUMBER_POSITIVE_INTEGER = /^[0-9]+$/
-
   isEnumeratorValid = true
   isFileUploadValid = true
-  isNumberValid = true
 
   constructor() {
     // attach listener to block form.
@@ -43,7 +37,6 @@ class ValidationController {
 
     if (ValidationController.VALIDATE_ON_INPUT) {
       this.addFileUploadListener()
-      this.addNumberListeners()
     }
   }
 
@@ -108,21 +101,6 @@ class ValidationController {
     }
   }
 
-  private addNumberListeners() {
-    const numberQuestions = Array.from(
-      <NodeListOf<HTMLInputElement>>(
-        document.querySelectorAll(
-          `${ValidationController.NUMBER_QUESTION_CLASS} input[type=number]`
-        )
-      )
-    )
-    numberQuestions.forEach((numberQuestion) => {
-      numberQuestion.addEventListener('input', () => {
-        this.onNumberChanged()
-      })
-    })
-  }
-
   /** Add listeners to file input to update validation on changes. */
   private addFileUploadListener() {
     const fileQuestions = Array.from(
@@ -142,14 +120,11 @@ class ValidationController {
   checkAllQuestionTypes() {
     this.isEnumeratorValid = this.validateEnumeratorQuestion()
     this.isFileUploadValid = this.validateFileUploadQuestions()
-    this.isNumberValid = this.validateNumberQuestions()
     this.updateSubmitButton()
   }
 
   isValid() {
-    return (
-      this.isEnumeratorValid && this.isFileUploadValid && this.isNumberValid
-    )
+    return this.isEnumeratorValid && this.isFileUploadValid
   }
 
   onEnumeratorChanged() {
@@ -162,11 +137,6 @@ class ValidationController {
     this.updateSubmitButton()
   }
 
-  onNumberChanged() {
-    this.isNumberValid = this.validateNumberQuestions()
-    this.updateSubmitButton()
-  }
-
   updateSubmitButton() {
     const submitEnabled = this.isValid()
     const submitButton = <HTMLInputElement>(
@@ -174,33 +144,6 @@ class ValidationController {
     )
     if (submitButton && ValidationController.VALIDATE_ON_INPUT) {
       submitButton.disabled = !submitEnabled
-    }
-  }
-
-  updateFieldErrorState(
-    question: Element,
-    fieldName: string,
-    isValid: boolean
-  ) {
-    const isOptional = !question.classList.contains(
-      ValidationController.REQUIRED_QUESTION_CLASS
-    )
-    const filledInputs = Array.from(question.querySelectorAll('input')).filter(
-      (input) => input.value !== ''
-    )
-    if (isOptional && filledInputs.length === 0) {
-      return
-    }
-
-    const errorDiv = question.querySelector(fieldName + '-error')
-    if (errorDiv) {
-      errorDiv.classList.toggle('hidden', isValid)
-    }
-
-    // Also toggle the border on error inputs (if applicable).
-    const field = question.querySelector(fieldName + ' input')
-    if (field) {
-      field.classList.toggle('border-red-600', !isValid)
     }
   }
 
@@ -281,34 +224,6 @@ class ValidationController {
         errorDiv.classList.toggle('hidden', isValid)
       }
       isAllValid = isAllValid && isValid
-    }
-    return isAllValid
-  }
-
-  /** Validates that numbers are positive integers. */
-  validateNumberQuestions(): boolean {
-    let isAllValid = true
-    const numberQuestions = Array.from(
-      <NodeListOf<HTMLInputElement>>(
-        document.querySelectorAll(ValidationController.NUMBER_QUESTION_CLASS)
-      )
-    )
-    for (const question of numberQuestions) {
-      const isOptional = !question.classList.contains(
-        ValidationController.REQUIRED_QUESTION_CLASS
-      )
-      const input = <HTMLInputElement>(
-        question.querySelector('input[type=number]')
-      )
-      let isValid =
-        ValidationController.NUMBER_POSITIVE_INTEGER.test(input.value) ||
-        (input.value.length === 0 && isOptional)
-      this.updateFieldErrorState(
-        question,
-        ValidationController.NUMBER_QUESTION_CLASS,
-        isValid
-      )
-      isAllValid = isValid && isAllValid
     }
     return isAllValid
   }

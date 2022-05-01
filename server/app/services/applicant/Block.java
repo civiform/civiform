@@ -162,8 +162,9 @@ public final class Block {
     return scalarsMemo.get();
   }
 
-  /** A block has errors if any one of its {@link ApplicantQuestion}s has errors or
-   * if there were any failures to update the {@link ApplicantData}.
+  /**
+   * A block has errors if any one of its {@link ApplicantQuestion}s has errors or if there were any
+   * failures to update the {@link ApplicantData}.
    */
   public boolean hasErrors() {
     return getQuestions().stream().anyMatch(ApplicantQuestion::hasErrors)
