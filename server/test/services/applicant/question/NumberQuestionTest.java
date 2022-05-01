@@ -3,6 +3,8 @@ package services.applicant.question;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -17,7 +19,9 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.ValidationErrorMessage;
 import services.question.types.NumberQuestionDefinition;
 import support.QuestionAnswerer;
 
@@ -62,8 +66,7 @@ public class NumberQuestionTest extends ResetPostgres {
 
     NumberQuestion numberQuestion = new NumberQuestion(applicantQuestion);
 
-    assertThat(numberQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(numberQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(numberQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -75,7 +78,7 @@ public class NumberQuestionTest extends ResetPostgres {
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
-    assertThat(numberQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(numberQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(numberQuestion.getNumberValue()).isEmpty();
   }
 
@@ -88,7 +91,7 @@ public class NumberQuestionTest extends ResetPostgres {
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
-    assertThat(numberQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(numberQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(800);
   }
 
@@ -102,8 +105,7 @@ public class NumberQuestionTest extends ResetPostgres {
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
-    assertThat(numberQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(numberQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(numberQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(value);
   }
 
@@ -124,9 +126,13 @@ public class NumberQuestionTest extends ResetPostgres {
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
-    assertThat(numberQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(numberQuestion.getQuestionErrors()).hasSize(1);
-    String errorMessage = numberQuestion.getQuestionErrors().iterator().next().getMessage(messages);
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        numberQuestion.getValidationErrors();
+    assertThat(validationErrors.size()).isEqualTo(1);
+    ImmutableSet<ValidationErrorMessage> numberErrors =
+        validationErrors.getOrDefault(applicantQuestion.getContextualizedPath(), ImmutableSet.of());
+    assertThat(numberErrors).hasSize(1);
+    String errorMessage = numberErrors.iterator().next().getMessage(messages);
     assertThat(errorMessage).isEqualTo(expectedErrorMessage);
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(value);
   }
@@ -140,7 +146,6 @@ public class NumberQuestionTest extends ResetPostgres {
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
-    assertThat(numberQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(numberQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(numberQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 }

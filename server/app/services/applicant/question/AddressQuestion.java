@@ -1,6 +1,7 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -37,14 +38,24 @@ public class AddressQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    if (!isAnswered()) {
-      return ImmutableSet.of();
-    }
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
+    return ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>builder()
+        .put(applicantQuestion.getContextualizedPath(), getQuestionErrors())
+        .put(getStreetPath(), validateStreet())
+        .put(getLine2Path(), validateAddress())
+        .put(getCityPath(), validateCity())
+        .put(getStatePath(), validateState())
+        .put(getZipPath(), validateZipCode())
+        .build();
+  }
 
+  private ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
     AddressQuestionDefinition definition = getQuestionDefinition();
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
+    // TODO(#1944): Move this to a field specific validation once client-side validation
+    // is removed and we no longer assume a single error message is shown in the
+    // rendered form per field.
     if (definition.getDisallowPoBox()) {
       Pattern poBoxPattern = Pattern.compile(PO_BOX_REGEX);
       Matcher poBoxMatcher1 = poBoxPattern.matcher(getStreetValue().orElse(""));
@@ -59,24 +70,13 @@ public class AddressQuestion extends QuestionImpl {
     return errors.build();
   }
 
-  @Override
-  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    return ImmutableSet.<ValidationErrorMessage>builder()
-        .addAll(getAddressErrors())
-        .addAll(getStreetErrors())
-        .addAll(getCityErrors())
-        .addAll(getStateErrors())
-        .addAll(getZipErrors())
-        .build();
-  }
-
-  public ImmutableSet<ValidationErrorMessage> getAddressErrors() {
+  private ImmutableSet<ValidationErrorMessage> validateAddress() {
     // TODO: Implement address validation.
     return ImmutableSet.of();
   }
 
-  public ImmutableSet<ValidationErrorMessage> getStreetErrors() {
-    if (isAnswered() && getStreetValue().isEmpty()) {
+  private ImmutableSet<ValidationErrorMessage> validateStreet() {
+    if (getStreetValue().isEmpty()) {
       return getStreetErrorMessage();
     }
 
@@ -88,8 +88,8 @@ public class AddressQuestion extends QuestionImpl {
         ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED));
   }
 
-  public ImmutableSet<ValidationErrorMessage> getCityErrors() {
-    if (isAnswered() && getCityValue().isEmpty()) {
+  private ImmutableSet<ValidationErrorMessage> validateCity() {
+    if (getCityValue().isEmpty()) {
       return getCityErrorMessage();
     }
 
@@ -101,9 +101,9 @@ public class AddressQuestion extends QuestionImpl {
         ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_CITY_REQUIRED));
   }
 
-  public ImmutableSet<ValidationErrorMessage> getStateErrors() {
+  private ImmutableSet<ValidationErrorMessage> validateState() {
     // TODO: Validate state further.
-    if (isAnswered() && getStateValue().isEmpty()) {
+    if (getStateValue().isEmpty()) {
       return getStateErrorMessage();
     }
 
@@ -115,21 +115,18 @@ public class AddressQuestion extends QuestionImpl {
         ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STATE_REQUIRED));
   }
 
-  public ImmutableSet<ValidationErrorMessage> getZipErrors() {
-    if (isAnswered()) {
-      Optional<String> zipValue = getZipValue();
-      if (zipValue.isEmpty()) {
-        return ImmutableSet.of(
-            ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_ZIPCODE_REQUIRED));
-      }
-
-      Pattern pattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
-      Matcher matcher = pattern.matcher(zipValue.get());
-      if (!matcher.matches()) {
-        return getZipErrorMessage();
-      }
+  private ImmutableSet<ValidationErrorMessage> validateZipCode() {
+    Optional<String> zipValue = getZipValue();
+    if (zipValue.isEmpty()) {
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_ZIPCODE_REQUIRED));
     }
 
+    Pattern pattern = Pattern.compile("^[0-9]{5}(?:-[0-9]{4})?$");
+    Matcher matcher = pattern.matcher(zipValue.get());
+    if (!matcher.matches()) {
+      return getZipErrorMessage();
+    }
     return ImmutableSet.of();
   }
 
