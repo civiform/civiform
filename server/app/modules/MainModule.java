@@ -1,8 +1,14 @@
 package modules;
 
-import com.google.inject.AbstractModule;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.time.Clock;
 import java.time.ZoneId;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.typesafe.config.Config;
+
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantServiceImpl;
 import services.program.ProgramService;
@@ -22,10 +28,15 @@ public class MainModule extends AbstractModule {
 
   @Override
   public void configure() {
-    // Use the system clock as the default implementation of Clock
-    bind(Clock.class).toInstance(Clock.system(ZoneId.of("America/Los_Angeles")));
     bind(ProgramService.class).to(ProgramServiceImpl.class);
     bind(QuestionService.class).to(QuestionServiceImpl.class);
     bind(ApplicantService.class).to(ApplicantServiceImpl.class);
+  }
+
+  @Provides
+  public Clock provideClock(Config config) {
+    ZoneId zoneId = ZoneId.of(checkNotNull(config).getString("java.time.zoneid"));
+    // Use the system clock as the default implementation of Clock
+    return Clock.system(zoneId);
   }
 }
