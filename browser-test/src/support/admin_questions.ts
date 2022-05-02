@@ -109,7 +109,7 @@ export class AdminQuestions {
     if (!exportOption) {
       throw new Error('A non-empty export option must be provided')
     }
-    await this.page.check(`label:has-text("${exportOption}") input`)
+    await this.page.check(this.selectorForExportOption(exportOption))
   }
 
   async updateQuestionText(updateText: string) {

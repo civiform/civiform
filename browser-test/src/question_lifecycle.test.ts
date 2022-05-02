@@ -193,7 +193,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.page.click('#create-question-button')
     await adminQuestions.page.click('#create-text-question')
     await waitForPageJsLoad(adminQuestions.page)
-    // expect(await page.isChecked(adminQuestions.selectorForExportOption(AdminQuestions.NO_EXPORT_OPTION))).toBeTruthy()
+    expect(await page.isChecked(adminQuestions.selectorForExportOption(AdminQuestions.NO_EXPORT_OPTION), {strict: true})).toBeTruthy()
 
     const questionName = 'textQuestionWithObfuscatedExport'
     await adminQuestions.addTextQuestion({
@@ -202,18 +202,14 @@ describe('normal question lifecycle', () => {
     })
 
     // Confirm that the previously selected export option was propagated.
-    await page.click(
-      adminQuestions.selectWithinQuestionTableRow(questionName, ':text("Edit")')
-    )
-    expect(await page.isChecked(adminQuestions.selectorForExportOption(AdminQuestions.EXPORT_OBFUSCATED_OPTION))).toBeTruthy()
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    expect(await page.isChecked(adminQuestions.selectorForExportOption(AdminQuestions.EXPORT_OBFUSCATED_OPTION), {strict: true})).toBeTruthy()
 
     // Edit the result and confirm that the new value is propagated.
     await adminQuestions.selectExportOption(AdminQuestions.EXPORT_VALUE_OPTION)
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
-    await page.click(
-      adminQuestions.selectWithinQuestionTableRow(questionName, ':text("Edit")')
-    )
-    expect(await page.isChecked(adminQuestions.selectorForExportOption(AdminQuestions.EXPORT_VALUE_OPTION))).toBeTruthy()
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    expect(await page.isChecked(adminQuestions.selectorForExportOption(AdminQuestions.EXPORT_VALUE_OPTION), {strict: true})).toBeTruthy()
   })
 })
