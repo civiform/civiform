@@ -16,7 +16,7 @@ import com.google.common.collect.Multimap;
  */
 public class ApiKeyGrants {
 
-  /** Enumerates the abilities an ApiKey may have with respect to a resource */
+  /** Enumerates the abilities an ApiKey may have with respect to a resource. */
   public enum Permission {
     WRITE,
     READ;
