@@ -15,6 +15,7 @@ jobs:
       - id: file_changes
         uses: trilom/file-changes-action@v1.2.4
       - name: fail if created from a fork
+        if: github.event.pull_request.head.repo.full_name != github.repository
         run: |
           echo "Sorry, you created this PR from a fork and therefore we don't have access to the secrets we need to run this test."
           echo "We actually can't even post this as a comment to the GitHub PR, so you probably found this in the logs while trying to figure out what failed."
