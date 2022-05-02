@@ -8,14 +8,17 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.p;
 
-import auth.CiviFormProfile;
+import java.time.ZoneId;
+import java.util.Optional;
+import java.util.concurrent.CompletionException;
+
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+
+import auth.CiviFormProfile;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.Optional;
-import java.util.concurrent.CompletionException;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
@@ -34,11 +37,13 @@ import views.style.Styles;
 public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
+  private final ZoneId zoneId;
 
   @Inject
   public ProgramIndexView(AdminLayout layout, Config config) {
     this.layout = checkNotNull(layout);
     this.baseUrl = checkNotNull(config).getString("base_url");
+    this.zoneId = ZoneId.of(checkNotNull(config).getString("java.time.zoneid"));
   }
 
   public Content render(
@@ -138,7 +143,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     String lastEditText =
         displayProgram.lastModifiedTime().isPresent()
-            ? "Last updated: " + renderDateTime(displayProgram.lastModifiedTime().get())
+            ? "Last updated: " + renderDateTime(displayProgram.lastModifiedTime().get(), zoneId)
             : "Could not find latest update time";
     String programTitleText = displayProgram.adminName();
     String programDescriptionText = displayProgram.adminDescription();
