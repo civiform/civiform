@@ -1,8 +1,9 @@
-name: pr_test
+name: pr_infra
 
 on:
   pull_request:
-    branches: main
+    branches:
+      - 'main'
     paths:
       - 'infra/**'
 

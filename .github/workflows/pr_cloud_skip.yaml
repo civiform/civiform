@@ -7,7 +7,8 @@ name: pr_cloud
 
 on:
   pull_request:
-    branches: main
+    branches:
+      - 'main'
     paths-ignore:
       - 'cloud/**'
 

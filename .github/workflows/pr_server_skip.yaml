@@ -7,7 +7,8 @@ name: pr_server
 
 on:
   pull_request:
-    branches: main
+    branches:
+      - 'main'
     paths-ignore:
       - 'server/**'
       - 'bin/**'
