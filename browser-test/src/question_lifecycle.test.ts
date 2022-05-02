@@ -193,6 +193,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.page.click('#create-question-button')
     await adminQuestions.page.click('#create-text-question')
     await waitForPageJsLoad(adminQuestions.page)
+    await page.waitForTimeout(1000);
     expect(await page.isChecked(adminQuestions.selectorForExportOption(AdminQuestions.NO_EXPORT_OPTION), {strict: true})).toBeTruthy()
 
     const questionName = 'textQuestionWithObfuscatedExport'
@@ -203,6 +204,7 @@ describe('normal question lifecycle', () => {
 
     // Confirm that the previously selected export option was propagated.
     await adminQuestions.gotoQuestionEditPage(questionName)
+    await page.waitForTimeout(1000);
     expect(await page.isChecked(adminQuestions.selectorForExportOption(AdminQuestions.EXPORT_OBFUSCATED_OPTION), {strict: true})).toBeTruthy()
 
     // Edit the result and confirm that the new value is propagated.
@@ -210,6 +212,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
     await adminQuestions.gotoQuestionEditPage(questionName)
+    await page.waitForTimeout(1000);
     expect(await page.isChecked(adminQuestions.selectorForExportOption(AdminQuestions.EXPORT_VALUE_OPTION), {strict: true})).toBeTruthy()
   })
 })
