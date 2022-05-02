@@ -42,6 +42,7 @@ import views.FileUploadViewStrategy;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
 import views.questiontypes.ApplicantQuestionRendererFactory;
+import views.questiontypes.ApplicantQuestionRendererParams;
 
 /**
  * Controller for handling an applicant filling out a single program. CAUTION: you must explicitly
@@ -160,7 +161,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             roApplicantProgramService,
                             block.get(),
                             applicantName,
-                            /* displayErrors= */ false)));
+                            ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)));
               } else {
                 return notFound();
               }
@@ -211,7 +212,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             roApplicantProgramService,
                             block.get(),
                             applicantName,
-                            /* displayErrors= */ false)));
+                            ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)));
               } else {
                 return notFound();
               }
@@ -374,7 +375,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           roApplicantProgramService,
                           thisBlockUpdated,
                           applicantName,
-                          /* displayErrors= */ true))));
+                          ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
     }
 
     if (inReview) {
@@ -419,7 +420,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Block block,
       String applicantName,
-      boolean displayErrors) {
+      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode) {
     return ApplicantProgramBlockEditView.Params.builder()
         .setRequest(request)
         .setMessages(messagesApi.preferred(request))
@@ -434,7 +435,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setPreferredLanguageSupported(roApplicantProgramService.preferredLanguageSupported())
         .setStorageClient(storageClient)
         .setBaseUrl(baseUrl)
-        .setDisplayErrors(displayErrors)
+        .setErrorDisplayMode(errorDisplayMode)
         .build();
   }
 

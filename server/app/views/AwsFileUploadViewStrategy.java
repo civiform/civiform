@@ -87,7 +87,7 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
         ApplicantQuestionRendererParams.builder()
             .setMessages(params.messages())
             .setSignedFileUploadRequest(signedRequest)
-            .setDisplayErrors(params.displayErrors())
+            .setErrorDisplayMode(params.errorDisplayMode())
             .build();
 
     Tag uploadForm =

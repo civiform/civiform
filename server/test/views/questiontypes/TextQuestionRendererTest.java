@@ -51,7 +51,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setDisplayErrors(true)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
     renderer = new TextQuestionRenderer(question);
   }

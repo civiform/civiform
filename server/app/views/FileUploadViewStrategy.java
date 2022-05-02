@@ -115,7 +115,7 @@ public abstract class FileUploadViewStrategy {
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()
             .setMessages(params.messages())
-            .setDisplayErrors(params.displayErrors())
+            .setErrorDisplayMode(params.errorDisplayMode())
             .build();
 
     Tag continueForm =

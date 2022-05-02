@@ -59,10 +59,18 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                     .with(TextFormatter.createLinksAndEscapeText(question.getQuestionHelpText())))
             .withClasses(Styles.MB_4);
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        params.displayErrors()
-            ? question.errorsPresenter().getValidationErrors()
-            : ImmutableMap.of();
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
+    switch (params.errorDisplayMode()) {
+      case HIDE_ERRORS:
+        validationErrors = ImmutableMap.of();
+        break;
+      case DISPLAY_ERRORS:
+        validationErrors = question.errorsPresenter().getValidationErrors();
+        break;
+      default:
+        throw new IllegalArgumentException(
+            String.format("Unhandled error display mode: %s", params.errorDisplayMode()));
+    }
 
     ImmutableSet<ValidationErrorMessage> questionErrors =
         validationErrors.getOrDefault(question.getContextualizedPath(), ImmutableSet.of());

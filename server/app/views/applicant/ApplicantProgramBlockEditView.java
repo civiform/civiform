@@ -127,7 +127,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     ApplicantQuestionRendererParams rendererParams =
         ApplicantQuestionRendererParams.builder()
             .setMessages(params.messages())
-            .setDisplayErrors(params.displayErrors())
+            .setErrorDisplayMode(params.errorDisplayMode())
             .build();
 
     return form()
@@ -228,7 +228,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     public abstract String applicantName();
 
-    public abstract boolean displayErrors();
+    public abstract ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode();
 
     @AutoValue.Builder
     public abstract static class Builder {
@@ -258,7 +258,8 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
       public abstract Builder setApplicantName(String applicantName);
 
-      public abstract Builder setDisplayErrors(boolean displayErrors);
+      public abstract Builder setErrorDisplayMode(
+          ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode);
 
       public abstract Params build();
     }

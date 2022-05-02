@@ -26,7 +26,7 @@ public class ApplicantQuestionRendererParamsTest {
     ApplicantQuestionRendererParams params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setDisplayErrors(false)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
             .build();
 
     assertThat(params.isSample()).isFalse();
