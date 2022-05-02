@@ -29,7 +29,6 @@ public final class ReferenceClasses {
   public static final String REMOVE_QUESTION_BUTTON = "cf-remove-question-button";
 
   public static final String DOWNLOAD_ALL_BUTTON = "cf-download-all-button";
-  public static final String DOWNLOAD_PDF_BUTTON = "cf-download-pdf-button";
   public static final String DOWNLOAD_BUTTON = "cf-download-button";
   public static final String VIEW_BUTTON = "cf-view-application-button";
 
