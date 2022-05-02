@@ -1,6 +1,7 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Optional;
@@ -37,21 +38,15 @@ public class NameQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // TODO: Implement admin-defined validation.
-    return ImmutableSet.of();
+    return ImmutableMap.of(
+        getFirstNamePath(), validateFirstName(),
+        getLastNamePath(), validateLastName());
   }
 
-  @Override
-  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    return ImmutableSet.<ValidationErrorMessage>builder()
-        .addAll(getFirstNameErrors())
-        .addAll(getLastNameErrors())
-        .build();
-  }
-
-  public ImmutableSet<ValidationErrorMessage> getFirstNameErrors() {
-    if (isAnswered() && getFirstNameValue().isEmpty()) {
+  private ImmutableSet<ValidationErrorMessage> validateFirstName() {
+    if (getFirstNameValue().isEmpty()) {
       return getFirstNameErrorMessage();
     }
 
@@ -63,8 +58,8 @@ public class NameQuestion extends QuestionImpl {
         ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_FIRST_REQUIRED));
   }
 
-  public ImmutableSet<ValidationErrorMessage> getLastNameErrors() {
-    if (isAnswered() && getLastNameValue().isEmpty()) {
+  private ImmutableSet<ValidationErrorMessage> validateLastName() {
+    if (getLastNameValue().isEmpty()) {
       return getLastNameErrorMessage();
     }
 

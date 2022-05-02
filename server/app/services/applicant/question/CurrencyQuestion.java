@@ -1,6 +1,7 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.Path;
@@ -35,14 +36,10 @@ public class CurrencyQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    return ImmutableSet.of();
-  }
-
-  @Override
-  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    // There are no inherent requirements in a currency question.
-    return ImmutableSet.of();
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
+    // TODO(#1944): Validate that the provided currency is a valid number. Presently,
+    // this is only implemented in client-side validation.
+    return ImmutableMap.of();
   }
 
   public Optional<Currency> getValue() {

@@ -1,6 +1,7 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.MessageKey;
@@ -34,20 +35,15 @@ public class FileUploadQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // TODO: Implement admin-defined validation.
-    return ImmutableSet.of();
+    // TODO(#1944): Validate that the file has been uploaded.
+    return ImmutableMap.of();
   }
 
   @Override
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of();
-  }
-
-  @Override
-  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    // There are no inherent requirements in a file upload question.
-    return ImmutableSet.of();
   }
 
   @Override

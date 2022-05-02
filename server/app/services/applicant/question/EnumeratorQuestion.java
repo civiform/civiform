@@ -2,6 +2,7 @@ package services.applicant.question;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import services.MessageKey;
 import services.Path;
@@ -40,18 +41,12 @@ public class EnumeratorQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    // There are no inherent requirements in an enumerator question.
-    return ImmutableSet.of();
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
+    // No blank values are allowed. No duplicated entity names are allowed.
+    return ImmutableMap.of(applicantQuestion.getContextualizedPath(), validateEntities());
   }
 
-  /** No blank values are allowed. No duplicated entity names are allowed. */
-  @Override
-  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    if (!isAnswered()) {
-      return ImmutableSet.of();
-    }
-
+  private ImmutableSet<ValidationErrorMessage> validateEntities() {
     ImmutableSet.Builder<ValidationErrorMessage> errorsBuilder = ImmutableSet.builder();
     ImmutableList<String> entityNames = getEntityNames();
     if (entityNames.stream().anyMatch(String::isBlank)) {
@@ -59,8 +54,7 @@ public class EnumeratorQuestion extends QuestionImpl {
           ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_ENTITY_REQUIRED));
     }
     if (entityNames.stream().collect(ImmutableSet.toImmutableSet()).size() != entityNames.size()) {
-      errorsBuilder.add(
-          ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME));
+      errorsBuilder.add(getQuestionErrorMessage());
     }
     return errorsBuilder.build();
   }

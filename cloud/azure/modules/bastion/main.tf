@@ -63,6 +63,10 @@ resource "azurerm_network_interface_security_group_association" "nic_sg" {
   network_interface_id      = azurerm_network_interface.bastion_nic.id
   network_security_group_id = azurerm_network_security_group.public_nsg.id
 }
+resource "tls_private_key" "throwaway_public_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
 
 # Create bastion host VM.
 resource "azurerm_linux_virtual_machine" "bastion_vm" {
@@ -76,7 +80,7 @@ resource "azurerm_linux_virtual_machine" "bastion_vm" {
   # this is required, but we deny all ingres to the machine
   admin_ssh_key {
     username   = "adminuser"
-    public_key = file("~/.ssh/bastion.pub")
+    public_key = tls_private_key.throwaway_public_key.public_key_openssh
   }
 
   os_disk {
