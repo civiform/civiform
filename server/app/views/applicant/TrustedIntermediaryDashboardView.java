@@ -51,7 +51,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
 
   public Content render(
       TrustedIntermediaryGroup tiGroup,
-      String userName,
+      Optional<String> userName,
       ImmutableList<Account> managedAccounts,
       int totalPageCount,
       int page,

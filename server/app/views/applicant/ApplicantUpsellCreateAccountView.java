@@ -39,7 +39,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
       String redirectTo,
       Account account,
       String programTitle,
-      String applicantName,
+      Optional<String> applicantName,
       Long applicationId,
       Messages messages,
       Optional<String> banner) {

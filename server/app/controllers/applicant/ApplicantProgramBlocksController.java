@@ -121,7 +121,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> previous(
       Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {
-    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
     CompletableFuture<Void> applicantAuthCompletableFuture =
         applicantStage
@@ -148,7 +148,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
 
               if (block.isPresent()) {
-                String applicantName = applicantStage.toCompletableFuture().join();
+                Optional<String> applicantName = applicantStage.toCompletableFuture().join();
                 return ok(
                     editView.render(
                         buildApplicantProgramBlockEditViewParams(
@@ -184,7 +184,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   private CompletionStage<Result> editOrReview(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
-    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
         .thenComposeAsync(
@@ -198,7 +198,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
 
               if (block.isPresent()) {
-                String applicantName = applicantStage.toCompletableFuture().join();
+                Optional<String> applicantName = applicantStage.toCompletableFuture().join();
                 return ok(
                     editView.render(
                         buildApplicantProgramBlockEditViewParams(
@@ -240,7 +240,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> updateFile(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
-    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
         .thenComposeAsync(
@@ -313,7 +313,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> update(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
-    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
         .thenComposeAsync(
@@ -347,7 +347,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       long programId,
       String blockId,
-      String applicantName,
+      Optional<String> applicantName,
       boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getBlock(blockId);
@@ -415,7 +415,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Block block,
-      String applicantName) {
+      Optional<String> applicantName) {
     return ApplicantProgramBlockEditView.Params.builder()
         .setRequest(request)
         .setMessages(messagesApi.preferred(request))
