@@ -8,6 +8,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.p;
 
+import java.time.Clock;
 import java.time.ZoneId;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -40,10 +41,10 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final ZoneId zoneId;
 
   @Inject
-  public ProgramIndexView(AdminLayout layout, Config config) {
+  public ProgramIndexView(AdminLayout layout, Config config, Clock clock) {
     this.layout = checkNotNull(layout);
     this.baseUrl = checkNotNull(config).getString("base_url");
-    this.zoneId = ZoneId.of(checkNotNull(config).getString("java.time.zoneid"));
+    this.zoneId = checkNotNull(clock).getZone();
   }
 
   public Content render(
