@@ -1,6 +1,7 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -26,13 +27,8 @@ public class StaticContentQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    return ImmutableSet.of();
-  }
-
-  @Override
-  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    return ImmutableSet.of();
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
+    return ImmutableMap.of();
   }
 
   @Override

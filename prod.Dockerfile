@@ -17,23 +17,30 @@ RUN set -o pipefail && \
 
 ENV PROJECT_HOME /usr/src
 ENV PROJECT_NAME server
+ENV PROJECT_LOC "${PROJECT_HOME}/${PROJECT_NAME}"
 
-COPY "${PROJECT_NAME}" "${PROJECT_HOME}/${PROJECT_NAME}"
-RUN cd "${PROJECT_HOME}/${PROJECT_NAME}" && \
+COPY "${PROJECT_NAME}" "${PROJECT_LOC}"
+RUN cd "${PROJECT_LOC}" && \
     npm install -g npm@8.5.1 && \
     npm install && \
     sbt update && \
-    sbt dist
+    sbt dist && \
+    unzip "${PROJECT_LOC}/target/universal/civiform-server-0.0.1.zip" -d / && \
+    chmod +x /civiform-server-0.0.1/bin/civiform-server
 
-# This is a common trick to shrink container sizes.  we just throw away all that build stuff and use only the jars
-# we built with sbt dist.
-FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim AS stage2
-COPY --from=stage1 /usr/src/server/target/universal/civiform-server-0.0.1.zip /civiform.zip
+# This is a common trick to shrink container sizes. We discard everything added
+# during the build phase and use only the inflated artifacts created by sbt dist.
+FROM adoptopenjdk/openjdk11:jdk-11.0.14.1_1-alpine-slim AS stage2
+COPY --from=stage1 /civiform-server-0.0.1 /civiform-server-0.0.1
+
+# Upgrade packages for stage2 to include latest versions.
+RUN set -o pipefail && \
+    apk update && \
+    apk add --upgrade apk-tools && \
+    apk upgrade --available && \
+    apk add --no-cache --update bash openssh
 
 ARG image_tag
 ENV CIVIFORM_IMAGE_TAG=$image_tag
 
-RUN apk add bash
-
-RUN unzip /civiform.zip; chmod +x /civiform-server-0.0.1/bin/civiform-server
 CMD ["/civiform-server-0.0.1/bin/civiform-server", "-Dconfig.file=/civiform-server-0.0.1/conf/application.conf"]

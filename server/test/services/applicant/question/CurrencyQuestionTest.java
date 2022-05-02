@@ -45,8 +45,7 @@ public class CurrencyQuestionTest {
     CurrencyQuestion currencyQuestion = new CurrencyQuestion(applicantQuestion);
 
     assertThat(currencyQuestion.getValue()).isEmpty();
-    assertThat(currencyQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(currencyQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(currencyQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -71,8 +70,7 @@ public class CurrencyQuestionTest {
 
     CurrencyQuestion currencyQuestion = applicantQuestion.createCurrencyQuestion();
 
-    assertThat(currencyQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(currencyQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(currencyQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(currencyQuestion.getValue().isPresent()).isTrue();
     assertThat(currencyQuestion.getValue().get().getCents()).isEqualTo(cents);
   }

@@ -70,7 +70,7 @@ public class ApplicantQuestionTest {
     ApplicantQuestion question =
         new ApplicantQuestion(definition, new ApplicantData(), Optional.empty());
 
-    assertThat(question.errorsPresenter().getAllTypeSpecificErrors().isEmpty()).isTrue();
+    assertThat(question.errorsPresenter().getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test

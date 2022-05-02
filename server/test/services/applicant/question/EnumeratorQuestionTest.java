@@ -3,6 +3,8 @@ package services.applicant.question;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -12,13 +14,12 @@ import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import play.i18n.Lang;
-import play.i18n.Messages;
-import play.i18n.MessagesApi;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.ValidationErrorMessage;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import support.QuestionAnswerer;
@@ -38,7 +39,6 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
   private Applicant applicant;
   private ApplicantData applicantData;
-  private Messages messages;
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
 
@@ -47,7 +47,6 @@ public class EnumeratorQuestionTest extends ResetPostgres {
     applicant = new Applicant();
     applicantData = applicant.getApplicantData();
     testQuestionBank.reset();
-    messages = instanceOf(MessagesApi.class).preferred(ImmutableList.of(Lang.defaultLang()));
   }
 
   @Test
@@ -58,8 +57,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
     EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
 
     assertThat(enumeratorQuestion.isAnswered()).isFalse();
-    assertThat(enumeratorQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(enumeratorQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(enumeratorQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -75,8 +73,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).contains("first", "second", "third");
-    assertThat(enumeratorQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(enumeratorQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(enumeratorQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -91,10 +88,14 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly(value);
-    assertThat(enumeratorQuestion.getQuestionErrors().isEmpty()).isTrue();
-    assertThat(enumeratorQuestion.getAllTypeSpecificErrors()).hasSize(1);
-    assertThat(enumeratorQuestion.getAllTypeSpecificErrors().asList().get(0).getMessage(messages))
-        .isEqualTo("Please enter a value for each line.");
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        enumeratorQuestion.getValidationErrors();
+    assertThat(validationErrors.size()).isEqualTo(1);
+    assertThat(
+            validationErrors.getOrDefault(
+                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
+        .containsOnly(
+            ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_ENTITY_REQUIRED));
   }
 
   @Test
@@ -110,10 +111,14 @@ public class EnumeratorQuestionTest extends ResetPostgres {
 
     assertThat(enumeratorQuestion.isAnswered()).isTrue();
     assertThat(enumeratorQuestion.getEntityNames()).containsExactly("hello", "hello");
-    assertThat(enumeratorQuestion.getQuestionErrors().isEmpty()).isTrue();
-    assertThat(enumeratorQuestion.getAllTypeSpecificErrors()).hasSize(1);
-    assertThat(enumeratorQuestion.getAllTypeSpecificErrors().asList().get(0).getMessage(messages))
-        .isEqualTo("Please enter a unique value for each line.");
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        enumeratorQuestion.getValidationErrors();
+    assertThat(validationErrors.size()).isEqualTo(1);
+    assertThat(
+            validationErrors.getOrDefault(
+                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
+        .containsOnly(
+            ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME));
   }
 
   @Test
