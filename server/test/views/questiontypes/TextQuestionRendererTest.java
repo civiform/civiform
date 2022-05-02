@@ -48,7 +48,10 @@ public class TextQuestionRendererTest extends ResetPostgres {
             applicantData,
             Optional.empty());
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
-    params = ApplicantQuestionRendererParams.sample(messages);
+    params = ApplicantQuestionRendererParams.builder()
+        .setMessages(messages)
+        .setDisplayErrors(true)
+        .build();
     renderer = new TextQuestionRenderer(question);
   }
 
