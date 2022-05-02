@@ -1,0 +1,18 @@
+name: pr_cloud
+
+# This is a pattern for having workflows that only run when specific paths in the
+# repo are edited and are required when they run, but are otherwise skipped.
+# For more info see:
+# https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks
+
+on:
+  pull_request:
+    branches: main
+    paths-ignore:
+      - 'cloud/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No build required" '
