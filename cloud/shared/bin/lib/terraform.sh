@@ -1,5 +1,13 @@
 #! /usr/bin/env bash
 
+readonly TERRAFORM_BASE_COMMAND="terraform \
+        -chdir=${TERRAFORM_TEMPLATE_DIR}"
+
+readonly TERRAFORM_APPLY="${TERRAFORM_BASE_COMMAND} \
+        apply \
+        -input=false \
+        -var-file=${TF_VAR_FILENAME}"
+
 #######################################
 # Generates terraform variable files and runs terraform init and apply.
 # Also initializes the storage bucket for tfstate if it's not setup yet.
@@ -7,17 +15,15 @@
 #   TERRAFORM_TEMPLATE_DIR
 #   BACKEND_VARS_FILENAME
 #   TF_VAR_FILENAME
-#   
 #######################################
 function terraform::perform_apply() {
   if [[ "${CIVIFORM_MODE}" == "dev" ]]; then
-    terraform -chdir="${TERRAFORM_TEMPLATE_DIR}" init -upgrade
+    ${TERRAFORM_BASE_COMMAND} init -upgrade
   else
     "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/setup_tf_shared_state" \
       "${TERRAFORM_TEMPLATE_DIR}/${BACKEND_VARS_FILENAME}"
 
-    terraform \
-      -chdir="${TERRAFORM_TEMPLATE_DIR}" \
+    ${TERRAFORM_BASE_COMMAND}
       init \
       -input=false \
       -upgrade \
@@ -25,18 +31,9 @@ function terraform::perform_apply() {
   fi
   
   if azure::is_service_principal; then
-    terraform \
-        -chdir="${TERRAFORM_TEMPLATE_DIR}" \
-        apply \
-        -input=false \
-        -auto-approve \
-        -var-file="${TF_VAR_FILENAME}"
+    ${TERRAFORM_APPLY} -auto-approve
   else
-    terraform \
-      -chdir="${TERRAFORM_TEMPLATE_DIR}" \
-      apply \
-      -input=false \
-      -var-file="${TF_VAR_FILENAME}"
+    ${TERRAFORM_APPLY}
   fi
 }
 
