@@ -37,7 +37,7 @@ public class ApplicantInformationView extends BaseHtmlView {
 
   public Content render(
       Http.Request request,
-      String userName,
+      Optional<String> userName,
       Messages messages,
       long applicantId,
       Optional<String> redirectTo) {

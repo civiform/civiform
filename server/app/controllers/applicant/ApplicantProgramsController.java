@@ -63,7 +63,7 @@ public class ApplicantProgramsController extends CiviFormController {
   @Secure
   public CompletionStage<Result> index(Request request, long applicantId) {
     Optional<String> banner = request.flash().get("banner");
-    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
@@ -134,7 +134,7 @@ public class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> view(Request request, long applicantId, long programId) {
-    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
