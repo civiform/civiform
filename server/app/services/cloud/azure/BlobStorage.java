@@ -2,19 +2,6 @@ package services.cloud.azure;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.net.URL;
-import java.net.URLConnection;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
@@ -26,7 +13,17 @@ import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.common.sas.SasProtocol;
 import com.typesafe.config.Config;
-
+import java.net.URL;
+import java.net.URLConnection;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import play.Environment;
 import services.cloud.StorageClient;
 import services.cloud.StorageServiceName;
