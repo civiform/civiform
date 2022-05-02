@@ -46,8 +46,8 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     super();
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = Preconditions.checkNotNull(applicantRepositoryProvider);
-    this.civiFormProfileAdapterHelper = new CiviFormProfileAdapterHelper(profileFactory,
-        applicantRepositoryProvider);
+    this.civiFormProfileAdapterHelper =
+        new CiviFormProfileAdapterHelper(profileFactory, applicantRepositoryProvider);
     this.saml2Client = client;
     this.saml2Configuration = configuration;
   }
@@ -74,7 +74,8 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     SAML2Profile profile = (SAML2Profile) samlProfile.get();
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> existingProfile = profileUtils.currentUserProfile(context);
-    return this.civiFormProfileAdapterHelper.threeWayMerge(existingApplicant, existingProfile, profile, this::mergeCiviFormProfile);
+    return this.civiFormProfileAdapterHelper.threeWayMerge(
+        existingApplicant, existingProfile, profile, this::mergeCiviFormProfile);
   }
 
   @VisibleForTesting

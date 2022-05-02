@@ -47,8 +47,8 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     super(configuration, client);
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = applicantRepositoryProvider;
-    this.civiFormProfileAdapterHelper = new CiviFormProfileAdapterHelper(profileFactory,
-        applicantRepositoryProvider);
+    this.civiFormProfileAdapterHelper =
+        new CiviFormProfileAdapterHelper(profileFactory, applicantRepositoryProvider);
   }
 
   protected abstract String emailAttributeName();
@@ -127,8 +127,8 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> existingProfile = profileUtils.currentUserProfile(context);
-    return civiFormProfileAdapterHelper.threeWayMerge(existingApplicant, existingProfile, profile,
-        this::mergeCiviFormProfile);
+    return civiFormProfileAdapterHelper.threeWayMerge(
+        existingApplicant, existingProfile, profile, this::mergeCiviFormProfile);
   }
 
   @VisibleForTesting
