@@ -18,6 +18,7 @@ import com.typesafe.config.Config;
 
 import auth.CiviFormProfile;
 import controllers.admin.routes;
+import java.time.Clock;
 import j2html.tags.Tag;
 import play.twirl.api.Content;
 import services.program.ActiveAndDraftPrograms;
@@ -38,10 +39,10 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
   private final ZoneId zoneId;
 
   @Inject
-  public ProgramAdministratorProgramListView(AdminLayout layout, Config config) {
+  public ProgramAdministratorProgramListView(AdminLayout layout, Config config, Clock clock) {
     this.layout = checkNotNull(layout);
     this.baseUrl = checkNotNull(config).getString("base_url");
-    this.zoneId = ZoneId.of(checkNotNull(config).getString("java.time.zoneid"));
+    this.zoneId = checkNotNull(clock).getZone();
   }
 
   public Content render(

@@ -11,6 +11,7 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
+import java.time.Clock;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
@@ -42,9 +43,9 @@ public class VersionListView extends BaseHtmlView {
   private final ZoneId zoneId;
 
   @Inject
-  public VersionListView(AdminLayout layout, Config config) {
+  public VersionListView(AdminLayout layout, Config config, Clock clock) {
     this.layout = checkNotNull(layout);
-    this.zoneId = ZoneId.of(checkNotNull(config).getString("java.time.zoneid"));
+    this.zoneId = checkNotNull(clock).getZone();
   }
 
   public Content render(List<Version> allVersions, Http.Request request) {
