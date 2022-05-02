@@ -193,7 +193,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.page.click('#create-question-button')
     await adminQuestions.page.click('#create-text-question')
     await waitForPageJsLoad(adminQuestions.page)
-    expect(await page.isChecked(adminQuestions.selectorForExportOption(AdminQuestions.NO_EXPORT_OPTION))).toBeTruthy()
+    // expect(await page.isChecked(adminQuestions.selectorForExportOption(AdminQuestions.NO_EXPORT_OPTION))).toBeTruthy()
 
     const questionName = 'textQuestionWithObfuscatedExport'
     await adminQuestions.addTextQuestion({
