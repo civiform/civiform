@@ -28,4 +28,17 @@ public class ApplicantDataTest {
     data = new ApplicantData(Optional.of(Locale.FRENCH), "{\"applicant\":{}}");
     assertThat(data.hasPreferredLocale()).isTrue();
   }
+
+  @Test
+  public void getApplicantName_exists() {
+    ApplicantData data = new ApplicantData();
+    data.setUserName("First Last");
+    assertThat(data.getApplicantName()).isEqualTo(Optional.of("Last, First"));
+  }
+
+  @Test
+  public void getApplicantName_noName() {
+    ApplicantData data = new ApplicantData();
+    assertThat(data.getApplicantName()).isEmpty();
+  }
 }

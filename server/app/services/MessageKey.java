@@ -57,6 +57,7 @@ public enum MessageKey {
   FILEUPLOAD_LABEL_CURRENT_FILES("label.currentFiles"),
   FILEUPLOAD_VALIDATION_FILE_REQUIRED("validation.fileRequired"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
+  GUEST("guest"),
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
   ID_VALIDATION_TOO_LONG("validation.idTooLong"),
   ID_VALIDATION_TOO_SHORT("validation.idTooShort"),

@@ -12,6 +12,7 @@ import controllers.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.Locale;
+import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -40,7 +41,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
       ProgramDefinition program,
       Http.Request request,
       long applicantId,
-      String userName) {
+      Optional<String> userName) {
 
     Locale preferredLocale = messages.lang().toLocale();
     String programTitle = program.localizedName().getOrDefault(preferredLocale);

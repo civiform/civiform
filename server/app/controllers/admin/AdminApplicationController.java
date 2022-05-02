@@ -12,6 +12,8 @@ import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 import models.Application;
 import org.pac4j.play.java.Secure;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApplicationRepository;
@@ -26,6 +28,7 @@ import services.export.JsonExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import views.ApplicantUtils;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationView;
 
@@ -41,6 +44,7 @@ public class AdminApplicationController extends CiviFormController {
   private final JsonExporter jsonExporter;
   private final ProfileUtils profileUtils;
   private final Clock clock;
+  private final MessagesApi messagesApi;
   private static final int PAGE_SIZE = 10;
 
   @Inject
@@ -53,6 +57,7 @@ public class AdminApplicationController extends CiviFormController {
       ProgramApplicationView applicationView,
       ApplicationRepository applicationRepository,
       ProfileUtils profileUtils,
+      MessagesApi messagesApi,
       Clock clock) {
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
@@ -63,6 +68,7 @@ public class AdminApplicationController extends CiviFormController {
     this.clock = checkNotNull(clock);
     this.exporterService = checkNotNull(exporterService);
     this.jsonExporter = checkNotNull(jsonExporter);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -177,8 +183,13 @@ public class AdminApplicationController extends CiviFormController {
     }
 
     Application application = applicationMaybe.get();
+    Messages messages = messagesApi.preferred(request);
     String applicantNameWithApplicationId =
-        String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
+        String.format(
+            "%s (%d)",
+            ApplicantUtils.getApplicantName(
+                application.getApplicantData().getApplicantName(), messages),
+            application.id);
 
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
