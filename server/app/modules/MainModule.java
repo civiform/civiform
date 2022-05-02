@@ -2,13 +2,11 @@ package modules;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.time.Clock;
-import java.time.ZoneId;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.typesafe.config.Config;
-
+import java.time.Clock;
+import java.time.ZoneId;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantServiceImpl;
 import services.program.ProgramService;

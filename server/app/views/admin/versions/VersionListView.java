@@ -11,18 +11,16 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
+import controllers.admin.routes;
+import j2html.tags.Tag;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
-import com.typesafe.config.Config;
-
-import controllers.admin.routes;
-import j2html.tags.Tag;
 import models.LifecycleStage;
 import models.Version;
 import play.mvc.Http;
