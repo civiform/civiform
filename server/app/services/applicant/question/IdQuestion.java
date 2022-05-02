@@ -1,6 +1,7 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.MessageKey;
@@ -34,16 +35,11 @@ public class IdQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    return ImmutableSet.of();
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
+    return ImmutableMap.of(getIdPath(), validateId());
   }
 
-  @Override
-  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    if (!isAnswered()) {
-      return ImmutableSet.of();
-    }
-
+  private ImmutableSet<ValidationErrorMessage> validateId() {
     IdQuestionDefinition definition = getQuestionDefinition();
     int idLength = getIdValue().map(s -> s.length()).orElse(0);
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();

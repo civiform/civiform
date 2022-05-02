@@ -10,6 +10,7 @@ import play.i18n.Messages;
 import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
+import services.question.types.QuestionType;
 import views.BaseHtmlView;
 import views.components.TextFormatter;
 import views.style.ApplicantStyles;
@@ -55,8 +56,13 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
             .withClasses(Styles.MB_4);
 
     ImmutableSet<ValidationErrorMessage> questionErrors =
-        question.errorsPresenter().getQuestionErrors();
-    if (!questionErrors.isEmpty()) {
+        question
+            .errorsPresenter()
+            .getValidationErrors()
+            .getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
+    // TODO(#1944): Remove special handling for enumerators once client-side validation is removed
+    // and they don't render a separate div.
+    if (!questionErrors.isEmpty() && question.getType() != QuestionType.ENUMERATOR) {
       // Question error text
       questionTextDiv.with(BaseHtmlView.fieldErrors(messages, questionErrors));
     }

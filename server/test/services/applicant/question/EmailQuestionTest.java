@@ -43,8 +43,7 @@ public class EmailQuestionTest extends ResetPostgres {
 
     EmailQuestion emailQuestion = new EmailQuestion(applicantQuestion);
 
-    assertThat(emailQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(emailQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(emailQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -57,7 +56,6 @@ public class EmailQuestionTest extends ResetPostgres {
     EmailQuestion emailQuestion = new EmailQuestion(applicantQuestion);
 
     assertThat(emailQuestion.getEmailValue().get()).isEqualTo("test1@gmail.com");
-    assertThat(emailQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(emailQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(emailQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 }
