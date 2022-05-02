@@ -94,7 +94,6 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
     bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("validation"));
 
     return layout.renderWithNav(
-        // TODO(clouser): Make sure applicant name is resolved.
         params.request(), params.applicantName(), params.messages(), bundle);
   }
 
