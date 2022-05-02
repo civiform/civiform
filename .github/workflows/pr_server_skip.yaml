@@ -17,7 +17,22 @@ on:
       - 'prod.Dockerfile'
 
 jobs:
-  build:
+  run_junit_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No build required" '
+
+  run_browser_tests_aws:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No build required" '
+
+  run_browser_tests_azure:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No build required" '
+
+  test_prod:
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "No build required" '

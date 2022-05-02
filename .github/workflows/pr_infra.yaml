@@ -15,7 +15,6 @@ jobs:
       - id: file_changes
         uses: trilom/file-changes-action@v1.2.4
       - name: fail if created from a fork
-        if: contains(toJSON(steps.file_changes.outputs.files), 'infra/') && github.event.pull_request.head.repo.full_name != github.repository
         run: |
           echo "Sorry, you created this PR from a fork and therefore we don't have access to the secrets we need to run this test."
           echo "We actually can't even post this as a comment to the GitHub PR, so you probably found this in the logs while trying to figure out what failed."
@@ -28,11 +27,9 @@ jobs:
           exit 1
 
       - name: Checkout
-        if: contains(toJSON(steps.file_changes.outputs.files), 'infra/')
         uses: actions/checkout@v3
 
       - name: Run check-change.
-        if: contains(toJSON(steps.file_changes.outputs.files), 'infra/')
         id: check_change
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
@@ -41,7 +38,7 @@ jobs:
         run: cloud/deploys/seattle/bin/check-cfn-change
 
       - uses: mshick/add-pr-comment@v1
-        if: failure() && contains(toJSON(steps.file_changes.outputs.files), 'infra/')
+        if: failure()
         name: Send failure comment.
         with:
           message: |
@@ -53,7 +50,7 @@ jobs:
 
       - uses: mshick/add-pr-comment@v1
         name: Send success comment.
-        if: success() && contains(toJSON(steps.file_changes.outputs.files), 'infra/')
+        if: success()
         with:
           message: |
             I noticed that you have created a PR which seems to contain a file that updates CloudFormation.

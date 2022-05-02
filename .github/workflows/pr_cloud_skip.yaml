@@ -12,7 +12,12 @@ on:
       - 'cloud/**'
 
 jobs:
-  build:
+  validate_deployment_variable_definitions:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No build required" '
+
+  validate_terraform:
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "No build required" '
