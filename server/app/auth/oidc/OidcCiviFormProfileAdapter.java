@@ -1,6 +1,7 @@
 package auth.oidc;
 
 import auth.CiviFormProfile;
+import auth.CiviFormProfileAdapterHelper;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
@@ -10,7 +11,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import javax.inject.Provider;
-import models.Account;
 import models.Applicant;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
@@ -33,9 +33,11 @@ import repository.UserRepository;
  * implementations of the two abstract methods.
  */
 public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
+
   private static final Logger logger = LoggerFactory.getLogger(OidcCiviFormProfileAdapter.class);
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
+  protected final CiviFormProfileAdapterHelper civiFormProfileAdapterHelper;
 
   public OidcCiviFormProfileAdapter(
       OidcConfiguration configuration,
@@ -45,6 +47,8 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     super(configuration, client);
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = applicantRepositoryProvider;
+    this.civiFormProfileAdapterHelper = new CiviFormProfileAdapterHelper(profileFactory,
+        applicantRepositoryProvider);
   }
 
   protected abstract String emailAttributeName();
@@ -121,43 +125,10 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     }
 
     OidcProfile profile = (OidcProfile) oidcProfile.get();
-    // Check if we already have a profile in the database for the user returned to us by OIDC.
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
-
-    // Now we have a three-way merge situation.  We might have
-    // 1) an applicant in the database (`existingApplicant`),
-    // 2) a guest profile in the browser cookie (`existingProfile`)
-    // 3) an OIDC account in the callback from the OIDC server (`profile`).
-    // We will merge 1 and 2, if present, into `existingProfile`, then merge in `profile`.
-
     Optional<CiviFormProfile> existingProfile = profileUtils.currentUserProfile(context);
-    if (existingApplicant.isPresent()) {
-      if (existingProfile.isEmpty()) {
-        // Easy merge case - we have an existing applicant, but no guest profile.
-        // This will be the most common.
-        existingProfile = Optional.of(profileFactory.wrap(existingApplicant.get()));
-      } else {
-        // Merge the two applicants and prefer the newer one.
-        // For account, use the existing account and ignore the guest account.
-        Applicant guestApplicant = existingProfile.get().getApplicant().join();
-        Account existingAccount = existingApplicant.get().getAccount();
-        Applicant mergedApplicant =
-            applicantRepositoryProvider
-                .get()
-                .mergeApplicants(guestApplicant, existingApplicant.get(), existingAccount)
-                .toCompletableFuture()
-                .join();
-        existingProfile = Optional.of(profileFactory.wrap(mergedApplicant));
-      }
-    }
-
-    // Now merge in the information sent to us by the OIDC server.
-    if (existingProfile.isPresent()) {
-      return Optional.of(mergeCiviFormProfile(existingProfile.get(), profile));
-    }
-
-    logger.debug("Found no existing profile in session cookie.");
-    return Optional.of(civiformProfileFromOidcProfile(profile));
+    return civiFormProfileAdapterHelper.threeWayMerge(existingApplicant, existingProfile, profile,
+        this::mergeCiviFormProfile);
   }
 
   @VisibleForTesting

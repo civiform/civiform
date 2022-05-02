@@ -1,6 +1,7 @@
 package auth.saml;
 
 import auth.CiviFormProfile;
+import auth.CiviFormProfileAdapterHelper;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
@@ -14,7 +15,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.StringJoiner;
 import javax.inject.Provider;
-import models.Account;
 import models.Applicant;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
@@ -32,6 +32,7 @@ import repository.UserRepository;
 public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
 
   private static final Logger logger = LoggerFactory.getLogger(SamlCiviFormProfileAdapter.class);
+  protected final CiviFormProfileAdapterHelper civiFormProfileAdapterHelper;
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
   protected final SAML2Configuration saml2Configuration;
@@ -45,6 +46,8 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     super();
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = Preconditions.checkNotNull(applicantRepositoryProvider);
+    this.civiFormProfileAdapterHelper = new CiviFormProfileAdapterHelper(profileFactory,
+        applicantRepositoryProvider);
     this.saml2Client = client;
     this.saml2Configuration = configuration;
   }
@@ -69,43 +72,9 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     }
 
     SAML2Profile profile = (SAML2Profile) samlProfile.get();
-
-    // Check if we already have a profile in the database for the user returned to us by SAML2.
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
-
-    // Now we have a three-way merge situation.  We might have
-    // 1) an applicant in the database (`existingApplicant`),
-    // 2) a guest profile in the browser cookie (`existingProfile`)
-    // 3) a SAML2Profile in the callback from the Identity Provider (`profile`).
-    // We will merge 1 and 2, if present, into `existingProfile`, then merge in `profile`.
-
     Optional<CiviFormProfile> existingProfile = profileUtils.currentUserProfile(context);
-    if (existingApplicant.isPresent()) {
-      if (existingProfile.isEmpty()) {
-        // Easy merge case - we have an existing applicant, but no guest profile.
-        // This will be the most common.
-        existingProfile = Optional.of(profileFactory.wrap(existingApplicant.get()));
-      } else {
-        // Merge the two applicants and prefer the newer one.
-        // For account, use the existing account and ignore the guest account.
-        Applicant guestApplicant = existingProfile.get().getApplicant().join();
-        Account existingAccount = existingApplicant.get().getAccount();
-        Applicant mergedApplicant =
-            applicantRepositoryProvider
-                .get()
-                .mergeApplicants(guestApplicant, existingApplicant.get(), existingAccount)
-                .toCompletableFuture()
-                .join();
-        existingProfile = Optional.of(profileFactory.wrap(mergedApplicant));
-      }
-    }
-
-    // Now merge in the information sent to us by the SAML Identity Provider.
-    if (existingProfile.isEmpty()) {
-      logger.debug("Found no existing profile in session cookie.");
-      return Optional.of(civiformProfileFromSamlProfile(profile));
-    }
-    return Optional.of(mergeCiviFormProfile(existingProfile.get(), profile));
+    return this.civiFormProfileAdapterHelper.threeWayMerge(existingApplicant, existingProfile, profile, this::mergeCiviFormProfile);
   }
 
   @VisibleForTesting
