@@ -23,16 +23,18 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
   @Test
   public void insert_persistsANewKey() {
     ApiKey foundKey;
-    ApiKey apiKey = new ApiKey();
-    apiKey.setName("key name");
-    apiKey.setKeyId("key-id");
-    apiKey.setCreatedBy("test@example.com");
-    apiKey.setSaltedKeySecret("secret");
-    apiKey.setSubnet("0.0.0.0/32");
-    apiKey.setExpiration(Instant.ofEpochSecond(100));
     ApiKeyGrants grants = new ApiKeyGrants();
     grants.grantProgramPermission("program-a", ApiKeyGrants.Permission.READ);
-    apiKey.setGrants(grants);
+    ApiKey apiKey = new ApiKey();
+
+    apiKey
+        .setName("key name")
+        .setKeyId("key-id")
+        .setCreatedBy("test@example.com")
+        .setSaltedKeySecret("secret")
+        .setSubnet("0.0.0.0/32")
+        .setExpiration(Instant.ofEpochSecond(100))
+        .setGrants(grants);
 
     ApiKeyRepository repo = instanceOf(ApiKeyRepository.class);
     repo.insert(apiKey).toCompletableFuture().join();

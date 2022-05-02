@@ -22,6 +22,9 @@ public class ApiKeyGrants {
     READ;
   }
 
+  @JsonProperty("programGrants")
+  private Multimap<String, Permission> programGrants;
+
   /** Create a new instance with no grants. */
   public ApiKeyGrants() {
     this.programGrants = HashMultimap.create();
@@ -32,9 +35,6 @@ public class ApiKeyGrants {
   public ApiKeyGrants(@JsonProperty("programGrants") Multimap<String, Permission> programGrants) {
     this.programGrants = checkNotNull(programGrants);
   }
-
-  @JsonProperty("programGrants")
-  private Multimap<String, Permission> programGrants;
 
   /**
    * Grant the ability to do {@code permission} for the program identified by {@code programSlug}.

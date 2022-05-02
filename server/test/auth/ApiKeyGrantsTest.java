@@ -9,58 +9,82 @@ public class ApiKeyGrantsTest {
 
   private static final String PROGRAM_1_SLUG = "program-1";
   private static final String PROGRAM_2_SLUG = "program-2";
-  private ApiKeyGrants subject;
+  private ApiKeyGrants apiKeyGrants;
 
   @Before
   public void setUp() {
-    subject = new ApiKeyGrants();
+    apiKeyGrants = new ApiKeyGrants();
   }
 
   @Test
   public void hasProgramPermission_readAllowsRead() {
-    subject.grantProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ);
+    apiKeyGrants.grantProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ);
 
-    assertThat(subject.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.WRITE))
+    assertThat(apiKeyGrants.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.WRITE))
         .isFalse();
-    assertThat(subject.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ)).isTrue();
+    assertThat(apiKeyGrants.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ))
+        .isTrue();
   }
 
   @Test
   public void hasProgramPermission_writeAllowsWrite() {
-    subject.grantProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.WRITE);
+    apiKeyGrants.grantProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.WRITE);
 
-    assertThat(subject.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.WRITE))
+    assertThat(apiKeyGrants.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.WRITE))
         .isTrue();
-    assertThat(subject.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ))
+    assertThat(apiKeyGrants.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ))
+        .isFalse();
+  }
+
+  @Test
+  public void hasProgramPermission_doesntConfuseSlugs() {
+    apiKeyGrants.grantProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.WRITE);
+    apiKeyGrants.grantProgramPermission(PROGRAM_2_SLUG, ApiKeyGrants.Permission.READ);
+
+    assertThat(apiKeyGrants.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.WRITE))
+        .isTrue();
+    assertThat(apiKeyGrants.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ))
+        .isFalse();
+    assertThat(apiKeyGrants.hasProgramPermission(PROGRAM_2_SLUG, ApiKeyGrants.Permission.WRITE))
+        .isFalse();
+    assertThat(apiKeyGrants.hasProgramPermission(PROGRAM_2_SLUG, ApiKeyGrants.Permission.READ))
+        .isTrue();
+  }
+
+  @Test
+  public void hasProgramPermission_allPermissionsAreFalse() {
+    assertThat(apiKeyGrants.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.WRITE))
+        .isFalse();
+    assertThat(apiKeyGrants.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ))
         .isFalse();
   }
 
   @Test
   public void revokeProgramPermission_removesThePermission() {
-    subject.grantProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ);
-    subject.grantProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.WRITE);
+    apiKeyGrants.grantProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ);
+    apiKeyGrants.grantProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.WRITE);
 
-    subject.revokeProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ);
+    apiKeyGrants.revokeProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ);
 
-    assertThat(subject.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.WRITE))
+    assertThat(apiKeyGrants.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.WRITE))
         .isTrue();
-    assertThat(subject.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ))
+    assertThat(apiKeyGrants.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ))
         .isFalse();
   }
 
   @Test
   public void revokeAllProgramPermissions_revokesAllPermissions() {
-    subject.grantProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ);
-    subject.grantProgramPermission(PROGRAM_2_SLUG, ApiKeyGrants.Permission.READ);
-    subject.grantProgramPermission(PROGRAM_2_SLUG, ApiKeyGrants.Permission.WRITE);
+    apiKeyGrants.grantProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ);
+    apiKeyGrants.grantProgramPermission(PROGRAM_2_SLUG, ApiKeyGrants.Permission.READ);
+    apiKeyGrants.grantProgramPermission(PROGRAM_2_SLUG, ApiKeyGrants.Permission.WRITE);
 
-    subject.revokeAllProgramPermissions();
+    apiKeyGrants.revokeAllProgramPermissions();
 
-    assertThat(subject.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ))
+    assertThat(apiKeyGrants.hasProgramPermission(PROGRAM_1_SLUG, ApiKeyGrants.Permission.READ))
         .isFalse();
-    assertThat(subject.hasProgramPermission(PROGRAM_2_SLUG, ApiKeyGrants.Permission.READ))
+    assertThat(apiKeyGrants.hasProgramPermission(PROGRAM_2_SLUG, ApiKeyGrants.Permission.READ))
         .isFalse();
-    assertThat(subject.hasProgramPermission(PROGRAM_2_SLUG, ApiKeyGrants.Permission.WRITE))
+    assertThat(apiKeyGrants.hasProgramPermission(PROGRAM_2_SLUG, ApiKeyGrants.Permission.WRITE))
         .isFalse();
   }
 }
