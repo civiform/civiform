@@ -20,11 +20,20 @@ import play.inject.guice.GuiceApplicationBuilder;
 public class MainModuleTest {
   
   @Test
+  public void testTimeZone_configValueNotSet_DefaultsToPST() {
+    Application app = new GuiceApplicationBuilder()
+      .build();
+    Clock clock = app.injector().instanceOf(Clock.class);
+    assertThat(clock.getZone()).isEqualTo(ZoneId.of("America/Los_Angeles"));
+  }
+
+  @Test
   @Parameters({
     "America/Los_Angeles",
-    "America/New_York"
+    "America/New_York",
+    "America/Chicago"
   })
-  public void testTimeZone(String timeZone) {
+  public void testTimeZone_configValueProvided(String timeZone) {
     Application app = new GuiceApplicationBuilder()
       .configure(ConfigFactory.parseMap(ImmutableMap.of("java.time.zoneid", timeZone)))
       .build();
