@@ -1,7 +1,7 @@
 package auth.saml;
 
 import auth.CiviFormProfile;
-import auth.CiviFormProfileAdapterHelper;
+import auth.CiviFormProfileMerger;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
@@ -32,7 +32,7 @@ import repository.UserRepository;
 public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
 
   private static final Logger logger = LoggerFactory.getLogger(SamlCiviFormProfileAdapter.class);
-  protected final CiviFormProfileAdapterHelper civiFormProfileAdapterHelper;
+  protected final CiviFormProfileMerger civiFormProfileMerger;
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
   protected final SAML2Configuration saml2Configuration;
@@ -46,8 +46,8 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     super();
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = Preconditions.checkNotNull(applicantRepositoryProvider);
-    this.civiFormProfileAdapterHelper =
-        new CiviFormProfileAdapterHelper(profileFactory, applicantRepositoryProvider);
+    this.civiFormProfileMerger =
+        new CiviFormProfileMerger(profileFactory, applicantRepositoryProvider);
     this.saml2Client = client;
     this.saml2Configuration = configuration;
   }
@@ -74,7 +74,7 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     SAML2Profile profile = (SAML2Profile) samlProfile.get();
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> existingProfile = profileUtils.currentUserProfile(context);
-    return this.civiFormProfileAdapterHelper.threeWayMerge(
+    return this.civiFormProfileMerger.threeWayMerge(
         existingApplicant, existingProfile, profile, this::mergeCiviFormProfile);
   }
 

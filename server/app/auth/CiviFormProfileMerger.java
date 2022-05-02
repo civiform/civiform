@@ -14,14 +14,14 @@ import repository.UserRepository;
  * This class serves to abstract out common application logic in ProfileAdapters into shared helper
  * methods.
  */
-public class CiviFormProfileAdapterHelper {
+public class CiviFormProfileMerger {
 
-  private static final Logger logger = LoggerFactory.getLogger(CiviFormProfileAdapterHelper.class);
+  private static final Logger logger = LoggerFactory.getLogger(CiviFormProfileMerger.class);
 
   private final ProfileFactory profileFactory;
   private final Provider<UserRepository> applicantRepositoryProvider;
 
-  public CiviFormProfileAdapterHelper(
+  public CiviFormProfileMerger(
       ProfileFactory profileFactory, Provider<UserRepository> applicantRepositoryProvider) {
     this.profileFactory = profileFactory;
     this.applicantRepositoryProvider = applicantRepositoryProvider;

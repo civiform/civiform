@@ -1,7 +1,7 @@
 package auth.oidc;
 
 import auth.CiviFormProfile;
-import auth.CiviFormProfileAdapterHelper;
+import auth.CiviFormProfileMerger;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
@@ -37,7 +37,7 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
   private static final Logger logger = LoggerFactory.getLogger(OidcCiviFormProfileAdapter.class);
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
-  protected final CiviFormProfileAdapterHelper civiFormProfileAdapterHelper;
+  protected final CiviFormProfileMerger civiFormProfileMerger;
 
   public OidcCiviFormProfileAdapter(
       OidcConfiguration configuration,
@@ -47,8 +47,8 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     super(configuration, client);
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = applicantRepositoryProvider;
-    this.civiFormProfileAdapterHelper =
-        new CiviFormProfileAdapterHelper(profileFactory, applicantRepositoryProvider);
+    this.civiFormProfileMerger =
+        new CiviFormProfileMerger(profileFactory, applicantRepositoryProvider);
   }
 
   protected abstract String emailAttributeName();
@@ -127,7 +127,7 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> existingProfile = profileUtils.currentUserProfile(context);
-    return civiFormProfileAdapterHelper.threeWayMerge(
+    return civiFormProfileMerger.threeWayMerge(
         existingApplicant, existingProfile, profile, this::mergeCiviFormProfile);
   }
 
