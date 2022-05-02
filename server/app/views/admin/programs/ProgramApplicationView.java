@@ -21,6 +21,7 @@ import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
@@ -76,8 +77,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .setId("download-button")
         .setHref(link)
         .setText("Export to PDF")
-        .setStyles(ReferenceClasses.APPLY_BUTTON, Styles.FLOAT_RIGHT, Styles._MT_14)
-        .asButton();
+        .asRightAlignedButton();
   }
 
   private Tag renderApplicationBlock(long programId, Block block, Collection<AnswerData> answers) {
