@@ -130,12 +130,12 @@ public class ApiKey extends BaseModel {
    * The client IPv4 address of the last request to successfully auth with the ApiKey. Empty if the
    * ApiKey has never been used.
    */
-  public String getLastCallIpAddress() {
+  public Optional<String> getLastCallIpAddress() {
     return Optional.ofNullable(lastCallIpAddress);
   }
 
   /** The client IPv4 address of the last request to successfully auth with the ApiKey. */
-  public Optional<String> setLastCallIpAddress(String lastCallIpAddress) {
+  public ApiKey setLastCallIpAddress(String lastCallIpAddress) {
     this.lastCallIpAddress = lastCallIpAddress;
     return this;
   }
