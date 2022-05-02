@@ -1,8 +1,8 @@
 package auth.saml;
 
 import auth.CiviFormProfile;
-import auth.CiviFormProfileMerger;
 import auth.CiviFormProfileData;
+import auth.CiviFormProfileMerger;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
 import auth.Roles;
