@@ -10,7 +10,11 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApiKey;
 
-/** Provides an asynchronous API for persistence and query of {@link ApiKey} instances. */
+/**
+ * Provides an asynchronous API for persistence and query of {@link ApiKey} instances. Uses {@code
+ * DatabaseExecutionContext} for scheduling code to be executed using the database interaction
+ * thread pool.
+ */
 public class ApiKeyRepository {
   private final Database database;
   private final DatabaseExecutionContext executionContext;
@@ -21,7 +25,7 @@ public class ApiKeyRepository {
     this.executionContext = checkNotNull(executionContext);
   }
 
-  /** Insert a new ApiKey record using a thread from {@link DatabaseExecutionContext}. */
+  /** Insert a new {@link ApiKey} record asynchronously. */
   public CompletionStage<ApiKey> insert(ApiKey apiKey) {
     return supplyAsync(
         () -> {
@@ -31,20 +35,14 @@ public class ApiKeyRepository {
         executionContext);
   }
 
-  /**
-   * Find an ApiKey record by database primary ID using a thread from {@link
-   * DatabaseExecutionContext}.
-   */
+  /** Find an ApiKey record by database primary ID asynchronously. */
   public CompletionStage<Optional<ApiKey>> lookupApiKey(long id) {
     return supplyAsync(
         () -> Optional.ofNullable(database.find(ApiKey.class).setId(id).findOne()),
         executionContext);
   }
 
-  /**
-   * Find an ApiKey record by the key's string ID using a thread from {@link
-   * DatabaseExecutionContext}.
-   */
+  /** Find an ApiKey record by the key's string ID asynchronously. */
   public CompletionStage<Optional<ApiKey>> lookupApiKey(String keyId) {
     return supplyAsync(
         () ->
