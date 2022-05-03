@@ -10,9 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
-/**
- * This class serves to abstract out common user profile merging logic into a shared helper.
- */
+/** This class serves to abstract out common user profile merging logic into a shared helper. */
 public class CiviFormProfileMerger {
 
   private static final Logger logger = LoggerFactory.getLogger(CiviFormProfileMerger.class);
