@@ -30,7 +30,7 @@ jobs:
       - name: Build test app container
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -t civiform --cache-from docker.io/civiform/civiform:latest ./
+        run: docker build -t civiform-dev --cache-from docker.io/civiform/civiform:latest ./
       - name: Build browser testing container
         env:
           DOCKER_BUILDKIT: 1
@@ -55,7 +55,7 @@ jobs:
       - name: Build test app container
         env:
           DOCKER_BUILDKIT: 1
-        run: docker build -t civiform --cache-from docker.io/civiform/civiform:latest ./
+        run: docker build -t civiform-dev --cache-from docker.io/civiform/civiform:latest ./
       - name: Build browser testing container
         env:
           DOCKER_BUILDKIT: 1
