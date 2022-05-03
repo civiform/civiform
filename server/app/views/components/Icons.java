@@ -3,51 +3,84 @@ package views.components;
 import j2html.tags.ContainerTag;
 import services.question.types.QuestionType;
 
-/** Class to hold constants for icons and provide methods for rendering SVG components. */
+/**
+ * Class to hold constants for icons and provide methods for rendering SVG components. Most of these
+ * icons are from https://fonts.google.com/icons, each one is commented with its icon name.
+ */
 public class Icons {
+
+  // Place
   public static final String ADDRESS_SVG_PATH =
       "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38"
           + " 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z";
   public static final String ANNOTATION_SVG_PATH =
       "M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z";
-  // Check
-  public static final String CHECKBOX_SVG_PATH = "M5 13l4 4L19 7";
+  // Check Box
+  public static final String CHECKBOX_SVG_PATH =
+      "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0"
+          + " 16H5V5h14v14zM17.99 9l-1.41-1.42-6.59 6.59-2.58-2.57-1.42 1.41 4 3.99z";
+  // Payments
   public static final String CURRENCY_SVG_PATH =
-      "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3"
-          + " 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11"
-          + " 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z";
+      "M19,14V6c0-1.1-0.9-2-2-2H3C1.9,4,1,4.9,1,6v8c0,1.1,0.9,2,2,2h14C18.1,16,19,15.1,19,14z"
+          + " M17,14H3V6h14V14z M10,7 c-1.66,0-3,1.34-3,3s1.34,3,3,3s3-1.34,3-3S11.66,7,10,7z"
+          + " M23,7v11c0,1.1-0.9,2-2,2H4c0-1,0-0.9,0-2h17V7C22.1,7,22,7,23,7z";
+  // Date Range
   public static final String DATE_SVG_PATH =
-      "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z";
-  // Menu
-  public static final String DROPDOWN_SVG_PATH = "M4 6h16M4 10h16M4 14h16M4 18h16";
+      "M19 4h-1V3c0-.55-.45-1-1-1s-1 .45-1 1v1H8V3c0-.55-.45-1-1-1s-1 .45-1 1v1H5c-1.11"
+          + " 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 15c0"
+          + " .55-.45 1-1 1H6c-.55 0-1-.45-1-1V9h14v10zM7 11h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z";
+  // Arrow Drop Down Circle
+  public static final String DROPDOWN_SVG_PATH =
+      "M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.48 2 2 6.48 2 12s4.48 10 10"
+          + " 10 10-4.48 10-10S17.52 2 12 2zm0 13l-4-4h8z";
+  // Email
   public static final String EMAIL_SVG_PATH =
-      "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2"
-          + " 0 002 2z";
+      "M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8"
+          + " 5-8-5h16zm0 12H4V8l8 5 8-5v10z";
+  // Forms Add On
   public static final String ENUMERATOR_SVG_PATH =
-      "M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2"
-          + " 2 0 00-2 2v8a2 2 0 002 2z";
+      "M19 6H7V4H19ZM7 10V8H19V10ZM7 14V12H13.65Q13.075 12.4 12.613 12.9Q12.15 13.4 11.8 14ZM7"
+          + " 16H11.075Q11.025 16.25 11.012 16.488Q11 16.725 11 16.975Q11 17.25 11.025 17.5Q11.05"
+          + " 17.75 11.1 18H7ZM16"
+          + " 20.975V17.975H13V15.975H16V12.975H18V15.975H21V17.975H18V20.975ZM5 6H3V4H5ZM3"
+          + " 10V8H5V10ZM3 14V12H5V14ZM3 16H5V18H3Z";
   // Upload
   public static final String FILEUPLOAD_SVG_PATH =
-      "M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0"
-          + " 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0"
-          + " 01-1.414 0z";
+      "M11 16V7.85L8.4 10.45L7 9L12 4L17 9L15.6 10.45L13 7.85V16ZM6 20Q5.175 20 4.588 19.413Q4"
+          + " 18.825 4 18V15H6V18Q6 18 6 18Q6 18 6 18H18Q18 18 18 18Q18 18 18 18V15H20V18Q20"
+          + " 18.825 19.413 19.413Q18.825 20 18 20Z";
+  // Badge
   public static final String ID_SVG_PATH =
-      "M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118"
-          + "0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839"
-          + "1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364"
-          + "0-1.457.39-2.823 1.07-4";
+      "M14 13.5H18V12H14ZM14 16.5H18V15H14ZM15 7H20Q20.825 7 21.413 7.587Q22 8.175 22 9V20Q22"
+          + " 20.825 21.413 21.413Q20.825 22 20 22H4Q3.175 22 2.588 21.413Q2 20.825 2 20V9Q2 8.175"
+          + " 2.588 7.587Q3.175 7 4 7H9V4Q9 3.175 9.588 2.587Q10.175 2 11 2H13Q13.825 2 14.413"
+          + " 2.587Q15 3.175 15 4ZM11 9H13V4H11ZM12 14.5Q12 14.5 12 14.5Q12 14.5 12 14.5Q12 14.5"
+          + " 12 14.5Q12 14.5 12 14.5Q12 14.5 12 14.5Q12 14.5 12 14.5Q12 14.5 12 14.5Q12 14.5 12"
+          + " 14.5Q12 14.5 12 14.5Q12 14.5 12 14.5Q12 14.5 12 14.5Q12 14.5 12 14.5ZM9 15Q9.625 15"
+          + " 10.062 14.562Q10.5 14.125 10.5 13.5Q10.5 12.875 10.062 12.438Q9.625 12 9 12Q8.375 12"
+          + " 7.938 12.438Q7.5 12.875 7.5 13.5Q7.5 14.125 7.938 14.562Q8.375 15 9 15ZM6"
+          + " 18H12V17.55Q12 17.125 11.762 16.762Q11.525 16.4 11.1 16.2Q10.6 15.975 10.088"
+          + " 15.863Q9.575 15.75 9 15.75Q8.425 15.75 7.913 15.863Q7.4 15.975 6.9 16.2Q6.475 16.4"
+          + " 6.238 16.762Q6 17.125 6 17.55ZM9 9H4Q4 9 4 9Q4 9 4 9V20Q4 20 4 20Q4 20 4 20H20Q20 20"
+          + " 20 20Q20 20 20 20V9Q20 9 20 9Q20 9 20 9H15Q15 9.825 14.413 10.412Q13.825 11 13"
+          + " 11H11Q10.175 11 9.588 10.412Q9 9.825 9 9Z";
+  // Person
   public static final String NAME_SVG_PATH =
-      "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34"
-          + " 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99"
-          + " 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z";
-  // Calculator
+      "M12 12Q10.35 12 9.175 10.825Q8 9.65 8 8Q8 6.35 9.175 5.175Q10.35 4 12 4Q13.65 4 14.825"
+          + " 5.175Q16 6.35 16 8Q16 9.65 14.825 10.825Q13.65 12 12 12ZM4 20V17.2Q4 16.35 4.438"
+          + " 15.637Q4.875 14.925 5.6 14.55Q7.15 13.775 8.75 13.387Q10.35 13 12 13Q13.65 13 15.25"
+          + " 13.387Q16.85 13.775 18.4 14.55Q19.125 14.925 19.562 15.637Q20 16.35 20 17.2V20ZM6"
+          + " 18H18V17.2Q18 16.925 17.863 16.7Q17.725 16.475 17.5 16.35Q16.15 15.675 14.775"
+          + " 15.337Q13.4 15 12 15Q10.6 15 9.225 15.337Q7.85 15.675 6.5 16.35Q6.275 16.475 6.138"
+          + " 16.7Q6 16.925 6 17.2ZM12 10Q12.825 10 13.413 9.412Q14 8.825 14 8Q14 7.175 13.413"
+          + " 6.588Q12.825 6 12 6Q11.175 6 10.588 6.588Q10 7.175 10 8Q10 8.825 10.588 9.412Q11.175"
+          + " 10 12 10ZM12 8Q12 8 12 8Q12 8 12 8Q12 8 12 8Q12 8 12 8Q12 8 12 8Q12 8 12 8Q12 8 12"
+          + " 8Q12 8 12 8ZM12 18Q12 18 12 18Q12 18 12 18Q12 18 12 18Q12 18 12 18Q12 18 12 18Q12 18"
+          + " 12 18Q12 18 12 18Q12 18 12 18Z";
+  // Numbers
   public static final String NUMBER_SVG_PATH =
-      "M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0"
-          + " 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 3a1 1 0 100 2h.01a1 1 0"
-          + " 100-2H10zm-4 1a1 1 0 011-1h.01a1 1 0 110 2H7a1 1 0 01-1-1zm1-4a1 1 0 100 2h.01a1 1 0"
-          + " 100-2H7zm2 1a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm4-4a1 1 0 100 2h.01a1 1 0"
-          + " 100-2H13zM9 9a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zM7 8a1 1 0 000 2h.01a1 1 0"
-          + " 000-2H7z";
+      "M20.5,10L21,8h-4l1-4h-2l-1,4h-4l1-4h-2L9,8H5l-0.5,2h4l-1,4h-4L3,16h4l-1,4h2l1-4h4l-1,4h2l1-4h4l0.5-2h-4l1-4H20.5z"
+          + " M13.5,14h-4l1-4h4L13.5,14z";
   public static final String PLUS_SVG_PATH =
       "M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z";
   public static final String SEARCH_SVG_PATH =
@@ -55,10 +88,21 @@ public class Icons {
           + "  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92"
           + "  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z"
           + " M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17 s-17-7.626-17-17S14.61,6,23.984,6z";
-  // Custom: the circle from Stop plus the little circle from Cog
-  public static final String RADIO_BUTTON_OUTER_SVG_PATH = "M21 12a9 9 0 11-18 0 9 9 0 0118 0z";
-  public static final String RADIO_BUTTON_INNER_SVG_PATH = "M15 12a3 3 0 11-6 0 3 3 0 016 0z";
-  public static final String TEXT_SVG_PATH =
+  // Radio Button Checked
+  public static final String RADIO_BUTTON_PATH =
+      "M12 17Q14.075 17 15.538 15.537Q17 14.075 17 12Q17 9.925 15.538 8.462Q14.075 7 12 7Q9.925 7"
+          + " 8.463 8.462Q7 9.925 7 12Q7 14.075 8.463 15.537Q9.925 17 12 17ZM12 22Q9.925 22 8.1"
+          + " 21.212Q6.275 20.425 4.925 19.075Q3.575 17.725 2.788 15.9Q2 14.075 2 12Q2 9.925 2.788"
+          + " 8.1Q3.575 6.275 4.925 4.925Q6.275 3.575 8.1 2.787Q9.925 2 12 2Q14.075 2 15.9"
+          + " 2.787Q17.725 3.575 19.075 4.925Q20.425 6.275 21.212 8.1Q22 9.925 22 12Q22 14.075"
+          + " 21.212 15.9Q20.425 17.725 19.075 19.075Q17.725 20.425 15.9 21.212Q14.075 22 12"
+          + " 22ZM12 12Q12 12 12 12Q12 12 12 12Q12 12 12 12Q12 12 12 12Q12 12 12 12Q12 12 12 12Q12"
+          + " 12 12 12Q12 12 12 12ZM12 20Q15.325 20 17.663 17.663Q20 15.325 20 12Q20 8.675 17.663"
+          + " 6.337Q15.325 4 12 4Q8.675 4 6.338 6.337Q4 8.675 4 12Q4 15.325 6.338 17.663Q8.675 20"
+          + " 12 20Z";
+  // Notes
+  public static final String TEXT_SVG_PATH = "M21 11.01L3 11v2h18zM3 16h12v2H3zM21 6H3v2.01L21 8z";
+  public static final String UNKNOWN_SVG_PATH =
       "M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0"
           + " 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4"
           + " 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5"
@@ -84,55 +128,38 @@ public class Icons {
         iconPath = Icons.ADDRESS_SVG_PATH;
         break;
       case CHECKBOX:
-        return svg(Icons.CHECKBOX_SVG_PATH, width, height)
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2");
+        iconPath = Icons.CHECKBOX_SVG_PATH;
+        break;
       case CURRENCY:
-        return svg(Icons.CURRENCY_SVG_PATH, width, height)
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2");
+        iconPath = Icons.CURRENCY_SVG_PATH;
+        break;
       case DATE:
-        return svg(Icons.DATE_SVG_PATH, width, height)
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2");
+        iconPath = Icons.DATE_SVG_PATH;
+        break;
       case DROPDOWN:
-        return svg(Icons.DROPDOWN_SVG_PATH, width, height)
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2");
+        iconPath = Icons.DROPDOWN_SVG_PATH;
+        break;
       case EMAIL:
-        return svg(Icons.EMAIL_SVG_PATH, width, height)
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2");
+        iconPath = Icons.EMAIL_SVG_PATH;
+        break;
       case FILEUPLOAD:
-        return svg(Icons.FILEUPLOAD_SVG_PATH, width, height)
-            .attr("fill-rule", "evenodd")
-            .attr("clip-rule", "evenodd");
+        iconPath = Icons.FILEUPLOAD_SVG_PATH;
+        break;
       case ID:
-        return svg(Icons.ID_SVG_PATH, width, height);
+        iconPath = Icons.ID_SVG_PATH;
+        break;
       case NAME:
         iconPath = Icons.NAME_SVG_PATH;
         break;
       case NUMBER:
-        return svg(Icons.NUMBER_SVG_PATH, width, height).attr("fill-rule", "evenodd");
+        iconPath = Icons.NUMBER_SVG_PATH;
+        break;
       case RADIO_BUTTON:
-        return svg(Icons.RADIO_BUTTON_OUTER_SVG_PATH, width, height)
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round")
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-width", "2")
-            .with(path(Icons.RADIO_BUTTON_INNER_SVG_PATH));
+        iconPath = Icons.RADIO_BUTTON_PATH;
+        break;
       case ENUMERATOR:
         iconPath = Icons.ENUMERATOR_SVG_PATH;
-        return svg(iconPath, width, height).attr("fill", "transparent").attr("stroke-width", "2");
+        break;
       case STATIC:
         return svg(Icons.ANNOTATION_SVG_PATH, width, height)
             .attr("fill", "none")
@@ -140,8 +167,10 @@ public class Icons {
             .attr("stroke-linejoin", "round")
             .attr("stroke-width", "2");
       case TEXT:
-      default:
         iconPath = Icons.TEXT_SVG_PATH;
+        break;
+      default:
+        iconPath = Icons.UNKNOWN_SVG_PATH;
     }
     return svg(iconPath, width, height);
   }

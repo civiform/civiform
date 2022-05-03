@@ -80,7 +80,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 Styles.HIDDEN);
 
     for (QuestionType type : QuestionType.values()) {
-      String typeString = type.toString().toLowerCase();
+      String typeString = type.getTypeString();
       String link = controllers.admin.routes.AdminQuestionController.newOne(typeString).url();
       ContainerTag linkTag =
           a().withHref(link)
