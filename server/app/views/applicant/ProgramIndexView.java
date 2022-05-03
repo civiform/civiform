@@ -71,7 +71,7 @@ public class ProgramIndexView extends BaseHtmlView {
       Messages messages,
       Http.Request request,
       long applicantId,
-      String userName,
+      Optional<String> userName,
       ImmutableList<ProgramDefinition> draftPrograms,
       ImmutableList<ProgramDefinition> activePrograms,
       Optional<String> banner) {

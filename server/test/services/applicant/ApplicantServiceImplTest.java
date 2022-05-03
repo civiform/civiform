@@ -713,14 +713,13 @@ public class ApplicantServiceImplTest extends ResetPostgres {
 
   @Test
   public void getName_invalidApplicantId_doesNotFail() {
-    subject.getName(9999L).toCompletableFuture().join();
+    assertThat(subject.getName(9999L).toCompletableFuture().join()).isEmpty();
   }
 
   @Test
-  public void getName_anonymousApplicant() {
+  public void getName_noName() {
     Applicant applicant = resourceCreator.insertApplicant();
-    String name = subject.getName(applicant.id).toCompletableFuture().join();
-    assertThat(name).isEqualTo("<Anonymous Applicant>");
+    assertThat(subject.getName(applicant.id).toCompletableFuture().join()).isEmpty();
   }
 
   @Test
@@ -728,8 +727,8 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("Hello World");
     applicant.save();
-    String name = subject.getName(applicant.id).toCompletableFuture().join();
-    assertThat(name).isEqualTo("World, Hello");
+    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
+        .isEqualTo(Optional.of("World, Hello"));
   }
 
   @Test
@@ -737,8 +736,8 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("First Middle Last");
     applicant.save();
-    String name = subject.getName(applicant.id).toCompletableFuture().join();
-    assertThat(name).isEqualTo("Last, First");
+    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
+        .isEqualTo(Optional.of("Last, First"));
   }
 
   @Test
@@ -746,8 +745,8 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("First Second Third Fourth");
     applicant.save();
-    String name = subject.getName(applicant.id).toCompletableFuture().join();
-    assertThat(name).isEqualTo("First Second Third Fourth");
+    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
+        .isEqualTo(Optional.of("First Second Third Fourth"));
   }
 
   @Test
@@ -755,8 +754,8 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("Mononymous");
     applicant.save();
-    String name = subject.getName(applicant.id).toCompletableFuture().join();
-    assertThat(name).isEqualTo("Mononymous");
+    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
+        .isEqualTo(Optional.of("Mononymous"));
   }
 
   @Test

@@ -69,7 +69,7 @@ public final class ApplicantInformationController extends CiviFormController {
             ? Optional.of(request.session().data().get(REDIRECT_TO_SESSION_KEY))
             : Optional.empty();
 
-    CompletionStage<String> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
