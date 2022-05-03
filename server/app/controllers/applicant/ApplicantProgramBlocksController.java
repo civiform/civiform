@@ -419,7 +419,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Block block,
-      Optional<String> applicantName
+      Optional<String> applicantName,
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode) {
     return ApplicantProgramBlockEditView.Params.builder()
         .setRequest(request)
