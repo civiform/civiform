@@ -93,7 +93,7 @@ export const userDisplayName = () => {
   if (isTestUser()) {
     return 'TEST, UATAPP'
   } else {
-    return '<Anonymous Applicant>'
+    return 'Guest'
   }
 }
 

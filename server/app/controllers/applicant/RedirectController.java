@@ -107,7 +107,7 @@ public class RedirectController extends CiviFormController {
           badRequest("You are not signed in - you cannot perform this action."));
     }
 
-    CompletionStage<String> applicantName = applicantService.getName(applicantId);
+    CompletionStage<Optional<String>> applicantName = applicantService.getName(applicantId);
     CompletionStage<ReadOnlyApplicantProgramService> roApplicantProgramServiceCompletionStage =
         applicantService.getReadOnlyApplicantProgramService(applicantId, programId);
     return applicantName

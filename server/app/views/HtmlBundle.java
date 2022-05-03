@@ -165,7 +165,6 @@ public class HtmlBundle {
     ContainerTag headerTag =
         header()
             .with(each(toastMessages, toastMessage -> toastMessage.getContainerTag()))
-            .with(metadata)
             .with(headerContent);
 
     if (headerStyles.size() > 0) {

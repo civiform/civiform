@@ -3,6 +3,7 @@ package services.applicant.question;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
@@ -36,11 +37,11 @@ public class MultiSelectQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
-    if (!isAnswered()) {
-      return ImmutableSet.of();
-    }
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
+    return ImmutableMap.of(applicantQuestion.getContextualizedPath(), validateOptions());
+  }
 
+  private ImmutableSet<ValidationErrorMessage> validateOptions() {
     MultiOptionQuestionDefinition definition = getQuestionDefinition();
     int numberOfSelections = getSelectedOptionsValue().map(ImmutableList::size).orElse(0);
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
@@ -65,11 +66,6 @@ public class MultiSelectQuestion extends QuestionImpl {
       }
     }
     return errors.build();
-  }
-
-  @Override
-  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    return ImmutableSet.of();
   }
 
   public boolean hasValue() {

@@ -21,7 +21,7 @@ function terraform::perform_apply() {
       -upgrade \
       -backend-config="${BACKEND_VARS_FILENAME}"
   fi
-
+  
   terraform \
     -chdir="${TERRAFORM_TEMPLATE_DIR}" \
     apply \

@@ -1,4 +1,5 @@
 ![CI status](https://github.com/seattle-uat/civiform/actions/workflows/push.yaml/badge.svg)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6008/badge)](https://bestpractices.coreinfrastructure.org/projects/6008)
 
 # CiviForm
 

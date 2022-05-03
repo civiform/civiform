@@ -22,8 +22,6 @@ class Setup:
         return True
 
     def pre_terraform_setup(self):
-        print(" - Generating ssh keyfile")
-        self._create_ssh_keyfile()
         print(" - Setting up shared state")
         self._setup_shared_state()
         print(" - Setting up the keyvault")
@@ -95,11 +93,6 @@ class Setup:
                        check=True)
         self.resource_group = resource_group
         self.resource_group_location = resource_group_location
-
-    def _create_ssh_keyfile(self):
-        subprocess.run(["/bin/bash",
-            "-c", "ssh-keygen -q -t rsa -b 4096 -N '' -f $HOME/.ssh/bastion <<< y"
-        ], check=True)
 
     def _make_backend_override(self):
         current_directory = self.config.get_template_dir()

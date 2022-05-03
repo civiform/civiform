@@ -28,6 +28,11 @@ button.untranslatedSubmit=Submit
 # Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=For technical support, contact
 
+# Placeholder message when an applicant clicked the "Continue as Guest".
+# This should be consistent with button.guestLogin.
+# TODO(#1918): Translate.
+guest=Guest
+
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Choose a language
 

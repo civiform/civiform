@@ -22,7 +22,7 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.4.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.161",
+      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.180",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.5.0",
@@ -67,7 +67,7 @@ lazy val root = (project in file("."))
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.9",
       "com.google.auto.value" % "auto-value" % "1.9",
-      "com.google.auto.value" % "auto-value-parent" % "1.9",
+      "com.google.auto.value" % "auto-value-parent" % "1.9" pomOnly(),
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.13.1",

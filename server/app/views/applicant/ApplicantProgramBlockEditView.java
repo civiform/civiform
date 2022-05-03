@@ -13,6 +13,7 @@ import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -22,6 +23,7 @@ import services.MessageKey;
 import services.applicant.Block;
 import services.applicant.question.ApplicantQuestion;
 import services.cloud.StorageClient;
+import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.FileUploadViewStrategy;
 import views.HtmlBundle;
@@ -223,7 +225,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
     public abstract String baseUrl();
 
-    public abstract String applicantName();
+    public abstract Optional<String> applicantName();
 
     @AutoValue.Builder
     public abstract static class Builder {
@@ -251,9 +253,18 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
 
       public abstract Builder setBaseUrl(String baseUrl);
 
-      public abstract Builder setApplicantName(String applicantName);
+      public abstract Builder setApplicantName(Optional<String> applicantName);
 
-      public abstract Params build();
+      abstract Optional<String> applicantName();
+
+      abstract Messages messages();
+
+      abstract Params autoBuild();
+
+      public final Params build() {
+        setApplicantName(Optional.of(ApplicantUtils.getApplicantName(applicantName(), messages())));
+        return autoBuild();
+      }
     }
   }
 }

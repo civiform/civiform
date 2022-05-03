@@ -157,7 +157,7 @@ public class Account extends BaseModel {
   public String getApplicantName() {
     return this.getApplicants().stream()
         .max(Comparator.comparing(Applicant::getWhenCreated))
-        .map(u -> u.getApplicantData().getApplicantName())
+        .map(u -> u.getApplicantData().getApplicantName().orElse("<Unnamed User>"))
         .orElse("<Unnamed User>");
   }
 }
