@@ -22,11 +22,10 @@ public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(ApplicantQuestionRendererParams params) {
+  protected Tag renderTag(
+      ApplicantQuestionRendererParams params,
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     IdQuestion idQuestion = question.createIdQuestion();
-
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        idQuestion.getValidationErrors();
 
     Tag questionFormContent =
         FieldWithLabel.input()

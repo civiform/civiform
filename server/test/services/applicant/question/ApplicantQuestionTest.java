@@ -68,7 +68,10 @@ public class ApplicantQuestionTest {
     QuestionDefinition definition =
         testQuestionBank.getSampleQuestionsForAllTypes().get(questionType).getQuestionDefinition();
     ApplicantQuestion question =
-        new ApplicantQuestion(definition, new ApplicantData(), Optional.empty());
+        new ApplicantQuestion(
+            ProgramQuestionDefinition.create(definition, Optional.empty()).setOptional(true),
+            new ApplicantData(),
+            Optional.empty());
 
     assertThat(question.errorsPresenter().getValidationErrors().isEmpty()).isTrue();
   }
