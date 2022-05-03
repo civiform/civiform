@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v3
       - name: setup terraform
         uses: hashicorp/setup-terraform@v1
-      # as we add more templates, we will add checks to validate them. for now, we only have one
+      # As we add more templates, we will add checks to validate them. For now, we only have one.
       - name: terraform init azure_saml_ses
         run: terraform -chdir=cloud/azure/templates/azure_saml_ses init -backend=false
       - name: terraform validate azure_saml_ses
