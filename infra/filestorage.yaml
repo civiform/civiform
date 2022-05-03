@@ -87,7 +87,6 @@ Resources:
             Condition:
               StringNotEquals:
                 'aws:sourceVpce': !Ref 'S3VPCEndpoint'
-        Statement:
           - Sid: Allow presigned URL access from our task role
             Action:
               - 's3:GetObject'
