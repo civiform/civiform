@@ -2,6 +2,7 @@ package services.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.github.slugify.Slugify;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -114,15 +115,19 @@ public class ProgramServiceImpl implements ProgramService {
       String displayMode) {
 
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+
     if (hasProgramNameCollision(adminName)) {
       errorsBuilder.add(CiviFormError.of("a program named " + adminName + " already exists"));
     }
+
     validateProgramText(errorsBuilder, "admin name", adminName);
     validateProgramText(errorsBuilder, "admin description", adminDescription);
     validateProgramText(errorsBuilder, "display name", defaultDisplayName);
     validateProgramText(errorsBuilder, "display description", defaultDisplayDescription);
     validateProgramText(errorsBuilder, "display mode", displayMode);
+
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
+
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -135,6 +140,7 @@ public class ProgramServiceImpl implements ProgramService {
             defaultDisplayDescription,
             externalLink,
             displayMode);
+
     program.addVersion(versionRepository.getDraftVersion());
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
@@ -210,7 +216,17 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   private boolean hasProgramNameCollision(String programName) {
-    return getActiveAndDraftPrograms().getProgramNames().contains(programName);
+    ImmutableSet<String> programNames = getActiveAndDraftPrograms().getProgramNames();
+
+    if (programNames.contains(programName)) {
+      return true;
+    }
+
+    Slugify slugifier = new Slugify();
+    ImmutableSet<String> programSlugs =
+        programNames.stream().map(slugifier::slugify).collect(ImmutableSet.toImmutableSet());
+
+    return programSlugs.contains(slugifier.slugify(programName));
   }
 
   private void validateProgramText(
