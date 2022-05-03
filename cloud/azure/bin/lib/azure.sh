@@ -168,6 +168,15 @@ function azure::get_current_user_id() {
 }
 
 #######################################
+# A function to check if the system is using a service principal (i.e 
+# running in CI)
+#######################################
+function azure::is_service_principal() {
+  local USER_TYPE="$(az account show --query user.type -o tsv)"
+  echo "${USER_TYPE}" | grep -iq "serviceprincipal"
+}
+
+#######################################
 # Ensure that the given role is assigned at the given scope:
 # Arguments:
 #   1. The resource group name
@@ -179,7 +188,7 @@ function azure::ensure_role_assignment() {
   local USER_TYPE="$(az account show --query user.type -o tsv)"
   local object_id=""
   
-  if echo "${USER_TYPE}" | grep -iq "serviceprincipal"; then
+  if azure::is_service_principal; then
     object_id="$(az account show --query user.name -o tsv)"
   else
     object_id="$(az ad signed-in-user show --query objectId -o tsv)"
