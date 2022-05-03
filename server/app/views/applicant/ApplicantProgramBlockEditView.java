@@ -257,7 +257,7 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
       public abstract Builder setStorageClient(StorageClient storageClient);
 
       public abstract Builder setBaseUrl(String baseUrl);
-      
+
       public abstract Builder setErrorDisplayMode(
           ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode);
 
