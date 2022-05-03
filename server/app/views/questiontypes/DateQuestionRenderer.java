@@ -33,7 +33,10 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
     FieldWithLabel dateField =
         FieldWithLabel.date()
             .setFieldName(dateQuestion.getDatePath().toString())
-            .setScreenReaderText(question.getQuestionText());
+            .setScreenReaderText(question.getQuestionText())
+            .setFieldErrors(
+                params.messages(),
+                validationErrors.getOrDefault(dateQuestion.getDatePath(), ImmutableSet.of()));
     if (dateQuestion.getDateValue().isPresent()) {
       // Note: If the provided input was invalid, there's no use rendering
       // the value on roundtrip since inputs with type="date" won't allow
