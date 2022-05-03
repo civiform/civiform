@@ -16,7 +16,7 @@ VOLUME /code
 CMD ["sh", "-c", \
   "java -jar /fmt.jar --replace $(find /code -name '*.java'); \
   cd /code; \
-  shfmt -bn -ci -i 2 -w .; \
+  shfmt -bn -ci -i 2 -w  $(shfmt -f . | grep -v node_modules/ | grep -v infra/); \
   cd server \
   npx prettier \
   --write --config /.prettierrc.js --ignore-path /.prettierignore /code" \

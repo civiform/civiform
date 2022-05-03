@@ -55,7 +55,7 @@ jobs:
         uses: luizm/action-sh-checker@master
         env:
           SHELLCHECK_OPTS: -s bash -S error
-          sh_checker_exclude: "*.md cloud/shared/bin/doctor_impl"
+          sh_checker_exclude: "*.md cloud/shared/bin/doctor_impl infra/"
           SHFMT_OPTS: -bn -ci -i 2
             # -i 2   indent 2 spaces
             # -bn    binary ops like && and | may start a line
