@@ -111,7 +111,7 @@ public class NumberQuestionTest extends ResetPostgres {
 
   @Test
   @Parameters({
-    "-1,Must be at least 50.",
+    "-1,Number must be a positive whole number and can only contain numeric characters 0-9.",
     "0,Must be at least 50.",
     "49,Must be at least 50.",
     "101,Must be at most 100.",
@@ -130,7 +130,7 @@ public class NumberQuestionTest extends ResetPostgres {
         numberQuestion.getValidationErrors();
     assertThat(validationErrors.size()).isEqualTo(1);
     ImmutableSet<ValidationErrorMessage> numberErrors =
-        validationErrors.getOrDefault(applicantQuestion.getContextualizedPath(), ImmutableSet.of());
+        validationErrors.getOrDefault(numberQuestion.getNumberPath(), ImmutableSet.of());
     assertThat(numberErrors).hasSize(1);
     String errorMessage = numberErrors.iterator().next().getMessage(messages);
     assertThat(errorMessage).isEqualTo(expectedErrorMessage);
