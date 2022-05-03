@@ -22,6 +22,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.PaginationResult;
 import services.program.ProgramDefinition;
+import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -32,11 +33,13 @@ import views.style.Styles;
 /** Renders a page for viewing applications to a program. */
 public final class ProgramApplicationListView extends BaseHtmlView {
   private final AdminLayout layout;
+  private final ApplicantUtils applicantUtils;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
 
   @Inject
-  public ProgramApplicationListView(AdminLayout layout) {
+  public ProgramApplicationListView(AdminLayout layout, ApplicantUtils applicantUtils) {
     this.layout = checkNotNull(layout).setOnlyProgramAdminType();
+    this.applicantUtils = checkNotNull(applicantUtils);
   }
 
   public Content render(
@@ -113,7 +116,10 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   private Tag renderApplicationListItem(Application application) {
     String applicantNameWithApplicationId =
-        String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
+        String.format(
+            "%s (%d)",
+            applicantUtils.getApplicantNameEnUs(application.getApplicantData().getApplicantName()),
+            application.id);
     String viewLinkText = "View →";
 
     Tag topContent =
