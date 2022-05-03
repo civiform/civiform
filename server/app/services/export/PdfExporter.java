@@ -20,50 +20,70 @@ import com.itextpdf.text.pdf.PdfDocument;
 import com.itextpdf.text.pdf.PdfWriter;
 import models.Applicant;
 
+import models.Application;
+import repository.ProgramRepository;
 import services.Path;
 import services.applicant.AnswerData;
-//import com.itextpdf.*;
+import services.applicant.ApplicantService;
+import services.applicant.ReadOnlyApplicantProgramService;
+
+import javax.inject.Inject;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 /** PdfExporter is meant to generate PDF files. The functionality is not fully implemented yet. */
 public class PdfExporter {
+  private final ApplicantService applicantService;
 
+  @Inject
+  PdfExporter(ApplicantService applicantService) {
+    this.applicantService = checkNotNull(applicantService);
+  }
 
+  public byte[] export(Application application) throws DocumentException, IOException {
+    ReadOnlyApplicantProgramService roApplicantService =
+            applicantService
+                    .getReadOnlyApplicantProgramService(application)
+                    .toCompletableFuture()
+                    .join();
+    ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
+
+    String applicantNameWithApplicationId =
+            String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
+    return buildPDF(answers,applicantNameWithApplicationId,application.getProgram().getProgramDefinition().adminName());
+  }
   /**
-   * Write a PDF containing the filled-in base form to the provided writer. For the PDF to be valid,
-   * the writer should contain no previous writes and should be closed immediately after this call.
-   * This function marshals the output document in memory due to restrictions of the PDDocument
-   * class.
+   * Write a PDF containing all the values present in the List of AnswerData using itextPDF
+   * This function creates the output document in memory due as byte[] and written to output document using
+   * ContentType as "application/pdf"
    */
-  public byte[] export(ImmutableList<AnswerData> answers, String applicantNameWithApplicationId, String programName) throws IOException, DocumentException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+  private byte[] buildPDF(ImmutableList<AnswerData> answers, String applicantNameWithApplicationId, String programName) throws IOException, DocumentException {
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     Document document = new Document();
-    PdfWriter.getInstance(document, baos);
+    PdfWriter writer = PdfWriter.getInstance(document, byteArrayOutputStream);
     document.open();
 
-    document.addTitle(applicantNameWithApplicationId);
-    document.addHeader("Program Name : " , programName);
-    //List<String> lines = new ArrayList<>();
+    Paragraph applicant = new Paragraph(applicantNameWithApplicationId,FontFactory.getFont(FontFactory.HELVETICA_BOLD,16));
+    Paragraph program = new Paragraph("Program Name : "  + programName,FontFactory.getFont(FontFactory.HELVETICA_BOLD,15));
+    document.add(applicant);
+    document.add(program);
+    document.add(Chunk.NEWLINE);
     for(AnswerData answerData : answers)
     {
       Paragraph question = new Paragraph(answerData.questionDefinition().getName(),
-              FontFactory.getFont(FontFactory.HELVETICA_BOLD,14));
+              FontFactory.getFont(FontFactory.HELVETICA_BOLD,12));
       Paragraph answer = new Paragraph(answerData.answerText(),
-              FontFactory.getFont(FontFactory.HELVETICA,12));
+              FontFactory.getFont(FontFactory.HELVETICA,11));
       LocalDate date =
               Instant.ofEpochMilli(answerData.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
       Paragraph time = new Paragraph("Answered on : " + date,FontFactory.getFont(FontFactory.HELVETICA,10));
               time.setAlignment(Paragraph.ALIGN_RIGHT);
-
-              document.add(question);
-              document.add(answer);
-              document.add(time);
-
+      document.add(question);
+      document.add(answer);
+      document.add(time);
     }
-    //document.
-    /*for(String line: lines)
-    {
-      document.add(new Paragraph(line));
-    }*/
     document.close();
-    return baos.toByteArray();
+    writer.close();
+    byteArrayOutputStream.close();
+    return byteArrayOutputStream.toByteArray();
   }
 }

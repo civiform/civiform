@@ -170,17 +170,10 @@ public class AdminApplicationController extends CiviFormController {
     String applicantNameWithApplicationId =
             String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
 
-    ReadOnlyApplicantProgramService roApplicantService =
-            applicantService
-                    .getReadOnlyApplicantProgramService(application)
-                    .toCompletableFuture()
-                    .join();
-    ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
-
     String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, clock.instant().toString());
     byte[] pdf = null;
     try{
-      pdf = pdfExporter.export(answers,applicantNameWithApplicationId,program.adminName());
+      pdf = pdfExporter.export(application);
     }
     catch(Exception e)
     {
@@ -190,9 +183,7 @@ public class AdminApplicationController extends CiviFormController {
             .as("application/pdf")
             .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
   }
-
-
-
+  
   /** Return a HTML page displaying the summary of the specified application. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result show(Http.Request request, long programId, long applicationId) {
