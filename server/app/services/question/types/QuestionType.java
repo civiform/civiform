@@ -20,11 +20,11 @@ public enum QuestionType {
   TEXT(false, "Text Field");
 
   private final boolean isMultiOptionType;
-  private final String typeString;
+  private final String label;
 
-  QuestionType(boolean isMultiOptionType, String typeString) {
+  QuestionType(boolean isMultiOptionType, String label) {
     this.isMultiOptionType = isMultiOptionType;
-    this.typeString = typeString;
+    this.label = label;
   }
 
   /**
@@ -44,7 +44,7 @@ public enum QuestionType {
     }
   }
 
-  public String getTypeString() {
-    return this.typeString;
+  public String getLabel() {
+    return this.label;
   }
 }
