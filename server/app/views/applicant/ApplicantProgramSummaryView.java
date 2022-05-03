@@ -27,6 +27,7 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.RepeatedEntity;
+import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
@@ -270,7 +271,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract long applicantId();
 
-    abstract String applicantName();
+    abstract Optional<String> applicantName();
 
     abstract String banner();
 
@@ -295,7 +296,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
       public abstract Builder setApplicantId(long applicantId);
 
-      public abstract Builder setApplicantName(String applicantName);
+      public abstract Builder setApplicantName(Optional<String> applicantName);
 
       public abstract Builder setBanner(String banner);
 
@@ -313,7 +314,16 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
       public abstract Builder setTotalBlockCount(int totalBlockCount);
 
-      public abstract Params build();
+      abstract Optional<String> applicantName();
+
+      abstract Messages messages();
+
+      abstract Params autoBuild();
+
+      public final Params build() {
+        setApplicantName(Optional.of(ApplicantUtils.getApplicantName(applicantName(), messages())));
+        return autoBuild();
+      }
     }
   }
 }
