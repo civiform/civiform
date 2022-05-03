@@ -18,22 +18,22 @@ readonly TERRAFORM_APPLY="${TERRAFORM_BASE_COMMAND} \
 #######################################
 function terraform::perform_apply() {
   if [[ "${CIVIFORM_MODE}" == "dev" ]]; then
-    ${TERRAFORM_BASE_COMMAND} init -upgrade
+    "$(${TERRAFORM_BASE_COMMAND} init -upgrade)"
   else
     "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/setup_tf_shared_state" \
       "${TERRAFORM_TEMPLATE_DIR}/${BACKEND_VARS_FILENAME}"
 
-    ${TERRAFORM_BASE_COMMAND}
+    "$(${TERRAFORM_BASE_COMMAND}
       init \
       -input=false \
       -upgrade \
-      -backend-config="${BACKEND_VARS_FILENAME}"
+      -backend-config="${BACKEND_VARS_FILENAME}")"
   fi
   
   if azure::is_service_principal; then
-    ${TERRAFORM_APPLY} -auto-approve
+    "$(${TERRAFORM_APPLY} -auto-approve)"
   else
-    ${TERRAFORM_APPLY}
+    "$(${TERRAFORM_APPLY})"
   fi
 }
 
