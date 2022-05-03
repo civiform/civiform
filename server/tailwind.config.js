@@ -49,6 +49,10 @@ module.exports = {
         },
       },
     },
+    screens: {
+     // Don't export any. Revisit if we start using screens.
+     // https://tailwindcss.com/docs/screens
+     },
   },
   variants: {
     extend: {
