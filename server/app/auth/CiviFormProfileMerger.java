@@ -11,8 +11,7 @@ import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
 /**
- * This class serves to abstract out common application logic in ProfileAdapters into shared helper
- * methods.
+ * This class serves to abstract out common user profile merging logic into a shared helper.
  */
 public class CiviFormProfileMerger {
 
