@@ -103,7 +103,7 @@ class AzureCliVersionCheck(Check):
     MIN_VERSION = "2.34.1"
 
     remedy = f"""
-        Azure CLI tool must be at version {MIN_VERSION}.
+        Azure CLI tool must be at version {MIN_VERSION} or above.
         https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
     """
 
