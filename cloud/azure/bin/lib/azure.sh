@@ -16,7 +16,7 @@ function azure::set_common_vars() {
 #######################################
 # Create resource group
 # Arguments:
-#   1: The resource group name 
+#   1: The resource group name
 #   2: The location of the resource group
 #######################################
 function azure::create_resource_group() {
@@ -83,20 +83,20 @@ function azure::get_canary_url() {
 #######################################
 function azure::slot_setting {
   echo "Setting ${3} for ${1} slot to ${4}"
-  if [[ "${1}" == "canary" ]] ; then
+  if [[ "${1}" == "canary" ]]; then
     az webapp config appsettings set \
       --name "${2}" \
       --slot "canary" \
       --slot-settings "${3}=${4}" \
-      --resource-group "${5}"  \
-      --output "none" 
-  elif [[ "${1}" == "primary" ]] ; then
+      --resource-group "${5}" \
+      --output "none"
+  elif [[ "${1}" == "primary" ]]; then
     az webapp config appsettings set \
       --name "${2}" \
       --slot-settings "${3}=${4}" \
       --resource-group "${5}" \
-      --output "none" 
-  else 
+      --output "none"
+  else
     echo "${1} is not a valid slot option." >&2
   fi
 }
@@ -168,7 +168,7 @@ function azure::get_current_user_id() {
 }
 
 #######################################
-# A function to check if the system is using a service principal (i.e 
+# A function to check if the system is using a service principal (i.e
 # running in CI)
 #######################################
 function azure::is_service_principal() {
@@ -187,7 +187,7 @@ function azure::ensure_role_assignment() {
   echo "creating role assignment for ${2}"
   local USER_TYPE="$(az account show --query user.type -o tsv)"
   local object_id=""
-  
+
   if azure::is_service_principal; then
     object_id="$(az account show --query user.name -o tsv)"
   else
@@ -196,8 +196,7 @@ function azure::ensure_role_assignment() {
 
   local ROLE_ASSIGNMENTS="$(az role assignment list --assignee ${object_id} --resource-group ${1})"
 
-  if echo "${ROLE_ASSIGNMENTS}" | grep -q "${2}";
-  then 
+  if echo "${ROLE_ASSIGNMENTS}" | grep -q "${2}"; then
     echo "Current user already has role ${2}"
   else
     az role assignment create \

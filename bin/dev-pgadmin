@@ -8,7 +8,7 @@ readonly COMPOSE_CMD="${DOCKER_COMPOSE_DEV}"
 
 # The servers.json file is used to automatically configure
 # our database to show up in the pgadmin server tree
-tee /tmp/servers.json >/dev/null  <<EOT
+tee /tmp/servers.json >/dev/null <<EOT
 {
     "Servers": {
         "1": {
@@ -25,13 +25,13 @@ tee /tmp/servers.json >/dev/null  <<EOT
 EOT
 
 ${COMPOSE_CMD} \
-    up db \
-    -d
+  up db \
+  -d
 
 ${COMPOSE_CMD} \
-    --profile pgadmin \
-    up pgadmin \
-    --wait \
-    -d
+  --profile pgadmin \
+  up pgadmin \
+  --wait \
+  -d
 
 echo "Running pgadmin at http://localhost:8012"

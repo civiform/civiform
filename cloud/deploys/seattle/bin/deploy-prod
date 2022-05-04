@@ -8,8 +8,8 @@ set +x
 export AWS_DEFAULT_REGION=us-west-2
 REGION=us-west-2
 
-aws ecr-public get-login-password --region us-east-1 |
-  docker login --username AWS --password-stdin public.ecr.aws/t1q6b4h2
+aws ecr-public get-login-password --region us-east-1 \
+  | docker login --username AWS --password-stdin public.ecr.aws/t1q6b4h2
 
 docker pull public.ecr.aws/t1q6b4h2/universal-application-tool:latest
 
@@ -32,13 +32,13 @@ aws cloudformation wait stack-update-complete --stack-name civiform
 
 ECSSERVICE=$(aws cloudformation describe-stacks \
   --region ${REGION} \
-  --stack-name civiform |
-    jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSService") | .OutputValue')
+  --stack-name civiform \
+  | jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSService") | .OutputValue')
 
 ECSCLUSTER=$(aws cloudformation describe-stacks \
   --region ${REGION} \
-  --stack-name civiform |
-    jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSCluster") | .OutputValue')
+  --stack-name civiform \
+  | jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "ECSCluster") | .OutputValue')
 
 aws ecs update-service \
   --region=${REGION} \
@@ -48,7 +48,7 @@ aws ecs update-service \
 
 deadline=$(($(date +%s) + 900))
 until aws ecs wait services-stable --region=${REGION} --cluster "$ECSCLUSTER" --services "$ECSSERVICE"; do
-  if (( $(date +%s) > $deadline )); then
+  if (($(date +%s) > $deadline)); then
     echo "deadline exceeded waiting for service update to stabilize"
     exit 1
   fi

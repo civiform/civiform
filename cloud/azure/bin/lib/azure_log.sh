@@ -17,7 +17,7 @@ readonly AZURE_LOG_FILE_NAME="civiform_deployment_log.txt"
 #   LOG_TEMPFILE: the path to a tempfile containing the deploy log.
 #######################################
 function azure_log::fetch_log_file() {
-  if [[ -n "${1}" ]]; then 
+  if [[ -n "${1}" ]]; then
     export LOG_TEMPFILE="${1}"
   else
     export LOG_TEMPFILE="$(mktemp)"
@@ -42,7 +42,7 @@ function azure_log::fetch_log_file() {
 #   LOG_TEMPFILE
 #######################################
 function azure_log::upload_log_file() {
-  if [[ -n "${1}" ]]; then 
+  if [[ -n "${1}" ]]; then
     LOG_TEMPFILE="${1}"
   fi
 
@@ -86,9 +86,9 @@ function azure_log::ensure_log_role_assignments() {
   echo "Granting current user access to deploy log storage account..."
   storage::assign_storage_account_contributor_role_to_user "${AZURE_RESOURCE_GROUP}"
   azure::ensure_role_assignment \
-   "${AZURE_RESOURCE_GROUP}" \
-   "Storage Blob Data Contributor" \
-   "/subscriptions/${AZURE_SUBSCRIPTION}/resourceGroups/${AZURE_RESOURCE_GROUP}/providers/Microsoft.Storage/storageAccounts/${AZURE_LOG_STORAGE_ACCOUNT_NAME}"
+    "${AZURE_RESOURCE_GROUP}" \
+    "Storage Blob Data Contributor" \
+    "/subscriptions/${AZURE_SUBSCRIPTION}/resourceGroups/${AZURE_RESOURCE_GROUP}/providers/Microsoft.Storage/storageAccounts/${AZURE_LOG_STORAGE_ACCOUNT_NAME}"
   echo "Done granting current user access deploy log storage account."
 }
 
