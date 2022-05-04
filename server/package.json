@@ -14,6 +14,6 @@
     "@tsconfig/recommended": "1.0.1",
     "autoprefixer": "10.4.7",
     "postcss": "8.4.13",
-    "tailwindcss": "^2.2.19"
+    "tailwindcss": "2.2.19"
   }
 }

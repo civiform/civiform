@@ -5,11 +5,13 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.ExpressionList;
 import io.ebean.PagedList;
 import io.ebean.Query;
+import io.ebean.SqlRow;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import java.util.List;
@@ -64,6 +66,17 @@ public class ProgramRepository {
   public Program updateProgramSync(Program program) {
     database.update(program);
     return program;
+  }
+
+  public ImmutableSet<String> getAllProgramNames() {
+    ImmutableSet.Builder<String> names = ImmutableSet.builder();
+    List<SqlRow> rows = database.sqlQuery("SELECT DISTINCT name FROM programs").findList();
+
+    for (SqlRow row : rows) {
+      names.add(row.getString("name"));
+    }
+
+    return names.build();
   }
 
   /**
