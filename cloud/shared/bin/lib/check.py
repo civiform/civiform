@@ -45,7 +45,7 @@ class Check():
     def _semver_string_to_int_array(self, semver_string):
         return [int(x) for x in semver_string.split(".")]
 
-    def version_greater_than(self, min_version, test_version):
+    def version_at_least(self, min_version, test_version):
         min_version, test_version = map(self._semver_string_to_int_array, [min_version, test_version])
 
         for i, min_int in enumerate(min_version):
