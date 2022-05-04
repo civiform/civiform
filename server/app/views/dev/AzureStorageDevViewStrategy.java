@@ -14,6 +14,7 @@ import static j2html.TagCreator.tr;
 
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
+import j2html.tags.specialized.FormTag;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
@@ -49,7 +50,7 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
 
     bundle.addFooterScripts(viewUtils.makeAzureBlobStoreScriptTag());
 
-    ContainerTag formTag =
+    FormTag formTag =
         form()
             .withId("cf-block-form")
             .with(input().attr("type", "file").attr("name", "file"))

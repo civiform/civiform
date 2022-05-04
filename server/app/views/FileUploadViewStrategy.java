@@ -7,6 +7,9 @@ import static j2html.attributes.Attr.FORM;
 
 import controllers.applicant.routes;
 
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.ButtonTag;
 
 import java.util.Optional;
 import play.i18n.Messages;
@@ -66,7 +69,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    */
   protected abstract Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params);
 
-  protected Tag renderQuestion(
+  protected DivTag renderQuestion(
       ApplicantQuestion question,
       ApplicantQuestionRendererParams params,
       ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
@@ -78,11 +81,11 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    *
    * <p>See {@link renderDeleteAndContinueFileUploadForms}.
    */
-  protected Optional<Tag> maybeRenderContinueButton(Params params) {
+  protected Optional<ButtonTag> maybeRenderContinueButton(Params params) {
     if (!hasUploadedFile(params)) {
       return Optional.empty();
     }
-    Tag button =
+    ButtonTag button =
         submitButton(params.messages().at(MessageKey.BUTTON_KEEP_FILE.getKeyName()))
             .attr(FORM, FILEUPLOAD_CONTINUE_FORM_ID)
             .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
@@ -101,7 +104,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    * applicant re-submits a form without changing their answer. Continue form is only used when an
    * existing file (and file key) is present.
    */
-  protected Tag renderDeleteAndContinueFileUploadForms(Params params) {
+  protected DivTag renderDeleteAndContinueFileUploadForms(Params params) {
     String formAction =
         routes.ApplicantProgramBlocksController.update(
                 params.applicantId(), params.programId(), params.block().getId(), params.inReview())
@@ -112,7 +115,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
             .setErrorDisplayMode(params.errorDisplayMode())
             .build();
 
-    Tag continueForm =
+    FormTag continueForm =
         form()
             .withId(FILEUPLOAD_CONTINUE_FORM_ID)
             .attr("action", formAction)
@@ -122,7 +125,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
                 each(
                     params.block().getQuestions(),
                     question -> renderFileKeyField(question, rendererParams)));
-    Tag deleteForm =
+    FormTag deleteForm =
         form()
             .withId(FILEUPLOAD_DELETE_FORM_ID)
             .attr("action", formAction)

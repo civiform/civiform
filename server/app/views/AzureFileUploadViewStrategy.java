@@ -11,6 +11,12 @@ import static j2html.attributes.Attr.ENCTYPE;
 import static j2html.attributes.Attr.FORM;
 
 import controllers.applicant.routes;
+
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.FooterTag;
+
 import java.util.Optional;
 import javax.inject.Inject;
 import services.MessageKey;
@@ -33,7 +39,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  public ContainerTag signedFileUploadFields(
+  public FormTag signedFileUploadFields(
       ApplicantQuestionRendererParams params, FileUploadQuestion fileUploadQuestion) {
     StorageUploadRequest storageUploadRequest = params.signedFileUploadRequest().get();
 
@@ -42,7 +48,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     Optional<String> uploaded =
         fileUploadQuestion.getFilename().map(f -> String.format("File uploaded: %s", f));
 
-    ContainerTag formTag = form();
+    FormTag formTag = form();
     return formTag
         .with(div().withText(uploaded.orElse("")))
         .with(input().attr("type", "file").attr("name", "file"))
@@ -61,7 +67,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  public Tag renderFileUploadBlockSubmitForms(
+  public DivTag renderFileUploadBlockSubmitForms(
       Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
     String key = FileNameFormatter.formatFileUploadQuestionFilename(params);
 
@@ -86,7 +92,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
             .setErrorDisplayMode(params.errorDisplayMode())
             .build();
 
-    ContainerTag formTag =
+    FormTag formTag =
         form()
             .withId(BLOCK_FORM_ID)
             .attr(ENCTYPE, "multipart/form-data")
@@ -97,8 +103,8 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
                         renderQuestion(
                             question, rendererParams, applicantQuestionRendererFactory)));
 
-    Tag skipForms = renderDeleteAndContinueFileUploadForms(params);
-    Tag buttons = renderFileUploadBottomNavButtons(params);
+    DivTag skipForms = renderDeleteAndContinueFileUploadForms(params);
+    DivTag buttons = renderFileUploadBottomNavButtons(params);
 
     return div(formTag, skipForms, buttons)
         .withId("azure-upload-form-component")
@@ -108,14 +114,14 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  protected Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params) {
+  protected Optional<ButtonTag> maybeRenderSkipOrDeleteButton(Params params) {
     if (hasAtLeastOneRequiredQuestion(params)) {
       // If the file question is required, skip or delete is not allowed.
       return Optional.empty();
     }
     String buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
     String buttonId = FILEUPLOAD_SKIP_BUTTON_ID;
-    Optional<ContainerTag> footer = Optional.empty();
+    Optional<FooterTag> footer = Optional.empty();
 
     if (hasUploadedFile(params)) {
       buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
@@ -123,8 +129,8 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
       footer = Optional.of(footer().with(viewUtils.makeLocalJsTag("azure_delete")));
     }
 
-    ContainerTag button =
-        TagCreator.button(buttonText)
+    ButtonTag button =
+        button(buttonText)
             .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
             .withClasses(ApplicantStyles.BUTTON_REVIEW)
             .withId(buttonId);
@@ -141,10 +147,10 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     return (BlobStorageUploadRequest) request;
   }
 
-  private Tag renderFileUploadBottomNavButtons(Params params) {
-    Optional<Tag> maybeContinueButton = maybeRenderContinueButton(params);
-    Optional<ContainerTag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
-    ContainerTag ret =
+  private DivTag renderFileUploadBottomNavButtons(Params params) {
+    Optional<ButtonTag> maybeContinueButton = maybeRenderContinueButton(params);
+    Optional<ButtonTag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
+    DivTag ret =
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
             // An empty div to take up the space to the left of the buttons.
