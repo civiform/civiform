@@ -117,8 +117,7 @@ public abstract class RepeatedEntity {
   public ImmutableList<PredicateDefinition> nestedVisibility() {
     return Stream.concat(
             parent()
-            .map(
-                PredicateDefinition::nestedVisibility)
+                .map(RepeatedEntity::nestedVisibility)
                 .orElse(ImmutableList.<PredicateDefinition>of())
                 .stream(),
             this.visibility().stream())
@@ -128,10 +127,8 @@ public abstract class RepeatedEntity {
   /**
    * Contextualize the text with repeated entity names.
    *
-   * <p>
-   * Replaces "\$this" with this repeated entity's name. "\$this.parent" and
-   * "\$this.parent.parent" (ad infinitum) are replaced with the names of the
-   * ancestors of this
+   * <p>Replaces "\$this" with this repeated entity's name. "\$this.parent" and
+   * "\$this.parent.parent" (ad infinitum) are replaced with the names of the ancestors of this
    * repeated entity.
    */
   public String contextualize(String text) {
