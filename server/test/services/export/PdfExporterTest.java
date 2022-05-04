@@ -20,13 +20,10 @@ public class PdfExporterTest extends AbstractExporterTest {
 
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
-    String name =
-        applicationOne.getApplicantData().getApplicantName() == null
-            ? "<Anonymous Applicant>"
-            : String.valueOf(applicationOne.getApplicantData().getApplicantName());
-    String applicationNameId = name + applicationOne.id;
+    String applicantNameWithApplicationId =
+            String.format("%s (%d)", applicationOne.getApplicantData().getApplicantName(), applicationOne.id);
 
-    byte[] result = exporter.export(applicationOne, applicationNameId);
+    byte[] result = exporter.export(applicationOne, applicantNameWithApplicationId);
     PdfReader pdfReader = new PdfReader(result);
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -41,7 +38,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
     assertThat(textFromPDF).isNotNull();
     String programName = applicationOne.getProgram().getProgramDefinition().adminName();
-    assertThat(linesFromPDF.get(0)).isEqualTo(name + " " + "(" + applicationOne.id + ")");
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
     assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
     List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_ONE_STRING);
     for (int i = 3; i < linesFromPDF.size(); i++) {
@@ -50,7 +47,7 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   public static final String APPLICATION_ONE_STRING =
-      "<Anonymous Applicant> (48)\n"
+      "Optional.empty (48)\n"
           + "Program Name : Fake Program\n"
           + " \n"
           + "applicant Email address\n"
