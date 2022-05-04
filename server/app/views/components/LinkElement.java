@@ -38,7 +38,7 @@ public class LinkElement {
           StyleUtils.hover(Styles.BG_BLUE_700),
           StyleUtils.focus(Styles.OUTLINE_NONE, Styles.RING_2));
   private static final String RIGHT_ALIGNED_LINK_BUTTON_STYLES =
-       StyleUtils.joinStyles(
+      StyleUtils.joinStyles(
           Styles.FLOAT_RIGHT,
           Styles._MT_14,
           Styles.INLINE_BLOCK,
@@ -106,6 +106,7 @@ public class LinkElement {
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);
   }
+
   public ContainerTag asRightAlignedButton() {
     ContainerTag tag = Strings.isNullOrEmpty(href) ? div(text) : a(text).withHref(href);
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)

@@ -21,7 +21,6 @@ import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.LinkElement;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
@@ -57,7 +56,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withId("application-view")
             .withClasses(Styles.PX_20)
             .with(
-
                 h2("Program: " + programName).withClasses(Styles.MY_4),
                 h1(applicantNameWithApplicationId).withClasses(Styles.MY_4),
                 renderDownloadButton(programId, applicationId),

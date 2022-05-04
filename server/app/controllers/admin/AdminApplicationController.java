@@ -166,7 +166,7 @@ public class AdminApplicationController extends CiviFormController {
     }
 
     Optional<Application> applicationMaybe =
-            this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
+      this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
 
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
@@ -174,20 +174,19 @@ public class AdminApplicationController extends CiviFormController {
 
     Application application = applicationMaybe.get();
     String applicantNameWithApplicationId =
-            String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
+      String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
 
-    String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, clock.instant().toString());
+    String filename =
+      String.format("%s-%s.pdf", applicantNameWithApplicationId, clock.instant().toString());
     byte[] pdf = null;
-    try{
+    try {
       pdf = pdfExporter.export(application);
-    }
-    catch(Exception e)
-    {
+    } catch(Exception e) {
       return  notFound(e.toString());
     }
     return ok(pdf)
-            .as("application/pdf")
-            .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
+        .as("application/pdf")
+        .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
   }
 
   /** Return a HTML page displaying the summary of the specified application. */
