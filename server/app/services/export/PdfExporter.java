@@ -58,7 +58,7 @@ public class PdfExporter {
 
   private byte[] buildPDF(
       ImmutableList<AnswerData> answers, String applicantNameWithApplicationId, String programName)
-          throws DocumentException, IOException {
+      throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
     PdfWriter writer = null;
     Document document = null;

@@ -23,9 +23,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format(
             "%s (%d)", applicationOne.getApplicantData().getApplicantName(), applicationOne.id);
-
-    byte[] result = exporter.export(applicationOne, applicantNameWithApplicationId);
-    PdfReader pdfReader = new PdfReader(result);
+    PdfExporter.InMemoryPdf result = exporter.export(applicationOne);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
     int pages = pdfReader.getNumberOfPages();
