@@ -5,6 +5,8 @@
 source bin/lib.sh
 docker::set_project_name_dev
 
+bin/pull-image
+
 docker run --rm -it \
   -v "$(pwd):/code" \
   civiform/formatter:latest
