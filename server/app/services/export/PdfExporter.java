@@ -30,7 +30,7 @@ public class PdfExporter {
   }
   /**
    * Write a PDF containing all the values present in the List of AnswerData using itextPDF.This
-   * function creates the output document in memory due as byte[] and is written to the output
+   * function creates the output document in memory as byte[] and is written to the output
    * document
    */
   public byte[] export(Application application, String applicantNameWithApplicationId)
