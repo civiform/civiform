@@ -1,9 +1,12 @@
 package services.applicant;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import java.util.stream.Stream;
 import services.Path;
+import services.program.predicate.PredicateDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 
 /** A repeated entity represents one of the applicant's answers to an enumerator question. */
@@ -14,27 +17,34 @@ public abstract class RepeatedEntity {
   private static final String REPLACEMENT_PARENT_STRING = "parent";
 
   /**
-   * Create all the non-nested repeated entities associated with the enumerator question, with no
-   * parent.
-   */
-  public static ImmutableList<RepeatedEntity> createRepeatedEntities(
-      EnumeratorQuestionDefinition enumeratorQuestionDefinition, ApplicantData applicantData) {
-    return RepeatedEntity.createRepeatedEntities(
-        Optional.empty(), enumeratorQuestionDefinition, applicantData);
-  }
-  /**
    * Create all the nested repeated entities associated with the enumerator question, with this
    * repeated entity as their parent.
    */
   public ImmutableList<RepeatedEntity> createNestedRepeatedEntities(
-      EnumeratorQuestionDefinition enumeratorQuestionDefinition, ApplicantData applicantData) {
+      EnumeratorQuestionDefinition enumeratorQuestionDefinition,
+      Optional<PredicateDefinition> visibiity,
+      ApplicantData applicantData) {
     return RepeatedEntity.createRepeatedEntities(
-        Optional.of(this), enumeratorQuestionDefinition, applicantData);
+        Optional.of(this), enumeratorQuestionDefinition, visibiity, applicantData);
   }
 
+  /**
+   * Helper method to for createRepeatedEntities without a parent. Creates all the non-nested
+   * repeated entities associated with the enumerator question.
+   */
+  public static ImmutableList<RepeatedEntity> createRepeatedEntities(
+      EnumeratorQuestionDefinition enumeratorQuestionDefinition,
+      Optional<PredicateDefinition> visibiity,
+      ApplicantData applicantData) {
+    return RepeatedEntity.createRepeatedEntities(
+        Optional.empty(), enumeratorQuestionDefinition, visibiity, applicantData);
+  }
+
+  /** Creates all the non-nested repeated entities associated with the enumerator question. */
   private static ImmutableList<RepeatedEntity> createRepeatedEntities(
       Optional<RepeatedEntity> parent,
       EnumeratorQuestionDefinition enumeratorQuestionDefinition,
+      Optional<PredicateDefinition> visibiity,
       ApplicantData applicantData) {
     Path contextualizedEnumeratorPath =
         parent
@@ -46,25 +56,34 @@ public abstract class RepeatedEntity {
     ImmutableList.Builder<RepeatedEntity> repeatedEntitiesBuilder = ImmutableList.builder();
     for (int i = 0; i < entityNames.size(); i++) {
       repeatedEntitiesBuilder.add(
-          create(enumeratorQuestionDefinition, parent, entityNames.get(i), i));
+          create(enumeratorQuestionDefinition, visibiity, parent, entityNames.get(i), i));
     }
     return repeatedEntitiesBuilder.build();
   }
 
+  /** Creates an instance of RepeatedEntity, using AutoValue. */
   private static RepeatedEntity create(
       EnumeratorQuestionDefinition enumeratorQuestionDefinition,
+      Optional<PredicateDefinition> visibiity,
       Optional<RepeatedEntity> parent,
       String entityName,
       int index) {
     assert enumeratorQuestionDefinition.isEnumerator();
-    return new AutoValue_RepeatedEntity(enumeratorQuestionDefinition, parent, entityName, index);
+    Preconditions.checkNotNull(visibiity);
+    return new AutoValue_RepeatedEntity(
+        enumeratorQuestionDefinition, visibiity, parent, entityName, index);
   }
+
+  /** AutoValue Getters. */
 
   /**
    * The {@link services.question.types.QuestionType#ENUMERATOR} question definition associated with
    * this repeated entity.
    */
   public abstract EnumeratorQuestionDefinition enumeratorQuestionDefinition();
+
+  /** The visibility of this entity's block. */
+  public abstract Optional<PredicateDefinition> visibility();
 
   /** If this is a nested repeated entity, this returns the immediate parent repeated entity. */
   public abstract Optional<RepeatedEntity> parent();
@@ -77,6 +96,8 @@ public abstract class RepeatedEntity {
    * the applicant associated with this repeated entity's enumerator question.
    */
   public abstract int index();
+
+  /** Member functions. */
 
   /** The contextualized path to the root of this repeated entity. */
   public Path contextualizedPath() {
@@ -92,12 +113,23 @@ public abstract class RepeatedEntity {
     return 1 + parent().map(RepeatedEntity::depth).orElse(0);
   }
 
+  /** Gets visibility for this and all parents of the repeated entity. */
+  public ImmutableList<PredicateDefinition> nestedVisibility() {
+    return Stream.concat(
+            parent()
+                .map(p -> p.nestedVisibility())
+                .orElse(ImmutableList.<PredicateDefinition>of())
+                .stream(),
+            this.visibility().stream())
+        .collect(ImmutableList.toImmutableList());
+  }
+
   /**
    * Contextualize the text with repeated entity names.
    *
    * <p>Replaces "\$this" with this repeated entity's name. "\$this.parent" and
-   * "\$this.parent.parent" (ad infinitum) are replaced with the names of the ancestors of this
-   * repeated entity.
+   * "\$this.parent.parent" (ad infinitum) are replaced with the names of theUserRepository.java:89
+   * ancestors of this repeated entity.
    */
   public String contextualize(String text) {
     return contextualize(text, REPLACEMENT_STRING);

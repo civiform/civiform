@@ -235,18 +235,22 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
       // For an enumeration block definition, build blocks for its repeated questions
       if (blockDefinition.isEnumerator()) {
-
         // Get all the repeated entities enumerated by this enumerator question.
         EnumeratorQuestionDefinition enumeratorQuestionDefinition =
             blockDefinition.getEnumerationQuestionDefinition();
         ImmutableList<RepeatedEntity> repeatedEntities =
-            maybeRepeatedEntity.isPresent()
-                ? maybeRepeatedEntity
-                    .get()
-                    .createNestedRepeatedEntities(enumeratorQuestionDefinition, applicantData)
-                : RepeatedEntity.createRepeatedEntities(
-                    enumeratorQuestionDefinition, applicantData);
-
+            maybeRepeatedEntity
+                .map(
+                    e ->
+                        e.createNestedRepeatedEntities(
+                            enumeratorQuestionDefinition,
+                            block.getVisibilityPredicate(),
+                            applicantData))
+                .orElse(
+                    RepeatedEntity.createRepeatedEntities(
+                        enumeratorQuestionDefinition,
+                        block.getVisibilityPredicate(),
+                        applicantData));
         // For each repeated entity, recursively build blocks for all of the repeated blocks of this
         // enumerator block.
         ImmutableList<BlockDefinition> repeatedBlockDefinitions =
@@ -267,18 +271,29 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   private boolean showBlock(Block block) {
+    if (block.getRepeatedEntity().isPresent()) {
+      ImmutableList<PredicateDefinition> nestedVisibility =
+          block.getRepeatedEntity().get().nestedVisibility();
+      for (int i = 0; i < nestedVisibility.size(); i++) {
+        if (!this.evaluateVisibility(block, nestedVisibility.get(i))) {
+          return false;
+        }
+      }
+    }
     if (block.getVisibilityPredicate().isEmpty()) {
       // Default to show
       return true;
     }
+    return this.evaluateVisibility(block, block.getVisibilityPredicate().get());
+  }
 
+  private boolean evaluateVisibility(Block block, PredicateDefinition predicate) {
     JsonPathPredicateGenerator predicateGenerator =
         new JsonPathPredicateGenerator(
             this.programDefinition.streamQuestionDefinitions().collect(toImmutableList()),
             block.getRepeatedEntity());
     PredicateEvaluator predicateEvaluator =
         new PredicateEvaluator(this.applicantData, predicateGenerator);
-    PredicateDefinition predicate = block.getVisibilityPredicate().get();
 
     switch (predicate.action()) {
       case HIDE_BLOCK:
