@@ -360,6 +360,8 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private ImmutableList<DomContent> buildDemographicFields(
       QuestionForm questionForm, boolean submittable) {
+
+    QuestionTag exportState = questionForm.getQuestionExportStateTag();
     return ImmutableList.of(
         FieldWithLabel.radio()
             .setId("question-demographic-no-export")
@@ -367,10 +369,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setFieldName("questionExportState")
             .setLabelText("No export")
             .setValue(QuestionTag.NON_DEMOGRAPHIC.getValue())
-            .setChecked(
-                questionForm
-                    .getQuestionExportState()
-                    .equals(QuestionTag.NON_DEMOGRAPHIC.getValue()))
+            .setChecked(exportState == QuestionTag.NON_DEMOGRAPHIC)
             .getContainer(),
         FieldWithLabel.radio()
             .setId("question-demographic-export-demographic")
@@ -378,8 +377,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setFieldName("questionExportState")
             .setLabelText("Export Value")
             .setValue(QuestionTag.DEMOGRAPHIC.getValue())
-            .setChecked(
-                questionForm.getQuestionExportState().equals(QuestionTag.DEMOGRAPHIC.getValue()))
+            .setChecked(exportState == QuestionTag.DEMOGRAPHIC)
             .getContainer(),
         FieldWithLabel.radio()
             .setId("question-demographic-export-pii")
@@ -387,10 +385,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setFieldName("questionExportState")
             .setLabelText("Export Obfuscated")
             .setValue(QuestionTag.DEMOGRAPHIC_PII.getValue())
-            .setChecked(
-                questionForm
-                    .getQuestionExportState()
-                    .equals(QuestionTag.DEMOGRAPHIC_PII.getValue()))
+            .setChecked(exportState == QuestionTag.DEMOGRAPHIC_PII)
             .getContainer());
   }
 

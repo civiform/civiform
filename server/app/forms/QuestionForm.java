@@ -121,7 +121,7 @@ public abstract class QuestionForm {
     this.questionExportState = Optional.of(questionExportState);
   }
 
-  public void setQuestionExportStateFromTags(List<QuestionTag> questionTags) {
+  private void populateQuestionExportStateFromTags(List<QuestionTag> questionTags) {
     if (questionTags.contains(QuestionTag.DEMOGRAPHIC)) {
       questionExportState = Optional.of(QuestionTag.DEMOGRAPHIC.getValue());
     } else if (questionTags.contains(QuestionTag.DEMOGRAPHIC_PII)) {
@@ -131,6 +131,20 @@ public abstract class QuestionForm {
     }
   }
 
+  /**
+   * The {@link QuestionTag} to use for export state. Callers external to this class should use this
+   * rather than {@link getQuestionExportState}.
+   */
+  public QuestionTag getQuestionExportStateTag() {
+    String rawState = getQuestionExportState();
+    return rawState.isEmpty() ? QuestionTag.NON_DEMOGRAPHIC : QuestionTag.valueOf(rawState);
+  }
+
+  /**
+   * The string representation of export state. This is only public since the Play framework
+   * requires public getters and setters. Callers external to this class should prefer {@link
+   * getQuestionExportStateTag}.
+   */
   public String getQuestionExportState() {
     if (ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(getQuestionType())) {
       return QuestionTag.NON_DEMOGRAPHIC.getValue();
@@ -139,7 +153,7 @@ public abstract class QuestionForm {
     if (questionExportState.isEmpty()) {
       Question q = new Question(this.qd);
       q.refresh();
-      setQuestionExportStateFromTags(q.getQuestionTags());
+      populateQuestionExportStateFromTags(q.getQuestionTags());
     }
     return questionExportState.get();
   }

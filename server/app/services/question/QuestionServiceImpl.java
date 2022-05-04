@@ -182,17 +182,19 @@ public final class QuestionServiceImpl implements QuestionService {
   @Override
   public void setExportState(QuestionDefinition questionDefinition, QuestionTag questionExportState)
       throws QuestionNotFoundException, InvalidUpdateException {
-    if (ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(
-        questionDefinition.getQuestionType())) {
-      return;
-    }
-
     Optional<Question> questionMaybe =
         questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
     if (questionMaybe.isEmpty()) {
       throw new QuestionNotFoundException(questionDefinition.getId());
     }
     Question question = questionMaybe.get();
+    if (ExporterService.NON_EXPORTED_QUESTION_TYPES.contains(
+        questionDefinition.getQuestionType())) {
+      question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
+      question.removeTag(QuestionTag.NON_DEMOGRAPHIC);
+      question.removeTag(QuestionTag.DEMOGRAPHIC);
+    }
+
     switch (questionExportState) {
       case DEMOGRAPHIC:
         question.removeTag(QuestionTag.DEMOGRAPHIC_PII);
