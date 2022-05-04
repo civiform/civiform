@@ -127,9 +127,11 @@ public abstract class RepeatedEntity {
   /**
    * Contextualize the text with repeated entity names.
    *
-   * <p>Replaces "\$this" with this repeated entity's name. "\$this.parent" and
-   * "\$this.parent.parent" (ad infinitum) are replaced with the names of theUserRepository.java:89
-   * ancestors of this repeated entity.
+   * <p>
+   * Replaces "\$this" with this repeated entity's name. "\$this.parent" and
+   * "\$this.parent.parent" (ad infinitum) are replaced with the names of the
+   * ancestors of this
+   * repeated entity.
    */
   public String contextualize(String text) {
     return contextualize(text, REPLACEMENT_STRING);
