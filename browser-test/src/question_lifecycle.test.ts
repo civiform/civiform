@@ -4,6 +4,7 @@ import {
   AdminQuestions,
   AdminPrograms,
   endSession,
+  waitForPageJsLoad,
 } from './support'
 
 describe('normal question lifecycle', () => {
@@ -178,5 +179,37 @@ describe('normal question lifecycle', () => {
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
 
     await adminQuestions.expectMultiOptionBlankOptionError(options)
+  })
+
+  it('persists export state', async () => {
+    const { page } = await startSession()
+    page.setDefaultTimeout(4000)
+
+    await loginAsAdmin(page)
+    const adminQuestions = new AdminQuestions(page)
+
+    // Navigate to the new question page and ensure that "No export" is pre-selected.
+    await adminQuestions.gotoAdminQuestionsPage()
+    await adminQuestions.page.click('#create-question-button')
+    await adminQuestions.page.click('#create-text-question')
+    await waitForPageJsLoad(adminQuestions.page)
+    expect(await page.isChecked(adminQuestions.selectorForExportOption(AdminQuestions.NO_EXPORT_OPTION))).toBeTruthy()
+
+    const questionName = 'textQuestionWithObfuscatedExport'
+    await adminQuestions.addTextQuestion({
+      questionName,
+      exportOption: AdminQuestions.EXPORT_OBFUSCATED_OPTION,
+    })
+
+    // Confirm that the previously selected export option was propagated.
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    expect(await page.isChecked(adminQuestions.selectorForExportOption(AdminQuestions.EXPORT_OBFUSCATED_OPTION))).toBeTruthy()
+
+    // Edit the result and confirm that the new value is propagated.
+    await adminQuestions.selectExportOption(AdminQuestions.EXPORT_VALUE_OPTION)
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+    await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    expect(await page.isChecked(adminQuestions.selectorForExportOption(AdminQuestions.EXPORT_VALUE_OPTION))).toBeTruthy()
   })
 })
