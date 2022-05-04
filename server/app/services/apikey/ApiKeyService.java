@@ -28,6 +28,20 @@ import services.DateConverter;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
+/**
+ * Service management of the resource backed by {@link ApiKey}.
+ *
+ * <p>CiviForm uses API keys to implement HTTP basic auth
+ * (https://en.wikipedia.org/wiki/Basic_access_authentication) for authenticating API requests, as
+ * well as for authorizing requests based on the permission grants stored with the key in the
+ * database.
+ *
+ * <p>For a given key, CiviForm stores the key secret in plain text along with the key secret hashed
+ * with a secret salt value provided to the server as a configuration variable.
+ *
+ * <p>The plaintext secret is revealed to the admin user once after creation, after which it is not
+ * recoverable from CiviForm.
+ */
 public class ApiKeyService {
 
   private static final int KEY_ID_LENGTH = 128;
@@ -50,7 +64,17 @@ public class ApiKeyService {
     this.secretSalt = checkNotNull(config).getString("api_secret_salt");
   }
 
-  public ApiKeyMutationResult createApiKey(DynamicForm form, CiviFormProfile profile)
+  /**
+   * Creates a new {@link ApiKey} with the data in {@code form} if it passes validation.
+   *
+   * @param form Stores data specified by the user for creation of the key, as well as validation
+   *     errors
+   * @param profile The user profile of the account creating this API key, used for recording who
+   *     created it
+   * @return a result object containing the credentials and created key if successful, form with
+   *     validation messages if not
+   */
+  public ApiKeyCreationResult createApiKey(DynamicForm form, CiviFormProfile profile)
       throws ProgramNotFoundException {
     if (environment.isProd() && secretSalt.equals("changeme")) {
       throw new RuntimeException("Must set api_secret_salt in production environment.");
@@ -64,7 +88,7 @@ public class ApiKeyService {
     form = resolveGrants(form, apiKey);
 
     if (form.hasErrors()) {
-      return new ApiKeyMutationResult(apiKey, form);
+      return ApiKeyCreationResult.failure(form);
     }
 
     String keyId = generateSecret(KEY_ID_LENGTH);
@@ -80,7 +104,7 @@ public class ApiKeyService {
 
     apiKey = repository.insert(apiKey).toCompletableFuture().join();
 
-    return new ApiKeyMutationResult(apiKey, form, credentials);
+    return ApiKeyCreationResult.success(apiKey, credentials);
   }
 
   private DynamicForm resolveKeyName(DynamicForm form, ApiKey apiKey) {
@@ -201,31 +225,52 @@ public class ApiKeyService {
     throw new RuntimeException("ApiKey creator must have authority_id.");
   }
 
-  public static class ApiKeyMutationResult {
-    private final DynamicForm form;
-    private final ApiKey apiKey;
+  /** Holds state relevant to the result of attempting to create an {@link ApiKey}. */
+  public static class ApiKeyCreationResult {
+    private final Optional<ApiKey> apiKey;
+    private final Optional<DynamicForm> form;
     private final Optional<String> credentials;
 
-    public ApiKeyMutationResult(ApiKey apiKey, DynamicForm form) {
-      this.apiKey = checkNotNull(apiKey);
-      this.form = checkNotNull(form);
-      this.credentials = Optional.empty();
+    /** Constructs an instance in the case of success. */
+    public static ApiKeyCreationResult success(ApiKey apiKey, String credentials) {
+      return new ApiKeyCreationResult(
+          Optional.of(apiKey), Optional.of(credentials), Optional.empty());
     }
 
-    public ApiKeyMutationResult(ApiKey apiKey, DynamicForm form, String credentials) {
-      this.apiKey = checkNotNull(apiKey);
-      this.form = checkNotNull(form);
-      this.credentials = Optional.of(credentials);
+    /** Constructs an instance in the case of failure. */
+    public static ApiKeyCreationResult failure(DynamicForm form) {
+      return new ApiKeyCreationResult(Optional.empty(), Optional.empty(), Optional.of(form));
     }
 
+    private ApiKeyCreationResult(
+        Optional<ApiKey> apiKey, Optional<String> credentials, Optional<DynamicForm> form) {
+      this.apiKey = apiKey;
+      this.credentials = credentials;
+      this.form = form;
+    }
+
+    /** Returns true for the key was created. */
+    public boolean successful() {
+      return credentials.isPresent();
+    }
+
+    /** Returns the API key if successful, throws {@code NullPointerException} if not. */
     public ApiKey getApiKey() {
-      return apiKey;
+      return apiKey.get();
     }
 
+    /**
+     * Returns the form with validation errors if failure, throws {@code NullPointerException} if
+     * not.
+     */
     public DynamicForm getForm() {
-      return form;
+      return form.get();
     }
 
+    /**
+     * Returns the base64 encoded credentials string if successful, throws {@code
+     * NullPointerException} if not.
+     */
     public String getCredentials() {
       return credentials.get();
     }

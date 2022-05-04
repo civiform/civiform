@@ -108,12 +108,12 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ImmutableSet<String> getAllProgramNames() {
-    return getActiveAndDraftPrograms().getProgramNames();
+    return programRepository.getAllProgramNames();
   }
 
   @Override
   public ImmutableSet<String> getAllProgramSlugs() {
-    return getActiveAndDraftPrograms().getProgramNames().stream()
+    return getAllProgramNames().stream()
         .map(slugifier::slugify)
         .collect(ImmutableSet.toImmutableSet());
   }
@@ -234,7 +234,7 @@ public class ProgramServiceImpl implements ProgramService {
   // For more info on URL slugs see: https://en.wikipedia.org/wiki/Clean_URL#Slug
   private boolean hasProgramNameCollision(String programName) {
     Slugify slugifier = new Slugify();
-    return programRepository.getAllProgramNames().stream()
+    return getAllProgramNames().stream()
         .map(slugifier::slugify)
         .anyMatch(slugifier.slugify(programName)::equals);
   }
