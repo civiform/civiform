@@ -516,7 +516,6 @@ public class ApplicantServiceImpl implements ApplicantService {
             try {
               applicantData.putCurrencyDollars(currentPath, update.value());
             } catch (IllegalArgumentException e) {
-              applicantData.maybeDelete(currentPath);
               failedUpdatesBuilder.put(currentPath, update.value());
             }
             break;
@@ -524,7 +523,6 @@ public class ApplicantServiceImpl implements ApplicantService {
             try {
               applicantData.putDate(currentPath, update.value());
             } catch (DateTimeParseException e) {
-              applicantData.maybeDelete(currentPath);
               failedUpdatesBuilder.put(currentPath, update.value());
             }
             break;
@@ -536,7 +534,6 @@ public class ApplicantServiceImpl implements ApplicantService {
             try {
               applicantData.putLong(currentPath, update.value());
             } catch (NumberFormatException e) {
-              applicantData.maybeDelete(currentPath);
               failedUpdatesBuilder.put(currentPath, update.value());
             }
             break;
