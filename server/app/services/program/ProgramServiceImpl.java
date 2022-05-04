@@ -215,18 +215,15 @@ public class ProgramServiceImpl implements ProgramService {
             .join());
   }
 
+  // Program names and program URL slugs must be unique in a given CiviForm
+  // system. If the slugs of two names collide, the names also collide, so
+  // we can check both by just checking for slug collisions.
+  // For more info on URL slugs see: https://en.wikipedia.org/wiki/Clean_URL#Slug
   private boolean hasProgramNameCollision(String programName) {
-    ImmutableSet<String> programNames = getActiveAndDraftPrograms().getProgramNames();
-
-    if (programNames.contains(programName)) {
-      return true;
-    }
-
     Slugify slugifier = new Slugify();
-    ImmutableSet<String> programSlugs =
-        programNames.stream().map(slugifier::slugify).collect(ImmutableSet.toImmutableSet());
-
-    return programSlugs.contains(slugifier.slugify(programName));
+    return getActiveAndDraftPrograms().getProgramNames().stream()
+        .map(slugifier::slugify)
+        .anyMatch(slugifier.slugify(programName)::equals);
   }
 
   private void validateProgramText(

@@ -179,8 +179,9 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
   @Test
   public void createProgram_protectsAgainstProgramSlugCollisions() {
+    // Two programs with names that are different but slugify to same value.
     ps.createProgramDefinition(
-        "name  one",
+        "name one",
         "description",
         "display name",
         "display description",
@@ -192,7 +193,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             // Program name here is missing the extra space
             // so that the names are different but the resulting
             // slug is the same.
-            "name one",
+            "name  one",
             "description",
             "display name",
             "display description",
@@ -202,7 +203,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
-        .containsExactly(CiviFormError.of("a program named name one already exists"));
+        .containsExactly(CiviFormError.of("a program named name  one already exists"));
   }
 
   @Test
