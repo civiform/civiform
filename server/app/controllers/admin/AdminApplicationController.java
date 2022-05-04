@@ -179,7 +179,7 @@ public class AdminApplicationController extends CiviFormController {
 
     String filename =
         String.format("%s-%s.pdf", applicantNameWithApplicationId, clock.instant().toString());
-    byte[] pdf = null;
+    byte[] pdf;
     try {
       pdf = pdfExporter.export(application, applicantNameWithApplicationId);
     } catch (DocumentException | IOException e) {
