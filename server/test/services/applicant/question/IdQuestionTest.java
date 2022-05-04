@@ -3,6 +3,8 @@ package services.applicant.question;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -17,7 +19,9 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.ValidationErrorMessage;
 import services.question.types.IdQuestionDefinition;
 import support.QuestionAnswerer;
 
@@ -61,8 +65,7 @@ public class IdQuestionTest extends ResetPostgres {
 
     IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
-    assertThat(idQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(idQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(idQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -75,8 +78,7 @@ public class IdQuestionTest extends ResetPostgres {
     IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
     assertThat(idQuestion.getIdValue().get()).isEqualTo("12345");
-    assertThat(idQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(idQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(idQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -90,8 +92,7 @@ public class IdQuestionTest extends ResetPostgres {
     IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
     assertThat(idQuestion.getIdValue().get()).isEqualTo(value);
-    assertThat(idQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(idQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(idQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -113,10 +114,13 @@ public class IdQuestionTest extends ResetPostgres {
     if (idQuestion.getIdValue().isPresent()) {
       assertThat(idQuestion.getIdValue().get()).isEqualTo(value);
     }
-    assertThat(idQuestion.getQuestionErrors().isEmpty()).isTrue();
-    assertThat(idQuestion.getAllTypeSpecificErrors()).hasSize(1);
-    String errorMessage =
-        idQuestion.getAllTypeSpecificErrors().iterator().next().getMessage(messages);
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        idQuestion.getValidationErrors();
+    assertThat(validationErrors.size()).isEqualTo(1);
+    ImmutableSet<ValidationErrorMessage> idErrors =
+        validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of());
+    assertThat(idErrors.size()).isEqualTo(1);
+    String errorMessage = idErrors.iterator().next().getMessage(messages);
     assertThat(errorMessage).isEqualTo(expectedErrorMessage);
   }
 }

@@ -162,7 +162,7 @@ public class VersionRepository {
    * Given any revision of a question, return the most recent conceptual version of it. Will return
    * the current DRAFT version if present then the current ACTIVE version.
    */
-  private Optional<Question> getLatestVersionOfQuestion(long questionId) {
+  public Optional<Question> getLatestVersionOfQuestion(long questionId) {
     String questionName =
         database.find(Question.class).setId(questionId).select("name").findSingleAttribute();
     Optional<Question> draftQuestion =

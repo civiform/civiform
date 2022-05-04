@@ -5,6 +5,7 @@
 # compleation.  Needs to be rerun when dependancies are changed.
 
 source bin/lib.sh
+docker::set_project_name_dev
 
 bin/pull-image
 
@@ -25,7 +26,11 @@ rm -rf server/temp
 
 BUILD=$(
          cat <<END
-<build>
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+    <build>
         <sourceDirectory>app</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
         <resources>
@@ -43,4 +48,4 @@ BUILD=$(
 END
 )
 
-perl -i -pe "s|<modelVersion>|${BUILD}|g" server/pom.xml
+perl -i -pe "s|\s+<modelVersion>|${BUILD}|g" server/pom.xml

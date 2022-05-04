@@ -26,6 +26,7 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
+import views.ApplicantUtils;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.LanguageSelector;
@@ -99,16 +100,18 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   public Content renderWithNav(
-      Http.Request request, String userName, Messages messages, HtmlBundle bundle) {
+      Http.Request request, Optional<String> userName, Messages messages, HtmlBundle bundle) {
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBar(request, userName, messages));
     return renderWithSupportFooter(bundle, messages);
   }
 
-  private ContainerTag renderNavBar(Http.Request request, String userName, Messages messages) {
+  private ContainerTag renderNavBar(
+      Http.Request request, Optional<String> userName, Messages messages) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
+    String displayUserName = ApplicantUtils.getApplicantName(userName, messages);
     return nav()
         .withClasses(
             Styles.BG_WHITE,
@@ -118,9 +121,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
             Styles.GRID,
             Styles.GRID_COLS_3)
         .with(branding())
-        .with(maybeRenderTiButton(profile, userName))
+        .with(maybeRenderTiButton(profile, displayUserName))
         .with(
-            div(getLanguageForm(request, profile, messages), logoutButton(userName, messages))
+            div(
+                    getLanguageForm(request, profile, messages),
+                    logoutButton(displayUserName, messages))
                 .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 

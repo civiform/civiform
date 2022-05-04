@@ -165,7 +165,6 @@ public class HtmlBundle {
     ContainerTag headerTag =
         header()
             .with(each(toastMessages, toastMessage -> toastMessage.getContainerTag()))
-            .with(metadata)
             .with(headerContent);
 
     if (headerStyles.size() > 0) {
@@ -208,7 +207,7 @@ public class HtmlBundle {
 
     @Override
     public String body() {
-      return document(new ContainerTag("html").with(bundleContent));
+      return document(bundleContent);
     }
 
     @Override

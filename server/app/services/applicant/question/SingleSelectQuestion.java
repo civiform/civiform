@@ -1,6 +1,7 @@
 package services.applicant.question;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
@@ -38,15 +39,9 @@ public class SingleSelectQuestion extends QuestionImpl {
   }
 
   @Override
-  public ImmutableSet<ValidationErrorMessage> getQuestionErrors() {
+  protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // Only one selection is possible - there is no admin-configured validation.
-    return ImmutableSet.of();
-  }
-
-  @Override
-  public ImmutableSet<ValidationErrorMessage> getAllTypeSpecificErrors() {
-    // Only one selection is possible - there is no admin-configured validation.
-    return ImmutableSet.of();
+    return ImmutableMap.of();
   }
 
   public boolean hasValue() {

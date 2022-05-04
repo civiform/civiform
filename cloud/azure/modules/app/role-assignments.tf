@@ -54,6 +54,6 @@ resource "azurerm_role_assignment" "storage_account_contributor_canary" {
 
 resource "azurerm_role_assignment" "storage_backup_contributor" {
   scope                = azurerm_storage_account.files_storage_account.id
-  role_definition_name = "Storage Account Backup Contributor Role"
+  role_definition_name = "Storage Account Backup Contributor"
   principal_id         = azurerm_data_protection_backup_vault.backup_vault.identity[0].principal_id
 }

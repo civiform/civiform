@@ -1,6 +1,10 @@
 package views.questiontypes;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
+import services.Path;
+import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.IdQuestion;
 import views.components.FieldWithLabel;
@@ -18,14 +22,18 @@ public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(ApplicantQuestionRendererParams params) {
+  protected Tag renderTag(
+      ApplicantQuestionRendererParams params,
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     IdQuestion idQuestion = question.createIdQuestion();
 
     Tag questionFormContent =
         FieldWithLabel.input()
             .setFieldName(idQuestion.getIdPath().toString())
             .setValue(idQuestion.getIdValue().orElse(""))
-            .setFieldErrors(params.messages(), idQuestion.getAllTypeSpecificErrors())
+            .setFieldErrors(
+                params.messages(),
+                validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of()))
             .setScreenReaderText(question.getQuestionText())
             .getContainer();
 
