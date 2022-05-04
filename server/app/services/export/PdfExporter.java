@@ -44,18 +44,16 @@ public class PdfExporter {
             .toCompletableFuture()
             .join();
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
-    InMemoryPdf inMemoryPdf = new InMemoryPdf();
     String applicantNameWithApplicationId =
         String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
     String filename =
         String.format("%s-%s.pdf", applicantNameWithApplicationId, clock.instant().toString());
-    inMemoryPdf.byteArray =
+    byte[] bytes =
         buildPDF(
             answers,
             applicantNameWithApplicationId,
             application.getProgram().getProgramDefinition().adminName());
-    inMemoryPdf.fileName = filename;
-    return inMemoryPdf;
+    return new InMemoryPdf(bytes, filename);
   }
 
   private byte[] buildPDF(
@@ -98,8 +96,6 @@ public class PdfExporter {
         document.add(answer);
         document.add(time);
       }
-    } catch (DocumentException e) {
-      throw e;
     } finally {
       document.close();
       writer.close();
@@ -111,6 +107,11 @@ public class PdfExporter {
   public static class InMemoryPdf {
     private byte[] byteArray;
     private String fileName;
+
+    InMemoryPdf(byte[] byteArray, String fileName) {
+      this.byteArray = byteArray;
+      this.fileName = fileName;
+    }
 
     public byte[] getByteArray() {
       return byteArray;
