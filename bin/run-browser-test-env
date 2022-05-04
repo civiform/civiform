@@ -3,7 +3,6 @@
 # DOC: Run the app locally using Docker for use with running browser tests. Run with --help to print documentation.
 
 source bin/lib.sh
-docker::set_project_name_browser_tests
 
 # Default to continuous integration mode disabled.
 truth::declare_var_false continuous_integration
@@ -31,8 +30,8 @@ emulators::set_localstack_emulator_vars
 function set_args() {
   while [ "${1:-}" != "" ]; do
     case "$1" in
-      "--help")
-        cat <<-EOF
+    "--help")
+      cat <<-EOF
 Usage: bin/run-browser-test-env [options]
 
 Run a local civiform environment for the browser tests to exercise.
@@ -48,27 +47,27 @@ Options:
 --azure Use the Azure emulator (Azurite) for simulating cloud storage for file
         upload and download. Also use localstack, since we need that for SES.
 EOF
-        exit 0
-        ;;
+      exit 0
+      ;;
 
-      "--ci")
-        truth::enable continuous_integration
-        readonly COMPOSE_INTERACTIVE_NO_CLI=1
+    "--ci")
+      truth::enable continuous_integration
+      readonly COMPOSE_INTERACTIVE_NO_CLI=1
 
-        ;;
+      ;;
 
-      "--azure")
-        emulators::set_azurite_emulator_vars
-        # We do this because the Azurite tests need both emulators running to
-        # be successful. But, for AWS, we only want one emulator running,
-        # localstack.
-        truth::enable both_emulators
-        ;;
+    "--azure")
+      emulators::set_azurite_emulator_vars
+      # We do this because the Azurite tests need both emulators running to
+      # be successful. But, for AWS, we only want one emulator running,
+      # localstack.
+      truth::enable both_emulators
+      ;;
 
-      "--aws")
-        emulators::ensure_only_one_cloud_provider_flag aws
-        # Already defaulted to AWS.
-        ;;
+    "--aws")
+      emulators::ensure_only_one_cloud_provider_flag aws
+      # Already defaulted to AWS.
+      ;;
     esac
 
     shift
@@ -79,13 +78,18 @@ set_args "$@"
 
 bin/pull-image
 
-base_compose_command="${DOCKER_COMPOSE_BROWSER_TEST}"
+docker::set_network_name_browser_tests
+
+compose_command="docker compose --profile ${cloud_provider}"
+compose_command="${compose_command} -f browser-test/browser-test-compose.yml"
+
 if truth::is_disabled continuous_integration; then
   # If not running in CI, load the dev addition to the browser test compose
   # this mounts the local SBT cache directories for faster subsequent builds.
-  base_compose_command="${DOCKER_COMPOSE_BROWSER_TEST_DEV}"
+  compose_command="${compose_command} -f browser-test/browser-test-compose.dev.yml"
 fi
-compose_command="${base_compose_command} --profile ${cloud_provider} up"
+
+compose_command="${compose_command} up"
 
 readonly START_EMULATOR_COMMAND="${compose_command} -d ${emulator}"
 echo "Running docker compose to start the cloud emulator:"
@@ -101,20 +105,23 @@ if truth::is_enabled continuous_integration; then
   compose_command="${compose_command} > .dockerlogs 2>&1 &"
 fi
 
+echo "Running docker compose to start the CiviForm environment:"
+echo "  ${compose_command}"
+
+# Start everything else.
+eval "${compose_command}"
+
 # localstack emulator is also required for Azurite. This should only run for
 # Azure browser tests.
 if truth::is_enabled both_emulators; then
   echo "Staring localstack emulator as well"
-  second_compose_command="${base_compose_command} --profile aws up -d localstack"
+  second_compose_command="docker compose --profile aws \
+                                 -f browser-test/browser-test-compose.yml \
+                                 -f browser-test/browser-test-compose.dev.yml \
+                                 up -d localstack"
   if truth::is_enabled continuous_integration; then
     second_compose_command="${second_compose_command} > .dockerlogs 2>&1 &"
   fi
   echo "  ${second_compose_command}"
   eval "${second_compose_command}"
 fi
-
-echo "Running docker compose to start the CiviForm environment:"
-echo "  ${compose_command}"
-
-# Start everything else.
-eval "${compose_command}"

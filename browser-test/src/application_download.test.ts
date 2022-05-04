@@ -138,14 +138,6 @@ describe('normal application flow', () => {
 
     await logout(page)
 
-    //################## PDF Download Test#############
-
-    await loginAsProgramAdmin(page)
-    await adminPrograms.viewApplications(programName)
-    const pdfFile = await adminPrograms.getPdf()
-    console.log(pdfFile)
-    
-    await logout(page)
     // #######################################
     // Test demography export
     // #######################################

@@ -3,7 +3,6 @@ import { readFileSync } from 'fs'
 import { clickAndWaitForModal, waitForPageJsLoad } from './wait'
 
 export class AdminPrograms {
-
   public page!: Page
 
   constructor(page: Page) {
@@ -444,19 +443,6 @@ export class AdminPrograms {
         .getAttribute('href')
     ).not.toBeNull()
   }
-  async getPdf() {
-    const [downloadEvent] = await Promise.all([
-      this.page.waitForEvent('download'),
-      this.page.click('text="Export to PDF"'),
-    ])
-    const path = await downloadEvent.path()
-    if (path === null) {
-      throw new Error('download failed')
-    }
-
-    return readFileSync(path, 'utf8')
-  }
-    
 
   async getJson() {
     const [downloadEvent] = await Promise.all([
