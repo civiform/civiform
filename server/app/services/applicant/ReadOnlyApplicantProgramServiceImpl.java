@@ -272,6 +272,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   private boolean showBlock(Block block) {
     if (block.getRepeatedEntity().isPresent()) {
+      // In repeated blocks, test if this block's parent's are visible.
       ImmutableList<PredicateDefinition> nestedVisibility =
           block.getRepeatedEntity().get().nestedVisibility();
       for (int i = 0; i < nestedVisibility.size(); i++) {
