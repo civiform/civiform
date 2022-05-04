@@ -21,7 +21,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     String applicantNameWithApplicationId =
-            String.format("%s (%d)", applicationOne.getApplicantData().getApplicantName(), applicationOne.id);
+        String.format(
+            "%s (%d)", applicationOne.getApplicantData().getApplicantName(), applicationOne.id);
 
     byte[] result = exporter.export(applicationOne, applicantNameWithApplicationId);
     PdfReader pdfReader = new PdfReader(result);
