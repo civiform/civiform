@@ -69,6 +69,13 @@ public class ApplicantServiceImplTest extends ResetPostgres {
   @Test
   public void stageAndUpdateIfValid_emptySetOfUpdates_leavesQuestionsUnansweredAndUpdatesMetadata()
       throws Exception {
+    // We make the question optional since it's not valid to stage empty updates
+    // for a required question.
+    programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withOptionalQuestion(questionDefinition)
+            .buildDefinition();
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     subject
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", ImmutableMap.of())
@@ -88,6 +95,13 @@ public class ApplicantServiceImplTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_withUpdatesWithEmptyStrings_deletesJsonData() {
+    // We make the question optional since it's not valid to update a required
+    // question with an empty string (done below).
+    programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withOptionalQuestion(questionDefinition)
+            .buildDefinition();
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     Path questionPath = Path.create("applicant.name");
 

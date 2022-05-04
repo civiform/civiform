@@ -179,8 +179,12 @@ public class BlockTest {
 
   @Test
   public void hasErrors_returnsFalseIfQuestionsHaveNoErrors() {
+    ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition = setUpBlockWithQuestions();
-    Block block = new Block("1", definition, new ApplicantData(), Optional.empty());
+    // Both questions are required. Fill out an answer.
+    answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
+    answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
+    Block block = new Block("1", definition, applicantData, Optional.empty());
 
     assertThat(block.hasErrors()).isFalse();
   }

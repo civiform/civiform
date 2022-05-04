@@ -27,7 +27,7 @@ public interface Question {
 
   /**
    * Returns true any part of the question has been answered by the applicant. Blank answers should
-   * not count. If a question is not answered, it should not have errors associated with it.
+   * not count.
    */
   boolean isAnswered();
 

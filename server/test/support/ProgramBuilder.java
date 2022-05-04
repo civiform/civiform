@@ -214,9 +214,13 @@ public class ProgramBuilder {
     }
 
     public BlockBuilder withOptionalQuestion(Question question) {
+      return withOptionalQuestion(question.getQuestionDefinition());
+    }
+
+    public BlockBuilder withOptionalQuestion(QuestionDefinition question) {
       blockDefBuilder.addQuestion(
           ProgramQuestionDefinition.create(
-                  question.getQuestionDefinition(), Optional.of(programBuilder.programDefinitionId))
+                  question, Optional.of(programBuilder.programDefinitionId))
               .setOptional(true));
       return this;
     }
@@ -239,16 +243,10 @@ public class ProgramBuilder {
     }
 
     public BlockBuilder withRequiredQuestions(ImmutableList<Question> questions) {
-      ImmutableList<ProgramQuestionDefinition> pqds =
+      return withRequiredQuestionDefinitions(
           questions.stream()
               .map(Question::getQuestionDefinition)
-              .map(
-                  questionDefinition ->
-                      ProgramQuestionDefinition.create(
-                          questionDefinition, Optional.of(programBuilder.programDefinitionId)))
-              .collect(ImmutableList.toImmutableList());
-      blockDefBuilder.setProgramQuestionDefinitions(pqds);
-      return this;
+              .collect(ImmutableList.toImmutableList()));
     }
 
     public BlockBuilder withRequiredQuestionDefinitions(

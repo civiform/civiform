@@ -207,7 +207,7 @@ public class HtmlBundle {
 
     @Override
     public String body() {
-      return document(new ContainerTag("html").with(bundleContent));
+      return document(bundleContent);
     }
 
     @Override

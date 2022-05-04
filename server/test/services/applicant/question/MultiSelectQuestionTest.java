@@ -15,6 +15,7 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.program.ProgramQuestionDefinition;
 import services.question.QuestionOption;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -48,13 +49,35 @@ public class MultiSelectQuestionTest {
   }
 
   @Test
-  public void withEmptyApplicantData() {
+  public void withEmptyApplicantData_optionalQuestion() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            ProgramQuestionDefinition.create(CHECKBOX_QUESTION, Optional.empty()).setOptional(true),
+            applicantData,
+            Optional.empty());
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
     assertThat(multiSelectQuestion.getValidationErrors().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void withEmptyApplicantData_requiredQuestion_failsValidation() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            ProgramQuestionDefinition.create(CHECKBOX_QUESTION, Optional.empty()),
+            applicantData,
+            Optional.empty());
+
+    MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
+
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        multiSelectQuestion.getValidationErrors();
+    assertThat(validationErrors.size()).isEqualTo(1);
+    assertThat(
+            validationErrors.getOrDefault(
+                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
+        .containsOnly(ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, 2));
   }
 
   @Test
