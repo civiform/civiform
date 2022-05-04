@@ -28,6 +28,10 @@ public class ApiKey extends BaseModel {
   @DbJsonB private ApiKeyGrants grants;
 
   public ApiKeyGrants getGrants() {
+    if (grants == null) {
+      this.grants = new ApiKeyGrants();
+    }
+
     return grants;
   }
 

@@ -2,6 +2,7 @@ package services.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.github.slugify.Slugify;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -37,6 +38,7 @@ import services.question.types.QuestionDefinition;
 /** Implementation class for {@link ProgramService} interface. */
 public class ProgramServiceImpl implements ProgramService {
 
+  private final Slugify slugifier = new Slugify();
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
@@ -102,6 +104,18 @@ public class ProgramServiceImpl implements ProgramService {
         syncProgramDefinitionQuestions(program.getProgramDefinition(), version);
 
     return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
+  }
+
+  @Override
+  public ImmutableSet<String> getAllProgramNames() {
+    return getActiveAndDraftPrograms().getProgramNames();
+  }
+
+  @Override
+  public ImmutableSet<String> getAllProgramSlugs() {
+    return getActiveAndDraftPrograms().getProgramNames().stream()
+        .map(slugifier::slugify)
+        .collect(ImmutableSet.toImmutableSet());
   }
 
   @Override
