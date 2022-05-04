@@ -104,7 +104,7 @@ function truth::assert_is_boolean() {
   local value="${!var_name}"
 
   truth::assert_is_set "${var_name}" \
-    "Expected ${var_name} to be a boolean but it was unset."\
+    "Expected ${var_name} to be a boolean but it was unset." \
     "Declare it or check spelling."
 
   if [[ "${value}" == "true" ]]; then
@@ -112,7 +112,7 @@ function truth::assert_is_boolean() {
   elif [[ "${value}" == "false" ]]; then
     return 0
   else
-    out::error "Expected variable '${var_name}' to be a boolean"\
+    out::error "Expected variable '${var_name}' to be a boolean" \
       "but it contained '${value}'"
     exit 2
   fi

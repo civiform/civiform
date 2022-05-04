@@ -3,11 +3,11 @@
 readonly VALID_CLOUD_PROVIDERS=(azure)
 
 if [[ "${CIVIFORM_CLOUD_PROVIDER}" = "" ]]; then
-  >&2 echo "Must specify CIVIFORM_CLOUD_PROVIDER configuration variable."
+  echo >&2 "Must specify CIVIFORM_CLOUD_PROVIDER configuration variable."
   exit 1
 fi
 
 if [[ ! " ${VALID_CLOUD_PROVIDERS[*]} " =~ " ${CIVIFORM_CLOUD_PROVIDER} " ]]; then
-  >&2 echo "'${CIVIFORM_CLOUD_PROVIDER}' is not a valid cloud provider."
+  echo >&2 "'${CIVIFORM_CLOUD_PROVIDER}' is not a valid cloud provider."
   exit 1
 fi

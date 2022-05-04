@@ -9,8 +9,8 @@ source "cloud/shared/bin/lib.sh"
 source "cloud/azure/bin/lib.sh"
 
 if [[ -z "${1}" ]]; then
-    out::error "Must specify backend vars filename."
-    exit 1
+  out::error "Must specify backend vars filename."
+  exit 1
 fi
 
 readonly BACKEND_VARS_FILENAME="${1}"
@@ -23,12 +23,12 @@ echo "Check for Resource Group"
 GROUP_EXISTS=$(az group exists \
   --name $RESOURCE_GROUP_NAME)
 if [ "${GROUP_EXISTS}" = "true" ]; then
-    echo "Resource Group ${RESOURCE_GROUP_NAME} already exists"
+  echo "Resource Group ${RESOURCE_GROUP_NAME} already exists"
 else
-    echo "Create resource group"
-    az group create \
-      --name ${RESOURCE_GROUP_NAME} \
-      --location ${AZURE_LOCATION}
+  echo "Create resource group"
+  az group create \
+    --name ${RESOURCE_GROUP_NAME} \
+    --location ${AZURE_LOCATION}
 fi
 
 echo "Check storage accounts"
@@ -37,15 +37,15 @@ CURRENT_ACCOUNTS=$(az storage account list \
 
 STORAGE_ACCOUNT_PATTERN="\"name\"\: \"(tfstate[0-9]+)\""
 if [[ $CURRENT_ACCOUNTS =~ $STORAGE_ACCOUNT_PATTERN ]]; then
-    echo "You have a storage account already, using the name ${BASH_REMATCH[1]}"
-    STORAGE_ACCOUNT_NAME=${BASH_REMATCH[1]}
+  echo "You have a storage account already, using the name ${BASH_REMATCH[1]}"
+  STORAGE_ACCOUNT_NAME=${BASH_REMATCH[1]}
 else
-    echo "Create storage account"
-    az storage account create \
-      --resource-group ${RESOURCE_GROUP_NAME} \
-      --name ${STORAGE_ACCOUNT_NAME} \
-      --sku Standard_LRS \
-      --encryption-services blob
+  echo "Create storage account"
+  az storage account create \
+    --resource-group ${RESOURCE_GROUP_NAME} \
+    --name ${STORAGE_ACCOUNT_NAME} \
+    --sku Standard_LRS \
+    --encryption-services blob
 fi
 
 echo "Assigning storage blob data contributer role to the user"
@@ -57,12 +57,12 @@ CONTAINER_EXIST=$(az storage container exists \
   --account-name ${STORAGE_ACCOUNT_NAME})
 CONTAINER_EXISTS_PATTERN="\"exists\"\: true"
 if [[ "${CONTAINER_EXIST}" =~ "${CONTAINER_EXISTS_PATTERN}" ]]; then
-    echo "Container already exists"
+  echo "Container already exists"
 else
-    echo "Creating the container"
-    az storage container create \
-      --name ${CONTAINER_NAME} \
-      --account-name ${STORAGE_ACCOUNT_NAME}
+  echo "Creating the container"
+  az storage container create \
+    --name ${CONTAINER_NAME} \
+    --account-name ${STORAGE_ACCOUNT_NAME}
 fi
 
 echo "storing the account key"
@@ -73,7 +73,7 @@ ACCOUNT_KEY="$(az storage account keys list \
 export ARM_ACCESS_KEY="${ACCOUNT_KEY}"
 
 echo "generating the ${BACKEND_VARS_FILENAME} file"
-echo "resource_group_name  = \"${RESOURCE_GROUP_NAME}\"" > "${BACKEND_VARS_FILENAME}"
-echo "storage_account_name = \"${STORAGE_ACCOUNT_NAME}\"" >> "${BACKEND_VARS_FILENAME}"
-echo "container_name       = \"${CONTAINER_NAME}\"" >> "${BACKEND_VARS_FILENAME}"
-echo "key                  = \"terraform.tfstate\"" >> "${BACKEND_VARS_FILENAME}"
+echo "resource_group_name  = \"${RESOURCE_GROUP_NAME}\"" >"${BACKEND_VARS_FILENAME}"
+echo "storage_account_name = \"${STORAGE_ACCOUNT_NAME}\"" >>"${BACKEND_VARS_FILENAME}"
+echo "container_name       = \"${CONTAINER_NAME}\"" >>"${BACKEND_VARS_FILENAME}"
+echo "key                  = \"terraform.tfstate\"" >>"${BACKEND_VARS_FILENAME}"
