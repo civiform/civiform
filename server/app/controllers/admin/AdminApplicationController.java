@@ -146,7 +146,7 @@ public class AdminApplicationController extends CiviFormController {
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
   }
 
-  /** Download a PDF file of the application to the program. This feature is not implemented yet. */
+  /** Download a PDF file of the application to the program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result download(Http.Request request, long programId, long applicationId) {
     ProgramDefinition program;

@@ -4,7 +4,7 @@
 
 source bin/lib.sh
 
-docker run --ipc=host --rm -it \
+docker run --rm -it \
   -v "$(pwd)/browser-test/src:/usr/src/civiform-browser-tests/src" \
   -v "$(pwd)/browser-test/bin:/usr/src/civiform-browser-tests/bin" \
   -v "$(pwd)/browser-test/tmp:/usr/src/civiform-browser-tests/tmp" \
