@@ -103,7 +103,7 @@ lazy val root = (project in file("."))
     incOptions := incOptions.value.withTransitiveStep(2),
 
     // Make verbose tests
-    Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v")),
+    Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")),
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
     // Turn off scaladoc link warnings
