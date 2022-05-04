@@ -32,8 +32,10 @@ public class PdfExporter {
     this.clock = checkNotNull(clock);
   }
   /**
-   * Write a PDF containing all the values present in the List of AnswerData using itextPDF.This
-   * function creates the output document in memory as byte[] and is written to the output document
+   * Generates a byte array containing all the values present in the List of AnswerData using
+   * itextPDF.This function creates the output document in memory as a byte[] and is part of the
+   * inMemoryPDF object. The InMemoryPdf object is passed back to the AdminController Class to
+   * generate the required PDF.
    */
   public InMemoryPdf export(Application application) throws DocumentException, IOException {
     ReadOnlyApplicantProgramService roApplicantService =
