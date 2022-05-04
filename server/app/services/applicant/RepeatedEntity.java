@@ -117,7 +117,8 @@ public abstract class RepeatedEntity {
   public ImmutableList<PredicateDefinition> nestedVisibility() {
     return Stream.concat(
             parent()
-                .map(p -> p.nestedVisibility())
+            .map(
+                PredicateDefinition::nestedVisibility)
                 .orElse(ImmutableList.<PredicateDefinition>of())
                 .stream(),
             this.visibility().stream())
