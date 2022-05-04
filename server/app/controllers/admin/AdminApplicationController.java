@@ -172,22 +172,17 @@ public class AdminApplicationController extends CiviFormController {
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
-
     Application application = applicationMaybe.get();
-    String applicantNameWithApplicationId =
-        String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
-
-    String filename =
-        String.format("%s-%s.pdf", applicantNameWithApplicationId, clock.instant().toString());
-    byte[] pdf;
+    PdfExporter.InMemoryPdf pdf;
     try {
-      pdf = pdfExporter.export(application, applicantNameWithApplicationId);
+      pdf = pdfExporter.export(application);
     } catch (DocumentException | IOException e) {
       throw new RuntimeException(e);
     }
-    return ok(pdf)
+    return ok(pdf.getByteArray())
         .as("application/pdf")
-        .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
+        .withHeader(
+            "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
   }
 
   /** Return a HTML page displaying the summary of the specified application. */
