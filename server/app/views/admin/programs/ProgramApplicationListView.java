@@ -12,6 +12,9 @@ import static j2html.TagCreator.span;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.SpanTag;
+
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -47,7 +50,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ProgramDefinition program,
       PaginationResult<Application> paginatedApplications,
       Optional<String> search) {
-    Tag contentDiv =
+    DivTag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(
@@ -74,7 +77,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 renderJsonDownloadButton(program.id()))
             .withClasses(Styles.MB_16, Styles.MR_2);
 
-    Tag applicationShowDiv =
+    DivTag applicationShowDiv =
         div()
             .withClasses(Styles.W_FULL, Styles.H_FULL)
             .with(
@@ -93,7 +96,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private Tag renderCsvDownloadButton(long programId) {
+  private DivTag renderCsvDownloadButton(long programId) {
     String link = controllers.admin.routes.AdminApplicationController.downloadAll(programId).url();
     return new LinkElement()
         .setId("download-all-button")
@@ -103,7 +106,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .asButton();
   }
 
-  private Tag renderJsonDownloadButton(long programId) {
+  private DivTag renderJsonDownloadButton(long programId) {
     String link =
         controllers.admin.routes.AdminApplicationController.downloadAllJson(programId).url();
     return new LinkElement()
@@ -114,7 +117,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .asButton();
   }
 
-  private Tag renderApplicationListItem(Application application) {
+  private DivTag renderApplicationListItem(Application application) {
     String applicantNameWithApplicationId =
         String.format(
             "%s (%d)",
@@ -122,7 +125,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             application.id);
     String viewLinkText = "View →";
 
-    Tag topContent =
+    DivTag topContent =
         div(
                 div(
                     div(applicantNameWithApplicationId)
@@ -131,14 +134,14 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 p().withClasses(Styles.FLEX_GROW))
             .withClasses(Styles.FLEX);
 
-    Tag bottomContent =
+    DivTag bottomContent =
         div(
                 p(getSubmitTime(application)).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
                 renderViewLink(viewLinkText, application))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
-    Tag innerDiv =
+    DivTag innerDiv =
         div(topContent, bottomContent)
             .withClasses(
                 Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
@@ -148,7 +151,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             ReferenceClasses.ADMIN_APPLICATION_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
   }
 
-  private Tag getSubmitTime(Application application) {
+  private SpanTag getSubmitTime(Application application) {
     try {
       return span()
           .withText(
@@ -161,7 +164,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     }
   }
 
-  private Tag renderViewLink(String text, Application application) {
+  private DivTag renderViewLink(String text, Application application) {
     String viewLink =
         controllers.admin.routes.AdminApplicationController.show(
                 application.getProgram().id, application.id)
