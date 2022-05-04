@@ -25,7 +25,7 @@ To get started please first read our
 
 And more specifically:
 * [Technical contribution guide](https://docs.civiform.us/contributor-guide/developer-guide)
-* [UI/UX contribution guide](https://docs.civiform.us/contributor-guide/ui-ux-guide)
+* [UX contribution guide](https://docs.civiform.us/contributor-guide/ui-ux-guide)
 
 If you're interested in just digging around and interacting with the code, see
 [Getting started](https://docs.civiform.us/contributor-guide/developer-guide/getting-started) for guidance on
