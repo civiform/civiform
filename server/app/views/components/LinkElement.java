@@ -110,7 +110,7 @@ public class LinkElement {
   public ContainerTag asRightAlignedButton() {
     ContainerTag tag = Strings.isNullOrEmpty(href) ? div(text) : a(text).withHref(href);
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)
-            .withClasses(RIGHT_ALIGNED_LINK_BUTTON_STYLES, styles);
+        .withClasses(RIGHT_ALIGNED_LINK_BUTTON_STYLES, styles);
   }
 
   public ContainerTag asHiddenForm(Http.Request request) {

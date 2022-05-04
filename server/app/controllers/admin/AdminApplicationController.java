@@ -5,7 +5,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import com.itextpdf.text.DocumentException;
 import controllers.CiviFormController;
+import java.io.IOException;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -166,7 +168,7 @@ public class AdminApplicationController extends CiviFormController {
     }
 
     Optional<Application> applicationMaybe =
-      this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
+        this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
 
     if (!applicationMaybe.isPresent()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
@@ -174,15 +176,16 @@ public class AdminApplicationController extends CiviFormController {
 
     Application application = applicationMaybe.get();
     String applicantNameWithApplicationId =
-      String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
+        String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
 
     String filename =
-      String.format("%s-%s.pdf", applicantNameWithApplicationId, clock.instant().toString());
+        String.format("%s-%s.pdf", applicantNameWithApplicationId, clock.instant().toString());
     byte[] pdf = null;
     try {
-      pdf = pdfExporter.export(application);
-    } catch(Exception e) {
-      return  notFound(e.toString());
+      pdf = pdfExporter.export(application, applicantNameWithApplicationId);
+    } catch (DocumentException | IOException e) {
+      throw new RuntimeException(
+          "Document or IOException exception detected while processing the PDF export!");
     }
     return ok(pdf)
         .as("application/pdf")
