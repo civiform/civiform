@@ -42,7 +42,7 @@ public class NumberQuestion extends QuestionImpl {
     Optional<Long> numberValue = getNumberValue();
     // When staging updates, the attempt to update ApplicantData would have failed to
     // convert to a number and been noted as a failed update. We check for that here.
-    if (applicantQuestion.getApplicantData().getFailedUpdates().containsKey(getNumberPath())
+    if (applicantQuestion.getApplicantData().updateDidFailAt(getNumberPath())
         || (!numberValue.isEmpty() && numberValue.get() < 0)) {
       return ImmutableSet.of(
           ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER));

@@ -182,7 +182,7 @@ public class ApplicantServiceImpl implements ApplicantService {
               Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
 
               UpdateMetadata updateMetadata = UpdateMetadata.create(programId, clock.millis());
-              ImmutableMap<Path, String> failedUpdates = ImmutableMap.of();
+              ImmutableMap<Path, String> failedUpdates;
               try {
                 failedUpdates =
                     stageUpdates(

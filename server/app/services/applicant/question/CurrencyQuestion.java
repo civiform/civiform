@@ -40,7 +40,7 @@ public class CurrencyQuestion extends QuestionImpl {
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // When staging updates, the attempt to update ApplicantData would have failed to
     // convert to a currency and been noted as a failed update. We check for that here.
-    if (applicantQuestion.getApplicantData().getFailedUpdates().containsKey(getCurrencyPath())) {
+    if (applicantQuestion.getApplicantData().updateDidFailAt(getCurrencyPath())) {
       return ImmutableMap.of(
           getCurrencyPath(),
           ImmutableSet.of(

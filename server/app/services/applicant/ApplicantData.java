@@ -122,8 +122,7 @@ public class ApplicantData extends CfJsonDocumentContext {
   @Override
   public String asJsonString() {
     if (!getFailedUpdates().isEmpty()) {
-      throw new IllegalStateException(
-          "data cannot be serialized since there " + "were failed updates");
+      throw new IllegalStateException("data cannot be serialized since there were failed updates");
     }
     return super.asJsonString();
   }
@@ -135,5 +134,9 @@ public class ApplicantData extends CfJsonDocumentContext {
 
   public ImmutableMap<Path, String> getFailedUpdates() {
     return failedUpdates.orElse(ImmutableMap.of());
+  }
+
+  public boolean updateDidFailAt(Path path) {
+    return getFailedUpdates().containsKey(path);
   }
 }
