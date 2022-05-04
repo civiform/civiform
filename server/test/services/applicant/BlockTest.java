@@ -3,6 +3,7 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
 import java.util.Locale;
 import java.util.Optional;
@@ -187,6 +188,20 @@ public class BlockTest {
     Block block = new Block("1", definition, applicantData, Optional.empty());
 
     assertThat(block.hasErrors()).isFalse();
+  }
+
+  @Test
+  public void hasErrors_returnsTrueIfApplicantDataHasInvalidUpdates() {
+    ApplicantData applicantData = new ApplicantData();
+    BlockDefinition definition = setUpBlockWithQuestions();
+    // Both questions are required. Fill out an answer.
+    answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
+    answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
+    applicantData.setFailedUpdates(
+        ImmutableMap.of(Path.create("applicant.applicant_favorite_color"), "invalid_input"));
+    Block block = new Block("1", definition, applicantData, Optional.empty());
+
+    assertThat(block.hasErrors()).isTrue();
   }
 
   @Test

@@ -2,6 +2,8 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -12,7 +14,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.LocalizedStrings;
+import services.MessageKey;
+import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.ValidationErrorMessage;
 import services.question.types.CurrencyQuestionDefinition;
 import support.QuestionAnswerer;
 
@@ -73,5 +78,26 @@ public class CurrencyQuestionTest {
     assertThat(currencyQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(currencyQuestion.getCurrencyValue().isPresent()).isTrue();
     assertThat(currencyQuestion.getCurrencyValue().get().getCents()).isEqualTo(cents);
+  }
+
+  @Test
+  public void withMisformattedCurrency() {
+    Path currencyPath =
+        ApplicantData.APPLICANT_PATH
+            .join(currencyQuestionDefinition.getQuestionPathSegment())
+            .join(Scalar.CURRENCY_CENTS);
+    applicantData.setFailedUpdates(ImmutableMap.of(currencyPath, "invalid_input"));
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(currencyQuestionDefinition, applicantData, Optional.empty());
+
+    CurrencyQuestion currencyQuestion = applicantQuestion.createCurrencyQuestion();
+
+    assertThat(currencyQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>of(
+                currencyQuestion.getCurrencyPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.CURRENCY_VALIDATION_MISFORMATTED))));
+    assertThat(currencyQuestion.getCurrencyValue().isPresent()).isFalse();
   }
 }

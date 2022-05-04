@@ -19,6 +19,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
@@ -147,5 +148,26 @@ public class NumberQuestionTest extends ResetPostgres {
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     assertThat(numberQuestion.getValidationErrors().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void withMisformattedNumber() {
+    Path numberPath =
+        ApplicantData.APPLICANT_PATH
+            .join(numberQuestionDefinition.getQuestionPathSegment())
+            .join(Scalar.NUMBER);
+    applicantData.setFailedUpdates(ImmutableMap.of(numberPath, "invalid_input"));
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(numberQuestionDefinition, applicantData, Optional.empty());
+
+    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
+
+    assertThat(numberQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>of(
+                numberQuestion.getNumberPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER))));
+    assertThat(numberQuestion.getNumberValue().isPresent()).isFalse();
   }
 }

@@ -128,7 +128,7 @@ public class ApplicantData extends CfJsonDocumentContext {
     return super.asJsonString();
   }
 
-  void setFailedUpdates(ImmutableMap<Path, String> updates) {
+  public void setFailedUpdates(ImmutableMap<Path, String> updates) {
     checkLocked();
     failedUpdates = Optional.of(checkNotNull(updates));
   }
