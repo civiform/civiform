@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# DOC: Run the Java test suite in Docker.
+# DOC: Open an sbt CLI in the Unit Test environment container.
 
 source bin/lib.sh
 docker::set_project_name_unit_tests
