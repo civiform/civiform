@@ -129,8 +129,13 @@ public class CfJsonDocumentContext {
     }
   }
 
-  /** Parses and writes a long value. */
+  /** Writes a long value. */
   public void putLong(Path path, long value) {
+    put(path, value);
+  }
+
+  /** Writes a float value. */
+  public void putFloat(Path path, float value) {
     put(path, value);
   }
 
