@@ -21,10 +21,9 @@ public class Icons {
           + " 16H5V5h14v14zM17.99 9l-1.41-1.42-6.59 6.59-2.58-2.57-1.42 1.41 4 3.99z";
   // Payments
   public static final String CURRENCY_SVG_PATH =
-      "M19,14V6c0-1.1-0.9-2-2-2H3C1.9,4,1,4.9,1,6v8c0,1.1,0.9,2,2,2h14C18.1,16,19,15.1,19,14z"
-          + " M17,14H3V6h14V14z M10,7 c-1.66,0-3,1.34-3,3s1.34,3,3,3s3-1.34,3-3S11.66,7,10,7z"
-          + " M23,7v11c0,1.1-0.9,2-2,2H4c0-1,0-0.9,0-2h17V7C22.1,7,22,7,23,7z";
-  // Date Range
+      "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3"
+          + " 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11"
+          + " 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z";
   public static final String DATE_SVG_PATH =
       "M19 4h-1V3c0-.55-.45-1-1-1s-1 .45-1 1v1H8V3c0-.55-.45-1-1-1s-1 .45-1 1v1H5c-1.11"
           + " 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 15c0"
@@ -131,8 +130,11 @@ public class Icons {
         iconPath = Icons.CHECKBOX_SVG_PATH;
         break;
       case CURRENCY:
-        iconPath = Icons.CURRENCY_SVG_PATH;
-        break;
+        return svg(Icons.CURRENCY_SVG_PATH, width, height)
+            .attr("fill", "none")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-width", "2");
       case DATE:
         iconPath = Icons.DATE_SVG_PATH;
         break;
