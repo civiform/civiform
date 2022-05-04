@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import javax.inject.Provider;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.oidc.client.OidcClient;
@@ -61,7 +62,13 @@ public class IdcsProfileAdapter extends OidcCiviFormProfileAdapter {
 
   @Override
   public CiviFormProfileData mergeCiviFormProfile(
-      CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
+      Optional<CiviFormProfile> maybeCiviformProfile, OidcProfile oidcProfile) {
+    var civiformProfile =
+        maybeCiviformProfile.orElseGet(
+            () -> {
+              logger.debug("Found no existing profile in session cookie.");
+              return this.createEmptyCiviFormProfile(oidcProfile);
+            });
     final String locale = oidcProfile.getAttribute("user_locale", String.class);
     final boolean hasLocale = locale != null && !locale.isEmpty();
     final String displayName = oidcProfile.getAttribute("user_displayname", String.class);
@@ -84,13 +91,12 @@ public class IdcsProfileAdapter extends OidcCiviFormProfileAdapter {
           .join();
     }
 
-    return super.mergeCiviFormProfile(civiformProfile, oidcProfile);
+    return super.mergeCiviFormProfile(Optional.of(civiformProfile), oidcProfile);
   }
 
   @Override
-  public CiviFormProfileData civiformProfileFromOidcProfile(OidcProfile profile) {
-    return mergeCiviFormProfile(
-        profileFactory.wrapProfileData(profileFactory.createNewApplicant()), profile);
+  public CiviFormProfile createEmptyCiviFormProfile(OidcProfile profile) {
+    return profileFactory.wrapProfileData(profileFactory.createNewApplicant());
   }
 
   @Override

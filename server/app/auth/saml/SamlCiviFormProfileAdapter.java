@@ -110,13 +110,18 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     return Optional.of(String.format("Issuer: %s NameID: %s", issuer, subject));
   }
 
-  public CiviFormProfileData civiformProfileFromSamlProfile(SAML2Profile profile) {
-    return mergeCiviFormProfile(
-        profileFactory.wrapProfileData(profileFactory.createNewApplicant()), profile);
+  public CiviFormProfile createEmptyCiviformProfile() {
+    return profileFactory.wrapProfileData(profileFactory.createNewApplicant());
   }
 
   public CiviFormProfileData mergeCiviFormProfile(
-      CiviFormProfile civiFormProfile, SAML2Profile saml2Profile) {
+      Optional<CiviFormProfile> maybeCiviFormProfile, SAML2Profile saml2Profile) {
+    var civiFormProfile =
+        maybeCiviFormProfile.orElseGet(
+            () -> {
+              logger.debug("Found no existing profile in session cookie.");
+              return createEmptyCiviformProfile();
+            });
     String authorityId =
         getAuthorityId(saml2Profile)
             .orElseThrow(

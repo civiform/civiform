@@ -77,7 +77,13 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
 
   /** Merge the two provided profiles into a new CiviFormProfileData. */
   public CiviFormProfileData mergeCiviFormProfile(
-      CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
+      Optional<CiviFormProfile> maybeCiviformProfile, OidcProfile oidcProfile) {
+    var civiformProfile =
+        maybeCiviformProfile.orElseGet(
+            () -> {
+              logger.debug("Found no existing profile in session cookie.");
+              return this.createEmptyCiviFormProfile(oidcProfile);
+            });
     String emailAddress =
         Optional.ofNullable(oidcProfile.getAttribute(emailAttributeName(), String.class))
             .orElseThrow(
@@ -101,7 +107,7 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
   }
 
   /** Create a totally new CiviForm profile from the provided OidcProfile. */
-  public abstract CiviFormProfileData civiformProfileFromOidcProfile(OidcProfile oidcProfile);
+  public abstract CiviFormProfile createEmptyCiviFormProfile(OidcProfile profile);
 
   @Override
   public Optional<UserProfile> create(

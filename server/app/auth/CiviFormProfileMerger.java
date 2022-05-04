@@ -6,14 +6,10 @@ import javax.inject.Provider;
 import models.Account;
 import models.Applicant;
 import org.pac4j.core.profile.UserProfile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
 /** This class serves to abstract out common user profile merging logic into a shared helper. */
 public class CiviFormProfileMerger {
-
-  private static final Logger logger = LoggerFactory.getLogger(CiviFormProfileMerger.class);
 
   private final ProfileFactory profileFactory;
   private final Provider<UserRepository> applicantRepositoryProvider;
@@ -30,14 +26,15 @@ public class CiviFormProfileMerger {
    *
    * @param existingApplicant a potentially existing applicant in the database
    * @param existingProfile a guest profile in the browser cookie
-   * @param externalProfile an OIDC account in the callback from the OIDC server
-   * @param mergeFunction a function that merges an external profile into a Civiform profile
+   * @param externalProfile profile data from an external auth provider, such as OIDC
+   * @param mergeFunction a function that merges an external profile into a Civiform profile, or
+   *     provides one if it doesn't exist
    */
   public <T> Optional<UserProfile> threeWayMerge(
       Optional<Applicant> existingApplicant,
       Optional<CiviFormProfile> existingProfile,
       T externalProfile,
-      BiFunction<CiviFormProfile, T, UserProfile> mergeFunction) {
+      BiFunction<Optional<CiviFormProfile>, T, UserProfile> mergeFunction) {
 
     if (existingApplicant.isPresent()) {
       if (existingProfile.isEmpty()) {
@@ -50,15 +47,10 @@ public class CiviFormProfileMerger {
       }
     }
 
-    // Now merge in the information sent to us by the OIDC server.
-    return Optional.of(
-        mergeFunction.apply(
-            existingProfile.orElseGet(
-                () -> {
-                  logger.debug("Found no existing profile in session cookie.");
-                  return profileFactory.wrapProfileData(profileFactory.createNewApplicant());
-                }),
-            externalProfile));
+    // Merge externalProfile into existingProfile
+    // Merge function will create a new CiviFormProfile if it doesn't exist,
+    // or otherwise handle it in some way
+    return Optional.of(mergeFunction.apply(existingProfile, externalProfile));
   }
 
   private Optional<CiviFormProfile> twoWayMerge(
