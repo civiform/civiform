@@ -2,6 +2,7 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import java.util.Locale;
 import java.util.Optional;
@@ -125,6 +126,17 @@ public class ProgramRepositoryTest extends ResetPostgres {
     assertThat(updated.getProgramDefinition().id()).isEqualTo(existing.id);
     assertThat(updated.getProgramDefinition().localizedName())
         .isEqualTo(LocalizedStrings.of(Locale.US, "new name"));
+  }
+
+  @Test
+  public void getAllProgramNames() {
+    resourceCreator.insertActiveProgram("old name");
+    resourceCreator.insertDraftProgram("old name");
+    resourceCreator.insertDraftProgram("new name");
+
+    ImmutableSet<String> result = repo.getAllProgramNames();
+
+    assertThat(result).isEqualTo(ImmutableSet.of("old name", "new name"));
   }
 
   @Test
