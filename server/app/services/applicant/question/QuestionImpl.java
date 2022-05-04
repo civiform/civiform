@@ -2,7 +2,11 @@ package services.applicant.question;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+import services.Path;
+import services.applicant.ValidationErrorMessage;
 import services.question.types.QuestionType;
 
 /**
@@ -29,6 +33,30 @@ abstract class QuestionImpl implements Question {
    * constructor. This is used for validation purposes.
    */
   protected abstract ImmutableSet<QuestionType> validQuestionTypes();
+
+  @Override
+  public final ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrors() {
+    if (!isAnswered() && applicantQuestion.isOptional()) {
+      return ImmutableMap.of();
+    }
+    // Why not just return the result of getValidationErrorsInternal()?
+    // For ease of implementation, subclasses may build the error list by putting a field key
+    // in the map along with a call to a validator method that may return an empty set of errors.
+    // We remove keys with an empty set of errors here to help defend against downstream consumers
+    // assumes that calling isEmpty on the map means that there are no errors.
+    return ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>builder()
+        .putAll(Maps.filterEntries(getValidationErrorsInternal(), e -> !e.getValue().isEmpty()))
+        .build();
+  }
+
+  /**
+   * Question-type specific implementation of {@link Question.getValidationErrors}. Note that keys
+   * with an empty set of errors will be filtered out by {@link Question.getValidationErrors} so
+   * that calls to isEmpty on the getvalidationErrors result are sufficient to indicate if there any
+   * errors.
+   */
+  protected abstract ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>>
+      getValidationErrorsInternal();
 
   /**
    * A question is considered answered if the applicant data has been set for any of the paths

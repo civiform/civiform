@@ -1,19 +1,28 @@
 # Use postgres/example user/password credentials
-version: '3.8'
-
 services:
   db:
-    container_name: unit-test-postgres
     image: postgres:12.5
     restart: always
-    ports:
-      - 5555:5432
+    expose:
+      - "5432"
     environment:
       POSTGRES_PASSWORD: example
 
   oidc:
-    container_name: unit-test-oidc-provider
     image: civiform/oidc-provider
     restart: always
-    ports:
-      - 3380:3380
+    expose:
+      - "3380"
+
+  civiform:
+    image: civiform-dev
+    links:
+      - "db:database"
+      - "oidc"
+    volumes:
+      - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
+      - ./sbt_cache/coursier:/root/.cache/coursier
+      - ~/.sbt:/root/.sbt
+      - ~/.ivy:/root/.ivy2
+    entrypoint: /bin/bash
+    tty: true        # keep the container running

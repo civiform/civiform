@@ -319,13 +319,13 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
-  public CompletionStage<String> getName(long applicantId) {
+  public CompletionStage<Optional<String>> getName(long applicantId) {
     return userRepository
         .lookupApplicant(applicantId)
         .thenApplyAsync(
             applicant -> {
               if (applicant.isEmpty()) {
-                return "<Anonymous Applicant>";
+                return Optional.empty();
               }
               return applicant.get().getApplicantData().getApplicantName();
             },

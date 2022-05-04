@@ -2,6 +2,8 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -13,8 +15,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.LocalizedStrings;
 import services.MessageKey;
+import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.program.ProgramQuestionDefinition;
 import services.question.types.AddressQuestionDefinition;
 import support.QuestionAnswerer;
 
@@ -51,14 +55,17 @@ public class AddressQuestionTest {
   }
 
   @Test
-  public void withEmptyApplicantData() {
+  public void withEmptyApplicantData_optionalQuestion() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(addressQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            ProgramQuestionDefinition.create(addressQuestionDefinition, Optional.empty())
+                .setOptional(true),
+            applicantData,
+            Optional.empty());
 
     AddressQuestion addressQuestion = new AddressQuestion(applicantQuestion);
 
-    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(addressQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(addressQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -76,8 +83,7 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(addressQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(addressQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(addressQuestion.getStreetValue().get()).isEqualTo("PO Box 123");
     assertThat(addressQuestion.getLine2Value().get()).isEqualTo("Line 2");
     assertThat(addressQuestion.getCityValue().get()).isEqualTo("Seattle");
@@ -94,15 +100,24 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isFalse();
-    assertThat(addressQuestion.getStreetErrors())
-        .contains(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED));
-    assertThat(addressQuestion.getCityErrors())
-        .contains(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_CITY_REQUIRED));
-    assertThat(addressQuestion.getStateErrors())
-        .contains(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_STATE_REQUIRED));
-    assertThat(addressQuestion.getZipErrors())
-        .contains(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_ZIPCODE_REQUIRED));
+    assertThat(addressQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>of(
+                addressQuestion.getStreetPath(),
+                    ImmutableSet.of(
+                        ValidationErrorMessage.create(
+                            MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED)),
+                addressQuestion.getCityPath(),
+                    ImmutableSet.of(
+                        ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_CITY_REQUIRED)),
+                addressQuestion.getStatePath(),
+                    ImmutableSet.of(
+                        ValidationErrorMessage.create(
+                            MessageKey.ADDRESS_VALIDATION_STATE_REQUIRED)),
+                addressQuestion.getZipPath(),
+                    ImmutableSet.of(
+                        ValidationErrorMessage.create(
+                            MessageKey.ADDRESS_VALIDATION_ZIPCODE_REQUIRED))));
   }
 
   @Test
@@ -121,12 +136,12 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isFalse();
-    assertThat(addressQuestion.getZipErrors())
-        .contains(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE));
-    assertThat(addressQuestion.getStreetErrors()).isEmpty();
-    assertThat(addressQuestion.getCityErrors()).isEmpty();
-    assertThat(addressQuestion.getStateErrors()).isEmpty();
+    assertThat(addressQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>of(
+                addressQuestion.getZipPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE))));
   }
 
   @Test
@@ -145,8 +160,7 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(addressQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(addressQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -176,8 +190,12 @@ public class AddressQuestionTest {
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    assertThat(addressQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(addressQuestion.getQuestionErrors())
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        addressQuestion.getValidationErrors();
+    assertThat(validationErrors.size()).isEqualTo(1);
+    assertThat(
+            validationErrors.getOrDefault(
+                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
         .containsOnly(ValidationErrorMessage.create(MessageKey.ADDRESS_VALIDATION_NO_PO_BOX));
   }
 

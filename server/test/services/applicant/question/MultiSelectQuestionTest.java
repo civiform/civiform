@@ -3,6 +3,8 @@ package services.applicant.question;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -10,8 +12,10 @@ import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.MessageKey;
+import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.program.ProgramQuestionDefinition;
 import services.question.QuestionOption;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -45,14 +49,35 @@ public class MultiSelectQuestionTest {
   }
 
   @Test
-  public void withEmptyApplicantData() {
+  public void withEmptyApplicantData_optionalQuestion() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            ProgramQuestionDefinition.create(CHECKBOX_QUESTION, Optional.empty()).setOptional(true),
+            applicantData,
+            Optional.empty());
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
-    assertThat(multiSelectQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(multiSelectQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(multiSelectQuestion.getValidationErrors().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void withEmptyApplicantData_requiredQuestion_failsValidation() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            ProgramQuestionDefinition.create(CHECKBOX_QUESTION, Optional.empty()),
+            applicantData,
+            Optional.empty());
+
+    MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
+
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        multiSelectQuestion.getValidationErrors();
+    assertThat(validationErrors.size()).isEqualTo(1);
+    assertThat(
+            validationErrors.getOrDefault(
+                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
+        .containsOnly(ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, 2));
   }
 
   @Test
@@ -66,8 +91,7 @@ public class MultiSelectQuestionTest {
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
-    assertThat(multiSelectQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(multiSelectQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(multiSelectQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -81,7 +105,12 @@ public class MultiSelectQuestionTest {
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    assertThat(multiSelectQuestion.getQuestionErrors())
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        multiSelectQuestion.getValidationErrors();
+    assertThat(validationErrors.size()).isEqualTo(1);
+    assertThat(
+            validationErrors.getOrDefault(
+                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
         .containsOnly(ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_FEW, 2));
   }
 
@@ -101,7 +130,12 @@ public class MultiSelectQuestionTest {
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    assertThat(multiSelectQuestion.getQuestionErrors())
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
+        multiSelectQuestion.getValidationErrors();
+    assertThat(validationErrors.size()).isEqualTo(1);
+    assertThat(
+            validationErrors.getOrDefault(
+                applicantQuestion.getContextualizedPath(), ImmutableSet.of()))
         .containsOnly(
             ValidationErrorMessage.create(MessageKey.MULTI_SELECT_VALIDATION_TOO_MANY, 3));
   }
@@ -117,8 +151,7 @@ public class MultiSelectQuestionTest {
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
-    assertThat(multiSelectQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(multiSelectQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(multiSelectQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test

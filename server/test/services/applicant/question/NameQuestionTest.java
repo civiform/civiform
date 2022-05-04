@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
+import services.program.ProgramQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import support.QuestionAnswerer;
 
@@ -38,17 +39,20 @@ public class NameQuestionTest {
   }
 
   @Test
-  public void withEmptyApplicantData() {
+  public void withEmptyApplicantData_optionalQuestion() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(nameQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            ProgramQuestionDefinition.create(nameQuestionDefinition, Optional.empty())
+                .setOptional(true),
+            applicantData,
+            Optional.empty());
 
     NameQuestion nameQuestion = new NameQuestion(applicantQuestion);
 
     assertThat(nameQuestion.getFirstNameValue()).isEmpty();
     assertThat(nameQuestion.getMiddleNameValue()).isEmpty();
     assertThat(nameQuestion.getLastNameValue()).isEmpty();
-    assertThat(nameQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(nameQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(nameQuestion.getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test
@@ -62,8 +66,7 @@ public class NameQuestionTest {
 
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
-    assertThat(nameQuestion.getAllTypeSpecificErrors().isEmpty()).isTrue();
-    assertThat(nameQuestion.getQuestionErrors().isEmpty()).isTrue();
+    assertThat(nameQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(nameQuestion.getFirstNameValue().get()).isEqualTo(firstName);
     if (nameQuestion.getMiddleNameValue().isPresent()) {
       assertThat(nameQuestion.getMiddleNameValue().get()).isEqualTo(middleName);
@@ -82,7 +85,11 @@ public class NameQuestionTest {
 
     NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
-    assertThat(nameQuestion.getQuestionErrors().isEmpty()).isTrue();
-    assertThat(nameQuestion.getAllTypeSpecificErrors().isEmpty()).isFalse();
+    assertThat(nameQuestion.getValidationErrors().isEmpty()).isFalse();
+    assertThat(
+            nameQuestion
+                .getValidationErrors()
+                .containsKey(applicantQuestion.getContextualizedPath()))
+        .isFalse();
   }
 }

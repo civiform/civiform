@@ -1,0 +1,29 @@
+# Builds on unit-test-docker-compose.yml
+# Mount code for hot reloading and cache for faster compile in dev mode.
+services:
+  civiform:
+    volumes:
+      - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
+      - target:/usr/src/universal-application-tool-0.0.1/target
+      - node_modules-data:/usr/src/universal-application-tool-0.0.1/node_modules
+      - project-data:/usr/src/universal-application-tool-0.0.1/project
+      - coursier-data:/root/.cache/coursier
+      - sbt-data:/root/.sbt
+      - ivy2-data:/root/.ivy2
+      - m2-data:/root/.m2
+
+volumes:
+  node_modules-data:
+    driver: local
+  project-data:
+    driver: local
+  coursier-data:
+    driver: local
+  sbt-data:
+    driver: local
+  ivy2-data:
+    driver: local
+  m2-data:
+    driver: local
+  target:
+    driver: local
