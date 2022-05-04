@@ -12,7 +12,8 @@ class TestCheck(unittest.TestCase):
         self.assertTrue(check.version_greater_than("1.1", "1.2"))
         self.assertTrue(check.version_greater_than("1.1", "1.1.3"))
         self.assertFalse(check.version_greater_than("1.2", "1.1.3"))
-        self.assertFalse(check.version_greater_than("1.0.4", "1.1.3"))
+        self.assertTrue(check.version_greater_than("1.0.4", "1.1.3"))
+        self.assertFalse(check.version_greater_than("2.36.12", "2.36"))
 
 if __name__ == '__main__':
     unittest.main()
