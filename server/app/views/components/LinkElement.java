@@ -38,22 +38,22 @@ public class LinkElement {
           StyleUtils.hover(Styles.BG_BLUE_700),
           StyleUtils.focus(Styles.OUTLINE_NONE, Styles.RING_2));
   private static final String RIGHT_ALIGNED_LINK_BUTTON_STYLES =
-          StyleUtils.joinStyles(
-                  Styles.FLOAT_RIGHT,
-                  Styles._MT_14,
-                  Styles.INLINE_BLOCK,
-                  Styles.CURSOR_POINTER,
-                  Styles.P_2,
-                  Styles.M_2,
-                  Styles.ROUNDED_MD,
-                  Styles.RING_BLUE_200,
-                  Styles.RING_OFFSET_2,
-                  Styles.BORDER,
-                  Styles.BORDER_TRANSPARENT,
-                  BaseStyles.BG_SEATTLE_BLUE,
-                  Styles.TEXT_WHITE,
-                  StyleUtils.hover(Styles.BG_BLUE_700),
-                  StyleUtils.focus(Styles.OUTLINE_NONE, Styles.RING_2));
+       StyleUtils.joinStyles(
+          Styles.FLOAT_RIGHT,
+          Styles._MT_14,
+          Styles.INLINE_BLOCK,
+          Styles.CURSOR_POINTER,
+          Styles.P_2,
+          Styles.M_2,
+          Styles.ROUNDED_MD,
+          Styles.RING_BLUE_200,
+          Styles.RING_OFFSET_2,
+          Styles.BORDER,
+          Styles.BORDER_TRANSPARENT,
+          BaseStyles.BG_SEATTLE_BLUE,
+          Styles.TEXT_WHITE,
+          StyleUtils.hover(Styles.BG_BLUE_700),
+          StyleUtils.focus(Styles.OUTLINE_NONE, Styles.RING_2));
 
   private static final String DEFAULT_LINK_STYLES =
       StyleUtils.joinStyles(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT);
