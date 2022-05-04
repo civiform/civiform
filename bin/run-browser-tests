@@ -4,6 +4,7 @@
 
 source bin/lib.sh
 docker::set_project_name_browser_tests
+bin/pull-image
 
 docker run --ipc=host --rm -it \
   -v "$(pwd)/browser-test/src:/usr/src/civiform-browser-tests/src" \

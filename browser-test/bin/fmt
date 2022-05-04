@@ -4,8 +4,10 @@ pushd $(git rev-parse --show-toplevel)/browser-test
 
 CMD="cd /code; npx prettier --write --config /.prettierrc.js --ignore-path /.prettierignore /code"
 
+bin/pull-image
+
 docker run --rm -it \
   -v "$(pwd)/src:/code" \
-  docker.io/civiform/formatter:latest sh -c "$CMD"
+  civiform/formatter:latest sh -c "$CMD"
 
 popd
