@@ -13,6 +13,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
+
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -56,7 +59,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       blockToAnswers.put(answerBlock, answer);
     }
 
-    Tag contentDiv =
+    DivTag contentDiv =
         div()
             .withId("application-view")
             .withClasses(Styles.PX_20)
@@ -72,7 +75,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     return layout.render(htmlBundle);
   }
 
-  private Tag renderDownloadButton(long programId, long applicationId) {
+  private FormTag renderDownloadButton(long programId, long applicationId) {
     String link =
         controllers.admin.routes.AdminApplicationController.download(programId, applicationId)
             .url();
@@ -83,8 +86,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .asRightAlignedButton();
   }
 
-  private Tag renderApplicationBlock(long programId, Block block, Collection<AnswerData> answers) {
-    Tag topContent =
+  private DivTag renderApplicationBlock(long programId, Block block, Collection<AnswerData> answers) {
+    DivTag topContent =
         div()
             .withClasses(Styles.FLEX)
             .with(
@@ -95,12 +98,12 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(p().withClasses(Styles.FLEX_GROW))
             .with(p(block.getDescription()).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC));
 
-    Tag mainContent =
+    DivTag mainContent =
         div()
             .withClasses(Styles.W_FULL)
             .with(each(answers, answer -> renderAnswer(programId, answer)));
 
-    Tag innerDiv =
+    DivTag innerDiv =
         div(topContent, mainContent)
             .withClasses(
                 Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
@@ -113,15 +116,15 @@ public final class ProgramApplicationView extends BaseHtmlView {
             Styles.MB_4);
   }
 
-  private Tag renderAnswer(long programId, AnswerData answerData) {
+  private DivTag renderAnswer(long programId, AnswerData answerData) {
     LocalDate date =
         Instant.ofEpochMilli(answerData.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
-    Tag answerContent;
+    DivTag answerContent;
     if (answerData.fileKey().isPresent()) {
       String encodedFileKey = URLEncoder.encode(answerData.fileKey().get(), StandardCharsets.UTF_8);
       String fileLink =
           controllers.routes.FileController.adminShow(programId, encodedFileKey).url();
-      answerContent = a(answerData.answerText()).withHref(fileLink);
+      answerContent = div(a(answerData.answerText()).withHref(fileLink));
     } else {
       answerContent = div(answerData.answerText());
     }
