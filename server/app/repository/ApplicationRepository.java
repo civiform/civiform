@@ -76,27 +76,25 @@ public class ApplicationRepository {
               .eq("applicant.id", applicant.id)
               .eq("program.name", program.getProgramDefinition().adminName())
               .findList();
-      Optional<Application> completedApplication = Optional.empty();
-      for (Application application : oldApplications) {
-        // Delete any in-progress drafts, and mark obsolete any old applications.
-        if (application.getLifecycleStage().equals(LifecycleStage.DRAFT)) {
-          application.setLifecycleStage(LifecycleStage.ACTIVE);
-          application.setSubmitTimeToNow();
-          completedApplication = Optional.of(application);
-        } else {
-          application.setLifecycleStage(LifecycleStage.OBSOLETE);
-        }
-        application.save();
-      }
+      Optional<Application> latestDraft = oldApplications.stream()
+              .filter(app -> app.getLifecycleStage().equals(LifecycleStage.DRAFT))
+              .sorted((app1, app2) -> app2.getCreateTime().compareTo(app1.getCreateTime())).findFirst();
       Application application =
-          completedApplication.orElse(new Application(applicant, program, LifecycleStage.ACTIVE));
+              latestDraft.orElse(new Application(applicant, program, LifecycleStage.ACTIVE));
+      application.setLifecycleStage(LifecycleStage.ACTIVE);
       application.setSubmitTimeToNow();
-
       if (submitterEmail.isPresent()) {
         application.setSubmitterEmail(submitterEmail.get());
       }
-
       application.save();
+
+      for (Application app : oldApplications) {
+        if (latestDraft.isPresent() && latestDraft.get().id.equals(app.id)) {
+          continue;
+        }
+        app.setLifecycleStage(LifecycleStage.OBSOLETE);
+        app.save();
+      }
       database.commitTransaction();
       return application;
     } finally {
