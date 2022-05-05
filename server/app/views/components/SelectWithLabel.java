@@ -7,10 +7,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import j2html.attributes.Attr;
 
-
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.OptionTag;
 
 /** Utility class for rendering a select input field with an optional label. */
-public class SelectWithLabel extends FieldWithLabel {
+public class SelectWithLabel extends FieldWithLabel<SelectLabel> {
 
   private ImmutableMap<String, String> options = ImmutableMap.of();
   private ImmutableList<ContainerTag> customOptions = ImmutableList.of();
@@ -86,24 +87,33 @@ public class SelectWithLabel extends FieldWithLabel {
   }
 
   @Override
-  public ContainerTag getContainer() {
-    Tag placeholder = option(placeholderText).attr("value", "").attr(Attr.HIDDEN);
+  public DivTag getContainer() {
+    OptionTag placeholder = option(placeholderText).attr("value", "").attr(Attr.HIDDEN);
     if (this.fieldValue.isEmpty()) {
       placeholder.attr(Attr.SELECTED);
     }
-    ((ContainerTag) fieldTag).with(placeholder);
+    // TODO: Remove this comment for merge
+    // But might have to revert to casting as
+    // ((Tag) fieldTag).with(placeholder);
+    fieldTag.with(placeholder);
 
     // Either set the options to be custom options or create options from the (text, value) pairs.
     if (!this.customOptions.isEmpty()) {
-      this.customOptions.forEach(option -> ((ContainerTag) fieldTag).with(option));
+      // TODO: Remove this comment for merge
+      // But might have to revert to casting as
+      // ((Tag) fieldTag).with(option);
+      this.customOptions.forEach(option -> fieldTag.with(option));
     } else {
       this.options.forEach(
           (text, value) -> {
-            Tag optionTag = option(text).attr("value", value);
+            OptionTag optionTag = option(text).attr("value", value);
             if (value.equals(this.fieldValue)) {
               optionTag.attr(Attr.SELECTED);
             }
-            ((ContainerTag) fieldTag).with(optionTag);
+            // TODO: Remove this comment for merge
+            // But might have to revert to casting as
+            // ((Tag) fieldTag).with(option);
+            fieldTag.with(optionTag);
           });
     }
 

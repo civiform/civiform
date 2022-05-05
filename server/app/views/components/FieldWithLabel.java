@@ -57,13 +57,15 @@ public class FieldWithLabel<T> {
   protected boolean disabled = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
 
-  // Uses a private constructor to effectively limit possible types of <T>
+  // Uses a protected constructor to effectively limit possible types of <T>
   // for security. This couldn't be done using `extends` because <T> can be 
   // an <InputTag> or a <TextareaTag>, which inherit from different superclasses
   //
   // Otherwise, splitting this class into two classes would be a big undertaking
   // since it is used in many places
-  private FieldWithLabel(T fieldTag) {
+  //
+  // It would have been made private, but it is a superclass of SelectWithLabel
+  protected FieldWithLabel(T fieldTag) {
     this.fieldTag = checkNotNull(fieldTag);
   }
 
