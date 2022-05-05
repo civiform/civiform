@@ -8,17 +8,28 @@ import java.time.Clock;
 import java.time.ZoneId;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
+import play.test.Helpers;
 
 @RunWith(JUnitParamsRunner.class)
 public class MainModuleTest {
 
+  private Application app;
+
+  @After
+  public void tearDownApp() {
+    if (app != null) {
+      Helpers.stop(app);
+    }
+  }
+
   @Test
   public void testTimeZone_configValueNotSet_DefaultsToPST() {
-    Application app = new GuiceApplicationBuilder().build();
+    app = new GuiceApplicationBuilder().build();
     Clock clock = app.injector().instanceOf(Clock.class);
     assertThat(clock.getZone()).isEqualTo(ZoneId.of("America/Los_Angeles"));
   }
@@ -26,7 +37,7 @@ public class MainModuleTest {
   @Test
   @Parameters({"America/Los_Angeles", "America/New_York", "America/Chicago"})
   public void testTimeZone_configValueProvided(String timeZone) {
-    Application app =
+    app =
         new GuiceApplicationBuilder()
             .configure(ConfigFactory.parseMap(ImmutableMap.of("java.time.zoneid", timeZone)))
             .build();
