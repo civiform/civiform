@@ -186,6 +186,24 @@ public class ApiKeyServiceTest extends ResetPostgres {
         ProgramNotFoundException.class, () -> apiKeyService.createApiKey(form, adminProfile));
   }
 
+  @Test
+  public void createApiKey_profileMissingAuthorityId_raisesRuntimeException()
+      throws ProgramNotFoundException {
+    CiviFormProfileData profileData = profileFactory.createNewAdmin();
+    missingAuthorityIdProfile = profileFactory.wrapProfileData(profileData);
+
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "keyName", "test key",
+                "expiration", "2020-01-30",
+                "subnet", "0.1.1.1",
+                "grant-program-read[test-program]", "true"));
+
+    assertThrows(
+        RuntimeException.class, () -> apiKeyService.createApiKey(form, missingAuthorityIdProfile));
+  }
+
   private DynamicForm buildForm(ImmutableMap<String, String> formContents) {
     return formFactory.form().bindFromRequest(fakeRequest().bodyForm(formContents).build());
   }
