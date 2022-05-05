@@ -157,6 +157,21 @@ public class ApiKeyServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void createApiKey_globalSubnet_reportsError() throws ProgramNotFoundException {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "keyName", "test key",
+                "expiration", "2020-01-30",
+                "subnet", "0.1.1.1/0"));
+
+    ApiKeyCreationResult apiKeyCreationResult = apiKeyService.createApiKey(form, adminProfile);
+
+    assertThat(apiKeyCreationResult.getForm().error("subnet").get().message())
+        .isEqualTo("Subnet cannot allow all IP addresses.");
+  }
+
+  @Test
   public void createApiKey_grantedProgramSlugNotFound_raisesProgramNotFound()
       throws ProgramNotFoundException {
     DynamicForm form =

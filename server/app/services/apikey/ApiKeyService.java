@@ -51,6 +51,7 @@ public class ApiKeyService {
   private final ProgramService programService;
   private final ApiKeyRepository repository;
   private final String secretSalt;
+  private final boolean banGlobalSubnet;
 
   @Inject
   public ApiKeyService(
@@ -62,6 +63,7 @@ public class ApiKeyService {
     this.repository = checkNotNull(repository);
     this.programService = checkNotNull(programService);
     this.secretSalt = checkNotNull(config).getString("api_secret_salt");
+    this.banGlobalSubnet = checkNotNull(config).getBoolean("api_keys_ban_global_subnet");
   }
 
   /**
@@ -139,8 +141,12 @@ public class ApiKeyService {
   private DynamicForm resolveSubnet(DynamicForm form, ApiKey apiKey) {
     String subnetString = form.rawData().getOrDefault("subnet", "");
 
-    if (subnetString.get().isBlank()) {
+    if (subnetString.isBlank()) {
       return form.withError("subnet", "Subnet cannot be blank.");
+    }
+
+    if (subnetString.endsWith("0") && banGlobalSubnet) {
+      return form.withError("subnet", "Subnet cannot allow all IP addresses.");
     }
 
     try {
