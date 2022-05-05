@@ -1,6 +1,7 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -102,7 +103,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void createOrUpdateDraftApplication_twoDraftsSubmitLatest() {
+  public void submitApplication_twoDraftsSubmitLatest() {
     Applicant applicant = saveApplicant("Alice");
     Program program = saveProgram("Program");
     Application appOne = Application.create(applicant, program, LifecycleStage.DRAFT);
@@ -113,13 +114,30 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     assertThat(repo.getApplication(appOne.id).toCompletableFuture().join()).contains(appOne);
     assertThat(repo.getApplication(appTwo.id).toCompletableFuture().join()).contains(appTwo);
 
-    repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+    RuntimeException exception =
+        assertThrows(
+            RuntimeException.class,
+            () ->
+                repo.submitApplication(applicant, program, Optional.empty())
+                    .toCompletableFuture()
+                    .join());
 
+    assertThat(exception.getCause().getMessage()).contains("Found more than one DRAFT application");
     assertThat(
             repo.getApplication(appOne.id).toCompletableFuture().join().get().getLifecycleStage())
-        .isEqualTo(LifecycleStage.OBSOLETE);
+        .isEqualTo(LifecycleStage.DRAFT);
     assertThat(
             repo.getApplication(appTwo.id).toCompletableFuture().join().get().getLifecycleStage())
+        .isEqualTo(LifecycleStage.DRAFT);
+  }
+
+  @Test
+  public void submitApplication_noDrafts() {
+    Applicant applicant = saveApplicant("Alice");
+    Program program = saveProgram("Program");
+    Application app =
+        repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+    assertThat(repo.getApplication(app.id).toCompletableFuture().join().get().getLifecycleStage())
         .isEqualTo(LifecycleStage.ACTIVE);
   }
 

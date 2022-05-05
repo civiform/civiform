@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
@@ -76,13 +77,23 @@ public class ApplicationRepository {
               .eq("applicant.id", applicant.id)
               .eq("program.name", program.getProgramDefinition().adminName())
               .findList();
-      Optional<Application> latestDraft =
+      List<Application> latestDraft =
           oldApplications.stream()
               .filter(app -> app.getLifecycleStage().equals(LifecycleStage.DRAFT))
-              .sorted((app1, app2) -> app2.getCreateTime().compareTo(app1.getCreateTime()))
-              .findFirst();
+              .collect(Collectors.toList());
+
+      if (latestDraft.size() > 1) {
+        throw new RuntimeException(
+            String.format(
+                "Found more than one DRAFT application " + "for applicant %d, program %d.",
+                applicant.id, program.id));
+      }
+
       Application application =
-          latestDraft.orElse(new Application(applicant, program, LifecycleStage.ACTIVE));
+          !latestDraft.isEmpty()
+              ? latestDraft.get(0)
+              : new Application(applicant, program, LifecycleStage.ACTIVE);
+
       application.setLifecycleStage(LifecycleStage.ACTIVE);
       application.setSubmitTimeToNow();
       if (submitterEmail.isPresent()) {
@@ -91,7 +102,7 @@ public class ApplicationRepository {
       application.save();
 
       for (Application app : oldApplications) {
-        if (latestDraft.isPresent() && latestDraft.get().id.equals(app.id)) {
+        if (application.id.equals(app.id)) {
           continue;
         }
         app.setLifecycleStage(LifecycleStage.OBSOLETE);
