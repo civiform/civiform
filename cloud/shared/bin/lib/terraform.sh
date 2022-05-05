@@ -23,13 +23,15 @@ function terraform::perform_apply() {
     "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/setup_tf_shared_state" \
       "${TERRAFORM_TEMPLATE_DIR}/${BACKEND_VARS_FILENAME}"
 
-    "$(${TERRAFORM_BASE_COMMAND}
+    "$(
+      ${TERRAFORM_BASE_COMMAND}
       init \
-      -input=false \
-      -upgrade \
-      -backend-config="${BACKEND_VARS_FILENAME}")"
+        -input=false \
+        -upgrade \
+        -backend-config="${BACKEND_VARS_FILENAME}"
+    )"
   fi
-  
+
   if azure::is_service_principal; then
     "$(${TERRAFORM_APPLY} -auto-approve)"
   else
@@ -38,12 +40,12 @@ function terraform::perform_apply() {
 }
 
 #######################################
-# Copies the terraform backend_override to backend_override.tf (used to 
+# Copies the terraform backend_override to backend_override.tf (used to
 # make backend local instead of a shared state for dev deploys)
 # Globals:
 #   TERRAFORM_TEMPLATE_DIR
 #######################################
 function terraform::copy_override() {
-    cp "${TERRAFORM_TEMPLATE_DIR}/backend_override" \
-      "${TERRAFORM_TEMPLATE_DIR}/backend_override.tf"
+  cp "${TERRAFORM_TEMPLATE_DIR}/backend_override" \
+    "${TERRAFORM_TEMPLATE_DIR}/backend_override.tf"
 }

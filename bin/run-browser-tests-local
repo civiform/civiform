@@ -4,4 +4,4 @@
 
 source bin/lib.sh
 
-BASE_URL=http://localhost:9999 yarn test $@
+BASE_URL=http://localhost:9999 yarn test "$@"

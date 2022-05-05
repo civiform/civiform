@@ -7,7 +7,7 @@ export PROJECT_BASE_DIR="$(realpath "$(dirname "${BASH_SOURCE}")/../../../")"
 
 source "${PROJECT_BASE_DIR}/bin/lib.sh"
 
-if ! which python3 > /dev/null; then
+if ! which python3 >/dev/null; then
   out::error "Must have python3 installed: https://www.python.org/downloads/"
   exit 1
 fi

@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 #######################################
-# Get the ip for the bastion VM 
+# Get the ip for the bastion VM
 # Arguments:
 #   1: the resource group name
 #######################################
@@ -27,7 +27,7 @@ function bastion::get_postgres_host() {
 }
 
 #######################################
-# Remove the ssh key we created after you connect 
+# Remove the ssh key we created after you connect
 # Arguments:
 #   1: the key name to remove
 #######################################
@@ -58,7 +58,7 @@ function bastion::update_bastion_ssh_keys() {
     -u adminuser \
     -g "${1}" \
     -n "${1}-bstn-vm" \
-    --ssh-key-value "$(< ${2}.pub)"
+    --ssh-key-value "$(<${2}.pub)"
 }
 
 #######################################
@@ -105,7 +105,7 @@ function bastion::deny_ip_security_group() {
 #######################################
 # Get the command to connect to postgres
 # Arguments:
-#   1: the postgres host to connect to 
+#   1: the postgres host to connect to
 #   2: the vaultname where secrets are stored
 #######################################
 function bastion::get_connect_to_postgres_command() {
@@ -121,7 +121,7 @@ function bastion::get_connect_to_postgres_command() {
 # More details on the psql version # https://www.postgresql.org/download/linux/ubuntu/
 # the pg_restore is symlinked to that via a pg_wrapper
 # Arguments:
-#   1: the postgres host to connect to 
+#   1: the postgres host to connect to
 #   2: the vaultname where secrets are stored
 #   3: path of the dump data
 #######################################
@@ -142,12 +142,12 @@ function bastion::get_pg_restore_command() {
 }
 
 #######################################
-# Copy a file to the bastion 
+# Copy a file to the bastion
 # Arguments:
 #   1: the ip of the vm you will connect to
 #   2: the key name to use to connect to
 #   3: location of the file you want to copy
-#   4: destination location on the bastion 
+#   4: destination location on the bastion
 #######################################
 function bastion::scp_to_bastion() {
   scp -i "${2}" "${3}" "adminuser@${1}:${4}"

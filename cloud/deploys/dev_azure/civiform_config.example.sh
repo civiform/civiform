@@ -1,5 +1,5 @@
 # More details and documentation for these are consolidated in the deploy repo,
-# https://github.com/civiform/civiform-deploy/blob/main/civiform_config.example.sh 
+# https://github.com/civiform/civiform-deploy/blob/main/civiform_config.example.sh
 export CIVIFORM_CLOUD_PROVIDER="azure"
 export CIVIFORM_MODE="dev"
 export CIVIC_ENTITY_SHORT_NAME="Sooschester"
@@ -22,7 +22,7 @@ export STAGING_APPLICANT_NOTIFICATION_MAILING_LIST="CHANGE ME"
 export TERRAFORM_TEMPLATE_DIR="cloud/azure/templates/azure_saml_ses"
 export AZURE_LOCATION="eastus"
 export AZURE_LOG_STORAGE_ACCOUNT_NAME="CHANGE ME"
-# This can be found in the azure portal 
+# This can be found in the azure portal
 export AZURE_SUBSCRIPTION="CHANGE ME"
 export AZURE_RESOURCE_GROUP="CHANGE ME"
 export AWS_USERNAME="CHANGE ME"
