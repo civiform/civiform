@@ -44,6 +44,10 @@ import services.program.ProgramService;
  */
 public class ApiKeyService {
 
+  public static final String FORM_FIELD_NAME_KEY_NAME = "keyName";
+  public static final String FORM_FIELD_NAME_EXPIRATION = "expiration";
+  public static final String FORM_FIELD_NAME_SUBNET = "subnet";
+
   private static final int KEY_ID_LENGTH = 128;
   private static final int KEY_SECRET_LENGTH = 256;
 
@@ -110,49 +114,50 @@ public class ApiKeyService {
   }
 
   private DynamicForm resolveKeyName(DynamicForm form, ApiKey apiKey) {
-    String keyName = form.rawData().getOrDefault("keyName", "");
+    String keyName = form.rawData().getOrDefault(FORM_FIELD_NAME_KEY_NAME, "");
 
     if (!keyName.isBlank()) {
       apiKey.setName(keyName);
     } else {
-      form = form.withError("keyName", "Key name cannot be blank.");
+      form = form.withError(FORM_FIELD_NAME_KEY_NAME, "Key name cannot be blank.");
     }
 
     return form;
   }
 
   private DynamicForm resolveExpiration(DynamicForm form, ApiKey apiKey) {
-    String expirationString = form.rawData().getOrDefault("expiration", "");
+    String expirationString = form.rawData().getOrDefault(FORM_FIELD_NAME_EXPIRATION, "");
 
     if (expirationString.isBlank()) {
-      return form.withError("expiration", "Expiration cannot be blank.");
+      return form.withError(FORM_FIELD_NAME_EXPIRATION, "Expiration cannot be blank.");
     }
 
     try {
       Instant expiration = DateConverter.parseIso8601DateToStartOfDateInstant(expirationString);
       apiKey.setExpiration(expiration);
     } catch (DateTimeParseException e) {
-      return form.withError("expiration", "Expiration must be in the form YYYY-MM-DD.");
+      return form.withError(
+          FORM_FIELD_NAME_EXPIRATION, "Expiration must be in the form YYYY-MM-DD.");
     }
 
     return form;
   }
 
   private DynamicForm resolveSubnet(DynamicForm form, ApiKey apiKey) {
-    String subnetString = form.rawData().getOrDefault("subnet", "");
+    String subnetString = form.rawData().getOrDefault(FORM_FIELD_NAME_SUBNET, "");
 
     if (subnetString.isBlank()) {
-      return form.withError("subnet", "Subnet cannot be blank.");
+      return form.withError(FORM_FIELD_NAME_SUBNET, "Subnet cannot be blank.");
     }
 
     if (subnetString.endsWith("0") && banGlobalSubnet) {
-      return form.withError("subnet", "Subnet cannot allow all IP addresses.");
+      return form.withError(FORM_FIELD_NAME_SUBNET, "Subnet cannot allow all IP addresses.");
     }
 
     try {
       new SubnetUtils(subnetString);
     } catch (IllegalArgumentException e) {
-      return form.withError("subnet", "Subnet must be in CIDR notation.");
+      return form.withError(FORM_FIELD_NAME_SUBNET, "Subnet must be in CIDR notation.");
     }
 
     apiKey.setSubnet(subnetString);
@@ -160,6 +165,11 @@ public class ApiKeyService {
     return form;
   }
 
+  // Pattern for matching and extracting form field names that specify
+  // granting read permission for a program.
+  // These field names have the format "grant-program-read[program-slug]"
+  // Where "program-slug" is the sluggified name of the program the key should
+  // be granted read access for e.g. "grant-program-read[utility-discount-program]".
   private static final Pattern GRANT_PROGRAM_READ_PATTERN =
       Pattern.compile("^grant-program-read\\[([\\w\\-]+)\\]$");
 
@@ -236,12 +246,13 @@ public class ApiKeyService {
     /** Constructs an instance in the case of success. */
     public static ApiKeyCreationResult success(ApiKey apiKey, String credentials) {
       return new ApiKeyCreationResult(
-          Optional.of(apiKey), Optional.of(credentials), Optional.empty());
+          Optional.of(apiKey), Optional.of(credentials), /* form= */ Optional.empty());
     }
 
     /** Constructs an instance in the case of failure. */
     public static ApiKeyCreationResult failure(DynamicForm form) {
-      return new ApiKeyCreationResult(Optional.empty(), Optional.empty(), Optional.of(form));
+      return new ApiKeyCreationResult(
+          /* apiKey= */ Optional.empty(), /* credentials= */ Optional.empty(), Optional.of(form));
     }
 
     private ApiKeyCreationResult(
@@ -251,7 +262,7 @@ public class ApiKeyService {
       this.form = form;
     }
 
-    /** Returns true for the key was created. */
+    /** Returns true if the key was created. */
     public boolean successful() {
       return credentials.isPresent();
     }

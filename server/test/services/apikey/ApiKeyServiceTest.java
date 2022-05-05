@@ -190,7 +190,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
   public void createApiKey_profileMissingAuthorityId_raisesRuntimeException()
       throws ProgramNotFoundException {
     CiviFormProfileData profileData = profileFactory.createNewAdmin();
-    missingAuthorityIdProfile = profileFactory.wrapProfileData(profileData);
+    CiviFormProfile missingAuthorityIdProfile = profileFactory.wrapProfileData(profileData);
 
     DynamicForm form =
         buildForm(
