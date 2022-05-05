@@ -152,6 +152,11 @@ public class JsonExporterTest extends AbstractExporterTest {
       assertThat(resultJson.readLong(path).get()).isEqualTo(value);
     }
 
+    void assertValueAtPath(int resultNumber, String innerPath, double value) {
+      Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
+      assertThat(resultJson.readLong(path).get()).isEqualTo(value);
+    }
+
     void assertNullValueAtPath(int resultNumber, String innerPath) {
       Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
       assertThat(resultJson.readString(path)).isEqualTo(Optional.empty());
