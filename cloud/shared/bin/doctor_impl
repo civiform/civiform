@@ -77,7 +77,7 @@ class AwsCliCheck(Check):
 
     def should_skip(self):
         # AWS SES is used for both Azure and AWS deployments.
-        return self._get_cloud_provider() in ['aws', 'azure']
+        return self._get_cloud_provider() not in ['aws', 'azure']
 
     def is_ok(self):
         return self._check_command_succeeds(["aws", "help"])
