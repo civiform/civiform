@@ -61,10 +61,10 @@ public class ApiKeyService {
   public ApiKeyService(
       ApiKeyRepository repository,
       Environment environment,
-      Config config,
-      ProgramService programService) {
-    this.environment = checkNotNull(environment);
+      ProgramService programService,
+      Config config) {
     this.repository = checkNotNull(repository);
+    this.environment = checkNotNull(environment);
     this.programService = checkNotNull(programService);
     this.secretSalt = checkNotNull(config).getString("api_secret_salt");
     this.banGlobalSubnet = checkNotNull(config).getBoolean("api_keys_ban_global_subnet");
@@ -88,10 +88,15 @@ public class ApiKeyService {
 
     ApiKey apiKey = new ApiKey();
 
+    // apiKey is an ebean entity/model and is mutable. form is play form object and is immutable.
+    // adding validation error messages using form.withError returns a new form object with the
+    // error message added.
     form = resolveKeyName(form, apiKey);
     form = resolveExpiration(form, apiKey);
     form = resolveSubnet(form, apiKey);
-    form = resolveGrants(form, apiKey);
+
+    // No validation messages are set for grants, an error is thrown if they are invalid.
+    resolveGrants(form, apiKey);
 
     if (form.hasErrors()) {
       return ApiKeyCreationResult.failure(form);
@@ -113,6 +118,7 @@ public class ApiKeyService {
     return ApiKeyCreationResult.success(apiKey, credentials);
   }
 
+  // apiKey is mutable and modified here, form is immutable so a new instance is returned
   private DynamicForm resolveKeyName(DynamicForm form, ApiKey apiKey) {
     String keyName = form.rawData().getOrDefault(FORM_FIELD_NAME_KEY_NAME, "");
 
@@ -125,6 +131,7 @@ public class ApiKeyService {
     return form;
   }
 
+  // apiKey is mutable and modified here, form is immutable so a new instance is returned
   private DynamicForm resolveExpiration(DynamicForm form, ApiKey apiKey) {
     String expirationString = form.rawData().getOrDefault(FORM_FIELD_NAME_EXPIRATION, "");
 
@@ -143,6 +150,7 @@ public class ApiKeyService {
     return form;
   }
 
+  // apiKey is mutable and modified here, form is immutable so a new instance is returned
   private DynamicForm resolveSubnet(DynamicForm form, ApiKey apiKey) {
     String subnetString = form.rawData().getOrDefault(FORM_FIELD_NAME_SUBNET, "");
 
@@ -240,8 +248,8 @@ public class ApiKeyService {
   /** Holds state relevant to the result of attempting to create an {@link ApiKey}. */
   public static class ApiKeyCreationResult {
     private final Optional<ApiKey> apiKey;
-    private final Optional<DynamicForm> form;
     private final Optional<String> credentials;
+    private final Optional<DynamicForm> form;
 
     /** Constructs an instance in the case of success. */
     public static ApiKeyCreationResult success(ApiKey apiKey, String credentials) {
