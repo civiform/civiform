@@ -11,7 +11,6 @@ import models.LifecycleStage;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
-import scala.App;
 import services.Path;
 
 public class ApplicationRepositoryTest extends ResetPostgres {
@@ -33,11 +32,15 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
     Application appTwoDraft = repo.createOrUpdateDraft(one, pOne).toCompletableFuture().join();
 
-
     assertThat(repo.getApplication(appOne.id).toCompletableFuture().join()).contains(appOne);
-    assertThat(repo.getApplication(appTwoDraft.id).toCompletableFuture().join()).contains(appTwoDraft);
+    assertThat(repo.getApplication(appTwoDraft.id).toCompletableFuture().join())
+        .contains(appTwoDraft);
     assertThat(
-            repo.getApplication(appTwoDraft.id).toCompletableFuture().join().get().getLifecycleStage())
+            repo.getApplication(appTwoDraft.id)
+                .toCompletableFuture()
+                .join()
+                .get()
+                .getLifecycleStage())
         .isEqualTo(LifecycleStage.DRAFT);
 
     // Submit another application that matches appOne.
@@ -51,7 +54,11 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     assertThat(appOne.getSubmitTime()).isEqualTo(initialSubmitTime);
     // And that the DRAFT is now ACTIVE.
     assertThat(
-            repo.getApplication(appTwoDraft.id).toCompletableFuture().join().get().getLifecycleStage())
+            repo.getApplication(appTwoDraft.id)
+                .toCompletableFuture()
+                .join()
+                .get()
+                .getLifecycleStage())
         .isEqualTo(LifecycleStage.ACTIVE);
   }
 
@@ -66,14 +73,14 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     Application appOne = repo.createOrUpdateDraft(one, pOne).toCompletableFuture().join();
 
     Application appTwo =
-            repo.submitApplication(two, pTwo, Optional.empty()).toCompletableFuture().join();
+        repo.submitApplication(two, pTwo, Optional.empty()).toCompletableFuture().join();
 
     Instant appTwoInitialSubmitTime = appTwo.getSubmitTime();
 
     assertThat(repo.getApplication(appOne.id).toCompletableFuture().join()).contains(appOne);
     assertThat(repo.getApplication(appTwo.id).toCompletableFuture().join()).contains(appTwo);
 
-    // Submit another application that matches appOne.
+    // Submit application for different program.
     repo.submitApplication(one, pOne, Optional.empty()).toCompletableFuture().join();
 
     // Ensure the submit time didn't get changed when the application was set as obsolete.
@@ -110,10 +117,10 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
     assertThat(
             repo.getApplication(appOne.id).toCompletableFuture().join().get().getLifecycleStage())
-            .isEqualTo(LifecycleStage.OBSOLETE);
+        .isEqualTo(LifecycleStage.OBSOLETE);
     assertThat(
             repo.getApplication(appTwo.id).toCompletableFuture().join().get().getLifecycleStage())
-            .isEqualTo(LifecycleStage.ACTIVE);
+        .isEqualTo(LifecycleStage.ACTIVE);
   }
 
   private Applicant saveApplicant(String name) {

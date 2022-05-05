@@ -76,11 +76,13 @@ public class ApplicationRepository {
               .eq("applicant.id", applicant.id)
               .eq("program.name", program.getProgramDefinition().adminName())
               .findList();
-      Optional<Application> latestDraft = oldApplications.stream()
+      Optional<Application> latestDraft =
+          oldApplications.stream()
               .filter(app -> app.getLifecycleStage().equals(LifecycleStage.DRAFT))
-              .sorted((app1, app2) -> app2.getCreateTime().compareTo(app1.getCreateTime())).findFirst();
+              .sorted((app1, app2) -> app2.getCreateTime().compareTo(app1.getCreateTime()))
+              .findFirst();
       Application application =
-              latestDraft.orElse(new Application(applicant, program, LifecycleStage.ACTIVE));
+          latestDraft.orElse(new Application(applicant, program, LifecycleStage.ACTIVE));
       application.setLifecycleStage(LifecycleStage.ACTIVE);
       application.setSubmitTimeToNow();
       if (submitterEmail.isPresent()) {
