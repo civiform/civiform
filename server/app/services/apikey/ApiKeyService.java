@@ -108,11 +108,10 @@ public class ApiKeyService {
   }
 
   private DynamicForm resolveKeyName(DynamicForm form, ApiKey apiKey) {
-    Optional<String> maybeKeyName =
-        Optional.ofNullable(form.rawData().getOrDefault("keyName", null));
+    String keyName = form.rawData().getOrDefault("keyName", "");
 
-    if (maybeKeyName.isPresent() && !maybeKeyName.get().isBlank()) {
-      apiKey.setName(maybeKeyName.get());
+    if (!keyName.isBlank()) {
+      apiKey.setName(keyName);
     } else {
       form = form.withError("keyName", "Key name cannot be blank.");
     }
@@ -121,16 +120,14 @@ public class ApiKeyService {
   }
 
   private DynamicForm resolveExpiration(DynamicForm form, ApiKey apiKey) {
-    Optional<String> maybeExpirationString =
-        Optional.ofNullable(form.rawData().getOrDefault("expiration", null));
+    String expirationString = form.rawData().getOrDefault("expiration", "");
 
-    if (!maybeExpirationString.isPresent() || maybeExpirationString.get().isBlank()) {
+    if (expirationString.isBlank()) {
       return form.withError("expiration", "Expiration cannot be blank.");
     }
 
     try {
-      Instant expiration =
-          DateConverter.parseIso8601DateToStartOfDateInstant(maybeExpirationString.get());
+      Instant expiration = DateConverter.parseIso8601DateToStartOfDateInstant(expirationString);
       apiKey.setExpiration(expiration);
     } catch (DateTimeParseException e) {
       return form.withError("expiration", "Expiration must be in the form YYYY-MM-DD.");
@@ -140,20 +137,19 @@ public class ApiKeyService {
   }
 
   private DynamicForm resolveSubnet(DynamicForm form, ApiKey apiKey) {
-    Optional<String> maybeSubnetString =
-        Optional.ofNullable(form.rawData().getOrDefault("subnet", null));
+    String subnetString = form.rawData().getOrDefault("subnet", "");
 
-    if (!maybeSubnetString.isPresent() || maybeSubnetString.get().isBlank()) {
+    if (subnetString.get().isBlank()) {
       return form.withError("subnet", "Subnet cannot be blank.");
     }
 
     try {
-      new SubnetUtils(maybeSubnetString.get());
+      new SubnetUtils(subnetString);
     } catch (IllegalArgumentException e) {
       return form.withError("subnet", "Subnet must be in CIDR notation.");
     }
 
-    apiKey.setSubnet(maybeSubnetString.get());
+    apiKey.setSubnet(subnetString);
 
     return form;
   }
