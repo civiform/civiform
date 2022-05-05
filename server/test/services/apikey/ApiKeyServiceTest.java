@@ -198,7 +198,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
             ImmutableMap.of(
                 "keyName", "test key",
                 "expiration", "2020-01-30",
-                "subnet", "0.1.1.1",
+                "subnet", "0.0.0.1/32",
                 "grant-program-read[test-program]", "true"));
 
     assertThrows(
