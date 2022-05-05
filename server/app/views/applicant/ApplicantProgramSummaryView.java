@@ -13,6 +13,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
 
+import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -69,7 +71,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     HtmlBundle bundle =
         layout.getBundle().setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
 
-    ContainerTag applicationSummary = div().withId("application-summary").withClasses(Styles.MB_8);
+    DivTag applicationSummary = div().withId("application-summary").withClasses(Styles.MB_8);
     Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
     boolean isFirstUnanswered = true;
     for (AnswerData answerData : params.summaryData()) {
@@ -107,7 +109,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                   ReferenceClasses.CONTINUE_BUTTON, ApplicantStyles.BUTTON_SUBMIT_APPLICATION);
     }
 
-    ContainerTag content =
+    DivTag content =
         div()
             .with(applicationSummary)
             .with(
@@ -133,32 +135,32 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         params.request(), params.applicantName(), params.messages(), bundle);
   }
 
-  private ContainerTag renderQuestionSummary(
+  private DivTag renderQuestionSummary(
       AnswerData data,
       Messages messages,
       long applicantId,
       boolean inReview,
       boolean isFirstUnanswered) {
-    ContainerTag questionPrompt =
+    DivTag questionPrompt =
         div(data.questionText()).withClasses(Styles.FLEX_AUTO, Styles.FONT_SEMIBOLD);
-    ContainerTag questionContent =
+    DivTag questionContent =
         div(questionPrompt).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
 
     // Show timestamp if answered elsewhere.
     if (data.isPreviousResponse()) {
       LocalDate date =
           Instant.ofEpochMilli(data.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
-      ContainerTag timestampContent =
+      DivTag timestampContent =
           div("Previously answered on " + date)
               .withClasses(Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS);
       questionContent.with(timestampContent);
     }
 
-    final ContainerTag answerContent;
+    final DivTag answerContent;
     if (data.fileKey().isPresent()) {
       String encodedFileKey = URLEncoder.encode(data.fileKey().get(), StandardCharsets.UTF_8);
       String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
-      answerContent = a().withHref(fileLink).withClasses(Styles.W_2_3);
+      answerContent = div().with(a().withHref(fileLink).withClasses(Styles.W_2_3));
     } else {
       answerContent = div();
     }
@@ -174,7 +176,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       answerContent.withText(texts[i]);
     }
 
-    ContainerTag answerDiv =
+    DivTag answerDiv =
         div(answerContent).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
 
     // Maybe link to block containing specific question.
@@ -195,7 +197,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                       applicantId, data.programId(), data.blockId())
                   .url();
 
-      ContainerTag editAction =
+      DivTag editAction =
           new LinkElement()
               .setHref(editLink)
               .setText(editText)
@@ -210,7 +212,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
               .attr(
                   "aria-label",
                   messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName(), data.questionText()));
-      ContainerTag editContent =
+      DivTag editContent =
           div(editAction)
               .withClasses(
                   Styles.FLEX_AUTO,
@@ -235,7 +237,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .attr("style", "word-break:break-word");
   }
 
-  private ContainerTag renderRepeatedEntitySection(
+  private DivTag renderRepeatedEntitySection(
       RepeatedEntity repeatedEntity, Messages messages) {
     String content =
         String.format(
