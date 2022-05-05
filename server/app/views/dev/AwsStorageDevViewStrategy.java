@@ -15,6 +15,9 @@ import static j2html.attributes.Attr.ENCTYPE;
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.TableTag;
+
 import javax.inject.Inject;
 import models.StoredFile;
 import services.cloud.StorageClient;
@@ -44,7 +47,7 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
     }
     SignedS3UploadRequest request = (SignedS3UploadRequest) storageUploadRequest;
 
-    ContainerTag formTag =
+    FormTag formTag =
         form()
             .attr(ENCTYPE, "multipart/form-data")
             .with(input().attr("type", "input").attr("name", "key").attr("value", request.key()))
@@ -78,7 +81,7 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
   }
 
   @Override
-  public ContainerTag renderFiles(ImmutableList<StoredFile> files) {
+  public TableTag renderFiles(ImmutableList<StoredFile> files) {
     return table()
         .with(
             tbody(
