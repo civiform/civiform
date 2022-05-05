@@ -5,6 +5,9 @@ import static views.BaseHtmlView.button;
 
 import j2html.TagCreator;
 
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ButtonTag;
+
 import java.util.Optional;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -14,7 +17,7 @@ import views.style.Styles;
 public class Modal {
 
   private String modalId;
-  private Tag content;
+  private DivTag content;
   private String modalTitle;
   private String triggerButtonText;
   private Optional<Tag> triggerButtonContent;
@@ -31,7 +34,7 @@ public class Modal {
     this.width = builder.width;
   }
 
-  public Tag getContainerTag() {
+  public DivTag getContainerTag() {
     return div()
         .withId(modalId)
         .withClasses(ReferenceClasses.MODAL, BaseStyles.MODAL, width.getStyle())
@@ -39,7 +42,7 @@ public class Modal {
         .with(getContent());
   }
 
-  public Tag getButton() {
+  public ButtonTag getButton() {
     String triggerButtonId = modalId + "-button";
     if (triggerButtonContent.isPresent()) {
       return TagCreator.button()
@@ -52,11 +55,11 @@ public class Modal {
     }
   }
 
-  private Tag getContent() {
+  private DivTag getContent() {
     return div(content).withClasses(BaseStyles.MODAL_CONTENT);
   }
 
-  private Tag getModalHeader() {
+  private DivTag getModalHeader() {
     return div()
         .withClasses(BaseStyles.MODAL_HEADER)
         .with(div(modalTitle).withClasses(Styles.TEXT_LG))
@@ -64,14 +67,14 @@ public class Modal {
         .with(div("x").withId(modalId + "-close").withClasses(BaseStyles.MODAL_CLOSE_BUTTON));
   }
 
-  public static ModalBuilder builder(String modalId, Tag content) {
+  public static ModalBuilder builder(String modalId, DivTag content) {
     return new ModalBuilder(modalId, content);
   }
 
   public static class ModalBuilder {
 
     private String modalId;
-    private Tag content;
+    private DivTag content;
     private String buttonStyles = BaseStyles.MODAL_BUTTON;
 
     // Optional fields. See #setOptionalFields().
@@ -81,7 +84,7 @@ public class Modal {
     private Optional<Tag> triggerButtonContent = Optional.empty();
     private Width width = Width.DEFAULT;
 
-    public ModalBuilder(String modalId, Tag content) {
+    public ModalBuilder(String modalId, DivTag content) {
       this.modalId = modalId;
       this.content = content;
     }
