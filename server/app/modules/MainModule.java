@@ -33,7 +33,7 @@ public class MainModule extends AbstractModule {
 
   @Provides
   public Clock provideClock(Config config) {
-    ZoneId zoneId = ZoneId.of(checkNotNull(config).getString("java.time.zoneid"));
+    ZoneId zoneId = ZoneId.of(checkNotNull(config).getString("civiform.time.zoneid"));
     // Use the system clock as the default implementation of Clock
     return Clock.system(zoneId);
   }

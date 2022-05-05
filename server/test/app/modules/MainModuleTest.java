@@ -39,7 +39,7 @@ public class MainModuleTest {
   public void testTimeZone_configValueProvided(String timeZone) {
     app =
         new GuiceApplicationBuilder()
-            .configure(ConfigFactory.parseMap(ImmutableMap.of("java.time.zoneid", timeZone)))
+            .configure(ConfigFactory.parseMap(ImmutableMap.of("civiform.time.zoneid", timeZone)))
             .build();
     Clock clock = app.injector().instanceOf(Clock.class);
     assertThat(clock.getZone()).isEqualTo(ZoneId.of(timeZone));
