@@ -152,6 +152,26 @@ public abstract class FileUploadViewStrategy {
         .withId(FILEUPLOAD_SUBMIT_FORM_ID);
   }
 
+  protected Tag renderPreviousButton(Params params) {
+    int previousBlockIndex = params.blockIndex() - 1;
+    String redirectUrl;
+
+    if (previousBlockIndex >= 0) {
+      redirectUrl =
+          routes.ApplicantProgramBlocksController.previous(
+                  params.applicantId(), params.programId(), previousBlockIndex, params.inReview())
+              .url();
+    } else {
+      redirectUrl =
+          routes.ApplicantProgramReviewController.preview(params.applicantId(), params.programId())
+              .url();
+    }
+    return a().attr(HREF, redirectUrl)
+        .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
+        .withClasses(ApplicantStyles.BUTTON_BLOCK_PREVIOUS)
+        .withId("cf-block-previous");
+  }
+
   protected Tag renderFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, false);

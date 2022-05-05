@@ -148,7 +148,8 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
             // An empty div to take up the space to the left of the buttons.
             .with(div().withClasses(Styles.FLEX_GROW))
-            .with(renderReviewButton(params));
+            .with(renderReviewButton(params))
+            .with(renderPreviousButton(params));
     if (maybeSkipOrDeleteButton.isPresent()) {
       ret.with(maybeSkipOrDeleteButton.get());
     }
