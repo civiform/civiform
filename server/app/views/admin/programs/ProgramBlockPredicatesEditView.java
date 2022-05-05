@@ -19,6 +19,10 @@ import com.google.common.collect.ImmutableSet;
 import controllers.admin.routes;
 import j2html.attributes.Attr;
 
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.OptionTag;
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
 
 import java.util.Arrays;
 import javax.inject.Inject;
@@ -73,7 +77,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       ImmutableList<QuestionDefinition> potentialPredicateQuestions) {
 
     String title = String.format("Visibility condition for %s", blockDefinition.name());
-    Tag csrfTag = makeCsrfTokenInputTag(request);
+    InputTag csrfTag = makeCsrfTokenInputTag(request);
 
     String predicateUpdateUrl =
         routes.AdminProgramBlockPredicatesController.update(
@@ -88,7 +92,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                 programDefinition.id(), blockDefinition.id())
             .url();
     String removePredicateFormId = "visibility-predicate-form-remove";
-    Tag removePredicateForm =
+    FormTag removePredicateForm =
         form(csrfTag)
             .withId(removePredicateFormId)
             .withMethod(POST)
@@ -102,7 +106,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         routes.AdminProgramBlocksController.edit(programDefinition.id(), blockDefinition.id())
             .url();
 
-    ContainerTag content =
+    DivTag content =
         div()
             .withClasses(Styles.MX_6, Styles.MY_10, Styles.FLEX, Styles.FLEX_COL, Styles.GAP_6)
             .with(
@@ -165,7 +169,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       String blockName,
       ImmutableList<QuestionDefinition> questionDefinitions,
       String predicateUpdateUrl,
-      Tag csrfTag) {
+      InputTag csrfTag) {
     ImmutableList.Builder<Modal> builder = ImmutableList.builder();
     for (QuestionDefinition qd : questionDefinitions) {
       builder.add(predicateFormModal(blockName, qd, predicateUpdateUrl, csrfTag));
@@ -177,8 +181,8 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       String blockName,
       QuestionDefinition questionDefinition,
       String predicateUpdateUrl,
-      Tag csrfTag) {
-    Tag triggerButtonContent =
+      InpuTag csrfTag) {
+    DivTag triggerButtonContent =
         div()
             .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
             .with(
@@ -192,7 +196,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                         div(questionDefinition.getDescription())
                             .withClasses(Styles.MT_1, Styles.TEXT_SM)));
 
-    ContainerTag modalContent =
+    DivTag modalContent =
         div()
             .withClasses(Styles.M_4)
             .with(renderPredicateForm(blockName, questionDefinition, predicateUpdateUrl, csrfTag));
@@ -205,11 +209,11 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .build();
   }
 
-  private Tag renderPredicateForm(
+  private FormTag renderPredicateForm(
       String blockName,
       QuestionDefinition questionDefinition,
       String predicateUpdateUrl,
-      Tag csrfTag) {
+      InputTag csrfTag) {
     String formId = String.format("visibility-predicate-form-%s", questionDefinition.getId());
 
     return form(csrfTag)
@@ -232,13 +236,13 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .with(submitButton("Submit").attr(Attr.FORM, formId));
   }
 
-  private ContainerTag renderPredicateModalTriggerButtons(ImmutableList<Modal> modals) {
+  private DivTag renderPredicateModalTriggerButtons(ImmutableList<Modal> modals) {
     return div()
         .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_2)
         .with(each(modals, modal -> modal.getButton()));
   }
 
-  private ContainerTag renderQuestionDefinitionBox(QuestionDefinition questionDefinition) {
+  private DivTag renderQuestionDefinitionBox(QuestionDefinition questionDefinition) {
     return div()
         .withClasses(
             Styles.FLEX,
@@ -261,7 +265,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                         .withClasses(Styles.MT_1, Styles.TEXT_SM)));
   }
 
-  private ContainerTag createActionDropdown(String blockName) {
+  private DivTag createActionDropdown(String blockName) {
     ImmutableMap<String, String> actionOptions =
         Arrays.stream(PredicateAction.values())
             .collect(toImmutableMap(PredicateAction::toDisplayString, PredicateAction::name));
@@ -273,14 +277,14 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .getContainer();
   }
 
-  private Tag createHiddenQuestionDefinitionInput(QuestionDefinition questionDefinition) {
+  private InputTag createHiddenQuestionDefinitionInput(QuestionDefinition questionDefinition) {
     return input()
         .attr("name", "questionId")
         .attr("type", "hidden")
         .attr("value", String.valueOf(questionDefinition.getId()));
   }
 
-  private ContainerTag createScalarDropdown(QuestionDefinition questionDefinition) {
+  private DivTag createScalarDropdown(QuestionDefinition questionDefinition) {
     ImmutableSet<Scalar> scalars;
     try {
       scalars = Scalar.getScalars(questionDefinition.getQuestionType());
@@ -290,7 +294,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
           .withText("Sorry, you cannot create a show/hide predicate with this question type.");
     }
 
-    ImmutableList<ContainerTag> options =
+    ImmutableList<OptionTag> options =
         scalars.stream()
             .map(
                 scalar ->
@@ -308,15 +312,15 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .getContainer();
   }
 
-  private ContainerTag createOperatorDropdown() {
-    ImmutableList<ContainerTag> operatorOptions =
+  private DivTag createOperatorDropdown() {
+    ImmutableList<OptionTag> operatorOptions =
         Arrays.stream(Operator.values())
             .map(
                 operator -> {
                   // Add this operator's allowed scalar types as data, so that we can determine
                   // whether to show or hide each operator based on the current type of scalar
                   // selected.
-                  ContainerTag option =
+                  OptionTag option =
                       option(operator.toDisplayString()).attr("value", operator.name());
                   operator
                       .getOperableTypes()
@@ -333,7 +337,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .getContainer();
   }
 
-  private ContainerTag createValueField(QuestionDefinition questionDefinition) {
+  private DivTag createValueField(QuestionDefinition questionDefinition) {
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       // If it's a multi-option question, we need to provide a discrete list of possible values to
       // choose from instead of a freeform text field. Not only is it a better UX, but we store the
@@ -341,10 +345,10 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       // localized.
       ImmutableList<QuestionOption> options =
           ((MultiOptionQuestionDefinition) questionDefinition).getOptions();
-      ContainerTag valueOptionsDiv =
+      DivTag valueOptionsDiv =
           div().with(div("Values").withClasses(BaseStyles.CHECKBOX_GROUP_LABEL));
       for (QuestionOption option : options) {
-        ContainerTag optionCheckbox =
+        DivTag optionCheckbox =
             FieldWithLabel.checkbox()
                 .setFieldName("predicateValues[]")
                 .setValue(String.valueOf(option.id()))
