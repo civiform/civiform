@@ -24,33 +24,33 @@ public class CiviFormProfileMerger {
    * This method handles a three way merge between an existing applicant, an existing guest profile,
    * and an external profile
    *
-   * @param existingApplicant a potentially existing applicant in the database
-   * @param existingProfile a guest profile in the browser cookie
-   * @param externalProfile profile data from an external auth provider, such as OIDC
+   * @param applicantInDatabase a potentially existing applicant in the database
+   * @param sessionProfile a guest profile from the browser session
+   * @param authProviderProfile profile data from an external auth provider, such as OIDC
    * @param mergeFunction a function that merges an external profile into a Civiform profile, or
    *     provides one if it doesn't exist
    */
   public <T> Optional<UserProfile> threeWayMerge(
-      Optional<Applicant> existingApplicant,
-      Optional<CiviFormProfile> existingProfile,
-      T externalProfile,
+      Optional<Applicant> applicantInDatabase,
+      Optional<CiviFormProfile> sessionProfile,
+      T authProviderProfile,
       BiFunction<Optional<CiviFormProfile>, T, UserProfile> mergeFunction) {
 
-    if (existingApplicant.isPresent()) {
-      if (existingProfile.isEmpty()) {
+    if (applicantInDatabase.isPresent()) {
+      if (sessionProfile.isEmpty()) {
         // Easy merge case - we have an existing applicant, but no guest profile.
         // This will be the most common.
-        existingProfile = Optional.of(profileFactory.wrap(existingApplicant.get()));
+        sessionProfile = Optional.of(profileFactory.wrap(applicantInDatabase.get()));
       } else {
         // Merge the two applicants and prefer the newer one.
-        existingProfile = twoWayMerge(existingProfile.get(), existingApplicant.get());
+        sessionProfile = twoWayMerge(sessionProfile.get(), applicantInDatabase.get());
       }
     }
 
     // Merge externalProfile into existingProfile
     // Merge function will create a new CiviFormProfile if it doesn't exist,
     // or otherwise handle it in some way
-    return Optional.of(mergeFunction.apply(existingProfile, externalProfile));
+    return Optional.of(mergeFunction.apply(sessionProfile, authProviderProfile));
   }
 
   private Optional<CiviFormProfile> twoWayMerge(
