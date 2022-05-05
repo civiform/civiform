@@ -102,7 +102,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void createOrUpdateDraftApplication_failsWithTwoDrafts() {
+  public void createOrUpdateDraftApplication_twoDraftsSubmitLatest() {
     Applicant applicant = saveApplicant("Alice");
     Program program = saveProgram("Program");
     Application appOne = Application.create(applicant, program, LifecycleStage.DRAFT);
