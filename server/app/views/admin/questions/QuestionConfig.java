@@ -17,6 +17,10 @@ import forms.NumberQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
 
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.LabelTag;
 
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -36,7 +40,7 @@ public class QuestionConfig {
 
   private String id = "";
   private String headerText = "Question settings";
-  private ContainerTag content = div();
+  private DivTag content = div();
 
   private static final String HEADER_CLASSES =
       StyleUtils.joinStyles(
@@ -67,7 +71,7 @@ public class QuestionConfig {
     return this;
   }
 
-  public static ContainerTag buildQuestionConfig(QuestionForm questionForm, Messages messages) {
+  public static DivTag buildQuestionConfig(QuestionForm questionForm, Messages messages) {
     QuestionConfig config = new QuestionConfig();
     switch (questionForm.getQuestionType()) {
       case ADDRESS:
@@ -188,7 +192,7 @@ public class QuestionConfig {
    * Creates a template text field where an admin can enter a single multi-option question answer,
    * along with a button to remove the option.
    */
-  public static ContainerTag multiOptionQuestionFieldTemplate(Messages messages) {
+  public static DivTag multiOptionQuestionFieldTemplate(Messages messages) {
     return multiOptionQuestionField(Optional.empty(), messages, /* isForNewOption= */ true);
   }
 
@@ -196,9 +200,9 @@ public class QuestionConfig {
    * Creates an individual text field where an admin can enter a single multi-option question
    * answer, along with a button to remove the option.
    */
-  private static ContainerTag multiOptionQuestionField(
+  private static DivTag multiOptionQuestionField(
       Optional<LocalizedQuestionOption> existingOption, Messages messages, boolean isForNewOption) {
-    ContainerTag optionInput =
+    InputTag optionInput =
         FieldWithLabel.input()
             .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
             .setLabelText("Question option")
@@ -210,16 +214,17 @@ public class QuestionConfig {
             .showFieldErrors(false)
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2, Styles.GAP_X_3);
-    ContainerTag optionIndexInput =
+    DivTag optionIndexInput =
         isForNewOption
             ? div()
-            : FieldWithLabel.input()
+            : div().with(
+                FieldWithLabel.input()
                 .setFieldName("optionIds[]")
                 .setValue(String.valueOf(existingOption.get().id()))
                 .setScreenReaderText("option ids")
                 .getContainer()
-                .withClasses(Styles.HIDDEN);
-    Tag removeOptionButton =
+                .withClasses(Styles.HIDDEN));
+    ButtonTag removeOptionButton =
         button("Remove")
             .attr("type", "button")
             .withClasses(Styles.FLEX, Styles.ML_4, "multi-option-question-field-remove-button");
@@ -239,7 +244,7 @@ public class QuestionConfig {
         multiOptionQuestionForm.getOptionIds().size()
             == multiOptionQuestionForm.getOptions().size(),
         "Options and Option Indexes need to be the same size.");
-    ImmutableList.Builder<ContainerTag> optionsBuilder = ImmutableList.builder();
+    ImmutableList.Builder<DivTag> optionsBuilder = ImmutableList.builder();
     int optionIndex = 0;
     for (int i = 0; i < multiOptionQuestionForm.getOptions().size(); i++) {
       optionsBuilder.add(
@@ -319,7 +324,7 @@ public class QuestionConfig {
     return this;
   }
 
-  public ContainerTag getContainer() {
+  public DivTag getContainer() {
     return div()
         .withCondId(!Strings.isNullOrEmpty(this.id), this.id)
         .withClasses(ReferenceClasses.QUESTION_CONFIG)
@@ -330,7 +335,7 @@ public class QuestionConfig {
                 .with(content.withId("question-settings").withClasses(INNER_DIV_CLASSES)));
   }
 
-  private static ContainerTag headerLabel(String text) {
+  private static LabelTag headerLabel(String text) {
     return label().withClasses(HEADER_CLASSES).withText(text);
   }
 
