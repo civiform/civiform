@@ -109,7 +109,11 @@ public class JsonExporter {
           {
             CurrencyQuestion currencyQuestion =
                 answerData.applicantQuestion().createCurrencyQuestion();
-            Path path = currencyQuestion.getCurrencyPath().asApplicationPath().replacingLastSegment("currency_dollars");
+            Path path =
+                currencyQuestion
+                    .getCurrencyPath()
+                    .asApplicationPath()
+                    .replacingLastSegment("currency_dollars");
 
             if (currencyQuestion.getValue().isPresent()) {
               Long centsTotal = Long.valueOf(currencyQuestion.getValue().get().getCents());
@@ -135,19 +139,19 @@ public class JsonExporter {
             break;
           }
         case DATE:
-        {
-          DateQuestion dateQuestion = answerData.applicantQuestion().createDateQuestion();
-          Path path = dateQuestion.getDatePath().asApplicationPath();
+          {
+            DateQuestion dateQuestion = answerData.applicantQuestion().createDateQuestion();
+            Path path = dateQuestion.getDatePath().asApplicationPath();
 
-          if (dateQuestion.getDateValue().isPresent()) {
-            LocalDate date = dateQuestion.getDateValue().get();
-            jsonApplication.putString(path, DateTimeFormatter.ISO_DATE.format(date));
-          } else {
-            jsonApplication.putNull(path);
+            if (dateQuestion.getDateValue().isPresent()) {
+              LocalDate date = dateQuestion.getDateValue().get();
+              jsonApplication.putString(path, DateTimeFormatter.ISO_DATE.format(date));
+            } else {
+              jsonApplication.putNull(path);
+            }
+
+            break;
           }
-
-          break;
-        }
         default:
           {
             for (Map.Entry<Path, String> answer :
