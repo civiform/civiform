@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import javax.inject.Inject;
 import models.Application;
@@ -47,7 +48,8 @@ public class PdfExporter {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
     String filename =
-        String.format("%s-%s.pdf", applicantNameWithApplicationId, clock.instant().toString());
+        String.format(
+            "%s-%s.pdf", applicantNameWithApplicationId, LocalDateTime.now(clock).toString());
     byte[] bytes =
         buildPDF(
             answers,
