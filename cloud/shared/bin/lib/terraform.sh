@@ -18,11 +18,11 @@ function terraform::perform_apply() {
     "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/setup_tf_shared_state" \
       "${TERRAFORM_TEMPLATE_DIR}/${BACKEND_VARS_FILENAME}"
 
-      terraform "${TERRAFORM_DIR}" \
-        init \
-        -input=false \
-        -upgrade \
-        -backend-config="${BACKEND_VARS_FILENAME}"
+    terraform "${TERRAFORM_DIR}" \
+      init \
+      -input=false \
+      -upgrade \
+      -backend-config="${BACKEND_VARS_FILENAME}"
   fi
 
   if azure::is_service_principal; then
