@@ -5,6 +5,12 @@ import static j2html.TagCreator.*;
 
 import com.google.inject.Inject;
 
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.TdTag;
+import j2html.tags.specialized.TrTag;
+import j2html.tags.specialized.TableTag;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,12 +68,12 @@ public final class QuestionsListView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private Tag renderAddQuestionLink() {
+  private DivTag renderAddQuestionLink() {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
-    ContainerTag linkButton =
+    DivTag linkButton =
         new LinkElement().setId(parentId).setText("Create new question").asButton();
-    ContainerTag dropdown =
+    DivTag dropdown =
         div()
             .withId(dropdownId)
             .withClasses(
@@ -82,7 +88,7 @@ public final class QuestionsListView extends BaseHtmlView {
     for (QuestionType type : QuestionType.values()) {
       String typeString = type.toString().toLowerCase();
       String link = controllers.admin.routes.AdminQuestionController.newOne(typeString).url();
-      ContainerTag linkTag =
+      ATag linkTag =
           a().withHref(link)
               .withId(String.format("create-%s-question", typeString))
               .withClasses(
@@ -108,7 +114,7 @@ public final class QuestionsListView extends BaseHtmlView {
     return linkButton.with(dropdown);
   }
 
-  private Tag renderSummary(ActiveAndDraftQuestions activeAndDraftQuestions) {
+  private DivTag renderSummary(ActiveAndDraftQuestions activeAndDraftQuestions) {
     return div(String.format(
             "Total Questions: %d",
             activeAndDraftQuestions.getActiveSize() + activeAndDraftQuestions.getDraftSize()))
@@ -116,7 +122,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   /** Renders the full table. */
-  private Tag renderQuestionTable(
+  private TableTag renderQuestionTable(
       ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
     return table()
         .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
@@ -134,7 +140,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   /** Render the question table header row. */
-  private Tag renderQuestionTableHeaderRow() {
+  private TrTag renderQuestionTableHeaderRow() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4))
@@ -154,7 +160,7 @@ public final class QuestionsListView extends BaseHtmlView {
    *
    * <p>One of {@code activeDefinition} and {@code draftDefinition} must be specified.
    */
-  private Tag renderQuestionTableRow(
+  private TrTag renderQuestionTableRow(
       Optional<QuestionDefinition> activeDefinition,
       Optional<QuestionDefinition> draftDefinition,
       DeletionStatus deletionStatus,
@@ -174,13 +180,13 @@ public final class QuestionsListView extends BaseHtmlView {
         .with(renderActionsCell(activeDefinition, draftDefinition, deletionStatus, request));
   }
 
-  private Tag renderInfoCell(QuestionDefinition definition) {
+  private TdTag renderInfoCell(QuestionDefinition definition) {
     return td().with(div(definition.getName()).withClasses(Styles.FONT_SEMIBOLD))
         .with(div(definition.getDescription()).withClasses(Styles.TEXT_XS))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderQuestionTextCell(QuestionDefinition definition) {
+  private TdTag renderQuestionTextCell(QuestionDefinition definition) {
     String questionText = "";
     String questionHelpText = "";
 
@@ -203,7 +209,7 @@ public final class QuestionsListView extends BaseHtmlView {
    * Render the supported languages for this question in US English (ex: "es-US" will appear as
    * "Spanish").
    */
-  private Tag renderSupportedLanguages(QuestionDefinition definition) {
+  private TdTag renderSupportedLanguages(QuestionDefinition definition) {
     String formattedLanguages =
         definition.getSupportedLocales().stream()
             .map(locale -> locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE))
@@ -212,7 +218,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
+  private DivTag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
     return new LinkElement()
         .setId("edit-question-link-" + definition.getId())
@@ -222,7 +228,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .asAnchorText();
   }
 
-  private Tag renderQuestionTranslationLink(QuestionDefinition definition, String linkText) {
+  private DivTag renderQuestionTranslationLink(QuestionDefinition definition, String linkText) {
     String link =
         controllers.admin.routes.AdminQuestionTranslationsController.edit(
                 definition.getId(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
@@ -235,7 +241,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .asAnchorText();
   }
 
-  private Tag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
+  private DivTag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.show(definition.getId()).url();
     return new LinkElement()
         .setId("view-question-link-" + definition.getId())
@@ -245,12 +251,12 @@ public final class QuestionsListView extends BaseHtmlView {
         .asAnchorText();
   }
 
-  private Tag renderActionsCell(
+  private TdTag renderActionsCell(
       Optional<QuestionDefinition> active,
       Optional<QuestionDefinition> draft,
       DeletionStatus deletionStatus,
       Http.Request request) {
-    ContainerTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT);
+    TdTag td = td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.TEXT_RIGHT);
     if (active.isPresent()) {
       if (draft.isEmpty()) {
         // Active without a draft.
@@ -280,7 +286,7 @@ public final class QuestionsListView extends BaseHtmlView {
     return td;
   }
 
-  private Tag renderDiscardDraftLink(
+  private FormTag renderDiscardDraftLink(
       QuestionDefinition definition, String linkText, Http.Request request) {
     String link =
         controllers.admin.routes.AdminQuestionController.discardDraft(definition.getId()).url();
@@ -292,7 +298,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .asHiddenFormLink(request);
   }
 
-  private Tag renderRestoreQuestionLink(
+  private FormTag renderRestoreQuestionLink(
       QuestionDefinition definition, String linkText, Http.Request request) {
     String link =
         controllers.admin.routes.AdminQuestionController.restore(definition.getId()).url();
@@ -304,7 +310,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .asHiddenFormLink(request);
   }
 
-  private Tag renderArchiveQuestionLink(
+  private FormTag renderArchiveQuestionLink(
       QuestionDefinition definition, String linkText, Http.Request request) {
     String link =
         controllers.admin.routes.AdminQuestionController.archive(definition.getId()).url();
