@@ -2,7 +2,6 @@
 # Mount code for hot reloading and cache for faster compile in dev mode.
 services:
   civiform:
-    build: .
     volumes:
       - ../server:/usr/src/server
       - target:/usr/src/server/target
