@@ -20,7 +20,7 @@ public class Modal {
   private DivTag content;
   private String modalTitle;
   private String triggerButtonText;
-  private Optional<Tag> triggerButtonContent;
+  private Optional<DivTag> triggerButtonContent;
   private String buttonStyles;
   private Width width;
 
@@ -81,7 +81,7 @@ public class Modal {
     private String modalTitle;
     private String triggerButtonText;
 
-    private Optional<Tag> triggerButtonContent = Optional.empty();
+    private Optional<DivTag> triggerButtonContent = Optional.empty();
     private Width width = Width.DEFAULT;
 
     public ModalBuilder(String modalId, DivTag content) {
@@ -99,7 +99,7 @@ public class Modal {
       return this;
     }
 
-    public ModalBuilder setTriggerButtonContent(Tag triggerButtonContent) {
+    public ModalBuilder setTriggerButtonContent(DivTag triggerButtonContent) {
       this.triggerButtonContent = Optional.ofNullable(triggerButtonContent);
       return this;
     }
