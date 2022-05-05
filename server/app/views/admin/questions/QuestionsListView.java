@@ -96,7 +96,7 @@ public final class QuestionsListView extends BaseHtmlView {
                       .withClasses(
                           Styles.INLINE_BLOCK, Styles.H_6, Styles.W_6, Styles.MR_1, Styles.TEXT_SM))
               .with(
-                  p(typeString)
+                  p(type.getLabel())
                       .withClasses(
                           Styles.ML_2,
                           Styles.MR_4,

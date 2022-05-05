@@ -16,13 +16,18 @@ services:
 
   civiform:
     image: civiform-dev
+    restart: always
     links:
       - "db:database"
       - "oidc"
     volumes:
-      - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
+      - ./server:/usr/src/server
       - ./sbt_cache/coursier:/root/.cache/coursier
       - ~/.sbt:/root/.sbt
       - ~/.ivy:/root/.ivy2
     entrypoint: /bin/bash
     tty: true        # keep the container running
+    stdin_open: true
+    ports: # For debugging
+      - 9100:9000
+      - 8459:8459
