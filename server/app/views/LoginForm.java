@@ -14,6 +14,9 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.routes;
 
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ButtonTag;
 
 import java.util.Optional;
 import play.i18n.Messages;
@@ -64,8 +67,8 @@ public class LoginForm extends BaseHtmlView {
     return layout.render(htmlBundle);
   }
 
-  private ContainerTag mainContent(Messages messages) {
-    ContainerTag content = div().withClasses(BaseStyles.LOGIN_PAGE);
+  private DivTag mainContent(Messages messages) {
+    DivTag content = div().withClasses(BaseStyles.LOGIN_PAGE);
 
     if (maybeLogoUrl.isPresent()) {
       content.with(
@@ -110,7 +113,7 @@ public class LoginForm extends BaseHtmlView {
         messages.at(MessageKey.CONTENT_LOGIN_PROMPT_ALTERNATIVE.getKeyName());
     String or = messages.at(MessageKey.CONTENT_OR.getKeyName());
     content.with(p(alternativeMessage).withClasses(Styles.TEXT_LG));
-    ContainerTag alternativeLoginButtons =
+    DivTag alternativeLoginButtons =
         div()
             .withClasses(
                 Styles.PB_12,
@@ -149,7 +152,7 @@ public class LoginForm extends BaseHtmlView {
         .with(content);
   }
 
-  private ContainerTag debugContent() {
+  private DivTag debugContent() {
     return div()
         .withClasses(Styles.ABSOLUTE)
         .with(
@@ -174,27 +177,27 @@ public class LoginForm extends BaseHtmlView {
                     .url()));
   }
 
-  private Tag loginButton(Messages messages) {
+  private ButtonTag loginButton(Messages messages) {
     String msg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
     return redirectButton(
             applicantIdp, msg, routes.LoginController.applicantLogin(Optional.empty()).url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
   }
 
-  private Tag createAccountButton(Messages messages) {
+  private ButtonTag createAccountButton(Messages messages) {
     String msg = messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName());
     return redirectButton("register", msg, routes.LoginController.register().url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
   }
 
-  private Tag guestButton(Messages messages) {
+  private ButtonTag guestButton(Messages messages) {
     String msg = messages.at(MessageKey.BUTTON_LOGIN_GUEST.getKeyName());
     return redirectButton(
             "guest", msg, routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
   }
 
-  private Tag adminLink(Messages messages) {
+  private ATag adminLink(Messages messages) {
     String msg = messages.at(MessageKey.LINK_ADMIN_LOGIN.getKeyName());
     return a(msg)
         .withHref(routes.LoginController.adminLogin().url())
