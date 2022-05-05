@@ -1,12 +1,7 @@
 #! /usr/bin/env bash
 
-readonly TERRAFORM_BASE_COMMAND="terraform \
-        -chdir=${TERRAFORM_TEMPLATE_DIR}"
-
-readonly TERRAFORM_APPLY="${TERRAFORM_BASE_COMMAND} \
-        apply \
-        -input=false \
-        -var-file=${TF_VAR_FILENAME}"
+readonly TERRAFORM_BASE=("terraform" "-chdir=${TERRAFORM_TEMPLATE_DIR}")
+readonly TERRAFORM_APPLY=(${TERRAFORM_BASE[@]} "apply" "-input=false" "-var-file=${TF_VAR_FILENAME}")
 
 #######################################
 # Generates terraform variable files and runs terraform init and apply.
@@ -18,24 +13,22 @@ readonly TERRAFORM_APPLY="${TERRAFORM_BASE_COMMAND} \
 #######################################
 function terraform::perform_apply() {
   if [[ "${CIVIFORM_MODE}" == "dev" ]]; then
-    "$(${TERRAFORM_BASE_COMMAND} init -upgrade)"
+    terraform "${TERRAFORM_DIR}" init -upgrade
   else
     "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/setup_tf_shared_state" \
       "${TERRAFORM_TEMPLATE_DIR}/${BACKEND_VARS_FILENAME}"
 
-    "$(
-      ${TERRAFORM_BASE_COMMAND}
-      init \
+      terraform "${TERRAFORM_DIR}" \
+        init \
         -input=false \
         -upgrade \
         -backend-config="${BACKEND_VARS_FILENAME}"
-    )"
   fi
 
   if azure::is_service_principal; then
-    "$(${TERRAFORM_APPLY} -auto-approve)"
+    "${TERRAFORM_APPLY[@]}" -auto-approve
   else
-    "$(${TERRAFORM_APPLY})"
+    "${TERRAFORM_APPLY[@]}"
   fi
 }
 
