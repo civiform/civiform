@@ -3,7 +3,7 @@
 services:
   civiform:
     volumes:
-      - ./server:/usr/src/server
+      - ../server:/usr/src/server
       - target:/usr/src/server/target
       - node_modules-data:/usr/src/server/node_modules
       - project-data:/usr/src/server/project
