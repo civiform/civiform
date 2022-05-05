@@ -3,10 +3,10 @@
 services:
   civiform:
     volumes:
-      - ./server:/usr/src/server
-      - target:/usr/src/server/target
-      - node_modules-data:/usr/src/server/node_modules
-      - project-data:/usr/src/server/project
+      - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
+      - target:/usr/src/universal-application-tool-0.0.1/target
+      - node_modules-data:/usr/src/universal-application-tool-0.0.1/node_modules
+      - project-data:/usr/src/universal-application-tool-0.0.1/project
       - coursier-data:/root/.cache/coursier
       - sbt-data:/root/.sbt
       - ivy2-data:/root/.ivy2
