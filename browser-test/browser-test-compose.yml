@@ -1,5 +1,5 @@
 # Builds on docker-compose.yml
-version: "3.4"
+version: '3.4'
 
 services:
   localstack:
@@ -20,8 +20,8 @@ services:
     image: civiform
     restart: always
     links:
-      - "db:database"
-      - "fake-idcs"
+      - 'db:database'
+      - 'fake-idcs'
     ports:
       - 9999:9000
     environment:
