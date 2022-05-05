@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
+import j2html.tags.specialized.DivTag;
 
 import play.i18n.Messages;
 import services.MessageKey;
@@ -36,7 +37,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     return question.isOptional() ? "" : ReferenceClasses.REQUIRED_QUESTION;
   }
 
-  protected abstract Tag renderTag(
+  protected abstract DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors);
 
