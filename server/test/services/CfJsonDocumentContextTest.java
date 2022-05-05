@@ -135,6 +135,15 @@ public class CfJsonDocumentContextTest {
   }
 
   @Test
+  public void putDouble_addsAScalar() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+
+    data.putDouble(Path.create("applicant.monthly_income"), 99.9);
+
+    assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{\"monthly_income\":99.9}}");
+  }
+
+  @Test
   public void putString_addsANestedScalar() {
     CfJsonDocumentContext data = new CfJsonDocumentContext();
     String expected = "{\"applicant\":{\"favorites\":{\"food\":{\"apple\":\"Granny Smith\"}}}}";
@@ -337,6 +346,16 @@ public class CfJsonDocumentContextTest {
     Optional<Long> found = data.readLong(Path.create("applicant.age"));
 
     assertThat(found).hasValue(30L);
+  }
+
+  @Test
+  public void readDouble_findsCorrectValue() throws Exception {
+    String testData = "{ \"applicant\": { \"monthly_income\": 99.9 } }";
+    CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
+
+    Optional<Double> found = data.readDouble(Path.create("applicant.monthly_income"));
+
+    assertThat(found).hasValue(99.9);
   }
 
   @Test

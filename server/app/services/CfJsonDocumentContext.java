@@ -134,8 +134,8 @@ public class CfJsonDocumentContext {
     put(path, value);
   }
 
-  /** Writes a float value. */
-  public void putFloat(Path path, float value) {
+  /** Writes a double value. */
+  public void putDouble(Path path, double value) {
     put(path, value);
   }
 
@@ -344,11 +344,24 @@ public class CfJsonDocumentContext {
 
   /**
    * Attempt to read a integer at the given path. Returns {@code Optional#empty} if the path does
-   * not exist or a value other than Integer is found.
+   * not exist or a value other than a number is found. If the number has a decimal, the decimal
+   * will be truncated.
    */
   public Optional<Long> readLong(Path path) {
     try {
       return this.read(path, Long.class);
+    } catch (JsonPathTypeMismatchException e) {
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Attempt to read a double at the given path. Returns {@code Optional#empty} if the path does
+   * not exist or a value other than a number is found.
+   */
+  public Optional<Double> readDouble(Path path) {
+    try {
+      return this.read(path, Double.class);
     } catch (JsonPathTypeMismatchException e) {
       return Optional.empty();
     }
