@@ -8,6 +8,8 @@ import static j2html.TagCreator.script;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 
+import j2html.tags.specialized.ScriptTag;
+
 import java.net.URI;
 import javax.inject.Inject;
 import play.twirl.api.Content;
@@ -86,7 +88,7 @@ public class BaseHtmlLayout {
     bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILENAME));
 
     // Add Google analytics scripts.
-    bundle.addFooterScripts(getAnalyticsScripts(measurementId).toArray(new Tag[0]));
+    bundle.addFooterScripts(getAnalyticsScripts(measurementId).toArray(new ScriptTag[0]));
 
     // Add default scripts.
     for (String source : FOOTER_SCRIPTS) {
@@ -105,8 +107,8 @@ public class BaseHtmlLayout {
   }
 
   /** Creates Google Analytics scripts for the site. */
-  private ImmutableList<Tag> getAnalyticsScripts(String trackingTag) {
-    Tag scriptImport =
+  private ImmutableList<ScriptTag> getAnalyticsScripts(String trackingTag) {
+    ScriptTag scriptImport =
         script()
             .withSrc("https://www.googletagmanager.com/gtag/js?id=" + trackingTag)
             .attr("async", "true")
@@ -118,10 +120,10 @@ public class BaseHtmlLayout {
             + "\n}"
             + "\ngtag('js', new Date());"
             + "\ngtag('config', '%s');";
-    Tag rawScript =
+    ScriptTag rawScript =
         script()
             .with(rawHtml(String.format(googleAnalyticsCode, trackingTag)))
             .attr("type", "text/javascript");
-    return new ImmutableList.Builder<Tag>().add(scriptImport).add(rawScript).build();
+    return new ImmutableList.Builder<ScriptTag>().add(scriptImport).add(rawScript).build();
   }
 }
