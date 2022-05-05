@@ -76,7 +76,8 @@ class AwsCliCheck(Check):
         return "AWS CLI"
 
     def should_skip(self):
-        return self._get_cloud_provider() != 'aws'
+        # AWS SES is used for both Azure and AWS deployments.
+        return self._get_cloud_provider() in ['aws', 'azure']
 
     def is_ok(self):
         return self._check_command_succeeds(["aws", "help"])
@@ -130,7 +131,8 @@ class AwsLoginCheck(Check):
         return "AWS login"
 
     def should_skip(self):
-        return self._get_cloud_provider() != 'aws'
+        # AWS SES is used for both Azure and AWS deployments.
+        return self._get_cloud_provider() not in ['aws', 'azure']
 
     def is_ok(self):
         output = self._get_command_output(["aws", "configure", "list-profiles"])
