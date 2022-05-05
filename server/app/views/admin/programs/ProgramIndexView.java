@@ -92,7 +92,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private FormTag renderDownloadExportCsvButton() {
+  private DivTag renderDownloadExportCsvButton() {
     return new LinkElement()
         .setId("download-export-csv-button")
         .setHref(routes.AdminApplicationController.downloadDemographics().url())
@@ -104,18 +104,18 @@ public final class ProgramIndexView extends BaseHtmlView {
     // We should only render the publish button if there is at least one draft.
     if (programs.anyDraft()) {
       String link = routes.AdminProgramController.publish().url();
-      FormTag linkElement = new LinkElement()
+      FormTag linkElementAsForm = new LinkElement()
           .setId("publish-programs-button")
           .setHref(link)
           .setText("Publish all drafts")
           .asHiddenForm(request);
-      return div().with(formTag);
+      return div().with(linkElementAsForm);
     } else {
       return div();
     }
   }
 
-  private FormTag renderNewProgramButton() {
+  private DivTag renderNewProgramButton() {
     String link = controllers.admin.routes.AdminProgramController.newOne().url();
     return new LinkElement()
         .setId("new-program-button")
@@ -223,25 +223,24 @@ public final class ProgramIndexView extends BaseHtmlView {
       Http.Request request) {
     String editLinkText = "Edit →";
     String newVersionText = "New Version";
-    FormTag linkElement;
+    FormTag linkElementAsForm;
 
     if (draftProgram.isPresent()) {
       String editLink =
           controllers.admin.routes.AdminProgramController.edit(draftProgram.get().id()).url();
 
-      linkeElement = new LinkElement()
+      return new LinkElement()
           .setId("program-edit-link-" + draftProgram.get().id())
           .setHref(editLink)
           .setText(editLinkText)
           .setStyles(Styles.MR_2)
           .asAnchorText();
-      return div().with(linkElement);
     } else if (activeProgram.isPresent()) {
       String newVersionLink =
           controllers.admin.routes.AdminProgramController.newVersionFrom(activeProgram.get().id())
               .url();
 
-      linkElement = new LinkElement()
+      linkElementAsForm = new LinkElement()
           .setId("program-new-version-link-" + activeProgram.get().id())
           .setHref(newVersionLink)
           .setText(newVersionText)
@@ -261,13 +260,12 @@ public final class ProgramIndexView extends BaseHtmlView {
           routes.AdminProgramTranslationsController.edit(
                   draftProgram.get().id(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
               .url();
-      FormTag linkElement = new LinkElement()
+      return new LinkElement()
           .setId("program-translations-link-" + draftProgram.get().id())
           .setHref(linkDestination)
           .setText(linkText)
           .setStyles(Styles.MR_2)
           .asAnchorText();
-      return div().with(linkElement);
     } else {
       return div();
     }
@@ -288,13 +286,12 @@ public final class ProgramIndexView extends BaseHtmlView {
                     activeProgram.get().id(), Optional.empty(), Optional.empty())
                 .url();
 
-        FormTag linkElement = new LinkElement()
+        return new LinkElement()
             .setId("program-view-apps-link-" + activeProgram.get().id())
             .setHref(editLink)
             .setText("Applications →")
             .setStyles(Styles.MR_2)
             .asAnchorText();
-        return div().with(linkElement);
       }
     }
     return div();
