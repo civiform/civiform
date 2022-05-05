@@ -12,6 +12,8 @@ import controllers.applicant.routes;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.ButtonTag;
 
 import java.util.Optional;
 import play.mvc.Http.HttpVerbs;
@@ -28,13 +30,13 @@ import views.style.Styles;
 public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
-  public ContainerTag signedFileUploadFields(
+  public DivTag signedFileUploadFields(
       ApplicantQuestionRendererParams params, FileUploadQuestion fileUploadQuestion) {
     StorageUploadRequest genericRequest = params.signedFileUploadRequest().get();
     SignedS3UploadRequest request = castStorageRequest(genericRequest);
     Optional<String> uploaded =
         fileUploadQuestion.getFilename().map(f -> String.format("File uploaded: %s", f));
-    ContainerTag fieldsTag =
+    DivTag fieldsTag =
         div()
             .with(div().withText(uploaded.orElse("")))
             .with(input().attr("type", "hidden").attr("name", "key").attr("value", request.key()))
@@ -65,7 +67,7 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  public Tag renderFileUploadBlockSubmitForms(
+  public DivTag renderFileUploadBlockSubmitForms(
       Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
 
     String key = FileNameFormatter.formatFileUploadQuestionFilename(params);
@@ -90,7 +92,7 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
             .setErrorDisplayMode(params.errorDisplayMode())
             .build();
 
-    Tag uploadForm =
+    FormTag uploadForm =
         form()
             .withId(BLOCK_FORM_ID)
             .attr(ENCTYPE, "multipart/form-data")
@@ -102,13 +104,13 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
                     question ->
                         renderQuestion(
                             question, rendererParams, applicantQuestionRendererFactory)));
-    Tag skipForms = renderDeleteAndContinueFileUploadForms(params);
-    Tag buttons = renderFileUploadBottomNavButtons(params);
+    DivTag skipForms = renderDeleteAndContinueFileUploadForms(params);
+    DivTag buttons = renderFileUploadBottomNavButtons(params);
     return div(uploadForm, skipForms, buttons);
   }
 
   @Override
-  protected Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params) {
+  protected Optional<ButtonTag> maybeRenderSkipOrDeleteButton(Params params) {
     if (hasAtLeastOneRequiredQuestion(params)) {
       // If the file question is required, skip or delete is not allowed.
       return Optional.empty();
@@ -119,7 +121,7 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
       buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
       buttonId = FILEUPLOAD_DELETE_BUTTON_ID;
     }
-    ContainerTag button =
+    ButtonTag button =
         button(buttonText)
             .attr("type", "submit")
             .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
@@ -136,10 +138,10 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     return (SignedS3UploadRequest) request;
   }
 
-  Tag renderFileUploadBottomNavButtons(Params params) {
-    Optional<Tag> maybeContinueButton = maybeRenderContinueButton(params);
-    Optional<ContainerTag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
-    ContainerTag ret =
+  DivTag renderFileUploadBottomNavButtons(Params params) {
+    Optional<ButtonTag> maybeContinueButton = maybeRenderContinueButton(params);
+    Optional<ButtonTag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
+    DivTag ret =
         div()
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
             // An empty div to take up the space to the left of the buttons.

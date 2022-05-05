@@ -39,7 +39,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  public FormTag signedFileUploadFields(
+  public DivTag signedFileUploadFields(
       ApplicantQuestionRendererParams params, FileUploadQuestion fileUploadQuestion) {
     StorageUploadRequest storageUploadRequest = params.signedFileUploadRequest().get();
 
@@ -48,8 +48,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     Optional<String> uploaded =
         fileUploadQuestion.getFilename().map(f -> String.format("File uploaded: %s", f));
 
-    FormTag formTag = form();
-    return formTag
+    FormTag formTag = form()
         .with(div().withText(uploaded.orElse("")))
         .with(input().attr("type", "file").attr("name", "file"))
         .with(input().attr("type", "hidden").attr("name", "fileName").attr("value", request.fileName()))
@@ -64,6 +63,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
                 .attr("name", "successActionRedirect")
                 .attr("value", request.successActionRedirect()))
         .with(errorDiv(params.messages(), fileUploadQuestion));
+    return div().with(formTag);
   }
 
   @Override

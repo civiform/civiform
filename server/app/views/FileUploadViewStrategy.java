@@ -7,6 +7,8 @@ import static j2html.attributes.Attr.FORM;
 
 import controllers.applicant.routes;
 
+import j2html.tags.Tag;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.ButtonTag;
@@ -47,7 +49,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    * @param fileUploadQuestion The question that requires a file upload.
    * @return a container tag with the necessary fields
    */
-  public abstract ContainerTag signedFileUploadFields(
+  public abstract DivTag signedFileUploadFields(
       ApplicantQuestionRendererParams params, FileUploadQuestion fileUploadQuestion);
 
   /**
@@ -67,7 +69,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    *
    * <p>See {@link renderDeleteAndContinueFileUploadForms}.
    */
-  protected abstract Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params);
+  protected abstract Optional<Tag> maybeRenderSkipOrDeleteButton(Params params);
 
   protected DivTag renderQuestion(
       ApplicantQuestion question,
@@ -138,7 +140,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return div(continueForm, deleteForm).withClasses(Styles.HIDDEN);
   }
 
-  protected Tag renderUploadButton(Params params) {
+  protected ButtonTag renderUploadButton(Params params) {
     String styles = ApplicantStyles.BUTTON_BLOCK_NEXT;
     if (hasUploadedFile(params)) {
       styles = ApplicantStyles.BUTTON_REVIEW;
@@ -149,12 +151,12 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
         .withId(FILEUPLOAD_SUBMIT_FORM_ID);
   }
 
-  protected Tag renderFileKeyField(
+  protected DivTag renderFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, false);
   }
 
-  protected Tag renderEmptyFileKeyField(
+  protected DivTag renderEmptyFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, true);
   }
@@ -174,7 +176,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return MIME_TYPES_IMAGES_AND_PDF;
   }
 
-  protected ContainerTag errorDiv(Messages messages, FileUploadQuestion fileUploadQuestion) {
+  protected DivTag errorDiv(Messages messages, FileUploadQuestion fileUploadQuestion) {
     return div(fileUploadQuestion.fileRequiredMessage().getMessage(messages))
         .withClasses(
             ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, Styles.HIDDEN);
