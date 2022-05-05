@@ -14,7 +14,7 @@ import j2html.tags.specialized.OptionTag;
 public class SelectWithLabel extends FieldWithLabel<SelectTag> {
 
   private ImmutableMap<String, String> options = ImmutableMap.of();
-  private ImmutableList<ContainerTag> customOptions = ImmutableList.of();
+  private ImmutableList<OptionTag> customOptions = ImmutableList.of();
 
   public SelectWithLabel() {
     super<SelectTag>(select());
@@ -39,7 +39,7 @@ public class SelectWithLabel extends FieldWithLabel<SelectTag> {
    * If you want more flexibility over your options (for example, if you want to add individual
    * classes or other attributes), set custom options here.
    */
-  public SelectWithLabel setCustomOptions(ImmutableList<ContainerTag> options) {
+  public SelectWithLabel setCustomOptions(ImmutableList<OptionTag> options) {
     this.customOptions = options;
     return this;
   }
