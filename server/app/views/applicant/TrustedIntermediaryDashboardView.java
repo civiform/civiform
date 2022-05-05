@@ -18,6 +18,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.ti.routes;
 
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.TrTag;
+import j2html.tags.specialized.TdTag;
 
 import java.util.Comparator;
 import java.util.Optional;
@@ -94,12 +98,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return layout.renderWithNav(request, userName, messages, bundle);
   }
 
-  private ContainerTag renderTIApplicantsTable(
+  private DivTag renderTIApplicantsTable(
       ImmutableList<Account> managedAccounts,
       Optional<String> search,
       int page,
       int totalPageCount) {
-    ContainerTag main =
+    DivTag main =
         div(table()
                 .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_3_4)
                 .with(renderApplicantTableHeader())
@@ -119,7 +123,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 routes.TrustedIntermediaryController.dashboard(search, Optional.of(pageNumber))));
   }
 
-  private ContainerTag renderTIMembersTable(TrustedIntermediaryGroup tiGroup) {
+  private DivTag renderTIMembersTable(TrustedIntermediaryGroup tiGroup) {
     return div(
         table()
             .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_3_4)
@@ -133,8 +137,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         account -> renderTIRow(account)))));
   }
 
-  private Tag renderAddNewForm(TrustedIntermediaryGroup tiGroup, Http.Request request) {
-    ContainerTag formTag =
+  private DivTag renderAddNewForm(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+    FormTag formTag =
         form()
             .withMethod("POST")
             .attr("action", routes.TrustedIntermediaryController.addApplicant(tiGroup.id).url());
@@ -189,7 +193,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_1_2, Styles.MT_6);
   }
 
-  private Tag renderTIRow(Account ti) {
+  private TrTag renderTIRow(Account ti) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             Styles.BORDER_B,
@@ -199,7 +203,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderStatusCell(ti));
   }
 
-  private Tag renderApplicantRow(Account applicant) {
+  private TrTag renderApplicantRow(Account applicant) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             Styles.BORDER_B,
@@ -210,7 +214,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderActionsCell(applicant));
   }
 
-  private Tag renderApplicantInfoCell(Account applicantAccount) {
+  private TdTag renderApplicantInfoCell(Account applicantAccount) {
     int applicationCount =
         applicantAccount.getApplicants().stream()
             .map(applicant -> applicant.getApplications().size())
@@ -221,7 +225,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderActionsCell(Account applicant) {
+  private TdTag renderActionsCell(Account applicant) {
     Optional<Applicant> newestApplicant = applicant.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
@@ -238,7 +242,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderInfoCell(Account ti) {
+  private TdTag renderInfoCell(Account ti) {
     String emailField = ti.getEmailAddress();
     if (Strings.isNullOrEmpty(emailField)) {
       emailField = "(no email address)";
@@ -248,7 +252,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderStatusCell(Account ti) {
+  private TdTag renderStatusCell(Account ti) {
     String accountStatus = "OK";
     if (ti.ownedApplicantIds().isEmpty()) {
       accountStatus = "Not yet signed in.";
@@ -257,7 +261,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderApplicantTableHeader() {
+  private TrTag renderApplicantTableHeader() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
@@ -265,7 +269,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .with(th("Actions").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4)));
   }
 
-  private Tag renderGroupTableHeader() {
+  private TrTag renderGroupTableHeader() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
