@@ -356,8 +356,8 @@ public class CfJsonDocumentContext {
   }
 
   /**
-   * Attempt to read a double at the given path. Returns {@code Optional#empty} if the path does
-   * not exist or a value other than a number is found.
+   * Attempt to read a double at the given path. Returns {@code Optional#empty} if the path does not
+   * exist or a value other than a number is found.
    */
   public Optional<Double> readDouble(Path path) {
     try {
