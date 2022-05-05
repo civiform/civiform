@@ -191,6 +191,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
       throws ProgramNotFoundException {
     CiviFormProfileData profileData = profileFactory.createNewAdmin();
     CiviFormProfile missingAuthorityIdProfile = profileFactory.wrapProfileData(profileData);
+    resourceCreator.insertActiveProgram("test program");
 
     DynamicForm form =
         buildForm(
