@@ -3,6 +3,8 @@
 version: '3.4'
 services:
   civiform:
+    image: civiform-dev
+    build: .. # build the civiform-dev image.
     volumes:
       - ./server:/usr/src/server
       - target:/usr/src/server/target
