@@ -382,6 +382,8 @@ public class ApplicantServiceImpl implements ApplicantService {
   /**
    * Stage updates for an enumerator.
    *
+   * @return any failures to update the applicant data, containing the desired {@link Path} as well
+   *     as the raw string value that failed update.
    * @throws PathNotInBlockException for updates that aren't {@link Scalar#ENTITY_NAME}, or {@link
    *     Scalar#DELETE_ENTITY}.
    */
@@ -481,6 +483,8 @@ public class ApplicantServiceImpl implements ApplicantService {
   /**
    * In-place update of {@link ApplicantData}. Adds program id and timestamp metadata with updates.
    *
+   * @return any failures to update the applicant data, containing the desired {@link Path} as well
+   *     as the raw string value that failed update.
    * @throws PathNotInBlockException if there are updates for questions that aren't in the block.
    * @throws UnsupportedScalarTypeException if there are updates for unsupported scalar types.
    */

@@ -45,7 +45,7 @@ public enum MessageKey {
   CONTENT_OR("content.or"),
   CONTENT_PLEASE_CREATE_ACCOUNT("content.pleaseCreateAccount"),
   CONTENT_SELECT_LANGUAGE("label.selectLanguage"),
-  DATE_VALIDATION_MISFORMATTED("validaton.dateMisformatted"),
+  DATE_VALIDATION_MISFORMATTED("validation.dateMisformatted"),
   DROPDOWN_PLACEHOLDER("placeholder.noDropdownSelection"),
   ENUMERATOR_BUTTON_ADD_ENTITY("button.addEntity"),
   ENUMERATOR_BUTTON_REMOVE_ENTITY("button.removeEntity"),

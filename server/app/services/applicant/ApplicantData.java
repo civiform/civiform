@@ -127,11 +127,21 @@ public class ApplicantData extends CfJsonDocumentContext {
     return super.asJsonString();
   }
 
+  /**
+   * Sets updates that couldn't be applied to the {@link ApplicantData}.
+   *
+   * @param updates Keys are the paths that couldn't be updated and values are the raw input that
+   *     couldn't be applied.
+   */
   public void setFailedUpdates(ImmutableMap<Path, String> updates) {
     checkLocked();
     failedUpdates = Optional.of(checkNotNull(updates));
   }
 
+  /**
+   * A map of updates that couldn't be applied to the {@link ApplicantData}. Keys are the paths that
+   * couldn't be updated and values are the raw input that couldn't be applied.
+   */
   public ImmutableMap<Path, String> getFailedUpdates() {
     return failedUpdates.orElse(ImmutableMap.of());
   }

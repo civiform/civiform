@@ -51,10 +51,11 @@ abstract class QuestionImpl implements Question {
         ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>builder()
             .putAll(Maps.filterEntries(getValidationErrorsInternal(), e -> !e.getValue().isEmpty()))
             .build();
+
     // We shouldn't have an empty error map if we failed to convert some of the input. If there
-    // aren't
-    // already errors, append a top-level error that the input couldn't be converted. In practice,
-    // this shouldn't happen as long as each question type is properly accounting for bad input.
+    // aren't already errors, append a top-level error that the input couldn't be converted. In
+    // practice, this shouldn't happen as long as each question type is properly accounting for bad
+    // input.
     if (result.isEmpty()
         && !failedUpdates.isEmpty()
         && getAllPaths().stream().anyMatch(failedUpdates::containsKey)) {

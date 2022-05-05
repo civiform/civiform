@@ -61,6 +61,7 @@ describe('currency applicant flow', () => {
 
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error'
+      // When there are no validation errors, the div still exists but is hidden.
       expect(await pageObject.isHidden(currencyError)).toEqual(true)
 
       // Input has not enough decimal points.
@@ -114,6 +115,7 @@ describe('currency applicant flow', () => {
 
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error >> nth=0'
+      // When there are no validation errors, the div still exists but is hidden.
       expect(await pageObject.isHidden(currencyError)).toEqual(true)
 
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency, 0)
@@ -129,6 +131,7 @@ describe('currency applicant flow', () => {
 
       await applicantQuestions.applyProgram(programName)
       const currencyError = '.cf-currency-value-error >> nth=1'
+      // When there are no validation errors, the div still exists but is hidden.
       expect(await pageObject.isHidden(currencyError)).toEqual(true)
 
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 0)
