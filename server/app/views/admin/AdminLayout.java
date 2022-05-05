@@ -8,6 +8,9 @@ import static j2html.TagCreator.span;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.NavTag;
 
 import javax.inject.Inject;
 import play.twirl.api.Content;
@@ -75,19 +78,19 @@ public class AdminLayout extends BaseHtmlLayout {
     return super.getBundle(bundle).addHeaderContent(renderNavBar());
   }
 
-  private ContainerTag renderNavBar() {
+  private NavTag renderNavBar() {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
 
-    ContainerTag headerIcon =
+    DivTag headerIcon =
         div(span("C"), span("F").withClasses(Styles.FONT_THIN))
             .withClasses(AdminStyles.ADMIN_NAV_BAR);
-    ContainerTag headerTitle =
+    DivTag headerTitle =
         div()
             .withClasses(
                 Styles.FONT_NORMAL, Styles.INLINE, Styles.PL_10, Styles.PY_0, Styles.TEXT_XL)
             .with(span("Civi"), span("Form").withClasses(Styles.FONT_THIN));
 
-    ContainerTag adminHeader =
+    NavTag adminHeader =
         nav().with(headerIcon, headerTitle).withClasses(AdminStyles.NAV_STYLES);
 
     // Don't include nav links for program admin.
@@ -108,7 +111,7 @@ public class AdminLayout extends BaseHtmlLayout {
         .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT));
   }
 
-  private Tag headerLink(String text, String href, String... styles) {
+  private ATag headerLink(String text, String href, String... styles) {
     return a(text)
         .withHref(href)
         .withClasses(
@@ -119,14 +122,14 @@ public class AdminLayout extends BaseHtmlLayout {
   }
 
   /** Renders a div with internal/admin program information. */
-  public Tag renderProgramInfo(ProgramDefinition programDefinition) {
-    ContainerTag programStatus =
+  public DivTag renderProgramInfo(ProgramDefinition programDefinition) {
+    DivTag programStatus =
         div("Draft").withId("program-status").withClasses(Styles.TEXT_XS, Styles.UPPERCASE);
-    ContainerTag programTitle =
+    DivTag programTitle =
         div(programDefinition.adminName())
             .withId("program-title")
             .withClasses(Styles.TEXT_3XL, Styles.PB_3);
-    ContainerTag programDescription =
+    DivTag programDescription =
         div(programDefinition.adminDescription()).withClasses(Styles.TEXT_SM);
 
     return div(programStatus, programTitle, programDescription)
