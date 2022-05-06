@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
+import services.program.ProgramQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import support.QuestionAnswerer;
 
@@ -38,9 +39,13 @@ public class NameQuestionTest {
   }
 
   @Test
-  public void withEmptyApplicantData() {
+  public void withEmptyApplicantData_optionalQuestion() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(nameQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            ProgramQuestionDefinition.create(nameQuestionDefinition, Optional.empty())
+                .setOptional(true),
+            applicantData,
+            Optional.empty());
 
     NameQuestion nameQuestion = new NameQuestion(applicantQuestion);
 

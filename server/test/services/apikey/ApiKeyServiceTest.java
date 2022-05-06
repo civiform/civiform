@@ -21,7 +21,7 @@ import play.data.FormFactory;
 import repository.ApiKeyRepository;
 import repository.ResetPostgres;
 import services.DateConverter;
-import services.apikey.ApiKeyService.ApiKeyMutationResult;
+import services.apikey.ApiKeyService.ApiKeyCreationResult;
 import services.program.ProgramNotFoundException;
 
 public class ApiKeyServiceTest extends ResetPostgres {
@@ -31,6 +31,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
   ProfileFactory profileFactory;
   CiviFormProfile adminProfile;
   FormFactory formFactory;
+  DateConverter dateConverter;
 
   @Before
   public void setUp() throws Exception {
@@ -41,6 +42,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
     adminProfile = profileFactory.wrapProfileData(profileData);
     adminProfile.setAuthorityId("authority-id").join();
     formFactory = instanceOf(FormFactory.class);
+    dateConverter = instanceOf(DateConverter.class);
   }
 
   @Test
@@ -55,11 +57,11 @@ public class ApiKeyServiceTest extends ResetPostgres {
                 "subnet", "0.0.0.1/32",
                 "grant-program-read[test-program]", "true"));
 
-    ApiKeyMutationResult apiKeyMutationResult = apiKeyService.createApiKey(form, adminProfile);
+    ApiKeyCreationResult apiKeyCreationResult = apiKeyService.createApiKey(form, adminProfile);
 
-    assertThat(apiKeyMutationResult.getForm().errors()).isEmpty();
+    assertThat(apiKeyCreationResult.successful()).isTrue();
 
-    String credentialString = apiKeyMutationResult.getCredentials();
+    String credentialString = apiKeyCreationResult.getCredentials();
     byte[] keyIdBytes = Base64.getDecoder().decode(credentialString);
     String keyId =
         Iterables.get(Splitter.on(':').split(new String(keyIdBytes, StandardCharsets.UTF_8)), 0);
@@ -68,7 +70,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
     assertThat(apiKey.getName()).isEqualTo("test key");
     assertThat(apiKey.getSubnet()).isEqualTo("0.0.0.1/32");
     assertThat(apiKey.getExpiration())
-        .isEqualTo(DateConverter.parseIso8601DateToStartOfDateInstant("2020-01-30"));
+        .isEqualTo(dateConverter.parseIso8601DateToStartOfDateInstant("2020-01-30"));
     assertThat(apiKey.getGrants().hasProgramPermission("test-program", Permission.READ)).isTrue();
   }
 
@@ -81,9 +83,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
                 "expiration", "2020-01-30",
                 "subnet", "0.0.0.1/32"));
 
-    ApiKeyMutationResult apiKeyMutationResult = apiKeyService.createApiKey(form, adminProfile);
+    ApiKeyCreationResult apiKeyCreationResult = apiKeyService.createApiKey(form, adminProfile);
 
-    assertThat(apiKeyMutationResult.getForm().error("keyName").get().message())
+    assertThat(apiKeyCreationResult.getForm().error("keyName").get().message())
         .isEqualTo("Key name cannot be blank.");
 
     form =
@@ -92,9 +94,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
                 "expiration", "2020-01-30",
                 "subnet", "0.0.0.1/32"));
 
-    apiKeyMutationResult = apiKeyService.createApiKey(form, adminProfile);
+    apiKeyCreationResult = apiKeyService.createApiKey(form, adminProfile);
 
-    assertThat(apiKeyMutationResult.getForm().error("keyName").get().message())
+    assertThat(apiKeyCreationResult.getForm().error("keyName").get().message())
         .isEqualTo("Key name cannot be blank.");
   }
 
@@ -106,9 +108,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
                 "keyName", "test key",
                 "subnet", "0.0.0.1/32"));
 
-    ApiKeyMutationResult apiKeyMutationResult = apiKeyService.createApiKey(form, adminProfile);
+    ApiKeyCreationResult apiKeyCreationResult = apiKeyService.createApiKey(form, adminProfile);
 
-    assertThat(apiKeyMutationResult.getForm().error("expiration").get().message())
+    assertThat(apiKeyCreationResult.getForm().error("expiration").get().message())
         .isEqualTo("Expiration cannot be blank.");
   }
 
@@ -121,9 +123,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
                 "expiration", "01-2020-30",
                 "subnet", "0.0.0.1/32"));
 
-    ApiKeyMutationResult apiKeyMutationResult = apiKeyService.createApiKey(form, adminProfile);
+    ApiKeyCreationResult apiKeyCreationResult = apiKeyService.createApiKey(form, adminProfile);
 
-    assertThat(apiKeyMutationResult.getForm().error("expiration").get().message())
+    assertThat(apiKeyCreationResult.getForm().error("expiration").get().message())
         .isEqualTo("Expiration must be in the form YYYY-MM-DD.");
   }
 
@@ -135,9 +137,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
                 "keyName", "test key",
                 "expiration", "2020-01-30"));
 
-    ApiKeyMutationResult apiKeyMutationResult = apiKeyService.createApiKey(form, adminProfile);
+    ApiKeyCreationResult apiKeyCreationResult = apiKeyService.createApiKey(form, adminProfile);
 
-    assertThat(apiKeyMutationResult.getForm().error("subnet").get().message())
+    assertThat(apiKeyCreationResult.getForm().error("subnet").get().message())
         .isEqualTo("Subnet cannot be blank.");
   }
 
@@ -150,10 +152,25 @@ public class ApiKeyServiceTest extends ResetPostgres {
                 "expiration", "2020-01-30",
                 "subnet", "0.1.1.1"));
 
-    ApiKeyMutationResult apiKeyMutationResult = apiKeyService.createApiKey(form, adminProfile);
+    ApiKeyCreationResult apiKeyCreationResult = apiKeyService.createApiKey(form, adminProfile);
 
-    assertThat(apiKeyMutationResult.getForm().error("subnet").get().message())
+    assertThat(apiKeyCreationResult.getForm().error("subnet").get().message())
         .isEqualTo("Subnet must be in CIDR notation.");
+  }
+
+  @Test
+  public void createApiKey_globalSubnet_reportsError() throws ProgramNotFoundException {
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "keyName", "test key",
+                "expiration", "2020-01-30",
+                "subnet", "0.1.1.1/0"));
+
+    ApiKeyCreationResult apiKeyCreationResult = apiKeyService.createApiKey(form, adminProfile);
+
+    assertThat(apiKeyCreationResult.getForm().error("subnet").get().message())
+        .isEqualTo("Subnet cannot allow all IP addresses.");
   }
 
   @Test
@@ -169,6 +186,25 @@ public class ApiKeyServiceTest extends ResetPostgres {
 
     assertThrows(
         ProgramNotFoundException.class, () -> apiKeyService.createApiKey(form, adminProfile));
+  }
+
+  @Test
+  public void createApiKey_profileMissingAuthorityId_raisesRuntimeException()
+      throws ProgramNotFoundException {
+    CiviFormProfileData profileData = profileFactory.createNewAdmin();
+    CiviFormProfile missingAuthorityIdProfile = profileFactory.wrapProfileData(profileData);
+    resourceCreator.insertActiveProgram("test program");
+
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "keyName", "test key",
+                "expiration", "2020-01-30",
+                "subnet", "0.0.0.1/32",
+                "grant-program-read[test-program]", "true"));
+
+    assertThrows(
+        RuntimeException.class, () -> apiKeyService.createApiKey(form, missingAuthorityIdProfile));
   }
 
   private DynamicForm buildForm(ImmutableMap<String, String> formContents) {

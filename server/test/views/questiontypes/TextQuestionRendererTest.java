@@ -16,6 +16,7 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
+import services.program.ProgramQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 import support.QuestionAnswerer;
@@ -40,9 +41,18 @@ public class TextQuestionRendererTest extends ResetPostgres {
 
   @Before
   public void setUp() {
-    question = new ApplicantQuestion(TEXT_QUESTION_DEFINITION, applicantData, Optional.empty());
+    question =
+        new ApplicantQuestion(
+            ProgramQuestionDefinition.create(TEXT_QUESTION_DEFINITION, Optional.empty())
+                .setOptional(true),
+            applicantData,
+            Optional.empty());
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
-    params = ApplicantQuestionRendererParams.sample(messages);
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
+            .build();
     renderer = new TextQuestionRenderer(question);
   }
 

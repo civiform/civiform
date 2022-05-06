@@ -13,7 +13,8 @@ set +x
 readonly LIB_DIR="${BASH_SOURCE%/*}/lib"
 
 # Control the name that `docker compose` preprends resources with.
-readonly COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:=$(basename $(pwd))}"
+export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:=$(basename $(pwd))}"
+export DOCKER_NETWORK_NAME="${DOCKER_NETWORK_NAME:=${COMPOSE_PROJECT_NAME}_default}"
 
 if [[ "${SOURCED_LIB}" != "true" ]]; then
   source "${LIB_DIR}/out.sh"

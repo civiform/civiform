@@ -24,7 +24,10 @@ public class ApplicantQuestionRendererParamsTest {
 
     Messages messages = stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
     ApplicantQuestionRendererParams params =
-        ApplicantQuestionRendererParams.builder().setMessages(messages).build();
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .build();
 
     assertThat(params.isSample()).isFalse();
   }

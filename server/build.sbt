@@ -22,14 +22,14 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.4.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.180",
+      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.183",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.5.0",
       "com.azure" % "azure-storage-blob" % "12.14.2",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.3.4",
+      "org.postgresql" % "postgresql" % "42.3.5",
       "org.junit.jupiter" % "junit-jupiter-engine" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-api" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-params" % "5.8.2" % Test,
@@ -54,13 +54,14 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
-      "org.pac4j" % "pac4j-core" % "5.4.2",
+      "org.pac4j" % "pac4j-core" % "5.4.3",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.4.2",
+      "org.pac4j" % "pac4j-http" % "5.4.3",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.4.2",
+      "org.pac4j" % "pac4j-oidc" % "5.4.3",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "5.4.2",
+      "org.pac4j" % "pac4j-saml" % "5.4.3",
+
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.9.0",
 
@@ -73,8 +74,10 @@ lazy val root = (project in file("."))
       "com.google.errorprone" % "error_prone_core" % "2.13.1",
 
       // Apache libraries for export
-      "org.apache.pdfbox" % "pdfbox" % "2.0.26",
       "org.apache.commons" % "commons-csv" % "1.9.0",
+      
+      //pdf library for export
+       "com.itextpdf" % "itextpdf" % "5.5.13.2",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "2.5",
@@ -106,7 +109,7 @@ lazy val root = (project in file("."))
     incOptions := incOptions.value.withTransitiveStep(2),
 
     // Make verbose tests
-    Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v")),
+    Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")),
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
     // Turn off scaladoc link warnings

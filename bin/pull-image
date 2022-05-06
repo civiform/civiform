@@ -15,6 +15,10 @@ if [[ -z "${USE_LOCAL_CIVIFORM}" ]]; then
   docker pull -q docker.io/civiform/oidc-provider:latest
   docker pull -q mcr.microsoft.com/azure-storage/azurite
   docker pull -q localstack/localstack
+
+  docker pull -q civiform/formatter:latest
+  docker pull -q civiform/civiform-browser-test:latest
+
 else
   echo "Using local civiform and dependency docker images"
 fi
