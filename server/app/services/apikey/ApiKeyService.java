@@ -52,9 +52,10 @@ public class ApiKeyService {
   private static final int KEY_ID_LENGTH = 128;
   private static final int KEY_SECRET_LENGTH = 256;
 
+  private final ApiKeyRepository repository;
   private final Environment environment;
   private final ProgramService programService;
-  private final ApiKeyRepository repository;
+  private final DateConverter dateConverter;
   private final String secretSalt;
   private final boolean banGlobalSubnet;
 
@@ -63,10 +64,12 @@ public class ApiKeyService {
       ApiKeyRepository repository,
       Environment environment,
       ProgramService programService,
+      DateConverter dateConverter,
       Config config) {
     this.repository = checkNotNull(repository);
     this.environment = checkNotNull(environment);
     this.programService = checkNotNull(programService);
+    this.dateConverter = checkNotNull(dateConverter);
     this.secretSalt = checkNotNull(config).getString("api_secret_salt");
     this.banGlobalSubnet = checkNotNull(config).getBoolean("api_keys_ban_global_subnet");
   }
@@ -139,7 +142,7 @@ public class ApiKeyService {
     }
 
     try {
-      Instant expiration = DateConverter.parseIso8601DateToStartOfDateInstant(expirationString);
+      Instant expiration = dateConverter.parseIso8601DateToStartOfDateInstant(expirationString);
       apiKey.setExpiration(expiration);
     } catch (DateTimeParseException e) {
       return form.withError(

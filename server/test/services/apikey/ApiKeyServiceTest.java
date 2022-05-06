@@ -31,6 +31,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
   ProfileFactory profileFactory;
   CiviFormProfile adminProfile;
   FormFactory formFactory;
+  DateConverter dateConverter;
 
   @Before
   public void setUp() throws Exception {
@@ -41,6 +42,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
     adminProfile = profileFactory.wrapProfileData(profileData);
     adminProfile.setAuthorityId("authority-id").join();
     formFactory = instanceOf(FormFactory.class);
+    dateConverter = instanceOf(DateConverter.class);
   }
 
   @Test
@@ -68,7 +70,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
     assertThat(apiKey.getName()).isEqualTo("test key");
     assertThat(apiKey.getSubnet()).isEqualTo("0.0.0.1/32");
     assertThat(apiKey.getExpiration())
-        .isEqualTo(DateConverter.parseIso8601DateToStartOfDateInstant("2020-01-30"));
+        .isEqualTo(dateConverter.parseIso8601DateToStartOfDateInstant("2020-01-30"));
     assertThat(apiKey.getGrants().hasProgramPermission("test-program", Permission.READ)).isTrue();
   }
 
