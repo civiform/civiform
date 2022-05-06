@@ -60,6 +60,25 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void submitApplication_doesNotUpdateOtherApplications() {
+    Applicant applicant1 = saveApplicant("Alice");
+    Applicant applicant2 = saveApplicant("Bob");
+
+    Program program1 = saveProgram("Program");
+    Program program2 = saveProgram("OtherProgram");
+
+    repo.createOrUpdateDraft(applicant1, program1).toCompletableFuture().join();
+
+    Application app2 =
+            repo.submitApplication(applicant2, program2, Optional.empty()).toCompletableFuture().join();
+    Instant appTwoInitialSubmitTime = app2.getSubmitTime();
+
+    repo.submitApplication(applicant1, program1, Optional.empty()).toCompletableFuture().join();
+
+    assertThat(app2.getSubmitTime()).isEqualTo(appTwoInitialSubmitTime);
+  }
+
+  @Test
   public void createOrUpdateDraftApplication_updatesExistingDraft() {
     Applicant applicant = saveApplicant("Alice");
     Program program = saveProgram("Program");
