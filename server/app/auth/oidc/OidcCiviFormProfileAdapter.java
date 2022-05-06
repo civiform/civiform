@@ -75,15 +75,24 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     return Optional.of(String.format("iss: %s sub: %s", issuer, subject));
   }
 
-  /** Merge the two provided profiles into a new CiviFormProfileData. */
+  /**
+   * Merge the two provided profiles into a new CiviformProfileData, making sure to create a new
+   * civiFormProfile if it doesn't already exist.
+   */
   public CiviFormProfileData mergeCiviFormProfile(
       Optional<CiviFormProfile> maybeCiviformProfile, OidcProfile oidcProfile) {
     var civiformProfile =
         maybeCiviformProfile.orElseGet(
             () -> {
               logger.debug("Found no existing profile in session cookie.");
-              return this.createEmptyCiviFormProfile(oidcProfile);
+              return createEmptyCiviFormProfile(oidcProfile);
             });
+    return mergeCiviFormProfile(civiformProfile, oidcProfile);
+  }
+
+  /** Merge the two provided profiles into a new CiviFormProfileData. */
+  protected CiviFormProfileData mergeCiviFormProfile(
+      CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
     String emailAddress =
         Optional.ofNullable(oidcProfile.getAttribute(emailAttributeName(), String.class))
             .orElseThrow(
@@ -106,7 +115,7 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     return civiformProfile.getProfileData();
   }
 
-  /** Create a totally new CiviForm profile from the provided OidcProfile. */
+  /** Create a totally new CiviForm profile informed by the provided OidcProfile. */
   public abstract CiviFormProfile createEmptyCiviFormProfile(OidcProfile profile);
 
   @Override
@@ -133,7 +142,7 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> existingProfile = profileUtils.currentUserProfile(context);
-    return civiFormProfileMerger.threeWayMerge(
+    return civiFormProfileMerger.mergeProfiles(
         existingApplicant, existingProfile, profile, this::mergeCiviFormProfile);
   }
 

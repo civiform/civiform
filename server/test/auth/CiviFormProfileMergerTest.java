@@ -59,11 +59,11 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
   }
 
   @Test
-  public void threeWayMerge_succeeds_noExistingApplicantAndNoExistingProfile() {
+  public void mergeProfiles_succeeds_noExistingApplicantAndNoExistingProfile() {
     var merged =
-        civiFormProfileMerger.threeWayMerge(
-            Optional.empty(),
-            Optional.empty(),
+        civiFormProfileMerger.mergeProfiles(
+            /* applicantInDatabase= */ Optional.empty(),
+            /* guestProfile= */ Optional.empty(),
             oidcProfile,
             (civiFormProfile, profile) -> {
               assertThat(civiFormProfile).isEmpty();
@@ -74,11 +74,11 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
   }
 
   @Test
-  public void threeWayMerge_succeeds_noExistingProfile() {
+  public void mergeProfiles_succeeds_noExistingProfile() {
     var merged =
-        civiFormProfileMerger.threeWayMerge(
-            Optional.of(applicant),
-            Optional.empty(),
+        civiFormProfileMerger.mergeProfiles(
+            /* applicantInDatabase= */ Optional.of(applicant),
+            /* guestProfile= */ Optional.empty(),
             oidcProfile,
             (civiFormProfile, profile) -> {
               var profileData = civiFormProfile.orElseThrow().getProfileData();
@@ -90,11 +90,11 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
   }
 
   @Test
-  public void threeWayMerge_succeeds_noExistingApplicant() {
+  public void mergeProfiles_succeeds_noExistingApplicant() {
     var merged =
-        civiFormProfileMerger.threeWayMerge(
+        civiFormProfileMerger.mergeProfiles(
             Optional.empty(),
-            Optional.of(profileFactory.wrapProfileData(civiFormProfileData)),
+            /* guestProfile= */ Optional.of(profileFactory.wrapProfileData(civiFormProfileData)),
             oidcProfile,
             (civiFormProfile, profile) -> {
               var profileData = civiFormProfile.orElseThrow().getProfileData();
@@ -106,7 +106,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
   }
 
   @Test
-  public void threeWayMerge_succeeds_afterTwoWayMerge() {
+  public void mergeProfiles_succeeds_afterTwoWayMerge() {
     var existingProfile = spy(profileFactory.wrapProfileData(civiFormProfileData));
     doReturn(completedFuture(account)).when(existingProfile).getAccount();
 
@@ -118,7 +118,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
         .mergeApplicants(applicant, applicant, account);
 
     var merged =
-        civiFormProfileMerger.threeWayMerge(
+        civiFormProfileMerger.mergeProfiles(
             Optional.of(applicant),
             Optional.of(existingProfile),
             oidcProfile,
