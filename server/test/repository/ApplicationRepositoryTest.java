@@ -70,7 +70,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     repo.createOrUpdateDraft(applicant1, program1).toCompletableFuture().join();
 
     Application app2 =
-            repo.submitApplication(applicant2, program2, Optional.empty()).toCompletableFuture().join();
+        repo.submitApplication(applicant2, program2, Optional.empty()).toCompletableFuture().join();
     Instant appTwoInitialSubmitTime = app2.getSubmitTime();
 
     repo.submitApplication(applicant1, program1, Optional.empty()).toCompletableFuture().join();
