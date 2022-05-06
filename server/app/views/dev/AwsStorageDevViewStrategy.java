@@ -37,7 +37,7 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
   }
 
   @Override
-  public ContainerTag getFileUploadForm(
+  public FormTag getFileUploadForm(
       ViewUtils viewUtils, StorageUploadRequest storageUploadRequest, HtmlBundle bundle)
       throws RuntimeException {
     if (!(storageUploadRequest instanceof SignedS3UploadRequest)) {
