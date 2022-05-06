@@ -1,7 +1,8 @@
 #! /usr/bin/env bash
 
-readonly TERRAFORM_BASE=("terraform" "-chdir=${TERRAFORM_TEMPLATE_DIR}")
-readonly TERRAFORM_APPLY=(${TERRAFORM_BASE[@]} "apply" "-input=false" "-var-file=${TF_VAR_FILENAME}")
+# https://www.baeldung.com/linux/store-command-in-variable
+readonly TERRAFORM_CMD=("terraform" "${TERRAFORM_DIR}")
+readonly TERRAFORM_APPLY=(${TERRAFORM_CMD[@]} "apply" "-input=false" "-var-file=${TF_VAR_FILENAME}")
 
 #######################################
 # Generates terraform variable files and runs terraform init and apply.
@@ -13,12 +14,12 @@ readonly TERRAFORM_APPLY=(${TERRAFORM_BASE[@]} "apply" "-input=false" "-var-file
 #######################################
 function terraform::perform_apply() {
   if [[ "${CIVIFORM_MODE}" == "dev" ]]; then
-    terraform "${TERRAFORM_DIR}" init -upgrade
+    "${TERRAFORM_CMD[@]}" init -upgrade
   else
     "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/setup_tf_shared_state" \
       "${TERRAFORM_TEMPLATE_DIR}/${BACKEND_VARS_FILENAME}"
 
-    terraform "${TERRAFORM_DIR}" \
+    "${TERRAFORM_CMD[@]}" \
       init \
       -input=false \
       -upgrade \
