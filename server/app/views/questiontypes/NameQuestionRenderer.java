@@ -40,11 +40,10 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setFieldName(nameQuestion.getFirstNamePath().toString())
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
                     .setValue(nameQuestion.getFirstNameValue().orElse(""))
-                    .setFieldErrors(messages, nameQuestion.getFirstNameErrorMessage())
-                    .showFieldErrors(
-                        !validationErrors
-                            .getOrDefault(nameQuestion.getFirstNamePath(), ImmutableSet.of())
-                            .isEmpty())
+                    .setFieldErrors(
+                        messages,
+                        validationErrors.getOrDefault(
+                            nameQuestion.getFirstNamePath(), ImmutableSet.of()))
                     .addReferenceClass(ReferenceClasses.NAME_FIRST)
                     .getContainer())
             .with(
@@ -53,17 +52,20 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName()))
                     .setValue(nameQuestion.getMiddleNameValue().orElse(""))
                     .addReferenceClass(ReferenceClasses.NAME_MIDDLE)
+                    .setFieldErrors(
+                        messages,
+                        validationErrors.getOrDefault(
+                            nameQuestion.getMiddleNamePath(), ImmutableSet.of()))
                     .getContainer())
             .with(
                 FieldWithLabel.input()
                     .setFieldName(nameQuestion.getLastNamePath().toString())
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
                     .setValue(nameQuestion.getLastNameValue().orElse(""))
-                    .setFieldErrors(messages, nameQuestion.getLastNameErrorMessage())
-                    .showFieldErrors(
-                        !validationErrors
-                            .getOrDefault(nameQuestion.getLastNamePath(), ImmutableSet.of())
-                            .isEmpty())
+                    .setFieldErrors(
+                        messages,
+                        validationErrors.getOrDefault(
+                            nameQuestion.getLastNamePath(), ImmutableSet.of()))
                     .addReferenceClass(ReferenceClasses.NAME_LAST)
                     .getContainer());
 

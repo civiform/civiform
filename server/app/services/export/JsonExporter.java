@@ -115,8 +115,8 @@ public class JsonExporter {
                     .asApplicationPath()
                     .replacingLastSegment("currency_dollars");
 
-            if (currencyQuestion.getValue().isPresent()) {
-              Long centsTotal = Long.valueOf(currencyQuestion.getValue().get().getCents());
+            if (currencyQuestion.getCurrencyValue().isPresent()) {
+              Long centsTotal = Long.valueOf(currencyQuestion.getCurrencyValue().get().getCents());
 
               jsonApplication.putDouble(path, centsTotal.doubleValue() / 100.0);
             } else {

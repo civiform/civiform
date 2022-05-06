@@ -19,6 +19,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
@@ -111,7 +112,7 @@ public class NumberQuestionTest extends ResetPostgres {
 
   @Test
   @Parameters({
-    "-1,Must be at least 50.",
+    "-1,Number must be a positive whole number and can only contain numeric characters 0-9.",
     "0,Must be at least 50.",
     "49,Must be at least 50.",
     "101,Must be at most 100.",
@@ -130,7 +131,7 @@ public class NumberQuestionTest extends ResetPostgres {
         numberQuestion.getValidationErrors();
     assertThat(validationErrors.size()).isEqualTo(1);
     ImmutableSet<ValidationErrorMessage> numberErrors =
-        validationErrors.getOrDefault(applicantQuestion.getContextualizedPath(), ImmutableSet.of());
+        validationErrors.getOrDefault(numberQuestion.getNumberPath(), ImmutableSet.of());
     assertThat(numberErrors).hasSize(1);
     String errorMessage = numberErrors.iterator().next().getMessage(messages);
     assertThat(errorMessage).isEqualTo(expectedErrorMessage);
@@ -147,5 +148,26 @@ public class NumberQuestionTest extends ResetPostgres {
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 
     assertThat(numberQuestion.getValidationErrors().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void withMisformattedNumber() {
+    Path numberPath =
+        ApplicantData.APPLICANT_PATH
+            .join(numberQuestionDefinition.getQuestionPathSegment())
+            .join(Scalar.NUMBER);
+    applicantData.setFailedUpdates(ImmutableMap.of(numberPath, "invalid_input"));
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(numberQuestionDefinition, applicantData, Optional.empty());
+
+    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
+
+    assertThat(numberQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>of(
+                numberQuestion.getNumberPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.NUMBER_VALIDATION_NON_INTEGER))));
+    assertThat(numberQuestion.getNumberValue().isPresent()).isFalse();
   }
 }

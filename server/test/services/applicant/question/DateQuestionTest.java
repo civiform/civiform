@@ -2,6 +2,8 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -12,7 +14,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.MessageKey;
+import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.ValidationErrorMessage;
 import services.question.types.DateQuestionDefinition;
 import support.QuestionAnswerer;
 
@@ -57,5 +62,26 @@ public class DateQuestionTest extends ResetPostgres {
 
     assertThat(dateQuestion.getDateValue().get()).isEqualTo("2021-05-10");
     assertThat(dateQuestion.getValidationErrors().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void withMisformattedDate() {
+    Path datePath =
+        ApplicantData.APPLICANT_PATH
+            .join(dateQuestionDefinition.getQuestionPathSegment())
+            .join(Scalar.DATE);
+    applicantData.setFailedUpdates(ImmutableMap.of(datePath, "invalid_input"));
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(dateQuestionDefinition, applicantData, Optional.empty());
+
+    DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
+
+    assertThat(dateQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.<Path, ImmutableSet<ValidationErrorMessage>>of(
+                dateQuestion.getDatePath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_MISFORMATTED))));
+    assertThat(dateQuestion.getDateValue().isPresent()).isFalse();
   }
 }

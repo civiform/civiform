@@ -45,8 +45,17 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   protected ReadOnlyApplicantProgramServiceImpl(
       ApplicantData applicantData, ProgramDefinition programDefinition, String baseUrl) {
+    this(applicantData, programDefinition, baseUrl, ImmutableMap.of());
+  }
+
+  protected ReadOnlyApplicantProgramServiceImpl(
+      ApplicantData applicantData,
+      ProgramDefinition programDefinition,
+      String baseUrl,
+      ImmutableMap<Path, String> failedUpdates) {
     this.applicantData = new ApplicantData(checkNotNull(applicantData).asJsonString());
     this.applicantData.setPreferredLocale(applicantData.preferredLocale());
+    this.applicantData.setFailedUpdates(failedUpdates);
     this.applicantData.lock();
     this.programDefinition = checkNotNull(programDefinition);
     this.baseUrl = checkNotNull(baseUrl);
