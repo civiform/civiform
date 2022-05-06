@@ -48,6 +48,7 @@ public class ApiKeyService {
   public static final String FORM_FIELD_NAME_KEY_NAME = "keyName";
   public static final String FORM_FIELD_NAME_EXPIRATION = "expiration";
   public static final String FORM_FIELD_NAME_SUBNET = "subnet";
+  public static final String DEFAULT_API_KEY_SECRET_SALT = "changeme";
 
   private static final int KEY_ID_LENGTH = 128;
   private static final int KEY_SECRET_LENGTH = 256;
@@ -86,7 +87,7 @@ public class ApiKeyService {
    */
   public ApiKeyCreationResult createApiKey(DynamicForm form, CiviFormProfile profile)
       throws ProgramNotFoundException {
-    if (environment.isProd() && secretSalt.equals("changeme")) {
+    if (environment.isProd() && secretSalt.equals(DEFAULT_API_KEY_SECRET_SALT)) {
       throw new RuntimeException("Must set api_secret_salt in production environment.");
     }
 
