@@ -109,7 +109,7 @@ public class JsonPathPredicateGeneratorTest {
         applicantEnumerator.getContextualizedPath(), ImmutableList.of("Xylia"));
 
     ImmutableList<RepeatedEntity> repeatedEntities =
-        RepeatedEntity.createRepeatedEntities(enumerator, applicantData);
+        RepeatedEntity.createRepeatedEntities(enumerator, Optional.empty(), applicantData);
     Optional<RepeatedEntity> repeatedEntity = repeatedEntities.stream().findFirst();
 
     // The block repeated entity context is the one for the repeated name question.
@@ -152,7 +152,7 @@ public class JsonPathPredicateGeneratorTest {
 
     // Just use a repeated entity for the first (index 0) entity.
     ImmutableList<RepeatedEntity> repeatedEntities =
-        RepeatedEntity.createRepeatedEntities(enumerator, applicantData);
+        RepeatedEntity.createRepeatedEntities(enumerator, Optional.empty(), applicantData);
     Optional<RepeatedEntity> repeatedEntity = repeatedEntities.stream().findFirst();
 
     generator =
@@ -196,7 +196,7 @@ public class JsonPathPredicateGeneratorTest {
     // Context for index 1 ('Alice')
     Optional<RepeatedEntity> topLevelRepeatedEntity =
         RepeatedEntity.createRepeatedEntities(
-                (EnumeratorQuestionDefinition) topLevelEnumerator, applicantData)
+                (EnumeratorQuestionDefinition) topLevelEnumerator, Optional.empty(), applicantData)
             .reverse()
             .stream()
             .findFirst();
@@ -210,7 +210,7 @@ public class JsonPathPredicateGeneratorTest {
         topLevelRepeatedEntity
             .get()
             .createNestedRepeatedEntities(
-                (EnumeratorQuestionDefinition) nestedEnumerator, applicantData)
+                (EnumeratorQuestionDefinition) nestedEnumerator, Optional.empty(), applicantData)
             .stream()
             .findFirst();
 
@@ -255,7 +255,7 @@ public class JsonPathPredicateGeneratorTest {
     // Context for 'Alice'
     Optional<RepeatedEntity> currentContext =
         RepeatedEntity.createRepeatedEntities(
-                (EnumeratorQuestionDefinition) topLevelEnumerator, applicantData)
+                (EnumeratorQuestionDefinition) topLevelEnumerator, Optional.empty(), applicantData)
             .reverse()
             .stream()
             .findFirst();

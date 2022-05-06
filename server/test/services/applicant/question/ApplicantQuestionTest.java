@@ -254,6 +254,7 @@ public class ApplicantQuestionTest {
         RepeatedEntity.createRepeatedEntities(
                 (EnumeratorQuestionDefinition)
                     testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+                Optional.empty(),
                 applicantData)
             .get(0);
     RepeatedEntity jonCo =
@@ -261,6 +262,7 @@ public class ApplicantQuestionTest {
             .createNestedRepeatedEntities(
                 (EnumeratorQuestionDefinition)
                     testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
+                Optional.empty(),
                 applicantData)
             .get(0);
 
