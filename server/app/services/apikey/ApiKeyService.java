@@ -2,6 +2,7 @@ package services.apikey;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.ApiKeyGrants;
 import auth.ApiKeyGrants.Permission;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableSet;
@@ -86,7 +87,8 @@ public class ApiKeyService {
       throw new RuntimeException("Must set api_secret_salt in production environment.");
     }
 
-    ApiKey apiKey = new ApiKey();
+    ApiKeyGrants grants = resolveGrants(form);
+    ApiKey apiKey = new ApiKey(grants);
 
     // apiKey is an ebean entity/model and is mutable. form is play form object and is immutable.
     // adding validation error messages using form.withError returns a new form object with the
@@ -94,9 +96,6 @@ public class ApiKeyService {
     form = resolveKeyName(form, apiKey);
     form = resolveExpiration(form, apiKey);
     form = resolveSubnet(form, apiKey);
-
-    // No validation messages are set for grants, an error is thrown if they are invalid.
-    resolveGrants(form, apiKey);
 
     if (form.hasErrors()) {
       return ApiKeyCreationResult.failure(form);
@@ -181,8 +180,8 @@ public class ApiKeyService {
   private static final Pattern GRANT_PROGRAM_READ_PATTERN =
       Pattern.compile("^grant-program-read\\[([\\w\\-]+)\\]$");
 
-  private DynamicForm resolveGrants(DynamicForm form, ApiKey apiKey)
-      throws ProgramNotFoundException {
+  private ApiKeyGrants resolveGrants(DynamicForm form) throws ProgramNotFoundException {
+    ApiKeyGrants grants = new ApiKeyGrants();
     ImmutableSet<String> programSlugs = programService.getAllProgramSlugs();
 
     for (String formDataKey : form.rawData().keySet()) {
@@ -200,10 +199,10 @@ public class ApiKeyService {
         throw new ProgramNotFoundException(programSlug);
       }
 
-      apiKey.getGrants().grantProgramPermission(programSlug, Permission.READ);
+      grants.grantProgramPermission(programSlug, Permission.READ);
     }
 
-    return form;
+    return grants;
   }
 
   private String generateSecret(int length) {
