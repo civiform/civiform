@@ -90,6 +90,15 @@ public abstract class Path {
     return Path.create(segments().subList(0, segments().size() - 1));
   }
 
+  /** Returns a new path with the last segment replaced with the provided one. */
+  public Path replacingLastSegment(String finalSegment) {
+    return Path.create(
+        ImmutableList.<String>builder()
+            .addAll(segments().subList(0, segments().size() - 1))
+            .add(finalSegment)
+            .build());
+  }
+
   /**
    * Append a path to the path.
    *
