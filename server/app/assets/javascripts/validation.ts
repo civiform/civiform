@@ -14,7 +14,6 @@ class ValidationController {
   static readonly ENUMERATOR_DELETE_TEMPLATE = 'enumerator-delete-template'
   static readonly BLOCK_SUBMIT_BUTTON_ID = 'cf-block-submit'
 
-  isEnumeratorValid = true
   isFileUploadValid = true
 
   constructor() {
@@ -64,9 +63,7 @@ class ValidationController {
       // Whenever an input changes we need to revalidate.
       enumeratorInputs.forEach((enumeratorInput) => {
         enumeratorInput.addEventListener('input', () => {
-          ValidationController.VALIDATE_ON_INPUT
-            ? this.onEnumeratorChanged()
-            : this.maybeHideEnumeratorAddButton()
+          this.maybeHideEnumeratorAddButton();
         })
       })
 
@@ -80,16 +77,12 @@ class ValidationController {
               )
               newInputs.forEach((newInput) => {
                 newInput.addEventListener('input', () => {
-                  ValidationController.VALIDATE_ON_INPUT
-                    ? this.onEnumeratorChanged()
-                    : this.maybeHideEnumeratorAddButton()
+                  this.maybeHideEnumeratorAddButton()
                 })
               })
             }
           }
-          ValidationController.VALIDATE_ON_INPUT
-            ? this.onEnumeratorChanged()
-            : this.maybeHideEnumeratorAddButton()
+          this.maybeHideEnumeratorAddButton()
         }
       )
 
@@ -118,18 +111,12 @@ class ValidationController {
   }
 
   checkAllQuestionTypes() {
-    this.isEnumeratorValid = this.validateEnumeratorQuestion()
     this.isFileUploadValid = this.validateFileUploadQuestions()
     this.updateSubmitButton()
   }
 
   isValid() {
-    return this.isEnumeratorValid && this.isFileUploadValid
-  }
-
-  onEnumeratorChanged() {
-    this.isEnumeratorValid = this.validateEnumeratorQuestion()
-    this.updateSubmitButton()
+    return this.isFileUploadValid
   }
 
   onFileChanged() {
@@ -158,7 +145,9 @@ class ValidationController {
         enumeratorQuestion.querySelectorAll('input')
       )
         .filter(
-          (item) => item.id !== ValidationController.ENUMERATOR_DELETE_TEMPLATE
+          (item) => {
+            return item.id !== ValidationController.ENUMERATOR_DELETE_TEMPLATE &&
+              !item.classList.contains('hidden')
         )
         .map((item) => item.value)
 
@@ -172,37 +161,6 @@ class ValidationController {
       }
     }
     return hasEmptyInputs
-  }
-
-  /** Validates that there are no empty or indentical items in the list. */
-  validateEnumeratorQuestion(): boolean {
-    let isValid = true
-    const enumeratorQuestion = document.querySelector(
-      ValidationController.ENUMERATOR_QUESTION_CLASS
-    )
-    if (enumeratorQuestion) {
-      const enumeratorInputValues = Array.from(
-        enumeratorQuestion.querySelectorAll('input')
-      )
-        .filter(
-          (item) => item.id !== ValidationController.ENUMERATOR_DELETE_TEMPLATE
-        )
-        .map((item) => item.value)
-
-      // validate that there are no empty inputs.
-      const hasEmptyInputs = this.maybeHideEnumeratorAddButton()
-
-      // validate that there are no duplicate entries.
-      const hasDupes =
-        new Set(enumeratorInputValues).size !== enumeratorInputValues.length
-      isValid = isValid && !hasEmptyInputs && !hasDupes
-
-      const errorDiv = enumeratorQuestion.querySelector('.cf-enumerator-error')
-      if (errorDiv) {
-        errorDiv.classList.toggle('hidden', isValid)
-      }
-    }
-    return isValid
   }
 
   /** Validates that a file is selected. */

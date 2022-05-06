@@ -72,7 +72,6 @@ public final class ReferenceClasses {
   public static final String EMAIL_QUESTION = "cf-question-email";
 
   public static final String ENUMERATOR_QUESTION = "cf-question-enumerator";
-  public static final String ENUMERATOR_ERROR = "cf-enumerator-error";
 
   public static final String FILEUPLOAD_QUESTION = "cf-question-fileupload";
   public static final String FILEUPLOAD_ERROR = "cf-fileupload-error";

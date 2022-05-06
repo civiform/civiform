@@ -74,9 +74,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
 
     ImmutableSet<ValidationErrorMessage> questionErrors =
         validationErrors.getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
-    // TODO(#1944): Remove special handling for enumerators once client-side validation is removed
-    // and they don't render a separate div.
-    if (!questionErrors.isEmpty() && question.getType() != QuestionType.ENUMERATOR) {
+    if (!questionErrors.isEmpty()) {
       // Question error text
       questionTextDiv.with(BaseHtmlView.fieldErrors(messages, questionErrors));
     }

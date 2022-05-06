@@ -148,6 +148,12 @@ function removeExistingEnumeratorField(event: Event) {
   // submit the input to maintain entity ordering.
   const enumeratorFieldDiv = removeButton.parentElement
   enumeratorFieldDiv.classList.add('hidden')
+  // Why add the hidden class to the input as well?
+  // When toggling whether the "Add" button is enabled, we want to prevent
+  // this input from being considered, especially if the applicant were removing
+  // a blank input.
+  const enumeratorInput = enumeratorFieldDiv.querySelector('input')
+  enumeratorInput.classList.add('hidden')
 
   // Create a copy of the hidden deleted entity template. Set the value to this
   // button's ID, and set disabled to false so the data is submitted with the form.

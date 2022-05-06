@@ -157,7 +157,18 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.answerNameQuestion('Daffy', 'Duck')
     await applicantQuestions.clickNext()
 
+    // Put an empty answer in the nested enumerator for enum two
+    await applicantQuestions.addEnumeratorAnswer('')
+    await applicantQuestions.clickNext()
+
+    // Oops! Can't have blank lines.
+    // Verify that the error message is visible.
+    expect(await page.innerText('.cf-enumerator-error:visible')).toEqual(
+      'Please enter a value for each line.'
+    )
+
     // Put two things in the nested enumerator for enum two
+    await applicantQuestions.deleteEnumeratorEntityByIndex(1)
     await applicantQuestions.addEnumeratorAnswer('Banker')
     await applicantQuestions.addEnumeratorAnswer('Banker')
     await applicantQuestions.clickNext()
