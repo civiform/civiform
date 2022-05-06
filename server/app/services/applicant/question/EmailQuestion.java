@@ -14,7 +14,7 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class EmailQuestion extends QuestionImpl {
+public class EmailQuestion extends Question {
 
   private Optional<String> emailValue;
 

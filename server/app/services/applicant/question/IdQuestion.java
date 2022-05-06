@@ -16,7 +16,7 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class IdQuestion extends QuestionImpl {
+public class IdQuestion extends Question {
 
   private Optional<String> idValue;
 
