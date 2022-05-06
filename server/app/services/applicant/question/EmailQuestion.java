@@ -14,11 +14,11 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class EmailQuestion extends Question {
+public final class EmailQuestion extends Question {
 
   private Optional<String> emailValue;
 
-  public EmailQuestion(ApplicantQuestion applicantQuestion) {
+  EmailQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
   }
 
