@@ -85,8 +85,8 @@ public abstract class Question {
    * <p>This is the canonical representation to users in static contexts such as the review page and
    * data export.
    */
-  abstract String getAnswerString();
+  public abstract String getAnswerString();
 
   /** Return every path used by this question. */
-  abstract ImmutableList<Path> getAllPaths();
+  public abstract ImmutableList<Path> getAllPaths();
 }
