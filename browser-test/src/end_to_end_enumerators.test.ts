@@ -163,7 +163,7 @@ describe('End to end enumerator test', () => {
 
     // Oops! Can't have blank lines.
     // Verify that the error message is visible.
-    expect(await page.innerText('.cf-enumerator-error:visible')).toEqual(
+    expect(await page.innerText('.cf-applicant-question-errors:visible')).toEqual(
       'Please enter a value for each line.'
     )
 
@@ -175,7 +175,7 @@ describe('End to end enumerator test', () => {
 
     // Oops! Can't have duplicates.
     // Verify that the error message is visible.
-    expect(await page.innerText('.cf-enumerator-error:visible')).toEqual(
+    expect(await page.innerText('.cf-applicant-question-errors:visible')).toEqual(
       'Please enter a unique value for each line.'
     )
 

@@ -76,7 +76,8 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
         validationErrors.getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
     if (!questionErrors.isEmpty()) {
       // Question error text
-      questionTextDiv.with(BaseHtmlView.fieldErrors(messages, questionErrors));
+      questionTextDiv.with(BaseHtmlView.fieldErrors(messages, questionErrors,
+        ReferenceClasses.APPLICANT_QUESTION_ERRORS));
     }
 
     if (question.isRequiredButWasSkippedInCurrentProgram()) {
