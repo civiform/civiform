@@ -2,10 +2,12 @@ package modules;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import annotations.BindingAnnotations.Now;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.typesafe.config.Config;
 import java.time.Clock;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantServiceImpl;
@@ -32,9 +34,19 @@ public class MainModule extends AbstractModule {
   }
 
   @Provides
-  public Clock provideClock(Config config) {
-    ZoneId zoneId = ZoneId.of(checkNotNull(config).getString("civiform.time.zoneid"));
+  @Now
+  public LocalDateTime provideNow(Clock clock) {
+    return LocalDateTime.now(clock);
+  }
+
+  @Provides
+  public Clock provideClock(ZoneId zoneId) {
     // Use the system clock as the default implementation of Clock
     return Clock.system(zoneId);
+  }
+
+  @Provides
+  public ZoneId provideZoneId(Config config) {
+    return ZoneId.of(checkNotNull(config).getString("civiform.time.zoneid"));
   }
 }

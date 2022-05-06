@@ -15,7 +15,6 @@ import com.azure.storage.common.sas.SasProtocol;
 import com.typesafe.config.Config;
 import java.net.URL;
 import java.net.URLConnection;
-import java.time.Clock;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -53,12 +52,13 @@ public class BlobStorage implements StorageClient {
   private final ZoneId zoneId;
 
   @Inject
-  public BlobStorage(Credentials credentials, Config config, Environment environment, Clock clock) {
+  public BlobStorage(
+      Credentials credentials, Config config, Environment environment, ZoneId zoneId) {
 
     this.credentials = checkNotNull(credentials);
     this.container = checkNotNull(config).getString(AZURE_CONTAINER_CONF_PATH);
     this.accountName = checkNotNull(config).getString(AZURE_STORAGE_ACCT_CONF_PATH);
-    this.zoneId = checkNotNull(clock).getZone();
+    this.zoneId = checkNotNull(zoneId);
     this.blobEndpoint = String.format("https://%s.blob.core.windows.net", accountName);
 
     if (environment.isDev()) {

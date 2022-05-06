@@ -16,7 +16,6 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.Tag;
-import java.time.Clock;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
@@ -41,9 +40,9 @@ public class VersionListView extends BaseHtmlView {
   private final ZoneId zoneId;
 
   @Inject
-  public VersionListView(AdminLayout layout, Config config, Clock clock) {
+  public VersionListView(AdminLayout layout, Config config, ZoneId zoneId) {
     this.layout = checkNotNull(layout);
-    this.zoneId = checkNotNull(clock).getZone();
+    this.zoneId = checkNotNull(zoneId);
   }
 
   public Content render(List<Version> allVersions, Http.Request request) {

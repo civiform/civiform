@@ -12,7 +12,6 @@ import auth.CiviFormProfile;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.Tag;
-import java.time.Clock;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
@@ -36,10 +35,10 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
   private final ZoneId zoneId;
 
   @Inject
-  public ProgramAdministratorProgramListView(AdminLayout layout, Config config, Clock clock) {
+  public ProgramAdministratorProgramListView(AdminLayout layout, Config config, ZoneId zoneId) {
     this.layout = checkNotNull(layout);
     this.baseUrl = checkNotNull(config).getString("base_url");
-    this.zoneId = checkNotNull(clock).getZone();
+    this.zoneId = checkNotNull(zoneId);
   }
 
   public Content render(
