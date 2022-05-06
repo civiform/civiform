@@ -3,6 +3,7 @@
 # DOC: Run npm in the dev environment's docker container.
 
 source bin/lib.sh
+docker::set_project_name_dev
 
 bin/pull-image
 

@@ -3,6 +3,8 @@
 # DOC: Load a postgres dump into the dev database (pg_restore), replacing whatever state is currently in it. Takes a file name argument, file must be in project base directory.
 
 source bin/lib.sh
+docker::set_project_name_dev
+readonly COMPOSE_CMD="${DOCKER_COMPOSE_DEV}"
 
 if [[ ! -f "${1}" ]]; then
   echo "Usage: bin/dev-restore-db DUMP_FILE_NAME"
@@ -10,7 +12,8 @@ if [[ ! -f "${1}" ]]; then
 fi
 
 # set TRUNCATE_SQL to heredoc contents
-TRUNCATE_SQL=$(cat <<EOF
+TRUNCATE_SQL=$(
+  cat <<EOF
 TRUNCATE TABLE files;
 TRUNCATE TABLE applications CASCADE;
 TRUNCATE TABLE applicants CASCADE;
@@ -27,23 +30,27 @@ EOF
 TRUNCATE_SQL="${TRUNCATE_SQL//$'\n'/}"
 
 # location of dump file in docker container
-readonly DUMP_FILE="project/${1}"
+readonly DUMP_FILE="${1}"
+
+${COMPOSE_CMD} up db \
+  --no-deps \
+  --wait \
+  -d
+
+${COMPOSE_CMD} cp ${DUMP_FILE} db:/${DUMP_FILE}
+
+echo "start truncate"
 
 # command for invoking psql with the dev database
-readonly TRUNCATE_DB_CMD="/usr/bin/psql -h db -U postgres -c '${TRUNCATE_SQL}' postgres"
+${COMPOSE_CMD} \
+  exec -it -e "PGPASSWORD=example" db \
+  /usr/bin/psql -h db -U postgres \
+  -c "${TRUNCATE_SQL}" postgres
+
+echo "start restore"
 
 # command for invoking pg_restore with the dev database
-
-readonly PG_RESTORE_CMD="/usr/bin/pg_restore -h db -U \
-  postgres -d postgres < ${DUMP_FILE}"
-
-readonly CMD="${TRUNCATE_DB_CMD} && ${PG_RESTORE_CMD}"
-
-docker::set_network_name_dev
-
-docker run --rm -it \
-  -v "$(pwd):/project" \
-  -e "PGPASSWORD=example" \
-  --network "${DOCKER_NETWORK_NAME}" \
-  postgres:12.5 \
-  /bin/bash -c "${CMD}"
+${COMPOSE_CMD} \
+  exec -it -e "PGPASSWORD=example" db \
+  /bin/sh -c "/usr/bin/pg_restore --clean -v -h db -U postgres -d postgres\
+  <\"${DUMP_FILE}\""

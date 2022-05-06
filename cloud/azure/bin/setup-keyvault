@@ -11,13 +11,12 @@ readonly TEMPORARY_SECRET="CHANGE ME"
 
 # DOC: Create key vault instance, set permissions, and generate and set secrets
 
-while getopts g:v:l: flag
-do
+while getopts g:v:l: flag; do
   case "${flag}" in
-    g) resource_group="${OPTARG}";;
-    v) vault_name="${OPTARG}";;
-    l) location="${OPTARG}";;
-    *) out::error "Unexpected getopts value ${flag}";;
+    g) resource_group="${OPTARG}" ;;
+    v) vault_name="${OPTARG}" ;;
+    l) location="${OPTARG}" ;;
+    *) out::error "Unexpected getopts value ${flag}" ;;
   esac
 done
 
@@ -26,8 +25,8 @@ readonly vault_name
 readonly location
 
 if [[ ! "${resource_group}" ]] \
-   || [[ ! "${vault_name}" ]] \
-   || [[ ! "${location}" ]]; then
+  || [[ ! "${vault_name}" ]] \
+  || [[ ! "${location}" ]]; then
   out::error "arguments -g, -v, and -l must be provided"
   exit 1
 fi

@@ -2,6 +2,7 @@ package services.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.github.slugify.Slugify;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -114,15 +115,19 @@ public class ProgramServiceImpl implements ProgramService {
       String displayMode) {
 
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+
     if (hasProgramNameCollision(adminName)) {
       errorsBuilder.add(CiviFormError.of("a program named " + adminName + " already exists"));
     }
+
     validateProgramText(errorsBuilder, "admin name", adminName);
     validateProgramText(errorsBuilder, "admin description", adminDescription);
     validateProgramText(errorsBuilder, "display name", defaultDisplayName);
     validateProgramText(errorsBuilder, "display description", defaultDisplayDescription);
     validateProgramText(errorsBuilder, "display mode", displayMode);
+
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
+
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -135,6 +140,7 @@ public class ProgramServiceImpl implements ProgramService {
             defaultDisplayDescription,
             externalLink,
             displayMode);
+
     program.addVersion(versionRepository.getDraftVersion());
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
@@ -209,8 +215,15 @@ public class ProgramServiceImpl implements ProgramService {
             .join());
   }
 
+  // Program names and program URL slugs must be unique in a given CiviForm
+  // system. If the slugs of two names collide, the names also collide, so
+  // we can check both by just checking for slug collisions.
+  // For more info on URL slugs see: https://en.wikipedia.org/wiki/Clean_URL#Slug
   private boolean hasProgramNameCollision(String programName) {
-    return getActiveAndDraftPrograms().getProgramNames().contains(programName);
+    Slugify slugifier = new Slugify();
+    return programRepository.getAllProgramNames().stream()
+        .map(slugifier::slugify)
+        .anyMatch(slugifier.slugify(programName)::equals);
   }
 
   private void validateProgramText(

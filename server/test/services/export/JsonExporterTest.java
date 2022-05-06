@@ -27,7 +27,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath(2, ".applicant_name.first_name", "Alice");
     resultAsserter.assertNullValueAtPath(2, ".applicant_name.middle_name");
     resultAsserter.assertValueAtPath(2, ".applicant_name.last_name", "Appleton");
-    resultAsserter.assertValueAtPath(2, ".applicant_birth_date.date", "01/01/1980");
+    resultAsserter.assertValueAtPath(2, ".applicant_birth_date.date", "1980-01-01");
     resultAsserter.assertValueAtPath(2, ".applicant_email_address.email", "one@example.com");
     resultAsserter.assertValueAtPath(2, ".applicant_address.zip", "54321");
     resultAsserter.assertValueAtPath(2, ".applicant_address.city", "city");
@@ -36,7 +36,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath(2, ".applicant_address.line2", "apt 100");
     resultAsserter.assertValueAtPath(
         2, ".applicant_favorite_color.text", "Some Value \" containing ,,, special characters");
-    resultAsserter.assertValueAtPath(2, ".applicant_monthly_income.currency_cents", 123456);
+    resultAsserter.assertValueAtPath(2, ".applicant_monthly_income.currency_dollars", 1234.56);
     resultAsserter.assertValueAtPath(
         2,
         ".applicant_file.file_key",
@@ -51,7 +51,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath(1, ".applicant_name.first_name", "Alice");
     resultAsserter.assertNullValueAtPath(1, ".applicant_name.middle_name");
     resultAsserter.assertValueAtPath(1, ".applicant_name.last_name", "Appleton");
-    resultAsserter.assertValueAtPath(1, ".applicant_birth_date.date", "01/01/1980");
+    resultAsserter.assertValueAtPath(1, ".applicant_birth_date.date", "1980-01-01");
     resultAsserter.assertValueAtPath(1, ".applicant_email_address.email", "one@example.com");
     resultAsserter.assertValueAtPath(1, ".applicant_address.zip", "54321");
     resultAsserter.assertValueAtPath(1, ".applicant_address.city", "city");
@@ -60,7 +60,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath(1, ".applicant_address.line2", "apt 100");
     resultAsserter.assertValueAtPath(
         1, ".applicant_favorite_color.text", "Some Value \" containing ,,, special characters");
-    resultAsserter.assertValueAtPath(1, ".applicant_monthly_income.currency_cents", 123456);
+    resultAsserter.assertValueAtPath(1, ".applicant_monthly_income.currency_dollars", 1234.56);
     resultAsserter.assertValueAtPath(
         1,
         ".applicant_file.file_key",
@@ -150,6 +150,11 @@ public class JsonExporterTest extends AbstractExporterTest {
     void assertValueAtPath(int resultNumber, String innerPath, int value) {
       Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
       assertThat(resultJson.readLong(path).get()).isEqualTo(value);
+    }
+
+    void assertValueAtPath(int resultNumber, String innerPath, double value) {
+      Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
+      assertThat(resultJson.readDouble(path).get()).isEqualTo(value);
     }
 
     void assertNullValueAtPath(int resultNumber, String innerPath) {

@@ -5,7 +5,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import com.itextpdf.text.DocumentException;
 import controllers.CiviFormController;
+import java.io.IOException;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -25,6 +27,7 @@ import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.export.ExporterService;
 import services.export.JsonExporter;
+import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -42,6 +45,7 @@ public class AdminApplicationController extends CiviFormController {
   private final ProgramApplicationView applicationView;
   private final ExporterService exporterService;
   private final JsonExporter jsonExporter;
+  private final PdfExporter pdfExporter;
   private final ProfileUtils profileUtils;
   private final Clock clock;
   private final MessagesApi messagesApi;
@@ -53,6 +57,7 @@ public class AdminApplicationController extends CiviFormController {
       ApplicantService applicantService,
       ExporterService exporterService,
       JsonExporter jsonExporter,
+      PdfExporter pdfExporter,
       ProgramApplicationListView applicationListView,
       ProgramApplicationView applicationView,
       ApplicationRepository applicationRepository,
@@ -68,6 +73,7 @@ public class AdminApplicationController extends CiviFormController {
     this.clock = checkNotNull(clock);
     this.exporterService = checkNotNull(exporterService);
     this.jsonExporter = checkNotNull(jsonExporter);
+    this.pdfExporter = checkNotNull(pdfExporter);
     this.messagesApi = checkNotNull(messagesApi);
   }
 
@@ -148,16 +154,35 @@ public class AdminApplicationController extends CiviFormController {
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
   }
 
-  /** Download a PDF file of the application to the program. This feature is not implemented yet. */
+  /** Download a PDF file of the application to the program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result download(Http.Request request, long programId, long applicationId) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-      throw new UnsupportedOperationException("Not yet implemented.");
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
+    } catch (CompletionException e) {
+      return unauthorized();
     }
+
+    Optional<Application> applicationMaybe =
+        this.applicationRepository.getApplication(applicationId).toCompletableFuture().join();
+
+    if (!applicationMaybe.isPresent()) {
+      return notFound(String.format("Application %d does not exist.", applicationId));
+    }
+    Application application = applicationMaybe.get();
+    PdfExporter.InMemoryPdf pdf;
+    try {
+      pdf = pdfExporter.export(application);
+    } catch (DocumentException | IOException e) {
+      throw new RuntimeException(e);
+    }
+    return ok(pdf.getByteArray())
+        .as("application/pdf")
+        .withHeader(
+            "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
   }
 
   /** Return a HTML page displaying the summary of the specified application. */

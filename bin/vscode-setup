@@ -5,6 +5,7 @@
 # compleation.  Needs to be rerun when dependancies are changed.
 
 source bin/lib.sh
+docker::set_project_name_dev
 
 bin/pull-image
 
@@ -24,7 +25,7 @@ cp server/temp/scala-*/*.pom \
 rm -rf server/temp
 
 BUILD=$(
-         cat <<END
+  cat <<END
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>

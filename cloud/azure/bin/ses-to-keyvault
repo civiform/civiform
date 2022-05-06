@@ -8,12 +8,11 @@ readonly AWS_ACCESS_KEY_ID_NAME="aws-access-key-id"
 
 # DOC: Get SES secrets from AWS CLI and add to Azure Key Vault
 
-while getopts v:u: flag
-do
+while getopts v:u: flag; do
   case "${flag}" in
-    v) VAULT_NAME="${OPTARG}";;
-    u) USERNAME="${OPTARG}";;
-    *) out::error "Unexpected getopts value ${flag}";;
+    v) VAULT_NAME="${OPTARG}" ;;
+    u) USERNAME="${OPTARG}" ;;
+    *) out::error "Unexpected getopts value ${flag}" ;;
   esac
 done
 
@@ -21,15 +20,15 @@ readonly VAULT_NAME
 readonly USERNAME
 
 if [[ ! "${VAULT_NAME}" ]] \
-   || [[ ! "${USERNAME}" ]]; then
+  || [[ ! "${USERNAME}" ]]; then
   out::error "arguments -v and -u must be provided"
   exit 1
 fi
 
 if key_vault::has_secret "${VAULT_NAME}" "${AWS_ACCESS_KEY_ID_NAME}"; then
-    echo "Access key exists in the secret store"
-    exit 0
-fi 
+  echo "Access key exists in the secret store"
+  exit 0
+fi
 
 echo "Getting an AWS access key"
 CREATED_KEY_RESULT="$(aws::create_access_key "${USERNAME}")"

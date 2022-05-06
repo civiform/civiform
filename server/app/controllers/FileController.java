@@ -44,7 +44,7 @@ public class FileController extends CiviFormController {
             v -> {
               // Ensure the file being accessed indeed belongs to the applicant.
               // The key is generated when the applicant first uploaded the file, see below link.
-              // https://github.com/seattle-uat/civiform/blob/4d1e90fddd3d6da2c4a249f4f78442d08f9088d3/universal-application-tool-0.0.1/app/views/applicant/ApplicantProgramBlockEditView.java#L128
+              // https://github.com/seattle-uat/civiform/blob/4d1e90fddd3d6da2c4a249f4f78442d08f9088d3/server/app/views/applicant/ApplicantProgramBlockEditView.java#L128
               if (!fileKey.contains(String.format("applicant-%d", applicantId))) {
                 return notFound();
               }

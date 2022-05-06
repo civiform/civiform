@@ -5,6 +5,8 @@ import static services.question.types.QuestionType.CURRENCY;
 
 import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.DocumentContext;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -19,6 +21,7 @@ import services.applicant.ApplicantService;
 import services.applicant.JsonPathProvider;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.CurrencyQuestion;
+import services.applicant.question.DateQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NumberQuestion;
 import services.program.ProgramDefinition;
@@ -106,10 +109,16 @@ public class JsonExporter {
           {
             CurrencyQuestion currencyQuestion =
                 answerData.applicantQuestion().createCurrencyQuestion();
-            Path path = currencyQuestion.getCurrencyPath().asApplicationPath();
+            Path path =
+                currencyQuestion
+                    .getCurrencyPath()
+                    .asApplicationPath()
+                    .replacingLastSegment("currency_dollars");
 
             if (currencyQuestion.getCurrencyValue().isPresent()) {
-              jsonApplication.putLong(path, currencyQuestion.getCurrencyValue().get().getCents());
+              Long centsTotal = Long.valueOf(currencyQuestion.getCurrencyValue().get().getCents());
+
+              jsonApplication.putDouble(path, centsTotal.doubleValue() / 100.0);
             } else {
               jsonApplication.putNull(path);
             }
@@ -123,6 +132,20 @@ public class JsonExporter {
 
             if (numberQuestion.getNumberValue().isPresent()) {
               jsonApplication.putLong(path, numberQuestion.getNumberValue().get());
+            } else {
+              jsonApplication.putNull(path);
+            }
+
+            break;
+          }
+        case DATE:
+          {
+            DateQuestion dateQuestion = answerData.applicantQuestion().createDateQuestion();
+            Path path = dateQuestion.getDatePath().asApplicationPath();
+
+            if (dateQuestion.getDateValue().isPresent()) {
+              LocalDate date = dateQuestion.getDateValue().get();
+              jsonApplication.putString(path, DateTimeFormatter.ISO_DATE.format(date));
             } else {
               jsonApplication.putNull(path);
             }

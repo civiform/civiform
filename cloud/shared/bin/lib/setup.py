@@ -70,6 +70,7 @@ try:
         "terraform",
         f"-chdir={template_dir}",
         "init",
+        "-input=false",
         "-upgrade",
     ]
     if config_loader.use_backend_config():
@@ -83,6 +84,7 @@ try:
         "terraform",
         f"-chdir={template_dir}",
         "apply",
+        "-input=false",
         f"-var-file={config_loader.tfvars_filename}"
     ])
 
@@ -97,6 +99,7 @@ try:
             "terraform",
             f"-chdir={template_dir}",
             "apply",
+            "-input=false",
             f"-var-file={config_loader.tfvars_filename}"
         ])
     subprocess.run([

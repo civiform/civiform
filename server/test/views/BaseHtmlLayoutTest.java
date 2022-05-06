@@ -23,7 +23,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     HtmlBundle bundle = layout.getBundle();
     Content content = layout.render(bundle);
 
-    assertThat(content.body()).contains("<!DOCTYPE html><html>");
+    assertThat(content.body()).contains("<!DOCTYPE html><html lang=\"en\">");
 
     assertThat(content.body())
         .contains("<link href=\"/assets/stylesheets/tailwind.css\" rel=\"stylesheet\">");
@@ -47,7 +47,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     bundle = layout.getBundle(bundle);
     Content content = layout.render(bundle);
 
-    assertThat(content.body()).contains("<!DOCTYPE html><html>");
+    assertThat(content.body()).contains("<!DOCTYPE html><html lang=\"en\">");
     assertThat(content.body())
         .contains(
             "<link href=\"moose.css\" rel=\"stylesheet\"><link"
