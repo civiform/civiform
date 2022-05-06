@@ -83,7 +83,8 @@ public class ProfileMergeTest extends ResetPostgres {
     OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.mergeCiviFormProfile(Optional.empty(), oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), oidcProfile);
     CiviFormProfile profile = profileFactory.wrapProfileData(profileData);
 
     assertThat(profileData.getEmail()).isEqualTo("foo@example.com");
@@ -99,7 +100,8 @@ public class ProfileMergeTest extends ResetPostgres {
         createOidcProfile("foo@example.com", "issuer to delete", "subject to delete");
 
     CiviFormProfileData existingProfileWithoutAuthority =
-        idcsProfileAdapter.mergeCiviFormProfile(Optional.empty(), oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), oidcProfile);
     Account account =
         database.find(Account.class).where().eq("email_address", "foo@example.com").findOne();
     account.setAuthorityId(null);
@@ -123,7 +125,8 @@ public class ProfileMergeTest extends ResetPostgres {
     OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.mergeCiviFormProfile(Optional.empty(), oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), oidcProfile);
 
     assertThat(
             idcsProfileAdapter
@@ -142,7 +145,8 @@ public class ProfileMergeTest extends ResetPostgres {
     newProfile.setId("subject");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.mergeCiviFormProfile(Optional.empty(), oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), oidcProfile);
 
     assertThatThrownBy(
             () ->
@@ -160,7 +164,8 @@ public class ProfileMergeTest extends ResetPostgres {
     newProfile.addAttribute("iss", "issuer");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.mergeCiviFormProfile(Optional.empty(), oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), oidcProfile);
 
     assertThatThrownBy(
             () ->
@@ -178,7 +183,8 @@ public class ProfileMergeTest extends ResetPostgres {
     newProfile.setId("subject");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.mergeCiviFormProfile(Optional.empty(), oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), oidcProfile);
 
     assertThatThrownBy(
             () ->
@@ -193,7 +199,8 @@ public class ProfileMergeTest extends ResetPostgres {
     OidcProfile conflictingProfile = createOidcProfile("bar@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.mergeCiviFormProfile(Optional.empty(), oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), oidcProfile);
 
     assertThatThrownBy(
             () ->
@@ -209,7 +216,8 @@ public class ProfileMergeTest extends ResetPostgres {
         createOidcProfile("foo@example.com", "issuer", "a different subject");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.mergeCiviFormProfile(Optional.empty(), oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), oidcProfile);
 
     assertThatThrownBy(
             () ->
@@ -225,7 +233,8 @@ public class ProfileMergeTest extends ResetPostgres {
         createOidcProfile("foo@example.com", "a different issuer", "subject");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.mergeCiviFormProfile(Optional.empty(), oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), oidcProfile);
 
     assertThatThrownBy(
             () ->
@@ -239,7 +248,8 @@ public class ProfileMergeTest extends ResetPostgres {
     SAML2Profile saml2Profile = createSamlProfile("foo@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
-        samlProfileAdapter.mergeCiviFormProfile(Optional.empty(), saml2Profile);
+        samlProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), saml2Profile);
     CiviFormProfile profile = profileFactory.wrapProfileData(profileData);
 
     assertThat(profileData.getEmail()).isEqualTo("foo@example.com");
@@ -252,7 +262,8 @@ public class ProfileMergeTest extends ResetPostgres {
     SAML2Profile saml2Profile = createSamlProfile("foo@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
-        samlProfileAdapter.mergeCiviFormProfile(Optional.empty(), saml2Profile);
+        samlProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), saml2Profile);
 
     assertThat(
             samlProfileAdapter
@@ -268,7 +279,8 @@ public class ProfileMergeTest extends ResetPostgres {
     SAML2Profile conflictingProfile = createSamlProfile("bar@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
-        samlProfileAdapter.mergeCiviFormProfile(Optional.empty(), saml2Profile);
+        samlProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), saml2Profile);
 
     assertThatThrownBy(
             () ->
@@ -286,7 +298,8 @@ public class ProfileMergeTest extends ResetPostgres {
     newProfile.addAuthenticationAttribute("issuerId", "issuer");
 
     CiviFormProfileData profileData =
-        samlProfileAdapter.mergeCiviFormProfile(Optional.empty(), saml2Profile);
+        samlProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), saml2Profile);
 
     assertThatThrownBy(
             () ->
@@ -304,7 +317,8 @@ public class ProfileMergeTest extends ResetPostgres {
     newProfile.setId("subject");
 
     CiviFormProfileData profileData =
-        samlProfileAdapter.mergeCiviFormProfile(Optional.empty(), saml2Profile);
+        samlProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), saml2Profile);
 
     assertThatThrownBy(
             () ->
@@ -320,7 +334,8 @@ public class ProfileMergeTest extends ResetPostgres {
         createSamlProfile("foo@example.com", "issuer", "a different subject");
 
     CiviFormProfileData profileData =
-        samlProfileAdapter.mergeCiviFormProfile(Optional.empty(), saml2Profile);
+        samlProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), saml2Profile);
 
     assertThatThrownBy(
             () ->
@@ -336,7 +351,8 @@ public class ProfileMergeTest extends ResetPostgres {
         createSamlProfile("foo@example.com", "a different issuer", "subject");
 
     CiviFormProfileData profileData =
-        samlProfileAdapter.mergeCiviFormProfile(Optional.empty(), saml2Profile);
+        samlProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviformProfile = */ Optional.empty(), saml2Profile);
 
     assertThatThrownBy(
             () ->

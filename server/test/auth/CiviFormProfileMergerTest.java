@@ -62,8 +62,8 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
   public void mergeProfiles_succeeds_noExistingApplicantAndNoExistingProfile() {
     var merged =
         civiFormProfileMerger.mergeProfiles(
-            /* applicantInDatabase= */ Optional.empty(),
-            /* guestProfile= */ Optional.empty(),
+            /* applicantInDatabase = */ Optional.empty(),
+            /* guestProfile = */ Optional.empty(),
             oidcProfile,
             (civiFormProfile, profile) -> {
               assertThat(civiFormProfile).isEmpty();
@@ -77,8 +77,8 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
   public void mergeProfiles_succeeds_noExistingProfile() {
     var merged =
         civiFormProfileMerger.mergeProfiles(
-            /* applicantInDatabase= */ Optional.of(applicant),
-            /* guestProfile= */ Optional.empty(),
+            Optional.of(applicant),
+            /* guestProfile = */ Optional.empty(),
             oidcProfile,
             (civiFormProfile, profile) -> {
               var profileData = civiFormProfile.orElseThrow().getProfileData();
@@ -93,8 +93,8 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
   public void mergeProfiles_succeeds_noExistingApplicant() {
     var merged =
         civiFormProfileMerger.mergeProfiles(
-            Optional.empty(),
-            /* guestProfile= */ Optional.of(profileFactory.wrapProfileData(civiFormProfileData)),
+            /* applicantInDatabase = */ Optional.empty(),
+            Optional.of(profileFactory.wrapProfileData(civiFormProfileData)),
             oidcProfile,
             (civiFormProfile, profile) -> {
               var profileData = civiFormProfile.orElseThrow().getProfileData();
