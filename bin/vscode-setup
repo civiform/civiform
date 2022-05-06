@@ -17,7 +17,7 @@ bin/sbt makePom
 
 # Copy the generated target directory from the docker container to a local dir
 # so that we can use globs to copy the correct file out.
-docker cp civiform-shell:/usr/src/server/target server/temp
+docker cp ${COMPOSE_PROJECT_NAME}-civiform-shell-1:/usr/src/server/target server/temp
 
 cp server/temp/scala-*/*.pom \
   server/pom.xml
