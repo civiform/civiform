@@ -8,10 +8,8 @@ class ValidationController {
    */
   static readonly VALIDATE_ON_INPUT = false
 
-  static readonly ENUMERATOR_QUESTION_CLASS = '.cf-question-enumerator'
   static readonly FILEUPLOAD_QUESTION_CLASS = '.cf-question-fileupload'
 
-  static readonly ENUMERATOR_DELETE_TEMPLATE = 'enumerator-delete-template'
   static readonly BLOCK_SUBMIT_BUTTON_ID = 'cf-block-submit'
 
   isFileUploadValid = true
@@ -31,9 +29,6 @@ class ValidationController {
 
   /** attach listeners so that we know when to update validations. */
   private addQuestionListeners() {
-    // Always at least add basic listener for enumerators.
-    this.addEnumeratorListeners()
-
     if (ValidationController.VALIDATE_ON_INPUT) {
       this.addFileUploadListener()
     }
@@ -46,52 +41,6 @@ class ValidationController {
       return false
     }
     return true
-  }
-
-  /** Add listeners to all enumerator inputs to update validation on changes. */
-  private addEnumeratorListeners() {
-    // Assumption: There is only ever zero or one enumerators per block.
-    const enumeratorQuestion = document.querySelector(
-      ValidationController.ENUMERATOR_QUESTION_CLASS
-    )
-    if (enumeratorQuestion) {
-      const enumeratorInputs = Array.from(
-        enumeratorQuestion.querySelectorAll('input')
-      ).filter(
-        (item) => item.id !== ValidationController.ENUMERATOR_DELETE_TEMPLATE
-      )
-      // Whenever an input changes we need to revalidate.
-      enumeratorInputs.forEach((enumeratorInput) => {
-        enumeratorInput.addEventListener('input', () => {
-          this.maybeHideEnumeratorAddButton();
-        })
-      })
-
-      // Whenever an input is added, we need to add a change listener.
-      let mutationObserver = new MutationObserver(
-        (records: MutationRecord[]) => {
-          for (const record of records) {
-            for (const newNode of Array.from(record.addedNodes)) {
-              const newInputs = Array.from(
-                (<Element>newNode).querySelectorAll('input')
-              )
-              newInputs.forEach((newInput) => {
-                newInput.addEventListener('input', () => {
-                  this.maybeHideEnumeratorAddButton()
-                })
-              })
-            }
-          }
-          this.maybeHideEnumeratorAddButton()
-        }
-      )
-
-      mutationObserver.observe(enumeratorQuestion, {
-        childList: true,
-        subtree: true,
-        characterDataOldValue: true,
-      })
-    }
   }
 
   /** Add listeners to file input to update validation on changes. */
@@ -132,35 +81,6 @@ class ValidationController {
     if (submitButton && ValidationController.VALIDATE_ON_INPUT) {
       submitButton.disabled = !submitEnabled
     }
-  }
-
-  /** if we have empty inputs then disable the add input button. (We don't need two blank inputs.) */
-  maybeHideEnumeratorAddButton(): boolean {
-    let hasEmptyInputs = false
-    const enumeratorQuestion = document.querySelector(
-      ValidationController.ENUMERATOR_QUESTION_CLASS
-    )
-    if (enumeratorQuestion) {
-      const enumeratorInputValues = Array.from(
-        enumeratorQuestion.querySelectorAll('input')
-      )
-        .filter(
-          (item) => {
-            return item.id !== ValidationController.ENUMERATOR_DELETE_TEMPLATE &&
-              !item.classList.contains('hidden')
-        )
-        .map((item) => item.value)
-
-      // validate that there are no empty inputs.
-      hasEmptyInputs = enumeratorInputValues.includes('')
-      const addButton = <HTMLInputElement>(
-        document.getElementById('enumerator-field-add-button')
-      )
-      if (addButton) {
-        addButton.disabled = hasEmptyInputs
-      }
-    }
-    return hasEmptyInputs
   }
 
   /** Validates that a file is selected. */
