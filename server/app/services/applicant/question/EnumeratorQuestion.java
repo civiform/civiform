@@ -55,7 +55,7 @@ public class EnumeratorQuestion extends QuestionImpl {
     }
     if (entityNames.stream().collect(ImmutableSet.toImmutableSet()).size() != entityNames.size()) {
       errorsBuilder.add(
-        ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME));
+          ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME));
     }
     return errorsBuilder.build();
   }

@@ -12,7 +12,6 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
-import services.question.types.QuestionType;
 import views.BaseHtmlView;
 import views.components.TextFormatter;
 import views.style.ApplicantStyles;
@@ -76,8 +75,9 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
         validationErrors.getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
     if (!questionErrors.isEmpty()) {
       // Question error text
-      questionTextDiv.with(BaseHtmlView.fieldErrors(messages, questionErrors,
-        ReferenceClasses.APPLICANT_QUESTION_ERRORS));
+      questionTextDiv.with(
+          BaseHtmlView.fieldErrors(
+              messages, questionErrors, ReferenceClasses.APPLICANT_QUESTION_ERRORS));
     }
 
     if (question.isRequiredButWasSkippedInCurrentProgram()) {

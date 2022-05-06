@@ -175,34 +175,30 @@ function addEnumeratorListeners() {
   if (enumeratorQuestion) {
     const enumeratorInputs = Array.from(
       enumeratorQuestion.querySelectorAll('input')
-    ).filter(
-      (item) => item.id !== 'enumerator-delete-template'
-    )
+    ).filter((item) => item.id !== 'enumerator-delete-template')
     // Whenever an input changes we need to revalidate.
     enumeratorInputs.forEach((enumeratorInput) => {
       enumeratorInput.addEventListener('input', () => {
-        maybeHideEnumeratorAddButton(enumeratorQuestion);
+        maybeHideEnumeratorAddButton(enumeratorQuestion)
       })
     })
 
     // Whenever an input is added, we need to add a change listener.
-    let mutationObserver = new MutationObserver(
-      (records: MutationRecord[]) => {
-        for (const record of records) {
-          for (const newNode of Array.from(record.addedNodes)) {
-            const newInputs = Array.from(
-              (<Element>newNode).querySelectorAll('input')
-            )
-            newInputs.forEach((newInput) => {
-              newInput.addEventListener('input', () => {
-                maybeHideEnumeratorAddButton(enumeratorQuestion)
-              })
+    let mutationObserver = new MutationObserver((records: MutationRecord[]) => {
+      for (const record of records) {
+        for (const newNode of Array.from(record.addedNodes)) {
+          const newInputs = Array.from(
+            (<Element>newNode).querySelectorAll('input')
+          )
+          newInputs.forEach((newInput) => {
+            newInput.addEventListener('input', () => {
+              maybeHideEnumeratorAddButton(enumeratorQuestion)
             })
-          }
+          })
         }
-        maybeHideEnumeratorAddButton(enumeratorQuestion)
       }
-    )
+      maybeHideEnumeratorAddButton(enumeratorQuestion)
+    })
 
     mutationObserver.observe(enumeratorQuestion, {
       childList: true,
@@ -213,16 +209,17 @@ function addEnumeratorListeners() {
 }
 
 /** if we have empty inputs then disable the add input button. (We don't need two blank inputs.) */
-function maybeHideEnumeratorAddButton(enumeratorQuestion : Element) {
+function maybeHideEnumeratorAddButton(enumeratorQuestion: Element) {
   if (enumeratorQuestion) {
     const enumeratorInputValues = Array.from(
       enumeratorQuestion.querySelectorAll('input')
     )
-      .filter(
-        (item) => {
-          return item.id !== 'enumerator-delete-template' &&
-            !item.classList.contains('hidden')
-      )
+      .filter((item) => {
+        return (
+          item.id !== 'enumerator-delete-template' &&
+          !item.classList.contains('hidden')
+        )
+      })
       .map((item) => item.value)
 
     // validate that there are no empty inputs.
@@ -484,7 +481,7 @@ window.addEventListener('load', (event) => {
   Array.from(document.querySelectorAll('.cf-enumerator-delete-button')).forEach(
     (el) => el.addEventListener('click', removeExistingEnumeratorField)
   )
-  addEnumeratorListeners();
+  addEnumeratorListeners()
 
   // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'
