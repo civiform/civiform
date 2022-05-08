@@ -5,7 +5,6 @@ import static j2html.TagCreator.div;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
-import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -38,11 +37,13 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setScreenReaderText(question.getQuestionText())
             .setFieldErrors(
                 params.messages(),
-                ImmutableSet.of(
-                    ValidationErrorMessage.create(MessageKey.CURRENCY_VALIDATION_MISFORMATTED)))
-            .showFieldErrors(false);
-    if (currencyQuestion.getValue().isPresent()) {
-      currencyField.setValue(currencyQuestion.getValue().get());
+                validationErrors.getOrDefault(
+                    currencyQuestion.getCurrencyPath(), ImmutableSet.of()));
+    if (currencyQuestion.getCurrencyValue().isPresent()) {
+      currencyField.setValue(currencyQuestion.getCurrencyValue().get().prettyPrint());
+    } else {
+      currencyField.setValue(
+          currencyQuestion.getFailedUpdates().getOrDefault(currencyQuestion.getCurrencyPath(), ""));
     }
 
     Tag dollarSign =

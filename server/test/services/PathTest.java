@@ -71,6 +71,12 @@ public class PathTest {
   }
 
   @Test
+  public void replacingLastSegment() {
+    Path path = Path.create("one.two.three.me");
+    assertThat(path.replacingLastSegment("you")).isEqualTo(Path.create("one.two.three.you"));
+  }
+
+  @Test
   public void keyName_emptyPath() {
     Path path = Path.empty();
     assertThat(path.keyName()).isEqualTo("");

@@ -9,5 +9,5 @@ bin/pull-image
 
 readonly COMPOSE_CMD="${DOCKER_COMPOSE_UNIT_TEST_DEV}"
 
-${COMPOSE_CMD} up -d
-${COMPOSE_CMD} exec civiform sbt "$@"
+${COMPOSE_CMD} up -d --wait
+${COMPOSE_CMD} exec -it civiform sbt -jvm-debug "*:8459" "$@"
