@@ -81,8 +81,8 @@ public abstract class BaseHtmlView {
     return CSRF.getToken(request.asScala()).value();
   }
 
-  protected String renderDateTime(Instant time) {
-    ZonedDateTime dateTime = time.atZone(ZoneId.of("America/Los_Angeles"));
+  protected String renderDateTime(Instant time, ZoneId zoneId) {
+    ZonedDateTime dateTime = time.atZone(zoneId);
     return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a z"));
   }
 

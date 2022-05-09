@@ -24,18 +24,16 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   @Test
   public void submitApplication_updatesOtherApplicationVersions() {
-    Applicant one = saveApplicant("Alice");
-    Program pOne = saveProgram("Program");
+    Applicant applicant = saveApplicant("Alice");
+    Program program = saveProgram("Program");
 
     Application appOne =
-        repo.submitApplication(one, pOne, Optional.empty()).toCompletableFuture().join();
+        repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
     Instant initialSubmitTime = appOne.getSubmitTime();
 
-    Application appTwoDraft = repo.createOrUpdateDraft(one, pOne).toCompletableFuture().join();
+    Application appTwoDraft =
+        repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
 
-    assertThat(repo.getApplication(appOne.id).toCompletableFuture().join()).contains(appOne);
-    assertThat(repo.getApplication(appTwoDraft.id).toCompletableFuture().join())
-        .contains(appTwoDraft);
     assertThat(
             repo.getApplication(appTwoDraft.id)
                 .toCompletableFuture()
@@ -44,16 +42,14 @@ public class ApplicationRepositoryTest extends ResetPostgres {
                 .getLifecycleStage())
         .isEqualTo(LifecycleStage.DRAFT);
 
-    // Submit another application that matches appOne.
-    repo.submitApplication(one, pOne, Optional.empty()).toCompletableFuture().join();
+    // Submit another application for the same program and applicant.
+    repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
 
-    // Ensure that the old one is now "obsolete".
     assertThat(
             repo.getApplication(appOne.id).toCompletableFuture().join().get().getLifecycleStage())
         .isEqualTo(LifecycleStage.OBSOLETE);
-    // Ensure the submit time didn't get changed when the application was set as obsolete.
     assertThat(appOne.getSubmitTime()).isEqualTo(initialSubmitTime);
-    // And that the DRAFT is now ACTIVE.
+
     assertThat(
             repo.getApplication(appTwoDraft.id)
                 .toCompletableFuture()
@@ -64,55 +60,47 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_doesNotUpdateOtherPrograms() {
-    Applicant one = saveApplicant("Alice");
-    Applicant two = saveApplicant("Bob");
+  public void submitApplication_doesNotUpdateOtherApplications() {
+    Applicant applicant1 = saveApplicant("Alice");
+    Applicant applicant2 = saveApplicant("Bob");
 
-    Program pOne = saveProgram("Program");
-    Program pTwo = saveProgram("OtherProgram");
+    Program program1 = saveProgram("Program");
+    Program program2 = saveProgram("OtherProgram");
 
-    Application appOne = repo.createOrUpdateDraft(one, pOne).toCompletableFuture().join();
+    repo.createOrUpdateDraft(applicant1, program1).toCompletableFuture().join();
 
-    Application appTwo =
-        repo.submitApplication(two, pTwo, Optional.empty()).toCompletableFuture().join();
+    Application app2 =
+        repo.submitApplication(applicant2, program2, Optional.empty()).toCompletableFuture().join();
+    Instant appTwoInitialSubmitTime = app2.getSubmitTime();
 
-    Instant appTwoInitialSubmitTime = appTwo.getSubmitTime();
+    repo.submitApplication(applicant1, program1, Optional.empty()).toCompletableFuture().join();
 
-    assertThat(repo.getApplication(appOne.id).toCompletableFuture().join()).contains(appOne);
-    assertThat(repo.getApplication(appTwo.id).toCompletableFuture().join()).contains(appTwo);
-
-    // Submit application for different program.
-    repo.submitApplication(one, pOne, Optional.empty()).toCompletableFuture().join();
-
-    // Ensure the submit time didn't get changed when the application was set as obsolete.
-    assertThat(appTwo.getSubmitTime()).isEqualTo(appTwoInitialSubmitTime);
+    assertThat(app2.getSubmitTime()).isEqualTo(appTwoInitialSubmitTime);
+    assertThat(app2.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
   }
 
   @Test
   public void createOrUpdateDraftApplication_updatesExistingDraft() {
     Applicant applicant = saveApplicant("Alice");
     Program program = saveProgram("Program");
-    Application application =
+    Application appDraft1 =
         repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
-    Application applicationTwo =
+    Application appDraft2 =
         repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
 
-    assertThat(application.id).isEqualTo(applicationTwo.id);
+    assertThat(appDraft1.id).isEqualTo(appDraft2.id);
     // Since this is a draft application, it shouldn't have a submit time set.
-    assertThat(applicationTwo.getSubmitTime()).isNull();
+    assertThat(appDraft2.getSubmitTime()).isNull();
   }
 
   @Test
-  public void submitApplication_twoDraftsSubmitLatest() {
+  public void submitApplication_twoDraftsThrowsException() {
     Applicant applicant = saveApplicant("Alice");
     Program program = saveProgram("Program");
-    Application appOne = Application.create(applicant, program, LifecycleStage.DRAFT);
-    Application appTwo = Application.create(applicant, program, LifecycleStage.DRAFT);
-    appOne.save();
-    appTwo.save();
-
-    assertThat(repo.getApplication(appOne.id).toCompletableFuture().join()).contains(appOne);
-    assertThat(repo.getApplication(appTwo.id).toCompletableFuture().join()).contains(appTwo);
+    Application appDraft1 = Application.create(applicant, program, LifecycleStage.DRAFT);
+    appDraft1.save();
+    Application appDraft2 = Application.create(applicant, program, LifecycleStage.DRAFT);
+    appDraft2.save();
 
     RuntimeException exception =
         assertThrows(
@@ -124,10 +112,18 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
     assertThat(exception.getCause().getMessage()).contains("Found more than one DRAFT application");
     assertThat(
-            repo.getApplication(appOne.id).toCompletableFuture().join().get().getLifecycleStage())
+            repo.getApplication(appDraft1.id)
+                .toCompletableFuture()
+                .join()
+                .get()
+                .getLifecycleStage())
         .isEqualTo(LifecycleStage.DRAFT);
     assertThat(
-            repo.getApplication(appTwo.id).toCompletableFuture().join().get().getLifecycleStage())
+            repo.getApplication(appDraft2.id)
+                .toCompletableFuture()
+                .join()
+                .get()
+                .getLifecycleStage())
         .isEqualTo(LifecycleStage.DRAFT);
   }
 

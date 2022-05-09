@@ -14,6 +14,7 @@ import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import play.mvc.Http;
@@ -34,11 +35,13 @@ import views.style.Styles;
 public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
+  private final ZoneId zoneId;
 
   @Inject
-  public ProgramIndexView(AdminLayout layout, Config config) {
+  public ProgramIndexView(AdminLayout layout, Config config, ZoneId zoneId) {
     this.layout = checkNotNull(layout);
     this.baseUrl = checkNotNull(config).getString("base_url");
+    this.zoneId = checkNotNull(zoneId);
   }
 
   public Content render(
@@ -138,7 +141,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     String lastEditText =
         displayProgram.lastModifiedTime().isPresent()
-            ? "Last updated: " + renderDateTime(displayProgram.lastModifiedTime().get())
+            ? "Last updated: " + renderDateTime(displayProgram.lastModifiedTime().get(), zoneId)
             : "Could not find latest update time";
     String programTitleText = displayProgram.adminName();
     String programDescriptionText = displayProgram.adminDescription();
