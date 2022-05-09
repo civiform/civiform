@@ -2,7 +2,9 @@ package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import annotations.BindingAnnotations.Now;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Provider;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -11,9 +13,9 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import javax.inject.Inject;
 import models.Application;
@@ -24,12 +26,12 @@ import services.applicant.ReadOnlyApplicantProgramService;
 /** PdfExporter is meant to generate PDF files. The functionality is not fully implemented yet. */
 public class PdfExporter {
   private final ApplicantService applicantService;
-  private final Clock clock;
+  private final Provider<LocalDateTime> nowProvider;
 
   @Inject
-  PdfExporter(ApplicantService applicantService, Clock clock) {
+  PdfExporter(ApplicantService applicantService, @Now Provider<LocalDateTime> nowProvider) {
     this.applicantService = checkNotNull(applicantService);
-    this.clock = checkNotNull(clock);
+    this.nowProvider = checkNotNull(nowProvider);
   }
   /**
    * Generates a byte array containing all the values present in the List of AnswerData using
@@ -46,8 +48,7 @@ public class PdfExporter {
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
     String applicantNameWithApplicationId =
         String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
-    String filename =
-        String.format("%s-%s.pdf", applicantNameWithApplicationId, clock.instant().toString());
+    String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, nowProvider.get());
     byte[] bytes =
         buildPDF(
             answers,
