@@ -142,6 +142,36 @@ function bastion::get_pg_restore_command() {
 }
 
 #######################################
+# Get the command to dump db data.
+# Arguments:
+#   1: the postgres host to connect to
+#   2: the vaultname where secrets are stored
+#   3: path of the dump data
+#######################################
+function bastion::get_pg_dump_command() {
+  local DB_PASSWORD=$(bastion::get_pg_password "${2}")
+  echo "export DEBIAN_FRONTEND='noninteractive'; \
+    sudo sh -c 'echo \"deb http://apt.postgresql.org/pub/repos/apt \
+      \$(lsb_release -cs)-pgdg main\" > /etc/apt/sources.list.d/pgdg.list'; \
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+      | sudo apt-key add -; \
+    yes | sudo apt-get update > /dev/null; \
+    yes | sudo apt-get install postgresql-14 > /dev/null; \
+    PGPASSWORD='${DB_PASSWORD}' /usr/lib/postgresql/14/bin/pg_dump \
+      -U psqladmin@${1} \
+      -w \
+      -Fc \
+      -h ${1} \
+      -t programs \
+      -t questions \
+      -t versions \
+      -t versions_programs \
+      -t versions_questions \
+      -f ${3} \
+      postgres"
+}
+
+#######################################
 # Copy a file to the bastion
 # Arguments:
 #   1: the ip of the vm you will connect to
@@ -152,6 +182,19 @@ function bastion::get_pg_restore_command() {
 function bastion::scp_to_bastion() {
   scp -i "${2}" "${3}" "adminuser@${1}:${4}"
 }
+
+#######################################
+# Copy a file to the local from bastion
+# Arguments:
+#   1: the ip of the vm you will connect to
+#   2: the key name to use to connect to
+#   3: location of the file you want to copy
+#   4: destination location on the bastion
+#######################################
+function bastion::scp_from_bastion() {
+  scp -i "${2}" "adminuser@${1}:${4}" "${3}"
+}
+
 
 #######################################
 # Add ssh keys to bastion
