@@ -31,7 +31,11 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
     this.layout = checkNotNull(layout);
   }
 
-  public Content render(Request request, DynamicForm form, ImmutableSet<String> programNames) {
+  public Content render(Request request, ImmutableSet<String> programNames) {
+    return render(request, programNames, /* dynamicForm= */ Optional.empty());
+  }
+
+  public Content render(Request request, ImmutableSet<String> programNames, Optional<DynamicForm> dynamicForm) {
     String title = "Create a new API key";
 
     ContainerTag formTag =
