@@ -36,6 +36,7 @@ public class AdminProgramController extends CiviFormController {
   private final FormFactory formFactory;
   private final VersionRepository versionRepository;
   private final ProfileUtils profileUtils;
+  private final RequestChecker requestChecker;
 
   @Inject
   public AdminProgramController(
@@ -45,7 +46,8 @@ public class AdminProgramController extends CiviFormController {
       ProgramEditView editView,
       VersionRepository versionRepository,
       ProfileUtils profileUtils,
-      FormFactory formFactory) {
+      FormFactory formFactory,
+      RequestChecker requestChecker) {
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
     this.newOneView = checkNotNull(newOneView);
@@ -53,6 +55,7 @@ public class AdminProgramController extends CiviFormController {
     this.versionRepository = checkNotNull(versionRepository);
     this.profileUtils = checkNotNull(profileUtils);
     this.formFactory = checkNotNull(formFactory);
+    this.requestChecker = checkNotNull(requestChecker);
   }
 
   /**
@@ -142,13 +145,15 @@ public class AdminProgramController extends CiviFormController {
 
   /** POST endpoint for updating the program in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result update(Request request, long id) {
+  public Result update(Request request, long programId) {
+    requestChecker.throwIfNotDraft(programId);
+
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
           service.updateProgramDefinition(
-              id,
+              programId,
               LocalizedStrings.DEFAULT_LOCALE,
               program.getAdminDescription(),
               program.getLocalizedDisplayName(),
@@ -157,11 +162,11 @@ public class AdminProgramController extends CiviFormController {
               program.getDisplayMode());
       if (result.isError()) {
         String errorMessage = joinErrors(result.getErrors());
-        return ok(editView.render(request, id, program, errorMessage));
+        return ok(editView.render(request, programId, program, errorMessage));
       }
       return redirect(routes.AdminProgramController.index().url());
     } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", id));
+      return notFound(String.format("Program ID %d not found.", programId));
     }
   }
 }

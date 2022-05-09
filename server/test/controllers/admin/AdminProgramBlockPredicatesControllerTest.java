@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
@@ -39,12 +40,11 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_withInvalidProgram_notFound() {
-    Http.Request request = fakeRequest().build();
-
-    Result result = controller.edit(request, 1L, 1L);
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  public void edit_withNonExistantProgram_notFound() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThrows(
+        NotChangeableException.class,
+        () -> controller.edit(fakeRequest().build(), programId, /* blockDefinitionId= */ 1));
   }
 
   @Test
@@ -55,6 +55,14 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     Result result = controller.edit(request, program.id, 543L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void edit_withActiveProgram_throws() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThrows(
+        NotChangeableException.class,
+        () -> controller.edit(fakeRequest().build(), programId, /* blockDefinitionId= */ 1));
   }
 
   @Test
@@ -259,6 +267,22 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
     Result redirectResult =
         controller.edit(addCSRFToken(fakeRequest()).build(), programWithThreeBlocks.id, 3L);
     assertThat(Helpers.contentAsString(redirectResult)).contains("This screen is always shown.");
+  }
+
+  @Test
+  public void update_withActiveProgram_throws() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThrows(
+        NotChangeableException.class,
+        () -> controller.update(fakeRequest().build(), programId, /* blockDefinitionId= */ 1));
+  }
+
+  @Test
+  public void destroy_activeProgram_throws() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThrows(
+        NotChangeableException.class,
+        () -> controller.destroy(programId, /* blockDefinitionId= */ 1));
   }
 
   @Test
