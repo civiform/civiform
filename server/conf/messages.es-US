@@ -209,7 +209,6 @@ validation.streetRequired=Por favor introduzca un nombre de la calle y número v
 validation.cityRequired=Por favor introduzca la ciudad.
 validation.currencyMisformatted=Las cifras monetarias deben estar en uno de los siguientes formatos: 1000 1,000 1000.30 1,000.30
 validation.stateRequired=Por favor introduzca el estado.
-validation.zipcodeRequired=Por favor introduzca un código postal válido.
 validation.invalidZipcode=Por favor introduzca el código postal de 5 dígitos.
 validation.noPoBox=Por favor introduzca una dirección postal válida. No se aceptan PO Boxes.
 

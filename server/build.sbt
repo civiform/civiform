@@ -22,7 +22,7 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.4.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.183",
+      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.185",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.5.0",
@@ -77,7 +77,7 @@ lazy val root = (project in file("."))
       "org.apache.commons" % "commons-csv" % "1.9.0",
       
       //pdf library for export
-       "com.itextpdf" % "itextpdf" % "5.5.13.2",
+       "com.itextpdf" % "itextpdf" % "5.5.13.3",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "2.5",
