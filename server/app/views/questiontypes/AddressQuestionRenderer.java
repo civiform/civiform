@@ -44,13 +44,10 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setPlaceholderText(
                         messages.at(MessageKey.ADDRESS_PLACEHOLDER_STREET.getKeyName()))
                     .setValue(addressQuestion.getStreetValue().orElse(""))
-                    // TODO(#1944): Once client-side validation is removed, instead
-                    // set errors to the result from validationErrors.
-                    .setFieldErrors(messages, addressQuestion.getStreetErrorMessage())
-                    .showFieldErrors(
-                        !validationErrors
-                            .getOrDefault(addressQuestion.getStreetPath(), ImmutableSet.of())
-                            .isEmpty())
+                    .setFieldErrors(
+                        messages,
+                        validationErrors.getOrDefault(
+                            addressQuestion.getStreetPath(), ImmutableSet.of()))
                     .addReferenceClass(ReferenceClasses.ADDRESS_STREET_1)
                     .getContainer(),
                 /** Second line of address entry: Address line 2 AKA apartment, unit, etc. */
@@ -75,21 +72,19 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_CITY.getKeyName()))
                             .setValue(addressQuestion.getCityValue().orElse(""))
                             .addReferenceClass(ReferenceClasses.ADDRESS_CITY)
-                            .setFieldErrors(messages, addressQuestion.getCityErrorMessage())
-                            .showFieldErrors(
-                                !validationErrors
-                                    .getOrDefault(addressQuestion.getCityPath(), ImmutableSet.of())
-                                    .isEmpty())
+                            .setFieldErrors(
+                                messages,
+                                validationErrors.getOrDefault(
+                                    addressQuestion.getCityPath(), ImmutableSet.of()))
                             .getContainer(),
                         FieldWithLabel.input()
                             .setFieldName(addressQuestion.getStatePath().toString())
                             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
                             .setValue(addressQuestion.getStateValue().orElse(""))
-                            .setFieldErrors(messages, addressQuestion.getStateErrorMessage())
-                            .showFieldErrors(
-                                !validationErrors
-                                    .getOrDefault(addressQuestion.getStatePath(), ImmutableSet.of())
-                                    .isEmpty())
+                            .setFieldErrors(
+                                messages,
+                                validationErrors.getOrDefault(
+                                    addressQuestion.getStatePath(), ImmutableSet.of()))
                             .addReferenceClass(ReferenceClasses.ADDRESS_STATE)
                             .getContainer(),
                         FieldWithLabel.input()
@@ -97,11 +92,10 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                             .setLabelText(
                                 messages.at(MessageKey.ADDRESS_LABEL_ZIPCODE.getKeyName()))
                             .setValue(addressQuestion.getZipValue().orElse(""))
-                            .setFieldErrors(messages, addressQuestion.getZipErrorMessage())
-                            .showFieldErrors(
-                                !validationErrors
-                                    .getOrDefault(addressQuestion.getZipPath(), ImmutableSet.of())
-                                    .isEmpty())
+                            .setFieldErrors(
+                                messages,
+                                validationErrors.getOrDefault(
+                                    addressQuestion.getZipPath(), ImmutableSet.of()))
                             .addReferenceClass(ReferenceClasses.ADDRESS_ZIP)
                             .getContainer()));
 

@@ -117,7 +117,7 @@ public class AddressQuestionTest {
                 addressQuestion.getZipPath(),
                     ImmutableSet.of(
                         ValidationErrorMessage.create(
-                            MessageKey.ADDRESS_VALIDATION_ZIPCODE_REQUIRED))));
+                            MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE))));
   }
 
   @Test

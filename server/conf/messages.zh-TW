@@ -73,7 +73,6 @@ validation.streetRequired=請輸入有效的街道名稱和號碼。
 validation.cityRequired=請輸入城市名。
 validation.currencyMisformatted=貨幣數值必須是以下格式：1000 1,000 1000.30 1,000.30
 validation.stateRequired=請輸入州名。
-validation.zipcodeRequired=請輸入有效的郵政編碼。
 validation.invalidZipcode=請輸入有效的 5 位數郵政編碼。
 validation.noPoBox=請輸入有效地址。我們不接受郵政信箱。
 validation.entityNameRequired=請在每一行輸入一個值。
