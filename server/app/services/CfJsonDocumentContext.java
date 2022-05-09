@@ -9,7 +9,6 @@ import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.mapper.MappingException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -311,7 +310,7 @@ public class CfJsonDocumentContext {
 
   public Optional<LocalDate> readDate(Path path) {
     return readLong(path)
-        .map(epoch -> Instant.ofEpochMilli(epoch).atZone(ZoneId.systemDefault()).toLocalDate());
+        .map(epoch -> Instant.ofEpochMilli(epoch).atOffset(ZoneOffset.UTC).toLocalDate());
   }
 
   /**
