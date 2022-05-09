@@ -153,7 +153,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 Optional<String> applicantName = applicantStage.toCompletableFuture().join();
                 return ok(
                     editView.render(
-                            buildApplicationBaseViewParams(
+                        buildApplicationBaseViewParams(
                             request,
                             applicantId,
                             programId,
@@ -204,7 +204,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 Optional<String> applicantName = applicantStage.toCompletableFuture().join();
                 return ok(
                     editView.render(
-                            buildApplicationBaseViewParams(
+                        buildApplicationBaseViewParams(
                             request,
                             applicantId,
                             programId,
