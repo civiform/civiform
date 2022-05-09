@@ -23,10 +23,7 @@ import services.MessageKey;
 import services.applicant.Block;
 import services.applicant.question.ApplicantQuestion;
 import services.cloud.StorageClient;
-import views.ApplicantUtils;
-import views.BaseHtmlView;
-import views.FileUploadViewStrategy;
-import views.HtmlBundle;
+import views.*;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -35,7 +32,7 @@ import views.style.ApplicantStyles;
 import views.style.Styles;
 
 /** Renders a page for answering questions in a program screen (block). */
-public final class ApplicantProgramBlockEditView extends BaseHtmlView {
+public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   private final String BLOCK_FORM_ID = "cf-block-form";
 
   private final ApplicantLayout layout;
@@ -161,118 +158,10 @@ public final class ApplicantProgramBlockEditView extends BaseHtmlView {
         .with(renderNextButton(params));
   }
 
-  private Tag renderReviewButton(Params params) {
-    String reviewUrl =
-        routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
-            .url();
-    return a().attr(HREF, reviewUrl)
-        .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
-        .withId("review-application-button")
-        .withClasses(ApplicantStyles.BUTTON_REVIEW);
-  }
-
-  private Tag renderPreviousButton(Params params) {
-    int previousBlockIndex = params.blockIndex() - 1;
-    String redirectUrl;
-
-    if (previousBlockIndex >= 0) {
-      redirectUrl =
-          routes.ApplicantProgramBlocksController.previous(
-                  params.applicantId(), params.programId(), previousBlockIndex, params.inReview())
-              .url();
-    } else {
-      redirectUrl =
-          routes.ApplicantProgramReviewController.preview(params.applicantId(), params.programId())
-              .url();
-    }
-
-    return a().attr(HREF, redirectUrl)
-        .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
-        .withClasses(ApplicantStyles.BUTTON_BLOCK_PREVIOUS)
-        .withId("cf-block-previous");
-  }
-
   private Tag renderNextButton(Params params) {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
         .withId("cf-block-submit");
   }
 
-  @AutoValue
-  public abstract static class Params {
-    public static Builder builder() {
-      return new AutoValue_ApplicantProgramBlockEditView_Params.Builder();
-    }
-
-    public abstract boolean inReview();
-
-    public abstract Http.Request request();
-
-    public abstract Messages messages();
-
-    public abstract int blockIndex();
-
-    public abstract int totalBlockCount();
-
-    public abstract long applicantId();
-
-    public abstract String programTitle();
-
-    public abstract long programId();
-
-    public abstract Block block();
-
-    public abstract boolean preferredLanguageSupported();
-
-    public abstract StorageClient storageClient();
-
-    public abstract String baseUrl();
-
-    public abstract Optional<String> applicantName();
-
-    public abstract ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode();
-
-    @AutoValue.Builder
-    public abstract static class Builder {
-      public abstract Builder setRequest(Http.Request request);
-
-      public abstract Builder setInReview(boolean inReview);
-
-      public abstract Builder setMessages(Messages messages);
-
-      public abstract Builder setBlockIndex(int blockIndex);
-
-      public abstract Builder setTotalBlockCount(int blockIndex);
-
-      public abstract Builder setApplicantId(long applicantId);
-
-      public abstract Builder setProgramTitle(String programTitle);
-
-      public abstract Builder setProgramId(long programId);
-
-      public abstract Builder setBlock(Block block);
-
-      public abstract Builder setPreferredLanguageSupported(boolean preferredLanguageSupported);
-
-      public abstract Builder setStorageClient(StorageClient storageClient);
-
-      public abstract Builder setBaseUrl(String baseUrl);
-
-      public abstract Builder setErrorDisplayMode(
-          ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode);
-
-      public abstract Builder setApplicantName(Optional<String> applicantName);
-
-      abstract Optional<String> applicantName();
-
-      abstract Messages messages();
-
-      abstract Params autoBuild();
-
-      public final Params build() {
-        setApplicantName(Optional.of(ApplicantUtils.getApplicantName(applicantName(), messages())));
-        return autoBuild();
-      }
-    }
-  }
 }

@@ -31,7 +31,7 @@ import views.style.Styles;
  * A strategy pattern that abstracts out the logic of file upload/download into the different cloud
  * providers.
  */
-public abstract class FileUploadViewStrategy {
+public abstract class FileUploadViewStrategy  extends ApplicationBaseView{
 
   static final String MIME_TYPES_IMAGES_AND_PDF = "image/*,.pdf";
   final String BLOCK_FORM_ID = "cf-block-form";
@@ -41,7 +41,7 @@ public abstract class FileUploadViewStrategy {
   final String FILEUPLOAD_DELETE_BUTTON_ID = "fileupload-delete-button";
   final String FILEUPLOAD_SKIP_BUTTON_ID = "fileupload-skip-button";
   final String FILEUPLOAD_CONTINUE_BUTTON_ID = "fileupload-continue-button";
-  final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
+
 
   /**
    * Method to generate the field tags for the file upload view form.
@@ -152,25 +152,6 @@ public abstract class FileUploadViewStrategy {
         .withId(FILEUPLOAD_SUBMIT_FORM_ID);
   }
 
-  protected Tag renderPreviousButton(Params params) {
-    int previousBlockIndex = params.blockIndex() - 1;
-    String redirectUrl;
-
-    if (previousBlockIndex >= 0) {
-      redirectUrl =
-          routes.ApplicantProgramBlocksController.previous(
-                  params.applicantId(), params.programId(), previousBlockIndex, params.inReview())
-              .url();
-    } else {
-      redirectUrl =
-          routes.ApplicantProgramReviewController.preview(params.applicantId(), params.programId())
-              .url();
-    }
-    return a().attr(HREF, redirectUrl)
-        .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
-        .withClasses(ApplicantStyles.BUTTON_BLOCK_PREVIOUS)
-        .withId("cf-block-previous");
-  }
 
   protected Tag renderFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params) {
@@ -180,16 +161,6 @@ public abstract class FileUploadViewStrategy {
   protected Tag renderEmptyFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, true);
-  }
-
-  protected Tag renderReviewButton(Params params) {
-    String reviewUrl =
-        routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
-            .url();
-    return a().attr(HREF, reviewUrl)
-        .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
-        .withId(REVIEW_APPLICATION_BUTTON_ID)
-        .withClasses(ApplicantStyles.BUTTON_REVIEW);
   }
 
   protected boolean hasUploadedFile(Params params) {
