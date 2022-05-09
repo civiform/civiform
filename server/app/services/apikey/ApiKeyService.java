@@ -47,6 +47,12 @@ public class ApiKeyService {
   public static final String FORM_FIELD_NAME_KEY_NAME = "keyName";
   public static final String FORM_FIELD_NAME_EXPIRATION = "expiration";
   public static final String FORM_FIELD_NAME_SUBNET = "subnet";
+
+  // This matches the default value specified in application.conf
+  // A hard-coded matching value is provided here to ensure that the admin
+  // does not create API keys with the default. The check for that is done
+  // here rather than requiring the value at runtime to avoid a deployment
+  // failing due to not specifying the value in prod.
   public static final String DEFAULT_API_KEY_SECRET_SALT = "changeme";
 
   private static final int KEY_ID_LENGTH = 128;
