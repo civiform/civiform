@@ -93,8 +93,7 @@ public class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
 
-    String filename =
-        String.format("%s-%s.json", program.adminName(), nowProvider.get().toString());
+    String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
     String json = jsonExporter.export(program);
 
     return ok(json)
@@ -108,8 +107,7 @@ public class AdminApplicationController extends CiviFormController {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-      String filename =
-          String.format("%s-%s.csv", program.adminName(), nowProvider.get().toString());
+      String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
       String csv = exporterService.getProgramAllVersionsCsv(programId);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
@@ -131,8 +129,7 @@ public class AdminApplicationController extends CiviFormController {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-      String filename =
-          String.format("%s-%s.csv", program.adminName(), nowProvider.get().toString());
+      String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
       String csv = exporterService.getProgramCsv(programId);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
@@ -152,7 +149,7 @@ public class AdminApplicationController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result downloadDemographics() {
-    String filename = String.format("demographics-%s.csv", nowProvider.get().toString());
+    String filename = String.format("demographics-%s.csv", nowProvider.get());
     String csv = exporterService.getDemographicsCsv();
     return ok(csv)
         .as(Http.MimeTypes.BINARY)

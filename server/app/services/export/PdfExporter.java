@@ -48,8 +48,7 @@ public class PdfExporter {
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
     String applicantNameWithApplicationId =
         String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
-    String filename =
-        String.format("%s-%s.pdf", applicantNameWithApplicationId, nowProvider.get().toString());
+    String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, nowProvider.get());
     byte[] bytes =
         buildPDF(
             answers,

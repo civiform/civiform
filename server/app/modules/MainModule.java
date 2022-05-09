@@ -41,7 +41,7 @@ public class MainModule extends AbstractModule {
 
   @Provides
   public Clock provideClock(ZoneId zoneId) {
-    // Use the system clock as the default implementation of Clock
+    // Use the system clock as the default implementation of Clock.
     return Clock.system(zoneId);
   }
 
