@@ -153,7 +153,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 Optional<String> applicantName = applicantStage.toCompletableFuture().join();
                 return ok(
                     editView.render(
-                        buildApplicantProgramBlockEditViewParams(
+                            buildApplicationBaseViewParams(
                             request,
                             applicantId,
                             programId,
@@ -204,7 +204,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 Optional<String> applicantName = applicantStage.toCompletableFuture().join();
                 return ok(
                     editView.render(
-                        buildApplicantProgramBlockEditViewParams(
+                            buildApplicationBaseViewParams(
                             request,
                             applicantId,
                             programId,
@@ -367,7 +367,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           () ->
               ok(
                   editView.render(
-                      buildApplicantProgramBlockEditViewParams(
+                      buildApplicationBaseViewParams(
                           request,
                           applicantId,
                           programId,
@@ -412,7 +412,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
-  private ApplicationBaseView.Params buildApplicantProgramBlockEditViewParams(
+  private ApplicationBaseView.Params buildApplicationBaseViewParams(
       Request request,
       long applicantId,
       long programId,
