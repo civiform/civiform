@@ -1,8 +1,12 @@
 package views;
 
+import static j2html.TagCreator.a;
+import static j2html.attributes.Attr.HREF;
+
 import com.google.auto.value.AutoValue;
 import controllers.applicant.routes;
 import j2html.tags.Tag;
+import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import services.MessageKey;
@@ -12,116 +16,114 @@ import views.applicant.ApplicantProgramBlockEditView;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.ApplicantStyles;
 
-import java.util.Optional;
+public class ApplicationBaseView extends BaseHtmlView {
+  final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
 
-import static j2html.TagCreator.a;
-import static j2html.attributes.Attr.HREF;
+  protected Tag renderReviewButton(ApplicantProgramBlockEditView.Params params) {
+    String reviewUrl =
+        routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
+            .url();
+    return a().attr(HREF, reviewUrl)
+        .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
+        .withId(REVIEW_APPLICATION_BUTTON_ID)
+        .withClasses(ApplicantStyles.BUTTON_REVIEW);
+  }
 
-public class ApplicationBaseView extends BaseHtmlView{
-    final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
-    protected Tag renderReviewButton(ApplicantProgramBlockEditView.Params params) {
-        String reviewUrl =
-                routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
-                        .url();
-        return a().attr(HREF, reviewUrl)
-                .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
-                .withId(REVIEW_APPLICATION_BUTTON_ID)
-                .withClasses(ApplicantStyles.BUTTON_REVIEW);
+  protected Tag renderPreviousButton(ApplicantProgramBlockEditView.Params params) {
+    int previousBlockIndex = params.blockIndex() - 1;
+    String redirectUrl;
+
+    if (previousBlockIndex >= 0) {
+      redirectUrl =
+          routes.ApplicantProgramBlocksController.previous(
+                  params.applicantId(), params.programId(), previousBlockIndex, params.inReview())
+              .url();
+    } else {
+      redirectUrl =
+          routes.ApplicantProgramReviewController.preview(params.applicantId(), params.programId())
+              .url();
     }
-    protected Tag renderPreviousButton(ApplicantProgramBlockEditView.Params params) {
-        int previousBlockIndex = params.blockIndex() - 1;
-        String redirectUrl;
+    return a().attr(HREF, redirectUrl)
+        .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
+        .withClasses(ApplicantStyles.BUTTON_BLOCK_PREVIOUS)
+        .withId("cf-block-previous");
+  }
 
-        if (previousBlockIndex >= 0) {
-            redirectUrl =
-                    routes.ApplicantProgramBlocksController.previous(
-                                    params.applicantId(), params.programId(), previousBlockIndex, params.inReview())
-                            .url();
-        } else {
-            redirectUrl =
-                    routes.ApplicantProgramReviewController.preview(params.applicantId(), params.programId())
-                            .url();
-        }
-        return a().attr(HREF, redirectUrl)
-                .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
-                .withClasses(ApplicantStyles.BUTTON_BLOCK_PREVIOUS)
-                .withId("cf-block-previous");
+  @AutoValue
+  public abstract static class Params {
+    public static Builder builder() {
+      return new AutoValue_ApplicantProgramBlockEditView_Params.Builder();
     }
-    @AutoValue
-    public abstract static class Params {
-        public static Builder builder() {
-            return new AutoValue_ApplicantProgramBlockEditView_Params.Builder();
-        }
 
-        public abstract boolean inReview();
+    public abstract boolean inReview();
 
-        public abstract Http.Request request();
+    public abstract Http.Request request();
 
-        public abstract Messages messages();
+    public abstract Messages messages();
 
-        public abstract int blockIndex();
+    public abstract int blockIndex();
 
-        public abstract int totalBlockCount();
+    public abstract int totalBlockCount();
 
-        public abstract long applicantId();
+    public abstract long applicantId();
 
-        public abstract String programTitle();
+    public abstract String programTitle();
 
-        public abstract long programId();
+    public abstract long programId();
 
-        public abstract Block block();
+    public abstract Block block();
 
-        public abstract boolean preferredLanguageSupported();
+    public abstract boolean preferredLanguageSupported();
 
-        public abstract StorageClient storageClient();
+    public abstract StorageClient storageClient();
 
-        public abstract String baseUrl();
+    public abstract String baseUrl();
 
-        public abstract Optional<String> applicantName();
+    public abstract Optional<String> applicantName();
 
-        public abstract ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode();
+    public abstract ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode();
 
-        @AutoValue.Builder
-        public abstract static class Builder {
-            public abstract Builder setRequest(Http.Request request);
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder setRequest(Http.Request request);
 
-            public abstract Builder setInReview(boolean inReview);
+      public abstract Builder setInReview(boolean inReview);
 
-            public abstract Builder setMessages(Messages messages);
+      public abstract Builder setMessages(Messages messages);
 
-            public abstract Builder setBlockIndex(int blockIndex);
+      public abstract Builder setBlockIndex(int blockIndex);
 
-            public abstract Builder setTotalBlockCount(int blockIndex);
+      public abstract Builder setTotalBlockCount(int blockIndex);
 
-            public abstract Builder setApplicantId(long applicantId);
+      public abstract Builder setApplicantId(long applicantId);
 
-            public abstract Builder setProgramTitle(String programTitle);
+      public abstract Builder setProgramTitle(String programTitle);
 
-            public abstract Builder setProgramId(long programId);
+      public abstract Builder setProgramId(long programId);
 
-            public abstract Builder setBlock(Block block);
+      public abstract Builder setBlock(Block block);
 
-            public abstract Builder setPreferredLanguageSupported(boolean preferredLanguageSupported);
+      public abstract Builder setPreferredLanguageSupported(boolean preferredLanguageSupported);
 
-            public abstract Builder setStorageClient(StorageClient storageClient);
+      public abstract Builder setStorageClient(StorageClient storageClient);
 
-            public abstract Builder setBaseUrl(String baseUrl);
+      public abstract Builder setBaseUrl(String baseUrl);
 
-            public abstract Builder setErrorDisplayMode(
-                    ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode);
+      public abstract Builder setErrorDisplayMode(
+          ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode);
 
-            public abstract Builder setApplicantName(Optional<String> applicantName);
+      public abstract Builder setApplicantName(Optional<String> applicantName);
 
-            abstract Optional<String> applicantName();
+      abstract Optional<String> applicantName();
 
-            abstract Messages messages();
+      abstract Messages messages();
 
-            abstract Params autoBuild();
+      abstract Params autoBuild();
 
-            public final Params build() {
-                setApplicantName(Optional.of(ApplicantUtils.getApplicantName(applicantName(), messages())));
-                return autoBuild();
-            }
-        }
+      public final Params build() {
+        setApplicantName(Optional.of(ApplicantUtils.getApplicantName(applicantName(), messages())));
+        return autoBuild();
+      }
     }
+  }
 }

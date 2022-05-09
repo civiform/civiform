@@ -1,11 +1,9 @@
 package views;
 
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.attributes.Attr.FORM;
-import static j2html.attributes.Attr.HREF;
 import static views.BaseHtmlView.makeCsrfTokenInputTag;
 import static views.BaseHtmlView.submitButton;
 
@@ -31,7 +29,7 @@ import views.style.Styles;
  * A strategy pattern that abstracts out the logic of file upload/download into the different cloud
  * providers.
  */
-public abstract class FileUploadViewStrategy  extends ApplicationBaseView{
+public abstract class FileUploadViewStrategy extends ApplicationBaseView {
 
   static final String MIME_TYPES_IMAGES_AND_PDF = "image/*,.pdf";
   final String BLOCK_FORM_ID = "cf-block-form";
@@ -41,7 +39,6 @@ public abstract class FileUploadViewStrategy  extends ApplicationBaseView{
   final String FILEUPLOAD_DELETE_BUTTON_ID = "fileupload-delete-button";
   final String FILEUPLOAD_SKIP_BUTTON_ID = "fileupload-skip-button";
   final String FILEUPLOAD_CONTINUE_BUTTON_ID = "fileupload-continue-button";
-
 
   /**
    * Method to generate the field tags for the file upload view form.
@@ -151,7 +148,6 @@ public abstract class FileUploadViewStrategy  extends ApplicationBaseView{
         .withClasses(styles)
         .withId(FILEUPLOAD_SUBMIT_FORM_ID);
   }
-
 
   protected Tag renderFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params) {

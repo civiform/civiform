@@ -1,28 +1,21 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
-import static j2html.attributes.Attr.HREF;
 
-import com.google.auto.value.AutoValue;
 import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
-import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
 import services.MessageKey;
-import services.applicant.Block;
 import services.applicant.question.ApplicantQuestion;
-import services.cloud.StorageClient;
 import views.*;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
@@ -163,5 +156,4 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
         .withId("cf-block-submit");
   }
-
 }
