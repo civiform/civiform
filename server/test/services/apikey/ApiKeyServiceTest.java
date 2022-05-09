@@ -21,17 +21,16 @@ import play.data.FormFactory;
 import repository.ApiKeyRepository;
 import repository.ResetPostgres;
 import services.DateConverter;
-import services.apikey.ApiKeyService.ApiKeyCreationResult;
 import services.program.ProgramNotFoundException;
 
 public class ApiKeyServiceTest extends ResetPostgres {
 
-  ApiKeyService apiKeyService;
-  ApiKeyRepository apiKeyRepository;
-  ProfileFactory profileFactory;
-  CiviFormProfile adminProfile;
-  FormFactory formFactory;
-  DateConverter dateConverter;
+  private ApiKeyService apiKeyService;
+  private ApiKeyRepository apiKeyRepository;
+  private ProfileFactory profileFactory;
+  private CiviFormProfile adminProfile;
+  private FormFactory formFactory;
+  private DateConverter dateConverter;
 
   @Before
   public void setUp() throws Exception {
@@ -59,7 +58,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
 
     ApiKeyCreationResult apiKeyCreationResult = apiKeyService.createApiKey(form, adminProfile);
 
-    assertThat(apiKeyCreationResult.successful()).isTrue();
+    assertThat(apiKeyCreationResult.isSuccessful()).isTrue();
 
     String credentialString = apiKeyCreationResult.getCredentials();
     byte[] keyIdBytes = Base64.getDecoder().decode(credentialString);

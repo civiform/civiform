@@ -16,7 +16,6 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.Base64;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.crypto.KeyGenerator;
@@ -121,7 +120,8 @@ public class ApiKeyService {
     return ApiKeyCreationResult.success(apiKey, credentials);
   }
 
-  // apiKey is mutable and modified here, form is immutable so a new instance is returned
+  // {@code apiKey} is mutable and modified here, {@code form} is immutable so a new instance is
+  // returned.
   private DynamicForm resolveKeyName(DynamicForm form, ApiKey apiKey) {
     String keyName = form.rawData().getOrDefault(FORM_FIELD_NAME_KEY_NAME, "");
 
@@ -246,57 +246,5 @@ public class ApiKeyService {
     }
 
     throw new RuntimeException("ApiKey creator must have authority_id.");
-  }
-
-  /** Holds state relevant to the result of attempting to create an {@link ApiKey}. */
-  public static class ApiKeyCreationResult {
-    private final Optional<ApiKey> apiKey;
-    private final Optional<String> credentials;
-    private final Optional<DynamicForm> form;
-
-    /** Constructs an instance in the case of success. */
-    public static ApiKeyCreationResult success(ApiKey apiKey, String credentials) {
-      return new ApiKeyCreationResult(
-          Optional.of(apiKey), Optional.of(credentials), /* form= */ Optional.empty());
-    }
-
-    /** Constructs an instance in the case of failure. */
-    public static ApiKeyCreationResult failure(DynamicForm form) {
-      return new ApiKeyCreationResult(
-          /* apiKey= */ Optional.empty(), /* credentials= */ Optional.empty(), Optional.of(form));
-    }
-
-    private ApiKeyCreationResult(
-        Optional<ApiKey> apiKey, Optional<String> credentials, Optional<DynamicForm> form) {
-      this.apiKey = apiKey;
-      this.credentials = credentials;
-      this.form = form;
-    }
-
-    /** Returns true if the key was created. */
-    public boolean successful() {
-      return credentials.isPresent();
-    }
-
-    /** Returns the API key if successful, throws {@code NullPointerException} if not. */
-    public ApiKey getApiKey() {
-      return apiKey.get();
-    }
-
-    /**
-     * Returns the form with validation errors if failure, throws {@code NullPointerException} if
-     * not.
-     */
-    public DynamicForm getForm() {
-      return form.get();
-    }
-
-    /**
-     * Returns the base64 encoded credentials string if successful, throws {@code
-     * NullPointerException} if not.
-     */
-    public String getCredentials() {
-      return credentials.get();
-    }
   }
 }
