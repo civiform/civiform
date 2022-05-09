@@ -38,6 +38,7 @@ import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
+import views.ApplicationBaseView;
 import views.FileUploadViewStrategy;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
@@ -411,7 +412,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
-  private ApplicantProgramBlockEditView.Params buildApplicantProgramBlockEditViewParams(
+  private ApplicationBaseView.Params buildApplicantProgramBlockEditViewParams(
       Request request,
       long applicantId,
       long programId,
@@ -421,7 +422,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Block block,
       Optional<String> applicantName,
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode) {
-    return ApplicantProgramBlockEditView.Params.builder()
+    return ApplicationBaseView.Params.builder()
         .setRequest(request)
         .setMessages(messagesApi.preferred(request))
         .setApplicantId(applicantId)

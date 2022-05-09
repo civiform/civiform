@@ -19,7 +19,6 @@ import services.applicant.question.FileUploadQuestion;
 import services.cloud.FileNameFormatter;
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
-import views.applicant.ApplicantProgramBlockEditView.Params;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.ApplicantStyles;
@@ -120,11 +119,12 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
       buttonId = FILEUPLOAD_DELETE_BUTTON_ID;
     }
     ContainerTag button =
-        button(buttonText)
-            .withType("submit")
-            .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
-            .withClasses(ApplicantStyles.BUTTON_REVIEW)
-            .withId(buttonId);
+        (ContainerTag)
+            button(buttonText)
+                .withType("submit")
+                .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
+                .withClasses(ApplicantStyles.BUTTON_REVIEW)
+                .withId(buttonId);
     return Optional.of(button);
   }
 

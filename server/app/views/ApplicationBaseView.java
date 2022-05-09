@@ -12,14 +12,13 @@ import play.mvc.Http;
 import services.MessageKey;
 import services.applicant.Block;
 import services.cloud.StorageClient;
-import views.applicant.ApplicantProgramBlockEditView;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.ApplicantStyles;
 
 public class ApplicationBaseView extends BaseHtmlView {
   final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
 
-  protected Tag renderReviewButton(ApplicantProgramBlockEditView.Params params) {
+  protected Tag renderReviewButton(ApplicationBaseView.Params params) {
     String reviewUrl =
         routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
             .url();
@@ -29,7 +28,7 @@ public class ApplicationBaseView extends BaseHtmlView {
         .withClasses(ApplicantStyles.BUTTON_REVIEW);
   }
 
-  protected Tag renderPreviousButton(ApplicantProgramBlockEditView.Params params) {
+  protected Tag renderPreviousButton(ApplicationBaseView.Params params) {
     int previousBlockIndex = params.blockIndex() - 1;
     String redirectUrl;
 
@@ -52,7 +51,7 @@ public class ApplicationBaseView extends BaseHtmlView {
   @AutoValue
   public abstract static class Params {
     public static Builder builder() {
-      return new AutoValue_ApplicantProgramBlockEditView_Params.Builder();
+      return new AutoValue_ApplicationBaseView_Params.Builder();
     }
 
     public abstract boolean inReview();

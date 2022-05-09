@@ -4,8 +4,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.attributes.Attr.FORM;
-import static views.BaseHtmlView.makeCsrfTokenInputTag;
-import static views.BaseHtmlView.submitButton;
 
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
@@ -16,7 +14,6 @@ import play.mvc.Http.HttpVerbs;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
-import views.applicant.ApplicantProgramBlockEditView.Params;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.FileUploadQuestionRenderer;

@@ -20,7 +20,6 @@ import services.applicant.question.FileUploadQuestion;
 import services.cloud.FileNameFormatter;
 import services.cloud.StorageUploadRequest;
 import services.cloud.azure.BlobStorageUploadRequest;
-import views.applicant.ApplicantProgramBlockEditView.Params;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.ApplicantStyles;
@@ -123,10 +122,11 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     }
 
     ContainerTag button =
-        button(buttonText)
-            .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
-            .withClasses(ApplicantStyles.BUTTON_REVIEW)
-            .withId(buttonId);
+        (ContainerTag)
+            button(buttonText)
+                .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
+                .withClasses(ApplicantStyles.BUTTON_REVIEW)
+                .withId(buttonId);
     footer.ifPresent(button::with);
 
     return Optional.of(button);
