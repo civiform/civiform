@@ -49,8 +49,6 @@ public class DateQuestionTest extends ResetPostgres {
     DateQuestion dateQuestion = new DateQuestion(applicantQuestion);
 
     assertThat(dateQuestion.getValidationErrors().isEmpty()).isTrue();
-    // Brett trying to make CI fail.
-    assertThat(true).isFalse();
   }
 
   @Test
