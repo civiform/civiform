@@ -1,7 +1,13 @@
 package modules;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import annotations.BindingAnnotations.Now;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.typesafe.config.Config;
 import java.time.Clock;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantServiceImpl;
@@ -22,10 +28,25 @@ public class MainModule extends AbstractModule {
 
   @Override
   public void configure() {
-    // Use the system clock as the default implementation of Clock
-    bind(Clock.class).toInstance(Clock.system(ZoneId.of("America/Los_Angeles")));
     bind(ProgramService.class).to(ProgramServiceImpl.class);
     bind(QuestionService.class).to(QuestionServiceImpl.class);
     bind(ApplicantService.class).to(ApplicantServiceImpl.class);
+  }
+
+  @Provides
+  @Now
+  public LocalDateTime provideNow(Clock clock) {
+    return LocalDateTime.now(clock);
+  }
+
+  @Provides
+  public Clock provideClock(ZoneId zoneId) {
+    // Use the system clock as the default implementation of Clock.
+    return Clock.system(zoneId);
+  }
+
+  @Provides
+  public ZoneId provideZoneId(Config config) {
+    return ZoneId.of(checkNotNull(config).getString("civiform.time.zoneid"));
   }
 }

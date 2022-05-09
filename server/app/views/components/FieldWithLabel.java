@@ -18,7 +18,6 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
-import services.applicant.Currency;
 import services.applicant.ValidationErrorMessage;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
@@ -41,9 +40,6 @@ public class FieldWithLabel {
   protected OptionalLong minValue = OptionalLong.empty();
   protected OptionalLong maxValue = OptionalLong.empty();
 
-  /** For use with fields that have isCurrency true`. */
-  protected Optional<Currency> fieldValueCurrency = Optional.empty();
-
   protected String formId = "";
   protected String id = "";
   protected String labelText = "";
@@ -54,7 +50,6 @@ public class FieldWithLabel {
   protected boolean showFieldErrors = true;
   protected boolean checked = false;
   protected boolean disabled = false;
-  protected boolean isCurrency = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
 
   public FieldWithLabel(Tag fieldTag) {
@@ -134,7 +129,6 @@ public class FieldWithLabel {
   }
 
   FieldWithLabel setIsCurrency() {
-    this.isCurrency = true;
     // There is no HTML currency input so we identify these with a custom attribute.
     this.setAttribute("currency");
     return this;
@@ -216,16 +210,6 @@ public class FieldWithLabel {
     return this;
   }
 
-  public FieldWithLabel setValue(Currency value) {
-    if (!isCurrency) {
-      throw new RuntimeException(
-          "setting a Currency value is only available on fields for currency");
-    }
-
-    this.fieldValueCurrency = Optional.of(value);
-    return this;
-  }
-
   public FieldWithLabel setDisabled(boolean disabled) {
     this.disabled = disabled;
     return this;
@@ -254,11 +238,7 @@ public class FieldWithLabel {
     if (this.id.isEmpty()) {
       this.id = RandomStringUtils.randomAlphabetic(8);
     }
-    if (this.isCurrency) {
-      if (this.fieldValueCurrency.isPresent()) {
-        fieldTag.withValue(this.fieldValueCurrency.get().prettyPrint());
-      }
-    } else if (fieldTag.getTagName().equals("textarea")) {
+    if (fieldTag.getTagName().equals("textarea")) {
       // Have to recreate the field here in case the value is modified.
       ContainerTag textAreaTag = textarea().withType("text").withText(this.fieldValue);
       fieldTag = textAreaTag;

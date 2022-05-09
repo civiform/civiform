@@ -2,13 +2,15 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import annotations.BindingAnnotations.Now;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Provider;
 import com.itextpdf.text.DocumentException;
 import controllers.CiviFormController;
 import java.io.IOException;
-import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
@@ -47,7 +49,7 @@ public class AdminApplicationController extends CiviFormController {
   private final JsonExporter jsonExporter;
   private final PdfExporter pdfExporter;
   private final ProfileUtils profileUtils;
-  private final Clock clock;
+  private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
   private static final int PAGE_SIZE = 10;
 
@@ -63,14 +65,14 @@ public class AdminApplicationController extends CiviFormController {
       ApplicationRepository applicationRepository,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
-      Clock clock) {
+      @Now Provider<LocalDateTime> nowProvider) {
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
     this.applicationListView = checkNotNull(applicationListView);
     this.profileUtils = checkNotNull(profileUtils);
     this.applicationView = checkNotNull(applicationView);
     this.applicationRepository = checkNotNull(applicationRepository);
-    this.clock = checkNotNull(clock);
+    this.nowProvider = checkNotNull(nowProvider);
     this.exporterService = checkNotNull(exporterService);
     this.jsonExporter = checkNotNull(jsonExporter);
     this.pdfExporter = checkNotNull(pdfExporter);
@@ -91,7 +93,7 @@ public class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
 
-    String filename = String.format("%s-%s.json", program.adminName(), clock.instant().toString());
+    String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
     String json = jsonExporter.export(program);
 
     return ok(json)
@@ -105,7 +107,7 @@ public class AdminApplicationController extends CiviFormController {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-      String filename = String.format("%s-%s.csv", program.adminName(), clock.instant().toString());
+      String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
       String csv = exporterService.getProgramAllVersionsCsv(programId);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
@@ -127,7 +129,7 @@ public class AdminApplicationController extends CiviFormController {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-      String filename = String.format("%s-%s.csv", program.adminName(), clock.instant().toString());
+      String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
       String csv = exporterService.getProgramCsv(programId);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
@@ -147,7 +149,7 @@ public class AdminApplicationController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result downloadDemographics() {
-    String filename = String.format("demographics-%s.csv", clock.instant().toString());
+    String filename = String.format("demographics-%s.csv", nowProvider.get());
     String csv = exporterService.getDemographicsCsv();
     return ok(csv)
         .as(Http.MimeTypes.BINARY)
