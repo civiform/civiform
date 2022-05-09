@@ -31,6 +31,10 @@ public class ApiKey extends BaseModel {
     this.grants = grants;
   }
 
+  public ApiKey() {
+    this.grants = new ApiKeyGrants();
+  }
+
   public ApiKeyGrants getGrants() {
     return grants;
   }
