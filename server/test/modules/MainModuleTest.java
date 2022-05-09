@@ -34,6 +34,7 @@ public class MainModuleTest {
   public void setUpApp() {
     maybeApp = Optional.empty();
   }
+
   @After
   public void tearDownApp() {
     if (maybeApp.isPresent()) {
