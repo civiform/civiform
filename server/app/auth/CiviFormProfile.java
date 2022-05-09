@@ -2,7 +2,6 @@ package auth;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.Comparator;
@@ -161,8 +160,7 @@ public class CiviFormProfile {
   }
 
   /** Returns the authority id from the {@link Account} associated with the profile. */
-  @VisibleForTesting
-  CompletableFuture<String> getAuthorityId() {
+  public CompletableFuture<String> getAuthorityId() {
     return this.getAccount().thenApplyAsync(Account::getAuthorityId, httpContext.current());
   }
 
