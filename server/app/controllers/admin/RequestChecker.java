@@ -13,7 +13,7 @@ class RequestChecker {
   }
 
   /**
-   * Verified programId is associated with the Draft version and throws {@code
+   * Verifies programId is associated with the Draft version and throws {@code
    * NotChangeableException} if not.
    */
   void throwIfNotDraft(Long programId) {
