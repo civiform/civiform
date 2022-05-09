@@ -3,7 +3,6 @@ package services;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
-import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -24,8 +23,6 @@ public class DateConverter {
    * Instant} at the beginning of the day in local time zone.
    */
   public Instant parseIso8601DateToStartOfDateInstant(String dateString) {
-    return LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE)
-        .atStartOfDay(zoneId)
-        .toInstant();
+    return LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE).atStartOfDay(zoneId).toInstant();
   }
 }
