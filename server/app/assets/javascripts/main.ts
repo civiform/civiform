@@ -172,40 +172,41 @@ function removeExistingEnumeratorField(event: Event) {
 function addEnumeratorListeners() {
   // Assumption: There is only ever zero or one enumerators per block.
   const enumeratorQuestion = document.querySelector('.cf-question-enumerator')
-  if (enumeratorQuestion) {
-    const enumeratorInputs = Array.from(
-      enumeratorQuestion.querySelectorAll('input')
-    ).filter((item) => item.id !== 'enumerator-delete-template')
-    // Whenever an input changes we need to revalidate.
-    enumeratorInputs.forEach((enumeratorInput) => {
-      enumeratorInput.addEventListener('input', () => {
-        maybeHideEnumeratorAddButton(enumeratorQuestion)
-      })
-    })
-
-    // Whenever an input is added, we need to add a change listener.
-    let mutationObserver = new MutationObserver((records: MutationRecord[]) => {
-      for (const record of records) {
-        for (const newNode of Array.from(record.addedNodes)) {
-          const newInputs = Array.from(
-            (<Element>newNode).querySelectorAll('input')
-          )
-          newInputs.forEach((newInput) => {
-            newInput.addEventListener('input', () => {
-              maybeHideEnumeratorAddButton(enumeratorQuestion)
-            })
-          })
-        }
-      }
+  if (!enumeratorQuestion) {
+    return
+  }
+  const enumeratorInputs = Array.from(
+    enumeratorQuestion.querySelectorAll('input')
+  ).filter((item) => item.id !== 'enumerator-delete-template')
+  // Whenever an input changes we need to revalidate.
+  enumeratorInputs.forEach((enumeratorInput) => {
+    enumeratorInput.addEventListener('input', () => {
       maybeHideEnumeratorAddButton(enumeratorQuestion)
     })
+  })
 
-    mutationObserver.observe(enumeratorQuestion, {
-      childList: true,
-      subtree: true,
-      characterDataOldValue: true,
-    })
-  }
+  // Whenever an input is added, we need to add a change listener.
+  let mutationObserver = new MutationObserver((records: MutationRecord[]) => {
+    for (const record of records) {
+      for (const newNode of Array.from(record.addedNodes)) {
+        const newInputs = Array.from(
+          (<Element>newNode).querySelectorAll('input')
+        )
+        newInputs.forEach((newInput) => {
+          newInput.addEventListener('input', () => {
+            maybeHideEnumeratorAddButton(enumeratorQuestion)
+          })
+        })
+      }
+    }
+    maybeHideEnumeratorAddButton(enumeratorQuestion)
+  })
+
+  mutationObserver.observe(enumeratorQuestion, {
+    childList: true,
+    subtree: true,
+    characterDataOldValue: true,
+  })
 }
 
 /** if we have empty inputs then disable the add input button. (We don't need two blank inputs.) */
