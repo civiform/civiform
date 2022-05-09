@@ -27,7 +27,6 @@ public class MainModuleTest {
 
   // Note: Each test is responsible for configuring an application object
   // since we're varying the configuration values of the application itself.
-  // This means that there's no need or a corresponding @Before method.
   private Optional<Application> maybeApp;
 
   @Before
