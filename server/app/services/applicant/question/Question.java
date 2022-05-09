@@ -62,10 +62,18 @@ public abstract class Question {
   }
 
   /**
+<<<<<<< HEAD
    * Question-type specific implementation of {@link Question.getValidationErrors}. Note that keys
    * with an empty set of errors will be filtered out by {@link Question.getValidationErrors} so
    * that calls to isEmpty on the getvalidationErrors result are sufficient to indicate if there any
    * errors.
+||||||| b7b29b74
+   * Returns true any part of the question has been answered by the applicant. Blank answers should
+   * not count. If a question is not answered, it should not have errors associated with it.
+=======
+   * Returns true any part of the question has been answered by the applicant. Blank answers should
+   * not count.
+>>>>>>> main
    */
   protected abstract ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>>
       getValidationErrorsInternal();

@@ -65,7 +65,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private CompletionStage<Result> view(
       Request request, long applicantId, long programId, boolean inReview) {
     Optional<String> banner = request.flash().get("banner");
-    CompletionStage<String> applicantStage = applicantService.getName(applicantId);
+    CompletionStage<Optional<String>> applicantStage = applicantService.getName(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))

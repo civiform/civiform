@@ -17,26 +17,26 @@ if [ ! -z "$1" ]; then
   STACK="$1"
 fi
 
-if [ "$STACK" == civiform ] ; then
+if [ "$STACK" == civiform ]; then
   ENVIRONMENT=prod
 else
   ENVIRONMENT=staging
 fi
 
 echo "checking if a changeset exists already..."
-if aws cloudformation describe-change-set --region ${REGION}  --change-set-name auto-changeset-pr-$PR_NUMBER  --stack-name "$STACK" > /dev/null; then
+if aws cloudformation describe-change-set --region ${REGION} --change-set-name auto-changeset-pr-$PR_NUMBER --stack-name "$STACK" >/dev/null; then
   echo "deleting..."
-  aws cloudformation delete-change-set --region ${REGION}  --change-set-name auto-changeset-pr-$PR_NUMBER  --stack-name "$STACK"
+  aws cloudformation delete-change-set --region ${REGION} --change-set-name auto-changeset-pr-$PR_NUMBER --stack-name "$STACK"
   sleep 5
 fi
 
-while aws cloudformation describe-change-set --region ${REGION}  --change-set-name auto-changeset-pr-$PR_NUMBER  --stack-name "$STACK" > /dev/null; do
+while aws cloudformation describe-change-set --region ${REGION} --change-set-name auto-changeset-pr-$PR_NUMBER --stack-name "$STACK" >/dev/null; do
   sleep 5
 done
 
 aws s3 sync ./infra s3://seattle-civiform-cftmpl/${TIMESTAMP}
 
-aws cloudformation create-change-set --region ${REGION} --include-nested-stacks --stack-name "$STACK" --change-set-name auto-changeset-pr-$PR_NUMBER --template-url  https://seattle-civiform-cftmpl.s3-${REGION}.amazonaws.com/$TIMESTAMP/stack.yaml --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}, {\"ParameterKey\": \"Environment\", \"ParameterValue\": \"$ENVIRONMENT\"}]"
+aws cloudformation create-change-set --region ${REGION} --include-nested-stacks --stack-name "$STACK" --change-set-name auto-changeset-pr-$PR_NUMBER --template-url https://seattle-civiform-cftmpl.s3-${REGION}.amazonaws.com/$TIMESTAMP/stack.yaml --parameters "[{\"ParameterKey\": \"Timestamp\", \"ParameterValue\": \"$TIMESTAMP\"}, {\"ParameterKey\": \"Environment\", \"ParameterValue\": \"$ENVIRONMENT\"}]"
 
 sleep 5
 
@@ -47,7 +47,6 @@ while [ "$(echo "$rootcs" | jq -r '.Status')" == "CREATE_IN_PROGRESS" ]; do
   rootcs=$(aws cloudformation describe-change-set --region ${REGION} --change-set-name auto-changeset-pr-$PR_NUMBER --stack-name "$STACK")
 done
 
-
 rootcs=$(aws cloudformation describe-change-set --region ${REGION} --change-set-name auto-changeset-pr-$PR_NUMBER --stack-name "$STACK")
 
 if [ "$(echo "$rootcs" | jq -r '.Status')" != "CREATE_COMPLETE" ]; then
@@ -57,9 +56,9 @@ fi
 
 set +e
 rm /tmp/message
-for csn in $(echo $rootcs | jq -r '.Changes[].ResourceChange.ChangeSetId') ; do
+for csn in $(echo $rootcs | jq -r '.Changes[].ResourceChange.ChangeSetId'); do
   cs=$(aws cloudformation describe-change-set --region ${REGION} --change-set-name $csn)
-  echo "$cs" | jq '.Changes[] | if .ResourceChange.Replacement == "True" then .ResourceChange.LogicalResourceId else null end' | grep -v "null" >> /tmp/message
+  echo "$cs" | jq '.Changes[] | if .ResourceChange.Replacement == "True" then .ResourceChange.LogicalResourceId else null end' | grep -v "null" >>/tmp/message
   if [ "$(echo "$cs" | jq -r '.Status')" != "CREATE_COMPLETE" ]; then
     echo "::set-output name=failure_msg::$(echo "$cs" | jq -r '.StatusReason')"
     exit 1

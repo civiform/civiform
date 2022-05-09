@@ -92,7 +92,7 @@ public interface ApplicantService {
       long applicantId);
 
   /** Return the name of the given applicant id. */
-  CompletionStage<String> getName(long applicantId);
+  CompletionStage<Optional<String>> getName(long applicantId);
 
   /** Return the email of the given applicant id if they have one. */
   CompletionStage<Optional<String>> getEmail(long applicantId);

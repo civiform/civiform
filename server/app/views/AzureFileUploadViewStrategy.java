@@ -86,6 +86,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
         ApplicantQuestionRendererParams.builder()
             .setMessages(params.messages())
             .setSignedFileUploadRequest(blobStorageUploadRequest)
+            .setErrorDisplayMode(params.errorDisplayMode())
             .build();
 
     ContainerTag formTag =

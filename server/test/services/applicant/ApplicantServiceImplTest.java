@@ -17,6 +17,7 @@ import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
 import models.Program;
+import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -69,6 +70,13 @@ public class ApplicantServiceImplTest extends ResetPostgres {
   @Test
   public void stageAndUpdateIfValid_emptySetOfUpdates_leavesQuestionsUnansweredAndUpdatesMetadata()
       throws Exception {
+    // We make the question optional since it's not valid to stage empty updates
+    // for a required question.
+    programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withOptionalQuestion(questionDefinition)
+            .buildDefinition();
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     subject
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", ImmutableMap.of())
@@ -88,6 +96,13 @@ public class ApplicantServiceImplTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_withUpdatesWithEmptyStrings_deletesJsonData() {
+    // We make the question optional since it's not valid to update a required
+    // question with an empty string (done below).
+    programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withOptionalQuestion(questionDefinition)
+            .buildDefinition();
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
     Path questionPath = Path.create("applicant.name");
 
@@ -158,6 +173,61 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     assertThat(applicantDataAfter.hasPath(questionPath.join(Scalar.SELECTIONS))).isFalse();
     assertThat(applicantDataAfter.readLong(questionPath.join(Scalar.PROGRAM_UPDATED_IN)))
         .contains(programDefinition.id());
+  }
+
+  private Path applicantPathForQuestion(Question question) {
+    return ApplicantData.APPLICANT_PATH.join(
+        question.getQuestionDefinition().getQuestionPathSegment());
+  }
+
+  @Test
+  public void stageAndUpdateIfvalid_invalidInputsForQuestionTypes() {
+    Question dateQuestion = testQuestionBank.applicantDate();
+    Path datePath = applicantPathForQuestion(dateQuestion).join(Scalar.DATE);
+    Question currencyQuestion = testQuestionBank.applicantMonthlyIncome();
+    Path currencyPath = applicantPathForQuestion(currencyQuestion).join(Scalar.CURRENCY_CENTS);
+    Question numberQuestion = testQuestionBank.applicantJugglingNumber();
+    Path numberPath = applicantPathForQuestion(numberQuestion).join(Scalar.NUMBER);
+    createProgram(
+        dateQuestion.getQuestionDefinition(),
+        currencyQuestion.getQuestionDefinition(),
+        numberQuestion.getQuestionDefinition());
+
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+
+    // Stage invalid updates for each question.
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(datePath.toString(), "invalid_date_input")
+            .put(currencyPath.toString(), "invalid_currency_input")
+            .put(numberPath.toString(), "invalid_number_input")
+            .build();
+
+    // We grab the result of the stage call to assert that it contains
+    // data suitable for displaying errors downstream.
+    ReadOnlyApplicantProgramService resultService =
+        subject
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+            .toCompletableFuture()
+            .join();
+
+    // Applicant data is not updated and is considered invalid.
+    ApplicantData resultApplicantData = resultService.getApplicantData();
+    assertThat(resultApplicantData.hasPath(datePath)).isFalse();
+    assertThat(resultApplicantData.hasPath(currencyPath)).isFalse();
+    assertThat(resultApplicantData.hasPath(numberPath)).isFalse();
+    assertThat(resultApplicantData.getFailedUpdates())
+        .isEqualTo(
+            ImmutableMap.of(
+                datePath, "invalid_date_input",
+                currencyPath, "invalid_currency_input",
+                numberPath, "invalid_number_input"));
+
+    ApplicantData freshApplicantDataAfter =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    assertThat(freshApplicantDataAfter.hasPath(datePath)).isFalse();
+    assertThat(freshApplicantDataAfter.hasPath(currencyPath)).isFalse();
+    assertThat(freshApplicantDataAfter.hasPath(numberPath)).isFalse();
   }
 
   @Test
@@ -699,14 +769,13 @@ public class ApplicantServiceImplTest extends ResetPostgres {
 
   @Test
   public void getName_invalidApplicantId_doesNotFail() {
-    subject.getName(9999L).toCompletableFuture().join();
+    assertThat(subject.getName(9999L).toCompletableFuture().join()).isEmpty();
   }
 
   @Test
-  public void getName_anonymousApplicant() {
+  public void getName_noName() {
     Applicant applicant = resourceCreator.insertApplicant();
-    String name = subject.getName(applicant.id).toCompletableFuture().join();
-    assertThat(name).isEqualTo("<Anonymous Applicant>");
+    assertThat(subject.getName(applicant.id).toCompletableFuture().join()).isEmpty();
   }
 
   @Test
@@ -714,8 +783,8 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("Hello World");
     applicant.save();
-    String name = subject.getName(applicant.id).toCompletableFuture().join();
-    assertThat(name).isEqualTo("World, Hello");
+    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
+        .isEqualTo(Optional.of("World, Hello"));
   }
 
   @Test
@@ -723,8 +792,8 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("First Middle Last");
     applicant.save();
-    String name = subject.getName(applicant.id).toCompletableFuture().join();
-    assertThat(name).isEqualTo("Last, First");
+    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
+        .isEqualTo(Optional.of("Last, First"));
   }
 
   @Test
@@ -732,8 +801,8 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("First Second Third Fourth");
     applicant.save();
-    String name = subject.getName(applicant.id).toCompletableFuture().join();
-    assertThat(name).isEqualTo("First Second Third Fourth");
+    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
+        .isEqualTo(Optional.of("First Second Third Fourth"));
   }
 
   @Test
@@ -741,8 +810,8 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("Mononymous");
     applicant.save();
-    String name = subject.getName(applicant.id).toCompletableFuture().join();
-    assertThat(name).isEqualTo("Mononymous");
+    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
+        .isEqualTo(Optional.of("Mononymous"));
   }
 
   @Test

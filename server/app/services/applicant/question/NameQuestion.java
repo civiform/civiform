@@ -47,27 +47,20 @@ public final class NameQuestion extends Question {
 
   private ImmutableSet<ValidationErrorMessage> validateFirstName() {
     if (getFirstNameValue().isEmpty()) {
-      return getFirstNameErrorMessage();
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_FIRST_REQUIRED));
     }
 
     return ImmutableSet.of();
-  }
-
-  public ImmutableSet<ValidationErrorMessage> getFirstNameErrorMessage() {
-    return ImmutableSet.of(
-        ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_FIRST_REQUIRED));
   }
 
   private ImmutableSet<ValidationErrorMessage> validateLastName() {
     if (getLastNameValue().isEmpty()) {
-      return getLastNameErrorMessage();
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_LAST_REQUIRED));
     }
 
     return ImmutableSet.of();
-  }
-
-  public ImmutableSet<ValidationErrorMessage> getLastNameErrorMessage() {
-    return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_LAST_REQUIRED));
   }
 
   public Optional<String> getFirstNameValue() {

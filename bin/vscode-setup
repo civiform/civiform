@@ -5,6 +5,8 @@
 # compleation.  Needs to be rerun when dependancies are changed.
 
 source bin/lib.sh
+docker::set_project_name_dev
+readonly COMPOSE_CMD="${DOCKER_COMPOSE_DEV}"
 
 bin/pull-image
 
@@ -16,7 +18,7 @@ bin/sbt makePom
 
 # Copy the generated target directory from the docker container to a local dir
 # so that we can use globs to copy the correct file out.
-docker cp civiform-shell:/usr/src/server/target server/temp
+${COMPOSE_CMD} --profile shell cp civiform-shell:/usr/src/server/target server/temp
 
 cp server/temp/scala-*/*.pom \
   server/pom.xml
@@ -24,8 +26,12 @@ cp server/temp/scala-*/*.pom \
 rm -rf server/temp
 
 BUILD=$(
-         cat <<END
-<build>
+  cat <<END
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+    <build>
         <sourceDirectory>app</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
         <resources>
@@ -43,4 +49,4 @@ BUILD=$(
 END
 )
 
-perl -i -pe "s|<modelVersion>|${BUILD}|g" server/pom.xml
+perl -i -pe "s|\s+<modelVersion>|${BUILD}|g" server/pom.xml

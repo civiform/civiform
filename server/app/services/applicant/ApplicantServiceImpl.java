@@ -12,6 +12,7 @@ import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
 import java.net.URI;
 import java.time.Clock;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Optional;
@@ -181,16 +182,18 @@ public class ApplicantServiceImpl implements ApplicantService {
               Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
 
               UpdateMetadata updateMetadata = UpdateMetadata.create(programId, clock.millis());
+              ImmutableMap<Path, String> failedUpdates;
               try {
-                stageUpdates(
-                    applicant.getApplicantData(), blockBeforeUpdate, updateMetadata, updates);
+                failedUpdates =
+                    stageUpdates(
+                        applicant.getApplicantData(), blockBeforeUpdate, updateMetadata, updates);
               } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
                 return CompletableFuture.failedFuture(e);
               }
 
               ReadOnlyApplicantProgramService roApplicantProgramService =
                   new ReadOnlyApplicantProgramServiceImpl(
-                      applicant.getApplicantData(), programDefinition, baseUrl);
+                      applicant.getApplicantData(), programDefinition, baseUrl, failedUpdates);
 
               Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
               if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
@@ -319,13 +322,13 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
-  public CompletionStage<String> getName(long applicantId) {
+  public CompletionStage<Optional<String>> getName(long applicantId) {
     return userRepository
         .lookupApplicant(applicantId)
         .thenApplyAsync(
             applicant -> {
               if (applicant.isEmpty()) {
-                return "<Anonymous Applicant>";
+                return Optional.empty();
               }
               return applicant.get().getApplicantData().getApplicantName();
             },
@@ -360,27 +363,31 @@ public class ApplicantServiceImpl implements ApplicantService {
    *
    * @throws PathNotInBlockException if there are updates for questions that aren't in the block.
    * @throws UnsupportedScalarTypeException if there are updates for unsupported scalar types.
+   * @return any failures to update the applicant data, containing the desired {@link Path} as well
+   *     as the raw string value that failed update.
    */
-  private void stageUpdates(
+  private ImmutableMap<Path, String> stageUpdates(
       ApplicantData applicantData,
       Block block,
       UpdateMetadata updateMetadata,
       ImmutableSet<Update> updates)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     if (block.isEnumerator()) {
-      stageEnumeratorUpdates(applicantData, block, updateMetadata, updates);
+      return stageEnumeratorUpdates(applicantData, block, updateMetadata, updates);
     } else {
-      stageNormalUpdates(applicantData, block, updateMetadata, updates);
+      return stageNormalUpdates(applicantData, block, updateMetadata, updates);
     }
   }
 
   /**
    * Stage updates for an enumerator.
    *
+   * @return any failures to update the applicant data, containing the desired {@link Path} as well
+   *     as the raw string value that failed update.
    * @throws PathNotInBlockException for updates that aren't {@link Scalar#ENTITY_NAME}, or {@link
    *     Scalar#DELETE_ENTITY}.
    */
-  private void stageEnumeratorUpdates(
+  private ImmutableMap<Path, String> stageEnumeratorUpdates(
       ApplicantData applicantData,
       Block block,
       UpdateMetadata updateMetadata,
@@ -431,6 +438,7 @@ public class ApplicantServiceImpl implements ApplicantService {
     if (applicantData.maybeClearRepeatedEntities(enumeratorPath)) {
       writeMetadataForPath(enumeratorPath.withoutArrayReference(), applicantData, updateMetadata);
     }
+    return ImmutableMap.of();
   }
 
   /**
@@ -475,16 +483,19 @@ public class ApplicantServiceImpl implements ApplicantService {
   /**
    * In-place update of {@link ApplicantData}. Adds program id and timestamp metadata with updates.
    *
+   * @return any failures to update the applicant data, containing the desired {@link Path} as well
+   *     as the raw string value that failed update.
    * @throws PathNotInBlockException if there are updates for questions that aren't in the block.
    * @throws UnsupportedScalarTypeException if there are updates for unsupported scalar types.
    */
-  private void stageNormalUpdates(
+  private ImmutableMap<Path, String> stageNormalUpdates(
       ApplicantData applicantData,
       Block block,
       UpdateMetadata updateMetadata,
       ImmutableSet<Update> updates)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     ArrayList<Path> visitedPaths = new ArrayList<>();
+    ImmutableMap.Builder<Path, String> failedUpdatesBuilder = ImmutableMap.<Path, String>builder();
     for (Update update : updates) {
       Path currentPath = update.path();
 
@@ -506,17 +517,29 @@ public class ApplicantServiceImpl implements ApplicantService {
       } else {
         switch (type) {
           case CURRENCY_CENTS:
-            applicantData.putCurrencyDollars(currentPath, update.value());
+            try {
+              applicantData.putCurrencyDollars(currentPath, update.value());
+            } catch (IllegalArgumentException e) {
+              failedUpdatesBuilder.put(currentPath, update.value());
+            }
             break;
           case DATE:
-            applicantData.putDate(currentPath, update.value());
+            try {
+              applicantData.putDate(currentPath, update.value());
+            } catch (DateTimeParseException e) {
+              failedUpdatesBuilder.put(currentPath, update.value());
+            }
             break;
           case LIST_OF_STRINGS:
           case STRING:
             applicantData.putString(currentPath, update.value());
             break;
           case LONG:
-            applicantData.putLong(currentPath, update.value());
+            try {
+              applicantData.putLong(currentPath, update.value());
+            } catch (NumberFormatException e) {
+              failedUpdatesBuilder.put(currentPath, update.value());
+            }
             break;
           default:
             throw new UnsupportedScalarTypeException(type);
@@ -528,6 +551,7 @@ public class ApplicantServiceImpl implements ApplicantService {
     block.getQuestions().stream()
         .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> writeMetadataForPath(path, applicantData, updateMetadata));
+    return failedUpdatesBuilder.build();
   }
 
   private void writeMetadataForPath(Path path, ApplicantData data, UpdateMetadata updateMetadata) {

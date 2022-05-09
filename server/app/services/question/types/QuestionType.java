@@ -4,25 +4,27 @@ import services.question.exceptions.InvalidQuestionTypeException;
 
 /** Defines types of questions supported. */
 public enum QuestionType {
-  ADDRESS(false),
-  CHECKBOX(true),
-  CURRENCY(false),
-  DATE(false),
-  DROPDOWN(true),
-  EMAIL(false),
-  ENUMERATOR(false),
-  FILEUPLOAD(false),
-  ID(false),
-  NAME(false),
-  NUMBER(false),
-  RADIO_BUTTON(true),
-  STATIC(false),
-  TEXT(false);
+  ADDRESS(false, "Address Field"),
+  CHECKBOX(true, "Checkbox"),
+  CURRENCY(false, "Currency Field"),
+  DATE(false, "Date Picker"),
+  DROPDOWN(true, "Dropdown"),
+  EMAIL(false, "Email Field"),
+  ENUMERATOR(false, "Enumerator"),
+  FILEUPLOAD(false, "File Upload"),
+  ID(false, "ID Field"),
+  NAME(false, "Name Field"),
+  NUMBER(false, "Number Field"),
+  RADIO_BUTTON(true, "Radio Button"),
+  STATIC(false, "Static Text"),
+  TEXT(false, "Text Field");
 
   private final boolean isMultiOptionType;
+  private final String label;
 
-  QuestionType(boolean isMultiOptionType) {
+  QuestionType(boolean isMultiOptionType, String label) {
     this.isMultiOptionType = isMultiOptionType;
+    this.label = label;
   }
 
   /**
@@ -40,5 +42,9 @@ public enum QuestionType {
     } catch (IllegalArgumentException e) {
       throw new InvalidQuestionTypeException(upperName);
     }
+  }
+
+  public String getLabel() {
+    return this.label;
   }
 }

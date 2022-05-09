@@ -18,14 +18,14 @@ DEADLINE="$(($START_TIME + 200))"
 echo "Waiting for localstack to get set up. This may take a minute or two..."
 
 healthy() {
-  [[ ("${1}" == *'"s3": "available"'* ||  "${1}" == *'"s3": "running"'*) && \
+  [[ ("${1}" == *'"s3": "available"'* || "${1}" == *'"s3": "running"'*) &&
     ("${1}" == *'"ses": "available"'* || "${1}" == *'"ses": "running"'*) ]]
 }
 
 readonly HEALTH_URL="${localstack_endpoint}/health"
 
 until healthy "$(curl --silent --fail --max-time 2 "${HEALTH_URL}")"; do
-  if (( "$(date +%s)" > "${DEADLINE}" )); then
+  if (("$(date +%s)" > "${DEADLINE}")); then
     out::error "deadline exceeded waiting for localstack start"
     exit 1
   fi

@@ -1,24 +1,22 @@
 #! /usr/bin/env bash
 source cloud/azure/bin/lib.sh
 
-
-# DOC: Load data into an existing database. 
-# DOC: Required to pass in the resource group (-g), the database name (-d) and the keyvault name (-v), the location of the dump file on the local machine (-f) and the output file name (-b) 
+# DOC: Load data into an existing database.
+# DOC: Required to pass in the resource group (-g), the database name (-d) and the keyvault name (-v), the location of the dump file on the local machine (-f) and the output file name (-b)
 # DOC: example: bin/pg-restore -g sgdev -d civiform-artistic-halibut -v sgdev-civiform-kv -f ~/Desktop/pg_dump.dump testData.dump
-key_name="bastion" 
-while getopts g:d:k:v:f:b: flag
-do
+key_name="bastion"
+while getopts g:d:k:v:f:b: flag; do
   case "${flag}" in
-    g) resource_group=${OPTARG};;
-    d) database_name=${OPTARG};;
-    k) key_name=${OPTARG};;
-    v) vault_name=${OPTARG};;
-    f) local_filename=${OPTARG};;
-    b) bastion_filename=${OPTARG};;
+    g) resource_group=${OPTARG} ;;
+    d) database_name=${OPTARG} ;;
+    k) key_name=${OPTARG} ;;
+    v) vault_name=${OPTARG} ;;
+    f) local_filename=${OPTARG} ;;
+    b) bastion_filename=${OPTARG} ;;
   esac
 done
 
-if  [[ ! "${resource_group}" ]] \
+if [[ ! "${resource_group}" ]] \
   || [[ ! "${database_name}" ]] \
   || [[ ! "${vault_name}" ]] \
   || [[ ! "${local_filename}" ]] \

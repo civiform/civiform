@@ -4,11 +4,13 @@
 
 source bin/lib.sh
 
+bin/pull-image
+
 docker run -it --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $(pwd)/server:/usr/src/server \
   --entrypoint npx \
-  civiform \
+  civiform-dev \
   tailwindcss build \
   -i ./app/assets/stylesheets/styles.css \
   -o ./public/stylesheets/tailwind.css

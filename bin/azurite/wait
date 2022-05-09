@@ -23,7 +23,7 @@ healthy() {
 }
 
 until healthy "$(curl --silent --max-time 2 "${azurite_endpoint}/")"; do
-  if (( "$(date +%s)" > "${DEADLINE}" )); then
+  if (("$(date +%s)" > "${DEADLINE}")); then
     out::error "Deadline exceeded waiting for azurite start."
     exit 1
   fi
