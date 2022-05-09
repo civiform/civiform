@@ -12,6 +12,7 @@ import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.Application;
@@ -29,6 +30,11 @@ public class MainModuleTest {
   // This means that there's no need or a corresponding @Before method.
   private Optional<Application> maybeApp;
 
+  @Before
+  public void setUpApp() {
+    maybeApp = Optional.empty();
+  }
+  
   @After
   public void tearDownApp() {
     if (maybeApp.isPresent()) {
