@@ -1,16 +1,8 @@
 import {
   startSession,
-  loginAsProgramAdmin,
   loginAsAdmin,
   AdminApiKeys,
-  AdminQuestions,
   AdminPrograms,
-  endSession,
-  logout,
-  loginAsGuest,
-  selectApplicantLanguage,
-  ApplicantQuestions,
-  userDisplayName,
 } from './support'
 
 describe('Managing API keys', () => {
