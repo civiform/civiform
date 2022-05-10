@@ -60,7 +60,7 @@ public class IdcsProfileAdapter extends OidcCiviFormProfileAdapter {
   }
 
   @Override
-  public CiviFormProfileData mergeCiviFormProfile(
+  protected CiviFormProfileData mergeCiviFormProfile(
       CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
     final String locale = oidcProfile.getAttribute("user_locale", String.class);
     final boolean hasLocale = locale != null && !locale.isEmpty();
@@ -83,14 +83,12 @@ public class IdcsProfileAdapter extends OidcCiviFormProfileAdapter {
           .toCompletableFuture()
           .join();
     }
-
     return super.mergeCiviFormProfile(civiformProfile, oidcProfile);
   }
 
   @Override
-  public CiviFormProfileData civiformProfileFromOidcProfile(OidcProfile profile) {
-    return mergeCiviFormProfile(
-        profileFactory.wrapProfileData(profileFactory.createNewApplicant()), profile);
+  public CiviFormProfile createEmptyCiviFormProfile(OidcProfile profile) {
+    return profileFactory.wrapProfileData(profileFactory.createNewApplicant());
   }
 
   @Override
