@@ -79,10 +79,11 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
    * Merge the two provided profiles into a new CiviformProfileData, making sure to create a new
    * civiFormProfile if it doesn't already exist.
    */
+  @VisibleForTesting
   public CiviFormProfileData mergeCiviFormProfile(
-      Optional<CiviFormProfile> maybeCiviformProfile, OidcProfile oidcProfile) {
+      Optional<CiviFormProfile> maybeCiviFormProfile, OidcProfile oidcProfile) {
     var civiformProfile =
-        maybeCiviformProfile.orElseGet(
+        maybeCiviFormProfile.orElseGet(
             () -> {
               logger.debug("Found no existing profile in session cookie.");
               return createEmptyCiviFormProfile(oidcProfile);

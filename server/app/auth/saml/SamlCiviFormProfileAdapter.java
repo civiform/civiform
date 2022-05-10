@@ -114,6 +114,7 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     return profileFactory.wrapProfileData(profileFactory.createNewApplicant());
   }
 
+  @VisibleForTesting
   public CiviFormProfileData mergeCiviFormProfile(
       Optional<CiviFormProfile> maybeCiviFormProfile, SAML2Profile saml2Profile) {
     var civiFormProfile =
