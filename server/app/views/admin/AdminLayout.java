@@ -10,6 +10,7 @@ import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import javax.inject.Inject;
+import play.i18n.MessagesApi;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlLayout;
@@ -32,8 +33,8 @@ public class AdminLayout extends BaseHtmlLayout {
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
 
   @Inject
-  public AdminLayout(ViewUtils viewUtils, Config configuration) {
-    super(viewUtils, configuration);
+  public AdminLayout(ViewUtils viewUtils, MessagesApi messagesApi, Config configuration) {
+    super(viewUtils, messagesApi, configuration);
   }
 
   /**

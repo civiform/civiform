@@ -16,7 +16,6 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.Base64;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.crypto.KeyGenerator;
@@ -127,12 +126,8 @@ public class ApiKeyService {
     return ApiKeyCreationResult.success(apiKey, credentials);
   }
 
-<<<<<<< HEAD
-  // apiKey is mutable and modified here, form is immutable so a new instance is returned
-=======
   // {@code apiKey} is mutable and modified here, {@code form} is immutable so a new instance is
   // returned.
->>>>>>> main
   private DynamicForm resolveKeyName(DynamicForm form, ApiKey apiKey) {
     String keyName = form.rawData().getOrDefault(FORM_FIELD_NAME_KEY_NAME, "");
 

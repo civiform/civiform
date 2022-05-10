@@ -13,11 +13,11 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import services.apikey.ApiKeyCreationResult;
 import services.apikey.ApiKeyService;
-import services.apikey.ApiKeyService.ApiKeyCreationResult;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import views.admin.programs.ApiKeyNewOneView;
+import views.admin.apikeys.ApiKeyNewOneView;
 
 /** Controller for admins managing ApiKeys. */
 public class AdminApiKeysController extends CiviFormController {
@@ -69,11 +69,12 @@ public class AdminApiKeysController extends CiviFormController {
       return notFound(e.toString());
     }
 
-    if (!result.successful()) {
-      return badRequest(newOneView.render(request, programService.getAllProgramNames(), Optional.of(result.getForm())));
+    if (!result.isSuccessful()) {
+      return badRequest(
+          newOneView.render(
+              request, programService.getAllProgramNames(), Optional.of(result.getForm())));
     }
 
-    // render the post-create view with the result object
-    return ok();
+    return created();
   }
 }

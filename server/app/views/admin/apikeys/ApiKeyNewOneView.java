@@ -1,4 +1,4 @@
-package views.admin.programs;
+package views.admin.apikeys;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
@@ -11,10 +11,13 @@ import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import controllers.admin.routes;
 import j2html.tags.ContainerTag;
+import java.util.Optional;
 import play.data.DynamicForm;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.apikey.ApiKeyService;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -35,7 +38,8 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
     return render(request, programNames, /* dynamicForm= */ Optional.empty());
   }
 
-  public Content render(Request request, ImmutableSet<String> programNames, Optional<DynamicForm> dynamicForm) {
+  public Content render(
+      Request request, ImmutableSet<String> programNames, Optional<DynamicForm> dynamicForm) {
     String title = "Create a new API key";
 
     ContainerTag formTag =
@@ -43,7 +47,13 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
             .withMethod("POST")
             .with(
                 makeCsrfTokenInputTag(request),
-                FieldWithLabel.input().setFieldName("keyName").setLabelText("Name").getContainer(),
+                setStateIfPresent(
+                        FieldWithLabel.input()
+                            .setFieldName(ApiKeyService.FORM_FIELD_NAME_KEY_NAME)
+                            .setLabelText("API key name"),
+                        dynamicForm,
+                        ApiKeyService.FORM_FIELD_NAME_KEY_NAME)
+                    .getContainer(),
                 h2("Expiration date"),
                 p(
                     "Specify a date when this API key will no longer be valid. The expiration date"
@@ -52,9 +62,12 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                         + " has been stolen, malicious users will eventually lose access. For"
                         + " highly sensitive data, expiring keys once a week or once a month is"
                         + " recommended. Once a year is acceptable in most situations."),
-                FieldWithLabel.date()
-                    .setFieldName("expiration")
-                    .setLabelText("Expiration date")
+                setStateIfPresent(
+                        FieldWithLabel.date()
+                            .setFieldName(ApiKeyService.FORM_FIELD_NAME_EXPIRATION)
+                            .setLabelText("Expiration date"),
+                        dynamicForm,
+                        ApiKeyService.FORM_FIELD_NAME_EXPIRATION)
                     .getContainer(),
                 h2("Allowed IP addresses"),
                 p(
@@ -66,9 +79,12 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                         + " it would allow any computer connected to the internet to use the key"
                         + " if they obtain it. All IP addresses can be allowed with a value of"
                         + " 0.0.0.0/0."),
-                FieldWithLabel.input()
-                    .setFieldName("subnet")
-                    .setLabelText("Allowed subnet (CIDR notation)")
+                setStateIfPresent(
+                        FieldWithLabel.input()
+                            .setFieldName(ApiKeyService.FORM_FIELD_NAME_SUBNET)
+                            .setLabelText("API key name"),
+                        dynamicForm,
+                        ApiKeyService.FORM_FIELD_NAME_SUBNET)
                     .getContainer());
 
     formTag.with(h2("Allowed programs"), p("Select the programs this key grants read access to."));
@@ -89,7 +105,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                 h1(title).withClasses(Styles.MY_4),
                 formTag
                     .with(submitButton("Save").withId("apikey-submit-button"))
-                    .withAction(controllers.admin.routes.AdminApiKeysController.create().url()));
+                    .withAction(routes.AdminApiKeysController.create().url()));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
 
@@ -98,5 +114,21 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
 
   private String programReadGrantFieldName(String name) {
     return "grant-program-read[" + slugifier.slugify(name) + "]";
+  }
+
+  private FieldWithLabel setStateIfPresent(
+      FieldWithLabel field, Optional<DynamicForm> maybeForm, String key) {
+    if (!maybeForm.isPresent()) {
+      return field;
+    }
+
+    DynamicForm form = maybeForm.get();
+    field.setValue(form.value(key).map(String::valueOf));
+
+    if (form.error(key).isPresent()) {
+      field.setFieldErrors(layout.getEnUsMessages(), form.error(key).get());
+    }
+
+    return field;
   }
 }

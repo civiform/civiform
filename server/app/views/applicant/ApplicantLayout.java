@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
@@ -50,10 +51,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
   @Inject
   public ApplicantLayout(
       ViewUtils viewUtils,
+      MessagesApi messagesApi,
       Config configuration,
       ProfileUtils profileUtils,
       LanguageSelector languageSelector) {
-    super(viewUtils, configuration);
+    super(viewUtils, messagesApi, configuration);
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
     this.supportEmail = checkNotNull(configuration).getString("support_email_address");
