@@ -1,0 +1,65 @@
+package controllers;
+
+import com.typesafe.config.Config;
+import controllers.admin.NotChangeableException;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import javax.inject.*;
+import play.*;
+import play.api.OptionalSourceMapper;
+import play.api.routing.Router;
+import play.http.DefaultHttpErrorHandler;
+import play.mvc.*;
+import play.mvc.Http.*;
+
+/**
+ * Override for the system default {@code HttpErrorHandler}.
+ *
+ * <p>This lets us do things like throw RuntimeExceptions in the application but then surface them
+ * as 400 level responses to the user.
+ *
+ * <p>https://www.playframework.com/documentation/2.8.x/JavaErrorHandling#Extending-the-default-error-handler
+ */
+@Singleton
+public class ErrorHandler extends DefaultHttpErrorHandler {
+
+  @Inject
+  public ErrorHandler(
+      Config config,
+      Environment environment,
+      OptionalSourceMapper sourceMapper,
+      Provider<Router> routes) {
+    super(config, environment, sourceMapper, routes);
+  }
+
+  @Override
+  public CompletionStage<Result> onServerError(RequestHeader request, Throwable exception) {
+    // Exceptions that reach here will generate 500s. Here we convert certain ones to different user
+    // visible states. Note: there are methods on the parent that handle dev and prod separately.
+    Optional<Throwable> match = findThrowableByType(exception, NotChangeableException.class);
+    if (match.isPresent()) {
+      return CompletableFuture.completedFuture(Results.badRequest(match.get().getMessage()));
+    }
+
+    return super.onServerError(request, exception);
+  }
+
+  /**
+   * Finds an exception of type {@code search} by looking through {@code exception}'s cause chain.
+   * Will also consider {@code exception}.
+   *
+   * <p>The framework provides wrapped exceptions to the methods in this class so we have to dig out
+   * our application exception. Anecdotally it's 2 levels down.
+   */
+  static Optional<Throwable> findThrowableByType(Throwable exception, Class<?> search) {
+    Optional<Throwable> root = Optional.of(exception);
+    for (int i = 0; i < 5 && root.isPresent(); ++i) {
+      if (search.isInstance(root.get())) {
+        return root;
+      }
+      root = Optional.ofNullable(root.get().getCause());
+    }
+    return Optional.empty();
+  }
+}
