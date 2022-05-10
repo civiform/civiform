@@ -215,8 +215,12 @@ public class VersionRepository {
   }
 
   public boolean isDraft(Program program) {
+    return isDraftProgram(program.id);
+  }
+
+  public boolean isDraftProgram(Long programId) {
     return getDraftVersion().getPrograms().stream()
-        .anyMatch(draftProgram -> draftProgram.id.equals(program.id));
+        .anyMatch(draftProgram -> draftProgram.id.equals(programId));
   }
 
   private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {
