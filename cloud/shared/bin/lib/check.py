@@ -49,11 +49,12 @@ class Check():
         min_version, test_version = map(self._semver_string_to_int_array, [min_version, test_version])
 
         for i, min_int in enumerate(min_version):
-            if i >= len(test_version) or min_int > test_version[i]:
-                # Treat missing entries in shorter array as 0. e.g. "2" is
-                # equivalent to "2.0.0"
+            # Treat missing entries in shorter array as 0. e.g. "2" is
+            # equivalent to "2.0.0"
+            test_int = test_version[i] if i < len(test_version) else 0
+            if min_int > test_int:
                 return False
-            if min_int < test_version[i]:
+            if min_int < test_int:
                 return True
 
         return True
