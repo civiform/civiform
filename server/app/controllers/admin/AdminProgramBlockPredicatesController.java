@@ -63,7 +63,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long programId, long blockDefinitionId) {
-    requestChecker.throwIfNotDraft(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
 
     try {
       ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
@@ -85,7 +85,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   /** POST endpoint for updating show-hide configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId, long blockDefinitionId) {
-    requestChecker.throwIfNotDraft(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
 
     Form<BlockVisibilityPredicateForm> predicateFormWrapper =
         formFactory.form(BlockVisibilityPredicateForm.class).bindFromRequest(request);
@@ -152,7 +152,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   /** POST endpoint for deleting show-hide configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result destroy(long programId, long blockDefinitionId) {
-    requestChecker.throwIfNotDraft(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
 
     try {
       programService.removeBlockPredicate(programId, blockDefinitionId);

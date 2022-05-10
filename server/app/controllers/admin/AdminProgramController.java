@@ -146,7 +146,7 @@ public class AdminProgramController extends CiviFormController {
   /** POST endpoint for updating the program in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId) {
-    requestChecker.throwIfNotDraft(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
 
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm program = programForm.bindFromRequest(request).get();

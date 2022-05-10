@@ -47,7 +47,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
   /** POST endpoint for adding one or more questions to a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result create(Request request, long programId, long blockId) {
-    requestChecker.throwIfNotDraft(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     ImmutableList<Long> questionIds =
@@ -88,7 +88,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
   /** POST endpoint for removing a question from a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result destroy(long programId, long blockDefinitionId, long questionDefinitionId) {
-    requestChecker.throwIfNotDraft(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
 
     try {
       programService.removeQuestionsFromBlock(
@@ -115,7 +115,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result setOptional(
       Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
-    requestChecker.throwIfNotDraft(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
 
     ProgramQuestionDefinitionOptionalityForm programQuestionDefinitionOptionalityForm =
         formFactory

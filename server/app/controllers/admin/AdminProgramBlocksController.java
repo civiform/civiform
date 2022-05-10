@@ -71,7 +71,7 @@ public class AdminProgramBlocksController extends CiviFormController {
   /** POST endpoint for creating a new screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Request request, long programId) {
-    requestChecker.throwIfNotDraft(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
 
     Optional<Long> enumeratorId =
         Optional.ofNullable(
@@ -108,7 +108,7 @@ public class AdminProgramBlocksController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long programId, long blockId) {
-    requestChecker.throwIfNotDraft(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
 
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
@@ -122,7 +122,7 @@ public class AdminProgramBlocksController extends CiviFormController {
   /** POST endpoint for updating a screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId, long blockId) {
-    requestChecker.throwIfNotDraft(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
 
     Form<BlockForm> blockFormWrapper = formFactory.form(BlockForm.class);
     BlockForm blockForm = blockFormWrapper.bindFromRequest(request).get();
@@ -145,7 +145,7 @@ public class AdminProgramBlocksController extends CiviFormController {
   /** POST endpoint for moving a screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result move(Request request, long programId, long blockId) {
-    requestChecker.throwIfNotDraft(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     Direction direction = Direction.valueOf(requestData.get("direction"));
@@ -163,7 +163,7 @@ public class AdminProgramBlocksController extends CiviFormController {
   /** POST endpoint for deleting a screen (block) for the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result destroy(long programId, long blockId) {
-    requestChecker.throwIfNotDraft(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
 
     try {
       programService.deleteBlock(programId, blockId);
