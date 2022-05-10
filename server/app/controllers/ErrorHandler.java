@@ -5,13 +5,16 @@ import controllers.admin.NotChangeableException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import javax.inject.*;
-import play.*;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import play.Environment;
 import play.api.OptionalSourceMapper;
 import play.api.routing.Router;
 import play.http.DefaultHttpErrorHandler;
-import play.mvc.*;
-import play.mvc.Http.*;
+import play.mvc.Http.RequestHeader;
+import play.mvc.Result;
+import play.mvc.Results;
 
 /**
  * Override for the system default {@code HttpErrorHandler}.
@@ -54,6 +57,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
    */
   static Optional<Throwable> findThrowableByType(Throwable exception, Class<?> search) {
     Optional<Throwable> root = Optional.of(exception);
+    // Search a couple causes deep for the desired type.
     for (int i = 0; i < 5 && root.isPresent(); ++i) {
       if (search.isInstance(root.get())) {
         return root;
