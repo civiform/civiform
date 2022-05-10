@@ -38,6 +38,7 @@ import services.question.types.QuestionDefinition;
 /** Implementation class for {@link ProgramService} interface. */
 public class ProgramServiceImpl implements ProgramService {
 
+  private final Slugify slugifier = new Slugify();
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
@@ -103,6 +104,18 @@ public class ProgramServiceImpl implements ProgramService {
         syncProgramDefinitionQuestions(program.getProgramDefinition(), version);
 
     return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
+  }
+
+  @Override
+  public ImmutableSet<String> getAllProgramNames() {
+    return programRepository.getAllProgramNames();
+  }
+
+  @Override
+  public ImmutableSet<String> getAllProgramSlugs() {
+    return getAllProgramNames().stream()
+        .map(slugifier::slugify)
+        .collect(ImmutableSet.toImmutableSet());
   }
 
   @Override
@@ -221,7 +234,7 @@ public class ProgramServiceImpl implements ProgramService {
   // For more info on URL slugs see: https://en.wikipedia.org/wiki/Clean_URL#Slug
   private boolean hasProgramNameCollision(String programName) {
     Slugify slugifier = new Slugify();
-    return programRepository.getAllProgramNames().stream()
+    return getAllProgramNames().stream()
         .map(slugifier::slugify)
         .anyMatch(slugifier.slugify(programName)::equals);
   }

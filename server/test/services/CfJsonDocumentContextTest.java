@@ -5,11 +5,36 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.testing.EqualsTester;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Optional;
+import java.util.TimeZone;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import services.applicant.predicate.JsonPathPredicate;
 
 public class CfJsonDocumentContextTest {
+
+  private static final ZoneId BEHIND_UTC_ZONE = ZoneId.of("America/New_York");
+
+  private static TimeZone origTimeZone;
+
+  @BeforeClass
+  public static void setTimeZoneToNonAmerica() {
+    origTimeZone = TimeZone.getDefault();
+    // Set the default time zone to something behind UTC. We rely on this for
+    // the date serialization / deserialization test below, where we expect
+    // everything to occur in terms of UTC rather than the system default
+    // time zone.
+    TimeZone.setDefault(TimeZone.getTimeZone(BEHIND_UTC_ZONE));
+  }
+
+  @AfterClass
+  public static void resetTimeZone() {
+    // Reset the time zone to whatever the system would resolve it to.
+    TimeZone.setDefault(origTimeZone);
+  }
 
   @Test
   public void equality() {
@@ -596,5 +621,23 @@ public class CfJsonDocumentContextTest {
         .isTrue();
     assertThat(data.evalPredicate(JsonPathPredicate.create("$.applicant[?(@.one in [\"other\"])]")))
         .isFalse();
+  }
+
+  @Test
+  public void dateSerializationRoundTrips() {
+    // This is a regression test for Issue #2342, where dates were serialized
+    // at the start of the day in UTC, but were deserialized in the system default
+    // time zone. As such, if the system default time zone were behind UTC, it would
+    // be serialized as 2022-01-02 and deserialized as 2022-01-01.
+    // To ensure this tests the correct behavior, ensure the system default time zone
+    // is behind UTC.
+    assertThat(TimeZone.getDefault().getRawOffset()).isLessThan(0);
+
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+    data.putDate(Path.create("applicant.date"), "2022-01-02");
+
+    Optional<LocalDate> result = data.readDate(Path.create("applicant.date"));
+    assertThat(result.isPresent()).isTrue();
+    assertThat(result.get().toString()).isEqualTo("2022-01-02");
   }
 }

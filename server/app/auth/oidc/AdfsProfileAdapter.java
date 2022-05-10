@@ -1,7 +1,6 @@
 package auth.oidc;
 
 import auth.CiviFormProfile;
-import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.Roles;
 import com.google.common.collect.ImmutableSet;
@@ -80,13 +79,11 @@ public class AdfsProfileAdapter extends OidcCiviFormProfileAdapter {
   }
 
   @Override
-  public CiviFormProfileData civiformProfileFromOidcProfile(OidcProfile profile) {
+  public CiviFormProfile createEmptyCiviFormProfile(OidcProfile profile) {
     if (this.isGlobalAdmin(profile)) {
-      return mergeCiviFormProfile(
-          profileFactory.wrapProfileData(profileFactory.createNewAdmin()), profile);
+      return profileFactory.wrapProfileData(profileFactory.createNewAdmin());
     }
-    return mergeCiviFormProfile(
-        profileFactory.wrapProfileData(profileFactory.createNewProgramAdmin()), profile);
+    return profileFactory.wrapProfileData(profileFactory.createNewProgramAdmin());
   }
 
   @Override

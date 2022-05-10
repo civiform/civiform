@@ -27,6 +27,14 @@ public class ApiKey extends BaseModel {
   /** Permissions granted to this ApiKey by the admin. */
   @DbJsonB private ApiKeyGrants grants;
 
+  public ApiKey(ApiKeyGrants grants) {
+    this.grants = grants;
+  }
+
+  public ApiKey() {
+    this.grants = new ApiKeyGrants();
+  }
+
   public ApiKeyGrants getGrants() {
     return grants;
   }

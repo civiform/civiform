@@ -25,7 +25,7 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
     ApiKey foundKey;
     ApiKeyGrants grants = new ApiKeyGrants();
     grants.grantProgramPermission("program-a", ApiKeyGrants.Permission.READ);
-    ApiKey apiKey = new ApiKey();
+    ApiKey apiKey = new ApiKey(grants);
 
     apiKey
         .setName("key name")
@@ -33,8 +33,7 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
         .setCreatedBy("test@example.com")
         .setSaltedKeySecret("secret")
         .setSubnet("0.0.0.0/32")
-        .setExpiration(Instant.ofEpochSecond(100))
-        .setGrants(grants);
+        .setExpiration(Instant.ofEpochSecond(100));
 
     ApiKeyRepository repo = instanceOf(ApiKeyRepository.class);
     repo.insert(apiKey).toCompletableFuture().join();
@@ -57,7 +56,8 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
 
   @Test
   public void insert_missingRequiredAttributes_raisesAnException() {
-    ApiKey apiKey = new ApiKey();
+    ApiKeyGrants grants = new ApiKeyGrants();
+    ApiKey apiKey = new ApiKey(grants);
 
     CompletionException exception =
         assertThrows(

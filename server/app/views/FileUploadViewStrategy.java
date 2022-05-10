@@ -1,13 +1,9 @@
 package views;
 
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.attributes.Attr.FORM;
-import static j2html.attributes.Attr.HREF;
-import static views.BaseHtmlView.makeCsrfTokenInputTag;
-import static views.BaseHtmlView.submitButton;
 
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
@@ -18,7 +14,6 @@ import play.mvc.Http.HttpVerbs;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
-import views.applicant.ApplicantProgramBlockEditView.Params;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.FileUploadQuestionRenderer;
@@ -31,7 +26,7 @@ import views.style.Styles;
  * A strategy pattern that abstracts out the logic of file upload/download into the different cloud
  * providers.
  */
-public abstract class FileUploadViewStrategy {
+public abstract class FileUploadViewStrategy extends ApplicationBaseView {
 
   static final String MIME_TYPES_IMAGES_AND_PDF = "image/*,.pdf";
   final String BLOCK_FORM_ID = "cf-block-form";
@@ -41,7 +36,6 @@ public abstract class FileUploadViewStrategy {
   final String FILEUPLOAD_DELETE_BUTTON_ID = "fileupload-delete-button";
   final String FILEUPLOAD_SKIP_BUTTON_ID = "fileupload-skip-button";
   final String FILEUPLOAD_CONTINUE_BUTTON_ID = "fileupload-continue-button";
-  final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
 
   /**
    * Method to generate the field tags for the file upload view form.
@@ -160,16 +154,6 @@ public abstract class FileUploadViewStrategy {
   protected Tag renderEmptyFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, true);
-  }
-
-  protected Tag renderReviewButton(Params params) {
-    String reviewUrl =
-        routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
-            .url();
-    return a().attr(HREF, reviewUrl)
-        .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
-        .withId(REVIEW_APPLICATION_BUTTON_ID)
-        .withClasses(ApplicantStyles.BUTTON_REVIEW);
   }
 
   protected boolean hasUploadedFile(Params params) {
