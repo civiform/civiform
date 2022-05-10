@@ -195,7 +195,6 @@ function bastion::scp_from_bastion() {
   scp -i "${2}" "adminuser@${1}:${4}" "${3}"
 }
 
-
 #######################################
 # Add ssh keys to bastion
 # Arguments:
