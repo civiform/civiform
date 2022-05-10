@@ -1,6 +1,7 @@
 package services.program;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import forms.BlockForm;
 import java.util.Locale;
 import java.util.Optional;
@@ -340,4 +341,10 @@ public interface ProgramService {
 
   /** Get all versions of the program with a version matching programId, including that one */
   ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId);
+
+  /** Get the names for all programs. */
+  ImmutableSet<String> getAllProgramNames();
+
+  /** Get the slugs for all programs. */
+  ImmutableSet<String> getAllProgramSlugs();
 }
