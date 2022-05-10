@@ -1,5 +1,6 @@
 import { Browser, chromium, Page } from 'playwright'
 import { waitForPageJsLoad } from './wait'
+export { AdminApiKeys } from './admin_api_keys'
 export { AdminQuestions } from './admin_questions'
 export { AdminPredicates } from './admin_predicates'
 export { AdminPrograms } from './admin_programs'
@@ -8,11 +9,11 @@ export { AdminTIGroups } from './admin_ti_groups'
 export { ApplicantQuestions } from './applicant_questions'
 export { clickAndWaitForModal, waitForPageJsLoad } from './wait'
 
-const {
-  BASE_URL = 'http://civiform:9000',
-  TEST_USER_LOGIN = '',
-  TEST_USER_PASSWORD = '',
-} = process.env
+export {
+  BASE_URL,
+  TEST_USER_LOGIN,
+  TEST_USER_PASSWORD,
+} from './config'
 
 export const isLocalDevEnvironment = () => {
   return (

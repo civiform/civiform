@@ -5,6 +5,8 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
+import static j2html.TagCreator.text;
 
 import j2html.tags.ContainerTag;
 import javax.inject.Inject;
@@ -38,7 +40,8 @@ public final class ApiKeyCredentialsView extends BaseHtmlView {
                         + " opportunity to copy the secret from CiviForm, if you "
                         + "refresh the page or navigate away you will not be able to recover the"
                         + " secret value and will need to create a new key instead."),
-                p("API key: " + credentials).withClasses(Styles.MT_4));
+                p(text("API key: "), span(credentials).withId("api-key-credentials"))
+                    .withClasses(Styles.MT_4));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
 

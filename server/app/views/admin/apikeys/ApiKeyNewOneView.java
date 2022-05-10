@@ -54,6 +54,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                 setStateIfPresent(
                         FieldWithLabel.input()
                             .setFieldName(ApiKeyService.FORM_FIELD_NAME_KEY_NAME)
+                            .setId(ApiKeyService.FORM_FIELD_NAME_KEY_NAME)
                             .setLabelText("API key name"),
                         dynamicForm,
                         ApiKeyService.FORM_FIELD_NAME_KEY_NAME)
@@ -69,6 +70,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                 setStateIfPresent(
                         FieldWithLabel.date()
                             .setFieldName(ApiKeyService.FORM_FIELD_NAME_EXPIRATION)
+                            .setId(ApiKeyService.FORM_FIELD_NAME_EXPIRATION)
                             .setLabelText("Expiration date"),
                         dynamicForm,
                         ApiKeyService.FORM_FIELD_NAME_EXPIRATION)
@@ -86,6 +88,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                 setStateIfPresent(
                         FieldWithLabel.input()
                             .setFieldName(ApiKeyService.FORM_FIELD_NAME_SUBNET)
+                            .setId(ApiKeyService.FORM_FIELD_NAME_SUBNET)
                             .setLabelText("API key name"),
                         dynamicForm,
                         ApiKeyService.FORM_FIELD_NAME_SUBNET)
@@ -98,6 +101,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
           FieldWithLabel.checkbox()
               .setFieldName(programReadGrantFieldName(name))
               .setLabelText(name)
+              .setId(slugifier.slugify(name))
               .setValue("true")
               .getContainer());
     }
