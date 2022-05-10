@@ -1,3 +1,4 @@
+import { Browser, Page } from 'playwright'
 import {
   AdminPredicates,
   AdminPrograms,
@@ -11,11 +12,28 @@ import {
   selectApplicantLanguage,
   startSession,
   userDisplayName,
+  closeWarningMessage,
 } from './support'
 
 describe('create and edit predicates', () => {
-  it('add a hide predicate', async () => {
+  let browserObject : Browser
+  let pageObject : Page
+
+  beforeEach(async () => {
     const { browser, page } = await startSession()
+
+    browserObject = browser
+    pageObject = page
+
+    await closeWarningMessage(page)
+  })
+
+  afterEach(async () =>{
+    await endSession(browserObject)
+  })
+
+  it('add a hide predicate', async () => {
+    const page = pageObject
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
@@ -97,13 +115,10 @@ describe('create and edit predicates', () => {
       .locator('#application-view')
       .innerText()
     expect(applicationText).not.toContain('Screen 2')
-
-    await endSession(browser)
   })
 
   it('add a show predicate', async () => {
-    const { browser, page } = await startSession()
-
+    const page = pageObject
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
@@ -184,13 +199,10 @@ describe('create and edit predicates', () => {
     await page.screenshot({ path: "tmp/screenshot.png", fullPage: true })
     await adminPrograms.viewApplicationForApplicant(userDisplayName())
     expect(await adminPrograms.applicationFrame().locator('#application-view').innerText()).toContain('Screen 2')
-
-    await endSession(browser)
   })
 
   it('every right hand type evaluates correctly', async () => {
-    const { browser, page } = await startSession()
-
+    const page = pageObject
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
@@ -317,6 +329,5 @@ describe('create and edit predicates', () => {
 
     // We should now be on the summary page
     await applicant.submitFromReviewPage(programName)
-    await endSession(browser)
   })
 })
