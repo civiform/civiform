@@ -21,7 +21,6 @@ import play.data.FormFactory;
 import repository.ApiKeyRepository;
 import repository.ResetPostgres;
 import services.DateConverter;
-import services.apikey.ApiKeyService.ApiKeyCreationResult;
 import services.program.ProgramNotFoundException;
 
 public class ApiKeyServiceTest extends ResetPostgres {
