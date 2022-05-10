@@ -35,7 +35,7 @@ public final class ApiKeyCredentialsView extends BaseHtmlView {
                 h2("Credentials"),
                 p(
                     "Please copy your API key and it store it somewhere secure. This is your only"
-                        + " opportunity to copy the secret from CiviForm, if you \n"
+                        + " opportunity to copy the secret from CiviForm, if you "
                         + "refresh the page or navigate away you will not be able to recover the"
                         + " secret value and will need to create a new key instead."),
                 p("API key: " + credentials).withClasses(Styles.MT_4));
