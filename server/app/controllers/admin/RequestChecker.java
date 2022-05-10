@@ -16,7 +16,7 @@ class RequestChecker {
    * Verifies programId is associated with the Draft version and throws {@code
    * NotChangeableException} if not.
    */
-  void throwIfNotDraft(Long programId) {
+  void throwIfProgramNotDraft(Long programId) {
     if (versionRepository.isDraftProgram(programId)) {
       return;
     }
