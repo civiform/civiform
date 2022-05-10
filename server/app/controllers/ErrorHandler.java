@@ -49,8 +49,8 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   }
 
   /**
-   * Finds an exception of type {@code search} by looking through {@code exception}'s cause chain.
-   * Will also consider {@code exception}.
+   * Finds an exception of type {@code search} by looking through {@code exception}'s cause chain a
+   * few levels deep. Will also consider {@code exception}.
    *
    * <p>The framework provides wrapped exceptions to the methods in this class so we have to dig out
    * our application exception. Anecdotally it's 2 levels down.

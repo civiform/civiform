@@ -41,10 +41,10 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
 
   @Test
   public void edit_withNonExistantProgram_notFound() {
-    Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThrows(
         NotChangeableException.class,
-        () -> controller.edit(fakeRequest().build(), programId, /* blockDefinitionId= */ 1));
+        () ->
+            controller.edit(fakeRequest().build(), /* programId= */ 1, /* blockDefinitionId= */ 1));
   }
 
   @Test
