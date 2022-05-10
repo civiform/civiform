@@ -29,10 +29,10 @@ describe('Managing API keys', () => {
     const credentials = await adminApiKeys.createApiKey(
       'Test API key',
       '2022-01-31',
-      "0.0.0.0/0",
-      ['API-using-program']
+      "8.8.8.8/32",
+      ['api-using-program']
     )
 
-    expect(credentials).toBeInstanceOf("string")
+    expect(typeof credentials).toEqual("string")
   })
 })

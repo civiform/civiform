@@ -13,7 +13,7 @@ export class AdminApiKeys {
   // Create a new ApiKey, returning the credentials string
   async createApiKey(name: string, expiration: string, subnet: string, programSlugs: Array<string>): Promise<string> {
     await this.gotoNewApiKeyPage()
-    await this.page.fill('#name', name)
+    await this.page.fill('#keyName', name)
     await this.page.fill('#expiration', expiration)
     await this.page.fill('#subnet', subnet)
 
@@ -33,7 +33,7 @@ export class AdminApiKeys {
   }
 
   async gotoNewApiKeyPage() {
-    await page.goto(BASE_URL + '/admin/apiKeys/new')
+    await this.page.goto(BASE_URL + '/admin/apiKeys/new')
     await waitForPageJsLoad(this.page)
     await this.expectNewApiKeyPage()
   }
