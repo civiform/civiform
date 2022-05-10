@@ -18,25 +18,29 @@ import services.apikey.ApiKeyService;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.apikeys.ApiKeyNewOneView;
+import views.admin.programs.ApiKeyCredentialsView;
 
 /** Controller for admins managing ApiKeys. */
 public class AdminApiKeysController extends CiviFormController {
 
   private final ApiKeyService apiKeyService;
   private final ApiKeyNewOneView newOneView;
+  private final ApiKeyCredentialsView apiKeyCredentialsView;
   private final ProgramService programService;
   private final FormFactory formFactory;
   private final ProfileUtils profileUtils;
 
   @Inject
   public AdminApiKeysController(
+      ApiKeyService apiKeyService,
       ApiKeyNewOneView newOneView,
+      ApiKeyCredentialsView apiKeyCredentialsView,
       ProgramService programService,
       FormFactory formFactory,
-      ApiKeyService apiKeyService,
       ProfileUtils profileUtils) {
     this.apiKeyService = checkNotNull(apiKeyService);
     this.newOneView = checkNotNull(newOneView);
+    this.apiKeyCredentialsView = checkNotNull(apiKeyCredentialsView);
     this.programService = checkNotNull(programService);
     this.formFactory = checkNotNull(formFactory);
     this.profileUtils = checkNotNull(profileUtils);
@@ -75,6 +79,6 @@ public class AdminApiKeysController extends CiviFormController {
               request, programService.getAllProgramNames(), Optional.of(result.getForm())));
     }
 
-    return created();
+    return created(apiKeyCredentialsView.render(result.getApiKey(), result.getCredentials()));
   }
 }
