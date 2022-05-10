@@ -1,5 +1,7 @@
 package controllers.admin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import javax.inject.Inject;
 import repository.VersionRepository;
 
@@ -9,7 +11,7 @@ class RequestChecker {
 
   @Inject
   public RequestChecker(VersionRepository versionRepository) {
-    this.versionRepository = versionRepository;
+    this.versionRepository = checkNotNull(versionRepository);
   }
 
   /**
