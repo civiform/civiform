@@ -17,7 +17,9 @@ import j2html.tags.specialized.HeaderTag;
 import j2html.tags.specialized.MainTag;
 import j2html.tags.specialized.FooterTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.EmptyTag;
+import j2html.tags.specialized.ScriptTag;
+import j2html.tags.specialized.MetaTag;
+import j2html.tags.specialized.LinkTag;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,17 +34,17 @@ public class HtmlBundle {
   private String language = "en";
 
   private ArrayList<String> bodyStyles = new ArrayList<>();
-  private ArrayList<Tag> footerContent = new ArrayList<>();
-  private ArrayList<Tag> footerScripts = new ArrayList<>();
+  private ArrayList<DivTag> footerContent = new ArrayList<>();
+  private ArrayList<ScriptTag> footerScripts = new ArrayList<>();
   private ArrayList<String> footerStyles = new ArrayList<>();
-  private ArrayList<Tag> headScripts = new ArrayList<>();
-  private ArrayList<Tag> headerContent = new ArrayList<>();
+  private ArrayList<ScriptTag> headScripts = new ArrayList<>();
+  private ArrayList<DivTag> headerContent = new ArrayList<>();
   private ArrayList<String> headerStyles = new ArrayList<>();
-  private ArrayList<Tag> mainContent = new ArrayList<>();
+  private ArrayList<DivTag> mainContent = new ArrayList<>();
   private ArrayList<String> mainStyles = new ArrayList<>();
-  private ArrayList<EmptyTag> metadata = new ArrayList<>();
+  private ArrayList<MetaTag> metadata = new ArrayList<>();
   private ArrayList<Modal> modals = new ArrayList<>();
-  private ArrayList<Tag> stylesheets = new ArrayList<>();
+  private ArrayList<LinkTag> stylesheets = new ArrayList<>();
   private ArrayList<ToastMessage> toastMessages = new ArrayList<>();
 
   public HtmlBundle addBodyStyles(String... styles) {
@@ -50,12 +52,12 @@ public class HtmlBundle {
     return this;
   }
 
-  public HtmlBundle addFooterContent(Tag... tags) {
+  public HtmlBundle addFooterContent(DivTag... tags) {
     footerContent.addAll(Arrays.asList(tags));
     return this;
   }
 
-  public HtmlBundle addFooterScripts(Tag... sources) {
+  public HtmlBundle addFooterScripts(ScriptTag... sources) {
     footerScripts.addAll(Arrays.asList(sources));
     return this;
   }
@@ -65,12 +67,12 @@ public class HtmlBundle {
     return this;
   }
 
-  public HtmlBundle addHeadScripts(Tag... sources) {
+  public HtmlBundle addHeadScripts(ScriptTag... sources) {
     headScripts.addAll(Arrays.asList(sources));
     return this;
   }
 
-  public HtmlBundle addHeaderContent(Tag... tags) {
+  public HtmlBundle addHeaderContent(DivTag... tags) {
     headerContent.addAll(Arrays.asList(tags));
     return this;
   }
@@ -80,7 +82,7 @@ public class HtmlBundle {
     return this;
   }
 
-  public HtmlBundle addMainContent(Tag... tags) {
+  public HtmlBundle addMainContent(DivTag... tags) {
     mainContent.addAll(Arrays.asList(tags));
     return this;
   }
@@ -90,12 +92,12 @@ public class HtmlBundle {
     return this;
   }
 
-  public HtmlBundle addMetadata(EmptyTag... tags) {
+  public HtmlBundle addMetadata(MetaTag... tags) {
     metadata.addAll(Arrays.asList(tags));
     return this;
   }
 
-  public HtmlBundle addStylesheets(Tag... sources) {
+  public HtmlBundle addStylesheets(LinkTag... sources) {
     stylesheets.addAll(Arrays.asList(sources));
     return this;
   }
