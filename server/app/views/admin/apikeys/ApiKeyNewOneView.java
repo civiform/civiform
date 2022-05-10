@@ -7,6 +7,7 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 
+import annotations.BindingAnnotations.EnUs;
 import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -15,6 +16,7 @@ import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import java.util.Optional;
 import play.data.DynamicForm;
+import play.i18n.Messages;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.apikey.ApiKeyService;
@@ -27,11 +29,13 @@ import views.style.Styles;
 /** Renders a page for adding a new ApiKey. */
 public final class ApiKeyNewOneView extends BaseHtmlView {
   private final AdminLayout layout;
+  private final Messages enUsMessages;
   private final Slugify slugifier = new Slugify();
 
   @Inject
-  public ApiKeyNewOneView(AdminLayout layout) {
+  public ApiKeyNewOneView(AdminLayout layout, @EnUs Messages enUsMessages) {
     this.layout = checkNotNull(layout);
+    this.enUsMessages = checkNotNull(enUsMessages);
   }
 
   public Content render(Request request, ImmutableSet<String> programNames) {
@@ -126,7 +130,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
     field.setValue(form.value(key).map(String::valueOf));
 
     if (form.error(key).isPresent()) {
-      field.setFieldErrors(layout.getEnUsMessages(), form.error(key).get());
+      field.setFieldErrors(enUsMessages, form.error(key).get());
     }
 
     return field;

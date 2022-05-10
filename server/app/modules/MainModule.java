@@ -2,13 +2,18 @@ package modules;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import annotations.BindingAnnotations.EnUs;
 import annotations.BindingAnnotations.Now;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.typesafe.config.Config;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import play.i18n.Lang;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantServiceImpl;
 import services.program.ProgramService;
@@ -31,6 +36,12 @@ public class MainModule extends AbstractModule {
     bind(ProgramService.class).to(ProgramServiceImpl.class);
     bind(QuestionService.class).to(QuestionServiceImpl.class);
     bind(ApplicantService.class).to(ApplicantServiceImpl.class);
+  }
+
+  @Provides
+  @EnUs
+  public Messages provideEnUsMessages(MessagesApi messagesApi) {
+    return messagesApi.preferred(ImmutableList.of(Lang.forCode("en-US")));
   }
 
   @Provides

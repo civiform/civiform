@@ -10,9 +10,6 @@ import com.typesafe.config.Config;
 import j2html.tags.Tag;
 import java.net.URI;
 import javax.inject.Inject;
-import play.i18n.Lang;
-import play.i18n.Messages;
-import play.i18n.MessagesApi;
 import play.twirl.api.Content;
 import views.components.ToastMessage;
 
@@ -32,16 +29,13 @@ public class BaseHtmlLayout {
       "Do not enter actual or personal data in this demo site";
 
   public final ViewUtils viewUtils;
-  private final Messages enUsMessages;
   private final String measurementId;
   private final String hostName;
   private final boolean isStaging;
 
   @Inject
-  public BaseHtmlLayout(ViewUtils viewUtils, MessagesApi messagesApi, Config configuration) {
+  public BaseHtmlLayout(ViewUtils viewUtils, Config configuration) {
     this.viewUtils = checkNotNull(viewUtils);
-    this.enUsMessages =
-        checkNotNull(messagesApi).preferred(ImmutableList.of(Lang.forCode("en-US")));
     this.measurementId = checkNotNull(configuration).getString("measurement_id");
 
     String baseUrl = checkNotNull(configuration).getString("base_url");
@@ -50,11 +44,6 @@ public class BaseHtmlLayout {
     this.isStaging = hostName.equals(stagingHostname);
 
     civiformImageTag = configuration.getString("civiform_image_tag");
-  }
-
-  /** Get i18n messages for the "en-US" {@link Lang}. */
-  public Messages getEnUsMessages() {
-    return enUsMessages;
   }
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
