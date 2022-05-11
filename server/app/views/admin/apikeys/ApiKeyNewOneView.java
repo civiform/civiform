@@ -51,6 +51,8 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
             .withMethod("POST")
             .with(
                 makeCsrfTokenInputTag(request),
+                h2("Name"),
+                p("A human-readable name for identifying this API key in the UI."),
                 setStateIfPresent(
                         FieldWithLabel.input()
                             .setFieldName(ApiKeyService.FORM_FIELD_NAME_KEY_NAME)
@@ -89,7 +91,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                         FieldWithLabel.input()
                             .setFieldName(ApiKeyService.FORM_FIELD_NAME_SUBNET)
                             .setId(ApiKeyService.FORM_FIELD_NAME_SUBNET)
-                            .setLabelText("API key name"),
+                            .setLabelText("API key subnet"),
                         dynamicForm,
                         ApiKeyService.FORM_FIELD_NAME_SUBNET)
                     .getContainer());
