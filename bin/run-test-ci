@@ -9,7 +9,7 @@ readonly COMPOSE_CMD="${DOCKER_COMPOSE_UNIT_TEST}"
 
 ${COMPOSE_CMD} up -d
 ${COMPOSE_CMD} exec civiform sbt test
-# Upon a successful test run (non-zero exit code), we also
+# Upon a successful test run (exit code zero), we also
 # assert that SBT actually ran the test suite by evaluating
 # whether a well-known test name exists in the set of
 # evaluated test targets. Note that moving / deleting
