@@ -23,8 +23,8 @@ public final class ApiKeyCredentialsView extends BaseHtmlView {
 
   private static final String CREDENTIALS_DESCRIPTION =
       "Please copy your API key and it store it somewhere secure. This is your only"
-          + " opportunity to copy the secret from CiviForm, if you "
-          + "refresh the page or navigate away you will not be able to recover the"
+          + " opportunity to copy the secret from CiviForm, if you"
+          + " refresh the page or navigate away you will not be able to recover the"
           + " secret value and will need to create a new key instead.";
 
   @Inject
