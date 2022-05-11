@@ -74,6 +74,7 @@ public class LinkElement {
   private String href = "";
   private String styles = "";
   private String onsubmit = "";
+  private boolean doesOpenInNewTab = false;
 
   public LinkElement setId(String id) {
     this.id = id;
@@ -95,8 +96,14 @@ public class LinkElement {
     return this;
   }
 
+
   public LinkElement setOnsubmit(String onsubmit) {
     this.onsubmit = onsubmit;
+    return this;
+  }
+
+  public LinkElement opensInNewTab() {
+    this.doesOpenInNewTab = true;
     return this;
   }
 
@@ -104,17 +111,24 @@ public class LinkElement {
     ContainerTag tag = Strings.isNullOrEmpty(href) ? div(text) : a(text).withHref(href);
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withCondHref(!Strings.isNullOrEmpty(href), href)
+        .withCondTarget(doesOpenInNewTab, "_blank")
         .withClasses(DEFAULT_LINK_STYLES, styles);
   }
 
   public ContainerTag asButton() {
-    ContainerTag tag = Strings.isNullOrEmpty(href) ? div(text) : a(text).withHref(href);
+    ContainerTag tag =
+        Strings.isNullOrEmpty(href)
+            ? div(text)
+            : a(text).withHref(href).withCondTarget(doesOpenInNewTab, "_blank");
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);
   }
 
   public ContainerTag asRightAlignedButton() {
-    ContainerTag tag = Strings.isNullOrEmpty(href) ? div(text) : a(text).withHref(href);
+    ContainerTag tag =
+        Strings.isNullOrEmpty(href)
+            ? div(text)
+            : a(text).withHref(href).withCondTarget(doesOpenInNewTab, "_blank");
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withClasses(RIGHT_ALIGNED_LINK_BUTTON_STYLES, styles);
   }

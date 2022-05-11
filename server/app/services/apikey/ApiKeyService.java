@@ -125,8 +125,7 @@ public class ApiKeyService {
    * @return a result object containing the credentials and created key if successful, form with
    *     validation messages if not
    */
-  public ApiKeyCreationResult createApiKey(DynamicForm form, CiviFormProfile profile)
-      throws ProgramNotFoundException {
+  public ApiKeyCreationResult createApiKey(DynamicForm form, CiviFormProfile profile) {
     if (environment.isProd() && secretSalt.equals(DEFAULT_API_KEY_SECRET_SALT)) {
       throw new RuntimeException("Must set api_secret_salt in production environment.");
     }
@@ -225,7 +224,7 @@ public class ApiKeyService {
   private static final Pattern GRANT_PROGRAM_READ_PATTERN =
       Pattern.compile("^grant-program-read\\[([\\w\\-]+)\\]$");
 
-  private ApiKeyGrants resolveGrants(DynamicForm form) throws ProgramNotFoundException {
+  private ApiKeyGrants resolveGrants(DynamicForm form) {
     ApiKeyGrants grants = new ApiKeyGrants();
     ImmutableSet<String> programSlugs = programService.getAllProgramSlugs();
 
@@ -241,7 +240,10 @@ public class ApiKeyService {
       String programSlug = matcher.group(1);
 
       if (!programSlugs.contains(programSlug)) {
-        throw new ProgramNotFoundException(programSlug);
+        // Making the root exception cause a ProgramNotFoundException will cause
+        // controllers.ErrorHandler to handle it
+        // as a client-error, rather than server-error.
+        throw new RuntimeException(new ProgramNotFoundException(programSlug));
       }
 
       grants.grantProgramPermission(programSlug, Permission.READ);

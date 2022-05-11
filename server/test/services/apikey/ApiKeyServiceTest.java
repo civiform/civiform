@@ -45,7 +45,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void createApiKey_createsAnApiKey() throws ProgramNotFoundException {
+  public void createApiKey_createsAnApiKey() {
     resourceCreator.insertActiveProgram("test program");
 
     DynamicForm form =
@@ -74,7 +74,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void createApiKey_missingKeyName_reportsError() throws ProgramNotFoundException {
+  public void createApiKey_missingKeyName_reportsError() {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -100,7 +100,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void createApiKey_missingExpiration_reportsError() throws ProgramNotFoundException {
+  public void createApiKey_missingExpiration_reportsError() {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -114,7 +114,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void createApiKey_malformedExpiration_reportsError() throws ProgramNotFoundException {
+  public void createApiKey_malformedExpiration_reportsError() {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -129,7 +129,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void createApiKey_missingSubnet_reportsError() throws ProgramNotFoundException {
+  public void createApiKey_missingSubnet_reportsError() {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -143,7 +143,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void createApiKey_malformedSubnet_reportsError() throws ProgramNotFoundException {
+  public void createApiKey_malformedSubnet_reportsError() {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -158,7 +158,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void createApiKey_globalSubnet_reportsError() throws ProgramNotFoundException {
+  public void createApiKey_globalSubnet_reportsError() {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -173,8 +173,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void createApiKey_grantedProgramSlugNotFound_raisesProgramNotFound()
-      throws ProgramNotFoundException {
+  public void createApiKey_grantedProgramSlugNotFound_raisesProgramNotFound() {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -183,13 +182,14 @@ public class ApiKeyServiceTest extends ResetPostgres {
                 "subnet", "0.1.1.1",
                 "grant-program-read[test-program]", "true"));
 
-    assertThrows(
-        ProgramNotFoundException.class, () -> apiKeyService.createApiKey(form, adminProfile));
+    RuntimeException exception =
+        assertThrows(RuntimeException.class, () -> apiKeyService.createApiKey(form, adminProfile));
+
+    assertThat(exception).hasCause(new ProgramNotFoundException("test-program"));
   }
 
   @Test
-  public void createApiKey_profileMissingAuthorityId_raisesRuntimeException()
-      throws ProgramNotFoundException {
+  public void createApiKey_profileMissingAuthorityId_raisesRuntimeException() {
     CiviFormProfileData profileData = profileFactory.createNewAdmin();
     CiviFormProfile missingAuthorityIdProfile = profileFactory.wrapProfileData(profileData);
     resourceCreator.insertActiveProgram("test program");

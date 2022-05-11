@@ -16,7 +16,6 @@ import play.mvc.Result;
 import services.PaginationSpec;
 import services.apikey.ApiKeyCreationResult;
 import services.apikey.ApiKeyService;
-import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.apikeys.ApiKeyIndexView;
 import views.admin.apikeys.ApiKeyNewOneView;
@@ -75,7 +74,7 @@ public class AdminApiKeysController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Http.Request request) {
-    return ok(newOneView.render(request, programService.getAllProgramNames()));
+    return ok(newOneView.render(request, programService.getActiveProgramNames()));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -87,20 +86,14 @@ public class AdminApiKeysController extends CiviFormController {
     }
 
     DynamicForm form = formFactory.form().bindFromRequest(request);
+    ApiKeyCreationResult result = apiKeyService.createApiKey(form, profile.get());
 
-    ApiKeyCreationResult result;
-    try {
-      result = apiKeyService.createApiKey(form, profile.get());
-    } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
+    if (result.isSuccessful()) {
+      return created(apiKeyCredentialsView.render(result.getApiKey(), result.getCredentials()));
     }
 
-    if (!result.isSuccessful()) {
-      return badRequest(
-          newOneView.render(
-              request, programService.getAllProgramNames(), Optional.of(result.getForm())));
-    }
-
-    return created(apiKeyCredentialsView.render(result.getApiKey(), result.getCredentials()));
+    return badRequest(
+        newOneView.render(
+            request, programService.getActiveProgramNames(), Optional.of(result.getForm())));
   }
 }

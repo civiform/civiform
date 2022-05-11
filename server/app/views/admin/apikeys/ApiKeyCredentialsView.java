@@ -21,6 +21,12 @@ import views.style.Styles;
 public final class ApiKeyCredentialsView extends BaseHtmlView {
   private final AdminLayout layout;
 
+  private static final String CREDENTIALS_DESCRIPTION =
+      "Please copy your API key and it store it somewhere secure. This is your only"
+          + " opportunity to copy the secret from CiviForm, if you "
+          + "refresh the page or navigate away you will not be able to recover the"
+          + " secret value and will need to create a new key instead.";
+
   @Inject
   public ApiKeyCredentialsView(AdminLayout layout) {
     this.layout = checkNotNull(layout);
@@ -35,11 +41,7 @@ public final class ApiKeyCredentialsView extends BaseHtmlView {
             .with(
                 h1(title).withClasses(Styles.MY_4),
                 h2("Credentials"),
-                p(
-                    "Please copy your API key and it store it somewhere secure. This is your only"
-                        + " opportunity to copy the secret from CiviForm, if you "
-                        + "refresh the page or navigate away you will not be able to recover the"
-                        + " secret value and will need to create a new key instead."),
+                p(CREDENTIALS_DESCRIPTION),
                 p(text("API key: "), span(credentials).withId("api-key-credentials"))
                     .withClasses(Styles.MT_4));
 
