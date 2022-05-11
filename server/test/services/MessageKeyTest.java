@@ -31,7 +31,7 @@ public class MessageKeyTest extends ResetPostgres {
   @Test
   @Parameters(source = MessageKey.class)
   public void messageKey_isValid(MessageKey messageKey) {
-    assertThat(messagesApi.isDefinedAt(Lang.defaultLang(), messageKey.getKeyName())).isFalse();
+    assertThat(messagesApi.isDefinedAt(Lang.defaultLang(), messageKey.getKeyName())).isTrue();
   }
 
   @Test
