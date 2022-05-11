@@ -350,8 +350,13 @@ function attachFormDebouncers() {
     if (!submitEl) {
       return
     }
+    // Prevent double-clicks from submitting the form multiple times by
+    // disabling the button for a short period after the initial click.
     el.addEventListener('submit', () => {
       submitEl.setAttribute('disabled', '')
+      setTimeout(() => {
+        submitEl.removeAttribute('disabled')
+      }, 5000)
     })
   })
 }
