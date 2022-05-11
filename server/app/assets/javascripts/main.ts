@@ -344,6 +344,18 @@ function configurePredicateFormOnOperatorChange(event: Event) {
   )
 }
 
+function attachFormDebouncers() {
+  Array.from(document.querySelectorAll('.cf-debounced-form')).forEach((el) => {
+    const submitEl = el.querySelector('button[type="submit"]')
+    if (!submitEl) {
+      return
+    }
+    el.addEventListener('submit', () => {
+      submitEl.setAttribute('disabled', '')
+    })
+  })
+}
+
 window.addEventListener('load', (event) => {
   attachDropdown('create-question-button')
 
@@ -411,6 +423,8 @@ window.addEventListener('load', (event) => {
   Array.from(document.querySelectorAll('.cf-enumerator-delete-button')).forEach(
     (el) => el.addEventListener('click', removeExistingEnumeratorField)
   )
+
+  attachFormDebouncers()
 
   // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'
