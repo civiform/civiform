@@ -54,7 +54,10 @@ public class AdminApiKeysController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request) {
     return ok(
-        indexView.render(request, apiKeyService.listApiKeys(PaginationSpec.MAX_PAGE_SIZE_SPEC)));
+        indexView.render(
+            request,
+            apiKeyService.listApiKeys(PaginationSpec.MAX_PAGE_SIZE_SPEC),
+            programService.getAllProgramNames()));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
