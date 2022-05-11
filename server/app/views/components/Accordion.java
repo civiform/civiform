@@ -1,7 +1,8 @@
 package views.components;
 
 import static j2html.TagCreator.div;
-
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.SvgTag;
 
 import j2html.tags.DomContent;
 import java.util.ArrayList;
@@ -28,8 +29,8 @@ public class Accordion {
     return this;
   }
 
-  public ContainerTag getContainer() {
-    ContainerTag accordion =
+  public DivTag getContainer() {
+    DivTag accordion =
         div()
             .withClasses(
                 ReferenceClasses.ACCORDION,
@@ -41,18 +42,18 @@ public class Accordion {
                 Styles.BORDER,
                 Styles.BORDER_GRAY_300);
 
-    ContainerTag titleContainer =
+    DivTag titleContainer =
         div().withClasses(ReferenceClasses.ACCORDION_HEADER, Styles.RELATIVE);
-    ContainerTag titleDiv = div(this.title).withClasses(Styles.TEXT_XL, Styles.FONT_LIGHT);
+    DivTag titleDiv = div(this.title).withClasses(Styles.TEXT_XL, Styles.FONT_LIGHT);
 
-    ContainerTag accordionSvg =
+    SvgTag accordionSvg =
         Icons.svg(Icons.ACCORDION_BUTTON_PATH, 24)
             .withClasses(Styles.H_6, Styles.W_6)
             .attr("fill", "none")
             .attr("stroke-width", "2")
             .attr("stroke-linecap", "round")
             .attr("stroke-linejoin", "round");
-    ContainerTag accordionButton =
+    DivTag accordionButton =
         div(accordionSvg)
             .withClasses(
                 ReferenceClasses.ACCORDION_BUTTON,
@@ -64,7 +65,7 @@ public class Accordion {
                 Styles.TRANSFORM);
     titleContainer.with(titleDiv, accordionButton);
 
-    ContainerTag contentContainer =
+    DivTag contentContainer =
         div()
             .with(this.content)
             .withClasses(ReferenceClasses.ACCORDION_CONTENT, Styles.H_0, Styles.OVERFLOW_HIDDEN);
