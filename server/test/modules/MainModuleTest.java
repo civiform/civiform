@@ -12,6 +12,7 @@ import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import play.Application;
@@ -26,8 +27,12 @@ public class MainModuleTest {
 
   // Note: Each test is responsible for configuring an application object
   // since we're varying the configuration values of the application itself.
-  // This means that there's no need or a corresponding @Before method.
   private Optional<Application> maybeApp;
+
+  @Before
+  public void setUpApp() {
+    maybeApp = Optional.empty();
+  }
 
   @After
   public void tearDownApp() {

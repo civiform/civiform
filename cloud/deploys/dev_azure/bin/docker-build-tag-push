@@ -5,7 +5,7 @@ source cloud/deploys/dev_azure/bin/lib.sh
 docker build \
   -f "prod.Dockerfile" \
   -t "${IMAGE_TAG}" \
-  --cache-from "docker.io/civiform/civiform-browser-test:latest" \
+  --cache-from "docker.io/civiform/civiform:latest" \
   --build-arg "BUILDKIT_INLINE_CACHE=1" .
 
 docker tag \
