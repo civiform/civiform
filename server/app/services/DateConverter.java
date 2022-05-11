@@ -18,6 +18,11 @@ public class DateConverter {
     this.zoneId = checkNotNull(zoneId);
   }
 
+  /** Format an instant to an RFC 1123 string in app's time zone. E.g. 'Tue, 3 Jun 2008 11:05:30 GMT' */
+   public String formatRfc1123(Instant instant) {
+    return DateTimeFormatter.RFC_1123_DATE_TIME.withZone(zoneId).format(instant);
+  }
+
   /**
    * Parses a string containing a ISO-8601 date (i.e. "YYYY-MM-DD") and converts it to an {@link
    * Instant} at the beginning of the day in local time zone.

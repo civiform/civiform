@@ -73,6 +73,7 @@ public class LinkElement {
   private String text = "";
   private String href = "";
   private String styles = "";
+  private String onsubmit = "";
 
   public LinkElement setId(String id) {
     this.id = id;
@@ -91,6 +92,11 @@ public class LinkElement {
 
   public LinkElement setStyles(String... styles) {
     this.styles = StyleUtils.joinStyles(styles);
+    return this;
+  }
+
+  public LinkElement setOnsubmit(String onsubmit) {
+    this.onsubmit = onsubmit;
     return this;
   }
 
@@ -134,6 +140,7 @@ public class LinkElement {
                     .withType("submit"))
             .withMethod("POST")
             .withAction(href)
+            .condAttr(!Strings.isNullOrEmpty(onsubmit), "onsubmit", onsubmit)
             .withCondId(!Strings.isNullOrEmpty(id), id);
     hiddenFormValues.entrySet().stream()
         .map(entry -> input().isHidden().withName(entry.getKey()).withValue(entry.getValue()))
@@ -158,6 +165,7 @@ public class LinkElement {
             .withClasses(Styles.INLINE)
             .withMethod("POST")
             .withAction(href)
+            .condAttr(!Strings.isNullOrEmpty(onsubmit), "onsubmit", onsubmit)
             .withCondId(!Strings.isNullOrEmpty(id), id);
     return form;
   }

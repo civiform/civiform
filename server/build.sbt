@@ -98,8 +98,7 @@ lazy val root = (project in file("."))
       // Turn off the AutoValueSubclassLeaked error since the generated
       // code contains it - we can't control that.
       "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF",
-      "-implicit:class",
-      "-Werror"
+      "-implicit:class"
     ),
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
     // Recompile everything if >10% files have changed
@@ -107,6 +106,9 @@ lazy val root = (project in file("."))
     // After 2 transitive steps, do more aggressive invalidation
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
+
+    // Disallow warnings when building for prod
+    Prod / javaOptions += "-Werror",
 
     // Make verbose tests
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")),
