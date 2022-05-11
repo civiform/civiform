@@ -345,14 +345,14 @@ function configurePredicateFormOnOperatorChange(event: Event) {
 }
 
 function attachFormDebouncers() {
-  Array.from(document.querySelectorAll('.cf-debounced-form')).forEach((el) => {
-    const submitEl = el.querySelector('button[type="submit"]')
+  Array.from(document.querySelectorAll('.cf-debounced-form')).forEach((formEl) => {
+    const submitEl = formEl.querySelector('button[type="submit"]')
     if (!submitEl) {
       return
     }
     // Prevent double-clicks from submitting the form multiple times by
     // disabling the submit button after the initial click.
-    el.addEventListener('submit', () => {
+    formEl.addEventListener('submit', () => {
       submitEl.setAttribute('disabled', '')
     })
   })
