@@ -10,6 +10,7 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TrTag;
+import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TableTag;
 
 import java.util.Optional;
@@ -140,7 +141,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   /** Render the question table header row. */
-  private TrTag renderQuestionTableHeaderRow() {
+  private TheadTag renderQuestionTableHeaderRow() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4))

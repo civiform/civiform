@@ -110,10 +110,16 @@ public class LinkElement {
 
   public DivTag asAnchorText() {
     DivTag tag = Strings.isNullOrEmpty(href) ? div(text) : div().with(a(text).withHref(href));
-    return tag.withCondId(!Strings.isNullOrEmpty(id), id)
-        .withCondHref(!Strings.isNullOrEmpty(href), href)
-        .withCondTarget(doesOpenInNewTab, "_blank")
+    tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withClasses(DEFAULT_LINK_STYLES, styles);
+    if (doesOpenInNewTab) {
+      tag.attr("target", "_blank");
+    }
+    if (!Strings.isNullOrEmpty(href)) {
+      tag.attr("href", href);
+    }
+
+    return tag;
   }
 
   public DivTag asButton() {

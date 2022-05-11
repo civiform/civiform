@@ -20,6 +20,7 @@ import controllers.ti.routes;
 
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
 import j2html.tags.specialized.TdTag;
 
@@ -261,7 +262,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private TrTag renderApplicantTableHeader() {
+  private TheadTag renderApplicantTableHeader() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
@@ -269,7 +270,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .with(th("Actions").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4)));
   }
 
-  private TrTag renderGroupTableHeader() {
+  private TheadTag renderGroupTableHeader() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))

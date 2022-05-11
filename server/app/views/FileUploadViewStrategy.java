@@ -59,7 +59,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    * @param applicantQuestionRendererFactory a class for rendering applicant questions.
    * @return a container tag with the submit view
    */
-  public abstract Tag renderFileUploadBlockSubmitForms(
+  public abstract DivTag renderFileUploadBlockSubmitForms(
       Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory);
 
   /**

@@ -202,7 +202,7 @@ public class QuestionConfig {
    */
   private static DivTag multiOptionQuestionField(
       Optional<LocalizedQuestionOption> existingOption, Messages messages, boolean isForNewOption) {
-    InputTag optionInput =
+    DivTag optionInput =
         FieldWithLabel.input()
             .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
             .setLabelText("Question option")

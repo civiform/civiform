@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.FormTag;
 
@@ -105,7 +106,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
     // which sets disabled to false (see TypeScript file).
     String inputFieldName = existing.isPresent() ? REMOVE_EMAIL_FIELD_NAME : ADD_EMAIL_FIELD_NAME;
 
-    InputTag input =
+    DivTag input =
         FieldWithLabel.email()
             .setFieldName(inputFieldName)
             .setPlaceholderText(INPUT_PLACEHOLDER)
@@ -116,7 +117,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             .getContainer()
             .withClasses(Styles.FLEX, Styles.M_2);
 
-    DivTag removeAdminButton =
+    ButtonTag removeAdminButton =
         button(REMOVE_BUTTON)
             .withClasses(ReferenceClasses.PROGRAM_ADMIN_REMOVE_BUTTON, Styles.FLEX, Styles.M_2);
 

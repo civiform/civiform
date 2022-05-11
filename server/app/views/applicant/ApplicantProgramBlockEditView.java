@@ -115,7 +115,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .getContainerTag();
   }
 
-  private FormTag renderBlockWithSubmitForm(Params params) {
+  private DivTag renderBlockWithSubmitForm(Params params) {
     if (params.block().isFileUpload()) {
       return fileUploadStrategy.renderFileUploadBlockSubmitForms(
           params, applicantQuestionRendererFactory);
@@ -130,7 +130,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .setErrorDisplayMode(params.errorDisplayMode())
             .build();
 
-    return form()
+    return div(form()
         .withId(BLOCK_FORM_ID)
         .attr("action", formAction)
         .withMethod(HttpVerbs.POST)
@@ -139,7 +139,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             each(
                 params.block().getQuestions(),
                 question -> renderQuestion(question, rendererParams)))
-        .with(renderBottomNavButtons(params));
+        .with(renderBottomNavButtons(params)));
   }
 
   private DivTag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {

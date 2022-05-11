@@ -307,7 +307,7 @@ public class FieldWithLabel<T extends Tag> {
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
 
     if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
-      return getCheckboxContainer();
+      return div(getCheckboxContainer());
     }
 
     LabelTag labelTag =

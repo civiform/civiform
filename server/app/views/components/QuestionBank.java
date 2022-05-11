@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 
+import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.InputTag;
@@ -44,7 +45,7 @@ public class QuestionBank {
   private BlockDefinition blockDefinition;
   private Optional<Long> enumeratorQuestionId;
   private ImmutableList<QuestionDefinition> questions = ImmutableList.of();
-  private InputTag csrfTag = div();
+  private DivTag csrfTag = div();
   private String questionAction = "";
 
   public QuestionBank setProgram(ProgramDefinition program) {
@@ -63,7 +64,7 @@ public class QuestionBank {
   }
 
   public QuestionBank setCsrfTag(InputTag csrfTag) {
-    this.csrfTag = csrfTag;
+    this.csrfTag.with(csrfTag);
     return this;
   }
 
