@@ -18,7 +18,7 @@ import views.style.Styles;
 /** Contains methods for rendering preview of a question. */
 public class QuestionPreview {
 
-  private static ContainerTag buildQuestionRenderer(
+  private static DivTag buildQuestionRenderer(
       QuestionType type, Messages messages, FileUploadViewStrategy fileUploadViewStrategy)
       throws UnsupportedQuestionTypeException {
     ApplicantQuestionRendererFactory rf =
