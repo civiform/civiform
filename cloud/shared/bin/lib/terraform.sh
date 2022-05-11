@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # https://www.baeldung.com/linux/store-command-in-variable
-readonly TERRAFORM_CMD=("terraform" "${TERRAFORM_DIR}")
+readonly TERRAFORM_CMD=("terraform" "-chdir=${TERRAFORM_TEMPLATE_DIR}")
 readonly TERRAFORM_APPLY=(${TERRAFORM_CMD[@]} "apply" "-input=false" "-var-file=${TF_VAR_FILENAME}")
 
 #######################################
