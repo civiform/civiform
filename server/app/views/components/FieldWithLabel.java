@@ -73,99 +73,99 @@ public class FieldWithLabel<T extends Tag> {
 
   public static FieldWithLabel<InputTag> checkbox() {
     InputTag fieldTag = TagCreator.input();
-    return new FieldWithLabel(fieldTag).setFieldType("checkbox");
+    return new FieldWithLabel<InputTag>(fieldTag).setFieldType("checkbox");
   }
 
   public static FieldWithLabel<InputTag> currency() {
     InputTag fieldTag = TagCreator.input();
-    return new FieldWithLabel(fieldTag).setFieldType("text").setIsCurrency();
+    return new FieldWithLabel<InputTag>(fieldTag).setFieldType("text").setIsCurrency();
   }
 
   public static FieldWithLabel<InputTag> radio() {
     InputTag fieldTag = TagCreator.input();
-    return new FieldWithLabel(fieldTag).setFieldType("radio");
+    return new FieldWithLabel<InputTag>(fieldTag).setFieldType("radio");
   }
 
   public static FieldWithLabel<InputTag> input() {
     InputTag fieldTag = TagCreator.input();
-    return new FieldWithLabel(fieldTag).setFieldType("text");
+    return new FieldWithLabel<InputTag>(fieldTag).setFieldType("text");
   }
 
   public static FieldWithLabel<InputTag> number() {
     InputTag fieldTag = TagCreator.input();
-    return new FieldWithLabel(fieldTag).setFieldType("number");
+    return new FieldWithLabel<InputTag>(fieldTag).setFieldType("number");
   }
 
   public static FieldWithLabel<InputTag> date() {
     InputTag fieldTag = TagCreator.input();
-    return new FieldWithLabel(fieldTag).setFieldType("date");
+    return new FieldWithLabel<InputTag>(fieldTag).setFieldType("date");
   }
 
   public static FieldWithLabel<TextareaTag> textArea() {
     TextareaTag fieldTag = textarea();
-    return new FieldWithLabel(fieldTag).setFieldType("text");
+    return new FieldWithLabel<TextareaTag>(fieldTag).setFieldType("text");
   }
 
   public static FieldWithLabel<InputTag> email() {
     InputTag fieldTag = TagCreator.input();
-    return new FieldWithLabel(fieldTag).setFieldType("email");
+    return new FieldWithLabel<InputTag>(fieldTag).setFieldType("email");
   }
 
   /** Add a reference class from {@link views.style.ReferenceClasses} to this element. */
-  public FieldWithLabel addReferenceClass(String referenceClass) {
+  public FieldWithLabel<T> addReferenceClass(String referenceClass) {
     referenceClassesBuilder.add(referenceClass);
     return this;
   }
 
-  public FieldWithLabel setChecked(boolean checked) {
+  public FieldWithLabel<T> setChecked(boolean checked) {
     this.checked = checked;
     return this;
   }
 
-  public FieldWithLabel setFieldName(String fieldName) {
+  public FieldWithLabel<T> setFieldName(String fieldName) {
     this.fieldName = fieldName;
     return this;
   }
 
-  public FieldWithLabel setFieldType(String fieldType) {
+  public FieldWithLabel<T> setFieldType(String fieldType) {
     this.fieldTag.attr("type", fieldType);
     this.fieldType = fieldType;
     return this;
   }
 
-  public FieldWithLabel setFormId(String formId) {
+  public FieldWithLabel<T> setFormId(String formId) {
     this.formId = formId;
     return this;
   }
 
-  public FieldWithLabel setId(String inputId) {
+  public FieldWithLabel<T> setId(String inputId) {
     this.id = inputId;
     return this;
   }
 
-  FieldWithLabel setIsCurrency() {
+  public FieldWithLabel<T> setIsCurrency() {
     // There is no HTML currency input so we identify these with a custom attribute.
     this.setAttribute("currency");
     return this;
   }
 
-  public FieldWithLabel setLabelText(String labelText) {
+  public FieldWithLabel<T> setLabelText(String labelText) {
     this.labelText = labelText;
     return this;
   }
 
-  public FieldWithLabel setPlaceholderText(String placeholder) {
+  public FieldWithLabel<T> setPlaceholderText(String placeholder) {
     this.placeholderText = placeholder;
     return this;
   }
 
   /** Sets a valueless attribute. */
-  public FieldWithLabel setAttribute(String attribute) {
+  public FieldWithLabel<T> setAttribute(String attribute) {
     this.fieldTag.attr(attribute, null);
     return this;
   }
 
-  public FieldWithLabel setMin(OptionalLong value) {
+  public FieldWithLabel<T> setMin(OptionalLong value) {
     if (!this.fieldType.equals("number")) {
       throw new RuntimeException(
           "setting an OptionalLong min value is only available on fields of type 'number'");
@@ -174,7 +174,7 @@ public class FieldWithLabel<T extends Tag> {
     return this;
   }
 
-  public FieldWithLabel setMax(OptionalLong value) {
+  public FieldWithLabel<T> setMax(OptionalLong value) {
     if (!this.fieldType.equals("number")) {
       throw new RuntimeException(
           "setting an OptionalLong max value is only available on fields of type 'number'");
@@ -184,7 +184,7 @@ public class FieldWithLabel<T extends Tag> {
     return this;
   }
 
-  public FieldWithLabel setValue(String value) {
+  public FieldWithLabel<T> setValue(String value) {
     if (!STRING_TYPES.contains(this.fieldType)) {
       throw new RuntimeException(
           String.format(
@@ -195,7 +195,7 @@ public class FieldWithLabel<T extends Tag> {
     return this;
   }
 
-  public FieldWithLabel setValue(Optional<String> value) {
+  public FieldWithLabel<T> setValue(Optional<String> value) {
     if (!STRING_TYPES.contains(this.fieldType)) {
       throw new RuntimeException(
           "setting a String value is not available on fields of type 'number'");
@@ -204,7 +204,7 @@ public class FieldWithLabel<T extends Tag> {
     return this;
   }
 
-  public FieldWithLabel setValue(OptionalInt value) {
+  public FieldWithLabel<T> setValue(OptionalInt value) {
     if (!this.fieldType.equals("number")) {
       throw new RuntimeException(
           "setting an OptionalInt value is only available on fields of type `number`");
@@ -215,7 +215,7 @@ public class FieldWithLabel<T extends Tag> {
     return this;
   }
 
-  public FieldWithLabel setValue(OptionalLong value) {
+  public FieldWithLabel<T> setValue(OptionalLong value) {
     if (!this.fieldType.equals("number")) {
       throw new RuntimeException(
           "setting an OptionalLong value is only available on fields of type `number`");
@@ -225,17 +225,17 @@ public class FieldWithLabel<T extends Tag> {
     return this;
   }
 
-  public FieldWithLabel setDisabled(boolean disabled) {
+  public FieldWithLabel<T> setDisabled(boolean disabled) {
     this.disabled = disabled;
     return this;
   }
 
-  public FieldWithLabel setScreenReaderText(String screenReaderText) {
+  public FieldWithLabel<T> setScreenReaderText(String screenReaderText) {
     this.screenReaderText = screenReaderText;
     return this;
   }
 
-  public FieldWithLabel setFieldErrors(
+  public FieldWithLabel<T> setFieldErrors(
       Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
     this.messages = messages;
     this.fieldErrors =
@@ -255,7 +255,7 @@ public class FieldWithLabel<T extends Tag> {
     return this;
   }
 
-  public FieldWithLabel showFieldErrors(boolean showFieldErrors) {
+  public FieldWithLabel<T> showFieldErrors(boolean showFieldErrors) {
     this.showFieldErrors = showFieldErrors;
     return this;
   }
