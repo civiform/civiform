@@ -1,7 +1,6 @@
 package views.admin.apikeys;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -27,6 +26,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
+import views.components.LinkElement;
 import views.style.Styles;
 
 /** Renders a page for adding a new ApiKey. */
@@ -44,9 +44,11 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
           + " recommended. Once a year is acceptable in most situations.";
   private static final DomContent[] SUBNET_DESCRIPTION = {
     text("Specify a subnet using "),
-    a("CIDR notation")
-        .withHref("https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing")
-        .withTarget("_blank"),
+    new LinkElement()
+        .setText("CIDR notation")
+        .setHref("https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing")
+        .opensInNewTab()
+        .asAnchorText(),
     text(
         " that is allowed to call the API. The"
             + " subnet may be edited after the API key is created. A single IP address"
