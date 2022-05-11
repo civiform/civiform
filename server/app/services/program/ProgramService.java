@@ -342,6 +342,9 @@ public interface ProgramService {
   /** Get all versions of the program with a version matching programId, including that one */
   ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId);
 
+  /** Get the names for active programs. */
+  ImmutableSet<String> getActiveProgramNames();
+
   /** Get the names for all programs. */
   ImmutableSet<String> getAllProgramNames();
 
