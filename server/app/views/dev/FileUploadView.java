@@ -8,6 +8,8 @@ import static j2html.TagCreator.pre;
 
 import com.google.common.collect.ImmutableList;
 
+import j2html.tags.specialized.DivTag;
+
 import java.util.Optional;
 import javax.inject.Inject;
 import models.StoredFile;
@@ -47,7 +49,7 @@ public class FileUploadView extends BaseHtmlView {
       Optional<String> maybeFlash,
       Messages messages) {
     String title = "Dev file upload";
-    ContainerTag fileUploadForm;
+    DivTag fileUploadForm;
 
     HtmlBundle bundle = layout.getBundle();
     try {
