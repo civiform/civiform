@@ -1,6 +1,6 @@
 package services.cloud;
 
-import views.applicant.ApplicantProgramBlockEditView;
+import views.ApplicationBaseView;
 
 /**
  * FileNameFormatter provides methods for formatting uploaded file names with a key prefix that
@@ -29,8 +29,7 @@ public class FileNameFormatter {
    * check if a file can be accessed based on the key content, so be extra cautious if you want to
    * change the format.
    */
-  public static String formatFileUploadQuestionFilename(
-      ApplicantProgramBlockEditView.Params params) {
+  public static String formatFileUploadQuestionFilename(ApplicationBaseView.Params params) {
 
     return String.format(
         "applicant-%d/program-%d/block-%s/${filename}",

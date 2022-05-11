@@ -9,6 +9,7 @@ import auth.saml.InvalidSamlProfileException;
 import auth.saml.SamlCiviFormProfileAdapter;
 import io.ebean.DB;
 import io.ebean.Database;
+import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Provider;
@@ -82,7 +83,8 @@ public class ProfileMergeTest extends ResetPostgres {
     OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile);
     CiviFormProfile profile = profileFactory.wrapProfileData(profileData);
 
     assertThat(profileData.getEmail()).isEqualTo("foo@example.com");
@@ -98,7 +100,8 @@ public class ProfileMergeTest extends ResetPostgres {
         createOidcProfile("foo@example.com", "issuer to delete", "subject to delete");
 
     CiviFormProfileData existingProfileWithoutAuthority =
-        idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile);
     Account account =
         database.find(Account.class).where().eq("email_address", "foo@example.com").findOne();
     account.setAuthorityId(null);
@@ -111,7 +114,7 @@ public class ProfileMergeTest extends ResetPostgres {
     CiviFormProfile mergedProfile =
         profileFactory.wrapProfileData(
             idcsProfileAdapter.mergeCiviFormProfile(
-                profileFactory.wrapProfileData(existingProfileWithoutAuthority),
+                Optional.of(profileFactory.wrapProfileData(existingProfileWithoutAuthority)),
                 oidcProfileWithAuthority));
     assertThat(mergedProfile.getEmailAddress().get()).isEqualTo("foo@example.com");
     assertThat(mergedProfile.getAuthorityId().get()).isEqualTo("iss: issuer sub: subject");
@@ -122,11 +125,13 @@ public class ProfileMergeTest extends ResetPostgres {
     OidcProfile oidcProfile = createOidcProfile("foo@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile);
 
     assertThat(
             idcsProfileAdapter
-                .mergeCiviFormProfile(profileFactory.wrapProfileData(profileData), oidcProfile)
+                .mergeCiviFormProfile(
+                    Optional.of(profileFactory.wrapProfileData(profileData)), oidcProfile)
                 .getEmail())
         .isEqualTo("foo@example.com");
   }
@@ -140,12 +145,13 @@ public class ProfileMergeTest extends ResetPostgres {
     newProfile.setId("subject");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile);
 
     assertThatThrownBy(
             () ->
                 idcsProfileAdapter.mergeCiviFormProfile(
-                    profileFactory.wrapProfileData(profileData), newProfile))
+                    Optional.of(profileFactory.wrapProfileData(profileData)), newProfile))
         .isInstanceOf(InvalidOidcProfileException.class);
   }
 
@@ -158,12 +164,13 @@ public class ProfileMergeTest extends ResetPostgres {
     newProfile.addAttribute("iss", "issuer");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile);
 
     assertThatThrownBy(
             () ->
                 idcsProfileAdapter.mergeCiviFormProfile(
-                    profileFactory.wrapProfileData(profileData), newProfile))
+                    Optional.of(profileFactory.wrapProfileData(profileData)), newProfile))
         .isInstanceOf(InvalidOidcProfileException.class);
   }
 
@@ -176,12 +183,13 @@ public class ProfileMergeTest extends ResetPostgres {
     newProfile.setId("subject");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile);
 
     assertThatThrownBy(
             () ->
                 idcsProfileAdapter.mergeCiviFormProfile(
-                    profileFactory.wrapProfileData(profileData), newProfile))
+                    Optional.of(profileFactory.wrapProfileData(profileData)), newProfile))
         .isInstanceOf(InvalidOidcProfileException.class);
   }
 
@@ -191,12 +199,13 @@ public class ProfileMergeTest extends ResetPostgres {
     OidcProfile conflictingProfile = createOidcProfile("bar@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile);
 
     assertThatThrownBy(
             () ->
                 idcsProfileAdapter.mergeCiviFormProfile(
-                    profileFactory.wrapProfileData(profileData), conflictingProfile))
+                    Optional.of(profileFactory.wrapProfileData(profileData)), conflictingProfile))
         .hasCauseInstanceOf(ProfileMergeConflictException.class);
   }
 
@@ -207,12 +216,13 @@ public class ProfileMergeTest extends ResetPostgres {
         createOidcProfile("foo@example.com", "issuer", "a different subject");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile);
 
     assertThatThrownBy(
             () ->
                 idcsProfileAdapter.mergeCiviFormProfile(
-                    profileFactory.wrapProfileData(profileData), conflictingProfile))
+                    Optional.of(profileFactory.wrapProfileData(profileData)), conflictingProfile))
         .hasCauseInstanceOf(ProfileMergeConflictException.class);
   }
 
@@ -223,12 +233,13 @@ public class ProfileMergeTest extends ResetPostgres {
         createOidcProfile("foo@example.com", "a different issuer", "subject");
 
     CiviFormProfileData profileData =
-        idcsProfileAdapter.civiformProfileFromOidcProfile(oidcProfile);
+        idcsProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile);
 
     assertThatThrownBy(
             () ->
                 idcsProfileAdapter.mergeCiviFormProfile(
-                    profileFactory.wrapProfileData(profileData), conflictingProfile))
+                    Optional.of(profileFactory.wrapProfileData(profileData)), conflictingProfile))
         .hasCauseInstanceOf(ProfileMergeConflictException.class);
   }
 
@@ -237,7 +248,8 @@ public class ProfileMergeTest extends ResetPostgres {
     SAML2Profile saml2Profile = createSamlProfile("foo@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
-        samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
+        samlProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), saml2Profile);
     CiviFormProfile profile = profileFactory.wrapProfileData(profileData);
 
     assertThat(profileData.getEmail()).isEqualTo("foo@example.com");
@@ -250,11 +262,13 @@ public class ProfileMergeTest extends ResetPostgres {
     SAML2Profile saml2Profile = createSamlProfile("foo@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
-        samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
+        samlProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), saml2Profile);
 
     assertThat(
             samlProfileAdapter
-                .mergeCiviFormProfile(profileFactory.wrapProfileData(profileData), saml2Profile)
+                .mergeCiviFormProfile(
+                    Optional.of(profileFactory.wrapProfileData(profileData)), saml2Profile)
                 .getEmail())
         .isEqualTo("foo@example.com");
   }
@@ -265,12 +279,13 @@ public class ProfileMergeTest extends ResetPostgres {
     SAML2Profile conflictingProfile = createSamlProfile("bar@example.com", "issuer", "subject");
 
     CiviFormProfileData profileData =
-        samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
+        samlProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), saml2Profile);
 
     assertThatThrownBy(
             () ->
                 samlProfileAdapter.mergeCiviFormProfile(
-                    profileFactory.wrapProfileData(profileData), conflictingProfile))
+                    Optional.of(profileFactory.wrapProfileData(profileData)), conflictingProfile))
         .hasCauseInstanceOf(ProfileMergeConflictException.class);
   }
 
@@ -283,12 +298,13 @@ public class ProfileMergeTest extends ResetPostgres {
     newProfile.addAuthenticationAttribute("issuerId", "issuer");
 
     CiviFormProfileData profileData =
-        samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
+        samlProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), saml2Profile);
 
     assertThatThrownBy(
             () ->
                 samlProfileAdapter.mergeCiviFormProfile(
-                    profileFactory.wrapProfileData(profileData), newProfile))
+                    Optional.of(profileFactory.wrapProfileData(profileData)), newProfile))
         .isInstanceOf(InvalidSamlProfileException.class);
   }
 
@@ -301,12 +317,13 @@ public class ProfileMergeTest extends ResetPostgres {
     newProfile.setId("subject");
 
     CiviFormProfileData profileData =
-        samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
+        samlProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), saml2Profile);
 
     assertThatThrownBy(
             () ->
                 samlProfileAdapter.mergeCiviFormProfile(
-                    profileFactory.wrapProfileData(profileData), newProfile))
+                    Optional.of(profileFactory.wrapProfileData(profileData)), newProfile))
         .isInstanceOf(InvalidSamlProfileException.class);
   }
 
@@ -317,12 +334,13 @@ public class ProfileMergeTest extends ResetPostgres {
         createSamlProfile("foo@example.com", "issuer", "a different subject");
 
     CiviFormProfileData profileData =
-        samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
+        samlProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), saml2Profile);
 
     assertThatThrownBy(
             () ->
                 samlProfileAdapter.mergeCiviFormProfile(
-                    profileFactory.wrapProfileData(profileData), conflictingProfile))
+                    Optional.of(profileFactory.wrapProfileData(profileData)), conflictingProfile))
         .isInstanceOf(CompletionException.class);
   }
 
@@ -333,12 +351,13 @@ public class ProfileMergeTest extends ResetPostgres {
         createSamlProfile("foo@example.com", "a different issuer", "subject");
 
     CiviFormProfileData profileData =
-        samlProfileAdapter.civiformProfileFromSamlProfile(saml2Profile);
+        samlProfileAdapter.mergeCiviFormProfile(
+            /* maybeCiviFormProfile = */ Optional.empty(), saml2Profile);
 
     assertThatThrownBy(
             () ->
                 samlProfileAdapter.mergeCiviFormProfile(
-                    profileFactory.wrapProfileData(profileData), conflictingProfile))
+                    Optional.of(profileFactory.wrapProfileData(profileData)), conflictingProfile))
         .isInstanceOf(CompletionException.class);
   }
 }
