@@ -69,7 +69,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    *
    * <p>See {@link renderDeleteAndContinueFileUploadForms}.
    */
-  protected abstract Optional<Tag> maybeRenderSkipOrDeleteButton(Params params);
+  protected abstract Optional<ButtonTag> maybeRenderSkipOrDeleteButton(Params params);
 
   protected DivTag renderQuestion(
       ApplicantQuestion question,
