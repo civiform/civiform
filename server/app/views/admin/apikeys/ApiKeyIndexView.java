@@ -19,6 +19,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.components.LinkElement;
+import views.style.ReferenceClasses;
 import views.style.Styles;
 
 /** Renders a page that lists the system's {@link models.ApiKey}s. */
@@ -91,6 +92,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                       + apiKey.getName()
                       + "?')")
               .setText("Retire key")
+              .setId(String.format("retire-%s", slugifier.slugify(apiKey.getName())))
               .asHiddenForm(request));
     }
 
@@ -140,7 +142,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                         text(apiKey.getName()),
                         span(apiKey.isRetired() ? " retired" : " active")
                             .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_SM))
-                    .withClasses(Styles.MB_2),
+                    .withClasses(Styles.MB_2, ReferenceClasses.ADMIN_API_KEY_INDEX_ENTRY_NAME),
                 topRowDiv,
                 bottomDiv);
 
