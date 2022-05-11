@@ -66,7 +66,7 @@ public class ProgramTranslationView extends TranslationFormView {
         layout
             .getBundle()
             .setTitle(title)
-            .addMainContent(renderHeader(title), renderLanguageLinks(programId, locale), form);
+            .addMainContent(div(renderHeader(title)), renderLanguageLinks(programId, locale), div(form));
 
     errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
 

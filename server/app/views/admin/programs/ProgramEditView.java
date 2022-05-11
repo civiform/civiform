@@ -1,6 +1,7 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.div;
 
 import com.google.inject.Inject;
 import forms.ProgramForm;
@@ -34,7 +35,7 @@ public class ProgramEditView extends BaseHtmlView {
     String title = String.format("Edit program: %s", program.adminName());
 
     HtmlBundle htmlBundle =
-        layout.getBundle().setTitle(title).addMainContent(renderHeader(title), formTag);
+        layout.getBundle().setTitle(title).addMainContent(div(renderHeader(title)), div(formTag));
 
     return layout.renderCentered(htmlBundle);
   }
@@ -49,7 +50,7 @@ public class ProgramEditView extends BaseHtmlView {
     String title = String.format("Edit program: %s", program.getAdminName());
 
     HtmlBundle htmlBundle =
-        layout.getBundle().setTitle(title).addMainContent(renderHeader(title), formTag);
+        layout.getBundle().setTitle(title).addMainContent(div(renderHeader(title)), div(formTag));
 
     if (!message.isEmpty()) {
       htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));

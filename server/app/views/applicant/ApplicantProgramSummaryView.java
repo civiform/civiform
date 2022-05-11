@@ -13,8 +13,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
 
-import j2html.tags.Tag;
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ATag;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -92,7 +93,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         routes.ApplicantProgramReviewController.submit(params.applicantId(), params.programId())
             .url();
 
-    Tag continueOrSubmitButton;
+    ContainerTag continueOrSubmitButton;
     if (params.completedBlockCount() == params.totalBlockCount()) {
       continueOrSubmitButton =
           submitButton(messages.at(MessageKey.BUTTON_SUBMIT.getKeyName()))
@@ -127,7 +128,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
             params.programTitle(), params.completedBlockCount(), params.totalBlockCount(), true),
-        h1(pageTitle).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION),
+        div(h1(pageTitle).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION)),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 

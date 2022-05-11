@@ -67,22 +67,22 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .getBundle()
             .setTitle("CiviForm")
             .addMainContent(
-                renderHeader(tiGroup.getName()),
-                h2(tiGroup.getDescription()).withClasses(Styles.ML_2),
-                hr(),
-                renderHeader("Add Client"),
-                renderAddNewForm(tiGroup, request),
-                hr().withClasses(Styles.MT_6),
-                renderHeader("Clients"),
-                renderSearchForm(
+                div(renderHeader(tiGroup.getName())),
+                div(h2(tiGroup.getDescription()).withClasses(Styles.ML_2)),
+                div(hr()),
+                div(renderHeader("Add Client")),
+                div(renderAddNewForm(tiGroup, request)),
+                div(hr().withClasses(Styles.MT_6)),
+                div(renderHeader("Clients")),
+                div(renderSearchForm(
                     request,
                     search,
                     routes.TrustedIntermediaryController.dashboard(
-                        Optional.empty(), Optional.empty())),
-                renderTIApplicantsTable(managedAccounts, search, page, totalPageCount),
-                hr().withClasses(Styles.MT_6),
-                renderHeader("Trusted Intermediary Members"),
-                renderTIMembersTable(tiGroup).withClasses(Styles.ML_2))
+                        Optional.empty(), Optional.empty()))),
+                div(renderTIApplicantsTable(managedAccounts, search, page, totalPageCount)),
+                div(hr().withClasses(Styles.MT_6)),
+                div(renderHeader("Trusted Intermediary Members")),
+                div(renderTIMembersTable(tiGroup).withClasses(Styles.ML_2)))
             .addMainStyles(Styles.PX_2, Styles.MAX_W_SCREEN_XL, Styles.MX_AUTO);
 
     if (request.flash().get("error").isPresent()) {

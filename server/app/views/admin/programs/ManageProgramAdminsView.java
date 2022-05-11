@@ -65,8 +65,8 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             .getBundle()
             .setTitle(fullTitle)
             .addMainContent(
-                renderHeader(fullTitle),
-                adminEmailTemplate(),
+                div(renderHeader(fullTitle)),
+                div(adminEmailTemplate()),
                 renderAdminForm(request, program.id(), existingAdminEmails));
 
     if (!message.isEmpty()) {

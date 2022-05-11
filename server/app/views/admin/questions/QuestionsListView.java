@@ -54,7 +54,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .getBundle()
             .setTitle(title)
             .addMainContent(
-                renderHeader(title),
+                div(renderHeader(title)),
                 renderAddQuestionLink(),
                 div(renderQuestionTable(activeAndDraftQuestions, request)).withClasses(Styles.M_4),
                 renderSummary(activeAndDraftQuestions));

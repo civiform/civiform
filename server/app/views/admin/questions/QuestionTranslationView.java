@@ -1,5 +1,7 @@
 package views.admin.questions;
 
+import static j2html.TagCreator.div;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
@@ -64,7 +66,7 @@ public class QuestionTranslationView extends TranslationFormView {
             .getBundle()
             .setTitle(title)
             .addMainContent(
-                renderHeader(title), renderLanguageLinks(question.getId(), locale), form);
+                div(renderHeader(title)), renderLanguageLinks(question.getId(), locale), div(form));
     errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
 
     return layout.renderCentered(htmlBundle);

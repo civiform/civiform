@@ -6,6 +6,8 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 
+import j2html.tags.specialized.DivTag;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
@@ -179,11 +181,11 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private Content renderWithPreview(ContainerTag formContent, QuestionType type, String title) {
-    ContainerTag previewContent =
+    DivTag previewContent =
         QuestionPreview.renderQuestionPreview(type, messages, fileUploadViewStrategy);
 
     HtmlBundle htmlBundle =
-        layout.getBundle().setTitle(title).addMainContent(formContent, previewContent);
+        layout.getBundle().setTitle(title).addMainContent(div(formContent), previewContent);
     return layout.render(htmlBundle);
   }
 
