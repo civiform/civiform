@@ -6,6 +6,9 @@ import static j2html.TagCreator.div;
 import com.google.inject.Inject;
 import forms.ProgramForm;
 
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.DivTag;
+
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
@@ -26,7 +29,7 @@ public class ProgramEditView extends BaseHtmlView {
   }
 
   public Content render(Request request, ProgramDefinition program) {
-    ContainerTag formTag =
+    FormTag formTag =
         ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))
@@ -41,7 +44,7 @@ public class ProgramEditView extends BaseHtmlView {
   }
 
   public Content render(Request request, long id, ProgramForm program, String message) {
-    ContainerTag formTag =
+    FormTag formTag =
         ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(id))
@@ -59,7 +62,7 @@ public class ProgramEditView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ContainerTag buildManageQuestionLink(long id) {
+  private DivTag buildManageQuestionLink(long id) {
     String manageQuestionLink =
         controllers.admin.routes.AdminProgramBlocksController.index(id).url();
     return new LinkElement()
