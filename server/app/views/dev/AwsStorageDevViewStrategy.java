@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
 
 import javax.inject.Inject;
@@ -37,7 +38,7 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
   }
 
   @Override
-  public FormTag getFileUploadForm(
+  public DivTag getFileUploadForm(
       ViewUtils viewUtils, StorageUploadRequest storageUploadRequest, HtmlBundle bundle)
       throws RuntimeException {
     if (!(storageUploadRequest instanceof SignedS3UploadRequest)) {
@@ -69,7 +70,7 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
               .attr("value", request.securityToken()));
     }
 
-    return formTag
+    formTag
         .with(input().attr("type", "text").attr("name", "X-Amz-Algorithm").attr("value", request.algorithm()))
         .with(input().attr("type", "text").attr("name", "X-Amz-Date").attr("value", request.date()))
         .with(input().attr("type", "hidden").attr("name", "Policy").attr("value", request.policy()))
@@ -78,6 +79,8 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
         .with(TagCreator.button(text("Upload to Amazon S3")).attr("type", "submit"))
         .withMethod("post")
         .attr("action", request.actionLink());
+
+    return div(formTag).withId("aws-upload-form-component");
   }
 
   @Override

@@ -2,6 +2,9 @@ package views.dev;
 
 import com.google.common.collect.ImmutableList;
 
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TableTag;
+
 import models.StoredFile;
 import services.cloud.StorageUploadRequest;
 import views.HtmlBundle;
@@ -13,11 +16,11 @@ import views.ViewUtils;
 public interface CloudStorageDevViewStrategy {
 
   /** Method for getting the file upload form for different cloud providers. */
-  ContainerTag getFileUploadForm(
+  DivTag getFileUploadForm(
       ViewUtils viewUtils, StorageUploadRequest storageUploadRequest, HtmlBundle bundle)
       throws RuntimeException;
 
-  ContainerTag renderFiles(ImmutableList<StoredFile> files);
+  TableTag renderFiles(ImmutableList<StoredFile> files);
 
   String getPresignedUrl(StoredFile file);
 }
