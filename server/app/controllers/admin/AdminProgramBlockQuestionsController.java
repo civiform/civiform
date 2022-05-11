@@ -30,18 +30,25 @@ public class AdminProgramBlockQuestionsController extends Controller {
   private final ProgramService programService;
   private final VersionRepository versionRepository;
   private final FormFactory formFactory;
+  private final RequestChecker requestChecker;
 
   @Inject
   public AdminProgramBlockQuestionsController(
-      ProgramService programService, VersionRepository versionRepository, FormFactory formFactory) {
+      ProgramService programService,
+      VersionRepository versionRepository,
+      FormFactory formFactory,
+      RequestChecker requestChecker) {
     this.programService = checkNotNull(programService);
     this.versionRepository = checkNotNull(versionRepository);
     this.formFactory = checkNotNull(formFactory);
+    this.requestChecker = checkNotNull(requestChecker);
   }
 
   /** POST endpoint for adding one or more questions to a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result create(Request request, long programId, long blockId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     ImmutableList<Long> questionIds =
         requestData.rawData().entrySet().stream()
@@ -81,6 +88,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
   /** POST endpoint for removing a question from a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result destroy(long programId, long blockDefinitionId, long questionDefinitionId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
     try {
       programService.removeQuestionsFromBlock(
           programId, blockDefinitionId, ImmutableList.of(questionDefinitionId));
@@ -106,6 +115,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result setOptional(
       Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
     ProgramQuestionDefinitionOptionalityForm programQuestionDefinitionOptionalityForm =
         formFactory
             .form(ProgramQuestionDefinitionOptionalityForm.class)

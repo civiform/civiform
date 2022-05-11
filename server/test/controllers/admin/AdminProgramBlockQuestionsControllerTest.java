@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
@@ -59,5 +60,36 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     program.refresh();
     assertThat(program.getProgramDefinition().hasQuestion(toUpdate)).isTrue();
     assertThat(program.getProgramDefinition().hasQuestion(nameQuestion)).isFalse();
+  }
+
+  @Test
+  public void create_withActiveProgram_throws() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThrows(
+        NotChangeableException.class,
+        () -> controller.create(fakeRequest().build(), programId, /* blockId= */ 1));
+  }
+
+  @Test
+  public void destroy_withActiveProgram_throws() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThrows(
+        NotChangeableException.class,
+        () ->
+            controller.destroy(
+                programId, /* blockDefinitionId= */ 1, /* questionDefinitionId= */ 1));
+  }
+
+  @Test
+  public void setOptional_withActiveProgram_throws() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThrows(
+        NotChangeableException.class,
+        () ->
+            controller.setOptional(
+                fakeRequest().build(),
+                programId,
+                /* blockDefinitionId= */ 1,
+                /* questionDefinitionId= */ 1));
   }
 }
