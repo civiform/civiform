@@ -3,6 +3,13 @@ import { readFileSync } from 'fs'
 import { waitForPageJsLoad } from './wait'
 import { BASE_URL } from './config'
 
+type CreateApiKeyParamsType = {
+  name: string
+  expiration: string
+  subnet: string
+  programSlugs: Array<string>
+}
+
 export class AdminApiKeys {
   public page!: Page
 
@@ -11,7 +18,12 @@ export class AdminApiKeys {
   }
 
   // Create a new ApiKey, returning the credentials string
-  async createApiKey(name: string, expiration: string, subnet: string, programSlugs: Array<string>): Promise<string> {
+  async createApiKey({
+    name,
+    expiration,
+    subnet,
+    programSlugs,
+  }: CreateApiKeyParamsType): Promise<string> {
     await this.gotoNewApiKeyPage()
     await this.page.fill('#keyName', name)
     await this.page.fill('#expiration', expiration)

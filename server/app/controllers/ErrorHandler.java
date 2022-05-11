@@ -30,6 +30,9 @@ import services.program.ProgramNotFoundException;
 @Singleton
 public class ErrorHandler extends DefaultHttpErrorHandler {
 
+  private static final ImmutableSet<Class<? extends Exception>> BAD_REQUEST_EXCEPTION_TYPES =
+      ImmutableSet.of(NotChangeableException.class, ProgramNotFoundException.class, ApiKeyNotFoundException.class);
+
   @Inject
   public ErrorHandler(
       Config config,
@@ -43,13 +46,8 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   public CompletionStage<Result> onServerError(RequestHeader request, Throwable exception) {
     // Exceptions that reach here will generate 500s. Here we convert certain ones to different user
     // visible states. Note: there are methods on the parent that handle dev and prod separately.
-    Optional<Throwable> match =
-        findThrowableByTypes(
-            exception,
-            ImmutableSet.of(
-                NotChangeableException.class,
-                ProgramNotFoundException.class,
-                ApiKeyNotFoundException.class));
+    Optional<Throwable> match = findThrowableByTypes(exception, BAD_REQUEST_EXCEPTION_TYPES);
+
     if (match.isPresent()) {
       return CompletableFuture.completedFuture(Results.badRequest(match.get().getMessage()));
     }
@@ -65,7 +63,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
    * our application exception. Anecdotally it's 2 levels down.
    */
   static Optional<Throwable> findThrowableByTypes(
-      Throwable exception, ImmutableSet<Class<?>> search) {
+      Throwable exception, ImmutableSet<Class<? extends Exception>> search) {
     Optional<Throwable> root = Optional.of(exception);
     // Search a couple causes deep for the desired type.
     for (int i = 0; i < 5 && root.isPresent(); ++i) {

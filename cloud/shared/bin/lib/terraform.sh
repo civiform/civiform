@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # https://www.baeldung.com/linux/store-command-in-variable
-readonly TERRAFORM_CMD=("terraform" "${TERRAFORM_DIR}")
+readonly TERRAFORM_CMD=("terraform" "-chdir=${TERRAFORM_TEMPLATE_DIR}")
 readonly TERRAFORM_APPLY=(${TERRAFORM_CMD[@]} "apply" "-input=false" "-var-file=${TF_VAR_FILENAME}")
 
 #######################################
@@ -24,6 +24,13 @@ function terraform::perform_apply() {
       -input=false \
       -upgrade \
       -backend-config="${BACKEND_VARS_FILENAME}"
+  fi
+
+  echo "Current working directory: ${PWD}"
+  if [[ -f "${TERRAFORM_TEMPLATE_DIR}/${TF_VAR_FILENAME}" ]]; then
+    echo "${TF_VAR_FILENAME} exists in ${TERRAFORM_TEMPLATE_DIR} directory"
+  else
+    echo "Cannot find ${TF_VAR_FILENAME} in ${TERRAFORM_TEMPLATE_DIR} directory"
   fi
 
   if azure::is_service_principal; then

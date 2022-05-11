@@ -13,6 +13,7 @@ public final class ReferenceClasses {
   public static final String ADMIN_QUESTION_TABLE_ROW = "cf-admin-question-table-row";
   public static final String ADMIN_TI_GROUP_ROW = "cf-ti-row";
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
+  public static final String DEBOUNCED_FORM = "cf-debounced-form";
   public static final String QUESTION_CONFIG = "cf-question-config";
   public static final String EDIT_PREDICATE_BUTTON = "cf-edit-predicate";
   public static final String PREDICATE_DISPLAY = "cf-display-predicate";
@@ -43,6 +44,7 @@ public final class ReferenceClasses {
 
   public static final String APPLICANT_QUESTION_HELP_TEXT = "cf-applicant-question-help-text";
   public static final String APPLICANT_QUESTION_TEXT = "cf-applicant-question-text";
+  public static final String APPLICANT_QUESTION_ERRORS = "cf-applicant-question-errors";
   public static final String APPLICANT_SUMMARY_ROW = "cf-applicant-summary-row";
   public static final String APPLICATION_CARD = "cf-application-card";
   public static final String APPLICATION_CARD_DESCRIPTION = "cf-application-card-description";
@@ -74,7 +76,6 @@ public final class ReferenceClasses {
   public static final String EMAIL_QUESTION = "cf-question-email";
 
   public static final String ENUMERATOR_QUESTION = "cf-question-enumerator";
-  public static final String ENUMERATOR_ERROR = "cf-enumerator-error";
 
   public static final String FILEUPLOAD_QUESTION = "cf-question-fileupload";
   public static final String FILEUPLOAD_ERROR = "cf-fileupload-error";
