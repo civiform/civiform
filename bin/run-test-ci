@@ -18,5 +18,5 @@ ${COMPOSE_CMD} exec civiform sbt test
 # This serves as a regression test for
 # https://github.com/seattle-uat/civiform/pull/2459.
 echo "[$(date)] Searching for MessageKeyTest in defined tests..."
-${COMPOSE_CMD} exec civiform sbt "show Test/definedTestNames" | grep -iq "services.MessageKeyTestABC123"
+${COMPOSE_CMD} exec civiform sbt "show Test/definedTestNames" | grep -iq "services.MessageKeyTest"
 ${COMPOSE_CMD} down
