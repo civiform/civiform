@@ -415,6 +415,20 @@ function configurePredicateFormOnOperatorChange(event: Event) {
   )
 }
 
+function attachFormDebouncers() {
+  Array.from(document.querySelectorAll('.cf-debounced-form')).forEach((formEl) => {
+    const submitEl = formEl.querySelector('button[type="submit"]')
+    if (!submitEl) {
+      return
+    }
+    // Prevent double-clicks from submitting the form multiple times by
+    // disabling the submit button after the initial click.
+    formEl.addEventListener('submit', () => {
+      submitEl.setAttribute('disabled', '')
+    })
+  })
+}
+
 window.addEventListener('load', (event) => {
   attachDropdown('create-question-button')
 
@@ -483,6 +497,8 @@ window.addEventListener('load', (event) => {
     (el) => el.addEventListener('click', removeExistingEnumeratorField)
   )
   addEnumeratorListeners()
+
+  attachFormDebouncers()
 
   // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'
