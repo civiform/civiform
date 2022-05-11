@@ -18,13 +18,13 @@ describe('Managing API keys', () => {
     await adminPrograms.addProgram(programName, programDescription, '', false)
     await adminPrograms.publishAllPrograms()
 
-    const credentials = await adminApiKeys.createApiKey(
-      'Test API key',
-      '2022-01-31',
-      "8.8.8.8/32",
-      ['api-using-program']
-    )
+    const credentials = await adminApiKeys.createApiKey({
+      name: 'Test API key',
+      expiration: '2022-01-31',
+      subnet: '8.8.8.8/32',
+      programSlugs: ['api-using-program'],
+    })
 
-    expect(typeof credentials).toEqual("string")
+    expect(typeof credentials).toEqual('string')
   })
 })
