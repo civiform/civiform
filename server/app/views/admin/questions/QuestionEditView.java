@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 
+import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.DivTag;
 
 import com.google.common.collect.ImmutableList;
@@ -92,7 +93,7 @@ public final class QuestionEditView extends BaseHtmlView {
     QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("New %s question", questionType.toString().toLowerCase());
 
-    ContainerTag formContent =
+    DivTag formContent =
         buildQuestionContainer(title, questionForm)
             .with(
                 buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions)
@@ -145,7 +146,7 @@ public final class QuestionEditView extends BaseHtmlView {
     QuestionType questionType = questionForm.getQuestionType();
     String title = String.format("Edit %s question", questionType.toString().toLowerCase());
 
-    ContainerTag formContent =
+    DivTag formContent =
         buildQuestionContainer(title, questionForm)
             .with(
                 buildEditQuestionForm(id, questionForm, maybeEnumerationQuestionDefinition)
@@ -173,7 +174,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
-    ContainerTag formContent =
+    DivTag formContent =
         buildQuestionContainer(title, QuestionFormBuilder.create(questionDefinition))
             .with(buildViewOnlyQuestionForm(questionForm, enumeratorOption));
 
@@ -189,17 +190,17 @@ public final class QuestionEditView extends BaseHtmlView {
     return layout.render(htmlBundle);
   }
 
-  private ContainerTag buildSubmittableQuestionForm(
+  private FormTag buildSubmittableQuestionForm(
       QuestionForm questionForm, SelectWithLabel enumeratorOptions, boolean forCreate) {
     return buildQuestionForm(questionForm, enumeratorOptions, true, forCreate);
   }
 
-  private ContainerTag buildViewOnlyQuestionForm(
+  private FormTag buildViewOnlyQuestionForm(
       QuestionForm questionForm, SelectWithLabel enumeratorOptions) {
     return buildQuestionForm(questionForm, enumeratorOptions, false, false);
   }
 
-  private ContainerTag buildQuestionContainer(String title, QuestionForm questionForm) {
+  private DivTag buildQuestionContainer(String title, QuestionForm questionForm) {
     return div()
         .withId("question-form")
         .withClasses(
@@ -218,8 +219,8 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   // A hidden template for multi-option questions.
-  private ContainerTag multiOptionQuestionField(QuestionForm questionForm) {
-    ContainerTag multiOptionQuestionField =
+  private DivTag multiOptionQuestionField(QuestionForm questionForm) {
+    DivTag multiOptionQuestionField =
         div()
             .with(
                 QuestionConfig.multiOptionQuestionFieldTemplate(messages)
@@ -242,13 +243,13 @@ public final class QuestionEditView extends BaseHtmlView {
     return multiOptionQuestionField;
   }
 
-  private ContainerTag buildNewQuestionForm(
+  private FormTag buildNewQuestionForm(
       QuestionForm questionForm,
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions) {
     SelectWithLabel enumeratorOptions =
         enumeratorOptionsFromEnumerationQuestionDefinitions(
             questionForm, enumeratorQuestionDefinitions);
-    ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true);
+    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true);
     formTag
         .attr("action", 
             controllers.admin.routes.AdminQuestionController.create(
@@ -259,13 +260,13 @@ public final class QuestionEditView extends BaseHtmlView {
     return formTag;
   }
 
-  private ContainerTag buildEditQuestionForm(
+  private FormTag buildEditQuestionForm(
       long id,
       QuestionForm questionForm,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition) {
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
-    ContainerTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false);
+    FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false);
     formTag
         .attr("action", 
             controllers.admin.routes.AdminQuestionController.update(
@@ -275,13 +276,13 @@ public final class QuestionEditView extends BaseHtmlView {
     return formTag;
   }
 
-  private ContainerTag buildQuestionForm(
+  private FormTag buildQuestionForm(
       QuestionForm questionForm,
       SelectWithLabel enumeratorOptions,
       boolean submittable,
       boolean forCreate) {
     QuestionType questionType = questionForm.getQuestionType();
-    ContainerTag formTag = form().withMethod("POST");
+    FormTag formTag = form().withMethod("POST");
 
     // The question enumerator and name fields should not be changed after the question is created.
     // If this form is not for creation, the fields are disabled, and hidden fields to pass
@@ -314,7 +315,7 @@ public final class QuestionEditView extends BaseHtmlView {
                       .orElse(NO_ENUMERATOR_ID_STRING)));
     }
 
-    ContainerTag questionHelpTextField =
+    DivTag questionHelpTextField =
         FieldWithLabel.textArea()
             .setId("question-help-text-textarea")
             .setFieldName("questionHelpText")
@@ -448,7 +449,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .setValue(selected);
   }
 
-  private ContainerTag repeatedQuestionInformation() {
+  private DivTag repeatedQuestionInformation() {
     return div("By selecting an enumerator, you are creating a repeated question - a question that"
             + " is asked for each repeated entity enumerated by the applicant. Please"
             + " reference the applicant-defined repeated entity name to give the applicant"
