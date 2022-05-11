@@ -6,6 +6,9 @@ import static j2html.TagCreator.li;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.UlTag;
+
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -125,15 +128,15 @@ public class TextFormatter {
     return builder.build();
   }
 
-  private static ContainerTag buildAccordion(String title, String accordionContent) {
+  private static DivTag buildAccordion(String title, String accordionContent) {
     Accordion accordion = new Accordion().setTitle(title);
     ImmutableList<DomContent> contentTags = TextFormatter.formatText(accordionContent, true);
     contentTags.stream().forEach(tag -> accordion.addContent(tag));
     return accordion.getContainer();
   }
 
-  private static ContainerTag buildList(ArrayList<String> items) {
-    ContainerTag listTag = ul().withClasses(Styles.LIST_DISC, Styles.MX_8);
+  private static UlTag buildList(ArrayList<String> items) {
+    UlTag listTag = ul().withClasses(Styles.LIST_DISC, Styles.MX_8);
     items.forEach(item -> listTag.with(li().withText(item)));
     return listTag;
   }
