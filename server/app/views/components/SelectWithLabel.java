@@ -3,6 +3,8 @@ package views.components;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
 
+import j2html.tags.specialized.SelectTag;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import j2html.attributes.Attr;
@@ -17,7 +19,7 @@ public class SelectWithLabel extends FieldWithLabel<SelectTag> {
   private ImmutableList<OptionTag> customOptions = ImmutableList.of();
 
   public SelectWithLabel() {
-    super<SelectTag>(select());
+    super(select());
   }
 
   @Override

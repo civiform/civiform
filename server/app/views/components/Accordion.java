@@ -2,7 +2,6 @@ package views.components;
 
 import static j2html.TagCreator.div;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.SvgTag;
 
 import j2html.tags.DomContent;
 import java.util.ArrayList;

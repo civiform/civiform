@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.DivTag;
 

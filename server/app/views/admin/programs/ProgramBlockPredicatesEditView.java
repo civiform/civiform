@@ -181,7 +181,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       String blockName,
       QuestionDefinition questionDefinition,
       String predicateUpdateUrl,
-      InpuTag csrfTag) {
+      InputTag csrfTag) {
     DivTag triggerButtonContent =
         div()
             .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)

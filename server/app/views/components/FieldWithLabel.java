@@ -12,7 +12,9 @@ import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 
+import j2html.tags.Tag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.TextareaTag;
 import j2html.tags.specialized.TextareaTag;
@@ -29,7 +31,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Utility class for rendering an input field with an optional label. */
-public class FieldWithLabel<T> {
+public class FieldWithLabel<T extends Tag> {
 
   private static final ImmutableSet<String> STRING_TYPES =
       ImmutableSet.of("text", "checkbox", "radio", "date", "email");

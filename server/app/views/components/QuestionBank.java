@@ -44,7 +44,7 @@ public class QuestionBank {
   private BlockDefinition blockDefinition;
   private Optional<Long> enumeratorQuestionId;
   private ImmutableList<QuestionDefinition> questions = ImmutableList.of();
-  private DivTag csrfTag = div();
+  private InputTag csrfTag = div();
   private String questionAction = "";
 
   public QuestionBank setProgram(ProgramDefinition program) {
@@ -62,7 +62,7 @@ public class QuestionBank {
     return this;
   }
 
-  public QuestionBank setCsrfTag(Tag csrfTag) {
+  public QuestionBank setCsrfTag(InputTag csrfTag) {
     this.csrfTag = csrfTag;
     return this;
   }

@@ -75,7 +75,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     return layout.render(htmlBundle);
   }
 
-  private FormTag renderDownloadButton(long programId, long applicationId) {
+  private DivTag renderDownloadButton(long programId, long applicationId) {
     String link =
         controllers.admin.routes.AdminApplicationController.download(programId, applicationId)
             .url();

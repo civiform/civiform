@@ -15,6 +15,8 @@ import controllers.admin.routes;
 
 import java.time.ZoneId;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LabelTag;
+import j2html.tags.specialized.FormTag;
 
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -171,7 +173,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         div(programDescriptionText)
             .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, Styles.MB_8, Styles.LINE_CLAMP_3);
 
-    DivTag programDeepLink =
+    LabelTag programDeepLink =
         label("Deep link, use this URL to link to this program from outside of CiviForm:")
             .withClasses(Styles.W_FULL)
             .with(
@@ -246,7 +248,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           .setText(newVersionText)
           .setStyles(Styles.MR_2)
           .asHiddenForm(request);
-      return div().with(linkElement);
+      return div().with(linkElementAsForm);
     } else {
       // obsolete or deleted, no edit link, empty div.
       return div();
@@ -297,7 +299,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return div();
   }
 
-  private FormTag renderManageProgramAdminsLink(
+  private DivTag renderManageProgramAdminsLink(
       Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
     // We can use the ID of either, since we just add the program name and not ID to indicate
     // ownership.

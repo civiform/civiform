@@ -18,7 +18,6 @@ import j2html.attributes.Attr;
 
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.SvgTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.InputTag;
 
@@ -40,6 +39,7 @@ import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
+import views.components.SvgTag;
 import views.components.QuestionBank;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
@@ -572,7 +572,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     Styles.OPACITY_100,
                     StyleUtils.disabled(Styles.OPACITY_50))
                 .attr("disabled", ""));
-    return Modal.builder("block-description-modal", blockDescriptionForm)
+    return Modal.builder("block-description-modal", div(blockDescriptionForm))
         .setModalTitle(modalTitle)
         .setTriggerButtonText(modalButtonText)
         .setWidth(Modal.Width.THIRD)

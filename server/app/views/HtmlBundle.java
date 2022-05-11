@@ -17,6 +17,7 @@ import j2html.tags.specialized.HeaderTag;
 import j2html.tags.specialized.MainTag;
 import j2html.tags.specialized.FooterTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.ScriptTag;
 import j2html.tags.specialized.MetaTag;
 import j2html.tags.specialized.LinkTag;
@@ -38,7 +39,7 @@ public class HtmlBundle {
   private ArrayList<ScriptTag> footerScripts = new ArrayList<>();
   private ArrayList<String> footerStyles = new ArrayList<>();
   private ArrayList<ScriptTag> headScripts = new ArrayList<>();
-  private ArrayList<DivTag> headerContent = new ArrayList<>();
+  private ArrayList<NavTag> headerContent = new ArrayList<>();
   private ArrayList<String> headerStyles = new ArrayList<>();
   private ArrayList<DivTag> mainContent = new ArrayList<>();
   private ArrayList<String> mainStyles = new ArrayList<>();
@@ -72,7 +73,7 @@ public class HtmlBundle {
     return this;
   }
 
-  public HtmlBundle addHeaderContent(DivTag... tags) {
+  public HtmlBundle addHeaderContent(NavTag... tags) {
     headerContent.addAll(Arrays.asList(tags));
     return this;
   }

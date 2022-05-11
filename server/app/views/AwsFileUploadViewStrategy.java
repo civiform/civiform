@@ -12,6 +12,7 @@ import controllers.applicant.routes;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.ButtonTag;
 

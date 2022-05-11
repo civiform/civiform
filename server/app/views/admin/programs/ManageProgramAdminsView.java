@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.FormTag;
 
 import java.util.Optional;
@@ -67,7 +68,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             .addMainContent(
                 div(renderHeader(fullTitle)),
                 div(adminEmailTemplate()),
-                renderAdminForm(request, program.id(), existingAdminEmails));
+                div(renderAdminForm(request, program.id(), existingAdminEmails)));
 
     if (!message.isEmpty()) {
       htmlBundle.addToastMessages(
