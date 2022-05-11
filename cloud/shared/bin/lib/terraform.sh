@@ -26,6 +26,13 @@ function terraform::perform_apply() {
       -backend-config="${BACKEND_VARS_FILENAME}"
   fi
 
+  echo "Current working directory: ${PWD}"
+  if [[ -f "${TERRAFORM_TEMPLATE_DIR}/${TF_VAR_FILENAME}" ]]; then
+    echo "${TF_VAR_FILENAME} exists in ${TERRAFORM_TEMPLATE_DIR} directory"
+  else
+    echo "Cannot find ${TF_VAR_FILENAME} in ${TERRAFORM_TEMPLATE_DIR} directory"
+  fi
+
   if azure::is_service_principal; then
     "${TERRAFORM_APPLY[@]}" -auto-approve
   else
