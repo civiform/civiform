@@ -8,6 +8,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import com.google.common.collect.ImmutableList;
 
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -81,7 +82,7 @@ public class QuestionTranslationView extends TranslationFormView {
         .url();
   }
 
-  private ImmutableList<FieldWithLabel> getQuestionTypeSpecificFields(
+  private ImmutableList<FieldWithLabel<InputTag>> getQuestionTypeSpecificFields(
       QuestionDefinition question, Locale toUpdate) {
     switch (question.getQuestionType()) {
       case CHECKBOX: // fallthrough intended
@@ -103,7 +104,7 @@ public class QuestionTranslationView extends TranslationFormView {
     }
   }
 
-  private ImmutableList<FieldWithLabel> questionTextFields(
+  private ImmutableList<FieldWithLabel<InputTag>> questionTextFields(
       Locale locale, LocalizedStrings questionText, LocalizedStrings helpText) {
     ImmutableList.Builder<FieldWithLabel> fields = ImmutableList.builder();
     fields.add(
@@ -128,7 +129,7 @@ public class QuestionTranslationView extends TranslationFormView {
     return fields.build();
   }
 
-  private ImmutableList<FieldWithLabel> multiOptionQuestionFields(
+  private ImmutableList<FieldWithLabel<InputTag>> multiOptionQuestionFields(
       ImmutableList<QuestionOption> options, Locale toUpdate) {
     return options.stream()
         .map(
@@ -141,7 +142,7 @@ public class QuestionTranslationView extends TranslationFormView {
         .collect(toImmutableList());
   }
 
-  private ImmutableList<FieldWithLabel> enumeratorQuestionFields(
+  private ImmutableList<FieldWithLabel<InputTag>> enumeratorQuestionFields(
       LocalizedStrings entityType, Locale toUpdate) {
     return ImmutableList.of(
         FieldWithLabel.input()

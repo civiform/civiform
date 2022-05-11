@@ -19,6 +19,7 @@ import j2html.tags.specialized.TrTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
 
 import java.util.List;
 import models.TrustedIntermediaryGroup;
@@ -83,14 +84,14 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         form()
             .withMethod("POST")
             .attr("action", routes.TrustedIntermediaryManagementController.create().url());
-    FieldWithLabel nameField =
+    FieldWithLabel<InputTag> nameField =
         FieldWithLabel.input()
             .setId("group-name-input")
             .setFieldName("name")
             .setLabelText("Name")
             .setValue(request.flash().get("providedName").orElse(""))
             .setPlaceholderText("The name of this Trusted Intermediary Group.");
-    FieldWithLabel descriptionField =
+    FieldWithLabel<InputTag> descriptionField =
         FieldWithLabel.input()
             .setId("group-description-input")
             .setFieldName("description")

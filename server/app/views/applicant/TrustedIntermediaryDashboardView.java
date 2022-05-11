@@ -23,6 +23,7 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
 import j2html.tags.specialized.TdTag;
+import j2html.tags.specialized.InputTag;
 
 import java.util.Comparator;
 import java.util.Optional;
@@ -143,21 +144,21 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         form()
             .withMethod("POST")
             .attr("action", routes.TrustedIntermediaryController.addApplicant(tiGroup.id).url());
-    FieldWithLabel firstNameField =
+    FieldWithLabel<InputTag> firstNameField =
         FieldWithLabel.input()
             .setId("first-name-input")
             .setFieldName("firstName")
             .setLabelText("First Name")
             .setValue(request.flash().get("providedFirstName").orElse(""))
             .setPlaceholderText("Applicant first name (Required)");
-    FieldWithLabel middleNameField =
+    FieldWithLabel<InputTag> middleNameField =
         FieldWithLabel.input()
             .setId("middle-name-input")
             .setFieldName("middleName")
             .setLabelText("Middle Name")
             .setValue(request.flash().get("providedMiddleName").orElse(""))
             .setPlaceholderText("Applicant middle name (Optional)");
-    FieldWithLabel lastNameField =
+    FieldWithLabel<InputTag> lastNameField =
         FieldWithLabel.input()
             .setId("last-name-input")
             .setFieldName("lastName")
@@ -165,14 +166,14 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setValue(request.flash().get("providedLastName").orElse(""))
             .setPlaceholderText("Applicant last name (Required)");
     // TODO: do something with this field.  currently doesn't do anything.
-    FieldWithLabel dateOfBirthField =
+    FieldWithLabel<InputTag> dateOfBirthField =
         FieldWithLabel.date()
             .setId("date-of-birth-input")
             .setFieldName("dob")
             .setLabelText("Date Of Birth")
             .setValue(request.flash().get("providedDob").orElse(""))
             .setPlaceholderText("Applicant Date of Birth");
-    FieldWithLabel emailField =
+    FieldWithLabel<InputTag> emailField =
         FieldWithLabel.input()
             .setId("email-input")
             .setFieldName("emailAddress")

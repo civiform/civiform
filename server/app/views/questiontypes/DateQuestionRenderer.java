@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.InputTag;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -33,7 +34,7 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     DateQuestion dateQuestion = question.createDateQuestion();
 
-    FieldWithLabel dateField =
+    FieldWithLabel<InputTag> dateField =
         FieldWithLabel.date()
             .setFieldName(dateQuestion.getDatePath().toString())
             .setScreenReaderText(question.getQuestionText())

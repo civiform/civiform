@@ -8,6 +8,7 @@ import controllers.admin.routes;
 import static j2html.TagCreator.div;
 
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -80,7 +81,7 @@ public class ProgramTranslationView extends TranslationFormView {
     return routes.AdminProgramTranslationsController.edit(programId, locale.toLanguageTag()).url();
   }
 
-  private ImmutableList<FieldWithLabel> formFields(
+  private ImmutableList<FieldWithLabel<InputTag>> formFields(
       Optional<String> localizedName, Optional<String> localizedDescription) {
     return ImmutableList.of(
         FieldWithLabel.input()

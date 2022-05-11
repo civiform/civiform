@@ -20,6 +20,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TrTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
+import j2html.tags.specialized.InputTag;
 
 import models.Account;
 import models.TrustedIntermediaryGroup;
@@ -75,7 +76,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
             .withMethod("POST")
             .attr("action", 
                 routes.TrustedIntermediaryManagementController.addIntermediary(tiGroup.id).url());
-    FieldWithLabel emailField =
+    FieldWithLabel<InputTag> emailField =
         FieldWithLabel.input()
             .setId("group-name-input")
             .setFieldName("emailAddress")

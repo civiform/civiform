@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.InputTag;
 
 import java.util.OptionalLong;
 import services.Path;
@@ -32,7 +33,7 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     NumberQuestion numberQuestion = question.createNumberQuestion();
 
-    FieldWithLabel numberField =
+    FieldWithLabel<InputTag> numberField =
         FieldWithLabel.number()
             .setFieldName(numberQuestion.getNumberPath().toString())
             .setScreenReaderText(question.getQuestionText())

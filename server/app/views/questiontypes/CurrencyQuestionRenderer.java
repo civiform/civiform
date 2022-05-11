@@ -1,6 +1,7 @@
 package views.questiontypes;
 
 import static j2html.TagCreator.div;
+import j2html.tags.specialized.InputTag;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -31,7 +32,7 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
 
-    FieldWithLabel currencyField =
+    FieldWithLabel<InputTag> currencyField =
         FieldWithLabel.currency()
             .setFieldName(currencyQuestion.getCurrencyPath().toString())
             .addReferenceClass(ReferenceClasses.CURRENCY_VALUE)
