@@ -9,7 +9,7 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
-import annotations.BindingAnnotations.EnUs;
+import annotations.BindingAnnotations.EnUsLang;
 import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -59,7 +59,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
   };
 
   @Inject
-  public ApiKeyNewOneView(AdminLayout layout, @EnUs Messages enUsMessages) {
+  public ApiKeyNewOneView(AdminLayout layout, @EnUsLang Messages enUsMessages) {
     this.layout = checkNotNull(layout);
     this.enUsMessages = checkNotNull(enUsMessages);
   }

@@ -26,5 +26,5 @@ public final class BindingAnnotations {
   @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public @interface EnUs {}
+  public @interface EnUsLang {}
 }

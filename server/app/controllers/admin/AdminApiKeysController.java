@@ -73,12 +73,12 @@ public class AdminApiKeysController extends CiviFormController {
       return notFound(e.toString());
     }
 
-    if (!result.isSuccessful()) {
-      return badRequest(
-          newOneView.render(
-              request, programService.getActiveProgramNames(), Optional.of(result.getForm())));
+    if (result.isSuccessful()) {
+      return created(apiKeyCredentialsView.render(result.getApiKey(), result.getCredentials()));
     }
 
-    return created(apiKeyCredentialsView.render(result.getApiKey(), result.getCredentials()));
+    return badRequest(
+        newOneView.render(
+            request, programService.getActiveProgramNames(), Optional.of(result.getForm())));
   }
 }

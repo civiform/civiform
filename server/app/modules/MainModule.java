@@ -2,7 +2,7 @@ package modules;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import annotations.BindingAnnotations.EnUs;
+import annotations.BindingAnnotations.EnUsLang;
 import annotations.BindingAnnotations.Now;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
@@ -39,7 +39,7 @@ public class MainModule extends AbstractModule {
   }
 
   @Provides
-  @EnUs
+  @EnUsLang
   public Messages provideEnUsMessages(MessagesApi messagesApi) {
     return messagesApi.preferred(ImmutableList.of(Lang.forCode("en-US")));
   }
