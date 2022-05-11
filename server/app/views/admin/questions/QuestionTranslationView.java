@@ -7,6 +7,8 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 
+import j2html.tags.specialized.FormTag;
+
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -57,7 +59,7 @@ public class QuestionTranslationView extends TranslationFormView {
         questionTextFields(locale, question.getQuestionText(), question.getQuestionHelpText()));
     inputFields.addAll(getQuestionTypeSpecificFields(question, locale));
 
-    ContainerTag form = renderTranslationForm(request, locale, formAction, inputFields.build());
+    FormTag form = renderTranslationForm(request, locale, formAction, inputFields.build());
 
     String title = "Manage Question Translations";
 
