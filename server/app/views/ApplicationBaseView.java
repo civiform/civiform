@@ -3,6 +3,8 @@ package views;
 import static j2html.TagCreator.a;
 import static j2html.attributes.Attr.HREF;
 
+import j2html.tags.specialized.ATag;
+
 import com.google.auto.value.AutoValue;
 import controllers.applicant.routes;
 import j2html.tags.Tag;
@@ -18,7 +20,7 @@ import views.style.ApplicantStyles;
 public class ApplicationBaseView extends BaseHtmlView {
   final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
 
-  protected Tag renderReviewButton(ApplicationBaseView.Params params) {
+  protected ATag renderReviewButton(ApplicationBaseView.Params params) {
     String reviewUrl =
         routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
             .url();
@@ -28,7 +30,7 @@ public class ApplicationBaseView extends BaseHtmlView {
         .withClasses(ApplicantStyles.BUTTON_REVIEW);
   }
 
-  protected Tag renderPreviousButton(ApplicationBaseView.Params params) {
+  protected ATag renderPreviousButton(ApplicationBaseView.Params params) {
     int previousBlockIndex = params.blockIndex() - 1;
     String redirectUrl;
 
