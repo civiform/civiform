@@ -157,7 +157,7 @@ describe('End to end enumerator test', () => {
     await applicantQuestions.answerNameQuestion('Daffy', 'Duck')
     await applicantQuestions.clickNext()
 
-    // Put an empty answer in the nested enumerator for enum two
+    // Put an empty answer in the nested enumerator for enum two.
     await applicantQuestions.addEnumeratorAnswer('')
     await applicantQuestions.clickNext()
 

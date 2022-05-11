@@ -148,10 +148,10 @@ function removeExistingEnumeratorField(event: Event) {
   // submit the input to maintain entity ordering.
   const enumeratorFieldDiv = removeButton.parentElement
   enumeratorFieldDiv.classList.add('hidden')
-  // Why add the hidden class to the input as well?
-  // When toggling whether the "Add" button is enabled, we want to prevent
-  // this input from being considered, especially if the applicant were removing
-  // a blank input.
+  // We must hide the child in addition to the parent since we
+  // want to prevent this input from being considered when
+  // toggling whether the "Add" button is enabled (especially if
+  // the applicant were removing a blank input).
   const enumeratorInput = enumeratorFieldDiv.querySelector('input')
   enumeratorInput.classList.add('hidden')
 
@@ -209,7 +209,7 @@ function addEnumeratorListeners() {
   })
 }
 
-/** if we have empty inputs then disable the add input button. (We don't need two blank inputs.) */
+/** If we have empty inputs then disable the add input button. (We don't need two blank inputs.) */
 function maybeHideEnumeratorAddButton(enumeratorQuestion: Element) {
   if (enumeratorQuestion) {
     const enumeratorInputValues = Array.from(
