@@ -89,7 +89,7 @@ public class ToastMessage {
   }
 
   public DivTag getContainerTag() {
-    ContainerTag ret =
+    DivTag ret =
         div(this.message)
             .withClasses(Styles.HIDDEN, ReferenceClasses.TOAST_MESSAGE)
             .withId(this.id)
