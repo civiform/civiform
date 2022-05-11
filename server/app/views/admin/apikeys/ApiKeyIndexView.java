@@ -40,7 +40,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
     String title = "API Keys";
     ContainerTag headerDiv =
         div()
-            .withClasses(Styles.FLEX, Styles.PLACE_CONTENT_BETWEEN)
+            .withClasses(Styles.FLEX, Styles.PLACE_CONTENT_BETWEEN, Styles.MY_8)
             .with(
                 h1(title).withClasses(Styles.MY_4),
                 new LinkElement()
@@ -98,7 +98,6 @@ public final class ApiKeyIndexView extends BaseHtmlView {
         div()
             .with(
                 div(
-                    h2(apiKey.getName()),
                     div(
                         p("ID: " + apiKey.getKeyId())
                             .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_SM),
@@ -136,9 +135,16 @@ public final class ApiKeyIndexView extends BaseHtmlView {
         div()
             .withClasses(
                 Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4)
-            .with(topRowDiv, bottomDiv);
+            .with(
+                h2().with(
+                        text(apiKey.getName()),
+                        span(apiKey.isRetired() ? " retired" : " active")
+                            .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_SM))
+                    .withClasses(Styles.MB_2),
+                topRowDiv,
+                bottomDiv);
 
-    return div(content).withClasses(Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
+    return div(content).withClasses(Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_6);
   }
 
   private ImmutableMap<String, String> buildProgramSlugToName(ImmutableSet<String> programNames) {
