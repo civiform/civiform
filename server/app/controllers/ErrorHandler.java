@@ -1,5 +1,6 @@
 package controllers;
 
+import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.admin.NotChangeableException;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import play.http.DefaultHttpErrorHandler;
 import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.mvc.Results;
+import services.program.ProgramNotFoundException;
 
 /**
  * Override for the system default {@code HttpErrorHandler}.
@@ -40,7 +42,10 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   public CompletionStage<Result> onServerError(RequestHeader request, Throwable exception) {
     // Exceptions that reach here will generate 500s. Here we convert certain ones to different user
     // visible states. Note: there are methods on the parent that handle dev and prod separately.
-    Optional<Throwable> match = findThrowableByType(exception, NotChangeableException.class);
+    Optional<Throwable> match =
+        findThrowableByTypes(
+            exception,
+            ImmutableSet.of(NotChangeableException.class, ProgramNotFoundException.class));
     if (match.isPresent()) {
       return CompletableFuture.completedFuture(Results.badRequest(match.get().getMessage()));
     }
@@ -55,11 +60,12 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
    * <p>The framework provides wrapped exceptions to the methods in this class so we have to dig out
    * our application exception. Anecdotally it's 2 levels down.
    */
-  static Optional<Throwable> findThrowableByType(Throwable exception, Class<?> search) {
+  static Optional<Throwable> findThrowableByTypes(
+      Throwable exception, ImmutableSet<Class<?>> search) {
     Optional<Throwable> root = Optional.of(exception);
     // Search a couple causes deep for the desired type.
     for (int i = 0; i < 5 && root.isPresent(); ++i) {
-      if (search.isInstance(root.get())) {
+      if (search.contains(root.get().getClass())) {
         return root;
       }
       root = Optional.ofNullable(root.get().getCause());

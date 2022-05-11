@@ -15,7 +15,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.apikey.ApiKeyCreationResult;
 import services.apikey.ApiKeyService;
-import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.apikeys.ApiKeyNewOneView;
 import views.admin.programs.ApiKeyCredentialsView;
@@ -65,13 +64,7 @@ public class AdminApiKeysController extends CiviFormController {
     }
 
     DynamicForm form = formFactory.form().bindFromRequest(request);
-
-    ApiKeyCreationResult result;
-    try {
-      result = apiKeyService.createApiKey(form, profile.get());
-    } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
-    }
+    ApiKeyCreationResult result = apiKeyService.createApiKey(form, profile.get());
 
     if (result.isSuccessful()) {
       return created(apiKeyCredentialsView.render(result.getApiKey(), result.getCredentials()));
