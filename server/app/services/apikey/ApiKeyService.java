@@ -100,7 +100,7 @@ public class ApiKeyService {
     Optional<ApiKey> maybeApiKey = repository.lookupApiKey(apiKeyId).toCompletableFuture().join();
 
     if (!maybeApiKey.isPresent()) {
-      throw new IllegalArgumentException(String.format("ApiKey %s does not exist", apiKeyId));
+      throw new RuntimeException(new ApiKeyNotFoundException(apiKeyId));
     }
 
     ApiKey apiKey = maybeApiKey.get();

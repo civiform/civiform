@@ -96,7 +96,6 @@ public class LinkElement {
     return this;
   }
 
-
   public LinkElement setOnsubmit(String onsubmit) {
     this.onsubmit = onsubmit;
     return this;

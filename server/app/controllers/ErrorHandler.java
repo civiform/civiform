@@ -16,6 +16,7 @@ import play.http.DefaultHttpErrorHandler;
 import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.mvc.Results;
+import services.apikey.ApiKeyNotFoundException;
 import services.program.ProgramNotFoundException;
 
 /**
@@ -45,7 +46,10 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
     Optional<Throwable> match =
         findThrowableByTypes(
             exception,
-            ImmutableSet.of(NotChangeableException.class, ProgramNotFoundException.class));
+            ImmutableSet.of(
+                NotChangeableException.class,
+                ProgramNotFoundException.class,
+                ApiKeyNotFoundException.class));
     if (match.isPresent()) {
       return CompletableFuture.completedFuture(Results.badRequest(match.get().getMessage()));
     }
