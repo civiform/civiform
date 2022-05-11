@@ -53,7 +53,7 @@ public class AdminApiKeysController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Http.Request request) {
-    return ok(newOneView.render(request, programService.getAllProgramNames()));
+    return ok(newOneView.render(request, programService.getActiveProgramNames()));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -76,7 +76,7 @@ public class AdminApiKeysController extends CiviFormController {
     if (!result.isSuccessful()) {
       return badRequest(
           newOneView.render(
-              request, programService.getAllProgramNames(), Optional.of(result.getForm())));
+              request, programService.getActiveProgramNames(), Optional.of(result.getForm())));
     }
 
     return created(apiKeyCredentialsView.render(result.getApiKey(), result.getCredentials()));

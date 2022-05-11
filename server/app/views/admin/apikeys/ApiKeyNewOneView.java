@@ -1,11 +1,13 @@
 package views.admin.apikeys;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.text;
 
 import annotations.BindingAnnotations.EnUs;
 import com.github.slugify.Slugify;
@@ -14,6 +16,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
 import java.util.Optional;
 import play.data.DynamicForm;
 import play.i18n.Messages;
@@ -31,6 +34,29 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages enUsMessages;
   private final Slugify slugifier = new Slugify();
+
+  private static final String EXPIRATION_DESCRIPTION =
+      "Specify a date when this API key will no longer be valid. The expiration date"
+          + " may be edited after the API key is created. It is strongly recommended to"
+          + " allow API keys to expire and create new ones to ensure that if a key"
+          + " has been stolen, malicious users will eventually lose access. For"
+          + " highly sensitive data, expiring keys once a week or once a month is"
+          + " recommended. Once a year is acceptable in most situations.";
+  private static final DomContent[] SUBNET_DESCRIPTION = {
+    text("Specify a subnet using "),
+    a("CIDR notation")
+        .withHref("https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing")
+        .withTarget("_blank"),
+    text(
+        " that is allowed to call the API. The"
+            + " subnet may be edited after the API key is created. A single IP address"
+            + " can be specified with a mask of /32. For example, \"8.8.8.8/32\""
+            + " allows only the IP 8.8.8.8 to use the API key. All IP addresses can be"
+            + " allowed, but this is strongly discouraged for security reasons because"
+            + " it would allow any computer connected to the internet to use the key"
+            + " if they obtain it. All IP addresses can be allowed with a value of"
+            + " 0.0.0.0/0, though this is not recommended.")
+  };
 
   @Inject
   public ApiKeyNewOneView(AdminLayout layout, @EnUs Messages enUsMessages) {
@@ -62,13 +88,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                         ApiKeyService.FORM_FIELD_NAME_KEY_NAME)
                     .getContainer(),
                 h2("Expiration date"),
-                p(
-                    "Specify a date when this API key will no longer be valid. The expiration date"
-                        + " may be edited after the API is created. It is strongly recommended to"
-                        + " allow API keys to expire and create new ones to ensure that if a key"
-                        + " has been stolen, malicious users will eventually lose access. For"
-                        + " highly sensitive data, expiring keys once a week or once a month is"
-                        + " recommended. Once a year is acceptable in most situations."),
+                p(EXPIRATION_DESCRIPTION),
                 setStateIfPresent(
                         FieldWithLabel.date()
                             .setFieldName(ApiKeyService.FORM_FIELD_NAME_EXPIRATION)
@@ -78,15 +98,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                         ApiKeyService.FORM_FIELD_NAME_EXPIRATION)
                     .getContainer(),
                 h2("Allowed IP addresses"),
-                p(
-                    "Specify a subnet using CIDR notation that is allowed to call the API. The"
-                        + " subnet may be edited after the API key is created. A single IP address"
-                        + " can be specified with a mask of /32. For example, \"8.8.8.8/32\""
-                        + " allows only the IP 8.8.8.8 to use the API key. All IP addresses can be"
-                        + " allowed, but this is strongly discouraged for security reasons because"
-                        + " it would allow any computer connected to the internet to use the key"
-                        + " if they obtain it. All IP addresses can be allowed with a value of"
-                        + " 0.0.0.0/0."),
+                p(SUBNET_DESCRIPTION),
                 setStateIfPresent(
                         FieldWithLabel.input()
                             .setFieldName(ApiKeyService.FORM_FIELD_NAME_SUBNET)
