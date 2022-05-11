@@ -3,6 +3,7 @@ package views.admin.questions;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.span;
 
+import j2html.tags.specialized.DivTag;
 
 import play.i18n.Messages;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -26,9 +27,9 @@ public class QuestionPreview {
     return div(rf.getSampleRenderer(type).render(params));
   }
 
-  public static ContainerTag renderQuestionPreview(
+  public static DivTag renderQuestionPreview(
       QuestionType type, Messages messages, FileUploadViewStrategy fileUploadViewStrategy) {
-    ContainerTag titleContainer =
+    DivTag titleContainer =
         div()
             .withId("sample-render")
             .withClasses(
@@ -44,16 +45,16 @@ public class QuestionPreview {
                     .withText(type.toString())
                     .withClasses(ReferenceClasses.QUESTION_TYPE, Styles.FONT_SEMIBOLD));
 
-    ContainerTag renderedQuestion = div();
+    DivTag renderedQuestion = div();
     try {
       renderedQuestion = buildQuestionRenderer(type, messages, fileUploadViewStrategy);
     } catch (UnsupportedQuestionTypeException e) {
       renderedQuestion = div().withText(e.toString());
     }
-    ContainerTag innerContentContainer =
+    DivTag innerContentContainer =
         div(renderedQuestion)
             .withClasses(Styles.TEXT_3XL, Styles.PL_16, Styles.PT_20, Styles.W_FULL);
-    ContainerTag contentContainer = div(innerContentContainer).withId("sample-question");
+    DivTag contentContainer = div(innerContentContainer).withId("sample-question");
 
     return div(titleContainer, contentContainer)
         .withClasses(
