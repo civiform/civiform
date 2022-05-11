@@ -21,6 +21,7 @@ services:
       - "db:database"
       - "oidc"
     volumes:
+      - ./server:/usr/src/server
       - ./sbt_cache/coursier:/root/.cache/coursier
       - ~/.sbt:/root/.sbt
       - ~/.ivy:/root/.ivy2
