@@ -416,17 +416,19 @@ function configurePredicateFormOnOperatorChange(event: Event) {
 }
 
 function attachFormDebouncers() {
-  Array.from(document.querySelectorAll('.cf-debounced-form')).forEach((formEl) => {
-    const submitEl = formEl.querySelector('button[type="submit"]')
-    if (!submitEl) {
-      return
+  Array.from(document.querySelectorAll('.cf-debounced-form')).forEach(
+    (formEl) => {
+      const submitEl = formEl.querySelector('button[type="submit"]')
+      if (!submitEl) {
+        return
+      }
+      // Prevent double-clicks from submitting the form multiple times by
+      // disabling the submit button after the initial click.
+      formEl.addEventListener('submit', () => {
+        submitEl.setAttribute('disabled', '')
+      })
     }
-    // Prevent double-clicks from submitting the form multiple times by
-    // disabling the submit button after the initial click.
-    formEl.addEventListener('submit', () => {
-      submitEl.setAttribute('disabled', '')
-    })
-  })
+  )
 }
 
 window.addEventListener('load', (event) => {
