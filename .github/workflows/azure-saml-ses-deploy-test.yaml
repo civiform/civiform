@@ -1,0 +1,35 @@
+name: azure_saml_ses deploy test
+on:
+  workflow_dispatch: {}
+  push:
+    paths:
+      - 'cloud/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      ARM_TENANT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_TENANT }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_PASSWORD }}
+    steps:
+      - name: check out branch
+        uses: actions/checkout@v2
+
+      - name: login to Azure
+        run: cloud/azure/bin/cli-login
+
+      - name: resolve latest snapshot tag
+        run: source cloud/shared/bin/resolve-latest-snapshot-tag
+
+      - name: copy the staging file
+        run: |
+          curl https://raw.githubusercontent.com/civiform/staging-azure-deploy/main/civiform_config.sh > civiform_config.sh
+
+      - name: Source config, set to be test and deploy with latest snapshot tag
+        run: |
+          source civiform_config.sh
+          export CIVIFORM_MODE="test"
+          cloud/azure/bin/deploy "--tag=${LATEST_SNAPSHOT_TAG}"

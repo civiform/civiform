@@ -5,6 +5,7 @@ set -o pipefail
 
 export TF_VAR_FILENAME="setup.auto.tfvars"
 export BACKEND_VARS_FILENAME="backend_vars"
+export TERRAFORM_PLAN_OUT_FILE="terraform_plan"
 
 if [[ "${SOURCED_CLOUD_LIB}" != "true" ]]; then
   readonly CLOUD_LIB_DIR="${BASH_SOURCE%/*}/lib"
