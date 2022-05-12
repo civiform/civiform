@@ -116,7 +116,7 @@ button.applySr=Ka Codso {0}
 content.benefits=Hel faa'iidooyin
 
 # Long form description of the CiviForm site shown to the applicant. Line 1.
-content.description1=CiviForm wuxuu kuu ogolaanayaa inaad codsato faa'iidooyin badan hal mar adiga oo dib u isticmaalaya macluumaadka.
+content.description1=CiviForm wuxuu kuu ogolaanayaa inaad codsato faa''iidooyin badan hal mar adiga oo dib u isticmaalaya macluumaadka.
 
 # Long form description of the CiviForm site shown to the applicant. Line 2.
 content.description2=Ku bilow doorashada codsiga hoos.
@@ -243,7 +243,7 @@ button.addEntity=Ku dar {0}
 button.removeEntity=Ka saar {0}
 
 # The confirmation dialog when an applicant deletes an enumerator entry.
-dialog.confirmDelete=Ma hubtaa inaad doonayso inaad tan saarto {0}? Isbeddelkan waa la keydin doonaa ka dib markaad gujiso "Kan XIga" oo dhammaan xogta la xiriirta tan waa lumin doonaa.
+dialog.confirmDelete=Ma hubtaa inaad doonayso inaad tan saarto {0}? Isbeddelkan waa la keydin doonaa ka dib markaad gujiso ''Kan XIga'' oo dhammaan xogta la xiriirta tan waa lumin doonaa.
 
 
 # Validation error that shows when an applicant does not enter a value.
