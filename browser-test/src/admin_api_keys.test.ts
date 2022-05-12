@@ -18,7 +18,6 @@ describe('Managing API keys', () => {
     await adminPrograms.addProgram(programName, programDescription, '', false)
     await adminPrograms.publishAllPrograms()
 
-
     const credentials = await adminApiKeys.createApiKey({
       name: 'Test API key',
       expiration: '2022-01-31',

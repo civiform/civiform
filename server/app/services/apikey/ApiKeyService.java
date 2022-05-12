@@ -11,6 +11,7 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import controllers.admin.NotChangeableException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -106,7 +107,7 @@ public class ApiKeyService {
     ApiKey apiKey = maybeApiKey.get();
 
     if (apiKey.isRetired()) {
-      throw new IllegalArgumentException(String.format("ApiKey %s is already retired", apiKey));
+      throw new NotChangeableException(String.format("ApiKey %s is already retired", apiKey));
     }
 
     apiKey.setRetired(getAuthorityId(profile));

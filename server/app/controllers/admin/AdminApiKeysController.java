@@ -55,6 +55,8 @@ public class AdminApiKeysController extends CiviFormController {
     return ok(
         indexView.render(
             request,
+            // The backend service supports pagination but the front end doesn't
+            // in its initial implementation so we load all of them here.
             apiKeyService.listApiKeys(PaginationSpec.MAX_PAGE_SIZE_SPEC),
             programService.getAllProgramNames()));
   }

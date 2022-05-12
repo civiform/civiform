@@ -11,6 +11,7 @@ import auth.ProfileFactory;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import controllers.admin.NotChangeableException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -105,9 +106,9 @@ public class ApiKeyServiceTest extends ResetPostgres {
             .getApiKey();
     apiKeyService.retireApiKey(apiKey.id, adminProfile);
 
-    IllegalArgumentException exception =
+    NotChangeableException exception =
         assertThrows(
-            IllegalArgumentException.class,
+            NotChangeableException.class,
             () -> apiKeyService.retireApiKey(apiKey.id, adminProfile));
     assertThat(exception).hasMessage(String.format("ApiKey %s is already retired", apiKey));
   }
