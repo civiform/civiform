@@ -18,7 +18,6 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.TextareaTag;
-import j2html.tags.specialized.TextareaTag;
 
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -32,12 +31,13 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Utility class for rendering an input field with an optional label. */
-public class FieldWithLabel<T> {
+public class FieldWithLabel<T extends Tag> {
 
   private static final ImmutableSet<String> STRING_TYPES =
       ImmutableSet.of("text", "checkbox", "radio", "date", "email");
 
   protected T fieldTag;
+  protected final Class<T> fieldTagType;
   protected String fieldName = "";
   protected String fieldType = "text";
   protected String fieldValue = "";
@@ -62,7 +62,7 @@ public class FieldWithLabel<T> {
 
   // Uses a protected constructor to effectively limit possible types of <T>
   // for security. This couldn't be done using `extends` because <T> can be 
-  // an <InputTag> or a <TextareaTag>, which inherit from different superclasses
+  // an <T> or a <TextareaTag>, which inherit from different superclasses
   //
   // Otherwise, splitting this class into two classes would be a big undertaking
   // since it is used in many places
@@ -70,103 +70,104 @@ public class FieldWithLabel<T> {
   // It would have been made private, but it is a superclass of SelectWithLabel
   protected FieldWithLabel(T fieldTag) {
     this.fieldTag = checkNotNull(fieldTag);
+    this.fieldTagType = (Class<T>) checkNotNull(fieldTag.getClass());
   }
 
-  public static <InputTag> FieldWithLabel<InputTag> checkbox() {
-    InputTag fieldTag = input();
+  public static FieldWithLabel<InputTag> checkbox() {
+    InputTag fieldTag = TagCreator.input();
     return new FieldWithLabel<InputTag>(fieldTag).setFieldType("checkbox");
   }
 
-  public static <InputTag> FieldWithLabel<InputTag> currency() {
+  public static FieldWithLabel<InputTag> currency() {
     InputTag fieldTag = TagCreator.input();
     return new FieldWithLabel<InputTag>(fieldTag).setFieldType("text").setIsCurrency();
   }
 
-  public static <InputTag> FieldWithLabel<InputTag> radio() {
+  public static FieldWithLabel<InputTag> radio() {
     InputTag fieldTag = TagCreator.input();
     return new FieldWithLabel<InputTag>(fieldTag).setFieldType("radio");
   }
 
-  public static <InputTag> FieldWithLabel<InputTag> input() {
+  public static FieldWithLabel<InputTag> input() {
     InputTag fieldTag = TagCreator.input();
     return new FieldWithLabel<InputTag>(fieldTag).setFieldType("text");
   }
 
-  public static <InputTag> FieldWithLabel<InputTag> number() {
+  public static FieldWithLabel<InputTag> number() {
     InputTag fieldTag = TagCreator.input();
     return new FieldWithLabel<InputTag>(fieldTag).setFieldType("number");
   }
 
-  public static <InputTag> FieldWithLabel<InputTag> date() {
+  public static FieldWithLabel<InputTag> date() {
     InputTag fieldTag = TagCreator.input();
     return new FieldWithLabel<InputTag>(fieldTag).setFieldType("date");
   }
 
-  public static <InputTag> FieldWithLabel<TextareaTag> textArea() {
+  public static FieldWithLabel<TextareaTag> textArea() {
     TextareaTag fieldTag = textarea();
     return new FieldWithLabel<TextareaTag>(fieldTag).setFieldType("text");
   }
 
-  public static <InputTag> FieldWithLabel<InputTag> email() {
+  public static FieldWithLabel<InputTag> email() {
     InputTag fieldTag = TagCreator.input();
     return new FieldWithLabel<InputTag>(fieldTag).setFieldType("email");
   }
 
   /** Add a reference class from {@link views.style.ReferenceClasses} to this element. */
-  public <T> FieldWithLabel<T> addReferenceClass(String referenceClass) {
+  public FieldWithLabel<T> addReferenceClass(String referenceClass) {
     referenceClassesBuilder.add(referenceClass);
     return this;
   }
 
-  public <T> FieldWithLabel<T> setChecked(boolean checked) {
+  public FieldWithLabel<T> setChecked(boolean checked) {
     this.checked = checked;
     return this;
   }
 
-  public <T> FieldWithLabel<T> setFieldName(String fieldName) {
+  public FieldWithLabel<T> setFieldName(String fieldName) {
     this.fieldName = fieldName;
     return this;
   }
 
-  public <T> FieldWithLabel<T> setFieldType(String fieldType) {
+  public FieldWithLabel<T> setFieldType(String fieldType) {
     this.fieldTag.attr("type", fieldType);
     this.fieldType = fieldType;
     return this;
   }
 
-  public <T> FieldWithLabel<T> setFormId(String formId) {
+  public FieldWithLabel<T> setFormId(String formId) {
     this.formId = formId;
     return this;
   }
 
-  public <T> FieldWithLabel<T> setId(String inputId) {
+  public FieldWithLabel<T> setId(String inputId) {
     this.id = inputId;
     return this;
   }
 
-  public <T> FieldWithLabel<T> setIsCurrency() {
+  public FieldWithLabel<T> setIsCurrency() {
     // There is no HTML currency input so we identify these with a custom attribute.
     this.setAttribute("currency");
     return this;
   }
 
-  public <T> FieldWithLabel<T> setLabelText(String labelText) {
+  public FieldWithLabel<T> setLabelText(String labelText) {
     this.labelText = labelText;
     return this;
   }
 
-  public <T> FieldWithLabel<T> setPlaceholderText(String placeholder) {
+  public FieldWithLabel<T> setPlaceholderText(String placeholder) {
     this.placeholderText = placeholder;
     return this;
   }
 
   /** Sets a valueless attribute. */
-  public <T> FieldWithLabel<T> setAttribute(String attribute) {
+  public FieldWithLabel<T> setAttribute(String attribute) {
     this.fieldTag.attr(attribute, null);
     return this;
   }
 
-  public <T> FieldWithLabel<T> setMin(OptionalLong value) {
+  public FieldWithLabel<T> setMin(OptionalLong value) {
     if (!this.fieldType.equals("number")) {
       throw new RuntimeException(
           "setting an OptionalLong min value is only available on fields of type 'number'");
@@ -175,7 +176,7 @@ public class FieldWithLabel<T> {
     return this;
   }
 
-  public <T> FieldWithLabel<T> setMax(OptionalLong value) {
+  public FieldWithLabel<T> setMax(OptionalLong value) {
     if (!this.fieldType.equals("number")) {
       throw new RuntimeException(
           "setting an OptionalLong max value is only available on fields of type 'number'");
@@ -185,7 +186,7 @@ public class FieldWithLabel<T> {
     return this;
   }
 
-  public <T> FieldWithLabel<T> setValue(String value) {
+  public FieldWithLabel<T> setValue(String value) {
     if (!STRING_TYPES.contains(this.fieldType)) {
       throw new RuntimeException(
           String.format(
@@ -196,7 +197,7 @@ public class FieldWithLabel<T> {
     return this;
   }
 
-  public <T> FieldWithLabel<T> setValue(Optional<String> value) {
+  public FieldWithLabel<T> setValue(Optional<String> value) {
     if (!STRING_TYPES.contains(this.fieldType)) {
       throw new RuntimeException(
           "setting a String value is not available on fields of type 'number'");
@@ -205,7 +206,7 @@ public class FieldWithLabel<T> {
     return this;
   }
 
-  public <T> FieldWithLabel<T> setValue(OptionalInt value) {
+  public FieldWithLabel<T> setValue(OptionalInt value) {
     if (!this.fieldType.equals("number")) {
       throw new RuntimeException(
           "setting an OptionalInt value is only available on fields of type `number`");
@@ -216,7 +217,7 @@ public class FieldWithLabel<T> {
     return this;
   }
 
-  public <T> FieldWithLabel<T> setValue(OptionalLong value) {
+  public FieldWithLabel<T> setValue(OptionalLong value) {
     if (!this.fieldType.equals("number")) {
       throw new RuntimeException(
           "setting an OptionalLong value is only available on fields of type `number`");
@@ -226,17 +227,17 @@ public class FieldWithLabel<T> {
     return this;
   }
 
-  public <T> FieldWithLabel<T> setDisabled(boolean disabled) {
+  public FieldWithLabel<T> setDisabled(boolean disabled) {
     this.disabled = disabled;
     return this;
   }
 
-  public <T> FieldWithLabel<T> setScreenReaderText(String screenReaderText) {
+  public FieldWithLabel<T> setScreenReaderText(String screenReaderText) {
     this.screenReaderText = screenReaderText;
     return this;
   }
 
-  public <T> FieldWithLabel<T> setFieldErrors(
+  public FieldWithLabel<T> setFieldErrors(
       Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
     this.messages = messages;
     this.fieldErrors =
@@ -256,22 +257,29 @@ public class FieldWithLabel<T> {
     return this;
   }
 
-  public <T> FieldWithLabel<T> showFieldErrors(boolean showFieldErrors) {
+  public FieldWithLabel<T> showFieldErrors(boolean showFieldErrors) {
     this.showFieldErrors = showFieldErrors;
     return this;
   }
 
-  public DivTag getContainer() {
+  protected void recreateTextareaField() {
+    //textAreaTag = new TextareaTag();
+    //textAreaTag.attr("type", "text").withText(this.fieldValue);
+    //this.fieldTag = textAreaTag;
+    fieldTag = this.fieldTagType.newInstance();
+    fieldTag.attr("type", "text").withText(this.fieldValue);
+  }
+
+  public <T> DivTag getContainer() {
     // In order for the labels to be associated with the fields (mandatory for screen readers)
     // we need an id.  Generate a reasonable one if none is provided.
     if (this.id.isEmpty()) {
       this.id = RandomStringUtils.randomAlphabetic(8);
     }
-    if (fieldTag.getTagName().equals("textarea")) {
+    if (fieldTag.instanceOf(TextareaTag)) {//getTagName().equals("textarea")) {
       // Have to recreate the field here in case the value is modified.
-      TextareaTag textAreaTag = textarea().attr("type", "text").withText(this.fieldValue);
-      fieldTag = textAreaTag;
-    } else if (this.fieldType.equals("number")) {
+      recreateTextareaField();
+    } else if (fieldType.equals("number")) {
       // Setting inputmode to decimal gives iOS users a more accessible keyboard
       fieldTag.attr("inputmode", "decimal");
 
