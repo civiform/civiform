@@ -11,8 +11,8 @@ import {
   startSession,
 } from './support'
 
-const NAME_FIRST = ".cf-name-first";
-const NAME_LAST = ".cf-name-last";
+const NAME_FIRST = '.cf-name-first'
+const NAME_LAST = '.cf-name-last'
 
 describe('name applicant flow', () => {
   let pageObject: Page
@@ -40,8 +40,8 @@ describe('name applicant flow', () => {
         questionName: 'name-test-q',
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
-          ['name-test-q'],
-          programName
+        ['name-test-q'],
+        programName
       )
       await logout(pageObject)
     })
@@ -51,11 +51,7 @@ describe('name applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNameQuestion(
-          '',
-          '',
-          '',
-      )
+      await applicantQuestions.answerNameQuestion('', '', '')
       let error = await pageObject.$(`${NAME_FIRST}-error`)
       expect(await error?.isHidden()).toEqual(true)
       error = await pageObject.$(`${NAME_LAST}-error`)
@@ -67,11 +63,7 @@ describe('name applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNameQuestion(
-          'Tommy',
-          'Pickles',
-          '',
-      )
+      await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '')
       await applicantQuestions.clickNext()
 
       await applicantQuestions.submitFromReviewPage(programName)
@@ -109,8 +101,8 @@ describe('name applicant flow', () => {
         questionName: 'name-test-b-q',
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
-          ['name-test-a-q', 'name-test-b-q'],
-          programName
+        ['name-test-a-q', 'name-test-b-q'],
+        programName
       )
 
       await logout(pageObject)
@@ -121,18 +113,8 @@ describe('name applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNameQuestion(
-          'Tommy',
-          'Pickles',
-          '',
-          0
-      )
-      await applicantQuestions.answerNameQuestion(
-          'Chuckie',
-          'Finster',
-          '',
-          1
-      )
+      await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 0)
+      await applicantQuestions.answerNameQuestion('Chuckie', 'Finster', '', 1)
       await applicantQuestions.clickNext()
 
       await applicantQuestions.submitFromReviewPage(programName)
@@ -144,12 +126,7 @@ describe('name applicant flow', () => {
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '', 0)
-      await applicantQuestions.answerNameQuestion(
-          'Chuckie',
-          'Finster',
-          '',
-          1
-      )
+      await applicantQuestions.answerNameQuestion('Chuckie', 'Finster', '', 1)
       await applicantQuestions.clickNext()
 
       // First question has errors.
@@ -170,12 +147,7 @@ describe('name applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNameQuestion(
-          'Tommy',
-          'Pickles',
-          '',
-          0
-      )
+      await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 0)
       await applicantQuestions.answerNameQuestion('', '', '', 1)
       await applicantQuestions.clickNext()
 
@@ -212,10 +184,10 @@ describe('name applicant flow', () => {
       })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockWithOptional(
-          programName,
-          'Optional question block',
-          ['name-test-required-q'],
-          'name-test-optional-q'
+        programName,
+        'Optional question block',
+        ['name-test-required-q'],
+        'name-test-optional-q'
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
@@ -228,12 +200,7 @@ describe('name applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerNameQuestion(
-          'Tommy',
-          'Pickles',
-          '',
-          1
-      )
+      await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 1)
       await applicantQuestions.clickNext()
 
       await applicantQuestions.submitFromReviewPage(programName)

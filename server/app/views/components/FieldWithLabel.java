@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import org.apache.commons.lang3.RandomStringUtils;
+import play.data.validation.ValidationError;
 import play.i18n.Messages;
 import services.applicant.ValidationErrorMessage;
 import views.style.BaseStyles;
@@ -46,7 +47,7 @@ public class FieldWithLabel {
   protected String placeholderText = "";
   protected String screenReaderText = "";
   protected Messages messages;
-  protected ImmutableSet<ValidationErrorMessage> fieldErrors = ImmutableSet.of();
+  protected ImmutableSet<ValidationError> fieldErrors = ImmutableSet.of();
   protected boolean showFieldErrors = true;
   protected boolean checked = false;
   protected boolean disabled = false;
@@ -223,7 +224,20 @@ public class FieldWithLabel {
   public FieldWithLabel setFieldErrors(
       Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
     this.messages = messages;
-    this.fieldErrors = errors;
+    this.fieldErrors =
+        errors.stream()
+            .map(
+                (ValidationErrorMessage vem) ->
+                    new ValidationError(vem.key().getKeyName(), vem.key().getKeyName(), vem.args()))
+            .collect(ImmutableSet.toImmutableSet());
+
+    return this;
+  }
+
+  public FieldWithLabel setFieldErrors(Messages messages, ValidationError error) {
+    this.messages = messages;
+    this.fieldErrors = ImmutableSet.of(error);
+
     return this;
   }
 
@@ -321,7 +335,7 @@ public class FieldWithLabel {
   private Tag buildFieldErrorsTag() {
     String[] referenceClasses =
         referenceClassesBuilder.build().stream().map(ref -> ref + "-error").toArray(String[]::new);
-    return div(each(fieldErrors, error -> div(error.getMessage(messages))))
+    return div(each(fieldErrors, error -> div(error.format(messages))))
         .withClasses(
             StyleUtils.joinStyles(referenceClasses),
             StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, Styles.P_1),
