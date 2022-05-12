@@ -21,8 +21,7 @@ CMD ["sh", "-c", "\
   echo 'Files formatted:'; \
   shfmt -bn -ci -i 2 -w -l \
   $(shfmt -f . | grep -v -e /node_modules -e /infra); \
-  cd server ; \
   echo 'Start prettier'; \
-  npx prettier \
-  --write --config /.prettierrc.js --ignore-path /.prettierignore .; \
+  npx prettier --write --config .prettierrc.js --ignore-path .prettierignore server; \
+  npx prettier --write --config .prettierrc.js --ignore-path .prettierignore browser-test; \
   "]

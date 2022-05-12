@@ -130,7 +130,7 @@ describe('normal application flow', () => {
     expect(postEditJSonContent[0].language).toEqual('en-US')
     expect(
       postEditJSonContent[0].application.csvcurrency.currency_dollars
-    ).toEqual(2000.00)
+    ).toEqual(2000.0)
     expect(
       postEditJSonContent[0].application.dropdowncsvdownload.selection
     ).toEqual('op2')

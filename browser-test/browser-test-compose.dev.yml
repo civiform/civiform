@@ -15,7 +15,7 @@ services:
       - ivy2-data:/root/.ivy2
       - m2-data:/root/.m2
     stdin_open: true # docker run -i
-    tty: true        # docker run -t
+    tty: true # docker run -t
     ports:
       - 9100:9000
       - 9457:8457

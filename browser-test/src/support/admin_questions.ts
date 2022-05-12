@@ -15,7 +15,7 @@ export class AdminQuestions {
   public page!: Page
 
   static readonly DOES_NOT_REPEAT_OPTION = 'does not repeat'
-  
+
   public static readonly NO_EXPORT_OPTION = 'No export'
   public static readonly EXPORT_VALUE_OPTION = 'Export Value'
   public static readonly EXPORT_OBFUSCATED_OPTION = 'Export Obfuscated'
@@ -31,9 +31,9 @@ export class AdminQuestions {
   }
 
   async goToViewQuestionPage(questionName: string) {
-      await this.gotoAdminQuestionsPage()
-      await this.page.click('text=View')
-      await waitForPageJsLoad(this.page)
+    await this.gotoAdminQuestionsPage()
+    await this.page.click('text=View')
+    await waitForPageJsLoad(this.page)
   }
 
   async clickSubmitButtonAndNavigate(buttonText: string) {
@@ -91,7 +91,7 @@ export class AdminQuestions {
     helpText,
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
-  } : QuestionParams) {
+  }: QuestionParams) {
     // This function should only be called on question create/edit page.
     await this.page.fill('label:has-text("Name")', questionName)
     await this.page.fill('label:has-text("Description")', description)
