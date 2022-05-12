@@ -66,7 +66,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
     PaginationResult<ApiKey> paginationResult =
         apiKeyService.listApiKeys(PaginationSpec.MAX_PAGE_SIZE_SPEC);
 
-// Keys should be shown in reverse creation order.
+    // Keys should be shown in reverse creation order.
     assertThat(paginationResult.getPageContents().get(0).getName()).isEqualTo(keyName2);
     assertThat(paginationResult.getPageContents().get(1).getName()).isEqualTo(keyName1);
   }
