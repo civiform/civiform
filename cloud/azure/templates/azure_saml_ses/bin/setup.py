@@ -62,9 +62,8 @@ class Setup:
     def _get_adfs_user_inputs(self):
         print(">>>> You will need to navigate to https://portal.azure.com/ and "
               + "select the app_service that was created. Select authentication"
-              + ", and add a new Microsoft identity provider. If this is for a "
-              + "local dev deploy, select 'Allow unauthenticated access'. Get "
-              + "the App (client) id.")
+              + ", and add a new Microsoft identity provider. Select 'Allow
+              + "unauthenticated access'. Get the App (client) id.")
         self._input_to_keystore("adfs-client-id")
 
         print(">>>> Navigate to the newly created authentication"
