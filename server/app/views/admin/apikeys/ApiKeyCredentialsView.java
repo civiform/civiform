@@ -8,7 +8,7 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 import javax.inject.Inject;
 import models.ApiKey;
 import play.twirl.api.Content;
@@ -35,7 +35,7 @@ public final class ApiKeyCredentialsView extends BaseHtmlView {
   public Content render(ApiKey apiKey, String credentials) {
     String title = "Created API key: " + apiKey.getName();
 
-    ContainerTag contentDiv =
+    DivTag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(
