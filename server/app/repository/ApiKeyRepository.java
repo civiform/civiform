@@ -34,6 +34,8 @@ public class ApiKeyRepository {
     PagedList<ApiKey> pagedList =
         database
             .find(ApiKey.class)
+            // This is a proxy for creation time descending. Both get the desired ordering
+            // behavior but ID is indexed.
             .order("id desc")
             .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
             .setMaxRows(paginationSpec.getPageSize())
@@ -42,9 +44,7 @@ public class ApiKeyRepository {
     pagedList.loadCount();
 
     return new PaginationResult<ApiKey>(
-        paginationSpec,
-        pagedList.getTotalPageCount(),
-        pagedList.getList().stream().collect(ImmutableList.toImmutableList()));
+        paginationSpec, pagedList.getTotalPageCount(), ImmutableList.copyOf(pagedList.getList()));
   }
 
   /** Insert a new {@link ApiKey} record asynchronously. */

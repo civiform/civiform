@@ -31,12 +31,14 @@ public class ApiKey extends BaseModel {
   @DbJsonB private ApiKeyGrants grants;
 
   public ApiKey(ApiKeyGrants grants) {
-    this.callCount = 0l;
+    super();
+    this.callCount = 0L;
     this.grants = grants;
   }
 
   public ApiKey() {
-    this.callCount = 0l;
+    super();
+    this.callCount = 0L;
     this.grants = new ApiKeyGrants();
   }
 
@@ -50,10 +52,12 @@ public class ApiKey extends BaseModel {
   }
 
   /**
-   * Sets the retired time to now and retiredBy if it is not retired. Throws a runtime exception if
-   * it is already retired.
+   * Retires the key, setting who retired it and the retired time to now. Throws a runtime exception
+   * if it is already retired.
+   *
+   * @param retiredBy the authority_id of the account who retired the key.
    */
-  public ApiKey setRetired(String retiredBy) {
+  public ApiKey retire(String retiredBy) {
     if (retiredTime != null) {
       throw new RuntimeException(String.format("ApiKey %s is already retired", id));
     }

@@ -110,7 +110,7 @@ public class ApiKeyService {
       throw new NotChangeableException(String.format("ApiKey %s is already retired", apiKey));
     }
 
-    apiKey.setRetired(getAuthorityId(profile));
+    apiKey.retire(getAuthorityId(profile));
     apiKey.save();
 
     return apiKey;

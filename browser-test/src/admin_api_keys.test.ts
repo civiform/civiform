@@ -6,7 +6,7 @@ import {
 } from './support'
 
 describe('Managing API keys', () => {
-  it('Creating a new API key, viewing, and retiring it', async () => {
+  it('Creates, views and retires new API key', async () => {
     const { browser, page } = await startSession()
 
     await loginAsAdmin(page)
