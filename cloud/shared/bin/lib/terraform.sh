@@ -37,8 +37,8 @@ function terraform::perform_apply() {
     -input=false \
     -out="${TERRAFORM_PLAN_OUT_FILE}" \
     -var-file="${TF_VAR_FILENAME}"
-  
-  if [[ "${CIVIFORM_MODE}" == "test" ]]; then 
+
+  if [[ "${CIVIFORM_MODE}" == "test" ]]; then
     return 0
   fi
 

@@ -22,7 +22,7 @@ if ! terraform::perform_apply; then
   exit 1
 fi
 
-if [[ "${CIVIFORM_MODE}" == "test" ]]; then 
+if [[ "${CIVIFORM_MODE}" == "test" ]]; then
   echo "Test completed"
   exit 0
 fi
