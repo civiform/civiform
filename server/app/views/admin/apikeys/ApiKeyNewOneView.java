@@ -14,7 +14,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.admin.routes;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.FormTag;
 import j2html.tags.DomContent;
 import java.util.Optional;
 import play.data.DynamicForm;
@@ -74,7 +76,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
       Request request, ImmutableSet<String> programNames, Optional<DynamicForm> dynamicForm) {
     String title = "Create a new API key";
 
-    ContainerTag formTag =
+    FormTag formTag =
         form()
             .withMethod("POST")
             .with(
@@ -122,14 +124,14 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
               .getContainer());
     }
 
-    ContainerTag contentDiv =
+    DivTag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(
                 h1(title).withClasses(Styles.MY_4),
                 formTag
                     .with(submitButton("Save").withId("apikey-submit-button"))
-                    .withAction(routes.AdminApiKeysController.create().url()));
+                    .attr("action", routes.AdminApiKeysController.create().url()));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
 
@@ -140,7 +142,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
     return "grant-program-read[" + slugifier.slugify(name) + "]";
   }
 
-  private FieldWithLabel setStateIfPresent(
+  private FieldWithLabel<InputTag> setStateIfPresent(
       FieldWithLabel field, Optional<DynamicForm> maybeForm, String key) {
     if (!maybeForm.isPresent()) {
       return field;
