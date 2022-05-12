@@ -32,7 +32,7 @@ label.languageSr=Dooro luqad
 header.userName=U soo gal sidii {0}
 
 # Error message to answer a required question
-validation.isRequired=Su'aashan ayaa loo baahan yahay.
+validation.isRequired=Su''aashan ayaa loo baahan yahay.
 
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Fadlan geli qiimaha sadar kasta.
@@ -113,7 +113,7 @@ button.apply=Codso
 button.applySr=Ka Codso {0}
 
 # "Get benefits" floating text
-content.benefits=Hel faa'iidooyin
+content.benefits=Hel faa''iidooyin
 
 # Long form description of the CiviForm site shown to the applicant. Line 1.
 content.description1=CiviForm wuxuu kuu ogolaanayaa inaad codsato faa''iidooyin badan hal mar adiga oo dib u isticmaalaya macluumaadka.
@@ -326,4 +326,4 @@ validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
 #---------------------------------------------------------------------#
 
 # Validation errors that appear if an admin leaves a multi option question blank.
-adminValidation.multiOptionEmpty=Su'aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
+adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
