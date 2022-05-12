@@ -1,7 +1,16 @@
 package views.admin.apikeys;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.*;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
+import static j2html.TagCreator.table;
+import static j2html.TagCreator.td;
+import static j2html.TagCreator.text;
+import static j2html.TagCreator.th;
+import static j2html.TagCreator.tr;
 
 import auth.ApiKeyGrants;
 import com.github.slugify.Slugify;
