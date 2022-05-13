@@ -12,12 +12,13 @@ import static j2html.TagCreator.text;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.tr;
 
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TableTag;
 import auth.ApiKeyGrants;
 import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import j2html.tags.ContainerTag;
 import java.util.function.Function;
 import models.ApiKey;
 import play.mvc.Http;
@@ -48,7 +49,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
       PaginationResult<ApiKey> apiKeyPaginationResult,
       ImmutableSet<String> allProgramNames) {
     String title = "API Keys";
-    ContainerTag headerDiv =
+    DivTag headerDiv =
         div()
             .withClasses(Styles.FLEX, Styles.PLACE_CONTENT_BETWEEN, Styles.MY_8)
             .with(
@@ -59,7 +60,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                     .setText("New API Key")
                     .asButton());
 
-    ContainerTag contentDiv = div().withClasses(Styles.PX_20).with(headerDiv);
+    DivTag contentDiv = div().withClasses(Styles.PX_20).with(headerDiv);
 
     for (ApiKey apiKey : apiKeyPaginationResult.getPageContents()) {
       contentDiv.with(renderApiKey(request, apiKey, buildProgramSlugToName(allProgramNames)));
@@ -69,9 +70,9 @@ public final class ApiKeyIndexView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ContainerTag renderApiKey(
+  private DivTag renderApiKey(
       Http.Request request, ApiKey apiKey, ImmutableMap<String, String> programSlugToName) {
-    ContainerTag statsDiv =
+    DivTag statsDiv =
         div()
             .with(
                 p("Created " + dateConverter.formatRfc1123(apiKey.getCreateTime())),
@@ -84,7 +85,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                 p("Call count: " + apiKey.getCallCount()))
             .withClasses(Styles.TEXT_XS);
 
-    ContainerTag linksDiv = div().withClasses(Styles.FLEX);
+    DivTag linksDiv = div().withClasses(Styles.FLEX);
 
     if (apiKey.isRetired()) {
       statsDiv.with(p("Retired " + dateConverter.formatRfc1123(apiKey.getRetiredTime().get())));
@@ -103,7 +104,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
               .asHiddenForm(request));
     }
 
-    ContainerTag topRowDiv =
+    DivTag topRowDiv =
         div()
             .with(
                 div(
@@ -115,7 +116,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                 statsDiv)
             .withClasses(Styles.FLEX, Styles.PLACE_CONTENT_BETWEEN);
 
-    ContainerTag grantsTable =
+    TableTag grantsTable =
         table()
             .withClasses(Styles.TABLE_AUTO, Styles.W_2_3)
             .with(
@@ -136,11 +137,11 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                       td(permission.name())));
             });
 
-    ContainerTag bottomDiv =
+    DivTag bottomDiv =
         div(grantsTable, linksDiv)
             .withClasses(Styles.FLEX, Styles.PLACE_CONTENT_BETWEEN, Styles.MT_4);
 
-    ContainerTag content =
+    DivTag content =
         div()
             .withClasses(
                 Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4)
