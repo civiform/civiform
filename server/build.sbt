@@ -9,6 +9,7 @@ lazy val root = (project in file("."))
     scalaVersion := "2.13.8",
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
+      caffeine,
       guice,
       javaJdbc,
       // JSON libraries

@@ -5,6 +5,7 @@ import static play.mvc.Results.forbidden;
 import static play.mvc.Results.redirect;
 
 import auth.AdminAuthClient;
+import auth.ApiAuthenticator;
 import auth.ApplicantAuthClient;
 import auth.AuthIdentityProviderName;
 import auth.Authorizers;
@@ -23,7 +24,6 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import controllers.routes;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -35,7 +35,12 @@ import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.IndirectClient;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.HttpConstants;
+import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.credentials.Credentials;
+import org.pac4j.core.credentials.UsernamePasswordCredentials;
+import org.pac4j.core.profile.BasicUserProfile;
+import org.pac4j.http.client.direct.DirectBasicAuthClient;
 import org.pac4j.play.CallbackController;
 import org.pac4j.play.LogoutController;
 import org.pac4j.play.http.PlayHttpActionAdapter;
@@ -147,22 +152,40 @@ public class SecurityModule extends AbstractModule {
 
   @Provides
   @Singleton
+  protected DirectBasicAuthClient apiAuthClient(ApiAuthenticator apiAuthenticator) {
+    DirectBasicAuthClient client =
+        new DirectBasicAuthClient(
+            apiAuthenticator,
+            (Credentials credentials, WebContext context, SessionStore sessionStore) -> {
+              BasicUserProfile profile = new BasicUserProfile();
+              String keyId = ((UsernamePasswordCredentials) credentials).getUsername();
+              profile.setId(keyId);
+              return Optional.of(profile);
+            });
+    client.setSaveProfileInSession(false);
+    return client;
+  }
+
+  @Provides
+  @Singleton
   protected Config provideConfig(
       GuestClient guestClient,
       @ApplicantAuthClient @Nullable IndirectClient applicantAuthClient,
       @AdminAuthClient @Nullable IndirectClient adminAuthClient,
-      FakeAdminClient fakeAdminClient) {
-    List<Client> clientList = new ArrayList<>();
+      FakeAdminClient fakeAdminClient,
+      DirectBasicAuthClient apiAuthClient) {
+    List<Client> clientList = List.of(guestClient, apiAuthClient);
+
     if (applicantAuthClient != null) {
       clientList.add(applicantAuthClient);
     }
     if (adminAuthClient != null) {
       clientList.add(adminAuthClient);
     }
-    clientList.add(guestClient);
     if (fakeAdminClient.canEnable(URI.create(baseUrl).getHost())) {
       clientList.add(fakeAdminClient);
     }
+
     Clients clients = new Clients(baseUrl + "/callback");
     clients.setClients(clientList);
     PlayHttpActionAdapter.INSTANCE

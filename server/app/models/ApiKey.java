@@ -94,6 +94,11 @@ public class ApiKey extends BaseModel {
     return expiration;
   }
 
+  /** True if the supplied time is after the expiration date. */
+  public boolean expiredAfter(Instant instant) {
+    return instant.isAfter(expiration);
+  }
+
   /**
    * Timestamp of when the ApiKey is no longer valid. Expiration should be immutable after creation.
    */

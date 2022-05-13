@@ -93,6 +93,11 @@ public class ApiKeyService {
     return repository.listApiKeys(paginationSpec);
   }
 
+  /** Finds an API key by its key ID (not the database ID). */
+  public Optional<ApiKey> findByKeyId(String keyId) {
+    return repository.lookupApiKey(keyId).toCompletableFuture().join();
+  }
+
   /**
    * Marks an {@link ApiKey} as retired, resulting in all requests that use it to fail
    * authentication. Retiring is permanent.
@@ -268,7 +273,7 @@ public class ApiKeyService {
     return Base64.getEncoder().encodeToString(secret);
   }
 
-  private String salt(String message) {
+  public String salt(String message) {
     byte[] rawMessage = Base64.getDecoder().decode(message);
     byte[] rawKey = Base64.getDecoder().decode(secretSalt);
 
