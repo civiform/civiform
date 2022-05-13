@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Result;
 import repository.ResetPostgres;
+import services.apikey.ApiKeyNotFoundException;
 import services.program.ProgramNotFoundException;
 
 public class ErrorHandlerTest extends ResetPostgres {
@@ -71,6 +72,14 @@ public class ErrorHandlerTest extends ResetPostgres {
   @Test
   public void onServerError_handlesOverride_ProgramNotFoundException() {
     Throwable exception = new ProgramNotFoundException("test exception");
+    Result result =
+        handler.onServerError(fakeRequest().build(), exception).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void onServerError_handlesOverride_ApiKeyNotFoundException() {
+    Throwable exception = new ApiKeyNotFoundException("test exception");
     Result result =
         handler.onServerError(fakeRequest().build(), exception).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(BAD_REQUEST);

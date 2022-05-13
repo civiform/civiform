@@ -11,11 +11,13 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import controllers.admin.NotChangeableException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.crypto.KeyGenerator;
@@ -25,6 +27,8 @@ import play.Environment;
 import play.data.DynamicForm;
 import repository.ApiKeyRepository;
 import services.DateConverter;
+import services.PaginationResult;
+import services.PaginationSpec;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
@@ -78,6 +82,38 @@ public class ApiKeyService {
     this.dateConverter = checkNotNull(dateConverter);
     this.secretSalt = checkNotNull(config).getString("api_secret_salt");
     this.banGlobalSubnet = checkNotNull(config).getBoolean("api_keys_ban_global_subnet");
+  }
+
+  /**
+   * Lists {@link ApiKey}s in order of creation time descending.
+   *
+   * @param paginationSpec specification for paginating the results.
+   */
+  public PaginationResult<ApiKey> listApiKeys(PaginationSpec paginationSpec) {
+    return repository.listApiKeys(paginationSpec);
+  }
+
+  /**
+   * Marks an {@link ApiKey} as retired, resulting in all requests that use it to fail
+   * authentication. Retiring is permanent.
+   */
+  public ApiKey retireApiKey(Long apiKeyId, CiviFormProfile profile) {
+    Optional<ApiKey> maybeApiKey = repository.lookupApiKey(apiKeyId).toCompletableFuture().join();
+
+    if (!maybeApiKey.isPresent()) {
+      throw new RuntimeException(new ApiKeyNotFoundException(apiKeyId));
+    }
+
+    ApiKey apiKey = maybeApiKey.get();
+
+    if (apiKey.isRetired()) {
+      throw new NotChangeableException(String.format("ApiKey %s is already retired", apiKey));
+    }
+
+    apiKey.retire(getAuthorityId(profile));
+    apiKey.save();
+
+    return apiKey;
   }
 
   /**

@@ -36,6 +36,8 @@ public final class ReferenceClasses {
   public static final String PROGRAM_ADMIN_REMOVE_BUTTON = "cf-program-admin-remove-button";
   public static final String PROGRAM_QUESTION = "cf-program-question";
 
+  public static final String ADMIN_API_KEY_INDEX_ENTRY_NAME = "cf-api-key-name";
+
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Applicant reference classes
   /////////////////////////////////////////////////////////////////////////////////////////////////

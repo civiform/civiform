@@ -6,7 +6,7 @@ import {
 } from './support'
 
 describe('Managing API keys', () => {
-  it('Creating a new API key displays its credentials', async () => {
+  it('Creates, views and retires new API key', async () => {
     const { browser, page } = await startSession()
 
     await loginAsAdmin(page)
@@ -26,5 +26,9 @@ describe('Managing API keys', () => {
     })
 
     expect(typeof credentials).toEqual('string')
+
+    await adminApiKeys.expectApiKeyIsActive('Test API key')
+    await adminApiKeys.retireApiKey('test-api-key')
+    await adminApiKeys.expectApiKeyIsRetired('Test API key')
   })
 })
