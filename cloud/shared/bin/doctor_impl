@@ -112,13 +112,24 @@ class AzureCliVersionCheck(Check):
         return self._get_cloud_provider() != "azure"
 
     def is_ok(self):
-        azure_cli_version_string = self._get_command_output([
+        azure_version_info = self._get_command_output([
             "/bin/bash",
             "-c",
-            "az --version 2> /dev/null | grep -oP '^azure-cli\s+[0-9]+\.[0-9]+\.[0-9]' | grep -oP '[0-9]+\.[0-9]+\.[0-9]'"
+            "az --version 2> /dev/null",
         ])
+        # Search for the azure-cli version. Sample output:
+        # azure-cli                         2.36.0
+        azure_cli_lines = [l for l in azure_version_info.split('\n') if l.startswith('azure-cli')]
+        if len(azure_cli_lines) != 1:
+            print('could not find single azure-cli entry in az --version output')
+            return False
+        azure_cli_line = azure_cli_lines[0]
+        azure_cli_version_string = azure_cli_line.split(' ')[-1]
+        if not azure_cli_version_string:
+            print(f'could not determine the azure_cli_version from the az --version output: got "{azure_cli_version_string}"')
+            return False
 
-        return azure_cli_version_string and self.version_greater_than(self.MIN_VERSION, azure_cli_version_string)
+        return self.version_greater_than(self.MIN_VERSION, azure_cli_version_string)
 
 class AwsLoginCheck(Check):
     remedy = """
