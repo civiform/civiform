@@ -4,10 +4,15 @@ import com.google.common.base.Preconditions;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Account;
+import models.ApiKey;
 import models.Applicant;
+import play.cache.NamedCache;
+import play.cache.SyncCacheApi;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
 import repository.VersionRepository;
+
+import java.util.Optional;
 
 /**
  * This class helps create {@link CiviFormProfile} and {@link CiviFormProfileData} objects for
@@ -18,15 +23,18 @@ public class ProfileFactory {
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
   private Provider<VersionRepository> versionRepositoryProvider;
+  private SyncCacheApi syncCacheApi;
 
   @Inject
   public ProfileFactory(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
-      Provider<VersionRepository> versionRepositoryProvider) {
+      Provider<VersionRepository> versionRepositoryProvider,
+      @NamedCache("api-keys") SyncCacheApi syncCacheApi) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
     this.versionRepositoryProvider = Preconditions.checkNotNull(versionRepositoryProvider);
+    this.syncCacheApi = Preconditions.checkNotNull(syncCacheApi);
   }
 
   public CiviFormProfileData createNewApplicant() {
@@ -48,6 +56,10 @@ public class ProfileFactory {
 
   public CiviFormProfile wrapProfileData(CiviFormProfileData p) {
     return new CiviFormProfile(dbContext, httpContext, p);
+  }
+
+  public Optional<ApiKey> retrieveApiKey(String keyId) {
+    return syncCacheApi.get(keyId);
   }
 
   /* One admin can have multiple roles; they can be both a program admin and a civiform admin. */

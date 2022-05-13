@@ -17,14 +17,12 @@ import play.mvc.Http;
 public class ProfileUtils {
   private SessionStore sessionStore;
   private ProfileFactory profileFactory;
-  private SyncCacheApi syncCacheApi;
 
   @Inject
   public ProfileUtils(
-      SessionStore sessionStore, ProfileFactory profileFactory, SyncCacheApi syncCacheApi) {
+      SessionStore sessionStore, ProfileFactory profileFactory) {
     this.sessionStore = Preconditions.checkNotNull(sessionStore);
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
-    this.syncCacheApi = Preconditions.checkNotNull(syncCacheApi);
   }
 
   /**
@@ -62,7 +60,7 @@ public class ProfileUtils {
       return Optional.empty();
     }
 
-    return syncCacheApi.get(p.get().getId());
+    return profileFactory.retrieveApiKey(p.get().getId());
   }
 
   // A temporary placeholder email value, used while the user needs to verify their account.

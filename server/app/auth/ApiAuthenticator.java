@@ -12,6 +12,7 @@ import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.exception.CredentialsException;
+import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 import services.apikey.ApiKeyService;
 
@@ -23,7 +24,7 @@ public class ApiAuthenticator implements Authenticator {
   private final ApiKeyService apiKeyService;
 
   @Inject
-  public ApiAuthenticator(SyncCacheApi syncCacheApi, ApiKeyService apiKeyService) {
+  public ApiAuthenticator(@NamedCache("api-keys") SyncCacheApi syncCacheApi, ApiKeyService apiKeyService) {
     this.syncCacheApi = checkNotNull(syncCacheApi);
     this.apiKeyService = checkNotNull(apiKeyService);
   }
