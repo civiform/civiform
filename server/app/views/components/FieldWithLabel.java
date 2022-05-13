@@ -54,6 +54,7 @@ public class FieldWithLabel {
     this.fieldTag = checkNotNull(fieldTag);
   }
 
+  // TAG CREATORS & GETTERS //
   public static FieldWithLabel checkbox() {
     InputTag fieldTag = TagCreator.input();
     fieldTag.setFieldType("checkbox");
@@ -94,6 +95,7 @@ public class FieldWithLabel {
     fieldTag.setFieldType("email");
   }
 
+  // ATTRIBUTE SETTERS //
   /** Add a reference class from {@link views.style.ReferenceClasses} to this element. */
   public FieldWithLabel addReferenceClass(String referenceClass) {
     referenceClassesBuilder.add(referenceClass);
@@ -111,39 +113,48 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setFieldType(String fieldType) {
+    // TODO Just remove this
     this.fieldTag.attr("type", fieldType);
+    // TODO add to tag later
     this.fieldType = fieldType;
     return this;
   }
 
   public FieldWithLabel setFormId(String formId) {
+    // TODO add to tag later
     this.formId = formId;
     return this;
   }
 
   public FieldWithLabel setId(String inputId) {
+    // TODO add to tag later
     this.id = inputId;
     return this;
   }
 
   FieldWithLabel setIsCurrency() {
     // There is no HTML currency input so we identify these with a custom attribute.
+    // TODO add to tag later
     this.setAttribute("currency");
     return this;
   }
 
   public FieldWithLabel setLabelText(String labelText) {
+    // TODO add to tag later
     this.labelText = labelText;
     return this;
   }
 
   public FieldWithLabel setPlaceholderText(String placeholder) {
+    // TODO add to tag later
     this.placeholderText = placeholder;
     return this;
   }
 
   /** Sets a valueless attribute. */
   public FieldWithLabel setAttribute(String attribute) {
+    // TODO Add list field to store these before setting them after Tag creation
+    // TODO add to tag later
     this.fieldTag.attr(attribute, null);
     return this;
   }
@@ -153,6 +164,7 @@ public class FieldWithLabel {
       throw new RuntimeException(
           "setting an OptionalLong min value is only available on fields of type 'number'");
     }
+    // TODO add to tag later
     this.minValue = value;
     return this;
   }
@@ -163,6 +175,7 @@ public class FieldWithLabel {
           "setting an OptionalLong max value is only available on fields of type 'number'");
     }
 
+    // TODO add to tag later
     this.maxValue = value;
     return this;
   }
@@ -174,6 +187,7 @@ public class FieldWithLabel {
               "setting a String value is not available on fields of type `%s`", this.fieldType));
     }
 
+    // TODO add to tag later
     this.fieldValue = value;
     return this;
   }
@@ -183,6 +197,7 @@ public class FieldWithLabel {
       throw new RuntimeException(
           "setting a String value is not available on fields of type 'number'");
     }
+    // TODO add to tag later
     value.ifPresent(s -> this.fieldValue = s);
     return this;
   }
@@ -193,6 +208,7 @@ public class FieldWithLabel {
           "setting an OptionalInt value is only available on fields of type `number`");
     }
 
+    // TODO add to tag later
     this.fieldValueNumber =
         value.isPresent() ? OptionalLong.of(value.getAsInt()) : OptionalLong.empty();
     return this;
@@ -204,22 +220,26 @@ public class FieldWithLabel {
           "setting an OptionalLong value is only available on fields of type `number`");
     }
 
+    // TODO add to tag later
     this.fieldValueNumber = value;
     return this;
   }
 
   public FieldWithLabel setDisabled(boolean disabled) {
+    // TODO add to tag later
     this.disabled = disabled;
     return this;
   }
 
   public FieldWithLabel setScreenReaderText(String screenReaderText) {
+    // TODO add to tag later
     this.screenReaderText = screenReaderText;
     return this;
   }
 
   public FieldWithLabel setFieldErrors(
       Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
+    // TODO add to tag later
     this.messages = messages;
     this.fieldErrors =
         errors.stream()
@@ -232,6 +252,7 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setFieldErrors(Messages messages, ValidationError error) {
+    // TODO add to tag later
     this.messages = messages;
     this.fieldErrors = ImmutableSet.of(error);
 
@@ -239,6 +260,7 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel showFieldErrors(boolean showFieldErrors) {
+    // TODO add to tag later
     this.showFieldErrors = showFieldErrors;
     return this;
   }
@@ -246,13 +268,18 @@ public class FieldWithLabel {
   public DivTag getContainer() {
     // In order for the labels to be associated with the fields (mandatory for screen readers)
     // we need an id.  Generate a reasonable one if none is provided.
+
+    // TODO goes into all tag types
     if (this.id.isEmpty()) {
       this.id = RandomStringUtils.randomAlphabetic(8);
     }
+    // TODO textarea tag only
     if (fieldTag.getTagName().equals("textarea")) {
       // Have to recreate the field here in case the value is modified.
       TextareaTag textAreaTag = textarea().attr("type", "text").withText(this.fieldValue);
-    } else if (this.fieldType.equals("number")) {
+    }
+    // TODO number tag only
+    else if (fieldType.equals("number")) {
       // Setting inputmode to decimal gives iOS users a more accessible keyboard
       fieldTag.attr("inputmode", "decimal");
 
@@ -273,10 +300,13 @@ public class FieldWithLabel {
       if (this.fieldValueNumber.isPresent()) {
         fieldTag.attr("value", String.valueOf(this.fieldValueNumber.getAsLong()));
       }
-    } else {
+    } 
+    // TODO NOT textarea or number tag types
+    else {
       fieldTag.attr("value", this.fieldValue);
     }
 
+    // TODO ALL tag types
     boolean hasFieldErrors = !fieldErrors.isEmpty() && showFieldErrors;
     fieldTag
         .withClasses(
@@ -288,10 +318,12 @@ public class FieldWithLabel {
         .condAttr(!Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
 
+    // TODO checkbox && radio tag types
     if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
       return div(getCheckboxContainer());
     }
 
+    // TODO ALL except checkbox && radio tag types
     LabelTag labelTag =
         label()
             .attr(Attr.FOR, this.id)
@@ -308,6 +340,7 @@ public class FieldWithLabel {
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
   }
 
+  // BLAH //
   /**
    * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
    * attribute.
