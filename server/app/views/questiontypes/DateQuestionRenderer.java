@@ -34,7 +34,7 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     DateQuestion dateQuestion = question.createDateQuestion();
 
-    FieldWithLabel<InputTag> dateField =
+    FieldWithLabel dateField =
         FieldWithLabel.date()
             .setFieldName(dateQuestion.getDatePath().toString())
             .setScreenReaderText(question.getQuestionText())

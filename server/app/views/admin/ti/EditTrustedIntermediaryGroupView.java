@@ -76,7 +76,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
             .withMethod("POST")
             .attr("action", 
                 routes.TrustedIntermediaryManagementController.addIntermediary(tiGroup.id).url());
-    FieldWithLabel<InputTag> emailField =
+    FieldWithLabel emailField =
         FieldWithLabel.input()
             .setId("group-name-input")
             .setFieldName("emailAddress")

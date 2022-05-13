@@ -81,7 +81,7 @@ public class ProgramTranslationView extends TranslationFormView {
     return routes.AdminProgramTranslationsController.edit(programId, locale.toLanguageTag()).url();
   }
 
-  private ImmutableList<FieldWithLabel<InputTag>> formFields(
+  private ImmutableList<FieldWithLabel> formFields(
       Optional<String> localizedName, Optional<String> localizedDescription) {
     return ImmutableList.of(
         FieldWithLabel.input()

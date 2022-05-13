@@ -142,7 +142,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
     return "grant-program-read[" + slugifier.slugify(name) + "]";
   }
 
-  private FieldWithLabel<InputTag> setStateIfPresent(
+  private FieldWithLabel setStateIfPresent(
       FieldWithLabel field, Optional<DynamicForm> maybeForm, String key) {
     if (!maybeForm.isPresent()) {
       return field;

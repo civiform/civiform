@@ -32,7 +32,7 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
 
-    FieldWithLabel<InputTag> currencyField =
+    FieldWithLabel currencyField =
         FieldWithLabel.currency()
             .setFieldName(currencyQuestion.getCurrencyPath().toString())
             .addReferenceClass(ReferenceClasses.CURRENCY_VALUE)

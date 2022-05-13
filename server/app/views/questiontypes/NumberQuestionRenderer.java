@@ -33,7 +33,7 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     NumberQuestion numberQuestion = question.createNumberQuestion();
 
-    FieldWithLabel<InputTag> numberField =
+    FieldWithLabel numberField =
         FieldWithLabel.number()
             .setFieldName(numberQuestion.getNumberPath().toString())
             .setScreenReaderText(question.getQuestionText())

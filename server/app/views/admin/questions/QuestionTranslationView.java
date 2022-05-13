@@ -82,7 +82,7 @@ public class QuestionTranslationView extends TranslationFormView {
         .url();
   }
 
-  private ImmutableList<FieldWithLabel<InputTag>> getQuestionTypeSpecificFields(
+  private ImmutableList<FieldWithLabel> getQuestionTypeSpecificFields(
       QuestionDefinition question, Locale toUpdate) {
     switch (question.getQuestionType()) {
       case CHECKBOX: // fallthrough intended
@@ -104,7 +104,7 @@ public class QuestionTranslationView extends TranslationFormView {
     }
   }
 
-  private ImmutableList<FieldWithLabel<InputTag>> questionTextFields(
+  private ImmutableList<FieldWithLabel> questionTextFields(
       Locale locale, LocalizedStrings questionText, LocalizedStrings helpText) {
     ImmutableList.Builder<FieldWithLabel> fields = ImmutableList.builder();
     fields.add(
@@ -129,7 +129,7 @@ public class QuestionTranslationView extends TranslationFormView {
     return fields.build();
   }
 
-  private ImmutableList<FieldWithLabel<InputTag>> multiOptionQuestionFields(
+  private ImmutableList<FieldWithLabel> multiOptionQuestionFields(
       ImmutableList<QuestionOption> options, Locale toUpdate) {
     return options.stream()
         .map(
@@ -142,7 +142,7 @@ public class QuestionTranslationView extends TranslationFormView {
         .collect(toImmutableList());
   }
 
-  private ImmutableList<FieldWithLabel<InputTag>> enumeratorQuestionFields(
+  private ImmutableList<FieldWithLabel> enumeratorQuestionFields(
       LocalizedStrings entityType, Locale toUpdate) {
     return ImmutableList.of(
         FieldWithLabel.input()

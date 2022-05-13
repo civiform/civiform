@@ -13,7 +13,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.OptionTag;
 
 /** Utility class for rendering a select input field with an optional label. */
-public class SelectWithLabel extends FieldWithLabel<SelectTag> {
+public class SelectWithLabel extends FieldWithLabel {
 
   private ImmutableMap<String, String> options = ImmutableMap.of();
   private ImmutableList<OptionTag> customOptions = ImmutableList.of();

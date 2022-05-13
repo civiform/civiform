@@ -84,14 +84,14 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         form()
             .withMethod("POST")
             .attr("action", routes.TrustedIntermediaryManagementController.create().url());
-    FieldWithLabel<InputTag> nameField =
+    FieldWithLabel nameField =
         FieldWithLabel.input()
             .setId("group-name-input")
             .setFieldName("name")
             .setLabelText("Name")
             .setValue(request.flash().get("providedName").orElse(""))
             .setPlaceholderText("The name of this Trusted Intermediary Group.");
-    FieldWithLabel<InputTag> descriptionField =
+    FieldWithLabel descriptionField =
         FieldWithLabel.input()
             .setId("group-description-input")
             .setFieldName("description")
