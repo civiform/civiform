@@ -15,7 +15,7 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class NumberQuestion extends QuestionImpl {
+public class NumberQuestion extends Question {
 
   private Optional<Long> numberValue;
 
