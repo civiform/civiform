@@ -31,15 +31,12 @@ public class ApiKey extends BaseModel {
   @DbJsonB private ApiKeyGrants grants;
 
   public ApiKey(ApiKeyGrants grants) {
-    super();
     this.callCount = 0L;
     this.grants = grants;
   }
 
   public ApiKey() {
-    super();
-    this.callCount = 0L;
-    this.grants = new ApiKeyGrants();
+    this(new ApiKeyGrants());
   }
 
   public ApiKeyGrants getGrants() {

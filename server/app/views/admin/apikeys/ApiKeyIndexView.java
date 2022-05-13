@@ -87,9 +87,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
     ContainerTag linksDiv = div().withClasses(Styles.FLEX);
 
     if (apiKey.isRetired()) {
-      statsDiv.with(
-          p("Retired " + dateConverter.formatRfc1123(apiKey.getRetiredTime().get())),
-          p("Retired by " + apiKey.getRetiredBy().get()));
+      statsDiv.with(p("Retired " + dateConverter.formatRfc1123(apiKey.getRetiredTime().get())));
     } else {
       linksDiv.with(
           new LinkElement()
