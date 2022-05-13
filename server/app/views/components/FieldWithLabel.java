@@ -265,7 +265,158 @@ public class FieldWithLabel {
     return this;
   }
 
-  public DivTag getContainer() {
+  public DivTag getInputTag() {
+    // In order for the labels to be associated with the fields (mandatory for screen readers)
+    // we need an id.  Generate a reasonable one if none is provided.
+
+    // TODO goes into all tag types
+    if (this.id.isEmpty()) {
+      this.id = RandomStringUtils.randomAlphabetic(8);
+    }
+    // TODO number tag only
+    if (fieldType.equals("number")) {
+      // Setting inputmode to decimal gives iOS users a more accessible keyboard
+      fieldTag.attr("inputmode", "decimal");
+
+      // Setting step to any disables the built-in HTML validation so we can use our
+      // custom validation message to enforce integers.
+      fieldTag.attr("step", "any");
+
+      // Set min and max values for client-side validation
+      if (this.minValue.isPresent()) {
+        fieldTag.attr("min", minValue.getAsLong());
+      }
+      if (this.maxValue.isPresent()) {
+        fieldTag.attr("max", maxValue.getAsLong());
+      }
+
+      // For number types, only set the value if it's present since there is no empty string
+      // equivalent for numbers.
+      if (this.fieldValueNumber.isPresent()) {
+        fieldTag.attr("value", String.valueOf(this.fieldValueNumber.getAsLong()));
+      }
+    } 
+    // TODO NOT textarea or number tag types
+    else {
+      fieldTag.attr("value", this.fieldValue);
+    }
+
+    allTagsSetClassesAndAttrs(fieldTag);
+
+    // TODO ALL tag types
+    //boolean hasFieldErrors = !fieldErrors.isEmpty() && showFieldErrors;
+    //fieldTag
+    //    .withClasses(
+    //        StyleUtils.joinStyles(
+    //            BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
+    //    .withId(this.id)
+    //    .attr("name", this.fieldName)
+    //    .condAttr(this.disabled, Attr.DISABLED, "true")
+    //    .condAttr(!Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
+    //    .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
+
+    // TODO checkbox && radio tag types
+    if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
+      return div(getCheckboxContainer());
+    }
+
+    // TODO ALL except checkbox && radio tag types
+    //LabelTag labelTag =
+    //    label()
+    //        .attr(Attr.FOR, this.id)
+    //        // If the text is screen-reader text, then we want the label to be screen-reader
+    //        // only.
+    //        .withClass(labelText.isEmpty() ? Styles.SR_ONLY : BaseStyles.INPUT_LABEL)
+    //        .withText(labelText.isEmpty() ? screenReaderText : labelText);
+
+    return nonCheckboxRadioFinalBuild(fieldTag);
+    //return div(
+    //        labelTag,
+    //        div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
+    //    .withClasses(
+    //        StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
+    //        BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
+  }
+
+  protected void allTagsSetClassesAndAttrs(Tag fieldTag) {
+
+    boolean hasFieldErrors = !fieldErrors.isEmpty() && showFieldErrors;
+    fieldTag
+        .withClasses(
+            StyleUtils.joinStyles(
+                BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
+        .withId(this.id)
+        .attr("name", this.fieldName)
+        .condAttr(this.disabled, Attr.DISABLED, "true")
+        .condAttr(!Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
+        .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
+  }
+
+  protected DivTag nonCheckboxRadioFinalBuild(Tag fieldTag) {
+    LabelTag labelTag =
+        label()
+            .attr(Attr.FOR, this.id)
+            // If the text is screen-reader text, then we want the label to be screen-reader
+            // only.
+            .withClass(labelText.isEmpty() ? Styles.SR_ONLY : BaseStyles.INPUT_LABEL)
+            .withText(labelText.isEmpty() ? screenReaderText : labelText);
+
+    return div(
+            labelTag,
+            div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
+        .withClasses(
+            StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
+            BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
+  }
+
+  public DivTag getTextareaTag() {
+    // In order for the labels to be associated with the fields (mandatory for screen readers)
+    // we need an id.  Generate a reasonable one if none is provided.
+
+    // TODO goes into all tag types
+    if (this.id.isEmpty()) {
+      this.id = RandomStringUtils.randomAlphabetic(8);
+    }
+    // TODO textarea tag only
+    if (fieldTag.getTagName().equals("textarea")) {
+      // Have to recreate the field here in case the value is modified.
+      TextareaTag textAreaTag = textarea().attr("type", "text").withText(this.fieldValue);
+    }
+
+    allTagsSetClassesAndAttrs(fieldTag);
+
+    // TODO ALL tag types
+    //boolean hasFieldErrors = !fieldErrors.isEmpty() && showFieldErrors;
+    //fieldTag
+    //    .withClasses(
+    //        StyleUtils.joinStyles(
+    //            BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
+    //    .withId(this.id)
+    //    .attr("name", this.fieldName)
+    //    .condAttr(this.disabled, Attr.DISABLED, "true")
+    //    .condAttr(!Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
+    //    .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
+
+    // TODO ALL except checkbox && radio tag types
+    //LabelTag labelTag =
+    //    label()
+    //        .attr(Attr.FOR, this.id)
+    //        // If the text is screen-reader text, then we want the label to be screen-reader
+    //        // only.
+    //        .withClass(labelText.isEmpty() ? Styles.SR_ONLY : BaseStyles.INPUT_LABEL)
+    //        .withText(labelText.isEmpty() ? screenReaderText : labelText);
+
+    return nonCheckboxRadioFinalBuild(fieldTag);
+    //return div(
+    //        labelTag,
+    //        div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
+    //    .withClasses(
+    //        StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
+    //        BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
+  }
+
+
+  /*public DivTag getContainer() {
     // In order for the labels to be associated with the fields (mandatory for screen readers)
     // we need an id.  Generate a reasonable one if none is provided.
 
@@ -338,7 +489,7 @@ public class FieldWithLabel {
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
-  }
+  }*/
 
   // BLAH //
   /**
