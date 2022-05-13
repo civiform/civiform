@@ -31,6 +31,7 @@ public class FieldWithLabel {
   protected String fieldName = "";
   protected String fieldType = "text";
   protected String fieldValue = "";
+  protected String tagType = "";
 
   /** For use with fields of type `number`. */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
@@ -50,49 +51,52 @@ public class FieldWithLabel {
   protected boolean disabled = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
 
-  public FieldWithLabel(Tag fieldTag) {
-    this.fieldTag = checkNotNull(fieldTag);
-  }
-
   // TAG CREATORS & GETTERS //
-  public static FieldWithLabel checkbox() {
-    InputTag fieldTag = TagCreator.input();
-    fieldTag.setFieldType("checkbox");
+  public static FieldWithLabel asCheckbox() {
+    return new FieldWithLabel().setFieldType("checkbox");
   }
 
-  public static FieldWithLabel currency() {
-    InputTag fieldTag = TagCreator.input();
-    fieldTag.setFieldType("text").setIsCurrency();
+  public static FieldWithLabel asCurrency() {
+    return new FieldWithLabel()
+      .setFieldType("text")
+      .setIsCurrency()
+      .setTagType("input");
   }
 
-  public static FieldWithLabel radio() {
-    InputTag fieldTag = TagCreator.input();
-    fieldTag.setFieldType("radio");
+  public static FieldWithLabel asRadio() {
+    return new FieldWithLabel()
+      .setFieldType("radio")
+      .setTagType("input");
   }
 
-  public static FieldWithLabel input() {
-    InputTag fieldTag = TagCreator.input();
-    fieldTag.setFieldType("text");
+  public static FieldWithLabel asInput() {
+    return new FieldWithLabel()
+      .setFieldType("text")
+      .setTagType("input");
   }
 
-  public static FieldWithLabel number() {
-    InputTag fieldTag = TagCreator.input();
-    fieldTag.setFieldType("number");
+  public static FieldWithLabel asNumber() {
+    return new FieldWithlabel()
+      .setFieldType("number")
+      .setTagType("input")
   }
 
-  public static FieldWithLabel date() {
-    InputTag fieldTag = TagCreator.input();
-    fieldTag.setFieldType("date");
+  public static FieldWithLabel asDate() {
+    return new FieldWithlabel()
+      .setFieldType("date")
+      .setTagType("input");
   }
 
-  public static FieldWithLabel textArea() {
-    InputTag fieldTag = textarea();
-    fieldTag.setFieldType("text");
+  public static FieldWithLabel asTextArea() {
+    return new FieldWithLabel()
+      .setFieldType("text")
+      .setTagType("textarea");
   }
 
-  public static FieldWithLabel email() {
-    InputTag fieldTag = TagCreator.input();
-    fieldTag.setFieldType("email");
+  public static FieldWithLabel asEmail() {
+    return new FieldWithLabel()
+      .setFieldType("email")
+      .setTagType("input");
   }
 
   // ATTRIBUTE SETTERS //
@@ -112,9 +116,14 @@ public class FieldWithLabel {
     return this;
   }
 
+  public FieldWithLabel setTagType(String tagType) {
+    this.tagType = tagType;
+    return this;
+  }
+
   public FieldWithLabel setFieldType(String fieldType) {
     // TODO Just remove this
-    this.fieldTag.attr("type", fieldType);
+    //this.fieldTag.attr("type", fieldType);
     // TODO add to tag later
     this.fieldType = fieldType;
     return this;
@@ -265,7 +274,7 @@ public class FieldWithLabel {
     return this;
   }
 
-  public DivTag getInputTag() {
+  protected DivTag getInputTag(InputTag fieldTag) {
     // In order for the labels to be associated with the fields (mandatory for screen readers)
     // we need an id.  Generate a reasonable one if none is provided.
 
@@ -274,7 +283,7 @@ public class FieldWithLabel {
       this.id = RandomStringUtils.randomAlphabetic(8);
     }
     // TODO number tag only
-    if (fieldType.equals("number")) {
+    if (getFieldType().equals("number")) {
       // Setting inputmode to decimal gives iOS users a more accessible keyboard
       fieldTag.attr("inputmode", "decimal");
 
@@ -302,40 +311,11 @@ public class FieldWithLabel {
     }
 
     allTagsSetClassesAndAttrs(fieldTag);
-
-    // TODO ALL tag types
-    //boolean hasFieldErrors = !fieldErrors.isEmpty() && showFieldErrors;
-    //fieldTag
-    //    .withClasses(
-    //        StyleUtils.joinStyles(
-    //            BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
-    //    .withId(this.id)
-    //    .attr("name", this.fieldName)
-    //    .condAttr(this.disabled, Attr.DISABLED, "true")
-    //    .condAttr(!Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
-    //    .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
-
-    // TODO checkbox && radio tag types
     if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
       return div(getCheckboxContainer());
     }
 
-    // TODO ALL except checkbox && radio tag types
-    //LabelTag labelTag =
-    //    label()
-    //        .attr(Attr.FOR, this.id)
-    //        // If the text is screen-reader text, then we want the label to be screen-reader
-    //        // only.
-    //        .withClass(labelText.isEmpty() ? Styles.SR_ONLY : BaseStyles.INPUT_LABEL)
-    //        .withText(labelText.isEmpty() ? screenReaderText : labelText);
-
     return nonCheckboxRadioFinalBuild(fieldTag);
-    //return div(
-    //        labelTag,
-    //        div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
-    //    .withClasses(
-    //        StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
-    //        BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
   }
 
   protected void allTagsSetClassesAndAttrs(Tag fieldTag) {
@@ -369,7 +349,7 @@ public class FieldWithLabel {
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
   }
 
-  public DivTag getTextareaTag() {
+  protected DivTag getTextareaTag(TextareaTag fieldTag) {
     // In order for the labels to be associated with the fields (mandatory for screen readers)
     // we need an id.  Generate a reasonable one if none is provided.
 
@@ -385,113 +365,24 @@ public class FieldWithLabel {
 
     allTagsSetClassesAndAttrs(fieldTag);
 
-    // TODO ALL tag types
-    //boolean hasFieldErrors = !fieldErrors.isEmpty() && showFieldErrors;
-    //fieldTag
-    //    .withClasses(
-    //        StyleUtils.joinStyles(
-    //            BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
-    //    .withId(this.id)
-    //    .attr("name", this.fieldName)
-    //    .condAttr(this.disabled, Attr.DISABLED, "true")
-    //    .condAttr(!Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
-    //    .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
-
-    // TODO ALL except checkbox && radio tag types
-    //LabelTag labelTag =
-    //    label()
-    //        .attr(Attr.FOR, this.id)
-    //        // If the text is screen-reader text, then we want the label to be screen-reader
-    //        // only.
-    //        .withClass(labelText.isEmpty() ? Styles.SR_ONLY : BaseStyles.INPUT_LABEL)
-    //        .withText(labelText.isEmpty() ? screenReaderText : labelText);
-
     return nonCheckboxRadioFinalBuild(fieldTag);
-    //return div(
-    //        labelTag,
-    //        div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
-    //    .withClasses(
-    //        StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
-    //        BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
   }
 
+  public DivTag getContainer() {
+    TextareaTag textareaFieldTag;
+    InputTag inputFieldTag;
 
-  /*public DivTag getContainer() {
-    // In order for the labels to be associated with the fields (mandatory for screen readers)
-    // we need an id.  Generate a reasonable one if none is provided.
-
-    // TODO goes into all tag types
-    if (this.id.isEmpty()) {
-      this.id = RandomStringUtils.randomAlphabetic(8);
-    }
-    // TODO textarea tag only
-    if (fieldTag.getTagName().equals("textarea")) {
-      // Have to recreate the field here in case the value is modified.
-      TextareaTag textAreaTag = textarea().attr("type", "text").withText(this.fieldValue);
-    }
-    // TODO number tag only
-    else if (fieldType.equals("number")) {
-      // Setting inputmode to decimal gives iOS users a more accessible keyboard
-      fieldTag.attr("inputmode", "decimal");
-
-      // Setting step to any disables the built-in HTML validation so we can use our
-      // custom validation message to enforce integers.
-      fieldTag.attr("step", "any");
-
-      // Set min and max values for client-side validation
-      if (this.minValue.isPresent()) {
-        fieldTag.attr("min", minValue.getAsLong());
-      }
-      if (this.maxValue.isPresent()) {
-        fieldTag.attr("max", maxValue.getAsLong());
-      }
-
-      // For number types, only set the value if it's present since there is no empty string
-      // equivalent for numbers.
-      if (this.fieldValueNumber.isPresent()) {
-        fieldTag.attr("value", String.valueOf(this.fieldValueNumber.getAsLong()));
-      }
-    } 
-    // TODO NOT textarea or number tag types
-    else {
-      fieldTag.attr("value", this.fieldValue);
+    if (getTagType().equals("textarea")) {
+      textareaFieldTag = textarea();
+      textareaFieldTag.withType(getTagType());
+      return getTextareaTag(textareaFieldTag);
     }
 
-    // TODO ALL tag types
-    boolean hasFieldErrors = !fieldErrors.isEmpty() && showFieldErrors;
-    fieldTag
-        .withClasses(
-            StyleUtils.joinStyles(
-                BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
-        .withId(this.id)
-        .attr("name", this.fieldName)
-        .condAttr(this.disabled, Attr.DISABLED, "true")
-        .condAttr(!Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
-        .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
+    inputFieldTag = input();
+    inputFieldTag.withType(getTagType());
+    return getInputTag(inputFieldTag);
+  }
 
-    // TODO checkbox && radio tag types
-    if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
-      return div(getCheckboxContainer());
-    }
-
-    // TODO ALL except checkbox && radio tag types
-    LabelTag labelTag =
-        label()
-            .attr(Attr.FOR, this.id)
-            // If the text is screen-reader text, then we want the label to be screen-reader
-            // only.
-            .withClass(labelText.isEmpty() ? Styles.SR_ONLY : BaseStyles.INPUT_LABEL)
-            .withText(labelText.isEmpty() ? screenReaderText : labelText);
-
-    return div(
-            labelTag,
-            div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
-        .withClasses(
-            StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
-            BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
-  }*/
-
-  // BLAH //
   /**
    * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
    * attribute.
