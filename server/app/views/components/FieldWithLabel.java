@@ -82,13 +82,13 @@ public class FieldWithLabel {
   }
 
   public static FieldWithLabel number() {
-    return new FieldWithlabel()
+    return new FieldWithLabel()
       .setFieldType("number")
       .setTagType("input");
   }
 
   public static FieldWithLabel date() {
-    return new FieldWithlabel()
+    return new FieldWithLabel()
       .setFieldType("date")
       .setTagType("input");
   }
