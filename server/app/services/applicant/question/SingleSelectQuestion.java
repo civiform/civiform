@@ -18,12 +18,12 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class SingleSelectQuestion extends Question {
+public final class SingleSelectQuestion extends Question {
 
   // Stores the value, loading and caching it on first access.
   private Optional<Optional<LocalizedQuestionOption>> selectedOptionValueCache;
 
-  public SingleSelectQuestion(ApplicantQuestion applicantQuestion) {
+  SingleSelectQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
     selectedOptionValueCache = Optional.empty();
   }

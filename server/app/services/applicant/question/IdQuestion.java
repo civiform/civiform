@@ -16,11 +16,11 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class IdQuestion extends Question {
+public final class IdQuestion extends Question {
 
   private Optional<String> idValue;
 
-  public IdQuestion(ApplicantQuestion applicantQuestion) {
+  IdQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
   }
 
