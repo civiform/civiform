@@ -38,6 +38,7 @@ public class FieldWithLabel<T extends Tag> {
 
   protected T fieldTag;
   protected final Class<T> fieldTagType;
+
   protected String fieldName = "";
   protected String fieldType = "text";
   protected String fieldValue = "";
@@ -73,6 +74,7 @@ public class FieldWithLabel<T extends Tag> {
     this.fieldTagType = (Class<T>) checkNotNull(fieldTag.getClass());
   }
 
+  // TAG CREATORS & GETTERS //
   public static FieldWithLabel<InputTag> checkbox() {
     InputTag fieldTag = TagCreator.input();
     return new FieldWithLabel<InputTag>(fieldTag).setFieldType("checkbox");
@@ -113,6 +115,7 @@ public class FieldWithLabel<T extends Tag> {
     return new FieldWithLabel<InputTag>(fieldTag).setFieldType("email");
   }
 
+  // ATTRIBUTE SETTERS //
   /** Add a reference class from {@link views.style.ReferenceClasses} to this element. */
   public FieldWithLabel<T> addReferenceClass(String referenceClass) {
     referenceClassesBuilder.add(referenceClass);
@@ -130,39 +133,48 @@ public class FieldWithLabel<T extends Tag> {
   }
 
   public FieldWithLabel<T> setFieldType(String fieldType) {
+    // TODO Just remove this
     this.fieldTag.attr("type", fieldType);
+    // TODO add to tag later
     this.fieldType = fieldType;
     return this;
   }
 
   public FieldWithLabel<T> setFormId(String formId) {
+    // TODO add to tag later
     this.formId = formId;
     return this;
   }
 
   public FieldWithLabel<T> setId(String inputId) {
+    // TODO add to tag later
     this.id = inputId;
     return this;
   }
 
   public FieldWithLabel<T> setIsCurrency() {
     // There is no HTML currency input so we identify these with a custom attribute.
+    // TODO add to tag later
     this.setAttribute("currency");
     return this;
   }
 
   public FieldWithLabel<T> setLabelText(String labelText) {
+    // TODO add to tag later
     this.labelText = labelText;
     return this;
   }
 
   public FieldWithLabel<T> setPlaceholderText(String placeholder) {
+    // TODO add to tag later
     this.placeholderText = placeholder;
     return this;
   }
 
   /** Sets a valueless attribute. */
   public FieldWithLabel<T> setAttribute(String attribute) {
+    // TODO Add list field to store these before setting them after Tag creation
+    // TODO add to tag later
     this.fieldTag.attr(attribute, null);
     return this;
   }
@@ -172,6 +184,7 @@ public class FieldWithLabel<T extends Tag> {
       throw new RuntimeException(
           "setting an OptionalLong min value is only available on fields of type 'number'");
     }
+    // TODO add to tag later
     this.minValue = value;
     return this;
   }
@@ -182,6 +195,7 @@ public class FieldWithLabel<T extends Tag> {
           "setting an OptionalLong max value is only available on fields of type 'number'");
     }
 
+    // TODO add to tag later
     this.maxValue = value;
     return this;
   }
@@ -193,6 +207,7 @@ public class FieldWithLabel<T extends Tag> {
               "setting a String value is not available on fields of type `%s`", this.fieldType));
     }
 
+    // TODO add to tag later
     this.fieldValue = value;
     return this;
   }
@@ -202,6 +217,7 @@ public class FieldWithLabel<T extends Tag> {
       throw new RuntimeException(
           "setting a String value is not available on fields of type 'number'");
     }
+    // TODO add to tag later
     value.ifPresent(s -> this.fieldValue = s);
     return this;
   }
@@ -212,6 +228,7 @@ public class FieldWithLabel<T extends Tag> {
           "setting an OptionalInt value is only available on fields of type `number`");
     }
 
+    // TODO add to tag later
     this.fieldValueNumber =
         value.isPresent() ? OptionalLong.of(value.getAsInt()) : OptionalLong.empty();
     return this;
@@ -223,22 +240,26 @@ public class FieldWithLabel<T extends Tag> {
           "setting an OptionalLong value is only available on fields of type `number`");
     }
 
+    // TODO add to tag later
     this.fieldValueNumber = value;
     return this;
   }
 
   public FieldWithLabel<T> setDisabled(boolean disabled) {
+    // TODO add to tag later
     this.disabled = disabled;
     return this;
   }
 
   public FieldWithLabel<T> setScreenReaderText(String screenReaderText) {
+    // TODO add to tag later
     this.screenReaderText = screenReaderText;
     return this;
   }
 
   public FieldWithLabel<T> setFieldErrors(
       Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
+    // TODO add to tag later
     this.messages = messages;
     this.fieldErrors =
         errors.stream()
@@ -251,6 +272,7 @@ public class FieldWithLabel<T extends Tag> {
   }
 
   public FieldWithLabel setFieldErrors(Messages messages, ValidationError error) {
+    // TODO add to tag later
     this.messages = messages;
     this.fieldErrors = ImmutableSet.of(error);
 
@@ -258,6 +280,7 @@ public class FieldWithLabel<T extends Tag> {
   }
 
   public FieldWithLabel<T> showFieldErrors(boolean showFieldErrors) {
+    // TODO add to tag later
     this.showFieldErrors = showFieldErrors;
     return this;
   }
@@ -266,20 +289,29 @@ public class FieldWithLabel<T extends Tag> {
     //textAreaTag = new TextareaTag();
     //textAreaTag.attr("type", "text").withText(this.fieldValue);
     //this.fieldTag = textAreaTag;
+
+    // TODO Remove. 
     fieldTag = this.fieldTagType.newInstance();
+    // TODO not needed
     fieldTag.attr("type", "text").withText(this.fieldValue);
   }
 
+  // FINAL CONTAINER GETTER //
   public <T> DivTag getContainer() {
     // In order for the labels to be associated with the fields (mandatory for screen readers)
     // we need an id.  Generate a reasonable one if none is provided.
+
+    // TODO goes into all tag types
     if (this.id.isEmpty()) {
       this.id = RandomStringUtils.randomAlphabetic(8);
     }
+    // TODO textarea tag only
     if (fieldTag.instanceOf(TextareaTag)) {//getTagName().equals("textarea")) {
       // Have to recreate the field here in case the value is modified.
       recreateTextareaField();
-    } else if (fieldType.equals("number")) {
+    } 
+    // TODO number tag only
+    else if (fieldType.equals("number")) {
       // Setting inputmode to decimal gives iOS users a more accessible keyboard
       fieldTag.attr("inputmode", "decimal");
 
@@ -300,10 +332,13 @@ public class FieldWithLabel<T extends Tag> {
       if (this.fieldValueNumber.isPresent()) {
         fieldTag.attr("value", String.valueOf(this.fieldValueNumber.getAsLong()));
       }
-    } else {
+    } 
+    // TODO all OTHER tag types
+    else {
       fieldTag.attr("value", this.fieldValue);
     }
 
+    // TODO ALL tag types
     boolean hasFieldErrors = !fieldErrors.isEmpty() && showFieldErrors;
     fieldTag
         .withClasses(
@@ -315,10 +350,12 @@ public class FieldWithLabel<T extends Tag> {
         .condAttr(!Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
 
+    // TODO checkbox && radio tag types
     if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
       return div(getCheckboxContainer());
     }
 
+    // TODO ALL except checkbox && radio tag types
     LabelTag labelTag =
         label()
             .attr(Attr.FOR, this.id)
@@ -335,6 +372,7 @@ public class FieldWithLabel<T extends Tag> {
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
   }
 
+  // BLAH //
   /**
    * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
    * attribute.
