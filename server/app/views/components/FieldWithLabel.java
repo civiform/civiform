@@ -6,6 +6,12 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.textarea;
 
+import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LabelTag;
+import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.TextareaTag;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -52,48 +58,48 @@ public class FieldWithLabel {
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
 
   // TAG CREATORS & GETTERS //
-  public static FieldWithLabel asCheckbox() {
+  public static FieldWithLabel checkbox() {
     return new FieldWithLabel().setFieldType("checkbox");
   }
 
-  public static FieldWithLabel asCurrency() {
+  public static FieldWithLabel currency() {
     return new FieldWithLabel()
       .setFieldType("text")
       .setIsCurrency()
       .setTagType("input");
   }
 
-  public static FieldWithLabel asRadio() {
+  public static FieldWithLabel radio() {
     return new FieldWithLabel()
       .setFieldType("radio")
       .setTagType("input");
   }
 
-  public static FieldWithLabel asInput() {
+  public static FieldWithLabel input() {
     return new FieldWithLabel()
       .setFieldType("text")
       .setTagType("input");
   }
 
-  public static FieldWithLabel asNumber() {
+  public static FieldWithLabel number() {
     return new FieldWithlabel()
       .setFieldType("number")
-      .setTagType("input")
+      .setTagType("input");
   }
 
-  public static FieldWithLabel asDate() {
+  public static FieldWithLabel date() {
     return new FieldWithlabel()
       .setFieldType("date")
       .setTagType("input");
   }
 
-  public static FieldWithLabel asTextArea() {
+  public static FieldWithLabel textArea() {
     return new FieldWithLabel()
       .setFieldType("text")
       .setTagType("textarea");
   }
 
-  public static FieldWithLabel asEmail() {
+  public static FieldWithLabel email() {
     return new FieldWithLabel()
       .setFieldType("email")
       .setTagType("input");
