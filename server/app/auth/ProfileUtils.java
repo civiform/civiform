@@ -10,7 +10,6 @@ import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.profile.BasicUserProfile;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.play.PlayWebContext;
-import play.cache.SyncCacheApi;
 import play.mvc.Http;
 
 /** A utility class for CiviForm profile. */
@@ -19,8 +18,7 @@ public class ProfileUtils {
   private ProfileFactory profileFactory;
 
   @Inject
-  public ProfileUtils(
-      SessionStore sessionStore, ProfileFactory profileFactory) {
+  public ProfileUtils(SessionStore sessionStore, ProfileFactory profileFactory) {
     this.sessionStore = Preconditions.checkNotNull(sessionStore);
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
   }

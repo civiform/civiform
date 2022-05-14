@@ -24,6 +24,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import controllers.routes;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -174,7 +175,10 @@ public class SecurityModule extends AbstractModule {
       @AdminAuthClient @Nullable IndirectClient adminAuthClient,
       FakeAdminClient fakeAdminClient,
       DirectBasicAuthClient apiAuthClient) {
-    List<Client> clientList = List.of(guestClient, apiAuthClient);
+    List<Client> clientList = new ArrayList<>();
+
+    clientList.add(guestClient);
+    clientList.add(apiAuthClient);
 
     if (applicantAuthClient != null) {
       clientList.add(applicantAuthClient);

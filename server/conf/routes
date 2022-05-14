@@ -115,6 +115,9 @@ GET     /applicants/:applicantId/programs/:programId/blocks/:blockIndex/previous
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview                 controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 
+# API
+GET     /api/programs/:programId/applications    controllers.api.ProgramApplicationsApiController.list(request: Request, programId: Long)
+
 # Methods for user support incidents
 GET     /support/unconfirmedIdcsEmail  controllers.SupportController.handleUnconfirmedIdcsEmail(request: Request)
 

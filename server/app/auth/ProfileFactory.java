@@ -1,6 +1,7 @@
 package auth;
 
 import com.google.common.base.Preconditions;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Account;
@@ -11,8 +12,6 @@ import play.cache.SyncCacheApi;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
 import repository.VersionRepository;
-
-import java.util.Optional;
 
 /**
  * This class helps create {@link CiviFormProfile} and {@link CiviFormProfileData} objects for
