@@ -12,6 +12,7 @@ import auth.CiviFormProfile;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import java.time.Instant;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.time.ZoneId;
@@ -72,14 +73,16 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .with(renderNewProgramButton())
                     .with(div().withClass(Styles.FLEX_GROW))
                     .condWith(programs.anyDraft(), publishAllModal.getButton()),
-                each(
+                div()
+                  .withClasses("cf-program-admin-list")
+                  .with(each(
                     programs.getProgramNames(),
                     name ->
                         this.renderProgramListItem(
                             programs.getActiveProgramDefinition(name),
                             programs.getDraftProgramDefinition(name),
                             request,
-                            profile)))
+                            profile))))
             .with(renderDownloadExportCsvButton());
 
     HtmlBundle htmlBundle =
@@ -87,7 +90,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             .getBundle()
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
-            .addModals(publishAllModal);
+            .addModals(publishAllModal)
+            .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
     return layout.renderCentered(htmlBundle);
   }
 
@@ -200,7 +204,20 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     return div(innerDiv)
         .withClasses(
-            ReferenceClasses.ADMIN_PROGRAM_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
+            ReferenceClasses.ADMIN_PROGRAM_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4)
+        // Add data attributes used for client-side sorting.
+        .withData("last-updated-millis", Long.toString(extractLastUpdated(draftProgram, activeProgram).toEpochMilli()))
+        .withData("name", programTitleText);
+  }
+
+  private static Instant extractLastUpdated(Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
+    // Prefer when the draft was last updated, since active versions should be immutable after
+    // being published.
+    if (draftProgram.isEmpty() && activeProgram.isEmpty()) {
+      throw new IllegalArgumentException("Program neither active nor draft.");
+    }
+    ProgramDefinition program = draftProgram.isPresent() ? draftProgram.get() : activeProgram.get();
+    return program.lastModifiedTime().orElse(Instant.EPOCH);
   }
 
   private String extractProgramStatusText(
