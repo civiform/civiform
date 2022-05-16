@@ -26,6 +26,7 @@ class AdminPrograms {
     cards.forEach((el) => {
       cardsParent.appendChild(el)
     })
+    cardsParent.classList.remove('invisible')
   }
 
   comparatorObject(el: HTMLElement) {
