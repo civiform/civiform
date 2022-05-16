@@ -1,6 +1,7 @@
 package views.components;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import j2html.TagCreator;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.label;
@@ -38,6 +39,7 @@ public class FieldWithLabel {
   protected String fieldType = "text";
   protected String fieldValue = "";
   protected String tagType = "";
+  protected ImmutableList.Builder<String> attributesListBuilder = ImmutableList.builder();
 
   /** For use with fields of type `number`. */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
@@ -122,17 +124,27 @@ public class FieldWithLabel {
     return this;
   }
 
+  // Whether its a <textarea> tag or an <input> tag
   public FieldWithLabel setTagType(String tagType) {
     this.tagType = tagType;
     return this;
   }
 
+  // Whether its e.g. a 'number' or 'currency' or 'date' or 'email' etc...
   public FieldWithLabel setFieldType(String fieldType) {
     // TODO Just remove this
     //this.fieldTag.attr("type", fieldType);
     // TODO add to tag later
     this.fieldType = fieldType;
     return this;
+  }
+
+  protected String getTagType() {
+    return this.tagType;
+  }
+
+  protected String getFieldType() {
+    return fieldType;
   }
 
   public FieldWithLabel setFormId(String formId) {
@@ -170,7 +182,8 @@ public class FieldWithLabel {
   public FieldWithLabel setAttribute(String attribute) {
     // TODO Add list field to store these before setting them after Tag creation
     // TODO add to tag later
-    this.fieldTag.attr(attribute, null);
+    //this.fieldTag.attr(attribute, null);
+    this.attributesListBuilder.add(attribute);
     return this;
   }
 
@@ -318,7 +331,7 @@ public class FieldWithLabel {
 
     allTagsSetClassesAndAttrs(fieldTag);
     if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
-      return div(getCheckboxContainer());
+      return div(getCheckboxContainer(fieldTag));
     }
 
     return nonCheckboxRadioFinalBuild(fieldTag);
@@ -374,26 +387,31 @@ public class FieldWithLabel {
     return nonCheckboxRadioFinalBuild(fieldTag);
   }
 
+  protected void applyAttributesToTag(Tag fieldTag) {
+    attributesListBuilder.build().stream().map(attr -> fieldTag.attr(attr, null));
+    fieldTag.attr("type", getTagType());
+  }
+
   public DivTag getContainer() {
     TextareaTag textareaFieldTag;
     InputTag inputFieldTag;
 
     if (getTagType().equals("textarea")) {
-      textareaFieldTag = textarea();
-      textareaFieldTag.withType(getTagType());
+      textareaFieldTag = TagCreator.textarea();
+      applyAttributesToTag(textareaFieldTag);
       return getTextareaTag(textareaFieldTag);
+    } else {
+      inputFieldTag = TagCreator.input();
+      applyAttributesToTag(inputFieldTag);
+      return getInputTag(inputFieldTag);
     }
-
-    inputFieldTag = input();
-    inputFieldTag.withType(getTagType());
-    return getInputTag(inputFieldTag);
   }
 
   /**
    * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
    * attribute.
    */
-  private LabelTag getCheckboxContainer() {
+  private LabelTag getCheckboxContainer(Tag fieldTag) {
     if (this.checked) {
       fieldTag.attr("checked");
     }
