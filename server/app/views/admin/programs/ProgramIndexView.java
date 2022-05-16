@@ -74,7 +74,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .with(div().withClass(Styles.FLEX_GROW))
                     .condWith(programs.anyDraft(), publishAllModal.getButton()),
                 div()
-                    .withClasses("cf-program-admin-list", Styles.INVISIBLE)
+                    .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST, Styles.INVISIBLE)
                     .with(
                         each(
                             programs.getProgramNames(),

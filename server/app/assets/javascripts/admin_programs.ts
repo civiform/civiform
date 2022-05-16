@@ -1,5 +1,5 @@
 class AdminPrograms {
-  private static PROGRAM_ADIN_LIST_SELECTOR = '.cf-program-admin-list'
+  private static PROGRAM_ADIN_LIST_SELECTOR = '.cf-admin-program-card-list'
   private static PROGRAM_CARDS_SELECTOR = '.cf-admin-program-card'
   private static NAME_ATTRIBUTE = 'data-name'
   private static LAST_UPDATED_MILLIS = 'data-last-updated-millis'
