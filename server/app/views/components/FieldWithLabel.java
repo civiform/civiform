@@ -59,6 +59,8 @@ public class FieldWithLabel {
   protected boolean disabled = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
 
+  protected FieldWithLabel() { }
+
   // TAG CREATORS & GETTERS //
   public static FieldWithLabel checkbox() {
     return new FieldWithLabel().setFieldType("checkbox");
@@ -119,8 +121,23 @@ public class FieldWithLabel {
     return this;
   }
 
+  // applied by `allTagsSetClassesAndAttrs`
   public FieldWithLabel setFieldName(String fieldName) {
     this.fieldName = fieldName;
+    return this;
+  }
+
+  // applied by `allTagsSetClassesAndAttrs`
+  public FieldWithLabel setFormId(String formId) {
+    // TODO add to tag later
+    this.formId = formId;
+    return this;
+  }
+
+  // applied by `allTagsSetClassesAndAttrs`
+  public FieldWithLabel setId(String inputId) {
+    // TODO add to tag later
+    this.id = inputId;
     return this;
   }
 
@@ -145,18 +162,6 @@ public class FieldWithLabel {
 
   protected String getFieldType() {
     return fieldType;
-  }
-
-  public FieldWithLabel setFormId(String formId) {
-    // TODO add to tag later
-    this.formId = formId;
-    return this;
-  }
-
-  public FieldWithLabel setId(String inputId) {
-    // TODO add to tag later
-    this.id = inputId;
-    return this;
   }
 
   FieldWithLabel setIsCurrency() {

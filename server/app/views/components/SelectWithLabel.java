@@ -19,7 +19,7 @@ public class SelectWithLabel extends FieldWithLabel {
   private ImmutableList<OptionTag> customOptions = ImmutableList.of();
 
   public SelectWithLabel() {
-    super(select());
+    this.setFieldType("select");
   }
 
   @Override
@@ -46,24 +46,28 @@ public class SelectWithLabel extends FieldWithLabel {
     return this;
   }
 
+  // applied by `allTagsSetClassesAndAttrs`
   @Override
   public SelectWithLabel setFieldName(String fieldName) {
     super.setFieldName(fieldName);
     return this;
   }
 
+  // applied by `allTagsSetClassesAndAttrs`
   @Override
   public SelectWithLabel setFormId(String formId) {
     super.setFormId(formId);
     return this;
   }
 
+  // applied by `allTagsSetClassesAndAttrs`
   @Override
   public SelectWithLabel setId(String fieldId) {
     super.setId(fieldId);
     return this;
   }
 
+  // applied by `nonCheckboxRadioFinalBuild`
   @Override
   public SelectWithLabel setLabelText(String labelText) {
     super.setLabelText(labelText);
@@ -90,6 +94,7 @@ public class SelectWithLabel extends FieldWithLabel {
 
   @Override
   public DivTag getContainer() {
+    SelectTag fieldTag = TagCreator.select;
     OptionTag placeholder = option(placeholderText).attr("value", "").attr(Attr.HIDDEN);
     if (this.fieldValue.isEmpty()) {
       placeholder.attr(Attr.SELECTED);
