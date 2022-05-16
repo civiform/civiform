@@ -12,7 +12,6 @@ import auth.CiviFormProfile;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.Tag;
-
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
@@ -148,11 +147,14 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
         .withClasses(
             ReferenceClasses.ADMIN_PROGRAM_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4)
         // Add data attributes used for client-side sorting.
-        .withData("last-updated-millis", Long.toString(extractLastUpdated(draftProgram, activeProgram).toEpochMilli()))
+        .withData(
+            "last-updated-millis",
+            Long.toString(extractLastUpdated(draftProgram, activeProgram).toEpochMilli()))
         .withData("name", programTitleText);
   }
 
-  private static Instant extractLastUpdated(Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
+  private static Instant extractLastUpdated(
+      Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
     // Prefer when the draft was last updated, since active versions should be immutable after
     // being published.
     if (draftProgram.isEmpty() && activeProgram.isEmpty()) {
