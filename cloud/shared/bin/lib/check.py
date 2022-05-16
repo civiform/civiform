@@ -47,8 +47,9 @@ class Check():
 
     def version_greater_than(self, min_version, test_version):
         min_version, test_version = map(self._semver_string_to_int_array, [min_version, test_version])
-        for i, min_int in enumerate(min_version):
-            if test_version[i] > min_int:
-                return True
 
-        return False
+        for i, min_int in enumerate(min_version):
+            if min_int > test_version[i]:
+                return False
+
+        return True
