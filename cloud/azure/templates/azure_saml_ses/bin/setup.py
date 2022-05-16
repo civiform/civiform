@@ -60,19 +60,20 @@ class Setup:
         subprocess.run(["/bin/bash", "-c", "rm -f $HOME/.ssh/bastion*"], check=True)
 
     def _get_adfs_user_inputs(self):
-        print(">>>> You will need to navigate to the app_service"
-              + "that was created and select authentication. Under"
-              + " the authentication provider enable authentication "
-              + "add a new Microsoft provider and get the App (client) id")
+        print(">>>> You will need to navigate to https://portal.azure.com/ and "
+              + "select the app_service that was created. Select authentication"
+              + ", and add a new Microsoft identity provider. Select 'Allow
+              + "unauthenticated access'. Get the App (client) id.")
         self._input_to_keystore("adfs-client-id")
 
-        print(">>>> Navigate to the created authentication"
+        print(">>>> Navigate to the newly created authentication"
               + " provider and click the endpoints button from the overview and"
-              + " find the OpenID uri (ends with /openid-configuration)")
+              + " find the OpenID uri (ends with /openid-configuration).")
         self._input_to_keystore("adfs-discovery-uri")
 
-        print(">>>> You will need to navigate created provider and add"
-              + " a client secret")
+        print(">>>> In the same view (authentication provider page), navigate "
+              + " to certificates & secrets page, and add a new client secret. "
+              + "Copy the value.")
         self._input_to_keystore("adfs-secret")
 
     def _input_to_keystore(self, secret_id):
