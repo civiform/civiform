@@ -331,14 +331,14 @@ public class FieldWithLabel {
   }
 
   protected void applyAttributesFromList(Tag fieldTag) {
-    this.attributesListBuilder.build().stream().map(attr -> fieldTag.attr(attr, null));
+    this.attributesListBuilder.build().forEach(attr -> fieldTag.attr(attr, null));
   }
 
-  protected DivTag getTextareaTagContainer() {
+  protected DivTag getTextareaTagContainer(TextareaTag fieldTag) {
     genRandIdIfEmpty();
 
     // Have to recreate the field here in case the value is modified.
-    TextareaTag fieldTag = TagCreator.textarea().attr("type", "text").withText(this.fieldValue);
+    fieldTag.attr("type", "text").withText(this.fieldValue);
     applyAttributesFromList(fieldTag);
 
     boolean hasFieldErrors = getHasFieldErrors();
@@ -349,10 +349,9 @@ public class FieldWithLabel {
     return wrapInDivTag(fieldTag, labelTag);
   }
 
-  protected DivTag getInputTagContainer() {
+  protected DivTag getInputTagContainer(InputTag fieldTag) {
     genRandIdIfEmpty();
 
-    InputTag fieldTag = TagCreator.input();
     applyAttributesFromList(fieldTag);
 
     if (getFieldType().equals("number")) {
@@ -373,12 +372,16 @@ public class FieldWithLabel {
   }
 
   public DivTag getContainer() {
+    TextareaTag textareaFieldTagMaybe;
+    InputTag inputFieldTagMaybe;
 
     if (isTagTypeTextarea()) {
-      return getTextareaTagContainer();
+      textareaFieldTagMaybe = TagCreator.textarea();
+      return getTextareaTagContainer(textareaFieldTagMaybe);
     } else {
       // TODO ensure `apply` methods set .withtype('text') and .withText(fieldValue)?
-      return getInputTagContainer();
+      inputFieldTagMaybe = TagCreator.input();
+      return getInputTagContainer(inputFieldTagMaybe);
     }
   }
 

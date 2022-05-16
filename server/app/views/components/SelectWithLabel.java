@@ -1,16 +1,14 @@
 package views.components;
 
 import static j2html.TagCreator.option;
-import static j2html.TagCreator.select;
-
+import j2html.TagCreator;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import j2html.attributes.Attr;
-
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.OptionTag;
 
 /** Utility class for rendering a select input field with an optional label. */
 public class SelectWithLabel extends FieldWithLabel {
@@ -46,28 +44,24 @@ public class SelectWithLabel extends FieldWithLabel {
     return this;
   }
 
-  // applied by `allTagsSetClassesAndAttrs`
   @Override
   public SelectWithLabel setFieldName(String fieldName) {
     super.setFieldName(fieldName);
     return this;
   }
 
-  // applied by `allTagsSetClassesAndAttrs`
   @Override
   public SelectWithLabel setFormId(String formId) {
     super.setFormId(formId);
     return this;
   }
 
-  // applied by `allTagsSetClassesAndAttrs`
   @Override
   public SelectWithLabel setId(String fieldId) {
     super.setId(fieldId);
     return this;
   }
 
-  // applied by `nonCheckboxRadioFinalBuild`
   @Override
   public SelectWithLabel setLabelText(String labelText) {
     super.setLabelText(labelText);
@@ -94,32 +88,23 @@ public class SelectWithLabel extends FieldWithLabel {
 
   @Override
   public DivTag getContainer() {
-    SelectTag fieldTag = TagCreator.select;
-    OptionTag placeholder = option(placeholderText).attr("value", "").attr(Attr.HIDDEN);
+    SelectTag fieldTag = TagCreator.select();
+    OptionTag placeholder = option(placeholderText).withValue("").attr(Attr.HIDDEN);
     if (this.fieldValue.isEmpty()) {
       placeholder.attr(Attr.SELECTED);
     }
-    // TODO: Remove this comment for merge
-    // But might have to revert to casting as
-    // ((Tag) fieldTag).with(placeholder);
     fieldTag.with(placeholder);
 
     // Either set the options to be custom options or create options from the (text, value) pairs.
     if (!this.customOptions.isEmpty()) {
-      // TODO: Remove this comment for merge
-      // But might have to revert to casting as
-      // ((Tag) fieldTag).with(option);
       this.customOptions.forEach(option -> fieldTag.with(option));
     } else {
       this.options.forEach(
           (text, value) -> {
-            OptionTag optionTag = option(text).attr("value", value);
+            OptionTag optionTag = option(text).withValue(value);
             if (value.equals(this.fieldValue)) {
               optionTag.attr(Attr.SELECTED);
             }
-            // TODO: Remove this comment for merge
-            // But might have to revert to casting as
-            // ((Tag) fieldTag).with(option);
             fieldTag.with(optionTag);
           });
     }
