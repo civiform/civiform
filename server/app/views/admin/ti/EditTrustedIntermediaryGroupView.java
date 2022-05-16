@@ -14,14 +14,11 @@ import static j2html.TagCreator.tr;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.admin.routes;
-
-import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.TrTag;
+import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
-import j2html.tags.specialized.InputTag;
-
+import j2html.tags.specialized.TrTag;
 import models.Account;
 import models.TrustedIntermediaryGroup;
 import play.mvc.Http;
@@ -74,7 +71,8 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
     FormTag formTag =
         form()
             .withMethod("POST")
-            .attr("action", 
+            .attr(
+                "action",
                 routes.TrustedIntermediaryManagementController.addIntermediary(tiGroup.id).url());
     FieldWithLabel emailField =
         FieldWithLabel.input()

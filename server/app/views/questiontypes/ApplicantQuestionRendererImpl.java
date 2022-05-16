@@ -5,9 +5,7 @@ import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-
 import j2html.tags.specialized.DivTag;
-
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -18,8 +16,6 @@ import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
-
-import j2html.tags.specialized.DivTag;
 
 /**
  * Superclass for all applicant question renderers with input field(s) for the applicant to answer

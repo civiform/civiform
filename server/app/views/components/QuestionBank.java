@@ -10,13 +10,11 @@ import static j2html.TagCreator.text;
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
-
-import j2html.tags.specialized.H1Tag;
-import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.ButtonTag;
-import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-
+import j2html.tags.specialized.H1Tag;
+import j2html.tags.specialized.InputTag;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -81,15 +79,13 @@ public class QuestionBank {
     FormTag questionForm =
         form(this.csrfTag).withMethod(HttpVerbs.POST).attr("action", questionAction);
 
-    DivTag innerDiv =
-        div().withClasses(Styles.SHADOW_LG, Styles.OVERFLOW_HIDDEN, Styles.H_FULL);
+    DivTag innerDiv = div().withClasses(Styles.SHADOW_LG, Styles.OVERFLOW_HIDDEN, Styles.H_FULL);
     questionForm.with(innerDiv);
     DivTag contentDiv =
         div().withClasses(Styles.RELATIVE, Styles.GRID, Styles.GAP_6, Styles.PX_5, Styles.PY_6);
     innerDiv.with(contentDiv);
 
-    H1Tag headerDiv =
-        h1("Question bank").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
+    H1Tag headerDiv = h1("Question bank").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
     contentDiv.withId("question-bank-questions").with(headerDiv);
 
     InputTag filterInput =
@@ -110,12 +106,10 @@ public class QuestionBank {
                 Styles.SHADOW,
                 StyleUtils.focus(Styles.OUTLINE_NONE));
 
-    SvgTag filterIcon =
-        Icons.svg(Icons.SEARCH_SVG_PATH, 56).withClasses(Styles.H_4, Styles.W_4);
+    SvgTag filterIcon = Icons.svg(Icons.SEARCH_SVG_PATH, 56).withClasses(Styles.H_4, Styles.W_4);
     DivTag filterIconDiv =
         div().withClasses(Styles.ABSOLUTE, Styles.ML_4, Styles.MT_3, Styles.MR_4).with(filterIcon);
-    DivTag filterDiv =
-        div().withClasses(Styles.RELATIVE).with(filterIconDiv).with(filterInput);
+    DivTag filterDiv = div().withClasses(Styles.RELATIVE).with(filterIconDiv).with(filterInput);
     contentDiv.with(filterDiv);
 
     ImmutableList<QuestionDefinition> filteredQuestions = filterQuestions();

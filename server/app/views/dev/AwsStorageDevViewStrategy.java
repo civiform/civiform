@@ -15,11 +15,9 @@ import static j2html.attributes.Attr.ENCTYPE;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
-
-import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TableTag;
-
 import javax.inject.Inject;
 import models.StoredFile;
 import services.cloud.StorageClient;
@@ -72,10 +70,18 @@ public class AwsStorageDevViewStrategy implements CloudStorageDevViewStrategy {
     }
 
     formTag
-        .with(input().attr("type", "text").attr("name", "X-Amz-Algorithm").attr("value", request.algorithm()))
+        .with(
+            input()
+                .attr("type", "text")
+                .attr("name", "X-Amz-Algorithm")
+                .attr("value", request.algorithm()))
         .with(input().attr("type", "text").attr("name", "X-Amz-Date").attr("value", request.date()))
         .with(input().attr("type", "hidden").attr("name", "Policy").attr("value", request.policy()))
-        .with(input().attr("type", "hidden").attr("name", "X-Amz-Signature").attr("value", request.signature()))
+        .with(
+            input()
+                .attr("type", "hidden")
+                .attr("name", "X-Amz-Signature")
+                .attr("value", request.signature()))
         .with(input().attr("type", "file").attr("name", "file"))
         .with(TagCreator.button(text("Upload to Amazon S3")).attr("type", "submit"))
         .withMethod("post")

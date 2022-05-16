@@ -1,21 +1,19 @@
 package views.components;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.label;
-import j2html.TagCreator;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.LabelTag;
-import j2html.tags.specialized.InputTag;
-import j2html.tags.specialized.TextareaTag;
 import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.LabelTag;
+import j2html.tags.specialized.TextareaTag;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -58,7 +56,7 @@ public class FieldWithLabel {
   protected ImmutableList.Builder<String> attributesListBuilder = ImmutableList.builder();
 
   // Make all constructors protected
-  protected FieldWithLabel() { }
+  protected FieldWithLabel() {}
 
   public static FieldWithLabel checkbox() {
     return new FieldWithLabel().setTagTypeInput().setFieldType("checkbox");
@@ -127,7 +125,7 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setFieldType(String fieldType) {
-    //this.fieldTag.attr("type", fieldType);
+    // this.fieldTag.attr("type", fieldType);
     this.fieldType = fieldType;
     return this;
   }
@@ -164,7 +162,7 @@ public class FieldWithLabel {
 
   /** Sets a valueless attribute. */
   public FieldWithLabel setAttribute(String attribute) {
-    //this.fieldTag.attr(attribute, null);
+    // this.fieldTag.attr(attribute, null);
     this.attributesListBuilder.add(attribute);
     return this;
   }
@@ -275,11 +273,11 @@ public class FieldWithLabel {
   protected LabelTag genLabelTag() {
 
     return label()
-            .attr(Attr.FOR, this.id)
-            // If the text is screen-reader text, then we want the label to be screen-reader
-            // only.
-            .withClass(labelText.isEmpty() ? Styles.SR_ONLY : BaseStyles.INPUT_LABEL)
-            .withText(labelText.isEmpty() ? screenReaderText : labelText);
+        .attr(Attr.FOR, this.id)
+        // If the text is screen-reader text, then we want the label to be screen-reader
+        // only.
+        .withClass(labelText.isEmpty() ? Styles.SR_ONLY : BaseStyles.INPUT_LABEL)
+        .withText(labelText.isEmpty() ? screenReaderText : labelText);
   }
 
   protected DivTag wrapInDivTag(Tag fieldTag, Tag labelTag) {
@@ -291,7 +289,7 @@ public class FieldWithLabel {
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
   }
 
-  protected boolean getHasFieldErrors () {
+  protected boolean getHasFieldErrors() {
     return !fieldErrors.isEmpty() && showFieldErrors;
   }
 
@@ -326,7 +324,8 @@ public class FieldWithLabel {
         .withId(this.id)
         .attr("name", this.fieldName)
         .condAttr(this.disabled, Attr.DISABLED, "true")
-        .condAttr(!Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
+        .condAttr(
+            !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
   }
 
@@ -394,16 +393,17 @@ public class FieldWithLabel {
       fieldTag.attr("checked");
     }
 
-    return div().with(
+    return div()
+        .with(
             label()
-              .withClasses(
-                  StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
-                  BaseStyles.CHECKBOX_LABEL,
-                  BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
-                  labelText.isEmpty() ? Styles.W_MIN : "")
-              .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
-              .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
-              .withText(this.labelText));
+                .withClasses(
+                    StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
+                    BaseStyles.CHECKBOX_LABEL,
+                    BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
+                    labelText.isEmpty() ? Styles.W_MIN : "")
+                .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
+                .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
+                .withText(this.labelText));
   }
 
   private DivTag buildFieldErrorsTag() {

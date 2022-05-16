@@ -12,13 +12,13 @@ import static j2html.TagCreator.text;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.tr;
 
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.TableTag;
 import auth.ApiKeyGrants;
 import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TableTag;
 import java.util.function.Function;
 import models.ApiKey;
 import play.mvc.Http;

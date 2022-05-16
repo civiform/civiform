@@ -1,6 +1,5 @@
 package views.components;
 
-
 import services.question.types.QuestionType;
 
 /**

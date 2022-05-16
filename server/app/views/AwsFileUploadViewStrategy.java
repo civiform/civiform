@@ -9,13 +9,10 @@ import static j2html.attributes.Attr.ENCTYPE;
 import static j2html.attributes.Attr.FORM;
 
 import controllers.applicant.routes;
-import j2html.TagCreator;
 import j2html.attributes.Attr;
-
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.ButtonTag;
-
 import java.util.Optional;
 import play.mvc.Http.HttpVerbs;
 import services.MessageKey;
@@ -59,11 +56,21 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
               .attr("value", request.securityToken()));
     }
     return fieldsTag
-        .with(input().attr("type", "hidden").attr("name", "X-Amz-Algorithm").attr("value", request.algorithm()))
-        .with(input().attr("type", "hidden").attr("name", "X-Amz-Date").attr("value", request.date()))
+        .with(
+            input()
+                .attr("type", "hidden")
+                .attr("name", "X-Amz-Algorithm")
+                .attr("value", request.algorithm()))
+        .with(
+            input().attr("type", "hidden").attr("name", "X-Amz-Date").attr("value", request.date()))
         .with(input().attr("type", "hidden").attr("name", "Policy").attr("value", request.policy()))
-        .with(input().attr("type", "hidden").attr("name", "X-Amz-Signature").attr("value", request.signature()))
-        .with(input().attr("type", "file").attr("name", "file").attr(Attr.ACCEPT, acceptFileTypes()))
+        .with(
+            input()
+                .attr("type", "hidden")
+                .attr("name", "X-Amz-Signature")
+                .attr("value", request.signature()))
+        .with(
+            input().attr("type", "file").attr("name", "file").attr(Attr.ACCEPT, acceptFileTypes()))
         .with(errorDiv(params.messages(), fileUploadQuestion));
   }
 

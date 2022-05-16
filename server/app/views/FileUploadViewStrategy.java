@@ -6,13 +6,9 @@ import static j2html.TagCreator.form;
 import static j2html.attributes.Attr.FORM;
 
 import controllers.applicant.routes;
-
-import j2html.tags.Tag;
-import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.ButtonTag;
-
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;

@@ -4,9 +4,8 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 
-import j2html.tags.specialized.FormTag;
 import forms.ProgramForm;
-
+import j2html.tags.specialized.FormTag;
 import models.DisplayMode;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
@@ -31,8 +30,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
   }
 
   /** Builds the form using program definition data. */
-  public static FormTag buildProgramForm(
-      ProgramDefinition program, boolean editExistingProgram) {
+  public static FormTag buildProgramForm(ProgramDefinition program, boolean editExistingProgram) {
     return buildProgramForm(
         program.adminName(),
         program.adminDescription(),

@@ -12,10 +12,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
-
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FormTag;
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -86,7 +83,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .asRightAlignedButton();
   }
 
-  private DivTag renderApplicationBlock(long programId, Block block, Collection<AnswerData> answers) {
+  private DivTag renderApplicationBlock(
+      long programId, Block block, Collection<AnswerData> answers) {
     DivTag topContent =
         div()
             .withClasses(Styles.FLEX)

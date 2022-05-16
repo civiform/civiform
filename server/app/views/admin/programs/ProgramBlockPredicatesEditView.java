@@ -18,12 +18,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.routes;
 import j2html.attributes.Attr;
-
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
-
+import j2html.tags.specialized.OptionTag;
 import java.util.Arrays;
 import javax.inject.Inject;
 import play.mvc.Http;

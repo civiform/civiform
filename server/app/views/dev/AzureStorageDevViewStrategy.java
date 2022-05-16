@@ -12,13 +12,11 @@ import static j2html.TagCreator.td;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.tr;
 
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.TableTag;
-import j2html.tags.specialized.FormTag;
-
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
-
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.TableTag;
 import javax.inject.Inject;
 import models.StoredFile;
 import services.cloud.StorageClient;
@@ -57,15 +55,31 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
             .with(input().attr("type", "hidden"))
             .attr("name", "key")
             .attr("value", request.fileName())
-            .with(input().attr("type", "hidden").attr("name", "sasToken").attr("value", request.sasToken()))
-            .with(input().attr("type", "hidden").attr("name", "blobUrl").attr("value", request.blobUrl()))
             .with(
                 input()
-                  .attr("type", "hidden")
-                  .attr("name", "containerName")
-                  .attr("value", request.containerName()))
-            .with(input().attr("type", "hidden").attr("name", "fileName").attr("value", request.fileName()))
-            .with(input().attr("type", "hidden").attr("name", "accountName").attr("value", request.accountName()))
+                    .attr("type", "hidden")
+                    .attr("name", "sasToken")
+                    .attr("value", request.sasToken()))
+            .with(
+                input()
+                    .attr("type", "hidden")
+                    .attr("name", "blobUrl")
+                    .attr("value", request.blobUrl()))
+            .with(
+                input()
+                    .attr("type", "hidden")
+                    .attr("name", "containerName")
+                    .attr("value", request.containerName()))
+            .with(
+                input()
+                    .attr("type", "hidden")
+                    .attr("name", "fileName")
+                    .attr("value", request.fileName()))
+            .with(
+                input()
+                    .attr("type", "hidden")
+                    .attr("name", "accountName")
+                    .attr("value", request.accountName()))
             .with(
                 input()
                     .attr("type", "hidden")

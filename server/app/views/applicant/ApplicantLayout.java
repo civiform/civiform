@@ -16,11 +16,11 @@ import com.typesafe.config.Config;
 import controllers.routes;
 import io.jsonwebtoken.lang.Strings;
 import j2html.TagCreator;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.SelectTag;
 import j2html.tags.specialized.ATag;
-import j2html.tags.specialized.NavTag;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.NavTag;
+import j2html.tags.specialized.SelectTag;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.slf4j.Logger;
@@ -147,21 +147,27 @@ public class ApplicantLayout extends BaseHtmlLayout {
       if (showLanguageSwitcher) {
         String csrfToken = CSRF.getToken(request.asScala()).value();
         InputTag csrfInput = input().isHidden().attr("value", csrfToken).attr("name", "csrfToken");
-        InputTag redirectInput = input().isHidden().attr("value", request.uri()).attr("name", "redirectLink");
+        InputTag redirectInput =
+            input().isHidden().attr("value", request.uri()).attr("name", "redirectLink");
         String preferredLanguage = languageSelector.getPreferredLangage(request).code();
         SelectTag languageDropdown =
             languageSelector
                 .renderDropdown(preferredLanguage)
                 .attr("onchange", "this.form.submit()")
                 .attr("aria-label", messages.at(MessageKey.LANGUAGE_LABEL_SR.getKeyName()));
-        languageForm = languageForm.with(
-            form()
-                .attr("action", updateLanguageAction)
-                .withMethod(Http.HttpVerbs.POST)
-                .with(csrfInput)
-                .with(redirectInput)
-                .with(languageDropdown)
-                .with(TagCreator.button().withId("cf-update-lang").attr("type", "submit").isHidden()));
+        languageForm =
+            languageForm.with(
+                form()
+                    .attr("action", updateLanguageAction)
+                    .withMethod(Http.HttpVerbs.POST)
+                    .with(csrfInput)
+                    .with(redirectInput)
+                    .with(languageDropdown)
+                    .with(
+                        TagCreator.button()
+                            .withId("cf-update-lang")
+                            .attr("type", "submit")
+                            .isHidden()));
       }
     }
     return languageForm;

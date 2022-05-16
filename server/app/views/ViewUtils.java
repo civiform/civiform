@@ -5,12 +5,10 @@ import static j2html.TagCreator.img;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.script;
 
-import j2html.tags.specialized.ScriptTag;
-import j2html.tags.specialized.LinkTag;
-import j2html.tags.specialized.ImgTag;
-
 import controllers.AssetsFinder;
-
+import j2html.tags.specialized.ImgTag;
+import j2html.tags.specialized.LinkTag;
+import j2html.tags.specialized.ScriptTag;
 import javax.inject.Inject;
 
 /** Utility class for accessing stateful view dependencies. */

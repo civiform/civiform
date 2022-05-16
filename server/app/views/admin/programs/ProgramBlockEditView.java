@@ -15,12 +15,10 @@ import controllers.admin.routes;
 import forms.BlockForm;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
-
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.InputTag;
-
 import java.util.Optional;
 import java.util.OptionalLong;
 import play.mvc.Http.HttpVerbs;
@@ -39,8 +37,8 @@ import views.admin.AdminLayout;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
-import views.components.SvgTag;
 import views.components.QuestionBank;
+import views.components.SvgTag;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
@@ -170,8 +168,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
         .withClasses(Styles.HIDDEN);
   }
 
-  private DivTag blockOrderPanel(
-      Request request, ProgramDefinition program, long focusedBlockId) {
+  private DivTag blockOrderPanel(Request request, ProgramDefinition program, long focusedBlockId) {
     DivTag ret =
         div()
             .withClasses(
@@ -264,7 +261,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     .attr("action", moveUpFormAction)
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
-                    .with(input().isHidden().attr("name", "direction").attr("value", Direction.UP.name()))
+                    .with(
+                        input()
+                            .isHidden()
+                            .attr("name", "direction")
+                            .attr("value", Direction.UP.name()))
                     .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
 
     String moveDownFormAction =
@@ -282,7 +283,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     .attr("action", moveDownFormAction)
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
-                    .with(input().isHidden().attr("name", "direction").attr("value", Direction.DOWN.name()))
+                    .with(
+                        input()
+                            .isHidden()
+                            .attr("name", "direction")
+                            .attr("value", Direction.DOWN.name()))
                     .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
     DivTag moveButtons =
         div().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.SELF_CENTER).with(moveUp, moveDown);
@@ -319,8 +324,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             allQuestions);
 
     // Add buttons to change the block.
-    DivTag buttons =
-        div().withClasses(Styles.MX_4, Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4);
+    DivTag buttons = div().withClasses(Styles.MX_4, Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4);
     buttons.with(blockDescriptionModalButton);
     if (blockDefinitionIsEnumerator) {
       buttons.with(
@@ -486,7 +490,11 @@ public class ProgramBlockEditView extends BaseHtmlView {
         form(csrfTag)
             .withMethod(HttpVerbs.POST)
             .attr("action", toggleOptionalAction)
-            .with(input().isHidden().attr("name", "optional").attr("value", isOptional ? "false" : "true"))
+            .with(
+                input()
+                    .isHidden()
+                    .attr("name", "optional")
+                    .attr("value", isOptional ? "false" : "true"))
             .with(optionalButton));
   }
 
@@ -541,7 +549,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return qb.getContainer();
   }
 
-  private Modal blockDescriptionModal(InputTag csrfTag, BlockForm blockForm, String blockUpdateAction) {
+  private Modal blockDescriptionModal(
+      InputTag csrfTag, BlockForm blockForm, String blockUpdateAction) {
     String modalTitle = "Screen Name and Description";
     String modalButtonText = "Edit Name and Description";
     FormTag blockDescriptionForm =

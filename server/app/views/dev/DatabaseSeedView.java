@@ -12,9 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableList;
 import controllers.dev.routes;
-
 import j2html.tags.specialized.DivTag;
-
 import java.util.Optional;
 import javax.inject.Inject;
 import play.mvc.Http.Request;

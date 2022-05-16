@@ -1,15 +1,13 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.h1;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
 import auth.CiviFormProfile;
-
 import j2html.tags.specialized.SpanTag;
-
 import javax.inject.Inject;
 import models.Applicant;
 import play.twirl.api.Content;

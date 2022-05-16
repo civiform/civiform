@@ -7,9 +7,7 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.pre;
 
 import com.google.common.collect.ImmutableList;
-
 import j2html.tags.specialized.DivTag;
-
 import java.util.Optional;
 import javax.inject.Inject;
 import models.StoredFile;

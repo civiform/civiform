@@ -4,15 +4,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.*;
 
 import com.google.inject.Inject;
-
-import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.TdTag;
-import j2html.tags.specialized.TrTag;
-import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TableTag;
-
+import j2html.tags.specialized.TdTag;
+import j2html.tags.specialized.TheadTag;
+import j2html.tags.specialized.TrTag;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import play.mvc.Http;
@@ -72,8 +70,7 @@ public final class QuestionsListView extends BaseHtmlView {
   private DivTag renderAddQuestionLink() {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
-    DivTag linkButton =
-        new LinkElement().setId(parentId).setText("Create new question").asButton();
+    DivTag linkButton = new LinkElement().setId(parentId).setText("Create new question").asButton();
     DivTag dropdown =
         div()
             .withId(dropdownId)

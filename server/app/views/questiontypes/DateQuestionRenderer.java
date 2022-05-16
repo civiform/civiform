@@ -2,11 +2,7 @@ package views.questiontypes;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
-
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.InputTag;
-
 import java.time.LocalDate;
 import java.util.Optional;
 import services.Path;

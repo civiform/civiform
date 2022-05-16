@@ -12,12 +12,10 @@ import auth.CiviFormProfile;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-
-import java.time.ZoneId;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.FormTag;
-
+import j2html.tags.specialized.LabelTag;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import play.mvc.Http;
@@ -106,11 +104,12 @@ public final class ProgramIndexView extends BaseHtmlView {
     // We should only render the publish button if there is at least one draft.
     if (programs.anyDraft()) {
       String link = routes.AdminProgramController.publish().url();
-      FormTag linkElementAsForm = new LinkElement()
-          .setId("publish-programs-button")
-          .setHref(link)
-          .setText("Publish all drafts")
-          .asHiddenForm(request);
+      FormTag linkElementAsForm =
+          new LinkElement()
+              .setId("publish-programs-button")
+              .setHref(link)
+              .setText("Publish all drafts")
+              .asHiddenForm(request);
       return div().with(linkElementAsForm);
     } else {
       return div();
@@ -178,7 +177,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withClasses(Styles.W_FULL)
             .with(
                 input()
-                    .attr("value", 
+                    .attr(
+                        "value",
                         baseUrl
                             + controllers.applicant.routes.RedirectController.programByName(
                                     displayProgram.slug())
@@ -242,12 +242,13 @@ public final class ProgramIndexView extends BaseHtmlView {
           controllers.admin.routes.AdminProgramController.newVersionFrom(activeProgram.get().id())
               .url();
 
-      linkElementAsForm = new LinkElement()
-          .setId("program-new-version-link-" + activeProgram.get().id())
-          .setHref(newVersionLink)
-          .setText(newVersionText)
-          .setStyles(Styles.MR_2)
-          .asHiddenForm(request);
+      linkElementAsForm =
+          new LinkElement()
+              .setId("program-new-version-link-" + activeProgram.get().id())
+              .setHref(newVersionLink)
+              .setText(newVersionText)
+              .setStyles(Styles.MR_2)
+              .asHiddenForm(request);
       return div().with(linkElementAsForm);
     } else {
       // obsolete or deleted, no edit link, empty div.

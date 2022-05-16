@@ -3,7 +3,6 @@ package views.components;
 import static j2html.TagCreator.div;
 
 import j2html.tags.specialized.DivTag;
-
 import java.util.UUID;
 import views.style.ReferenceClasses;
 import views.style.Styles;

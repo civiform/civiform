@@ -1,15 +1,11 @@
 package views.admin.questions;
 
-import static j2html.TagCreator.div;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableList;
-
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.InputTag;
-
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;

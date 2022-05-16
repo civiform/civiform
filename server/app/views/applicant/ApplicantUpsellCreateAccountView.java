@@ -8,9 +8,7 @@ import static j2html.TagCreator.h2;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import controllers.routes;
-
 import j2html.tags.specialized.DivTag;
-
 import java.util.Optional;
 import models.Account;
 import play.i18n.Messages;
@@ -122,7 +120,8 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
 
     bundle
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
-        .addMainContent(div(h1(title).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION)), content);
+        .addMainContent(
+            div(h1(title).withClasses(ApplicantStyles.H1_PROGRAM_APPLICATION)), content);
 
     return layout.renderWithNav(request, applicantName, messages, bundle);
   }

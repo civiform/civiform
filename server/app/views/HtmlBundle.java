@@ -10,18 +10,17 @@ import static j2html.TagCreator.html;
 import static j2html.TagCreator.main;
 import static j2html.TagCreator.title;
 
-import j2html.tags.specialized.HtmlTag;
-import j2html.tags.specialized.HeadTag;
 import j2html.tags.specialized.BodyTag;
-import j2html.tags.specialized.HeaderTag;
-import j2html.tags.specialized.MainTag;
-import j2html.tags.specialized.FooterTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FooterTag;
+import j2html.tags.specialized.HeadTag;
+import j2html.tags.specialized.HeaderTag;
+import j2html.tags.specialized.HtmlTag;
+import j2html.tags.specialized.LinkTag;
+import j2html.tags.specialized.MainTag;
+import j2html.tags.specialized.MetaTag;
 import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.ScriptTag;
-import j2html.tags.specialized.MetaTag;
-import j2html.tags.specialized.LinkTag;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import play.twirl.api.Content;

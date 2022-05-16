@@ -13,11 +13,9 @@ import auth.GuestClient;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.routes;
-
 import j2html.tags.specialized.ATag;
-import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.ButtonTag;
-
+import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;

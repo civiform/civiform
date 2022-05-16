@@ -1,15 +1,11 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
-
-import static j2html.TagCreator.div;
-
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.InputTag;
-
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -69,7 +65,8 @@ public class ProgramTranslationView extends TranslationFormView {
         layout
             .getBundle()
             .setTitle(title)
-            .addMainContent(div(renderHeader(title)), renderLanguageLinks(programId, locale), div(form));
+            .addMainContent(
+                div(renderHeader(title)), renderLanguageLinks(programId, locale), div(form));
 
     errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
 

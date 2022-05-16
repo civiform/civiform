@@ -7,12 +7,9 @@ import static j2html.TagCreator.form;
 
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
-
-import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.ButtonTag;
-import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-
 import java.util.Optional;
 import javax.inject.Inject;
 import play.mvc.Http;

@@ -4,9 +4,7 @@ import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-
 import j2html.tags.specialized.DivTag;
-
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;

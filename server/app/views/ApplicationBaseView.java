@@ -3,11 +3,9 @@ package views;
 import static j2html.TagCreator.a;
 import static j2html.attributes.Attr.HREF;
 
-import j2html.tags.specialized.ATag;
-
 import com.google.auto.value.AutoValue;
 import controllers.applicant.routes;
-import j2html.tags.Tag;
+import j2html.tags.specialized.ATag;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;

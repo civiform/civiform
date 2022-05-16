@@ -15,17 +15,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-
-import j2html.tags.Tag;
-import java.time.ZoneId;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
-import j2html.tags.specialized.DivTag;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import models.LifecycleStage;
 import models.Version;
 import play.mvc.Http;
@@ -83,7 +80,8 @@ public class VersionListView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private TableTag renderPastVersionTable(ImmutableList<Version> olderVersions, Http.Request request) {
+  private TableTag renderPastVersionTable(
+      ImmutableList<Version> olderVersions, Http.Request request) {
     return table()
         .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
         .with(renderVersionTableHeaderRow())

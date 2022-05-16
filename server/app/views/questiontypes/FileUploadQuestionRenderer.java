@@ -6,11 +6,9 @@ import static j2html.TagCreator.input;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.attributes.Attr;
+import j2html.tags.specialized.DivTag;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
-
-import j2html.tags.specialized.DivTag;
-
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import views.FileUploadViewStrategy;
@@ -70,7 +68,8 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
 
   private DivTag fileUploadFieldsPreview() {
     return div()
-        .with(input().attr("type", "file").attr("name", "file").attr(Attr.ACCEPT, acceptFileTypes()));
+        .with(
+            input().attr("type", "file").attr("name", "file").attr(Attr.ACCEPT, acceptFileTypes()));
   }
 
   private String acceptFileTypes() {

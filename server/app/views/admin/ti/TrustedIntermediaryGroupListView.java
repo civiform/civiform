@@ -13,14 +13,11 @@ import static j2html.TagCreator.tr;
 
 import com.google.inject.Inject;
 import controllers.admin.routes;
-
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.TrTag;
+import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
-import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.InputTag;
-
+import j2html.tags.specialized.TrTag;
 import java.util.List;
 import models.TrustedIntermediaryGroup;
 import org.slf4j.LoggerFactory;

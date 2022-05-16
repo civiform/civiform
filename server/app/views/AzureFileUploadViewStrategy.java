@@ -11,12 +11,10 @@ import static j2html.attributes.Attr.ENCTYPE;
 import static j2html.attributes.Attr.FORM;
 
 import controllers.applicant.routes;
-
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FooterTag;
-
+import j2html.tags.specialized.FormTag;
 import java.util.Optional;
 import javax.inject.Inject;
 import services.MessageKey;
@@ -48,21 +46,41 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     Optional<String> uploaded =
         fileUploadQuestion.getFilename().map(f -> String.format("File uploaded: %s", f));
 
-    FormTag formTag = form()
-        .with(div().withText(uploaded.orElse("")))
-        .with(input().attr("type", "file").attr("name", "file"))
-        .with(input().attr("type", "hidden").attr("name", "fileName").attr("value", request.fileName()))
-        .with(input().attr("type", "hidden").attr("name", "sasToken").attr("value", request.sasToken()))
-        .with(input().attr("type", "hidden").attr("name", "blobUrl").attr("value", request.blobUrl()))
-        .with(
-            input().attr("type", "hidden").attr("name", "containerName").attr("value", request.containerName()))
-        .with(input().attr("type", "hidden").attr("name", "accountName").attr("value", request.accountName()))
-        .with(
-            input()
-                .attr("type", "hidden")
-                .attr("name", "successActionRedirect")
-                .attr("value", request.successActionRedirect()))
-        .with(errorDiv(params.messages(), fileUploadQuestion));
+    FormTag formTag =
+        form()
+            .with(div().withText(uploaded.orElse("")))
+            .with(input().attr("type", "file").attr("name", "file"))
+            .with(
+                input()
+                    .attr("type", "hidden")
+                    .attr("name", "fileName")
+                    .attr("value", request.fileName()))
+            .with(
+                input()
+                    .attr("type", "hidden")
+                    .attr("name", "sasToken")
+                    .attr("value", request.sasToken()))
+            .with(
+                input()
+                    .attr("type", "hidden")
+                    .attr("name", "blobUrl")
+                    .attr("value", request.blobUrl()))
+            .with(
+                input()
+                    .attr("type", "hidden")
+                    .attr("name", "containerName")
+                    .attr("value", request.containerName()))
+            .with(
+                input()
+                    .attr("type", "hidden")
+                    .attr("name", "accountName")
+                    .attr("value", request.accountName()))
+            .with(
+                input()
+                    .attr("type", "hidden")
+                    .attr("name", "successActionRedirect")
+                    .attr("value", request.successActionRedirect()))
+            .with(errorDiv(params.messages(), fileUploadQuestion));
     return div().with(formTag);
   }
 

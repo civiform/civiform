@@ -9,12 +9,10 @@ import static j2html.TagCreator.span;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.routes;
-
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.ATag;
-import j2html.tags.specialized.H2Tag;
-
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.H2Tag;
 import java.util.Locale;
 import java.util.Optional;
 import play.i18n.Messages;

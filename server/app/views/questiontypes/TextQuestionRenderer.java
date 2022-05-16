@@ -2,12 +2,9 @@ package views.questiontypes;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
-
-import j2html.tags.specialized.DivTag;
-
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.TextQuestion;
 import views.components.FieldWithLabel;

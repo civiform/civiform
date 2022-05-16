@@ -10,13 +10,11 @@ import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
-
-import j2html.tags.specialized.H1Tag;
-import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
-
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;

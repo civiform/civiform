@@ -1,9 +1,9 @@
 package views.components;
 
 import static j2html.TagCreator.div;
-import j2html.tags.specialized.DivTag;
 
 import j2html.tags.DomContent;
+import j2html.tags.specialized.DivTag;
 import java.util.ArrayList;
 import java.util.Arrays;
 import views.style.ReferenceClasses;
@@ -41,8 +41,7 @@ public class Accordion {
                 Styles.BORDER,
                 Styles.BORDER_GRAY_300);
 
-    DivTag titleContainer =
-        div().withClasses(ReferenceClasses.ACCORDION_HEADER, Styles.RELATIVE);
+    DivTag titleContainer = div().withClasses(ReferenceClasses.ACCORDION_HEADER, Styles.RELATIVE);
     DivTag titleDiv = div(this.title).withClasses(Styles.TEXT_XL, Styles.FONT_LIGHT);
 
     SvgTag accordionSvg =

@@ -14,14 +14,11 @@ import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
-
 import j2html.tags.DomContent;
-
-import j2html.tags.specialized.H1Tag;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.ATag;
-
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.H1Tag;
+import j2html.tags.specialized.ImgTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;

@@ -8,13 +8,8 @@ import static j2html.TagCreator.h1;
 
 import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
-import java.util.Optional;
-
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
-import j2html.tags.specialized.FormTag;
-
+import j2html.tags.specialized.DivTag;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
@@ -60,11 +55,12 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .getBundle()
             .setTitle(params.programTitle())
             .addMainContent(
-                div(h1(params.programTitle()
-                        + " "
-                        + params.blockIndex()
-                        + "/"
-                        + params.totalBlockCount()))
+                div(h1(
+                        params.programTitle()
+                            + " "
+                            + params.blockIndex()
+                            + "/"
+                            + params.totalBlockCount()))
                     .withClasses(Styles.SR_ONLY))
             .addMainContent(
                 layout.renderProgramApplicationTitleAndProgressIndicator(
@@ -130,19 +126,21 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .setErrorDisplayMode(params.errorDisplayMode())
             .build();
 
-    return div(form()
-        .withId(BLOCK_FORM_ID)
-        .attr("action", formAction)
-        .withMethod(HttpVerbs.POST)
-        .with(makeCsrfTokenInputTag(params.request()))
-        .with(
-            each(
-                params.block().getQuestions(),
-                question -> renderQuestion(question, rendererParams)))
-        .with(renderBottomNavButtons(params)));
+    return div(
+        form()
+            .withId(BLOCK_FORM_ID)
+            .attr("action", formAction)
+            .withMethod(HttpVerbs.POST)
+            .with(makeCsrfTokenInputTag(params.request()))
+            .with(
+                each(
+                    params.block().getQuestions(),
+                    question -> renderQuestion(question, rendererParams)))
+            .with(renderBottomNavButtons(params)));
   }
 
-  private DivTag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
+  private DivTag renderQuestion(
+      ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     checkNotNull(
         applicantQuestionRendererFactory,
         "Must call init function for initializing ApplicantQuestionRendererFactory");

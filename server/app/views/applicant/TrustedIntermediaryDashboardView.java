@@ -17,14 +17,11 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.ti.routes;
-
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
-import j2html.tags.specialized.TdTag;
-import j2html.tags.specialized.InputTag;
-
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -76,11 +73,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 div(renderAddNewForm(tiGroup, request)),
                 div(hr().withClasses(Styles.MT_6)),
                 div(renderHeader("Clients")),
-                div(renderSearchForm(
-                    request,
-                    search,
-                    routes.TrustedIntermediaryController.dashboard(
-                        Optional.empty(), Optional.empty()))),
+                div(
+                    renderSearchForm(
+                        request,
+                        search,
+                        routes.TrustedIntermediaryController.dashboard(
+                            Optional.empty(), Optional.empty()))),
                 div(renderTIApplicantsTable(managedAccounts, search, page, totalPageCount)),
                 div(hr().withClasses(Styles.MT_6)),
                 div(renderHeader("Trusted Intermediary Members")),

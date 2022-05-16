@@ -5,10 +5,8 @@ import static j2html.TagCreator.div;
 
 import com.google.inject.Inject;
 import forms.ProgramForm;
-
-import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.DivTag;
-
+import j2html.tags.specialized.FormTag;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
@@ -33,7 +31,9 @@ public class ProgramEditView extends BaseHtmlView {
         ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))
-            .attr("action", controllers.admin.routes.AdminProgramController.update(program.id()).url());
+            .attr(
+                "action",
+                controllers.admin.routes.AdminProgramController.update(program.id()).url());
 
     String title = String.format("Edit program: %s", program.adminName());
 

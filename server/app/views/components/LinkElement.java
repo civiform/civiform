@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableMap;
 import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-
 import play.filters.csrf.CSRF;
 import play.mvc.Http;
 import scala.Option;
@@ -110,8 +109,7 @@ public class LinkElement {
 
   public DivTag asAnchorText() {
     DivTag tag = Strings.isNullOrEmpty(href) ? div(text) : div().with(a(text).withHref(href));
-    tag.withCondId(!Strings.isNullOrEmpty(id), id)
-        .withClasses(DEFAULT_LINK_STYLES, styles);
+    tag.withCondId(!Strings.isNullOrEmpty(id), id).withClasses(DEFAULT_LINK_STYLES, styles);
     if (doesOpenInNewTab) {
       tag.attr("target", "_blank");
     }
@@ -144,8 +142,7 @@ public class LinkElement {
     return this.asHiddenForm(request, ImmutableMap.of());
   }
 
-  public FormTag asHiddenForm(
-      Http.Request request, ImmutableMap<String, String> hiddenFormValues) {
+  public FormTag asHiddenForm(Http.Request request, ImmutableMap<String, String> hiddenFormValues) {
     Preconditions.checkNotNull(href);
     Option<CSRF.Token> csrfTokenMaybe = CSRF.getToken(request.asScala());
     String csrfToken = "";
@@ -164,7 +161,9 @@ public class LinkElement {
             .attr("action", href)
             .withCondId(!Strings.isNullOrEmpty(id), id);
     hiddenFormValues.entrySet().stream()
-        .map(entry -> input().isHidden().attr("name", entry.getKey()).attr("value", entry.getValue()))
+        .map(
+            entry ->
+                input().isHidden().attr("name", entry.getKey()).attr("value", entry.getValue()))
         .forEach(tag -> form.with(tag));
     return form;
   }

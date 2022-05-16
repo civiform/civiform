@@ -7,11 +7,9 @@ import static j2html.TagCreator.span;
 
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-
-import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.NavTag;
-
 import javax.inject.Inject;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
@@ -90,8 +88,7 @@ public class AdminLayout extends BaseHtmlLayout {
                 Styles.FONT_NORMAL, Styles.INLINE, Styles.PL_10, Styles.PY_0, Styles.TEXT_XL)
             .with(span("Civi"), span("Form").withClasses(Styles.FONT_THIN));
 
-    NavTag adminHeader =
-        nav().with(headerIcon, headerTitle).withClasses(AdminStyles.NAV_STYLES);
+    NavTag adminHeader = nav().with(headerIcon, headerTitle).withClasses(AdminStyles.NAV_STYLES);
 
     // Don't include nav links for program admin.
     if (primaryAdminType.equals(AdminType.PROGRAM_ADMIN)) {

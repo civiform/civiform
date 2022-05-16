@@ -2,13 +2,12 @@ package views.questiontypes;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import j2html.tags.specialized.DivTag;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.IdQuestion;
 import views.components.FieldWithLabel;
-
-import j2html.tags.specialized.DivTag;
 
 /** Renders an id question. */
 public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {

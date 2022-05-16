@@ -4,10 +4,7 @@ import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.InputTag;
-
 import java.util.OptionalLong;
 import services.Path;
 import services.applicant.ValidationErrorMessage;

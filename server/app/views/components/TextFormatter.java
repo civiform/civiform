@@ -6,9 +6,6 @@ import static j2html.TagCreator.li;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.UlTag;
-
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -16,8 +13,9 @@ import com.google.common.collect.Iterables;
 import com.linkedin.urls.Url;
 import com.linkedin.urls.detection.UrlDetector;
 import com.linkedin.urls.detection.UrlDetectorOptions;
-
 import j2html.tags.DomContent;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.UlTag;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;

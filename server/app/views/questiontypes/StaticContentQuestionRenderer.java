@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 
 import j2html.tags.specialized.DivTag;
-
 import services.applicant.question.ApplicantQuestion;
 import views.components.TextFormatter;
 import views.style.ReferenceClasses;

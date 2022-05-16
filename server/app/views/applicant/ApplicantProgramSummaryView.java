@@ -12,11 +12,8 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
-
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.ATag;
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -177,8 +174,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       answerContent.withText(texts[i]);
     }
 
-    DivTag answerDiv =
-        div(answerContent).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
+    DivTag answerDiv = div(answerContent).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
 
     // Maybe link to block containing specific question.
     if (data.isAnswered() || isFirstUnanswered) {
@@ -238,8 +234,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .attr("style", "word-break:break-word");
   }
 
-  private DivTag renderRepeatedEntitySection(
-      RepeatedEntity repeatedEntity, Messages messages) {
+  private DivTag renderRepeatedEntitySection(RepeatedEntity repeatedEntity, Messages messages) {
     String content =
         String.format(
             "%s: %s",

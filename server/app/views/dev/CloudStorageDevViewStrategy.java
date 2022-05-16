@@ -1,10 +1,8 @@
 package views.dev;
 
 import com.google.common.collect.ImmutableList;
-
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
-
 import models.StoredFile;
 import services.cloud.StorageUploadRequest;
 import views.HtmlBundle;

@@ -6,18 +6,16 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 
-import j2html.tags.ContainerTag;
-import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.DivTag;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
-
+import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 import java.util.Arrays;
 import java.util.Optional;
 import models.QuestionTag;
@@ -252,7 +250,8 @@ public final class QuestionEditView extends BaseHtmlView {
             questionForm, enumeratorQuestionDefinitions);
     FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true);
     formTag
-        .attr("action", 
+        .attr(
+            "action",
             controllers.admin.routes.AdminQuestionController.create(
                     questionForm.getQuestionType().toString())
                 .url())
@@ -269,7 +268,8 @@ public final class QuestionEditView extends BaseHtmlView {
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
     FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false);
     formTag
-        .attr("action", 
+        .attr(
+            "action",
             controllers.admin.routes.AdminQuestionController.update(
                     id, questionForm.getQuestionType().toString())
                 .url())
@@ -309,7 +309,8 @@ public final class QuestionEditView extends BaseHtmlView {
           input()
               .isHidden()
               .attr("name", QUESTION_ENUMERATOR_FIELD)
-              .attr("value", 
+              .attr(
+                  "value",
                   questionForm
                       .getEnumeratorId()
                       .map(String::valueOf)
