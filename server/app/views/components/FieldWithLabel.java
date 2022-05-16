@@ -4,14 +4,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.label;
-import static j2html.TagCreator.textarea;
+import j2html.TagCreator;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LabelTag;
+import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.TextareaTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -30,7 +33,6 @@ public class FieldWithLabel {
   private static final ImmutableSet<String> STRING_TYPES =
       ImmutableSet.of("text", "checkbox", "radio", "date", "email");
 
-  protected Tag fieldTag;
   protected String fieldName = "";
   protected String fieldType = "text";
   protected String fieldValue = "";
@@ -40,7 +42,7 @@ public class FieldWithLabel {
 
   protected OptionalLong minValue = OptionalLong.empty();
   protected OptionalLong maxValue = OptionalLong.empty();
-  protected tagType = "";
+  protected String tagType = "";
 
   protected String formId = "";
   protected String id = "";
@@ -53,57 +55,51 @@ public class FieldWithLabel {
   protected boolean checked = false;
   protected boolean disabled = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
+  protected ImmutableList.Builder<String> attributesListBuilder = ImmutableList.builder();
 
-  protected FieldWithLabel(Tag fieldTag) {
-    this.fieldTag = checkNotNull(fieldTag);
-  }
+  // Make all constructors protected
+  protected FieldWithLabel() { }
 
   public static FieldWithLabel checkbox() {
-    setTagTypeInput()
-    return new FieldWithLabel(fieldTag).setFieldType("checkbox");
+    return new FieldWithLabel().setTagTypeInput().setFieldType("checkbox");
   }
 
   public static FieldWithLabel currency() {
-    setTagTypeInput()
-    return new FieldWithLabel(fieldTag).setFieldType("text").setIsCurrency();
+    return new FieldWithLabel().setTagTypeInput().setFieldType("text").setIsCurrency();
   }
 
   public static FieldWithLabel radio() {
-    setTagTypeInput()
-    return new FieldWithLabel(fieldTag).setFieldType("radio");
+    return new FieldWithLabel().setTagTypeInput().setFieldType("radio");
   }
 
   public static FieldWithLabel input() {
-    setTagTypeInput()
-    return new FieldWithLabel(fieldTag).setFieldType("text");
+    return new FieldWithLabel().setTagTypeInput().setFieldType("text");
   }
 
   public static FieldWithLabel number() {
-    setTagTypeInput()
-    return new FieldWithLabel(fieldTag).setFieldType("number");
+    return new FieldWithLabel().setTagTypeInput().setFieldType("number");
   }
 
   public static FieldWithLabel date() {
-    setTagTypeInput()
-    return new FieldWithLabel(fieldTag).setFieldType("date");
+    return new FieldWithLabel().setTagTypeInput().setFieldType("date");
   }
 
   public static FieldWithLabel textArea() {
-    setTagTypeTextarea()
-    return new FieldWithLabel(fieldTag).setFieldType("text");
+    return new FieldWithLabel().setTagTypeTextarea().setFieldType("text");
   }
 
   public static FieldWithLabel email() {
-    setTagTypeInput()
-    return new FieldWithLabel(fieldTag).setFieldType("email");
+    return new FieldWithLabel().setTagTypeInput().setFieldType("email");
   }
 
-  protected void setTagTypeInput() {
+  protected FieldWithLabel setTagTypeInput() {
     tagType = "input";
+    return this;
   }
 
-  protected void setTagTypeTextarea() {
+  protected FieldWithLabel setTagTypeTextarea() {
     tagType = "textarea";
+    return this;
   }
 
   protected boolean isTagTypeInput() {
@@ -131,7 +127,7 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setFieldType(String fieldType) {
-    //this.fieldTag.withType(fieldType);
+    //this.fieldTag.attr("type", fieldType);
     this.fieldType = fieldType;
     return this;
   }
@@ -168,7 +164,8 @@ public class FieldWithLabel {
 
   /** Sets a valueless attribute. */
   public FieldWithLabel setAttribute(String attribute) {
-    this.fieldTag.attr(attribute, null);
+    //this.fieldTag.attr(attribute, null);
+    this.attributesListBuilder.add(attribute);
     return this;
   }
 
@@ -223,7 +220,7 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setValue(OptionalLong value) {
-    if (!getFieldType.equals("number")) {
+    if (!getFieldType().equals("number")) {
       throw new RuntimeException(
           "setting an OptionalLong value is only available on fields of type `number`");
     }
@@ -285,7 +282,7 @@ public class FieldWithLabel {
             .withText(labelText.isEmpty() ? screenReaderText : labelText);
   }
 
-  protected DivTag genDivTag(Tag fieldTag, Tag labelTag) {
+  protected DivTag wrapInDivTag(Tag fieldTag, Tag labelTag) {
     return div(
             labelTag,
             div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
@@ -317,71 +314,96 @@ public class FieldWithLabel {
     // For number types, only set the value if it's present since there is no empty string
     // equivalent for numbers.
     if (this.fieldValueNumber.isPresent()) {
-      fieldTag.withValue(String.valueOf(this.fieldValueNumber.getAsLong()));
+      fieldTag.attr("value", String.valueOf(this.fieldValueNumber.getAsLong()));
     }
   }
 
-  protected void generalApplyAttrsClasesToTag(Tag fieldTag) {
+  protected void generalApplyAttrsClasesToTag(Tag fieldTag, boolean hasFieldErrors) {
     fieldTag
         .withClasses(
             StyleUtils.joinStyles(
                 BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
         .withId(this.id)
-        .withName(this.fieldName)
+        .attr("name", this.fieldName)
         .condAttr(this.disabled, Attr.DISABLED, "true")
-        .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
+        .condAttr(!Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
   }
 
-  public ContainerTag originalGetContainer() {
+  protected void applyAttributesFromList(Tag fieldTag) {
+    this.attributesListBuilder.build().stream().map(attr -> fieldTag.attr(attr, null));
+  }
+
+  protected DivTag getTextareaTagContainer() {
     genRandIdIfEmpty();
 
-    if (isTagTypeTextarea()) {
-      // Have to recreate the field here in case the value is modified.
-      TextareaTag textAreaTag = textarea().withType("text").withText(this.fieldValue);
-      fieldTag = textAreaTag;
-    } else if (getFieldType().equals("number")) {
+    // Have to recreate the field here in case the value is modified.
+    TextareaTag fieldTag = TagCreator.textarea().attr("type", "text").withText(this.fieldValue);
+    applyAttributesFromList(fieldTag);
+
+    boolean hasFieldErrors = getHasFieldErrors();
+    generalApplyAttrsClasesToTag(fieldTag, hasFieldErrors);
+
+    LabelTag labelTag = genLabelTag();
+
+    return wrapInDivTag(fieldTag, labelTag);
+  }
+
+  protected DivTag getInputTagContainer() {
+    genRandIdIfEmpty();
+
+    InputTag fieldTag = TagCreator.input();
+    applyAttributesFromList(fieldTag);
+
+    if (getFieldType().equals("number")) {
       numberTagApplyAttrs(fieldTag);
     } else {
-      fieldTag.withValue(this.fieldValue);
+      fieldTag.attr("value", this.fieldValue);
     }
 
     boolean hasFieldErrors = getHasFieldErrors();
-    applyAttrsClasesToTag(fieldTag);
+    generalApplyAttrsClasesToTag(fieldTag, hasFieldErrors);
 
     if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
-      return getCheckboxContainer();
+      return div(getCheckboxContainer(fieldTag));
     }
     LabelTag labelTag = genLabelTag();
 
-    return genDivTag(fieldTagOrTextareaTag, labelTag);
+    return wrapInDivTag(fieldTag, labelTag);
   }
 
-  public ContainerTag getContainer() {
+  public DivTag getContainer() {
 
+    if (isTagTypeTextarea()) {
+      return getTextareaTagContainer();
+    } else {
+      // TODO ensure `apply` methods set .withtype('text') and .withText(fieldValue)?
+      return getInputTagContainer();
+    }
   }
 
   /**
    * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
    * attribute.
    */
-  private ContainerTag getCheckboxContainer() {
+  private DivTag getCheckboxContainer(Tag fieldTag) {
     if (this.checked) {
       fieldTag.attr("checked");
     }
 
-    return label()
-        .withClasses(
-            StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
-            BaseStyles.CHECKBOX_LABEL,
-            BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
-            labelText.isEmpty() ? Styles.W_MIN : "")
-        .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
-        .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
-        .withText(this.labelText);
+    return div().with(
+            label()
+              .withClasses(
+                  StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
+                  BaseStyles.CHECKBOX_LABEL,
+                  BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
+                  labelText.isEmpty() ? Styles.W_MIN : "")
+              .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
+              .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
+              .withText(this.labelText));
   }
 
-  private Tag buildFieldErrorsTag() {
+  private DivTag buildFieldErrorsTag() {
     String[] referenceClasses =
         referenceClassesBuilder.build().stream().map(ref -> ref + "-error").toArray(String[]::new);
     return div(each(fieldErrors, error -> div(error.format(messages))))
