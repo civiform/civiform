@@ -34,10 +34,3 @@ jobs:
           source civiform_config.sh
           export CIVIFORM_MODE="test"
           cloud/azure/bin/deploy "--tag=${LATEST_SNAPSHOT_TAG}"
-          if $?; then
-            echo "exited successfully"
-            exit 0
-          else
-            echo "exited with failures"
-            exit 1
-          fi
