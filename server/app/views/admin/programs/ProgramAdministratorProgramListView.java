@@ -58,14 +58,17 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
             .withClasses(Styles.PX_20)
             .with(
                 h1(title).withClasses(Styles.MY_4),
-                each(
-                    programs.getProgramNames().stream()
-                        .filter(programName -> authorizedPrograms.contains(programName))
-                        .map(
-                            name ->
-                                this.renderProgramListItem(
-                                    programs.getActiveProgramDefinition(name),
-                                    programs.getDraftProgramDefinition(name)))));
+                div()
+                    .withClasses("cf-program-admin-list", Styles.INVISIBLE)
+                    .with(
+                        each(
+                            programs.getProgramNames().stream()
+                                .filter(programName -> authorizedPrograms.contains(programName))
+                                .map(
+                                    name ->
+                                        this.renderProgramListItem(
+                                            programs.getActiveProgramDefinition(name),
+                                            programs.getDraftProgramDefinition(name))))));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
 
