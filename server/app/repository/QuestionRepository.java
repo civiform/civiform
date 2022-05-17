@@ -56,7 +56,7 @@ public class QuestionRepository {
    * Find and update the DRAFT of the question with this name, if one already exists. Create a new
    * DRAFT if there isn't one.
    */
-  public Question updateOrCreateDraft(QuestionDefinition definition) {
+  public Question createOrUpdateDraft(QuestionDefinition definition) {
     Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
     try (Transaction transaction = database.beginTransaction(TxScope.requiresNew())) {
       Optional<Question> existingDraft = draftVersion.getQuestionByName(definition.getName());
@@ -123,7 +123,7 @@ public class QuestionRepository {
         .forEach(
             question -> {
               try {
-                updateOrCreateDraft(
+                createOrUpdateDraft(
                     new QuestionDefinitionBuilder(question.getQuestionDefinition())
                         .setEnumeratorId(Optional.of(newEnumeratorId))
                         .build());
