@@ -2,8 +2,8 @@ package auth;
 
 import static play.test.Helpers.fakeRequest;
 
-import java.time.Instant;
-import models.ApiKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -12,35 +12,28 @@ import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.play.PlayWebContext;
 import play.mvc.Http;
 import repository.ResetPostgres;
-import services.apikey.ApiKeyService;
 
 public class ApiAuthenticatorTest extends ResetPostgres {
 
   private static final SessionStore MOCK_SESSION_STORE = Mockito.mock(SessionStore.class);
   private ApiAuthenticator apiAuthenticator;
-  private ApiKeyService apiKeyService;
 
   @Before
   public void setUp() {
     apiAuthenticator = instanceOf(ApiAuthenticator.class);
-    apiKeyService = instanceOf(ApiKeyService.class);
   }
 
   @Test
   public void validate_success() {
     String keyId = "keyId";
     String secret = "secret";
+    resourceCreator.createActiveApiKey("test-key", keyId, secret);
+    String rawCredentials = keyId + ":" + secret;
+    String creds =
+        Base64.getEncoder().encodeToString(rawCredentials.getBytes(StandardCharsets.UTF_8));
 
-    new ApiKey()
-        .setName("test-key")
-        .setKeyId(keyId)
-        .setExpiration(Instant.now().plusSeconds(1))
-        .setSubnet("1.1.1.1/32")
-        .setSaltedKeySecret(apiKeyService.salt(secret))
-        .setCreatedBy("test")
-        .save();
-
-    Http.Request request = fakeRequest().remoteAddress("1.1.1.1").build();
+    Http.Request request =
+        fakeRequest().remoteAddress("1.1.1.1").header("Authorization", "Basic " + creds).build();
 
     apiAuthenticator.validate(
         new UsernamePasswordCredentials(keyId, secret),

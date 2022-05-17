@@ -18,6 +18,27 @@ import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 import services.apikey.ApiKeyService;
 
+/**
+ * Authenticator for API requests based on HTTP basic auth and backed by the {@link ApiKey}
+ * resource. Background: https://en.wikipedia.org/wiki/Basic_access_authentication
+ *
+ * <p>When referenced by a request, API keys are stored in the "api-keys" named cache, keyed by
+ * their key ID. This allows controller code to load the key without the need for a subsequent
+ * database query.
+ *
+ * <p>Note that at this layer, the request is authenticated, not authorized. All API requests that
+ * reach a controller are already authenticated, but it is the controller's responsibility to check
+ * that the resource being accessed is authorized for the request's API key.
+ *
+ * <p>The API key ID and secret are provided as the basic auth username and password, respectively.
+ * To be valid, a request must reference a valid API key with its username credential, and further
+ * that key must:
+ * <li>Not be retired.
+ * <li>Have an expiration date in the future.
+ * <li>Have a subnet that includes the IP address of the request.
+ * <li>Have a salted key secret that matches the salted password in the request's basic auth
+ *     credentials.
+ */
 public class ApiAuthenticator implements Authenticator {
 
   private static final int CACHE_EXPIRATION_TIME_SECONDS = 60;

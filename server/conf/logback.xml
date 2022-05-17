@@ -29,7 +29,7 @@
   <logger name="loggingfilter" level="INFO" />
   <logger name="controllers" level="INFO" />
   <logger name="s3client" level="INFO" />
-  <logger name="io.ebean" level="DEBUG" />
+  <logger name="io.ebean" level="INFO" />
   <logger name="org.pac4j" level="INFO" />
   <logger name="auth" level="INFO" />
 

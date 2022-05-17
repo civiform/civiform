@@ -2,10 +2,12 @@ package support;
 
 import io.ebean.DB;
 import io.ebean.Database;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import models.Account;
+import models.ApiKey;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
@@ -15,6 +17,7 @@ import models.Question;
 import models.TrustedIntermediaryGroup;
 import play.inject.Injector;
 import services.LocalizedStrings;
+import services.apikey.ApiKeyService;
 import services.question.types.QuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
@@ -27,6 +30,21 @@ public class ResourceCreator {
     this.database = DB.getDefault();
     this.injector = injector;
     ProgramBuilder.setInjector(injector);
+  }
+
+  public ApiKey createActiveApiKey(String name, String keyId, String keySecret) {
+    ApiKey apiKey =
+        new ApiKey()
+            .setName(name)
+            .setKeyId(keyId)
+            .setExpiration(Instant.now().plusSeconds(1))
+            .setSubnet("1.1.1.1/32")
+            .setSaltedKeySecret(injector.instanceOf(ApiKeyService.class).salt(keySecret))
+            .setCreatedBy("test");
+
+    apiKey.save();
+
+    return apiKey;
   }
 
   public void truncateTables() {
