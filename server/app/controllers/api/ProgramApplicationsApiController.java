@@ -17,6 +17,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
 
   // Introduced to test API authentication logic. Implementation is next. Did not
   // want to do both in a larger pull request.
+  // TODO(https://github.com/seattle-uat/civiform/issues/1744): implement
   public CompletionStage<Result> list(Http.Request request, String programSlug) {
     assertHasProgramReadPermission(request, programSlug);
 

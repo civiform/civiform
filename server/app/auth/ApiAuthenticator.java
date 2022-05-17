@@ -3,7 +3,6 @@ package auth;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.time.Instant;
-import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.ApiKey;
@@ -66,15 +65,11 @@ public class ApiAuthenticator implements Authenticator {
     // Cache the API key for quick lookup in the controller, also for subsequent requests.
     // We intentionally cache the empty optional rather than throwing here so that subsequent
     // requests with the invalid key do not put pressure on the database.
-    Optional<ApiKey> maybeApiKey =
-        syncCacheApi.getOrElseUpdate(
-            keyId, () -> apiKeyService.get().findByKeyId(keyId), CACHE_EXPIRATION_TIME_SECONDS);
-
-    if (!maybeApiKey.isPresent()) {
-      throw new BadCredentialsException("API key does not exist");
-    }
-
-    ApiKey apiKey = maybeApiKey.get();
+    ApiKey apiKey =
+        syncCacheApi
+            .getOrElseUpdate(
+                keyId, () -> apiKeyService.get().findByKeyId(keyId), CACHE_EXPIRATION_TIME_SECONDS)
+            .orElseThrow(() -> new BadCredentialsException("API key does not exist"));
 
     if (apiKey.isRetired()) {
       throw new BadCredentialsException("API key is retired");

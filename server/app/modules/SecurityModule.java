@@ -153,8 +153,7 @@ public class SecurityModule extends AbstractModule {
   }
 
   // CiviForm uses HTTP basic auth for authenticating API calls. The username in the basic auth
-  // credentials is the API
-  // key ID, and the password is the API key secret.
+  // credentials is the API key ID, and the password is the API key secret.
   @Provides
   @Singleton
   protected DirectBasicAuthClient apiAuthClient(ApiAuthenticator apiAuthenticator) {
