@@ -21,7 +21,7 @@ describe('Most recently updated program is at top of list.', () => {
 
     // Most recently added program is on top.
     expect(await adminPrograms.getProgramNames()).toEqual([programTwo, programOne])
-    
+
     // Publish all programs, the order should remain the same.
     await adminPrograms.publishAllPrograms()
     expect(await adminPrograms.getProgramNames()).toEqual([programTwo, programOne])
