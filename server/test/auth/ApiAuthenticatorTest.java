@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
 import models.ApiKey;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -20,6 +21,7 @@ import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.exception.BadCredentialsException;
 import org.pac4j.play.PlayWebContext;
+import play.Application;
 import play.ApplicationLoader;
 import play.Environment;
 import play.api.inject.BindingKey;
@@ -28,9 +30,12 @@ import play.cache.SyncCacheApi;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.inject.guice.GuiceApplicationLoader;
 import play.mvc.Http;
+import play.test.Helpers;
 import support.ResourceCreator;
 
 public class ApiAuthenticatorTest {
+  @Inject
+  Application application;
 
   @Inject
   @NamedCache("api-keys")
@@ -76,9 +81,16 @@ public class ApiAuthenticatorTest {
               }
             });
 
+    Helpers.start(application);
+
     DB.getDefault().truncate("api_keys");
     apiKey = resourceCreator.createActiveApiKey("test-key", keyId, secret);
     cacheApi.remove(keyId);
+  }
+
+  @After
+  public void tearDown() {
+    Helpers.stop(application);
   }
 
   @Test
