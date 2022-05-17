@@ -16,6 +16,7 @@ import play.http.DefaultHttpErrorHandler;
 import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.mvc.Results;
+import services.apikey.ApiKeyNotFoundException;
 import services.program.ProgramNotFoundException;
 
 /**
@@ -30,7 +31,10 @@ import services.program.ProgramNotFoundException;
 public class ErrorHandler extends DefaultHttpErrorHandler {
 
   private static final ImmutableSet<Class<? extends Exception>> BAD_REQUEST_EXCEPTION_TYPES =
-      ImmutableSet.of(NotChangeableException.class, ProgramNotFoundException.class);
+      ImmutableSet.of(
+          ApiKeyNotFoundException.class,
+          NotChangeableException.class,
+          ProgramNotFoundException.class);
 
   @Inject
   public ErrorHandler(
@@ -46,6 +50,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
     // Exceptions that reach here will generate 500s. Here we convert certain ones to different user
     // visible states. Note: there are methods on the parent that handle dev and prod separately.
     Optional<Throwable> match = findThrowableByTypes(exception, BAD_REQUEST_EXCEPTION_TYPES);
+
     if (match.isPresent()) {
       return CompletableFuture.completedFuture(Results.badRequest(match.get().getMessage()));
     }

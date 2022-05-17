@@ -3,12 +3,16 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.PagedList;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApiKey;
+import services.PaginationResult;
+import services.PaginationSpec;
 
 /**
  * Provides an asynchronous API for persistence and query of {@link ApiKey} instances. Uses {@code
@@ -23,6 +27,24 @@ public class ApiKeyRepository {
   public ApiKeyRepository(DatabaseExecutionContext executionContext) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
+  }
+
+  /** List {@link ApiKey}s ordered by creation time descending. */
+  public PaginationResult<ApiKey> listApiKeys(PaginationSpec paginationSpec) {
+    PagedList<ApiKey> pagedList =
+        database
+            .find(ApiKey.class)
+            // This is a proxy for creation time descending. Both get the desired ordering
+            // behavior but ID is indexed.
+            .order("id desc")
+            .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
+            .setMaxRows(paginationSpec.getPageSize())
+            .findPagedList();
+
+    pagedList.loadCount();
+
+    return new PaginationResult<ApiKey>(
+        paginationSpec, pagedList.getTotalPageCount(), ImmutableList.copyOf(pagedList.getList()));
   }
 
   /** Insert a new {@link ApiKey} record asynchronously. */
