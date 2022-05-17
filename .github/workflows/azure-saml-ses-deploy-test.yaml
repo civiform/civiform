@@ -37,10 +37,10 @@ jobs:
           export CIVIFORM_MODE="test"
           echo "${LATEST_SNAPSHOT_TAG}"
           cloud/shared/bin/deploy "--tag=${LATEST_SNAPSHOT_TAG}"
-          if $?; then
-            echo "Terraform plan succeede"
-            exit 0
-          else
+          if [[ $? == 1 ]]; then
             echo "Terraform plan failed"
             exit 1
+          else
+            echo "Terraform plan success"
+            exit 0
           fi
