@@ -148,7 +148,7 @@ resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.2.2",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.13.2",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.2"
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.3"
 )
 resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)
