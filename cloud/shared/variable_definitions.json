@@ -18,7 +18,7 @@
     ]
   },
   "CIVIFORM_TIME_ZONE_ID": {
-    "required": true,
+    "required": false,
     "secret": false,
     "tfvar": true,
     "type": "string"

@@ -6,6 +6,7 @@ variable "azure_resource_group" {
 variable "civiform_time_zone_id" {
   type        = string
   description = "Time zone for Civiform server to use when displaying dates."
+  default     = "America/Los_Angeles"
 }
 
 variable "civic_entity_short_name" {
