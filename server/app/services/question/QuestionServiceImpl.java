@@ -94,7 +94,7 @@ public final class QuestionServiceImpl implements QuestionService {
       return ErrorAnd.error(errors);
     }
 
-    question = questionRepository.updateOrCreateDraft(questionDefinition);
+    question = questionRepository.createOrUpdateDraft(questionDefinition);
     return ErrorAnd.of(question.getQuestionDefinition());
   }
 
