@@ -33,7 +33,7 @@ jobs:
           #  the changes work with actual data
           curl https://raw.githubusercontent.com/civiform/staging-azure-deploy/main/civiform_config.sh > civiform_config.sh
 
-      - name: Source config, set to be test and deploy with latest snapshot tag
+      - name: Source config, set CIVIFORM_MODE to be "test" and deploy with latest snapshot tag
         run: |
           source civiform_config.sh
           export CIVIFORM_MODE="test"
