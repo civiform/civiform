@@ -159,7 +159,11 @@ public final class ProgramIndexView extends BaseHtmlView {
                     p(programStatusText).withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_700),
                     div(programTitleText)
                         .withClasses(
-                            Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.TEXT_XL, Styles.MB_2)),
+                            ReferenceClasses.ADMIN_PROGRAM_CARD_TITLE,
+                            Styles.TEXT_BLACK,
+                            Styles.FONT_BOLD,
+                            Styles.TEXT_XL,
+                            Styles.MB_2)),
                 p().withClasses(Styles.FLEX_GROW),
                 div(p(blockCountText), p(questionCountText))
                     .withClasses(
