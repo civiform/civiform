@@ -5,9 +5,11 @@ import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
 
+import auth.ApiKeyGrants;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
+import models.ApiKey;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.core.context.HttpConstants;
@@ -25,7 +27,9 @@ public class ApiAuthenticationTest extends ResetPostgres {
 
   @Before
   public void setUp() {
-    resourceCreator.createActiveApiKey("test-key", keyId, secret);
+    ApiKey apiKey = resourceCreator.createActiveApiKey("test-key", keyId, secret);
+    apiKey.getGrants().grantProgramPermission("mock-program", ApiKeyGrants.Permission.READ);
+    apiKey.save();
   }
 
   @Test

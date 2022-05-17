@@ -34,8 +34,7 @@ import play.test.Helpers;
 import support.ResourceCreator;
 
 public class ApiAuthenticatorTest {
-  @Inject
-  Application application;
+  @Inject Application application;
 
   @Inject
   @NamedCache("api-keys")
