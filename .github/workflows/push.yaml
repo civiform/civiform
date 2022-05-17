@@ -25,7 +25,7 @@ jobs:
         run: python3 cloud/shared/validate_variable_definitions_test.py
 
   build_container:
-    runs-on: ubuntu-18.04 # for older version of awscli.
+    runs-on: ubuntu-latest
     steps:
       - id: file_changes
         uses: trilom/file-changes-action@v1.2.4

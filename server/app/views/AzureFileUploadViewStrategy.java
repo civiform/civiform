@@ -112,6 +112,10 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
   protected Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params) {
+    if (hasAtLeastOneRequiredQuestion(params)) {
+      // If the file question is required, skip or delete is not allowed.
+      return Optional.empty();
+    }
     String buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
     String buttonId = FILEUPLOAD_SKIP_BUTTON_ID;
     Optional<ContainerTag> footer = Optional.empty();

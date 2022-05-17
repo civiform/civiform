@@ -11,8 +11,10 @@ import auth.ProfileFactory;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import controllers.admin.NotChangeableException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 import models.ApiKey;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +23,8 @@ import play.data.FormFactory;
 import repository.ApiKeyRepository;
 import repository.ResetPostgres;
 import services.DateConverter;
+import services.PaginationResult;
+import services.PaginationSpec;
 import services.program.ProgramNotFoundException;
 
 public class ApiKeyServiceTest extends ResetPostgres {
@@ -42,6 +46,80 @@ public class ApiKeyServiceTest extends ResetPostgres {
     adminProfile.setAuthorityId("authority-id").join();
     formFactory = instanceOf(FormFactory.class);
     dateConverter = instanceOf(DateConverter.class);
+  }
+
+  @Test
+  public void listApiKeys() {
+    String keyName1 = "test key 1";
+    String keyName2 = "test key 2";
+
+    for (String keyName : List.of(keyName1, keyName2)) {
+      apiKeyService.createApiKey(
+          buildForm(
+              ImmutableMap.of(
+                  "keyName", keyName,
+                  "expiration", "2020-01-30",
+                  "subnet", "0.0.0.1/32")),
+          adminProfile);
+    }
+
+    PaginationResult<ApiKey> paginationResult =
+        apiKeyService.listApiKeys(PaginationSpec.MAX_PAGE_SIZE_SPEC);
+
+    // Keys should be shown in reverse creation order.
+    assertThat(paginationResult.getPageContents().get(0).getName()).isEqualTo(keyName2);
+    assertThat(paginationResult.getPageContents().get(1).getName()).isEqualTo(keyName1);
+  }
+
+  @Test
+  public void retireApiKey_retiresAnApiKey() {
+    ApiKey apiKey =
+        apiKeyService
+            .createApiKey(
+                buildForm(
+                    ImmutableMap.of(
+                        "keyName", "test key 1",
+                        "expiration", "2020-01-30",
+                        "subnet", "0.0.0.1/32")),
+                adminProfile)
+            .getApiKey();
+
+    apiKeyService.retireApiKey(apiKey.id, adminProfile);
+
+    apiKey.refresh();
+
+    assertThat(apiKey.isRetired()).isTrue();
+    assertThat(apiKey.getRetiredBy().get()).isEqualTo(adminProfile.getAuthorityId().join());
+    assertThat(apiKey.getRetiredTime()).isPresent();
+  }
+
+  @Test
+  public void retireApiKey_keyAlreadyRetired_throws() {
+    ApiKey apiKey =
+        apiKeyService
+            .createApiKey(
+                buildForm(
+                    ImmutableMap.of(
+                        "keyName", "test key 1",
+                        "expiration", "2020-01-30",
+                        "subnet", "0.0.0.1/32")),
+                adminProfile)
+            .getApiKey();
+    apiKeyService.retireApiKey(apiKey.id, adminProfile);
+
+    NotChangeableException exception =
+        assertThrows(
+            NotChangeableException.class,
+            () -> apiKeyService.retireApiKey(apiKey.id, adminProfile));
+    assertThat(exception).hasMessage(String.format("ApiKey %s is already retired", apiKey));
+  }
+
+  @Test
+  public void retireApiKey_keyDoesNotExist_throws() {
+    RuntimeException exception =
+        assertThrows(RuntimeException.class, () -> apiKeyService.retireApiKey(111l, adminProfile));
+    assertThat(exception.getCause()).isInstanceOf(ApiKeyNotFoundException.class);
+    assertThat(exception.getCause()).hasMessage("ApiKey not found for database ID: 111");
   }
 
   @Test

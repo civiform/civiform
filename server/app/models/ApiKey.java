@@ -23,16 +23,20 @@ public class ApiKey extends BaseModel {
   private String saltedKeySecret;
   private String subnet;
   private String lastCallIpAddress;
+  private Long callCount;
+  private Instant retiredTime;
+  private String retiredBy;
 
   /** Permissions granted to this ApiKey by the admin. */
   @DbJsonB private ApiKeyGrants grants;
 
   public ApiKey(ApiKeyGrants grants) {
+    this.callCount = 0L;
     this.grants = grants;
   }
 
   public ApiKey() {
-    this.grants = new ApiKeyGrants();
+    this(new ApiKeyGrants());
   }
 
   public ApiKeyGrants getGrants() {
@@ -42,6 +46,37 @@ public class ApiKey extends BaseModel {
   public ApiKey setGrants(ApiKeyGrants grants) {
     this.grants = grants;
     return this;
+  }
+
+  /**
+   * Retires the key, setting who retired it and the retired time to now. Throws a runtime exception
+   * if it is already retired.
+   *
+   * @param retiredBy the authority_id of the account who retired the key.
+   */
+  public ApiKey retire(String retiredBy) {
+    if (retiredTime != null) {
+      throw new RuntimeException(String.format("ApiKey %s is already retired", id));
+    }
+
+    this.retiredBy = retiredBy;
+    this.retiredTime = Instant.now();
+    return this;
+  }
+
+  /** True if the ApiKey is retired. */
+  public boolean isRetired() {
+    return this.retiredTime != null;
+  }
+
+  /** The time when the ApiKey was retired or empty if it is not retired. */
+  public Optional<Instant> getRetiredTime() {
+    return Optional.ofNullable(retiredTime);
+  }
+
+  /** The authority ID of the account that retired the ApiKey or empty if it is not retired. */
+  public Optional<String> getRetiredBy() {
+    return Optional.ofNullable(retiredBy);
   }
 
   /** Timestamp of when the the ApiKey was created. */
@@ -145,6 +180,17 @@ public class ApiKey extends BaseModel {
   /** The client IPv4 address of the last request to successfully auth with the ApiKey. */
   public ApiKey setLastCallIpAddress(String lastCallIpAddress) {
     this.lastCallIpAddress = lastCallIpAddress;
+    return this;
+  }
+
+  /** The number of requests that have been attempted using this API key. */
+  public Long getCallCount() {
+    return callCount;
+  }
+
+  /** Increment the number of requests that have been attempted using this API key. */
+  public ApiKey incrementCallCount() {
+    this.callCount++;
     return this;
   }
 }

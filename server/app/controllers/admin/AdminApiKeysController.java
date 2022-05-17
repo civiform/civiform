@@ -13,9 +13,11 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import services.PaginationSpec;
 import services.apikey.ApiKeyCreationResult;
 import services.apikey.ApiKeyService;
 import services.program.ProgramService;
+import views.admin.apikeys.ApiKeyIndexView;
 import views.admin.apikeys.ApiKeyNewOneView;
 import views.admin.programs.ApiKeyCredentialsView;
 
@@ -23,6 +25,7 @@ import views.admin.programs.ApiKeyCredentialsView;
 public class AdminApiKeysController extends CiviFormController {
 
   private final ApiKeyService apiKeyService;
+  private final ApiKeyIndexView indexView;
   private final ApiKeyNewOneView newOneView;
   private final ApiKeyCredentialsView apiKeyCredentialsView;
   private final ProgramService programService;
@@ -32,12 +35,14 @@ public class AdminApiKeysController extends CiviFormController {
   @Inject
   public AdminApiKeysController(
       ApiKeyService apiKeyService,
+      ApiKeyIndexView indexView,
       ApiKeyNewOneView newOneView,
       ApiKeyCredentialsView apiKeyCredentialsView,
       ProgramService programService,
       FormFactory formFactory,
       ProfileUtils profileUtils) {
     this.apiKeyService = checkNotNull(apiKeyService);
+    this.indexView = checkNotNull(indexView);
     this.newOneView = checkNotNull(newOneView);
     this.apiKeyCredentialsView = checkNotNull(apiKeyCredentialsView);
     this.programService = checkNotNull(programService);
@@ -46,8 +51,27 @@ public class AdminApiKeysController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result index() {
-    return ok();
+  public Result index(Http.Request request) {
+    return ok(
+        indexView.render(
+            request,
+            // The backend service supports pagination but the front end doesn't
+            // in its initial implementation so we load all of them here.
+            apiKeyService.listApiKeys(PaginationSpec.MAX_PAGE_SIZE_SPEC),
+            programService.getAllProgramNames()));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result retire(Http.Request request, Long apiKeyId) {
+    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+
+    if (!profile.isPresent()) {
+      throw new RuntimeException("Unable to resolve profile.");
+    }
+
+    apiKeyService.retireApiKey(apiKeyId, profile.get());
+
+    return redirect(routes.AdminApiKeysController.index().url());
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
