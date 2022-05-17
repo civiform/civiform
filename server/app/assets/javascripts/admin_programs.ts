@@ -11,7 +11,13 @@ class AdminPrograms {
     if (!cardsParent) {
       return
     }
-    this.sortCards(cardsParent as HTMLElement)
+    try {
+      this.sortCards(cardsParent as HTMLElement)
+    } finally {
+      // Make sure to always show the cards, even
+      // if there was an error while sorting.
+      cardsParent.classList.remove('invisible')
+    }
   }
 
   sortCards(cardsParent: HTMLElement) {
@@ -31,9 +37,11 @@ class AdminPrograms {
       )
     })
     cards.forEach((el) => {
+      // Note: Calling appendChild on this element will reuse
+      // the existing element since it's already in the DOM.
+      // This means that any attached event handlers will remain.
       cardsParent.appendChild(el)
     })
-    cardsParent.classList.remove('invisible')
   }
 
   comparatorObject(el: HTMLElement) {

@@ -57,7 +57,7 @@ export class AdminPrograms {
     await this.expectProgramExist(programName, description)
   }
 
-  async getProgramNames() {
+  async programNames() {
     await this.gotoAdminProgramsPage()
     const titles = this.page.locator('.cf-admin-program-card .cf-program-title')
     return titles.allTextContents()
