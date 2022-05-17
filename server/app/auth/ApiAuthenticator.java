@@ -22,9 +22,10 @@ import services.apikey.ApiKeyService;
  * Authenticator for API requests based on HTTP basic auth and backed by the {@link ApiKey}
  * resource. Background: https://en.wikipedia.org/wiki/Basic_access_authentication
  *
- * <p>When referenced by a request, API keys are stored in the "api-keys" named cache, keyed by
- * their key ID. This allows controller code to load the key without the need for a subsequent
- * database query.
+ * <p>When referenced by a request, {@code ApiKey}s are stored in the "api-keys" named cache, keyed
+ * by their key ID. This allows controller code to load the key without the need for a subsequent
+ * database query. This is necessary because pac4j creates profiles in the next step, but we need
+ * the API key to perform authentication (this step).
  *
  * <p>Note that at this layer, the request is authenticated, not authorized. All API requests that
  * reach a controller are already authenticated, but it is the controller's responsibility to check
@@ -95,7 +96,7 @@ public class ApiAuthenticator implements Authenticator {
 
     String saltedCredentialsSecret = apiKeyService.get().salt(credentials.getPassword());
     if (!saltedCredentialsSecret.equals(apiKey.getSaltedKeySecret())) {
-      throw new BadCredentialsException("Invalid password");
+      throw new BadCredentialsException("Invalid secret");
     }
   }
 }

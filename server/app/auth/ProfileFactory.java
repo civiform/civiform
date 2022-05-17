@@ -58,7 +58,10 @@ public class ProfileFactory {
   }
 
   public Optional<ApiKey> retrieveApiKey(String keyId) {
-    return syncCacheApi.get(keyId);
+    Optional<Optional<ApiKey>> cacheResult = syncCacheApi.get(keyId);
+
+    return cacheResult.orElseThrow(
+        () -> new AccountNonexistentException("API key missing from cache"));
   }
 
   /* One admin can have multiple roles; they can be both a program admin and a civiform admin. */

@@ -273,6 +273,10 @@ public class ApiKeyService {
     return Base64.getEncoder().encodeToString(secret);
   }
 
+  /**
+   * Apply the HMAC-SHA-256 hashing function to the input using the "api_secret_salt" config value
+   * as a key.
+   */
   public String salt(String message) {
     byte[] rawMessage = Base64.getDecoder().decode(message);
     byte[] rawKey = Base64.getDecoder().decode(secretSalt);
