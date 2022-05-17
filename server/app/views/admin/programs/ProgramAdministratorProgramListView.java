@@ -144,7 +144,7 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
 
     return div(innerDiv)
         .withClasses(
-            ReferenceClasses.ADMIN_PROGRAM_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4));
+            ReferenceClasses.ADMIN_PROGRAM_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
   }
 
   private String extractProgramStatusText(
