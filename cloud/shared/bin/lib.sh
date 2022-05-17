@@ -13,6 +13,7 @@ if [[ "${SOURCED_CLOUD_LIB}" != "true" ]]; then
   source "${CLOUD_LIB_DIR}/health.sh"
   source "${CLOUD_LIB_DIR}/log.sh"
   source "${CLOUD_LIB_DIR}/terraform.sh"
+  source "${CLOUD_LIB_DIR}/civiform_mode.sh"
 
   SOURCED_CLOUD_LIB="true"
 fi

@@ -17,7 +17,7 @@ readonly AZURE_LOG_FILE_NAME="civiform_deployment_log.txt"
 #   LOG_TEMPFILE: the path to a tempfile containing the deploy log.
 #######################################
 function azure_log::fetch_log_file() {
-  if [[ "${CIVIFORM_MODE}" == "test" ]]; then
+  if civiform_mode::is_test; then
     return 0
   fi
 
@@ -46,7 +46,7 @@ function azure_log::fetch_log_file() {
 #   LOG_TEMPFILE
 #######################################
 function azure_log::upload_log_file() {
-  if [[ "${CIVIFORM_MODE}" == "test" ]]; then
+  if civiform_mode::is_test; then
     return 0
   fi
 
@@ -75,7 +75,7 @@ function azure_log::upload_log_file() {
 #   AZURE_LOG_FILE_NAME
 #######################################
 function azure_log::log_file_exists() {
-  if [[ "${CIVIFORM_MODE}" == "test" ]]; then
+  if civiform_mode::is_test; then
     return 0
   fi
 
@@ -95,7 +95,7 @@ function azure_log::log_file_exists() {
 #   AZURE_LOG_STORAGE_ACCOUNT_NAME
 #######################################
 function azure_log::ensure_log_role_assignments() {
-  if [[ "${CIVIFORM_MODE}" == "test" ]]; then
+  if civiform_mode::is_test; then
     return 0
   fi
 
@@ -119,7 +119,7 @@ function azure_log::ensure_log_role_assignments() {
 #   AZURE_SUBSCRIPTION
 #######################################
 function azure_log::initialize_log_file() {
-  if [[ "${CIVIFORM_MODE}" == "test" ]]; then
+  if civiform_mode::is_test; then
     return 0
   fi
 

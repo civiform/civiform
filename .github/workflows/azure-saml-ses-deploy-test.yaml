@@ -18,17 +18,19 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
     steps:
-      - name: check out branch
+      - name: Check out branch
         uses: actions/checkout@v2
 
-      - name: login to Azure
+      - name: Login to Azure
         run: cloud/azure/bin/cli-login
 
-      - name: resolve latest snapshot tag
+      - name: Resolve latest snapshot tag
         run: source cloud/shared/bin/resolve-latest-snapshot-tag
 
-      - name: copy the staging file
+      - name: Copy the config from staging 
         run: |
+          #  Grab the config from the staging deploy repo to confirm
+          #  the changes work with actual data
           curl https://raw.githubusercontent.com/civiform/staging-azure-deploy/main/civiform_config.sh > civiform_config.sh
 
       - name: Source config, set to be test and deploy with latest snapshot tag
@@ -37,10 +39,4 @@ jobs:
           export CIVIFORM_MODE="test"
           echo "${LATEST_SNAPSHOT_TAG}"
           cloud/shared/bin/deploy "--tag=${LATEST_SNAPSHOT_TAG}"
-          if [[ $? == 1 ]]; then
-            echo "Terraform plan failed"
-            exit 1
-          else
-            echo "Terraform plan success"
-            exit 0
-          fi
+          exit $?
