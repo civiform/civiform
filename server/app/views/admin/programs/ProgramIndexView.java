@@ -50,7 +50,13 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (profile.isPresent() && profile.get().isProgramAdmin() && !profile.get().isCiviFormAdmin()) {
       layout.setOnlyProgramAdminType();
     }
+    return request.queryString().containsKey("v2")
+        ? renderV2()
+        : renderV1(programs, request, profile);
+  }
 
+  private Content renderV1(
+      ActiveAndDraftPrograms programs, Http.Request request, Optional<CiviFormProfile> profile) {
     String pageTitle = "All programs";
     ContainerTag publishAllModalContent =
         div()
@@ -63,6 +69,11 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setTriggerButtonText("Publish all programs")
             .build();
 
+    String numProgramsText =
+        programs.getProgramNames().size() == 1
+            ? "1 program"
+            : String.format("%d programs", programs.getProgramNames().size());
+
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
@@ -73,6 +84,12 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .with(renderNewProgramButton())
                     .with(div().withClass(Styles.FLEX_GROW))
                     .condWith(programs.anyDraft(), publishAllModal.getButton()),
+                div()
+                    .withClasses(Styles.FLEX, Styles.MY_4)
+                    .with(
+                        p(numProgramsText).withClasses(Styles.TEXT_GRAY_700),
+                        div().withClasses(Styles.FLEX_GROW),
+                        p("Most recently updated first").withClasses(Styles.TEXT_GRAY_700)),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST, Styles.INVISIBLE)
                     .with(
@@ -94,6 +111,16 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
             .addModals(publishAllModal)
+            .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
+    return layout.renderCentered(htmlBundle);
+  }
+
+  private Content renderV2() {
+    HtmlBundle htmlBundle =
+        layout
+            .getBundle()
+            .setTitle("Placeholder")
+            .addMainContent(p("Placeholder"))
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
     return layout.renderCentered(htmlBundle);
   }
