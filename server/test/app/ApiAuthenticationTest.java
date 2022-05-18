@@ -38,7 +38,6 @@ public class ApiAuthenticationTest extends ResetPostgres {
         doGetRequest(
             fakeRequest(
                 "GET", controllers.routes.HomeController.loginForm(Optional.empty()).url()));
-    System.out.println(result.headers());
     assertThat(result.status()).isEqualTo(HttpConstants.OK);
   }
 

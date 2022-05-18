@@ -23,8 +23,10 @@ import services.apikey.ApiKeyService;
  *
  * <p>When referenced by a request, {@code ApiKey}s are stored in the "api-keys" named cache, keyed
  * by their key ID. This allows controller code to load the key without the need for a subsequent
- * database query. This is necessary because pac4j creates profiles in the next step, but we need
- * the API key to perform authentication (this step).
+ * database query. This is necessary because pac4j creates profiles (which are what's made available
+ * to controller code through the request object) in the next step, but we need the API key to
+ * perform authentication (this step). The purpose of the cache is to avoid making multiple database
+ * calls to retrieve the API key throughout the cycle of the request.
  *
  * <p>Note that at this layer, the request is authenticated, not authorized. All API requests that
  * reach a controller are already authenticated, but it is the controller's responsibility to check
@@ -33,14 +35,23 @@ import services.apikey.ApiKeyService;
  * <p>The API key ID and secret are provided as the basic auth username and password, respectively.
  * To be valid, a request must reference a valid API key with its username credential, and further
  * that key must:
- * <li>Not be retired.
- * <li>Have an expiration date in the future.
- * <li>Have a subnet that includes the IP address of the request.
- * <li>Have a salted key secret that matches the salted password in the request's basic auth
- *     credentials.
+ *
+ * <ul>
+ *   <li>Not be retired.
+ *   <li>Have an expiration date in the future.
+ *   <li>Have a subnet that includes the IP address of the request.
+ *   <li>Have a salted key secret that matches the salted password in the request's basic auth
+ *       credentials.
+ * </ul>
  */
 public class ApiAuthenticator implements Authenticator {
 
+  // The cache expiration time is intended to be long enough reduce database queries from
+  // authenticating API calls while being short enough that if an admin retires a key or
+  // otherwise edits it, the edits will take effect within a reasonable amount of time.
+  // When tuning this value, consider the use-case of an API consumer rapidly paging through
+  // a list API, and also consider the admin retiring a key when they've discovered it has
+  // been compromised.
   private static final int CACHE_EXPIRATION_TIME_SECONDS = 60;
 
   private final SyncCacheApi syncCacheApi;
@@ -72,11 +83,11 @@ public class ApiAuthenticator implements Authenticator {
             .orElseThrow(() -> new BadCredentialsException("API key does not exist"));
 
     if (apiKey.isRetired()) {
-      throw new BadCredentialsException("API key is retired");
+      throw new BadCredentialsException("API key is retired: " + keyId);
     }
 
     if (apiKey.expiredAfter(Instant.now())) {
-      throw new BadCredentialsException("API key is expired");
+      throw new BadCredentialsException("API key is expired: " + keyId);
     }
 
     SubnetUtils allowedSubnet = new SubnetUtils(apiKey.getSubnet());
@@ -86,12 +97,14 @@ public class ApiAuthenticator implements Authenticator {
     allowedSubnet.setInclusiveHostCount(true);
 
     if (!allowedSubnet.getInfo().isInRange(context.getRemoteAddr())) {
-      throw new BadCredentialsException("IP not in allowed range");
+      throw new BadCredentialsException(
+          String.format(
+              "IP %s not in allowed range for key ID: %s", context.getRemoteAddr(), keyId));
     }
 
     String saltedCredentialsSecret = apiKeyService.get().salt(credentials.getPassword());
     if (!saltedCredentialsSecret.equals(apiKey.getSaltedKeySecret())) {
-      throw new BadCredentialsException("Invalid secret");
+      throw new BadCredentialsException("Invalid secret for key ID: " + keyId);
     }
   }
 }

@@ -9,11 +9,12 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 /**
- * The action adapter allows pac4j-consuming code to intervene and change the default behavior of
- * handling a given HTTP result. The default {@link PlayHttpActionAdapter} does not provide a way of
- * customizing behavior beyond mapping status codes to {@link Result} objects. In CiviForm's case,
- * we want to handle unauthorized requests to the API differently, since there is not a UX
- * consideration for redirecting them to the login page.
+ * We want to handle unauthorized requests to the API differently from requests to UI endpoints
+ * since there is not a UX consideration for redirecting them to the login page. The action adapter
+ * allows pac4j-consuming code to intervene and change the default behavior of handling a given HTTP
+ * result. The default {@link PlayHttpActionAdapter} does not provide a way of customizing behavior
+ * beyond mapping status codes to {@link Result} objects, so this custom adapter provides the
+ * behavior we'd like.
  */
 public final class CiviFormHttpActionAdapter extends PlayHttpActionAdapter {
 

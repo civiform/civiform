@@ -7,19 +7,24 @@ import auth.ApiKeyGrants;
 import auth.ProfileUtils;
 import auth.UnauthorizedApiRequestException;
 import controllers.CiviFormController;
+import models.ApiKey;
 import play.mvc.Http;
 
-/** Base class for controllers that handle API requests */
+/**
+ * Base class for controllers that handle API requests. Requests that reach an API controller have
+ * been authenticated, but they have not yet been authorized. It is the responsibility of every
+ * controller action to authorize its own requests, e.g. by calling assertHasProgramReadPermission.
+ */
 public class CiviFormApiController extends CiviFormController {
 
   protected ProfileUtils profileUtils;
 
-  public CiviFormApiController(ProfileUtils profileUtils) {
+  protected CiviFormApiController(ProfileUtils profileUtils) {
     this.profileUtils = checkNotNull(profileUtils);
   }
 
   protected void assertHasProgramReadPermission(Http.Request request, String programSlug) {
-    var apiKey =
+    ApiKey apiKey =
         profileUtils
             .currentApiKey(request)
             .orElseThrow(() -> new AccountNonexistentException("Invalid API key ID cached"));

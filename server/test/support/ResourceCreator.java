@@ -37,7 +37,7 @@ public class ResourceCreator {
         new ApiKey()
             .setName(name)
             .setKeyId(keyId)
-            .setExpiration(Instant.now().plusSeconds(1))
+            .setExpiration(Instant.now().plusSeconds(100))
             .setSubnet("1.1.1.1/32")
             .setSaltedKeySecret(injector.instanceOf(ApiKeyService.class).salt(keySecret))
             .setCreatedBy("test");
