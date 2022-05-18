@@ -12,7 +12,7 @@ import play.mvc.Http;
 /** Base class for controllers that handle API requests */
 public class CiviFormApiController extends CiviFormController {
 
-  protected ProfileUtils profileUtils;
+  protected final ProfileUtils profileUtils;
 
   public CiviFormApiController(ProfileUtils profileUtils) {
     this.profileUtils = checkNotNull(profileUtils);

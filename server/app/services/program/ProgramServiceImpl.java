@@ -21,12 +21,14 @@ import models.DisplayMode;
 import models.Program;
 import models.Version;
 import play.db.ebean.Transactional;
+import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
 import repository.UserRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.OffsetBasedPaginationSpec;
 import services.PaginationResult;
 import services.PaginationSpec;
 import services.program.predicate.PredicateDefinition;
@@ -90,6 +92,13 @@ public class ProgramServiceImpl implements ProgramService {
               return syncProgramAssociations(programMaybe.get());
             },
             httpExecutionContext.current());
+  }
+
+  @Override
+  public CompletionStage<ProgramDefinition> getProgramDefinitionAsync(String programSlug) {
+    return programRepository
+        .getForSlug(programSlug)
+        .thenApplyAsync(Program::getProgramDefinition, httpExecutionContext.current());
   }
 
   private CompletionStage<ProgramDefinition> syncProgramAssociations(Program program) {
@@ -564,9 +573,11 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
-      long programId, PaginationSpec paginationSpec, Optional<String> searchNameFragment) {
+      long programId,
+      F.Either<OffsetBasedPaginationSpec<Long>, PaginationSpec> paginationSpecEither,
+      Optional<String> searchNameFragment) {
     return programRepository.getApplicationsForAllProgramVersions(
-        programId, paginationSpec, searchNameFragment);
+        programId, paginationSpecEither, searchNameFragment);
   }
 
   @Override

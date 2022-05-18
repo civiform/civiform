@@ -27,6 +27,8 @@ import models.Program;
 import models.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.libs.F;
+import services.OffsetBasedPaginationSpec;
 import services.PaginationResult;
 import services.PaginationSpec;
 import services.program.ProgramDefinition;
@@ -215,7 +217,9 @@ public class ProgramRepository {
    * application ID matching it.
    */
   public PaginationResult<Application> getApplicationsForAllProgramVersions(
-      long programId, PaginationSpec paginationSpec, Optional<String> searchNameFragment) {
+      long programId,
+      F.Either<OffsetBasedPaginationSpec<Long>, PaginationSpec> paginationSpecEither,
+      Optional<String> searchNameFragment) {
     ExpressionList<Application> query =
         database
             .find(Application.class)
@@ -249,16 +253,29 @@ public class ProgramRepository {
       }
     }
 
-    PagedList<Application> pagedQuery =
-        query
-            .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
-            .setMaxRows(paginationSpec.getPageSize())
-            .findPagedList();
+    PagedList<Application> pagedQuery;
+
+    if (paginationSpecEither.left.isPresent()) {
+      var paginationSpec = paginationSpecEither.left.get();
+      pagedQuery =
+          query
+              .where()
+              .lt("id", paginationSpec.getCurrentPageOffsetIdentifier().orElse(Long.MAX_VALUE))
+              .setMaxRows(paginationSpec.getPageSize())
+              .findPagedList();
+    } else {
+      var paginationSpec = paginationSpecEither.right.get();
+      pagedQuery =
+          query
+              .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
+              .setMaxRows(paginationSpec.getPageSize())
+              .findPagedList();
+    }
 
     pagedQuery.loadCount();
 
     return new PaginationResult<Application>(
-        paginationSpec,
+        pagedQuery.hasNext(),
         pagedQuery.getTotalPageCount(),
         pagedQuery.getList().stream().collect(ImmutableList.toImmutableList()));
   }

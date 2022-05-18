@@ -11,10 +11,12 @@ import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
+import org.apache.commons.lang3.tuple.Pair;
+import play.libs.F;
 import repository.ProgramRepository;
 import services.CfJsonDocumentContext;
+import services.OffsetBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 import services.Path;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
@@ -39,20 +41,24 @@ public class JsonExporter {
     this.programRepository = checkNotNull(programRepository);
   }
 
-  public String export(ProgramDefinition programDefinition) {
-    DocumentContext jsonApplications = makeEmptyJsonArray();
-    PaginationResult<Application> applicationPaginationResult =
+  public Pair<String, PaginationResult<Application>> export(
+      ProgramDefinition programDefinition, OffsetBasedPaginationSpec<Long> paginationSpec) {
+    var paginationResult =
         programRepository.getApplicationsForAllProgramVersions(
             programDefinition.id(),
-            PaginationSpec.MAX_PAGE_SIZE_SPEC,
+            F.Either.Left(paginationSpec),
             /* searchNameFragment= */ Optional.empty());
 
-    for (Application application : applicationPaginationResult.getPageContents()) {
+    var applications = paginationResult.getPageContents();
+
+    DocumentContext jsonApplications = makeEmptyJsonArray();
+
+    for (Application application : applications) {
       CfJsonDocumentContext applicationJson = buildJsonApplication(application, programDefinition);
       jsonApplications.add("$", applicationJson.getDocumentContext().json());
     }
 
-    return jsonApplications.jsonString();
+    return Pair.of(jsonApplications.jsonString(), paginationResult);
   }
 
   private CfJsonDocumentContext buildJsonApplication(

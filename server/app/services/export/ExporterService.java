@@ -21,7 +21,8 @@ import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
 import models.QuestionTag;
-import services.PaginationSpec;
+import play.libs.F;
+import services.OffsetBasedPaginationSpec;
 import services.Path;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantData;
@@ -85,7 +86,7 @@ public class ExporterService {
         programService
             .getSubmittedProgramApplicationsAllVersions(
                 programId,
-                PaginationSpec.MAX_PAGE_SIZE_SPEC,
+                F.Either.Left(OffsetBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
                 /* searchNameFragment= */ Optional.empty())
             .getPageContents();
 

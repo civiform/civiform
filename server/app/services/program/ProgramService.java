@@ -8,8 +8,10 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Application;
 import models.Program;
+import play.libs.F;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.OffsetBasedPaginationSpec;
 import services.PaginationResult;
 import services.PaginationSpec;
 import services.program.predicate.PredicateDefinition;
@@ -50,6 +52,16 @@ public interface ProgramService {
    *     a real Program
    */
   CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id);
+
+  /**
+   * Get the definition of a given program asynchronously. Gets the active version for the slug.
+   *
+   * @param programSlug the slug of the program to retrieve
+   * @return the {@link ProgramDefinition} for the given slug if it exists, or a
+   *     ProgramNotFoundException is thrown when the future completes and slug does not correspond
+   *     to a real Program
+   */
+  CompletionStage<ProgramDefinition> getProgramDefinitionAsync(String programSlug);
 
   /**
    * Create a new program with an empty block.
@@ -319,12 +331,14 @@ public interface ProgramService {
    * <p>If searchNameFragment is an unsigned integer, query will filter to applications with an
    * applicant ID matching it.
    *
-   * @param paginationSpec specification for paginating the results.
+   * @param paginationSpecEither either a OffsetBasedPagination or PaginationSpec spec.
    * @param searchNameFragment a text fragment used for filtering the applications.
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
-      long programId, PaginationSpec paginationSpec, Optional<String> searchNameFragment)
+      long programId,
+      F.Either<OffsetBasedPaginationSpec<Long>, PaginationSpec> paginationSpecEither,
+      Optional<String> searchNameFragment)
       throws ProgramNotFoundException;
 
   /** Create a new draft starting from the program specified by `id`. */

@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.PaginationResult;
+import services.PaginationSpec;
 import services.program.ProgramDefinition;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
@@ -45,6 +46,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   public Content render(
       Http.Request request,
       ProgramDefinition program,
+      PaginationSpec paginationSpec,
       PaginationResult<Application> paginatedApplications,
       Optional<String> search) {
     Tag contentDiv =
@@ -53,7 +55,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .with(
                 h1(program.adminName()).withClasses(Styles.MY_4),
                 renderPaginationDiv(
-                        paginatedApplications.getCurrentPage(),
+                        paginationSpec.getCurrentPage(),
                         paginatedApplications.getNumPages(),
                         pageNumber ->
                             routes.AdminApplicationController.index(

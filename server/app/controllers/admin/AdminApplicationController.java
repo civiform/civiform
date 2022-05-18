@@ -18,9 +18,11 @@ import models.Application;
 import org.pac4j.play.java.Secure;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
+import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApplicationRepository;
+import services.OffsetBasedPaginationSpec;
 import services.PaginationResult;
 import services.PaginationSpec;
 import services.applicant.AnswerData;
@@ -94,7 +96,8 @@ public class AdminApplicationController extends CiviFormController {
     }
 
     String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
-    String json = jsonExporter.export(program);
+    String json =
+        jsonExporter.export(program, OffsetBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG).getLeft();
 
     return ok(json)
         .as(Http.MimeTypes.JSON)
@@ -254,14 +257,16 @@ public class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
 
+    var paginationSpec = new PaginationSpec(PAGE_SIZE, page.orElse(1));
+    PaginationResult<Application> applications;
     try {
-      PaginationResult<Application> applications =
+      applications =
           programService.getSubmittedProgramApplicationsAllVersions(
-              programId, new PaginationSpec(PAGE_SIZE, page.orElse(1)), search);
-
-      return ok(applicationListView.render(request, program, applications, search));
+              programId, F.Either.Right(paginationSpec), search);
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     }
+
+    return ok(applicationListView.render(request, program, paginationSpec, applications, search));
   }
 }
