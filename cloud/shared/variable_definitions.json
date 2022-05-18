@@ -76,7 +76,8 @@
     "values": [
       "prod",
       "staging",
-      "dev"
+      "dev",
+      "test"
     ]
   },
   "CUSTOM_HOSTNAME": {

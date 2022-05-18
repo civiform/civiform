@@ -2,7 +2,7 @@
 
 # https://www.baeldung.com/linux/store-command-in-variable
 readonly TERRAFORM_CMD=("terraform" "-chdir=${TERRAFORM_TEMPLATE_DIR}")
-readonly TERRAFORM_APPLY=(${TERRAFORM_CMD[@]} "apply" "-input=false" "-var-file=${TF_VAR_FILENAME}")
+readonly TERRAFORM_APPLY=(${TERRAFORM_CMD[@]} "apply" "-input=false" "-json")
 
 #######################################
 # Generates terraform variable files and runs terraform init and apply.
@@ -26,17 +26,26 @@ function terraform::perform_apply() {
       -backend-config="${BACKEND_VARS_FILENAME}"
   fi
 
-  echo "Current working directory: ${PWD}"
   if [[ -f "${TERRAFORM_TEMPLATE_DIR}/${TF_VAR_FILENAME}" ]]; then
     echo "${TF_VAR_FILENAME} exists in ${TERRAFORM_TEMPLATE_DIR} directory"
   else
     echo "Cannot find ${TF_VAR_FILENAME} in ${TERRAFORM_TEMPLATE_DIR} directory"
+    exit 1
+  fi
+
+  "${TERRAFORM_CMD[@]}" plan \
+    -input=false \
+    -out="${TERRAFORM_PLAN_OUT_FILE}" \
+    -var-file="${TF_VAR_FILENAME}"
+
+  if civiform_mode::is_test; then
+    return 0
   fi
 
   if azure::is_service_principal; then
-    "${TERRAFORM_APPLY[@]}" -auto-approve
+    "${TERRAFORM_APPLY[@]}" -auto-approve "${TERRAFORM_PLAN_OUT_FILE}"
   else
-    "${TERRAFORM_APPLY[@]}"
+    "${TERRAFORM_APPLY[@]}" "${TERRAFORM_PLAN_OUT_FILE}"
   fi
 }
 

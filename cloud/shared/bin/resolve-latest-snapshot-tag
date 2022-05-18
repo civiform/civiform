@@ -1,0 +1,22 @@
+#! /usr/bin/env bash
+
+set -e
+set -o pipefail
+
+docker pull docker.io/civiform/civiform:latest
+
+snapshot_tag="$(docker inspect docker.io/civiform/civiform:latest \
+  | jq '.[0].Config.Env' \
+  | grep 'CIVIFORM_IMAGE_TAG' \
+  | grep -oP 'SNAPSHOT-\w+-\d+')"
+
+if [[ -z "${snapshot_tag}" ]]; then
+  echo "Latest snapshot tag not found." 2>&1
+  exit 1
+fi
+
+export LATEST_SNAPSHOT_TAG="${snapshot_tag}"
+
+if [[ -n "${GITHUB_ENV}" ]]; then
+  echo "LATEST_SNAPSHOT_TAG=${snapshot_tag}" >>"${GITHUB_ENV}"
+fi

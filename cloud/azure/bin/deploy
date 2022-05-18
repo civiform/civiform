@@ -22,6 +22,11 @@ if ! terraform::perform_apply; then
   exit 1
 fi
 
+if civiform_mode::is_test; then
+  echo "Test completed"
+  exit 0
+fi
+
 azure::set_new_container_tag "${AZURE_RESOURCE_GROUP}" "${AZURE_APP_NAME}" "${IMAGE_TAG}"
 
 if health::wait_for_success "${AZURE_CANARY_URL}/loginForm"; then
