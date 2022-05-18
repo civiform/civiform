@@ -85,6 +85,12 @@ GET     /admin/programs/:programId/applications/:applicationId            contro
 GET     /admin/programs/:programId/applications/:applicationId/download   controllers.admin.AdminApplicationController.download(request: Request, programId: Long, applicationId: Long)
 GET     /admin/demographics                                               controllers.admin.AdminApplicationController.downloadDemographics()
 
+# Admin API key management
+GET     /admin/apiKeys                              controllers.admin.AdminApiKeysController.index(request: Request)
+GET     /admin/apiKeys/new                          controllers.admin.AdminApiKeysController.newOne(request: Request)
+POST    /admin/apiKeys                              controllers.admin.AdminApiKeysController.create(request: Request)
+POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKeysController.retire(request: Request, apiKeyId: Long)
+
 # Controller for admins and applicants to access applicants' uploaded files
 GET     /admin/programs/:programId/files/:fileKey   controllers.FileController.adminShow(request: Request, programId: Long, fileKey: String)
 GET     /applicants/:applicantId/files/:fileKey     controllers.FileController.show(request: Request, applicantId: Long, fileKey: String)

@@ -42,9 +42,9 @@ public abstract class BaseHtmlView {
   }
 
   public static ContainerTag fieldErrors(
-      Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
+      Messages messages, ImmutableSet<ValidationErrorMessage> errors, String... additionalClasses) {
     return div(each(errors, error -> div(error.getMessage(messages))))
-        .withClasses(BaseStyles.FORM_ERROR_TEXT_BASE);
+        .withClasses(BaseStyles.FORM_ERROR_TEXT_BASE, StyleUtils.joinStyles(additionalClasses));
   }
 
   public static Tag button(String textContents) {
@@ -81,8 +81,8 @@ public abstract class BaseHtmlView {
     return CSRF.getToken(request.asScala()).value();
   }
 
-  protected String renderDateTime(Instant time) {
-    ZonedDateTime dateTime = time.atZone(ZoneId.of("America/Los_Angeles"));
+  protected String renderDateTime(Instant time, ZoneId zoneId) {
+    ZonedDateTime dateTime = time.atZone(zoneId);
     return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a z"));
   }
 

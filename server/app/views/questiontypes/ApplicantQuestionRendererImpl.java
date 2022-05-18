@@ -12,7 +12,6 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
-import services.question.types.QuestionType;
 import views.BaseHtmlView;
 import views.components.TextFormatter;
 import views.style.ApplicantStyles;
@@ -74,11 +73,11 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
 
     ImmutableSet<ValidationErrorMessage> questionErrors =
         validationErrors.getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
-    // TODO(#1944): Remove special handling for enumerators once client-side validation is removed
-    // and they don't render a separate div.
-    if (!questionErrors.isEmpty() && question.getType() != QuestionType.ENUMERATOR) {
+    if (!questionErrors.isEmpty()) {
       // Question error text
-      questionTextDiv.with(BaseHtmlView.fieldErrors(messages, questionErrors));
+      questionTextDiv.with(
+          BaseHtmlView.fieldErrors(
+              messages, questionErrors, ReferenceClasses.APPLICANT_QUESTION_ERRORS));
     }
 
     if (question.isRequiredButWasSkippedInCurrentProgram()) {

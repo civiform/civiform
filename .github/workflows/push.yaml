@@ -25,7 +25,7 @@ jobs:
         run: python3 cloud/shared/validate_variable_definitions_test.py
 
   build_container:
-    runs-on: ubuntu-18.04 # for older version of awscli.
+    runs-on: ubuntu-latest
     steps:
       - id: file_changes
         uses: trilom/file-changes-action@v1.2.4
@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Build and push new development image to docker hub
         id: build_dev
@@ -74,3 +74,7 @@ jobs:
         env:
           TEST_USER_LOGIN: ${{ secrets.TEST_USER_LOGIN }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+
+  run_all_tests:
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit

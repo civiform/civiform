@@ -13,9 +13,6 @@ if not is_linux and not is_mac:
 class DockerCheck(Check):
     remedy = "Need to install Docker CLI: https://docs.docker.com/engine/install/"
 
-    def should_skip(self):
-        return self._get_cloud_provider() == 'azure'
-
     def name(self):
         return "Docker CLI"
 
@@ -79,7 +76,8 @@ class AwsCliCheck(Check):
         return "AWS CLI"
 
     def should_skip(self):
-        return self._get_cloud_provider() in ['aws', 'azure']
+        # AWS SES is used for both Azure and AWS deployments.
+        return self._get_cloud_provider() not in ['aws', 'azure']
 
     def is_ok(self):
         return self._check_command_succeeds(["aws", "help"])
@@ -133,6 +131,7 @@ class AwsLoginCheck(Check):
         return "AWS login"
 
     def should_skip(self):
+        # AWS SES is used for both Azure and AWS deployments.
         return self._get_cloud_provider() not in ['aws', 'azure']
 
     def is_ok(self):

@@ -22,7 +22,6 @@ import services.applicant.question.Scalar;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.ApplicantStyles;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -72,18 +71,8 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
               Optional.of(index)));
     }
 
-    // TODO(#1944): Once client-side validation is removed, don't have a custom error div
-    // here and instead rely on this exiting at the top-level question renderer.
-    ContainerTag errorContent =
-        div(enumeratorQuestion.getQuestionErrorMessage().getMessage(messages))
-            .withClasses(
-                ReferenceClasses.ENUMERATOR_ERROR,
-                BaseStyles.FORM_ERROR_TEXT_BASE,
-                enumeratorQuestion.getValidationErrors().isEmpty() ? Styles.HIDDEN : "");
-
     Tag enumeratorQuestionFormContent =
         div()
-            .with(errorContent)
             .with(hiddenDeleteInputTemplate())
             .with(enumeratorFields)
             .with(

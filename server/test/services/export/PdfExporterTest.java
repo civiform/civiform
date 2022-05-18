@@ -2,98 +2,94 @@ package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
+import com.google.common.base.Splitter;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.util.Locale;
-import java.util.Optional;
-import models.Applicant;
-import models.DisplayMode;
-import models.Program;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.interactive.form.PDField;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import java.util.List;
 import org.junit.Test;
-import repository.ResetPostgres;
-import services.LocalizedStrings;
-import services.Path;
-import services.program.ExportDefinition;
-import services.program.ExportEngine;
-import services.program.PdfExportConfig;
-import services.program.ProgramDefinition;
 
-public class PdfExporterTest extends ResetPostgres {
-  private static Program fakeProgramWithPdfExport;
-  private Applicant fakeApplicant;
-  private Writer writer;
-  private ByteArrayOutputStream inMemoryBytes;
-  private static final String APPLICANT_VALUE = "this will get filled into the form.";
-
-  @BeforeClass
-  public static void createFakeProgram() {
-    File basePdf = new File("test/services/export/base.pdf");
-    ProgramDefinition definition =
-        ProgramDefinition.builder()
-            .setId(1L)
-            .setAdminName("fake program")
-            .setAdminDescription("Admin description")
-            .setLocalizedName(LocalizedStrings.of(Locale.US, "fake program"))
-            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "fake program description"))
-            .setExternalLink("")
-            .setDisplayMode(DisplayMode.PUBLIC)
-            .addExportDefinition(
-                ExportDefinition.builder()
-                    .setEngine(ExportEngine.PDF)
-                    .setPdfConfig(
-                        Optional.of(
-                            PdfExportConfig.builder()
-                                .setBaseDocument(basePdf.toURI())
-                                .setMappings(ImmutableMap.of("formfield", "$.applicant.formValue"))
-                                .build()))
-                    .build())
-            .build();
-    fakeProgramWithPdfExport = new Program(definition);
-  }
-
-  @Before
-  public void createFakeApplicant() {
-    this.fakeApplicant = new Applicant();
-    this.fakeApplicant
-        .getApplicantData()
-        .putString(Path.create("applicant.formValue"), APPLICANT_VALUE);
-  }
-
-  @Before
-  public void createInMemoryWriter() {
-    this.inMemoryBytes = new ByteArrayOutputStream();
-    this.writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8);
-  }
+public class PdfExporterTest extends AbstractExporterTest {
 
   @Test
-  public void fillOneFormEntry() throws IOException {
-    // Check that the form is as expected.
-    File basePdf = new File("test/services/export/base.pdf");
-    assertThat(basePdf.canRead()).isTrue();
-    PDDocument doc = PDDocument.load(basePdf);
-    PDField formfield = doc.getDocumentCatalog().getAcroForm().getField("formfield");
-    assertThat(formfield).isNotNull();
-    assertThat(formfield.getValueAsString()).isEmpty();
+  public void validatePDFExport() throws IOException, DocumentException {
+    createFakeQuestions();
+    createFakeProgram();
+    createFakeApplications();
 
-    // Create exporter and perform services.export.
-    ExporterFactory exporterFactory = instanceOf(ExporterFactory.class);
-    PdfExporter exporters = exporterFactory.pdfExporter(this.fakeProgramWithPdfExport);
-    exporters.export(fakeApplicant, writer);
-    writer.close();
+    PdfExporter exporter = instanceOf(PdfExporter.class);
 
-    // Load output document and check value.
-    PDDocument outputDocument = PDDocument.load(inMemoryBytes.toByteArray());
-    PDField outputField = outputDocument.getDocumentCatalog().getAcroForm().getField("formfield");
-    assertThat(outputField).isNotNull();
-    assertThat(outputField.getValueAsString()).isEqualTo(APPLICANT_VALUE);
+    String applicantNameWithApplicationId =
+        String.format(
+            "%s (%d)", applicationOne.getApplicantData().getApplicantName(), applicationOne.id);
+    PdfExporter.InMemoryPdf result = exporter.export(applicationOne);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+
+    int pages = pdfReader.getNumberOfPages();
+    for (int i = 1; i < pages; i++) {
+      textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, i));
+    }
+
+    pdfReader.close();
+
+    assertThat(textFromPDF).isNotNull();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    assertThat(textFromPDF).isNotNull();
+    String programName = applicationOne.getProgram().getProgramDefinition().adminName();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_ONE_STRING);
+    for (int i = 3; i < linesFromPDF.size(); i++) {
+      assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
+    }
   }
+
+  public static final String APPLICATION_ONE_STRING =
+      "Optional.empty (48)\n"
+          + "Program Name : Fake Program\n"
+          + " \n"
+          + "applicant Email address\n"
+          + "one@example.com\n"
+          + "Answered on : 1969-12-31\n"
+          + "applicant address\n"
+          + "street st\n"
+          + "apt 100\n"
+          + "city, AB 54321\n"
+          + "Answered on : 1969-12-31\n"
+          + "applicant birth date\n"
+          + "01/01/1980\n"
+          + "Answered on : 1969-12-31\n"
+          + "applicant favorite color\n"
+          + "Some Value \" containing ,,, special characters\n"
+          + "Answered on : 1969-12-31\n"
+          + "applicant file\n"
+          + "-- my-file-key UPLOADED (click to download) --\n"
+          + "Answered on : 1969-12-31\n"
+          + "applicant household members\n"
+          + "item1\n"
+          + "item2\n"
+          + "Answered on : 1969-12-31\n"
+          + "applicant ice cream\n"
+          + "strawberry\n"
+          + "Answered on : 1969-12-31\n"
+          + "applicant id\n"
+          + "012\n"
+          + "Answered on : 1969-12-31\n"
+          + "applicant monthly income\n"
+          + "1234.56\n"
+          + "Answered on : 1969-12-31\n"
+          + "applicant name\n"
+          + "Alice Appleton\n"
+          + "Answered on : 1969-12-31\n"
+          + "kitchen tools\n"
+          + "toaster\n"
+          + "pepper grinder\n"
+          + "Answered on : 1969-12-31\n"
+          + "number of items applicant can juggle\n"
+          + "123456\n"
+          + "Answered on : 1969-12-31\n"
+          + "radio\n"
+          + "winter\n";
 }

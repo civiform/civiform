@@ -11,6 +11,7 @@ import static j2html.attributes.Attr.ENCTYPE;
 import static j2html.attributes.Attr.FORM;
 
 import controllers.applicant.routes;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
@@ -20,7 +21,6 @@ import services.applicant.question.FileUploadQuestion;
 import services.cloud.FileNameFormatter;
 import services.cloud.StorageUploadRequest;
 import services.cloud.azure.BlobStorageUploadRequest;
-import views.applicant.ApplicantProgramBlockEditView.Params;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.ApplicantStyles;
@@ -112,6 +112,10 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
   protected Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params) {
+    if (hasAtLeastOneRequiredQuestion(params)) {
+      // If the file question is required, skip or delete is not allowed.
+      return Optional.empty();
+    }
     String buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
     String buttonId = FILEUPLOAD_SKIP_BUTTON_ID;
     Optional<ContainerTag> footer = Optional.empty();
@@ -123,7 +127,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
     }
 
     ContainerTag button =
-        button(buttonText)
+        TagCreator.button(buttonText)
             .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
             .withClasses(ApplicantStyles.BUTTON_REVIEW)
             .withId(buttonId);
@@ -148,7 +152,8 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
             .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
             // An empty div to take up the space to the left of the buttons.
             .with(div().withClasses(Styles.FLEX_GROW))
-            .with(renderReviewButton(params));
+            .with(renderReviewButton(params))
+            .with(renderPreviousButton(params));
     if (maybeSkipOrDeleteButton.isPresent()) {
       ret.with(maybeSkipOrDeleteButton.get());
     }

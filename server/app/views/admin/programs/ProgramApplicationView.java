@@ -63,10 +63,10 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(
                 h2("Program: " + programName).withClasses(Styles.MY_4),
                 h1(applicantNameWithApplicationId).withClasses(Styles.MY_4),
+                renderDownloadButton(programId, applicationId),
                 each(
                     blocks,
-                    block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))),
-                renderDownloadButton(programId, applicationId));
+                    block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
     return layout.render(htmlBundle);
@@ -79,10 +79,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
     return new LinkElement()
         .setId("download-button")
         .setHref(link)
-        .setText("Download (PDF)")
-        .asButton()
-        // TODO: when the download link works, un-hide.
-        .withClasses(Styles.HIDDEN);
+        .setText("Export to PDF")
+        .asRightAlignedButton();
   }
 
   private Tag renderApplicationBlock(long programId, Block block, Collection<AnswerData> answers) {

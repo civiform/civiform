@@ -6,17 +6,16 @@ source "cloud/azure/bin/lib.sh"
 
 # DOC: Create a resource group
 
-while getopts g:l: flag
-do
+while getopts g:l: flag; do
   case "${flag}" in
-    g) RESOURCE_GROUP="${OPTARG}";;
-    l) LOCATION="${OPTARG}";;
-    *) out::error "Unexpected getopts value ${flag}";;
+    g) RESOURCE_GROUP="${OPTARG}" ;;
+    l) LOCATION="${OPTARG}" ;;
+    *) out::error "Unexpected getopts value ${flag}" ;;
   esac
 done
 
 if [[ ! "${RESOURCE_GROUP}" ]] \
-   || [[ ! "${LOCATION}" ]]; then
+  || [[ ! "${LOCATION}" ]]; then
   out::error "arguments -g and -l must be provided"
   exit 1
 fi

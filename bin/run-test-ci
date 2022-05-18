@@ -2,17 +2,21 @@
 
 # DOC: Run the unit tests in CI mode.
 
-export COMPOSE_PROJECT_NAME=test-support
-
 source bin/lib.sh
+docker::set_project_name_unit_tests
 
-docker::ensure_unit_test_env
+readonly COMPOSE_CMD="${DOCKER_COMPOSE_UNIT_TEST}"
 
-docker run --rm \
-  --network test-support_default \
-  -v "$(pwd)/server:/usr/src/server" \
-  -v "$(pwd)/sbt_cache/coursier:/root/.cache/coursier" \
-  -v ~/.sbt:/root/.sbt \
-  -v ~/.ivy:/root/.ivy2 \
-  civiform-dev \
-  test
+${COMPOSE_CMD} up -d
+${COMPOSE_CMD} exec civiform sbt test
+# Upon a successful test run (exit code zero), we also
+# assert that SBT actually ran the test suite by evaluating
+# whether a well-known test name exists in the set of
+# evaluated test targets. Note that moving / deleting
+# MessageKeyTest will cause this to fail. If that happens,
+# a new target can be used.
+# This serves as a regression test for
+# https://github.com/seattle-uat/civiform/pull/2459.
+echo "[$(date)] Searching for MessageKeyTest in defined tests..."
+${COMPOSE_CMD} exec civiform sbt "show Test/definedTestNames" | grep -iq "services.MessageKeyTest"
+${COMPOSE_CMD} down

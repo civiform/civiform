@@ -14,6 +14,9 @@ import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import repository.ResetPostgres;
 
+// Note: If this test is removed / renamed, the assertion
+// in bin/run-test-ci will need to be updated.
+
 @RunWith(JUnitParamsRunner.class)
 public class MessageKeyTest extends ResetPostgres {
 

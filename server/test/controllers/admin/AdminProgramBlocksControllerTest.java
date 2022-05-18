@@ -1,6 +1,7 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
@@ -57,9 +58,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   @Test
   public void create_withInvalidProgram_notFound() {
     Request request = fakeRequest().build();
-    Result result = controller.create(request, 1L);
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThrows(NotChangeableException.class, () -> controller.create(request, 1L));
   }
 
   @Test
@@ -79,7 +78,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   @Test
   public void create_withProgram_addsRepeatedBlock() {
     Program program =
-        ProgramBuilder.newActiveProgram()
+        ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .withBlock()
@@ -101,9 +100,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   @Test
   public void edit_withInvalidProgram_notFound() {
     Request request = fakeRequest().build();
-    Result result = controller.edit(request, 1L, 1L);
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThrows(NotChangeableException.class, () -> controller.edit(request, 1L, 1L));
   }
 
   @Test
@@ -118,7 +115,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   @Test
   public void edit_withProgram_OK()
       throws UnsupportedQuestionTypeException, InvalidUpdateException {
-    Program program = ProgramBuilder.newActiveProgram().build();
+    Program program = ProgramBuilder.newDraftProgram().build();
     Question appName = testQuestionBank.applicantName();
     appName.save();
     Request request = addCSRFToken(fakeRequest()).build();
@@ -150,9 +147,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .bodyForm(ImmutableMap.of("name", "name", "description", "description"))
             .build();
 
-    Result result = controller.update(request, 1L, 1L);
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThrows(NotChangeableException.class, () -> controller.update(request, 1L, 1L));
   }
 
   @Test
@@ -196,9 +191,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void destroy_withInvalidProgram_notFound() {
-    Result result = controller.destroy(1L, 1L);
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThrows(NotChangeableException.class, () -> controller.destroy(1L, 1L));
   }
 
   @Test
