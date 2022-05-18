@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import forms.BlockForm;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -577,7 +578,25 @@ public class ProgramServiceImpl implements ProgramService {
       F.Either<OffsetBasedPaginationSpec<Long>, PaginationSpec> paginationSpecEither,
       Optional<String> searchNameFragment) {
     return programRepository.getApplicationsForAllProgramVersions(
-        programId, paginationSpecEither, searchNameFragment);
+        programId,
+        paginationSpecEither,
+        searchNameFragment,
+        /* submitTimeFrom= */ Optional.empty(),
+        /* submitTimeTo= */ Optional.empty());
+  }
+
+  @Override
+  public PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
+      long programId,
+      F.Either<OffsetBasedPaginationSpec<Long>, PaginationSpec> paginationSpecEither,
+      Optional<Instant> submitTimeFrom,
+      Optional<Instant> submitTimeTo) {
+    return programRepository.getApplicationsForAllProgramVersions(
+        programId,
+        paginationSpecEither,
+        /* searchNameFragment= */ Optional.empty(),
+        submitTimeFrom,
+        submitTimeTo);
   }
 
   @Override

@@ -44,7 +44,9 @@ public class ApiKeyRepository {
     pagedList.loadCount();
 
     return new PaginationResult<ApiKey>(
-        paginationSpec, pagedList.getTotalPageCount(), ImmutableList.copyOf(pagedList.getList()));
+        pagedList.hasNext(),
+        pagedList.getTotalPageCount(),
+        ImmutableList.copyOf(pagedList.getList()));
   }
 
   /** Insert a new {@link ApiKey} record asynchronously. */

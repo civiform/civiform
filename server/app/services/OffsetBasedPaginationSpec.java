@@ -6,7 +6,7 @@ import java.util.Optional;
 public class OffsetBasedPaginationSpec<T> extends PaginationSpec {
 
   public static OffsetBasedPaginationSpec<Long> MAX_PAGE_SIZE_SPEC_LONG =
-      new OffsetBasedPaginationSpec(Integer.MAX_VALUE);
+      new OffsetBasedPaginationSpec<>(Integer.MAX_VALUE);
 
   private Optional<T> currentPageOffsetIdentifier;
 
@@ -21,7 +21,7 @@ public class OffsetBasedPaginationSpec<T> extends PaginationSpec {
     this.currentPageOffsetIdentifier = currentPageOffsetIdentifier;
   }
 
-  public OffsetBasedPaginationSpec setCurrentPageOffsetIdentifier(T pageOffsetIdentifier) {
+  public OffsetBasedPaginationSpec<T> setCurrentPageOffsetIdentifier(T pageOffsetIdentifier) {
     this.currentPageOffsetIdentifier = Optional.of(pageOffsetIdentifier);
     return this;
   }

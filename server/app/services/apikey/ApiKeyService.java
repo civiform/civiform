@@ -6,9 +6,6 @@ import auth.ApiKeyGrants;
 import auth.ApiKeyGrants.Permission;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.NotChangeableException;
@@ -27,6 +24,7 @@ import play.Environment;
 import play.data.DynamicForm;
 import repository.ApiKeyRepository;
 import services.DateConverter;
+import services.EncryptionUtils;
 import services.PaginationResult;
 import services.PaginationSpec;
 import services.program.ProgramNotFoundException;
@@ -278,13 +276,7 @@ public class ApiKeyService {
    * as a key.
    */
   public String salt(String message) {
-    byte[] rawMessage = Base64.getDecoder().decode(message);
-    byte[] rawKey = Base64.getDecoder().decode(secretSalt);
-
-    HashFunction hashFunction = Hashing.hmacSha256(rawKey);
-    HashCode saltedMessage = hashFunction.hashBytes(rawMessage);
-
-    return Base64.getEncoder().encodeToString(saltedMessage.asBytes());
+    return EncryptionUtils.sign(message, secretSalt);
   }
 
   private String getAuthorityId(CiviFormProfile profile) {

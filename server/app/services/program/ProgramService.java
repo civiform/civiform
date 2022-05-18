@@ -3,6 +3,7 @@ package services.program;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.BlockForm;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -339,6 +340,22 @@ public interface ProgramService {
       long programId,
       F.Either<OffsetBasedPaginationSpec<Long>, PaginationSpec> paginationSpecEither,
       Optional<String> searchNameFragment)
+      throws ProgramNotFoundException;
+
+  /**
+   * Get all submitted applications for this program and all other previous and future versions of
+   * it where the application's submit time is in the specified range.
+   *
+   * @param paginationSpecEither either a OffsetBasedPagination or PaginationSpec spec.
+   * @param submitTimeFrom specifies the oldest submission time to include.
+   * @param submitTimeTo specifies the newest submission time to include.
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   */
+  PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
+      long programId,
+      F.Either<OffsetBasedPaginationSpec<Long>, PaginationSpec> paginationSpecEither,
+      Optional<Instant> submitTimeFrom,
+      Optional<Instant> submitTimeTo)
       throws ProgramNotFoundException;
 
   /** Create a new draft starting from the program specified by `id`. */

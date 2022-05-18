@@ -13,7 +13,6 @@ import javax.inject.Inject;
 import models.Application;
 import org.apache.commons.lang3.tuple.Pair;
 import play.libs.F;
-import repository.ProgramRepository;
 import services.CfJsonDocumentContext;
 import services.OffsetBasedPaginationSpec;
 import services.PaginationResult;
@@ -27,28 +26,40 @@ import services.applicant.question.DateQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NumberQuestion;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import services.question.LocalizedQuestionOption;
 
 /** Exports all applications for a given program as JSON. */
 public class JsonExporter {
 
   private final ApplicantService applicantService;
-  private final ProgramRepository programRepository;
+  private final ProgramService programService;
 
   @Inject
-  JsonExporter(ApplicantService applicantService, ProgramRepository programRepository) {
+  JsonExporter(ApplicantService applicantService, ProgramService programService) {
     this.applicantService = checkNotNull(applicantService);
-    this.programRepository = checkNotNull(programRepository);
+    this.programService = checkNotNull(programService);
   }
 
   public Pair<String, PaginationResult<Application>> export(
       ProgramDefinition programDefinition, OffsetBasedPaginationSpec<Long> paginationSpec) {
-    var paginationResult =
-        programRepository.getApplicationsForAllProgramVersions(
-            programDefinition.id(),
-            F.Either.Left(paginationSpec),
-            /* searchNameFragment= */ Optional.empty());
+    PaginationResult<Application> paginationResult;
+    try {
+      paginationResult =
+          programService.getSubmittedProgramApplicationsAllVersions(
+              programDefinition.id(),
+              F.Either.Left(paginationSpec),
+              /* searchNameFragment= */ Optional.empty());
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
 
+    return export(programDefinition, paginationResult);
+  }
+
+  public Pair<String, PaginationResult<Application>> export(
+      ProgramDefinition programDefinition, PaginationResult<Application> paginationResult) {
     var applications = paginationResult.getPageContents();
 
     DocumentContext jsonApplications = makeEmptyJsonArray();

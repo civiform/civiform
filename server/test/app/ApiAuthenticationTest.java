@@ -24,6 +24,13 @@ import repository.ResetPostgres;
 public class ApiAuthenticationTest extends ResetPostgres {
   private static final String keyId = "keyId";
   private static final String secret = "secret";
+  public static final String API_URL =
+      controllers.api.routes.ProgramApplicationsApiController.list(
+              "mock-program",
+              /* fromDate= */ Optional.empty(),
+              /* toDate= */ Optional.empty(), /* nextPageToken */
+              Optional.empty())
+          .url();
 
   @Before
   public void setUp() {
@@ -34,10 +41,7 @@ public class ApiAuthenticationTest extends ResetPostgres {
 
   @Test
   public void nonApiRoutes_doNotRequireApiAuth() {
-    Result result =
-        doGetRequest(
-            fakeRequest(
-                "GET", controllers.routes.HomeController.loginForm(Optional.empty()).url()));
+    Result result = doGetRequest(fakeRequest("GET", API_URL));
     System.out.println(result.headers());
     assertThat(result.status()).isEqualTo(HttpConstants.OK);
   }
@@ -50,10 +54,7 @@ public class ApiAuthenticationTest extends ResetPostgres {
 
     Result result =
         doGetRequest(
-            fakeRequest(
-                    "GET",
-                    controllers.api.routes.ProgramApplicationsApiController.list("mock-program")
-                        .url())
+            fakeRequest("GET", API_URL)
                 .remoteAddress("1.1.1.1")
                 .header("Authorization", "Basic " + creds));
 
@@ -68,10 +69,7 @@ public class ApiAuthenticationTest extends ResetPostgres {
 
     Result result =
         doGetRequest(
-            fakeRequest(
-                    "GET",
-                    controllers.api.routes.ProgramApplicationsApiController.list("mock-program")
-                        .url())
+            fakeRequest("GET", API_URL)
                 .remoteAddress("1.1.1.1")
                 .header("Authorization", "Basic " + creds));
 
