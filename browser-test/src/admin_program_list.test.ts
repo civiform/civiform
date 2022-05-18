@@ -27,11 +27,11 @@ describe('Most recently updated program is at top of list.', () => {
     // This is important when the secondary alphabetical
     // sort is used when all programs have similar last
     // modified timestamps.
-    await adminPrograms.addProgram('aaam')
+    await adminPrograms.addProgram('0 0 m')
     await sleep(delayMillis)
-    await adminPrograms.addProgram('aaaz')
+    await adminPrograms.addProgram('0 0 z')
     await sleep(delayMillis)
-    await adminPrograms.addProgram('aaaa')
+    await adminPrograms.addProgram('0 0 a')
     await sleep(delayMillis)
 
     // Note: CI tests already have test programs
@@ -41,7 +41,7 @@ describe('Most recently updated program is at top of list.', () => {
     // Most recently added program is on top.
     let programNames = await adminPrograms.programNames()
     expect(programNames.length).toBeGreaterThanOrEqual(3)
-    expect(programNames.slice(0, 3)).toEqual(['aaaa', 'aaaz', 'aaam'])
+    expect(programNames.slice(0, 3)).toEqual(['0 0 a', '0 0 z', '0 0 m'])
 
     // Publish all programs. Since programs have a similar
     // timestamp, the list is sorted alphabetically.
@@ -49,21 +49,21 @@ describe('Most recently updated program is at top of list.', () => {
     await sleep(delayMillis)
     programNames = await adminPrograms.programNames()
     expect(programNames.length).toBeGreaterThanOrEqual(3)
-    expect(programNames.slice(0, 3)).toEqual(['aaaa', 'aaam', 'aaaz'])
+    expect(programNames.slice(0, 3)).toEqual(['0 0 a', '0 0 m', '0 0 z'])
 
     // Now create a draft version of the previously middle program, it should be on top.
-    await adminPrograms.createNewVersion('aaam')
+    await adminPrograms.createNewVersion('0 0 m')
     await sleep(delayMillis)
     programNames = await adminPrograms.programNames()
     expect(programNames.length).toBeGreaterThanOrEqual(3)
-    expect(programNames.slice(0, 3)).toEqual(['aaam', 'aaaa', 'aaaz'])
+    expect(programNames.slice(0, 3)).toEqual(['0 0 m', '0 0 a', '0 0 z'])
 
     // Now create a new program, which should be on top.
-    await adminPrograms.addProgram('aaad')
+    await adminPrograms.addProgram('0 0 d')
     await sleep(delayMillis)
     programNames = await adminPrograms.programNames()
     expect(programNames.length).toBeGreaterThanOrEqual(4)
-    expect(programNames.slice(0, 4)).toEqual(['aaad', 'aaam', 'aaaa', 'aaaz'])
+    expect(programNames.slice(0, 4)).toEqual(['0 0 d', '0 0 m', '0 0 a', '0 0 z'])
 
     await endSession(browser)
   })
