@@ -19,7 +19,7 @@ services:
     ports:
       - 9100:9000
       - 9457:8457
-    command: -jvm-debug "*:9457" ~run -Dconfig.file=conf/application.dev.conf
+    command: -jvm-debug "*:8457" ~run -Dconfig.file=conf/application.dev.conf
 
 volumes:
   node_modules-data:
