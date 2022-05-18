@@ -17,6 +17,12 @@
       "activeDirectory"
     ]
   },
+  "CIVIFORM_TIME_ZONE_ID": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
   "CIVIC_ENTITY_FULL_NAME": {
     "required": true,
     "secret": false,

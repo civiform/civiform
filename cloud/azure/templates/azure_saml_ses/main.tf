@@ -37,6 +37,8 @@ module "app" {
   staging_ti_notification_mailing_list            = var.staging_ti_notification_mailing_list
   staging_applicant_notification_mailing_list     = var.staging_applicant_notification_mailing_list
 
+  civiform_time_zone_id = var.civiform_time_zone_id
+
   civic_entity_short_name            = var.civic_entity_short_name
   civic_entity_full_name             = var.civic_entity_full_name
   civic_entity_support_email_address = var.civic_entity_support_email_address

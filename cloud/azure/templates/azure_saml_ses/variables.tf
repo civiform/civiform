@@ -3,6 +3,12 @@ variable "azure_resource_group" {
   description = "Name of the resource group where key vault is already created."
 }
 
+variable "civiform_time_zone_id" {
+  type        = string
+  description = "Time zone for Civiform server to use when displaying dates."
+  default     = "America/Los_Angeles"
+}
+
 variable "civic_entity_short_name" {
   type        = string
   description = "Short name for civic entity (example: Rochester, Seattle)."
