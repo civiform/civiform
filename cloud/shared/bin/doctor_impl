@@ -134,7 +134,6 @@ class AzureCliVersionCheck(Check):
             print(f'could not determine the azure_cli_version from the az --version output: got "{azure_cli_lines}"')
             return False
         azure_cli_version_string = cli_version_match.groups()[0]
-        print(f'comparing {azure_cli_version_string} with {self.MIN_VERSION}')
         return self.version_at_least(self.MIN_VERSION, azure_cli_version_string)
 
 class AwsLoginCheck(Check):
