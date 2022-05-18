@@ -2,10 +2,13 @@
 
 from lib.check import Check
 import platform
+import re
 
 detected_platform = platform.system()
 is_linux = detected_platform == 'Linux'
 is_mac = detected_platform == 'Darwin'
+
+AZURE_VERSION_REGEXP = re.compile(r'^.*\s(\d+\.\d+\.\d+).*$')
 
 if not is_linux and not is_mac:
     raise RuntimeError("Only Linux and macOS are supported.")
@@ -112,13 +115,26 @@ class AzureCliVersionCheck(Check):
         return self._get_cloud_provider() != "azure"
 
     def is_ok(self):
-        azure_cli_version_string = self._get_command_output([
+        azure_version_info = self._get_command_output([
             "/bin/bash",
             "-c",
-            "az --version 2> /dev/null | grep -oP '^azure-cli\s+[0-9]+\.[0-9]+\.[0-9]' | grep -oP '[0-9]+\.[0-9]+\.[0-9]'"
+            "az --version 2> /dev/null",
         ])
+        # Search for the azure-cli version. Sample outputs on
+        # different systems:
+        # azure-cli                         2.36.0
+        # azure-cli                         2.34.1 *
+        azure_cli_lines = [l for l in azure_version_info.split('\n') if l.startswith('azure-cli')]
+        if len(azure_cli_lines) != 1:
+            print('could not find single azure-cli entry in az --version output')
+            return False
 
-        return azure_cli_version_string and self.version_at_least(self.MIN_VERSION, azure_cli_version_string)
+        cli_version_match = AZURE_VERSION_REGEXP.match(azure_cli_lines[0])
+        if not cli_version_match:
+            print(f'could not determine the azure_cli_version from the az --version output: got "{azure_cli_lines}"')
+            return False
+        azure_cli_version_string = cli_version_match.groups()[0]
+        return self.version_at_least(self.MIN_VERSION, azure_cli_version_string)
 
 class AwsLoginCheck(Check):
     remedy = """
