@@ -81,6 +81,13 @@ public class VersionRepository {
           // For each active program not associated with the draft, associate it with the draft.
           .forEach(activeProgramNotInDraft -> activeProgramNotInDraft.addVersion(draft).save());
 
+      // We create new program entities for each unmodified program above.
+      // This causes them to appear more recently updated when rendered in
+      // the program list. In order to prevent these implicitly created versions
+      // from appearing earlier in the list, we also perform an explicit save
+      // on the draft program versions.
+      draft.getPrograms().stream().forEach(draftProgram -> draftProgram.save());
+
       // Associate any active questions that aren't present in the draft with the draft.
       active.getQuestions().stream()
           // Exclude questions deleted in the draft.
