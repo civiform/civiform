@@ -17,11 +17,11 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class DateQuestion extends QuestionImpl {
+public final class DateQuestion extends Question {
 
   private Optional<LocalDate> dateValue;
 
-  public DateQuestion(ApplicantQuestion applicantQuestion) {
+  DateQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
   }
 
