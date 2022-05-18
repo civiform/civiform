@@ -25,13 +25,3 @@ export const clickAndWaitForModal = async (page: Page, modalId: string) => {
   await page.click(`#${modalId}-button`)
   await page.waitForSelector(`#${modalId}:not(.hidden)`)
 }
-
-/**
- * @param delayMillis How many milliseconds to wait before the promise returns.
- * @returns A promise that will resolve after the specified delay.
- */
-export const sleep = async (delayMillis : number) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, delayMillis)
-  })
-}

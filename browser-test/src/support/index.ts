@@ -123,3 +123,13 @@ export const dropTables = async (page: Page) => {
   await page.goto(BASE_URL + '/dev/seed')
   await page.click('#clear')
 }
+
+/**
+ * @param delayMillis How many milliseconds to wait before the promise returns.
+ * @returns A promise that will resolve after the specified delay.
+ */
+ export const sleep = async (delayMillis : number) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, delayMillis)
+  })
+}
