@@ -180,12 +180,12 @@ public final class QuestionEditView extends BaseHtmlView {
     return renderWithPreview(formContent, questionType, title);
   }
 
-  private Content renderWithPreview(ContainerTag formContent, QuestionType type, String title) {
+  private Content renderWithPreview(DivTag formContent, QuestionType type, String title) {
     DivTag previewContent =
         QuestionPreview.renderQuestionPreview(type, messages, fileUploadViewStrategy);
 
     HtmlBundle htmlBundle =
-        layout.getBundle().setTitle(title).addMainContent(div(formContent), previewContent);
+        layout.getBundle().setTitle(title).addMainContent(formContent, previewContent);
     return layout.render(htmlBundle);
   }
 
