@@ -1,6 +1,8 @@
 class AdminPrograms {
   private static PROGRAM_ADIN_LIST_SELECTOR = '.cf-admin-program-card-list'
   private static PROGRAM_CARDS_SELECTOR = '.cf-admin-program-card'
+  private static PROGRAM_CARDS_PLACEHOLDER_SELECTOR =
+    '.cf-admin-program-card-list-placeholder'
   private static NAME_ATTRIBUTE = 'data-name'
   private static LAST_UPDATED_MILLIS = 'data-last-updated-millis'
 
@@ -11,12 +13,18 @@ class AdminPrograms {
     if (!cardsParent) {
       return
     }
+    const cardsPlaceholder = cardsParent.querySelector(
+      AdminPrograms.PROGRAM_CARDS_PLACEHOLDER_SELECTOR
+    )
     try {
       this.sortCards(cardsParent as HTMLElement)
     } finally {
       // Make sure to always show the cards, even
       // if there was an error while sorting.
       cardsParent.classList.remove('invisible')
+      if (cardsPlaceholder) {
+        cardsPlaceholder.classList.add('hidden')
+      }
     }
   }
 

@@ -76,6 +76,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST, Styles.INVISIBLE)
                     .with(
+                        p("Loading")
+                            .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST_PLACEHOLDER),
                         each(
                             programs.getProgramNames(),
                             name ->
