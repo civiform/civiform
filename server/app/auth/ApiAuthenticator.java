@@ -64,6 +64,12 @@ public class ApiAuthenticator implements Authenticator {
     this.apiKeyService = checkNotNull(apiKeyService);
   }
 
+  /**
+   * Authenticates that an API request has a valid API key and is from a permitted IP address.
+   * Throws a {@link BadCredentialsException} if not, causing a status-only HTTP response 401. The
+   * exception messages are included in the server logs to aid in debugging and monitoring for
+   * malicious use.
+   */
   @Override
   public void validate(Credentials rawCredentials, WebContext context, SessionStore sessionStore) {
     if (!(rawCredentials instanceof UsernamePasswordCredentials)) {
