@@ -15,9 +15,9 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class StaticContentQuestion extends QuestionImpl {
+public final class StaticContentQuestion extends Question {
 
-  public StaticContentQuestion(ApplicantQuestion applicantQuestion) {
+  StaticContentQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
   }
 

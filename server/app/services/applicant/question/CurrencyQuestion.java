@@ -16,12 +16,12 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class CurrencyQuestion extends QuestionImpl {
+public final class CurrencyQuestion extends Question {
 
   // Stores the value, loading and caching it on first access.
   private Optional<Optional<Currency>> currencyCache;
 
-  public CurrencyQuestion(ApplicantQuestion applicantQuestion) {
+  CurrencyQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
     this.currencyCache = Optional.empty();
   }

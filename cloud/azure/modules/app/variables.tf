@@ -9,6 +9,11 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "civiform_time_zone_id" {
+  type        = string
+  description = "Time zone for Civiform server to use when displaying dates."
+}
+
 variable "civic_entity_short_name" {
   type        = string
   description = "Short name for civic entity (example: Rochester, Seattle)."

@@ -159,6 +159,8 @@ Resources:
               Value: !Sub "https://${DomainName}"
             - Name: MEASUREMENT_ID
               Value: !Sub "${MeasurementId}"
+            - Name: CIVIFORM_API_SECRET_SALT
+              Value: !Sub '{{resolve:secretsmanager:${Environment}-api-secret-salt:SecretString:CIVIFORM_API_SECRET_SALT}}'
           Cpu: 1024
           Memory: 8192
           PortMappings:
