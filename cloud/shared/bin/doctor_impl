@@ -101,7 +101,7 @@ class AzureCliVersionCheck(Check):
     MIN_VERSION = "2.34.1"
 
     remedy = f"""
-        Azure CLI tool must be at version {MIN_VERSION}.
+        Azure CLI tool must be at version {MIN_VERSION} or above.
         https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
     """
 
@@ -118,7 +118,7 @@ class AzureCliVersionCheck(Check):
             "az --version 2> /dev/null | grep -oP '^azure-cli\s+[0-9]+\.[0-9]+\.[0-9]' | grep -oP '[0-9]+\.[0-9]+\.[0-9]'"
         ])
 
-        return azure_cli_version_string and self.version_greater_than(self.MIN_VERSION, azure_cli_version_string)
+        return azure_cli_version_string and self.version_at_least(self.MIN_VERSION, azure_cli_version_string)
 
 class AwsLoginCheck(Check):
     remedy = """
