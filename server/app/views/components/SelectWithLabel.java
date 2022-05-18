@@ -17,7 +17,7 @@ public class SelectWithLabel extends FieldWithLabel {
   private ImmutableList<OptionTag> customOptions = ImmutableList.of();
 
   public SelectWithLabel() {
-    this.setFieldType("select");
+    this.setFieldType("text");
   }
 
   @Override
