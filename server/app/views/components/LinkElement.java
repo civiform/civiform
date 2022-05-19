@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import j2html.TagCreator;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import play.filters.csrf.CSRF;
@@ -108,16 +109,27 @@ public class LinkElement {
   }
 
   public DivTag asAnchorText() {
-    DivTag tag = Strings.isNullOrEmpty(href) ? div(text) : div().with(a(text).withHref(href));
-    tag.withCondId(!Strings.isNullOrEmpty(id), id).withClasses(DEFAULT_LINK_STYLES, styles);
-    if (doesOpenInNewTab) {
-      tag.attr("target", "_blank");
-    }
-    if (!Strings.isNullOrEmpty(href)) {
-      tag.attr("href", href);
-    }
+    DivTag tag;
+    ATag atag;
+    if (Strings.isNullOrEmpty(href)) {
+      tag = div(text);
+      tag.withClasses(DEFAULT_LINK_STYLES, styles);
+      if (doesOpenInNewTab) {
+        tag.attr("target", "_blank");
+      }
+      return tag;
+    } else {
+      atag = a(text).withHref(href);
+      atag.withId(id).withClasses(DEFAULT_LINK_STYLES, styles);
+      if (doesOpenInNewTab) {
+        atag.attr("target", "_blank");
+      }
+      atag.attr("href", href);
 
-    return tag;
+      tag = div().with(atag);
+
+      return tag;
+    }
   }
 
   public DivTag asButton() {
