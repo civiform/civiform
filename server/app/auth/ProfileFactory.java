@@ -1,13 +1,16 @@
 package auth;
 
 import com.google.common.base.Preconditions;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Account;
+import models.ApiKey;
 import models.Applicant;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
 import repository.VersionRepository;
+import services.apikey.ApiKeyService;
 
 /**
  * This class helps create {@link CiviFormProfile} and {@link CiviFormProfileData} objects for
@@ -18,15 +21,18 @@ public class ProfileFactory {
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
   private Provider<VersionRepository> versionRepositoryProvider;
+  private Provider<ApiKeyService> apiKeyService;
 
   @Inject
   public ProfileFactory(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
-      Provider<VersionRepository> versionRepositoryProvider) {
+      Provider<VersionRepository> versionRepositoryProvider,
+      Provider<ApiKeyService> apiKeyService) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
     this.versionRepositoryProvider = Preconditions.checkNotNull(versionRepositoryProvider);
+    this.apiKeyService = Preconditions.checkNotNull(apiKeyService);
   }
 
   public CiviFormProfileData createNewApplicant() {
@@ -48,6 +54,16 @@ public class ProfileFactory {
 
   public CiviFormProfile wrapProfileData(CiviFormProfileData p) {
     return new CiviFormProfile(dbContext, httpContext, p);
+  }
+
+  /**
+   * Retrieves an API key. API keys are effectively the profile (i.e. record of identity and
+   * authority) for API requests.
+   */
+  public ApiKey retrieveApiKey(String keyId) {
+    Optional<ApiKey> apiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
+
+    return apiKey.orElseThrow(() -> new AccountNonexistentException("API key does not exist"));
   }
 
   /* One admin can have multiple roles; they can be both a program admin and a civiform admin. */
