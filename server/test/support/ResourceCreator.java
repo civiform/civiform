@@ -25,6 +25,7 @@ public class ResourceCreator {
 
   private final Database database;
   private final Injector injector;
+  private static final int SECONDS_PER_YEAR = 31536000;
 
   public ResourceCreator(Injector injector) {
     this.database = DB.getDefault();
@@ -32,12 +33,15 @@ public class ResourceCreator {
     ProgramBuilder.setInjector(injector);
   }
 
+  /**
+   * Create an API key with subnet of "1.1.1.1/32" and an expiration date one year in the future.
+   */
   public ApiKey createActiveApiKey(String name, String keyId, String keySecret) {
     ApiKey apiKey =
         new ApiKey()
             .setName(name)
             .setKeyId(keyId)
-            .setExpiration(Instant.now().plusSeconds(1))
+            .setExpiration(Instant.now().plusSeconds(SECONDS_PER_YEAR))
             .setSubnet("1.1.1.1/32")
             .setSaltedKeySecret(injector.instanceOf(ApiKeyService.class).salt(keySecret))
             .setCreatedBy("test");

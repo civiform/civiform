@@ -52,13 +52,13 @@ public class ProfileUtils {
 
   public Optional<ApiKey> currentApiKey(WebContext webContext) {
     ProfileManager profileManager = new ProfileManager(webContext, sessionStore);
-    Optional<BasicUserProfile> p = profileManager.getProfile(BasicUserProfile.class);
+    Optional<BasicUserProfile> profile = profileManager.getProfile(BasicUserProfile.class);
 
-    if (p.isEmpty()) {
+    if (profile.isEmpty()) {
       return Optional.empty();
     }
 
-    return profileFactory.retrieveApiKey(p.get().getId());
+    return Optional.of(profileFactory.retrieveApiKey(profile.get().getId()));
   }
 
   // A temporary placeholder email value, used while the user needs to verify their account.

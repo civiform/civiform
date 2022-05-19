@@ -12,10 +12,15 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Optional;
 import javax.inject.Inject;
+import models.ApiKey;
 import play.mvc.Http;
 import play.mvc.Result;
 
-/** Base class for controllers that handle API requests */
+/**
+ * Base class for controllers that handle API requests. Requests that reach an API controller have
+ * been authenticated, but they have not yet been authorized. It is the responsibility of every
+ * controller action to authorize its own requests, e.g. by calling assertHasProgramReadPermission.
+ */
 public class CiviFormApiController extends CiviFormController {
 
   protected final ApiPaginationTokenSerializer apiPaginationTokenSerializer;
@@ -37,10 +42,10 @@ public class CiviFormApiController extends CiviFormController {
   }
 
   protected void assertHasProgramReadPermission(Http.Request request, String programSlug) {
-    var apiKey =
+    ApiKey apiKey =
         profileUtils
             .currentApiKey(request)
-            .orElseThrow(() -> new AccountNonexistentException("Invalid API key ID cached"));
+            .orElseThrow(() -> new AccountNonexistentException("No API key found for profile"));
 
     if (!apiKey.getGrants().hasProgramPermission(programSlug, ApiKeyGrants.Permission.READ)) {
       throw new UnauthorizedApiRequestException(apiKey, programSlug);

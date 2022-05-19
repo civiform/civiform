@@ -13,8 +13,6 @@ import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.exception.BadCredentialsException;
-import play.cache.NamedCache;
-import play.cache.SyncCacheApi;
 import services.apikey.ApiKeyService;
 
 /**
@@ -23,8 +21,10 @@ import services.apikey.ApiKeyService;
  *
  * <p>When referenced by a request, {@code ApiKey}s are stored in the "api-keys" named cache, keyed
  * by their key ID. This allows controller code to load the key without the need for a subsequent
- * database query. This is necessary because pac4j creates profiles in the next step, but we need
- * the API key to perform authentication (this step).
+ * database query. This is necessary because pac4j creates profiles (which are what's made available
+ * to controller code through the request object) in the next step, but we need the API key to
+ * perform authentication (this step). The purpose of the cache is to avoid making multiple database
+ * calls to retrieve the API key throughout the cycle of the request.
  *
  * <p>Note that at this layer, the request is authenticated, not authorized. All API requests that
  * reach a controller are already authenticated, but it is the controller's responsibility to check
@@ -33,32 +33,41 @@ import services.apikey.ApiKeyService;
  * <p>The API key ID and secret are provided as the basic auth username and password, respectively.
  * To be valid, a request must reference a valid API key with its username credential, and further
  * that key must:
- * <li>Not be retired.
- * <li>Have an expiration date in the future.
- * <li>Have a subnet that includes the IP address of the request.
- * <li>Have a salted key secret that matches the salted password in the request's basic auth
- *     credentials.
+ *
+ * <ul>
+ *   <li>Not be retired.
+ *   <li>Have an expiration date in the future.
+ *   <li>Have a subnet that includes the IP address of the request.
+ *   <li>Have a salted key secret that matches the salted password in the request's basic auth
+ *       credentials.
+ * </ul>
  */
 public class ApiAuthenticator implements Authenticator {
 
-  private static final int CACHE_EXPIRATION_TIME_SECONDS = 60;
-
-  private final SyncCacheApi syncCacheApi;
   private final Provider<ApiKeyService> apiKeyService;
 
   @Inject
-  public ApiAuthenticator(
-      @NamedCache("api-keys") SyncCacheApi syncCacheApi, Provider<ApiKeyService> apiKeyService) {
-    this.syncCacheApi = checkNotNull(syncCacheApi);
+  public ApiAuthenticator(Provider<ApiKeyService> apiKeyService) {
     this.apiKeyService = checkNotNull(apiKeyService);
   }
 
+  /**
+   * Authenticates that an API request has a valid API key and is from a permitted IP address.
+   * Throws a {@link BadCredentialsException} if not, causing a status-only HTTP response 401. The
+   * exception messages are included in the server logs to aid in debugging and monitoring for
+   * malicious use.
+   */
   @Override
   public void validate(Credentials rawCredentials, WebContext context, SessionStore sessionStore) {
     if (!(rawCredentials instanceof UsernamePasswordCredentials)) {
       throw new RuntimeException("ApiAuthenticator must receive UsernamePasswordCredentials.");
     }
 
+    // The terms "username" and "password" here may look a bit odd since API requests are not
+    // associated with user accounts but rather API keys. They're used here because pac4j's
+    // built-in support for basic auth uses those terms to identify the components of the
+    // basic auth credentials. In this sense, the API key ID is the "username" and the secret
+    // is the "password". An API key itself can be thought of as the "user account".
     UsernamePasswordCredentials credentials = (UsernamePasswordCredentials) rawCredentials;
     String keyId = credentials.getUsername();
 
@@ -66,17 +75,17 @@ public class ApiAuthenticator implements Authenticator {
     // We intentionally cache the empty optional rather than throwing here so that subsequent
     // requests with the invalid key do not put pressure on the database.
     ApiKey apiKey =
-        syncCacheApi
-            .getOrElseUpdate(
-                keyId, () -> apiKeyService.get().findByKeyId(keyId), CACHE_EXPIRATION_TIME_SECONDS)
+        apiKeyService
+            .get()
+            .findByKeyIdWithCache(keyId)
             .orElseThrow(() -> new BadCredentialsException("API key does not exist"));
 
     if (apiKey.isRetired()) {
-      throw new BadCredentialsException("API key is retired");
+      throw new BadCredentialsException("API key is retired: " + keyId);
     }
 
     if (apiKey.expiredAfter(Instant.now())) {
-      throw new BadCredentialsException("API key is expired");
+      throw new BadCredentialsException("API key is expired: " + keyId);
     }
 
     SubnetUtils allowedSubnet = new SubnetUtils(apiKey.getSubnet());
@@ -86,12 +95,14 @@ public class ApiAuthenticator implements Authenticator {
     allowedSubnet.setInclusiveHostCount(true);
 
     if (!allowedSubnet.getInfo().isInRange(context.getRemoteAddr())) {
-      throw new BadCredentialsException("IP not in allowed range");
+      throw new BadCredentialsException(
+          String.format(
+              "IP %s not in allowed range for key ID: %s", context.getRemoteAddr(), keyId));
     }
 
     String saltedCredentialsSecret = apiKeyService.get().salt(credentials.getPassword());
     if (!saltedCredentialsSecret.equals(apiKey.getSaltedKeySecret())) {
-      throw new BadCredentialsException("Invalid secret");
+      throw new BadCredentialsException("Invalid secret for key ID: " + keyId);
     }
   }
 }

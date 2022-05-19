@@ -54,7 +54,7 @@ public class ApiAuthenticatorTest {
     // Most test classes extend ResetPostgres which accesses an injector via the
     // application provided fakeApplication(). That injector is a play.inject.Injector
     // which makes it much less easy to inject things that are annotated with annotations
-    // that take arguments, such as @NamedCache("api-cache'). Guice makes that fairly
+    // that take arguments, such as @NamedCache("api-cache'). Guice makes that fairly easy
     // though, hence this test class uses the guice injector directly.
     GuiceApplicationBuilder builder =
         new GuiceApplicationLoader().builder(new ApplicationLoader.Context(Environment.simple()));
@@ -119,15 +119,18 @@ public class ApiAuthenticatorTest {
     apiKey.retire("test-user");
     apiKey.save();
 
-    assertBadCredentialsException(buildFakeRequest(validRawCredentials), "API key is retired");
+    assertBadCredentialsException(
+        buildFakeRequest(validRawCredentials), "API key is retired: " + keyId);
   }
 
   @Test
   public void validate_isExpired() {
+    // Set the expiration to the past, any time in the past will suffice.
     apiKey.setExpiration(Instant.now().minusSeconds(100));
     apiKey.save();
 
-    assertBadCredentialsException(buildFakeRequest(validRawCredentials), "API key is expired");
+    assertBadCredentialsException(
+        buildFakeRequest(validRawCredentials), "API key is expired: " + keyId);
   }
 
   @Test
@@ -135,7 +138,9 @@ public class ApiAuthenticatorTest {
     apiKey.setSubnet("2.2.2.2/30");
     apiKey.save();
 
-    assertBadCredentialsException(buildFakeRequest(validRawCredentials), "IP not in allowed range");
+    assertBadCredentialsException(
+        buildFakeRequest(validRawCredentials),
+        "IP 1.1.1.1 not in allowed range for key ID: " + keyId);
   }
 
   @Test
@@ -145,7 +150,7 @@ public class ApiAuthenticatorTest {
     assertBadCredentialsException(
         buildFakeRequest(rawCredentials),
         new UsernamePasswordCredentials(keyId, "notthesecret"),
-        "Invalid secret");
+        "Invalid secret for key ID: " + keyId);
   }
 
   private void assertBadCredentialsException(Http.Request request, String expectedMessage) {
