@@ -26,6 +26,7 @@ public class DateConverter {
     return DateTimeFormatter.RFC_1123_DATE_TIME.withZone(zoneId).format(instant);
   }
 
+  /** Formats an instant to an ISO-8601 date of the form "YYYY-MM-DDZ" where the 'Z' is literal. */
   public String formatIso8601Date(Instant instant) {
     return DateTimeFormatter.ISO_DATE.withZone(zoneId).format(instant);
   }

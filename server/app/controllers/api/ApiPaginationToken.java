@@ -2,9 +2,13 @@ package controllers.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Represents the contents of an API pagination token in an intermediate serialization step. See
+ * {@link ApiPaginationTokenSerializer} for more information.
+ */
 public class ApiPaginationToken {
-  private String serializedPayload;
-  private String signature;
+  private final String serializedPayload;
+  private final String signature;
 
   public ApiPaginationToken(
       @JsonProperty("serializedPayload") String serializedPayload,
@@ -17,15 +21,7 @@ public class ApiPaginationToken {
     return serializedPayload;
   }
 
-  public void setSerializedPayload(String serializedPayload) {
-    this.serializedPayload = serializedPayload;
-  }
-
   public String getSignature() {
     return signature;
-  }
-
-  public void setSignature(String signature) {
-    this.signature = signature;
   }
 }

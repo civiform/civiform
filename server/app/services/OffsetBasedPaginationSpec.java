@@ -2,7 +2,11 @@ package services;
 
 import java.util.Optional;
 
-/** Specifies pagination behavior for a query with offset-identifier-based pagination. */
+/**
+ * Specifies pagination behavior for a query with offset identifier-based pagination. An offset
+ * identifier identifies the last item of the previous page of results using its sort order
+ * attribute.
+ */
 public class OffsetBasedPaginationSpec<T> extends PaginationSpec {
 
   public static OffsetBasedPaginationSpec<Long> MAX_PAGE_SIZE_SPEC_LONG =

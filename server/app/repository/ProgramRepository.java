@@ -209,7 +209,8 @@ public class ProgramRepository {
    * Get all submitted applications for this program and all other previous and future versions of
    * it where the applicant's first name, last name, email, or application ID contains the search
    * query. Does not include drafts or deleted applications. Results returned in reverse order that
-   * the applications were created.
+   * the applications were created. Results are limited to applications submitted after and/or
+   * before submitTimeFrom and/or submitTimeTo, respectively.
    *
    * <p>If searchNameFragment is not an unsigned integer, the query will filter to applications with
    * email, first name, or last name that contain it.

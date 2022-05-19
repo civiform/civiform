@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import javax.annotation.Nullable;
 import models.Application;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
@@ -28,6 +29,9 @@ import services.program.ProgramService;
 /** API controller for admin access to a specific program's applications. */
 public class ProgramApplicationsApiController extends CiviFormApiController {
 
+  public static final String PROGRAM_SLUG_PARAM_NAME = "programSlug";
+  public static final String FROM_DATE_PARAM_NAME = "fromDate";
+  public static final String TO_DATE_PARAM_NAME = "toDate";
   private final DateConverter dateConverter;
   private final ProgramService programService;
   private final HttpExecutionContext httpContext;
@@ -62,8 +66,20 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
 
     Optional<ApiPaginationTokenPayload> paginationToken =
         serializedNextPageToken.map(apiPaginationTokenSerializer::deserialize);
-    Optional<Instant> fromTime = resolveDateParam(paginationToken, "fromDate", fromDateParam);
-    Optional<Instant> toTime = resolveDateParam(paginationToken, "toDate", toDateParam);
+
+    paginationToken.ifPresent(
+        (token) -> {
+          if (!token
+              .getRequestSpec()
+              .getOrDefault(PROGRAM_SLUG_PARAM_NAME, "")
+              .equals(programSlug)) {
+            throw new BadApiRequestException("Pagination token does not match requested resource.");
+          }
+        });
+
+    Optional<Instant> fromTime =
+        resolveDateParam(paginationToken, FROM_DATE_PARAM_NAME, fromDateParam);
+    Optional<Instant> toTime = resolveDateParam(paginationToken, TO_DATE_PARAM_NAME, toDateParam);
     int pageSize = resolvePageSize(paginationToken, pageSizeParam);
 
     OffsetBasedPaginationSpec<Long> paginationSpec =
@@ -94,7 +110,7 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
               String responseJson =
                   getResponseJson(
                       applicationsJson,
-                      getNextPageToken(paginationResult, pageSize, fromTime, toTime));
+                      getNextPageToken(paginationResult, programSlug, pageSize, fromTime, toTime));
 
               return ok(responseJson).as("application/json");
             },
@@ -114,24 +130,28 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
 
   private Optional<ApiPaginationTokenPayload> getNextPageToken(
       PaginationResult<Application> paginationResult,
+      String programSlug,
       int pageSize,
       Optional<Instant> fromTime,
       Optional<Instant> toTime) {
+    if (!paginationResult.hasMorePages()) {
+      return Optional.empty();
+    }
+
     var pageSpec =
         new ApiPaginationTokenPayload.PageSpec(
             Iterables.getLast(paginationResult.getPageContents()).id.toString(), pageSize);
 
     ImmutableMap.Builder<String, String> requestSpec = ImmutableMap.builder();
+    requestSpec.put(PROGRAM_SLUG_PARAM_NAME, programSlug);
     fromTime.ifPresent(
-        (fromInstant) -> requestSpec.put("fromDate", dateConverter.formatIso8601Date(fromInstant)));
+        (fromInstant) ->
+            requestSpec.put(FROM_DATE_PARAM_NAME, dateConverter.formatIso8601Date(fromInstant)));
     toTime.ifPresent(
-        (toInstant) -> requestSpec.put("toDate", dateConverter.formatIso8601Date(toInstant)));
+        (toInstant) ->
+            requestSpec.put(TO_DATE_PARAM_NAME, dateConverter.formatIso8601Date(toInstant)));
 
-    Optional<ApiPaginationTokenPayload> nextPageToken =
-        paginationResult.hasMorePages()
-            ? Optional.of(new ApiPaginationTokenPayload(pageSpec, requestSpec.build()))
-            : Optional.empty();
-    return nextPageToken;
+    return Optional.of(new ApiPaginationTokenPayload(pageSpec, requestSpec.build()));
   }
 
   private int resolvePageSize(
@@ -163,6 +183,9 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
     Optional<Instant> queryParamTime =
         queryParamValue.map((value) -> parseParamDateToInstant(paramName, value));
 
+    // Some minor differences in date format, such as a trailing "Z", can result in
+    // different ISO-8601 date strings that parse to the same Instant. For this reason
+    // we compare the values as instants, rather than as strings.
     if (tokenTime.equals(queryParamTime)) {
       return tokenTime;
     }
@@ -175,6 +198,7 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
     return Optional.of(tokenTime.orElseGet(queryParamTime::get));
   }
 
+  @Nullable
   private Instant extractInstantFromPaginationToken(
       ApiPaginationTokenPayload apiPaginationTokenPayload, String paramName) {
     Map<String, String> requestSpec = apiPaginationTokenPayload.getRequestSpec();
