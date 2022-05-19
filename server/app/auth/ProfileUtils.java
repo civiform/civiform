@@ -58,7 +58,7 @@ public class ProfileUtils {
       return Optional.empty();
     }
 
-    return profileFactory.retrieveApiKey(profile.get().getId());
+    return Optional.of(profileFactory.retrieveApiKey(profile.get().getId()));
   }
 
   // A temporary placeholder email value, used while the user needs to verify their account.

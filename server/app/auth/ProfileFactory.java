@@ -7,11 +7,10 @@ import javax.inject.Provider;
 import models.Account;
 import models.ApiKey;
 import models.Applicant;
-import play.cache.NamedCache;
-import play.cache.SyncCacheApi;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
 import repository.VersionRepository;
+import services.apikey.ApiKeyService;
 
 /**
  * This class helps create {@link CiviFormProfile} and {@link CiviFormProfileData} objects for
@@ -22,18 +21,18 @@ public class ProfileFactory {
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
   private Provider<VersionRepository> versionRepositoryProvider;
-  private SyncCacheApi syncCacheApi;
+  private Provider<ApiKeyService> apiKeyService;
 
   @Inject
   public ProfileFactory(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
       Provider<VersionRepository> versionRepositoryProvider,
-      @NamedCache("api-keys") SyncCacheApi syncCacheApi) {
+      Provider<ApiKeyService> apiKeyService) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
     this.versionRepositoryProvider = Preconditions.checkNotNull(versionRepositoryProvider);
-    this.syncCacheApi = Preconditions.checkNotNull(syncCacheApi);
+    this.apiKeyService = Preconditions.checkNotNull(apiKeyService);
   }
 
   public CiviFormProfileData createNewApplicant() {
@@ -58,14 +57,13 @@ public class ProfileFactory {
   }
 
   /**
-   * Retrieves an API key from the API cache. API keys are effectively the profile (i.e. record of
-   * identity and authority) for API requests.
+   * Retrieves an API key. API keys are effectively the profile (i.e. record of identity and
+   * authority) for API requests.
    */
-  public Optional<ApiKey> retrieveApiKey(String keyId) {
-    Optional<Optional<ApiKey>> cacheResult = syncCacheApi.get(keyId);
+  public ApiKey retrieveApiKey(String keyId) {
+    Optional<ApiKey> apiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
 
-    return cacheResult.orElseThrow(
-        () -> new AccountNonexistentException("API key missing from cache"));
+    return apiKey.orElseThrow(() -> new AccountNonexistentException("API key does not exist"));
   }
 
   /* One admin can have multiple roles; they can be both a program admin and a civiform admin. */

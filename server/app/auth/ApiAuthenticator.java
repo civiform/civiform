@@ -13,8 +13,6 @@ import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.exception.BadCredentialsException;
-import play.cache.NamedCache;
-import play.cache.SyncCacheApi;
 import services.apikey.ApiKeyService;
 
 /**
@@ -46,21 +44,10 @@ import services.apikey.ApiKeyService;
  */
 public class ApiAuthenticator implements Authenticator {
 
-  // The cache expiration time is intended to be long enough reduce database queries from
-  // authenticating API calls while being short enough that if an admin retires a key or
-  // otherwise edits it, the edits will take effect within a reasonable amount of time.
-  // When tuning this value, consider the use-case of an API consumer rapidly paging through
-  // a list API, and also consider the admin retiring a key when they've discovered it has
-  // been compromised.
-  private static final int CACHE_EXPIRATION_TIME_SECONDS = 60;
-
-  private final SyncCacheApi syncCacheApi;
   private final Provider<ApiKeyService> apiKeyService;
 
   @Inject
-  public ApiAuthenticator(
-      @NamedCache("api-keys") SyncCacheApi syncCacheApi, Provider<ApiKeyService> apiKeyService) {
-    this.syncCacheApi = checkNotNull(syncCacheApi);
+  public ApiAuthenticator(Provider<ApiKeyService> apiKeyService) {
     this.apiKeyService = checkNotNull(apiKeyService);
   }
 
@@ -88,9 +75,9 @@ public class ApiAuthenticator implements Authenticator {
     // We intentionally cache the empty optional rather than throwing here so that subsequent
     // requests with the invalid key do not put pressure on the database.
     ApiKey apiKey =
-        syncCacheApi
-            .getOrElseUpdate(
-                keyId, () -> apiKeyService.get().findByKeyId(keyId), CACHE_EXPIRATION_TIME_SECONDS)
+        apiKeyService
+            .get()
+            .findByKeyIdWithCache(keyId)
             .orElseThrow(() -> new BadCredentialsException("API key does not exist"));
 
     if (apiKey.isRetired()) {

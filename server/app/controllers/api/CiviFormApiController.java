@@ -27,7 +27,7 @@ public class CiviFormApiController extends CiviFormController {
     ApiKey apiKey =
         profileUtils
             .currentApiKey(request)
-            .orElseThrow(() -> new AccountNonexistentException("Invalid API key ID cached"));
+            .orElseThrow(() -> new AccountNonexistentException("No API key found for profile"));
 
     if (!apiKey.getGrants().hasProgramPermission(programSlug, ApiKeyGrants.Permission.READ)) {
       throw new UnauthorizedApiRequestException(apiKey, programSlug);
