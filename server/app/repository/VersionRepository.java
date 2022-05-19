@@ -72,11 +72,13 @@ public class VersionRepository {
       Predicate<Question> questionIsDeletedInDraft =
           question -> draft.questionIsTombstoned(question.getQuestionDefinition().getName());
 
+      // Below, programs are saved from least recently updated to most recently
+      // updated in order to preserve the relative ordering of their updated
+      // timestamps. This is important since the program list shown to admins
+      // orders the list based on when the program was last updated.
       Comparator<Program> programComparator =
           Comparator.comparing(
               p -> p.getProgramDefinition().lastModifiedTime().orElse(Instant.EPOCH));
-      programComparator =
-          programComparator.thenComparing(p -> p.getProgramDefinition().adminName());
 
       // Associate any active programs that aren't present in the draft with the draft.
       active.getPrograms().stream()

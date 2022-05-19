@@ -2,9 +2,11 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Transaction;
+import java.util.Comparator;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
@@ -45,6 +47,46 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(this.versionRepository.getDraftVersion().getPrograms()).hasSize(0);
     oldDraft.refresh();
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+  }
+
+  private ImmutableList<String> programNamesOrderedByLastUpdated(Version version) {
+    return version.getPrograms().stream()
+        .sorted(
+            Comparator.comparing(p -> p.getProgramDefinition().lastModifiedTime().orElseThrow()))
+        .map(p -> p.getProgramDefinition().adminName())
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  @Test
+  public void testPublishPreservesRelativeLastUpdatedOrdering() {
+    Program activeProgram = resourceCreator.insertActiveProgram("active");
+    Program otherActiveProgram = resourceCreator.insertActiveProgram("other_active");
+    Program activeWithDraftProgramPublished =
+        resourceCreator.insertActiveProgram("active_with_draft");
+    Program draftProgram = resourceCreator.insertDraftProgram("draft");
+    Program activeWithDraftProgram = resourceCreator.insertDraftProgram("active_with_draft");
+
+    // Now update them in a different order from which they were created in the DB.
+    // Doing this ensures that we're not getting the desired ordering based on the
+    // queries being returned by the DB ID. Additionally, the entries aren't updated
+    // in strictly reversed order to ensure that we're not reversing the enumeration
+    // order.
+    activeWithDraftProgram.save();
+    draftProgram.save();
+    activeWithDraftProgramPublished.save();
+    otherActiveProgram.save();
+    activeProgram.save();
+
+    assertThat(programNamesOrderedByLastUpdated(this.versionRepository.getActiveVersion()))
+        .isEqualTo(ImmutableList.of("active_with_draft", "other_active", "active"));
+    assertThat(programNamesOrderedByLastUpdated(this.versionRepository.getDraftVersion()))
+        .isEqualTo(ImmutableList.of("active_with_draft", "draft"));
+
+    this.versionRepository.publishNewSynchronizedVersion();
+    assertThat(programNamesOrderedByLastUpdated(this.versionRepository.getActiveVersion()))
+        .isEqualTo(ImmutableList.of("other_active", "active", "active_with_draft", "draft"));
+    assertThat(programNamesOrderedByLastUpdated(this.versionRepository.getDraftVersion()))
+        .isEqualTo(ImmutableList.of());
   }
 
   @Test
