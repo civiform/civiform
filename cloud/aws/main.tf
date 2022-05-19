@@ -5,7 +5,7 @@ resource "aws_apprunner_service" "civiform_dev_leyla" {
   source_configuration {                              
     image_repository {                                
       image_configuration {                                  
-        port = "8000"  
+        port = "9000"  
 
         runtime_environment_variables = {
             SECRET_KEY = "secretkeyplaceholder"
@@ -16,7 +16,7 @@ resource "aws_apprunner_service" "civiform_dev_leyla" {
             DB_PASSWORD = aws_db_instance.civiform.password
 
             STAGING_HOSTNAME = "staging-aws.civiform.dev"
-            BASE_URL         = "staging-aws.civiform.dev"
+            BASE_URL         = "https://staging-aws.civiform.dev"
 
             STORAGE_SERVICE_NAME = "s3"
 
@@ -56,7 +56,8 @@ resource "aws_apprunner_service" "civiform_dev_leyla" {
 }
 
 data "aws_route53_zone" "civiform" {
-  name = "staging-aws.civiform.dev."
+  name = "staging-aws.civiform.dev"
+  private_zone = false
 }
 
 resource "aws_apprunner_custom_domain_association" "civiform_domain" {
@@ -72,21 +73,21 @@ resource "aws_route53_record" "civiform_domain_record" {
   ttl = 60
 }
 
-resource "aws_route53_record" "civiform_domain_validation" {
-  for_each = {
-    for dvo in aws_apprunner_custom_domain_association.civiform_domain.certificate_validation_records : dvo.name => {
-      name = dvo.name
-      type = dvo.type
-      record = dvo.value
-    }
-  }
+# resource "aws_route53_record" "civiform_domain_validation" {
+#   for_each = {
+#     for dvo in aws_apprunner_custom_domain_association.civiform_domain.certificate_validation_records : dvo.name => {
+#       name = dvo.name
+#       type = dvo.type
+#       record = dvo.value
+#     }
+#   }
   
-  name = each.value.name
-  zone_id = data.aws_route53_zone.civiform.zone_id
-  type = each.value.type
-  records = [each.value.record]
-  ttl = 60
-}
+#   name = each.value.name
+#   zone_id = data.aws_route53_zone.civiform.zone_id
+#   type = each.value.type
+#   records = [each.value.record]
+#   ttl = 60
+# }
 
 output "custom_domain_records" {                            
   value = aws_apprunner_custom_domain_association.civiform_domain.certificate_validation_records                      
