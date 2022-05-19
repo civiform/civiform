@@ -28,8 +28,9 @@ public class ApiAuthenticationTest extends ResetPostgres {
       controllers.api.routes.ProgramApplicationsApiController.list(
               "mock-program",
               /* fromDate= */ Optional.empty(),
-              /* toDate= */ Optional.empty(), /* nextPageToken */
-              Optional.empty())
+              /* toDate= */ Optional.empty(),
+              /* nextPageToken= */ Optional.empty(),
+              /* pageSize= */ Optional.empty())
           .url();
 
   @Before

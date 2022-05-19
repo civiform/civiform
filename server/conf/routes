@@ -116,7 +116,7 @@ GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview                 controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 
 # API
-GET     /api/v1/admin/programs/:programSlug/applications    controllers.api.ProgramApplicationsApiController.list(request: Request, programSlug: String, fromDate: java.util.Optional[String], toDate: java.util.Optional[String], nextPageToken: java.util.Optional[String])
+GET     /api/v1/admin/programs/:programSlug/applications    controllers.api.ProgramApplicationsApiController.list(request: Request, programSlug: String, fromDate: java.util.Optional[String], toDate: java.util.Optional[String], nextPageToken: java.util.Optional[String], pageSize: java.util.Optional[Integer])
 
 # Methods for user support incidents
 GET     /support/unconfirmedIdcsEmail  controllers.SupportController.handleUnconfirmedIdcsEmail(request: Request)
