@@ -10,13 +10,6 @@ describe('Most recently updated program is at top of list.', () => {
   it('sorts by last updated, preferring draft over active', async () => {
     const { browser, page } = await startSession()
 
-    // We pause for a brief period between actions
-    // since this affects the last updated timestamp.
-    // In our client-side sorting, we consider timestamps
-    // to be the same if they're within 1 second of each other
-    // due to TODO(issue).
-    const delayMillis = 1000
-
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
