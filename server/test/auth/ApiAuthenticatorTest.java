@@ -125,6 +125,7 @@ public class ApiAuthenticatorTest {
 
   @Test
   public void validate_isExpired() {
+    // Set the expiration to the past, any time in the past will suffice.
     apiKey.setExpiration(Instant.now().minusSeconds(100));
     apiKey.save();
 
