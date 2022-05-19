@@ -94,7 +94,7 @@ public class ApiKey extends BaseModel {
     return expiration;
   }
 
-  /** True if the supplied time is after the expiration date. */
+  /** True if the key is expired after {@code instant}. */
   public boolean expiredAfter(Instant instant) {
     return instant.isAfter(expiration);
   }
