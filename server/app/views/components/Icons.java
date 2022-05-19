@@ -9,6 +9,8 @@ import services.question.types.QuestionType;
  */
 public class Icons {
 
+  public static final String ADD_SVG_PATH =
+      "M9.125 15.833V10.875H4.167V9.125H9.125V4.167H10.875V9.125H15.833V10.875H10.875V15.833Z";
   // Place
   public static final String ADDRESS_SVG_PATH =
       "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38"
@@ -28,6 +30,12 @@ public class Icons {
       "M19 4h-1V3c0-.55-.45-1-1-1s-1 .45-1 1v1H8V3c0-.55-.45-1-1-1s-1 .45-1 1v1H5c-1.11"
           + " 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 15c0"
           + " .55-.45 1-1 1H6c-.55 0-1-.45-1-1V9h14v10zM7 11h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z";
+  public static final String DOWNLOAD_SVG_PATH =
+      "M10 13.271 5.708 8.979 6.958 7.729 9.125 9.896V3.333H10.875V9.896L13.042 7.729L14.292"
+          + " 8.979ZM5.083 16.667Q4.354 16.667 3.844 16.156Q3.333 15.646 3.333"
+          + " 14.917V12.5H5.083V14.917Q5.083 14.917 5.083 14.917Q5.083 14.917 5.083"
+          + " 14.917H14.917Q14.917 14.917 14.917 14.917Q14.917 14.917 14.917"
+          + " 14.917V12.5H16.667V14.917Q16.667 15.646 16.156 16.156Q15.646 16.667 14.917 16.667Z";
   // Arrow Drop Down Circle
   public static final String DROPDOWN_SVG_PATH =
       "M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.48 2 2 6.48 2 12s4.48 10 10"
@@ -82,6 +90,12 @@ public class Icons {
           + " M13.5,14h-4l1-4h4L13.5,14z";
   public static final String PLUS_SVG_PATH =
       "M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z";
+  public static final String PUBLISH_SVG_PATH =
+      "M9.125 16.667V10.104L6.958 12.271L5.708 11.021L10 6.729L14.292 11.021L13.042 12.271L10.875"
+          + " 10.104V16.667ZM3.333 7.5V5.083Q3.333 4.354 3.844 3.844Q4.354 3.333 5.083"
+          + " 3.333H14.917Q15.646 3.333 16.156 3.844Q16.667 4.354 16.667"
+          + " 5.083V7.5H14.917V5.083Q14.917 5.083 14.917 5.083Q14.917 5.083 14.917"
+          + " 5.083H5.083Q5.083 5.083 5.083 5.083Q5.083 5.083 5.083 5.083V7.5Z";
   public static final String SEARCH_SVG_PATH =
       "M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23"
           + "  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92"
@@ -182,7 +196,10 @@ public class Icons {
   }
 
   public static ContainerTag svg(String pathString, int width, int height) {
-    return svg(pathString).attr("viewBox", String.format("0 0 %1$d %2$d", width, height));
+    return svg(pathString)
+        .attr("viewBox", String.format("0 0 %1$d %2$d", width, height))
+        .attr("width", width)
+        .attr("height", height);
   }
 
   private static ContainerTag svg(String pathString) {

@@ -26,6 +26,9 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.components.ActionButton;
+import views.components.ActionButton.ActionType;
+import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.style.ReferenceClasses;
@@ -51,7 +54,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       layout.setOnlyProgramAdminType();
     }
     return request.queryString().containsKey("v2")
-        ? renderV2()
+        ? renderV2(programs, request)
         : renderV1(programs, request, profile);
   }
 
@@ -62,7 +65,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         div()
             .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
             .with(p("Are you sure you want to publish all programs?").withClasses(Styles.P_2))
-            .with(maybeRenderPublishButton(programs, request));
+            .with(maybeRenderPublishButton(false, programs, request));
     Modal publishAllModal =
         Modal.builder("publish-all-programs-modal", publishAllModalContent)
             .setModalTitle("Confirmation")
@@ -81,7 +84,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 h1(pageTitle).withClasses(Styles.MY_4),
                 div()
                     .withClasses(Styles.FLEX, Styles.ITEMS_CENTER)
-                    .with(renderNewProgramButton())
+                    .with(renderNewProgramButton(false))
                     .with(div().withClass(Styles.FLEX_GROW))
                     .condWith(programs.anyDraft(), publishAllModal.getButton()),
                 div()
@@ -115,12 +118,38 @@ public final class ProgramIndexView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private Content renderV2() {
+  private Content renderV2(ActiveAndDraftPrograms programs, Http.Request request) {
     HtmlBundle htmlBundle =
         layout
             .getBundle()
             .setTitle("Placeholder")
-            .addMainContent(p("Placeholder"))
+            .addMainContent(
+                div()
+                    .withClasses(Styles.PX_4)
+                    .with(
+                        div()
+                            .withClasses(
+                                Styles.FLEX,
+                                Styles.ITEMS_CENTER,
+                                Styles.SPACE_X_4,
+                                Styles.MT_12,
+                                Styles.MB_10)
+                            .with(
+                                h1("All programs"),
+                                div().withClass(Styles.FLEX_GROW),
+                                ActionButton.builder()
+                                    .setActionType(ActionType.SECONDARY)
+                                    .setId("download-export-csv-button")
+                                    .setText("Download exported data (CSV)")
+                                    .setSvgRef(Icons.DOWNLOAD_SVG_PATH)
+                                    .setOnClickJS(
+                                        ActionButton.navigateToJS(
+                                            routes.AdminApplicationController.downloadDemographics()
+                                                .url()))
+                                    .build()
+                                    .render(),
+                                renderNewProgramButton(true),
+                                maybeRenderPublishButton(true, programs, request))))
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
     return layout.renderCentered(htmlBundle);
   }
@@ -133,27 +162,48 @@ public final class ProgramIndexView extends BaseHtmlView {
         .asButton();
   }
 
-  private Tag maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {
+  private Tag maybeRenderPublishButton(
+      boolean isV2, ActiveAndDraftPrograms programs, Http.Request request) {
     // We should only render the publish button if there is at least one draft.
     if (programs.anyDraft()) {
       String link = routes.AdminProgramController.publish().url();
+      String id = "publish-programs-button";
+      if (isV2) {
+        return ActionButton.builder()
+            .setId(id)
+            .setActionType(ActionType.PRIMARY)
+            .setSvgRef(Icons.PUBLISH_SVG_PATH)
+            .setText("Publish all programs")
+            .setOnClickJS(ActionButton.navigateToJS(link))
+            .build()
+            .render();
+      }
       return new LinkElement()
-          .setId("publish-programs-button")
+          .setId(id)
           .setHref(link)
           .setText("Publish all drafts")
           .asHiddenForm(request);
     } else {
-      return div();
+      return null;
     }
   }
 
-  private Tag renderNewProgramButton() {
+  private Tag renderNewProgramButton(boolean isV2) {
     String link = controllers.admin.routes.AdminProgramController.newOne().url();
-    return new LinkElement()
-        .setId("new-program-button")
-        .setHref(link)
-        .setText("Create new program")
-        .asButton();
+    String id = "new-program-button";
+    String text = "Create new program";
+
+    if (isV2) {
+      return ActionButton.builder()
+          .setId(id)
+          .setActionType(ActionType.SECONDARY)
+          .setSvgRef(Icons.ADD_SVG_PATH)
+          .setText(text)
+          .setOnClickJS(ActionButton.navigateToJS(link))
+          .build()
+          .render();
+    }
+    return new LinkElement().setId(id).setHref(link).setText(text).asButton();
   }
 
   public ProgramDefinition getDisplayProgram(

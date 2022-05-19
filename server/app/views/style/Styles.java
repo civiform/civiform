@@ -699,6 +699,7 @@ public final class Styles {
   public static final String SELF_END = "self-end";
   public static final String SELF_CENTER = "self-center";
   public static final String SELF_STRETCH = "self-stretch";
+  public static final String SPACE_X_4 = "space-x-4";
   public static final String JUSTIFY_ITEMS_AUTO = "justify-items-auto";
   public static final String JUSTIFY_ITEMS_START = "justify-items-start";
   public static final String JUSTIFY_ITEMS_END = "justify-items-end";
