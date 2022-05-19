@@ -17,6 +17,10 @@ readonly AZURE_LOG_FILE_NAME="civiform_deployment_log.txt"
 #   LOG_TEMPFILE: the path to a tempfile containing the deploy log.
 #######################################
 function azure_log::fetch_log_file() {
+  if civiform_mode::is_test; then
+    return 0
+  fi
+
   if [[ -n "${1}" ]]; then
     export LOG_TEMPFILE="${1}"
   else
@@ -42,6 +46,10 @@ function azure_log::fetch_log_file() {
 #   LOG_TEMPFILE
 #######################################
 function azure_log::upload_log_file() {
+  if civiform_mode::is_test; then
+    return 0
+  fi
+
   if [[ -n "${1}" ]]; then
     LOG_TEMPFILE="${1}"
   fi
@@ -67,6 +75,10 @@ function azure_log::upload_log_file() {
 #   AZURE_LOG_FILE_NAME
 #######################################
 function azure_log::log_file_exists() {
+  if civiform_mode::is_test; then
+    return 0
+  fi
+
   az storage blob exists \
     --auth-mode login \
     --account-name "${AZURE_LOG_STORAGE_ACCOUNT_NAME}" \
@@ -83,6 +95,10 @@ function azure_log::log_file_exists() {
 #   AZURE_LOG_STORAGE_ACCOUNT_NAME
 #######################################
 function azure_log::ensure_log_role_assignments() {
+  if civiform_mode::is_test; then
+    return 0
+  fi
+
   echo "Granting current user access to deploy log storage account..."
   storage::assign_storage_account_contributor_role_to_user "${AZURE_RESOURCE_GROUP}"
   azure::ensure_role_assignment \
@@ -103,6 +119,10 @@ function azure_log::ensure_log_role_assignments() {
 #   AZURE_SUBSCRIPTION
 #######################################
 function azure_log::initialize_log_file() {
+  if civiform_mode::is_test; then
+    return 0
+  fi
+
   echo "Start azure_log::initialize_log_file"
 
   echo "Creating deploy log storage account..."

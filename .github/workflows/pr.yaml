@@ -34,6 +34,8 @@ jobs:
 
   cloudformation:
     runs-on: ubuntu-18.04 # for older version of awscli.
+    permissions:
+      pull-requests: write # to allow for mshick/add-pr-comment to add comments
     steps:
       - id: file_changes
         uses: trilom/file-changes-action@v1.2.4

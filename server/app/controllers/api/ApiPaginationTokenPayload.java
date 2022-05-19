@@ -58,7 +58,8 @@ public class ApiPaginationTokenPayload {
       if (this == o) return true;
       if (!(o instanceof PageSpec)) return false;
       PageSpec pageSpec = (PageSpec) o;
-      return pageSize == pageSpec.pageSize && Objects.equal(offsetIdentifier, pageSpec.offsetIdentifier);
+      return pageSize == pageSpec.pageSize
+          && Objects.equal(offsetIdentifier, pageSpec.offsetIdentifier);
     }
 
     @Override

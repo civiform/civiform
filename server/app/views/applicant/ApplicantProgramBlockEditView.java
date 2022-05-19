@@ -82,8 +82,9 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
               params.messages()));
     }
 
-    // Add question validation scripts.
-    bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("validation"));
+    if (params.block().isFileUpload()) {
+      bundle.addFooterScripts(layout.viewUtils.makeLocalJsTag("file_upload"));
+    }
 
     return layout.renderWithNav(
         params.request(), params.applicantName(), params.messages(), bundle);
