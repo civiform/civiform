@@ -330,13 +330,14 @@ public class FieldWithLabel {
   }
 
   protected void applyAttributesFromList(Tag fieldTag) {
+    fieldTag.attr("type", getFieldType());
     this.attributesListBuilder.build().forEach(attr -> fieldTag.attr(attr, null));
   }
 
   protected DivTag wrappedGetTagContainer(Tag fieldTag) {
     genRandIdIfEmpty();
     if (fieldTag.getTagName().equals("textarea")) {
-      fieldTag.attr("type", "text").attr("text", this.fieldValue);
+      fieldTag.attr("text", this.fieldValue);
     } else if (this.fieldType.equals("number")) {
       numberTagApplyAttrs(fieldTag);
       // For number types, only set the value if it's present since there is no empty string
