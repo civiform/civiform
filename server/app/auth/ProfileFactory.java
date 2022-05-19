@@ -7,6 +7,7 @@ import javax.inject.Provider;
 import models.Account;
 import models.ApiKey;
 import models.Applicant;
+import org.apache.commons.lang3.RandomStringUtils;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
 import repository.VersionRepository;
@@ -45,7 +46,7 @@ public class ProfileFactory {
   }
 
   public CiviFormProfileData createNewFakeAdmin() {
-    return createNewAdmin(Optional.of(FAKE_ADMIN_AUTHORITY_ID));
+    return createNewAdmin(Optional.of(generateFakeAdminAuthorityId()));
   }
 
   public CiviFormProfileData createNewAdmin(Optional<String> maybeAuthorityId) {
@@ -117,7 +118,7 @@ public class ProfileFactory {
                   .forEach(
                       program -> account.addAdministeredProgram(program.getProgramDefinition()));
               account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));
-              account.setAuthorityId(FAKE_ADMIN_AUTHORITY_ID);
+              account.setAuthorityId(generateFakeAdminAuthorityId());
               account.save();
             })
         .join();
@@ -136,7 +137,7 @@ public class ProfileFactory {
         .thenAccept(
             account -> {
               account.setGlobalAdmin(true);
-              account.setAuthorityId(FAKE_ADMIN_AUTHORITY_ID);
+              account.setAuthorityId(generateFakeAdminAuthorityId());
               versionRepositoryProvider
                   .get()
                   .getActiveVersion()
@@ -148,5 +149,11 @@ public class ProfileFactory {
             })
         .join();
     return p;
+  }
+
+  private static String generateFakeAdminAuthorityId() {
+    return FAKE_ADMIN_AUTHORITY_ID
+        + "-"
+        + RandomStringUtils.random(12, /* letters= */ true, /* numbers= */ true);
   }
 }
