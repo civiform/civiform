@@ -23,8 +23,8 @@ import org.apache.commons.net.util.SubnetUtils;
 import play.Environment;
 import play.data.DynamicForm;
 import repository.ApiKeyRepository;
+import services.CryptographicUtils;
 import services.DateConverter;
-import services.EncryptionUtils;
 import services.PaginationResult;
 import services.PaginationSpec;
 import services.program.ProgramNotFoundException;
@@ -276,7 +276,7 @@ public class ApiKeyService {
    * as a key.
    */
   public String salt(String message) {
-    return EncryptionUtils.sign(message, secretSalt);
+    return CryptographicUtils.sign(message, secretSalt);
   }
 
   private String getAuthorityId(CiviFormProfile profile) {

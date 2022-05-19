@@ -11,13 +11,12 @@ public class OffsetBasedPaginationSpec<T> extends PaginationSpec {
   private Optional<T> currentPageOffsetIdentifier;
 
   public OffsetBasedPaginationSpec(int pageSize) {
-    super(pageSize, 1);
+    super(pageSize);
     this.currentPageOffsetIdentifier = Optional.empty();
   }
 
-  public OffsetBasedPaginationSpec(
-      int pageSize, int currentPage, Optional<T> currentPageOffsetIdentifier) {
-    super(pageSize, currentPage);
+  public OffsetBasedPaginationSpec(int pageSize, Optional<T> currentPageOffsetIdentifier) {
+    super(pageSize);
     this.currentPageOffsetIdentifier = currentPageOffsetIdentifier;
   }
 

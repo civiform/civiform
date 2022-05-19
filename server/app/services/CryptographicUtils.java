@@ -5,7 +5,7 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import java.util.Base64;
 
-public class EncryptionUtils {
+public class CryptographicUtils {
 
   /** Apply the HMAC-SHA-256 hashing function to the input using the provided key. */
   public static String sign(String message, String key) {

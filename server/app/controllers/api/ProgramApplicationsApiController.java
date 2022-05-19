@@ -3,16 +3,15 @@ package controllers.api;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileUtils;
-import com.fasterxml.jackson.core.JsonFactory;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import models.Application;
 import play.libs.F;
@@ -29,7 +28,6 @@ import services.program.ProgramService;
 /** API controller for admin access to a specific program's applications. */
 public class ProgramApplicationsApiController extends CiviFormApiController {
 
-  private final ApiPaginationTokenSerializer apiPaginationTokenSerializer;
   private final DateConverter dateConverter;
   private final ProgramService programService;
   private final HttpExecutionContext httpContext;
@@ -45,13 +43,12 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
       HttpExecutionContext httpContext,
       ProgramService programService,
       Config config) {
-    super(profileUtils);
-    this.apiPaginationTokenSerializer = checkNotNull(apiPaginationTokenSerializer);
+    super(apiPaginationTokenSerializer, profileUtils);
     this.dateConverter = checkNotNull(dateConverter);
     this.httpContext = checkNotNull(httpContext);
     this.jsonExporter = checkNotNull(jsonExporter);
     this.programService = checkNotNull(programService);
-    this.maxPageSize = checkNotNull(config).getInt("api_applications_list_maxPageSize");
+    this.maxPageSize = checkNotNull(config).getInt("api_applications_list_max_page_size");
   }
 
   public CompletionStage<Result> list(
@@ -79,6 +76,10 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
         .thenApplyAsync(
             programDefinition -> {
               PaginationResult<Application> paginationResult;
+
+              // By now the program specified by the request has already been found and
+              // retrieved, so if a ProgramNotFoundException occurs in the following code
+              // it's due to an error in the server code, not a bad request.
               try {
                 paginationResult =
                     programService.getSubmittedProgramApplicationsAllVersions(
@@ -89,17 +90,48 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
 
               String applicationsJson =
                   jsonExporter.export(programDefinition, paginationResult).getLeft();
-              Long offsetIdentifier = Iterables.getLast(paginationResult.getPageContents()).id;
 
               String responseJson =
                   getResponseJson(
                       applicationsJson,
-                      paginationResult.hasMorePages(),
-                      paginationSpec.setCurrentPageOffsetIdentifier(offsetIdentifier));
+                      getNextPageToken(paginationResult, pageSize, fromTime, toTime));
 
               return ok(responseJson).as("application/json");
             },
-            httpContext.current());
+            httpContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof ProgramNotFoundException) {
+                  return badRequest(cause.toString());
+                }
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
+  }
+
+  private Optional<ApiPaginationTokenPayload> getNextPageToken(
+      PaginationResult<Application> paginationResult,
+      int pageSize,
+      Optional<Instant> fromTime,
+      Optional<Instant> toTime) {
+    var pageSpec =
+        new ApiPaginationTokenPayload.PageSpec(
+            Iterables.getLast(paginationResult.getPageContents()).id.toString(), pageSize);
+
+    ImmutableMap.Builder<String, String> requestSpec = ImmutableMap.builder();
+    fromTime.ifPresent(
+        (fromInstant) -> requestSpec.put("fromDate", dateConverter.formatIso8601Date(fromInstant)));
+    toTime.ifPresent(
+        (toInstant) -> requestSpec.put("toDate", dateConverter.formatIso8601Date(toInstant)));
+
+    Optional<ApiPaginationTokenPayload> nextPageToken =
+        paginationResult.hasMorePages()
+            ? Optional.of(new ApiPaginationTokenPayload(pageSpec, requestSpec.build()))
+            : Optional.empty();
+    return nextPageToken;
   }
 
   private int resolvePageSize(
@@ -166,33 +198,6 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
       ApiPaginationTokenPayload apiPaginationTokenPayload) {
     return new OffsetBasedPaginationSpec<>(
         apiPaginationTokenPayload.getPageSpec().getPageSize(),
-        1,
         Optional.of(Long.valueOf(apiPaginationTokenPayload.getPageSpec().getOffsetIdentifier())));
-  }
-
-  protected String getResponseJson(
-      String payload, boolean hasMorePages, OffsetBasedPaginationSpec<Long> paginationSpec) {
-    var writer = new StringWriter();
-
-    try {
-      var jsonGenerator = new JsonFactory().createGenerator(writer);
-      jsonGenerator.writeStartObject();
-      jsonGenerator.writeFieldName("payload");
-      jsonGenerator.writeRawValue(payload);
-
-      jsonGenerator.writeFieldName("nextPageToken");
-      if (hasMorePages) {
-        // TODO compute the next page token
-      } else {
-        jsonGenerator.writeNull();
-      }
-
-      jsonGenerator.writeEndObject();
-      jsonGenerator.close();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
-    return writer.toString();
   }
 }

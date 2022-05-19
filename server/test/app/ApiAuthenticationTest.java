@@ -5,11 +5,9 @@ import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
 
-import auth.ApiKeyGrants;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
-import models.ApiKey;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.core.context.HttpConstants;
@@ -25,25 +23,19 @@ public class ApiAuthenticationTest extends ResetPostgres {
   private static final String keyId = "keyId";
   private static final String secret = "secret";
   public static final String API_URL =
-      controllers.api.routes.ProgramApplicationsApiController.list(
-              "mock-program",
-              /* fromDate= */ Optional.empty(),
-              /* toDate= */ Optional.empty(),
-              /* nextPageToken= */ Optional.empty(),
-              /* pageSize= */ Optional.empty())
-          .url();
+      controllers.api.routes.CiviFormApiController.checkAuth().url();
 
   @Before
   public void setUp() {
-    ApiKey apiKey = resourceCreator.createActiveApiKey("test-key", keyId, secret);
-    apiKey.getGrants().grantProgramPermission("mock-program", ApiKeyGrants.Permission.READ);
-    apiKey.save();
+    resourceCreator.createActiveApiKey("test-key", keyId, secret);
   }
 
   @Test
   public void nonApiRoutes_doNotRequireApiAuth() {
-    Result result = doGetRequest(fakeRequest("GET", API_URL));
-    System.out.println(result.headers());
+    Result result =
+        doGetRequest(
+            fakeRequest(
+                "GET", controllers.routes.HomeController.loginForm(Optional.empty()).url()));
     assertThat(result.status()).isEqualTo(HttpConstants.OK);
   }
 

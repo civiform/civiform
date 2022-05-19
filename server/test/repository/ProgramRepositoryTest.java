@@ -313,16 +313,14 @@ public class ProgramRepositoryTest extends ResetPostgres {
     paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            F.Either.Right(
+            F.Either.Left(
                 new OffsetBasedPaginationSpec<>(
-                    2, 2, Optional.of(paginationResult.getPageContents().get(1).id))),
+                    2, Optional.of(paginationResult.getPageContents().get(1).id))),
             Optional.empty(),
             Optional.empty(),
             Optional.empty());
 
-    assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
-
     assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantOne);
   }
 }
