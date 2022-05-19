@@ -92,10 +92,6 @@ public class SelectWithLabel extends FieldWithLabel {
   public DivTag getContainer() {
     SelectTag fieldTag = TagCreator.select();
     OptionTag placeholder = option(placeholderText).withValue("").attr(Attr.HIDDEN);
-    genRandIdIfEmpty();
-    applyAttributesFromList(fieldTag);
-
-    fieldTag.attr("value", this.fieldValue);
 
     if (this.fieldValue.isEmpty()) {
       placeholder.attr(Attr.SELECTED);
@@ -115,11 +111,7 @@ public class SelectWithLabel extends FieldWithLabel {
             fieldTag.with(optionTag);
           });
     }
-
-    boolean hasFieldErrors = getHasFieldErrors();
-    generalApplyAttrsClasesToTag(fieldTag, hasFieldErrors);
-    LabelTag labelTag = genLabelTag();
-
-    return wrapInDivTag(fieldTag, labelTag);
+    
+    return super.wrappedGetTagContainer(fieldTag);
   }
 }

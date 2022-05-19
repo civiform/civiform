@@ -316,7 +316,7 @@ public class FieldWithLabel {
     }
   }
 
-  protected void generalApplyAttrsClasesToTag(Tag fieldTag, boolean hasFieldErrors) {
+  protected void generalApplyAttrsClassesToTag(Tag fieldTag, boolean hasFieldErrors) {
     fieldTag
         .withClasses(
             StyleUtils.joinStyles(
@@ -333,38 +333,28 @@ public class FieldWithLabel {
     this.attributesListBuilder.build().forEach(attr -> fieldTag.attr(attr, null));
   }
 
-  protected DivTag getTextareaTagContainer(TextareaTag fieldTag) {
+  protected DivTag wrappedGetTagContainer(Tag fieldTag) {
     genRandIdIfEmpty();
-
-    // Have to recreate the field here in case the value is modified.
-    fieldTag.attr("type", "text").withText(this.fieldValue);
-    applyAttributesFromList(fieldTag);
-
-    boolean hasFieldErrors = getHasFieldErrors();
-    generalApplyAttrsClasesToTag(fieldTag, hasFieldErrors);
-
-    LabelTag labelTag = genLabelTag();
-
-    return wrapInDivTag(fieldTag, labelTag);
-  }
-
-  protected DivTag getInputTagContainer(InputTag fieldTag) {
-    genRandIdIfEmpty();
-
-    applyAttributesFromList(fieldTag);
-
-    if (getFieldType().equals("number")) {
+    if (fieldTag.getTagName().equals("textarea")) {
+      fieldTag.attr("type", "text").attr("text", this.fieldValue);
+    } else if (this.fieldType.equals("number")) {
       numberTagApplyAttrs(fieldTag);
+      // For number types, only set the value if it's present since there is no empty string
+      // equivalent for numbers.
+      if (this.fieldValueNumber.isPresent()) {
+        fieldTag.attr("value", String.valueOf(this.fieldValueNumber.getAsLong()));
+      }
     } else {
       fieldTag.attr("value", this.fieldValue);
     }
 
     boolean hasFieldErrors = getHasFieldErrors();
-    generalApplyAttrsClasesToTag(fieldTag, hasFieldErrors);
+    generalApplyAttrsClassesToTag(fieldTag, hasFieldErrors);
 
     if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
-      return div(getCheckboxContainer(fieldTag));
+      return getCheckboxContainer(fieldTag);
     }
+
     LabelTag labelTag = genLabelTag();
 
     return wrapInDivTag(fieldTag, labelTag);
@@ -376,11 +366,13 @@ public class FieldWithLabel {
 
     if (isTagTypeTextarea()) {
       textareaFieldTagMaybe = TagCreator.textarea();
-      return getTextareaTagContainer(textareaFieldTagMaybe);
+      applyAttributesFromList(textareaFieldTagMaybe);
+      return wrappedGetTagContainer(textareaFieldTagMaybe);
     } else {
       // TODO ensure `apply` methods set .withtype('text') and .withText(fieldValue)?
       inputFieldTagMaybe = TagCreator.input();
-      return getInputTagContainer(inputFieldTagMaybe);
+      applyAttributesFromList(inputFieldTagMaybe);
+      return wrappedGetTagContainer(inputFieldTagMaybe);
     }
   }
 
