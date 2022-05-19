@@ -38,16 +38,9 @@ class AdminPrograms {
       const firstComparator = this.comparatorObject(first)
       const secondComparator = this.comparatorObject(second)
 
-      let lastUpdatedComparator =
-        secondComparator.lastUpdatedMillis - firstComparator.lastUpdatedMillis
-      // TODO(issue #): Consider elements within 1 second of each
-      // other as equivalent.
-      if (Math.abs(lastUpdatedComparator) < 1000) {
-        lastUpdatedComparator = 0
-      }
-
       return (
-        lastUpdatedComparator ||
+        secondComparator.lastUpdatedMillis -
+          firstComparator.lastUpdatedMillis ||
         firstComparator.name.localeCompare(secondComparator.name)
       )
     })

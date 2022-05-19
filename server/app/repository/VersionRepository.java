@@ -14,6 +14,8 @@ import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
+import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -70,6 +72,12 @@ public class VersionRepository {
       Predicate<Question> questionIsDeletedInDraft =
           question -> draft.questionIsTombstoned(question.getQuestionDefinition().getName());
 
+      Comparator<Program> programComparator =
+          Comparator.comparing(
+              p -> p.getProgramDefinition().lastModifiedTime().orElse(Instant.EPOCH));
+      programComparator =
+          programComparator.thenComparing(p -> p.getProgramDefinition().adminName());
+
       // Associate any active programs that aren't present in the draft with the draft.
       active.getPrograms().stream()
           // Exclude programs deleted in the draft.
@@ -78,6 +86,7 @@ public class VersionRepository {
           .filter(
               activeProgram ->
                   !draftProgramsNames.contains(activeProgram.getProgramDefinition().adminName()))
+          .sorted(programComparator)
           // For each active program not associated with the draft, associate it with the draft.
           .forEach(activeProgramNotInDraft -> activeProgramNotInDraft.addVersion(draft).save());
 
@@ -86,7 +95,9 @@ public class VersionRepository {
       // the program list. In order to prevent these implicitly created versions
       // from appearing earlier in the list, we also perform an explicit save
       // on the draft program versions.
-      draft.getPrograms().stream().forEach(draftProgram -> draftProgram.save());
+      draft.getPrograms().stream()
+          .sorted(programComparator)
+          .forEach(draftProgram -> draftProgram.save());
 
       // Associate any active questions that aren't present in the draft with the draft.
       active.getQuestions().stream()

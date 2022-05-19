@@ -4,7 +4,6 @@ import {
   AdminQuestions,
   AdminPrograms,
   endSession,
-  sleep,
 } from './support'
 
 describe('Most recently updated program is at top of list.', () => {
@@ -22,17 +21,10 @@ describe('Most recently updated program is at top of list.', () => {
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
-    // Using program names early in the alphabet
-    // ensures that they will appear first in the list.
-    // This is important when the secondary alphabetical
-    // sort is used when all programs have similar last
-    // modified timestamps.
-    await adminPrograms.addProgram('0 0 m')
-    await sleep(delayMillis)
-    await adminPrograms.addProgram('0 0 z')
-    await sleep(delayMillis)
-    await adminPrograms.addProgram('0 0 a')
-    await sleep(delayMillis)
+    const programOne = 'list test program one'
+    const programTwo = 'list test program two'
+    await adminPrograms.addProgram(programOne)
+    await adminPrograms.addProgram(programTwo)
 
     // Note: CI tests already have test programs
     // available. As such, we only assert the order
@@ -40,30 +32,28 @@ describe('Most recently updated program is at top of list.', () => {
 
     // Most recently added program is on top.
     let programNames = await adminPrograms.programNames()
-    expect(programNames.length).toBeGreaterThanOrEqual(3)
-    expect(programNames.slice(0, 3)).toEqual(['0 0 a', '0 0 z', '0 0 m'])
+    expect(programNames.length).toBeGreaterThanOrEqual(2)
+    expect(programNames.slice(0, 2)).toEqual([programTwo, programOne])
 
-    // Publish all programs. Since programs have a similar
-    // timestamp, the list is sorted alphabetically.
+    // Publish all programs, order should be maintained.
     await adminPrograms.publishAllPrograms()
-    await sleep(delayMillis)
     programNames = await adminPrograms.programNames()
-    expect(programNames.length).toBeGreaterThanOrEqual(3)
-    expect(programNames.slice(0, 3)).toEqual(['0 0 a', '0 0 m', '0 0 z'])
+    expect(programNames.length).toBeGreaterThanOrEqual(2)
+    expect(programNames.slice(0, 2)).toEqual([programTwo, programOne])
 
-    // Now create a draft version of the previously middle program, it should be on top.
-    await adminPrograms.createNewVersion('0 0 m')
-    await sleep(delayMillis)
+    // Now create a draft version of the previously last program. After,
+    // it should be on top.
+    await adminPrograms.createNewVersion(programOne)
     programNames = await adminPrograms.programNames()
-    expect(programNames.length).toBeGreaterThanOrEqual(3)
-    expect(programNames.slice(0, 3)).toEqual(['0 0 m', '0 0 a', '0 0 z'])
+    expect(programNames.length).toBeGreaterThanOrEqual(2)
+    expect(programNames.slice(0, 2)).toEqual([programOne, programTwo])
 
     // Now create a new program, which should be on top.
-    await adminPrograms.addProgram('0 0 d')
-    await sleep(delayMillis)
+    const programThree = 'list test program three'
+    await adminPrograms.addProgram(programThree)
     programNames = await adminPrograms.programNames()
-    expect(programNames.length).toBeGreaterThanOrEqual(4)
-    expect(programNames.slice(0, 4)).toEqual(['0 0 d', '0 0 m', '0 0 a', '0 0 z'])
+    expect(programNames.length).toBeGreaterThanOrEqual(3)
+    expect(programNames.slice(0, 3)).toEqual([programThree, programOne, programTwo])
 
     await endSession(browser)
   })
