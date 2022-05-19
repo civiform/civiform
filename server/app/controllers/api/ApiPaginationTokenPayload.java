@@ -1,6 +1,7 @@
 package controllers.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 
@@ -50,6 +51,19 @@ public class ApiPaginationTokenPayload {
 
     public int getPageSize() {
       return pageSize;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (!(o instanceof PageSpec)) return false;
+      PageSpec pageSpec = (PageSpec) o;
+      return pageSize == pageSpec.pageSize && Objects.equal(offsetIdentifier, pageSpec.offsetIdentifier);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(offsetIdentifier, pageSize);
     }
   }
 }
