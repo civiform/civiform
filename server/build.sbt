@@ -9,6 +9,8 @@ lazy val root = (project in file("."))
     scalaVersion := "2.13.8",
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
+      // Provides in-memory caching via the Play cache interface.
+      // More info: https://www.playframework.com/documentation/2.8.x/JavaCache
       caffeine,
       guice,
       javaJdbc,

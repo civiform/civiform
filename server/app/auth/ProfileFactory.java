@@ -57,6 +57,10 @@ public class ProfileFactory {
     return new CiviFormProfile(dbContext, httpContext, p);
   }
 
+  /**
+   * Retrieves an API key from the API cache. API keys are effectively the profile (i.e. record of
+   * identity and authority) for API requests.
+   */
   public Optional<ApiKey> retrieveApiKey(String keyId) {
     Optional<Optional<ApiKey>> cacheResult = syncCacheApi.get(keyId);
 

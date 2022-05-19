@@ -76,6 +76,11 @@ public class ApiAuthenticator implements Authenticator {
       throw new RuntimeException("ApiAuthenticator must receive UsernamePasswordCredentials.");
     }
 
+    // The terms "username" and "password" here may look a bit odd since API requests are not
+    // associated with user accounts but rather API keys. They're used here because pac4j's
+    // built-in support for basic auth uses those terms to identify the components of the
+    // basic auth credentials. In this sense, the API key ID is the "username" and the secret
+    // is the "password". An API key itself can be thought of as the "user account".
     UsernamePasswordCredentials credentials = (UsernamePasswordCredentials) rawCredentials;
     String keyId = credentials.getUsername();
 

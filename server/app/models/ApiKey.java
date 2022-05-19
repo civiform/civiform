@@ -94,7 +94,11 @@ public class ApiKey extends BaseModel {
     return expiration;
   }
 
-  /** True if the key is expired after {@code instant}. */
+  /**
+   * True if the key is expired after {@code instant}. Note that instants represent time on a
+   * standardized timeline (UTC) so dates should be represented with their timezone when converted
+   * to instants for comparison.
+   */
   public boolean expiredAfter(Instant instant) {
     return instant.isAfter(expiration);
   }

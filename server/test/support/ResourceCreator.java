@@ -32,12 +32,13 @@ public class ResourceCreator {
     ProgramBuilder.setInjector(injector);
   }
 
+  /** Create an API key with subnet of "1.1.1.1/32" and an expiration date that never expires. */
   public ApiKey createActiveApiKey(String name, String keyId, String keySecret) {
     ApiKey apiKey =
         new ApiKey()
             .setName(name)
             .setKeyId(keyId)
-            .setExpiration(Instant.now().plusSeconds(100))
+            .setExpiration(Instant.MAX)
             .setSubnet("1.1.1.1/32")
             .setSaltedKeySecret(injector.instanceOf(ApiKeyService.class).salt(keySecret))
             .setCreatedBy("test");
