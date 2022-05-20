@@ -14,8 +14,6 @@ import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
-import java.time.Instant;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -72,14 +70,6 @@ public class VersionRepository {
       Predicate<Question> questionIsDeletedInDraft =
           question -> draft.questionIsTombstoned(question.getQuestionDefinition().getName());
 
-      // Below, programs are saved from least recently updated to most recently
-      // updated in order to preserve the relative ordering of their updated
-      // timestamps. This is important since the program list shown to admins
-      // orders the list based on when the program was last updated.
-      Comparator<Program> programComparator =
-          Comparator.comparing(
-              p -> p.getProgramDefinition().lastModifiedTime().orElse(Instant.EPOCH));
-
       // Associate any active programs that aren't present in the draft with the draft.
       active.getPrograms().stream()
           // Exclude programs deleted in the draft.
@@ -88,18 +78,8 @@ public class VersionRepository {
           .filter(
               activeProgram ->
                   !draftProgramsNames.contains(activeProgram.getProgramDefinition().adminName()))
-          .sorted(programComparator)
           // For each active program not associated with the draft, associate it with the draft.
           .forEach(activeProgramNotInDraft -> activeProgramNotInDraft.addVersion(draft).save());
-
-      // We create new program entities for each unmodified program above.
-      // This causes them to appear more recently updated when rendered in
-      // the program list. In order to prevent these implicitly created versions
-      // from appearing earlier in the list, we also perform an explicit save
-      // on the draft program versions.
-      draft.getPrograms().stream()
-          .sorted(programComparator)
-          .forEach(draftProgram -> draftProgram.save());
 
       // Associate any active questions that aren't present in the draft with the draft.
       active.getQuestions().stream()
