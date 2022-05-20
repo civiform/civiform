@@ -7,6 +7,7 @@ import javax.inject.Provider;
 import models.Account;
 import models.ApiKey;
 import models.Applicant;
+import org.apache.commons.lang3.RandomStringUtils;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
 import repository.VersionRepository;
@@ -18,6 +19,7 @@ import services.apikey.ApiKeyService;
  */
 public class ProfileFactory {
 
+  public static final String FAKE_ADMIN_AUTHORITY_ID = "fake-admin";
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
   private Provider<VersionRepository> versionRepositoryProvider;
@@ -40,16 +42,27 @@ public class ProfileFactory {
   }
 
   public CiviFormProfileData createNewAdmin() {
-    CiviFormProfileData p = create(new Roles[] {Roles.ROLE_CIVIFORM_ADMIN});
-    wrapProfileData(p)
+    return createNewAdmin(Optional.empty());
+  }
+
+  public CiviFormProfileData createNewFakeAdmin() {
+    return createNewAdmin(Optional.of(generateFakeAdminAuthorityId()));
+  }
+
+  public CiviFormProfileData createNewAdmin(Optional<String> maybeAuthorityId) {
+    CiviFormProfileData profileData = create(new Roles[] {Roles.ROLE_CIVIFORM_ADMIN});
+
+    wrapProfileData(profileData)
         .getAccount()
         .thenAccept(
             account -> {
               account.setGlobalAdmin(true);
+              maybeAuthorityId.ifPresent(account::setAuthorityId);
               account.save();
             })
         .join();
-    return p;
+
+    return profileData;
   }
 
   public CiviFormProfile wrapProfileData(CiviFormProfileData p) {
@@ -105,6 +118,7 @@ public class ProfileFactory {
                   .forEach(
                       program -> account.addAdministeredProgram(program.getProgramDefinition()));
               account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));
+              account.setAuthorityId(generateFakeAdminAuthorityId());
               account.save();
             })
         .join();
@@ -123,6 +137,7 @@ public class ProfileFactory {
         .thenAccept(
             account -> {
               account.setGlobalAdmin(true);
+              account.setAuthorityId(generateFakeAdminAuthorityId());
               versionRepositoryProvider
                   .get()
                   .getActiveVersion()
@@ -134,5 +149,11 @@ public class ProfileFactory {
             })
         .join();
     return p;
+  }
+
+  private static String generateFakeAdminAuthorityId() {
+    return FAKE_ADMIN_AUTHORITY_ID
+        + "-"
+        + RandomStringUtils.random(12, /* letters= */ true, /* numbers= */ true);
   }
 }

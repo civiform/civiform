@@ -13,7 +13,7 @@ import org.pac4j.core.util.HttpActionHelper;
 
 /**
  * This class implements a special client that allows logging in without logging in to a real AD
- * account. The feature is only enabled in development environment.
+ * account. The feature is only enabled in demo mode.
  */
 public class FakeAdminClient extends IndirectClient {
 
@@ -61,7 +61,7 @@ public class FakeAdminClient extends IndirectClient {
             throw new IllegalArgumentException("no admin type provided.");
           }
           if (adminType.get().equals(GLOBAL_ADMIN)) {
-            cred.setUserProfile(profileFactory.createNewAdmin());
+            cred.setUserProfile(profileFactory.createNewFakeAdmin());
           } else if (adminType.get().equals(PROGRAM_ADMIN)) {
             cred.setUserProfile(profileFactory.createFakeProgramAdmin());
           } else if (adminType.get().equals(DUAL_ADMIN)) {
