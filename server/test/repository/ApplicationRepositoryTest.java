@@ -10,6 +10,7 @@ import models.Application;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.Program;
+import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import services.Path;
@@ -25,7 +26,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   @Test
   public void submitApplication_updatesOtherApplicationVersions() {
     Applicant applicant = saveApplicant("Alice");
-    Program program = saveProgram("Program");
+    Program program = createProgram("Program");
 
     Application appOne =
         repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
@@ -64,8 +65,8 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     Applicant applicant1 = saveApplicant("Alice");
     Applicant applicant2 = saveApplicant("Bob");
 
-    Program program1 = saveProgram("Program");
-    Program program2 = saveProgram("OtherProgram");
+    Program program1 = createProgram("Program");
+    Program program2 = createProgram("OtherProgram");
 
     repo.createOrUpdateDraft(applicant1, program1).toCompletableFuture().join();
 
@@ -82,7 +83,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   @Test
   public void createOrUpdateDraftApplication_updatesExistingDraft() {
     Applicant applicant = saveApplicant("Alice");
-    Program program = saveProgram("Program");
+    Program program = createProgram("Program");
     Application appDraft1 =
         repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
     Application appDraft2 =
@@ -96,7 +97,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   @Test
   public void submitApplication_twoDraftsThrowsException() {
     Applicant applicant = saveApplicant("Alice");
-    Program program = saveProgram("Program");
+    Program program = createProgram("Program");
     Application appDraft1 = Application.create(applicant, program, LifecycleStage.DRAFT);
     appDraft1.save();
     Application appDraft2 = Application.create(applicant, program, LifecycleStage.DRAFT);
@@ -130,7 +131,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   @Test
   public void submitApplication_noDrafts() {
     Applicant applicant = saveApplicant("Alice");
-    Program program = saveProgram("Program");
+    Program program = createProgram("Program");
     Application app =
         repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
     assertThat(repo.getApplication(app.id).toCompletableFuture().join().get().getLifecycleStage())
@@ -144,8 +145,11 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     return applicant;
   }
 
-  private Program saveProgram(String name) {
-    Program program = new Program(name, "desc", name, "desc", "", DisplayMode.PUBLIC.getValue());
+  private Program createProgram(String name) {
+    Version version = new Version();
+    version.save();
+    Program program =
+        new Program(name, "desc", name, "desc", "", DisplayMode.PUBLIC.getValue(), version);
     program.save();
     return program;
   }

@@ -113,8 +113,8 @@ public class ProgramRepository {
       // (for example, version information).
       Program newDraft = existingProgram.getProgramDefinition().toBuilder().build().toProgram();
       newDraft = insertProgramSync(newDraft);
-      newDraft.addVersion(draftVersion).save();
-      draftVersion.refresh();
+      draftVersion.addProgram(newDraft).save();
+      newDraft.refresh();
       Preconditions.checkState(
           draftVersion.getPrograms().contains(newDraft),
           "Must have successfully added draft version.");

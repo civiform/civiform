@@ -79,7 +79,7 @@ public class VersionRepository {
               activeProgram ->
                   !draftProgramsNames.contains(activeProgram.getProgramDefinition().adminName()))
           // For each active program not associated with the draft, associate it with the draft.
-          .forEach(activeProgramNotInDraft -> activeProgramNotInDraft.addVersion(draft).save());
+          .forEach(activeProgramNotInDraft -> draft.addProgram(activeProgramNotInDraft));
 
       // Associate any active questions that aren't present in the draft with the draft.
       active.getQuestions().stream()
