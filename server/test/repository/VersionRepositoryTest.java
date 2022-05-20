@@ -2,9 +2,11 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Transaction;
+import java.util.Comparator;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
@@ -37,23 +39,63 @@ public class VersionRepositoryTest extends ResetPostgres {
     resourceCreator.insertActiveProgram("foo");
     resourceCreator.insertActiveProgram("bar");
     resourceCreator.insertDraftProgram("bar");
-    assertThat(this.versionRepository.getActiveVersion().getPrograms()).hasSize(2);
-    assertThat(this.versionRepository.getDraftVersion().getPrograms()).hasSize(1);
-    Version oldDraft = this.versionRepository.getDraftVersion();
-    this.versionRepository.publishNewSynchronizedVersion();
-    assertThat(this.versionRepository.getActiveVersion().getPrograms()).hasSize(2);
-    assertThat(this.versionRepository.getDraftVersion().getPrograms()).hasSize(0);
+    assertThat(versionRepository.getActiveVersion().getPrograms()).hasSize(2);
+    assertThat(versionRepository.getDraftVersion().getPrograms()).hasSize(1);
+    Version oldDraft = versionRepository.getDraftVersion();
+    versionRepository.publishNewSynchronizedVersion();
+    assertThat(versionRepository.getActiveVersion().getPrograms()).hasSize(2);
+    assertThat(versionRepository.getDraftVersion().getPrograms()).hasSize(0);
     oldDraft.refresh();
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+  }
+
+  private ImmutableList<String> programNamesOrderedByLastUpdated(Version version) {
+    return version.getPrograms().stream()
+        .sorted(
+            Comparator.comparing(p -> p.getProgramDefinition().lastModifiedTime().orElseThrow()))
+        .map(p -> p.getProgramDefinition().adminName())
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  @Test
+  public void testPublishPreservesRelativeLastUpdatedOrdering() {
+    Program activeProgram = resourceCreator.insertActiveProgram("active");
+    Program otherActiveProgram = resourceCreator.insertActiveProgram("other_active");
+    Program activeWithDraftProgramPublished =
+        resourceCreator.insertActiveProgram("active_with_draft");
+    Program draftProgram = resourceCreator.insertDraftProgram("draft");
+    Program activeWithDraftProgram = resourceCreator.insertDraftProgram("active_with_draft");
+
+    // Now update them in a different order from which they were created in the DB.
+    // Doing this ensures that we're not getting the desired ordering based on the
+    // queries being returned by the DB ID. Additionally, the entries aren't updated
+    // in strictly reversed order to ensure that we're not reversing the enumeration
+    // order.
+    activeWithDraftProgram.save();
+    draftProgram.save();
+    activeWithDraftProgramPublished.save();
+    otherActiveProgram.save();
+    activeProgram.save();
+
+    assertThat(programNamesOrderedByLastUpdated(versionRepository.getActiveVersion()))
+        .isEqualTo(ImmutableList.of("active_with_draft", "other_active", "active"));
+    assertThat(programNamesOrderedByLastUpdated(versionRepository.getDraftVersion()))
+        .isEqualTo(ImmutableList.of("active_with_draft", "draft"));
+
+    versionRepository.publishNewSynchronizedVersion();
+    assertThat(programNamesOrderedByLastUpdated(versionRepository.getActiveVersion()))
+        .isEqualTo(ImmutableList.of("other_active", "active", "active_with_draft", "draft"));
+    assertThat(programNamesOrderedByLastUpdated(versionRepository.getDraftVersion()))
+        .isEqualTo(ImmutableList.of());
   }
 
   @Test
   public void testRollback() {
     resourceCreator.insertActiveProgram("foo");
     resourceCreator.insertDraftProgram("bar");
-    Version oldDraft = this.versionRepository.getDraftVersion();
-    Version oldActive = this.versionRepository.getActiveVersion();
-    this.versionRepository.publishNewSynchronizedVersion();
+    Version oldDraft = versionRepository.getDraftVersion();
+    Version oldActive = versionRepository.getActiveVersion();
+    versionRepository.publishNewSynchronizedVersion();
     oldDraft.refresh();
     oldActive.refresh();
 
@@ -61,14 +103,14 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
 
-    this.versionRepository.setLiveVersion(oldActive.id);
+    versionRepository.setLiveVersion(oldActive.id);
 
     oldActive.refresh();
     oldDraft.refresh();
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
 
-    this.versionRepository.setLiveVersion(oldDraft.id);
+    versionRepository.setLiveVersion(oldDraft.id);
 
     oldActive.refresh();
     oldDraft.refresh();
