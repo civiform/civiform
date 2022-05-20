@@ -283,7 +283,8 @@ public class FieldWithLabel {
   protected DivTag wrapInDivTag(Tag fieldTag, Tag labelTag) {
     return div(
             labelTag,
-            div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
+            div(fieldTag, buildFieldErrorsTag(fieldErrorsId))
+                .withClasses(Styles.FLEX, Styles.FLEX_COL))
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
@@ -349,7 +350,13 @@ public class FieldWithLabel {
       fieldTag.attr("value", this.fieldValue);
     }
 
+    String fieldErrorsId = String.format("%s-errors", this.id);
     boolean hasFieldErrors = getHasFieldErrors();
+    if (hasFieldErrors) {
+      fieldTag.attr("aria-invalid", "true");
+      fieldTag.attr("aria-describedBy", fieldErrorsId);
+    }
+
     generalApplyAttrsClassesToTag(fieldTag, hasFieldErrors);
 
     if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
@@ -399,10 +406,11 @@ public class FieldWithLabel {
                 .withText(this.labelText));
   }
 
-  private DivTag buildFieldErrorsTag() {
+  private DivTag buildFieldErrorsTag(String id) {
     String[] referenceClasses =
         referenceClassesBuilder.build().stream().map(ref -> ref + "-error").toArray(String[]::new);
     return div(each(fieldErrors, error -> div(error.format(messages))))
+        .withId(id)
         .withClasses(
             StyleUtils.joinStyles(referenceClasses),
             StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, Styles.P_1),
