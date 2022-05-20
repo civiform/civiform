@@ -280,7 +280,7 @@ public class FieldWithLabel {
         .withText(labelText.isEmpty() ? screenReaderText : labelText);
   }
 
-  protected DivTag wrapInDivTag(Tag fieldTag, Tag labelTag) {
+  protected DivTag wrapInDivTag(Tag fieldTag, Tag labelTag, String fieldErrorsId) {
     return div(
             labelTag,
             div(fieldTag, buildFieldErrorsTag(fieldErrorsId))
@@ -365,7 +365,7 @@ public class FieldWithLabel {
 
     LabelTag labelTag = genLabelTag();
 
-    return wrapInDivTag(fieldTag, labelTag);
+    return wrapInDivTag(fieldTag, labelTag, fieldErrorsId);
   }
 
   public DivTag getContainer() {
