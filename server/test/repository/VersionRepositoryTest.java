@@ -33,7 +33,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   private VersionRepository versionRepository;
 
   @Before
-  public void setupProgramRepository() {
+  public void setupVersionRepository() {
     versionRepository = instanceOf(VersionRepository.class);
   }
 
@@ -69,14 +69,27 @@ public class VersionRepositoryTest extends ResetPostgres {
                     v -> String.format("%d %s", v.id(), v.adminName()),
                     v -> v.lastModifiedTime().orElseThrow()));
 
-    TimeUnit.SECONDS.sleep(1);
+    // When persisting models with @WhenModified fields, EBean
+    // truncates the persisted timestamp to milliseconds:
+    // https://github.com/seattle-uat/civiform/pull/2499#issuecomment-1133325484.
+    // Sleep for a few milliseconds to ensure that a subsequent
+    // update would have a distinct timestamp.
+    TimeUnit.MILLISECONDS.sleep(5);
     versionRepository.publishNewSynchronizedVersion();
 
-    // Refresh each program to ensure they get the newest DB state.
-    programs.stream().forEach(Program::refresh);
+    // Refresh each program to ensure they get the newest DB state after
+    // publishing.
     Map<String, Instant> afterTimestamps =
         programs.stream()
-            .map(Program::getProgramDefinition)
+            .map(
+                p ->
+                    DB.getDefault()
+                        .find(Program.class)
+                        .where()
+                        .eq("id", p.id)
+                        .findOneOrEmpty()
+                        .orElseThrow()
+                        .getProgramDefinition())
             .collect(
                 Collectors.toMap(
                     v -> String.format("%d %s", v.id(), v.adminName()),
