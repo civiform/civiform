@@ -14,7 +14,6 @@ import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -73,19 +72,14 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .with(renderNewProgramButton())
                     .with(div().withClass(Styles.FLEX_GROW))
                     .condWith(programs.anyDraft(), publishAllModal.getButton()),
-                div()
-                    .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST, Styles.INVISIBLE)
-                    .with(
-                        p("Loading")
-                            .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST_PLACEHOLDER),
-                        each(
-                            programs.getProgramNames(),
-                            name ->
-                                this.renderProgramListItem(
-                                    programs.getActiveProgramDefinition(name),
-                                    programs.getDraftProgramDefinition(name),
-                                    request,
-                                    profile))))
+                each(
+                    programs.getProgramNames(),
+                    name ->
+                        this.renderProgramListItem(
+                            programs.getActiveProgramDefinition(name),
+                            programs.getDraftProgramDefinition(name),
+                            request,
+                            profile)))
             .with(renderDownloadExportCsvButton());
 
     HtmlBundle htmlBundle =
@@ -93,8 +87,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .getBundle()
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
-            .addModals(publishAllModal)
-            .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
+            .addModals(publishAllModal);
     return layout.renderCentered(htmlBundle);
   }
 
@@ -161,11 +154,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     p(programStatusText).withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_700),
                     div(programTitleText)
                         .withClasses(
-                            ReferenceClasses.ADMIN_PROGRAM_CARD_TITLE,
-                            Styles.TEXT_BLACK,
-                            Styles.FONT_BOLD,
-                            Styles.TEXT_XL,
-                            Styles.MB_2)),
+                            Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.TEXT_XL, Styles.MB_2)),
                 p().withClasses(Styles.FLEX_GROW),
                 div(p(blockCountText), p(questionCountText))
                     .withClasses(
@@ -211,23 +200,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     return div(innerDiv)
         .withClasses(
-            ReferenceClasses.ADMIN_PROGRAM_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4)
-        // Add data attributes used for client-side sorting.
-        .withData(
-            "last-updated-millis",
-            Long.toString(extractLastUpdated(draftProgram, activeProgram).toEpochMilli()))
-        .withData("name", programTitleText);
-  }
-
-  private static Instant extractLastUpdated(
-      Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
-    // Prefer when the draft was last updated, since active versions should be immutable after
-    // being published.
-    if (draftProgram.isEmpty() && activeProgram.isEmpty()) {
-      throw new IllegalArgumentException("Program neither active nor draft.");
-    }
-    ProgramDefinition program = draftProgram.isPresent() ? draftProgram.get() : activeProgram.get();
-    return program.lastModifiedTime().orElse(Instant.EPOCH);
+            ReferenceClasses.ADMIN_PROGRAM_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
   }
 
   private String extractProgramStatusText(
