@@ -149,4 +149,15 @@ public class ApplicantData extends CfJsonDocumentContext {
   public boolean updateDidFailAt(Path path) {
     return getFailedUpdates().containsKey(path);
   }
+
+  public Optional<String> getDOB() {
+    String dob = readString(WellKnownPaths.APPLICANT_DOB).get();
+    return Optional.of(dob);
+  }
+
+  public void setDOB(@Nullable String dob) {
+    if (!hasPath(WellKnownPaths.APPLICANT_DOB)) {
+      putString(WellKnownPaths.APPLICANT_DOB, dob);
+    }
+  }
 }
