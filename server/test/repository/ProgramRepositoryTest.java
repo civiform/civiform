@@ -1,14 +1,11 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mockStatic;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
-import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Optional;
 import models.Account;
@@ -18,13 +15,13 @@ import models.DisplayMode;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.MockedStatic;
 import play.libs.F;
 import services.LocalizedStrings;
 import services.OffsetBasedPaginationSpec;
 import services.PaginationResult;
 import services.PaginationSpec;
 import services.program.ProgramNotFoundException;
+import support.CfTestHelpers;
 
 public class ProgramRepositoryTest extends ResetPostgres {
 
@@ -179,7 +176,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
         resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
 
     var applicationOne = resourceCreator.insertActiveApplication(applicantOne, program);
-    withMockedInstantNow(
+    CfTestHelpers.withMockedInstantNow(
         "2022-01-01T00:00:00Z",
         () -> {
           applicationOne.setSubmitTimeToNow();
@@ -187,7 +184,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
         });
 
     var applicationTwo = resourceCreator.insertActiveApplication(applicantTwo, program);
-    withMockedInstantNow(
+    CfTestHelpers.withMockedInstantNow(
         "2022-02-01T00:00:00Z",
         () -> {
           applicationTwo.setSubmitTimeToNow();
@@ -195,7 +192,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
         });
 
     var applicationThree = resourceCreator.insertActiveApplication(applicantThree, program);
-    withMockedInstantNow(
+    CfTestHelpers.withMockedInstantNow(
         "2022-03-01T00:00:00Z",
         () -> {
           applicationThree.setSubmitTimeToNow();
@@ -216,20 +213,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 .map(a -> a.id)
                 .collect(ImmutableList.toImmutableList()))
         .isEqualTo(ImmutableList.of(applicationTwo.id));
-  }
-
-  // ErrorProne raises a warning about the return value from
-  // mockedStatic.when(Instant::now).thenReturn(instant)
-  // not being used unless suppressed.
-  @SuppressWarnings("ReturnValueIgnored")
-  private void withMockedInstantNow(String instantString, Runnable fn) {
-    Clock clock = Clock.fixed(Instant.parse(instantString), ZoneId.of("UTC"));
-    Instant instant = Instant.now(clock);
-
-    try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
-      mockedStatic.when(Instant::now).thenReturn(instant);
-      fn.run();
-    }
   }
 
   @Test

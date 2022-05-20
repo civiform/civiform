@@ -99,7 +99,7 @@ public class ProgramServiceImpl implements ProgramService {
   public CompletionStage<ProgramDefinition> getProgramDefinitionAsync(String programSlug) {
     return programRepository
         .getForSlug(programSlug)
-        .thenApplyAsync(Program::getProgramDefinition, httpExecutionContext.current());
+        .thenComposeAsync(this::syncProgramAssociations, httpExecutionContext.current());
   }
 
   private CompletionStage<ProgramDefinition> syncProgramAssociations(Program program) {
