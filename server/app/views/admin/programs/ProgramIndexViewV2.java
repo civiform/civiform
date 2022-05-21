@@ -162,18 +162,19 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
   private Tag renderProgramRow(boolean isActive, ProgramDefinition program, List<Tag> actions) {
     String badgeText = "Draft";
     String badgeBGColor = Styles.BG_PURPLE_300;
-    String badgeFillColor = Styles.TEXT_PURPLE_500;
-    String updatedPrefix = "Edited on";
+    String badgeFillColor = Styles.TEXT_PURPLE_700;
+    String updatedPrefix = "Edited on ";
+    Optional<Instant> updatedTime = program.lastModifiedTime();
     if (isActive) {
       badgeText = "Active";
       badgeBGColor = Styles.BG_GREEN_300;
-      badgeFillColor = Styles.TEXT_GREEN_300;
-      updatedPrefix = "Published on";
+      badgeFillColor = Styles.TEXT_GREEN_700;
+      updatedPrefix = "Published on ";
     }
 
     String formattedUpdateTime =
-        program.lastModifiedTime().isPresent()
-            ? renderDateTime(program.lastModifiedTime().get(), zoneId)
+        updatedTime.isPresent()
+            ? renderDateTime(updatedTime.get(), zoneId)
             : "unknown";
 
     int blockCount = program.getBlockCount();
@@ -199,6 +200,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                     Styles.GAP_X_2,
                     Styles.PLACE_ITEMS_CENTER,
                     Styles.JUSTIFY_CENTER)
+                .withStyle("min-width:90px")
                 .with(
                     Icons.svg(Icons.NOISE_CONTROL_OFF_SVG_PATH, 20)
                         // TODO(#1238): Technically should be ML_3_5, but that
@@ -212,10 +214,10 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                             span(formattedUpdateTime).withClass(Styles.FONT_SEMIBOLD)),
                     p().with(
                             span(String.format("%d", blockCount)).withClass(Styles.FONT_SEMIBOLD),
-                            span(blockCount == 1 ? " screen," : " screens"),
+                            span(blockCount == 1 ? " screen, " : " screens, "),
                             span(String.format("%d", questionCount))
                                 .withClass(Styles.FONT_SEMIBOLD),
-                            span(blockCount == 1 ? " question," : " questions"))),
+                            span(questionCount == 1 ? " question" : " questions"))),
             div().withClass(Styles.FLEX_GROW),
             div().withClasses(Styles.FLEX, Styles.SPACE_X_8, Styles.FONT_MEDIUM).with(actions));
   }
@@ -233,9 +235,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     Tag draftRow = null;
     if (draftProgram.isPresent()) {
       List<Tag> draftRowActions = Lists.newArrayList();
-      if (!activeProgram.isPresent()) {
-        draftRowActions.add(renderEditLink(false, draftProgram.get(), request));
-      }
+      draftRowActions.add(renderEditLink(false, draftProgram.get(), request));
       draftRow = renderProgramRow(false, draftProgram.get(), draftRowActions);
     }
 
