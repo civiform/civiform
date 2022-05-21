@@ -200,8 +200,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                     Styles.PLACE_ITEMS_CENTER,
                     Styles.JUSTIFY_CENTER)
                 .with(
-                    // TODO(#1238): Dot icon.
-                    Icons.svg(Icons.DATE_SVG_PATH, 20)
+                    Icons.svg(Icons.NOISE_CONTROL_OFF_SVG_PATH, 20)
                         // TODO(#1238): Technically should be ML_3_5, but that
                         // isn't available yet. Check whether 2px off is ok.
                         .withClasses(Styles.INLINE_BLOCK, Styles.ML_3),
@@ -308,7 +307,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
             + controllers.applicant.routes.RedirectController.programByName(program.slug()).url();
     return a().withHref(viewLink)
         .with(
-            Icons.svg(Icons.ACCORDION_BUTTON_PATH, 20).withClasses(Styles.INLINE_BLOCK),
+            Icons.svg(Icons.VISIBILITY_SVG_PATH, 20).withClasses(Styles.INLINE_BLOCK),
             span("View").withClass(Styles.PL_1));
   }
 
@@ -327,7 +326,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return a().withId(editLinkId)
         .withHref(editLink)
         .with(
-            Icons.svg(Icons.ACCORDION_BUTTON_PATH, 20).withClasses(Styles.INLINE_BLOCK),
+            Icons.svg(Icons.EDIT_SVG_PATH, 20).withClasses(Styles.INLINE_BLOCK),
             span("Edit").withClass(Styles.PL_1));
   }
 
@@ -366,7 +365,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
       return a().withId("program-view-apps-link-" + activeProgram.id())
           .withHref(editLink)
           .with(
-              Icons.svg(Icons.ACCORDION_BUTTON_PATH, 20).withClasses(Styles.INLINE_BLOCK),
+              Icons.svg(Icons.TEXT_SNIPPET_SVG_PATH, 20).withClasses(Styles.INLINE_BLOCK),
               span("Applications").withClass(Styles.PL_1));
     }
     return null;
