@@ -63,7 +63,12 @@ export const loginAsProgramAdmin = async (page: Page) => {
 }
 
 export const loginAsGuest = async (page: Page) => {
-  await page.click('#guest')
+  try{ 
+    await page.click('#guest') 
+  } catch(NASTY_ERROR) { 
+    await page.pause() 
+    await page.click('#guest') 
+  }
   await waitForPageJsLoad(page)
 }
 

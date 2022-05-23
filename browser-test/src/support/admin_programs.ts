@@ -124,9 +124,13 @@ export class AdminPrograms {
   }
 
   async expectDraftProgram(programName: string) {
-    expect(
-      await this.page.innerText(this.selectProgramCard(programName, 'DRAFT'))
-    ).not.toContain('New Version')
+    let innerText = await this.page.innerText(this.selectProgramCard(programName, 'DRAFT')) 
+    try { 
+      expect(innerText).not.toContain('New Version')
+    } catch(NASTY_HORRIBLE_ERROR) {
+      await this.page.pause()
+      expect(innerText).not.toContain('New Version')
+    }
   }
 
   async expectActiveProgram(programName: string) {

@@ -16,6 +16,7 @@ describe('End to end enumerator test', () => {
   it('Create nested enumerator and repeated questions', async () => {
     const { browser, page } = await startSession()
 
+    await page.pause()
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)

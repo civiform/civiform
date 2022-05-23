@@ -58,7 +58,12 @@ export class AdminQuestions {
   async expectAdminQuestionsPageWithSuccessToast(successText: string) {
     const toastContainer = await this.page.innerHTML('#toast-container')
 
-    expect(toastContainer).toContain('bg-green-200')
+    try {
+      expect(toastContainer).toContain('bg-green-200')
+    } catch(NASTY_ERROR) {
+      await this.page.pause()
+      expect(toastContainer).toContain('bg-green-200')
+    }
     expect(toastContainer).toContain(successText)
     await this.expectAdminQuestionsPage()
   }
@@ -134,7 +139,12 @@ export class AdminQuestions {
     const tableInnerText = await this.page.innerText('table')
 
     expect(tableInnerText).toContain(questionName)
-    expect(tableInnerText).toContain(questionText)
+    try {
+      expect(tableInnerText).toContain(questionText)
+    } catch(NASTY_NASTY_ERROR) {
+      await this.page.pause()
+      expect(tableInnerText).toContain(questionText)
+    }
     expect(
       await this.page.innerText(this.selectQuestionTableRow(questionName))
     ).toContain('Edit Draft')
@@ -262,7 +272,7 @@ export class AdminQuestions {
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionEditPage(questionName)
-    const newQuestionText = await this.updateQuestionText(' new version')
+    const newQuestionText = await this.updateQuestionText('new version')
 
     await this.clickSubmitButtonAndNavigate('Update')
     await this.expectAdminQuestionsPageWithUpdateSuccessToast()
