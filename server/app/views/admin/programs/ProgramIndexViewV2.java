@@ -219,7 +219,9 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                                 .withClass(Styles.FONT_SEMIBOLD),
                             span(questionCount == 1 ? " question" : " questions"))),
             div().withClass(Styles.FLEX_GROW),
-            div().withClasses(Styles.FLEX, Styles.SPACE_X_8, Styles.FONT_MEDIUM).with(actions));
+            div().withClasses(Styles.FLEX, Styles.SPACE_X_8, Styles.FONT_MEDIUM)
+              .with(actions.subList(0, Math.min(3, actions.size())))
+              .condWith(actions.size() > 3, a().with(Icons.svg(Icons.MORE_VERT_PATH, 18))));
   }
 
   public Tag renderProgramListItem(
@@ -243,10 +245,10 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     if (activeProgram.isPresent()) {
       List<Tag> activeRowActions = Lists.newArrayList();
       activeRowActions.add(maybeRenderViewApplicationsLink(activeProgram.get(), profile.get()));
-      activeRowActions.add(renderViewLink(activeProgram.get()));
       if (!draftProgram.isPresent()) {
         activeRowActions.add(renderEditLink(true, activeProgram.get(), request));
       }
+      activeRowActions.add(renderViewLink(activeProgram.get()));
       activeRow = renderProgramRow(true, activeProgram.get(), activeRowActions);
     }
 
