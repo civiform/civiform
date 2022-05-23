@@ -10,7 +10,7 @@ import java.util.Optional;
  */
 public class PageNumberBasedPaginationSpec {
 
-  public static PageNumberBasedPaginationSpec MAX_PAGE_SIZE_SPEC =
+  public static final PageNumberBasedPaginationSpec MAX_PAGE_SIZE_SPEC =
       new PageNumberBasedPaginationSpec(Integer.MAX_VALUE, 1);
 
   private final int pageSize;
