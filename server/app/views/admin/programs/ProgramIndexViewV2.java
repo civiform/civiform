@@ -1,7 +1,6 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
@@ -13,6 +12,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.time.Instant;
@@ -22,8 +22,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.program.ActiveAndDraftPrograms;
 import services.LocalizedStrings;
+import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -160,7 +160,8 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return activeProgram.get();
   }
 
-  private Tag renderProgramRow(boolean isActive, ProgramDefinition program, List<Tag> actions, List<Tag> extraActions) {
+  private Tag renderProgramRow(
+      boolean isActive, ProgramDefinition program, List<Tag> actions, List<Tag> extraActions) {
     String badgeText = "Draft";
     String badgeBGColor = Styles.BG_PURPLE_300;
     String badgeFillColor = Styles.TEXT_PURPLE_700;
@@ -174,9 +175,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     }
 
     String formattedUpdateTime =
-        updatedTime.isPresent()
-            ? renderDateTime(updatedTime.get(), zoneId)
-            : "unknown";
+        updatedTime.isPresent() ? renderDateTime(updatedTime.get(), zoneId) : "unknown";
 
     int blockCount = program.getBlockCount();
     int questionCount = program.getQuestionCount();
@@ -220,9 +219,12 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                                 .withClass(Styles.FONT_SEMIBOLD),
                             span(questionCount == 1 ? " question" : " questions"))),
             div().withClass(Styles.FLEX_GROW),
-            div().withClasses(Styles.FLEX, Styles.SPACE_X_8, Styles.FONT_MEDIUM)
-              .with(actions)
-              .condWith(extraActions.size() > 0, a().with(Icons.svg(Icons.MORE_VERT_PATH, 18))));
+            div()
+                .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.FONT_MEDIUM)
+                .with(actions)
+                .condWith(
+                    extraActions.size() > 0,
+                    TagCreator.button().with(Icons.svg(Icons.MORE_VERT_PATH, 18))));
   }
 
   public Tag renderProgramListItem(
@@ -255,7 +257,8 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
       activeRowActions.add(renderViewLink(activeProgram.get()));
-      activeRow = renderProgramRow(true, activeProgram.get(), activeRowActions, activeRowExtraActions);
+      activeRow =
+          renderProgramRow(true, activeProgram.get(), activeRowActions, activeRowExtraActions);
     }
 
     Tag titleAndStatus =
@@ -313,10 +316,13 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     String viewLink =
         baseUrl
             + controllers.applicant.routes.RedirectController.programByName(program.slug()).url();
-    return a().withHref(viewLink)
-        .with(
-            Icons.svg(Icons.VISIBILITY_SVG_PATH, 20).withClasses(Styles.INLINE_BLOCK),
-            span("View").withClass(Styles.PL_1));
+    return ActionButton.builder()
+        .setActionType(ActionType.TERTIARY)
+        .setSvgRef(Icons.VISIBILITY_SVG_PATH)
+        .setText("View")
+        .setOnClickJS(ActionButton.navigateToJS(viewLink))
+        .build()
+        .render();
   }
 
   Tag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
@@ -327,15 +333,18 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
       editLinkId = "program-new-version-link-" + program.id();
     }
 
-    // TODO(#1238): Add this to ActionButton as a new style. Also add ability to render
+    // TODO(#1238): Add ability to render
     // as a hidden form when creating a new version.
     // Also consider adding an editOrNewVersion URL to remove the need to have distinct
     // URLs.
-    return a().withId(editLinkId)
-        .withHref(editLink)
-        .with(
-            Icons.svg(Icons.EDIT_SVG_PATH, 20).withClasses(Styles.INLINE_BLOCK),
-            span("Edit").withClass(Styles.PL_1));
+    return ActionButton.builder()
+        .setId(editLinkId)
+        .setActionType(ActionType.TERTIARY)
+        .setSvgRef(Icons.EDIT_SVG_PATH)
+        .setText("Edit")
+        .setOnClickJS(ActionButton.navigateToJS(editLink))
+        .build()
+        .render();
   }
 
   private Tag renderManageTranslationsLink(ProgramDefinition program) {
@@ -343,12 +352,14 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         routes.AdminProgramTranslationsController.edit(
                 program.id(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
             .url();
-    return a()
-        .withId("program-translations-link-" + program.id())
-        .withHref(linkDestination)
-        .with(
-          Icons.svg(Icons.LANGUAGE_SVG_PATH, 20).withClasses(Styles.INLINE_BLOCK),
-          span("Manage translations").withClasses(Styles.PL_1));
+    return ActionButton.builder()
+        .setId("program-translations-link-" + program.id())
+        .setActionType(ActionType.TERTIARY)
+        .setSvgRef(Icons.LANGUAGE_SVG_PATH)
+        .setText("Manage translations")
+        .setOnClickJS(ActionButton.navigateToJS(linkDestination))
+        .build()
+        .render();
   }
 
   private Tag maybeRenderViewApplicationsLink(
@@ -365,23 +376,27 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                   activeProgram.id(), Optional.empty(), Optional.empty())
               .url();
 
-      return a().withId("program-view-apps-link-" + activeProgram.id())
-          .withHref(editLink)
-          .with(
-              Icons.svg(Icons.TEXT_SNIPPET_SVG_PATH, 20).withClasses(Styles.INLINE_BLOCK),
-              span("Applications").withClass(Styles.PL_1));
+      return ActionButton.builder()
+          .setId("program-view-apps-link-" + activeProgram.id())
+          .setActionType(ActionType.TERTIARY)
+          .setSvgRef(Icons.TEXT_SNIPPET_SVG_PATH)
+          .setText("Applications")
+          .setOnClickJS(ActionButton.navigateToJS(editLink))
+          .build()
+          .render();
     }
     return null;
   }
 
   private Tag renderManageProgramAdminsLink(ProgramDefinition program) {
     String adminLink = routes.ProgramAdminManagementController.edit(program.id()).url();
-    return a()
-        .withId("manage-program-admin-link-" + program.id())
-        .withHref(adminLink)
-        .with(
-          Icons.svg(Icons.GROUP_SVG_PATH, 20).withClasses(Styles.INLINE_BLOCK),
-          span("Manage admins").withClass(Styles.PL_1)
-        );
+    return ActionButton.builder()
+        .setId("manage-program-admin-link-" + program.id())
+        .setActionType(ActionType.TERTIARY)
+        .setSvgRef(Icons.GROUP_SVG_PATH)
+        .setText("Manage admins")
+        .setOnClickJS(ActionButton.navigateToJS(adminLink))
+        .build()
+        .render();
   }
 }

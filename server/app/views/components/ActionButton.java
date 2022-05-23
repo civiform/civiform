@@ -15,7 +15,7 @@ import views.style.Styles;
 @AutoValue
 public abstract class ActionButton {
 
-  private static final int SVG_PIXEL_SIZE = 20;
+  private static final int SVG_PIXEL_SIZE = 18;
 
   private static final ImmutableSet<String> BASE_STYLES =
       ImmutableSet.of(
@@ -40,6 +40,12 @@ public abstract class ActionButton {
                   Styles.BG_WHITE,
                   BaseStyles.TEXT_SEATTLE_BLUE)));
 
+  private static final ImmutableSet<String> TERTIARY_STYLES =
+      ImmutableSet.copyOf(
+          Sets.union(
+              BASE_STYLES,
+              ImmutableSet.of(Styles.BORDER_NONE, Styles.BG_WHITE, Styles.TEXT_BLACK)));
+
   public enum ActionType {
     PRIMARY,
     SECONDARY,
@@ -53,7 +59,7 @@ public abstract class ActionButton {
   ActionButton() {}
 
   public static Builder builder() {
-    return new AutoValue_ActionButton.Builder().setExtraStyles(ImmutableSet.of());
+    return new AutoValue_ActionButton.Builder().setId("").setExtraStyles(ImmutableSet.of());
   }
 
   abstract String id();
@@ -74,6 +80,8 @@ public abstract class ActionButton {
         return PRIMARY_STYLES;
       case SECONDARY:
         return SECONDARY_STYLES;
+      case TERTIARY:
+        return TERTIARY_STYLES;
       default:
         throw new RuntimeException(String.format("unrecognized action: %s", actionType()));
     }
@@ -109,7 +117,6 @@ public abstract class ActionButton {
     public final ActionButton build() {
       ActionButton button = autoBuild();
 
-      Preconditions.checkState(!button.id().isEmpty(), "id is required");
       Preconditions.checkState(!button.text().isEmpty(), "text is required");
       Preconditions.checkState(!button.svgRef().isEmpty(), "SVG reference is required");
       Preconditions.checkState(!button.onClickJS().isEmpty(), "onClickJS is required");

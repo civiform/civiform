@@ -699,8 +699,14 @@ public final class Styles {
   public static final String SELF_END = "self-end";
   public static final String SELF_CENTER = "self-center";
   public static final String SELF_STRETCH = "self-stretch";
+  public static final String SPACE_X_2 = "space-x-2";
+  public static final String SPACE_X_3 = "space-x-3";
   public static final String SPACE_X_4 = "space-x-4";
+  public static final String SPACE_X_5 = "space-x-5";
+  public static final String SPACE_X_6 = "space-x-6";
+  public static final String SPACE_X_7 = "space-x-7";
   public static final String SPACE_X_8 = "space-x-8";
+  public static final String SPACE_X_9 = "space-x-9";
   public static final String SPACE_X_10 = "space-x-10";
   public static final String JUSTIFY_ITEMS_AUTO = "justify-items-auto";
   public static final String JUSTIFY_ITEMS_START = "justify-items-start";
