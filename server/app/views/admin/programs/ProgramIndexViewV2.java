@@ -133,7 +133,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         div()
             .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
             .with(p("Are you sure you want to publish all programs?").withClasses(Styles.P_2))
-            .with(publishButton.renderAsLinkButonHiddenForm(link, request));
+            .with(publishButton.renderAsLinkButtonHiddenForm(link, request));
     Modal publishAllModal =
         Modal.builder("publish-all-programs-modal", publishAllModalContent)
             .setModalTitle("Confirmation")
@@ -226,15 +226,19 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                 .with(actions)
                 .condWith(
                     extraActions.size() > 0,
-                    TagCreator.button()
-                      .withId("extra-actions-" + program.id())
-                      .withClass(ReferenceClasses.WITH_DROPDOWN)
-                      .with(Icons.svg(Icons.MORE_VERT_PATH, 18)),
                     div()
-                      .withId("extra-actions-" + program.id() + "-dropdown")
-                      .withClasses(Styles.HIDDEN, Styles.ABSOLUTE)
-                      .with(extraActions)  
-                      ));
+                      .withClass(Styles.RELATIVE)
+                      .with(
+                          ActionButton.builder()
+                            .setId("extra-actions-" + program.id())
+                            .setActionType(ActionType.TERTIARY)
+                            .setExtraStyles(ImmutableSet.of(ReferenceClasses.WITH_DROPDOWN))
+                            .setSvgRef(Icons.MORE_VERT_PATH)
+                            .build().renderAsCustomJSButton(""),
+                          div()
+                            .withId("extra-actions-" + program.id() + "-dropdown")
+                            .withClasses(Styles.HIDDEN, Styles.ABSOLUTE, Styles.RIGHT_0)
+                            .with(extraActions))));
   }
 
   public Tag renderProgramListItem(
@@ -349,7 +353,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         .setText("Edit")
         .build();
     return isActive
-      ? button.renderAsLinkButonHiddenForm(editLink, request)
+      ? button.renderAsLinkButtonHiddenForm(editLink, request)
       : button.renderAsLinkButton(editLink);
   }
 

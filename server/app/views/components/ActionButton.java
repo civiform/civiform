@@ -63,7 +63,7 @@ public abstract class ActionButton {
   ActionButton() {}
 
   public static Builder builder() {
-    return new AutoValue_ActionButton.Builder().setId("").setExtraStyles(ImmutableSet.of());
+    return new AutoValue_ActionButton.Builder().setId("").setText("").setExtraStyles(ImmutableSet.of());
   }
 
   abstract String id();
@@ -97,7 +97,7 @@ public abstract class ActionButton {
     return renderButton().attr("onclick", navigateToJS(link));
   }
 
-  public final Tag renderAsLinkButonHiddenForm(String postLink, Http.Request request) {
+  public final Tag renderAsLinkButtonHiddenForm(String postLink, Http.Request request) {
     Option<CSRF.Token> csrfTokenMaybe = CSRF.getToken(request.asScala());
     String csrfToken = "";
     if (csrfTokenMaybe.isDefined()) {
@@ -140,7 +140,6 @@ public abstract class ActionButton {
     public final ActionButton build() {
       ActionButton button = autoBuild();
 
-      Preconditions.checkState(!button.text().isEmpty(), "text is required");
       Preconditions.checkState(!button.svgRef().isEmpty(), "SVG reference is required");
       return button;
     }
