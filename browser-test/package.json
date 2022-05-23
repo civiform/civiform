@@ -3,8 +3,8 @@
   "main": "index.js",
   "license": "Apache-2.0",
   "scripts": {
-    "test": "jest --testTimeout=180000 --forceExit --maxConcurrency=1 --runInBand",
-    "probe": "jest --testTimeout=180000 --forceExit --maxConcurrency=1 --runInBand"
+    "test": "jest --testTimeout=18000000 --forceExit --maxConcurrency=1 --runInBand",
+    "probe": "jest --testTimeout=18000000 --forceExit --maxConcurrency=1 --runInBand"
   },
   "devDependencies": {
     "@types/jest": "27.5.1",
