@@ -7,8 +7,8 @@ public class PaginationSpec {
 
   public static PaginationSpec MAX_PAGE_SIZE_SPEC = new PaginationSpec(Integer.MAX_VALUE, 1);
 
-  protected final int pageSize;
-  protected final Optional<Integer> currentPage;
+  private final int pageSize;
+  private final Optional<Integer> currentPage;
 
   public PaginationSpec(int pageSize) {
     this.pageSize = pageSize;

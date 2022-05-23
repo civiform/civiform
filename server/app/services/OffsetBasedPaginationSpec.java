@@ -1,5 +1,7 @@
 package services;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Optional;
 
 /**
@@ -7,26 +9,26 @@ import java.util.Optional;
  * identifier identifies the last item of the previous page of results using its sort order
  * attribute.
  */
-public class OffsetBasedPaginationSpec<T> extends PaginationSpec {
+public class OffsetBasedPaginationSpec<T> {
 
   public static OffsetBasedPaginationSpec<Long> MAX_PAGE_SIZE_SPEC_LONG =
       new OffsetBasedPaginationSpec<>(Integer.MAX_VALUE);
 
-  private Optional<T> currentPageOffsetIdentifier;
+  private final int pageSize;
+  private final Optional<T> currentPageOffsetIdentifier;
 
   public OffsetBasedPaginationSpec(int pageSize) {
-    super(pageSize);
+    this.pageSize = pageSize;
     this.currentPageOffsetIdentifier = Optional.empty();
   }
 
   public OffsetBasedPaginationSpec(int pageSize, Optional<T> currentPageOffsetIdentifier) {
-    super(pageSize);
-    this.currentPageOffsetIdentifier = currentPageOffsetIdentifier;
+    this.pageSize = pageSize;
+    this.currentPageOffsetIdentifier = checkNotNull(currentPageOffsetIdentifier);
   }
 
-  public OffsetBasedPaginationSpec<T> setCurrentPageOffsetIdentifier(T pageOffsetIdentifier) {
-    this.currentPageOffsetIdentifier = Optional.of(pageOffsetIdentifier);
-    return this;
+  public int getPageSize() {
+    return this.pageSize;
   }
 
   public Optional<T> getCurrentPageOffsetIdentifier() {
