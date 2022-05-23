@@ -1,6 +1,5 @@
 package services;
 
-
 /**
  * Specifies pagination behavior for a query with page number-based pagination. With page-number
  * based pagination, the current page of results is resolved by multiplying the page size by the
