@@ -332,7 +332,8 @@ public interface ProgramService {
    * <p>If searchNameFragment is an unsigned integer, query will filter to applications with an
    * applicant ID matching it.
    *
-   * @param paginationSpecEither either a OffsetBasedPagination or PaginationSpec spec.
+   * @param paginationSpecEither either a OffsetBasedPagination or IdentifierBasedPaginationSpec
+   *     spec.
    * @param searchNameFragment a text fragment used for filtering the applications.
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
@@ -347,7 +348,8 @@ public interface ProgramService {
    * Get all submitted applications for this program and all other previous and future versions of
    * it where the application's submit time is in the specified range.
    *
-   * @param paginationSpecEither either a OffsetBasedPagination or PaginationSpec spec.
+   * @param paginationSpecEither either a OffsetBasedPagination or IdentifierBasedPaginationSpec
+   *     spec.
    * @param submitTimeFrom specifies the oldest submission time to include.
    * @param submitTimeTo specifies the newest submission time to include.
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.

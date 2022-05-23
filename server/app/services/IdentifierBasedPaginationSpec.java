@@ -8,7 +8,7 @@ import java.util.Optional;
  * Specifies pagination behavior for a query using identifier-based offset pagination. An offset
  * identifier identifies the last item of the previous page of results using its sort order
  * attribute. The type of the identifier {@code T} depends on the type of the underlying attribute
- * used for sort order.
+ * used for sort order. This type of pagination is typically used in the API.
  */
 public class IdentifierBasedPaginationSpec<T> {
 
