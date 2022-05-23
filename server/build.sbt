@@ -18,7 +18,7 @@ lazy val root = (project in file("."))
       "com.jayway.jsonpath" % "json-path" % "2.7.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.13.3",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.13.2",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.2",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.3",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
