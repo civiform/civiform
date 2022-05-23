@@ -23,6 +23,7 @@ import java.util.concurrent.CompletionException;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.program.ActiveAndDraftPrograms;
+import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -159,7 +160,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return activeProgram.get();
   }
 
-  private Tag renderProgramRow(boolean isActive, ProgramDefinition program, List<Tag> actions) {
+  private Tag renderProgramRow(boolean isActive, ProgramDefinition program, List<Tag> actions, List<Tag> extraActions) {
     String badgeText = "Draft";
     String badgeBGColor = Styles.BG_PURPLE_300;
     String badgeFillColor = Styles.TEXT_PURPLE_700;
@@ -220,8 +221,8 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                             span(questionCount == 1 ? " question" : " questions"))),
             div().withClass(Styles.FLEX_GROW),
             div().withClasses(Styles.FLEX, Styles.SPACE_X_8, Styles.FONT_MEDIUM)
-              .with(actions.subList(0, Math.min(3, actions.size())))
-              .condWith(actions.size() > 3, a().with(Icons.svg(Icons.MORE_VERT_PATH, 18))));
+              .with(actions)
+              .condWith(extraActions.size() > 0, a().with(Icons.svg(Icons.MORE_VERT_PATH, 18))));
   }
 
   public Tag renderProgramListItem(
@@ -237,19 +238,24 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     Tag draftRow = null;
     if (draftProgram.isPresent()) {
       List<Tag> draftRowActions = Lists.newArrayList();
+      List<Tag> draftRowExtraActions = Lists.newArrayList();
       draftRowActions.add(renderEditLink(false, draftProgram.get(), request));
-      draftRow = renderProgramRow(false, draftProgram.get(), draftRowActions);
+      draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
+      draftRowExtraActions.add(renderManageTranslationsLink(draftProgram.get()));
+      draftRow = renderProgramRow(false, draftProgram.get(), draftRowActions, draftRowExtraActions);
     }
 
     Tag activeRow = null;
     if (activeProgram.isPresent()) {
       List<Tag> activeRowActions = Lists.newArrayList();
+      List<Tag> activeRowExtraActions = Lists.newArrayList();
       activeRowActions.add(maybeRenderViewApplicationsLink(activeProgram.get(), profile.get()));
       if (!draftProgram.isPresent()) {
         activeRowActions.add(renderEditLink(true, activeProgram.get(), request));
+        activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
       activeRowActions.add(renderViewLink(activeProgram.get()));
-      activeRow = renderProgramRow(true, activeProgram.get(), activeRowActions);
+      activeRow = renderProgramRow(true, activeProgram.get(), activeRowActions, activeRowExtraActions);
     }
 
     Tag titleAndStatus =
@@ -332,23 +338,18 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
             span("Edit").withClass(Styles.PL_1));
   }
 
-  // private Tag maybeRenderManageTranslationsLink(Optional<ProgramDefinition> draftProgram) {
-  //   if (draftProgram.isPresent()) {
-  //     String linkText = "Manage Translations →";
-  //     String linkDestination =
-  //         routes.AdminProgramTranslationsController.edit(
-  //                 draftProgram.get().id(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
-  //             .url();
-  //     return new LinkElement()
-  //         .setId("program-translations-link-" + draftProgram.get().id())
-  //         .setHref(linkDestination)
-  //         .setText(linkText)
-  //         .setStyles(Styles.MR_2)
-  //         .asAnchorText();
-  //   } else {
-  //     return div();
-  //   }
-  // }
+  private Tag renderManageTranslationsLink(ProgramDefinition program) {
+    String linkDestination =
+        routes.AdminProgramTranslationsController.edit(
+                program.id(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
+            .url();
+    return a()
+        .withId("program-translations-link-" + program.id())
+        .withHref(linkDestination)
+        .with(
+          Icons.svg(Icons.LANGUAGE_SVG_PATH, 20).withClasses(Styles.INLINE_BLOCK),
+          span("Manage translations").withClasses(Styles.PL_1));
+  }
 
   private Tag maybeRenderViewApplicationsLink(
       ProgramDefinition activeProgram, CiviFormProfile userProfile) {
@@ -373,18 +374,14 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return null;
   }
 
-  // private Tag renderManageProgramAdminsLink(
-  //     Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
-  //   // We can use the ID of either, since we just add the program name and not ID to indicate
-  //   // ownership.
-  //   long programId =
-  //       draftProgram.isPresent() ? draftProgram.get().id() : activeProgram.orElseThrow().id();
-  //   String adminLink = routes.ProgramAdminManagementController.edit(programId).url();
-  //   return new LinkElement()
-  //       .setId("manage-program-admin-link-" + programId)
-  //       .setHref(adminLink)
-  //       .setText("Manage Admins →")
-  //       .setStyles(Styles.MR_2)
-  //       .asAnchorText();
-  // }
+  private Tag renderManageProgramAdminsLink(ProgramDefinition program) {
+    String adminLink = routes.ProgramAdminManagementController.edit(program.id()).url();
+    return a()
+        .withId("manage-program-admin-link-" + program.id())
+        .withHref(adminLink)
+        .with(
+          Icons.svg(Icons.GROUP_SVG_PATH, 20).withClasses(Styles.INLINE_BLOCK),
+          span("Manage admins").withClass(Styles.PL_1)
+        );
+  }
 }
