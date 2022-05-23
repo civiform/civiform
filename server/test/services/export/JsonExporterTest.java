@@ -7,7 +7,7 @@ import models.Application;
 import models.Program;
 import org.junit.Test;
 import services.CfJsonDocumentContext;
-import services.OffsetBasedPaginationSpec;
+import services.IdentifierBasedPaginationSpec;
 import services.Path;
 
 public class JsonExporterTest extends AbstractExporterTest {
@@ -24,7 +24,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         exporter
             .export(
                 fakeProgram.getProgramDefinition(),
-                OffsetBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG)
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG)
             .getLeft();
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
@@ -92,7 +92,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         exporter
             .export(
                 fakeProgramWithEnumerator.getProgramDefinition(),
-                OffsetBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG)
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG)
             .getLeft();
 
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);

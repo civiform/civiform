@@ -2,7 +2,11 @@ package services;
 
 import java.util.Optional;
 
-/** Specifies pagination behavior for a paginated query. */
+/**
+ * Specifies pagination behavior for a query with page number-based pagination. With page-number
+ * based pagination, the current page of results is resolved by multiplying the page size by the
+ * current page - 1 to derive an offset for the the underlying query.
+ */
 public class PageNumberBasedPaginationSpec {
 
   public static PageNumberBasedPaginationSpec MAX_PAGE_SIZE_SPEC =

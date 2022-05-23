@@ -29,7 +29,7 @@ import models.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.F;
-import services.OffsetBasedPaginationSpec;
+import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.program.ProgramDefinition;
@@ -209,18 +209,23 @@ public class ProgramRepository {
    * Get all submitted applications for this program and all other previous and future versions of
    * it where the applicant's first name, last name, email, or application ID contains the search
    * query. Does not include drafts or deleted applications. Results returned in reverse order that
-   * the applications were created. Results are limited to applications submitted after and/or
-   * before submitTimeFrom and/or submitTimeTo, respectively.
+   * the applications were created. Results are optionally limited to applications submitted after
+   * {@code submitTimeFrom} and/or before {@code submitTimeTo}, inclusive of both values.
    *
    * <p>If searchNameFragment is not an unsigned integer, the query will filter to applications with
    * email, first name, or last name that contain it.
    *
    * <p>If searchNameFragment is an unsigned integer, the query will filter to applications with an
    * application ID matching it.
+   *
+   * <p>Both offset-based and page number-based pagination are supported. For paginationSpecEither
+   * the caller may pass either a {@link IdentifierBasedPaginationSpec <Long>} or {@link
+   * PageNumberBasedPaginationSpec} using play's {@link F.Either} wrapper.
    */
   public PaginationResult<Application> getApplicationsForAllProgramVersions(
       long programId,
-      F.Either<OffsetBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec> paginationSpecEither,
+      F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
+          paginationSpecEither,
       Optional<String> searchNameFragment,
       Optional<Instant> submitTimeFrom,
       Optional<Instant> submitTimeTo) {
@@ -236,7 +241,7 @@ public class ProgramRepository {
                 ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE));
 
     if (submitTimeFrom.isPresent()) {
-      query = query.where().gt("submit_time", submitTimeFrom.get());
+      query = query.where().ge("submit_time", submitTimeFrom.get());
     }
 
     if (submitTimeTo.isPresent()) {
@@ -268,7 +273,7 @@ public class ProgramRepository {
     PagedList<Application> pagedQuery;
 
     if (paginationSpecEither.left.isPresent()) {
-      var paginationSpec = paginationSpecEither.left.get();
+      IdentifierBasedPaginationSpec<Long> paginationSpec = paginationSpecEither.left.get();
       pagedQuery =
           query
               .where()
@@ -276,7 +281,7 @@ public class ProgramRepository {
               .setMaxRows(paginationSpec.getPageSize())
               .findPagedList();
     } else {
-      var paginationSpec = paginationSpecEither.right.get();
+      PageNumberBasedPaginationSpec paginationSpec = paginationSpecEither.right.get();
       pagedQuery =
           query
               .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())

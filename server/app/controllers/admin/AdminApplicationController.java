@@ -22,7 +22,7 @@ import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApplicationRepository;
-import services.OffsetBasedPaginationSpec;
+import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.applicant.AnswerData;
@@ -96,7 +96,9 @@ public class AdminApplicationController extends CiviFormController {
 
     String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
     String json =
-        jsonExporter.export(program, OffsetBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG).getLeft();
+        jsonExporter
+            .export(program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG)
+            .getLeft();
 
     return ok(json)
         .as(Http.MimeTypes.JSON)

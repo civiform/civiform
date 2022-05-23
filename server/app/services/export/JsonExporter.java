@@ -1,7 +1,6 @@
 package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static services.question.types.QuestionType.CURRENCY;
 
 import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.DocumentContext;
@@ -14,7 +13,7 @@ import models.Application;
 import org.apache.commons.lang3.tuple.Pair;
 import play.libs.F;
 import services.CfJsonDocumentContext;
-import services.OffsetBasedPaginationSpec;
+import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
 import services.Path;
 import services.applicant.AnswerData;
@@ -43,7 +42,7 @@ public class JsonExporter {
   }
 
   public Pair<String, PaginationResult<Application>> export(
-      ProgramDefinition programDefinition, OffsetBasedPaginationSpec<Long> paginationSpec) {
+      ProgramDefinition programDefinition, IdentifierBasedPaginationSpec<Long> paginationSpec) {
     PaginationResult<Application> paginationResult;
     try {
       paginationResult =

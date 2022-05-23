@@ -20,7 +20,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.DateConverter;
-import services.OffsetBasedPaginationSpec;
+import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
 import services.export.JsonExporter;
 import services.program.ProgramNotFoundException;
@@ -82,10 +82,10 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
     Optional<Instant> toTime = resolveDateParam(paginationToken, TO_DATE_PARAM_NAME, toDateParam);
     int pageSize = resolvePageSize(paginationToken, pageSizeParam);
 
-    OffsetBasedPaginationSpec<Long> paginationSpec =
+    IdentifierBasedPaginationSpec<Long> paginationSpec =
         paginationToken
             .map(this::createPaginationSpec)
-            .orElse(new OffsetBasedPaginationSpec<>(pageSize));
+            .orElse(new IdentifierBasedPaginationSpec<>(pageSize));
 
     return programService
         .getProgramDefinitionAsync(programSlug)
@@ -218,9 +218,9 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
     }
   }
 
-  private OffsetBasedPaginationSpec<Long> createPaginationSpec(
+  private IdentifierBasedPaginationSpec<Long> createPaginationSpec(
       ApiPaginationTokenPayload apiPaginationTokenPayload) {
-    return new OffsetBasedPaginationSpec<>(
+    return new IdentifierBasedPaginationSpec<>(
         apiPaginationTokenPayload.getPageSpec().getPageSize(),
         Optional.of(Long.valueOf(apiPaginationTokenPayload.getPageSpec().getOffsetIdentifier())));
   }

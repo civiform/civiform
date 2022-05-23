@@ -5,24 +5,25 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Optional;
 
 /**
- * Specifies pagination behavior for a query with offset identifier-based pagination. An offset
+ * Specifies pagination behavior for a query using identifier-based offset pagination. An offset
  * identifier identifies the last item of the previous page of results using its sort order
- * attribute.
+ * attribute. The type of the identifier {@code T} depends on the type of the underlying attribute
+ * used for sort order.
  */
-public class OffsetBasedPaginationSpec<T> {
+public class IdentifierBasedPaginationSpec<T> {
 
-  public static OffsetBasedPaginationSpec<Long> MAX_PAGE_SIZE_SPEC_LONG =
-      new OffsetBasedPaginationSpec<>(Integer.MAX_VALUE);
+  public static IdentifierBasedPaginationSpec<Long> MAX_PAGE_SIZE_SPEC_LONG =
+      new IdentifierBasedPaginationSpec<>(Integer.MAX_VALUE);
 
   private final int pageSize;
   private final Optional<T> currentPageOffsetIdentifier;
 
-  public OffsetBasedPaginationSpec(int pageSize) {
+  public IdentifierBasedPaginationSpec(int pageSize) {
     this.pageSize = pageSize;
     this.currentPageOffsetIdentifier = Optional.empty();
   }
 
-  public OffsetBasedPaginationSpec(int pageSize, Optional<T> currentPageOffsetIdentifier) {
+  public IdentifierBasedPaginationSpec(int pageSize, Optional<T> currentPageOffsetIdentifier) {
     this.pageSize = pageSize;
     this.currentPageOffsetIdentifier = checkNotNull(currentPageOffsetIdentifier);
   }

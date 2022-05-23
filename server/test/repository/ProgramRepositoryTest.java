@@ -16,8 +16,8 @@ import models.Program;
 import org.junit.Before;
 import org.junit.Test;
 import play.libs.F;
+import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
-import services.OffsetBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.program.ProgramNotFoundException;
@@ -282,7 +282,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<Application> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            F.Either.Left(new OffsetBasedPaginationSpec<>(2)),
+            F.Either.Left(new IdentifierBasedPaginationSpec<>(2)),
             Optional.empty(),
             Optional.empty(),
             Optional.empty());
@@ -297,7 +297,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
             F.Either.Left(
-                new OffsetBasedPaginationSpec<>(
+                new IdentifierBasedPaginationSpec<>(
                     2, Optional.of(paginationResult.getPageContents().get(1).id))),
             Optional.empty(),
             Optional.empty(),
