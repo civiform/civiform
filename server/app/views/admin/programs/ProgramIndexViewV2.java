@@ -117,11 +117,9 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         .setExtraStyles(ImmutableSet.of(Styles.MY_2))
         .setSvgRef(Icons.DOWNLOAD_SVG_PATH)
         .setText("Download Exported Data (CSV)")
-        .setOnClickJS(
-            ActionButton.navigateToJS(
-                routes.AdminApplicationController.downloadDemographics().url()))
         .build()
-        .render();
+        .renderAsLinkButton(
+          routes.AdminApplicationController.downloadDemographics().url());
   }
 
   private Tag maybeRenderPublishButton(ActiveAndDraftPrograms programs) {
@@ -139,9 +137,8 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         .setExtraStyles(ImmutableSet.of(Styles.MY_2))
         .setSvgRef(Icons.PUBLISH_SVG_PATH)
         .setText("Publish all drafts")
-        .setOnClickJS(ActionButton.navigateToJS(link))
         .build()
-        .render();
+        .renderAsLinkButton(link);
   }
 
   private Tag renderNewProgramButton() {
@@ -152,9 +149,8 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         .setExtraStyles(ImmutableSet.of(Styles.MY_2))
         .setSvgRef(Icons.ADD_SVG_PATH)
         .setText("Create new program")
-        .setOnClickJS(ActionButton.navigateToJS(link))
         .build()
-        .render();
+        .renderAsLinkButton(link);
   }
 
   public ProgramDefinition getDisplayProgram(
@@ -194,7 +190,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
             StyleUtils.hover(Styles.BG_GRAY_100))
         .with(
             p().withClasses(
-                    // TODO(#1238): min-width:90px, custom background color
+                    // TODO(#1238): min-width:90px
                     badgeBGColor,
                     badgeFillColor,
                     Styles.ML_8,
@@ -333,9 +329,8 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         .setActionType(ActionType.TERTIARY)
         .setSvgRef(Icons.VISIBILITY_SVG_PATH)
         .setText("View")
-        .setOnClickJS(ActionButton.navigateToJS(viewLink))
         .build()
-        .render();
+        .renderAsLinkButton(viewLink);
   }
 
   Tag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
@@ -346,18 +341,15 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
       editLinkId = "program-new-version-link-" + program.id();
     }
 
-    // TODO(#1238): Add ability to render
-    // as a hidden form when creating a new version.
-    // Also consider adding an editOrNewVersion URL to remove the need to have distinct
-    // URLs.
-    return ActionButton.builder()
+    ActionButton button = ActionButton.builder()
         .setId(editLinkId)
         .setActionType(ActionType.TERTIARY)
         .setSvgRef(Icons.EDIT_SVG_PATH)
         .setText("Edit")
-        .setOnClickJS(ActionButton.navigateToJS(editLink))
-        .build()
-        .render();
+        .build();
+    return isActive
+      ? button.renderAsLinkButonHiddenForm(editLink, request)
+      : button.renderAsLinkButton(editLink);
   }
 
   private Tag renderManageTranslationsLink(ProgramDefinition program) {
@@ -370,9 +362,8 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         .setActionType(ActionType.TERTIARY)
         .setSvgRef(Icons.LANGUAGE_SVG_PATH)
         .setText("Manage translations")
-        .setOnClickJS(ActionButton.navigateToJS(linkDestination))
         .build()
-        .render();
+        .renderAsLinkButton(linkDestination);
   }
 
   private Tag maybeRenderViewApplicationsLink(
@@ -394,9 +385,8 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
           .setActionType(ActionType.TERTIARY)
           .setSvgRef(Icons.TEXT_SNIPPET_SVG_PATH)
           .setText("Applications")
-          .setOnClickJS(ActionButton.navigateToJS(editLink))
           .build()
-          .render();
+          .renderAsLinkButton(editLink);
     }
     return null;
   }
@@ -408,8 +398,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         .setActionType(ActionType.TERTIARY)
         .setSvgRef(Icons.GROUP_SVG_PATH)
         .setText("Manage admins")
-        .setOnClickJS(ActionButton.navigateToJS(adminLink))
         .build()
-        .render();
+        .renderAsLinkButton(adminLink);
   }
 }

@@ -1,6 +1,8 @@
 package views.components;
 
 import static j2html.TagCreator.button;
+import static j2html.TagCreator.form;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
@@ -8,6 +10,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import j2html.tags.Tag;
+import play.filters.csrf.CSRF;
+import play.mvc.Http;
+import scala.Option;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -71,8 +76,6 @@ public abstract class ActionButton {
 
   abstract ImmutableSet<String> extraStyles();
 
-  abstract String onClickJS();
-
   private ImmutableSet<String> stylesForAction() {
     switch (actionType()) {
       case PRIMARY:
@@ -87,14 +90,36 @@ public abstract class ActionButton {
   }
 
   public final Tag render() {
+    return null;
+  }
+
+  public final Tag renderAsLinkButton(String link) {
+    return renderButton().attr("onclick", navigateToJS(link));
+  }
+
+  public final Tag renderAsLinkButonHiddenForm(String postLink, Http.Request request) {
+    Option<CSRF.Token> csrfTokenMaybe = CSRF.getToken(request.asScala());
+    String csrfToken = "";
+    if (csrfTokenMaybe.isDefined()) {
+      csrfToken = csrfTokenMaybe.get().value();
+    }
+
+    // TODO(#1238): Rendering this way appears to change the positioning of the element.
+    return form(
+                input().isHidden().withValue(csrfToken).withName("csrfToken"))
+            .withClasses(Styles.INLINE)
+            .withMethod("POST")
+            .withAction(postLink);
+  }
+
+  private final Tag renderButton() {
     return button()
         .withId(id())
         .withClasses(StyleUtils.joinStyles(Sets.union(stylesForAction(), extraStyles())))
         .with(
             Icons.svg(svgRef(), SVG_PIXEL_SIZE)
                 .withClasses(Styles.ML_2, Styles.MR_1, Styles.INLINE_BLOCK),
-            span(text()))
-        .attr("onclick", onClickJS());
+            span(text()));
   }
 
   @AutoValue.Builder
@@ -109,8 +134,6 @@ public abstract class ActionButton {
 
     public abstract Builder setExtraStyles(ImmutableSet<String> extraStyles);
 
-    public abstract Builder setOnClickJS(String onClickJS);
-
     abstract ActionButton autoBuild(); // not public
 
     public final ActionButton build() {
@@ -118,7 +141,6 @@ public abstract class ActionButton {
 
       Preconditions.checkState(!button.text().isEmpty(), "text is required");
       Preconditions.checkState(!button.svgRef().isEmpty(), "SVG reference is required");
-      Preconditions.checkState(!button.onClickJS().isEmpty(), "onClickJS is required");
       return button;
     }
   }
