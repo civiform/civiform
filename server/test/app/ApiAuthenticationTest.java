@@ -22,7 +22,7 @@ import repository.ResetPostgres;
 public class ApiAuthenticationTest extends ResetPostgres {
   private static final String keyId = "keyId";
   private static final String secret = "secret";
-  public static final String API_URL =
+  public static final String API_CHECK_URL =
       controllers.api.routes.CiviFormApiController.checkAuth().url();
 
   @Before
@@ -47,7 +47,7 @@ public class ApiAuthenticationTest extends ResetPostgres {
 
     Result result =
         doGetRequest(
-            fakeRequest("GET", API_URL)
+            fakeRequest("GET", API_CHECK_URL)
                 .remoteAddress("1.1.1.1")
                 .header("Authorization", "Basic " + creds));
 
@@ -62,7 +62,7 @@ public class ApiAuthenticationTest extends ResetPostgres {
 
     Result result =
         doGetRequest(
-            fakeRequest("GET", API_URL)
+            fakeRequest("GET", API_CHECK_URL)
                 .remoteAddress("1.1.1.1")
                 .header("Authorization", "Basic " + creds));
 

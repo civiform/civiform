@@ -85,7 +85,7 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
     IdentifierBasedPaginationSpec<Long> paginationSpec =
         paginationToken
             .map(this::createPaginationSpec)
-            .orElse(new IdentifierBasedPaginationSpec<>(pageSize));
+            .orElse(new IdentifierBasedPaginationSpec<>(pageSize, Long.MAX_VALUE));
 
     return programService
         .getProgramDefinitionAsync(programSlug)
@@ -222,6 +222,6 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
       ApiPaginationTokenPayload apiPaginationTokenPayload) {
     return new IdentifierBasedPaginationSpec<>(
         apiPaginationTokenPayload.getPageSpec().getPageSize(),
-        Optional.of(Long.valueOf(apiPaginationTokenPayload.getPageSpec().getOffsetIdentifier())));
+        Long.valueOf(apiPaginationTokenPayload.getPageSpec().getOffsetIdentifier()));
   }
 }

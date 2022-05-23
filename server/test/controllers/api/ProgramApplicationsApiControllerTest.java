@@ -25,12 +25,12 @@ import services.export.AbstractExporterTest;
 
 public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
 
-  private ApiKey apiKey;
   private static final String keyId = "key-id";
   private static final String keySecret = "key-secret";
   private static final String rawCredentials = keyId + ":" + keySecret;
   private static final String serializedApiKey =
       Base64.getEncoder().encodeToString(rawCredentials.getBytes(StandardCharsets.UTF_8));
+  private ApiKey apiKey;
 
   @Before
   public void setUp() {
@@ -58,9 +58,37 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
     assertThat(result.status()).isEqualTo(HttpStatus.SC_OK);
 
     DocumentContext resultJson = JsonPathProvider.getJsonPath().parse(contentAsString(result));
+    assertThat(resultJson.read("payload.length()", Integer.class)).isEqualTo(1);
     assertThat(resultJson.read("payload[0].application_id", Long.class))
         .isEqualTo(applicationTwo.id);
-    assertThat(resultJson.read("payload.length()", Integer.class)).isEqualTo(1);
+  }
+
+  @Test
+  public void list_success_multipleResultsInAPage() {
+    createFakeProgramWithEnumerator();
+    apiKey
+        .getGrants()
+        .grantProgramPermission(fakeProgramWithEnumerator.getSlug(), ApiKeyGrants.Permission.READ);
+    apiKey.save();
+
+    String firstRequestUrl =
+        controllers.api.routes.ProgramApplicationsApiController.list(
+                fakeProgramWithEnumerator.getSlug(),
+                /* fromDate= */ Optional.empty(),
+                /* toDate= */ Optional.empty(),
+                /* nextPageToken= */ Optional.empty(),
+                /* pageSize= */ Optional.of(2))
+            .url();
+
+    Result result = doRequest(firstRequestUrl);
+    assertThat(result.status()).isEqualTo(HttpStatus.SC_OK);
+
+    DocumentContext resultJson = JsonPathProvider.getJsonPath().parse(contentAsString(result));
+    assertThat(resultJson.read("payload.length()", Integer.class)).isEqualTo(2);
+    assertThat(resultJson.read("payload[0].application_id", Long.class))
+        .isEqualTo(applicationThree.id);
+    assertThat(resultJson.read("payload[1].application_id", Long.class))
+        .isEqualTo(applicationTwo.id);
   }
 
   @Test
@@ -84,11 +112,6 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
     assertThat(result.status()).isEqualTo(HttpStatus.SC_OK);
 
     DocumentContext resultJson = JsonPathProvider.getJsonPath().parse(contentAsString(result));
-    assertThat(resultJson.read("payload[0].application_id", Long.class))
-        .isEqualTo(applicationThree.id);
-    assertThat(resultJson.read("payload[1].application_id", Long.class))
-        .isEqualTo(applicationTwo.id);
-    assertThat(resultJson.read("payload.length()", Integer.class)).isEqualTo(2);
     String nextPageToken = resultJson.read("nextPageToken", String.class);
     assertThat(nextPageToken).isNotBlank();
 

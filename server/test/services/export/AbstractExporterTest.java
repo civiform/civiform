@@ -149,6 +149,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     this.fakeProgram = fakeProgram.build();
   }
 
+  /**
+   * Creates a program that has an enumerator question with children, three applicants, and three
+   * applications. The applications have submission times one month apart starting on 2022-01-01.
+   */
   protected void createFakeProgramWithEnumerator() {
     Question nameQuestion = testQuestionBank.applicantName();
     Question colorQuestion = testQuestionBank.applicantFavoriteColor();

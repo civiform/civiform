@@ -277,14 +277,14 @@ public class ProgramRepository {
       pagedQuery =
           query
               .where()
-              .lt("id", paginationSpec.getCurrentPageOffsetIdentifier().orElse(Long.MAX_VALUE))
+              .lt("id", paginationSpec.getCurrentPageOffsetIdentifier())
               .setMaxRows(paginationSpec.getPageSize())
               .findPagedList();
     } else {
       PageNumberBasedPaginationSpec paginationSpec = paginationSpecEither.right.get();
       pagedQuery =
           query
-              .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
+              .setFirstRow(paginationSpec.getCurrentPageOffset())
               .setMaxRows(paginationSpec.getPageSize())
               .findPagedList();
     }

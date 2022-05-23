@@ -202,7 +202,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<Application> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             program.id,
-            F.Either.Right(new PageNumberBasedPaginationSpec(10, 1)),
+            F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 10)),
             Optional.empty(),
             Optional.of(Instant.parse("2022-01-25T00:00:00Z")),
             Optional.of(Instant.parse("2022-02-10T00:00:00Z")));
@@ -236,7 +236,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<Application> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            F.Either.Right(new PageNumberBasedPaginationSpec(2, 1)),
+            F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 2)),
             Optional.empty(),
             Optional.empty(),
             Optional.empty());
@@ -250,7 +250,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
     paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            F.Either.Right(new PageNumberBasedPaginationSpec(2, 2)),
+            F.Either.Right(
+                new PageNumberBasedPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2)),
             Optional.empty(),
             Optional.empty(),
             Optional.empty());
@@ -282,7 +283,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<Application> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            F.Either.Left(new IdentifierBasedPaginationSpec<>(2)),
+            F.Either.Left(new IdentifierBasedPaginationSpec<>(2, Long.MAX_VALUE)),
             Optional.empty(),
             Optional.empty(),
             Optional.empty());
@@ -298,7 +299,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             nextVersion.id,
             F.Either.Left(
                 new IdentifierBasedPaginationSpec<>(
-                    2, Optional.of(paginationResult.getPageContents().get(1).id))),
+                    2, paginationResult.getPageContents().get(1).id)),
             Optional.empty(),
             Optional.empty(),
             Optional.empty());

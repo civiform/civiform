@@ -2,8 +2,6 @@ package services;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.Optional;
-
 /**
  * Specifies pagination behavior for a query using identifier-based offset pagination. An offset
  * identifier identifies the last item of the previous page of results using its sort order
@@ -13,17 +11,12 @@ import java.util.Optional;
 public class IdentifierBasedPaginationSpec<T> {
 
   public static IdentifierBasedPaginationSpec<Long> MAX_PAGE_SIZE_SPEC_LONG =
-      new IdentifierBasedPaginationSpec<>(Integer.MAX_VALUE);
+      new IdentifierBasedPaginationSpec<>(Integer.MAX_VALUE, Long.MAX_VALUE);
 
   private final int pageSize;
-  private final Optional<T> currentPageOffsetIdentifier;
+  private final T currentPageOffsetIdentifier;
 
-  public IdentifierBasedPaginationSpec(int pageSize) {
-    this.pageSize = pageSize;
-    this.currentPageOffsetIdentifier = Optional.empty();
-  }
-
-  public IdentifierBasedPaginationSpec(int pageSize, Optional<T> currentPageOffsetIdentifier) {
+  public IdentifierBasedPaginationSpec(int pageSize, T currentPageOffsetIdentifier) {
     this.pageSize = pageSize;
     this.currentPageOffsetIdentifier = checkNotNull(currentPageOffsetIdentifier);
   }
@@ -32,7 +25,13 @@ public class IdentifierBasedPaginationSpec<T> {
     return this.pageSize;
   }
 
-  public Optional<T> getCurrentPageOffsetIdentifier() {
+  /**
+   * Get the offset identifier for this page of results. The identifier is a value that can be
+   * compared to the sort order attribute of a paginated resource to offset a query. For example, if
+   * a query is sorted by database ID, the offset identifier will be the database ID of the last
+   * entry in the last page of results.
+   */
+  public T getCurrentPageOffsetIdentifier() {
     return this.currentPageOffsetIdentifier;
   }
 }
