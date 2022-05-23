@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.routes;
 import j2html.attributes.Attr;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Arrays;
@@ -179,6 +180,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       String predicateUpdateUrl,
       Tag csrfTag) {
     Tag triggerButtonContent =
+        TagCreator.button().with(
         div()
             .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
             .with(
@@ -190,7 +192,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                     .with(
                         div(questionDefinition.getName()),
                         div(questionDefinition.getDescription())
-                            .withClasses(Styles.MT_1, Styles.TEXT_SM)));
+                            .withClasses(Styles.MT_1, Styles.TEXT_SM))));
 
     ContainerTag modalContent =
         div()

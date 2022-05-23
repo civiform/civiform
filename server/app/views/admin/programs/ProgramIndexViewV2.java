@@ -58,16 +58,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     }
 
     String pageTitle = "All programs";
-    ContainerTag publishAllModalContent =
-        div()
-            .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
-            .with(p("Are you sure you want to publish all programs?").withClasses(Styles.P_2))
-            .with(maybeRenderPublishButton(programs));
-    Modal publishAllModal =
-        Modal.builder("publish-all-programs-modal", publishAllModalContent)
-            .setModalTitle("Confirmation")
-            .setTriggerButtonText("Publish all programs")
-            .build();
+    Optional<Modal> maybePublishModal = maybeRenderPublishModal(programs, request);
 
     Tag contentDiv =
         div()
@@ -85,7 +76,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                         div().withClass(Styles.FLEX_GROW),
                         renderDownloadExportCsvButton(),
                         renderNewProgramButton(),
-                        maybeRenderPublishButton(programs)),
+                        maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null),
                 div()
                     .withClasses(ReferenceClasses.ADMIN_PROGRAM_CARD_LIST, Styles.INVISIBLE)
                     .with(
@@ -105,8 +96,10 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
             .getBundle()
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
-            .addModals(publishAllModal)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
+    if (maybePublishModal.isPresent()) {
+      htmlBundle = htmlBundle.addModals(maybePublishModal.get());
+    }
     return layout.renderCentered(htmlBundle);
   }
 
@@ -122,23 +115,31 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
           routes.AdminApplicationController.downloadDemographics().url());
   }
 
-  private Tag maybeRenderPublishButton(ActiveAndDraftPrograms programs) {
-    // We should only render the publish button if there is at least one draft.
+  private Optional<Modal> maybeRenderPublishModal(ActiveAndDraftPrograms programs, Http.Request request) {
+    // We should only render the publish modal / button if there is at least one draft.
     if (!programs.anyDraft()) {
-      return null;
+      return Optional.empty();
     }
-    // TODO(#1238): Previously the form submit was on this element rather than
-    // on the modal. Move it to the modal, since the user has to accept within
-    // the modal.
     String link = routes.AdminProgramController.publish().url();
-    return ActionButton.builder()
+    ActionButton publishButton = ActionButton.builder()
         .setId("publish-programs-button")
         .setActionType(ActionType.PRIMARY)
         .setExtraStyles(ImmutableSet.of(Styles.MY_2))
         .setSvgRef(Icons.PUBLISH_SVG_PATH)
         .setText("Publish all drafts")
-        .build()
-        .renderAsLinkButton(link);
+        .build();
+
+    ContainerTag publishAllModalContent =
+        div()
+            .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
+            .with(p("Are you sure you want to publish all programs?").withClasses(Styles.P_2))
+            .with(publishButton.renderAsLinkButonHiddenForm(link, request));
+    Modal publishAllModal =
+        Modal.builder("publish-all-programs-modal", publishAllModalContent)
+            .setModalTitle("Confirmation")
+            .setTriggerButtonContent(publishButton.renderAsCustomJSButton(""))
+            .build();
+    return Optional.of(publishAllModal);
   }
 
   private Tag renderNewProgramButton() {

@@ -3,6 +3,7 @@ package views.components;
 import static j2html.TagCreator.div;
 import static views.BaseHtmlView.button;
 
+import com.google.common.base.Preconditions;
 import j2html.TagCreator;
 import j2html.tags.Tag;
 import java.util.Optional;
@@ -42,11 +43,9 @@ public class Modal {
   public Tag getButton() {
     String triggerButtonId = modalId + "-button";
     if (triggerButtonContent.isPresent()) {
-      return TagCreator.button()
-          .withType("button")
+      return triggerButtonContent.get()
           .withClasses(buttonStyles)
-          .withId(triggerButtonId)
-          .with(triggerButtonContent.get());
+          .withId(triggerButtonId);
     } else {
       return button(triggerButtonId, triggerButtonText).withClasses(buttonStyles);
     }
@@ -97,6 +96,7 @@ public class Modal {
     }
 
     public ModalBuilder setTriggerButtonContent(Tag triggerButtonContent) {
+      Preconditions.checkState("button".equals(triggerButtonContent.getTagName()), "content must be of type button");
       this.triggerButtonContent = Optional.ofNullable(triggerButtonContent);
       return this;
     }

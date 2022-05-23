@@ -89,8 +89,8 @@ public abstract class ActionButton {
     }
   }
 
-  public final Tag render() {
-    return null;
+  public final Tag renderAsCustomJSButton(String customJS) {
+    return renderButton().attr("onclick", customJS);
   }
 
   public final Tag renderAsLinkButton(String link) {
@@ -106,7 +106,8 @@ public abstract class ActionButton {
 
     // TODO(#1238): Rendering this way appears to change the positioning of the element.
     return form(
-                input().isHidden().withValue(csrfToken).withName("csrfToken"))
+                input().isHidden().withValue(csrfToken).withName("csrfToken"),
+                renderButton())
             .withClasses(Styles.INLINE)
             .withMethod("POST")
             .withAction(postLink);
