@@ -1052,6 +1052,10 @@ public final class Styles {
   public static final String MR_3 = "mr-3";
   public static final String MB_3 = "mb-3";
   public static final String ML_3 = "ml-3";
+  public static final String MT_3_5 = "mt-3.5";
+  public static final String MR_3_5 = "mr-3.5";
+  public static final String MB_3_5 = "mb-3.5";
+  public static final String ML_3_5 = "ml-3.5";
   public static final String MT_4 = "mt-4";
   public static final String MR_4 = "mr-4";
   public static final String MB_4 = "mb-4";

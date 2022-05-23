@@ -205,9 +205,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                 .withStyle("min-width:90px")
                 .with(
                     Icons.svg(Icons.NOISE_CONTROL_OFF_SVG_PATH, 20)
-                        // TODO(#1238): Technically should be ML_3_5, but that
-                        // isn't available yet. Check whether 2px off is ok.
-                        .withClasses(Styles.INLINE_BLOCK, Styles.ML_3),
+                        .withClasses(Styles.INLINE_BLOCK, Styles.ML_3_5),
                     span(badgeText).withClass(Styles.MR_4)),
             div()
                 .with(
