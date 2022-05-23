@@ -13,8 +13,8 @@ import play.libs.F;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.OffsetBasedPaginationSpec;
+import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 import services.program.predicate.PredicateDefinition;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
@@ -338,7 +338,7 @@ public interface ProgramService {
    */
   PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
       long programId,
-      F.Either<OffsetBasedPaginationSpec<Long>, PaginationSpec> paginationSpecEither,
+      F.Either<OffsetBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec> paginationSpecEither,
       Optional<String> searchNameFragment)
       throws ProgramNotFoundException;
 
@@ -353,7 +353,7 @@ public interface ProgramService {
    */
   PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
       long programId,
-      F.Either<OffsetBasedPaginationSpec<Long>, PaginationSpec> paginationSpecEither,
+      F.Either<OffsetBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec> paginationSpecEither,
       Optional<Instant> submitTimeFrom,
       Optional<Instant> submitTimeTo)
       throws ProgramNotFoundException;

@@ -18,8 +18,8 @@ import org.junit.Test;
 import play.libs.F;
 import services.LocalizedStrings;
 import services.OffsetBasedPaginationSpec;
+import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 import services.program.ProgramNotFoundException;
 import support.CfTestHelpers;
 
@@ -202,7 +202,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<Application> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             program.id,
-            F.Either.Right(new PaginationSpec(10, 1)),
+            F.Either.Right(new PageNumberBasedPaginationSpec(10, 1)),
             Optional.empty(),
             Optional.of(Instant.parse("2022-01-25T00:00:00Z")),
             Optional.of(Instant.parse("2022-02-10T00:00:00Z")));
@@ -236,7 +236,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     PaginationResult<Application> paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            F.Either.Right(new PaginationSpec(2, 1)),
+            F.Either.Right(new PageNumberBasedPaginationSpec(2, 1)),
             Optional.empty(),
             Optional.empty(),
             Optional.empty());
@@ -250,7 +250,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     paginationResult =
         repo.getApplicationsForAllProgramVersions(
             nextVersion.id,
-            F.Either.Right(new PaginationSpec(2, 2)),
+            F.Either.Right(new PageNumberBasedPaginationSpec(2, 2)),
             Optional.empty(),
             Optional.empty(),
             Optional.empty());

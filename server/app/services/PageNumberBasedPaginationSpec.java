@@ -3,19 +3,20 @@ package services;
 import java.util.Optional;
 
 /** Specifies pagination behavior for a paginated query. */
-public class PaginationSpec {
+public class PageNumberBasedPaginationSpec {
 
-  public static PaginationSpec MAX_PAGE_SIZE_SPEC = new PaginationSpec(Integer.MAX_VALUE, 1);
+  public static PageNumberBasedPaginationSpec MAX_PAGE_SIZE_SPEC =
+      new PageNumberBasedPaginationSpec(Integer.MAX_VALUE, 1);
 
   private final int pageSize;
   private final Optional<Integer> currentPage;
 
-  public PaginationSpec(int pageSize) {
+  public PageNumberBasedPaginationSpec(int pageSize) {
     this.pageSize = pageSize;
     this.currentPage = Optional.empty();
   }
 
-  public PaginationSpec(int pageSize, int currentPage) {
+  public PageNumberBasedPaginationSpec(int pageSize, int currentPage) {
     this.pageSize = pageSize;
     this.currentPage = Optional.of(currentPage);
   }

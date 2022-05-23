@@ -23,8 +23,8 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApplicationRepository;
 import services.OffsetBasedPaginationSpec;
+import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
@@ -257,7 +257,7 @@ public class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
 
-    var paginationSpec = new PaginationSpec(PAGE_SIZE, page.orElse(1));
+    var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
     PaginationResult<Application> applications;
     try {
       applications =

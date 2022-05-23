@@ -30,8 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.F;
 import services.OffsetBasedPaginationSpec;
+import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 
@@ -220,7 +220,7 @@ public class ProgramRepository {
    */
   public PaginationResult<Application> getApplicationsForAllProgramVersions(
       long programId,
-      F.Either<OffsetBasedPaginationSpec<Long>, PaginationSpec> paginationSpecEither,
+      F.Either<OffsetBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec> paginationSpecEither,
       Optional<String> searchNameFragment,
       Optional<Instant> submitTimeFrom,
       Optional<Instant> submitTimeTo) {

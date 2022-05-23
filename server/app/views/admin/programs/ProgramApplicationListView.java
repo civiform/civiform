@@ -20,8 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 import services.program.ProgramDefinition;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
@@ -46,7 +46,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   public Content render(
       Http.Request request,
       ProgramDefinition program,
-      PaginationSpec paginationSpec,
+      PageNumberBasedPaginationSpec paginationSpec,
       PaginationResult<Application> paginatedApplications,
       Optional<String> search) {
     Tag contentDiv =

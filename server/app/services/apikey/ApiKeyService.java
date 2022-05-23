@@ -27,8 +27,8 @@ import play.data.DynamicForm;
 import repository.ApiKeyRepository;
 import services.CryptographicUtils;
 import services.DateConverter;
+import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
@@ -100,7 +100,7 @@ public class ApiKeyService {
    *
    * @param paginationSpec specification for paginating the results.
    */
-  public PaginationResult<ApiKey> listApiKeys(PaginationSpec paginationSpec) {
+  public PaginationResult<ApiKey> listApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
     return repository.listApiKeys(paginationSpec);
   }
 
