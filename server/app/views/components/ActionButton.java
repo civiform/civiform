@@ -21,7 +21,6 @@ public abstract class ActionButton {
       ImmutableSet.of(
           Styles.FLEX,
           Styles.ITEMS_CENTER,
-          Styles.MY_2,
           Styles.ROUNDED_FULL,
           Styles.FONT_MEDIUM,
           StyleUtils.focus(Styles.OUTLINE_NONE, Styles.RING_2));

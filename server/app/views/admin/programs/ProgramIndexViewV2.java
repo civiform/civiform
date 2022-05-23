@@ -8,6 +8,7 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import auth.CiviFormProfile;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -32,6 +33,7 @@ import views.components.ActionButton;
 import views.components.ActionButton.ActionType;
 import views.components.Icons;
 import views.components.Modal;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -112,6 +114,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return ActionButton.builder()
         .setId("download-export-csv-button")
         .setActionType(ActionType.SECONDARY)
+        .setExtraStyles(ImmutableSet.of(Styles.MY_2))
         .setSvgRef(Icons.DOWNLOAD_SVG_PATH)
         .setText("Download Exported Data (CSV)")
         .setOnClickJS(
@@ -133,6 +136,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return ActionButton.builder()
         .setId("publish-programs-button")
         .setActionType(ActionType.PRIMARY)
+        .setExtraStyles(ImmutableSet.of(Styles.MY_2))
         .setSvgRef(Icons.PUBLISH_SVG_PATH)
         .setText("Publish all drafts")
         .setOnClickJS(ActionButton.navigateToJS(link))
@@ -145,6 +149,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return ActionButton.builder()
         .setId("new-program-button")
         .setActionType(ActionType.SECONDARY)
+        .setExtraStyles(ImmutableSet.of(Styles.MY_2))
         .setSvgRef(Icons.ADD_SVG_PATH)
         .setText("Create new program")
         .setOnClickJS(ActionButton.navigateToJS(link))
@@ -163,14 +168,14 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
   private Tag renderProgramRow(
       boolean isActive, ProgramDefinition program, List<Tag> actions, List<Tag> extraActions) {
     String badgeText = "Draft";
-    String badgeBGColor = Styles.BG_PURPLE_300;
-    String badgeFillColor = Styles.TEXT_PURPLE_700;
+    String badgeBGColor = BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
+    String badgeFillColor = BaseStyles.TEXT_CIVIFORM_PURPLE;
     String updatedPrefix = "Edited on ";
     Optional<Instant> updatedTime = program.lastModifiedTime();
     if (isActive) {
       badgeText = "Active";
-      badgeBGColor = Styles.BG_GREEN_300;
-      badgeFillColor = Styles.TEXT_GREEN_700;
+      badgeBGColor = BaseStyles.BG_CIVIFORM_GREEN_LIGHT;
+      badgeFillColor = BaseStyles.TEXT_CIVIFORM_GREEN;
       updatedPrefix = "Published on ";
     }
 
