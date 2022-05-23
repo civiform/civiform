@@ -224,7 +224,15 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                 .with(actions)
                 .condWith(
                     extraActions.size() > 0,
-                    TagCreator.button().with(Icons.svg(Icons.MORE_VERT_PATH, 18))));
+                    TagCreator.button()
+                      .withId("extra-actions-" + program.id())
+                      .withClass(ReferenceClasses.WITH_DROPDOWN)
+                      .with(Icons.svg(Icons.MORE_VERT_PATH, 18)),
+                    div()
+                      .withId("extra-actions-" + program.id() + "-dropdown")
+                      .withClasses(Styles.HIDDEN, Styles.ABSOLUTE)
+                      .with(extraActions)  
+                      ));
   }
 
   public Tag renderProgramListItem(
