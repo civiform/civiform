@@ -83,14 +83,13 @@ public class AdminApplicationController extends CiviFormController {
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result downloadAllJson(Http.Request request, long programId) {
+  public Result downloadAllJson(Http.Request request, long programId)
+      throws ProgramNotFoundException {
     final ProgramDefinition program;
 
     try {
       program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-    } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
     } catch (CompletionException e) {
       return unauthorized();
     }
@@ -106,7 +105,7 @@ public class AdminApplicationController extends CiviFormController {
 
   /** Download a CSV file containing all applications to all versions of the specified program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result downloadAll(Http.Request request, long programId) {
+  public Result downloadAll(Http.Request request, long programId) throws ProgramNotFoundException {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
@@ -116,8 +115,6 @@ public class AdminApplicationController extends CiviFormController {
           .as(Http.MimeTypes.BINARY)
           .withHeader(
               "Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
-    } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
     } catch (CompletionException e) {
       return unauthorized();
     }
@@ -128,7 +125,8 @@ public class AdminApplicationController extends CiviFormController {
    * original behavior for the program admin CSV download but is currently unused as of 10/13/2021.
    */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result downloadSingleVersion(Http.Request request, long programId) {
+  public Result downloadSingleVersion(Http.Request request, long programId)
+      throws ProgramNotFoundException {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
@@ -138,8 +136,6 @@ public class AdminApplicationController extends CiviFormController {
           .as(Http.MimeTypes.BINARY)
           .withHeader(
               "Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
-    } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
     } catch (CompletionException e) {
       return unauthorized();
     }
@@ -161,12 +157,11 @@ public class AdminApplicationController extends CiviFormController {
 
   /** Download a PDF file of the application to the program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result download(Http.Request request, long programId, long applicationId) {
+  public Result download(Http.Request request, long programId, long applicationId)
+      throws ProgramNotFoundException {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-    } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
     } catch (CompletionException e) {
       return unauthorized();
     }
@@ -192,15 +187,14 @@ public class AdminApplicationController extends CiviFormController {
 
   /** Return a HTML page displaying the summary of the specified application. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result show(Http.Request request, long programId, long applicationId) {
+  public Result show(Http.Request request, long programId, long applicationId)
+      throws ProgramNotFoundException {
     String programName;
 
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       programName = program.adminName();
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-    } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
     } catch (CompletionException e) {
       return unauthorized();
     }
@@ -242,7 +236,8 @@ public class AdminApplicationController extends CiviFormController {
   /** Return a paginated HTML page displaying (part of) all applications to the program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result index(
-      Http.Request request, long programId, Optional<String> search, Optional<Integer> page) {
+      Http.Request request, long programId, Optional<String> search, Optional<Integer> page)
+      throws ProgramNotFoundException {
     if (page.isEmpty()) {
       return redirect(routes.AdminApplicationController.index(programId, search, Optional.of(1)));
     }
@@ -251,21 +246,14 @@ public class AdminApplicationController extends CiviFormController {
     try {
       program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-    } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
     } catch (CompletionException e) {
       return unauthorized();
     }
 
     var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
-    final PaginationResult<Application> applications;
-    try {
-      applications =
-          programService.getSubmittedProgramApplicationsAllVersions(
-              programId, F.Either.Right(paginationSpec), search);
-    } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
-    }
+    PaginationResult<Application> applications =
+        programService.getSubmittedProgramApplicationsAllVersions(
+            programId, F.Either.Right(paginationSpec), search);
 
     return ok(applicationListView.render(request, program, paginationSpec, applications, search));
   }
