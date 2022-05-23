@@ -37,10 +37,12 @@ public class TextFormatterTest {
         .isEqualTo("<a href=\"http://google.com/\" class=\"text-seattle-blue\">google.com</a>");
     assertThat(content.get(2).render()).isEqualTo(new Text(", crawl (").render());
     assertThat(content.get(3).render())
-        .isEqualTo("<a href=\"http://seattle.gov/\" class=\"text-seattle-blue\">http://seattle.gov/</a>");
+        .isEqualTo(
+            "<a href=\"http://seattle.gov/\" class=\"text-seattle-blue\">http://seattle.gov/</a>");
     assertThat(content.get(4).render()).isEqualTo(new Text("); and ").render());
     assertThat(content.get(5).render())
-        .isEqualTo("<a href=\"http://mysite.com/\" class=\"text-seattle-blue\">http://mysite.com</a>");
+        .isEqualTo(
+            "<a href=\"http://mysite.com/\" class=\"text-seattle-blue\">http://mysite.com</a>");
     assertThat(content.get(6).render()).isEqualTo(new Text("...!").render());
   }
 
@@ -129,7 +131,8 @@ public class TextFormatterTest {
     // ...and a link.
     assertThat(contentStrings[2])
         .contains(
-            "<a href=\"http://epicurious.com/\"" + " class=\"text-seattle-blue\">epicurious.com</a>");
+            "<a href=\"http://epicurious.com/\""
+                + " class=\"text-seattle-blue\">epicurious.com</a>");
   }
 
   @Test
