@@ -13,7 +13,6 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.time.Instant;
@@ -111,23 +110,24 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         .setSvgRef(Icons.DOWNLOAD_SVG_PATH)
         .setText("Download Exported Data (CSV)")
         .build()
-        .renderAsLinkButton(
-          routes.AdminApplicationController.downloadDemographics().url());
+        .renderAsLinkButton(routes.AdminApplicationController.downloadDemographics().url());
   }
 
-  private Optional<Modal> maybeRenderPublishModal(ActiveAndDraftPrograms programs, Http.Request request) {
+  private Optional<Modal> maybeRenderPublishModal(
+      ActiveAndDraftPrograms programs, Http.Request request) {
     // We should only render the publish modal / button if there is at least one draft.
     if (!programs.anyDraft()) {
       return Optional.empty();
     }
     String link = routes.AdminProgramController.publish().url();
-    ActionButton publishButton = ActionButton.builder()
-        .setId("publish-programs-button")
-        .setActionType(ActionType.PRIMARY)
-        .setExtraStyles(ImmutableSet.of(Styles.MY_2))
-        .setSvgRef(Icons.PUBLISH_SVG_PATH)
-        .setText("Publish all drafts")
-        .build();
+    ActionButton publishButton =
+        ActionButton.builder()
+            .setId("publish-programs-button")
+            .setActionType(ActionType.PRIMARY)
+            .setExtraStyles(ImmutableSet.of(Styles.MY_2))
+            .setSvgRef(Icons.PUBLISH_SVG_PATH)
+            .setText("Publish all drafts")
+            .build();
 
     ContainerTag publishAllModalContent =
         div()
@@ -225,18 +225,19 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                 .condWith(
                     extraActions.size() > 0,
                     div()
-                      .withClass(Styles.RELATIVE)
-                      .with(
-                          ActionButton.builder()
-                            .setId("extra-actions-" + program.id())
-                            .setActionType(ActionType.TERTIARY)
-                            .setExtraStyles(ImmutableSet.of(ReferenceClasses.WITH_DROPDOWN))
-                            .setSvgRef(Icons.MORE_VERT_PATH)
-                            .build().renderAsCustomJSButton(""),
-                          div()
-                            .withId("extra-actions-" + program.id() + "-dropdown")
-                            .withClasses(Styles.HIDDEN, Styles.ABSOLUTE, Styles.RIGHT_0)
-                            .with(extraActions))));
+                        .withClass(Styles.RELATIVE)
+                        .with(
+                            ActionButton.builder()
+                                .setId("extra-actions-" + program.id())
+                                .setActionType(ActionType.TERTIARY)
+                                .setExtraStyles(ImmutableSet.of(ReferenceClasses.WITH_DROPDOWN))
+                                .setSvgRef(Icons.MORE_VERT_PATH)
+                                .build()
+                                .renderAsCustomJSButton(""),
+                            div()
+                                .withId("extra-actions-" + program.id() + "-dropdown")
+                                .withClasses(Styles.HIDDEN, Styles.ABSOLUTE, Styles.RIGHT_0)
+                                .with(extraActions))));
   }
 
   public Tag renderProgramListItem(
@@ -344,15 +345,16 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
       editLinkId = "program-new-version-link-" + program.id();
     }
 
-    ActionButton button = ActionButton.builder()
-        .setId(editLinkId)
-        .setActionType(ActionType.TERTIARY)
-        .setSvgRef(Icons.EDIT_SVG_PATH)
-        .setText("Edit")
-        .build();
+    ActionButton button =
+        ActionButton.builder()
+            .setId(editLinkId)
+            .setActionType(ActionType.TERTIARY)
+            .setSvgRef(Icons.EDIT_SVG_PATH)
+            .setText("Edit")
+            .build();
     return isActive
-      ? button.renderAsLinkButtonHiddenForm(editLink, request)
-      : button.renderAsLinkButton(editLink);
+        ? button.renderAsLinkButtonHiddenForm(editLink, request)
+        : button.renderAsLinkButton(editLink);
   }
 
   private Tag renderManageTranslationsLink(ProgramDefinition program) {

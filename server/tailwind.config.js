@@ -54,7 +54,7 @@ module.exports = {
         'civiform-purple': {
           light: '#f3e5f5',
           DEFAULT: '#4a148c',
-        }
+        },
       },
     },
   },

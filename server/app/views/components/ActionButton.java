@@ -9,7 +9,9 @@ import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import org.apache.commons.lang3.RandomStringUtils;
 import play.filters.csrf.CSRF;
 import play.mvc.Http;
 import scala.Option;
@@ -63,7 +65,10 @@ public abstract class ActionButton {
   ActionButton() {}
 
   public static Builder builder() {
-    return new AutoValue_ActionButton.Builder().setId("").setText("").setExtraStyles(ImmutableSet.of());
+    return new AutoValue_ActionButton.Builder()
+        .setId("")
+        .setText("")
+        .setExtraStyles(ImmutableSet.of());
   }
 
   abstract String id();
@@ -104,16 +109,19 @@ public abstract class ActionButton {
       csrfToken = csrfTokenMaybe.get().value();
     }
 
-    // TODO(#1238): Rendering this way appears to change the positioning of the element.
-    return form(
-                input().isHidden().withValue(csrfToken).withName("csrfToken"),
-                renderButton())
-            .withClasses(Styles.INLINE)
+    String formId = RandomStringUtils.randomAlphabetic(8);
+    Tag hiddenForm =
+        form()
+            .withId(formId)
+            .withClass(Styles.HIDDEN)
             .withMethod("POST")
-            .withAction(postLink);
+            .withAction(postLink)
+            .with(input().isHidden().withValue(csrfToken).withName("csrfToken"));
+
+    return renderButton().attr("form", formId).with(hiddenForm);
   }
 
-  private final Tag renderButton() {
+  private final ContainerTag renderButton() {
     return button()
         .withId(id())
         .withClasses(StyleUtils.joinStyles(Sets.union(stylesForAction(), extraStyles())))
