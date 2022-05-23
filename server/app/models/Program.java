@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
@@ -107,6 +108,10 @@ public class Program extends BaseModel {
   }
 
   public Program(ProgramDefinition definition) {
+    this(definition, Optional.empty());
+  }
+
+  public Program(ProgramDefinition definition, Optional<Version> version) {
     this.programDefinition = definition;
     this.id = definition.id();
     this.name = definition.adminName();
@@ -119,6 +124,10 @@ public class Program extends BaseModel {
     this.displayMode = definition.displayMode().getValue();
 
     orderBlockDefinitionsBeforeUpdate();
+
+    if (version.isPresent()) {
+      this.versions.add(version.get());
+    }
   }
 
   /**
