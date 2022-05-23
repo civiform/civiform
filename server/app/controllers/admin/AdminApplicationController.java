@@ -258,7 +258,7 @@ public class AdminApplicationController extends CiviFormController {
     }
 
     var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
-    PaginationResult<Application> applications;
+    final PaginationResult<Application> applications;
     try {
       applications =
           programService.getSubmittedProgramApplicationsAllVersions(
