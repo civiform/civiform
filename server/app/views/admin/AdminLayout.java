@@ -120,6 +120,7 @@ public class AdminLayout extends BaseHtmlLayout {
     String questionLink = controllers.admin.routes.AdminQuestionController.index().url();
     String versionLink = routes.AdminVersionController.index().url();
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
+    String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
 
     String activeNavStyle =
         StyleUtils.joinStyles(
@@ -145,6 +146,11 @@ public class AdminLayout extends BaseHtmlLayout {
                 "Intermediaries",
                 intermediaryLink,
                 activePage == NavPage.INTERMEDIARIES ? activeNavStyle : ""))
+        .with(
+            headerLink(
+                "API keys",
+                apiKeysLink,
+                activePage == NavPage.API_KEYS ? activeNavStyle : ""))
         .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT));
   }
 

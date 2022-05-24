@@ -2,17 +2,26 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import models.Account;
+import models.Applicant;
+import models.Application;
 import models.DisplayMode;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
+import play.libs.F;
+import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
+import services.PageNumberBasedPaginationSpec;
+import services.PaginationResult;
 import services.program.ProgramNotFoundException;
+import support.CfTestHelpers;
 
 public class ProgramRepositoryTest extends ResetPostgres {
 
@@ -161,44 +170,147 @@ public class ProgramRepositoryTest extends ResetPostgres {
     assertThat(repo.getProgramAdministrators(newDraft.id)).containsExactly(admin);
   }
 
-  // @Test
-  // public void getApplicationsForAllProgramVersions_multipleVersions() {
-  //   Applicant applicantOne =
-  //       resourceCreator.insertAccountWithEmail("one@example.com").newestApplicant().get();
-  //   Program originalVersion = resourceCreator.insertActiveProgram("test program");
+  @Test
+  public void getApplicationsForAllProgramVersions_withDateRange() {
+    Program program = resourceCreator.insertActiveProgram("test program");
 
-  //   resourceCreator.insertActiveApplication(applicantOne, originalVersion);
+    Applicant applicantTwo =
+        resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
+    Applicant applicantThree =
+        resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
+    Applicant applicantOne =
+        resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
 
-  //   Program nextVersion = resourceCreator.insertDraftProgram("test program");
-  //   resourceCreator.publishNewSynchronizedVersion();
+    var applicationOne = resourceCreator.insertActiveApplication(applicantOne, program);
+    CfTestHelpers.withMockedInstantNow(
+        "2022-01-01T00:00:00Z",
+        () -> {
+          applicationOne.setSubmitTimeToNow();
+          applicationOne.save();
+        });
 
-  //   Applicant applicantTwo =
-  //       resourceCreator.insertAccountWithEmail("two@example.com").newestApplicant().get();
-  //   Applicant applicantThree =
-  //       resourceCreator.insertAccountWithEmail("three@example.com").newestApplicant().get();
-  //   resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
-  //   resourceCreator.insertActiveApplication(applicantThree, nextVersion);
+    var applicationTwo = resourceCreator.insertActiveApplication(applicantTwo, program);
+    CfTestHelpers.withMockedInstantNow(
+        "2022-02-01T00:00:00Z",
+        () -> {
+          applicationTwo.setSubmitTimeToNow();
+          applicationTwo.save();
+        });
 
-  //   PaginationResult<Application> paginationResult =
-  //       repo.getApplicationsForAllProgramVersions(
-  //           nextVersion.id, new PaginationSpec(2, 1), Optional.empty());
+    var applicationThree = resourceCreator.insertActiveApplication(applicantThree, program);
+    CfTestHelpers.withMockedInstantNow(
+        "2022-03-01T00:00:00Z",
+        () -> {
+          applicationThree.setSubmitTimeToNow();
+          applicationThree.save();
+        });
 
-  //   assertThat(paginationResult.getCurrentPage()).isEqualTo(1);
-  //   assertThat(paginationResult.getNumPages()).isEqualTo(2);
-  //   assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
+    PaginationResult<Application> paginationResult =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 10)),
+            Optional.empty(),
+            Optional.of(Instant.parse("2022-01-25T00:00:00Z")),
+            Optional.of(Instant.parse("2022-02-10T00:00:00Z")));
 
-  //
-  // assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantThree);
-  //   assertThat(paginationResult.getPageContents().get(1).getApplicant()).isEqualTo(applicantTwo);
+    assertThat(paginationResult.hasMorePages()).isFalse();
+    assertThat(
+            paginationResult.getPageContents().stream()
+                .map(a -> a.id)
+                .collect(ImmutableList.toImmutableList()))
+        .isEqualTo(ImmutableList.of(applicationTwo.id));
+  }
 
-  //   paginationResult =
-  //       repo.getApplicationsForAllProgramVersions(
-  //           nextVersion.id, new PaginationSpec(2, 2), Optional.empty());
+  @Test
+  public void getApplicationsForAllProgramVersions_multipleVersions_pageNumberBasedPagination() {
+    Applicant applicantOne =
+        resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
+    Program originalVersion = resourceCreator.insertActiveProgram("test program");
 
-  //   assertThat(paginationResult.getCurrentPage()).isEqualTo(2);
-  //   assertThat(paginationResult.getNumPages()).isEqualTo(2);
-  //   assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
+    resourceCreator.insertActiveApplication(applicantOne, originalVersion);
 
-  //   assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantOne);
-  // }
+    Program nextVersion = resourceCreator.insertDraftProgram("test program");
+    resourceCreator.publishNewSynchronizedVersion();
+
+    Applicant applicantTwo =
+        resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
+    Applicant applicantThree =
+        resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
+    resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
+    resourceCreator.insertActiveApplication(applicantThree, nextVersion);
+
+    PaginationResult<Application> paginationResult =
+        repo.getApplicationsForAllProgramVersions(
+            nextVersion.id,
+            F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 2)),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
+
+    assertThat(paginationResult.getNumPages()).isEqualTo(2);
+    assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
+
+    assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantThree);
+    assertThat(paginationResult.getPageContents().get(1).getApplicant()).isEqualTo(applicantTwo);
+
+    paginationResult =
+        repo.getApplicationsForAllProgramVersions(
+            nextVersion.id,
+            F.Either.Right(
+                new PageNumberBasedPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2)),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
+
+    assertThat(paginationResult.getNumPages()).isEqualTo(2);
+    assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
+
+    assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantOne);
+  }
+
+  @Test
+  public void getApplicationsForAllProgramVersions_multipleVersions_offsetBasedPagination() {
+    Applicant applicantOne =
+        resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
+    Program originalVersion = resourceCreator.insertActiveProgram("test program");
+
+    resourceCreator.insertActiveApplication(applicantOne, originalVersion);
+
+    Program nextVersion = resourceCreator.insertDraftProgram("test program");
+    resourceCreator.publishNewSynchronizedVersion();
+
+    Applicant applicantTwo =
+        resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
+    Applicant applicantThree =
+        resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
+    resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
+    resourceCreator.insertActiveApplication(applicantThree, nextVersion);
+
+    PaginationResult<Application> paginationResult =
+        repo.getApplicationsForAllProgramVersions(
+            nextVersion.id,
+            F.Either.Left(new IdentifierBasedPaginationSpec<>(2, Long.MAX_VALUE)),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
+
+    assertThat(paginationResult.getNumPages()).isEqualTo(2);
+    assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
+
+    assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantThree);
+    assertThat(paginationResult.getPageContents().get(1).getApplicant()).isEqualTo(applicantTwo);
+
+    paginationResult =
+        repo.getApplicationsForAllProgramVersions(
+            nextVersion.id,
+            F.Either.Left(
+                new IdentifierBasedPaginationSpec<>(
+                    2, paginationResult.getPageContents().get(1).id)),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty());
+
+    assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
+    assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantOne);
+  }
 }
