@@ -111,7 +111,11 @@ public class Program extends BaseModel {
     this(definition, Optional.empty());
   }
 
-  public Program(ProgramDefinition definition, Optional<Version> version) {
+  public Program(ProgramDefinition definition, Version version) {
+    this(definition, Optional.of(version));
+  }
+
+  private Program(ProgramDefinition definition, Optional<Version> version) {
     this.programDefinition = definition;
     this.id = definition.id();
     this.name = definition.adminName();

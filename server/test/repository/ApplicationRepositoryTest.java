@@ -23,7 +23,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   @Before
   public void setUp() {
     repo = instanceOf(ApplicationRepository.class);
-    draftVersion = new Version();
+    draftVersion = new Version(LifecycleStage.DRAFT);
     draftVersion.save();
   }
 

@@ -58,8 +58,8 @@ public class VersionRepositoryTest extends ResetPostgres {
         ImmutableList.of(
             resourceCreator.insertActiveProgram("active"),
             resourceCreator.insertActiveProgram("other_active"),
-            resourceCreator.insertActiveProgram("active_with_draft"),
             resourceCreator.insertDraftProgram("draft"),
+            resourceCreator.insertActiveProgram("active_with_draft"),
             resourceCreator.insertDraftProgram("active_with_draft"));
     Map<String, Instant> beforeTimestamps =
         programs.stream()
