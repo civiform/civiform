@@ -37,7 +37,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
 
   @Inject
-  public ProgramApplicationListView(AdminLayout layout, ApplicantUtils applicantUtils, ZoneId zoneId) {
+  public ProgramApplicationListView(
+      AdminLayout layout, ApplicantUtils applicantUtils, ZoneId zoneId) {
     this.layout = checkNotNull(layout).setOnlyProgramAdminType();
     this.applicantUtils = checkNotNull(applicantUtils);
     this.zoneId = checkNotNull(zoneId);
@@ -151,9 +152,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   private Tag renderSubmitTime(Application application) {
     try {
-      return span()
-          .withText(
-              renderDateTime(application.getSubmitTime(), zoneId));
+      return span().withText(renderDateTime(application.getSubmitTime(), zoneId));
     } catch (NullPointerException e) {
       log.error("Application {} submitted without submission time marked.", application.id);
       return span();
