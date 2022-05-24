@@ -16,7 +16,8 @@ import forms.NameQuestionForm;
 import forms.NumberQuestionForm;
 import forms.RadioButtonQuestionForm;
 import forms.TextQuestionForm;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+
 import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
@@ -24,7 +25,7 @@ import views.admin.questions.QuestionConfig;
 
 public class QuestionConfigTest {
 
-  private static final ContainerTag DEFAULT_CONFIG = div();
+  private static final DivTag DEFAULT_CONFIG = div();
 
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));

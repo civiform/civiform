@@ -3,7 +3,7 @@ package views.questiontypes;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -46,7 +46,7 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
 
   @Test
   public void render_withoutQuestionErrors() {
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     // Error message is hidden.
     assertThat(result.render()).contains("hidden");
@@ -57,7 +57,7 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
     QuestionAnswerer.answerCurrencyQuestion(
         applicantData, question.getContextualizedPath(), "1,234.56");
 
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     // Error message is hidden.
     assertThat(result.render()).contains("hidden");

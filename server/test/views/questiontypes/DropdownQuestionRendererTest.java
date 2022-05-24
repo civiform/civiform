@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -54,7 +54,7 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
 
   @Test
   public void render_generatesCorrectInputNames() {
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render()).contains("name=\"applicant.favorite_ice_cream.selection\"");
     assertThat(result.render()).contains("value=\"2\"");
@@ -64,14 +64,14 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
   public void render_withExistingAnswer_selectsThatOption() {
     QuestionAnswerer.answerSingleSelectQuestion(
         applicantData, question.getContextualizedPath(), 2L);
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render()).contains("<option value=\"2\" selected");
   }
 
   @Test
   public void render_noExistingAnswer_selectsPlaceholder() {
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render()).contains("hidden selected");
     assertThat(result.render()).contains("Choose an option");
