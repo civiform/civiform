@@ -20,6 +20,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.ToastMessage;
@@ -33,8 +34,8 @@ public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
 
   @Inject
-  public QuestionsListView(AdminLayout layout) {
-    this.layout = checkNotNull(layout.setActivePage(NavPage.QUESTIONS));
+  public QuestionsListView(AdminLayoutFactory layoutFactory) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
   }
 
   /** Renders a page with a table view of all questions. */

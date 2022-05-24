@@ -24,6 +24,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.ToastMessage;
@@ -37,8 +38,8 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   private final AdminLayout layout;
 
   @Inject
-  public TrustedIntermediaryGroupListView(AdminLayout layout) {
-    this.layout = checkNotNull(layout).setActivePage(NavPage.INTERMEDIARIES);
+  public TrustedIntermediaryGroupListView(AdminLayoutFactory layoutFactory) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.INTERMEDIARIES);
   }
 
   public Content render(List<TrustedIntermediaryGroup> tis, Http.Request request) {

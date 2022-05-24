@@ -16,6 +16,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.style.Styles;
 
 /** Renders a page that displays an API key's crentials after it's created. */
@@ -29,8 +30,8 @@ public final class ApiKeyCredentialsView extends BaseHtmlView {
           + " secret value and will need to create a new key instead.";
 
   @Inject
-  public ApiKeyCredentialsView(AdminLayout layout) {
-    this.layout = checkNotNull(layout).setActivePage(NavPage.API_KEYS);
+  public ApiKeyCredentialsView(AdminLayoutFactory layoutFactory) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.API_KEYS);
   }
 
   public Content render(ApiKey apiKey, String credentials) {

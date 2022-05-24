@@ -28,6 +28,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.LinkElement;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -41,8 +42,8 @@ public class VersionListView extends BaseHtmlView {
   private final ZoneId zoneId;
 
   @Inject
-  public VersionListView(AdminLayout layout, Config config, ZoneId zoneId) {
-    this.layout = checkNotNull(layout).setActivePage(NavPage.VERSIONS);
+  public VersionListView(AdminLayoutFactory layoutFactory, Config config, ZoneId zoneId) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.VERSIONS);
     this.zoneId = checkNotNull(zoneId);
   }
 

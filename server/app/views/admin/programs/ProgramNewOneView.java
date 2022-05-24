@@ -12,6 +12,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.ToastMessage;
 
 /** Renders a page for adding a new program. */
@@ -19,8 +20,8 @@ public final class ProgramNewOneView extends BaseHtmlView {
   private final AdminLayout layout;
 
   @Inject
-  public ProgramNewOneView(AdminLayout layout) {
-    this.layout = checkNotNull(layout).setActivePage(NavPage.PROGRAMS);
+  public ProgramNewOneView(AdminLayoutFactory layoutFactory) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
   public Content render(Request request) {

@@ -18,6 +18,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.ToastMessage;
 import views.style.ReferenceClasses;
@@ -43,8 +44,8 @@ public class ManageProgramAdminsView extends BaseHtmlView {
   private final AdminLayout layout;
 
   @Inject
-  public ManageProgramAdminsView(AdminLayout layout) {
-    this.layout = checkNotNull(layout).setActivePage(NavPage.PROGRAMS);
+  public ManageProgramAdminsView(AdminLayoutFactory layoutFactory) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
   /**

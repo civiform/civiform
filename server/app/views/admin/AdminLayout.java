@@ -9,8 +9,6 @@ import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.Optional;
-import javax.inject.Inject;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlLayout;
@@ -37,14 +35,15 @@ public class AdminLayout extends BaseHtmlLayout {
     API_KEYS
   }
 
+  private final NavPage activeNavPage;
+
   private static final String[] FOOTER_SCRIPTS = {"preview", "questionBank", "admin_validation"};
 
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
-  private Optional<NavPage> activeNavPage;
 
-  @Inject
-  public AdminLayout(ViewUtils viewUtils, Config configuration) {
+  AdminLayout(ViewUtils viewUtils, Config configuration, NavPage activeNavPage) {
     super(viewUtils, configuration);
+    this.activeNavPage = activeNavPage;
   }
 
   /**
@@ -52,11 +51,6 @@ public class AdminLayout extends BaseHtmlLayout {
    */
   public AdminLayout setOnlyProgramAdminType() {
     primaryAdminType = AdminType.PROGRAM_ADMIN;
-    return this;
-  }
-
-  public AdminLayout setActivePage(NavPage page) {
-    activeNavPage = Optional.of(page);
     return this;
   }
 
@@ -129,26 +123,26 @@ public class AdminLayout extends BaseHtmlLayout {
             Styles.BORDER_B_2,
             BaseStyles.BORDER_SEATTLE_BLUE);
 
-    NavPage activePage = activeNavPage.orElseThrow();
-
     return adminHeader
         .with(
             headerLink(
-                "Programs", programLink, activePage == NavPage.PROGRAMS ? activeNavStyle : ""))
+                "Programs", programLink, activeNavPage == NavPage.PROGRAMS ? activeNavStyle : ""))
         .with(
             headerLink(
-                "Questions", questionLink, activePage == NavPage.QUESTIONS ? activeNavStyle : ""))
+                "Questions",
+                questionLink,
+                activeNavPage == NavPage.QUESTIONS ? activeNavStyle : ""))
         .with(
             headerLink(
-                "Versions", versionLink, activePage == NavPage.VERSIONS ? activeNavStyle : ""))
+                "Versions", versionLink, activeNavPage == NavPage.VERSIONS ? activeNavStyle : ""))
         .with(
             headerLink(
                 "Intermediaries",
                 intermediaryLink,
-                activePage == NavPage.INTERMEDIARIES ? activeNavStyle : ""))
+                activeNavPage == NavPage.INTERMEDIARIES ? activeNavStyle : ""))
         .with(
             headerLink(
-                "API keys", apiKeysLink, activePage == NavPage.API_KEYS ? activeNavStyle : ""))
+                "API keys", apiKeysLink, activeNavPage == NavPage.API_KEYS ? activeNavStyle : ""))
         .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT));
   }
 
