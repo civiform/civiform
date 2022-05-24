@@ -148,9 +148,7 @@ public class AdminLayout extends BaseHtmlLayout {
                 activePage == NavPage.INTERMEDIARIES ? activeNavStyle : ""))
         .with(
             headerLink(
-                "API keys",
-                apiKeysLink,
-                activePage == NavPage.API_KEYS ? activeNavStyle : ""))
+                "API keys", apiKeysLink, activePage == NavPage.API_KEYS ? activeNavStyle : ""))
         .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT));
   }
 
