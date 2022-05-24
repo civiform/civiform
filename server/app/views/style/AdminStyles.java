@@ -103,8 +103,7 @@ public class AdminStyles {
       StyleUtils.joinStyles(
           Styles.FLEX,
           Styles.ITEMS_CENTER,
-          Styles.FONT_MEDIUM,
-          StyleUtils.focus(Styles.OUTLINE_NONE, Styles.RING_2));
+          Styles.FONT_MEDIUM);
 
   public static final String PRIMARY_BUTTON_STYLES =
       StyleUtils.joinStyles(
