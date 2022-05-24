@@ -26,6 +26,7 @@ import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -38,7 +39,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   @Inject
   public ProgramApplicationListView(AdminLayout layout, ApplicantUtils applicantUtils) {
-    this.layout = checkNotNull(layout).setOnlyProgramAdminType();
+    this.layout = checkNotNull(layout).setOnlyProgramAdminType().setActivePage(NavPage.PROGRAMS);
     this.applicantUtils = checkNotNull(applicantUtils);
   }
 

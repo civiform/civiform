@@ -9,6 +9,7 @@ import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.Optional;
 import javax.inject.Inject;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
@@ -16,6 +17,7 @@ import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.ViewUtils;
 import views.style.AdminStyles;
+import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -27,9 +29,19 @@ public class AdminLayout extends BaseHtmlLayout {
     PROGRAM_ADMIN
   }
 
+  public enum NavPage {
+    UNSPECIFIED,
+    PROGRAMS,
+    QUESTIONS,
+    VERSIONS,
+    INTERMEDIARIES,
+    API_KEYS
+  }
+
   private static final String[] FOOTER_SCRIPTS = {"preview", "questionBank", "admin_validation"};
 
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
+  private Optional<NavPage> activeNavPage;
 
   @Inject
   public AdminLayout(ViewUtils viewUtils, Config configuration) {
@@ -41,6 +53,11 @@ public class AdminLayout extends BaseHtmlLayout {
    */
   public AdminLayout setOnlyProgramAdminType() {
     primaryAdminType = AdminType.PROGRAM_ADMIN;
+    return this;
+  }
+
+  public AdminLayout setActivePage(NavPage page) {
+    activeNavPage = Optional.of(page);
     return this;
   }
 
@@ -84,7 +101,12 @@ public class AdminLayout extends BaseHtmlLayout {
     ContainerTag headerTitle =
         div()
             .withClasses(
-                Styles.FONT_NORMAL, Styles.INLINE, Styles.PL_10, Styles.PY_0, Styles.TEXT_XL)
+                Styles.FONT_NORMAL,
+                Styles.TEXT_XL,
+                Styles.INLINE,
+                Styles.PL_10,
+                Styles.PY_0,
+                Styles.MR_4)
             .with(span("Civi"), span("Form").withClasses(Styles.FONT_THIN));
 
     ContainerTag adminHeader =
@@ -100,11 +122,30 @@ public class AdminLayout extends BaseHtmlLayout {
     String versionLink = routes.AdminVersionController.index().url();
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
 
+    String activeNavStyle =
+        StyleUtils.joinStyles(
+            BaseStyles.TEXT_SEATTLE_BLUE,
+            Styles.FONT_MEDIUM,
+            Styles.BORDER_B_2,
+            BaseStyles.BORDER_SEATTLE_BLUE);
+
+    NavPage activePage = activeNavPage.orElseThrow();
+
     return adminHeader
-        .with(headerLink("Programs", programLink))
-        .with(headerLink("Questions", questionLink))
-        .with(headerLink("Versions", versionLink))
-        .with(headerLink("Intermediaries", intermediaryLink))
+        .with(
+            headerLink(
+                "Programs", programLink, activePage == NavPage.PROGRAMS ? activeNavStyle : ""))
+        .with(
+            headerLink(
+                "Questions", questionLink, activePage == NavPage.QUESTIONS ? activeNavStyle : ""))
+        .with(
+            headerLink(
+                "Versions", versionLink, activePage == NavPage.VERSIONS ? activeNavStyle : ""))
+        .with(
+            headerLink(
+                "Intermediaries",
+                intermediaryLink,
+                activePage == NavPage.INTERMEDIARIES ? activeNavStyle : ""))
         .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT));
   }
 

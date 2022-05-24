@@ -27,6 +27,7 @@ import services.PaginationResult;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -39,7 +40,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
 
   @Inject
   public ApiKeyIndexView(AdminLayout layout, DateConverter dateConverter) {
-    this.layout = checkNotNull(layout);
+    this.layout = checkNotNull(layout).setActivePage(NavPage.API_KEYS);
     this.dateConverter = checkNotNull(dateConverter);
   }
 

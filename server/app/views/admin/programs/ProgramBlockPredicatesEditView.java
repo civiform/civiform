@@ -37,6 +37,7 @@ import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
@@ -63,7 +64,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
 
   @Inject
   public ProgramBlockPredicatesEditView(AdminLayout layout) {
-    this.layout = checkNotNull(layout);
+    this.layout = checkNotNull(layout).setActivePage(NavPage.PROGRAMS);
   }
 
   public Content render(

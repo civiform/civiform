@@ -17,6 +17,7 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
 import views.components.FieldWithLabel;
 import views.components.ToastMessage;
 import views.style.ReferenceClasses;
@@ -43,7 +44,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
 
   @Inject
   public ManageProgramAdminsView(AdminLayout layout) {
-    this.layout = checkNotNull(layout);
+    this.layout = checkNotNull(layout).setActivePage(NavPage.PROGRAMS);
   }
 
   /**

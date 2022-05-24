@@ -25,6 +25,7 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.style.ReferenceClasses;
@@ -39,7 +40,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   @Inject
   public ProgramIndexView(AdminLayout layout, Config config, ZoneId zoneId) {
-    this.layout = checkNotNull(layout);
+    this.layout = checkNotNull(layout).setActivePage(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.zoneId = checkNotNull(zoneId);
   }

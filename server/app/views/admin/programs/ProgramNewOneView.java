@@ -11,6 +11,7 @@ import play.twirl.api.Content;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
 import views.components.ToastMessage;
 
 /** Renders a page for adding a new program. */
@@ -19,7 +20,7 @@ public final class ProgramNewOneView extends BaseHtmlView {
 
   @Inject
   public ProgramNewOneView(AdminLayout layout) {
-    this.layout = checkNotNull(layout);
+    this.layout = checkNotNull(layout).setActivePage(NavPage.PROGRAMS);
   }
 
   public Content render(Request request) {

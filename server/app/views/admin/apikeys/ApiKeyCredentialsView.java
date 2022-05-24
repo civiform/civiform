@@ -15,6 +15,7 @@ import play.twirl.api.Content;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
 import views.style.Styles;
 
 /** Renders a page that displays an API key's crentials after it's created. */
@@ -29,7 +30,7 @@ public final class ApiKeyCredentialsView extends BaseHtmlView {
 
   @Inject
   public ApiKeyCredentialsView(AdminLayout layout) {
-    this.layout = checkNotNull(layout);
+    this.layout = checkNotNull(layout).setActivePage(NavPage.API_KEYS);
   }
 
   public Content render(ApiKey apiKey, String credentials) {

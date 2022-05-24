@@ -32,6 +32,7 @@ import services.question.types.StaticContentQuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
@@ -55,7 +56,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
 
   @Inject
   public ProgramBlockEditView(AdminLayout layout, Config config) {
-    this.layout = checkNotNull(layout);
+    this.layout = checkNotNull(layout).setActivePage(NavPage.PROGRAMS);
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
   }
 

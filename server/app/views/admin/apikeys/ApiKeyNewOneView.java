@@ -25,6 +25,7 @@ import services.apikey.ApiKeyService;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.style.Styles;
@@ -62,7 +63,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
 
   @Inject
   public ApiKeyNewOneView(AdminLayout layout, @EnUsLang Messages enUsMessages) {
-    this.layout = checkNotNull(layout);
+    this.layout = checkNotNull(layout).setActivePage(NavPage.API_KEYS);
     this.enUsMessages = checkNotNull(enUsMessages);
   }
 
