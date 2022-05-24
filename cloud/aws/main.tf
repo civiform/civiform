@@ -1,8 +1,20 @@
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/apprunner_service
+
 resource "aws_apprunner_service" "civiform_dev_leyla" {                                               
-         
-  service_name = "civiform_dev_leyla"                          
+  auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.auto-scaling-config.arn          
+  service_name = "civiform_dev_leyla"    
+
+    # network_configuration {
+    #   egress_configuration {
+    #     egress_type       = "VPC"
+    #     vpc_connector_arn = aws_apprunner_vpc_connector.connector.arn
+    #   }
+    # }                        
                             
-  source_configuration {                              
+  source_configuration {      
+    # authentication_configuration {
+    #   access_role_arn = aws_iam_role.apprunner-service-role.arn
+    # }                   
     image_repository {                                
       image_configuration {                                  
         port = "9000"  
@@ -17,8 +29,9 @@ resource "aws_apprunner_service" "civiform_dev_leyla" {
 
             STAGING_HOSTNAME = "staging-aws.civiform.dev"
             BASE_URL         = "https://staging-aws.civiform.dev"
-
+            
             STORAGE_SERVICE_NAME = "s3"
+            AWS_S3_BUCKET_NAME = "${aws_s3_bucket.b.id}"
 
             CIVIFORM_TIME_ZONE_ID              = var.civiform_time_zone_id
             WHITELABEL_CIVIC_ENTITY_SHORT_NAME = var.civic_entity_short_name
@@ -52,58 +65,8 @@ resource "aws_apprunner_service" "civiform_dev_leyla" {
     }                          
                               
     auto_deployments_enabled = false                            
-  }                          
-}
-
-resource "aws_apprunner_custom_domain_association" "civiform_domain" {
-  domain_name = "staging-aws.civiform.dev"
-  service_arn = aws_apprunner_service.civiform_dev_leyla.arn
-}
-
-data "aws_availability_zones" "available" {}
-
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "2.77.0"
-
-  name                 = "civiform"
-  cidr                 = "10.0.0.0/16"
-  azs                  = data.aws_availability_zones.available.names
-  public_subnets       = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
-  enable_dns_hostnames = true
-  enable_dns_support   = true
-}
-
-resource "aws_db_subnet_group" "civiform" {
-  name       = "civiform"
-  subnet_ids = module.vpc.public_subnets
-
-  tags = {
-    Name = "civiform"
-  }
-}
-
-resource "aws_security_group" "rds" {
-  name   = "civiform_rds"
-  vpc_id = module.vpc.vpc_id
-
-  ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "civiform_rds"
-  }
+  }    
+  depends_on = [aws_iam_role.apprunner-service-role]                      
 }
 
 resource "aws_db_parameter_group" "civiform" {
@@ -129,4 +92,20 @@ resource "aws_db_instance" "civiform" {
   parameter_group_name   = aws_db_parameter_group.civiform.name
   publicly_accessible    = true
   skip_final_snapshot    = true
+}
+
+resource "aws_s3_bucket" "b" {
+  bucket = "civiform-files-s3"
+}
+resource "aws_s3_bucket_acl" "example" {
+  bucket = aws_s3_bucket.b.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_public_access_block" "app" {
+  bucket = aws_s3_bucket.b.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }

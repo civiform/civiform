@@ -257,3 +257,8 @@ variable "staging_applicant_notification_mailing_list" {
   description = "Applicant notification mailing list for staging"
   default     = ""
 }
+
+variable "apprunner-service-role" {
+  description = "This role gives App Runner permission to access ECR"
+  default     = "civiformrole"
+}
