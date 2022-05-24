@@ -1,5 +1,6 @@
 package controllers;
 
+import auth.UnauthorizedApiRequestException;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.admin.NotChangeableException;
@@ -36,6 +37,9 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
           NotChangeableException.class,
           ProgramNotFoundException.class);
 
+  private static final ImmutableSet<Class<? extends Exception>>
+      UNAUTHORIZED_REQUEST_EXCEPTION_TYPES = ImmutableSet.of(UnauthorizedApiRequestException.class);
+
   @Inject
   public ErrorHandler(
       Config config,
@@ -53,6 +57,12 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
     if (match.isPresent()) {
       return CompletableFuture.completedFuture(Results.badRequest(match.get().getMessage()));
+    }
+
+    match = findThrowableByTypes(exception, UNAUTHORIZED_REQUEST_EXCEPTION_TYPES);
+
+    if (match.isPresent()) {
+      return CompletableFuture.completedFuture(Results.unauthorized());
     }
 
     return super.onServerError(request, exception);
