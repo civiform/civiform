@@ -8,7 +8,6 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import auth.CiviFormProfile;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -28,10 +27,10 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
-import views.components.ActionButton;
-import views.components.ActionButton.ActionType;
+import views.components.ButtonUtils;
 import views.components.Icons;
 import views.components.Modal;
+import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -103,14 +102,18 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
   }
 
   private Tag renderDownloadExportCsvButton() {
-    return ActionButton.builder()
-        .setId("download-export-csv-button")
-        .setActionType(ActionType.SECONDARY)
-        .setExtraStyles(ImmutableSet.of(Styles.MY_2))
-        .setSvgRef(Icons.DOWNLOAD_SVG_PATH)
-        .setText("Download Exported Data (CSV)")
-        .build()
-        .renderAsLinkButton(routes.AdminApplicationController.downloadDemographics().url());
+    String link = routes.AdminApplicationController.downloadDemographics().url();
+    ContainerTag button =
+        ButtonUtils.makeSvgTextButton("Download Exported Data (CSV)", Icons.DOWNLOAD_SVG_PATH)
+            .withId("download-export-csv-button")
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2);
+    return ButtonUtils.makeLinkButton(button, link);
+  }
+
+  private ContainerTag makePublishButton() {
+    return ButtonUtils.makeSvgTextButton("Publish all drafts", Icons.PUBLISH_SVG_PATH)
+        .withId("publish-programs-button")
+        .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, Styles.MY_2);
   }
 
   private Optional<Modal> maybeRenderPublishModal(
@@ -119,39 +122,30 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     if (!programs.anyDraft()) {
       return Optional.empty();
     }
+
     String link = routes.AdminProgramController.publish().url();
-    ActionButton publishButton =
-        ActionButton.builder()
-            .setId("publish-programs-button")
-            .setActionType(ActionType.PRIMARY)
-            .setExtraStyles(ImmutableSet.of(Styles.MY_2))
-            .setSvgRef(Icons.PUBLISH_SVG_PATH)
-            .setText("Publish all drafts")
-            .build();
 
     ContainerTag publishAllModalContent =
         div()
-            .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
+            .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4, Styles.PX_2)
             .with(p("Are you sure you want to publish all programs?").withClasses(Styles.P_2))
-            .with(publishButton.renderAsLinkButtonHiddenForm(link, request));
+            .with(
+                div().with(ButtonUtils.makeLinkButtonForPost(makePublishButton(), link, request)));
     Modal publishAllModal =
         Modal.builder("publish-all-programs-modal", publishAllModalContent)
             .setModalTitle("Confirmation")
-            .setTriggerButtonContent(publishButton.renderAsCustomJSButton(""))
+            .setTriggerButtonContent(makePublishButton())
             .build();
     return Optional.of(publishAllModal);
   }
 
   private Tag renderNewProgramButton() {
     String link = controllers.admin.routes.AdminProgramController.newOne().url();
-    return ActionButton.builder()
-        .setId("new-program-button")
-        .setActionType(ActionType.SECONDARY)
-        .setExtraStyles(ImmutableSet.of(Styles.MY_2))
-        .setSvgRef(Icons.ADD_SVG_PATH)
-        .setText("Create new program")
-        .build()
-        .renderAsLinkButton(link);
+    ContainerTag button =
+        ButtonUtils.makeSvgTextButton("Create new program", Icons.ADD_SVG_PATH)
+            .withId("new-program-button")
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2);
+    return ButtonUtils.makeLinkButton(button, link);
   }
 
   public ProgramDefinition getDisplayProgram(
@@ -181,6 +175,12 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
 
     int blockCount = program.getBlockCount();
     int questionCount = program.getQuestionCount();
+
+    String extraActionsButtonId = "extra-actions-" + program.id();
+    ContainerTag extraActionsButton =
+        ButtonUtils.makeSvgTextButton("", Icons.MORE_VERT_PATH)
+            .withId(extraActionsButtonId)
+            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES, ReferenceClasses.WITH_DROPDOWN);
 
     return div()
         .withClasses(
@@ -227,15 +227,9 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                     div()
                         .withClass(Styles.RELATIVE)
                         .with(
-                            ActionButton.builder()
-                                .setId("extra-actions-" + program.id())
-                                .setActionType(ActionType.TERTIARY)
-                                .setExtraStyles(ImmutableSet.of(ReferenceClasses.WITH_DROPDOWN))
-                                .setSvgRef(Icons.MORE_VERT_PATH)
-                                .build()
-                                .renderAsCustomJSButton(""),
+                            extraActionsButton,
                             div()
-                                .withId("extra-actions-" + program.id() + "-dropdown")
+                                .withId(extraActionsButtonId + "-dropdown")
                                 .withClasses(Styles.HIDDEN, Styles.ABSOLUTE, Styles.RIGHT_0)
                                 .with(extraActions))));
   }
@@ -329,12 +323,10 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     String viewLink =
         baseUrl
             + controllers.applicant.routes.RedirectController.programByName(program.slug()).url();
-    return ActionButton.builder()
-        .setActionType(ActionType.TERTIARY)
-        .setSvgRef(Icons.VISIBILITY_SVG_PATH)
-        .setText("View")
-        .build()
-        .renderAsLinkButton(viewLink);
+    ContainerTag button =
+        ButtonUtils.makeSvgTextButton("View", Icons.VISIBILITY_SVG_PATH)
+            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
+    return ButtonUtils.makeLinkButton(button, viewLink);
   }
 
   Tag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
@@ -345,16 +337,13 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
       editLinkId = "program-new-version-link-" + program.id();
     }
 
-    ActionButton button =
-        ActionButton.builder()
-            .setId(editLinkId)
-            .setActionType(ActionType.TERTIARY)
-            .setSvgRef(Icons.EDIT_SVG_PATH)
-            .setText("Edit")
-            .build();
+    ContainerTag button =
+        ButtonUtils.makeSvgTextButton("Edit", Icons.EDIT_SVG_PATH)
+            .withId(editLinkId)
+            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
     return isActive
-        ? button.renderAsLinkButtonHiddenForm(editLink, request)
-        : button.renderAsLinkButton(editLink);
+        ? ButtonUtils.makeLinkButtonForPost(button, editLink, request)
+        : ButtonUtils.makeLinkButton(button, editLink);
   }
 
   private Tag renderManageTranslationsLink(ProgramDefinition program) {
@@ -362,13 +351,11 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         routes.AdminProgramTranslationsController.edit(
                 program.id(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
             .url();
-    return ActionButton.builder()
-        .setId("program-translations-link-" + program.id())
-        .setActionType(ActionType.TERTIARY)
-        .setSvgRef(Icons.LANGUAGE_SVG_PATH)
-        .setText("Manage translations")
-        .build()
-        .renderAsLinkButton(linkDestination);
+    ContainerTag button =
+        ButtonUtils.makeSvgTextButton("Manage translations", Icons.LANGUAGE_SVG_PATH)
+            .withId("program-translations-link-" + program.id())
+            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
+    return ButtonUtils.makeLinkButton(button, linkDestination);
   }
 
   private Tag maybeRenderViewApplicationsLink(
@@ -385,25 +372,21 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                   activeProgram.id(), Optional.empty(), Optional.empty())
               .url();
 
-      return ActionButton.builder()
-          .setId("program-view-apps-link-" + activeProgram.id())
-          .setActionType(ActionType.TERTIARY)
-          .setSvgRef(Icons.TEXT_SNIPPET_SVG_PATH)
-          .setText("Applications")
-          .build()
-          .renderAsLinkButton(editLink);
+      ContainerTag button =
+          ButtonUtils.makeSvgTextButton("Applications", Icons.TEXT_SNIPPET_SVG_PATH)
+              .withId("program-view-apps-link-" + activeProgram.id())
+              .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
+      return ButtonUtils.makeLinkButton(button, editLink);
     }
     return null;
   }
 
   private Tag renderManageProgramAdminsLink(ProgramDefinition program) {
     String adminLink = routes.ProgramAdminManagementController.edit(program.id()).url();
-    return ActionButton.builder()
-        .setId("manage-program-admin-link-" + program.id())
-        .setActionType(ActionType.TERTIARY)
-        .setSvgRef(Icons.GROUP_SVG_PATH)
-        .setText("Manage admins")
-        .build()
-        .renderAsLinkButton(adminLink);
+    ContainerTag button =
+        ButtonUtils.makeSvgTextButton("Manage admins", Icons.GROUP_SVG_PATH)
+            .withId("manage-program-admin-link-" + program.id())
+            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
+    return ButtonUtils.makeLinkButton(button, adminLink);
   }
 }
