@@ -30,7 +30,6 @@ public class AdminLayout extends BaseHtmlLayout {
   }
 
   public enum NavPage {
-    UNSPECIFIED,
     PROGRAMS,
     QUESTIONS,
     VERSIONS,
