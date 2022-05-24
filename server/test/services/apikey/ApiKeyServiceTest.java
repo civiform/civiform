@@ -23,8 +23,8 @@ import play.data.FormFactory;
 import repository.ApiKeyRepository;
 import repository.ResetPostgres;
 import services.DateConverter;
+import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 import services.program.ProgramNotFoundException;
 
 public class ApiKeyServiceTest extends ResetPostgres {
@@ -64,7 +64,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
     }
 
     PaginationResult<ApiKey> paginationResult =
-        apiKeyService.listApiKeys(PaginationSpec.MAX_PAGE_SIZE_SPEC);
+        apiKeyService.listApiKeys(PageNumberBasedPaginationSpec.MAX_PAGE_SIZE_SPEC);
 
     // Keys should be shown in reverse creation order.
     assertThat(paginationResult.getPageContents().get(0).getName()).isEqualTo(keyName2);
