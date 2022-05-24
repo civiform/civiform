@@ -81,17 +81,17 @@ public class ApiAuthenticator implements Authenticator {
     Optional<ApiKey> maybeApiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
 
     if (!maybeApiKey.isPresent()) {
-      unauthorized(context, "API key does not exist: " + keyId);
+      throwUnauthorized(context, "API key does not exist: " + keyId);
     }
 
     ApiKey apiKey = maybeApiKey.get();
 
     if (apiKey.isRetired()) {
-      unauthorized(context, "API key is retired: " + keyId);
+      throwUnauthorized(context, "API key is retired: " + keyId);
     }
 
     if (apiKey.expiredAfter(Instant.now())) {
-      unauthorized(context, "API key is expired: " + keyId);
+      throwUnauthorized(context, "API key is expired: " + keyId);
     }
 
     SubnetUtils allowedSubnet = new SubnetUtils(apiKey.getSubnet());
@@ -101,7 +101,7 @@ public class ApiAuthenticator implements Authenticator {
     allowedSubnet.setInclusiveHostCount(true);
 
     if (!allowedSubnet.getInfo().isInRange(context.getRemoteAddr())) {
-      unauthorized(
+      throwUnauthorized(
           context,
           String.format(
               "IP %s not in allowed range for key ID: %s", context.getRemoteAddr(), keyId));
@@ -109,11 +109,11 @@ public class ApiAuthenticator implements Authenticator {
 
     String saltedCredentialsSecret = apiKeyService.get().salt(credentials.getPassword());
     if (!saltedCredentialsSecret.equals(apiKey.getSaltedKeySecret())) {
-      unauthorized(context, "Invalid secret for key ID: " + keyId);
+      throwUnauthorized(context, "Invalid secret for key ID: " + keyId);
     }
   }
 
-  private void unauthorized(WebContext context, String cause) {
+  private void throwUnauthorized(WebContext context, String cause) {
     logger.warn(
         String.format(
             "UnauthorizedApiRequest(resource: \"%s\", ip: \"%s\", cause: \"%s\")",
