@@ -4,11 +4,6 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
-# variable "application_name" {
-#   type        = string
-#   description = "Azure Web App Name"
-# }
-
 variable "civiform_time_zone_id" {
   type        = string
   description = "Time zone for Civiform server to use when displaying dates."
@@ -56,11 +51,6 @@ variable "docker_repository_name" {
   description = "Name of container image"
   default     = "civiform"
 }
-
-# variable "image_tag" {
-#   type        = string
-#   description = "Tag for container image"
-# }
 
 variable "location_name" {
   type        = string
@@ -110,16 +100,6 @@ variable "app_sku" {
   }
 }
 
-# variable "resource_group_name" {
-#   type    = string
-#   default = "civiform-resourcegroup"
-# }
-
-# variable "postgres_admin_login" {
-#   type        = string
-#   description = "Postgres admin login"
-# }
-
 variable "postgres_sku_name" {
   type        = string
   description = "The sku name for postgres server"
@@ -163,12 +143,6 @@ variable "ses_sender_email" {
   default     = "azizoval@google.com"
 }
 
-
-# variable "key_vault_name" {
-#   type        = string
-#   description = "Name of key vault where secrets are stored."
-# }
-
 variable "adfs_admin_group" {
   type        = string
   description = "Active Directory Federation Service group name"
@@ -186,11 +160,6 @@ variable "civiform_applicant_idp" {
   description = "identity provider to use for applicant auth. supported values are idcs and login-radius"
   default     = "login-radius"
 }
-
-# variable "civiform_applicant_auth_protocol" {
-#   type        = string
-#   description = "auth protocol to use for applicant auth. supported values are oidc and saml"
-# }
 
 variable "login_radius_api_key" {
   type        = string

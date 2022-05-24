@@ -31,6 +31,6 @@ resource "aws_route53_record" "civiform_domain_validation" {
 
 resource "aws_apprunner_custom_domain_association" "civiform_domain" {
   domain_name = "staging-aws.civiform.dev"
-  service_arn = aws_apprunner_service.civiform_dev_leyla.arn
+  service_arn = aws_apprunner_service.civiform_dev.arn
 }
 

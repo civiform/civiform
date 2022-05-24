@@ -1,20 +1,10 @@
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/apprunner_service
 
-resource "aws_apprunner_service" "civiform_dev_leyla" {
+resource "aws_apprunner_service" "civiform_dev" {
   auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.auto-scaling-config.arn
-  service_name                   = "civiform_dev_leyla"
+  service_name                   = "civiform_dev"                     
 
-  # network_configuration {
-  #   egress_configuration {
-  #     egress_type       = "VPC"
-  #     vpc_connector_arn = aws_apprunner_vpc_connector.connector.arn
-  #   }
-  # }                        
-
-  source_configuration {
-    # authentication_configuration {
-    #   access_role_arn = aws_iam_role.apprunner-service-role.arn
-    # }                   
+  source_configuration {               
     image_repository {
       image_configuration {
         port = "9000"
@@ -41,8 +31,8 @@ resource "aws_apprunner_service" "civiform_dev_leyla" {
           SUPPORT_EMAIL_ADDRESS              = var.civic_entity_support_email_address
 
           AWS_SES_SENDER        = var.ses_sender_email
-          AWS_ACCESS_KEY_ID     = ""
-          AWS_SECRET_ACCESS_KEY = ""
+          AWS_ACCESS_KEY_ID     = "CHANGE_ME"
+          AWS_SECRET_ACCESS_KEY = "CHANGE_ME"
           AWS_REGION            = var.aws_region
 
           STAGING_ADMIN_LIST     = var.staging_program_admin_notification_mailing_list
@@ -85,8 +75,8 @@ resource "aws_db_instance" "civiform" {
   allocated_storage      = 5
   engine                 = "postgres"
   engine_version         = "11"
-  username               = "leyla"
-  password               = "changeme"
+  username               = "db_user"
+  password               = "CHANGE_ME"
   db_subnet_group_name   = aws_db_subnet_group.civiform.name
   vpc_security_group_ids = [aws_security_group.rds.id]
   parameter_group_name   = aws_db_parameter_group.civiform.name
@@ -97,6 +87,7 @@ resource "aws_db_instance" "civiform" {
 resource "aws_s3_bucket" "b" {
   bucket = "civiform-files-s3"
 }
+
 resource "aws_s3_bucket_acl" "example" {
   bucket = aws_s3_bucket.b.id
   acl    = "private"

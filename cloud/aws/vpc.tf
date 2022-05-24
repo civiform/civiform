@@ -1,7 +1,5 @@
 # Souce: https://learn.hashicorp.com/tutorials/terraform/aws-rds?in=terraform/aws
 
-# Do this: https://www.stackovercloud.com/2022/02/09/new-for-app-runner-vpc-support/ 
-
 data "aws_availability_zones" "available" {}
 
 module "vpc" {
@@ -47,15 +45,3 @@ resource "aws_security_group" "rds" {
     Name = "civiform_rds"
   }
 }
-
-# https://github.com/aws-containers/impression-counter-api-app-runner-sample/blob/main/terraform/apprunner.tf
-# resource "aws_apprunner_vpc_connector" "db-connector" {
-#   vpc_connector_name = "civiform-app-connector"
-#   subnets            = ["${aws_db_subnet_group.civiform}"]
-#   security_groups    = ["${aws_security_group.rds}"]
-# }
-
-# resource "aws_vpc_endpoint" "s3" {
-#   vpc_id       = module.vpc.vpc_id
-#   service_name = "com.amazonaws.${var.aws_region}.s3"
-# }
