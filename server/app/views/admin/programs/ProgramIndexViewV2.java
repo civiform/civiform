@@ -237,10 +237,12 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                             extraActionsButton,
                             div()
                                 .withId(extraActionsButtonId + "-dropdown")
-                                .withClasses(Styles.HIDDEN,
-                                  Styles.BORDER,
-                                  Styles.BG_WHITE,
-                                  Styles.ABSOLUTE, Styles.RIGHT_0)
+                                .withClasses(
+                                    Styles.HIDDEN,
+                                    Styles.BORDER,
+                                    Styles.BG_WHITE,
+                                    Styles.ABSOLUTE,
+                                    Styles.RIGHT_0)
                                 .with(extraActions))));
   }
 

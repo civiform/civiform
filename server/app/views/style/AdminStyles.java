@@ -100,10 +100,7 @@ public class AdminStyles {
           StyleUtils.hover(Styles.TEXT_GRAY_800, Styles.BG_GRAY_100));
 
   private static final String BASE_BUTTON_STYLES =
-      StyleUtils.joinStyles(
-          Styles.FLEX,
-          Styles.ITEMS_CENTER,
-          Styles.FONT_MEDIUM);
+      StyleUtils.joinStyles(Styles.FLEX, Styles.ITEMS_CENTER, Styles.FONT_MEDIUM);
 
   public static final String PRIMARY_BUTTON_STYLES =
       StyleUtils.joinStyles(
