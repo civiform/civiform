@@ -7,6 +7,7 @@ import models.Application;
 import models.Program;
 import org.junit.Test;
 import services.CfJsonDocumentContext;
+import services.IdentifierBasedPaginationSpec;
 import services.Path;
 
 public class JsonExporterTest extends AbstractExporterTest {
@@ -19,7 +20,12 @@ public class JsonExporterTest extends AbstractExporterTest {
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
-    String resultJsonString = exporter.export(fakeProgram.getProgramDefinition());
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG)
+            .getLeft();
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertLengthOf(3);
@@ -82,7 +88,12 @@ public class JsonExporterTest extends AbstractExporterTest {
     createFakeProgramWithEnumerator();
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
-    String resultJsonString = exporter.export(fakeProgramWithEnumerator.getProgramDefinition());
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgramWithEnumerator.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG)
+            .getLeft();
 
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
     resultAsserter.assertLengthOf(3);

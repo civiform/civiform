@@ -3,6 +3,7 @@ package auth;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.time.Instant;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.ApiKey;
@@ -13,6 +14,8 @@ import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.exception.BadCredentialsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.apikey.ApiKeyService;
 
 /**
@@ -44,6 +47,7 @@ import services.apikey.ApiKeyService;
  */
 public class ApiAuthenticator implements Authenticator {
 
+  private static final Logger logger = LoggerFactory.getLogger(ApiAuthenticator.class);
   private final Provider<ApiKeyService> apiKeyService;
 
   @Inject
@@ -74,18 +78,20 @@ public class ApiAuthenticator implements Authenticator {
     // Cache the API key for quick lookup in the controller, also for subsequent requests.
     // We intentionally cache the empty optional rather than throwing here so that subsequent
     // requests with the invalid key do not put pressure on the database.
-    ApiKey apiKey =
-        apiKeyService
-            .get()
-            .findByKeyIdWithCache(keyId)
-            .orElseThrow(() -> new BadCredentialsException("API key does not exist"));
+    Optional<ApiKey> maybeApiKey = apiKeyService.get().findByKeyIdWithCache(keyId);
+
+    if (!maybeApiKey.isPresent()) {
+      throwUnauthorized(context, "API key does not exist: " + keyId);
+    }
+
+    ApiKey apiKey = maybeApiKey.get();
 
     if (apiKey.isRetired()) {
-      throw new BadCredentialsException("API key is retired: " + keyId);
+      throwUnauthorized(context, "API key is retired: " + keyId);
     }
 
     if (apiKey.expiredAfter(Instant.now())) {
-      throw new BadCredentialsException("API key is expired: " + keyId);
+      throwUnauthorized(context, "API key is expired: " + keyId);
     }
 
     SubnetUtils allowedSubnet = new SubnetUtils(apiKey.getSubnet());
@@ -95,14 +101,24 @@ public class ApiAuthenticator implements Authenticator {
     allowedSubnet.setInclusiveHostCount(true);
 
     if (!allowedSubnet.getInfo().isInRange(context.getRemoteAddr())) {
-      throw new BadCredentialsException(
+      throwUnauthorized(
+          context,
           String.format(
               "IP %s not in allowed range for key ID: %s", context.getRemoteAddr(), keyId));
     }
 
     String saltedCredentialsSecret = apiKeyService.get().salt(credentials.getPassword());
     if (!saltedCredentialsSecret.equals(apiKey.getSaltedKeySecret())) {
-      throw new BadCredentialsException("Invalid secret for key ID: " + keyId);
+      throwUnauthorized(context, "Invalid secret for key ID: " + keyId);
     }
+  }
+
+  private void throwUnauthorized(WebContext context, String cause) {
+    logger.warn(
+        String.format(
+            "UnauthorizedApiRequest(resource: \"%s\", ip: \"%s\", cause: \"%s\")",
+            context.getPath(), context.getRemoteAddr(), cause));
+
+    throw new BadCredentialsException(cause);
   }
 }

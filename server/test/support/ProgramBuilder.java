@@ -61,8 +61,14 @@ public class ProgramBuilder {
   public static ProgramBuilder newDraftProgram(String name, String description) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
     Program program =
-        new Program(name, description, name, description, "", DisplayMode.PUBLIC.getValue());
-    program.addVersion(versionRepository.getDraftVersion());
+        new Program(
+            name,
+            description,
+            name,
+            description,
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            versionRepository.getDraftVersion());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder()
@@ -91,8 +97,14 @@ public class ProgramBuilder {
   public static ProgramBuilder newActiveProgram(String name, String description) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
     Program program =
-        new Program(name, description, name, description, "", DisplayMode.PUBLIC.getValue());
-    program.addVersion(versionRepository.getActiveVersion());
+        new Program(
+            name,
+            description,
+            name,
+            description,
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            versionRepository.getActiveVersion());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder()
