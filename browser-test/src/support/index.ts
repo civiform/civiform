@@ -19,6 +19,14 @@ export const isLocalDevEnvironment = () => {
 
 function makeBrowserContext(browser: Browser) {
   if (process.env.RECORD_VIDEO) {
+    // https://playwright.dev/docs/videos
+    // Docs state that videos are only saved upon
+    // closing the returned context. In practice,
+    // this doesn't appear to be true. Restructuring
+    // to ensure that we always close the returned
+    // context is possible, but likely not necessary
+    // until it causes a problem. In practice, this
+    // will only be used when debugging failures.
     return browser.newContext({
       acceptDownloads: true,
       recordVideo: {
