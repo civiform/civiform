@@ -9,13 +9,16 @@ lazy val root = (project in file("."))
     scalaVersion := "2.13.8",
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
+      // Provides in-memory caching via the Play cache interface.
+      // More info: https://www.playframework.com/documentation/2.8.x/JavaCache
+      caffeine,
       guice,
       javaJdbc,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.7.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.13.2",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.13.2",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.13.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.13.3",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.3",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
@@ -146,9 +149,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.2.2",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.13.2",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.2"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.3",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.13.3",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.3"
 )
 resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)
