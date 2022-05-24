@@ -2,9 +2,9 @@
 
 resource "aws_apprunner_service" "civiform_dev" {
   auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.auto-scaling-config.arn
-  service_name                   = "civiform_dev"                     
+  service_name                   = "civiform_dev"
 
-  source_configuration {               
+  source_configuration {
     image_repository {
       image_configuration {
         port = "9000"
