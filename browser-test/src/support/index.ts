@@ -17,13 +17,29 @@ export const isLocalDevEnvironment = () => {
   )
 }
 
+function makeBrowserContext(browser: Browser) {
+  if (process.env.RECORD_VIDEO) {
+    return browser.newContext({
+      acceptDownloads: true,
+      recordVideo: {
+        dir: 'tmp/videos/',
+      },
+    })
+  } else {
+    return browser.newContext({
+      acceptDownloads: true,
+    })
+  }
+}
+
 export const startSession = async () => {
   const browser = await chromium.launch()
-  const page = await browser.newPage({ acceptDownloads: true })
+  const context = await makeBrowserContext(browser)
+  const page = await context.newPage()
 
   await page.goto(BASE_URL)
 
-  return { browser, page }
+  return { browser, context, page }
 }
 
 export const endSession = async (browser: Browser) => {
