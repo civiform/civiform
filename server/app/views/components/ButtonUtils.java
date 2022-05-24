@@ -16,7 +16,7 @@ import views.style.Styles;
 /** Contains helpers for creating buttons for use in the UI. */
 public final class ButtonUtils {
 
-  public static ContainerTag makeLinkButtonForPost(
+  public static ContainerTag asLinkButtonForPost(
       ContainerTag el, String href, Http.Request request) {
     Option<CSRF.Token> csrfTokenMaybe = CSRF.getToken(request.asScala());
     String csrfToken = "";
@@ -36,7 +36,7 @@ public final class ButtonUtils {
     return el.attr("form", formId).with(hiddenForm);
   }
 
-  public static ContainerTag makeLinkButton(ContainerTag el, String href) {
+  public static ContainerTag asLinkButton(ContainerTag el, String href) {
     return el.attr("onclick", String.format("document.location.href = \"%s\"", href));
   }
 
