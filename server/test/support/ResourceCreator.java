@@ -112,9 +112,14 @@ public class ResourceCreator {
   }
 
   public Applicant insertApplicantWithAccount() {
+    return insertApplicantWithAccount(/* accountEmail= */ Optional.empty());
+  }
+
+  public Applicant insertApplicantWithAccount(Optional<String> accountEmail) {
     Applicant applicant = insertApplicant();
     Account account = insertAccount();
 
+    accountEmail.ifPresent(account::setEmailAddress);
     applicant.setAccount(account);
     applicant.save();
 

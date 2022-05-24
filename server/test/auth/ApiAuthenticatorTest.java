@@ -111,7 +111,7 @@ public class ApiAuthenticatorTest {
     assertBadCredentialsException(
         buildFakeRequest(rawCredentials),
         new UsernamePasswordCredentials("wrong", secret),
-        "API key does not exist");
+        "API key does not exist: wrong");
   }
 
   @Test

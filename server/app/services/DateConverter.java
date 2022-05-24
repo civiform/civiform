@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 /** Utility class for converting dates between different formats. */
 public class DateConverter {
@@ -25,9 +26,16 @@ public class DateConverter {
     return DateTimeFormatter.RFC_1123_DATE_TIME.withZone(zoneId).format(instant);
   }
 
+  /** Formats an instant to an ISO-8601 date of the form "YYYY-MM-DDZ" where the 'Z' is literal. */
+  public String formatIso8601Date(Instant instant) {
+    return DateTimeFormatter.ISO_DATE.withZone(zoneId).format(instant);
+  }
+
   /**
    * Parses a string containing a ISO-8601 date (i.e. "YYYY-MM-DD") and converts it to an {@link
    * Instant} at the beginning of the day in local time zone.
+   *
+   * @throws DateTimeParseException if dateString is not well-formed.
    */
   public Instant parseIso8601DateToStartOfDateInstant(String dateString) {
     return LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE).atStartOfDay(zoneId).toInstant();
