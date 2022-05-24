@@ -99,12 +99,14 @@ public class AdminLayout extends BaseHtmlLayout {
     String questionLink = controllers.admin.routes.AdminQuestionController.index().url();
     String versionLink = routes.AdminVersionController.index().url();
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
+    String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
 
     return adminHeader
         .with(headerLink("Programs", programLink))
         .with(headerLink("Questions", questionLink))
         .with(headerLink("Versions", versionLink))
         .with(headerLink("Intermediaries", intermediaryLink))
+        .with(headerLink("API keys", apiKeysLink))
         .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT));
   }
 
