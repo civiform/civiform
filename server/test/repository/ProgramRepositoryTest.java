@@ -104,7 +104,13 @@ public class ProgramRepositoryTest extends ResetPostgres {
   public void insertProgramSync() throws Exception {
     Program program =
         new Program(
-            "ProgramRepository", "desc", "name", "description", "", DisplayMode.PUBLIC.getValue());
+            "ProgramRepository",
+            "desc",
+            "name",
+            "description",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            versionRepo.getDraftVersion());
 
     Program withId = repo.insertProgramSync(program);
 

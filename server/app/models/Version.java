@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
@@ -43,7 +44,8 @@ public class Version extends BaseModel {
    */
   @DbArray private List<String> tombstonedQuestionNames = new ArrayList<>();
 
-  @ManyToMany(mappedBy = "versions")
+  @ManyToMany
+  @JoinTable(name = "versions_programs")
   private List<Program> programs;
 
   /**
@@ -61,6 +63,11 @@ public class Version extends BaseModel {
 
   public Version(LifecycleStage lifecycleStage) {
     this.lifecycleStage = lifecycleStage;
+  }
+
+  public Version addProgram(Program program) {
+    this.programs.add(program);
+    return this;
   }
 
   public Version setLifecycleStage(LifecycleStage lifecycleStage) {

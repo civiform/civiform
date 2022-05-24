@@ -157,9 +157,9 @@ public class ProgramServiceImpl implements ProgramService {
             defaultDisplayName,
             defaultDisplayDescription,
             externalLink,
-            displayMode);
+            displayMode,
+            versionRepository.getDraftVersion());
 
-    program.addVersion(versionRepository.getDraftVersion());
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
 

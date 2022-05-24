@@ -111,9 +111,9 @@ public class ProgramRepository {
     try {
       // Program -> builder -> back to program in order to clear any metadata stored in the program
       // (for example, version information).
-      Program newDraft = existingProgram.getProgramDefinition().toBuilder().build().toProgram();
+      Program newDraft =
+          new Program(existingProgram.getProgramDefinition().toBuilder().build(), draftVersion);
       newDraft = insertProgramSync(newDraft);
-      newDraft.addVersion(draftVersion).save();
       draftVersion.refresh();
       Preconditions.checkState(
           draftVersion.getPrograms().contains(newDraft),
