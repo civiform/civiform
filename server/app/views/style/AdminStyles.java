@@ -117,7 +117,8 @@ public class AdminStyles {
           Styles.BORDER,
           BaseStyles.BORDER_SEATTLE_BLUE,
           Styles.BG_WHITE,
-          BaseStyles.TEXT_SEATTLE_BLUE);
+          BaseStyles.TEXT_SEATTLE_BLUE,
+          StyleUtils.hover(Styles.BG_GRAY_200));
 
   public static final String TERTIARY_BUTTON_STYLES =
       StyleUtils.joinStyles(
@@ -125,5 +126,6 @@ public class AdminStyles {
           Styles.BORDER_NONE,
           Styles.ROUNDED,
           Styles.BG_TRANSPARENT,
-          Styles.TEXT_BLACK);
+          Styles.TEXT_BLACK,
+          StyleUtils.hover(Styles.BG_GRAY_200));
 }
