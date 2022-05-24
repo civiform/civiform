@@ -186,6 +186,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
             .withClasses(
                 AdminStyles.TERTIARY_BUTTON_STYLES,
                 ReferenceClasses.WITH_DROPDOWN,
+                Styles.H_12,
                 extraActions.size() == 0 ? Styles.INVISIBLE : "");
 
     return div()
