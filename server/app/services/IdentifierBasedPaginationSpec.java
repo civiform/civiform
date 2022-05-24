@@ -26,7 +26,9 @@ public class IdentifierBasedPaginationSpec<T> {
   }
 
   /**
-   * Get the offset identifier for this page of results. The identifier is a value that can be
+   * Get the offset identifier for this page of results.
+   *
+   * <p>The identifier is a value that can be
    * compared to the sort order attribute of a paginated resource to offset a query. For example, if
    * a query is sorted by database ID, the offset identifier will be the database ID of the last
    * entry in the last page of results.
