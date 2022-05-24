@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
 import models.ApiKey;
+import models.Application;
 import models.Program;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
@@ -31,20 +32,28 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
   private static final String serializedApiKey =
       Base64.getEncoder().encodeToString(rawCredentials.getBytes(StandardCharsets.UTF_8));
   private ApiKey apiKey;
+  private Application januaryApplication;
+  private Application februaryApplication;
+  private Application marchApplication;
 
   @Before
   public void setUp() {
-    apiKey = resourceCreator.createActiveApiKey("test-key", keyId, keySecret);
-  }
-
-  @Test
-  public void list_success_dateRange() {
+    // This inherited method creates a program and three applications to it.
+    // The applications have submission/creation times of 2022-01-15, 2022-02-15, and 2022-03-15.
     createFakeProgramWithEnumerator();
+    januaryApplication = applicationOne;
+    februaryApplication = applicationTwo;
+    marchApplication = applicationThree;
+
+    apiKey = resourceCreator.createActiveApiKey("test-key", keyId, keySecret);
     apiKey
         .getGrants()
         .grantProgramPermission(fakeProgramWithEnumerator.getSlug(), ApiKeyGrants.Permission.READ);
     apiKey.save();
+  }
 
+  @Test
+  public void list_success_dateRange() {
     String requestUrl =
         controllers.api.routes.ProgramApplicationsApiController.list(
                 fakeProgramWithEnumerator.getSlug(),
@@ -60,17 +69,11 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
     DocumentContext resultJson = JsonPathProvider.getJsonPath().parse(contentAsString(result));
     assertThat(resultJson.read("payload.length()", Integer.class)).isEqualTo(1);
     assertThat(resultJson.read("payload[0].application_id", Long.class))
-        .isEqualTo(applicationTwo.id);
+        .isEqualTo(februaryApplication.id);
   }
 
   @Test
   public void list_success_multipleResultsInAPage() {
-    createFakeProgramWithEnumerator();
-    apiKey
-        .getGrants()
-        .grantProgramPermission(fakeProgramWithEnumerator.getSlug(), ApiKeyGrants.Permission.READ);
-    apiKey.save();
-
     String firstRequestUrl =
         controllers.api.routes.ProgramApplicationsApiController.list(
                 fakeProgramWithEnumerator.getSlug(),
@@ -86,19 +89,13 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
     DocumentContext resultJson = JsonPathProvider.getJsonPath().parse(contentAsString(result));
     assertThat(resultJson.read("payload.length()", Integer.class)).isEqualTo(2);
     assertThat(resultJson.read("payload[0].application_id", Long.class))
-        .isEqualTo(applicationThree.id);
+        .isEqualTo(marchApplication.id);
     assertThat(resultJson.read("payload[1].application_id", Long.class))
-        .isEqualTo(applicationTwo.id);
+        .isEqualTo(februaryApplication.id);
   }
 
   @Test
   public void list_success_multiplePages() {
-    createFakeProgramWithEnumerator();
-    apiKey
-        .getGrants()
-        .grantProgramPermission(fakeProgramWithEnumerator.getSlug(), ApiKeyGrants.Permission.READ);
-    apiKey.save();
-
     String firstRequestUrl =
         controllers.api.routes.ProgramApplicationsApiController.list(
                 fakeProgramWithEnumerator.getSlug(),
@@ -131,7 +128,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
     nextPageToken = resultJson.read("$.nextPageToken", String.class);
     assertThat(nextPageToken).isNull();
     assertThat(resultJson.read("payload[0].application_id", Long.class))
-        .isEqualTo(applicationOne.id);
+        .isEqualTo(januaryApplication.id);
     assertThat(resultJson.read("payload.length()", Integer.class)).isEqualTo(1);
   }
 
