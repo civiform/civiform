@@ -156,7 +156,11 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
   }
 
   private Tag renderProgramRow(
-      boolean isActive, ProgramDefinition program, List<Tag> actions, List<Tag> extraActions) {
+      boolean isActive,
+      ProgramDefinition program,
+      List<Tag> actions,
+      List<Tag> extraActions,
+      String... extraStyles) {
     String badgeText = "Draft";
     String badgeBGColor = BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
     String badgeFillColor = BaseStyles.TEXT_CIVIFORM_PURPLE;
@@ -179,7 +183,10 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     ContainerTag extraActionsButton =
         ButtonUtils.makeSvgTextButton("", Icons.MORE_VERT_PATH)
             .withId(extraActionsButtonId)
-            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES, ReferenceClasses.WITH_DROPDOWN);
+            .withClasses(
+                AdminStyles.TERTIARY_BUTTON_STYLES,
+                ReferenceClasses.WITH_DROPDOWN,
+                extraActions.size() == 0 ? Styles.INVISIBLE : "");
 
     return div()
         .withClasses(
@@ -187,7 +194,8 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
             Styles.SPACE_X_10,
             Styles.FLEX,
             Styles.FLEX_ROW,
-            StyleUtils.hover(Styles.BG_GRAY_100))
+            StyleUtils.hover(Styles.BG_GRAY_100),
+            StyleUtils.joinStyles(extraStyles))
         .with(
             p().withClasses(
                     // TODO(#1238): min-width:90px
@@ -219,10 +227,9 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                             span(questionCount == 1 ? " question" : " questions"))),
             div().withClass(Styles.FLEX_GROW),
             div()
-                .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.FONT_MEDIUM)
+                .withClasses(Styles.FLEX, Styles.SPACE_X_2, Styles.PR_6, Styles.FONT_MEDIUM)
                 .with(actions)
-                .condWith(
-                    extraActions.size() > 0,
+                .with(
                     div()
                         .withClass(Styles.RELATIVE)
                         .with(
@@ -264,7 +271,12 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
       }
       activeRowActions.add(renderViewLink(activeProgram.get()));
       activeRow =
-          renderProgramRow(true, activeProgram.get(), activeRowActions, activeRowExtraActions);
+          renderProgramRow(
+              true,
+              activeProgram.get(),
+              activeRowActions,
+              activeRowExtraActions,
+              draftProgram.isPresent() ? Styles.BORDER_T : "");
     }
 
     Tag titleAndStatus =
@@ -286,7 +298,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
             ReferenceClasses.ADMIN_PROGRAM_CARD,
             Styles.W_FULL,
             Styles.MY_4,
-            Styles.PX_6,
+            Styles.PL_6,
             Styles.BORDER,
             Styles.BORDER_GRAY_300,
             Styles.ROUNDED_LG)

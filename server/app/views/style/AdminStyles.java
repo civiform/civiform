@@ -103,16 +103,17 @@ public class AdminStyles {
       StyleUtils.joinStyles(
           Styles.FLEX,
           Styles.ITEMS_CENTER,
-          Styles.ROUNDED_FULL,
           Styles.FONT_MEDIUM,
           StyleUtils.focus(Styles.OUTLINE_NONE, Styles.RING_2));
 
   public static final String PRIMARY_BUTTON_STYLES =
-      StyleUtils.joinStyles(BASE_BUTTON_STYLES, BaseStyles.BG_SEATTLE_BLUE, Styles.TEXT_WHITE);
+      StyleUtils.joinStyles(
+          BASE_BUTTON_STYLES, Styles.ROUNDED_FULL, BaseStyles.BG_SEATTLE_BLUE, Styles.TEXT_WHITE);
 
   public static final String SECONDARY_BUTTON_STYLES =
       StyleUtils.joinStyles(
           BASE_BUTTON_STYLES,
+          Styles.ROUNDED_FULL,
           Styles.BORDER,
           BaseStyles.BORDER_SEATTLE_BLUE,
           Styles.BG_WHITE,
@@ -120,5 +121,9 @@ public class AdminStyles {
 
   public static final String TERTIARY_BUTTON_STYLES =
       StyleUtils.joinStyles(
-          BASE_BUTTON_STYLES, Styles.BORDER_NONE, Styles.BG_WHITE, Styles.TEXT_BLACK);
+          BASE_BUTTON_STYLES,
+          Styles.BORDER_NONE,
+          Styles.ROUNDED,
+          Styles.BG_TRANSPARENT,
+          Styles.TEXT_BLACK);
 }

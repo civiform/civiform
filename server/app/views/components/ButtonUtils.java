@@ -43,7 +43,7 @@ public final class ButtonUtils {
   public static ContainerTag makeSvgTextButton(String buttonText, String svgPath) {
     return button()
         .with(
-            Icons.svg(svgPath, 18).withClasses(Styles.ML_2, Styles.MR_1, Styles.INLINE_BLOCK),
+            Icons.svg(svgPath, 18).withClasses(Styles.ML_1, Styles.MR_2, Styles.INLINE_BLOCK),
             span(buttonText));
   }
 }
