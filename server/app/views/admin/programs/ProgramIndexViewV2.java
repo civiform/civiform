@@ -33,13 +33,13 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a page so the admin can view all active programs and draft programs. */
-public final class ProgramIndexView extends BaseHtmlView {
+public final class ProgramIndexViewV2 extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final ZoneId zoneId;
 
   @Inject
-  public ProgramIndexView(AdminLayout layout, Config config, ZoneId zoneId) {
+  public ProgramIndexViewV2(AdminLayout layout, Config config, ZoneId zoneId) {
     this.layout = checkNotNull(layout);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.zoneId = checkNotNull(zoneId);
