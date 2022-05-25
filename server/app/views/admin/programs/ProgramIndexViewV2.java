@@ -199,7 +199,6 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
             StyleUtils.joinStyles(extraStyles))
         .with(
             p().withClasses(
-                    // TODO(#1238): min-width:90px
                     badgeBGColor,
                     badgeFillColor,
                     Styles.ML_8,
