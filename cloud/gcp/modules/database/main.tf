@@ -1,6 +1,6 @@
 resource "random_password" "password" {
-  length           = 40
-  special          = true
+  length  = 40
+  special = true
 }
 
 
@@ -12,13 +12,13 @@ resource "google_secret_manager_secret" "database_password" {
 }
 
 resource "google_secret_manager_secret_version" "database_password_version" {
-  secret = google_secret_manager_secret.database_password.id
+  secret      = google_secret_manager_secret.database_password.id
   secret_data = random_password.password.result
 }
 
 resource "google_secret_manager_secret_iam_binding" "binding" {
   secret_id = google_secret_manager_secret.database_password.secret_id
-  role = "roles/secretmanager.secretAccessor"
+  role      = "roles/secretmanager.secretAccessor"
   members = [
     "user:ktoor@google.com",
     "serviceAccount:${var.terraform_service_account}"
@@ -31,8 +31,8 @@ resource "google_sql_database_instance" "civiform_db" {
   region           = var.region
 
   settings {
-      ip_configuration {
-      ipv4_enabled    = true
+    ip_configuration {
+      ipv4_enabled = true
     }
     tier = var.tier_type
   }
