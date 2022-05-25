@@ -258,27 +258,26 @@ public final class QuestionsListView extends BaseHtmlView {
     if (active.isPresent()) {
       if (draft.isEmpty()) {
         // Active without a draft.
-        td.with(renderQuestionViewLink(active.get(), "View →")).with(br());
-        td.with(renderQuestionEditLink(active.get(), "New Version →")).with(br());
+        td.with(renderQuestionViewLink(active.get(), "View →"));
+        td.with(renderQuestionEditLink(active.get(), "New Version →"));
       } else if (draft.isPresent()) {
         // Active with a draft.
-        td.with(renderQuestionViewLink(active.get(), "View Published →")).with(br());
-        td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
-        td.with(renderQuestionTranslationLink(draft.get(), "Manage Draft Translations →"))
-            .with(br());
-        td.with(renderDiscardDraftLink(draft.get(), "Discard Draft →", request)).with(br());
+        td.with(renderQuestionViewLink(active.get(), "View Published →"));
+        td.with(renderQuestionEditLink(draft.get(), "Edit Draft →"));
+        td.with(renderQuestionTranslationLink(draft.get(), "Manage Draft Translations →"));
+        td.with(renderDiscardDraftLink(draft.get(), "Discard Draft →", request));
       }
     } else if (draft.isPresent()) {
       // First revision of a question.
-      td.with(renderQuestionEditLink(draft.get(), "Edit Draft →")).with(br());
-      td.with(renderQuestionTranslationLink(draft.get(), "Manage Translations →")).with(br());
+      td.with(renderQuestionEditLink(draft.get(), "Edit Draft →"));
+      td.with(renderQuestionTranslationLink(draft.get(), "Manage Translations →"));
     }
     // Add Archive options.
     if (active.isPresent()) {
       if (deletionStatus.equals(DeletionStatus.PENDING_DELETION)) {
-        td.with(renderRestoreQuestionLink(active.get(), "Restore Archived →", request)).with(br());
+        td.with(renderRestoreQuestionLink(active.get(), "Restore Archived →", request));
       } else if (deletionStatus.equals(DeletionStatus.DELETABLE)) {
-        td.with(renderArchiveQuestionLink(active.get(), "Archive →", request)).with(br());
+        td.with(renderArchiveQuestionLink(active.get(), "Archive →", request));
       }
     }
     return td;
