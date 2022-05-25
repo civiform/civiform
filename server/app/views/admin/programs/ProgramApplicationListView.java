@@ -42,9 +42,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   @Inject
   public ProgramApplicationListView(
       AdminLayoutFactory layoutFactory, ApplicantUtils applicantUtils, ZoneId zoneId) {
-    this.layout = checkNotNull(layoutFactory)
-        .getLayout(NavPage.PROGRAMS)
-        .setOnlyProgramAdminType();
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS).setOnlyProgramAdminType();
     this.applicantUtils = checkNotNull(applicantUtils);
     this.zoneId = checkNotNull(zoneId);
   }
