@@ -49,7 +49,15 @@ jobs:
     - name: Bring up test env with Localstack
       run: bin/run-browser-test-env --aws --ci
     - name: Run browser tests with Localstack
+      env:
+          RECORD_VIDEO: 1
       run: bin/run-browser-tests-ci
+    - name: Save recorded video
+      uses: actions/upload-artifact@v3
+      with:
+        name: browser-test-videos
+        path: browser-test/tmp/videos/
+        retention-days: 5
     - name: Print logs on failure
       if: failure()
       run: cat .dockerlogs
@@ -74,6 +82,8 @@ jobs:
     - name: Bring up test env with Azurite
       run: bin/run-browser-test-env --azure --ci
     - name: Run browser tests with Azurite
+      env:
+        RECORD_VIDEO: 1
       run: bin/run-browser-tests-ci
     - name: Print logs on failure
       if: failure()
