@@ -1,5 +1,5 @@
 resource "aws_apprunner_service" "civiform_dev" {
-  auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.auto-scaling-config.arn
+  auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.auto_scaling_config.arn
   service_name                   = "civiform_dev"
 
   source_configuration {
@@ -88,13 +88,13 @@ resource "aws_db_instance" "civiform" {
   skip_final_snapshot    = true
 }
 
-resource "aws_s3_bucket" "civiform-files-s3" {
-  bucket = "civiform-files-s3"
+resource "aws_s3_bucket" "civiform_files_s3" {
+  bucket = "civiform_files_s3"
 }
 
-resource "aws_s3_access_point" "civiform-files" {
-  bucket = aws_s3_bucket.civiform-files-s3.id
-  name   = "civiform-files"
+resource "aws_s3_access_point" "civiform_files" {
+  bucket = aws_s3_bucket.civiform_files_s3.id
+  name   = "civiform_files"
 
   public_access_block_configuration {
     block_public_acls       = true
