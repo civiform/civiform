@@ -69,6 +69,8 @@ public class AdminProgramController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
+    // TODO(#1238): Remove the old view once the new rendering
+    // should be default.
     if (request.queryString().containsKey("v2")) {
       return ok(listViewV2.render(this.service.getActiveAndDraftPrograms(), request, profileMaybe));
     }
