@@ -31,6 +31,7 @@ public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
         FieldWithLabel.input()
             .setFieldName(idQuestion.getIdPath().toString())
             .setValue(idQuestion.getIdValue().orElse(""))
+            .setDescriptionId(getDescriptionId())
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of()))

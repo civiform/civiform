@@ -32,6 +32,7 @@ public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
         FieldWithLabel.email()
             .setFieldName(emailQuestion.getEmailPath().toString())
             .setValue(emailQuestion.getEmailValue().orElse(""))
+            .setDescriptionId(getDescriptionId())
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(emailQuestion.getEmailPath(), ImmutableSet.of()))

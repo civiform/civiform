@@ -31,6 +31,7 @@ public class TextQuestionRenderer extends ApplicantQuestionRendererImpl {
         FieldWithLabel.input()
             .setFieldName(textQuestion.getTextPath().toString())
             .setValue(textQuestion.getTextValue().orElse(""))
+            .setDescriptionId(getDescriptionId())
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(textQuestion.getTextPath(), ImmutableSet.of()))

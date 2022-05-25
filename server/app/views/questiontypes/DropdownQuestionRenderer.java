@@ -47,7 +47,8 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
                         toImmutableMap(
                             LocalizedQuestionOption::optionText,
                             option -> String.valueOf(option.id()))));
-    select.setScreenReaderText(question.getQuestionText());
+    select.setScreenReaderText(question.getQuestionText())
+        .setDescriptionId(getDescriptionId());
 
     if (singleSelectQuestion.getSelectedOptionId().isPresent()) {
       select.setValue(String.valueOf(singleSelectQuestion.getSelectedOptionId().get()));

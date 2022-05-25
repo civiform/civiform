@@ -38,6 +38,11 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors);
 
+  // DELETE: if we dont have help text, should we still tag
+  public final String getDescriptionId() {
+    return String.format("%s-description", question.getContextualizedPath().toString());
+  }
+
   @Override
   public final Tag render(ApplicantQuestionRendererParams params) {
     Messages messages = params.messages();
@@ -52,6 +57,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
             // Question help text
             .with(
                 div()
+                    .withId(getDescriptionId())
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)

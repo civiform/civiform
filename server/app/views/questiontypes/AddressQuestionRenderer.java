@@ -44,6 +44,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setPlaceholderText(
                         messages.at(MessageKey.ADDRESS_PLACEHOLDER_STREET.getKeyName()))
                     .setValue(addressQuestion.getStreetValue().orElse(""))
+                    .setDescriptionId(getDescriptionId())
                     .setFieldErrors(
                         messages,
                         validationErrors.getOrDefault(
@@ -57,6 +58,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setPlaceholderText(
                         messages.at(MessageKey.ADDRESS_PLACEHOLDER_LINE_2.getKeyName()))
                     .setValue(addressQuestion.getLine2Value().orElse(""))
+                    .setDescriptionId(getDescriptionId())
                     .setFieldErrors(
                         messages,
                         validationErrors.getOrDefault(
@@ -72,6 +74,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_CITY.getKeyName()))
                             .setValue(addressQuestion.getCityValue().orElse(""))
                             .addReferenceClass(ReferenceClasses.ADDRESS_CITY)
+                            .setDescriptionId(getDescriptionId())
                             .setFieldErrors(
                                 messages,
                                 validationErrors.getOrDefault(
@@ -81,6 +84,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                             .setFieldName(addressQuestion.getStatePath().toString())
                             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
                             .setValue(addressQuestion.getStateValue().orElse(""))
+                            .setDescriptionId(getDescriptionId())
                             .setFieldErrors(
                                 messages,
                                 validationErrors.getOrDefault(
@@ -92,6 +96,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                             .setLabelText(
                                 messages.at(MessageKey.ADDRESS_LABEL_ZIPCODE.getKeyName()))
                             .setValue(addressQuestion.getZipValue().orElse(""))
+                            .setDescriptionId(getDescriptionId())
                             .setFieldErrors(
                                 messages,
                                 validationErrors.getOrDefault(

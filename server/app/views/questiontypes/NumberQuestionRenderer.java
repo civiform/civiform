@@ -36,6 +36,7 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setScreenReaderText(question.getQuestionText())
             .setMin(numberQuestion.getQuestionDefinition().getMin())
             .setMax(numberQuestion.getQuestionDefinition().getMax())
+            .setDescriptionId(getDescriptionId())
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(numberQuestion.getNumberPath(), ImmutableSet.of()))

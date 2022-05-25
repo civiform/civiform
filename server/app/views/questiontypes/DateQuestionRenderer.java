@@ -34,6 +34,7 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
         FieldWithLabel.date()
             .setFieldName(dateQuestion.getDatePath().toString())
             .setScreenReaderText(question.getQuestionText())
+            .setDescriptionId(getDescriptionId())
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(dateQuestion.getDatePath(), ImmutableSet.of()));

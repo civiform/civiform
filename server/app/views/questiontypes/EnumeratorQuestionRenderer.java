@@ -67,6 +67,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
               messages,
               localizedEntityType,
               question.getContextualizedPath(),
+              getDescriptionId(),
               Optional.of(entityNames.get(index)),
               Optional.of(index)));
     }
@@ -98,6 +99,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
       Messages messages,
       String localizedEntityType,
       Path contextualizedPath,
+      String descriptionId,
       Optional<String> existingEntity,
       Optional<Integer> existingIndex) {
 
@@ -114,6 +116,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
                     localizedEntityType))
             .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT)
+            .setDescriptionId(descriptionId)
             .getContainer();
     String confirmationMessage =
         messages.at(MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE.getKeyName(), localizedEntityType);
@@ -139,13 +142,14 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
     return div().withClasses(ENUMERATOR_FIELD_CLASSES).with(entityNameInput, removeEntityButton);
   }
 
+  // DELETE: what does this do? Where would I find description Id?
   /**
    * Create an enumerator field template for new entries. These come with a button to delete itself.
    */
   public static Tag newEnumeratorFieldTemplate(
       Path contextualizedPath, String localizedEntityType, Messages messages) {
     return enumeratorField(
-            messages, localizedEntityType, contextualizedPath, Optional.empty(), Optional.empty())
+            messages, localizedEntityType, contextualizedPath, "", Optional.empty(), Optional.empty())
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN));
   }

@@ -40,6 +40,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setFieldName(nameQuestion.getFirstNamePath().toString())
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
                     .setValue(nameQuestion.getFirstNameValue().orElse(""))
+                    .setDescriptionId(getDescriptionId())
                     .setFieldErrors(
                         messages,
                         validationErrors.getOrDefault(
@@ -52,6 +53,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName()))
                     .setValue(nameQuestion.getMiddleNameValue().orElse(""))
                     .addReferenceClass(ReferenceClasses.NAME_MIDDLE)
+                    .setDescriptionId(getDescriptionId())
                     .setFieldErrors(
                         messages,
                         validationErrors.getOrDefault(
@@ -62,6 +64,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setFieldName(nameQuestion.getLastNamePath().toString())
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
                     .setValue(nameQuestion.getLastNameValue().orElse(""))
+                    .setDescriptionId(getDescriptionId())
                     .setFieldErrors(
                         messages,
                         validationErrors.getOrDefault(

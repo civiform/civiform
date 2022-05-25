@@ -24,7 +24,9 @@ import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
-/** Utility class for rendering an input field with an optional label. */
+/**
+ * Utility class for rendering an input field with an optional label.
+ */
 public class FieldWithLabel {
 
   private static final ImmutableSet<String> STRING_TYPES =
@@ -35,7 +37,9 @@ public class FieldWithLabel {
   protected String fieldType = "text";
   protected String fieldValue = "";
 
-  /** For use with fields of type `number`. */
+  /**
+   * For use with fields of type `number`.
+   */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
 
   protected OptionalLong minValue = OptionalLong.empty();
@@ -46,6 +50,7 @@ public class FieldWithLabel {
   protected String labelText = "";
   protected String placeholderText = "";
   protected String screenReaderText = "";
+  protected String descriptionId = "";
   protected Messages messages;
   protected ImmutableSet<ValidationError> fieldErrors = ImmutableSet.of();
   protected boolean showFieldErrors = true;
@@ -97,7 +102,9 @@ public class FieldWithLabel {
     return new FieldWithLabel(fieldTag).setFieldType("email");
   }
 
-  /** Add a reference class from {@link views.style.ReferenceClasses} to this element. */
+  /**
+   * Add a reference class from {@link views.style.ReferenceClasses} to this element.
+   */
   public FieldWithLabel addReferenceClass(String referenceClass) {
     referenceClassesBuilder.add(referenceClass);
     return this;
@@ -145,7 +152,9 @@ public class FieldWithLabel {
     return this;
   }
 
-  /** Sets a valueless attribute. */
+  /**
+   * Sets a valueless attribute.
+   */
   public FieldWithLabel setAttribute(String attribute) {
     this.fieldTag.attr(attribute, null);
     return this;
@@ -221,6 +230,14 @@ public class FieldWithLabel {
     return this;
   }
 
+  /**
+   * Set the HTML tag ID of the question description. This is used for aria attributes.
+   */
+  public FieldWithLabel setDescriptionId(String descriptionId) {
+    this.descriptionId = descriptionId;
+    return this;
+  }
+
   public FieldWithLabel setFieldErrors(
       Messages messages, ImmutableSet<ValidationErrorMessage> errors) {
     this.messages = messages;
@@ -283,10 +300,17 @@ public class FieldWithLabel {
     }
 
     boolean hasFieldErrors = !fieldErrors.isEmpty() && showFieldErrors;
+    String ariaDescribedBy = "";
     if (hasFieldErrors) {
       fieldTag.attr("aria-invalid", "true");
-      fieldTag.attr("aria-describedBy", fieldErrorsId);
+      ariaDescribedBy = fieldErrorsId;
     }
+    if (!descriptionId.isEmpty()) {
+      // Add a space to separate multiple IDs.
+      ariaDescribedBy += ariaDescribedBy.isEmpty() ? "" : " ";
+      ariaDescribedBy += descriptionId;
+    }
+    fieldTag.condAttr(!ariaDescribedBy.isEmpty(), "aria-describedBy", ariaDescribedBy);
 
     fieldTag
         .withClasses(
@@ -311,9 +335,9 @@ public class FieldWithLabel {
             .withText(labelText.isEmpty() ? screenReaderText : labelText);
 
     return div(
-            labelTag,
-            div(fieldTag, buildFieldErrorsTag(fieldErrorsId))
-                .withClasses(Styles.FLEX, Styles.FLEX_COL))
+        labelTag,
+        div(fieldTag, buildFieldErrorsTag(fieldErrorsId))
+            .withClasses(Styles.FLEX, Styles.FLEX_COL))
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);

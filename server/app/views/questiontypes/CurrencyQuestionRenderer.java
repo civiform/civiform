@@ -35,6 +35,7 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
             .setFieldName(currencyQuestion.getCurrencyPath().toString())
             .addReferenceClass(ReferenceClasses.CURRENCY_VALUE)
             .setScreenReaderText(question.getQuestionText())
+            .setDescriptionId(getDescriptionId())
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(
