@@ -54,10 +54,10 @@ jobs:
       run: bin/run-browser-tests-ci
     - name: Save recorded video
       uses: actions/upload-artifact@v3
-        with:
-          name: browser-test-videos
-          path: browser-test/tmp/videos/
-          retention-days: 5
+      with:
+        name: browser-test-videos
+        path: browser-test/tmp/videos/
+        retention-days: 5
     - name: Print logs on failure
       if: failure()
       run: cat .dockerlogs
