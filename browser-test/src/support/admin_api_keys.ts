@@ -45,7 +45,8 @@ export class AdminApiKeys {
   }
 
   async gotoNewApiKeyPage() {
-    await this.page.goto(BASE_URL + '/admin/apiKeys/new')
+    await this.gotoApiKeyIndexPage()
+    await this.page.click('#new-api-key-button')
     await waitForPageJsLoad(this.page)
     await this.expectNewApiKeyPage()
   }
@@ -71,7 +72,7 @@ export class AdminApiKeys {
   }
 
   async gotoApiKeyIndexPage() {
-    await this.page.goto(BASE_URL + '/admin/apiKeys')
+    await this.page.click('nav :text("API keys")')
     await waitForPageJsLoad(this.page)
     await this.expectApiKeysIndexPage()
   }

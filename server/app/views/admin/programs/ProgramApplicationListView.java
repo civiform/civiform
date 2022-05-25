@@ -13,13 +13,13 @@ import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.Tag;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import models.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.program.ProgramDefinition;
 import views.ApplicantUtils;
@@ -34,17 +34,21 @@ import views.style.Styles;
 public final class ProgramApplicationListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final ApplicantUtils applicantUtils;
+  private final ZoneId zoneId;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
 
   @Inject
-  public ProgramApplicationListView(AdminLayout layout, ApplicantUtils applicantUtils) {
+  public ProgramApplicationListView(
+      AdminLayout layout, ApplicantUtils applicantUtils, ZoneId zoneId) {
     this.layout = checkNotNull(layout).setOnlyProgramAdminType();
     this.applicantUtils = checkNotNull(applicantUtils);
+    this.zoneId = checkNotNull(zoneId);
   }
 
   public Content render(
       Http.Request request,
       ProgramDefinition program,
+      PageNumberBasedPaginationSpec paginationSpec,
       PaginationResult<Application> paginatedApplications,
       Optional<String> search) {
     Tag contentDiv =
@@ -53,7 +57,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .with(
                 h1(program.adminName()).withClasses(Styles.MY_4),
                 renderPaginationDiv(
-                        paginatedApplications.getCurrentPage(),
+                        paginationSpec.getCurrentPage(),
                         paginatedApplications.getNumPages(),
                         pageNumber ->
                             routes.AdminApplicationController.index(
@@ -133,7 +137,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     Tag bottomContent =
         div(
-                p(getSubmitTime(application)).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
+                p(renderSubmitTime(application)).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
                 renderViewLink(viewLinkText, application))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
@@ -148,13 +152,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             ReferenceClasses.ADMIN_APPLICATION_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
   }
 
-  private Tag getSubmitTime(Application application) {
+  private Tag renderSubmitTime(Application application) {
     try {
-      return span()
-          .withText(
-              DateTimeFormatter.RFC_1123_DATE_TIME
-                  .withZone(ZoneId.systemDefault())
-                  .format(application.getSubmitTime()));
+      return span().withText(renderDateTime(application.getSubmitTime(), zoneId));
     } catch (NullPointerException e) {
       log.error("Application {} submitted without submission time marked.", application.id);
       return span();

@@ -14,8 +14,8 @@ describe('Most recently updated program is at top of list.', () => {
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
-    const programOne = 'zzz program'
-    const programTwo = 'aaa program'
+    const programOne = 'list test program one'
+    const programTwo = 'list test program two'
     await adminPrograms.addProgram(programOne)
     await adminPrograms.addProgram(programTwo)
 
@@ -28,20 +28,21 @@ describe('Most recently updated program is at top of list.', () => {
     expect(programNames.length).toBeGreaterThanOrEqual(2)
     expect(programNames.slice(0, 2)).toEqual([programTwo, programOne])
 
-    // Publish all programs, the order should remain the same.
+    // Publish all programs, order should be maintained.
     await adminPrograms.publishAllPrograms()
     programNames = await adminPrograms.programNames()
     expect(programNames.length).toBeGreaterThanOrEqual(2)
     expect(programNames.slice(0, 2)).toEqual([programTwo, programOne])
 
-    // Now create a draft version of the previously last program, it should be on top.
+    // Now create a draft version of the previously last program. After,
+    // it should be on top.
     await adminPrograms.createNewVersion(programOne)
     programNames = await adminPrograms.programNames()
     expect(programNames.length).toBeGreaterThanOrEqual(2)
     expect(programNames.slice(0, 2)).toEqual([programOne, programTwo])
 
     // Now create a new program, which should be on top.
-    const programThree = 'mmm program'
+    const programThree = 'list test program three'
     await adminPrograms.addProgram(programThree)
     programNames = await adminPrograms.programNames()
     expect(programNames.length).toBeGreaterThanOrEqual(3)
