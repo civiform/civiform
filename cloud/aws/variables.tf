@@ -105,6 +105,7 @@ variable "postgres_sku_name" {
   description = "The sku name for postgres server"
   default     = "GP_Gen5_2"
 }
+
 variable "postgres_storage_mb" {
   type        = number
   description = "The mb of storage for postgres instance"
@@ -164,7 +165,7 @@ variable "civiform_applicant_idp" {
 variable "login_radius_api_key" {
   type        = string
   description = "Login Radius API Key"
-  default     = "1b922870-0719-4970-94e3-cba7b62c5844"
+  default     = "CHANGE_ME"
 }
 
 variable "login_radius_metadata_uri" {

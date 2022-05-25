@@ -19,7 +19,7 @@ resource "aws_apprunner_service" "civiform_dev" {
           BASE_URL         = "https://staging-aws.civiform.dev"
 
           STORAGE_SERVICE_NAME = "s3"
-          AWS_S3_BUCKET_NAME   = "${aws_s3_bucket.b.id}"
+          AWS_S3_BUCKET_NAME   = "${aws_s3_bucket.civiform-files-s3.id}"
 
           CIVIFORM_TIME_ZONE_ID              = var.civiform_time_zone_id
           WHITELABEL_CIVIC_ENTITY_SHORT_NAME = var.civic_entity_short_name
@@ -65,7 +65,7 @@ resource "aws_apprunner_service" "civiform_dev" {
 
 resource "aws_db_parameter_group" "civiform" {
   name   = "civiform"
-  family = "postgres11"
+  family = "postgres12"
 
   parameter {
     name  = "log_connections"
@@ -78,7 +78,7 @@ resource "aws_db_instance" "civiform" {
   instance_class         = "db.t3.micro"
   allocated_storage      = 5
   engine                 = "postgres"
-  engine_version         = "11"
+  engine_version         = "12"
   username               = "db_user_name"
   password               = "CHANGE_ME"
   db_subnet_group_name   = aws_db_subnet_group.civiform.name
@@ -88,22 +88,18 @@ resource "aws_db_instance" "civiform" {
   skip_final_snapshot    = true
 }
 
-resource "aws_s3_bucket" "b" {
+resource "aws_s3_bucket" "civiform-files-s3" {
   bucket = "civiform-files-s3"
 }
 
-resource "aws_s3_access_point" "example" {
-  bucket = aws_s3_bucket.b.id
-  name   = "example"
+resource "aws_s3_access_point" "civiform-files" {
+  bucket = aws_s3_bucket.civiform-files-s3.id
+  name   = "civiform-files"
 
   public_access_block_configuration {
-    block_public_acls       = false
-    block_public_policy     = false
-    ignore_public_acls      = false
-    restrict_public_buckets = false
-  }
-
-  lifecycle {
-    ignore_changes = [policy]
+    block_public_acls       = true
+    block_public_policy     = true
+    ignore_public_acls      = true
+    restrict_public_buckets = true
   }
 }
