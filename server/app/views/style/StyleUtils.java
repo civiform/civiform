@@ -113,8 +113,4 @@ public class StyleUtils {
   public static String joinStyles(String... styles) {
     return String.join(" ", styles);
   }
-
-  public static String joinStyles(Iterable<String> styles) {
-    return String.join(" ", styles);
-  }
 }
