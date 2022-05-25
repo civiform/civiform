@@ -1,5 +1,3 @@
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/apprunner_service
-
 resource "aws_apprunner_service" "civiform_dev" {
   auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.auto-scaling-config.arn
   service_name                   = "civiform_dev"
@@ -56,7 +54,13 @@ resource "aws_apprunner_service" "civiform_dev" {
 
     auto_deployments_enabled = false
   }
-  depends_on = [aws_iam_role.apprunner-service-role]
+
+  network_configuration {
+    egress_configuration {
+      egress_type       = "VPC"
+      vpc_connector_arn = aws_apprunner_vpc_connector.connector.arn
+    }
+  }
 }
 
 resource "aws_db_parameter_group" "civiform" {
@@ -75,12 +79,12 @@ resource "aws_db_instance" "civiform" {
   allocated_storage      = 5
   engine                 = "postgres"
   engine_version         = "11"
-  username               = "db_user"
+  username               = "db_user_name"
   password               = "CHANGE_ME"
   db_subnet_group_name   = aws_db_subnet_group.civiform.name
   vpc_security_group_ids = [aws_security_group.rds.id]
   parameter_group_name   = aws_db_parameter_group.civiform.name
-  publicly_accessible    = true
+  publicly_accessible    = false
   skip_final_snapshot    = true
 }
 
@@ -88,15 +92,18 @@ resource "aws_s3_bucket" "b" {
   bucket = "civiform-files-s3"
 }
 
-resource "aws_s3_bucket_acl" "example" {
+resource "aws_s3_access_point" "example" {
   bucket = aws_s3_bucket.b.id
-  acl    = "private"
-}
+  name   = "example"
 
-resource "aws_s3_bucket_public_access_block" "app" {
-  bucket                  = aws_s3_bucket.b.id
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
+  public_access_block_configuration {
+    block_public_acls       = false
+    block_public_policy     = false
+    ignore_public_acls      = false
+    restrict_public_buckets = false
+  }
+
+  lifecycle {
+    ignore_changes = [policy]
+  }
 }

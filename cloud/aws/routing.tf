@@ -33,4 +33,3 @@ resource "aws_apprunner_custom_domain_association" "civiform_domain" {
   domain_name = "staging-aws.civiform.dev"
   service_arn = aws_apprunner_service.civiform_dev.arn
 }
-
