@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import controllers.AssetsFinder;
-import j2html.tags.specialized.ScriptTag;
 import j2html.tags.specialized.LinkTag;
+import j2html.tags.specialized.ScriptTag;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

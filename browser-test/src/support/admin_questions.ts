@@ -60,19 +60,29 @@ export class AdminQuestions {
 
     try {
       expect(toastContainer).toContain('bg-green-200')
-    } catch(NASTY_ERROR) {
+    } catch(error) {
       await this.page.pause()
-      expect(toastContainer).toContain('bg-green-200')
+      throw error
     }
     expect(toastContainer).toContain(successText)
     await this.expectAdminQuestionsPage()
   }
 
+  async expectAdminQuestionsPageWithFailureToast(successText: string) {
+    const toastContainer = await this.page.innerHTML('#toast-container')
+
+    expect(toastContainer).toContain('bg-red-400')
+    expect(toastContainer).toContain(successText)
+    await this.expectAdminQuestionsPage()
+  }
+
   async expectAdminQuestionsPageWithUpdateSuccessToast() {
+    await this.page.pause()
     await this.expectAdminQuestionsPageWithSuccessToast('updated')
   }
 
   async expectAdminQuestionsPageWithCreateSuccessToast() {
+    await this.page.pause()
     await this.expectAdminQuestionsPageWithSuccessToast('created')
   }
 

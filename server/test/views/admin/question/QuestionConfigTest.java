@@ -17,7 +17,6 @@ import forms.NumberQuestionForm;
 import forms.RadioButtonQuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.specialized.DivTag;
-
 import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
