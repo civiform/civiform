@@ -31,8 +31,8 @@ module "storage" {
 }
 
 module "database" {
-    source = "./database"
-    region = var.region
-    tier_type = var.db_tier_type
+  source    = "./database"
+  region    = var.region
+  tier_type = var.db_tier_type
 }
 
