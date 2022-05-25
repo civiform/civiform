@@ -57,6 +57,12 @@ export class AdminPrograms {
     await this.expectProgramExist(programName, description)
   }
 
+  async programNames() {
+    await this.gotoAdminProgramsPage()
+    const titles = this.page.locator('.cf-admin-program-card .cf-program-title')
+    return titles.allTextContents()
+  }
+
   selectProgramCard(programName: string, lifecycle: string) {
     return `.cf-admin-program-card:has(:text("${programName}")):has(:text("${lifecycle}"))`
   }
@@ -387,24 +393,6 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
   }
 
-  async viewApplicationsInOldVersion() {
-    await this.page.click('a:text("Applications")')
-    await waitForPageJsLoad(this.page)
-  }
-
-  async viewApplicationsForOldVersion(programName: string) {
-    await this.page.click(
-      this.selectWithinProgramCard(
-        programName,
-        'ACTIVE',
-        ':text("Applications")'
-      )
-    )
-    await waitForPageJsLoad(this.page)
-    await this.page.click('a:has-text("Applications")')
-    await waitForPageJsLoad(this.page)
-  }
-
   selectApplicationCardForApplicant(applicantName: string) {
     return `.cf-admin-application-card:has-text("${applicantName}")`
   }
@@ -427,7 +415,15 @@ export class AdminPrograms {
     await this.page.click(
       this.selectWithinApplicationForApplicant(applicantName, 'a:text("View")')
     )
-    await waitForPageJsLoad(this.page)
+    await this.waitForApplicationFrame()
+  }
+
+  applicationFrame() {
+    return this.page.frameLocator('#application-display-frame')
+  }
+
+  async waitForApplicationFrame() {
+    await waitForPageJsLoad(this.page.frames()[0])
   }
 
   async expectApplicationAnswers(
@@ -435,24 +431,38 @@ export class AdminPrograms {
     questionName: string,
     answer: string
   ) {
-    expect(
-      await this.page.innerText(this.selectApplicationBlock(blockName))
-    ).toContain(questionName)
-    expect(
-      await this.page.innerText(this.selectApplicationBlock(blockName))
-    ).toContain(answer)
+    const blockText = await this.applicationFrame()
+      .locator(this.selectApplicationBlock(blockName))
+      .innerText()
+
+    expect(blockText).toContain(questionName)
+    expect(blockText).toContain(answer)
   }
 
   async expectApplicationAnswerLinks(blockName: string, questionName: string) {
     expect(
-      await this.page.innerText(this.selectApplicationBlock(blockName))
+      await this.applicationFrame()
+        .locator(this.selectApplicationBlock(blockName))
+        .innerText()
     ).toContain(questionName)
     expect(
-      await this.page.getAttribute(
-        this.selectWithinApplicationBlock(blockName, 'a'),
-        'href'
-      )
+      await this.applicationFrame()
+        .locator(this.selectWithinApplicationBlock(blockName, 'a'))
+        .getAttribute('href')
     ).not.toBeNull()
+  }
+
+  async getJson() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.click('text="Download all versions (JSON)"'),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+
+    return readFileSync(path, 'utf8')
   }
 
   async getCsv() {

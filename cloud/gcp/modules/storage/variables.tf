@@ -4,7 +4,6 @@ variable "region" {
 }
 
 variable "application_name_postfix" {
-    type = string
-    description = "Company name to be used postfix"
-
+  type        = string
+  description = "Company name to be used postfix"
 }

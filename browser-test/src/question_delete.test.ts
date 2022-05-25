@@ -25,10 +25,15 @@ describe('deleting question lifecycle', () => {
       'qlc program description',
       [onlyUsedQuestion]
     )
-    await adminQuestions.discardDraft(questions[1])
     await adminPrograms.publishProgram(programName)
     await adminQuestions.expectActiveQuestionExist(onlyUsedQuestion)
-    await adminQuestions.expectActiveQuestionNotExist(questions[1])
+
+    // Make a Draft then discard it.
+    await adminQuestions.createNewVersion(questions[1])
+    await adminQuestions.expectDraftQuestionExist(questions[1])
+    await adminQuestions.discardDraft(questions[1])
+    await adminQuestions.expectActiveQuestionExist(questions[1])
+    // Archive, unarchive, archive all other questions.
     for (let i = 2; i < questions.length; i++) {
       await adminQuestions.expectActiveQuestionExist(questions[i])
       await adminQuestions.archiveQuestion(questions[i])
@@ -36,6 +41,7 @@ describe('deleting question lifecycle', () => {
       await adminQuestions.expectActiveQuestionExist(questions[i])
       await adminQuestions.archiveQuestion(questions[i])
     }
+    // Publish all the above changes.
     await adminPrograms.createNewVersion(programName)
     await adminPrograms.publishProgram(programName)
     await adminQuestions.expectActiveQuestionExist(onlyUsedQuestion)

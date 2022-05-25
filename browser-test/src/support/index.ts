@@ -1,5 +1,6 @@
 import { Browser, chromium, Page } from 'playwright'
 import { waitForPageJsLoad } from './wait'
+export { AdminApiKeys } from './admin_api_keys'
 export { AdminQuestions } from './admin_questions'
 export { AdminPredicates } from './admin_predicates'
 export { AdminPrograms } from './admin_programs'
@@ -7,12 +8,8 @@ export { AdminTranslations } from './admin_translations'
 export { AdminTIGroups } from './admin_ti_groups'
 export { ApplicantQuestions } from './applicant_questions'
 export { clickAndWaitForModal, waitForPageJsLoad } from './wait'
-
-const {
-  BASE_URL = 'http://civiform:9000',
-  TEST_USER_LOGIN = '',
-  TEST_USER_PASSWORD = '',
-} = process.env
+import { BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD } from './config'
+export { BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD }
 
 export const isLocalDevEnvironment = () => {
   return (
@@ -20,13 +17,37 @@ export const isLocalDevEnvironment = () => {
   )
 }
 
+function makeBrowserContext(browser: Browser) {
+  if (process.env.RECORD_VIDEO) {
+    // https://playwright.dev/docs/videos
+    // Docs state that videos are only saved upon
+    // closing the returned context. In practice,
+    // this doesn't appear to be true. Restructuring
+    // to ensure that we always close the returned
+    // context is possible, but likely not necessary
+    // until it causes a problem. In practice, this
+    // will only be used when debugging failures.
+    return browser.newContext({
+      acceptDownloads: true,
+      recordVideo: {
+        dir: 'tmp/videos/',
+      },
+    })
+  } else {
+    return browser.newContext({
+      acceptDownloads: true,
+    })
+  }
+}
+
 export const startSession = async () => {
   const browser = await chromium.launch()
-  const page = await browser.newPage({ acceptDownloads: true })
+  const context = await makeBrowserContext(browser)
+  const page = await context.newPage()
 
   await page.goto(BASE_URL)
 
-  return { browser, page }
+  return { browser, context, page }
 }
 
 export const endSession = async (browser: Browser) => {
@@ -93,7 +114,7 @@ export const userDisplayName = () => {
   if (isTestUser()) {
     return 'TEST, UATAPP'
   } else {
-    return '<Anonymous Applicant>'
+    return 'Guest'
   }
 }
 

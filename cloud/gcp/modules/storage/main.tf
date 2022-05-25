@@ -21,12 +21,12 @@ data "google_storage_project_service_account" "gcs_account" {
 resource "google_kms_crypto_key_iam_binding" "kms_binding" {
   crypto_key_id = google_kms_crypto_key.storage_key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  members = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
+  members       = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
 }
 
 
-resource "google_storage_bucket" "file_storage" {
-  name          = "cloud-filestore-${var.application_name_postfix}"
+resource "google_storage_bucket" "object_storage" {
+  name          = "cloud-objectstore-${var.application_name_postfix}"
   location      = var.region
   force_destroy = true
 
@@ -56,7 +56,7 @@ data "google_iam_policy" "storage_viewer" {
 }
 
 resource "google_storage_bucket_iam_policy" "viewer_policy" {
-  bucket = google_storage_bucket.file_storage.name
+  bucket      = google_storage_bucket.object_storage.name
   policy_data = data.google_iam_policy.storage_viewer.policy_data
 }
 
@@ -70,6 +70,6 @@ data "google_iam_policy" "storage_owner" {
 }
 
 resource "google_storage_bucket_iam_policy" "owner_policy" {
-  bucket = google_storage_bucket.file_storage.name
+  bucket      = google_storage_bucket.file_storage.name
   policy_data = data.google_iam_policy.storage_owner.policy_data
 }

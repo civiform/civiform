@@ -59,6 +59,7 @@ describe('normal application flow', () => {
 
     const programName = 'a shiny new program'
     await adminPrograms.addProgram(programName)
+
     await adminPrograms.editProgramBlock(programName, 'block description', [
       'date-q',
       'address-q',
@@ -84,6 +85,10 @@ describe('normal application flow', () => {
       'second-static-q',
       'monthly-income-q',
     ])
+
+    // Intentionally add an empty block to ensure that empty blocks do not
+    // prevent applicants from being able to submit applications.
+    await adminPrograms.addProgramBlock(programName, 'empty block')
 
     await adminPrograms.gotoAdminProgramsPage()
     await adminPrograms.expectDraftProgram(programName)
@@ -236,7 +241,7 @@ describe('normal application flow', () => {
     await logout(page)
     await loginAsProgramAdmin(page)
 
-    await adminPrograms.viewApplicationsForOldVersion(programName)
+    await adminPrograms.viewApplications(programName)
     await adminPrograms.viewApplicationForApplicant(userDisplayName())
     await adminPrograms.expectApplicationAnswers(
       'Screen 2',
@@ -288,12 +293,17 @@ describe('normal application flow', () => {
       await page.click(
         `:nth-match(.cf-admin-application-card, ${i + 1}) a:text("View")`
       )
+      await adminPrograms.waitForApplicationFrame()
+
+      // TODO(https://github.com/seattle-uat/civiform/issues/2018):
+      //   make this more robust so an explicit wait time is not needed.
+      await page.waitForTimeout(2000)
+
       await adminPrograms.expectApplicationAnswers(
         'Screen 1',
         'fruit-text-q',
         answers[answers.length - i - 1]
       )
-      await page.goBack()
     }
 
     await logout(page)

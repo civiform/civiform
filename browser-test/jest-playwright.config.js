@@ -1,14 +1,14 @@
 module.exports = {
   launchOptions: {
-    headless: true
+    headless: true,
   },
   contextOptions: {
     ignoreHTTPSErrors: true,
     viewport: {
       width: 1920,
-      height: 1080
-    }
+      height: 1080,
+    },
   },
-  browsers: ["chromium"],
-  devices: []
+  browsers: ['chromium'],
+  devices: [],
 }

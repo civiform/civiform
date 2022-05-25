@@ -66,7 +66,6 @@ describe('view an application in an older version', () => {
 
     // See the application in admin page in the old version
     await adminPrograms.viewApplications(programName)
-    await adminPrograms.viewApplicationsInOldVersion()
     await adminPrograms.viewApplicationForApplicant(userDisplayName())
     await adminPrograms.expectApplicationAnswers(
       'Screen 1',

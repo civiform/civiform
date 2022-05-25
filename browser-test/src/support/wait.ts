@@ -1,11 +1,15 @@
-import { Page } from 'playwright'
+import { Page, Frame } from 'playwright'
 
 /**
  * Civiform attaches JS event handlers after pages load, so after any action
  * that loads a new page, browser tests should call this function to wait
  * for pages to be fully operational and ready to test.
  */
-export const waitForPageJsLoad = async (page: Page) => {
+export const waitForPageJsLoad = async (page: Page | Frame | null) => {
+  if (page == null) {
+    throw new Error('waitForPageJsLoad received null!')
+  }
+
   await page.waitForLoadState('load')
 
   // Wait for main.ts and modal.ts to signal that they're done initializing

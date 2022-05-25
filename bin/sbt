@@ -1,15 +1,12 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 # DOC: Open an sbt CLI in the dev environment container.
 
-pushd $(git rev-parse --show-toplevel)
+source bin/lib.sh
+docker::set_project_name_dev
 
 bin/pull-image
 
-# allocate a tty for better test output even though not strictly needed.
-docker run -it --rm \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v $(pwd)/universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1 \
-  civiform $@
-
-popd
+docker::run_shell_container
+docker::run_shell_command sbt "$@"
+docker::stop_shell_container
