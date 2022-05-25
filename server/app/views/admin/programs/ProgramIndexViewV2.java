@@ -26,8 +26,6 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
-import views.admin.AdminLayout.NavPage;
-import views.admin.AdminLayoutFactory;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.style.ReferenceClasses;
@@ -35,14 +33,14 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a page so the admin can view all active programs and draft programs. */
-public final class ProgramIndexView extends BaseHtmlView {
+public final class ProgramIndexViewV2 extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final ZoneId zoneId;
 
   @Inject
-  public ProgramIndexView(AdminLayoutFactory layoutFactory, Config config, ZoneId zoneId) {
-    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
+  public ProgramIndexViewV2(AdminLayout layout, Config config, ZoneId zoneId) {
+    this.layout = checkNotNull(layout);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.zoneId = checkNotNull(zoneId);
   }
