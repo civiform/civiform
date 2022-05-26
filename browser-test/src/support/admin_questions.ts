@@ -61,10 +61,29 @@ export class AdminQuestions {
     try {
       expect(toastContainer).toContain('bg-green-200')
     } catch(error) {
-      await this.page.pause()
+      console.log('---------------------')
       throw error
     }
     expect(toastContainer).toContain(successText)
+    await this.expectAdminQuestionsPage()
+  }
+
+  async expectAdminQuestionsPageWithFailToast(failText: string) {
+    const toastContainer = await this.page.innerHTML('#toast-container')
+
+    try {
+      expect(toastContainer).toContain('bg-red-400')
+    } catch(error) {
+      console.log('---------------------')
+      throw error
+    }
+
+    try {
+      expect(toastContainer).toContain(failText)
+    } catch(error) {
+      await this.page.pause()
+      throw error
+    }
     await this.expectAdminQuestionsPage()
   }
 
@@ -77,12 +96,14 @@ export class AdminQuestions {
   }
 
   async expectAdminQuestionsPageWithUpdateSuccessToast() {
-    await this.page.pause()
     await this.expectAdminQuestionsPageWithSuccessToast('updated')
   }
 
+  async expectAdminQuestionsPageWithUpdateFailToast() {
+    await this.expectAdminQuestionsPageWithFailToast('updated')
+  }
+
   async expectAdminQuestionsPageWithCreateSuccessToast() {
-    await this.page.pause()
     await this.expectAdminQuestionsPageWithSuccessToast('created')
   }
 
@@ -247,6 +268,7 @@ export class AdminQuestions {
     const newQuestionText = await this.updateQuestionText(' updated')
 
     await this.clickSubmitButtonAndNavigate('Update')
+    console.log("admin_questions::updateQuestion")
     await this.expectAdminQuestionsPageWithUpdateSuccessToast()
     await this.expectDraftQuestionExist(questionName, newQuestionText)
   }
@@ -255,6 +277,7 @@ export class AdminQuestions {
     await this.gotoQuestionEditPage(questionName)
     await this.page.fill('text=Question Help Text', questionHelpText)
     await this.clickSubmitButtonAndNavigate('Update')
+    console.log("admin_questions::changeQuestionHelpText")
     await this.expectAdminQuestionsPageWithUpdateSuccessToast()
     await this.expectDraftQuestionExist(questionName)
   }
@@ -263,7 +286,8 @@ export class AdminQuestions {
     await this.gotoQuestionEditPage(questionName)
     await this.page.click('text="Export Value"')
     await this.clickSubmitButtonAndNavigate('Update')
-    await this.expectAdminQuestionsPageWithUpdateSuccessToast()
+    console.log("admin_questions::exportQuestion")
+    await this.expectAdminQuestionsPageWithUpdateFailToast()
     await this.expectDraftQuestionExist(questionName)
   }
 
@@ -271,6 +295,7 @@ export class AdminQuestions {
     await this.gotoQuestionEditPage(questionName)
     await this.page.click('text="Export Obfuscated"')
     await this.clickSubmitButtonAndNavigate('Update')
+    console.log("admin_questions::exportQuestionOpaque")
     await this.expectAdminQuestionsPageWithUpdateSuccessToast()
     await this.expectDraftQuestionExist(questionName)
   }
@@ -285,6 +310,7 @@ export class AdminQuestions {
     const newQuestionText = await this.updateQuestionText('new version')
 
     await this.clickSubmitButtonAndNavigate('Update')
+    console.log("admin_questions::createNewVersion")
     await this.expectAdminQuestionsPageWithUpdateSuccessToast()
     await this.expectDraftQuestionExist(questionName, newQuestionText)
   }
