@@ -89,7 +89,7 @@ resource "aws_db_instance" "civiform" {
 }
 
 resource "aws_s3_bucket" "civiform_files_s3" {
-  bucket = "civiform_files_s3"
+  bucket = "civiform-files-s3"
 }
 
 resource "aws_s3_access_point" "civiform_files" {
