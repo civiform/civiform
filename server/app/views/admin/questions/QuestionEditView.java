@@ -32,6 +32,8 @@ import views.BaseHtmlView;
 import views.FileUploadViewStrategy;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
@@ -54,8 +56,10 @@ public final class QuestionEditView extends BaseHtmlView {
 
   @Inject
   public QuestionEditView(
-      AdminLayout layout, MessagesApi messagesApi, FileUploadViewStrategy fileUploadViewStrategy) {
-    this.layout = checkNotNull(layout);
+      AdminLayoutFactory layoutFactory,
+      MessagesApi messagesApi,
+      FileUploadViewStrategy fileUploadViewStrategy) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
