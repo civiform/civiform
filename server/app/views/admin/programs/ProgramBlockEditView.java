@@ -34,6 +34,8 @@ import services.question.types.StaticContentQuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
@@ -57,8 +59,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
 
   @Inject
-  public ProgramBlockEditView(AdminLayout layout, Config config) {
-    this.layout = checkNotNull(layout);
+  public ProgramBlockEditView(AdminLayoutFactory layoutFactory, Config config) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
   }
 

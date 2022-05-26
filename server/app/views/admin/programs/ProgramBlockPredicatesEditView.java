@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.routes;
+import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -39,6 +40,8 @@ import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
@@ -64,8 +67,8 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
   private final AdminLayout layout;
 
   @Inject
-  public ProgramBlockPredicatesEditView(AdminLayout layout) {
-    this.layout = checkNotNull(layout);
+  public ProgramBlockPredicatesEditView(AdminLayoutFactory layoutFactory) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
   public Content render(
@@ -180,19 +183,21 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       QuestionDefinition questionDefinition,
       String predicateUpdateUrl,
       InputTag csrfTag) {
-    DivTag triggerButtonContent =
-        div()
-            .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
-            .with(
-                Icons.questionTypeSvg(questionDefinition.getQuestionType(), 24)
-                    .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6))
+    ButtonTag triggerButtonContent =
+        TagCreator.button()
             .with(
                 div()
-                    .withClasses()
+                    .withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.GAP_4)
                     .with(
-                        div(questionDefinition.getName()),
-                        div(questionDefinition.getDescription())
-                            .withClasses(Styles.MT_1, Styles.TEXT_SM)));
+                        Icons.questionTypeSvg(questionDefinition.getQuestionType(), 24)
+                            .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6))
+                    .with(
+                        div()
+                            .withClasses()
+                            .with(
+                                div(questionDefinition.getName()),
+                                div(questionDefinition.getDescription())
+                                    .withClasses(Styles.MT_1, Styles.TEXT_SM))));
 
     DivTag modalContent =
         div()

@@ -26,6 +26,8 @@ import play.twirl.api.Content;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.style.BaseStyles;
@@ -40,8 +42,8 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   private final AdminLayout layout;
 
   @Inject
-  public EditTrustedIntermediaryGroupView(AdminLayout layout) {
-    this.layout = checkNotNull(layout);
+  public EditTrustedIntermediaryGroupView(AdminLayoutFactory layoutFactory) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.INTERMEDIARIES);
   }
 
   public Content render(TrustedIntermediaryGroup tiGroup, Http.Request request) {

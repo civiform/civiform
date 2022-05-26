@@ -27,6 +27,8 @@ import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -40,8 +42,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   @Inject
   public ProgramApplicationListView(
-      AdminLayout layout, ApplicantUtils applicantUtils, ZoneId zoneId) {
-    this.layout = checkNotNull(layout).setOnlyProgramAdminType();
+      AdminLayoutFactory layoutFactory, ApplicantUtils applicantUtils, ZoneId zoneId) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS).setOnlyProgramAdminType();
     this.applicantUtils = checkNotNull(applicantUtils);
     this.zoneId = checkNotNull(zoneId);
   }

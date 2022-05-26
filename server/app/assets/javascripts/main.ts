@@ -433,6 +433,9 @@ function attachFormDebouncers() {
 
 window.addEventListener('load', (event) => {
   attachDropdown('create-question-button')
+  Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
+    attachDropdown(el.id)
+  })
 
   attachLineClampListeners()
 

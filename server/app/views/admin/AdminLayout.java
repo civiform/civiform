@@ -17,6 +17,7 @@ import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.ViewUtils;
 import views.style.AdminStyles;
+import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -28,13 +29,23 @@ public class AdminLayout extends BaseHtmlLayout {
     PROGRAM_ADMIN
   }
 
+  public enum NavPage {
+    PROGRAMS,
+    QUESTIONS,
+    VERSIONS,
+    INTERMEDIARIES,
+    API_KEYS
+  }
+
+  private final NavPage activeNavPage;
+
   private static final String[] FOOTER_SCRIPTS = {"preview", "questionBank", "admin_validation"};
 
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
 
-  @Inject
-  public AdminLayout(ViewUtils viewUtils, Config configuration) {
+  AdminLayout(ViewUtils viewUtils, Config configuration, NavPage activeNavPage) {
     super(viewUtils, configuration);
+    this.activeNavPage = activeNavPage;
   }
 
   /**
@@ -85,7 +96,12 @@ public class AdminLayout extends BaseHtmlLayout {
     DivTag headerTitle =
         div()
             .withClasses(
-                Styles.FONT_NORMAL, Styles.INLINE, Styles.PL_10, Styles.PY_0, Styles.TEXT_XL)
+                Styles.FONT_NORMAL,
+                Styles.TEXT_XL,
+                Styles.INLINE,
+                Styles.PL_10,
+                Styles.PY_0,
+                Styles.MR_4)
             .with(span("Civi"), span("Form").withClasses(Styles.FONT_THIN));
 
     NavTag adminHeader = nav().with(headerIcon, headerTitle).withClasses(AdminStyles.NAV_STYLES);
@@ -101,12 +117,33 @@ public class AdminLayout extends BaseHtmlLayout {
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
     String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
 
+    String activeNavStyle =
+        StyleUtils.joinStyles(
+            BaseStyles.TEXT_SEATTLE_BLUE,
+            Styles.FONT_MEDIUM,
+            Styles.BORDER_B_2,
+            BaseStyles.BORDER_SEATTLE_BLUE);
+
     return adminHeader
-        .with(headerLink("Programs", programLink))
-        .with(headerLink("Questions", questionLink))
-        .with(headerLink("Versions", versionLink))
-        .with(headerLink("Intermediaries", intermediaryLink))
-        .with(headerLink("API keys", apiKeysLink))
+        .with(
+            headerLink(
+                "Programs", programLink, activeNavPage == NavPage.PROGRAMS ? activeNavStyle : ""))
+        .with(
+            headerLink(
+                "Questions",
+                questionLink,
+                activeNavPage == NavPage.QUESTIONS ? activeNavStyle : ""))
+        .with(
+            headerLink(
+                "Versions", versionLink, activeNavPage == NavPage.VERSIONS ? activeNavStyle : ""))
+        .with(
+            headerLink(
+                "Intermediaries",
+                intermediaryLink,
+                activeNavPage == NavPage.INTERMEDIARIES ? activeNavStyle : ""))
+        .with(
+            headerLink(
+                "API keys", apiKeysLink, activeNavPage == NavPage.API_KEYS ? activeNavStyle : ""))
         .with(headerLink("Logout", logoutLink, Styles.FLOAT_RIGHT));
   }
 

@@ -30,9 +30,9 @@ module "storage" {
   application_name_postfix = var.application_name_postfix
 }
 
-# module "database" {
-#     source = "./database"
-#     region = var.region
-#     tier_type = var.db_tier_type
-# }
+module "database" {
+  source    = "./database"
+  region    = var.region
+  tier_type = var.db_tier_type
+}
 

@@ -27,6 +27,8 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.style.ReferenceClasses;
@@ -40,8 +42,8 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final ZoneId zoneId;
 
   @Inject
-  public ProgramIndexView(AdminLayout layout, Config config, ZoneId zoneId) {
-    this.layout = checkNotNull(layout);
+  public ProgramIndexView(AdminLayoutFactory layoutFactory, Config config, ZoneId zoneId) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.zoneId = checkNotNull(zoneId);
   }
@@ -303,6 +305,8 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private DivTag maybeRenderViewApplicationsLink(
       Optional<ProgramDefinition> activeProgram, Optional<CiviFormProfile> userProfile) {
+    // TODO(#2582): Determine if this has N+1 query behavior and fix if
+    // necessary.
     if (activeProgram.isPresent() && userProfile.isPresent()) {
       boolean userIsAuthorized = true;
       try {

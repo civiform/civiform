@@ -43,11 +43,7 @@ public class Modal {
   public ButtonTag getButton() {
     String triggerButtonId = modalId + "-button";
     if (triggerButtonContent.isPresent()) {
-      return TagCreator.button()
-          .attr("type", "button")
-          .withClasses(buttonStyles)
-          .withId(triggerButtonId)
-          .with(triggerButtonContent.get());
+      return triggerButtonContent.get().withClasses(buttonStyles).withId(triggerButtonId);
     } else {
       return button(triggerButtonId, triggerButtonText).withClasses(buttonStyles);
     }
@@ -98,6 +94,8 @@ public class Modal {
     }
 
     public ModalBuilder setTriggerButtonContent(DivTag triggerButtonContent) {
+      Preconditions.checkState(
+          "button".equals(triggerButtonContent.getTagName()), "content must be of type button");
       this.triggerButtonContent = Optional.ofNullable(triggerButtonContent);
       return this;
     }
