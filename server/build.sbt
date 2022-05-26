@@ -74,7 +74,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value-parent" % "1.9" pomOnly(),
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.13.1",
+      "com.google.errorprone" % "error_prone_core" % "2.14.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.9.0",

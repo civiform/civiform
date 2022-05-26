@@ -57,6 +57,12 @@ export class AdminPrograms {
     await this.expectProgramExist(programName, description)
   }
 
+  async programNames() {
+    await this.gotoAdminProgramsPage()
+    const titles = this.page.locator('.cf-admin-program-card .cf-program-title')
+    return titles.allTextContents()
+  }
+
   selectProgramCard(programName: string, lifecycle: string) {
     return `.cf-admin-program-card:has(:text("${programName}")):has(:text("${lifecycle}"))`
   }

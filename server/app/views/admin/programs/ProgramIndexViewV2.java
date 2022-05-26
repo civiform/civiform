@@ -12,9 +12,8 @@ import auth.CiviFormProfile;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.LabelTag;
+import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Optional;
@@ -34,13 +33,13 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a page so the admin can view all active programs and draft programs. */
-public final class ProgramIndexView extends BaseHtmlView {
+public final class ProgramIndexViewV2 extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final ZoneId zoneId;
 
   @Inject
-  public ProgramIndexView(AdminLayout layout, Config config, ZoneId zoneId) {
+  public ProgramIndexViewV2(AdminLayout layout, Config config, ZoneId zoneId) {
     this.layout = checkNotNull(layout);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.zoneId = checkNotNull(zoneId);
@@ -53,7 +52,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
 
     String pageTitle = "All programs";
-    DivTag publishAllModalContent =
+    ContainerTag publishAllModalContent =
         div()
             .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4)
             .with(p("Are you sure you want to publish all programs?").withClasses(Styles.P_2))
@@ -64,7 +63,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setTriggerButtonText("Publish all programs")
             .build();
 
-    DivTag contentDiv =
+    Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(
@@ -99,7 +98,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private DivTag renderDownloadExportCsvButton() {
+  private ContainerTag renderDownloadExportCsvButton() {
     return new LinkElement()
         .setId("download-export-csv-button")
         .setHref(routes.AdminApplicationController.downloadDemographics().url())
@@ -107,23 +106,21 @@ public final class ProgramIndexView extends BaseHtmlView {
         .asButton();
   }
 
-  private DivTag maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {
+  private Tag maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {
     // We should only render the publish button if there is at least one draft.
     if (programs.anyDraft()) {
       String link = routes.AdminProgramController.publish().url();
-      FormTag linkElementAsForm =
-          new LinkElement()
-              .setId("publish-programs-button")
-              .setHref(link)
-              .setText("Publish all drafts")
-              .asHiddenForm(request);
-      return div().with(linkElementAsForm);
+      return new LinkElement()
+          .setId("publish-programs-button")
+          .setHref(link)
+          .setText("Publish all drafts")
+          .asHiddenForm(request);
     } else {
       return div();
     }
   }
 
-  private DivTag renderNewProgramButton() {
+  private Tag renderNewProgramButton() {
     String link = controllers.admin.routes.AdminProgramController.newOne().url();
     return new LinkElement()
         .setId("new-program-button")
@@ -140,7 +137,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return activeProgram.get();
   }
 
-  public DivTag renderProgramListItem(
+  public Tag renderProgramListItem(
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
@@ -158,7 +155,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     String blockCountText = "Screens: " + displayProgram.getBlockCount();
     String questionCountText = "Questions: " + displayProgram.getQuestionCount();
 
-    DivTag topContent =
+    Tag topContent =
         div(
                 div(
                     p(programStatusText).withClasses(Styles.TEXT_SM, Styles.TEXT_GRAY_700),
@@ -179,26 +176,25 @@ public final class ProgramIndexView extends BaseHtmlView {
                         StyleUtils.applyUtilityClass(StyleUtils.RESPONSIVE_MD, Styles.MR_4)))
             .withClasses(Styles.FLEX);
 
-    DivTag midContent =
+    Tag midContent =
         div(programDescriptionText)
             .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, Styles.MB_8, Styles.LINE_CLAMP_3);
 
-    LabelTag programDeepLink =
+    Tag programDeepLink =
         label("Deep link, use this URL to link to this program from outside of CiviForm:")
             .withClasses(Styles.W_FULL)
             .with(
                 input()
-                    .attr(
-                        "value",
+                    .withValue(
                         baseUrl
                             + controllers.applicant.routes.RedirectController.programByName(
                                     displayProgram.slug())
                                 .url())
                     .attr("disabled", "readonly")
                     .withClasses(Styles.W_FULL, Styles.MB_2)
-                    .attr("type", "text"));
+                    .withType("text"));
 
-    DivTag bottomContent =
+    Tag bottomContent =
         div(
                 p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
@@ -208,7 +204,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 renderManageProgramAdminsLink(draftProgram, activeProgram))
             .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
 
-    DivTag innerDiv =
+    Tag innerDiv =
         div(topContent, midContent, programDeepLink, bottomContent)
             .withClasses(
                 Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
@@ -246,13 +242,12 @@ public final class ProgramIndexView extends BaseHtmlView {
     throw new IllegalArgumentException("Program neither active nor draft.");
   }
 
-  DivTag maybeRenderEditLink(
+  Tag maybeRenderEditLink(
       Optional<ProgramDefinition> draftProgram,
       Optional<ProgramDefinition> activeProgram,
       Http.Request request) {
     String editLinkText = "Edit →";
     String newVersionText = "New Version";
-    FormTag linkElementAsForm;
 
     if (draftProgram.isPresent()) {
       String editLink =
@@ -269,21 +264,19 @@ public final class ProgramIndexView extends BaseHtmlView {
           controllers.admin.routes.AdminProgramController.newVersionFrom(activeProgram.get().id())
               .url();
 
-      linkElementAsForm =
-          new LinkElement()
-              .setId("program-new-version-link-" + activeProgram.get().id())
-              .setHref(newVersionLink)
-              .setText(newVersionText)
-              .setStyles(Styles.MR_2)
-              .asHiddenForm(request);
-      return div().with(linkElementAsForm);
+      return new LinkElement()
+          .setId("program-new-version-link-" + activeProgram.get().id())
+          .setHref(newVersionLink)
+          .setText(newVersionText)
+          .setStyles(Styles.MR_2)
+          .asHiddenForm(request);
     } else {
       // obsolete or deleted, no edit link, empty div.
       return div();
     }
   }
 
-  private DivTag maybeRenderManageTranslationsLink(Optional<ProgramDefinition> draftProgram) {
+  private Tag maybeRenderManageTranslationsLink(Optional<ProgramDefinition> draftProgram) {
     if (draftProgram.isPresent()) {
       String linkText = "Manage Translations →";
       String linkDestination =
@@ -301,7 +294,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
   }
 
-  private DivTag maybeRenderViewApplicationsLink(
+  private Tag maybeRenderViewApplicationsLink(
       Optional<ProgramDefinition> activeProgram, Optional<CiviFormProfile> userProfile) {
     if (activeProgram.isPresent() && userProfile.isPresent()) {
       boolean userIsAuthorized = true;
@@ -327,7 +320,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return div();
   }
 
-  private DivTag renderManageProgramAdminsLink(
+  private Tag renderManageProgramAdminsLink(
       Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
     // We can use the ID of either, since we just add the program name and not ID to indicate
     // ownership.

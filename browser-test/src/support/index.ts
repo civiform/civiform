@@ -17,13 +17,39 @@ export const isLocalDevEnvironment = () => {
   )
 }
 
+function makeBrowserContext(browser: Browser) {
+  if (process.env.RECORD_VIDEO) {
+    // https://playwright.dev/docs/videos
+    // Docs state that videos are only saved upon
+    // closing the returned context. In practice,
+    // this doesn't appear to be true. Restructuring
+    // to ensure that we always close the returned
+    // context is possible, but likely not necessary
+    // until it causes a problem. In practice, this
+    // will only be used when debugging failures.
+    const suffix = (global as any)['expect'] === undefined
+      ? '' : expect.getState().currentTestName
+    return browser.newContext({
+      acceptDownloads: true,
+      recordVideo: {
+        dir: `tmp/videos/${suffix}/`,
+      },
+    })
+  } else {
+    return browser.newContext({
+      acceptDownloads: true,
+    })
+  }
+}
+
 export const startSession = async () => {
   const browser = await chromium.launch()
-  const page = await browser.newPage({ acceptDownloads: true })
+  const context = await makeBrowserContext(browser)
+  const page = await context.newPage()
 
   await page.goto(BASE_URL)
 
-  return { browser, page }
+  return { browser, context, page }
 }
 
 export const endSession = async (browser: Browser) => {
