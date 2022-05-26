@@ -61,20 +61,6 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-and-push
 
-      - name: Deploy Seattle staging.
-        id: deploy_staging
-        env:
-          DOCKER_BUILDKIT: 1
-          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
-        run: cloud/deploys/seattle/bin/deploy-staging
-
-      - name: Run prober test
-        run: bin/run-prober
-        env:
-          TEST_USER_LOGIN: ${{ secrets.TEST_USER_LOGIN }}
-          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-
   run_all_tests:
     uses: ./.github/workflows/tests.yml
     secrets: inherit

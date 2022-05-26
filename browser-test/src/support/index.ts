@@ -27,10 +27,12 @@ function makeBrowserContext(browser: Browser) {
     // context is possible, but likely not necessary
     // until it causes a problem. In practice, this
     // will only be used when debugging failures.
+    const suffix = (global as any)['expect'] === undefined
+      ? '' : expect.getState().currentTestName
     return browser.newContext({
       acceptDownloads: true,
       recordVideo: {
-        dir: 'tmp/videos/',
+        dir: `tmp/videos/${suffix}/`,
       },
     })
   } else {
