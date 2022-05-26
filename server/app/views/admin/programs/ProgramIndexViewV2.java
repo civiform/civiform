@@ -172,8 +172,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
       updatedPrefix = "Published on ";
     }
 
-    String formattedUpdateTime =
-        updatedTime.isPresent() ? renderDateTime(updatedTime.get(), zoneId) : "unknown";
+    String formattedUpdateTime = updatedTime.map(t -> renderDateTime(t, zoneId)).orElse("unknown");
 
     int blockCount = program.getBlockCount();
     int questionCount = program.getQuestionCount();
@@ -338,13 +337,15 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     if (draftProgram.isEmpty() && activeProgram.isEmpty()) {
       throw new IllegalArgumentException("Program neither active nor draft.");
     }
+
     ProgramDefinition program = draftProgram.isPresent() ? draftProgram.get() : activeProgram.get();
     return program.lastModifiedTime().orElse(Instant.EPOCH);
   }
 
   Tag renderViewLink(ProgramDefinition program) {
     // TODO(#1238): Rather than navigating to the program link
-    // consider renaming the action and copying the link to the clipboard.
+    // consider renaming the action and copying the link to the clipboard
+    // or opening it in a new tab.
     String viewLink =
         baseUrl
             + controllers.applicant.routes.RedirectController.programByName(program.slug()).url();
@@ -387,9 +388,10 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
       ProgramDefinition activeProgram, CiviFormProfile userProfile) {
     // TODO(#2582): Determine if this has N+1 query behavior and fix if
     // necessary.
-    boolean userIsAuthorized = true;
+    boolean userIsAuthorized;
     try {
       userProfile.checkProgramAuthorization(activeProgram.adminName()).join();
+      userIsAuthorized = true;
     } catch (CompletionException e) {
       userIsAuthorized = false;
     }

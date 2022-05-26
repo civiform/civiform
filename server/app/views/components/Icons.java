@@ -285,6 +285,10 @@ public class Icons {
   }
 
   public static ContainerTag svg(String pathString, int width, int height) {
+    // Setting the viewBox to a specific height/width is insufficient to
+    // actually cause the SVG's bounds to match. Here, the width / height
+    // of the SVG element are explicitly set, which is more consistent
+    // with what one would expect given the method signature.
     return svg(pathString)
         .attr("viewBox", String.format("0 0 %1$d %2$d", width, height))
         .attr("width", width)
