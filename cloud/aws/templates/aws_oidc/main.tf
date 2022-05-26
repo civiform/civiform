@@ -28,8 +28,8 @@ resource "aws_apprunner_service" "civiform_dev" {
           WHITELABEL_LOGO_WITH_NAME_URL      = var.civic_entity_logo_with_name_url
           SUPPORT_EMAIL_ADDRESS              = var.civic_entity_support_email_address
 
-          AWS_SES_SENDER        = var.ses_sender_email
-          AWS_REGION            = var.aws_region
+          AWS_SES_SENDER = var.ses_sender_email
+          AWS_REGION     = var.aws_region
 
           STAGING_ADMIN_LIST     = var.staging_program_admin_notification_mailing_list
           STAGING_TI_LIST        = var.staging_ti_notification_mailing_list
