@@ -8,6 +8,7 @@ import static j2html.TagCreator.img;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
+import annotations.FeatureFlags.StatusTrackingEnabled;
 import auth.FakeAdminClient;
 import auth.GuestClient;
 import com.google.inject.Inject;
@@ -33,9 +34,10 @@ public class LoginForm extends BaseHtmlView {
   private final String civicEntityFullName;
   private final String civicEntityShortName;
   private final FakeAdminClient fakeAdminClient;
+  private final boolean statusTrackingEnabled;
 
   @Inject
-  public LoginForm(BaseHtmlLayout layout, Config config, FakeAdminClient fakeAdminClient) {
+  public LoginForm(BaseHtmlLayout layout, Config config, FakeAdminClient fakeAdminClient, @StatusTrackingEnabled boolean statusTrackingEnabled) {
     this.layout = checkNotNull(layout);
     this.applicantIdp = checkNotNull(config).getString("auth.applicant_idp");
     this.idcsIsAvailable = checkNotNull(config).hasPath("idcs.register_uri");
@@ -47,6 +49,7 @@ public class LoginForm extends BaseHtmlView {
     this.civicEntityShortName =
         checkNotNull(config).getString("whitelabel.civic_entity_short_name");
     this.fakeAdminClient = checkNotNull(fakeAdminClient);
+    this.statusTrackingEnabled = statusTrackingEnabled;
   }
 
   public Content render(Http.Request request, Messages messages, Optional<String> message) {
@@ -88,7 +91,8 @@ public class LoginForm extends BaseHtmlView {
         div()
             .withClasses(Styles.FLEX, Styles.TEXT_4XL, Styles.GAP_1, Styles._MT_6, Styles.PX_8)
             .with(p(civicEntityShortName).withClasses(Styles.FONT_BOLD))
-            .with(p("CiviForm")));
+            // DO NOT SUBMIT, just a usage example
+            .with(p("CiviForm" + (statusTrackingEnabled ? " now with status tracking": ""))));
 
     String loginMessage =
         messages.at(MessageKey.CONTENT_LOGIN_PROMPT.getKeyName(), civicEntityFullName);
