@@ -29,6 +29,7 @@ jobs:
     steps:
       - id: file_changes
         uses: trilom/file-changes-action@v1.2.4
+        if: ${{ github.event_name == 'push' }}
 
       - name: Checkout
         uses: actions/checkout@v3
