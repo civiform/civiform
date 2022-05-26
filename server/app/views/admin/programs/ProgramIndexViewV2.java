@@ -27,7 +27,6 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
-import views.components.ButtonUtils;
 import views.components.Icons;
 import views.components.Modal;
 import views.style.AdminStyles;
@@ -102,14 +101,14 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
   private Tag renderDownloadExportCsvButton() {
     String link = routes.AdminApplicationController.downloadDemographics().url();
     ContainerTag button =
-        ButtonUtils.makeSvgTextButton("Download Exported Data (CSV)", Icons.DOWNLOAD_SVG_PATH)
+        makeSvgTextButton("Download Exported Data (CSV)", Icons.DOWNLOAD_SVG_PATH)
             .withId("download-export-csv-button")
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2);
-    return ButtonUtils.asLinkButton(button, link);
+    return asRedirectButton(button, link);
   }
 
   private ContainerTag makePublishButton() {
-    return ButtonUtils.makeSvgTextButton("Publish all drafts", Icons.PUBLISH_SVG_PATH)
+    return makeSvgTextButton("Publish all drafts", Icons.PUBLISH_SVG_PATH)
         .withId("publish-programs-button")
         .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, Styles.MY_2);
   }
@@ -127,7 +126,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         div()
             .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4, Styles.PX_2)
             .with(p("Are you sure you want to publish all programs?").withClasses(Styles.P_2))
-            .with(div().with(ButtonUtils.asLinkButtonForPost(makePublishButton(), link, request)));
+            .with(div().with(toLinkButtonForPost(makePublishButton(), link, request)));
     Modal publishAllModal =
         Modal.builder("publish-all-programs-modal", publishAllModalContent)
             .setModalTitle("Confirmation")
@@ -139,10 +138,10 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
   private Tag renderNewProgramButton() {
     String link = controllers.admin.routes.AdminProgramController.newOne().url();
     ContainerTag button =
-        ButtonUtils.makeSvgTextButton("Create new program", Icons.ADD_SVG_PATH)
+        makeSvgTextButton("Create new program", Icons.ADD_SVG_PATH)
             .withId("new-program-button")
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2);
-    return ButtonUtils.asLinkButton(button, link);
+    return asRedirectButton(button, link);
   }
 
   public ProgramDefinition getDisplayProgram(
@@ -179,7 +178,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
 
     String extraActionsButtonId = "extra-actions-" + program.id();
     ContainerTag extraActionsButton =
-        ButtonUtils.makeSvgTextButton("", Icons.MORE_VERT_PATH)
+        makeSvgTextButton("", Icons.MORE_VERT_PATH)
             .withId(extraActionsButtonId)
             .withClasses(
                 AdminStyles.TERTIARY_BUTTON_STYLES,
@@ -348,9 +347,9 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         baseUrl
             + controllers.applicant.routes.RedirectController.programByName(program.slug()).url();
     ContainerTag button =
-        ButtonUtils.makeSvgTextButton("View", Icons.VISIBILITY_SVG_PATH)
+        makeSvgTextButton("View", Icons.VISIBILITY_SVG_PATH)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-    return ButtonUtils.asLinkButton(button, viewLink);
+    return asRedirectButton(button, viewLink);
   }
 
   Tag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
@@ -362,12 +361,12 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     }
 
     ContainerTag button =
-        ButtonUtils.makeSvgTextButton("Edit", Icons.EDIT_SVG_PATH)
+        makeSvgTextButton("Edit", Icons.EDIT_SVG_PATH)
             .withId(editLinkId)
             .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
     return isActive
-        ? ButtonUtils.asLinkButtonForPost(button, editLink, request)
-        : ButtonUtils.asLinkButton(button, editLink);
+        ? toLinkButtonForPost(button, editLink, request)
+        : asRedirectButton(button, editLink);
   }
 
   private Tag renderManageTranslationsLink(ProgramDefinition program) {
@@ -376,10 +375,10 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                 program.id(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
             .url();
     ContainerTag button =
-        ButtonUtils.makeSvgTextButton("Manage translations", Icons.LANGUAGE_SVG_PATH)
+        makeSvgTextButton("Manage translations", Icons.LANGUAGE_SVG_PATH)
             .withId("program-translations-link-" + program.id())
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-    return ButtonUtils.asLinkButton(button, linkDestination);
+    return asRedirectButton(button, linkDestination);
   }
 
   private Optional<Tag> maybeRenderViewApplicationsLink(
@@ -399,10 +398,10 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
               .url();
 
       ContainerTag button =
-          ButtonUtils.makeSvgTextButton("Applications", Icons.TEXT_SNIPPET_SVG_PATH)
+          makeSvgTextButton("Applications", Icons.TEXT_SNIPPET_SVG_PATH)
               .withId("program-view-apps-link-" + activeProgram.id())
               .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-      return Optional.of(ButtonUtils.asLinkButton(button, editLink));
+      return Optional.of(asRedirectButton(button, editLink));
     }
     return Optional.empty();
   }
@@ -410,9 +409,9 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
   private Tag renderManageProgramAdminsLink(ProgramDefinition program) {
     String adminLink = routes.ProgramAdminManagementController.edit(program.id()).url();
     ContainerTag button =
-        ButtonUtils.makeSvgTextButton("Manage admins", Icons.GROUP_SVG_PATH)
+        makeSvgTextButton("Manage admins", Icons.GROUP_SVG_PATH)
             .withId("manage-program-admin-link-" + program.id())
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-    return ButtonUtils.asLinkButton(button, adminLink);
+    return asRedirectButton(button, adminLink);
   }
 }
