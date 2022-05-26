@@ -95,9 +95,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
-    if (maybePublishModal.isPresent()) {
-      htmlBundle = htmlBundle.addModals(maybePublishModal.get());
-    }
+    maybePublishModal.ifPresent(htmlBundle::addModals);
     return layout.renderCentered(htmlBundle);
   }
 
@@ -255,33 +253,41 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     String programTitleText = displayProgram.adminName();
     String programDescriptionText = displayProgram.adminDescription();
 
-    Tag draftRow = null;
+    ContainerTag statusDiv = div();
     if (draftProgram.isPresent()) {
       List<Tag> draftRowActions = Lists.newArrayList();
       List<Tag> draftRowExtraActions = Lists.newArrayList();
-      draftRowActions.add(renderEditLink(false, draftProgram.get(), request));
+      draftRowActions.add(renderEditLink(/* isActive = */ false, draftProgram.get(), request));
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
       draftRowExtraActions.add(renderManageTranslationsLink(draftProgram.get()));
-      draftRow = renderProgramRow(false, draftProgram.get(), draftRowActions, draftRowExtraActions);
+      statusDiv =
+          statusDiv.with(
+              renderProgramRow(
+                  /* isActive = */ false,
+                  draftProgram.get(),
+                  draftRowActions,
+                  draftRowExtraActions));
     }
 
-    Tag activeRow = null;
     if (activeProgram.isPresent()) {
       List<Tag> activeRowActions = Lists.newArrayList();
       List<Tag> activeRowExtraActions = Lists.newArrayList();
-      activeRowActions.add(maybeRenderViewApplicationsLink(activeProgram.get(), profile.get()));
+      Optional<Tag> applicationsLink =
+          maybeRenderViewApplicationsLink(activeProgram.get(), profile.get());
+      applicationsLink.ifPresent(activeRowExtraActions::add);
       if (!draftProgram.isPresent()) {
-        activeRowActions.add(renderEditLink(true, activeProgram.get(), request));
+        activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
       activeRowActions.add(renderViewLink(activeProgram.get()));
-      activeRow =
-          renderProgramRow(
-              true,
-              activeProgram.get(),
-              activeRowActions,
-              activeRowExtraActions,
-              draftProgram.isPresent() ? Styles.BORDER_T : "");
+      statusDiv =
+          statusDiv.with(
+              renderProgramRow(
+                  /* isActive = */ true,
+                  activeProgram.get(),
+                  activeRowActions,
+                  activeRowExtraActions,
+                  draftProgram.isPresent() ? Styles.BORDER_T : ""));
     }
 
     Tag titleAndStatus =
@@ -296,7 +302,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                         Styles.TEXT_BLACK,
                         Styles.FONT_BOLD,
                         Styles.TEXT_XL),
-                div().withClass(Styles.FLEX_GROW).with(draftRow, activeRow));
+                statusDiv.withClass(Styles.FLEX_GROW));
 
     return div()
         .withClasses(
@@ -336,6 +342,8 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
   }
 
   Tag renderViewLink(ProgramDefinition program) {
+    // TODO(#1238): Rather than navigating to the program link
+    // consider renaming the action and copying the link to the clipboard.
     String viewLink =
         baseUrl
             + controllers.applicant.routes.RedirectController.programByName(program.slug()).url();
@@ -374,8 +382,10 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return ButtonUtils.asLinkButton(button, linkDestination);
   }
 
-  private Tag maybeRenderViewApplicationsLink(
+  private Optional<Tag> maybeRenderViewApplicationsLink(
       ProgramDefinition activeProgram, CiviFormProfile userProfile) {
+    // TODO(#2582): Determine if this has N+1 query behavior and fix if
+    // necessary.
     boolean userIsAuthorized = true;
     try {
       userProfile.checkProgramAuthorization(activeProgram.adminName()).join();
@@ -392,9 +402,9 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
           ButtonUtils.makeSvgTextButton("Applications", Icons.TEXT_SNIPPET_SVG_PATH)
               .withId("program-view-apps-link-" + activeProgram.id())
               .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-      return ButtonUtils.asLinkButton(button, editLink);
+      return Optional.of(ButtonUtils.asLinkButton(button, editLink));
     }
-    return null;
+    return Optional.empty();
   }
 
   private Tag renderManageProgramAdminsLink(ProgramDefinition program) {
