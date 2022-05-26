@@ -48,6 +48,7 @@ export const startSession = async () => {
   const page = await context.newPage()
 
   await page.goto(BASE_URL)
+  await closeWarningMessage(page)
 
   return { browser, context, page }
 }

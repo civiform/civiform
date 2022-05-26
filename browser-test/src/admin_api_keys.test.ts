@@ -4,7 +4,6 @@ import {
   loginAsAdmin,
   AdminApiKeys,
   AdminPrograms,
-  closeWarningMessage,
   endSession
 } from './support'
 
@@ -17,8 +16,6 @@ describe('Managing API keys', () => {
 
     browser = session.browser
     page = session.page
-
-    await closeWarningMessage(page)
   })
 
   afterEach(async () =>{

@@ -3,8 +3,7 @@ import {
   startSession,
   loginAsAdmin,
   endSession,
-  AdminTIGroups,
-  closeWarningMessage
+  AdminTIGroups
 } from './support'
 
 describe('normal application flow', () => {
@@ -16,8 +15,6 @@ describe('normal application flow', () => {
 
     browser = session.browser
     page = session.page
-
-    await closeWarningMessage(page)
   })
 
   afterEach(async () =>{
