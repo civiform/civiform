@@ -8,11 +8,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import javax.inject.Qualifier;
 
+/** Annotations that indicate if application wide features are enabled. */
 public class FeatureFlags {
-
-
   @Qualifier
   @Target({METHOD, PARAMETER})
   @Retention(RUNTIME)
-  public @interface StatusTrackingEnabled {}
+  public @interface ApplicationStatusTrackingEnabled {}
 }
