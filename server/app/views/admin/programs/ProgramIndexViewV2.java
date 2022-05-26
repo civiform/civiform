@@ -8,15 +8,12 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.p;
 
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.LabelTag;
-
 import auth.CiviFormProfile;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LabelTag;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Optional;
@@ -113,11 +110,12 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     // We should only render the publish button if there is at least one draft.
     if (programs.anyDraft()) {
       String link = routes.AdminProgramController.publish().url();
-      return div(new LinkElement()
-          .setId("publish-programs-button")
-          .setHref(link)
-          .setText("Publish all drafts")
-          .asHiddenForm(request));
+      return div(
+          new LinkElement()
+              .setId("publish-programs-button")
+              .setHref(link)
+              .setText("Publish all drafts")
+              .asHiddenForm(request));
     } else {
       return div();
     }
@@ -256,23 +254,25 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
       String editLink =
           controllers.admin.routes.AdminProgramController.edit(draftProgram.get().id()).url();
 
-      return div(new LinkElement()
-          .setId("program-edit-link-" + draftProgram.get().id())
-          .setHref(editLink)
-          .setText(editLinkText)
-          .setStyles(Styles.MR_2)
-          .asAnchorText());
+      return div(
+          new LinkElement()
+              .setId("program-edit-link-" + draftProgram.get().id())
+              .setHref(editLink)
+              .setText(editLinkText)
+              .setStyles(Styles.MR_2)
+              .asAnchorText());
     } else if (activeProgram.isPresent()) {
       String newVersionLink =
           controllers.admin.routes.AdminProgramController.newVersionFrom(activeProgram.get().id())
               .url();
 
-      return div(new LinkElement()
-          .setId("program-new-version-link-" + activeProgram.get().id())
-          .setHref(newVersionLink)
-          .setText(newVersionText)
-          .setStyles(Styles.MR_2)
-          .asHiddenForm(request));
+      return div(
+          new LinkElement()
+              .setId("program-new-version-link-" + activeProgram.get().id())
+              .setHref(newVersionLink)
+              .setText(newVersionText)
+              .setStyles(Styles.MR_2)
+              .asHiddenForm(request));
     } else {
       // obsolete or deleted, no edit link, empty div.
       return div();
@@ -286,12 +286,13 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
           routes.AdminProgramTranslationsController.edit(
                   draftProgram.get().id(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
               .url();
-      return div(new LinkElement()
-          .setId("program-translations-link-" + draftProgram.get().id())
-          .setHref(linkDestination)
-          .setText(linkText)
-          .setStyles(Styles.MR_2)
-          .asAnchorText());
+      return div(
+          new LinkElement()
+              .setId("program-translations-link-" + draftProgram.get().id())
+              .setHref(linkDestination)
+              .setText(linkText)
+              .setStyles(Styles.MR_2)
+              .asAnchorText());
     } else {
       return div();
     }
@@ -312,12 +313,13 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                     activeProgram.get().id(), Optional.empty(), Optional.empty())
                 .url();
 
-        return div(new LinkElement()
-            .setId("program-view-apps-link-" + activeProgram.get().id())
-            .setHref(editLink)
-            .setText("Applications →")
-            .setStyles(Styles.MR_2)
-            .asAnchorText());
+        return div(
+            new LinkElement()
+                .setId("program-view-apps-link-" + activeProgram.get().id())
+                .setHref(editLink)
+                .setText("Applications →")
+                .setStyles(Styles.MR_2)
+                .asAnchorText());
       }
     }
     return div();
