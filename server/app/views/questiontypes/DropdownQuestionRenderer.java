@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
+import java.util.ArrayList;
 import java.util.Comparator;
 import play.i18n.Messages;
 import services.MessageKey;
@@ -31,7 +32,8 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ArrayList<String> ariaDescribedByIds, boolean hasQuestionErrors) {
     Messages messages = params.messages();
     SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();
 
@@ -48,7 +50,8 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
                             LocalizedQuestionOption::optionText,
                             option -> String.valueOf(option.id()))));
     select.setScreenReaderText(question.getQuestionText())
-        .setDescriptionId(getDescriptionId());
+        .setAriaDescribedByIds(ariaDescribedByIds)
+        .setHasQuestionErrors(hasQuestionErrors);
 
     if (singleSelectQuestion.getSelectedOptionId().isPresent()) {
       select.setValue(String.valueOf(singleSelectQuestion.getSelectedOptionId().get()));

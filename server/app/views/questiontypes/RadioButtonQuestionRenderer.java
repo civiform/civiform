@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.ArrayList;
 import java.util.Comparator;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -35,7 +36,8 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ArrayList<String> ariaDescribedByIds, boolean hasQuestionErrors) {
     SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
 
     Tag radioQuestionFormContent =

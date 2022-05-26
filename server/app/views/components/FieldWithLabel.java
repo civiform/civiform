@@ -13,10 +13,13 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import play.data.validation.ValidationError;
 import play.i18n.Messages;
 import services.applicant.ValidationErrorMessage;
@@ -50,10 +53,12 @@ public class FieldWithLabel {
   protected String labelText = "";
   protected String placeholderText = "";
   protected String screenReaderText = "";
-  protected String descriptionId = "";
+  protected ArrayList<String> ariaDescribedByIds;
   protected Messages messages;
   protected ImmutableSet<ValidationError> fieldErrors = ImmutableSet.of();
   protected boolean showFieldErrors = true;
+  // Whether this field's question has errors.
+  protected boolean hasQuestionErrors = false;
   protected boolean checked = false;
   protected boolean disabled = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
@@ -231,10 +236,18 @@ public class FieldWithLabel {
   }
 
   /**
-   * Set the HTML tag ID of the question description. This is used for aria attributes.
+   * Set the list of HTML tag IDs that should be used for a11y descriptions.
    */
-  public FieldWithLabel setDescriptionId(String descriptionId) {
-    this.descriptionId = descriptionId;
+  public FieldWithLabel setAriaDescribedByIds(ArrayList<String> ariaDescribedByIds) {
+    this.ariaDescribedByIds = ariaDescribedByIds;
+    return this;
+  }
+
+  /**
+   * Set whether the question this field belongs to has errors.
+   */
+  public FieldWithLabel setHasQuestionErrors(boolean hasQuestionErrors) {
+    this.hasQuestionErrors = hasQuestionErrors;
     return this;
   }
 
@@ -300,17 +313,14 @@ public class FieldWithLabel {
     }
 
     boolean hasFieldErrors = !fieldErrors.isEmpty() && showFieldErrors;
-    String ariaDescribedBy = "";
+    fieldTag.condAttr(hasFieldErrors || hasQuestionErrors, "aria-invalid", "true");
+
+    var allAriaDescribedByIds = new ArrayList<String>(ariaDescribedByIds);
     if (hasFieldErrors) {
-      fieldTag.attr("aria-invalid", "true");
-      ariaDescribedBy = fieldErrorsId;
+      allAriaDescribedByIds.add(0, fieldErrorsId);
     }
-    if (!descriptionId.isEmpty()) {
-      // Add a space to separate multiple IDs.
-      ariaDescribedBy += ariaDescribedBy.isEmpty() ? "" : " ";
-      ariaDescribedBy += descriptionId;
-    }
-    fieldTag.condAttr(!ariaDescribedBy.isEmpty(), "aria-describedBy", ariaDescribedBy);
+    fieldTag.condAttr(!allAriaDescribedByIds.isEmpty(), "aria-describedBy",
+        StringUtils.join(allAriaDescribedByIds, " "));
 
     fieldTag
         .withClasses(

@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableSet;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.ArrayList;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -51,7 +52,8 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ArrayList<String> ariaDescribedByIds, boolean hasQuestionErrors) {
     return fileUploadFields(params);
   }
 

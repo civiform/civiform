@@ -11,6 +11,7 @@ import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
 import j2html.tags.Tag;
+import java.util.ArrayList;
 import java.util.Optional;
 import play.i18n.Messages;
 import services.MessageKey;
@@ -54,7 +55,8 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ArrayList<String> ariaDescribedByIds, boolean hasQuestionErrors) {
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
     String localizedEntityType = enumeratorQuestion.getEntityType();
@@ -67,7 +69,8 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
               messages,
               localizedEntityType,
               question.getContextualizedPath(),
-              getDescriptionId(),
+              // .setAriaDescribedByIds(ariaDescribedByIds)
+              // .setHasQuestionErrors(hasQuestionErrors)
               Optional.of(entityNames.get(index)),
               Optional.of(index)));
     }
@@ -99,7 +102,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
       Messages messages,
       String localizedEntityType,
       Path contextualizedPath,
-      String descriptionId,
+      // String descriptionId,
       Optional<String> existingEntity,
       Optional<Integer> existingIndex) {
 
@@ -116,7 +119,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
                     localizedEntityType))
             .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT)
-            .setDescriptionId(descriptionId)
+            // .setDescriptionId(descriptionId)
             .getContainer();
     String confirmationMessage =
         messages.at(MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE.getKeyName(), localizedEntityType);
@@ -149,7 +152,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
   public static Tag newEnumeratorFieldTemplate(
       Path contextualizedPath, String localizedEntityType, Messages messages) {
     return enumeratorField(
-            messages, localizedEntityType, contextualizedPath, "", Optional.empty(), Optional.empty())
+            messages, localizedEntityType, contextualizedPath, Optional.empty(), Optional.empty())
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN));
   }

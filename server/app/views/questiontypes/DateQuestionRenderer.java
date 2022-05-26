@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -27,14 +28,16 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      ArrayList<String> ariaDescribedByIds, boolean hasQuestionErrors) {
     DateQuestion dateQuestion = question.createDateQuestion();
 
     FieldWithLabel dateField =
         FieldWithLabel.date()
             .setFieldName(dateQuestion.getDatePath().toString())
             .setScreenReaderText(question.getQuestionText())
-            .setDescriptionId(getDescriptionId())
+            .setAriaDescribedByIds(ariaDescribedByIds)
+            .setHasQuestionErrors(hasQuestionErrors)
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(dateQuestion.getDatePath(), ImmutableSet.of()));
