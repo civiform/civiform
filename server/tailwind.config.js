@@ -14,7 +14,7 @@ module.exports = {
     transform: {
       java: (content) => {
         var output = []
-        for (const match of content.matchAll(/"([\w-/:]+)"/g)) {
+        for (const match of content.matchAll(/"([\w-/:.]+)"/g)) {
           output.push(match[1])
           // We don't know which, if any, of these prefixes are in use for any class in particular.
           // We therefore have to use every combination of them.
@@ -46,6 +46,14 @@ module.exports = {
         },
         'seattle-blue': {
           DEFAULT: '#113f9f',
+        },
+        'civiform-green': {
+          light: '#e8f5e9',
+          DEFAULT: '#1b5e20',
+        },
+        'civiform-purple': {
+          light: '#f3e5f5',
+          DEFAULT: '#4a148c',
         },
       },
     },

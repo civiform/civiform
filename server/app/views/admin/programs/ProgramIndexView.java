@@ -298,6 +298,8 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private Tag maybeRenderViewApplicationsLink(
       Optional<ProgramDefinition> activeProgram, Optional<CiviFormProfile> userProfile) {
+    // TODO(#2582): Determine if this has N+1 query behavior and fix if
+    // necessary.
     if (activeProgram.isPresent() && userProfile.isPresent()) {
       boolean userIsAuthorized = true;
       try {
