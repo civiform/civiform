@@ -19,7 +19,7 @@ resource "aws_apprunner_service" "civiform_dev" {
           BASE_URL         = "https://staging-aws.civiform.dev"
 
           STORAGE_SERVICE_NAME = "s3"
-          AWS_S3_BUCKET_NAME   = "${aws_s3_bucket.civiform-files-s3.id}"
+          AWS_S3_BUCKET_NAME   = "${aws_s3_bucket.civiform_files_s3.id}"
 
           CIVIFORM_TIME_ZONE_ID              = var.civiform_time_zone_id
           WHITELABEL_CIVIC_ENTITY_SHORT_NAME = var.civic_entity_short_name
