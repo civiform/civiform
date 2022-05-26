@@ -93,7 +93,7 @@ jobs:
     - name: Build the stack
       env:
         SECRET_KEY: notarealsecret
-      run: docker compose -f infra/prod-simulator-compose.yml up -d
+      run: docker compose -f test-support/prod-simulator-compose.yml up -d
     - name: Test
       # Confirm that we get a response on port 9000.
       run: while ! docker run --network host appropriate/curl -v -s --retry-max-time 180 --retry-connrefused http://localhost:9000/ ; do sleep 5; done

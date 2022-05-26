@@ -13,7 +13,6 @@ browser-test
 code_of_conduct.md
 docker-compose.yml
 formatter.Dockerfile
-infra
 prod.Dockerfile
 test-support
 server/target
