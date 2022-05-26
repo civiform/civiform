@@ -40,6 +40,9 @@ services:
   azurite:
      ports:
       - 10000:10000
+  dev-oidc:
+     ports:
+      - 3390:3390
 
   db:
     image: postgres:12.5
