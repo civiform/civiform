@@ -88,7 +88,6 @@ public class LoginForm extends BaseHtmlView {
         div()
             .withClasses(Styles.FLEX, Styles.TEXT_4XL, Styles.GAP_1, Styles._MT_6, Styles.PX_8)
             .with(p(civicEntityShortName).withClasses(Styles.FONT_BOLD))
-            // DO NOT SUBMIT, just a usage example
             .with(p("CiviForm")));
 
     String loginMessage =
