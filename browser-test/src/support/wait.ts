@@ -13,14 +13,7 @@ export const waitForPageJsLoad = async (page: Page | Frame | null) => {
   await page.waitForLoadState('load')
 
   // Wait for main.ts and modal.ts to signal that they're done initializing
-  try {
-    await page.waitForSelector('body[data-load-main="true"]')
-  } catch(NASTY_ERROR) {
-    if ("pause" in page) {
-      await page.pause()
-    }
-    await page.waitForSelector('body[data-load-main="true"]')
-  }
+  await page.waitForSelector('body[data-load-main="true"]')
   await page.waitForSelector('body[data-load-modal="true"]')
 }
 
