@@ -149,3 +149,14 @@ export const dropTables = async (page: Page) => {
   await page.goto(BASE_URL + '/dev/seed')
   await page.click('#clear')
 }
+
+export const closeWarningMessage = async (page: Page) => {
+  // The warning message may be in the way of this link
+  var element = await page.$('#warning-message-dismiss')
+
+  if (element !== null){
+    await element
+      .click()
+      .catch(() => console.log("Didn't find a warning toast message to dismiss, which is fine."))
+  } 
+}
