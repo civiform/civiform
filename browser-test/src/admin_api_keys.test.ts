@@ -1,13 +1,28 @@
+import { Browser, Page } from 'playwright'
 import {
   startSession,
   loginAsAdmin,
   AdminApiKeys,
   AdminPrograms,
+  endSession
 } from './support'
 
 describe('Managing API keys', () => {
+  let browser : Browser
+  let page : Page
+
+  beforeEach(async () => {
+    var session = await startSession()
+
+    browser = session.browser
+    page = session.page
+  })
+
+  afterEach(async () =>{
+    await endSession(browser)
+  })
+
   it('Creates, views and retires new API key', async () => {
-    const { browser, page } = await startSession()
 
     await loginAsAdmin(page)
     const adminApiKeys = new AdminApiKeys(page)

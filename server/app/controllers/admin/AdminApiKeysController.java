@@ -13,7 +13,7 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
-import services.PaginationSpec;
+import services.PageNumberBasedPaginationSpec;
 import services.apikey.ApiKeyCreationResult;
 import services.apikey.ApiKeyService;
 import services.program.ProgramService;
@@ -57,7 +57,7 @@ public class AdminApiKeysController extends CiviFormController {
             request,
             // The backend service supports pagination but the front end doesn't
             // in its initial implementation so we load all of them here.
-            apiKeyService.listApiKeys(PaginationSpec.MAX_PAGE_SIZE_SPEC),
+            apiKeyService.listApiKeys(PageNumberBasedPaginationSpec.MAX_PAGE_SIZE_SPEC),
             programService.getAllProgramNames()));
   }
 

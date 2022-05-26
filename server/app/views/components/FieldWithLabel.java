@@ -252,6 +252,7 @@ public class FieldWithLabel {
     if (this.id.isEmpty()) {
       this.id = RandomStringUtils.randomAlphabetic(8);
     }
+    String fieldErrorsId = String.format("%s-errors", this.id);
     if (fieldTag.getTagName().equals("textarea")) {
       // Have to recreate the field here in case the value is modified.
       ContainerTag textAreaTag = textarea().withType("text").withText(this.fieldValue);
@@ -282,6 +283,11 @@ public class FieldWithLabel {
     }
 
     boolean hasFieldErrors = !fieldErrors.isEmpty() && showFieldErrors;
+    if (hasFieldErrors) {
+      fieldTag.attr("aria-invalid", "true");
+      fieldTag.attr("aria-describedBy", fieldErrorsId);
+    }
+
     fieldTag
         .withClasses(
             StyleUtils.joinStyles(
@@ -306,7 +312,8 @@ public class FieldWithLabel {
 
     return div(
             labelTag,
-            div(fieldTag, buildFieldErrorsTag()).withClasses(Styles.FLEX, Styles.FLEX_COL))
+            div(fieldTag, buildFieldErrorsTag(fieldErrorsId))
+                .withClasses(Styles.FLEX, Styles.FLEX_COL))
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);
@@ -332,10 +339,11 @@ public class FieldWithLabel {
         .withText(this.labelText);
   }
 
-  private Tag buildFieldErrorsTag() {
+  private Tag buildFieldErrorsTag(String id) {
     String[] referenceClasses =
         referenceClassesBuilder.build().stream().map(ref -> ref + "-error").toArray(String[]::new);
     return div(each(fieldErrors, error -> div(error.format(messages))))
+        .withId(id)
         .withClasses(
             StyleUtils.joinStyles(referenceClasses),
             StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, Styles.P_1),

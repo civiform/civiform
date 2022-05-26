@@ -11,8 +11,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApiKey;
+import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 
 /**
  * Provides an asynchronous API for persistence and query of {@link ApiKey} instances. Uses {@code
@@ -30,7 +30,7 @@ public class ApiKeyRepository {
   }
 
   /** List {@link ApiKey}s ordered by creation time descending. */
-  public PaginationResult<ApiKey> listApiKeys(PaginationSpec paginationSpec) {
+  public PaginationResult<ApiKey> listApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
     PagedList<ApiKey> pagedList =
         database
             .find(ApiKey.class)
@@ -44,7 +44,9 @@ public class ApiKeyRepository {
     pagedList.loadCount();
 
     return new PaginationResult<ApiKey>(
-        paginationSpec, pagedList.getTotalPageCount(), ImmutableList.copyOf(pagedList.getList()));
+        pagedList.hasNext(),
+        pagedList.getTotalPageCount(),
+        ImmutableList.copyOf(pagedList.getList()));
   }
 
   /** Insert a new {@link ApiKey} record asynchronously. */

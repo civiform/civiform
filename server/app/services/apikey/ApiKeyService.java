@@ -6,9 +6,6 @@ import auth.ApiKeyGrants;
 import auth.ApiKeyGrants.Permission;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.NotChangeableException;
@@ -24,11 +21,14 @@ import javax.crypto.KeyGenerator;
 import models.ApiKey;
 import org.apache.commons.net.util.SubnetUtils;
 import play.Environment;
+import play.cache.NamedCache;
+import play.cache.SyncCacheApi;
 import play.data.DynamicForm;
 import repository.ApiKeyRepository;
+import services.CryptographicUtils;
 import services.DateConverter;
+import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
@@ -47,6 +47,14 @@ import services.program.ProgramService;
  * recoverable from CiviForm.
  */
 public class ApiKeyService {
+
+  // The cache expiration time is intended to be long enough reduce database queries from
+  // authenticating API calls while being short enough that if an admin retires a key or
+  // otherwise edits it, the edits will take effect within a reasonable amount of time.
+  // When tuning this value, consider the use-case of an API consumer rapidly paging through
+  // a list API, and also consider the admin retiring a key when they've discovered it has
+  // been compromised.
+  private static final int CACHE_EXPIRATION_TIME_SECONDS = 60;
 
   public static final String FORM_FIELD_NAME_KEY_NAME = "keyName";
   public static final String FORM_FIELD_NAME_EXPIRATION = "expiration";
@@ -67,15 +75,18 @@ public class ApiKeyService {
   private final ProgramService programService;
   private final DateConverter dateConverter;
   private final String secretSalt;
+  private final SyncCacheApi apiKeyCache;
   private final boolean banGlobalSubnet;
 
   @Inject
   public ApiKeyService(
+      @NamedCache("api-keys") SyncCacheApi apiKeyCache,
       ApiKeyRepository repository,
       Environment environment,
       ProgramService programService,
       DateConverter dateConverter,
       Config config) {
+    this.apiKeyCache = checkNotNull(apiKeyCache);
     this.repository = checkNotNull(repository);
     this.environment = checkNotNull(environment);
     this.programService = checkNotNull(programService);
@@ -89,8 +100,23 @@ public class ApiKeyService {
    *
    * @param paginationSpec specification for paginating the results.
    */
-  public PaginationResult<ApiKey> listApiKeys(PaginationSpec paginationSpec) {
+  public PaginationResult<ApiKey> listApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
     return repository.listApiKeys(paginationSpec);
+  }
+
+  /** Finds an API key by its key ID (not the database ID) directly from the database. */
+  public Optional<ApiKey> findByKeyId(String keyId) {
+    return repository.lookupApiKey(keyId).toCompletableFuture().join();
+  }
+
+  /**
+   * Finds an API key by its key ID (not the database ID). Checks the API key cache first and
+   * queries the database if the key isn't cache. Lookups for invalid key IDs are cached with a
+   * value of Optional.empty() to relieve database pressure caused by repeated invalid requests.
+   */
+  public Optional<ApiKey> findByKeyIdWithCache(String keyId) {
+    return apiKeyCache.getOrElseUpdate(
+        keyId, () -> findByKeyId(keyId), CACHE_EXPIRATION_TIME_SECONDS);
   }
 
   /**
@@ -268,14 +294,12 @@ public class ApiKeyService {
     return Base64.getEncoder().encodeToString(secret);
   }
 
-  private String salt(String message) {
-    byte[] rawMessage = Base64.getDecoder().decode(message);
-    byte[] rawKey = Base64.getDecoder().decode(secretSalt);
-
-    HashFunction hashFunction = Hashing.hmacSha256(rawKey);
-    HashCode saltedMessage = hashFunction.hashBytes(rawMessage);
-
-    return Base64.getEncoder().encodeToString(saltedMessage.asBytes());
+  /**
+   * Apply the HMAC-SHA-256 hashing function to the input using the "api_secret_salt" config value
+   * as a key.
+   */
+  public String salt(String message) {
+    return CryptographicUtils.sign(message, secretSalt);
   }
 
   private String getAuthorityId(CiviFormProfile profile) {

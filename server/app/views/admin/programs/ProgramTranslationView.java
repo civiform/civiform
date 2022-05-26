@@ -13,6 +13,8 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
 import views.components.ToastMessage;
@@ -22,9 +24,9 @@ public class ProgramTranslationView extends TranslationFormView {
   private final AdminLayout layout;
 
   @Inject
-  public ProgramTranslationView(AdminLayout layout, Langs langs) {
+  public ProgramTranslationView(AdminLayoutFactory layoutFactory, Langs langs) {
     super(langs);
-    this.layout = checkNotNull(layout);
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
   public Content render(

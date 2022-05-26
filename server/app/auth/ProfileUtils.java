@@ -4,8 +4,10 @@ import com.google.common.base.Preconditions;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
+import models.ApiKey;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.profile.BasicUserProfile;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.play.PlayWebContext;
 import play.mvc.Http;
@@ -41,6 +43,22 @@ public class ProfileUtils {
       return Optional.empty();
     }
     return Optional.of(profileFactory.wrapProfileData(p.get()));
+  }
+
+  public Optional<ApiKey> currentApiKey(Http.RequestHeader request) {
+    PlayWebContext webContext = new PlayWebContext(request);
+    return currentApiKey(webContext);
+  }
+
+  public Optional<ApiKey> currentApiKey(WebContext webContext) {
+    ProfileManager profileManager = new ProfileManager(webContext, sessionStore);
+    Optional<BasicUserProfile> profile = profileManager.getProfile(BasicUserProfile.class);
+
+    if (profile.isEmpty()) {
+      return Optional.empty();
+    }
+
+    return Optional.of(profileFactory.retrieveApiKey(profile.get().getId()));
   }
 
   // A temporary placeholder email value, used while the user needs to verify their account.

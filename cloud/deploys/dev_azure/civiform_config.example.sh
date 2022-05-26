@@ -21,6 +21,7 @@ export DOCKER_REPOSITORY_NAME="civiform"
 # Enter your own docker username if you want to use a local version. Otherwise, enter "civiform".
 export DOCKER_USERNAME="CHANGE ME"
 export SENDER_EMAIL_ADDRESS="civiform-azure-staging-email@googlegroups.com"
+# Staging hostname should not contain http(s)://
 export STAGING_HOSTNAME=""
 export STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST="civiform-azure-staging-email@googlegroups.com"
 export STAGING_TI_NOTIFICATION_MAILING_LIST="civiform-azure-staging-email@googlegroups.com"
