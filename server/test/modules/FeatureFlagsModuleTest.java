@@ -27,7 +27,9 @@ public class FeatureFlagsModuleTest {
     BindingKey<Boolean> key =
         new BindingKey<Boolean>(Boolean.class)
             .qualifiedWith(ApplicationStatusTrackingEnabled.class);
+
     Boolean actualState = app.injector().instanceOf(key.asScala());
+
     assertThat(actualState).isEqualTo(isEnabled);
   }
 }
