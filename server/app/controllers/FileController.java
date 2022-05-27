@@ -5,14 +5,12 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-
-import com.google.common.collect.ImmutableList;
 import models.Application;
 import org.pac4j.play.java.Secure;
 import play.libs.concurrent.HttpExecutionContext;
@@ -34,10 +32,11 @@ public class FileController extends CiviFormController {
 
   @Inject
   public FileController(
-          HttpExecutionContext httpExecutionContext,
-          ProgramService programService,
-          StorageClient storageClient,
-          ProfileUtils profileUtils, ApplicationRepository applicationRepository) {
+      HttpExecutionContext httpExecutionContext,
+      ProgramService programService,
+      StorageClient storageClient,
+      ProfileUtils profileUtils,
+      ApplicationRepository applicationRepository) {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.programService = checkNotNull(programService);
     this.storageClient = checkNotNull(storageClient);
@@ -71,8 +70,8 @@ public class FileController extends CiviFormController {
               throw new RuntimeException(ex);
             });
   }
-  private long extractApplicantIdFromFileKey(String fileKey)
-  {
+
+  private long extractApplicantIdFromFileKey(String fileKey) {
     String applicantString = fileKey.split("/")[0];
     long applicantid = (long) Long.parseLong(applicantString.split("-")[1].trim());
     return applicantid;
@@ -82,25 +81,27 @@ public class FileController extends CiviFormController {
   public Result adminShow(Request request, long programId, String fileKey) {
     try {
       boolean isAuthorized = false;
-      if(fileKey!=null)
-      {
-        //if the applicant has submitted the same file to both programA and program-B
-        //then the admin has authorization to access the file in programA
+      if (fileKey != null) {
+        // if the applicant has submitted the same file to both programA and program-B
+        // then the admin has authorization to access the file in programA
         long applicationId = extractApplicantIdFromFileKey(fileKey);
         ImmutableList<Application> applicationList =
-                this.applicationRepository.getAllApplications().stream()
-                        .filter(application -> application.id == applicationId).collect(toImmutableList());
+            this.applicationRepository.getAllApplications().stream()
+                .filter(application -> application.id == applicationId)
+                .collect(toImmutableList());
         isAuthorized =
-                applicationList.stream().anyMatch(application ->
-                {
-                  return application.getProgram().id == programId;
-                });
+            applicationList.stream()
+                .anyMatch(
+                    application -> {
+                      return application.getProgram().id == programId;
+                    });
       }
 
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
-      // Ensure the file being accessed indeed belongs to the program or another program the applicant
-      //has submitted to.
+      // Ensure the file being accessed indeed belongs to the program or another program the
+      // applicant
+      // has submitted to.
       if (!(fileKey.contains(String.format("program-%d", programId)) && !isAuthorized)) {
         return notFound();
       }
