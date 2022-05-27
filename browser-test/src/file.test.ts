@@ -4,6 +4,7 @@ import {
   ApplicantQuestions,
   loginAsAdmin,
   loginAsGuest,
+  loginAsTestUser,
   logout,
   resetSession,
   selectApplicantLanguage,
@@ -83,6 +84,58 @@ describe('file upload applicant flow', () => {
       expect(await error.isHidden()).toEqual(false)
     })
   })
+
+  describe('file upload shared between programs', () => {
+ 
+    let applicantQuestions
+    const programName1 = 'test program1 for single file upload'
+    const programName2 = 'test program2 for single file upload'
+
+    beforeAll(async () => {
+      await loginAsAdmin(pageObject)
+      const adminQuestions = new AdminQuestions(pageObject)
+      const adminPrograms = new AdminPrograms(pageObject)
+      applicantQuestions = new ApplicantQuestions(pageObject)
+
+      await adminQuestions.addFileUploadQuestion({
+        questionName: 'file-upload-test-q',
+      })
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['file-upload-test-q'],
+        programName1
+      )
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['file-upload-test-q'],
+        programName2
+      )
+      await adminPrograms.publishAllPrograms()
+      await logout(pageObject)
+    })
+      it('test file uploads for 2 programs',async () => {
+      await loginAsTestUser(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName1)
+      await applicantQuestions.answerFileUploadQuestion('file key')
+      await applicantQuestions.clickUpload()
+
+      await applicantQuestions.submitFromReviewPage(programName1)
+
+      await applicantQuestions.applyProgram(programName2)
+      await applicantQuestions.answerFileUploadQuestion('file key')
+      await applicantQuestions.clickUpload()
+      await applicantQuestions.submitFromReviewPage(programName2)
+      
+      await logout(pageObject)
+      await loginAsProgramAdmin(page)
+      await adminPrograms.viewApplications(programName2)
+      const fileContent  = getUploadedFile()
+      await logout(pageObject)
+    })
+
+  })
+
 
   // Optional file upload.
   describe('optional file upload question', () => {

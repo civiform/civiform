@@ -488,6 +488,17 @@ export class AdminPrograms {
     }
     return readFileSync(path, 'utf8')
   }
+  async getUploadedFile() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.click('text="UPLOADED (click to download)"'),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
+  }
 
   async addAndPublishProgramWithQuestions(
     questionNames: string[],
