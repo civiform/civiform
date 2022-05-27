@@ -5,7 +5,7 @@ import static j2html.TagCreator.div;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
-import java.util.ArrayList;
+import java.util.List;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -29,7 +29,7 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ArrayList<String> ariaDescribedByIds,
+      List<String> ariaDescribedByIds,
       boolean hasQuestionErrors) {
     CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
 

@@ -7,6 +7,7 @@ import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
@@ -16,6 +17,7 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
+import services.program.ProgramQuestionDefinition;
 import services.question.types.CurrencyQuestionDefinition;
 import support.QuestionAnswerer;
 
@@ -35,10 +37,19 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
   private Messages messages;
   private ApplicantQuestionRendererParams params;
   private CurrencyQuestionRenderer renderer;
+  private Long programId = 7L;
 
   @Before
   public void setUp() {
-    question = new ApplicantQuestion(CURRENCY_QUESTION_DEFINITION, applicantData, Optional.empty());
+    // question = new ApplicantQuestion(CURRENCY_QUESTION_DEFINITION, applicantData, Optional.empty());
+
+    question =
+        new ApplicantQuestion(
+            ProgramQuestionDefinition.create(CURRENCY_QUESTION_DEFINITION, Optional.of(programId))
+                .setOptional(false),
+            applicantData,
+            Optional.empty());
+
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
     params = ApplicantQuestionRendererParams.sample(messages);
     renderer = new CurrencyQuestionRenderer(question);
@@ -62,4 +73,29 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
     // Error message is hidden.
     assertThat(result.render()).contains("hidden");
   }
+
+  @Test
+  public void render_withAriaLabels() {
+    QuestionAnswerer.answerCurrencyQuestion(
+        applicantData, question.getContextualizedPath(), "1,234.56");
+    Tag result = renderer.render(params);
+
+    String id = question.getContextualizedPath().toString();
+    assertThat(result.render()).contains("aria-describedBy=" + String.format("\"%s-description\"", id));
+  }
+
+  @Test
+  public void render_withAriaLabelsOnError() {
+    // Question level required error.
+    QuestionAnswerer.addMetadata(
+        applicantData, question.getContextualizedPath(), programId, 1L);
+    Tag result = renderer.render(params);
+
+    String id = question.getContextualizedPath().toString();
+    assertThat(result.render()).contains("aria-invalid=\"true\"");
+    assertThat(result.render()).contains("aria-describedBy="+ String.format("\"%s-required-error %s-description\"", id,  id));
+    assertThat(result.render()).contains("This question is required");
+
+  }
+
 }

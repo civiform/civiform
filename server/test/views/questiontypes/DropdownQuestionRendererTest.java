@@ -8,6 +8,7 @@ import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
@@ -75,5 +76,13 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
 
     assertThat(result.render()).contains("hidden selected");
     assertThat(result.render()).contains("Choose an option");
+  }
+
+  @Test
+  public void render_withAriaLabels() {
+    Tag result = renderer.render(params);
+
+    String id = question.getContextualizedPath().toString();
+    assertThat(result.render()).contains("aria-describedBy=" + String.format("\"%s-description\"", id));
   }
 }

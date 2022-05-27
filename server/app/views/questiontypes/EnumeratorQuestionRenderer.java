@@ -12,6 +12,8 @@ import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
 import j2html.tags.Tag;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import play.i18n.Messages;
@@ -57,7 +59,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ArrayList<String> ariaDescribedByIds,
+      List<String> ariaDescribedByIds,
       boolean hasQuestionErrors) {
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
@@ -109,7 +111,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
       Messages messages,
       String localizedEntityType,
       Path contextualizedPath,
-      ArrayList<String> ariaDescribedByIds,
+      List<String> ariaDescribedByIds,
       boolean hasQuestionErrors,
       Optional<String> existingEntity,
       Optional<Integer> existingIndex) {
@@ -164,7 +166,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
             messages,
             localizedEntityType,
             contextualizedPath,
-            new ArrayList<String>(),
+            Collections.emptyList(),
             false,
             Optional.empty(),
             Optional.empty())

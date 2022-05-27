@@ -5,7 +5,7 @@ import static j2html.TagCreator.div;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.OptionalLong;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -29,7 +29,7 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ArrayList<String> ariaDescribedByIds,
+      List<String> ariaDescribedByIds,
       boolean hasQuestionErrors) {
     NumberQuestion numberQuestion = question.createNumberQuestion();
 

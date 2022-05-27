@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.ArrayList;
+import java.util.List;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -52,7 +53,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
   protected abstract Tag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ArrayList<String> ariaDescribedByIds,
+      List<String> ariaDescribedByIds,
       boolean hasQuestionErrors);
 
   @Override

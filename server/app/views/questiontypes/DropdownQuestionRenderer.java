@@ -6,8 +6,8 @@ import static j2html.TagCreator.div;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
-import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -33,7 +33,7 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ArrayList<String> ariaDescribedByIds,
+      List<String> ariaDescribedByIds,
       boolean hasQuestionErrors) {
     Messages messages = params.messages();
     SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();

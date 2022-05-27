@@ -3,6 +3,7 @@ package views.components;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.stubMessagesApi;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -90,7 +91,8 @@ public class FieldWithLabelTest {
   }
 
   @Test
-  public void withErrors() {
+  public void withFieldErrors() {
+    // Verify aria labels for field level errors.
     FieldWithLabel fieldWithLabel =
         FieldWithLabel.number()
             .setId("field-id")
@@ -99,6 +101,37 @@ public class FieldWithLabelTest {
 
     assertThat(rendered).contains("aria-invalid=\"true\"");
     assertThat(rendered).contains("aria-describedBy=\"field-id-errors\"");
+    assertThat(rendered).contains("id=\"field-id-errors\"");
+    assertThat(rendered).contains("an error message");
+  }
+
+  @Test
+  public void withQuestionErrors() {
+    // Verify aria labels for passed in question level errors.
+    FieldWithLabel fieldWithLabel =
+        FieldWithLabel.number()
+            .setId("field-id")
+            .setAriaDescribedByIds(ImmutableList.of("question-errors", "question-description"))
+            .setHasQuestionErrors(true);
+    String rendered = fieldWithLabel.getContainer().render();
+
+    assertThat(rendered).contains("aria-invalid=\"true\"");
+    assertThat(rendered).contains("aria-describedBy=\"question-errors question-description\"");
+  }
+
+  @Test
+  public void withFieldAndQuestionErrors() {
+    // Verify aria labels are merged properly when both field and question level errors are present.
+    FieldWithLabel fieldWithLabel =
+        FieldWithLabel.number()
+            .setId("field-id")
+            .setFieldErrors(messages, new ValidationError("", "an error message"))
+            .setAriaDescribedByIds(ImmutableList.of("question-errors", "question-description"))
+            .setHasQuestionErrors(true);
+    String rendered = fieldWithLabel.getContainer().render();
+
+    assertThat(rendered).contains("aria-invalid=\"true\"");
+    assertThat(rendered).contains("aria-describedBy=\"field-id-errors question-errors question-description\"");
     assertThat(rendered).contains("id=\"field-id-errors\"");
     assertThat(rendered).contains("an error message");
   }

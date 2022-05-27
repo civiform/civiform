@@ -7,6 +7,7 @@ import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
@@ -79,5 +80,13 @@ public class TextQuestionRendererTest extends ResetPostgres {
     Tag result = renderer.render(params);
 
     assertThat(result.render()).contains("Must contain at most 3 characters.");
+  }
+
+  @Test
+  public void render_withAriaLabels() {
+    Tag result = renderer.render(params);
+
+    String id = question.getContextualizedPath().toString();
+    Assertions.assertThat(result.render()).contains("aria-describedBy=" + String.format("\"%s-description\"", id));
   }
 }
