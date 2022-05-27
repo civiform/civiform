@@ -32,7 +32,8 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ArrayList<String> ariaDescribedByIds, boolean hasQuestionErrors) {
+      ArrayList<String> ariaDescribedByIds,
+      boolean hasQuestionErrors) {
     Messages messages = params.messages();
     AddressQuestion addressQuestion = question.createAddressQuestion();
 

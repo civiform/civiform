@@ -13,7 +13,6 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -27,9 +26,7 @@ import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
-/**
- * Utility class for rendering an input field with an optional label.
- */
+/** Utility class for rendering an input field with an optional label. */
 public class FieldWithLabel {
 
   private static final ImmutableSet<String> STRING_TYPES =
@@ -40,9 +37,7 @@ public class FieldWithLabel {
   protected String fieldType = "text";
   protected String fieldValue = "";
 
-  /**
-   * For use with fields of type `number`.
-   */
+  /** For use with fields of type `number`. */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
 
   protected OptionalLong minValue = OptionalLong.empty();
@@ -107,9 +102,7 @@ public class FieldWithLabel {
     return new FieldWithLabel(fieldTag).setFieldType("email");
   }
 
-  /**
-   * Add a reference class from {@link views.style.ReferenceClasses} to this element.
-   */
+  /** Add a reference class from {@link views.style.ReferenceClasses} to this element. */
   public FieldWithLabel addReferenceClass(String referenceClass) {
     referenceClassesBuilder.add(referenceClass);
     return this;
@@ -157,9 +150,7 @@ public class FieldWithLabel {
     return this;
   }
 
-  /**
-   * Sets a valueless attribute.
-   */
+  /** Sets a valueless attribute. */
   public FieldWithLabel setAttribute(String attribute) {
     this.fieldTag.attr(attribute, null);
     return this;
@@ -235,17 +226,13 @@ public class FieldWithLabel {
     return this;
   }
 
-  /**
-   * Set the list of HTML tag IDs that should be used for a11y descriptions.
-   */
+  /** Set the list of HTML tag IDs that should be used for a11y descriptions. */
   public FieldWithLabel setAriaDescribedByIds(ArrayList<String> ariaDescribedByIds) {
     this.ariaDescribedByIds = new ArrayList<String>(ariaDescribedByIds);
     return this;
   }
 
-  /**
-   * Set whether the question this field belongs to has errors.
-   */
+  /** Set whether the question this field belongs to has errors. */
   public FieldWithLabel setHasQuestionErrors(boolean hasQuestionErrors) {
     this.hasQuestionErrors = hasQuestionErrors;
     return this;
@@ -319,7 +306,9 @@ public class FieldWithLabel {
     if (hasFieldErrors) {
       allAriaDescribedByIds.add(0, fieldErrorsId);
     }
-    fieldTag.condAttr(!allAriaDescribedByIds.isEmpty(), "aria-describedBy",
+    fieldTag.condAttr(
+        !allAriaDescribedByIds.isEmpty(),
+        "aria-describedBy",
         StringUtils.join(allAriaDescribedByIds, " "));
 
     fieldTag
@@ -345,9 +334,9 @@ public class FieldWithLabel {
             .withText(labelText.isEmpty() ? screenReaderText : labelText);
 
     return div(
-        labelTag,
-        div(fieldTag, buildFieldErrorsTag(fieldErrorsId))
-            .withClasses(Styles.FLEX, Styles.FLEX_COL))
+            labelTag,
+            div(fieldTag, buildFieldErrorsTag(fieldErrorsId))
+                .withClasses(Styles.FLEX, Styles.FLEX_COL))
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM);

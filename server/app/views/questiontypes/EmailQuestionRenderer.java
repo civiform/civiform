@@ -27,7 +27,8 @@ public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ArrayList<String> ariaDescribedByIds, boolean hasQuestionErrors) {
+      ArrayList<String> ariaDescribedByIds,
+      boolean hasQuestionErrors) {
     EmailQuestion emailQuestion = question.createEmailQuestion();
 
     Tag questionFormContent =

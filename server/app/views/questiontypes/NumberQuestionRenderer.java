@@ -29,7 +29,8 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ArrayList<String> ariaDescribedByIds, boolean hasQuestionErrors) {
+      ArrayList<String> ariaDescribedByIds,
+      boolean hasQuestionErrors) {
     NumberQuestion numberQuestion = question.createNumberQuestion();
 
     FieldWithLabel numberField =

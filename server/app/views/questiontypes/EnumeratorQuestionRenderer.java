@@ -57,7 +57,8 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ArrayList<String> ariaDescribedByIds, boolean hasQuestionErrors) {
+      ArrayList<String> ariaDescribedByIds,
+      boolean hasQuestionErrors) {
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
     String localizedEntityType = enumeratorQuestion.getEntityType();
@@ -89,7 +90,9 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
                                 MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
                                 localizedEntityType)))
                     .condAttr(hasQuestionErrors, "aria-invalid", "true")
-                    .condAttr(!ariaDescribedByIds.isEmpty(), "aria-describedby",
+                    .condAttr(
+                        !ariaDescribedByIds.isEmpty(),
+                        "aria-describedby",
                         StringUtils.join(ariaDescribedByIds, " "))
                     .withClasses(
                         ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
@@ -158,8 +161,13 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
       Path contextualizedPath, String localizedEntityType, Messages messages) {
     // TODO(#1879): Set aria-describedby.
     return enumeratorField(
-        messages, localizedEntityType, contextualizedPath, new ArrayList<String>(), false,
-        Optional.empty(), Optional.empty())
+            messages,
+            localizedEntityType,
+            contextualizedPath,
+            new ArrayList<String>(),
+            false,
+            Optional.empty(),
+            Optional.empty())
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN));
   }

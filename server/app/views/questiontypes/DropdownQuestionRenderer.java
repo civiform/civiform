@@ -33,7 +33,8 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ArrayList<String> ariaDescribedByIds, boolean hasQuestionErrors) {
+      ArrayList<String> ariaDescribedByIds,
+      boolean hasQuestionErrors) {
     Messages messages = params.messages();
     SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();
 
@@ -49,7 +50,8 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
                         toImmutableMap(
                             LocalizedQuestionOption::optionText,
                             option -> String.valueOf(option.id()))));
-    select.setScreenReaderText(question.getQuestionText())
+    select
+        .setScreenReaderText(question.getQuestionText())
         .setAriaDescribedByIds(ariaDescribedByIds)
         .setHasQuestionErrors(hasQuestionErrors);
 
