@@ -10,7 +10,6 @@ import controllers.admin.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.NavTag;
-import javax.inject.Inject;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
 import views.BaseHtmlLayout;

@@ -7,15 +7,13 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
-import j2html.tags.specialized.ButtonTag;
-
 import auth.CiviFormProfile;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.LabelTag;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
