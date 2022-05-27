@@ -98,6 +98,9 @@ export const loginAsTestUser = async (page: Page) => {
   if (isTestUser()) {
     await page.click('#idcs')
     // Wait for the IDCS login page to make sure we've followed all redirects.
+    // If running this against a site with a real idcs (i.e. staging) and this 
+    // test fails with a timeout try re-running the tests. Sometimes there are 
+    // just transient network hiccups that will pass on a second run.
     await page.waitForURL('**/#/login*')
     await page.fill('input[name=userName]', TEST_USER_LOGIN)
     await page.fill('input[name=password]', TEST_USER_PASSWORD)
