@@ -7,7 +7,6 @@ import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
-import models.Program;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -97,6 +96,7 @@ public class IdQuestionRendererTest extends ResetPostgres {
     Tag result = renderer.render(params);
 
     String id = question.getContextualizedPath().toString();
-    Assertions.assertThat(result.render()).contains("aria-describedBy=" + String.format("\"%s-description\"", id));
+    Assertions.assertThat(result.render())
+        .contains("aria-describedBy=" + String.format("\"%s-description\"", id));
   }
 }

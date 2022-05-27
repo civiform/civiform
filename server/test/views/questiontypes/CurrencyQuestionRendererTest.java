@@ -7,7 +7,6 @@ import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
@@ -79,21 +78,21 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
     Tag result = renderer.render(params);
 
     String id = question.getContextualizedPath().toString();
-    assertThat(result.render()).contains("aria-describedBy=" + String.format("\"%s-description\"", id));
+    assertThat(result.render())
+        .contains("aria-describedBy=" + String.format("\"%s-description\"", id));
   }
 
   @Test
   public void render_withAriaLabelsOnError() {
     // Question level required error.
-    QuestionAnswerer.addMetadata(
-        applicantData, question.getContextualizedPath(), programId, 1L);
+    QuestionAnswerer.addMetadata(applicantData, question.getContextualizedPath(), programId, 1L);
     Tag result = renderer.render(params);
 
     String id = question.getContextualizedPath().toString();
     assertThat(result.render()).contains("aria-invalid=\"true\"");
-    assertThat(result.render()).contains("aria-describedBy="+ String.format("\"%s-required-error %s-description\"", id,  id));
+    assertThat(result.render())
+        .contains(
+            "aria-describedBy=" + String.format("\"%s-required-error %s-description\"", id, id));
     assertThat(result.render()).contains("This question is required");
-
   }
-
 }

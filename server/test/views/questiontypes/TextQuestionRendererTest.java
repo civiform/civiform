@@ -87,6 +87,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
     Tag result = renderer.render(params);
 
     String id = question.getContextualizedPath().toString();
-    Assertions.assertThat(result.render()).contains("aria-describedBy=" + String.format("\"%s-description\"", id));
+    Assertions.assertThat(result.render())
+        .contains("aria-describedBy=" + String.format("\"%s-description\"", id));
   }
 }
