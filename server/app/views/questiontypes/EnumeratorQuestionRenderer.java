@@ -13,6 +13,7 @@ import j2html.tags.EmptyTag;
 import j2html.tags.Tag;
 import java.util.ArrayList;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -69,8 +70,8 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
               messages,
               localizedEntityType,
               question.getContextualizedPath(),
-              // .setAriaDescribedByIds(ariaDescribedByIds)
-              // .setHasQuestionErrors(hasQuestionErrors)
+              ariaDescribedByIds,
+              hasQuestionErrors,
               Optional.of(entityNames.get(index)),
               Optional.of(index)));
     }
@@ -87,6 +88,9 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
                             messages.at(
                                 MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
                                 localizedEntityType)))
+                    .condAttr(hasQuestionErrors, "aria-invalid", "true")
+                    .condAttr(!ariaDescribedByIds.isEmpty(), "aria-describedby",
+                        StringUtils.join(ariaDescribedByIds, " "))
                     .withClasses(
                         ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
                         StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400)));
@@ -102,7 +106,8 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
       Messages messages,
       String localizedEntityType,
       Path contextualizedPath,
-      // String descriptionId,
+      ArrayList<String> ariaDescribedByIds,
+      boolean hasQuestionErrors,
       Optional<String> existingEntity,
       Optional<Integer> existingIndex) {
 
@@ -119,7 +124,8 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
                     localizedEntityType))
             .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT)
-            // .setDescriptionId(descriptionId)
+            .setAriaDescribedByIds(ariaDescribedByIds)
+            .setHasQuestionErrors(hasQuestionErrors)
             .getContainer();
     String confirmationMessage =
         messages.at(MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE.getKeyName(), localizedEntityType);
@@ -145,14 +151,15 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
     return div().withClasses(ENUMERATOR_FIELD_CLASSES).with(entityNameInput, removeEntityButton);
   }
 
-  // DELETE: what does this do? Where would I find description Id?
   /**
    * Create an enumerator field template for new entries. These come with a button to delete itself.
    */
   public static Tag newEnumeratorFieldTemplate(
       Path contextualizedPath, String localizedEntityType, Messages messages) {
+    // TODO(#1879): Set aria-describedby.
     return enumeratorField(
-            messages, localizedEntityType, contextualizedPath, Optional.empty(), Optional.empty())
+        messages, localizedEntityType, contextualizedPath, new ArrayList<String>(), false,
+        Optional.empty(), Optional.empty())
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN));
   }

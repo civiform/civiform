@@ -75,7 +75,6 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
 
     // Add the hidden enumerator field template
     if (params.block().isEnumerator()) {
-      // DELETE: get description ID of this?
       bundle.addMainContent(
           EnumeratorQuestionRenderer.newEnumeratorFieldTemplate(
               params.block().getEnumeratorQuestion().getContextualizedPath(),

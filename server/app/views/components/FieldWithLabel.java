@@ -53,7 +53,7 @@ public class FieldWithLabel {
   protected String labelText = "";
   protected String placeholderText = "";
   protected String screenReaderText = "";
-  protected ArrayList<String> ariaDescribedByIds;
+  protected ArrayList<String> ariaDescribedByIds = new ArrayList<String>();
   protected Messages messages;
   protected ImmutableSet<ValidationError> fieldErrors = ImmutableSet.of();
   protected boolean showFieldErrors = true;
@@ -239,7 +239,7 @@ public class FieldWithLabel {
    * Set the list of HTML tag IDs that should be used for a11y descriptions.
    */
   public FieldWithLabel setAriaDescribedByIds(ArrayList<String> ariaDescribedByIds) {
-    this.ariaDescribedByIds = ariaDescribedByIds;
+    this.ariaDescribedByIds = new ArrayList<String>(ariaDescribedByIds);
     return this;
   }
 
