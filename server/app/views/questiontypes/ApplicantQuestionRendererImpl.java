@@ -46,10 +46,6 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     return question.isOptional() ? "" : ReferenceClasses.REQUIRED_QUESTION;
   }
 
-  // Add comments?
-  // A list of HTML ids, used to provide question-level details for accessibility. This is currently
-  // used by the "aria-describedby" attribute for each input for this question.
-
   protected abstract Tag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
@@ -98,8 +94,6 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
         validationErrors.getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
     if (!questionErrors.isEmpty()) {
       // Question error text
-      // DELETE: if multiple errors, how will screen reader read this out? I think will read all out
-      // based on manual test with currency example
       hasQuestionErrors = true;
       questionTextDiv.with(
           BaseHtmlView.fieldErrors(
@@ -126,9 +120,5 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
         .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
         .with(questionTextDiv)
         .with(renderTag(params, validationErrors, ariaDescribedByIds, hasQuestionErrors));
-
-    // DELETE - what's the cleanest way to pass this data in? (hasQuestionErrors and question level
-    // aria-describedby)
-    // Add wrapper struct? Refactor it to make it a property of the class?
   }
 }

@@ -41,8 +41,6 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
 
   @Before
   public void setUp() {
-    // question = new ApplicantQuestion(CURRENCY_QUESTION_DEFINITION, applicantData, Optional.empty());
-
     question =
         new ApplicantQuestion(
             ProgramQuestionDefinition.create(CURRENCY_QUESTION_DEFINITION, Optional.of(programId))
