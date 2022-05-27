@@ -13,6 +13,8 @@ import static j2html.TagCreator.option;
 import static j2html.TagCreator.text;
 import static play.mvc.Http.HttpVerbs.POST;
 
+import j2html.tags.specialized.ButtonTag;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;

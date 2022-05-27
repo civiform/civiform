@@ -283,7 +283,7 @@ public class Icons {
     return svg(pathString, pixelSize, pixelSize);
   }
 
-  public static SvtTag svg(String pathString, int width, int height) {
+  public static SvgTag svg(String pathString, int width, int height) {
     // Setting the viewBox to a specific height/width is insufficient to
     // actually cause the SVG's bounds to match. Here, the width / height
     // of the SVG element are explicitly set, which is more consistent

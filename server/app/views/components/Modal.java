@@ -18,7 +18,7 @@ public class Modal {
   private DivTag content;
   private String modalTitle;
   private String triggerButtonText;
-  private Optional<DivTag> triggerButtonContent;
+  private Optional<ButtonTag> triggerButtonContent;
   private String buttonStyles;
   private Width width;
 
@@ -75,7 +75,7 @@ public class Modal {
     private String modalTitle;
     private String triggerButtonText;
 
-    private Optional<DivTag> triggerButtonContent = Optional.empty();
+    private Optional<ButtonTag> triggerButtonContent = Optional.empty();
     private Width width = Width.DEFAULT;
 
     public ModalBuilder(String modalId, DivTag content) {
@@ -93,9 +93,7 @@ public class Modal {
       return this;
     }
 
-    public ModalBuilder setTriggerButtonContent(DivTag triggerButtonContent) {
-      Preconditions.checkState(
-          "button".equals(triggerButtonContent.getTagName()), "content must be of type button");
+    public ModalBuilder setTriggerButtonContent(ButtonTag triggerButtonContent) {
       this.triggerButtonContent = Optional.ofNullable(triggerButtonContent);
       return this;
     }

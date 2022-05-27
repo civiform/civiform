@@ -7,6 +7,8 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
+import j2html.tags.specialized.ButtonTag;
+
 import auth.CiviFormProfile;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -146,7 +148,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return Optional.of(publishAllModal);
   }
 
-  private DivTag renderNewProgramButton() {
+  private ButtonTag renderNewProgramButton() {
     String link = controllers.admin.routes.AdminProgramController.newOne().url();
     ButtonTag button =
         makeSvgTextButton("Create new program", Icons.ADD_SVG_PATH)
