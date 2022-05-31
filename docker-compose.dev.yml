@@ -16,6 +16,10 @@ x-sbt-volumes:
     - m2-data:/root/.m2
 
 services:
+  dev-oidc:
+    ports:
+      - 3390:3390
+
   civiform:
     build: .
     volumes: *sbt-volumes
