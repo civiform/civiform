@@ -1,19 +1,17 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 # DOC: Run the browser test suite in Docker against the staging environment.
 
-pushd $(git rev-parse --show-toplevel)
-
-set -e
-set +x
+source bin/lib.sh
+bin/pull-image
 
 docker run \
   -v "$(pwd)/browser-test/src:/usr/src/civiform-browser-tests/src" \
   -v "$(pwd)/browser-test/bin:/usr/src/civiform-browser-tests/bin" \
-  -e BASE_URL=https://staging.seattle.civiform.com \
-  -e TEST_USER_LOGIN=$TEST_USER_LOGIN \
-  -e TEST_USER_PASSWORD=$TEST_USER_PASSWORD \
+  -v "$(pwd)/browser-test/tmp:/usr/src/civiform-browser-tests/tmp" \
+  -e RECORD_VIDEO="${RECORD_VIDEO}" \
+  -e BASE_URL="https://staging.seattle.civiform.com" \
+  -e TEST_USER_LOGIN="${TEST_USER_LOGIN}" \
+  -e TEST_USER_PASSWORD="${TEST_USER_PASSWORD}" \
   civiform-browser-test:latest \
   yarn probe
-
-popd

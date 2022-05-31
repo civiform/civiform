@@ -2,18 +2,18 @@
 
 # DOC: Connect to dev environment PostgreSQL database.
 
-pushd $(git rev-parse --show-toplevel)
+source bin/lib.sh
+docker::set_project_name_dev
+readonly COMPOSE_CMD="${DOCKER_COMPOSE_DEV}"
 
-set -e
-set +x
-
-# find repo root name (currently civiform), also support any names for backward and forward compatibility
-CIVIFORM_DIR=$(basename $(pwd))
-
-docker run --rm -it \
-  -e PGPASSWORD=example \
-  --network ${CIVIFORM_DIR}_default \
-  postgres:12.5 \
-  /usr/bin/psql -h db -U postgres
-
-popd
+${COMPOSE_CMD} \
+  up db \
+  --no-deps \
+  --wait \
+  -d
+${COMPOSE_CMD} exec \
+  -e "PGPASSWORD=example" \
+  db \
+  /usr/bin/psql \
+  -h db \
+  -U postgres

@@ -1,0 +1,21 @@
+#! /usr/bin/env bash
+
+set -e
+
+readonly PROJECT_BASE_DIR="${PWD}"
+readonly DOCTOR_IMPL_PATH="${PWD}/cloud/shared/bin/doctor_impl"
+if [ ! -f "${DOCTOR_IMPL_PATH}" ]; then
+  echo "Could not find ${DOCTOR_IMPL_PATH}. Please run the doctor binary from the root of the Git repository."
+  exit 1
+fi
+
+"${PROJECT_BASE_DIR}/cloud/shared/bin/validate_cloud_provider"
+
+source "${PROJECT_BASE_DIR}/bin/lib.sh"
+
+if ! which python3 >/dev/null; then
+  out::error "Must have python3 installed: https://www.python.org/downloads/"
+  exit 1
+fi
+
+exec "${PROJECT_BASE_DIR}/cloud/shared/bin/doctor_impl"

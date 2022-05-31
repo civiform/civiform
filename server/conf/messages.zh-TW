@@ -1,0 +1,83 @@
+# ------------------------------------------------------------------------------- #
+# Traditional Chinese
+#
+# CAUTION: Apostrophes are used as escape characters
+# To type an apostrophe in a message, please type two. Example: can't -> can''t
+# https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
+# ------------------------------------------------------------------------------- #
+
+button.apply=申請
+button.continue=繼續
+button.deleteFile=刪除
+button.keepFile=繼續
+button.logout=Logout
+button.nextScreen=下一個
+button.review=審核
+button.skipFileUpload=跳過
+button.submit=提交
+button.upload=上傳
+footer.supportLinkDescription=如需技術支援，請聯繫
+toast.localeNotSupported=很抱歉，此計劃未完全翻譯成您的首選語言版本。
+toast.programCompleted=申請已經完成。
+toast.applicationSaved=已成功保存申請：您的申請 ID 為 {0}
+title.applicationConfirmation=申請確認
+title.createAnAccount=創建帳戶或登錄
+content.confirmed=感謝您申請 {0}.  您的申請已收到，您的申請 ID 為 {1}.
+content.pleaseCreateAccount=如果您現在登錄您的政府個人服務帳戶，您的信息將被保存，您可以隨時返回並完成未來的申請。如果您還沒有帳戶，您可以在登錄頁面開始註冊手續。您不會失去任何已經輸入的數據。
+link.allDone=我已完成
+link.applyToAnotherProgram=申請其他計劃
+link.createAccountOrSignIn=創建帳戶或登錄
+link.begin=從這裡開始
+link.edit=編輯
+title.programPreview=計劃申請預覽
+title.programReview=計劃申請審核
+title.programs=計劃和服務
+title.inProgressPrograms=繼續
+title.activePrograms=新計劃
+title.programCard=第{0}個計劃，共{1}個 -- {2}
+link.programDetails=計劃詳情
+link.externalLink=外部網站連接
+content.benefits=獲得福利
+content.description1=CiviForm 可讓您通過使用已提交的信息一次性申請多項福利。
+content.description2=從下面選擇一個計劃來開始您的申請。
+label.street=地址第1行
+placeholder.street=街道地址
+label.addressLine2=單元/公寓號
+placeholder.line2=公寓、套房、單元、大樓、樓層等。
+label.city=城市
+placeholder.city=城市
+label.state=州
+placeholder.state=州
+label.zipcode=郵政編碼
+placeholder.zipcode=郵政編碼
+label.firstName=名
+placeholder.firstName=名
+label.middleName=中間名
+placeholder.middleName=中間名
+label.lastName=姓
+placeholder.lastName=姓
+placeholder.entityName={0} 的暱稱
+button.addEntity= {0} 添加
+button.removeEntity={0} 刪除
+validation.isRequired=這個問題是必須回答的。
+validation.duplicateEntityName=請在每一行輸入一個獨特值。
+validation.firstNameRequired=請輸入您的名。
+validation.lastNameRequired=請輸入您的姓。
+validation.textTooShort=必須至少包含 {0} 個字符。
+validation.textTooLong=必須最多包含 {0} 個字符。
+validation.numberTooSmall=必須至少包含 {0} 個字符。
+validation.numberTooBig=最多必須是 {0}。
+validation.tooFewSelections=請選擇至少 {0}。
+validation.tooManySelections=請選擇少於 {0}。
+validation.streetRequired=請輸入有效的街道名稱和號碼。
+validation.cityRequired=請輸入城市名。
+validation.currencyMisformatted=貨幣數值必須是以下格式：1000 1,000 1000.30 1,000.30
+validation.stateRequired=請輸入州名。
+validation.invalidZipcode=請輸入有效的 5 位數郵政編碼。
+validation.noPoBox=請輸入有效地址。我們不接受郵政信箱。
+validation.entityNameRequired=請在每一行輸入一個值。
+validation.fileRequired=請選擇一個文件。
+validation.idTooShort=必須至少包含 {0} 個字符。
+validation.idTooLong=必須最多包含 {0} 個字符。
+validation.numberRequired=必須只包含數字。
+adminValidation.multiOptionEmpty=多選題不能有空白選項。

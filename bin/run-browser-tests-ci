@@ -1,18 +1,18 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 # DOC: Run the browser tests in CI mode.
 
-pushd $(git rev-parse --show-toplevel)
+export COMPOSE_INTERACTIVE_NO_CLI=1
 
-set -e
-set +x
+source bin/lib.sh
+docker::set_project_name_browser_tests
 
 docker run \
   -v "$(pwd)/browser-test/src:/usr/src/civiform-browser-tests/src" \
   -v "$(pwd)/browser-test/bin:/usr/src/civiform-browser-tests/bin" \
-  --network browser-test_default \
+  -v "$(pwd)/browser-test/tmp:/usr/src/civiform-browser-tests/tmp" \
+  -e RECORD_VIDEO="${RECORD_VIDEO}" \
+  --network "${DOCKER_NETWORK_NAME}" \
   civiform-browser-test:latest \
   /usr/src/civiform-browser-tests/bin/wait_for_server_start_and_run_tests.sh \
-  $@
-
-popd
+  "$@"

@@ -1,0 +1,5 @@
+#! /usr/bin/env bash
+
+source cloud/deploys/dev_azure/bin/lib.sh
+
+cloud/shared/bin/setup

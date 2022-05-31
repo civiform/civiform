@@ -3,20 +3,57 @@ variable "application_name" {
   description = "Azure Web App Name"
 }
 
+variable "aws_region" {
+  type        = string
+  description = "Region for the aws account, if using"
+  default     = "us-east-1"
+}
+
+variable "civiform_time_zone_id" {
+  type        = string
+  description = "Time zone for Civiform server to use when displaying dates."
+}
+
+variable "civic_entity_short_name" {
+  type        = string
+  description = "Short name for civic entity (example: Rochester, Seattle)."
+}
+
+variable "civic_entity_full_name" {
+  type        = string
+  description = "Full name for civic entity (example: City of Rochester, City of Seattle)."
+}
+
+variable "civic_entity_support_email_address" {
+  type        = string
+  description = "Email address where applicants can contact civic entity for support with Civiform."
+}
+
+variable "civic_entity_logo_with_name_url" {
+  type        = string
+  description = "Logo with name used on the applicant-facing program index page"
+}
+
+variable "civic_entity_small_logo_url" {
+  type        = string
+  description = "Logo with name used on the applicant-facing program index page"
+}
+
 variable "docker_username" {
   type        = string
   description = "Docker username"
+  default     = "civiform"
 }
 
 variable "docker_repository_name" {
   type        = string
   description = "Name of container image"
+  default     = "civiform"
 }
 
-variable "image_tag_name" {
+variable "image_tag" {
   type        = string
   description = "Tag for container image"
-  default     = "latest"
 }
 
 variable "location_name" {
@@ -41,9 +78,20 @@ variable "subnet_address_prefixes" {
   ]
 }
 
-variable "app_secret_key" {
-  type        = string
-  description = "Secret Key For the app"
+variable "canary_subnet_address_prefixes" {
+  type        = list(string)
+  description = "List of the apps subnet address prefixes (must be distinct from the postgress subnet)"
+  default = [
+    "10.0.0.0/24"
+  ]
+}
+
+variable "bastion_address_prefixes" {
+  type        = list(string)
+  description = "Prefixes for the bastion instance (must be distinct from other subnets)"
+  default = [
+    "10.0.6.0/24"
+  ]
 }
 
 variable "app_sku" {
@@ -51,14 +99,14 @@ variable "app_sku" {
   description = "SKU tier/size/capacity information"
   default = {
     tier     = "Standard",
-    size     = "S1",
+    size     = "S2",
     capacity = "2"
   }
 }
 
 variable "resource_group_name" {
-  type        = string
-  default     = "civiform-resourcegroup"
+  type    = string
+  default = "civiform-resourcegroup"
 }
 
 variable "postgres_admin_login" {
@@ -66,15 +114,10 @@ variable "postgres_admin_login" {
   description = "Postgres admin login"
 }
 
-variable "postgres_admin_password" {
-  type        = string
-  description = "Postgres admin password"
-}
-
 variable "postgres_sku_name" {
   type        = string
   description = "The sku name for postgres server"
-  default     = "GP_Gen5_4"
+  default     = "GP_Gen5_2"
 }
 variable "postgres_storage_mb" {
   type        = number
@@ -109,6 +152,100 @@ variable "log_retention" {
 }
 
 variable "ses_sender_email" {
-  type = string
+  type        = string
   description = "Email address of who is sending the email, passed to the app"
+}
+
+
+variable "key_vault_name" {
+  type        = string
+  description = "Name of key vault where secrets are stored."
+}
+
+variable "adfs_admin_group" {
+  type        = string
+  description = "Active Directory Federation Service group name"
+}
+
+variable "ad_groups_attribute_name" {
+  type        = string
+  description = "Name of the Active Directory claim that returns groups a user is in"
+  default     = "groups"
+}
+
+variable "civiform_applicant_idp" {
+  type        = string
+  description = "identity provider to use for applicant auth. supported values are idcs and login-radius"
+  default     = "login-radius"
+}
+
+variable "civiform_applicant_auth_protocol" {
+  type        = string
+  description = "auth protocol to use for applicant auth. supported values are oidc and saml"
+}
+
+variable "login_radius_api_key" {
+  type        = string
+  description = "Login Radius API Key"
+  default     = null
+}
+
+variable "login_radius_metadata_uri" {
+  type        = string
+  description = "LoginRadius endpoint for fetching IdP metadata"
+  default     = null
+}
+
+variable "login_radius_saml_app_name" {
+  type        = string
+  description = "The App Name for the LoginRadius SAML integration"
+  default     = null
+}
+
+variable "saml_keystore_filename" {
+  description = "Name of Java Keystore file stored in Azure blob storage"
+  default     = null
+}
+
+variable "saml_keystore_password" {
+  description = "Password for Java Keystore file"
+  default     = null
+}
+
+variable "saml_private_key_password" {
+  description = "Password for Java Keystore private key"
+  default     = null
+}
+
+variable "saml_keystore_storage_account_name" {
+  description = "Name of storage account where Java Keystore is stored"
+  default     = null
+}
+
+variable "saml_keystore_storage_container_name" {
+  description = "Name of storage container where Java Keystore is stored"
+  default     = null
+}
+
+variable "saml_keystore_storage_access_key" {
+  description = "Key needed to access keystore file"
+  default     = null
+}
+
+variable "staging_program_admin_notification_mailing_list" {
+  type        = string
+  description = "Admin notification mailing list for staging"
+  default     = ""
+}
+
+variable "staging_ti_notification_mailing_list" {
+  type        = string
+  description = "intermediary notification mailing list for staging"
+  default     = ""
+}
+
+variable "staging_applicant_notification_mailing_list" {
+  type        = string
+  description = "Applicant notification mailing list for staging"
+  default     = ""
 }

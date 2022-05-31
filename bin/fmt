@@ -1,11 +1,12 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 # DOC: Autoformat Java and TypeScript source files. Usually good to run before committing.
 
-pushd $(git rev-parse --show-toplevel)
+source bin/lib.sh
+docker::set_project_name_dev
+
+bin/pull-image
 
 docker run --rm -it \
-  -v "$(pwd)/universal-application-tool-0.0.1/:/code" \
+  -v "$(pwd):/code" \
   civiform/formatter:latest
-
-popd

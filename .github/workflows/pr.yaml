@@ -4,143 +4,30 @@ on:
   pull_request:
     branches: main
 
+permissions: read-all
+
 jobs:
-  run_junit_tests:
+  run_all_tests:
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit
+
+  validate_deployment_variable_definitions:
     runs-on: ubuntu-latest
     steps:
       - name: check out pr branch
-        uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Build test container
-        env:
-          DOCKER_BUILDKIT: 1
-        run: docker build -t civiform --cache-from docker.io/civiform/civiform:latest ./
-      - name: Run tests
-        run: docker run -v /var/run/docker.sock:/var/run/docker.sock civiform test
+        uses: actions/checkout@v3
+      - name: Run deployment variable definition validation test
+        run: python3 cloud/shared/validate_variable_definitions_test.py
 
-  run_browser_tests_aws:
+  validate_terraform:
     runs-on: ubuntu-latest
     steps:
       - name: check out pr branch
-        uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Build test app container
-        env:
-          DOCKER_BUILDKIT: 1
-        run: docker build -t civiform --cache-from docker.io/civiform/civiform:latest ./
-      - name: Build browser testing container
-        env:
-          DOCKER_BUILDKIT: 1
-          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        run: bin/build-browser-tests
-      - name: Bring up test env with Localstack
-        run: bin/run-browser-test-env --aws --ci
-      - name: Run browser tests with Localstack
-        run: bin/run-browser-tests-ci
-      - name: Print logs on failure
-        if: failure()
-        run: cat .dockerlogs
-
-  run_browser_tests_azure:
-    runs-on: ubuntu-latest
-    steps:
-      - name: check out pr branch
-        uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Build test app container
-        env:
-          DOCKER_BUILDKIT: 1
-        run: docker build -t civiform --cache-from docker.io/civiform/civiform:latest ./
-      - name: Build browser testing container
-        env:
-          DOCKER_BUILDKIT: 1
-          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        run: bin/build-browser-tests
-      - name: Bring up test env with Azurite
-        run: bin/run-browser-test-env --azure --ci
-      - name: Run dev_file_upload.test.ts browser tests with Azurite
-        run: bin/run-browser-tests-ci dev_file_upload.test.ts
-      - name: Print logs on failure
-        if: failure()
-        run: cat .dockerlogs
-
-  test_prod:
-    runs-on: ubuntu-latest
-    steps:
-      - name: check out pr branch
-        uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Build prod container
-        env:
-          DOCKER_BUILDKIT: 1
-        run: docker build -f prod.Dockerfile -t civiform:prod --cache-from docker.io/civiform/civiform:latest ./
-      - name: Build the stack
-        env:
-          SECRET_KEY: notarealsecret
-        run: docker-compose -f infra/prod-simulator-compose.yml up -d
-      - name: Test
-        # Confirm that we get a response on port 9000.
-        run: while ! docker run --network host appropriate/curl -v -s --retry-max-time 180 --retry-connrefused http://localhost:9000/ ; do sleep 5; done
-        timeout-minutes: 3
-
-  cloudformation:
-    runs-on: ubuntu-18.04 # for older version of awscli.
-    steps:
-      - id: file_changes
-        uses: trilom/file-changes-action@v1.2.4
-      - name: fail if created from a fork
-        if: contains(toJSON(steps.file_changes.outputs.files), 'infra/') && github.event.pull_request.head.repo.full_name != github.repository
-        run: |
-          echo "Sorry, you created this PR from a fork and therefore we don't have access to the secrets we need to run this test."
-          echo "We actually can't even post this as a comment to the GitHub PR, so you probably found this in the logs while trying to figure out what failed."
-          echo "This is for genuinely good security reasons - GitHub doesn't authorize PRs from forks to have access to secrets, but allows"
-          echo "access to any commits deemed 'safe enough' to push to the main repo."
-          echo
-          echo "To fix this issue, just push your branch to the main repo, close the PR that generated this error, and open another one."
-          echo "If that won't work for you for some reason, say because you are an OSS contributor who does not have collaborator perms on the repo,"
-          echo "you can run bin/deploy-prod and verify your changes for yourself in an AWS account that you have access to."
-          exit 1
-
-      - name: Checkout
-        if: contains(toJSON(steps.file_changes.outputs.files), 'infra/')
-        uses: actions/checkout@v2
-
-      - name: Run check-change.
-        if: contains(toJSON(steps.file_changes.outputs.files), 'infra/')
-        id: check_change
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.SESSION_TOKEN }}
-        run: bin/check-cfn-change
-
-      - uses: mshick/add-pr-comment@v1
-        if: failure() && contains(toJSON(steps.file_changes.outputs.files), 'infra/')
-        name: Send failure comment.
-        with:
-          message: |
-            I noticed that you have created a PR which seems to contain a file that updates CloudFormation.
-            The changes failed preliminary validation, with the following message.
-
-            > ${{ steps.check_change.outputs.failure_msg }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: mshick/add-pr-comment@v1
-        name: Send success comment.
-        if: success() && contains(toJSON(steps.file_changes.outputs.files), 'infra/')
-        with:
-          message: |
-            I noticed that you have created a PR which seems to contain a file that updates CloudFormation.
-            The changes passed preliminary validation!
-
-            The following objects will be recreated (or conditionally recreated) - please take a look and make sure
-            this is correct before submitting your PR.
-
-            > ${{ steps.check_change.outputs.changes_msg }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/checkout@v3
+      - name: setup terraform
+        uses: hashicorp/setup-terraform@v1
+      # as we add more templates, we will add checks to validate them. for now, we only have one
+      - name: terraform init azure_saml_ses
+        run: terraform -chdir=cloud/azure/templates/azure_saml_ses init -backend=false
+      - name: terraform validate azure_saml_ses
+        run: terraform -chdir=cloud/azure/templates/azure_saml_ses validate

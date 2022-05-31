@@ -46,26 +46,10 @@ resource "google_storage_bucket" "file_storage" {
   ]
 }
 
-## TODO(ktoor@google.com) : Remove user and add service accounts for GKE.
-data "google_iam_policy" "storage_viewer" {
-  binding {
-    role = "roles/storage.legacyBucketReader"
-    members = [
-      "user:ktoor@google.com"
-    ]
-  }
-}
-
-resource "google_storage_bucket_iam_policy" "viewer_policy" {
-  bucket = google_storage_bucket.file_storage.name
-  policy_data = data.google_iam_policy.storage_viewer.policy_data
-}
-
 data "google_iam_policy" "storage_owner" {
   binding {
     role = "roles/storage.legacyBucketOwner"
     members = [
-      "serviceAccount:civform-terraform@civiform-demo.iam.gserviceaccount.com",
       "serviceAccount:${var.application_service_account_email}"
     ]
   }

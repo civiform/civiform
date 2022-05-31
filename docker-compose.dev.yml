@@ -1,12 +1,90 @@
+# Builds on docker-compose.yml
 # Mount code for hot reloading and cache for faster compile in dev mode.
-version: '3.1'
+version: '3.4'
+
+# Shared yaml extensions (https://docs.docker.com/compose/compose-file/compose-file-v3/#extension-fields)
+# Volume mapping shared between containers.
+x-sbt-volumes:
+  volumes: &sbt-volumes
+    - ./server:/usr/src/server
+    - target:/usr/src/server/target
+    - node_modules-data:/usr/src/server/node_modules
+    - project-data:/usr/src/server/project
+    - coursier-data:/root/.cache/coursier
+    - sbt-data:/root/.sbt
+    - ivy2-data:/root/.ivy2
+    - m2-data:/root/.m2
 
 services:
+  dev-oidc:
+    ports:
+      - 3390:3390
 
   civiform:
     build: .
+    volumes: *sbt-volumes
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    ports:
+      - 9000:9000
+      - 8457:8457
+    command: -jvm-debug "*:8457" ~run -Dconfig.file=conf/application.dev.conf
+
+  civiform-shell:
+    image: civiform-dev
+    entrypoint: /bin/bash
+    profiles: ["shell"]
+    volumes: *sbt-volumes
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+
+  localstack:
+    ports:
+      - 4566:4566
+  azurite:
+     ports:
+      - 10000:10000
+
+  db:
+    image: postgres:12.5
+    stdin_open: true
+    tty: true
     volumes:
-      - ./universal-application-tool-0.0.1:/usr/src/universal-application-tool-0.0.1
-      - ~/.coursier:/root/.coursier
-      - ~/.sbt:/root/.sbt
-      - ~/.ivy:/root/.ivy2
+      # isolate and persist dev database.
+      - project-data:/project
+      - db-data:/var/lib/postgresql/data
+
+  pgadmin:
+    profiles: ["pgadmin"]
+    image: dpage/pgadmin4
+    restart: always
+    depends_on:
+      - db
+    volumes:
+      - /tmp/servers.json:/pgadmin4/servers.json
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - 8012:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@localhost.localdomain
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+
+volumes:
+  db-data:
+    driver: local
+  node_modules-data:
+    driver: local
+  project-data:
+    driver: local
+  coursier-data:
+    driver: local
+  sbt-data:
+    driver: local
+  ivy2-data:
+    driver: local
+  m2-data:
+    driver: local
+  target:
+    driver: local
