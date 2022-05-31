@@ -342,37 +342,21 @@ public class FieldWithLabel {
       fieldTag.withText(this.fieldValue);
     } 
 
-    String fieldErrorsId = String.format("%s-errors", this.id);
-    boolean hasFieldErrors = getHasFieldErrors();
-    if (hasFieldErrors) {
-      fieldTag.attr("aria-invalid", "true");
-      fieldTag.attr("aria-describedBy", fieldErrorsId);
-    }
-
-    generalApplyAttrsClassesToTag(fieldTag, hasFieldErrors);
-
-    if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
-      return getCheckboxContainer(fieldTag);
-    }
-
-    LabelTag labelTag = genLabelTag();
-
-    return wrapInDivTag(fieldTag, labelTag, fieldErrorsId);
+    return applyAttrsAndGenLabel(fieldTag);
   }
 
-  protected DivTag getInputTagContainer(InputTag fieldTag) {
+  protected DivTag getTagContainer(Tag fieldTag) {
     genRandIdIfEmpty();
     if (this.fieldType.equals("number")) {
       numberTagApplyAttrs(fieldTag);
-      // For number types, only set the value if it's present since there is no empty string
-      // equivalent for numbers.
-      if (this.fieldValueNumber.isPresent()) {
-        fieldTag.attr("value", String.valueOf(this.fieldValueNumber.getAsLong()));
-      }
     } else {
       fieldTag.attr("value", this.fieldValue);
     }
 
+    return applyAttrsAndGenLabel(fieldTag);
+  }
+
+  protected DivTag applyAttrsAndGenLabel(Tag fieldTag) {
     String fieldErrorsId = String.format("%s-errors", this.id);
     boolean hasFieldErrors = getHasFieldErrors();
     if (hasFieldErrors) {
@@ -403,7 +387,7 @@ public class FieldWithLabel {
       // TODO ensure `apply` methods set .withtype('text') and .withText(fieldValue)?
       inputFieldTagMaybe = TagCreator.input();
       applyAttributesFromList(inputFieldTagMaybe);
-      return getInputTagContainer(inputFieldTagMaybe);
+      return getTagContainer(inputFieldTagMaybe);
     }
   }
 

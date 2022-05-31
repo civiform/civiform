@@ -154,6 +154,6 @@ public class SelectWithLabel extends FieldWithLabel {
           });
     }
 
-    return getSelectTagContainer(fieldTag);
+    return super.getTagContainer(fieldTag);
   }
 }
