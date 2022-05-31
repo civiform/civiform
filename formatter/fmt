@@ -25,13 +25,6 @@ function get_modified_java_files() {
   ) | grep -E "server\/.+\.java"
 }
 
-function get_modified_ts_files() {
-  (
-    get_tracked_modified_files
-    get_untracked_files
-  ) | grep -E ".+\.ts"
-}
-
 if [[ -z $(get_modified_java_files) ]]; then
   echo 'No modified java files found'
 else
@@ -40,17 +33,13 @@ else
   echo 'Done formatting java'
 fi
 
-if [[ -z "$(get_modified_ts_files)" ]]; then
-  echo 'No modified TS files found'
-else
-  echo 'Start format TS'
-  npx prettier \
-    --write \
-    --config /.prettierrc.js \
-    --ignore-path /.prettierignore \
-    $(get_modified_ts_files)
-  echo 'Done formatting TS'
-fi
+echo 'Start format TS'
+npx prettier \
+  --write \
+  --config /.prettierrc.js \
+  --ignore-path /.prettierignore \
+  {server,browser-test}
+echo 'Done formatting TS'
 
 echo 'Start format shell'
 shfmt -bn -ci -i 2 -w -l \
