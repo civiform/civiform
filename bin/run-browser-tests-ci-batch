@@ -10,10 +10,20 @@ import sys
 
 BATCH_COUNT = 4
 
-batch_number = sys.argv[1]
+def bad_batch_number_input(batch_num_input):
+    print(f"Invalid batch number: {batch_num_input}", file=sys.stderr)
+    exit(1)
+
+if len(sys.argv) < 2:
+    bad_batch_number_input("none")
+
+try:
+    batch_number = int(sys.argv[1])
+except ValueError:
+    bad_batch_number_input(sys.argv[1])
 
 if batch_number < 1 or batch_number > BATCH_COUNT:
-    print(f"Invalid batch number: {batch_number}")
+    bad_batch_number_input(batch_number)
 
 test_files = glob.glob('browser-test/src/*.test.ts')
 test_files.sort()
@@ -21,6 +31,6 @@ test_files_count = len(glob.glob('browser-test/src/*.test.ts'))
 batch_size = math.ceil(test_files_count / BATCH_COUNT)
 
 batch_contents = test_files[(batch_number - 1) * batch_size : batch_number * batch_size]
-shell_command = ["./bin/run-browser-tests-ci-batch"] + batch_contents
+shell_command = ["./bin/run-browser-tests-ci"] + batch_contents
 
 subprocess.run(shell_command)
