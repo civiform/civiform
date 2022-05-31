@@ -10,6 +10,7 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.Tag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
 
@@ -98,6 +99,37 @@ public class SelectWithLabel extends FieldWithLabel {
     this.attributesListBuilder.build().forEach(attr -> fieldTag.attr(attr, null));
   }
 
+  protected DivTag getSelectTagContainer(SelectTag fieldTag) {
+    genRandIdIfEmpty();
+    if (this.fieldType.equals("number")) {
+      numberTagApplyAttrs(fieldTag);
+      // For number types, only set the value if it's present since there is no empty string
+      // equivalent for numbers.
+      if (this.fieldValueNumber.isPresent()) {
+        fieldTag.attr("value", String.valueOf(this.fieldValueNumber.getAsLong()));
+      }
+    } else {
+      fieldTag.attr("value", this.fieldValue);
+    }
+
+    String fieldErrorsId = String.format("%s-errors", this.id);
+    boolean hasFieldErrors = getHasFieldErrors();
+    if (hasFieldErrors) {
+      fieldTag.attr("aria-invalid", "true");
+      fieldTag.attr("aria-describedBy", fieldErrorsId);
+    }
+
+    generalApplyAttrsClassesToTag(fieldTag, hasFieldErrors);
+
+    if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
+      return super.getCheckboxContainer(fieldTag);
+    }
+
+    LabelTag labelTag = super.genLabelTag();
+
+    return super.wrapInDivTag(fieldTag, labelTag, fieldErrorsId);
+  }
+
   @Override
   public DivTag getContainer() {
     SelectTag fieldTag = TagCreator.select();
@@ -122,6 +154,6 @@ public class SelectWithLabel extends FieldWithLabel {
           });
     }
 
-    return super.wrappedGetTagContainer(fieldTag);
+    return getSelectTagContainer(fieldTag);
   }
 }

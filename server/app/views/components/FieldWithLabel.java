@@ -335,11 +335,34 @@ public class FieldWithLabel {
     this.attributesListBuilder.build().forEach(attr -> fieldTag.attr(attr, null));
   }
 
-  protected DivTag wrappedGetTagContainer(Tag fieldTag) {
+  protected DivTag getTextareaTagContainer(TextareaTag fieldTag) {
     genRandIdIfEmpty();
+    // TODO throw exception if false
     if (fieldTag.getTagName().equals("textarea")) {
-      fieldTag.attr("text", this.fieldValue);
-    } else if (this.fieldType.equals("number")) {
+      fieldTag.withText(this.fieldValue);
+    } 
+
+    String fieldErrorsId = String.format("%s-errors", this.id);
+    boolean hasFieldErrors = getHasFieldErrors();
+    if (hasFieldErrors) {
+      fieldTag.attr("aria-invalid", "true");
+      fieldTag.attr("aria-describedBy", fieldErrorsId);
+    }
+
+    generalApplyAttrsClassesToTag(fieldTag, hasFieldErrors);
+
+    if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
+      return getCheckboxContainer(fieldTag);
+    }
+
+    LabelTag labelTag = genLabelTag();
+
+    return wrapInDivTag(fieldTag, labelTag, fieldErrorsId);
+  }
+
+  protected DivTag getInputTagContainer(InputTag fieldTag) {
+    genRandIdIfEmpty();
+    if (this.fieldType.equals("number")) {
       numberTagApplyAttrs(fieldTag);
       // For number types, only set the value if it's present since there is no empty string
       // equivalent for numbers.
@@ -375,12 +398,12 @@ public class FieldWithLabel {
     if (isTagTypeTextarea()) {
       textareaFieldTagMaybe = TagCreator.textarea();
       applyAttributesFromList(textareaFieldTagMaybe);
-      return wrappedGetTagContainer(textareaFieldTagMaybe);
+      return getTextareaTagContainer(textareaFieldTagMaybe);
     } else {
       // TODO ensure `apply` methods set .withtype('text') and .withText(fieldValue)?
       inputFieldTagMaybe = TagCreator.input();
       applyAttributesFromList(inputFieldTagMaybe);
-      return wrappedGetTagContainer(inputFieldTagMaybe);
+      return getInputTagContainer(inputFieldTagMaybe);
     }
   }
 
@@ -388,7 +411,7 @@ public class FieldWithLabel {
    * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
    * attribute.
    */
-  private DivTag getCheckboxContainer(Tag fieldTag) {
+  protected DivTag getCheckboxContainer(Tag fieldTag) {
     if (this.checked) {
       fieldTag.attr("checked");
     }
