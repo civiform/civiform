@@ -9,7 +9,7 @@ cd /code
 # Gets the list of file paths for files that are tracked by git and have
 # changes relative to the main branch.
 function get_tracked_modified_files() {
-  git diff --name-only main
+  git diff --name-only origin/main
 }
 
 # Gets the list of file paths for files that are not tracked by git and are
@@ -22,7 +22,7 @@ function get_modified_java_files() {
   (
     get_tracked_modified_files
     get_untracked_files
-  ) | grep -E "server\/.+\.java"
+  ) | grep -E ".+\.java$"
 }
 
 if [[ -z $(get_modified_java_files) ]]; then

@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # DOC: Pull the latest development environment docker image from Docker Hub
-# DOC: unless USE_LOCAL_CIVIFORM is set. May specify a specific what to pull
+# DOC: unless USE_LOCAL_CIVIFORM is set. May specify what to pull with flags
 # DOC: e.g. "--formatter", "--localstack", or "--all" (the default).
 
 source bin/lib.sh
