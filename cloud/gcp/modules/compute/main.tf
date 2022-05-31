@@ -21,47 +21,47 @@ resource "google_cloud_run_service" "civiform_application_run_service" {
       containers {
         image = "gcr.io/${var.project_id}/${var.civiform_image_name}"
         resources {
-            requests = {
-                "cpu"    = "2"
-                "memory" = "4000Mi"
-            }
-            limits = {
-                cpu      = "4"
-                "memory" = "7182Mi"
-            }
+          requests = {
+            "cpu"    = "2"
+            "memory" = "4000Mi"
+          }
+          limits = {
+            cpu      = "4"
+            "memory" = "7182Mi"
+          }
         }
         ports {
-          name = "http1"
+          name           = "http1"
           container_port = var.http_port
         }
         env {
-          name = "DB_USERNAME"
+          name  = "DB_USERNAME"
           value = var.application_service_account_email
         }
         env {
-          name = "REGION"
+          name  = "REGION"
           value = var.region
         }
         env {
-          name = "GCS_BUCKET_NAME"
+          name  = "GCS_BUCKET_NAME"
           value = var.bucket_name
         }
         // CloudSql JDBC connector needs to use HikariDataSource to establish a jdbc connection (https://github.com/GoogleCloudPlatform/java-docs-samples/blob/HEAD/cloud-sql/postgres/servlet/src/main/java/com/example/cloudsql/ConnectionPoolContextListener.java)
         env {
-          name = "DB_CONNECTION_STRING"
+          name  = "DB_CONNECTION_STRING"
           value = "/cloudsql/${var.db_connection_name}"
         }
         env {
           name = "DB_PASSWORD"
-      value_from {
+          value_from {
             secret_key_ref {
               name = var.db_secret_id
-              key = "latest"
+              key  = "latest"
             }
           }
         }
       }
-        service_account_name = var.application_service_account_email
+      service_account_name = var.application_service_account_email
     }
     metadata {
       annotations = {
@@ -71,10 +71,10 @@ resource "google_cloud_run_service" "civiform_application_run_service" {
       }
     }
   }
-  metadata { 
-    annotations = { 
+  metadata {
+    annotations = {
       "run.googleapis.com/ingress" = "internal-and-cloud-load-balancing"
-    } 
+    }
   }
   autogenerate_revision_name = true
 }

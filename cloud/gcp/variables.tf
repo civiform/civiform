@@ -28,13 +28,13 @@ variable "http_port" {
 }
 
 variable "project_id" {
-  type = string
+  type        = string
   description = "The Id of the project"
-  default = "civiform-demo"
+  default     = "civiform-demo"
 }
 
 variable "civiform_image_name" {
-  type = string
+  type        = string
   description = "the image name postfix for civiform."
-  default = "civiform:latest"
+  default     = "civiform:latest"
 }

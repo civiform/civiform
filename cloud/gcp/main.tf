@@ -20,9 +20,9 @@ provider "google" {
 }
 
 module "IAM" {
-  source = "./modules/IAM"
-  terraform_service_account_email   = var.terraform_service_account
-  project_id                        = var.project_id
+  source                          = "./modules/IAM"
+  terraform_service_account_email = var.terraform_service_account
+  project_id                      = var.project_id
 }
 
 module "network" {
@@ -52,7 +52,7 @@ module "compute" {
   bucket_name                       = module.storage.bucket_name
   db_connection_name                = module.database.db_connection_name
   application_service_account_email = module.IAM.application_service_account_email
-  db_secret_id                         = module.database.db_secret_id
+  db_secret_id                      = module.database.db_secret_id
   civiform_image_name               = var.civiform_image_name
   project_id                        = var.project_id
   terraform_service_account_email   = var.terraform_service_account
