@@ -5,11 +5,7 @@
 source bin/lib.sh
 docker::set_project_name_dev
 
-if [[ -z "${USE_LOCAL_CIVIFORM}" ]]; then
-  docker pull -q civiform/formatter:latest
-else
-  echo "Using local civiform and dependency docker images"
-fi
+bin/pull-image --formatter
 
 docker run --rm -it \
   -v "$(pwd):/code" \
