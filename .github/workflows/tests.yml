@@ -30,6 +30,9 @@ jobs:
       run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
 
   run_browser_tests_aws:
+    strategy:
+      matrix:
+        batch_number: [1, 2, 3, 4]
     runs-on: ubuntu-latest
     steps:
     - name: check out ${{ env.GITHUB_REF }}
@@ -49,12 +52,15 @@ jobs:
     - name: Bring up test env with Localstack
       run: bin/run-browser-test-env --aws --ci
     - name: Run browser tests with Localstack
-      run: bin/run-browser-tests-ci
+      run: bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
     - name: Print logs on failure
       if: failure()
       run: cat .dockerlogs
 
   run_browser_tests_azure:
+    strategy:
+      matrix:
+        batch_number: [1, 2, 3, 4]
     runs-on: ubuntu-latest
     steps:
     - name: check out ${{ env.GITHUB_REF }}
@@ -74,7 +80,7 @@ jobs:
     - name: Bring up test env with Azurite
       run: bin/run-browser-test-env --azure --ci
     - name: Run browser tests with Azurite
-      run: bin/run-browser-tests-ci
+      run: bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
     - name: Print logs on failure
       if: failure()
       run: cat .dockerlogs
