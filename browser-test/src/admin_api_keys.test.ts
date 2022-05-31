@@ -4,12 +4,12 @@ import {
   loginAsAdmin,
   AdminApiKeys,
   AdminPrograms,
-  endSession
+  endSession,
 } from './support'
 
 describe('Managing API keys', () => {
-  let browser : Browser
-  let page : Page
+  let browser: Browser
+  let page: Page
 
   beforeEach(async () => {
     var session = await startSession()
@@ -18,12 +18,11 @@ describe('Managing API keys', () => {
     page = session.page
   })
 
-  afterEach(async () =>{
+  afterEach(async () => {
     await endSession(browser)
   })
 
   it('Creates, views and retires new API key', async () => {
-
     await loginAsAdmin(page)
     const adminApiKeys = new AdminApiKeys(page)
     const adminPrograms = new AdminPrograms(page)
