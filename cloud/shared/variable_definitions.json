@@ -74,18 +74,6 @@
     "tfvar": true,
     "type": "string"
   },
-  "DOCKER_REPOSITORY_NAME": {
-    "required": true,
-    "secret": false,
-    "tfvar": true,
-    "type": "string"
-  },
-  "DOCKER_USERNAME": {
-    "required": true,
-    "secret": false,
-    "tfvar": true,
-    "type": "string"
-  },
   "SENDER_EMAIL_ADDRESS": {
     "required": true,
     "secret": false,
