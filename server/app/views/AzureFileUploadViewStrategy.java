@@ -107,33 +107,8 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
         .withId("azure-upload-form-component")
         .with(
             footer(viewUtils.makeAzureBlobStoreScriptTag()),
-            footer(viewUtils.makeLocalJsTag("azure_upload")));
-  }
-
-  @Override
-  protected Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params) {
-    if (hasAtLeastOneRequiredQuestion(params)) {
-      // If the file question is required, skip or delete is not allowed.
-      return Optional.empty();
-    }
-    String buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
-    String buttonId = FILEUPLOAD_SKIP_BUTTON_ID;
-    Optional<ContainerTag> footer = Optional.empty();
-
-    if (hasUploadedFile(params)) {
-      buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
-      buttonId = FILEUPLOAD_DELETE_BUTTON_ID;
-      footer = Optional.of(footer().with(viewUtils.makeLocalJsTag("azure_delete")));
-    }
-
-    ContainerTag button =
-        TagCreator.button(buttonText)
-            .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
-            .withClasses(ApplicantStyles.BUTTON_REVIEW)
-            .withId(buttonId);
-    footer.ifPresent(button::with);
-
-    return Optional.of(button);
+            footer(viewUtils.makeLocalJsTag("azure_upload")),
+            footer(viewUtils.makeLocalJsTag("azure_delete")));
   }
 
   private BlobStorageUploadRequest castStorageRequest(StorageUploadRequest request) {
@@ -142,25 +117,5 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
           "Tried to upload a file to Azure Blob storage using incorrect request type");
     }
     return (BlobStorageUploadRequest) request;
-  }
-
-  private Tag renderFileUploadBottomNavButtons(Params params) {
-    Optional<Tag> maybeContinueButton = maybeRenderContinueButton(params);
-    Optional<ContainerTag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
-    ContainerTag ret =
-        div()
-            .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-            // An empty div to take up the space to the left of the buttons.
-            .with(div().withClasses(Styles.FLEX_GROW))
-            .with(renderReviewButton(params))
-            .with(renderPreviousButton(params));
-    if (maybeSkipOrDeleteButton.isPresent()) {
-      ret.with(maybeSkipOrDeleteButton.get());
-    }
-    ret.with(renderUploadButton(params));
-    if (maybeContinueButton.isPresent()) {
-      ret.with(maybeContinueButton.get());
-    }
-    return ret;
   }
 }

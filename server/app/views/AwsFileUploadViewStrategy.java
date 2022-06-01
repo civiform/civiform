@@ -107,52 +107,11 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     return div(uploadForm, skipForms, buttons);
   }
 
-  @Override
-  protected Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params) {
-    if (hasAtLeastOneRequiredQuestion(params)) {
-      // If the file question is required, skip or delete is not allowed.
-      return Optional.empty();
-    }
-    String buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
-    String buttonId = FILEUPLOAD_SKIP_BUTTON_ID;
-    if (hasUploadedFile(params)) {
-      buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
-      buttonId = FILEUPLOAD_DELETE_BUTTON_ID;
-    }
-    ContainerTag button =
-        TagCreator.button(buttonText)
-            .withType("submit")
-            .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
-            .withClasses(ApplicantStyles.BUTTON_REVIEW)
-            .withId(buttonId);
-    return Optional.of(button);
-  }
-
   private SignedS3UploadRequest castStorageRequest(StorageUploadRequest request) {
     if (!(request instanceof SignedS3UploadRequest)) {
       throw new RuntimeException(
           "Tried to upload a file to AWS S3 storage using incorrect request type");
     }
     return (SignedS3UploadRequest) request;
-  }
-
-  Tag renderFileUploadBottomNavButtons(Params params) {
-    Optional<Tag> maybeContinueButton = maybeRenderContinueButton(params);
-    Optional<ContainerTag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
-    ContainerTag ret =
-        div()
-            .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
-            // An empty div to take up the space to the left of the buttons.
-            .with(div().withClasses(Styles.FLEX_GROW))
-            .with(renderReviewButton(params))
-            .with(renderPreviousButton(params));
-    if (maybeSkipOrDeleteButton.isPresent()) {
-      ret.with(maybeSkipOrDeleteButton.get());
-    }
-    ret.with(renderUploadButton(params));
-    if (maybeContinueButton.isPresent()) {
-      ret.with(maybeContinueButton.get());
-    }
-    return ret;
   }
 }

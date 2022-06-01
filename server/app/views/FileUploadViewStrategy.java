@@ -6,6 +6,7 @@ import static j2html.TagCreator.form;
 import static j2html.attributes.Attr.FORM;
 
 import controllers.applicant.routes;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
@@ -64,7 +65,25 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    *
    * <p>See {@link renderDeleteAndContinueFileUploadForms}.
    */
-  protected abstract Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params);
+  private Optional<ContainerTag> maybeRenderSkipOrDeleteButton(Params params) {
+    if (hasAtLeastOneRequiredQuestion(params)) {
+      // If the file question is required, skip or delete is not allowed.
+      return Optional.empty();
+    }
+    String buttonText = params.messages().at(MessageKey.BUTTON_SKIP_FILEUPLOAD.getKeyName());
+    String buttonId = FILEUPLOAD_SKIP_BUTTON_ID;
+    if (hasUploadedFile(params)) {
+      buttonText = params.messages().at(MessageKey.BUTTON_DELETE_FILE.getKeyName());
+      buttonId = FILEUPLOAD_DELETE_BUTTON_ID;
+    }
+    ContainerTag button =
+        TagCreator.button(buttonText)
+            .withType("submit")
+            .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
+            .withClasses(ApplicantStyles.BUTTON_REVIEW)
+            .withId(buttonId);
+    return Optional.of(button);
+  }
 
   protected Tag renderQuestion(
       ApplicantQuestion question,
@@ -78,7 +97,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    *
    * <p>See {@link renderDeleteAndContinueFileUploadForms}.
    */
-  protected Optional<Tag> maybeRenderContinueButton(Params params) {
+  private Optional<Tag> maybeRenderContinueButton(Params params) {
     if (!hasUploadedFile(params)) {
       return Optional.empty();
     }
@@ -135,7 +154,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return div(continueForm, deleteForm).withClasses(Styles.HIDDEN);
   }
 
-  protected Tag renderUploadButton(Params params) {
+  private Tag renderUploadButton(Params params) {
     String styles = ApplicantStyles.BUTTON_BLOCK_NEXT;
     if (hasUploadedFile(params)) {
       styles = ApplicantStyles.BUTTON_REVIEW;
@@ -175,5 +194,25 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return div(fileUploadQuestion.fileRequiredMessage().getMessage(messages))
         .withClasses(
             ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, Styles.HIDDEN);
+  }
+
+  protected Tag renderFileUploadBottomNavButtons(Params params) {
+    Optional<Tag> maybeContinueButton = maybeRenderContinueButton(params);
+    Optional<ContainerTag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
+    ContainerTag ret =
+        div()
+            .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
+            // An empty div to take up the space to the left of the buttons.
+            .with(div().withClasses(Styles.FLEX_GROW))
+            .with(renderReviewButton(params))
+            .with(renderPreviousButton(params));
+    if (maybeSkipOrDeleteButton.isPresent()) {
+      ret.with(maybeSkipOrDeleteButton.get());
+    }
+    ret.with(renderUploadButton(params));
+    if (maybeContinueButton.isPresent()) {
+      ret.with(maybeContinueButton.get());
+    }
+    return ret;
   }
 }
