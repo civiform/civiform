@@ -150,6 +150,14 @@ module.exports = {
         'seattle-blue': {
           DEFAULT: '#113f9f',
         },
+        'civiform-green': {
+          light: '#e8f5e9',
+          DEFAULT: '#1b5e20',
+        },
+        'civiform-purple': {
+          light: '#f3e5f5',
+          DEFAULT: '#4a148c',
+        },
       },
     },
   },

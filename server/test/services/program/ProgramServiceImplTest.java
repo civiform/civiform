@@ -178,6 +178,35 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
+  public void createProgram_protectsAgainstProgramSlugCollisions() {
+    // Two programs with names that are different but slugify to same value.
+    ps.createProgramDefinition(
+        "name one",
+        "description",
+        "display name",
+        "display description",
+        "",
+        DisplayMode.PUBLIC.getValue());
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            // Program name here is missing the extra space
+            // so that the names are different but the resulting
+            // slug is the same.
+            "name  one",
+            "description",
+            "display name",
+            "display description",
+            "",
+            DisplayMode.PUBLIC.getValue());
+
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsExactly(CiviFormError.of("a program named name  one already exists"));
+  }
+
+  @Test
   public void updateProgram_withNoProgram_throwsProgramNotFoundException() {
     assertThatThrownBy(
             () ->

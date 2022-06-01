@@ -12,6 +12,7 @@ import auth.CiviFormProfile;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.Tag;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -21,6 +22,8 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -31,11 +34,14 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
 
   private final AdminLayout layout;
   private final String baseUrl;
+  private final ZoneId zoneId;
 
   @Inject
-  public ProgramAdministratorProgramListView(AdminLayout layout, Config config) {
-    this.layout = checkNotNull(layout);
+  public ProgramAdministratorProgramListView(
+      AdminLayoutFactory layoutFactory, Config config, ZoneId zoneId) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
+    this.zoneId = checkNotNull(zoneId);
   }
 
   public Content render(
@@ -85,7 +91,7 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
 
     String lastEditText =
         displayProgram.lastModifiedTime().isPresent()
-            ? "Last updated: " + renderDateTime(displayProgram.lastModifiedTime().get())
+            ? "Last updated: " + renderDateTime(displayProgram.lastModifiedTime().get(), zoneId)
             : "Could not find latest update time";
     String programTitleText = displayProgram.adminName();
     String programDescriptionText = displayProgram.adminDescription();

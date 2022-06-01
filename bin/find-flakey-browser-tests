@@ -41,17 +41,16 @@ while getopts n:t:h flag; do
   esac
 done
 
-shift "$(( OPTIND - 1 ))"
+shift "$((OPTIND - 1))"
 
 COMMIT=$(git rev-parse HEAD)
 FLAKESDIR="flakes/${COMMIT}"
 mkdir -p "${FLAKESDIR}"
 
 echo "Finding flakes for commit ${COMMIT}"
-for i in $( seq 1 "${number_of_runs}" )
-do
+for i in $(seq 1 "${number_of_runs}"); do
   echo "Starting browser test run #${i}..."
-  bin/run-browser-tests "${ts_test}" > "${FLAKESDIR}/tmp" 2>&1
+  bin/run-browser-tests "${ts_test}" >"${FLAKESDIR}/tmp" 2>&1
 
   if [ $? -eq 0 ]; then
     echo "PASS"

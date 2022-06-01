@@ -57,6 +57,12 @@ export class AdminPrograms {
     await this.expectProgramExist(programName, description)
   }
 
+  async programNames() {
+    await this.gotoAdminProgramsPage()
+    const titles = this.page.locator('.cf-admin-program-card .cf-program-title')
+    return titles.allTextContents()
+  }
+
   selectProgramCard(programName: string, lifecycle: string) {
     return `.cf-admin-program-card:has(:text("${programName}")):has(:text("${lifecycle}"))`
   }
@@ -406,7 +412,9 @@ export class AdminPrograms {
   }
 
   async viewApplicationForApplicant(applicantName: string) {
-    await this.page.click(this.selectWithinApplicationForApplicant(applicantName, 'a:text("View")'))
+    await this.page.click(
+      this.selectWithinApplicationForApplicant(applicantName, 'a:text("View")')
+    )
     await this.waitForApplicationFrame()
   }
 
@@ -424,8 +432,8 @@ export class AdminPrograms {
     answer: string
   ) {
     const blockText = await this.applicationFrame()
-        .locator(this.selectApplicationBlock(blockName))
-        .innerText()
+      .locator(this.selectApplicationBlock(blockName))
+      .innerText()
 
     expect(blockText).toContain(questionName)
     expect(blockText).toContain(answer)

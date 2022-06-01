@@ -21,12 +21,12 @@ See [an end-to-end demo](https://www.youtube.com/watch?v=AIYZEd5WAcU)
 ## Contributing
 
 To get started please first read our
-[Contributing](https://github.com/seattle-uat/civiform/wiki/Contributing) wiki page.
+[Contributing](https://docs.civiform.us/contributor-guide/developer-guide/technical-contribution-guide#getting-up-to-speed) wiki page.
 
 And more specifically:
-* [Technical contribution guide](https://github.com/seattle-uat/civiform/wiki/Technical-contribution-guide)
-* [UX contribution guide](https://github.com/seattle-uat/civiform/wiki/UX-contribution-guide)
+* [Technical contribution guide](https://docs.civiform.us/contributor-guide/developer-guide)
+* [UX contribution guide](https://docs.civiform.us/contributor-guide/ui-ux-guide)
 
 If you're interested in just digging around and interacting with the code, see
-[Getting started](https://github.com/seattle-uat/civiform/wiki/Getting-started) for guidance on
+[Getting started](https://docs.civiform.us/contributor-guide/developer-guide/getting-started) for guidance on
 setting up your environment and running a local development server.

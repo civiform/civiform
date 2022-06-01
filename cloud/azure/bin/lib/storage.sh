@@ -13,7 +13,7 @@ function storage::assign_storage_blob_data_contributor_role_to_user() {
   azure::ensure_role_assignment \
     "${1}" \
     ${BLOB_DATA_CONTRIBUTOR_GUID} \
-    "subscriptions/${SUBSCRIPTION_ID}/resourcegroups/${1}" 
+    "subscriptions/${SUBSCRIPTION_ID}/resourcegroups/${1}"
 }
 
 #######################################
@@ -26,7 +26,7 @@ function storage::assign_storage_account_contributor_role_to_user() {
   azure::ensure_role_assignment \
     "${1}" \
     ${STORAGE_ACCOUNT_CONTRIBUTOR_GUID} \
-    "subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${1}" 
+    "subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${1}"
 }
 
 #######################################
@@ -56,7 +56,7 @@ function storage::create_storage_account {
 function storage::create_storage_container {
   az storage container create \
     --account-name "${1}" \
-    --name "${2}" 
+    --name "${2}"
 }
 
 #######################################
@@ -74,17 +74,16 @@ function storage::upload_blob {
     --overwrite "true"
 }
 
-
 #######################################
 # Succeeds if the blob exists in the container
 # Arguments:
 #   1: The storage account name
-#   2. The name of the container 
-#   3: The name of the file 
+#   2. The name of the container
+#   3: The name of the file
 #######################################
 function storage::has_blob {
   az storage blob exists \
     --account-name "${1}" \
     --container-name "${2}" \
-    --name "${3}" 
+    --name "${3}"
 }

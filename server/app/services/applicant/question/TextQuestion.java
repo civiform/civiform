@@ -15,11 +15,11 @@ import services.question.types.TextQuestionDefinition;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class TextQuestion extends QuestionImpl {
+public final class TextQuestion extends Question {
 
   private Optional<String> textValue;
 
-  public TextQuestion(ApplicantQuestion applicantQuestion) {
+  TextQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
   }
 

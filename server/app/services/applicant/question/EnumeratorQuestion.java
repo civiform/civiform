@@ -15,9 +15,9 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class EnumeratorQuestion extends QuestionImpl {
+public final class EnumeratorQuestion extends Question {
 
-  public EnumeratorQuestion(ApplicantQuestion applicantQuestion) {
+  EnumeratorQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
   }
 
@@ -54,13 +54,10 @@ public class EnumeratorQuestion extends QuestionImpl {
           ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_ENTITY_REQUIRED));
     }
     if (entityNames.stream().collect(ImmutableSet.toImmutableSet()).size() != entityNames.size()) {
-      errorsBuilder.add(getQuestionErrorMessage());
+      errorsBuilder.add(
+          ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME));
     }
     return errorsBuilder.build();
-  }
-
-  public ValidationErrorMessage getQuestionErrorMessage() {
-    return ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME);
   }
 
   public EnumeratorQuestionDefinition getQuestionDefinition() {

@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.DateQuestionDefinition;
@@ -16,11 +17,11 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class DateQuestion extends QuestionImpl {
+public final class DateQuestion extends Question {
 
   private Optional<LocalDate> dateValue;
 
-  public DateQuestion(ApplicantQuestion applicantQuestion) {
+  DateQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
   }
 
@@ -31,7 +32,13 @@ public class DateQuestion extends QuestionImpl {
 
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
-    // TODO: Need to add some date specific validation.
+    // When staging updates, the attempt to update ApplicantData would have failed to
+    // convert to a date and been noted as a failed update. We check for that here.
+    if (applicantQuestion.getApplicantData().updateDidFailAt(getDatePath())) {
+      return ImmutableMap.of(
+          getDatePath(),
+          ImmutableSet.of(ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_MISFORMATTED)));
+    }
     return ImmutableMap.of();
   }
 

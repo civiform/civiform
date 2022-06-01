@@ -20,8 +20,7 @@ import java.util.regex.Pattern;
  */
 public class Currency {
 
-  // Currency validation regexs.  Note: there are frontend versions that need to stay in sync in
-  // app/assets/javascripts/validation.ts
+  // Currency validation regexs.
   // Currency containing only numbers, without leading 0s and optional 2 digit cents.
   private static final Pattern CURRENCY_NO_COMMAS = Pattern.compile("^[1-9]\\d*(?:\\.\\d\\d)?$");
   // Same as CURRENCY_NO_COMMAS but commas followed by 3 digits are allowed.

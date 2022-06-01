@@ -61,8 +61,14 @@ public class ProgramBuilder {
   public static ProgramBuilder newDraftProgram(String name, String description) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
     Program program =
-        new Program(name, description, name, description, "", DisplayMode.PUBLIC.getValue());
-    program.addVersion(versionRepository.getDraftVersion());
+        new Program(
+            name,
+            description,
+            name,
+            description,
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            versionRepository.getDraftVersion());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder()
@@ -91,8 +97,14 @@ public class ProgramBuilder {
   public static ProgramBuilder newActiveProgram(String name, String description) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
     Program program =
-        new Program(name, description, name, description, "", DisplayMode.PUBLIC.getValue());
-    program.addVersion(versionRepository.getActiveVersion());
+        new Program(
+            name,
+            description,
+            name,
+            description,
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            versionRepository.getActiveVersion());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder()
@@ -214,9 +226,13 @@ public class ProgramBuilder {
     }
 
     public BlockBuilder withOptionalQuestion(Question question) {
+      return withOptionalQuestion(question.getQuestionDefinition());
+    }
+
+    public BlockBuilder withOptionalQuestion(QuestionDefinition question) {
       blockDefBuilder.addQuestion(
           ProgramQuestionDefinition.create(
-                  question.getQuestionDefinition(), Optional.of(programBuilder.programDefinitionId))
+                  question, Optional.of(programBuilder.programDefinitionId))
               .setOptional(true));
       return this;
     }
@@ -239,16 +255,10 @@ public class ProgramBuilder {
     }
 
     public BlockBuilder withRequiredQuestions(ImmutableList<Question> questions) {
-      ImmutableList<ProgramQuestionDefinition> pqds =
+      return withRequiredQuestionDefinitions(
           questions.stream()
               .map(Question::getQuestionDefinition)
-              .map(
-                  questionDefinition ->
-                      ProgramQuestionDefinition.create(
-                          questionDefinition, Optional.of(programBuilder.programDefinitionId)))
-              .collect(ImmutableList.toImmutableList());
-      blockDefBuilder.setProgramQuestionDefinitions(pqds);
-      return this;
+              .collect(ImmutableList.toImmutableList()));
     }
 
     public BlockBuilder withRequiredQuestionDefinitions(

@@ -13,8 +13,10 @@ import static j2html.TagCreator.tr;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.Tag;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,6 +27,8 @@ import play.twirl.api.Content;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.LinkElement;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -35,10 +39,12 @@ import views.style.Styles;
 public class VersionListView extends BaseHtmlView {
 
   private final AdminLayout layout;
+  private final ZoneId zoneId;
 
   @Inject
-  public VersionListView(AdminLayout layout) {
-    this.layout = checkNotNull(layout);
+  public VersionListView(AdminLayoutFactory layoutFactory, Config config, ZoneId zoneId) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.VERSIONS);
+    this.zoneId = checkNotNull(zoneId);
   }
 
   public Content render(List<Version> allVersions, Http.Request request) {
@@ -99,7 +105,7 @@ public class VersionListView extends BaseHtmlView {
     return tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
         .with(
             td(olderVersion.id.toString()),
-            td(renderDateTime(olderVersion.getSubmitTime())),
+            td(renderDateTime(olderVersion.getSubmitTime(), zoneId)),
             td(String.valueOf(olderVersion.getPrograms().size())),
             td(String.valueOf(olderVersion.getQuestions().size())),
             td(
@@ -152,7 +158,7 @@ public class VersionListView extends BaseHtmlView {
 
     Tag bottomContent =
         div(
-            p(String.format("Last updated: " + renderDateTime(version.getSubmitTime())))
+            p(String.format("Last updated: " + renderDateTime(version.getSubmitTime(), zoneId)))
                 .withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
             p().withClasses(Styles.FLEX_GROW));
 

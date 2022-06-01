@@ -1,0 +1,47 @@
+#! /usr/bin/env bash
+
+set -e
+set +x
+set -o pipefail
+
+cd /code
+
+# Gets the list of file paths for files that are tracked by git and have
+# changes relative to the main branch.
+function get_tracked_modified_files() {
+  git diff --name-only origin/main
+}
+
+# Gets the list of file paths for files that are not tracked by git and are
+# not excluded by the .gitignore file.
+function get_untracked_files() {
+  git ls-files --others --exclude-standard
+}
+
+function get_modified_java_files() {
+  (
+    get_tracked_modified_files
+    get_untracked_files
+  ) | grep -E ".+\.java$"
+}
+
+if [[ -z $(get_modified_java_files) ]]; then
+  echo 'No modified java files found'
+else
+  echo 'Start format java'
+  java -jar /fmt.jar --replace $(get_modified_java_files)
+  echo 'Done formatting java'
+fi
+
+echo 'Start format TS'
+npx prettier \
+  --write \
+  --config /.prettierrc.js \
+  --ignore-path /.prettierignore \
+  {server,browser-test}
+echo 'Done formatting TS'
+
+echo 'Start format shell'
+shfmt -bn -ci -i 2 -w -l \
+  $(shfmt -f . | grep -v -e /node_modules)
+echo 'Done formatting shell'

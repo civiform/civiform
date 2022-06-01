@@ -13,13 +13,10 @@
     "@tailwindcss/line-clamp": "0.4.0",
     "@tsconfig/recommended": "1.0.1",
     "autoprefixer": "10.4.7",
-    "postcss": "8.4.13",
     "colors": "1.4.0",
     "grunt": "1.4.1",
     "grunt-contrib-watch": "1.1.0",
+    "postcss": "8.4.14",
     "tailwindcss": "3.0.23"
-  },
-  "dependencies": {
-    "npm": "^8.7.0"
   }
 }

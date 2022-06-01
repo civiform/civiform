@@ -32,6 +32,8 @@ import views.BaseHtmlView;
 import views.FileUploadViewStrategy;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
@@ -54,8 +56,10 @@ public final class QuestionEditView extends BaseHtmlView {
 
   @Inject
   public QuestionEditView(
-      AdminLayout layout, MessagesApi messagesApi, FileUploadViewStrategy fileUploadViewStrategy) {
-    this.layout = checkNotNull(layout);
+      AdminLayoutFactory layoutFactory,
+      MessagesApi messagesApi,
+      FileUploadViewStrategy fileUploadViewStrategy) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
@@ -360,6 +364,8 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private ImmutableList<DomContent> buildDemographicFields(
       QuestionForm questionForm, boolean submittable) {
+
+    QuestionTag exportState = questionForm.getQuestionExportStateTag();
     return ImmutableList.of(
         FieldWithLabel.radio()
             .setId("question-demographic-no-export")
@@ -367,10 +373,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setFieldName("questionExportState")
             .setLabelText("No export")
             .setValue(QuestionTag.NON_DEMOGRAPHIC.getValue())
-            .setChecked(
-                questionForm
-                    .getQuestionExportState()
-                    .equals(QuestionTag.NON_DEMOGRAPHIC.getValue()))
+            .setChecked(exportState == QuestionTag.NON_DEMOGRAPHIC)
             .getContainer(),
         FieldWithLabel.radio()
             .setId("question-demographic-export-demographic")
@@ -378,8 +381,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setFieldName("questionExportState")
             .setLabelText("Export Value")
             .setValue(QuestionTag.DEMOGRAPHIC.getValue())
-            .setChecked(
-                questionForm.getQuestionExportState().equals(QuestionTag.DEMOGRAPHIC.getValue()))
+            .setChecked(exportState == QuestionTag.DEMOGRAPHIC)
             .getContainer(),
         FieldWithLabel.radio()
             .setId("question-demographic-export-pii")
@@ -387,10 +389,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setFieldName("questionExportState")
             .setLabelText("Export Obfuscated")
             .setValue(QuestionTag.DEMOGRAPHIC_PII.getValue())
-            .setChecked(
-                questionForm
-                    .getQuestionExportState()
-                    .equals(QuestionTag.DEMOGRAPHIC_PII.getValue()))
+            .setChecked(exportState == QuestionTag.DEMOGRAPHIC_PII)
             .getContainer());
   }
 

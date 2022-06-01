@@ -23,11 +23,10 @@ public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(ApplicantQuestionRendererParams params) {
+  protected Tag renderTag(
+      ApplicantQuestionRendererParams params,
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     EmailQuestion emailQuestion = question.createEmailQuestion();
-
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
-        emailQuestion.getValidationErrors();
 
     Tag questionFormContent =
         FieldWithLabel.email()

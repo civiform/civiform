@@ -36,4 +36,3 @@ function aws::parse_access_secret_key() {
     echo "no secret access key found"
   fi
 }
-

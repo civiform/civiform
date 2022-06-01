@@ -3,7 +3,11 @@
 # DOC: Autoformat Java and TypeScript source files. Usually good to run before committing.
 
 source bin/lib.sh
+docker::set_project_name_dev
+
+bin/pull-image --formatter
 
 docker run --rm -it \
-  -v "$(pwd)/server/:/code" \
+  -v "$(pwd):/code" \
+  -u $(id -u ${USER}):$(id -g ${USER}) \
   civiform/formatter:latest

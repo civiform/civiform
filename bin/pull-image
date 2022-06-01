@@ -1,38 +1,72 @@
 #! /usr/bin/env bash
 
-# DOC: Pulls the latest development environment docker image from Docker Hub unless USE_LOCAL_CIVIFORM=1 is set.
-# Use 'PULL_PROGERSS=1' to show docker image download progress.
-# Use 'USE_LOCAL_CIVIFORM=1' to use locally cached docker image instead of downloading.
+# DOC: Pull the latest development environment docker image from Docker Hub
+# DOC: unless USE_LOCAL_CIVIFORM is set. May specify what to pull with a flag
+# DOC: e.g. "--formatter", "--localstack", or "--all" (the default).
+# DOC: If multiple flags are passed, all but the first will be ignored.
 
 source bin/lib.sh
 
-readonly CIVIFORM_SOURCE=civiform/civiform-dev:latest
-readonly OIDC_SOURCE=docker.io/civiform/oidc-provider:latest
-readonly AZURE_SOURCE=mcr.microsoft.com/azure-storage/azurite
-readonly AWS_SOURCE=localstack/localstack
-readonly LOCAL_TAG=civiform-dev
-
-if [[ -z "${USE_LOCAL_CIVIFORM}" ]]; then
-  echo "Making sure we're up to date with the latest dev"
-  echo "Set environment variable USE_LOCAL_CIVIFORM=1 to skip"
-  if [[ -z "${PULL_PROGRESS}" ]]; then
-    echo "Set environment variable PULL_PROGRESS=1 to show download progress"
-    docker pull "${CIVIFORM_SOURCE}"
-    docker tag "${CIVIFORM_SOURCE}" "${LOCAL_TAG}"
-
-    # Explicitly pull dev dependencies.
-    docker pull "${OIDC_SOURCE}"
-    docker pull "${AZURE_SOURCE}"
-    docker pull "${AWS_SOURCE}"
-  else
-    docker pull -q "${CIVIFORM_SOURCE}"
-    docker tag "${CIVIFORM_SOURCE}" "${LOCAL_TAG}"
-
-    # Explicitly pull dev dependencies.
-    docker pull -q "${OIDC_SOURCE}"
-    docker pull -q "${AZURE_SOURCE}"
-    docker pull -q "${AWS_SOURCE}"
-  fi
-else
-  echo "Using local civiform docker images"
+if [[ -v USE_LOCAL_CIVIFORM ]]; then
+  echo "Using local civiform and dependency docker images"
+  exit 0
 fi
+
+echo "Making sure we're up to date with the latest dev... " \
+  "set environment variable USE_LOCAL_CIVIFORM=1 to skip"
+
+function pull_all() {
+  docker pull -q civiform/civiform-dev:latest
+  docker tag civiform/civiform-dev:latest civiform-dev
+
+  # Explicitly pull dev dependencies.
+  docker pull -q docker.io/civiform/oidc-provider:latest
+  docker pull -q mcr.microsoft.com/azure-storage/azurite
+  docker pull -q localstack/localstack
+
+  docker pull -q civiform/formatter:latest
+  docker pull -q civiform/civiform-browser-test:latest
+}
+
+while [ "${1:-}" != "" ]; do
+  case "${1}" in
+    "--all")
+      pull_all
+      exit 0
+      ;;
+
+    "--formatter")
+      docker pull -q civiform/formatter:latest
+      exit 0
+      ;;
+
+    "--localstack")
+      docker pull -q localstack/localstack
+      exit 0
+      ;;
+
+    "--azurite")
+      docker pull -q mcr.microsoft.com/azure-storage/azurite
+      exit 0
+      ;;
+
+    "--oidc-provider")
+      docker pull -q docker.io/civiform/oidc-provider:latest
+      exit 0
+      ;;
+
+    "--browser-tests")
+      docker pull -q civiform/civiform-browser-test:latest
+      exit 0
+      ;;
+
+    *)
+      out::error "Unexpected flag value ${1}"
+      exit 1
+      ;;
+  esac
+
+  shift
+done
+
+pull_all

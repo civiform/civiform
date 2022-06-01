@@ -85,6 +85,12 @@ GET     /admin/programs/:programId/applications/:applicationId            contro
 GET     /admin/programs/:programId/applications/:applicationId/download   controllers.admin.AdminApplicationController.download(request: Request, programId: Long, applicationId: Long)
 GET     /admin/demographics                                               controllers.admin.AdminApplicationController.downloadDemographics()
 
+# Admin API key management
+GET     /admin/apiKeys                              controllers.admin.AdminApiKeysController.index(request: Request)
+GET     /admin/apiKeys/new                          controllers.admin.AdminApiKeysController.newOne(request: Request)
+POST    /admin/apiKeys                              controllers.admin.AdminApiKeysController.create(request: Request)
+POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKeysController.retire(request: Request, apiKeyId: Long)
+
 # Controller for admins and applicants to access applicants' uploaded files
 GET     /admin/programs/:programId/files/:fileKey   controllers.FileController.adminShow(request: Request, programId: Long, fileKey: String)
 GET     /applicants/:applicantId/files/:fileKey     controllers.FileController.show(request: Request, applicantId: Long, fileKey: String)
@@ -108,6 +114,10 @@ GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review     
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockIndex/previous/:inReview     controllers.applicant.ApplicantProgramBlocksController.previous(request: Request, applicantId: Long, programId: Long, blockIndex: Int, inReview: Boolean)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview                 controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+
+# API
+GET     /api/v1/checkAuth                                   controllers.api.CiviFormApiController.checkAuth()
+GET     /api/v1/admin/programs/:programSlug/applications    controllers.api.ProgramApplicationsApiController.list(request: Request, programSlug: String, fromDate: java.util.Optional[String], toDate: java.util.Optional[String], nextPageToken: java.util.Optional[String], pageSize: java.util.Optional[Integer])
 
 # Methods for user support incidents
 GET     /support/unconfirmedIdcsEmail  controllers.SupportController.handleUnconfirmedIdcsEmail(request: Request)

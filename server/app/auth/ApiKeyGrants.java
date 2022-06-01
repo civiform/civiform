@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 /**
@@ -34,6 +35,10 @@ public class ApiKeyGrants {
   @JsonCreator
   public ApiKeyGrants(@JsonProperty("programGrants") Multimap<String, Permission> programGrants) {
     this.programGrants = checkNotNull(programGrants);
+  }
+
+  public ImmutableMultimap<String, Permission> getProgramGrants() {
+    return ImmutableMultimap.copyOf(programGrants);
   }
 
   /**

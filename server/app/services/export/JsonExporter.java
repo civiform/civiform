@@ -1,55 +1,74 @@
 package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static services.question.types.QuestionType.CURRENCY;
 
 import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.DocumentContext;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
-import repository.ProgramRepository;
+import org.apache.commons.lang3.tuple.Pair;
+import play.libs.F;
 import services.CfJsonDocumentContext;
+import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 import services.Path;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.JsonPathProvider;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.CurrencyQuestion;
+import services.applicant.question.DateQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NumberQuestion;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import services.question.LocalizedQuestionOption;
 
 /** Exports all applications for a given program as JSON. */
 public class JsonExporter {
 
   private final ApplicantService applicantService;
-  private final ProgramRepository programRepository;
+  private final ProgramService programService;
 
   @Inject
-  JsonExporter(ApplicantService applicantService, ProgramRepository programRepository) {
+  JsonExporter(ApplicantService applicantService, ProgramService programService) {
     this.applicantService = checkNotNull(applicantService);
-    this.programRepository = checkNotNull(programRepository);
+    this.programService = checkNotNull(programService);
   }
 
-  public String export(ProgramDefinition programDefinition) {
-    DocumentContext jsonApplications = makeEmptyJsonArray();
-    PaginationResult<Application> applicationPaginationResult =
-        programRepository.getApplicationsForAllProgramVersions(
-            programDefinition.id(),
-            PaginationSpec.MAX_PAGE_SIZE_SPEC,
-            /* searchNameFragment= */ Optional.empty());
+  public Pair<String, PaginationResult<Application>> export(
+      ProgramDefinition programDefinition, IdentifierBasedPaginationSpec<Long> paginationSpec) {
+    PaginationResult<Application> paginationResult;
+    try {
+      paginationResult =
+          programService.getSubmittedProgramApplicationsAllVersions(
+              programDefinition.id(),
+              F.Either.Left(paginationSpec),
+              /* searchNameFragment= */ Optional.empty());
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
 
-    for (Application application : applicationPaginationResult.getPageContents()) {
+    return export(programDefinition, paginationResult);
+  }
+
+  public Pair<String, PaginationResult<Application>> export(
+      ProgramDefinition programDefinition, PaginationResult<Application> paginationResult) {
+    var applications = paginationResult.getPageContents();
+
+    DocumentContext jsonApplications = makeEmptyJsonArray();
+
+    for (Application application : applications) {
       CfJsonDocumentContext applicationJson = buildJsonApplication(application, programDefinition);
       jsonApplications.add("$", applicationJson.getDocumentContext().json());
     }
 
-    return jsonApplications.jsonString();
+    return Pair.of(jsonApplications.jsonString(), paginationResult);
   }
 
   private CfJsonDocumentContext buildJsonApplication(
@@ -106,10 +125,16 @@ public class JsonExporter {
           {
             CurrencyQuestion currencyQuestion =
                 answerData.applicantQuestion().createCurrencyQuestion();
-            Path path = currencyQuestion.getCurrencyPath().asApplicationPath();
+            Path path =
+                currencyQuestion
+                    .getCurrencyPath()
+                    .asApplicationPath()
+                    .replacingLastSegment("currency_dollars");
 
-            if (currencyQuestion.getValue().isPresent()) {
-              jsonApplication.putLong(path, currencyQuestion.getValue().get().getCents());
+            if (currencyQuestion.getCurrencyValue().isPresent()) {
+              Long centsTotal = Long.valueOf(currencyQuestion.getCurrencyValue().get().getCents());
+
+              jsonApplication.putDouble(path, centsTotal.doubleValue() / 100.0);
             } else {
               jsonApplication.putNull(path);
             }
@@ -123,6 +148,20 @@ public class JsonExporter {
 
             if (numberQuestion.getNumberValue().isPresent()) {
               jsonApplication.putLong(path, numberQuestion.getNumberValue().get());
+            } else {
+              jsonApplication.putNull(path);
+            }
+
+            break;
+          }
+        case DATE:
+          {
+            DateQuestion dateQuestion = answerData.applicantQuestion().createDateQuestion();
+            Path path = dateQuestion.getDatePath().asApplicationPath();
+
+            if (dateQuestion.getDateValue().isPresent()) {
+              LocalDate date = dateQuestion.getDateValue().get();
+              jsonApplication.putString(path, DateTimeFormatter.ISO_DATE.format(date));
             } else {
               jsonApplication.putNull(path);
             }

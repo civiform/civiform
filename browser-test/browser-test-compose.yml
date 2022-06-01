@@ -1,67 +1,34 @@
-# Use postgres/example user/passwordcredentials
-version: '3.1'
+# Builds on docker-compose.yml
+version: '3.4'
 
 services:
-
   localstack:
-    image: localstack/localstack
-    profiles: ["aws"]
-    container_name: localstack-test
     ports:
       - 6645:4566
-    environment:
-      - SERVICES=s3,ses
 
   azurite:
-    image: mcr.microsoft.com/azure-storage/azurite
-    profiles: ["azure"]
-    container_name: azurite-test
     ports:
       - 10000:10000
-
-  db:
-    image: postgres:12.5
-    restart: always
-    container_name: postgres-test
-    ports:
-      - 2345:5432
-    environment:
-      POSTGRES_PASSWORD: example
 
   fake-idcs:
     image: docker.io/civiform/oidc-provider:latest
     restart: always
-    container_name: fake-idcs
     ports:
       - 8033:3380
 
   civiform:
     image: civiform
     restart: always
-    container_name: civiform-test
     links:
-      - "db:database"
-      - "fake-idcs"
+      - 'db:database'
+      - 'fake-idcs'
     ports:
       - 9999:9000
     environment:
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
-      - AWS_REGION
-      - AWS_SES_SENDER
-      - AWS_S3_BUCKET_NAME
       - IDCS_CLIENT_ID=foo
       - IDCS_SECRET=bar
       - IDCS_DISCOVERY_URI=http://fake-idcs:3380/.well-known/openid-configuration
-      - ADFS_CLIENT_ID
-      - ADFS_SECRET
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
       - BASE_URL=http://civiform:9000
-      - CF_OPTIONAL_QUESTIONS
-      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID:-test}
-      - AZURE_LOCAL_CONNECTION_STRING
-      - AZURE_STORAGE_ACCOUNT_NAME
-      - AZURE_STORAGE_ACCOUNT_CONTAINER
-      - STORAGE_SERVICE_NAME
-
+      - CIVIFORM_TIME_ZONE_ID
     command: ~run -Dconfig.file=conf/application.dev.conf

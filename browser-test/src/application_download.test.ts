@@ -127,14 +127,28 @@ describe('normal application flow', () => {
     const postEditJSonContent = JSON.parse(await adminPrograms.getJson())
     expect(postEditJSonContent.length).toEqual(3)
     expect(postEditJSonContent[0].program_name).toEqual(programName)
-    expect(postEditJSonContent[0].language).toEqual("en-US")
-    expect(postEditJSonContent[0].application.csvcurrency.currency_cents).toEqual(200000)
-    expect(postEditJSonContent[0].application.dropdowncsvdownload.selection).toEqual("op2")
-    expect(postEditJSonContent[0].application.namecsvdownload.first_name).toEqual("Gus")
-    expect(postEditJSonContent[0].application.namecsvdownload.middle_name).toBeNull()
-    expect(postEditJSonContent[0].application.namecsvdownload.last_name).toEqual("Guest")
-    expect(postEditJSonContent[0].application.csvdate.date).toEqual("01/01/1990")
-    expect(postEditJSonContent[0].application.numbercsvdownload.number).toEqual(1600)
+    expect(postEditJSonContent[0].language).toEqual('en-US')
+    expect(
+      postEditJSonContent[0].application.csvcurrency.currency_dollars
+    ).toEqual(2000.0)
+    expect(
+      postEditJSonContent[0].application.dropdowncsvdownload.selection
+    ).toEqual('op2')
+    expect(
+      postEditJSonContent[0].application.namecsvdownload.first_name
+    ).toEqual('Gus')
+    expect(
+      postEditJSonContent[0].application.namecsvdownload.middle_name
+    ).toBeNull()
+    expect(
+      postEditJSonContent[0].application.namecsvdownload.last_name
+    ).toEqual('Guest')
+    expect(postEditJSonContent[0].application.csvdate.date).toEqual(
+      '1990-01-01'
+    )
+    expect(postEditJSonContent[0].application.numbercsvdownload.number).toEqual(
+      1600
+    )
 
     await logout(page)
 
