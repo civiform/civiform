@@ -7,7 +7,7 @@
 
 source bin/lib.sh
 
-if [[ ! -z "${USE_LOCAL_CIVIFORM}" ]]; then
+if [[ -n "${USE_LOCAL_CIVIFORM}" ]]; then
   echo "Using local civiform and dependency docker images"
   exit 0
 fi
