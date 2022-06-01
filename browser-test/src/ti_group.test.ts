@@ -3,12 +3,12 @@ import {
   startSession,
   loginAsAdmin,
   endSession,
-  AdminTIGroups
+  AdminTIGroups,
 } from './support'
 
 describe('normal application flow', () => {
-  let browser : Browser
-  let page : Page
+  let browser: Browser
+  let page: Page
 
   beforeEach(async () => {
     var session = await startSession()
@@ -17,7 +17,7 @@ describe('normal application flow', () => {
     page = session.page
   })
 
-  afterEach(async () =>{
+  afterEach(async () => {
     await endSession(browser)
   })
 

@@ -1,3 +1,4 @@
+# TODO: split this into modules.
 resource "aws_apprunner_service" "civiform_dev" {
   auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.auto_scaling_config.arn
   service_name                   = "civiform_dev"
@@ -28,10 +29,8 @@ resource "aws_apprunner_service" "civiform_dev" {
           WHITELABEL_LOGO_WITH_NAME_URL      = var.civic_entity_logo_with_name_url
           SUPPORT_EMAIL_ADDRESS              = var.civic_entity_support_email_address
 
-          AWS_SES_SENDER        = var.ses_sender_email
-          AWS_ACCESS_KEY_ID     = "CHANGE_ME"
-          AWS_SECRET_ACCESS_KEY = "CHANGE_ME"
-          AWS_REGION            = var.aws_region
+          AWS_SES_SENDER = var.ses_sender_email
+          AWS_REGION     = var.aws_region
 
           STAGING_ADMIN_LIST     = var.staging_program_admin_notification_mailing_list
           STAGING_TI_LIST        = var.staging_ti_notification_mailing_list
@@ -60,6 +59,9 @@ resource "aws_apprunner_service" "civiform_dev" {
       egress_type       = "VPC"
       vpc_connector_arn = aws_apprunner_vpc_connector.connector.arn
     }
+  }
+  instance_configuration {
+    instance_role_arn = aws_iam_role.apprunner_instance_role.arn
   }
 }
 
@@ -92,14 +94,36 @@ resource "aws_s3_bucket" "civiform_files_s3" {
   bucket = "civiform-files-s3"
 }
 
-resource "aws_s3_access_point" "civiform_files" {
-  bucket = aws_s3_bucket.civiform_files_s3.id
-  name   = "civiform_files"
+resource "aws_s3_bucket_public_access_block" "civiform_files_access" {
+  bucket                  = aws_s3_bucket.civiform_files_s3.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
 
-  public_access_block_configuration {
-    block_public_acls       = true
-    block_public_policy     = true
-    ignore_public_acls      = true
-    restrict_public_buckets = true
+resource "aws_s3_bucket_policy" "civiform_files_policy" {
+  bucket = aws_s3_bucket.civiform_files_s3.id
+  policy = data.aws_iam_policy_document.civiform_files_policy.json
+}
+
+data "aws_iam_policy_document" "civiform_files_policy" {
+  statement {
+    actions   = ["s3:*"]
+    effect    = "Deny"
+    resources = ["${aws_s3_bucket.civiform_files_s3.arn}/*"]
+    not_principals {
+      type        = "AWS"
+      identifiers = [aws_iam_role.apprunner_instance_role.arn]
+    }
+  }
+  statement {
+    actions   = ["s3:GetObject", "s3:PutObject"]
+    effect    = "Allow"
+    resources = ["${aws_s3_bucket.civiform_files_s3.arn}/*"]
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_role.apprunner_instance_role.arn]
+    }
   }
 }

@@ -46,7 +46,11 @@ describe('Most recently updated program is at top of list.', () => {
     await adminPrograms.addProgram(programThree)
     programNames = await adminPrograms.programNames()
     expect(programNames.length).toBeGreaterThanOrEqual(3)
-    expect(programNames.slice(0, 3)).toEqual([programThree, programOne, programTwo])
+    expect(programNames.slice(0, 3)).toEqual([
+      programThree,
+      programOne,
+      programTwo,
+    ])
 
     await endSession(browser)
   })

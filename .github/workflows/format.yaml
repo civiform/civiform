@@ -42,7 +42,7 @@ jobs:
         run: bin/help
 
       - name: setup terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2
 
       - name: terraform fmt
         id: tf_fmt
