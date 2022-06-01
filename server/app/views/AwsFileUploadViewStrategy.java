@@ -1,29 +1,23 @@
 package views;
 
-import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 import static j2html.attributes.Attr.ENCTYPE;
-import static j2html.attributes.Attr.FORM;
 
 import controllers.applicant.routes;
-import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import play.mvc.Http.HttpVerbs;
-import services.MessageKey;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.FileNameFormatter;
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
-import views.style.ApplicantStyles;
-import views.style.Styles;
 
 public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
