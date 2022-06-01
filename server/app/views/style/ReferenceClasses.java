@@ -9,7 +9,11 @@ public final class ReferenceClasses {
   public static final String ADMIN_APPLICATION_BLOCK_CARD = "cf-admin-application-block-card";
   public static final String ADMIN_APPLICATION_CARD = "cf-admin-application-card";
   public static final String ADMIN_LANGUAGE_LINK = "cf-admin-language-link";
+  public static final String ADMIN_PROGRAM_CARD_LIST = "cf-admin-program-card-list";
+  public static final String ADMIN_PROGRAM_CARD_LIST_PLACEHOLDER =
+      "cf-admin-program-card-list-placeholder";
   public static final String ADMIN_PROGRAM_CARD = "cf-admin-program-card";
+  public static final String ADMIN_PROGRAM_CARD_TITLE = "cf-program-title";
   public static final String ADMIN_QUESTION_TABLE_ROW = "cf-admin-question-table-row";
   public static final String ADMIN_TI_GROUP_ROW = "cf-ti-row";
   public static final String ADMIN_VERSION_CARD = "cf-admin-version-card";
@@ -37,6 +41,8 @@ public final class ReferenceClasses {
   public static final String PROGRAM_QUESTION = "cf-program-question";
 
   public static final String ADMIN_API_KEY_INDEX_ENTRY_NAME = "cf-api-key-name";
+
+  public static final String WITH_DROPDOWN = "cf-with-dropdown";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Applicant reference classes

@@ -4,9 +4,9 @@ on:
   workflow_call:
     secrets:
       DOCKER_HUB_ACCESS_TOKEN:
-        required: true
+        required: false
       DOCKER_HUB_USERNAME:
-        required: true
+        required: false
 
   # Setting this enables manually triggering workflow in the GitHub UI
   # see https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
@@ -30,6 +30,9 @@ jobs:
       run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
 
   run_browser_tests_aws:
+    strategy:
+      matrix:
+        batch_number: [1, 2, 3, 4]
     runs-on: ubuntu-latest
     steps:
     - name: check out ${{ env.GITHUB_REF }}
@@ -49,12 +52,15 @@ jobs:
     - name: Bring up test env with Localstack
       run: bin/run-browser-test-env --aws --ci
     - name: Run browser tests with Localstack
-      run: bin/run-browser-tests-ci
+      run: bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
     - name: Print logs on failure
       if: failure()
       run: cat .dockerlogs
 
   run_browser_tests_azure:
+    strategy:
+      matrix:
+        batch_number: [1, 2, 3, 4]
     runs-on: ubuntu-latest
     steps:
     - name: check out ${{ env.GITHUB_REF }}
@@ -74,7 +80,7 @@ jobs:
     - name: Bring up test env with Azurite
       run: bin/run-browser-test-env --azure --ci
     - name: Run browser tests with Azurite
-      run: bin/run-browser-tests-ci
+      run: bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
     - name: Print logs on failure
       if: failure()
       run: cat .dockerlogs
@@ -93,7 +99,7 @@ jobs:
     - name: Build the stack
       env:
         SECRET_KEY: notarealsecret
-      run: docker compose -f infra/prod-simulator-compose.yml up -d
+      run: docker compose -f test-support/prod-simulator-compose.yml up -d
     - name: Test
       # Confirm that we get a response on port 9000.
       run: while ! docker run --network host appropriate/curl -v -s --retry-max-time 180 --retry-connrefused http://localhost:9000/ ; do sleep 5; done

@@ -24,6 +24,11 @@ public final class BaseStyles {
   public static final String TEXT_SEATTLE_BLUE = "text-seattle-blue";
   public static final String BORDER_SEATTLE_BLUE = "border-seattle-blue";
 
+  public static final String TEXT_CIVIFORM_GREEN = "text-civiform-green";
+  public static final String BG_CIVIFORM_GREEN_LIGHT = "bg-civiform-green-light";
+  public static final String TEXT_CIVIFORM_PURPLE = "text-civiform-purple";
+  public static final String BG_CIVIFORM_PURPLE_LIGHT = "bg-civiform-purple-light";
+
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Form style classes
   /////////////////////////////////////////////////////////////////////////////////////////////////

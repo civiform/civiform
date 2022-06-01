@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import views.style.BaseStyles;
 import views.style.Styles;
 
 /**
@@ -78,7 +79,7 @@ public class TextFormatter {
       contentBuilder.add(
           a().withText(url.getOriginalUrl())
               .withHref(url.getFullUrl())
-              .withClasses(Styles.OPACITY_75));
+              .withClasses(BaseStyles.TEXT_SEATTLE_BLUE));
       content = content.substring(index + url.getOriginalUrl().length());
     }
     // If there's content leftover, add it.

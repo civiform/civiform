@@ -18,6 +18,8 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
 import views.components.ToastMessage;
@@ -28,9 +30,9 @@ public class QuestionTranslationView extends TranslationFormView {
   private final AdminLayout layout;
 
   @Inject
-  public QuestionTranslationView(AdminLayout layout, Langs langs) {
+  public QuestionTranslationView(AdminLayoutFactory layoutFactory, Langs langs) {
     super(checkNotNull(langs));
-    this.layout = checkNotNull(layout);
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
   }
 
   public Content render(Http.Request request, Locale locale, QuestionDefinition question) {

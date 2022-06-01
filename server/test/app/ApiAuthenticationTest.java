@@ -5,11 +5,9 @@ import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
 
-import auth.ApiKeyGrants;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
-import models.ApiKey;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.core.context.HttpConstants;
@@ -24,12 +22,12 @@ import repository.ResetPostgres;
 public class ApiAuthenticationTest extends ResetPostgres {
   private static final String keyId = "keyId";
   private static final String secret = "secret";
+  public static final String API_CHECK_URL =
+      controllers.api.routes.CiviFormApiController.checkAuth().url();
 
   @Before
   public void setUp() {
-    ApiKey apiKey = resourceCreator.createActiveApiKey("test-key", keyId, secret);
-    apiKey.getGrants().grantProgramPermission("mock-program", ApiKeyGrants.Permission.READ);
-    apiKey.save();
+    resourceCreator.createActiveApiKey("test-key", keyId, secret);
   }
 
   @Test
@@ -49,10 +47,7 @@ public class ApiAuthenticationTest extends ResetPostgres {
 
     Result result =
         doGetRequest(
-            fakeRequest(
-                    "GET",
-                    controllers.api.routes.ProgramApplicationsApiController.list("mock-program")
-                        .url())
+            fakeRequest("GET", API_CHECK_URL)
                 .remoteAddress("1.1.1.1")
                 .header("Authorization", "Basic " + creds));
 
@@ -67,10 +62,7 @@ public class ApiAuthenticationTest extends ResetPostgres {
 
     Result result =
         doGetRequest(
-            fakeRequest(
-                    "GET",
-                    controllers.api.routes.ProgramApplicationsApiController.list("mock-program")
-                        .url())
+            fakeRequest("GET", API_CHECK_URL)
                 .remoteAddress("1.1.1.1")
                 .header("Authorization", "Basic " + creds));
 

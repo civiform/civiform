@@ -1,7 +1,6 @@
 package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static services.question.types.QuestionType.CURRENCY;
 
 import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.DocumentContext;
@@ -11,10 +10,11 @@ import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
-import repository.ProgramRepository;
+import org.apache.commons.lang3.tuple.Pair;
+import play.libs.F;
 import services.CfJsonDocumentContext;
+import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 import services.Path;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
@@ -25,34 +25,50 @@ import services.applicant.question.DateQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NumberQuestion;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import services.question.LocalizedQuestionOption;
 
 /** Exports all applications for a given program as JSON. */
 public class JsonExporter {
 
   private final ApplicantService applicantService;
-  private final ProgramRepository programRepository;
+  private final ProgramService programService;
 
   @Inject
-  JsonExporter(ApplicantService applicantService, ProgramRepository programRepository) {
+  JsonExporter(ApplicantService applicantService, ProgramService programService) {
     this.applicantService = checkNotNull(applicantService);
-    this.programRepository = checkNotNull(programRepository);
+    this.programService = checkNotNull(programService);
   }
 
-  public String export(ProgramDefinition programDefinition) {
-    DocumentContext jsonApplications = makeEmptyJsonArray();
-    PaginationResult<Application> applicationPaginationResult =
-        programRepository.getApplicationsForAllProgramVersions(
-            programDefinition.id(),
-            PaginationSpec.MAX_PAGE_SIZE_SPEC,
-            /* searchNameFragment= */ Optional.empty());
+  public Pair<String, PaginationResult<Application>> export(
+      ProgramDefinition programDefinition, IdentifierBasedPaginationSpec<Long> paginationSpec) {
+    PaginationResult<Application> paginationResult;
+    try {
+      paginationResult =
+          programService.getSubmittedProgramApplicationsAllVersions(
+              programDefinition.id(),
+              F.Either.Left(paginationSpec),
+              /* searchNameFragment= */ Optional.empty());
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
 
-    for (Application application : applicationPaginationResult.getPageContents()) {
+    return export(programDefinition, paginationResult);
+  }
+
+  public Pair<String, PaginationResult<Application>> export(
+      ProgramDefinition programDefinition, PaginationResult<Application> paginationResult) {
+    var applications = paginationResult.getPageContents();
+
+    DocumentContext jsonApplications = makeEmptyJsonArray();
+
+    for (Application application : applications) {
       CfJsonDocumentContext applicationJson = buildJsonApplication(application, programDefinition);
       jsonApplications.add("$", applicationJson.getDocumentContext().json());
     }
 
-    return jsonApplications.jsonString();
+    return Pair.of(jsonApplications.jsonString(), paginationResult);
   }
 
   private CfJsonDocumentContext buildJsonApplication(
