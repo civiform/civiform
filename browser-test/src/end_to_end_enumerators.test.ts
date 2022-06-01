@@ -163,9 +163,9 @@ describe('End to end enumerator test', () => {
 
     // Oops! Can't have blank lines.
     // Verify that the error message is visible.
-    expect(await page.innerText('.cf-applicant-question-errors:visible')).toEqual(
-      'Please enter a value for each line.'
-    )
+    expect(
+      await page.innerText('.cf-applicant-question-errors:visible')
+    ).toEqual('Please enter a value for each line.')
 
     // Put two things in the nested enumerator for enum two
     await applicantQuestions.deleteEnumeratorEntityByIndex(1)
@@ -175,9 +175,9 @@ describe('End to end enumerator test', () => {
 
     // Oops! Can't have duplicates.
     // Verify that the error message is visible.
-    expect(await page.innerText('.cf-applicant-question-errors:visible')).toEqual(
-      'Please enter a unique value for each line.'
-    )
+    expect(
+      await page.innerText('.cf-applicant-question-errors:visible')
+    ).toEqual('Please enter a unique value for each line.')
 
     // Remove one of the 'Banker' entries and add 'Painter'.
     // the value attribute of the inputs isn't set, so we're clicking the second one.
