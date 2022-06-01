@@ -28,8 +28,7 @@ if batch_number < 1 or batch_number > BATCH_COUNT:
 test_files = glob.glob('browser-test/src/*.test.ts')
 test_files = [file.replace("browser-test/", "") for file in test_files]
 test_files.sort()
-test_files_count = len(glob.glob('browser-test/src/*.test.ts'))
-batch_size = math.ceil(test_files_count / BATCH_COUNT)
+batch_size = math.ceil(len(test_files) / BATCH_COUNT)
 
 batch_contents = test_files[(batch_number - 1) * batch_size : batch_number * batch_size]
 
