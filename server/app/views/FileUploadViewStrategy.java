@@ -2,9 +2,11 @@ package views;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
 import static j2html.attributes.Attr.FORM;
 
+import com.google.common.collect.ImmutableList;
 import controllers.applicant.routes;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
@@ -55,8 +57,33 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    * @param applicantQuestionRendererFactory a class for rendering applicant questions.
    * @return a container tag with the submit view
    */
-  public abstract Tag renderFileUploadBlockSubmitForms(
-      Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory);
+  public final Tag renderFileUploadBlockSubmitForms(
+      Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
+    String onSuccessRedirectUrl =
+        params.baseUrl()
+            + routes.ApplicantProgramBlocksController.updateFile(
+                    params.applicantId(),
+                    params.programId(),
+                    params.block().getId(),
+                    params.inReview())
+                .url();
+    Tag uploadForm =
+        renderFileUploadBlockSubmitFormsElement(
+            params, applicantQuestionRendererFactory, onSuccessRedirectUrl);
+    Tag skipForms = renderDeleteAndContinueFileUploadForms(params);
+    Tag buttons = renderFileUploadBottomNavButtons(params);
+
+    return div(uploadForm, skipForms, buttons).with(each(extraScriptTags(), tag -> footer(tag)));
+  }
+
+  protected abstract Tag renderFileUploadBlockSubmitFormsElement(
+      Params params,
+      ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
+      String redirectUrl);
+
+  protected ImmutableList<Tag> extraScriptTags() {
+    return ImmutableList.of();
+  }
 
   /**
    * Renders a form submit button for delete form if the file upload question is optional.
@@ -120,7 +147,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    * applicant re-submits a form without changing their answer. Continue form is only used when an
    * existing file (and file key) is present.
    */
-  protected Tag renderDeleteAndContinueFileUploadForms(Params params) {
+  private Tag renderDeleteAndContinueFileUploadForms(Params params) {
     String formAction =
         routes.ApplicantProgramBlocksController.update(
                 params.applicantId(), params.programId(), params.block().getId(), params.inReview())
@@ -196,7 +223,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
             ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, Styles.HIDDEN);
   }
 
-  protected Tag renderFileUploadBottomNavButtons(Params params) {
+  private Tag renderFileUploadBottomNavButtons(Params params) {
     Optional<Tag> maybeContinueButton = maybeRenderContinueButton(params);
     Optional<ContainerTag> maybeSkipOrDeleteButton = maybeRenderSkipOrDeleteButton(params);
     ContainerTag ret =

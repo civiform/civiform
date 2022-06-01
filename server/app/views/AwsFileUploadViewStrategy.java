@@ -6,7 +6,6 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 import static j2html.attributes.Attr.ENCTYPE;
 
-import controllers.applicant.routes;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
@@ -59,21 +58,14 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  public Tag renderFileUploadBlockSubmitForms(
-      Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
+  protected Tag renderFileUploadBlockSubmitFormsElement(
+      Params params,
+      ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
+      String redirectUrl) {
 
     String key = FileNameFormatter.formatFileUploadQuestionFilename(params);
-    String onSuccessRedirectUrl =
-        params.baseUrl()
-            + routes.ApplicantProgramBlocksController.updateFile(
-                    params.applicantId(),
-                    params.programId(),
-                    params.block().getId(),
-                    params.inReview())
-                .url();
 
-    StorageUploadRequest request =
-        params.storageClient().getSignedUploadRequest(key, onSuccessRedirectUrl);
+    StorageUploadRequest request = params.storageClient().getSignedUploadRequest(key, redirectUrl);
 
     SignedS3UploadRequest signedRequest = castStorageRequest(request);
 
@@ -96,9 +88,7 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
                     question ->
                         renderQuestion(
                             question, rendererParams, applicantQuestionRendererFactory)));
-    Tag skipForms = renderDeleteAndContinueFileUploadForms(params);
-    Tag buttons = renderFileUploadBottomNavButtons(params);
-    return div(uploadForm, skipForms, buttons);
+    return uploadForm;
   }
 
   private SignedS3UploadRequest castStorageRequest(StorageUploadRequest request) {

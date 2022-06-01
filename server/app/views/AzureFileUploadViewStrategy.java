@@ -3,12 +3,11 @@ package views;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 import static j2html.attributes.Attr.ENCTYPE;
 
-import controllers.applicant.routes;
+import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
@@ -58,21 +57,13 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  public Tag renderFileUploadBlockSubmitForms(
-      Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
+  protected Tag renderFileUploadBlockSubmitFormsElement(
+      Params params,
+      ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
+      String redirectUrl) {
     String key = FileNameFormatter.formatFileUploadQuestionFilename(params);
 
-    String onSuccessRedirectUrl =
-        params.baseUrl()
-            + routes.ApplicantProgramBlocksController.updateFile(
-                    params.applicantId(),
-                    params.programId(),
-                    params.block().getId(),
-                    params.inReview())
-                .url();
-
-    StorageUploadRequest request =
-        params.storageClient().getSignedUploadRequest(key, onSuccessRedirectUrl);
+    StorageUploadRequest request = params.storageClient().getSignedUploadRequest(key, redirectUrl);
 
     BlobStorageUploadRequest blobStorageUploadRequest = castStorageRequest(request);
 
@@ -93,16 +84,7 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
                     question ->
                         renderQuestion(
                             question, rendererParams, applicantQuestionRendererFactory)));
-
-    Tag skipForms = renderDeleteAndContinueFileUploadForms(params);
-    Tag buttons = renderFileUploadBottomNavButtons(params);
-
-    return div(formTag, skipForms, buttons)
-        .withId("azure-upload-form-component")
-        .with(
-            footer(viewUtils.makeAzureBlobStoreScriptTag()),
-            footer(viewUtils.makeLocalJsTag("azure_upload")),
-            footer(viewUtils.makeLocalJsTag("azure_delete")));
+    return formTag;
   }
 
   private BlobStorageUploadRequest castStorageRequest(StorageUploadRequest request) {
@@ -111,5 +93,13 @@ public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
           "Tried to upload a file to Azure Blob storage using incorrect request type");
     }
     return (BlobStorageUploadRequest) request;
+  }
+
+  @Override
+  protected ImmutableList<Tag> extraScriptTags() {
+    return ImmutableList.of(
+        viewUtils.makeAzureBlobStoreScriptTag(),
+        viewUtils.makeLocalJsTag("azure_upload"),
+        viewUtils.makeLocalJsTag("azure_delete"));
   }
 }
