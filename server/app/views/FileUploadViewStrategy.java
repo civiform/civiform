@@ -4,6 +4,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.input;
 import static j2html.attributes.Attr.ENCTYPE;
 import static j2html.attributes.Attr.FORM;
 
@@ -11,10 +12,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.routes;
 import j2html.TagCreator;
+import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
-import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
@@ -35,14 +36,14 @@ import views.style.Styles;
  */
 public abstract class FileUploadViewStrategy extends ApplicationBaseView {
 
-  static final String MIME_TYPES_IMAGES_AND_PDF = "image/*,.pdf";
-  final String BLOCK_FORM_ID = "cf-block-form";
-  final String FILEUPLOAD_CONTINUE_FORM_ID = "cf-fileupload-continue-form";
-  final String FILEUPLOAD_DELETE_FORM_ID = "cf-fileupload-delete-form";
-  final String FILEUPLOAD_SUBMIT_FORM_ID = "cf-block-submit";
-  final String FILEUPLOAD_DELETE_BUTTON_ID = "fileupload-delete-button";
-  final String FILEUPLOAD_SKIP_BUTTON_ID = "fileupload-skip-button";
-  final String FILEUPLOAD_CONTINUE_BUTTON_ID = "fileupload-continue-button";
+  private static final String MIME_TYPES_IMAGES_AND_PDF = "image/*,.pdf";
+  private static final String BLOCK_FORM_ID = "cf-block-form";
+  private static final String FILEUPLOAD_CONTINUE_FORM_ID = "cf-fileupload-continue-form";
+  private static final String FILEUPLOAD_DELETE_FORM_ID = "cf-fileupload-delete-form";
+  private static final String FILEUPLOAD_SUBMIT_FORM_ID = "cf-block-submit";
+  private static final String FILEUPLOAD_DELETE_BUTTON_ID = "fileupload-delete-button";
+  private static final String FILEUPLOAD_SKIP_BUTTON_ID = "fileupload-skip-button";
+  private static final String FILEUPLOAD_CONTINUE_BUTTON_ID = "fileupload-continue-button";
 
   /**
    * Method to generate the field tags for the file upload view form.
@@ -51,8 +52,24 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    * @param fileUploadQuestion The question that requires a file upload.
    * @return a container tag with the necessary fields
    */
-  public abstract ContainerTag signedFileUploadFields(
-      ApplicantQuestionRendererParams params, FileUploadQuestion fileUploadQuestion);
+  public final ContainerTag signedFileUploadFields(
+      ApplicantQuestionRendererParams params, FileUploadQuestion fileUploadQuestion) {
+    Optional<String> uploaded =
+        fileUploadQuestion.getFilename().map(f -> String.format("File uploaded: %s", f));
+
+    return div()
+        .with(
+            div().withText(uploaded.orElse("")),
+            input().withType("file").withName("file").attr(Attr.ACCEPT, MIME_TYPES_IMAGES_AND_PDF),
+            div(fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()))
+                .withClasses(
+                    ReferenceClasses.FILEUPLOAD_ERROR,
+                    BaseStyles.FORM_ERROR_TEXT_BASE,
+                    Styles.HIDDEN))
+        .with(extraFileUploadFields(params.signedFileUploadRequest().get()));
+  }
+
+  protected abstract ImmutableList<Tag> extraFileUploadFields(StorageUploadRequest request);
 
   /**
    * Method to render the UI for uploading a file.
@@ -227,16 +244,6 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
 
   private boolean hasAtLeastOneRequiredQuestion(Params params) {
     return params.block().getQuestions().stream().anyMatch(question -> !question.isOptional());
-  }
-
-  protected String acceptFileTypes() {
-    return MIME_TYPES_IMAGES_AND_PDF;
-  }
-
-  protected ContainerTag errorDiv(Messages messages, FileUploadQuestion fileUploadQuestion) {
-    return div(fileUploadQuestion.fileRequiredMessage().getMessage(messages))
-        .withClasses(
-            ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, Styles.HIDDEN);
   }
 
   private Tag renderFileUploadBottomNavButtons(Params params) {
