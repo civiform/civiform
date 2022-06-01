@@ -4,8 +4,10 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
+import static j2html.attributes.Attr.ENCTYPE;
 import static j2html.attributes.Attr.FORM;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.routes;
 import j2html.TagCreator;
@@ -17,6 +19,8 @@ import play.mvc.Http.HttpVerbs;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
+import services.cloud.FileNameFormatter;
+import services.cloud.StorageUploadRequest;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.FileUploadQuestionRenderer;
@@ -51,13 +55,13 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
       ApplicantQuestionRendererParams params, FileUploadQuestion fileUploadQuestion);
 
   /**
-   * Method to render the submit form for uploading a file.
+   * Method to render the UI for uploading a file.
    *
    * @param params the information needed to render a file upload view
    * @param applicantQuestionRendererFactory a class for rendering applicant questions.
    * @return a container tag with the submit view
    */
-  public final Tag renderFileUploadBlockSubmitForms(
+  public final Tag renderFileUploadBlock(
       Params params, ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
     String onSuccessRedirectUrl =
         params.baseUrl()
@@ -67,19 +71,38 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
                     params.block().getId(),
                     params.inReview())
                 .url();
-    Tag uploadForm =
-        renderFileUploadBlockSubmitFormsElement(
-            params, applicantQuestionRendererFactory, onSuccessRedirectUrl);
+
+    String key = FileNameFormatter.formatFileUploadQuestionFilename(params);
+    StorageUploadRequest signedRequest =
+        params.storageClient().getSignedUploadRequest(key, onSuccessRedirectUrl);
+
+    ApplicantQuestionRendererParams rendererParams =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(params.messages())
+            .setSignedFileUploadRequest(signedRequest)
+            .setErrorDisplayMode(params.errorDisplayMode())
+            .build();
+
+    ContainerTag uploadForm = renderFileUploadFormElement(params, signedRequest);
+    Preconditions.checkState("form".equals(uploadForm.getTagName()), "must be of type form");
+    uploadForm.with(
+        each(
+            params.block().getQuestions(),
+            question ->
+                applicantQuestionRendererFactory.getRenderer(question).render(rendererParams)));
+
     Tag skipForms = renderDeleteAndContinueFileUploadForms(params);
     Tag buttons = renderFileUploadBottomNavButtons(params);
 
     return div(uploadForm, skipForms, buttons).with(each(extraScriptTags(), tag -> footer(tag)));
   }
 
-  protected abstract Tag renderFileUploadBlockSubmitFormsElement(
-      Params params,
-      ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
-      String redirectUrl);
+  protected ContainerTag renderFileUploadFormElement(Params params, StorageUploadRequest request) {
+    return form()
+        .withId(BLOCK_FORM_ID)
+        .attr(ENCTYPE, "multipart/form-data")
+        .withMethod(HttpVerbs.POST);
+  }
 
   protected ImmutableList<Tag> extraScriptTags() {
     return ImmutableList.of();
@@ -110,13 +133,6 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
             .withClasses(ApplicantStyles.BUTTON_REVIEW)
             .withId(buttonId);
     return Optional.of(button);
-  }
-
-  protected Tag renderQuestion(
-      ApplicantQuestion question,
-      ApplicantQuestionRendererParams params,
-      ApplicantQuestionRendererFactory applicantQuestionRendererFactory) {
-    return applicantQuestionRendererFactory.getRenderer(question).render(params);
   }
 
   /**
@@ -192,24 +208,24 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
         .withId(FILEUPLOAD_SUBMIT_FORM_ID);
   }
 
-  protected Tag renderFileKeyField(
+  private Tag renderFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, false);
   }
 
-  protected Tag renderEmptyFileKeyField(
+  private Tag renderEmptyFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     return FileUploadQuestionRenderer.renderFileKeyField(question, params, true);
   }
 
-  protected boolean hasUploadedFile(Params params) {
+  private boolean hasUploadedFile(Params params) {
     return params.block().getQuestions().stream()
         .map(ApplicantQuestion::createFileUploadQuestion)
         .map(FileUploadQuestion::getFileKeyValue)
         .anyMatch(maybeValue -> maybeValue.isPresent());
   }
 
-  protected boolean hasAtLeastOneRequiredQuestion(Params params) {
+  private boolean hasAtLeastOneRequiredQuestion(Params params) {
     return params.block().getQuestions().stream().anyMatch(question -> !question.isOptional());
   }
 

@@ -20,7 +20,7 @@ import views.style.ReferenceClasses;
  * Renders a file upload question.
  *
  * <p>A file upload question requires a different form. See {@code
- * views.applicant.ApplicantProgramBlockEditView#renderFileUploadBlockSubmitForms}.
+ * views.applicant.ApplicantProgramBlockEditView#renderFileUploadBlock}.
  */
 public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
   private static final String IMAGES_AND_PDF = "image/*,.pdf";

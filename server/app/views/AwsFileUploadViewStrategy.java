@@ -1,21 +1,14 @@
 package views;
 
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
-import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
-import static j2html.attributes.Attr.ENCTYPE;
 
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
 import java.util.Optional;
-import play.mvc.Http.HttpVerbs;
 import services.applicant.question.FileUploadQuestion;
-import services.cloud.FileNameFormatter;
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
-import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
 public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
@@ -58,37 +51,10 @@ public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  protected Tag renderFileUploadBlockSubmitFormsElement(
-      Params params,
-      ApplicantQuestionRendererFactory applicantQuestionRendererFactory,
-      String redirectUrl) {
-
-    String key = FileNameFormatter.formatFileUploadQuestionFilename(params);
-
-    StorageUploadRequest request = params.storageClient().getSignedUploadRequest(key, redirectUrl);
-
+  protected ContainerTag renderFileUploadFormElement(Params params, StorageUploadRequest request) {
     SignedS3UploadRequest signedRequest = castStorageRequest(request);
-
-    ApplicantQuestionRendererParams rendererParams =
-        ApplicantQuestionRendererParams.builder()
-            .setMessages(params.messages())
-            .setSignedFileUploadRequest(signedRequest)
-            .setErrorDisplayMode(params.errorDisplayMode())
-            .build();
-
-    Tag uploadForm =
-        form()
-            .withId(BLOCK_FORM_ID)
-            .attr(ENCTYPE, "multipart/form-data")
-            .withAction(signedRequest.actionLink())
-            .withMethod(HttpVerbs.POST)
-            .with(
-                each(
-                    params.block().getQuestions(),
-                    question ->
-                        renderQuestion(
-                            question, rendererParams, applicantQuestionRendererFactory)));
-    return uploadForm;
+    return super.renderFileUploadFormElement(params, request)
+        .withAction(signedRequest.actionLink());
   }
 
   private SignedS3UploadRequest castStorageRequest(StorageUploadRequest request) {
