@@ -27,8 +27,10 @@ function makeBrowserContext(browser: Browser) {
     // context is possible, but likely not necessary
     // until it causes a problem. In practice, this
     // will only be used when debugging failures.
-    const suffix = (global as any)['expect'] === undefined
-      ? '' : expect.getState().currentTestName
+    const suffix =
+      (global as any)['expect'] === undefined
+        ? ''
+        : expect.getState().currentTestName
     return browser.newContext({
       acceptDownloads: true,
       recordVideo: {
@@ -98,6 +100,10 @@ export const loginAsTestUser = async (page: Page) => {
   if (isTestUser()) {
     await page.click('#idcs')
     // Wait for the IDCS login page to make sure we've followed all redirects.
+    // If running this against a site with a real IDCS (i.e. staging) and this
+    // test fails with a timeout try re-running the tests. Sometimes there are
+    // just transient network hiccups that will pass on a second run.
+    // In short: If using a real IDCS retry test if this has a timeout failure.
     await page.waitForURL('**/#/login*')
     await page.fill('input[name=userName]', TEST_USER_LOGIN)
     await page.fill('input[name=password]', TEST_USER_PASSWORD)
@@ -155,9 +161,13 @@ export const closeWarningMessage = async (page: Page) => {
   // The warning message may be in the way of this link
   var element = await page.$('#warning-message-dismiss')
 
-  if (element !== null){
+  if (element !== null) {
     await element
       .click()
-      .catch(() => console.log("Didn't find a warning toast message to dismiss, which is fine."))
-  } 
+      .catch(() =>
+        console.log(
+          "Didn't find a warning toast message to dismiss, which is fine."
+        )
+      )
+  }
 }
