@@ -12,6 +12,6 @@ module "file-storage" {
     source = "../../modules/file-storage"
 }
 
-module "logs" {
-    source = "../../modules/logs"
+module "logs-storage" {
+    source = "../../modules/logs-storage"
 }
