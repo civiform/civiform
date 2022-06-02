@@ -57,16 +57,27 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     Optional<String> uploaded =
         fileUploadQuestion.getFilename().map(f -> String.format("File uploaded: %s", f));
 
-    return div()
-        .with(
-            div().withText(uploaded.orElse("")),
-            input().withType("file").withName("file").attr(Attr.ACCEPT, MIME_TYPES_IMAGES_AND_PDF),
-            div(fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()))
-                .withClasses(
-                    ReferenceClasses.FILEUPLOAD_ERROR,
-                    BaseStyles.FORM_ERROR_TEXT_BASE,
-                    Styles.HIDDEN))
-        .with(extraFileUploadFields(params.signedFileUploadRequest().get()));
+    ContainerTag result =
+        div()
+            .with(
+                div().withText(uploaded.orElse("")),
+                input()
+                    .withType("file")
+                    .withName("file")
+                    .attr(Attr.ACCEPT, MIME_TYPES_IMAGES_AND_PDF),
+                div(fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()))
+                    .withClasses(
+                        ReferenceClasses.FILEUPLOAD_ERROR,
+                        BaseStyles.FORM_ERROR_TEXT_BASE,
+                        Styles.HIDDEN));
+    // TODO(#2589): Consider removing isSample entirely since it's only used for this
+    // codepath. The only change would be that extraFileUploadFields would need to
+    // allow an empty signedFileUploadRequest. Presumably this wouldn't be a large issue
+    // since uploads wouldn't work at runtime without the parameters.
+    if (!params.isSample()) {
+      result.with(extraFileUploadFields(params.signedFileUploadRequest().get()));
+    }
+    return result;
   }
 
   protected abstract ImmutableList<Tag> extraFileUploadFields(StorageUploadRequest request);
