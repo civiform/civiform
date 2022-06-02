@@ -114,6 +114,18 @@
     "secret": false,
     "type": "string"
   },
+  "DOCKER_REPOSITORY_NAME": {
+    "required": true,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "DOCKER_USERNAME": {
+    "required": true,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
   "KEY_VAULT_NAME": {
     "required": true,
     "secret": false,
