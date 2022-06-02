@@ -55,7 +55,9 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
   public final ContainerTag signedFileUploadFields(
       ApplicantQuestionRendererParams params, FileUploadQuestion fileUploadQuestion) {
     Optional<String> uploaded =
-        fileUploadQuestion.getFilename().map(f -> String.format("File uploaded: %s", f));
+        fileUploadQuestion
+            .getFilename()
+            .map(f -> params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName(), f));
 
     ContainerTag result =
         div()
