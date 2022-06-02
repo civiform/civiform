@@ -39,13 +39,19 @@ import views.style.Styles;
  * </ul>
  */
 public class TextFormatter {
+  public enum UrlOpenAction {
+    SameTab,
+    NewTab
+  }
+
   private static final Logger logger = LoggerFactory.getLogger(TextFormatter.class);
 
   private static final String ACCORDION_CONTENT = ">";
   private static final String ACCORDION_HEADER = "### ";
   private static final String BULLETED_ITEM = "* ";
 
-  public static ImmutableList<DomContent> createLinksAndEscapeText(String content) {
+  public static ImmutableList<DomContent> createLinksAndEscapeText(
+      String content, UrlOpenAction urlOpenAction) {
     // JAVASCRIPT option avoids including surrounding quotes or brackets in the URL.
     List<Url> urls = new UrlDetector(content, UrlDetectorOptions.JAVASCRIPT).detect();
 
@@ -76,10 +82,18 @@ public class TextFormatter {
         contentBuilder.add(text(content.substring(0, index)));
       }
       // Add the URL.
-      contentBuilder.add(
+      var urlTag =
           a().withText(url.getOriginalUrl())
               .withHref(url.getFullUrl())
-              .withClasses(BaseStyles.TEXT_SEATTLE_BLUE));
+              .withClasses(BaseStyles.TEXT_SEATTLE_BLUE);
+
+      if (urlOpenAction == UrlOpenAction.NewTab) {
+        urlTag.withTarget("_blank")
+                .with(Icons.svg(Icons.OPEN_IN_NEW_PATH, 24, 24)
+                        .withClasses(Styles.FLEX_SHRINK_0, Styles.H_5, Styles.W_AUTO, Styles.INLINE));
+      }
+      contentBuilder.add(urlTag);
+
       content = content.substring(index + url.getOriginalUrl().length());
     }
     // If there's content leftover, add it.
@@ -117,7 +131,7 @@ public class TextFormatter {
         i = next - 1;
         builder.add(buildList(items));
       } else if (line.length() > 0) {
-        ImmutableList<DomContent> lineContent = TextFormatter.createLinksAndEscapeText(line);
+        ImmutableList<DomContent> lineContent = TextFormatter.createLinksAndEscapeText(line, UrlOpenAction.NewTab);
         builder.add(div().with(lineContent));
       } else if (preserveEmptyLines) {
         builder.add(div().withClasses(Styles.H_6));
