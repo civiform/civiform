@@ -2,7 +2,6 @@
 set -e
 
 source "cloud/shared/bin/lib.sh"
-source "cloud/azure/bin/lib.sh"
 
 # loads and validates config variables and generates tfvars file
 python3 "cloud/shared/bin/lib/tf_apply_setup.py"
