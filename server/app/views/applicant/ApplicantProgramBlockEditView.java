@@ -57,8 +57,8 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .addMainContent(
                 h1(params.programTitle()
                         + " "
-                        + params.blockIndex()
-                        + "/"
+                        + (params.blockIndex() + 1)
+                        + " of "
                         + params.totalBlockCount())
                     .withClasses(Styles.SR_ONLY))
             .addMainContent(
