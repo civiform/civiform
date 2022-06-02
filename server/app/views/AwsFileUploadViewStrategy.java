@@ -8,7 +8,7 @@ import j2html.tags.Tag;
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
 
-public class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
+public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
   protected ImmutableList<Tag> extraFileUploadFields(StorageUploadRequest request) {

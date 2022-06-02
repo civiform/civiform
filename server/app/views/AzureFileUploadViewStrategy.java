@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import services.cloud.StorageUploadRequest;
 import services.cloud.azure.BlobStorageUploadRequest;
 
-public class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
+public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
 
   private final ViewUtils viewUtils;
 

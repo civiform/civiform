@@ -72,11 +72,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
                         ReferenceClasses.FILEUPLOAD_ERROR,
                         BaseStyles.FORM_ERROR_TEXT_BASE,
                         Styles.HIDDEN));
-    // TODO(#2589): Consider removing isSample entirely since it's only used for this
-    // codepath. The only change would be that extraFileUploadFields would need to
-    // allow an empty signedFileUploadRequest. Presumably this wouldn't be a large issue
-    // since uploads wouldn't work at runtime without the parameters.
-    if (!params.isSample()) {
+    if (params.signedFileUploadRequest().isPresent()) {
       result.with(extraFileUploadFields(params.signedFileUploadRequest().get()));
     }
     return result;
