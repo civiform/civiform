@@ -8,10 +8,12 @@ class AzureDeleteController {
     const deleteContainer = document.getElementById(
       AzureDeleteController.FILEUPLOAD_DELETE_ID
     )
-    const azblob = window['azblob']
-    deleteContainer.addEventListener('click', (event) =>
-      this.attemptDelete(azblob)
-    )
+    if (deleteContainer) {
+      const azblob = window['azblob']
+      deleteContainer.addEventListener('click', (event) =>
+        this.attemptDelete(azblob)
+      )
+    }
   }
 
   attemptDelete(azblob: any) {

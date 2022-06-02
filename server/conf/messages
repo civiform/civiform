@@ -77,6 +77,9 @@ link.adminLogin=Admin login
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
 
+# The text displayed when a file has already been uploaded and the name is being displayed.
+input.fileAlreadyUploaded=File uploaded: {0}
+
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=Delete
 
