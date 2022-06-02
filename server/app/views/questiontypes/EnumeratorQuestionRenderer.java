@@ -11,7 +11,10 @@ import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
 import j2html.tags.Tag;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -54,7 +57,9 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      List<String> ariaDescribedByIds,
+      boolean hasQuestionErrors) {
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
     String localizedEntityType = enumeratorQuestion.getEntityType();
@@ -67,6 +72,8 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
               messages,
               localizedEntityType,
               question.getContextualizedPath(),
+              ariaDescribedByIds,
+              hasQuestionErrors,
               Optional.of(entityNames.get(index)),
               Optional.of(index)));
     }
@@ -83,6 +90,11 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
                             messages.at(
                                 MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
                                 localizedEntityType)))
+                    .condAttr(hasQuestionErrors, "aria-invalid", "true")
+                    .condAttr(
+                        !ariaDescribedByIds.isEmpty(),
+                        "aria-describedby",
+                        StringUtils.join(ariaDescribedByIds, " "))
                     .withClasses(
                         ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
                         StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400)));
@@ -98,6 +110,8 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
       Messages messages,
       String localizedEntityType,
       Path contextualizedPath,
+      List<String> ariaDescribedByIds,
+      boolean hasQuestionErrors,
       Optional<String> existingEntity,
       Optional<Integer> existingIndex) {
 
@@ -114,6 +128,8 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
                     localizedEntityType))
             .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT)
+            .setAriaDescribedByIds(ariaDescribedByIds)
+            .setHasQuestionErrors(hasQuestionErrors)
             .getContainer();
     String confirmationMessage =
         messages.at(MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE.getKeyName(), localizedEntityType);
@@ -144,8 +160,15 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
    */
   public static Tag newEnumeratorFieldTemplate(
       Path contextualizedPath, String localizedEntityType, Messages messages) {
+    // TODO(#1879): Set aria-describedby.
     return enumeratorField(
-            messages, localizedEntityType, contextualizedPath, Optional.empty(), Optional.empty())
+            messages,
+            localizedEntityType,
+            contextualizedPath,
+            Collections.emptyList(),
+            false,
+            Optional.empty(),
+            Optional.empty())
         .withId(ENUMERATOR_FIELD_TEMPLATE_ID)
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, Styles.HIDDEN));
   }

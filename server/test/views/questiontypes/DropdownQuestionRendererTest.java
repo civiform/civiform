@@ -76,4 +76,13 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
     assertThat(result.render()).contains("hidden selected");
     assertThat(result.render()).contains("Choose an option");
   }
+
+  @Test
+  public void render_withAriaLabels() {
+    Tag result = renderer.render(params);
+
+    String id = question.getContextualizedPath().toString();
+    assertThat(result.render())
+        .contains("aria-describedBy=" + String.format("\"%s-description\"", id));
+  }
 }

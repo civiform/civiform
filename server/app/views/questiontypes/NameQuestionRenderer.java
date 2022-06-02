@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
+import java.util.List;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -29,7 +30,9 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      List<String> ariaDescribedByIds,
+      boolean hasQuestionErrors) {
     Messages messages = params.messages();
     NameQuestion nameQuestion = question.createNameQuestion();
 
@@ -40,6 +43,8 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setFieldName(nameQuestion.getFirstNamePath().toString())
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
                     .setValue(nameQuestion.getFirstNameValue().orElse(""))
+                    .setAriaDescribedByIds(ariaDescribedByIds)
+                    .setHasQuestionErrors(hasQuestionErrors)
                     .setFieldErrors(
                         messages,
                         validationErrors.getOrDefault(
@@ -52,6 +57,8 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_MIDDLE.getKeyName()))
                     .setValue(nameQuestion.getMiddleNameValue().orElse(""))
                     .addReferenceClass(ReferenceClasses.NAME_MIDDLE)
+                    .setAriaDescribedByIds(ariaDescribedByIds)
+                    .setHasQuestionErrors(hasQuestionErrors)
                     .setFieldErrors(
                         messages,
                         validationErrors.getOrDefault(
@@ -62,6 +69,8 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setFieldName(nameQuestion.getLastNamePath().toString())
                     .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
                     .setValue(nameQuestion.getLastNameValue().orElse(""))
+                    .setAriaDescribedByIds(ariaDescribedByIds)
+                    .setHasQuestionErrors(hasQuestionErrors)
                     .setFieldErrors(
                         messages,
                         validationErrors.getOrDefault(

@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.util.ArrayList;
+import java.util.List;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -26,8 +28,18 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
 
   protected final ApplicantQuestion question;
 
+  // HTML id tags for various elements within this question.
+  private final String id;
+  private final String descriptionId;
+  private final String requiredErrorId;
+  private final String validationErrorId;
+
   ApplicantQuestionRendererImpl(ApplicantQuestion question) {
     this.question = checkNotNull(question);
+    id = question.getContextualizedPath().toString();
+    descriptionId = String.format("%s-description", id);
+    requiredErrorId = String.format("%s-required-error", id);
+    validationErrorId = String.format("%s-validation-error", id);
   }
 
   private String getRequiredClass() {
@@ -36,10 +48,15 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
 
   protected abstract Tag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors);
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      List<String> ariaDescribedByIds,
+      boolean hasQuestionErrors);
 
   @Override
   public final Tag render(ApplicantQuestionRendererParams params) {
+    var ariaDescribedByIds = new ArrayList<String>();
+    ariaDescribedByIds.add(descriptionId);
+
     Messages messages = params.messages();
     ContainerTag questionTextDiv =
         div()
@@ -52,6 +69,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
             // Question help text
             .with(
                 div()
+                    .withId(descriptionId)
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)
@@ -71,27 +89,36 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
             String.format("Unhandled error display mode: %s", params.errorDisplayMode()));
     }
 
+    boolean hasQuestionErrors = false;
     ImmutableSet<ValidationErrorMessage> questionErrors =
         validationErrors.getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
     if (!questionErrors.isEmpty()) {
       // Question error text
+      hasQuestionErrors = true;
       questionTextDiv.with(
           BaseHtmlView.fieldErrors(
-              messages, questionErrors, ReferenceClasses.APPLICANT_QUESTION_ERRORS));
+                  messages, questionErrors, ReferenceClasses.APPLICANT_QUESTION_ERRORS)
+              .withId(validationErrorId));
+      // Insert error message to be read first.
+      ariaDescribedByIds.add(0, validationErrorId);
     }
 
     if (question.isRequiredButWasSkippedInCurrentProgram()) {
+      hasQuestionErrors = true;
       String requiredQuestionMessage = messages.at(MessageKey.VALIDATION_REQUIRED.getKeyName());
       questionTextDiv.with(
           div()
+              .withId(requiredErrorId)
               .withClasses(Styles.P_1, Styles.TEXT_RED_600)
               .withText("*" + requiredQuestionMessage));
+      // Insert error message to be read first.
+      ariaDescribedByIds.add(0, requiredErrorId);
     }
 
     return div()
-        .withId(question.getContextualizedPath().toString())
+        .withId(id)
         .withClasses(Styles.MX_AUTO, Styles.MB_8, getReferenceClass(), getRequiredClass())
         .with(questionTextDiv)
-        .with(renderTag(params, validationErrors));
+        .with(renderTag(params, validationErrors, ariaDescribedByIds, hasQuestionErrors));
   }
 }

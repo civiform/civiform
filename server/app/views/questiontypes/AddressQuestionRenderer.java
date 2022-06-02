@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.Tag;
+import java.util.List;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -30,7 +31,9 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
   @Override
   protected Tag renderTag(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      List<String> ariaDescribedByIds,
+      boolean hasQuestionErrors) {
     Messages messages = params.messages();
     AddressQuestion addressQuestion = question.createAddressQuestion();
 
@@ -44,6 +47,8 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setPlaceholderText(
                         messages.at(MessageKey.ADDRESS_PLACEHOLDER_STREET.getKeyName()))
                     .setValue(addressQuestion.getStreetValue().orElse(""))
+                    .setAriaDescribedByIds(ariaDescribedByIds)
+                    .setHasQuestionErrors(hasQuestionErrors)
                     .setFieldErrors(
                         messages,
                         validationErrors.getOrDefault(
@@ -57,6 +62,8 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .setPlaceholderText(
                         messages.at(MessageKey.ADDRESS_PLACEHOLDER_LINE_2.getKeyName()))
                     .setValue(addressQuestion.getLine2Value().orElse(""))
+                    .setAriaDescribedByIds(ariaDescribedByIds)
+                    .setHasQuestionErrors(hasQuestionErrors)
                     .setFieldErrors(
                         messages,
                         validationErrors.getOrDefault(
@@ -72,6 +79,8 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_CITY.getKeyName()))
                             .setValue(addressQuestion.getCityValue().orElse(""))
                             .addReferenceClass(ReferenceClasses.ADDRESS_CITY)
+                            .setAriaDescribedByIds(ariaDescribedByIds)
+                            .setHasQuestionErrors(hasQuestionErrors)
                             .setFieldErrors(
                                 messages,
                                 validationErrors.getOrDefault(
@@ -81,6 +90,8 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                             .setFieldName(addressQuestion.getStatePath().toString())
                             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
                             .setValue(addressQuestion.getStateValue().orElse(""))
+                            .setAriaDescribedByIds(ariaDescribedByIds)
+                            .setHasQuestionErrors(hasQuestionErrors)
                             .setFieldErrors(
                                 messages,
                                 validationErrors.getOrDefault(
@@ -92,6 +103,8 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                             .setLabelText(
                                 messages.at(MessageKey.ADDRESS_LABEL_ZIPCODE.getKeyName()))
                             .setValue(addressQuestion.getZipValue().orElse(""))
+                            .setAriaDescribedByIds(ariaDescribedByIds)
+                            .setHasQuestionErrors(hasQuestionErrors)
                             .setFieldErrors(
                                 messages,
                                 validationErrors.getOrDefault(

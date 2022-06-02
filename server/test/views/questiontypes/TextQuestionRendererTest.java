@@ -80,4 +80,13 @@ public class TextQuestionRendererTest extends ResetPostgres {
 
     assertThat(result.render()).contains("Must contain at most 3 characters.");
   }
+
+  @Test
+  public void render_withAriaLabels() {
+    Tag result = renderer.render(params);
+
+    String id = question.getContextualizedPath().toString();
+    assertThat(result.render())
+        .contains("aria-describedBy=" + String.format("\"%s-description\"", id));
+  }
 }
