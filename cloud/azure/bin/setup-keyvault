@@ -7,7 +7,6 @@ readonly APP_SECRET_KEY_NAME="app-secret-key"
 readonly ADFS_SECRET_NAME="adfs-secret"
 readonly ADFS_CLIENT_ID="adfs-client-id"
 readonly ADFS_DISCOVERY_URI="adfs-discovery-uri"
-readonly TEMPORARY_SECRET="CHANGE ME"
 
 # DOC: Create key vault instance, set permissions, and generate and set secrets
 
@@ -68,7 +67,7 @@ else
   key_vault::add_secret \
     "${vault_name}" \
     "${ADFS_SECRET_NAME}" \
-    "${TEMPORARY_SECRET}"
+    ""
 fi
 
 if key_vault::has_secret "${vault_name}" "${ADFS_CLIENT_ID}"; then
@@ -77,7 +76,7 @@ else
   key_vault::add_secret \
     "${vault_name}" \
     "${ADFS_CLIENT_ID}" \
-    "${TEMPORARY_SECRET}"
+    ""
 fi
 
 if key_vault::has_secret "${vault_name}" "${ADFS_DISCOVERY_URI}"; then
@@ -86,5 +85,5 @@ else
   key_vault::add_secret \
     "${vault_name}" \
     "${ADFS_DISCOVERY_URI}" \
-    "${TEMPORARY_SECRET}"
+    ""
 fi

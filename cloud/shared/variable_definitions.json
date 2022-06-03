@@ -56,6 +56,16 @@
       "aws"
     ]
   },
+  "FAKE_AUTH": {
+    "required": false,
+    "secret": false,
+    "tfvar": false,
+    "type": "enum",
+    "values": [
+      "true",
+      "false"
+    ]
+  },
   "CIVIFORM_MODE": {
     "required": true,
     "secret": false,

@@ -36,7 +36,7 @@ jobs:
       - name: Source config, set CIVIFORM_MODE to be "test" and deploy with latest snapshot tag
         run: |
           source civiform_config.sh
-          export CIVIFORM_MODE="test"
+          export CIVIFORM_MODE="dev"
           export CUSTOM_HOSTNAME=""
           export STAGING_HOSTNAME=""
           cloud/shared/bin/setup "--tag=${LATEST_SNAPSHOT_TAG}"
