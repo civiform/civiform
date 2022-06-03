@@ -26,10 +26,11 @@ class Setup(SetupTemplate):
     def pre_terraform_setup(self):
         print(" - Setting up shared state")
         self._setup_shared_state()
-        print(" - Setting up the keyvault")
-        self._setup_keyvault()
-        print(" - Setting up the SAML keystore")
-        self._setup_saml_keystore()
+        if not self.config.is_test():
+            print(" - Setting up the keyvault")
+            self._setup_keyvault()
+            print(" - Setting up the SAML keystore")
+            self._setup_saml_keystore()
         print(" - Setting up SES")
         self._setup_ses()
         # Only run in dev mode
@@ -43,7 +44,8 @@ class Setup(SetupTemplate):
             ["cloud/azure/bin/init-azure-log", self.log_file_path], check=True)
 
     def post_terraform_setup(self):
-        self._get_adfs_user_inputs()
+        if not self.config.is_test():
+            self._get_adfs_user_inputs()
         self._configure_slot_settings()
 
     def cleanup(self):

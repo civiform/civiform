@@ -37,12 +37,14 @@ jobs:
         run: |
           source civiform_config.sh
           export CIVIFORM_MODE="test"
-          echo "${LATEST_SNAPSHOT_TAG}"
-          yes "https://login.microsoftonline.com/5b6f91f9-f8c1-42d7-8d1e-b70e56eb3280/v2.0/.well-known/openid-configuration" | cloud/shared/bin/setup "--tag=${LATEST_SNAPSHOT_TAG}"
+          export CUSTOM_HOSTNAME=""
+          export STAGING_HOSTNAME=""
+          cloud/shared/bin/setup "--tag=${LATEST_SNAPSHOT_TAG}"
           exit $?
       - name: Run prober test
         run: |
           export BASE_URL=$(terraform output -raw app_service_default_hostname)
+          echo "${BASE_URL}""
           bin/run-prober
       - name: Run terraform destory
         run: |
