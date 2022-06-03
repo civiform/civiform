@@ -69,6 +69,7 @@ describe('file upload applicant flow', () => {
       await applicantQuestions.answerFileUploadQuestion('file key')
       await applicantQuestions.clickUpload()
 
+      await applicantQuestions.downloadSingleQuestionFromReviewPage()
       await applicantQuestions.submitFromReviewPage(programName)
     })
 

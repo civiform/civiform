@@ -1,4 +1,5 @@
 import { Page } from 'playwright'
+import { readFileSync } from 'fs'
 import { waitForPageJsLoad } from './wait'
 
 export class ApplicantQuestions {
@@ -249,8 +250,25 @@ export class ApplicantQuestions {
     expect(await this.page.url().split('/').pop()).toEqual('programs')
   }
 
-  async submitFromPreviewPage(programName: string) {
+  async downloadSingleQuestionFromReviewPage() {
     // Assert that we're on the review page.
+    expect(await this.page.innerText('h1')).toContain(
+      'Program application review'
+    )
+
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.click('a:has-text("click to download")')
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
+  }
+
+  async submitFromPreviewPage(programName: string) {
+    // Assert that we're on the preview page.
     expect(await this.page.innerText('h1')).toContain(
       'Program application preview'
     )
