@@ -37,6 +37,7 @@ jobs:
         run: |
           source civiform_config.sh
           export CIVIFORM_MODE="dev"
+          export FAKE_AUTH="true"
           export CUSTOM_HOSTNAME=""
           export STAGING_HOSTNAME=""
           cloud/shared/bin/setup "--tag=${LATEST_SNAPSHOT_TAG}"
