@@ -75,7 +75,8 @@
       "prod",
       "staging",
       "dev",
-      "test"
+      "test",
+      "prober"
     ]
   },
   "CUSTOM_HOSTNAME": {

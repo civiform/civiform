@@ -40,7 +40,7 @@ function terraform::perform_destory() {
 #   auto_approve boolean
 #######################################
 function terraform::perform_apply() {
-  if civiform_mode::is_dev; then
+  if civiform_mode::is_dev || civiform_mode::is_prober; then
     "${TERRAFORM_CMD[@]}" init -upgrade
   else
     "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/setup_tf_shared_state" \
