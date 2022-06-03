@@ -42,8 +42,7 @@ jobs:
           exit $?
       - name: Run prober test
         run: |
-          base_url=terraform output -raw app_service_default_hostname 
-          export BASE_URL="${base_url}"
+          export BASE_URL=$(terraform output -raw app_service_default_hostname)
           bin/run-prober
       - name: Run terraform destory
         run: |
