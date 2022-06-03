@@ -61,6 +61,7 @@ public enum MessageKey {
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
   ID_VALIDATION_TOO_LONG("validation.idTooLong"),
   ID_VALIDATION_TOO_SHORT("validation.idTooShort"),
+  INPUT_FILE_ALREADY_UPLOADED("input.fileAlreadyUploaded"),
   INVALID_INPUT("validation.invalidInput"),
   LANGUAGE_LABEL_SR("label.languageSr"),
   LINK_ADMIN_LOGIN("link.adminLogin"),

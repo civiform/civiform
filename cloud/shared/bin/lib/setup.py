@@ -1,7 +1,9 @@
 #! /usr/bin/env python3
 
+import os
 import subprocess
 import sys
+
 
 from config_loader import ConfigLoader
 from write_tfvars import TfVarWriter
@@ -16,6 +18,12 @@ Setup.py sets up and runs the initial terraform deployment. It's broken into
 
 The script generates a .tfvars file that is used to deploy via terraform.
 """
+
+###############################################################################
+# Add top level directory so we can import modules
+###############################################################################
+
+sys.path.append(os.getcwd())
 
 ###############################################################################
 # Load and Validate Inputs
