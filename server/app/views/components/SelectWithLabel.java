@@ -17,7 +17,6 @@ import j2html.tags.specialized.SelectTag;
 /** Utility class for rendering a select input field with an optional label. */
 public class SelectWithLabel extends FieldWithLabel {
 
-  private static final Logger logger = LoggerFactory.getLogger(SelectWithLabel.class);
   private ImmutableMap<String, String> options = ImmutableMap.of();
   private ImmutableList<OptionTag> customOptions = ImmutableList.of();
 
