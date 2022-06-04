@@ -4,7 +4,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.input;
 import static j2html.attributes.Attr.ENCTYPE;
 import static j2html.attributes.Attr.FORM;
 
@@ -12,7 +11,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.routes;
 import j2html.TagCreator;
-import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
@@ -36,7 +34,7 @@ import views.style.Styles;
  */
 public abstract class FileUploadViewStrategy extends ApplicationBaseView {
 
-  private static final String MIME_TYPES_IMAGES_AND_PDF = "image/*,.pdf";
+  protected static final String MIME_TYPES_IMAGES_AND_PDF = "image/*,.pdf";
   private static final String BLOCK_FORM_ID = "cf-block-form";
   private static final String FILEUPLOAD_CONTINUE_FORM_ID = "cf-fileupload-continue-form";
   private static final String FILEUPLOAD_DELETE_FORM_ID = "cf-fileupload-delete-form";
@@ -59,26 +57,16 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
             .getFilename()
             .map(f -> params.messages().at(MessageKey.INPUT_FILE_ALREADY_UPLOADED.getKeyName(), f));
 
-    ContainerTag result =
-        div()
-            .with(
-                div().withText(uploaded.orElse("")),
-                input()
-                    .withType("file")
-                    .withName("file")
-                    .attr(Attr.ACCEPT, MIME_TYPES_IMAGES_AND_PDF),
-                div(fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()))
-                    .withClasses(
-                        ReferenceClasses.FILEUPLOAD_ERROR,
-                        BaseStyles.FORM_ERROR_TEXT_BASE,
-                        Styles.HIDDEN));
-    if (params.signedFileUploadRequest().isPresent()) {
-      result.with(extraFileUploadFields(params.signedFileUploadRequest().get()));
-    }
+    ContainerTag result = div().with(div().withText(uploaded.orElse("")));
+    result.with(fileUploadFields(params.signedFileUploadRequest()));
+    result.with(
+        div(fileUploadQuestion.fileRequiredMessage().getMessage(params.messages()))
+            .withClasses(
+                ReferenceClasses.FILEUPLOAD_ERROR, BaseStyles.FORM_ERROR_TEXT_BASE, Styles.HIDDEN));
     return result;
   }
 
-  protected abstract ImmutableList<Tag> extraFileUploadFields(StorageUploadRequest request);
+  protected abstract ImmutableList<Tag> fileUploadFields(Optional<StorageUploadRequest> request);
 
   /**
    * Method to render the UI for uploading a file.
