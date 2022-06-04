@@ -14,6 +14,7 @@ import controllers.applicant.routes;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
@@ -54,7 +55,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    * @param fileUploadQuestion The question that requires a file upload.
    * @return a container tag with the necessary fields
    */
-  public final ContainerTag signedFileUploadFields(
+  public final DivTag signedFileUploadFields(
       ApplicantQuestionRendererParams params, FileUploadQuestion fileUploadQuestion) {
     Optional<String> uploaded =
         fileUploadQuestion
@@ -80,7 +81,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return result;
   }
 
-  protected abstract ImmutableList<Tag> extraFileUploadFields(StorageUploadRequest request);
+  protected abstract ImmutableList<InputTag> extraFileUploadFields(StorageUploadRequest request);
 
   /**
    * Method to render the UI for uploading a file.
