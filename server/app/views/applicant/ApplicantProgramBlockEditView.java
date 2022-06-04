@@ -55,12 +55,11 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .getBundle()
             .setTitle(params.programTitle())
             .addMainContent(
-                div(h1(
-                        params.programTitle()
-                            + " "
-                            + params.blockIndex()
-                            + "/"
-                            + params.totalBlockCount()))
+                h1(params.programTitle()
+                        + " "
+                        + (params.blockIndex() + 1)
+                        + " of "
+                        + params.totalBlockCount())
                     .withClasses(Styles.SR_ONLY))
             .addMainContent(
                 layout.renderProgramApplicationTitleAndProgressIndicator(
@@ -113,8 +112,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
 
   private DivTag renderBlockWithSubmitForm(Params params) {
     if (params.block().isFileUpload()) {
-      return fileUploadStrategy.renderFileUploadBlockSubmitForms(
-          params, applicantQuestionRendererFactory);
+      return fileUploadStrategy.renderFileUploadBlock(params, applicantQuestionRendererFactory);
     }
     String formAction =
         routes.ApplicantProgramBlocksController.update(

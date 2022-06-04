@@ -1,8 +1,5 @@
 package views.questiontypes;
 
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.input;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.attributes.Attr;
@@ -19,11 +16,9 @@ import views.style.ReferenceClasses;
  * Renders a file upload question.
  *
  * <p>A file upload question requires a different form. See {@code
- * views.applicant.ApplicantProgramBlockEditView#renderFileUploadBlockSubmitForms}.
+ * views.applicant.ApplicantProgramBlockEditView#renderFileUploadBlock}.
  */
 public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
-  private static final String IMAGES_AND_PDF = "image/*,.pdf";
-
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final FileUploadQuestion fileuploadQuestion;
 
@@ -51,28 +46,11 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
   protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
-    return fileUploadFields(params);
+    return fileUploadViewStrategy.signedFileUploadFields(params, fileuploadQuestion);
   }
 
   @Override
   public String getReferenceClass() {
     return ReferenceClasses.FILEUPLOAD_QUESTION;
-  }
-
-  private DivTag fileUploadFields(ApplicantQuestionRendererParams params) {
-    if (params.isSample()) {
-      return fileUploadFieldsPreview();
-    }
-    return fileUploadViewStrategy.signedFileUploadFields(params, fileuploadQuestion);
-  }
-
-  private DivTag fileUploadFieldsPreview() {
-    return div()
-        .with(
-            input().attr("type", "file").attr("name", "file").attr(Attr.ACCEPT, acceptFileTypes()));
-  }
-
-  private String acceptFileTypes() {
-    return IMAGES_AND_PDF;
   }
 }

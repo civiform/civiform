@@ -25,14 +25,14 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.5.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.185",
+      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.203",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.5.1",
-      "com.azure" % "azure-storage-blob" % "12.14.2",
+      "com.azure" % "azure-storage-blob" % "12.17.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.3.5",
+      "org.postgresql" % "postgresql" % "42.3.6",
       "org.junit.jupiter" % "junit-jupiter-engine" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-api" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-params" % "5.8.2" % Test,
@@ -42,9 +42,9 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.14.0" % Test,
-      "org.mockito" % "mockito-inline" % "4.5.1",
-      "org.assertj" % "assertj-core" % "3.22.0" % Test,
+      "org.assertj" % "assertj-core" % "3.23.1" % Test,
+      "org.mockito" % "mockito-inline" % "4.6.1",
+      "org.assertj" % "assertj-core" % "3.23.1" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "31.1-jre" % Test,

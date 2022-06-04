@@ -10,6 +10,7 @@ import services.question.types.QuestionType;
 import views.FileUploadViewStrategy;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
+import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -22,7 +23,11 @@ public class QuestionPreview {
       throws UnsupportedQuestionTypeException {
     ApplicantQuestionRendererFactory rf =
         new ApplicantQuestionRendererFactory(fileUploadViewStrategy);
-    ApplicantQuestionRendererParams params = ApplicantQuestionRendererParams.sample(messages);
+    ApplicantQuestionRendererParams params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
+            .build();
     return div(rf.getSampleRenderer(type).render(params));
   }
 

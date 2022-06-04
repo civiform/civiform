@@ -19,6 +19,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.question.QuestionOption;
 import services.question.types.RadioButtonQuestionDefinition;
 import support.QuestionAnswerer;
+import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 public class RadioButtonQuestionRendererTest {
 
@@ -39,7 +40,10 @@ public class RadioButtonQuestionRendererTest {
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
   private final ApplicantQuestionRendererParams params =
-      ApplicantQuestionRendererParams.sample(messages);
+      ApplicantQuestionRendererParams.builder()
+          .setMessages(messages)
+          .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
+          .build();
 
   private ApplicantData applicantData;
   private ApplicantQuestion question;

@@ -20,6 +20,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.question.QuestionOption;
 import services.question.types.DropdownQuestionDefinition;
 import support.QuestionAnswerer;
+import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 public class DropdownQuestionRendererTest extends ResetPostgres {
 
@@ -48,7 +49,11 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
   public void setup() {
     question = new ApplicantQuestion(QUESTION, applicantData, Optional.empty());
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
-    params = ApplicantQuestionRendererParams.sample(messages);
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
+            .build();
     renderer = new DropdownQuestionRenderer(question);
   }
 

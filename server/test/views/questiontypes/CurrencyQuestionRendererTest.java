@@ -18,6 +18,7 @@ import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.CurrencyQuestionDefinition;
 import support.QuestionAnswerer;
+import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 public class CurrencyQuestionRendererTest extends ResetPostgres {
   private static final CurrencyQuestionDefinition CURRENCY_QUESTION_DEFINITION =
@@ -40,7 +41,11 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
   public void setUp() {
     question = new ApplicantQuestion(CURRENCY_QUESTION_DEFINITION, applicantData, Optional.empty());
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
-    params = ApplicantQuestionRendererParams.sample(messages);
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
+            .build();
     renderer = new CurrencyQuestionRenderer(question);
   }
 

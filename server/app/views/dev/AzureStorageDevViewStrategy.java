@@ -89,7 +89,7 @@ public class AzureStorageDevViewStrategy implements CloudStorageDevViewStrategy 
                 TagCreator.button(text("Upload to Azure Blob Storage"))
                     .attr("type", "submit")
                     .withId("cf-block-submit"));
-    return div(formTag).withId("azure-upload-form-component");
+    return div(formTag);
   }
 
   @Override

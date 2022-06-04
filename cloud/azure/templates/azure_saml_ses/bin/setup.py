@@ -1,6 +1,10 @@
+#! /usr/bin/env python3
+
 import shutil
 import subprocess
 import tempfile
+
+from cloud.shared.bin.lib.setup_template import SetupTemplate
 
 """
 Template Setup
@@ -10,13 +14,10 @@ to many different shell script in order to setup the environment
 outside of the terraform setup. The setup is in two phases: pre_terraform_setup
 and post_terraform_setup.
 """
-class Setup:
+class Setup(SetupTemplate):
     resource_group = None
     key_vault_name = None
     log_file_path = None
-
-    def __init__(self, config):
-        self.config=config
 
     def requires_post_terraform_setup(self):
         return True
@@ -45,6 +46,10 @@ class Setup:
         self._get_adfs_user_inputs()
         self._configure_slot_settings()
 
+    def cleanup(self):
+        self._upload_log_file()
+        subprocess.run(["/bin/bash", "-c", "rm -f $HOME/.ssh/bastion*"], check=True)
+
     def _configure_slot_settings(self):
         subprocess.run([
             "cloud/azure/bin/configure-slot-settings"
@@ -54,10 +59,6 @@ class Setup:
         subprocess.run([
             "cloud/azure/bin/upload-log-file", self.log_file_path
         ], check=True)
-
-    def cleanup(self):
-        self._upload_log_file()
-        subprocess.run(["/bin/bash", "-c", "rm -f $HOME/.ssh/bastion*"], check=True)
 
     def _get_adfs_user_inputs(self):
         print(">>>> You will need to navigate to https://portal.azure.com/ and "

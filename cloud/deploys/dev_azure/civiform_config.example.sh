@@ -11,9 +11,6 @@ export CIVIC_ENTITY_LOGO_WITH_NAME_URL="https://www.cityofrochester.gov/images/h
 export CIVIC_ENTITY_SMALL_LOGO_URL="https://www.cityofrochester.gov/assets/0/117/8589934986/c6791498-270e-40b1-9b81-aca8a510c1b5.jpg"
 export CIVIFORM_TIME_ZONE_ID="America/Los_Angeles"
 export EMAIL_SENDER="ses"
-export ADMIN_AUTH_PROVIDER="activeDirectory"
-export ADMIN_AUTH_FORMAT="OIDC"
-export RESIDENT_AUTH_PROVIDER="loginRadius"
 # Choose a unique name. Can only consist of lowercase letters and numbers, and
 # must be between 3 and 24 characters long.
 export APPLICATION_NAME="CHANGE ME"
