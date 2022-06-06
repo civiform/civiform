@@ -82,7 +82,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     FormTag formTag =
         form()
             .withMethod("POST")
-            .attr("action", routes.TrustedIntermediaryManagementController.create().url());
+            .withAction(routes.TrustedIntermediaryManagementController.create().url());
     FieldWithLabel nameField =
         FieldWithLabel.input()
             .setId("group-name-input")

@@ -144,13 +144,13 @@ public class ProgramBlockEditView extends BaseHtmlView {
         form(csrfTag)
             .withId(CREATE_BLOCK_FORM_ID)
             .withMethod(HttpVerbs.POST)
-            .attr("action", blockCreateAction);
+            .withAction(blockCreateAction);
 
     FormTag createRepeatedBlockForm =
         form(csrfTag)
             .withId(CREATE_REPEATED_BLOCK_FORM_ID)
             .withMethod(HttpVerbs.POST)
-            .attr("action", blockCreateAction)
+            .withAction(blockCreateAction)
             .with(
                 FieldWithLabel.number()
                     .setFieldName(ENUMERATOR_ID_FORM_FIELD)
@@ -164,7 +164,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
         form(csrfTag)
             .withId(DELETE_BLOCK_FORM_ID)
             .withMethod(HttpVerbs.POST)
-            .attr("action", blockDeleteAction);
+            .withAction(blockDeleteAction);
 
     return div(createBlockForm, createRepeatedBlockForm, deleteBlockForm)
         .withClasses(Styles.HIDDEN);
@@ -260,7 +260,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withClass(moveUpInvisible)
             .with(
                 form()
-                    .attr("action", moveUpFormAction)
+                    .withAction(moveUpFormAction)
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
                     .with(
@@ -282,7 +282,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withClasses(Styles.TRANSFORM, Styles.ROTATE_180, moveDownInvisible)
             .with(
                 form()
-                    .attr("action", moveDownFormAction)
+                    .withAction(moveDownFormAction)
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
                     .with(
@@ -491,7 +491,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return Optional.of(
         form(csrfTag)
             .withMethod(HttpVerbs.POST)
-            .attr("action", toggleOptionalAction)
+            .withAction(toggleOptionalAction)
             .with(
                 input()
                     .isHidden()
@@ -527,7 +527,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     return form(csrfTag)
         .withId("block-questions-form")
         .withMethod(HttpVerbs.POST)
-        .attr("action", deleteQuestionAction)
+        .withAction(deleteQuestionAction)
         .with(removeButton);
   }
 

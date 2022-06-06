@@ -195,7 +195,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     FormTag continueForm =
         form()
             .withId(FILEUPLOAD_CONTINUE_FORM_ID)
-            .attr("action", formAction)
+            .withAction(formAction)
             .withMethod(HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(params.request()))
             .with(
@@ -205,7 +205,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     FormTag deleteForm =
         form()
             .withId(FILEUPLOAD_DELETE_FORM_ID)
-            .attr("action", formAction)
+            .withAction(formAction)
             .withMethod(HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(params.request()))
             .with(

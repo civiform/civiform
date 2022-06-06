@@ -56,7 +56,7 @@ public class ApplicantInformationView extends BaseHtmlView {
     String preferredLanguage = layout.languageSelector.getPreferredLangage(request).code();
     FormTag formContent =
         form()
-            .attr("action", formAction)
+            .withAction(formAction)
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(request))
             .with(redirectInput)

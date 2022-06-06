@@ -35,7 +35,7 @@ public final class ProgramNewOneView extends BaseHtmlView {
         div(
             ProgramFormBuilder.buildProgramForm(programForm, /* editExistingProgram = */ false)
                 .with(makeCsrfTokenInputTag(request))
-                .attr("action", controllers.admin.routes.AdminProgramController.create().url()));
+                .withAction(controllers.admin.routes.AdminProgramController.create().url()));
 
     HtmlBundle htmlBundle =
         layout.getBundle().setTitle(title).addMainContent(renderHeader(title), contentDiv);

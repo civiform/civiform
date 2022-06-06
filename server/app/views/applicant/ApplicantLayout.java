@@ -158,7 +158,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
         languageForm =
             languageForm.with(
                 form()
-                    .attr("action", updateLanguageAction)
+                    .withAction(updateLanguageAction)
                     .withMethod(Http.HttpVerbs.POST)
                     .with(csrfInput)
                     .with(redirectInput)

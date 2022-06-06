@@ -140,7 +140,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     FormTag formTag =
         form()
             .withMethod("POST")
-            .attr("action", routes.TrustedIntermediaryController.addApplicant(tiGroup.id).url());
+            .withAction(routes.TrustedIntermediaryController.addApplicant(tiGroup.id).url());
     FieldWithLabel firstNameField =
         FieldWithLabel.input()
             .setId("first-name-input")
