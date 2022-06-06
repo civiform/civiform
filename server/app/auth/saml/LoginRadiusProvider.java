@@ -70,12 +70,11 @@ public class LoginRadiusProvider implements Provider<SAML2Client> {
 
   private Optional<String> formatMetadataResourceUrl() {
     try {
-      String metadataResourceUrl =
-          String.format(
-              "%s?apikey=%s&appName=%s",
-              configuration.getString("login_radius.metadata_uri"),
-              configuration.getString("login_radius.api_key"),
-              configuration.getString("login_radius.saml_app_name"));
+      String metadataResourceUrl = String.format(
+          "%s?apikey=%s&appName=%s",
+          configuration.getString("login_radius.metadata_uri"),
+          configuration.getString("login_radius.api_key"),
+          configuration.getString("login_radius.saml_app_name"));
       return Optional.of(metadataResourceUrl);
     } catch (IllegalFormatException
         | NullPointerException

@@ -48,11 +48,14 @@ import org.pac4j.play.CallbackController;
 import org.pac4j.play.LogoutController;
 import org.pac4j.play.store.PlayCookieSessionStore;
 import org.pac4j.play.store.ShiroAesDataEncrypter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Environment;
 
 /** SecurityModule configures and initializes all authentication and authorization classes. */
 public class SecurityModule extends AbstractModule {
 
+  private static final Logger logger = LoggerFactory.getLogger(SecurityModule.class);
   private final com.typesafe.config.Config configuration;
   private final String baseUrl;
 
@@ -129,12 +132,14 @@ public class SecurityModule extends AbstractModule {
         bind(IndirectClient.class)
             .annotatedWith(ApplicantAuthClient.class)
             .toProvider(LoginRadiusProvider.class);
+        logger.info("Using Login Radius for applicant auth provider");
         break;
       case IDCS_APPLICANT:
       default:
         bind(IndirectClient.class)
             .annotatedWith(ApplicantAuthClient.class)
             .toProvider(IdcsProvider.class);
+        logger.info("Using IDCS for applicant auth provider");
     }
   }
 

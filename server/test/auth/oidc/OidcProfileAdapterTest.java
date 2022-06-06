@@ -44,7 +44,8 @@ public class OidcProfileAdapterTest extends ResetPostgres {
 
   @Test
   public void getExistingApplicant_succeeds_noAuthorityFallsBackToEmail() {
-    // When an existing account doesn't have an authority_id we still find it by email.
+    // When an existing account doesn't have an authority_id we still find it by
+    // email.
 
     // Setup.
     // Existing account doesn't have an authority.
@@ -74,8 +75,8 @@ public class OidcProfileAdapterTest extends ResetPostgres {
 
   @Test
   public void getExistingApplicant_succeeds_sameAuthorityDifferentEmail() {
-    // Authority ID is the main key and returns the local account even with different other old keys
-    // like email.
+    // Authority ID is the main key and returns the local account even with
+    // different other old keys like email.
 
     // Setup.
     final String otherEmail = "OTHER@EMAIL.com";
@@ -100,7 +101,8 @@ public class OidcProfileAdapterTest extends ResetPostgres {
     assertThat(applicant).isPresent();
     Account account = applicant.get().getAccount();
 
-    // The email of the existing account is the pre-existing one, not a new profile one.
+    // The email of the existing account is the pre-existing one, not a new profile
+    // one.
     assertThat(account.getEmailAddress()).isEqualTo(otherEmail);
     assertThat(account.getAuthorityId()).isEqualTo(AUTHORITY_ID);
   }
