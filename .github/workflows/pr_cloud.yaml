@@ -24,9 +24,13 @@ jobs:
       - name: check out pr branch
         uses: actions/checkout@v3
       - name: setup terraform
-        uses: hashicorp/setup-terraform@v1
-      # As we add more templates, we will add checks to validate them. For now, we only have one.
+        uses: hashicorp/setup-terraform@v2
+      # as we add more templates, we will add checks to validate them.
       - name: terraform init azure_saml_ses
         run: terraform -chdir=cloud/azure/templates/azure_saml_ses init -backend=false
       - name: terraform validate azure_saml_ses
         run: terraform -chdir=cloud/azure/templates/azure_saml_ses validate
+      - name: terraform init aws_oidc
+        run: terraform -chdir=cloud/aws/templates/aws_oidc init
+      - name: terraform validate aws_oidc
+        run: terraform -chdir=cloud/aws/templates/aws_oidc validate

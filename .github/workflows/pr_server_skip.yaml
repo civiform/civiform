@@ -24,11 +24,17 @@ jobs:
       - run: 'echo "No build required" '
 
   run_browser_tests_aws:
+    strategy:
+      matrix:
+        batch_number: [1, 2, 3, 4]
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "No build required" '
 
   run_browser_tests_azure:
+    strategy:
+      matrix:
+        batch_number: [1, 2, 3, 4]
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "No build required" '
