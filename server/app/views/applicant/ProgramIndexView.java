@@ -31,6 +31,7 @@ import services.MessageKey;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.components.Icons;
 import views.components.LinkElement;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
@@ -243,7 +244,8 @@ public class ProgramIndexView extends BaseHtmlView {
             .withText(program.localizedName().getOrDefault(preferredLocale));
     ImmutableList<DomContent> descriptionContent =
         TextFormatter.createLinksAndEscapeText(
-            program.localizedDescription().getOrDefault(preferredLocale));
+            program.localizedDescription().getOrDefault(preferredLocale),
+            TextFormatter.UrlOpenAction.NewTab);
     DivTag description =
         div()
             .withId(baseId + "-description")
@@ -267,7 +269,7 @@ public class ProgramIndexView extends BaseHtmlView {
     DivTag infoLink =
         new LinkElement()
             .setId(baseId + "-info-link")
-            .setStyles(Styles.BLOCK, Styles.TEXT_XS, Styles.UNDERLINE)
+            .setStyles(Styles.BLOCK, Styles.MY_2, Styles.TEXT_SM, Styles.UNDERLINE)
             .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
             .setHref(infoUrl)
             .asAnchorText()
@@ -283,10 +285,21 @@ public class ProgramIndexView extends BaseHtmlView {
       DivTag externalLink =
           new LinkElement()
               .setId(baseId + "-external-link")
-              .setStyles(Styles.BLOCK, Styles.TEXT_XS, Styles.UNDERLINE)
+              .setStyles(Styles.BLOCK, Styles.MY_2, Styles.TEXT_SM, Styles.UNDERLINE)
               .setText(messages.at(MessageKey.EXTERNAL_LINK.getKeyName()))
               .setHref(program.externalLink())
-              .asAnchorText();
+              .asAnchorText()
+              .withTarget("_blank")
+              .with(
+                  Icons.svg(Icons.OPEN_IN_NEW_PATH, 24, 24)
+                      .withClasses(
+                          Styles.FLEX_SHRINK_0,
+                          Styles.H_5,
+                          Styles.W_AUTO,
+                          Styles.INLINE,
+                          Styles.ML_1,
+                          Styles.ALIGN_TEXT_TOP));
+
       programData.with(externalLink);
     }
 
