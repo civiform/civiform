@@ -16,9 +16,9 @@ jobs:
   validate_deployment_variable_definitions:
     runs-on: ubuntu-latest
     steps:
-      - run: 'echo "No build required" '
+      - run: 'echo "Skipping"'
 
   validate_terraform:
     runs-on: ubuntu-latest
     steps:
-      - run: 'echo "No build required" '
+      - run: 'echo "Skipping"'
