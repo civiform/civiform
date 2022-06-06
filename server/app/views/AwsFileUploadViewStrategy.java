@@ -14,14 +14,19 @@ import services.MessageKey;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.FileNameFormatter;
 import com.google.common.collect.ImmutableList;
+import j2html.attributes.Attr;
+import java.util.Optional;
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
 
 public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
-  protected ImmutableList<InputTag> extraFileUploadFields(StorageUploadRequest request) {
-    SignedS3UploadRequest signedRequest = castStorageRequest(request);
+  protected ImmutableList<InputTag> fileUploadFields(Optional<StorageUploadRequest> request) {
+    if (request.isEmpty()) {
+      return ImmutableList.of();
+    }
+    SignedS3UploadRequest signedRequest = castStorageRequest(request.get());
     ImmutableList.Builder<InputTag> builder = ImmutableList.builder();
     builder.add(
         input().withType("hidden").withName("key").withValue(signedRequest.key()),
@@ -48,6 +53,14 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
               .withName("X-Amz-Security-Token")
               .withValue(signedRequest.securityToken()));
     }
+
+    // It's critical that the "file" field be the last input
+    // element for the form since S3 will ignore any fields
+    // after that. See #2653 /
+    // https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-HTTPPOSTForms.html
+    // for more context.
+    builder.add(
+        input().withType("file").withName("file").attr(Attr.ACCEPT, MIME_TYPES_IMAGES_AND_PDF));
     return builder.build();
   }
 

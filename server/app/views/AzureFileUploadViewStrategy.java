@@ -12,7 +12,9 @@ import j2html.tags.specialized.ScriptTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Optional;
 import com.google.common.collect.ImmutableList;
+import j2html.attributes.Attr;
 import j2html.tags.Tag;
+import java.util.Optional;
 import javax.inject.Inject;
 import services.cloud.StorageUploadRequest;
 import services.cloud.azure.BlobStorageUploadRequest;
@@ -27,8 +29,11 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  protected ImmutableList<InputTag> extraFileUploadFields(StorageUploadRequest request) {
-    BlobStorageUploadRequest signedRequest = castStorageRequest(request);
+  protected ImmutableList<InputTag> fileUploadFields(Optional<StorageUploadRequest> request) {
+    if (request.isEmpty()) {
+      return ImmutableList.of();
+    }
+    BlobStorageUploadRequest signedRequest = castStorageRequest(request.get());
     ImmutableList.Builder<InputTag> builder = ImmutableList.builder();
     builder.add(
         input().withType("hidden").withName("fileName").withValue(signedRequest.fileName()),
@@ -42,7 +47,8 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
         input()
             .withType("hidden")
             .withName("successActionRedirect")
-            .withValue(signedRequest.successActionRedirect()));
+            .withValue(signedRequest.successActionRedirect()),
+        input().withType("file").withName("file").attr(Attr.ACCEPT, MIME_TYPES_IMAGES_AND_PDF));
     return builder.build();
   }
 
