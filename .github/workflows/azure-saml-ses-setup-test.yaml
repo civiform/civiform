@@ -42,6 +42,7 @@ jobs:
           export STAGING_HOSTNAME=""
           export AZURE_RESOURCE_GROUP="civiformprober"
           export KEY_VAULT_NAME="civiformproberkv"
+          export SAML_KEYSTORE_ACCOUNT_NAME="proberkeystore"
           cloud/shared/bin/setup "--tag=${LATEST_SNAPSHOT_TAG}"
           exit $?
       - name: Run prober test
