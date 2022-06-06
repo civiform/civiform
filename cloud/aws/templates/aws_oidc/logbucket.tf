@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "log_bucket" {
-  bucket = var.log-storage-bucket
+  bucket = var.log_storage_bucket
 }
 
 resource "aws_s3_bucket_acl" "log_bucket_acl" {
