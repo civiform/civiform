@@ -36,12 +36,12 @@ public class TextFormatterTest {
     assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
     assertThat(content.get(1).render())
         .isEqualTo(
-            "<a href=\"http://google.com/\" class=\"text-seattle-blue\" target=\"_blank\">google.com<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1%\" aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" class=\"flex-shrink-0 h-5 w-auto inline\"><path d=\"M19 19H5V5H12V3H5C3.89 3 3 3.9 3 5V19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V12H19V19ZM14 3V5H17.59L7.76 14.83L9.17 16.24L19 6.41V10H21V3H14Z\"></path></svg></a>");
+            "<a href=\"http://google.com/\" class=\"text-seattle-blue\" target=\"_blank\">google.com<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1%\" aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" class=\"flex-shrink-0 h-5 w-auto inline ml-1 align-text-top\"><path d=\"M19 19H5V5H12V3H5C3.89 3 3 3.9 3 5V19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V12H19V19ZM14 3V5H17.59L7.76 14.83L9.17 16.24L19 6.41V10H21V3H14Z\"></path></svg></a>");
     assertThat(content.get(2).render()).isEqualTo(new Text(" ").render());
     assertThat(content.get(3).render())
         .isEqualTo(
             "<a href=\"http://internet.website/\""
-                + " class=\"text-seattle-blue\" target=\"_blank\">http://internet.website<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1%\" aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" class=\"flex-shrink-0 h-5 w-auto inline\"><path d=\"M19 19H5V5H12V3H5C3.89 3 3 3.9 3 5V19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V12H19V19ZM14 3V5H17.59L7.76 14.83L9.17 16.24L19 6.41V10H21V3H14Z\"></path></svg></a>");
+                + " class=\"text-seattle-blue\" target=\"_blank\">http://internet.website<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1%\" aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" class=\"flex-shrink-0 h-5 w-auto inline ml-1 align-text-top\"><path d=\"M19 19H5V5H12V3H5C3.89 3 3 3.9 3 5V19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V12H19V19ZM14 3V5H17.59L7.76 14.83L9.17 16.24L19 6.41V10H21V3H14Z\"></path></svg></a>");
   }
 
   @Test
@@ -170,7 +170,7 @@ public class TextFormatterTest {
     assertThat(contentStrings[2])
         .contains(
             "<a href=\"http://epicurious.com/\""
-                + " class=\"text-seattle-blue\" target=\"_blank\">epicurious.com<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1%\" aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" class=\"flex-shrink-0 h-5 w-auto inline\"><path d=\"M19 19H5V5H12V3H5C3.89 3 3 3.9 3 5V19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V12H19V19ZM14 3V5H17.59L7.76 14.83L9.17 16.24L19 6.41V10H21V3H14Z\"></path></svg></a>");
+                + " class=\"text-seattle-blue\" target=\"_blank\">epicurious.com<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1%\" aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" class=\"flex-shrink-0 h-5 w-auto inline ml-1 align-text-top\"><path d=\"M19 19H5V5H12V3H5C3.89 3 3 3.9 3 5V19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V12H19V19ZM14 3V5H17.59L7.76 14.83L9.17 16.24L19 6.41V10H21V3H14Z\"></path></svg></a>");
   }
 
   @Test
