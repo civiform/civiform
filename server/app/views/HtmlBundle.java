@@ -11,7 +11,6 @@ import static j2html.TagCreator.main;
 import static j2html.TagCreator.title;
 
 import j2html.tags.Tag;
-
 import j2html.tags.specialized.BodyTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FooterTag;

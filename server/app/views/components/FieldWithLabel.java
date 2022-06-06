@@ -340,7 +340,7 @@ public class FieldWithLabel {
     // TODO throw exception if false
     if (fieldTag.getTagName().equals("textarea")) {
       fieldTag.withText(this.fieldValue);
-    } 
+    }
 
     return applyAttrsAndGenLabel(fieldTag);
   }

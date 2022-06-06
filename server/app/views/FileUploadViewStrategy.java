@@ -10,13 +10,12 @@ import static j2html.attributes.Attr.FORM;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.routes;
+import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
-import j2html.TagCreator;
-import j2html.attributes.Attr;
 import java.util.Optional;
 import play.mvc.Http.HttpVerbs;
 import services.MessageKey;
@@ -70,7 +69,8 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     return result;
   }
 
-  protected abstract ImmutableList<InputTag> fileUploadFields(Optional<StorageUploadRequest> request);
+  protected abstract ImmutableList<InputTag> fileUploadFields(
+      Optional<StorageUploadRequest> request);
 
   /**
    * Method to render the UI for uploading a file.
@@ -133,7 +133,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
    *
    * <p>See {@link renderDeleteAndContinueFileUploadForms}.
    */
- private Optional<ButtonTag> maybeRenderSkipOrDeleteButton(Params params) {
+  private Optional<ButtonTag> maybeRenderSkipOrDeleteButton(Params params) {
     if (hasAtLeastOneRequiredQuestion(params)) {
       // If the file question is required, skip or delete is not allowed.
       return Optional.empty();

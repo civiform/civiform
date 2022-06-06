@@ -2,19 +2,10 @@ package views;
 
 import static j2html.TagCreator.input;
 
-import controllers.applicant.routes;
-import j2html.attributes.Attr;
-import j2html.tags.specialized.ButtonTag;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.InputTag;
-import j2html.tags.specialized.FormTag;
-import java.util.Optional;
-import play.mvc.Http.HttpVerbs;
-import services.MessageKey;
-import services.applicant.question.FileUploadQuestion;
-import services.cloud.FileNameFormatter;
 import com.google.common.collect.ImmutableList;
 import j2html.attributes.Attr;
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
 import java.util.Optional;
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;

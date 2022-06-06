@@ -2,8 +2,6 @@ package views.components;
 
 import static j2html.TagCreator.option;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import j2html.TagCreator;
