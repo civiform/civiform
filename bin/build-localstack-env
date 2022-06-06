@@ -1,11 +1,11 @@
 #! /usr/bin/env bash
 
-# DOC: Build a new docker image for running the localstack container
-# (with our customizations for https://github.com/seattle-uat/civiform/issues/2639)
-# and optionally push to Docker Hub if PUSH_LOCALSTACK_IMAGE is set to anything.
+# DOC: Build a new docker image for running the localstack container and optionally push to Docker Hub if PUSH_LOCALSTACK_IMAGE is set to anything.
 
 source bin/lib.sh
 
+# A separate image is to include our customizations for
+# https://github.com/seattle-uat/civiform/issues/2639.
 # TODO(#2639): Add this once a version has been pushed
 # to Docker Hub.
 # --cache-from civiform/civiform-localstack:latest \
