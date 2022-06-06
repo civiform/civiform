@@ -66,9 +66,12 @@ describe('file upload applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerFileUploadQuestion('file key')
+      const fileContent = 'some sample text'
+      await applicantQuestions.answerFileUploadQuestion(fileContent)
       await applicantQuestions.clickUpload()
 
+      const downloadedFileContent = await applicantQuestions.downloadSingleQuestionFromReviewPage()
+      expect(downloadpedFileContent).toEqual(fileContent)
       await applicantQuestions.submitFromReviewPage(programName)
     })
 

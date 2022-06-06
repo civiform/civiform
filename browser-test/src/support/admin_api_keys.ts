@@ -57,18 +57,22 @@ export class AdminApiKeys {
 
   async retireApiKey(keyNameSlugified: string) {
     await this.gotoApiKeyIndexPage()
-    this.page.on('dialog', dialog => dialog.accept())
+    this.page.on('dialog', (dialog) => dialog.accept())
     await this.page.click(`#retire-${keyNameSlugified} button`)
   }
 
   async expectApiKeyIsActive(keyName: string) {
     await this.gotoApiKeyIndexPage()
-    expect(await this.page.innerText('.cf-api-key-name')).toContain(`${keyName} active`)
+    expect(await this.page.innerText('.cf-api-key-name')).toContain(
+      `${keyName} active`
+    )
   }
 
   async expectApiKeyIsRetired(keyName: string) {
     await this.gotoApiKeyIndexPage()
-    expect(await this.page.innerText('.cf-api-key-name')).toContain(`${keyName} retired`)
+    expect(await this.page.innerText('.cf-api-key-name')).toContain(
+      `${keyName} retired`
+    )
   }
 
   async gotoApiKeyIndexPage() {
@@ -78,6 +82,6 @@ export class AdminApiKeys {
   }
 
   async expectApiKeysIndexPage() {
-    expect(await this.page.innerText('h1')).toEqual("API Keys")
+    expect(await this.page.innerText('h1')).toEqual('API Keys')
   }
 }

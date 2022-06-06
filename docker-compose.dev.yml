@@ -16,6 +16,10 @@ x-sbt-volumes:
     - m2-data:/root/.m2
 
 services:
+  dev-oidc:
+    ports:
+      - 3390:3390
+
   civiform:
     build: .
     volumes: *sbt-volumes
@@ -45,7 +49,7 @@ services:
       - 3390:3390
 
   db:
-    image: postgres:12.5
+    image: postgres:12.11
     stdin_open: true
     tty: true
     volumes:

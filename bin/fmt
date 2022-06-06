@@ -5,7 +5,7 @@
 source bin/lib.sh
 docker::set_project_name_dev
 
-bin/pull-image
+bin/pull-image --formatter
 
 docker run --rm -it \
   -v "$(pwd):/code" \

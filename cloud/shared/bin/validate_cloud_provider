@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-readonly VALID_CLOUD_PROVIDERS=(azure)
+readonly VALID_CLOUD_PROVIDERS=(azure aws)
 
 if [[ "${CIVIFORM_CLOUD_PROVIDER}" = "" ]]; then
   echo >&2 "Must specify CIVIFORM_CLOUD_PROVIDER configuration variable."

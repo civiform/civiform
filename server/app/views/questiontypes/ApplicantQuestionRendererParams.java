@@ -24,18 +24,8 @@ public abstract class ApplicantQuestionRendererParams {
   }
 
   public static Builder builder() {
-    return new AutoValue_ApplicantQuestionRendererParams.Builder().setIsSample(false);
+    return new AutoValue_ApplicantQuestionRendererParams.Builder();
   }
-
-  public static ApplicantQuestionRendererParams sample(Messages messages) {
-    return builder()
-        .setIsSample(true)
-        .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
-        .setMessages(messages)
-        .build();
-  }
-
-  public abstract boolean isSample();
 
   public abstract Messages messages();
 
@@ -45,8 +35,6 @@ public abstract class ApplicantQuestionRendererParams {
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setIsSample(boolean isSample);
-
     public abstract Builder setMessages(Messages messages);
 
     public abstract Builder setSignedFileUploadRequest(
