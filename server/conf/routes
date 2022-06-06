@@ -168,7 +168,3 @@ GET     /dev/seed                    controllers.dev.DatabaseSeedController.inde
 POST    /dev/seed                    controllers.dev.DatabaseSeedController.seed()
 POST    /dev/seed/clear              controllers.dev.DatabaseSeedController.clear()
 
-# Methods for development: directly upload file to S3.
-# We redirect to create page on success to update our own record in db. Unfortunately this can only be GET.
-GET     /dev/fileUpload              controllers.dev.FileUploadController.index(request: Request)
-GET     /dev/fileUpload/create       controllers.dev.FileUploadController.create(request: Request)
