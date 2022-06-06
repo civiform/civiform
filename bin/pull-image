@@ -44,6 +44,7 @@ while [ "${1:-}" != "" ]; do
 
     "--localstack")
       docker pull -q civiform/civiform-localstack:latest
+      docker tag civiform/civiform-localstack:latest civiform-localstack
       exit 0
       ;;
 
