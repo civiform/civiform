@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "civiform_files_s3" {
-  bucket = "civiform-files-s3"
+  bucket = var.file-storage-bucket
 }
 
 resource "aws_s3_bucket_public_access_block" "civiform_files_access" {
