@@ -9,7 +9,6 @@ import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.mapper.MappingException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -129,8 +128,13 @@ public class CfJsonDocumentContext {
     }
   }
 
-  /** Parses and writes a long value. */
+  /** Writes a long value. */
   public void putLong(Path path, long value) {
+    put(path, value);
+  }
+
+  /** Writes a double value. */
+  public void putDouble(Path path, double value) {
     put(path, value);
   }
 
@@ -306,7 +310,7 @@ public class CfJsonDocumentContext {
 
   public Optional<LocalDate> readDate(Path path) {
     return readLong(path)
-        .map(epoch -> Instant.ofEpochMilli(epoch).atZone(ZoneId.systemDefault()).toLocalDate());
+        .map(epoch -> Instant.ofEpochMilli(epoch).atOffset(ZoneOffset.UTC).toLocalDate());
   }
 
   /**
@@ -339,11 +343,24 @@ public class CfJsonDocumentContext {
 
   /**
    * Attempt to read a integer at the given path. Returns {@code Optional#empty} if the path does
-   * not exist or a value other than Integer is found.
+   * not exist or a value other than a number is found. If the number has a decimal, the decimal
+   * will be truncated.
    */
   public Optional<Long> readLong(Path path) {
     try {
       return this.read(path, Long.class);
+    } catch (JsonPathTypeMismatchException e) {
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Attempt to read a double at the given path. Returns {@code Optional#empty} if the path does not
+   * exist or a value other than a number is found.
+   */
+  public Optional<Double> readDouble(Path path) {
+    try {
+      return this.read(path, Double.class);
     } catch (JsonPathTypeMismatchException e) {
       return Optional.empty();
     }

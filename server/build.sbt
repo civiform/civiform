@@ -9,27 +9,30 @@ lazy val root = (project in file("."))
     scalaVersion := "2.13.8",
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
+      // Provides in-memory caching via the Play cache interface.
+      // More info: https://www.playframework.com/documentation/2.8.x/JavaCache
+      caffeine,
       guice,
       javaJdbc,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.7.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.13.2",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.13.2",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.13.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.13.3",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.3",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
       "com.j2html" % "j2html" % "1.4.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.180",
+      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.203",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.5.0",
-      "com.azure" % "azure-storage-blob" % "12.14.2",
+      "com.azure" % "azure-identity" % "1.5.1",
+      "com.azure" % "azure-storage-blob" % "12.17.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.3.4",
+      "org.postgresql" % "postgresql" % "42.3.6",
       "org.junit.jupiter" % "junit-jupiter-engine" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-api" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-params" % "5.8.2" % Test,
@@ -39,9 +42,9 @@ lazy val root = (project in file("."))
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
 
       // Testing libraries
-      "org.assertj" % "assertj-core" % "3.14.0" % Test,
-      "org.mockito" % "mockito-core" % "4.5.1",
-      "org.assertj" % "assertj-core" % "3.22.0" % Test,
+      "org.assertj" % "assertj-core" % "3.23.1" % Test,
+      "org.mockito" % "mockito-inline" % "4.6.1",
+      "org.assertj" % "assertj-core" % "3.23.1" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "31.1-jre" % Test,
@@ -54,13 +57,14 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
-      "org.pac4j" % "pac4j-core" % "5.4.2",
+      "org.pac4j" % "pac4j-core" % "5.4.3",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.4.2",
+      "org.pac4j" % "pac4j-http" % "5.4.3",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.4.2",
+      "org.pac4j" % "pac4j-oidc" % "5.4.3",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "5.4.2",
+      "org.pac4j" % "pac4j-saml" % "5.4.3",
+
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.9.0",
 
@@ -70,14 +74,19 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value-parent" % "1.9" pomOnly(),
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.13.1",
+      "com.google.errorprone" % "error_prone_core" % "2.14.0",
 
       // Apache libraries for export
-      "org.apache.pdfbox" % "pdfbox" % "2.0.26",
       "org.apache.commons" % "commons-csv" % "1.9.0",
+      
+      //pdf library for export
+       "com.itextpdf" % "itextpdf" % "5.5.13.3",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "2.5",
+
+      // Apache libraries for testing subnets
+      "commons-net" % "commons-net" % "3.8.0",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17"
@@ -103,7 +112,7 @@ lazy val root = (project in file("."))
     incOptions := incOptions.value.withTransitiveStep(2),
 
     // Make verbose tests
-    Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v")),
+    Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")),
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
     // Turn off scaladoc link warnings
@@ -140,9 +149,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.2.2",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.13.2",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.2"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.3",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.13.3",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.13.3"
 )
 resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)

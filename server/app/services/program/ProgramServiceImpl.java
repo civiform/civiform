@@ -2,12 +2,14 @@ package services.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.github.slugify.Slugify;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import forms.BlockForm;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -20,14 +22,16 @@ import models.DisplayMode;
 import models.Program;
 import models.Version;
 import play.db.ebean.Transactional;
+import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
 import repository.UserRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.IdentifierBasedPaginationSpec;
+import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -37,6 +41,7 @@ import services.question.types.QuestionDefinition;
 /** Implementation class for {@link ProgramService} interface. */
 public class ProgramServiceImpl implements ProgramService {
 
+  private final Slugify slugifier = new Slugify();
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
@@ -90,6 +95,13 @@ public class ProgramServiceImpl implements ProgramService {
             httpExecutionContext.current());
   }
 
+  @Override
+  public CompletionStage<ProgramDefinition> getProgramDefinitionAsync(String programSlug) {
+    return programRepository
+        .getForSlug(programSlug)
+        .thenComposeAsync(this::syncProgramAssociations, httpExecutionContext.current());
+  }
+
   private CompletionStage<ProgramDefinition> syncProgramAssociations(Program program) {
     if (isActiveOrDraftProgram(program)) {
       return syncProgramDefinitionQuestions(program.getProgramDefinition())
@@ -105,6 +117,23 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  public ImmutableSet<String> getActiveProgramNames() {
+    return versionRepository.getActiveVersion().getProgramsNames();
+  }
+
+  @Override
+  public ImmutableSet<String> getAllProgramNames() {
+    return programRepository.getAllProgramNames();
+  }
+
+  @Override
+  public ImmutableSet<String> getAllProgramSlugs() {
+    return getAllProgramNames().stream()
+        .map(slugifier::slugify)
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  @Override
   public ErrorAnd<ProgramDefinition, CiviFormError> createProgramDefinition(
       String adminName,
       String adminDescription,
@@ -114,15 +143,19 @@ public class ProgramServiceImpl implements ProgramService {
       String displayMode) {
 
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+
     if (hasProgramNameCollision(adminName)) {
       errorsBuilder.add(CiviFormError.of("a program named " + adminName + " already exists"));
     }
+
     validateProgramText(errorsBuilder, "admin name", adminName);
     validateProgramText(errorsBuilder, "admin description", adminDescription);
     validateProgramText(errorsBuilder, "display name", defaultDisplayName);
     validateProgramText(errorsBuilder, "display description", defaultDisplayDescription);
     validateProgramText(errorsBuilder, "display mode", displayMode);
+
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
+
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -134,8 +167,9 @@ public class ProgramServiceImpl implements ProgramService {
             defaultDisplayName,
             defaultDisplayDescription,
             externalLink,
-            displayMode);
-    program.addVersion(versionRepository.getDraftVersion());
+            displayMode,
+            versionRepository.getDraftVersion());
+
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
 
@@ -209,8 +243,15 @@ public class ProgramServiceImpl implements ProgramService {
             .join());
   }
 
+  // Program names and program URL slugs must be unique in a given CiviForm
+  // system. If the slugs of two names collide, the names also collide, so
+  // we can check both by just checking for slug collisions.
+  // For more info on URL slugs see: https://en.wikipedia.org/wiki/Clean_URL#Slug
   private boolean hasProgramNameCollision(String programName) {
-    return getActiveAndDraftPrograms().getProgramNames().contains(programName);
+    Slugify slugifier = new Slugify();
+    return getAllProgramNames().stream()
+        .map(slugifier::slugify)
+        .anyMatch(slugifier.slugify(programName)::equals);
   }
 
   private void validateProgramText(
@@ -533,9 +574,31 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
-      long programId, PaginationSpec paginationSpec, Optional<String> searchNameFragment) {
+      long programId,
+      F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
+          paginationSpecEither,
+      Optional<String> searchNameFragment) {
     return programRepository.getApplicationsForAllProgramVersions(
-        programId, paginationSpec, searchNameFragment);
+        programId,
+        paginationSpecEither,
+        searchNameFragment,
+        /* submitTimeFrom= */ Optional.empty(),
+        /* submitTimeTo= */ Optional.empty());
+  }
+
+  @Override
+  public PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
+      long programId,
+      F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
+          paginationSpecEither,
+      Optional<Instant> submitTimeFrom,
+      Optional<Instant> submitTimeTo) {
+    return programRepository.getApplicationsForAllProgramVersions(
+        programId,
+        paginationSpecEither,
+        /* searchNameFragment= */ Optional.empty(),
+        submitTimeFrom,
+        submitTimeTo);
   }
 
   @Override

@@ -5,18 +5,16 @@ services:
   localstack:
     image: localstack/localstack
     profiles: [ "aws", "emulator" ]
-    container_name: localstack
-    ports:
-      - 4566:4566
+    expose:
+      - "4566"
     environment:
       - SERVICES=s3,ses
 
   azurite:
      image: mcr.microsoft.com/azure-storage/azurite
      profiles: ["azure", "emulator"]
-     container_name: azurite
-     ports:
-      - 10000:10000
+     expose:
+      - "10000"
 
   # The dev oidc server needs to be visible to the Civiform server and web browsers
   # on the same host:port. Developers need to add a localhost IP alias for this
@@ -25,32 +23,29 @@ services:
   dev-oidc:
     image: docker.io/civiform/oidc-provider:latest
     restart: always
-    container_name: dev-oidc
-    ports:
-      - 3390:3390
+    expose:
+      - 3390
     environment:
       # Use an explicit port to not conflict with other test instances.
       - OIDC_PORT=3390
 
   db:
-    image: postgres:12.10
+    image: postgres:12.11
     restart: always
-    container_name: postgres
-    ports:
-      - 5432:5432
+    expose:
+      - "5432"
     environment:
       POSTGRES_PASSWORD: example
 
   civiform:
     image: civiform-dev
     restart: always
-    container_name: civiform
     links:
       - "db:database"
       - "dev-oidc"
-    ports:
-      - 9000:9000
-      - 8457:8457
+    expose:
+      - "9000"
+      - "8457"
     environment:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-test}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-test}
@@ -62,6 +57,7 @@ services:
       - AZURE_LOCAL_CONNECTION_STRING
       - AZURE_STORAGE_ACCOUNT_NAME
       - AZURE_STORAGE_ACCOUNT_CONTAINER
+      - CIVIFORM_TIME_ZONE_ID
       - STORAGE_SERVICE_NAME
       - LOGIN_RADIUS_API_KEY
       - LOGIN_RADIUS_METADATA_URI
@@ -82,5 +78,4 @@ services:
       - WHITELABEL_LOGO_WITH_NAME_URL
       - WHITELABEL_CIVIC_ENTITY_SHORT_NAME
       - WHITELABEL_CIVIC_ENTITY_FULL_NAME
-
-    command: -jvm-debug "*:8457" ~run -Dconfig.file=conf/application.dev.conf
+    command: ~run -Dconfig.file=conf/application.dev.conf

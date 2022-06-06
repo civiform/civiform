@@ -16,14 +16,21 @@ x-sbt-volumes:
     - m2-data:/root/.m2
 
 services:
+  dev-oidc:
+    ports:
+      - 3390:3390
+
   civiform:
     build: .
     volumes: *sbt-volumes
     stdin_open: true # docker run -i
     tty: true        # docker run -t
+    ports:
+      - 9000:9000
+      - 8457:8457
+    command: -jvm-debug "*:8457" ~run -Dconfig.file=conf/application.dev.conf
 
   civiform-shell:
-    container_name: civiform-shell
     image: civiform-dev
     entrypoint: /bin/bash
     profiles: ["shell"]
@@ -31,12 +38,38 @@ services:
     stdin_open: true # docker run -i
     tty: true        # docker run -t
 
+  localstack:
+    ports:
+      - 4566:4566
+  azurite:
+     ports:
+      - 10000:10000
+
   db:
-    image: postgres:12.5
+    image: postgres:12.11
+    stdin_open: true
+    tty: true
     volumes:
       # isolate and persist dev database.
       - project-data:/project
       - db-data:/var/lib/postgresql/data
+
+  pgadmin:
+    profiles: ["pgadmin"]
+    image: dpage/pgadmin4
+    restart: always
+    depends_on:
+      - db
+    volumes:
+      - /tmp/servers.json:/pgadmin4/servers.json
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - 8012:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@localhost.localdomain
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
 
 volumes:
   db-data:

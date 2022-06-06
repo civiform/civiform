@@ -5,13 +5,16 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.ExpressionList;
 import io.ebean.PagedList;
 import io.ebean.Query;
+import io.ebean.SqlRow;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -25,8 +28,10 @@ import models.Program;
 import models.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.libs.F;
+import services.IdentifierBasedPaginationSpec;
+import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 
@@ -66,6 +71,17 @@ public class ProgramRepository {
     return program;
   }
 
+  public ImmutableSet<String> getAllProgramNames() {
+    ImmutableSet.Builder<String> names = ImmutableSet.builder();
+    List<SqlRow> rows = database.sqlQuery("SELECT DISTINCT name FROM programs").findList();
+
+    for (SqlRow row : rows) {
+      names.add(row.getString("name"));
+    }
+
+    return names.build();
+  }
+
   /**
    * Makes {@code existingProgram} the DRAFT revision configuration of the question, creating a new
    * DRAFT if necessary.
@@ -98,9 +114,9 @@ public class ProgramRepository {
     try {
       // Program -> builder -> back to program in order to clear any metadata stored in the program
       // (for example, version information).
-      Program newDraft = existingProgram.getProgramDefinition().toBuilder().build().toProgram();
+      Program newDraft =
+          new Program(existingProgram.getProgramDefinition().toBuilder().build(), draftVersion);
       newDraft = insertProgramSync(newDraft);
-      newDraft.addVersion(draftVersion).save();
       draftVersion.refresh();
       Preconditions.checkState(
           draftVersion.getPrograms().contains(newDraft),
@@ -193,16 +209,26 @@ public class ProgramRepository {
    * Get all submitted applications for this program and all other previous and future versions of
    * it where the applicant's first name, last name, email, or application ID contains the search
    * query. Does not include drafts or deleted applications. Results returned in reverse order that
-   * the applications were created.
+   * the applications were created. Results are optionally limited to applications submitted after
+   * {@code submitTimeFrom} and/or before {@code submitTimeTo}, inclusive of both values.
    *
    * <p>If searchNameFragment is not an unsigned integer, the query will filter to applications with
    * email, first name, or last name that contain it.
    *
    * <p>If searchNameFragment is an unsigned integer, the query will filter to applications with an
    * application ID matching it.
+   *
+   * <p>Both offset-based and page number-based pagination are supported. For paginationSpecEither
+   * the caller may pass either a {@link IdentifierBasedPaginationSpec <Long>} or {@link
+   * PageNumberBasedPaginationSpec} using play's {@link F.Either} wrapper.
    */
   public PaginationResult<Application> getApplicationsForAllProgramVersions(
-      long programId, PaginationSpec paginationSpec, Optional<String> searchNameFragment) {
+      long programId,
+      F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
+          paginationSpecEither,
+      Optional<String> searchNameFragment,
+      Optional<Instant> submitTimeFrom,
+      Optional<Instant> submitTimeTo) {
     ExpressionList<Application> query =
         database
             .find(Application.class)
@@ -213,6 +239,14 @@ public class ProgramRepository {
             .in(
                 "lifecycle_stage",
                 ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE));
+
+    if (submitTimeFrom.isPresent()) {
+      query = query.where().ge("submit_time", submitTimeFrom.get());
+    }
+
+    if (submitTimeTo.isPresent()) {
+      query = query.where().lt("submit_time", submitTimeTo.get());
+    }
 
     if (searchNameFragment.isPresent() && !searchNameFragment.get().isBlank()) {
       String search = searchNameFragment.get();
@@ -236,16 +270,29 @@ public class ProgramRepository {
       }
     }
 
-    PagedList<Application> pagedQuery =
-        query
-            .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
-            .setMaxRows(paginationSpec.getPageSize())
-            .findPagedList();
+    PagedList<Application> pagedQuery;
+
+    if (paginationSpecEither.left.isPresent()) {
+      IdentifierBasedPaginationSpec<Long> paginationSpec = paginationSpecEither.left.get();
+      pagedQuery =
+          query
+              .where()
+              .lt("id", paginationSpec.getCurrentPageOffsetIdentifier())
+              .setMaxRows(paginationSpec.getPageSize())
+              .findPagedList();
+    } else {
+      PageNumberBasedPaginationSpec paginationSpec = paginationSpecEither.right.get();
+      pagedQuery =
+          query
+              .setFirstRow(paginationSpec.getCurrentPageOffset())
+              .setMaxRows(paginationSpec.getPageSize())
+              .findPagedList();
+    }
 
     pagedQuery.loadCount();
 
     return new PaginationResult<Application>(
-        paginationSpec,
+        pagedQuery.hasNext(),
         pagedQuery.getTotalPageCount(),
         pagedQuery.getList().stream().collect(ImmutableList.toImmutableList()));
   }

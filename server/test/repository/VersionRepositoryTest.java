@@ -2,9 +2,14 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Transaction;
+import java.time.Instant;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
@@ -28,7 +33,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   private VersionRepository versionRepository;
 
   @Before
-  public void setupProgramRepository() {
+  public void setupVersionRepository() {
     versionRepository = instanceOf(VersionRepository.class);
   }
 
@@ -37,23 +42,69 @@ public class VersionRepositoryTest extends ResetPostgres {
     resourceCreator.insertActiveProgram("foo");
     resourceCreator.insertActiveProgram("bar");
     resourceCreator.insertDraftProgram("bar");
-    assertThat(this.versionRepository.getActiveVersion().getPrograms()).hasSize(2);
-    assertThat(this.versionRepository.getDraftVersion().getPrograms()).hasSize(1);
-    Version oldDraft = this.versionRepository.getDraftVersion();
-    this.versionRepository.publishNewSynchronizedVersion();
-    assertThat(this.versionRepository.getActiveVersion().getPrograms()).hasSize(2);
-    assertThat(this.versionRepository.getDraftVersion().getPrograms()).hasSize(0);
+    assertThat(versionRepository.getActiveVersion().getPrograms()).hasSize(2);
+    assertThat(versionRepository.getDraftVersion().getPrograms()).hasSize(1);
+    Version oldDraft = versionRepository.getDraftVersion();
+    versionRepository.publishNewSynchronizedVersion();
+    assertThat(versionRepository.getActiveVersion().getPrograms()).hasSize(2);
+    assertThat(versionRepository.getDraftVersion().getPrograms()).hasSize(0);
     oldDraft.refresh();
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+  }
+
+  @Test
+  public void testPublishDoesNotUpdateProgramTimestamps() throws InterruptedException {
+    ImmutableList<Program> programs =
+        ImmutableList.of(
+            resourceCreator.insertActiveProgram("active"),
+            resourceCreator.insertActiveProgram("other_active"),
+            resourceCreator.insertDraftProgram("draft"),
+            resourceCreator.insertActiveProgram("active_with_draft"),
+            resourceCreator.insertDraftProgram("active_with_draft"));
+    Map<String, Instant> beforeTimestamps =
+        programs.stream()
+            .map(Program::getProgramDefinition)
+            .collect(
+                Collectors.toMap(
+                    v -> String.format("%d %s", v.id(), v.adminName()),
+                    v -> v.lastModifiedTime().orElseThrow()));
+
+    // When persisting models with @WhenModified fields, EBean
+    // truncates the persisted timestamp to milliseconds:
+    // https://github.com/seattle-uat/civiform/pull/2499#issuecomment-1133325484.
+    // Sleep for a few milliseconds to ensure that a subsequent
+    // update would have a distinct timestamp.
+    TimeUnit.MILLISECONDS.sleep(5);
+    versionRepository.publishNewSynchronizedVersion();
+
+    // Refresh each program to ensure they get the newest DB state after
+    // publishing.
+    Map<String, Instant> afterTimestamps =
+        programs.stream()
+            .map(
+                p ->
+                    DB.getDefault()
+                        .find(Program.class)
+                        .where()
+                        .eq("id", p.id)
+                        .findOneOrEmpty()
+                        .orElseThrow()
+                        .getProgramDefinition())
+            .collect(
+                Collectors.toMap(
+                    v -> String.format("%d %s", v.id(), v.adminName()),
+                    v -> v.lastModifiedTime().orElseThrow()));
+
+    assertThat(beforeTimestamps).isEqualTo(afterTimestamps);
   }
 
   @Test
   public void testRollback() {
     resourceCreator.insertActiveProgram("foo");
     resourceCreator.insertDraftProgram("bar");
-    Version oldDraft = this.versionRepository.getDraftVersion();
-    Version oldActive = this.versionRepository.getActiveVersion();
-    this.versionRepository.publishNewSynchronizedVersion();
+    Version oldDraft = versionRepository.getDraftVersion();
+    Version oldActive = versionRepository.getActiveVersion();
+    versionRepository.publishNewSynchronizedVersion();
     oldDraft.refresh();
     oldActive.refresh();
 
@@ -61,14 +112,14 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
 
-    this.versionRepository.setLiveVersion(oldActive.id);
+    versionRepository.setLiveVersion(oldActive.id);
 
     oldActive.refresh();
     oldDraft.refresh();
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
 
-    this.versionRepository.setLiveVersion(oldDraft.id);
+    versionRepository.setLiveVersion(oldDraft.id);
 
     oldActive.refresh();
     oldDraft.refresh();

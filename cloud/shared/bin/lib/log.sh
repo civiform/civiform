@@ -30,7 +30,7 @@ function log::deploy_succeeded() {
   log::ensure_log_file_fetched
   log::check_log_entry_args "$@"
 
-  echo "$(log::timestamp) DEPLOY SUCCESS ${1} ${2}" >> "${LOG_TEMPFILE}"
+  echo "$(log::timestamp) DEPLOY SUCCESS ${1} ${2}" >>"${LOG_TEMPFILE}"
 }
 
 #######################################
@@ -45,7 +45,7 @@ function log::rollback_failed() {
   log::ensure_log_file_fetched
   log::check_log_entry_args "$@"
 
-  echo "$(log::timestamp) ROLLBACK FAILED ${1} ${2}" >> "${LOG_TEMPFILE}"
+  echo "$(log::timestamp) ROLLBACK FAILED ${1} ${2}" >>"${LOG_TEMPFILE}"
 }
 
 #######################################
@@ -60,7 +60,7 @@ function log::rollback_succeeded() {
   log::ensure_log_file_fetched
   log::check_log_entry_args "$@"
 
-  echo "$(log::timestamp) ROLLBACK SUCCESS ${1} ${2}" >> "${LOG_TEMPFILE}"
+  echo "$(log::timestamp) ROLLBACK SUCCESS ${1} ${2}" >>"${LOG_TEMPFILE}"
 }
 
 #######################################
@@ -75,7 +75,7 @@ function log::deploy_failed() {
   log::ensure_log_file_fetched
   log::check_log_entry_args "$@"
 
-  echo "$(log::timestamp) DEPLOY FAILED ${1} ${2}" >> "${LOG_TEMPFILE}"
+  echo "$(log::timestamp) DEPLOY FAILED ${1} ${2}" >>"${LOG_TEMPFILE}"
 }
 
 #######################################
@@ -89,7 +89,7 @@ function log::initialized() {
   log::ensure_log_file_fetched
   log::validate_token "${1}"
 
-  echo "$(log::timestamp) INITIALIZED SUCCESS ${1}" >> "${LOG_TEMPFILE}"
+  echo "$(log::timestamp) INITIALIZED SUCCESS ${1}" >>"${LOG_TEMPFILE}"
 }
 
 #######################################
@@ -109,8 +109,8 @@ function log::check_log_entry_args() {
   done
 
   if [[ "$#" -gt 2 ]]; then
-      out::error "Too many arguments to deployment log function."
-      exit 1
+    out::error "Too many arguments to deployment log function."
+    exit 1
   fi
 }
 
@@ -136,8 +136,8 @@ function log::validate_token() {
 #######################################
 function log::ensure_log_file_fetched() {
   if ! [[ -f "${LOG_TEMPFILE}" ]]; then
-     out::error "Attempted to write to logfile but none found."
-     exit 1
+    out::error "Attempted to write to logfile but none found."
+    exit 1
   fi
 }
 
@@ -147,4 +147,3 @@ function log::ensure_log_file_fetched() {
 function log::timestamp() {
   date +%s
 }
-

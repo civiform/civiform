@@ -6,22 +6,18 @@ import com.google.common.collect.ImmutableList;
 
 /** Contains a single page of results and pagination state for a paginated query. */
 public class PaginationResult<T> {
-  private final PaginationSpec spec;
+  private final boolean hasNext;
   private final int numPages;
   private final ImmutableList<T> pageContents;
 
-  public PaginationResult(PaginationSpec spec, int numPages, ImmutableList<T> pageContents) {
-    this.spec = checkNotNull(spec);
+  public PaginationResult(boolean hasNext, int numPages, ImmutableList<T> pageContents) {
+    this.hasNext = hasNext;
     this.numPages = numPages;
     this.pageContents = checkNotNull(pageContents);
   }
 
-  public int getPageSize() {
-    return this.spec.getPageSize();
-  }
-
-  public int getCurrentPage() {
-    return this.spec.getCurrentPage();
+  public boolean hasMorePages() {
+    return hasNext;
   }
 
   public int getNumPages() {

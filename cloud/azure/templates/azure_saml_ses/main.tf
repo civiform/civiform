@@ -2,11 +2,11 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "4.8.0"
+      version = "4.16.0"
     }
     azurerm = {
       source  = "azurerm"
-      version = "3.0.2"
+      version = "3.8.0"
     }
     random = {}
   }
@@ -36,6 +36,8 @@ module "app" {
   staging_program_admin_notification_mailing_list = var.staging_program_admin_notification_mailing_list
   staging_ti_notification_mailing_list            = var.staging_ti_notification_mailing_list
   staging_applicant_notification_mailing_list     = var.staging_applicant_notification_mailing_list
+
+  civiform_time_zone_id = var.civiform_time_zone_id
 
   civic_entity_short_name            = var.civic_entity_short_name
   civic_entity_full_name             = var.civic_entity_full_name

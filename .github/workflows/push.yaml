@@ -25,16 +25,17 @@ jobs:
         run: python3 cloud/shared/validate_variable_definitions_test.py
 
   build_container:
-    runs-on: ubuntu-18.04 # for older version of awscli.
+    runs-on: ubuntu-latest
     steps:
       - id: file_changes
         uses: trilom/file-changes-action@v1.2.4
+        if: ${{ github.event_name == 'push' }}
 
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Build and push new development image to docker hub
         id: build_dev
@@ -61,16 +62,6 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-and-push
 
-      - name: Deploy Seattle staging.
-        id: deploy_staging
-        env:
-          DOCKER_BUILDKIT: 1
-          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
-        run: cloud/deploys/seattle/bin/deploy-staging
-
-      - name: Run prober test
-        run: bin/run-prober
-        env:
-          TEST_USER_LOGIN: ${{ secrets.TEST_USER_LOGIN }}
-          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+  run_all_tests:
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit

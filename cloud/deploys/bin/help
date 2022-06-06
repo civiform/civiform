@@ -6,8 +6,7 @@ source lib/out.sh
 
 missing=""
 
-for f in */**[^.md]
-do
+for f in */**[^.md]; do
   # Files containing library code for scripts have .sh file extension,
   # don't include those or directories.
   if [[ -d "${f}" || "${f}" =~ .+\.sh ]]; then

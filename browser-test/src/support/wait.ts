@@ -7,7 +7,7 @@ import { Page, Frame } from 'playwright'
  */
 export const waitForPageJsLoad = async (page: Page | Frame | null) => {
   if (page == null) {
-    throw new Error("waitForPageJsLoad received null!")
+    throw new Error('waitForPageJsLoad received null!')
   }
 
   await page.waitForLoadState('load')

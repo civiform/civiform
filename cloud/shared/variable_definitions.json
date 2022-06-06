@@ -1,21 +1,9 @@
 {
-  "ADMIN_AUTH_FORMAT": {
-    "required": true,
+  "CIVIFORM_TIME_ZONE_ID": {
+    "required": false,
     "secret": false,
-    "tfvar": false,
-    "type": "enum",
-    "values": [
-      "OIDC"
-    ]
-  },
-  "ADMIN_AUTH_PROVIDER": {
-    "required": true,
-    "secret": false,
-    "tfvar": false,
-    "type": "enum",
-    "values": [
-      "activeDirectory"
-    ]
+    "tfvar": true,
+    "type": "string"
   },
   "CIVIC_ENTITY_FULL_NAME": {
     "required": true,
@@ -76,7 +64,8 @@
     "values": [
       "prod",
       "staging",
-      "dev"
+      "dev",
+      "test"
     ]
   },
   "CUSTOM_HOSTNAME": {
@@ -84,28 +73,6 @@
     "secret": false,
     "tfvar": true,
     "type": "string"
-  },
-  "DOCKER_REPOSITORY_NAME": {
-    "required": true,
-    "secret": false,
-    "tfvar": true,
-    "type": "string"
-  },
-  "DOCKER_USERNAME": {
-    "required": true,
-    "secret": false,
-    "tfvar": true,
-    "type": "string"
-  },
-  "RESIDENT_AUTH_PROVIDER": {
-    "required": true,
-    "secret": false,
-    "tfvar": false,
-    "type": "enum",
-    "values": [
-      "loginRadius",
-      "idcs"
-    ]
   },
   "SENDER_EMAIL_ADDRESS": {
     "required": true,

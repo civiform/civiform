@@ -79,7 +79,12 @@ public class VersionRepository {
               activeProgram ->
                   !draftProgramsNames.contains(activeProgram.getProgramDefinition().adminName()))
           // For each active program not associated with the draft, associate it with the draft.
-          .forEach(activeProgramNotInDraft -> activeProgramNotInDraft.addVersion(draft).save());
+          // The relationship between Programs and Versions is many-to-may. When updating the
+          // relationship, one of the EBean models needs to be saved. We update the Version
+          // side of the relationship rather than the Program side in order to prevent the
+          // save causing the "updated" timestamp to be changed for a Program. We intend for
+          // that timestamp only to be updated for actual changes to the program.
+          .forEach(activeProgramNotInDraft -> draft.addProgram(activeProgramNotInDraft));
 
       // Associate any active questions that aren't present in the draft with the draft.
       active.getQuestions().stream()
@@ -215,8 +220,12 @@ public class VersionRepository {
   }
 
   public boolean isDraft(Program program) {
+    return isDraftProgram(program.id);
+  }
+
+  public boolean isDraftProgram(Long programId) {
     return getDraftVersion().getPrograms().stream()
-        .anyMatch(draftProgram -> draftProgram.id.equals(program.id));
+        .anyMatch(draftProgram -> draftProgram.id.equals(programId));
   }
 
   private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {

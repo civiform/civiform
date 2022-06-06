@@ -49,7 +49,11 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
   public void setup() {
     question = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
-    params = ApplicantQuestionRendererParams.sample(messages);
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
+            .build();
     renderer = new CheckboxQuestionRenderer(question);
   }
 

@@ -181,9 +181,14 @@ describe('create and edit predicates', () => {
     await logout(page)
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
-    await page.screenshot({ path: "tmp/screenshot.png", fullPage: true })
+
     await adminPrograms.viewApplicationForApplicant(userDisplayName())
-    expect(await adminPrograms.applicationFrame().locator('#application-view').innerText()).toContain('Screen 2')
+    expect(
+      await adminPrograms
+        .applicationFrame()
+        .locator('#application-view')
+        .innerText()
+    ).toContain('Screen 2')
 
     await endSession(browser)
   })

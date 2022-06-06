@@ -15,7 +15,7 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class FileUploadQuestion extends QuestionImpl {
+public final class FileUploadQuestion extends Question {
 
   // This value is serving double duty as a singleton load of the value.
   // This value is an optional of an optional because not all questions are file upload questions,
@@ -23,7 +23,7 @@ public class FileUploadQuestion extends QuestionImpl {
   private Optional<Optional<String>> fileKeyValueCache;
   private Optional<Optional<String>> originalFileNameValueCache;
 
-  public FileUploadQuestion(ApplicantQuestion applicantQuestion) {
+  FileUploadQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
     this.fileKeyValueCache = Optional.empty();
     this.originalFileNameValueCache = Optional.empty();

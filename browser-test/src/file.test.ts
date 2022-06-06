@@ -53,14 +53,25 @@ describe('file upload applicant flow', () => {
       expect(await error.isHidden()).toEqual(true)
     })
 
+    it('does not show skip button for required question', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      expect(await pageObject.$('#fileupload-skip-button')).toBeNull()
+    })
+
     it('with valid file does submit', async () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerFileUploadQuestion('file key')
+      const fileContent = 'some sample text'
+      await applicantQuestions.answerFileUploadQuestion(fileContent)
       await applicantQuestions.clickUpload()
 
+      const downloadedFileContent = await applicantQuestions.downloadSingleQuestionFromReviewPage()
+      expect(downloadpedFileContent).toEqual(fileContent)
       await applicantQuestions.submitFromReviewPage(programName)
     })
 

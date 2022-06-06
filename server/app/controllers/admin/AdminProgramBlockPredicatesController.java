@@ -41,17 +41,20 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final QuestionService questionService;
   private final ProgramBlockPredicatesEditView predicatesEditView;
   private final FormFactory formFactory;
+  private final RequestChecker requestChecker;
 
   @Inject
   public AdminProgramBlockPredicatesController(
       ProgramService programService,
       QuestionService questionService,
       ProgramBlockPredicatesEditView predicatesEditView,
-      FormFactory formFactory) {
+      FormFactory formFactory,
+      RequestChecker requestChecker) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.predicatesEditView = checkNotNull(predicatesEditView);
     this.formFactory = checkNotNull(formFactory);
+    this.requestChecker = checkNotNull(requestChecker);
   }
 
   /**
@@ -60,6 +63,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Request request, long programId, long blockDefinitionId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
     try {
       ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
       BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
@@ -80,6 +85,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   /** POST endpoint for updating show-hide configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId, long blockDefinitionId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
     Form<BlockVisibilityPredicateForm> predicateFormWrapper =
         formFactory.form(BlockVisibilityPredicateForm.class).bindFromRequest(request);
 
@@ -145,6 +152,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   /** POST endpoint for deleting show-hide configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result destroy(long programId, long blockDefinitionId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
     try {
       programService.removeBlockPredicate(programId, blockDefinitionId);
     } catch (ProgramNotFoundException e) {

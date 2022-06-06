@@ -8,10 +8,6 @@ export class AdminTIGroups {
   }
 
   async gotoAdminTIPage() {
-    // The warning message may be in the way of this link
-    await this.page
-      .click('#warning-message-dismiss')
-      .catch((error) => console.log("didn't find a warning, which is fine."))
     await this.page.click('nav :text("Intermediaries")')
     await this.expectAdminTIPage()
   }

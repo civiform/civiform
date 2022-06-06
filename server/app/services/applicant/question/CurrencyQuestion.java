@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import services.MessageKey;
 import services.Path;
 import services.applicant.Currency;
 import services.applicant.ValidationErrorMessage;
@@ -15,12 +16,12 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class CurrencyQuestion extends QuestionImpl {
+public final class CurrencyQuestion extends Question {
 
   // Stores the value, loading and caching it on first access.
   private Optional<Optional<Currency>> currencyCache;
 
-  public CurrencyQuestion(ApplicantQuestion applicantQuestion) {
+  CurrencyQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
     this.currencyCache = Optional.empty();
   }
@@ -37,12 +38,18 @@ public class CurrencyQuestion extends QuestionImpl {
 
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
-    // TODO(#1944): Validate that the provided currency is a valid number. Presently,
-    // this is only implemented in client-side validation.
+    // When staging updates, the attempt to update ApplicantData would have failed to
+    // convert to a currency and been noted as a failed update. We check for that here.
+    if (applicantQuestion.getApplicantData().updateDidFailAt(getCurrencyPath())) {
+      return ImmutableMap.of(
+          getCurrencyPath(),
+          ImmutableSet.of(
+              ValidationErrorMessage.create(MessageKey.CURRENCY_VALIDATION_MISFORMATTED)));
+    }
     return ImmutableMap.of();
   }
 
-  public Optional<Currency> getValue() {
+  public Optional<Currency> getCurrencyValue() {
     if (currencyCache.isEmpty()) {
       currencyCache =
           Optional.of(applicantQuestion.getApplicantData().readCurrency(getCurrencyPath()));
@@ -67,6 +74,6 @@ public class CurrencyQuestion extends QuestionImpl {
    */
   @Override
   public String getAnswerString() {
-    return getValue().map(value -> value.getDollarsString()).orElse("-");
+    return getCurrencyValue().map(value -> value.getDollarsString()).orElse("-");
   }
 }

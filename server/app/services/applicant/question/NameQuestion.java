@@ -17,13 +17,13 @@ import services.question.types.QuestionType;
  *
  * <p>See {@link ApplicantQuestion} for details.
  */
-public class NameQuestion extends QuestionImpl {
+public final class NameQuestion extends Question {
 
   private Optional<String> firstNameValue;
   private Optional<String> middleNameValue;
   private Optional<String> lastNameValue;
 
-  public NameQuestion(ApplicantQuestion applicantQuestion) {
+  NameQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
   }
 
@@ -47,27 +47,20 @@ public class NameQuestion extends QuestionImpl {
 
   private ImmutableSet<ValidationErrorMessage> validateFirstName() {
     if (getFirstNameValue().isEmpty()) {
-      return getFirstNameErrorMessage();
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_FIRST_REQUIRED));
     }
 
     return ImmutableSet.of();
-  }
-
-  public ImmutableSet<ValidationErrorMessage> getFirstNameErrorMessage() {
-    return ImmutableSet.of(
-        ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_FIRST_REQUIRED));
   }
 
   private ImmutableSet<ValidationErrorMessage> validateLastName() {
     if (getLastNameValue().isEmpty()) {
-      return getLastNameErrorMessage();
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_LAST_REQUIRED));
     }
 
     return ImmutableSet.of();
-  }
-
-  public ImmutableSet<ValidationErrorMessage> getLastNameErrorMessage() {
-    return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_LAST_REQUIRED));
   }
 
   public Optional<String> getFirstNameValue() {

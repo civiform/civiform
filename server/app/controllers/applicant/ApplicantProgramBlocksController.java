@@ -38,10 +38,12 @@ import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
+import views.ApplicationBaseView;
 import views.FileUploadViewStrategy;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
 import views.questiontypes.ApplicantQuestionRendererFactory;
+import views.questiontypes.ApplicantQuestionRendererParams;
 
 /**
  * Controller for handling an applicant filling out a single program. CAUTION: you must explicitly
@@ -151,7 +153,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 Optional<String> applicantName = applicantStage.toCompletableFuture().join();
                 return ok(
                     editView.render(
-                        buildApplicantProgramBlockEditViewParams(
+                        buildApplicationBaseViewParams(
                             request,
                             applicantId,
                             programId,
@@ -159,7 +161,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             inReview,
                             roApplicantProgramService,
                             block.get(),
-                            applicantName)));
+                            applicantName,
+                            ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)));
               } else {
                 return notFound();
               }
@@ -201,7 +204,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 Optional<String> applicantName = applicantStage.toCompletableFuture().join();
                 return ok(
                     editView.render(
-                        buildApplicantProgramBlockEditViewParams(
+                        buildApplicationBaseViewParams(
                             request,
                             applicantId,
                             programId,
@@ -209,7 +212,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             inReview,
                             roApplicantProgramService,
                             block.get(),
-                            applicantName)));
+                            applicantName,
+                            ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)));
               } else {
                 return notFound();
               }
@@ -363,7 +367,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           () ->
               ok(
                   editView.render(
-                      buildApplicantProgramBlockEditViewParams(
+                      buildApplicationBaseViewParams(
                           request,
                           applicantId,
                           programId,
@@ -371,7 +375,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           inReview,
                           roApplicantProgramService,
                           thisBlockUpdated,
-                          applicantName))));
+                          applicantName,
+                          ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
     }
 
     if (inReview) {
@@ -407,7 +412,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
-  private ApplicantProgramBlockEditView.Params buildApplicantProgramBlockEditViewParams(
+  private ApplicationBaseView.Params buildApplicationBaseViewParams(
       Request request,
       long applicantId,
       long programId,
@@ -415,8 +420,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Block block,
-      Optional<String> applicantName) {
-    return ApplicantProgramBlockEditView.Params.builder()
+      Optional<String> applicantName,
+      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode) {
+    return ApplicationBaseView.Params.builder()
         .setRequest(request)
         .setMessages(messagesApi.preferred(request))
         .setApplicantId(applicantId)
@@ -430,6 +436,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setPreferredLanguageSupported(roApplicantProgramService.preferredLanguageSupported())
         .setStorageClient(storageClient)
         .setBaseUrl(baseUrl)
+        .setErrorDisplayMode(errorDisplayMode)
         .build();
   }
 

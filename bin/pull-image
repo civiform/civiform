@@ -1,13 +1,21 @@
 #! /usr/bin/env bash
 
-# DOC: Pull the latest development environment docker image from Docker Hub unless USE_LOCAL_CIVIFORM is set.
+# DOC: Pull the latest development environment docker image from Docker Hub
+# DOC: unless USE_LOCAL_CIVIFORM is set. May specify what to pull with a flag
+# DOC: e.g. "--formatter", "--localstack", or "--all" (the default).
+# DOC: If multiple flags are passed, all but the first will be ignored.
 
 source bin/lib.sh
 
-if [[ -z "${USE_LOCAL_CIVIFORM}" ]]; then
-  echo "Making sure we're up to date with the latest dev... " \
-    "set environment variable USE_LOCAL_CIVIFORM=1 to skip"
+if [[ -n "${USE_LOCAL_CIVIFORM}" ]]; then
+  echo "Using local civiform and dependency docker images"
+  exit 0
+fi
 
+echo "Making sure we're up to date with the latest dev... " \
+  "set environment variable USE_LOCAL_CIVIFORM=1 to skip"
+
+function pull_all() {
   docker pull -q civiform/civiform-dev:latest
   docker tag civiform/civiform-dev:latest civiform-dev
 
@@ -15,6 +23,50 @@ if [[ -z "${USE_LOCAL_CIVIFORM}" ]]; then
   docker pull -q docker.io/civiform/oidc-provider:latest
   docker pull -q mcr.microsoft.com/azure-storage/azurite
   docker pull -q localstack/localstack
-else
-  echo "Using local civiform and dependency docker images"
-fi
+
+  docker pull -q civiform/formatter:latest
+  docker pull -q civiform/civiform-browser-test:latest
+}
+
+while [ "${1:-}" != "" ]; do
+  case "${1}" in
+    "--all")
+      pull_all
+      exit 0
+      ;;
+
+    "--formatter")
+      docker pull -q civiform/formatter:latest
+      exit 0
+      ;;
+
+    "--localstack")
+      docker pull -q localstack/localstack
+      exit 0
+      ;;
+
+    "--azurite")
+      docker pull -q mcr.microsoft.com/azure-storage/azurite
+      exit 0
+      ;;
+
+    "--oidc-provider")
+      docker pull -q docker.io/civiform/oidc-provider:latest
+      exit 0
+      ;;
+
+    "--browser-tests")
+      docker pull -q civiform/civiform-browser-test:latest
+      exit 0
+      ;;
+
+    *)
+      out::error "Unexpected flag value ${1}"
+      exit 1
+      ;;
+  esac
+
+  shift
+done
+
+pull_all

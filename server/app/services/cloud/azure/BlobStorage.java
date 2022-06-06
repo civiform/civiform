@@ -36,7 +36,6 @@ public class BlobStorage implements StorageClient {
 
   public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";
   public static final String AZURE_CONTAINER_CONF_PATH = "azure.blob.container";
-  public static final String AZURE_REGION_CONF_PATH = "java.time.zoneid";
   public static final Duration AZURE_SAS_TOKEN_DURATION = Duration.ofMinutes(10);
 
   // A User Delegation Key is used to sign SAS tokens without having to store the
@@ -53,12 +52,13 @@ public class BlobStorage implements StorageClient {
   private final ZoneId zoneId;
 
   @Inject
-  public BlobStorage(Credentials credentials, Config config, Environment environment) {
+  public BlobStorage(
+      Credentials credentials, Config config, Environment environment, ZoneId zoneId) {
 
     this.credentials = checkNotNull(credentials);
     this.container = checkNotNull(config).getString(AZURE_CONTAINER_CONF_PATH);
     this.accountName = checkNotNull(config).getString(AZURE_STORAGE_ACCT_CONF_PATH);
-    this.zoneId = ZoneId.of(checkNotNull(config).getString(AZURE_REGION_CONF_PATH));
+    this.zoneId = checkNotNull(zoneId);
     this.blobEndpoint = String.format("https://%s.blob.core.windows.net", accountName);
 
     if (environment.isDev()) {
@@ -66,7 +66,7 @@ public class BlobStorage implements StorageClient {
     } else if (environment.isTest()) {
       client = new NullClient();
     } else {
-      client = new AzureBlobClient(config);
+      client = new AzureBlobClient(config, this.zoneId);
     }
   }
 
@@ -135,7 +135,7 @@ public class BlobStorage implements StorageClient {
                           // and passed along, more info on the headers:
                           // https://docs.microsoft.com/en-us/rest/api/storageservices/put-blob
                           .setAllowedHeaders(
-                              "content-type,x-ms-blob-type,x-ms-client-request-id,x-ms-version,x-ms-blob-content-type")
+                              "content-type,x-ms-blob-type,x-ms-client-request-id,x-ms-version,x-ms-blob-content-type,x-ms-blob-content-disposition")
                           .setAllowedMethods("GET,PUT,OPTIONS")
                           .setMaxAgeInSeconds(500)));
       blobServiceClient.setProperties(properties);
@@ -168,8 +168,8 @@ public class BlobStorage implements StorageClient {
     private UserDelegationKey userDelegationKey;
     private ZoneId zoneId;
 
-    AzureBlobClient(Config config) {
-      this.zoneId = ZoneId.of(checkNotNull(config).getString(AZURE_REGION_CONF_PATH));
+    AzureBlobClient(Config config, ZoneId zoneId) {
+      this.zoneId = checkNotNull(zoneId);
       String baseUrl = checkNotNull(config).getString("base_url");
 
       blobServiceClient =

@@ -30,6 +30,7 @@ sbt_cache/*
 !sbt_cache/.keep
 /browser-test/sbt_cache/*
 !/browser-test/sbt_cache/.keep
+test-support/sbt_cache/
 
 */.classpath
 */.vscode

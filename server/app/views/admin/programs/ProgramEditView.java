@@ -11,6 +11,8 @@ import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.Styles;
@@ -20,8 +22,8 @@ public class ProgramEditView extends BaseHtmlView {
   private final AdminLayout layout;
 
   @Inject
-  public ProgramEditView(AdminLayout layout) {
-    this.layout = checkNotNull(layout);
+  public ProgramEditView(AdminLayoutFactory layoutFactory) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
   public Content render(Request request, ProgramDefinition program) {

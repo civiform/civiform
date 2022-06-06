@@ -148,6 +148,12 @@ function removeExistingEnumeratorField(event: Event) {
   // submit the input to maintain entity ordering.
   const enumeratorFieldDiv = removeButton.parentElement
   enumeratorFieldDiv.classList.add('hidden')
+  // We must hide the child in addition to the parent since we
+  // want to prevent this input from being considered when
+  // toggling whether the "Add" button is enabled (especially if
+  // the applicant were removing a blank input).
+  const enumeratorInput = enumeratorFieldDiv.querySelector('input')
+  enumeratorInput.classList.add('hidden')
 
   // Create a copy of the hidden deleted entity template. Set the value to this
   // button's ID, and set disabled to false so the data is submitted with the form.
@@ -160,6 +166,71 @@ function removeExistingEnumeratorField(event: Event) {
 
   // Add the hidden deleted entity input to the page.
   enumeratorFieldDiv.appendChild(deletedEntityInput)
+}
+
+/** Add listeners to all enumerator inputs to update validation on changes. */
+function addEnumeratorListeners() {
+  // Assumption: There is only ever zero or one enumerators per block.
+  const enumeratorQuestion = document.querySelector('.cf-question-enumerator')
+  if (!enumeratorQuestion) {
+    return
+  }
+  const enumeratorInputs = Array.from(
+    enumeratorQuestion.querySelectorAll('input')
+  ).filter((item) => item.id !== 'enumerator-delete-template')
+  // Whenever an input changes we need to revalidate.
+  enumeratorInputs.forEach((enumeratorInput) => {
+    enumeratorInput.addEventListener('input', () => {
+      maybeHideEnumeratorAddButton(enumeratorQuestion)
+    })
+  })
+
+  // Whenever an input is added, we need to add a change listener.
+  let mutationObserver = new MutationObserver((records: MutationRecord[]) => {
+    for (const record of records) {
+      for (const newNode of Array.from(record.addedNodes)) {
+        const newInputs = Array.from(
+          (<Element>newNode).querySelectorAll('input')
+        )
+        newInputs.forEach((newInput) => {
+          newInput.addEventListener('input', () => {
+            maybeHideEnumeratorAddButton(enumeratorQuestion)
+          })
+        })
+      }
+    }
+    maybeHideEnumeratorAddButton(enumeratorQuestion)
+  })
+
+  mutationObserver.observe(enumeratorQuestion, {
+    childList: true,
+    subtree: true,
+    characterDataOldValue: true,
+  })
+}
+
+/** If we have empty inputs then disable the add input button. (We don't need two blank inputs.) */
+function maybeHideEnumeratorAddButton(enumeratorQuestion: Element) {
+  if (enumeratorQuestion) {
+    const enumeratorInputValues = Array.from(
+      enumeratorQuestion.querySelectorAll('input')
+    )
+      .filter((item) => {
+        return (
+          item.id !== 'enumerator-delete-template' &&
+          !item.classList.contains('hidden')
+        )
+      })
+      .map((item) => item.value)
+
+    // validate that there are no empty inputs.
+    const addButton = <HTMLInputElement>(
+      document.getElementById('enumerator-field-add-button')
+    )
+    if (addButton) {
+      addButton.disabled = enumeratorInputValues.includes('')
+    }
+  }
 }
 
 /**
@@ -344,8 +415,27 @@ function configurePredicateFormOnOperatorChange(event: Event) {
   )
 }
 
+function attachFormDebouncers() {
+  Array.from(document.querySelectorAll('.cf-debounced-form')).forEach(
+    (formEl) => {
+      const submitEl = formEl.querySelector('button[type="submit"]')
+      if (!submitEl) {
+        return
+      }
+      // Prevent double-clicks from submitting the form multiple times by
+      // disabling the submit button after the initial click.
+      formEl.addEventListener('submit', () => {
+        submitEl.setAttribute('disabled', '')
+      })
+    }
+  )
+}
+
 window.addEventListener('load', (event) => {
   attachDropdown('create-question-button')
+  Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
+    attachDropdown(el.id)
+  })
 
   attachLineClampListeners()
 
@@ -411,6 +501,9 @@ window.addEventListener('load', (event) => {
   Array.from(document.querySelectorAll('.cf-enumerator-delete-button')).forEach(
     (el) => el.addEventListener('click', removeExistingEnumeratorField)
   )
+  addEnumeratorListeners()
+
+  attachFormDebouncers()
 
   // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'
