@@ -261,6 +261,55 @@ public class FieldWithLabel {
     return this;
   }
 
+  public DivTag getContainer() {
+    TextareaTag textareaFieldTagMaybe;
+    InputTag inputFieldTagMaybe;
+
+    if (isTagTypeTextarea()) {
+      textareaFieldTagMaybe = TagCreator.textarea();
+      applyAttributesFromList(textareaFieldTagMaybe);
+      return getTextareaTagContainer(textareaFieldTagMaybe);
+    } else {
+      // TODO ensure `apply` methods set .withtype('text') and .withText(fieldValue)?
+      inputFieldTagMaybe = TagCreator.input();
+      applyAttributesFromList(inputFieldTagMaybe);
+      return getTagContainer(inputFieldTagMaybe);
+    }
+  }
+
+  /**
+   * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
+   * attribute.
+   */
+  protected DivTag getCheckboxContainer(Tag fieldTag) {
+    if (this.checked) {
+      fieldTag.attr("checked");
+    }
+
+    return div()
+        .with(
+            label()
+                .withClasses(
+                    StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
+                    BaseStyles.CHECKBOX_LABEL,
+                    BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
+                    labelText.isEmpty() ? Styles.W_MIN : "")
+                .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
+                .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
+                .withText(this.labelText));
+  }
+
+  private DivTag buildFieldErrorsTag(String id) {
+    String[] referenceClasses =
+        referenceClassesBuilder.build().stream().map(ref -> ref + "-error").toArray(String[]::new);
+    return div(each(fieldErrors, error -> div(error.format(messages))))
+        .withId(id)
+        .withClasses(
+            StyleUtils.joinStyles(referenceClasses),
+            StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, Styles.P_1),
+            fieldErrors.isEmpty() || !showFieldErrors ? Styles.HIDDEN : "");
+  }
+
   protected void genRandIdIfEmpty() {
     // In order for the labels to be associated with the fields (mandatory for screen readers)
     // we need an id.  Generate a reasonable one if none is provided.
@@ -372,54 +421,5 @@ public class FieldWithLabel {
     LabelTag labelTag = genLabelTag();
 
     return wrapInDivTag(fieldTag, labelTag, fieldErrorsId);
-  }
-
-  public DivTag getContainer() {
-    TextareaTag textareaFieldTagMaybe;
-    InputTag inputFieldTagMaybe;
-
-    if (isTagTypeTextarea()) {
-      textareaFieldTagMaybe = TagCreator.textarea();
-      applyAttributesFromList(textareaFieldTagMaybe);
-      return getTextareaTagContainer(textareaFieldTagMaybe);
-    } else {
-      // TODO ensure `apply` methods set .withtype('text') and .withText(fieldValue)?
-      inputFieldTagMaybe = TagCreator.input();
-      applyAttributesFromList(inputFieldTagMaybe);
-      return getTagContainer(inputFieldTagMaybe);
-    }
-  }
-
-  /**
-   * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
-   * attribute.
-   */
-  protected DivTag getCheckboxContainer(Tag fieldTag) {
-    if (this.checked) {
-      fieldTag.attr("checked");
-    }
-
-    return div()
-        .with(
-            label()
-                .withClasses(
-                    StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
-                    BaseStyles.CHECKBOX_LABEL,
-                    BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
-                    labelText.isEmpty() ? Styles.W_MIN : "")
-                .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
-                .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
-                .withText(this.labelText));
-  }
-
-  private DivTag buildFieldErrorsTag(String id) {
-    String[] referenceClasses =
-        referenceClassesBuilder.build().stream().map(ref -> ref + "-error").toArray(String[]::new);
-    return div(each(fieldErrors, error -> div(error.format(messages))))
-        .withId(id)
-        .withClasses(
-            StyleUtils.joinStyles(referenceClasses),
-            StyleUtils.joinStyles(BaseStyles.FORM_ERROR_TEXT_XS, Styles.P_1),
-            fieldErrors.isEmpty() || !showFieldErrors ? Styles.HIDDEN : "");
   }
 }
