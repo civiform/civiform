@@ -2,7 +2,7 @@
 
 # DOC: Build a new docker image for running the localstack container
 # (with our customizations for https://github.com/seattle-uat/civiform/issues/2639)
-# and optionally push to Docker Hub if PUSH_BROWSER_TEST_IMAGE is set to anything.
+# and optionally push to Docker Hub if PUSH_LOCALSTACK_IMAGE is set to anything.
 
 source bin/lib.sh
 
@@ -15,7 +15,7 @@ docker build \
   --build-arg BUILDKIT_INLINE_CACHE=1 \
   localstack/
 
-if [[ "$PUSH_BROWSER_TEST_IMAGE" ]]; then
+if [[ "$PUSH_LOCALSTACK_IMAGE" ]]; then
   docker::do_dockerhub_login
 
   # push the new image to the Docker Hub registry

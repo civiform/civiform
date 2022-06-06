@@ -39,7 +39,8 @@ services:
     tty: true        # docker run -t
 
   localstack:
-    image: civiform-localstack
+    # TODO(#2639): Use the civiform-localstack image
+    # once it's pushed to DockerHub.
     ports:
       - 4566:4566
   azurite:

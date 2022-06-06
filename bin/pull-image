@@ -22,6 +22,8 @@ function pull_all() {
   # Explicitly pull dev dependencies.
   docker pull -q docker.io/civiform/oidc-provider:latest
   docker pull -q mcr.microsoft.com/azure-storage/azurite
+  # TODO(#2639): Once the image is pushed, change this to
+  # civiform/civiform-localstack.
   docker pull -q localstack/localstack
 
   docker pull -q civiform/formatter:latest
