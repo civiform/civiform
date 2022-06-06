@@ -229,13 +229,13 @@ variable "staging_applicant_notification_mailing_list" {
 }
 
 variable "file_storage_bucket" {
-  type = string
+  type        = string
   description = "Name for S3 bucket to store files"
-  default = "civiform-files-s3"
+  default     = "civiform-files-s3"
 }
 
 variable "log_storage_bucket" {
-  type = string
+  type        = string
   description = "Name for S3 bucket to store logs"
-  default = "civiform-aws-staging-log-bucket"
+  default     = "civiform-aws-staging-log-bucket"
 }
