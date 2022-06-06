@@ -277,6 +277,32 @@ public class FieldWithLabel {
     }
   }
 
+  protected void applyAttributesFromList(Tag fieldTag) {
+    fieldTag.attr("type", getFieldType());
+    this.attributesListBuilder.build().forEach(attr -> fieldTag.attr(attr, null));
+  }
+
+  protected DivTag getTextareaTagContainer(TextareaTag fieldTag) {
+    genRandIdIfEmpty();
+    // TODO throw exception if false
+    if (fieldTag.getTagName().equals("textarea")) {
+      fieldTag.withText(this.fieldValue);
+    }
+
+    return applyAttrsAndGenLabel(fieldTag);
+  }
+
+  protected DivTag getTagContainer(Tag fieldTag) {
+    genRandIdIfEmpty();
+    if (this.fieldType.equals("number")) {
+      numberTagApplyAttrs(fieldTag);
+    } else {
+      fieldTag.attr("value", this.fieldValue);
+    }
+
+    return applyAttrsAndGenLabel(fieldTag);
+  }
+
   /**
    * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
    * attribute.
@@ -376,32 +402,6 @@ public class FieldWithLabel {
         .condAttr(
             !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
-  }
-
-  protected void applyAttributesFromList(Tag fieldTag) {
-    fieldTag.attr("type", getFieldType());
-    this.attributesListBuilder.build().forEach(attr -> fieldTag.attr(attr, null));
-  }
-
-  protected DivTag getTextareaTagContainer(TextareaTag fieldTag) {
-    genRandIdIfEmpty();
-    // TODO throw exception if false
-    if (fieldTag.getTagName().equals("textarea")) {
-      fieldTag.withText(this.fieldValue);
-    }
-
-    return applyAttrsAndGenLabel(fieldTag);
-  }
-
-  protected DivTag getTagContainer(Tag fieldTag) {
-    genRandIdIfEmpty();
-    if (this.fieldType.equals("number")) {
-      numberTagApplyAttrs(fieldTag);
-    } else {
-      fieldTag.attr("value", this.fieldValue);
-    }
-
-    return applyAttrsAndGenLabel(fieldTag);
   }
 
   protected DivTag applyAttrsAndGenLabel(Tag fieldTag) {
