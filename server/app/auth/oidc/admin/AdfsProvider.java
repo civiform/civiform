@@ -1,4 +1,4 @@
-package auth.oidc;
+package auth.oidc.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

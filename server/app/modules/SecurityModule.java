@@ -15,8 +15,7 @@ import auth.FakeAdminClient;
 import auth.GuestClient;
 import auth.ProfileFactory;
 import auth.Roles;
-import auth.oidc.AdfsProvider;
-import auth.oidc.IdcsOidcProvider;
+import auth.oidc.admin.AdfsProvider;
 import auth.saml.LoginRadiusProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -134,7 +133,7 @@ public class SecurityModule extends AbstractModule {
       default:
         bind(IndirectClient.class)
             .annotatedWith(ApplicantAuthClient.class)
-            .toProvider(IdcsOidcProvider.class);
+            .toProvider(IdcsProvider.class);
     }
   }
 
