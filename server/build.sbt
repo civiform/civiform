@@ -25,7 +25,7 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.4.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.204",
+      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.205",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.5.1",
