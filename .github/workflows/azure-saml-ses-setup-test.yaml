@@ -41,6 +41,7 @@ jobs:
           export CUSTOM_HOSTNAME=""
           export STAGING_HOSTNAME=""
           export AZURE_RESOURCE_GROUP="civiformprober"
+          export CIVIFORM_APPLICANT_AUTH_PROTOCOL="oidc"
           export KEY_VAULT_NAME="civiformproberkv"
           export SAML_KEYSTORE_ACCOUNT_NAME="proberkeystore"
           cloud/shared/bin/setup "--tag=${LATEST_SNAPSHOT_TAG}"
