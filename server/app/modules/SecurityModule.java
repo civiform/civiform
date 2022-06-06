@@ -16,6 +16,7 @@ import auth.GuestClient;
 import auth.ProfileFactory;
 import auth.Roles;
 import auth.oidc.admin.AdfsProvider;
+import auth.oidc.applicant.IdcsProvider;
 import auth.saml.LoginRadiusProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
