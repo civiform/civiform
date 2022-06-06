@@ -32,15 +32,15 @@ public class ProfileView extends BaseHtmlView {
         .getBundle()
         .setTitle("Profile View - CiviForm")
         .addMainContent(
-            div(h1(profile.getClientName())),
-            div(h1(String.format("Profile ID: %s", profile.getId())).withId("profile-id")),
-            div(h1(text("Applicant ID: "), applicantIdTag)),
-            div(h1("Profile Roles")),
-            div(span(profile.getRoles().toString())),
-            div(h1("Applicant Data JSON")),
-            div(span(applicant.getApplicantData().asJsonString())),
-            div(h1("Applicant Email Address (if present)")),
-            div(span(applicant.getAccount().getEmailAddress())))
+            h1(profile.getClientName()),
+            h1(String.format("Profile ID: %s", profile.getId())).withId("profile-id"),
+            h1(text("Applicant ID: "), applicantIdTag),
+            h1("Profile Roles"),
+            span(profile.getRoles().toString()),
+            h1("Applicant Data JSON"),
+            span(applicant.getApplicantData().asJsonString()),
+            h1("Applicant Email Address (if present)"),
+            span(applicant.getAccount().getEmailAddress()))
         .render();
   }
 
@@ -48,7 +48,7 @@ public class ProfileView extends BaseHtmlView {
     return layout
         .getBundle()
         .setTitle("Not logged in - CiviForm")
-        .addMainContent(div(h1("no profile detected")))
+        .addMainContent(h1("no profile detected"))
         .render();
   }
 }
