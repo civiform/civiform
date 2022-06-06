@@ -288,8 +288,15 @@ public class ProgramIndexView extends BaseHtmlView {
               .setHref(program.externalLink())
               .asAnchorText()
               .withTarget("_blank")
-              .with(Icons.svg(Icons.OPEN_IN_NEW_PATH, 24, 24)
-                  .withClasses(Styles.FLEX_SHRINK_0, Styles.H_5, Styles.W_AUTO, Styles.INLINE, Styles.ML_1, Styles.ALIGN_TEXT_TOP));
+              .with(
+                  Icons.svg(Icons.OPEN_IN_NEW_PATH, 24, 24)
+                      .withClasses(
+                          Styles.FLEX_SHRINK_0,
+                          Styles.H_5,
+                          Styles.W_AUTO,
+                          Styles.INLINE,
+                          Styles.ML_1,
+                          Styles.ALIGN_TEXT_TOP));
 
       programData.with(externalLink);
     }

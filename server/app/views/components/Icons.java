@@ -156,7 +156,8 @@ public class Icons {
           + " M13.5,14h-4l1-4h4L13.5,14z";
 
   // External Links
-  public static final String OPEN_IN_NEW_PATH = "M19 19H5V5H12V3H5C3.89 3 3 3.9 3 5V19C3 20.1 3.89 21 5 21H19C20.1"
+  public static final String OPEN_IN_NEW_PATH =
+      "M19 19H5V5H12V3H5C3.89 3 3 3.9 3 5V19C3 20.1 3.89 21 5 21H19C20.1"
           + " 21 21 20.1 21 19V12H19V19ZM14 3V5H17.59L7.76 14.83L9.17 16.24L19 6.41V10H21V3H14Z";
 
   public static final String PLUS_SVG_PATH =

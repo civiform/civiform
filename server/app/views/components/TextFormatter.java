@@ -88,9 +88,17 @@ public class TextFormatter {
               .withClasses(BaseStyles.TEXT_SEATTLE_BLUE);
 
       if (urlOpenAction == UrlOpenAction.NewTab) {
-        urlTag.withTarget("_blank")
-                .with(Icons.svg(Icons.OPEN_IN_NEW_PATH, 24, 24)
-                        .withClasses(Styles.FLEX_SHRINK_0, Styles.H_5, Styles.W_AUTO, Styles.INLINE, Styles.ML_1, Styles.ALIGN_TEXT_TOP));
+        urlTag
+            .withTarget("_blank")
+            .with(
+                Icons.svg(Icons.OPEN_IN_NEW_PATH, 24, 24)
+                    .withClasses(
+                        Styles.FLEX_SHRINK_0,
+                        Styles.H_5,
+                        Styles.W_AUTO,
+                        Styles.INLINE,
+                        Styles.ML_1,
+                        Styles.ALIGN_TEXT_TOP));
       }
       contentBuilder.add(urlTag);
 
@@ -131,7 +139,8 @@ public class TextFormatter {
         i = next - 1;
         builder.add(buildList(items));
       } else if (line.length() > 0) {
-        ImmutableList<DomContent> lineContent = TextFormatter.createLinksAndEscapeText(line, UrlOpenAction.NewTab);
+        ImmutableList<DomContent> lineContent =
+            TextFormatter.createLinksAndEscapeText(line, UrlOpenAction.NewTab);
         builder.add(div().with(lineContent));
       } else if (preserveEmptyLines) {
         builder.add(div().withClasses(Styles.H_6));
