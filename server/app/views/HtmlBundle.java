@@ -35,11 +35,11 @@ public class HtmlBundle {
   private String language = "en";
 
   private ArrayList<String> bodyStyles = new ArrayList<>();
-  private ArrayList<DivTag> footerContent = new ArrayList<>();
+  private ArrayList<Tag> footerContent = new ArrayList<>();
   private ArrayList<ScriptTag> footerScripts = new ArrayList<>();
   private ArrayList<String> footerStyles = new ArrayList<>();
   private ArrayList<ScriptTag> headScripts = new ArrayList<>();
-  private ArrayList<NavTag> headerContent = new ArrayList<>();
+  private ArrayList<Tag> headerContent = new ArrayList<>();
   private ArrayList<String> headerStyles = new ArrayList<>();
   private ArrayList<Tag> mainContent = new ArrayList<>();
   private ArrayList<String> mainStyles = new ArrayList<>();
@@ -53,7 +53,7 @@ public class HtmlBundle {
     return this;
   }
 
-  public HtmlBundle addFooterContent(DivTag... tags) {
+  public HtmlBundle addFooterContent(Tag... tags) {
     footerContent.addAll(Arrays.asList(tags));
     return this;
   }
@@ -73,7 +73,7 @@ public class HtmlBundle {
     return this;
   }
 
-  public HtmlBundle addHeaderContent(NavTag... tags) {
+  public HtmlBundle addHeaderContent(Tag... tags) {
     headerContent.addAll(Arrays.asList(tags));
     return this;
   }
