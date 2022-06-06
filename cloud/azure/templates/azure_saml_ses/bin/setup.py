@@ -30,8 +30,10 @@ class Setup(SetupTemplate):
         self._setup_keyvault()
         print(" - Setting up the SAML keystore")
         self._setup_saml_keystore()
-        print(" - Setting up SES")
-        self._setup_ses()
+        # prober doesn't need SES
+        if not self.config.is_prober():
+            print(" - Setting up SES")
+            self._setup_ses()
         # Only run in dev mode
         if not self.config.use_backend_config():
             self._make_backend_override()
