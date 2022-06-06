@@ -40,7 +40,7 @@ public class ProgramEditView extends BaseHtmlView {
     String title = String.format("Edit program: %s", program.adminName());
 
     HtmlBundle htmlBundle =
-        layout.getBundle().setTitle(title).addMainContent(div(renderHeader(title)), div(formTag));
+        layout.getBundle().setTitle(title).addMainContent(renderHeader(title), formTag);
 
     return layout.renderCentered(htmlBundle);
   }
@@ -55,7 +55,7 @@ public class ProgramEditView extends BaseHtmlView {
     String title = String.format("Edit program: %s", program.getAdminName());
 
     HtmlBundle htmlBundle =
-        layout.getBundle().setTitle(title).addMainContent(div(renderHeader(title)), div(formTag));
+        layout.getBundle().setTitle(title).addMainContent(renderHeader(title), formTag);
 
     if (!message.isEmpty()) {
       htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));

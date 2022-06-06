@@ -67,7 +67,7 @@ public class QuestionTranslationView extends TranslationFormView {
             .getBundle()
             .setTitle(title)
             .addMainContent(
-                div(renderHeader(title)), renderLanguageLinks(question.getId(), locale), div(form));
+                renderHeader(title), renderLanguageLinks(question.getId(), locale), form);
     errors.ifPresent(s -> htmlBundle.addToastMessages(ToastMessage.error(s).setDismissible(false)));
 
     return layout.renderCentered(htmlBundle);

@@ -38,7 +38,7 @@ public final class ProgramNewOneView extends BaseHtmlView {
                 .attr("action", controllers.admin.routes.AdminProgramController.create().url()));
 
     HtmlBundle htmlBundle =
-        layout.getBundle().setTitle(title).addMainContent(div(renderHeader(title)), contentDiv);
+        layout.getBundle().setTitle(title).addMainContent(renderHeader(title), contentDiv);
 
     if (!message.isEmpty()) {
       htmlBundle.addToastMessages(ToastMessage.error(message).setDismissible(false));

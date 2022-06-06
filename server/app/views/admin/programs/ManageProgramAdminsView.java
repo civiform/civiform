@@ -66,9 +66,9 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             .getBundle()
             .setTitle(fullTitle)
             .addMainContent(
-                div(renderHeader(fullTitle)),
-                div(adminEmailTemplate()),
-                div(renderAdminForm(request, program.id(), existingAdminEmails)));
+                renderHeader(fullTitle),
+                adminEmailTemplate(),
+                renderAdminForm(request, program.id(), existingAdminEmails));
 
     if (!message.isEmpty()) {
       htmlBundle.addToastMessages(

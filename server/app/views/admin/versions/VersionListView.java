@@ -73,11 +73,11 @@ public class VersionListView extends BaseHtmlView {
             .getBundle()
             .setTitle(title)
             .addMainContent(
-                div(renderHeader("Current Versions")),
+                renderHeader("Current Versions"),
                 renderVersionCard(draftVersion),
                 renderVersionCard(activeVersion),
-                div(renderHeader("Older Versions")),
-                div(renderPastVersionTable(olderVersions, request)));
+                renderHeader("Older Versions"),
+                renderPastVersionTable(olderVersions, request));
 
     return layout.renderCentered(htmlBundle);
   }

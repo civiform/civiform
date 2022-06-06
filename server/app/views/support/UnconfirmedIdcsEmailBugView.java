@@ -25,7 +25,7 @@ public class UnconfirmedIdcsEmailBugView extends BaseHtmlView {
     HtmlBundle bundle = applicantLayout.getBundle();
 
     bundle.setTitle("Please contact support");
-    bundle.addMainContent(div(h1("Please contact support")));
+    bundle.addMainContent(h1("Please contact support"));
     bundle.addMainContent(
         div(
             "Thank you for logging into CiviForm to apply for City of Seattle programs."
@@ -33,7 +33,7 @@ public class UnconfirmedIdcsEmailBugView extends BaseHtmlView {
                 + " try again. We apologize for the inconvenience. If you have any questions or"
                 + " concerns, please email civiform@seattle.gov or call (206) 256-5515."));
     bundle.addMainContent(
-        div(a("Return to login page").withHref("/").withClasses(BaseStyles.ADMIN_LOGIN)));
+        a("Return to login page").withHref("/").withClasses(BaseStyles.ADMIN_LOGIN));
 
     return applicantLayout.render(bundle);
   }
