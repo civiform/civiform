@@ -118,12 +118,20 @@ data "aws_iam_policy_document" "civiform_files_policy" {
     }
   }
   statement {
-    actions   = ["s3:GetObject", "s3:PutObject"]
+    actions   = ["s3:*"]
     effect    = "Allow"
     resources = ["${aws_s3_bucket.civiform_files_s3.arn}/*"]
     principals {
       type        = "AWS"
       identifiers = [aws_iam_role.apprunner_instance_role.arn]
     }
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "civiform_files_ownership" {
+  bucket = aws_s3_bucket.civiform_files_s3.id
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
   }
 }
