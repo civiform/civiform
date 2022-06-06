@@ -76,8 +76,7 @@ public class QuestionBank {
   }
 
   private FormTag questionBankPanel() {
-    FormTag questionForm =
-        form(this.csrfTag).withMethod(HttpVerbs.POST).withAction(questionAction);
+    FormTag questionForm = form(this.csrfTag).withMethod(HttpVerbs.POST).withAction(questionAction);
 
     DivTag innerDiv = div().withClasses(Styles.SHADOW_LG, Styles.OVERFLOW_HIDDEN, Styles.H_FULL);
     questionForm.with(innerDiv);

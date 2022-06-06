@@ -20,7 +20,6 @@ import j2html.tags.specialized.HtmlTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.MainTag;
 import j2html.tags.specialized.MetaTag;
-import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.ArrayList;
 import java.util.Arrays;
