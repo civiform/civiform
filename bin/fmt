@@ -9,5 +9,4 @@ bin/pull-image --formatter
 
 docker run --rm -it \
   -v "$(pwd):/code" \
-  -u $(id -u ${USER}):$(id -g ${USER}) \
   civiform/formatter:latest
