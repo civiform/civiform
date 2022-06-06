@@ -38,8 +38,8 @@ jobs:
           source civiform_config.sh
           export CIVIFORM_MODE="prober"
           export FAKE_AUTH="true"
-          export CUSTOM_HOSTNAME="''"
-          export STAGING_HOSTNAME="''"
+          unset CUSTOM_HOSTNAME
+          unset STAGING_HOSTNAME
           cloud/shared/bin/setup "--tag=${LATEST_SNAPSHOT_TAG}"
           exit $?
       - name: Run prober test
