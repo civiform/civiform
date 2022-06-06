@@ -59,7 +59,7 @@ public class LanguageSelector {
                 Styles.ROUNDED_FULL,
                 Styles.BG_WHITE,
                 Styles.TEXT_XS,
-                StyleUtils.focus(BaseStyles.BORDER_SEATTLE_BLUE));
+                StyleUtils.focus(Styles.BORDER_SEATTLE_BLUE));
 
     // An option consists of the language (localized to that language - for example,
     // this would display 'Español' for es-US), and the value is the ISO code.
@@ -96,7 +96,7 @@ public class LanguageSelector {
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,
                 BaseStyles.RADIO_LABEL,
-                checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
+                checked ? Styles.BORDER_SEATTLE_BLUE : "")
             .with(
                 input()
                     .withType("radio")

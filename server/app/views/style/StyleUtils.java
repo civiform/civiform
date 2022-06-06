@@ -18,17 +18,25 @@ public class StyleUtils {
   public static String RESPONSIVE_XL = "xl";
   public static String RESPONSIVE_2XL = "2xl";
 
-  public static String applyUtilityClass(String utility, String... styles) {
+  private static String applyUtilityClass(String utility, String... styles) {
     return applyUtilityClass(utility, Stream.of(styles));
   }
 
-  public static String applyUtilityClass(String utility, ImmutableList<String> styles) {
+  private static String applyUtilityClass(String utility, ImmutableList<String> styles) {
     return applyUtilityClass(utility, styles.stream());
   }
 
-  public static String applyUtilityClass(String utility, Stream<String> styles) {
+  private static String applyUtilityClass(String utility, Stream<String> styles) {
     return styles.map(entry -> utility + ":" + entry).collect(Collectors.joining(" "));
   }
+
+  public static String joinStyles(String... styles) {
+    return String.join(" ", styles);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Style prefixes for media queries
+  /////////////////////////////////////////////////////////////////////////////////////////////////
 
   public static String disabled(ImmutableList<String> styles) {
     return applyUtilityClass(DISABLED, styles);
@@ -108,9 +116,5 @@ public class StyleUtils {
 
   public static String responsive2XLarge(ImmutableList<String> styles) {
     return applyUtilityClass(RESPONSIVE_2XL, styles);
-  }
-
-  public static String joinStyles(String... styles) {
-    return String.join(" ", styles);
   }
 }

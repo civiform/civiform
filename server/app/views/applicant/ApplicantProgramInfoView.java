@@ -22,7 +22,6 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.TextFormatter;
 import views.style.ApplicantStyles;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
@@ -69,7 +68,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
     ContainerTag titleDiv =
         h2().withText(programTitle)
             .withClasses(
-                BaseStyles.TEXT_SEATTLE_BLUE,
+                Styles.TEXT_SEATTLE_BLUE,
                 Styles.TEXT_2XL,
                 Styles.FONT_SEMIBOLD,
                 Styles.TEXT_GRAY_700,

@@ -60,8 +60,7 @@ public class Accordion {
                 Styles.DURATION_300,
                 Styles.ABSOLUTE,
                 Styles.TOP_1,
-                Styles.RIGHT_2,
-                Styles.TRANSFORM);
+                Styles.RIGHT_2);
     titleContainer.with(titleDiv, accordionButton);
 
     ContainerTag contentContainer =

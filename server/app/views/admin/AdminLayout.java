@@ -15,7 +15,6 @@ import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.ViewUtils;
 import views.style.AdminStyles;
-import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
@@ -118,10 +117,10 @@ public class AdminLayout extends BaseHtmlLayout {
 
     String activeNavStyle =
         StyleUtils.joinStyles(
-            BaseStyles.TEXT_SEATTLE_BLUE,
+            Styles.TEXT_SEATTLE_BLUE,
             Styles.FONT_MEDIUM,
             Styles.BORDER_B_2,
-            BaseStyles.BORDER_SEATTLE_BLUE);
+            Styles.BORDER_SEATTLE_BLUE);
 
     return adminHeader
         .with(

@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# DOC: Regenerate tailwind stylesheets.
+# DOC: Regenerate tailwind stylesheets. Pass --minify to this script to minify the tailwind.css file in dev.
 
 source bin/lib.sh
 
@@ -13,4 +13,4 @@ docker run -it --rm \
   civiform-dev \
   tailwindcss build \
   -i ./app/assets/stylesheets/styles.css \
-  -o ./public/stylesheets/tailwind.css
+  -o ./public/stylesheets/tailwind.css $@

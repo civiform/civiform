@@ -32,7 +32,6 @@ import views.admin.AdminLayoutFactory;
 import views.components.Icons;
 import views.components.Modal;
 import views.style.AdminStyles;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -170,14 +169,14 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
       List<Tag> extraActions,
       String... extraStyles) {
     String badgeText = "Draft";
-    String badgeBGColor = BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
-    String badgeFillColor = BaseStyles.TEXT_CIVIFORM_PURPLE;
+    String badgeBGColor = Styles.BG_CIVIFORM_PURPLE_LIGHT;
+    String badgeFillColor = Styles.TEXT_CIVIFORM_PURPLE;
     String updatedPrefix = "Edited on ";
     Optional<Instant> updatedTime = program.lastModifiedTime();
     if (isActive) {
       badgeText = "Active";
-      badgeBGColor = BaseStyles.BG_CIVIFORM_GREEN_LIGHT;
-      badgeFillColor = BaseStyles.TEXT_CIVIFORM_GREEN;
+      badgeBGColor = Styles.BG_CIVIFORM_GREEN_LIGHT;
+      badgeFillColor = Styles.TEXT_CIVIFORM_GREEN;
       updatedPrefix = "Published on ";
     }
 

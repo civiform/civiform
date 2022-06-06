@@ -33,7 +33,6 @@ import views.components.LinkElement;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
-import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -326,7 +325,7 @@ public class ProgramIndexView extends BaseHtmlView {
                 .withClasses(
                     Styles.BLOCK,
                     Styles.FLEX_SHRINK_0,
-                    BaseStyles.BG_SEATTLE_BLUE,
+                    Styles.BG_SEATTLE_BLUE,
                     Styles.ROUNDED_T_XL,
                     Styles.H_3))
         .with(programData)

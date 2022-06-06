@@ -2,7 +2,7 @@ package views.style;
 
 /** Styles for applicant pages. */
 public final class ApplicantStyles {
-  public static final String BODY_BG_COLOR = BaseStyles.BG_CIVIFORM_WHITE;
+  public static final String BODY_BG_COLOR = Styles.BG_CIVIFORM_WHITE;
   public static final String BODY =
       StyleUtils.joinStyles(BODY_BG_COLOR, Styles.H_FULL, Styles.W_FULL);
 
@@ -18,7 +18,7 @@ public final class ApplicantStyles {
 
   public static final String PROGRAM_INDEX_TOP_CONTENT =
       StyleUtils.joinStyles(
-          BaseStyles.BG_SEATTLE_BLUE, Styles.TEXT_WHITE, Styles.TEXT_CENTER, Styles.W_FULL);
+          Styles.BG_SEATTLE_BLUE, Styles.TEXT_WHITE, Styles.TEXT_CENTER, Styles.W_FULL);
 
   public static final String CIVIFORM_LOGO =
       StyleUtils.joinStyles(
@@ -34,7 +34,7 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(
           Styles.TEXT_3XL, Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.MT_8, Styles.MB_4);
   public static final String H2_PROGRAM_TITLE =
-      StyleUtils.joinStyles(BaseStyles.TEXT_SEATTLE_BLUE, Styles.TEXT_LG, Styles.FONT_BOLD);
+      StyleUtils.joinStyles(Styles.TEXT_SEATTLE_BLUE, Styles.TEXT_LG, Styles.FONT_BOLD);
 
   public static final String PROGRAM_CARDS_SUBTITLE =
       StyleUtils.joinStyles(Styles.MY_4, Styles.TEXT_LG);
@@ -75,20 +75,16 @@ public final class ApplicantStyles {
    */
   private static final String BUTTON_BASE =
       StyleUtils.joinStyles(
-          Styles.BLOCK,
-          Styles.PY_2,
-          Styles.TEXT_CENTER,
-          Styles.ROUNDED_FULL,
-          Styles.BORDER,
-          Styles.BORDER_TRANSPARENT);
+          Styles.BLOCK, Styles.PY_2, Styles.TEXT_CENTER, Styles.ROUNDED_FULL, Styles.BORDER);
 
   /** Base styles for buttons with a solid background color. */
   private static final String BUTTON_BASE_SOLID =
       StyleUtils.joinStyles(
           BUTTON_BASE,
-          BaseStyles.BG_SEATTLE_BLUE,
+          Styles.BG_SEATTLE_BLUE,
           Styles.TEXT_WHITE,
           Styles.ROUNDED_FULL,
+          Styles.BORDER_TRANSPARENT,
           StyleUtils.hover(Styles.BG_BLUE_700),
           StyleUtils.disabled(Styles.BG_GRAY_200, Styles.TEXT_GRAY_400));
 
@@ -101,9 +97,9 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(
           BUTTON_BASE,
           Styles.BG_TRANSPARENT,
-          BaseStyles.TEXT_SEATTLE_BLUE,
+          Styles.TEXT_SEATTLE_BLUE,
           Styles.BORDER,
-          BaseStyles.BORDER_SEATTLE_BLUE,
+          Styles.BORDER_SEATTLE_BLUE,
           StyleUtils.hover(Styles.BG_BLUE_100));
 
   private static final String BUTTON_BASE_OUTLINE_UPPERCASE =
@@ -121,8 +117,7 @@ public final class ApplicantStyles {
   public static final String BUTTON_REVIEW =
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_UPPERCASE, Styles.TEXT_BASE);
   public static final String BUTTON_SUBMIT_APPLICATION =
-      StyleUtils.joinStyles(
-          BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MX_AUTO, Styles.BG_GREEN_700);
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, Styles.TEXT_BASE, Styles.MX_AUTO);
   public static final String BUTTON_ENUMERATOR_ADD_ENTITY =
       StyleUtils.joinStyles(
           BUTTON_BASE_SOLID, Styles.TEXT_BASE, Styles.NORMAL_CASE, Styles.FONT_NORMAL, Styles.PX_4);

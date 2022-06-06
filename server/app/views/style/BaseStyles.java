@@ -15,21 +15,6 @@ public final class BaseStyles {
   public static final String TABLE_CELL_STYLES = StyleUtils.joinStyles(Styles.PX_4, Styles.PY_2);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
-  // CiviForm color classes
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-
-  public static final String BG_CIVIFORM_WHITE = "bg-civiform-white";
-
-  public static final String BG_SEATTLE_BLUE = "bg-seattle-blue";
-  public static final String TEXT_SEATTLE_BLUE = "text-seattle-blue";
-  public static final String BORDER_SEATTLE_BLUE = "border-seattle-blue";
-
-  public static final String TEXT_CIVIFORM_GREEN = "text-civiform-green";
-  public static final String BG_CIVIFORM_GREEN_LIGHT = "bg-civiform-green-light";
-  public static final String TEXT_CIVIFORM_PURPLE = "text-civiform-purple";
-  public static final String BG_CIVIFORM_PURPLE_LIGHT = "bg-civiform-purple-light";
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
   // Form style classes
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +44,7 @@ public final class BaseStyles {
           Styles.ROUNDED_LG,
           Styles.W_FULL,
           Styles.BG_WHITE,
-          StyleUtils.focus(BORDER_SEATTLE_BLUE),
+          StyleUtils.focus(Styles.BORDER_SEATTLE_BLUE),
           Styles.TEXT_BLACK,
           Styles.TEXT_LG);
 
@@ -114,7 +99,6 @@ public final class BaseStyles {
           Styles.ABSOLUTE,
           Styles.LEFT_1_2,
           Styles.TOP_1_2,
-          Styles.TRANSFORM,
           Styles._TRANSLATE_X_1_2,
           Styles._TRANSLATE_Y_1_2,
           Styles.ROUNDED_XL,
@@ -139,7 +123,7 @@ public final class BaseStyles {
           Styles.PY_2,
           Styles.TEXT_CENTER,
           Styles.ROUNDED_FULL,
-          BaseStyles.BG_SEATTLE_BLUE,
+          Styles.BG_SEATTLE_BLUE,
           StyleUtils.hover(Styles.BG_BLUE_700),
           Styles.TEXT_WHITE,
           Styles.ROUNDED_FULL);
@@ -165,7 +149,6 @@ public final class BaseStyles {
           Styles.ABSOLUTE,
           Styles.LEFT_1_2,
           Styles.TOP_1_2,
-          Styles.TRANSFORM,
           Styles._TRANSLATE_X_1_2,
           Styles._TRANSLATE_Y_1_2,
           Styles.BORDER,

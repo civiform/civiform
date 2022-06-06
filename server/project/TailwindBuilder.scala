@@ -12,6 +12,14 @@ object TailwindBuilder {
         process = Option(
           Process("npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css", base).run()
         )
+
+        process = Option(
+          Process("npx grunt dist", base).run()
+        )
+
+        process = Option(
+          Process("npx grunt watch", base).run()
+        )
       }
 
       override def afterStopped() = {

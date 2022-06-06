@@ -273,7 +273,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
             : "";
     Tag moveDown =
         div()
-            .withClasses(Styles.TRANSFORM, Styles.ROTATE_180, moveDownInvisible)
+            .withClasses(Styles.ROTATE_180, moveDownInvisible)
             .with(
                 form()
                     .withAction(moveDownFormAction)

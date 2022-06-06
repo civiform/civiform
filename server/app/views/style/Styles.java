@@ -9,6 +9,49 @@ package views.style;
  * restart bin/run-dev.
  */
 public final class Styles {
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // IMPORTANT: This file is parsed with regex when trimming unused styles
+  //
+  // See style/README.md
+  //
+  // Code constraints:
+  //
+  // - Though it is legal in Java to have a field declaration span multiple lines, doing so
+  //   here will break the ability to parse those specific lines
+  //
+  // - Field variables can only have uppercase letters, numbers, and underscores. In other words,
+  //   they should match /[0-9A-Z_]+/
+  //   otherwise they will not show up in the final CSS style file without modifying the parse code
+  //
+  //   See JAVA_STYLES_KEY_REGEX in tailwind.config.js
+  //
+  // - Field variable values can have lowercase letters, numbers, dash, period, and forward slash
+  //   In other words, they need to match the regular expression /[a-z0-9-/.]+/
+  //   otherwise they will not show up in the final CSS style file without modifying the parse code
+  //
+  //   See  in tailwin.config.js
+  //
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // CiviForm color classes
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  public static final String BG_CIVIFORM_WHITE = "bg-civiform-white";
+  public static final String BG_SEATTLE_BLUE = "bg-seattle-blue";
+  public static final String TEXT_SEATTLE_BLUE = "text-seattle-blue";
+  public static final String BORDER_SEATTLE_BLUE = "border-seattle-blue";
+
+  public static final String TEXT_CIVIFORM_GREEN = "text-civiform-green";
+  public static final String BG_CIVIFORM_GREEN_LIGHT = "bg-civiform-green-light";
+  public static final String TEXT_CIVIFORM_PURPLE = "text-civiform-purple";
+  public static final String BG_CIVIFORM_PURPLE_LIGHT = "bg-civiform-purple-light";
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Tailwind classes
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
   public static final String CONTAINER = "container";
   public static final String SR_ONLY = "sr-only";
   public static final String NOT_SR_ONLY = "not-sr-only";
@@ -2401,8 +2444,6 @@ public final class Styles {
   public static final String RING_OPACITY_90 = "ring-opacity-90";
   public static final String RING_OPACITY_95 = "ring-opacity-95";
   public static final String RING_OPACITY_100 = "ring-opacity-100";
-  public static final String FILL_CURRENT = "fill-current";
-  public static final String STROKE_CURRENT = "stroke-current";
   public static final String STROKE_0 = "stroke-0";
   public static final String STROKE_1 = "stroke-1";
   public static final String STROKE_2 = "stroke-2";
@@ -2512,8 +2553,8 @@ public final class Styles {
   public static final String TEXT_OPACITY_95 = "text-opacity-95";
   public static final String TEXT_OPACITY_100 = "text-opacity-100";
   public static final String TRUNCATE = "truncate";
-  public static final String OVERFLOW_ELLIPSIS = "overflow-ellipsis";
-  public static final String OVERFLOW_CLIP = "overflow-clip";
+  public static final String TEXT_ELLIPSIS = "text-ellipsis";
+  public static final String TEXT_CLIP = "text-clip";
   public static final String ITALIC = "italic";
   public static final String NOT_ITALIC = "not-italic";
   public static final String UPPERCASE = "uppercase";
