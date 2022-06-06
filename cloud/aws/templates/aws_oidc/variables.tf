@@ -55,7 +55,7 @@ variable "civic_entity_small_logo_url" {
 variable "vpc_name" {
   type        = string
   description = "Name of the VPC for the database"
-  default = "civiform_rds_vpc"
+  default     = "civiform_rds_vpc"
 }
 
 variable "vpc_cidr" {
@@ -81,15 +81,21 @@ variable "auto_scaling_config" {
   }
 }
 
-variable "postgres_sku_name" {
+variable "postgress_name" {
   type        = string
-  description = "The sku name for postgres server"
+  description = "Name for Postress DB"
+  default     = "civiform"
+}
+
+variable "postgres_instance_class" {
+  type        = string
+  description = "The instance class for postgres server"
   default     = "db.t3.micro"
 }
 
 variable "postgres_storage_gb" {
   type        = number
-  description = "The mb of storage for postgres instance"
+  description = "The gb of storage for postgres instance"
   default     = 5
 }
 

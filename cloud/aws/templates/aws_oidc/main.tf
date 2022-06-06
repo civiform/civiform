@@ -67,8 +67,8 @@ resource "aws_db_parameter_group" "civiform" {
 }
 
 resource "aws_db_instance" "civiform" {
-  identifier              = "civiform"
-  instance_class          = var.postgres_sku_name
+  identifier              = var.postgress_name
+  instance_class          = var.postgres_instance_class
   allocated_storage       = var.postgres_storage_gb
   engine                  = "postgres"
   engine_version          = "12"
