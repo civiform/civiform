@@ -162,7 +162,6 @@ public class FieldWithLabel {
 
   /** Sets a valueless attribute. */
   public FieldWithLabel setAttribute(String attribute) {
-    // this.fieldTag.attr(attribute, null);
     this.attributesListBuilder.add(attribute);
     return this;
   }
