@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import auth.oidc.InvalidOidcProfileException;
 import auth.oidc.applicant.IdcsProfileAdapter;
 import auth.saml.InvalidSamlProfileException;
-import auth.saml.SamlCiviFormProfileAdapter;
+import auth.saml.SamlProfileAdapter;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.util.Optional;
@@ -25,7 +25,7 @@ import repository.UserRepository;
 public class ProfileMergeTest extends ResetPostgres {
 
   private IdcsProfileAdapter idcsProfileAdapter;
-  private SamlCiviFormProfileAdapter samlProfileAdapter;
+  private SamlProfileAdapter samlProfileAdapter;
   private ProfileFactory profileFactory;
   private Database database;
 
@@ -50,7 +50,7 @@ public class ProfileMergeTest extends ResetPostgres {
               }
             });
     samlProfileAdapter =
-        new SamlCiviFormProfileAdapter(
+        new SamlProfileAdapter(
             /* configuration = */ null,
             /* client = */ null,
             profileFactory,

@@ -29,16 +29,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
-public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
+public class SamlProfileAdapter extends AuthenticatorProfileCreator {
 
-  private static final Logger logger = LoggerFactory.getLogger(SamlCiviFormProfileAdapter.class);
+  private static final Logger logger = LoggerFactory.getLogger(SamlProfileAdapter.class);
   protected final CiviFormProfileMerger civiFormProfileMerger;
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
   protected final SAML2Configuration saml2Configuration;
   protected SAML2Client saml2Client;
 
-  public SamlCiviFormProfileAdapter(
+  public SamlProfileAdapter(
       SAML2Configuration configuration,
       SAML2Client client,
       ProfileFactory profileFactory,
@@ -80,7 +80,8 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
 
   @VisibleForTesting
   Optional<Applicant> getExistingApplicant(SAML2Profile profile) {
-    // authority_id is used as the unique stable key for users. This is unique and stable per
+    // authority_id is used as the unique stable key for users. This is unique and
+    // stable per
     // authentication provider.
     String authorityId =
         getAuthorityId(profile)
@@ -101,12 +102,14 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     // We combine the two to create the unique authority id.
     String issuer = profile.getIssuerEntityID();
     // Subject in SAML is the NameID. It identifies the specific user in the issuer.
-    // Pac4j treats the subject as special, and you can't simply ask for the "sub" claim.
+    // Pac4j treats the subject as special, and you can't simply ask for the "sub"
+    // claim.
     String subject = profile.getId();
     if (issuer == null || subject == null) {
       return Optional.empty();
     }
-    // This string format can never change. It is the unique ID for OIDC based account.
+    // This string format can never change. It is the unique ID for OIDC based
+    // account.
     return Optional.of(String.format("Issuer: %s NameID: %s", issuer, subject));
   }
 
@@ -135,7 +138,8 @@ public class SamlCiviFormProfileAdapter extends AuthenticatorProfileCreator {
     final String firstName = saml2Profile.getAttribute("first_name", String.class);
     final boolean hasFirstName = !Strings.isNullOrEmpty(firstName);
 
-    // TODO: figure out why the last_name attribute is being returned as an ArrayList.
+    // TODO: figure out why the last_name attribute is being returned as an
+    // ArrayList.
     final String lastName = extractAttributeFromArrayList(saml2Profile, "last_name");
     final boolean hasLastName = !Strings.isNullOrEmpty(lastName);
 
