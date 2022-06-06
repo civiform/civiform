@@ -35,6 +35,7 @@ class AzureUploadController {
     const options = {
       blobHTTPHeaders: {
         blobContentType: azureUploadProps.file.type,
+        blobContentDisposition: `attachment; filename=${azureUploadProps.file.name}`,
       },
     }
 
