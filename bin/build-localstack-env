@@ -1,0 +1,27 @@
+#! /usr/bin/env bash
+
+# DOC: Build a new docker image for running the localstack container
+# (with our customizations for https://github.com/seattle-uat/civiform/issues/2639)
+# and optionally push to Docker Hub if PUSH_BROWSER_TEST_IMAGE is set to anything.
+
+source bin/lib.sh
+
+# TODO(#2639): Add this once a version has been pushed
+# to Docker Hub.
+# --cache-from civiform/civiform-localstack:latest \
+docker build \
+  -t civiform-localstack:latest \
+  -f localstack/localstack.Dockerfile \
+  --build-arg BUILDKIT_INLINE_CACHE=1 \
+  localstack/
+
+if [[ "$PUSH_BROWSER_TEST_IMAGE" ]]; then
+  docker::do_dockerhub_login
+
+  # push the new image to the Docker Hub registry
+  docker tag \
+    civiform-localstack:latest \
+    docker.io/civiform/civiform-localstack:latest
+
+  docker push docker.io/civiform/civiform-localstack:latest
+fi

@@ -3,8 +3,7 @@ version: '3.4'
 
 services:
   localstack:
-    # TODO(clouser): Point this to a civiform-tagged image.
-    image: clouser-localstack
+    image: localstack/localstack
     profiles: [ "aws", "emulator" ]
     expose:
       - "4566"

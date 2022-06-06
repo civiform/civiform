@@ -39,6 +39,7 @@ services:
     tty: true        # docker run -t
 
   localstack:
+    image: civiform-localstack
     ports:
       - 4566:4566
   azurite:
