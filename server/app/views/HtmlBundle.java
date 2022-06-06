@@ -10,7 +10,7 @@ import static j2html.TagCreator.html;
 import static j2html.TagCreator.main;
 import static j2html.TagCreator.title;
 
-import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 
 import j2html.tags.specialized.BodyTag;
 import j2html.tags.specialized.DivTag;
@@ -42,7 +42,7 @@ public class HtmlBundle {
   private ArrayList<ScriptTag> headScripts = new ArrayList<>();
   private ArrayList<NavTag> headerContent = new ArrayList<>();
   private ArrayList<String> headerStyles = new ArrayList<>();
-  private ArrayList<ContainerTag> mainContent = new ArrayList<>();
+  private ArrayList<Tag> mainContent = new ArrayList<>();
   private ArrayList<String> mainStyles = new ArrayList<>();
   private ArrayList<MetaTag> metadata = new ArrayList<>();
   private ArrayList<Modal> modals = new ArrayList<>();
@@ -84,7 +84,7 @@ public class HtmlBundle {
     return this;
   }
 
-  public HtmlBundle addMainContent(ContainerTag... tags) {
+  public HtmlBundle addMainContent(Tag... tags) {
     mainContent.addAll(Arrays.asList(tags));
     return this;
   }
