@@ -6,7 +6,7 @@ terraform {
     }
     azurerm = {
       source  = "azurerm"
-      version = "3.7.0"
+      version = "3.8.0"
     }
     random = {}
   }

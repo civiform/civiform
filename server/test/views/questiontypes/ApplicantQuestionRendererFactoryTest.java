@@ -14,6 +14,7 @@ import play.i18n.Messages;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionType;
 import views.AwsFileUploadViewStrategy;
+import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 @RunWith(JUnitParamsRunner.class)
 public class ApplicantQuestionRendererFactoryTest {
@@ -21,7 +22,10 @@ public class ApplicantQuestionRendererFactoryTest {
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
   private final ApplicantQuestionRendererParams params =
-      ApplicantQuestionRendererParams.sample(messages);
+      ApplicantQuestionRendererParams.builder()
+          .setMessages(messages)
+          .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
+          .build();
 
   @Test
   @Parameters(source = QuestionType.class)
