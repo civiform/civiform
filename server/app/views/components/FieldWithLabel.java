@@ -90,24 +90,6 @@ public class FieldWithLabel {
     return new FieldWithLabel().setTagTypeInput().setFieldType("email");
   }
 
-  protected FieldWithLabel setTagTypeInput() {
-    tagType = "input";
-    return this;
-  }
-
-  protected FieldWithLabel setTagTypeTextarea() {
-    tagType = "textarea";
-    return this;
-  }
-
-  protected boolean isTagTypeInput() {
-    return tagType.equals("input");
-  }
-
-  protected boolean isTagTypeTextarea() {
-    return tagType.equals("textarea");
-  }
-
   /** Add a reference class from {@link views.style.ReferenceClasses} to this element. */
   public FieldWithLabel addReferenceClass(String referenceClass) {
     referenceClassesBuilder.add(referenceClass);
@@ -303,28 +285,6 @@ public class FieldWithLabel {
     return applyAttrsAndGenLabel(fieldTag);
   }
 
-  /**
-   * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
-   * attribute.
-   */
-  protected DivTag getCheckboxContainer(Tag fieldTag) {
-    if (this.checked) {
-      fieldTag.attr("checked");
-    }
-
-    return div()
-        .with(
-            label()
-                .withClasses(
-                    StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
-                    BaseStyles.CHECKBOX_LABEL,
-                    BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
-                    labelText.isEmpty() ? Styles.W_MIN : "")
-                .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
-                .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
-                .withText(this.labelText));
-  }
-
   private DivTag buildFieldErrorsTag(String id) {
     String[] referenceClasses =
         referenceClassesBuilder.build().stream().map(ref -> ref + "-error").toArray(String[]::new);
@@ -421,5 +381,45 @@ public class FieldWithLabel {
     LabelTag labelTag = genLabelTag();
 
     return wrapInDivTag(fieldTag, labelTag, fieldErrorsId);
+  }
+
+  /**
+   * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
+   * attribute.
+   */
+  protected DivTag getCheckboxContainer(Tag fieldTag) {
+    if (this.checked) {
+      fieldTag.attr("checked");
+    }
+
+    return div()
+        .with(
+            label()
+                .withClasses(
+                    StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
+                    BaseStyles.CHECKBOX_LABEL,
+                    BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
+                    labelText.isEmpty() ? Styles.W_MIN : "")
+                .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
+                .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
+                .withText(this.labelText));
+  }
+
+  protected FieldWithLabel setTagTypeInput() {
+    tagType = "input";
+    return this;
+  }
+
+  protected FieldWithLabel setTagTypeTextarea() {
+    tagType = "textarea";
+    return this;
+  }
+
+  protected boolean isTagTypeInput() {
+    return tagType.equals("input");
+  }
+
+  protected boolean isTagTypeTextarea() {
+    return tagType.equals("textarea");
   }
 }
