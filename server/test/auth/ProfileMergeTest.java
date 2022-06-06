@@ -3,8 +3,8 @@ package auth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import auth.oidc.IdcsProfileAdapter;
 import auth.oidc.InvalidOidcProfileException;
+import auth.oidc.applicant.IdcsProfileAdapter;
 import auth.saml.InvalidSamlProfileException;
 import auth.saml.SamlCiviFormProfileAdapter;
 import io.ebean.DB;

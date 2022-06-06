@@ -16,9 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
-public class LoginRadiusSamlProvider implements Provider<SAML2Client> {
+public class LoginRadiusProvider implements Provider<SAML2Client> {
 
-  private static final Logger logger = LoggerFactory.getLogger(LoginRadiusSamlProvider.class);
+  private static final Logger logger = LoggerFactory.getLogger(LoginRadiusProvider.class);
 
   private final Config configuration;
   private final ProfileFactory profileFactory;
@@ -26,7 +26,7 @@ public class LoginRadiusSamlProvider implements Provider<SAML2Client> {
   private final String baseUrl;
 
   @Inject
-  public LoginRadiusSamlProvider(
+  public LoginRadiusProvider(
       Config configuration,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {
