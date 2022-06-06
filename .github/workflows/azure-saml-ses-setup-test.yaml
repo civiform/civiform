@@ -40,7 +40,6 @@ jobs:
           export FAKE_AUTH="true"
           export CUSTOM_HOSTNAME=""
           export STAGING_HOSTNAME=""
-          export TF_LOG="DEBUG"
           cloud/shared/bin/setup "--tag=${LATEST_SNAPSHOT_TAG}"
           exit $?
       - name: Run prober test
