@@ -10,6 +10,7 @@ terraform {
     key            = "tfstate/terraform.tfstate"
     region         = "us-east-1"
     dynamodb_table = "civiform-backend-lock-table"
+    encrypt        = true
   }
 }
 
