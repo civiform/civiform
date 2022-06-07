@@ -40,6 +40,11 @@ services:
     tty: true        # docker run -t
 
   localstack:
+    # Overrides the localstack image used to work around
+    # https://github.com/seattle-uat/civiform/issues/2639.
+    # Note that we don't set this in the base template
+    # since it's not necessary for CI / browser test runs.
+    image: civiform-localstack
     ports:
       - 4566:4566
   azurite:

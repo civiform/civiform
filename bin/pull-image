@@ -22,7 +22,9 @@ function pull_all() {
   # Explicitly pull dev dependencies.
   docker pull -q docker.io/civiform/oidc-provider:latest
   docker pull -q mcr.microsoft.com/azure-storage/azurite
-  docker pull -q localstack/localstack
+
+  docker pull -q civiform/civiform-localstack:latest
+  docker tag civiform/civiform-localstack:latest civiform-localstack
 
   docker pull -q civiform/formatter:latest
   docker pull -q civiform/civiform-browser-test:latest
@@ -41,7 +43,8 @@ while [ "${1:-}" != "" ]; do
       ;;
 
     "--localstack")
-      docker pull -q localstack/localstack
+      docker pull -q civiform/civiform-localstack:latest
+      docker tag civiform/civiform-localstack:latest civiform-localstack
       exit 0
       ;;
 
