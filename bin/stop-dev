@@ -7,6 +7,6 @@ docker::set_project_name_dev
 set +e # errors are OK
 
 echo "Stopping local civiform container"
-${DOCKER_COMPOSE_DEV} stop
+docker::compose_dev stop
 echo "Stopping local civiform shell container"
 docker::stop_shell_container

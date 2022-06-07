@@ -1,27 +1,38 @@
 #! /usr/bin/env bash
 
-readonly DOCKER_COMPOSE="docker compose \
-  -f docker-compose.yml"
+function docker::compose() {
+  docker compose -f docker-compose.yml "$@"
+}
 
-readonly DOCKER_COMPOSE_DEV="docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.dev.yml"
+function docker::compose_dev() {
+  docker compose -f docker-compose.yml -f docker-compose.dev.yml "$@"
+}
 
-readonly DOCKER_COMPOSE_UNIT_TEST="docker compose \
-  -f test-support/unit-test-docker-compose.yml"
+function docker::compose_unit_test() {
+  docker compose -f test-support/unit-test-docker-compose.yml "$@"
+}
 
-readonly DOCKER_COMPOSE_UNIT_TEST_DEV="docker compose \
-  -f test-support/unit-test-docker-compose.yml \
-  -f test-support/unit-test-docker-compose.dev.yml "
+function docker::compose_unit_test_dev() {
+  docker compose \
+    -f test-support/unit-test-docker-compose.yml \
+    -f test-support/unit-test-docker-compose.dev.yml \
+    "$@"
+}
 
-readonly DOCKER_COMPOSE_BROWSER_TEST="docker compose \
-  -f docker-compose.yml \
-  -f browser-test/browser-test-compose.yml"
+function docker::compose_browser_test() {
+  docker compose \
+    -f docker-compose.yml \
+    -f browser-test/browser-test-compose.yml \
+    "$@"
+}
 
-readonly DOCKER_COMPOSE_BROWSER_TEST_DEV="docker compose \
-  -f docker-compose.yml \
-  -f browser-test/browser-test-compose.yml \
-  -f browser-test/browser-test-compose.dev.yml"
+function docker::compose_browser_test_dev() {
+  docker compose \
+    -f docker-compose.yml \
+    -f browser-test/browser-test-compose.yml \
+    -f browser-test/browser-test-compose.dev.yml \
+    "$@"
+}
 
 #######################################
 # Starts a bash shell in the civiform-shell container

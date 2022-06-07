@@ -5,4 +5,4 @@
 source bin/lib.sh
 docker::set_project_name_browser_tests
 
-${DOCKER_COMPOSE_BROWSER_TEST} down --remove-orphans
+docker::compose_browser_test down --remove-orphans

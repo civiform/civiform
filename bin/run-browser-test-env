@@ -75,46 +75,59 @@ EOF
   done
 }
 
+#######################################
+# Chooses the dev or ci versions of broswertest
+# Arguments:
+#   1: if true, use developer mode
+#   2: the rest of the arguments for compose
+#######################################
+function compose_browser_test() {
+  local use_dev="$1"
+  shift 1
+  if [ "$use_dev" = true ]; then
+    echo "docker::compose_browser_test_dev $@"
+    docker::compose_browser_test_dev "$@"
+  else
+    echo "docker::compose_browser_test $@"
+    docker::compose_browser_test "$@"
+  fi
+}
+
 set_args "$@"
 
 bin/pull-image
 
-base_compose_command="${DOCKER_COMPOSE_BROWSER_TEST}"
+use_dev=false
 if truth::is_disabled continuous_integration; then
   # If not running in CI, load the dev addition to the browser test compose
   # this mounts the local SBT cache directories for faster subsequent builds.
-  base_compose_command="${DOCKER_COMPOSE_BROWSER_TEST_DEV}"
+  use_dev=true
+  echo "Using dev mode"
 fi
-compose_command="${base_compose_command} --profile ${cloud_provider} up"
-
-readonly START_EMULATOR_COMMAND="${compose_command} -d ${emulator}"
-echo "Running docker compose to start the cloud emulator:"
-echo "  ${START_EMULATOR_COMMAND}"
 
 # Start emulator.
-eval "${START_EMULATOR_COMMAND}"
+echo "Running docker compose to start the cloud emulator"
+compose_browser_test "${use_dev}" --profile ${cloud_provider} up -d ${emulator}
 
 # Wait until the emulator is running.
+echo "Waiting for the cloud emulator"
 "bin/${emulator}/wait" "${emulator_url}"
-
-if truth::is_enabled continuous_integration; then
-  compose_command="${compose_command} > .dockerlogs 2>&1 &"
-fi
 
 # localstack emulator is also required for Azurite. This should only run for
 # Azure browser tests.
 if truth::is_enabled both_emulators; then
   echo "Staring localstack emulator as well"
-  second_compose_command="${base_compose_command} --profile aws up -d localstack"
   if truth::is_enabled continuous_integration; then
-    second_compose_command="${second_compose_command} > .dockerlogs 2>&1 &"
+    compose_browser_test "${use_dev}" --profile aws up -d localstack >.dockerlogs 2>&1 &
+  else
+    compose_browser_test "${use_dev}" --profile aws up -d localstack
   fi
-  echo "  ${second_compose_command}"
-  eval "${second_compose_command}"
 fi
 
-echo "Running docker compose to start the CiviForm environment:"
-echo "  ${compose_command}"
-
 # Start everything else.
-eval "${compose_command}"
+echo "Running docker compose to start the CiviForm environment:"
+if truth::is_enabled continuous_integration; then
+  compose_browser_test "${use_dev}" --profile ${cloud_provider} up >.dockerlogs  2>&1 &
+else
+  compose_browser_test "${use_dev}" --profile ${cloud_provider} up
+fi

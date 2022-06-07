@@ -4,7 +4,6 @@
 
 source bin/lib.sh
 docker::set_project_name_dev
-readonly COMPOSE_CMD="${DOCKER_COMPOSE_DEV}"
 
 # The servers.json file is used to automatically configure
 # our database to show up in the pgadmin server tree
@@ -24,11 +23,11 @@ tee /tmp/servers.json >/dev/null <<EOT
 }
 EOT
 
-${COMPOSE_CMD} \
+docker::compose_dev \
   up db \
   -d
 
-${COMPOSE_CMD} \
+docker::compose_dev \
   --profile pgadmin \
   up pgadmin \
   --wait \

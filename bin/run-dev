@@ -4,7 +4,6 @@
 
 source bin/lib.sh
 docker::set_project_name_dev
-readonly COMPOSE_CMD="${DOCKER_COMPOSE_DEV}"
 
 # Default to using Localstack emulator.
 emulators::set_localstack_emulator_vars
@@ -43,7 +42,7 @@ set_args "$@"
 bin/pull-image
 
 # Start containers w/ specified emulator.
-${COMPOSE_CMD} --profile "${cloud_provider}" \
+docker::compose_dev --profile "${cloud_provider}" \
   up \
   -d "${emulator}"
 
@@ -51,7 +50,7 @@ ${COMPOSE_CMD} --profile "${cloud_provider}" \
 "bin/${emulator}/wait"
 
 # Attach to the civiform container.
-${COMPOSE_CMD} up \
+docker::compose_dev up \
   --wait \
   -d
 
