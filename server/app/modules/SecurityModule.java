@@ -15,9 +15,9 @@ import auth.FakeAdminClient;
 import auth.GuestClient;
 import auth.ProfileFactory;
 import auth.Roles;
-import auth.oidc.AdOidcProvider;
-import auth.oidc.IdcsOidcProvider;
-import auth.saml.LoginRadiusSamlProvider;
+import auth.oidc.admin.AdfsProvider;
+import auth.oidc.applicant.IdcsProvider;
+import auth.saml.LoginRadiusProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
@@ -118,9 +118,7 @@ public class SecurityModule extends AbstractModule {
   private void bindAdminIdpProvider() {
     // Currently the only supported admin auth provider. As we add other admin auth providers,
     // this can be converted into a switch statement.
-    bind(IndirectClient.class)
-        .annotatedWith(AdminAuthClient.class)
-        .toProvider(AdOidcProvider.class);
+    bind(IndirectClient.class).annotatedWith(AdminAuthClient.class).toProvider(AdfsProvider.class);
   }
 
   private void bindApplicantIdpProvider(String applicantIdpName) {
@@ -130,13 +128,13 @@ public class SecurityModule extends AbstractModule {
       case LOGIN_RADIUS_APPLICANT:
         bind(IndirectClient.class)
             .annotatedWith(ApplicantAuthClient.class)
-            .toProvider(LoginRadiusSamlProvider.class);
+            .toProvider(LoginRadiusProvider.class);
         break;
       case IDCS_APPLICANT:
       default:
         bind(IndirectClient.class)
             .annotatedWith(ApplicantAuthClient.class)
-            .toProvider(IdcsOidcProvider.class);
+            .toProvider(IdcsProvider.class);
     }
   }
 

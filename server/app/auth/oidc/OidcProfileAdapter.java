@@ -32,14 +32,14 @@ import repository.UserRepository;
  * - pac4j doesn't come with it. It's abstract because AD and IDCS need slightly different
  * implementations of the two abstract methods.
  */
-public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
+public abstract class OidcProfileAdapter extends OidcProfileCreator {
 
-  private static final Logger logger = LoggerFactory.getLogger(OidcCiviFormProfileAdapter.class);
+  private static final Logger logger = LoggerFactory.getLogger(OidcProfileAdapter.class);
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
   protected final CiviFormProfileMerger civiFormProfileMerger;
 
-  public OidcCiviFormProfileAdapter(
+  public OidcProfileAdapter(
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
@@ -58,20 +58,24 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
   protected abstract void adaptForRole(CiviFormProfile profile, ImmutableSet<Roles> roles);
 
   protected Optional<String> getAuthorityId(OidcProfile oidcProfile) {
-    // In OIDC the user is uniquely identified by the iss(user) and sub(ject) claims.
+    // In OIDC the user is uniquely identified by the iss(user) and sub(ject)
+    // claims.
     // https://openid.net/specs/openid-connect-core-1_0.html#IDToken
     //
     // We combine the two to create the unique authority id.
-    // Issuer is necessary as CiviForm has different authentication systems for Admins and
+    // Issuer is necessary as CiviForm has different authentication systems for
+    // Admins and
     // Applicants.
     String issuer = oidcProfile.getAttribute("iss", String.class);
     // Subject identifies the specific user in the issuer.
-    // Pac4j treats the subject as special, and you can't simply ask for the "sub" claim.
+    // Pac4j treats the subject as special, and you can't simply ask for the "sub"
+    // claim.
     String subject = oidcProfile.getId();
     if (issuer == null || subject == null) {
       return Optional.empty();
     }
-    // This string format can never change. It is the unique ID for OIDC based account.
+    // This string format can never change. It is the unique ID for OIDC based
+    // account.
     return Optional.of(String.format("iss: %s sub: %s", issuer, subject));
   }
 
@@ -150,9 +154,11 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
   @VisibleForTesting
   Optional<Applicant> getExistingApplicant(OidcProfile profile) {
     // User keying changed in March 2022 and is reflected and managed here.
-    // Originally users were keyed on their email address, however this is not guaranteed to be a
+    // Originally users were keyed on their email address, however this is not
+    // guaranteed to be a
     // unique stable ID.
-    // In March 2022 the code base changed to using authority_id which is unique and stable per
+    // In March 2022 the code base changed to using authority_id which is unique and
+    // stable per
     // authentication provider.
 
     String authorityId =
@@ -171,7 +177,8 @@ public abstract class OidcCiviFormProfileAdapter extends OidcProfileCreator {
       return applicantOpt;
     }
 
-    // For pre-existing deployments before April 2022, users will exist without an authority ID and
+    // For pre-existing deployments before April 2022, users will exist without an
+    // authority ID and
     // will be keyed on their email.
     String userEmail = profile.getAttribute(emailAttributeName(), String.class);
     logger.debug("Looking up user using email {}", userEmail);

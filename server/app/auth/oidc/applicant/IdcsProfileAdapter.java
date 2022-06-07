@@ -1,9 +1,10 @@
-package auth.oidc;
+package auth.oidc.applicant;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.Roles;
+import auth.oidc.OidcProfileAdapter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.nimbusds.jose.util.DefaultResourceRetriever;
@@ -30,7 +31,7 @@ import repository.UserRepository;
  * This class takes an existing CiviForm profile and augments it with the information from an IDCS
  * profile.
  */
-public class IdcsProfileAdapter extends OidcCiviFormProfileAdapter {
+public class IdcsProfileAdapter extends OidcProfileAdapter {
   public static final Logger logger = LoggerFactory.getLogger(IdcsProfileAdapter.class);
 
   public IdcsProfileAdapter(
@@ -93,17 +94,19 @@ public class IdcsProfileAdapter extends OidcCiviFormProfileAdapter {
 
   @Override
   protected void possiblyModifyConfigBasedOnCred(Credentials cred) {
-    // The flow here is not immediately intuitive.  IDCS is to blame.  :)
+    // The flow here is not immediately intuitive. IDCS is to blame. :)
     // The normal flow for authenticating a user is "get user's data via POST.
     // Decode it, check that it is signed, and use it." IDCS throws in an extra step
-    // here - in order to get IDCS's signing key, we need to provide an Authorization
+    // here - in order to get IDCS's signing key, we need to provide an
+    // Authorization
     // header proving that we have a good reason to use the signing key.
     // Pac4j and associated tools are not well-suited to that, because it's
-    // a deviation from the OIDC spec.  Pac4j has the concept of a "resource retriever",
-    // which is used to fetch things like the signing key.  They are meant to
+    // a deviation from the OIDC spec. Pac4j has the concept of a "resource
+    // retriever",
+    // which is used to fetch things like the signing key. They are meant to
     // be configured once and used indefinitely, but we only get the access
-    // token at the time the user logs in and is redirected to our server.  So,
-    // we need to slighly abuse the notion of a resource retriever.  We create our
+    // token at the time the user logs in and is redirected to our server. So,
+    // we need to slighly abuse the notion of a resource retriever. We create our
     // own modified resource retriever which has access to the required token.
 
     if (((OidcCredentials) cred).getAccessToken() == null) {

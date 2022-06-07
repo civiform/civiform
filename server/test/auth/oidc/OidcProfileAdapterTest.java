@@ -3,6 +3,7 @@ package auth.oidc;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.ProfileFactory;
+import auth.oidc.applicant.IdcsProfileAdapter;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import javax.inject.Provider;
@@ -14,13 +15,13 @@ import org.pac4j.oidc.profile.OidcProfile;
 import repository.ResetPostgres;
 import repository.UserRepository;
 
-public class OidcCiviFormProfileAdapterTest extends ResetPostgres {
+public class OidcProfileAdapterTest extends ResetPostgres {
   private static final String EMAIL = "foo@bar.com";
   private static final String ISSUER = "issuer";
   private static final String SUBJECT = "subject";
   private static final String AUTHORITY_ID = "iss: issuer sub: subject";
 
-  private OidcCiviFormProfileAdapter oidcProfileAdapter;
+  private OidcProfileAdapter oidcProfileAdapter;
   private ProfileFactory profileFactory;
 
   @Before
