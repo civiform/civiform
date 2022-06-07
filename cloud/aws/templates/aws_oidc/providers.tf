@@ -7,7 +7,7 @@ terraform {
   }
   backend "s3" {
     bucket         = "civiform-aws-staging-log-bucket"
-    key            = "tfstate/"
+    key            = "tfstate/terraform.tfstate"
     region         = "us-east-1"
     dynamodb_table = "civiform-backend-lock-table"
   }
