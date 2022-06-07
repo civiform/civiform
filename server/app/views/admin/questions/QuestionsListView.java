@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.*;
 
 import com.google.inject.Inject;
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -218,7 +219,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private DivTag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
+  private ContainerTag<?> renderQuestionEditLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
     return new LinkElement()
         .setId("edit-question-link-" + definition.getId())
@@ -228,7 +229,8 @@ public final class QuestionsListView extends BaseHtmlView {
         .asAnchorText();
   }
 
-  private DivTag renderQuestionTranslationLink(QuestionDefinition definition, String linkText) {
+  private ContainerTag<?> renderQuestionTranslationLink(
+      QuestionDefinition definition, String linkText) {
     String link =
         controllers.admin.routes.AdminQuestionTranslationsController.edit(
                 definition.getId(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
@@ -241,7 +243,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .asAnchorText();
   }
 
-  private DivTag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
+  private ContainerTag<?> renderQuestionViewLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.show(definition.getId()).url();
     return new LinkElement()
         .setId("view-question-link-" + definition.getId())

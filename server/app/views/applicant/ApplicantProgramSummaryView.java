@@ -194,7 +194,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                       applicantId, data.programId(), data.blockId())
                   .url();
 
-      DivTag editAction =
+      ContainerTag<?> editAction =
           new LinkElement()
               .setHref(editLink)
               .setText(editText)

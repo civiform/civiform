@@ -12,6 +12,7 @@ import auth.CiviFormProfile;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
@@ -248,7 +249,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     throw new IllegalArgumentException("Program neither active nor draft.");
   }
 
-  DivTag maybeRenderEditLink(
+  ContainerTag maybeRenderEditLink(
       Optional<ProgramDefinition> draftProgram,
       Optional<ProgramDefinition> activeProgram,
       Http.Request request) {
@@ -285,7 +286,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
   }
 
-  private DivTag maybeRenderManageTranslationsLink(Optional<ProgramDefinition> draftProgram) {
+  private ContainerTag<?> maybeRenderManageTranslationsLink(
+      Optional<ProgramDefinition> draftProgram) {
     if (draftProgram.isPresent()) {
       String linkText = "Manage Translations →";
       String linkDestination =
@@ -303,7 +305,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
   }
 
-  private DivTag maybeRenderViewApplicationsLink(
+  private ContainerTag<?> maybeRenderViewApplicationsLink(
       Optional<ProgramDefinition> activeProgram, Optional<CiviFormProfile> userProfile) {
     // TODO(#2582): Determine if this has N+1 query behavior and fix if
     // necessary.
@@ -331,7 +333,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return div();
   }
 
-  private DivTag renderManageProgramAdminsLink(
+  private ContainerTag<?> renderManageProgramAdminsLink(
       Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
     // We can use the ID of either, since we just add the program name and not ID to indicate
     // ownership.

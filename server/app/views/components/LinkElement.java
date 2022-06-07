@@ -11,6 +11,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import play.filters.csrf.CSRF;
@@ -108,28 +109,12 @@ public class LinkElement {
     return this;
   }
 
-  public DivTag asAnchorText() {
-    DivTag tag;
-    ATag atag;
-    if (Strings.isNullOrEmpty(href)) {
-      tag = div(text);
-      tag.withClasses(DEFAULT_LINK_STYLES, styles);
-      if (doesOpenInNewTab) {
-        tag.attr("target", "_blank");
-      }
-      return tag;
-    } else {
-      atag = a(text).withHref(href);
-      atag.withId(id).withClasses(DEFAULT_LINK_STYLES, styles);
-      if (doesOpenInNewTab) {
-        atag.attr("target", "_blank");
-      }
-      atag.attr("href", href);
-
-      tag = div().with(atag);
-
-      return tag;
-    }
+  public ATag asAnchorText() {
+    ATag tag = a(text);
+    return tag.withCondId(!Strings.isNullOrEmpty(id), id)
+        .withCondHref(!Strings.isNullOrEmpty(href), href)
+        .withCondTarget(doesOpenInNewTab, "_blank")
+        .withClasses(DEFAULT_LINK_STYLES, styles);
   }
 
   public DivTag asButton() {

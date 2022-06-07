@@ -14,6 +14,7 @@ import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
+import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -266,7 +267,7 @@ public class ProgramIndexView extends BaseHtmlView {
     String infoUrl =
         controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
             .url();
-    DivTag infoLink =
+    ContainerTag<?> infoLink =
         new LinkElement()
             .setId(baseId + "-info-link")
             .setStyles(Styles.BLOCK, Styles.MY_2, Styles.TEXT_SM, Styles.UNDERLINE)
@@ -282,14 +283,14 @@ public class ProgramIndexView extends BaseHtmlView {
 
     // Add external link if it is set.
     if (!program.externalLink().isEmpty()) {
-      DivTag externalLink =
+      ContainerTag<?> externalLink =
           new LinkElement()
               .setId(baseId + "-external-link")
               .setStyles(Styles.BLOCK, Styles.MY_2, Styles.TEXT_SM, Styles.UNDERLINE)
               .setText(messages.at(MessageKey.EXTERNAL_LINK.getKeyName()))
               .setHref(program.externalLink())
+              .opensInNewTab()
               .asAnchorText()
-              .withTarget("_blank")
               .with(
                   Icons.svg(Icons.OPEN_IN_NEW_PATH, 24, 24)
                       .withClasses(

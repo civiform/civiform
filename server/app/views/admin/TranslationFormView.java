@@ -6,6 +6,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 
 import com.google.common.collect.ImmutableList;
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
@@ -56,7 +57,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
    * Renders a single locale as the English version of the language (ex: es-US would read
    * "Spanish"). The text links to a form to translate the entity into that language.
    */
-  private DivTag renderLanguageLink(
+  private ContainerTag<?> renderLanguageLink(
       String linkDestination, Locale locale, boolean isCurrentlySelected) {
     LinkElement link =
         new LinkElement()
