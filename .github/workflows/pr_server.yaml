@@ -1,0 +1,21 @@
+name: pr_server
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - 'server/**'
+      - 'bin/**'
+      - 'browser-test/**'
+      - 'test-support/**'
+      - 'Dockerfile'
+      - 'prod.Dockerfile'
+      - '.github/workflows/**'
+
+permissions: read-all
+
+jobs:
+  run_all_tests:
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit

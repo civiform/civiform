@@ -1,10 +1,10 @@
 data "aws_route53_zone" "civiform" {
-  name         = "civiform.dev"
+  name         = var.custom_route_zone
   private_zone = false
 }
 
 resource "aws_route53_record" "civiform_domain_record" {
-  name    = "staging-aws"
+  name    = var.custom_subdomain
   zone_id = data.aws_route53_zone.civiform.zone_id
   type    = "CNAME"
   records = [aws_apprunner_custom_domain_association.civiform_domain.dns_target]
@@ -33,5 +33,5 @@ resource "aws_route53_record" "civiform_domain_validation" {
 
 resource "aws_apprunner_custom_domain_association" "civiform_domain" {
   domain_name = "staging-aws.civiform.dev"
-  service_arn = aws_apprunner_service.civiform_dev.arn
+  service_arn = var.apprunner_arn
 }

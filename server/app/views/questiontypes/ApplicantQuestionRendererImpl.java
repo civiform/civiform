@@ -48,14 +48,18 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                 div()
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT)
-                    .with(TextFormatter.createLinksAndEscapeText(question.getQuestionText())))
+                    .with(
+                        TextFormatter.createLinksAndEscapeText(
+                            question.getQuestionText(), TextFormatter.UrlOpenAction.NewTab)))
             // Question help text
             .with(
                 div()
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)
-                    .with(TextFormatter.createLinksAndEscapeText(question.getQuestionHelpText())))
+                    .with(
+                        TextFormatter.createLinksAndEscapeText(
+                            question.getQuestionHelpText(), TextFormatter.UrlOpenAction.NewTab)))
             .withClasses(Styles.MB_4);
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;

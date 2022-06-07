@@ -6,9 +6,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
-import controllers.dev.AwsLocalstackFileStorageStrategy;
-import controllers.dev.AzuriteFileStorageStrategy;
-import controllers.dev.CloudEmulatorFileStorageStrategy;
 import play.Environment;
 import services.cloud.StorageClient;
 import services.cloud.StorageServiceName;
@@ -18,9 +15,6 @@ import views.BaseHtmlView;
 import views.FileUploadViewStrategy;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
-import views.dev.AwsStorageDevViewStrategy;
-import views.dev.AzureStorageDevViewStrategy;
-import views.dev.CloudStorageDevViewStrategy;
 
 /** Configures and initializes the classes for interacting with file storage backends. */
 public class CloudStorageModule extends AbstractModule {
@@ -68,14 +62,10 @@ public class CloudStorageModule extends AbstractModule {
 
     switch (storageServiceName) {
       case AZURE_BLOB:
-        bind(CloudEmulatorFileStorageStrategy.class).to(AzuriteFileStorageStrategy.class);
-        bind(CloudStorageDevViewStrategy.class).to(AzureStorageDevViewStrategy.class);
         bind(FileUploadViewStrategy.class).to(AzureFileUploadViewStrategy.class);
         return;
       case AWS_S3:
       default:
-        bind(CloudEmulatorFileStorageStrategy.class).to(AwsLocalstackFileStorageStrategy.class);
-        bind(CloudStorageDevViewStrategy.class).to(AwsStorageDevViewStrategy.class);
         bind(FileUploadViewStrategy.class).to(AwsFileUploadViewStrategy.class);
     }
   }

@@ -1,16 +1,15 @@
-name: pr_test
+name: pr_cloud
 
 on:
   pull_request:
-    branches: main
+    branches:
+      - 'main'
+    paths:
+      - 'cloud/**'
 
 permissions: read-all
 
 jobs:
-  run_all_tests:
-    uses: ./.github/workflows/tests.yml
-    secrets: inherit
-
   validate_deployment_variable_definitions:
     runs-on: ubuntu-latest
     steps:
@@ -32,6 +31,6 @@ jobs:
       - name: terraform validate azure_saml_ses
         run: terraform -chdir=cloud/azure/templates/azure_saml_ses validate
       - name: terraform init aws_oidc
-        run: terraform -chdir=cloud/aws/templates/aws_oidc init 
+        run: terraform -chdir=cloud/aws/templates/aws_oidc init
       - name: terraform validate aws_oidc
         run: terraform -chdir=cloud/aws/templates/aws_oidc validate
