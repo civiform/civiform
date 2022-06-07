@@ -52,6 +52,7 @@ jobs:
           export CIVIFORM_APPLICANT_AUTH_PROTOCOL="oidc"
           export KEY_VAULT_NAME="civiformproberkv"
           export SAML_KEYSTORE_ACCOUNT_NAME="proberkeystore"
+          export AWS_USERNAME="civiform-azure-prober"
           cloud/shared/bin/setup "--tag=${LATEST_SNAPSHOT_TAG}"
           exit $?
       - name: Run prober test
