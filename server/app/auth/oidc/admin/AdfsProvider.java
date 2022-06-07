@@ -1,4 +1,4 @@
-package auth.oidc;
+package auth.oidc.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -14,7 +14,7 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import repository.UserRepository;
 
 /** Provider class for the AD OIDC Client. */
-public class AdOidcProvider implements Provider<OidcClient> {
+public class AdfsProvider implements Provider<OidcClient> {
 
   private final Config configuration;
   private final String baseUrl;
@@ -22,7 +22,7 @@ public class AdOidcProvider implements Provider<OidcClient> {
   private final Provider<UserRepository> applicantRepositoryProvider;
 
   @Inject
-  public AdOidcProvider(
+  public AdfsProvider(
       Config configuration,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {

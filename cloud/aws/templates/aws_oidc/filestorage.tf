@@ -47,6 +47,6 @@ resource "aws_s3_bucket_ownership_controls" "civiform_files_ownership" {
 resource "aws_s3_bucket_logging" "civiform_files_logging" {
   bucket = aws_s3_bucket.civiform_files_s3.id
 
-  target_bucket = aws_s3_bucket.log_bucket.id
+  target_bucket = var.log_storage_bucket
   target_prefix = "file-access-log/"
 }

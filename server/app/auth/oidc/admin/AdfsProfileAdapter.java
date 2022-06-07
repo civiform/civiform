@@ -1,8 +1,9 @@
-package auth.oidc;
+package auth.oidc.admin;
 
 import auth.CiviFormProfile;
 import auth.ProfileFactory;
 import auth.Roles;
+import auth.oidc.OidcProfileAdapter;
 import com.google.common.collect.ImmutableSet;
 import com.nimbusds.jose.shaded.json.JSONArray;
 import com.typesafe.config.Config;
@@ -20,7 +21,7 @@ import repository.UserRepository;
  * profile. Right now this is only extracting the email address, since that is all that AD provides
  * right now.
  */
-public class AdfsProfileAdapter extends OidcCiviFormProfileAdapter {
+public class AdfsProfileAdapter extends OidcProfileAdapter {
   private static final Logger logger = LoggerFactory.getLogger(AdfsProfileAdapter.class);
 
   private final String adminGroupName;

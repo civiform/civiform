@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
@@ -561,6 +562,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
         .withId("block-edit-form")
         .with(
             div(
+                    h1("The following fields will only be visible to administrators")
+                        .withClasses("text-base", "mb-2"),
                     FieldWithLabel.input()
                         .setId("block-name-input")
                         .setFieldName("name")

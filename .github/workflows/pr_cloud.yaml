@@ -31,6 +31,6 @@ jobs:
       - name: terraform validate azure_saml_ses
         run: terraform -chdir=cloud/azure/templates/azure_saml_ses validate
       - name: terraform init aws_oidc
-        run: terraform -chdir=cloud/aws/templates/aws_oidc init
+        run: terraform -chdir=cloud/aws/templates/aws_oidc init -backend=false
       - name: terraform validate aws_oidc
         run: terraform -chdir=cloud/aws/templates/aws_oidc validate

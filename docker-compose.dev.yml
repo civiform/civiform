@@ -9,7 +9,8 @@ x-sbt-volumes:
     - ./server:/usr/src/server
     - target:/usr/src/server/target
     - node_modules-data:/usr/src/server/node_modules
-    - project-data:/usr/src/server/project
+    - project-data:/usr/src/server/project/project
+    - project-target-data:/usr/src/server/project/target
     - coursier-data:/root/.cache/coursier
     - sbt-data:/root/.sbt
     - ivy2-data:/root/.ivy2
@@ -39,6 +40,11 @@ services:
     tty: true        # docker run -t
 
   localstack:
+    # Overrides the localstack image used to work around
+    # https://github.com/seattle-uat/civiform/issues/2639.
+    # Note that we don't set this in the base template
+    # since it's not necessary for CI / browser test runs.
+    image: civiform-localstack
     ports:
       - 4566:4566
   azurite:
@@ -77,6 +83,8 @@ volumes:
   node_modules-data:
     driver: local
   project-data:
+    driver: local
+  project-target-data:
     driver: local
   coursier-data:
     driver: local
