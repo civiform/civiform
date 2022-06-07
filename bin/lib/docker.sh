@@ -1,17 +1,37 @@
 #! /usr/bin/env bash
 
+#######################################
+# Runs docker compose with the base settings.
+# Arguments:
+#   @: arguments for compose
+#######################################
 function docker::compose() {
   docker compose -f docker-compose.yml "$@"
 }
 
+#######################################
+# Runs docker compose with the local development settings.
+# Arguments:
+#   @: arguments for compose
+#######################################
 function docker::compose_dev() {
   docker compose -f docker-compose.yml -f docker-compose.dev.yml "$@"
 }
 
+#######################################
+# Runs docker compose with the unit test settings.
+# Arguments:
+#   @: arguments for compose
+#######################################
 function docker::compose_unit_test() {
   docker compose -f test-support/unit-test-docker-compose.yml "$@"
 }
 
+#######################################
+# Runs docker compose with the unit test local development settings.
+# Arguments:
+#   @: arguments for compose
+#######################################
 function docker::compose_unit_test_dev() {
   docker compose \
     -f test-support/unit-test-docker-compose.yml \
@@ -19,6 +39,11 @@ function docker::compose_unit_test_dev() {
     "$@"
 }
 
+#######################################
+# Runs docker compose with the browser test settings.
+# Arguments:
+#   @: arguments for compose
+#######################################
 function docker::compose_browser_test() {
   docker compose \
     -f docker-compose.yml \
@@ -26,6 +51,11 @@ function docker::compose_browser_test() {
     "$@"
 }
 
+#######################################
+# Runs docker compose with the browser test local development settings.
+# Arguments:
+#   @: arguments for compose
+#######################################
 function docker::compose_browser_test_dev() {
   docker compose \
     -f docker-compose.yml \
@@ -40,7 +70,7 @@ function docker::compose_browser_test_dev() {
 function docker::run_shell_container() {
   # Start up the "civiform" service with the shell overrides.
   # Use the compose project "civiform-shell".
-  ${DOCKER_COMPOSE_DEV} \
+  docker::compose_dev \
     --profile shell \
     up civiform-shell \
     --wait \
@@ -54,7 +84,7 @@ function docker::run_shell_container() {
 #######################################
 function docker::run_shell_command() {
   # Sends a command to the running "civiform-shell" container.
-  ${DOCKER_COMPOSE_DEV} \
+  docker::compose_dev \
     --profile shell \
     exec -it civiform-shell "$@"
 }
@@ -64,7 +94,7 @@ function docker::run_shell_command() {
 #######################################
 function docker::stop_shell_container() {
   # Stop the compose project "civiform-shell".
-  ${DOCKER_COMPOSE_DEV} \
+  docker::compose_dev \
     --profile shell \
     stop civiform-shell
 }
@@ -74,7 +104,7 @@ function docker::stop_shell_container() {
 #######################################
 function docker::remove_shell_container() {
   # Deletes the containers for the "civiform-shell" project.
-  ${DOCKER_COMPOSE_DEV} \
+  docker::compose_dev \
     --profile shell \
     down civiform-shell
 }
