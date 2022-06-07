@@ -95,7 +95,7 @@ class ConfigLoader:
     
     def use_auth(self):
         fake_auth = self.configs.get("FAKE_AUTH")
-        return fake_auth != "true"
+        return fake_auth != "false"
         
     def is_prober(self):
         civiform_mode = self.configs.get("CIVIFORM_MODE")

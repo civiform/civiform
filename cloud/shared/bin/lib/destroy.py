@@ -38,7 +38,7 @@ if not is_valid:
 template_dir = config_loader.get_template_dir()
 Destroy = load_class(template_dir)
 
-template_destroy = Destroy()
+template_destroy = Destroy(config_loader)
 template_destroy.pre_terraform_destroy()
 terraform_init_args = [
     "terraform",
