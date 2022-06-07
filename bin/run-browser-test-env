@@ -85,10 +85,10 @@ function compose_browser_test() {
   local use_dev_env="$1"
   shift 1
   if truth::is_enabled use_dev_env; then
-    echo "docker::compose_browser_test_dev $@"
+    echo "docker::compose_browser_test_dev" "$@"
     docker::compose_browser_test_dev "$@"
   else
-    echo "docker::compose_browser_test $@"
+    echo "docker::compose_browser_test" "$@"
     docker::compose_browser_test "$@"
   fi
 }
