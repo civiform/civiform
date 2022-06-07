@@ -55,14 +55,12 @@ jobs:
           export AWS_USERNAME="civiform-azure-prober"
           cloud/shared/bin/setup "--tag=${LATEST_SNAPSHOT_TAG}"
           result=$?
-          echo "BASE_URL=$(terraform output -raw app_service_default_hostname)" >> $GITHUB_ENV
+          export BASE_URL=$(terraform output -raw app_service_default_hostname)
           exit result
       - name: Run prober test
         run: |
           echo "${BASE_URL}"
           bin/run-prober
-        env:
-          BASE_URL: {{ env.BASE_URL }}
       - name: Run terraform destory
         run: |
-          cloud/shared/bin/destroy
+          cloud/shared/bin/destroy "--tag=${LATEST_SNAPSHOT_TAG}"
