@@ -35,19 +35,10 @@ resource "aws_apprunner_service" "civiform_dev" {
           STAGING_ADMIN_LIST     = var.staging_program_admin_notification_mailing_list
           STAGING_TI_LIST        = var.staging_ti_notification_mailing_list
           STAGING_APPLICANT_LIST = var.staging_applicant_notification_mailing_list
-
-          AD_GROUPS_ATTRIBUTE_NAME = var.ad_groups_attribute_name
-          ADFS_SECRET              = ""
-          ADFS_CLIENT_ID           = ""
-          ADFS_DISCOVERY_URI       = ""
-          ADFS_GLOBAL_ADMIN_GROUP  = var.adfs_admin_group
-          CIVIFORM_APPLICANT_IDP   = var.civiform_applicant_idp
-
-          ADFS_ADDITIONAL_SCOPES = ""
         }
       }
 
-      image_identifier      = "public.ecr.aws/t1q6b4h2/universal-application-tool:prod"
+      image_identifier      = "${var.civiform_image_repo}:${var.civiform_image_tag}"
       image_repository_type = "ECR_PUBLIC"
     }
 
@@ -76,16 +67,17 @@ resource "aws_db_parameter_group" "civiform" {
 }
 
 resource "aws_db_instance" "civiform" {
-  identifier             = "civiform"
-  instance_class         = "db.t3.micro"
-  allocated_storage      = 5
-  engine                 = "postgres"
-  engine_version         = "12"
-  username               = "db_user_name"
-  password               = "CHANGE_ME"
-  db_subnet_group_name   = aws_db_subnet_group.civiform.name
-  vpc_security_group_ids = [aws_security_group.rds.id]
-  parameter_group_name   = aws_db_parameter_group.civiform.name
-  publicly_accessible    = false
-  skip_final_snapshot    = true
+  identifier              = var.postgress_name
+  instance_class          = var.postgres_instance_class
+  allocated_storage       = var.postgres_storage_gb
+  engine                  = "postgres"
+  engine_version          = "12"
+  username                = "db_user_name"
+  password                = "CHANGE_ME"
+  db_subnet_group_name    = aws_db_subnet_group.civiform.name
+  vpc_security_group_ids  = [aws_security_group.rds.id]
+  parameter_group_name    = aws_db_parameter_group.civiform.name
+  publicly_accessible     = false
+  skip_final_snapshot     = true
+  backup_retention_period = var.postgres_backup_retention_days
 }
