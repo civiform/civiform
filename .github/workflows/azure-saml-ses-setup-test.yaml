@@ -63,4 +63,5 @@ jobs:
           bin/run-prober
       - name: Run terraform destory
         run: |
+          echo "$AZURE_RESOURCE_GROUP"
           cloud/shared/bin/destroy "--tag=${LATEST_SNAPSHOT_TAG}"
