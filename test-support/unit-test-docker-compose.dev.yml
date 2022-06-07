@@ -6,7 +6,8 @@ services:
       - ../server:/usr/src/server
       - target:/usr/src/server/target
       - node_modules-data:/usr/src/server/node_modules
-      - project-data:/usr/src/server/project
+      - project-data:/usr/src/server/project/project
+      - project-target-data:/usr/src/server/project/target
       - coursier-data:/root/.cache/coursier
       - sbt-data:/root/.sbt
       - ivy2-data:/root/.ivy2
@@ -16,6 +17,8 @@ volumes:
   node_modules-data:
     driver: local
   project-data:
+    driver: local
+  project-target-data:
     driver: local
   coursier-data:
     driver: local
