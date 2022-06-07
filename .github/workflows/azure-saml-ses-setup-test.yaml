@@ -63,4 +63,3 @@ jobs:
       - name: Run terraform destory
         run: |
           cloud/shared/bin/destroy
-          cloud/shared/bin/destroy

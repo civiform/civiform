@@ -15,7 +15,7 @@ function terraform::perform_destory() {
     -input=false \
     -out="${TERRAFORM_PLAN_OUT_FILE}" \
     -var-file="${TF_VAR_FILENAME}"
-    -destroy
+  -destroy
 
   if civiform_mode::is_test; then
     return 0
@@ -27,7 +27,6 @@ function terraform::perform_destory() {
     "${TERRAFORM_APPLY[@]}" "${TERRAFORM_PLAN_OUT_FILE}"
   fi
 }
-
 
 #######################################
 # Generates terraform variable files and runs terraform init and apply.
