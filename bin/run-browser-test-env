@@ -82,9 +82,9 @@ EOF
 #   2: the rest of the arguments for compose
 #######################################
 function compose_browser_test() {
-  local use_dev="$1"
+  local use_dev_env="$1"
   shift 1
-  if [ "$use_dev" = true ]; then
+  if truth::is_enabled use_dev_env; then
     echo "docker::compose_browser_test_dev $@"
     docker::compose_browser_test_dev "$@"
   else
@@ -97,12 +97,13 @@ set_args "$@"
 
 bin/pull-image
 
-use_dev=false
+truth::declare_var_false use_dev
+
 if truth::is_disabled continuous_integration; then
   # If not running in CI, load the dev addition to the browser test compose
   # this mounts the local SBT cache directories for faster subsequent builds.
-  use_dev=true
   echo "Using dev mode"
+  truth::enable use_dev
 fi
 
 # Start emulator.
