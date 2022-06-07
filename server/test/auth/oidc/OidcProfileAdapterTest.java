@@ -15,7 +15,7 @@ import org.pac4j.oidc.profile.OidcProfile;
 import repository.ResetPostgres;
 import repository.UserRepository;
 
-public class OidcCiviFormProfileAdapterTest extends ResetPostgres {
+public class OidcProfileAdapterTest extends ResetPostgres {
   private static final String EMAIL = "foo@bar.com";
   private static final String ISSUER = "issuer";
   private static final String SUBJECT = "subject";
