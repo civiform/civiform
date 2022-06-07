@@ -34,9 +34,9 @@ function pull_all() {
 }
 
 if [ $# -eq 0 ]; then
-    echo "Pull all"
-    pull_all
-    exit 0
+  echo "Pull all"
+  pull_all
+  exit 0
 fi
 
 while [ "${1:-}" != "" ]; do
