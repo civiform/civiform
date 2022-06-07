@@ -127,7 +127,7 @@ fi
 # Start everything else.
 echo "Running docker compose to start the CiviForm environment:"
 if truth::is_enabled continuous_integration; then
-  compose_browser_test "${use_dev}" --profile ${cloud_provider} up >.dockerlogs  2>&1 &
+  compose_browser_test "${use_dev}" --profile ${cloud_provider} up >.dockerlogs 2>&1 &
 else
   compose_browser_test "${use_dev}" --profile ${cloud_provider} up
 fi
