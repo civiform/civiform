@@ -54,12 +54,15 @@ jobs:
           export SAML_KEYSTORE_ACCOUNT_NAME="proberkeystore"
           export AWS_USERNAME="civiform-azure-prober"
           cloud/shared/bin/setup "--tag=${LATEST_SNAPSHOT_TAG}"
-          exit $?
+          result=$?
+          echo "BASE_URL=$(terraform output -raw app_service_default_hostname)" >> $GITHUB_ENV
+          exit result
       - name: Run prober test
         run: |
-          export BASE_URL=$(terraform output -raw app_service_default_hostname)
           echo "${BASE_URL}"
           bin/run-prober
+        env:
+          BASE_URL: {{ env.BASE_URL }}
       - name: Run terraform destory
         run: |
           cloud/shared/bin/destroy
