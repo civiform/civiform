@@ -16,6 +16,7 @@ echo "Making sure we're up to date with the latest dev... " \
   "set environment variable USE_LOCAL_CIVIFORM=1 to skip"
 
 function pull_all() {
+  echo "Pull all docker images"
   docker pull -q civiform/civiform-dev:latest
 
   # Explicitly pull dev dependencies. (in parallel)
@@ -33,8 +34,7 @@ function pull_all() {
   docker tag civiform/civiform-localstack:latest civiform-localstack
 }
 
-if [ $# -eq 0 ]; then
-  echo "Pull all"
+if [[ $# -eq 0 ]]; then
   pull_all
   exit 0
 fi
@@ -46,23 +46,28 @@ while [ "${1:-}" != "" ]; do
       ;;
 
     "--formatter")
+      echo "Pull formatter docker image"
       docker pull -q civiform/formatter:latest
       ;;
 
     "--localstack")
+      echo "Pull localstack docker image"
       docker pull -q civiform/civiform-localstack:latest
       docker tag civiform/civiform-localstack:latest civiform-localstack
       ;;
 
     "--azurite")
+      echo "Pull azurite docker image"
       docker pull -q mcr.microsoft.com/azure-storage/azurite
       ;;
 
     "--oidc-provider")
+      echo "Pull oidc-provider docker image"
       docker pull -q docker.io/civiform/oidc-provider:latest
       ;;
 
     "--browser-tests")
+      echo "Pull browser-tests docker image"
       docker pull -q civiform/civiform-browser-test:latest
       ;;
 
