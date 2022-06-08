@@ -111,6 +111,11 @@ public abstract class LocalizedStrings {
     return LocalizedStrings.create(ImmutableMap.of(k1, v1, k2, v2, k3, v3, k4, v4));
   }
 
+  /** Create localized strings with translation data from the provided map. */
+  public static LocalizedStrings of(ImmutableMap<Locale, String> translations) {
+    return LocalizedStrings.create(translations);
+  }
+
   /** Returns true if these localized strings have a translation for the locale. */
   public boolean hasTranslationFor(Locale locale) {
     return translations().containsKey(locale);
