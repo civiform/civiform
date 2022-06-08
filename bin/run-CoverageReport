@@ -1,0 +1,16 @@
+#! /usr/bin/env bash
+
+# DOC: Run the Java test suite in Docker.
+
+source bin/lib.sh
+docker::set_project_name_unit_tests
+
+bin/pull-image
+bin/sbt-test clean coverage test
+bin/sbt-test coverageReport
+export container_id=$(docker ps -aqf "name=civiform-test-support-civiform-1")
+docker cp $container_id:/usr/src/server/target/scala-2.13/coverage-report/cobertura.xml .
+docker cp $container_id:/usr/src/server/target/scala-2.13/scoverage-report/scoverage.xml .
+docker cp $container_id:/usr/src/server/target/scala-2.13/scoverage-report/index.html .
+
+bin/remove-test-env

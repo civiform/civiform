@@ -7,5 +7,5 @@ docker::set_project_name_unit_tests
 
 bin/pull-image
 
-bin/sbt-test test
+bin/sbt-test coverage test
 bin/remove-test-env
