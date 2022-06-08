@@ -100,7 +100,7 @@ public final class DatabaseSeedTask {
    * the database, inserting the definitions in {@code CANONICAL_QUESTIONS} if any aren't found.
    */
   private void seedCanonicalQuestions() {
-    if (!isMissingCanonicalQuestions()) {
+    if (canonicalQuestionsAlreadyPresent()) {
       return;
     }
 
@@ -165,8 +165,8 @@ public final class DatabaseSeedTask {
     }
   }
 
-  private boolean isMissingCanonicalQuestions() {
-    return !questionService
+  private boolean canonicalQuestionsAlreadyPresent() {
+    return questionService
         .getQuestionNames()
         .containsAll(
             CANONICAL_QUESTIONS.stream()
