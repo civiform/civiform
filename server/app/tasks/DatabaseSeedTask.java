@@ -86,9 +86,11 @@ public final class DatabaseSeedTask {
   }
 
   private void run() {
-    // Ensure a draft version exists to avoid transaction collisions.
-    versionRepository.get().getDraftVersion();
-    inSerializableTransaction(this::seedCanonicalQuestions, 1);
+    if (isMissingCanonicalQuestions()) {
+      // Ensure a draft version exists to avoid transaction collisions.
+      versionRepository.get().getDraftVersion();
+      inSerializableTransaction(this::seedCanonicalQuestions, 1);
+    }
   }
 
   /**
@@ -146,5 +148,15 @@ public final class DatabaseSeedTask {
         transaction.end();
       }
     }
+  }
+
+  private boolean isMissingCanonicalQuestions() {
+    var questionService = questionServiceProvider.get();
+    ImmutableSet<String> existingQuestionNames = questionService.getQuestionNames();
+
+    return !existingQuestionNames.containsAll(
+        CANONICAL_QUESTIONS.stream()
+            .map(QuestionDefinition::getName)
+            .collect(ImmutableList.toImmutableList()));
   }
 }
