@@ -20,6 +20,12 @@ import services.question.types.DateQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
+/**
+ * Task for seeding the database. All of its work is done in the constructor, which is its only
+ * public method.
+ *
+ * <p>Logic for seeding different resources should be factored into separate methods for clarity.
+ */
 public final class DatabaseSeedTask {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseSeedTask.class);
@@ -64,6 +70,10 @@ public final class DatabaseSeedTask {
     seedCanonicalQuestions();
   }
 
+  /**
+   * Ensures that questions with names matching those in {@code CANONICAL_QUESTIONS} are present in
+   * the database, inserting the definitions in {@code CANONICAL_QUESTIONS} if any aren't found.
+   */
   private void seedCanonicalQuestions() {
     var questionService = questionServiceProvider.get();
 
