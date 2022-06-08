@@ -5,4 +5,4 @@
 source bin/lib.sh
 docker::set_project_name_unit_tests
 
-${DOCKER_COMPOSE_UNIT_TEST_DEV} down --remove-orphans
+docker::compose_unit_test_dev down --remove-orphans

@@ -45,14 +45,23 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-dev
 
-      - name: Run build-browser-tests.
-        id: build_browser_tests
+      - name: Run build-browser-tests and push to Docker Hub.
+        id: build_and_pushbrowser_tests
         env:
           DOCKER_BUILDKIT: 1
           PUSH_BROWSER_TEST_IMAGE: 1
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-browser-tests
+
+      - name: Run build-localstack-env and push to Docker Hub.
+        id: build_and_push_localstack_env
+        env:
+          DOCKER_BUILDKIT: 1
+          PUSH_LOCALSTACK_IMAGE: 1
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: bin/build-localstack-env
 
       - name: Run build-and-push.
         id: build_and_push
