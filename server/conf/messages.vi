@@ -5,3 +5,323 @@
 # To type an apostrophe in a message, please type two. Example: can't -> can''t
 # https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
 # ------------------------------------------------------------------------------- #
+# The text on the button an applicant clicks to log out of their session.
+button.logout=đăng xuất
+
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+label.selectLanguage=Please select your preferred language.
+
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+content.applicantInformation=Applicant Information
+
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+button.untranslatedSubmit=Submit
+
+# Message displayed before the support email address in the page footer for applicants.
+footer.supportLinkDescription=Để được hỗ trợ kỹ thuật, hãy liên hệ
+
+# Placeholder message when an applicant clicked the "Continue as Guest".
+# This should be consistent with button.guestLogin.
+# TODO(#1918): Translate.
+guest=Guest
+
+# Label read by screen readers for the language dropdown shown in the page header.
+label.languageSr=Chọn một ngôn ngữ
+
+# Message with user's name to show who you are logged in as.
+header.userName=Đăng nhập với tư cách {0}
+
+# Error message to answer a required question
+validation.isRequired=Câu hỏi này là bắt buộc.
+
+# Validation error that is shown when the user input couldn't be converted for any reason.
+validation.invalidInput=Vui lòng nhập một giá trị cho mỗi dòng.
+
+#-------------------------------------------------------------#
+# LOGIN - contains text that for login page.                  #
+#-------------------------------------------------------------#
+
+# Prompt for applicant to log in, input is the full civic entity name.
+content.loginPrompt=Vui lòng đăng nhập bằng tài khoản Thành Phố {0} của quý vị  
+
+# The text on the button an applicant clicks to log in to their session.
+button.login=Đăng nhập
+
+# Prompt for applicant to create a new account or become a guest
+content.alternativeLoginPrompt=Không có tài khoản?
+
+# The text between creating a new account, and becoming a guest
+content.or=hoặc
+
+# The text on the button for applicants to create a new account.
+button.createAccount=Tạo tài khoản
+
+# The text on the button for guests to log in to their session.
+button.guestLogin=Tiếp tục với tư cách khách
+
+# The words leading up to the admin login anchor
+content.adminLoginPrompt=Tìm kiếm cái gì khác?
+
+# The text on the anchor for admins to log in to their session.
+link.adminLogin=Admin login
+
+#--------------------------------------------------------------------------#
+# PROGRAM FORM - contains text shown when filling out an application form. #
+#--------------------------------------------------------------------------#
+
+# The text on the button an applicant clicks to delete an uploaded file.
+button.deleteFile=Xóa bỏ
+
+# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
+button.keepFile=Tiếp tục
+
+# The button text for saving the current applicant-entered data and continuing to the next screen in the form.
+button.nextScreen=Kế tiếp
+
+# The button text for navigating to the previous screen in the form.
+button.previousScreen=Trước
+
+# The text on the button an applicant clicks to jump to the review page.
+button.review=Kiểm duyệt lại
+
+# The text on the button an applicant clicks to skip uploading a file.
+button.skipFileUpload=Bỏ qua
+
+# The text on the button an applicant clicks to upload a file and continue to the next screen.
+button.upload=Tải lên
+
+# A toast message that displays when a program is not fully localized to the applicant's preferred locale.
+toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch đầy đủ sang ngôn ngữ ưa chuộng của quý vị.
+
+# A link that logs out a guest user after they submit an application.
+link.allDone=Tôi đã xong
+
+# A link that appears next to the create account button that offers applicants the option to not create an account right now.
+link.applyToAnotherProgram=Nộp đơn cho một chương trình khác
+
+# A link that offers applicants the option to create an account.
+link.createAccountOrSignIn=Tạo tài khoản hoặc đăng nhập
+
+#----------------------------------------------------------------------------#
+# APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
+#----------------------------------------------------------------------------#
+
+# The text on the button an applicant clicks to apply to a specific program.
+button.apply=Đăng ký
+# The text read for screen readers.
+button.applySr=Đăng ký cho {0}
+
+# "Get benefits" floating text
+content.benefits=Nhận hỗ trợ
+
+# Long form description of the CiviForm site shown to the applicant. Line 1.
+content.description1=CiviForm cho phép quý vị nộp đơn để đăng ký cho nhiều nguồn lực hỗ trợ cùng một lúc bằng cách sử dụng lại thông tin.
+
+# Long form description of the CiviForm site shown to the applicant. Line 2.
+content.description2=Bắt đầu bằng cách chọn một ứng dụng bên dưới.
+
+# Link text to read more about a program.
+link.programDetails=Các chi tiết của chương trình
+
+# The same text, read for screen readers.
+link.programDetailsSr=Các chi tiết của chương trình cho {0}
+
+# Link text to an external site to read more about a program.
+link.externalLink=Trang mạng bên ngoài
+
+# The title of the page for the list of programs.
+title.programs=Các chương trình & dịch vụ
+
+# Subtitle for the list of programs with draft applications
+title.inProgressPrograms=Tiếp tục
+
+# Subtitle for the list of programs for which the applicant has no draft applications
+title.activePrograms=Các Chương Trình Mới
+
+# Screen reader format string for program cards
+title.programCard=Chương trình {0} của {1} -- {2}
+
+# A toast message that displays when an applicant submits an application.
+toast.applicationSaved=Đơn đăng ký đã được lưu thành công: ID của đơn đăng ký {0}
+
+# A toast message that displays when an applicant tries to apply to a previously completed program.
+toast.programCompleted=Đơn đăng ký đã được hoàn thành.
+
+#------------------------------------------------------------------------#
+# APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
+#------------------------------------------------------------------------#
+
+# Submit application button
+button.submit=Nộp
+
+# Continue application button
+button.continue=Tiếp tục
+
+# The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
+link.begin=Bắt đầu ở đây
+
+# The text that appears next to an answered question that the applicant can click on to modify the response.
+link.edit=Chỉnh sửa
+
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.edit=link.edit=Chỉnh sửa {0}
+
+# Program Preview Title
+title.programPreview=Xem trước đơn đăng ký chương trình
+
+# Program Review Title
+title.programReview=Duyệt lại đơn đăng ký chương trình
+
+#---------------------------------------------------------------------------------------------#
+# APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
+#---------------------------------------------------------------------------------------------#
+
+# Title on the page after the applicant has successfully submitted an application.
+title.applicationConfirmation=Xác nhận đơn đăng ký
+
+# A confirmation message that shows after an applicant has submitted their application.
+content.confirmed=Cảm ơn quý vị đã đăng ký {0}.  Đơn đăng ký của quý vị đã được nhận và ID đơn đăng ký của quý vị là {1}.
+
+# Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
+title.createAnAccount=Tạo một tài khoản hoặc đăng nhập
+
+# A message urging users to create an account to save their data.
+content.pleaseCreateAccount=Nếu quý vị đăng nhập vào tài khoản thành phố ngay bây giờ, thông tin của quý vị sẽ được lưu giữ và quý vị có thể quay lại bất kỳ lúc nào để hoàn thành các đơn đăng ký trong tương lai. Nếu quý vị chưa có tài khoản, trang đăng nhập sẽ cho phép quý vị đăng ký. Quý vị sẽ không mất bất kỳ thông tin nào quý vị đã nhập.
+
+
+
+
+#----------------------------------------------------------#
+# ADDRESS QUESTION - text when viewing an address question #
+#----------------------------------------------------------#
+
+# Address question labels - these are shown as the field label before an input box.
+label.addressLine2=Số đơn vị/căn hộ chung cư
+label.city=Thành Thố
+label.state=Tiểu Bang
+label.street=Địa Chỉ 1
+label.zipcode=Mã Bưu Điện ZIP Code
+
+# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
+placeholder.city=Thành Thố
+placeholder.line2=Căn hộ chung cư, dãy phòng, đơn vị, tòa nhà, tầng, v.v.
+placeholder.state=Tiểu Bang
+placeholder.street=Địa chỉ đường phố
+placeholder.zipcode=Mã Bưu Điện ZIP Code
+
+# Validation errors that are shown when a user enters an invalid address.
+validation.streetRequired=Vui lòng nhập tên và số đường phố hợp lệ.
+validation.cityRequired=Vui lòng nhập thành phố.
+validation.currencyMisformatted=Đơn vị tiền tệ phải có một trong các định dạng sau: 1000 1,000 1000.30 1,000.30
+validation.stateRequired=Vui lòng nhập tiểu bang.
+validation.invalidZipcode=Vui lòng nhập mã bưu điện ZIP code hợp lệ.
+validation.noPoBox=Vui lòng nhập một địa chỉ hợp lệ. Chúng tôi không chấp nhận Hộp Thư Bưu Điện PO Boxes.
+
+#----------------------------------------------------------------------------------------------------------#
+# DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
+#----------------------------------------------------------------------------------------------------------#
+
+# Placeholder text shown in a dropdown selector before the user has made a selection.
+placeholder.noDropdownSelection=Chọn một sự lựa chọn:
+
+
+#----------------------------------------------------------------------------------------------------------#
+# DATE QUESTION - text shown when answering a question where a user must select date. #
+#----------------------------------------------------------------------------------------------------------#
+validation.dateMisformatted=Please enter a date in the format YYYY/MM/DD.
+
+#--------------------------------------------------------------------------------------------------------#
+# ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
+#--------------------------------------------------------------------------------------------------------#
+
+# Text on a button an applicant would click to add another entity
+button.addEntity=Thêm vào {0}
+
+# Text on a button an applicant would click to delete an entity
+button.removeEntity=Xoá bỏ {0}
+
+# The confirmation dialog when an applicant deletes an enumerator entry.
+dialog.confirmDelete=Quý vị có chắc chắn muốn xóa cái này không? {0}? Thay đổi này sẽ được lưu giữ sau khi quý vị nhấp vào "Tiếp Theo" và tất cả dữ liệu đã liên quan đến thay đổi này sẽ bị mất.
+
+
+# Validation error that shows when an applicant does not enter a value.
+validation.entityNameRequired=Vui lòng nhập một giá trị cho mỗi dòng.
+
+# Validation error that shows when an applicant uses a duplicate entity name
+validation.duplicateEntityName=Vui lòng nhập một giá trị duy nhất cho mỗi dòng.
+
+# The placeholder text for enumerator fields
+placeholder.entityName= Biệt hiệu cho {0}
+
+
+#---------------------------------------------------------------------------------#
+# FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
+#---------------------------------------------------------------------------------#
+
+# Validation error that shows when an applicant does not select a file to upload
+validation.fileRequired=Vui lòng chọn một tập tin.
+
+# Label shown on the dev file upload page. This is shown before users hit the
+# submit button, to show users what files they are about to upload.
+label.currentFiles=Current files:
+
+#---------------------------------------------------------------------#
+# ID QUESTION - id specific to filling out a question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
+validation.idTooLong=Phải chứa nhiều nhất {0} ký tự.
+validation.idTooShort=Phải chứa ít nhất {0} ký tự. 
+validation.numberRequired=Chỉ được chứa số.
+
+#----------------------------------------------------------------------------------------------------------#
+# MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
+#----------------------------------------------------------------------------------------------------------#
+
+# Validation errors that are shown if a user selects too many or too few answers.
+validation.tooFewSelections=Vui lòng chọn ít nhất {0}.
+validation.tooManySelections=Vui lòng chọn ít hơn {0}.
+
+#---------------------------------------------------#
+# NAME QUESTION - text when viewing a name question #
+#---------------------------------------------------#
+
+# Name question labels - these are shown as the field label before an input box.
+label.firstName=First name
+label.lastName=Last name
+label.middleName=Middle name
+
+# Placeholder text - this is shown inside the input box, before a user enters an answer.
+placeholder.firstName=Tên
+placeholder.lastName=Họ
+placeholder.middleName=Tên đệm
+
+# Validation errors - these are shown if a user enters an invalid name.
+validation.firstNameRequired=Vui lòng nhập tên của quý vị.
+validation.lastNameRequired=Vui lòng nhập họ của quý vị.
+
+#------------------------------------------------------------------------#
+# NUMBER QUESTION - text specific to answering a question with a number. #
+#------------------------------------------------------------------------#
+
+# Validation errors that are shown when a user enters a number that is too big or too small, or a non-integer.
+validation.numberTooBig=Must be at most {0}.
+validation.numberTooSmall=Must be at least {0}.
+validation.numberNonInteger=Number must be a positive whole number and can only contain numeric characters 0-9.
+
+#---------------------------------------------------------------------#
+# TEXT QUESTION - text specific to filling out a question with words. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
+validation.textTooLong=Tối đa phải là {0}.
+validation.textTooShort=Ít nhất phải là {0}.
+
+
+#---------------------------------------------------------------------#
+# MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if an admin leaves a multi option question blank.
+adminValidation.multiOptionEmpty=Không được bỏ trống các câu hỏi có nhiều sự lựa chọn.
