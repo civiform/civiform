@@ -9,6 +9,8 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.img;
+import static j2html.TagCreator.span;
+import static j2html.TagCreator.text;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.auto.value.AutoValue;
@@ -21,6 +23,10 @@ import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.Tag;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -55,16 +61,18 @@ public class ProgramIndexView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final Optional<String> maybeLogoUrl;
   private final String civicEntityFullName;
+  private final ZoneId zoneId;
   private final Logger logger = LoggerFactory.getLogger(ProgramIndexView.class);
 
   @Inject
-  public ProgramIndexView(ApplicantLayout layout, Config config) {
+  public ProgramIndexView(ApplicantLayout layout, Config config, ZoneId zoneId) {
     this.layout = checkNotNull(layout);
     this.maybeLogoUrl =
         checkNotNull(config).hasPath("whitelabel.logo_with_name_url")
             ? Optional.of(config.getString("whitelabel.logo_with_name_url"))
             : Optional.empty();
     this.civicEntityFullName = checkNotNull(config).getString("whitelabel.civic_entity_full_name");
+    this.zoneId = checkNotNull(zoneId);
   }
 
   /**
@@ -387,6 +395,23 @@ public class ProgramIndexView extends BaseHtmlView {
                           Styles.ALIGN_TEXT_TOP));
 
       programData.with(externalLink);
+    }
+
+    if (cardData.submitTime().isPresent()) {
+      ZonedDateTime dateTime = cardData.submitTime().get().atZone(zoneId);
+      String formattedSubmitTime =
+          DateTimeFormatter.ofLocalizedDate(
+                  // SHORT will print dates as 1/2/2022
+                  FormatStyle.SHORT)
+              .format(dateTime);
+      programData.with(
+          div()
+              .withClasses(Styles.TEXT_XS, Styles.TEXT_GRAY_700)
+              .with(
+                  // TODO(#2573): Find a way to localize this and preserve the
+                  // bolding of the date.
+                  text(messages.at(MessageKey.SUBMITTED_DATE.getKeyName()) + " "),
+                  span(formattedSubmitTime).withClass(Styles.FONT_SEMIBOLD)));
     }
 
     String actionUrl =

@@ -86,6 +86,7 @@ public enum MessageKey {
   NUMBER_VALIDATION_TOO_BIG("validation.numberTooBig"),
   NUMBER_VALIDATION_TOO_SMALL("validation.numberTooSmall"),
   NUMBER_VALIDATION_NON_INTEGER("validation.numberNonInteger"),
+  SUBMITTED_DATE("content.submittedDate"),
   TEXT_VALIDATION_TOO_LONG("validation.textTooLong"),
   TEXT_VALIDATION_TOO_SHORT("validation.textTooShort"),
   TITLE_APPLICATION_CONFIRMATION("title.applicationConfirmation"),
