@@ -11,7 +11,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
-import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import play.filters.csrf.CSRF;
