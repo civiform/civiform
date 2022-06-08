@@ -124,7 +124,8 @@ button.applySr=Apply to {0}
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Edit
 
-content.submittedDate=Submitted
+# Text describing the date the application was last submitted.
+content.submittedDate=Submitted {0}
 
 # "Get benefits" floating text
 content.benefits=Get benefits

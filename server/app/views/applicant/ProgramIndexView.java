@@ -14,6 +14,7 @@ import static j2html.TagCreator.text;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -56,7 +57,7 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Returns a list of programs that an applicant can browse, with buttons for applying. */
-public class ProgramIndexView extends BaseHtmlView {
+public final class ProgramIndexView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
   private final Optional<String> maybeLogoUrl;
@@ -398,20 +399,7 @@ public class ProgramIndexView extends BaseHtmlView {
     }
 
     if (cardData.submitTime().isPresent()) {
-      ZonedDateTime dateTime = cardData.submitTime().get().atZone(zoneId);
-      String formattedSubmitTime =
-          DateTimeFormatter.ofLocalizedDate(
-                  // SHORT will print dates as 1/2/2022
-                  FormatStyle.SHORT)
-              .format(dateTime);
-      programData.with(
-          div()
-              .withClasses(Styles.TEXT_XS, Styles.TEXT_GRAY_700)
-              .with(
-                  // TODO(#2573): Find a way to localize this and preserve the
-                  // bolding of the date.
-                  text(messages.at(MessageKey.SUBMITTED_DATE.getKeyName()) + " "),
-                  span(formattedSubmitTime).withClass(Styles.FONT_SEMIBOLD)));
+      programData.with(programCardSubmittedDate(messages, cardData.submitTime().get()));
     }
 
     String actionUrl =
@@ -454,6 +442,39 @@ public class ProgramIndexView extends BaseHtmlView {
                     Styles.H_3))
         .with(programData)
         .with(actionDiv);
+  }
+
+  private Tag programCardSubmittedDate(Messages messages, Instant submittedDate) {
+    String placeholder = "DATE_PLACEHOLDER";
+    String translatedSubmittedDate =
+        messages.at(MessageKey.SUBMITTED_DATE.getKeyName(), placeholder);
+    // Now split into components.
+    List<String> components = Splitter.onPattern(placeholder).splitToList(translatedSubmittedDate);
+    if (components.size() != 2) {
+      throw new RuntimeException(
+          String.format(
+              "Expected exactly one occurrence of %s in translated string: %s",
+              placeholder, translatedSubmittedDate));
+    }
+    // First component is everything before, second is everything after.
+    List<DomContent> submittedComponents = Lists.newArrayList();
+    if (!components.get(0).isEmpty()) {
+      submittedComponents.add(text(components.get(0)));
+    }
+
+    ZonedDateTime dateTime = submittedDate.atZone(zoneId);
+    String formattedSubmitTime =
+        DateTimeFormatter.ofLocalizedDate(
+                // SHORT will print dates as 1/2/2022
+                FormatStyle.SHORT)
+            .format(dateTime);
+    submittedComponents.add(span(formattedSubmitTime).withClass(Styles.FONT_SEMIBOLD));
+
+    if (!components.get(1).isEmpty()) {
+      submittedComponents.add(text(components.get(1)));
+    }
+
+    return div().withClasses(Styles.TEXT_XS, Styles.TEXT_GRAY_700).with(submittedComponents);
   }
 
   @AutoValue
