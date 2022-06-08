@@ -8,13 +8,18 @@ import auth.oidc.OidcProfileAdapter;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import java.util.Locale;
-import java.util.Objects;
 import javax.inject.Provider;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import repository.UserRepository;
+import java.util.Optional;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.beust.jcommander.internal.Nullable;
+import com.google.common.base.Preconditions;
+import java.util.stream.Collectors;
 
 /**
  * This class ensures that the OidcProfileCreator that both the AD and IDCS clients use will
@@ -24,91 +29,45 @@ import repository.UserRepository;
  * implementations of the two abstract methods.
  */
 public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
-
-  protected final Config app_configuration;
-
-  protected final String localeAttributeConfigName = "locale_attribute";
-  protected final String firstNameAttributeConfigName = "first_name_attribute";
-  protected final String secondNameAttributeConfigName = "second_name_attribute";
-  protected final String emailAttributeConfigName = "email_attribute";
+  private final String emailAttributeName;
+  private final Optional<String> localeAttributeName;
+  private final ImmutableList<String> nameAttributeNames;
 
   public OidcApplicantProfileAdapter(
       OidcConfiguration configuration,
       OidcClient client,
-      Config app_configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
+      Provider<UserRepository> applicantRepositoryProvider,
+      String emailAttributeName,
+      @Nullable String localeAttributeName,
+      ImmutableList<String> nameAttributeNames) {
     super(configuration, client, profileFactory, applicantRepositoryProvider);
-    this.app_configuration = app_configuration;
+    this.emailAttributeName = Preconditions.checkNotNull(emailAttributeName);
+    this.localeAttributeName = Optional.ofNullable(localeAttributeName);
+    this.nameAttributeNames = Preconditions.checkNotNull(nameAttributeNames);
   }
 
-  /*
-   * Provide the prefix used in the application.conf
-   */
-  protected abstract String attributePrefix();
+  protected Optional<String> getName(OidcProfile oidcProfile) {
+    String name = nameAttributeNames.stream()
+        .filter(String::isBlank)
+        .map((String attrName) -> oidcProfile.getAttribute(attrName, String.class))
+        .filter(Strings::isNullOrEmpty)
+        .collect(Collectors.joining(" "));
 
-  protected String getConfigurationValue(String attr) {
-    return getConfigurationValue(attr, "");
+    return Optional.ofNullable(Strings.emptyToNull(name));
   }
 
-  protected String getConfigurationValue(String attr, String defaultValue) {
-    if (app_configuration.hasPath(attr)) {
-      return app_configuration.getString(attr);
-    }
-    return defaultValue;
+  protected Optional<String> getLocale(OidcProfile oidcProfile) {
+    return localeAttributeName.map(
+        name -> oidcProfile.getAttribute(name, String.class))
+        .filter(Strings::isNullOrEmpty);
   }
 
-  protected String getEmailAttributeName() {
-    return getConfigurationValue(attributePrefix() + "." + emailAttributeConfigName);
-  }
-
-  protected String getLocaleAttributeName() {
-    return getConfigurationValue(attributePrefix() + "." + localeAttributeConfigName);
-  }
-
-  protected String getFirstNameAttributeName() {
-    return getConfigurationValue(attributePrefix() + "." + firstNameAttributeConfigName);
-  }
-
-  protected String getSecondNameAttributeName() {
-    return getConfigurationValue(attributePrefix() + "." + secondNameAttributeConfigName);
-  }
-
-  protected String getName(OidcProfile oidcProfile) {
-    final String firstNameAttributeName = getFirstNameAttributeName();
-    final String secondNameAttributeName = getSecondNameAttributeName();
-
-    String firstName = "", secondName = "";
-    if (!firstNameAttributeName.isBlank()) {
-      firstName =
-          Objects.toString(oidcProfile.getAttribute(firstNameAttributeName, String.class), "");
-    }
-    if (!secondNameAttributeName.isBlank()) {
-      secondName =
-          Objects.toString(oidcProfile.getAttribute(secondNameAttributeName, String.class), "");
-    }
-    if (!firstName.isBlank() && !secondName.isBlank()) {
-      return String.format("%s %s", firstName, secondName);
-    } else if (!firstName.isBlank()) {
-      return firstName;
-    }
-    return secondName;
-  }
-
-  protected String getLocale(OidcProfile oidcProfile) {
-    final String localeAttributeName = getLocaleAttributeName();
-
-    if (!localeAttributeName.isBlank()) {
-      return Objects.toString(oidcProfile.getAttribute(localeAttributeName, String.class), "");
-    }
-    return "";
-  }
-
+  // Legacy. TODO: remove.
   @Override
   protected String emailAttributeName() {
-    return getEmailAttributeName();
+    return emailAttributeName;
   }
-  ;
 
   /** Create a totally new Applicant CiviForm profile informed by the provided OidcProfile. */
   @Override
@@ -142,8 +101,8 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
   @Override
   protected CiviFormProfileData mergeCiviFormProfile(
       CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
-    final String locale = getLocale(oidcProfile);
-    final String name = getName(oidcProfile);
+    final String locale = getLocale(oidcProfile).orElse("");
+    final String name = getName(oidcProfile).orElse("");
 
     if (!locale.isBlank() || !name.isBlank()) {
       civiformProfile

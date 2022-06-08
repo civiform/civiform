@@ -4,9 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileFactory;
 import com.typesafe.config.Config;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Objects;
 import javax.inject.Provider;
 import org.pac4j.core.http.callback.PathParameterCallbackUrlResolver;
 import org.pac4j.core.profile.creator.ProfileCreator;
@@ -15,6 +12,9 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.UserRepository;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 
 /**
  * This class provides the base applicant OIDC implementation. It's abstract because AD and other
@@ -29,132 +29,129 @@ public abstract class OidcProvider implements Provider<OidcClient> {
   protected final Provider<UserRepository> applicantRepositoryProvider;
   protected final String baseUrl;
 
-  protected String[] defaultScopes = {"openid", "profile", "email"};
-
-  private String providerNameConfigName = "provider_name";
-  private String clientIDConfigName = "client_id";
-  private String clientSecretConfigName = "client_secret";
-  private String discoveryURIConfigName = "discovery_uri";
-  private String responseModeConfigName = "response_mode";
-  private String extraScopesConfigName = "additional_scopes";
-
   public OidcProvider(
       Config configuration,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {
     this.configuration = checkNotNull(configuration);
     this.profileFactory = checkNotNull(profileFactory);
-    this.applicantRepositoryProvider = applicantRepositoryProvider;
+    this.applicantRepositoryProvider = checkNotNull(applicantRepositoryProvider);
 
-    baseUrl = getConfigurationValue("base_url");
+    this.baseUrl = getConfigurationValue("base_url").orElseThrow();
   }
 
   /*
-   * Provide the prefix used in the application.conf
+   * The prefix used in the application.conf for retriving oidc options.
    */
   protected abstract String attributePrefix();
+
+  /*
+   * The OIDC Provider Name (optional).
+   */
+  protected abstract Optional<String> getProviderName();
 
   /*
    * Provide the profile adaptor that should be used.
    */
   public abstract ProfileCreator getProfileAdapter(OidcConfiguration config, OidcClient client);
 
-  protected String getConfigurationValue(String attr, String defaultValue) {
-    if (configuration.hasPath(attr)) {
-      return configuration.getString(attr);
+  /*
+   * The OIDC Client ID.
+   */
+  protected abstract String getClientID();
+
+  /*
+   * The OIDC Client Secret.
+   */
+  protected abstract String getClientSecret();
+
+  /*
+   * The OIDC Discovery URI.
+   */
+  protected abstract String getDiscoveryURI();
+
+  /*
+   * The OIDC Response Mode.
+   */
+  protected abstract String getResponseMode();
+
+  /*
+   * The OIDC Response Type.
+   */
+  protected abstract String getResponseType();
+
+  /*
+   * Default scopes for this OIDC implementation.
+   */
+  protected abstract ImmutableList<String> getDefaultScopes();
+
+  /*
+   * Any application.conf-defined extra scopes for this OIDC implementation.
+   */
+  protected abstract ImmutableList<String> getExtraScopes();
+
+  /*
+   * Helper function for retriving values from the application.conf,
+   * prepended with "<attributePrefix>."
+   */
+  protected final Optional<String> getConfigurationValue(String suffix) {
+    String name = attributePrefix() + "." + suffix;
+    if (configuration.hasPath(name)) {
+      return Optional.ofNullable(configuration.getString(name));
     }
-    return defaultValue;
-  }
-
-  protected String getConfigurationValue(String attr) {
-    return getConfigurationValue(attr, "");
-  }
-
-  protected String getProviderName() {
-    return getConfigurationValue(attributePrefix() + "." + providerNameConfigName);
-  }
-
-  protected String getClientID() {
-    return getConfigurationValue(attributePrefix() + "." + clientIDConfigName);
-  }
-
-  protected String getClientSecret() {
-    return getConfigurationValue(attributePrefix() + "." + clientSecretConfigName);
-  }
-
-  protected String getDiscoveryURI() {
-    return getConfigurationValue(attributePrefix() + "." + discoveryURIConfigName);
-  }
-
-  protected String getResponseMode() {
-    return getConfigurationValue(attributePrefix() + "." + responseModeConfigName);
-  }
-
-  protected String getResponseType() {
-    // Our local fake IDCS doesn't support 'token' auth.
-    if (baseUrl.contains("localhost:")) {
-      return "id_token";
-    }
-    return "id_token token";
-  }
-
-  protected String[] getExtraScopes() {
-    return getConfigurationValue(attributePrefix() + "." + extraScopesConfigName).split(" ");
+    return Optional.empty();
   }
 
   protected String getCallbackURL() {
     return baseUrl + "/callback";
   }
 
-  protected String getScopes() {
+  private final String getScope() {
     // Scopes are the other things that we want from the OIDC endpoint
     // (needs to also be configured on provider side).
-    String[] extraScopes = getExtraScopes();
-
-    ArrayList<String> allClaims = new ArrayList<>();
-    Collections.addAll(allClaims, defaultScopes);
-    Collections.addAll(allClaims, extraScopes);
+    ImmutableList<String> allClaims = ImmutableList.<String>builder()
+        .addAll(getDefaultScopes())
+        .addAll(getExtraScopes())
+        .build();
     return String.join(" ", allClaims);
   }
 
   @Override
   public OidcClient get() {
-    String clientID = Objects.toString(getClientID(), "");
-    String clientSecret = Objects.toString(getClientSecret(), "");
-    String discoveryURI = Objects.toString(getDiscoveryURI(), "");
-    String responseMode = Objects.toString(getResponseMode(), "");
-    String responseType = Objects.toString(getResponseType(), "");
-    String callbackURL = Objects.toString(getCallbackURL(), "");
-    String providerName = Objects.toString(getProviderName(), ""); // optional
-    String scopes = Objects.toString(getScopes(), "");
-    if (clientID.isBlank()
-        || clientSecret.isBlank()
-        || discoveryURI.isBlank()
-        || responseMode.isBlank()
-        || responseType.isBlank()
-        || callbackURL.isBlank()
-        || baseUrl.isBlank()) {
+    String clientID = getClientID();
+    String clientSecret = getClientSecret();
+    String discoveryURI = getDiscoveryURI();
+    String responseMode = getResponseMode();
+    String responseType = getResponseType();
+    String callbackURL = getCallbackURL();
+    String scopes = getScope();
+    var requiredAttributes = ImmutableList.of(
+        clientID,
+        clientSecret,
+        discoveryURI,
+        responseMode,
+        responseType,
+        callbackURL);
+    // Check that none are null or blank.
+    if (requiredAttributes.stream().map(Strings::nullToEmpty).anyMatch(String::isBlank)) {
       logger.error(
           String.format(
-              "Can't get OIDC client - Missing Provider data:\n"
-                  + " baseUrl=%s\n"
-                  + " clientID=%s \n"
-                  + " clientSecret=%s \n"
-                  + " discoveryURI=%s \n"
-                  + " responseMode=%s \n"
-                  + " responseType=%s \n"
-                  + " callbackURL=%s \n"
-                  + " providerName=%s",
-              baseUrl,
+              "Can't get OIDC client - Missing some required Provider data: "
+                  + "clientID=%s, "
+                  + "clientSecret=%s, "
+                  + "discoveryURI=%s, "
+                  + "responseMode=%s, "
+                  + "responseType=%s, "
+                  + "callbackURL=%s",
               clientID,
               clientSecret,
               discoveryURI,
               responseMode,
               responseType,
-              callbackURL,
-              providerName));
+              callbackURL));
       return null;
     }
+    Optional<String> providerName = getProviderName();
     OidcConfiguration config = new OidcConfiguration();
 
     config.setClientId(clientID);
@@ -172,8 +169,8 @@ public abstract class OidcProvider implements Provider<OidcClient> {
 
     OidcClient client = new OidcClient(config);
 
-    if (!providerName.isBlank()) {
-      client.setName(providerName);
+    if (!providerName.orElse("").isBlank()) {
+      client.setName(providerName.get());
     }
 
     client.setCallbackUrl(callbackURL);

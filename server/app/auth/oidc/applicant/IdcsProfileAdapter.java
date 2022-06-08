@@ -1,6 +1,8 @@
 package auth.oidc.applicant;
 
 import auth.ProfileFactory;
+
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.nimbusds.jose.util.DefaultResourceRetriever;
 import com.nimbusds.jose.util.Resource;
@@ -11,6 +13,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.inject.Provider;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.oidc.client.OidcClient;
@@ -27,6 +30,10 @@ import repository.UserRepository;
 public class IdcsProfileAdapter extends OidcApplicantProfileAdapter {
   public static final Logger logger = LoggerFactory.getLogger(IdcsProfileAdapter.class);
 
+  private static final String EMAIL_ATTRIBUTE_NAME = "user_emailid";
+  private static final String LOCALE_ATTRIBUTE_NAME = "user_locale";
+  private static final String NAME_ATTRIBUTE_NAME = "user_displayname";
+
   public IdcsProfileAdapter(
       OidcConfiguration configuration,
       OidcClient client,
@@ -35,41 +42,11 @@ public class IdcsProfileAdapter extends OidcApplicantProfileAdapter {
     super(
         configuration,
         client,
-        /* app_configuration= */ null,
         profileFactory,
-        applicantRepositoryProvider);
-  }
-
-  // Manually specify all app_configuration params.
-  @Override
-  protected String attributePrefix() {
-    return "idcs";
-  }
-  ;
-
-  @Override
-  protected String getEmailAttributeName() {
-    return "user_emailid";
-  }
-
-  @Override
-  protected String getLocaleAttributeName() {
-    return "user_locale";
-  }
-
-  @Override
-  protected String getFirstNameAttributeName() {
-    return "";
-  }
-
-  @Override
-  protected String getSecondNameAttributeName() {
-    return "user_displayname";
-  }
-
-  @Override
-  protected String getConfigurationValue(String attr, String defaultValue) {
-    return "";
+        applicantRepositoryProvider,
+        EMAIL_ATTRIBUTE_NAME,
+        LOCALE_ATTRIBUTE_NAME,
+        ImmutableList.of(NAME_ATTRIBUTE_NAME));
   }
 
   @Override

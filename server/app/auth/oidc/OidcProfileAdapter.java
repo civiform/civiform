@@ -44,9 +44,9 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
       OidcClient client,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {
-    super(configuration, client);
+    super(Preconditions.checkNotNull(configuration), Preconditions.checkNotNull(client));
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
-    this.applicantRepositoryProvider = applicantRepositoryProvider;
+    this.applicantRepositoryProvider = Preconditions.checkNotNull(applicantRepositoryProvider);
     this.civiFormProfileMerger =
         new CiviFormProfileMerger(profileFactory, applicantRepositoryProvider);
   }

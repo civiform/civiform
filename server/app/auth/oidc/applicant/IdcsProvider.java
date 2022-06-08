@@ -2,8 +2,13 @@ package auth.oidc.applicant;
 
 import auth.ProfileFactory;
 import auth.oidc.OidcProvider;
+
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+
+import java.util.Optional;
+
 import javax.inject.Provider;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
@@ -12,7 +17,13 @@ import repository.UserRepository;
 
 /** This class customized the OIDC provider to a specific provider, allowing overrides to be set. */
 public class IdcsProvider extends OidcProvider {
-  protected String attributePrefix = "idcs";
+
+  private final static String attributePrefix = "idcs";
+  private static final String CLIENT_ID_CONFIG_NAME = "client_id";
+  private static final String CLIENT_SECRET_CONFIG_NAME = "secret";
+  private static final String DISCOVERY_URI_CONFIG_NAME = "discovery_uri";
+
+  private static final ImmutableList<String> DEFAULT_SCOPES = ImmutableList.of("openid", "profile", "email");
 
   @Inject
   public IdcsProvider(
@@ -23,8 +34,33 @@ public class IdcsProvider extends OidcProvider {
   }
 
   @Override
-  protected String getProviderName() {
-    return "";
+  protected String attributePrefix() {
+    return attributePrefix;
+  }
+
+  @Override
+  protected Optional<String> getProviderName() {
+    return Optional.empty();
+  }
+
+  @Override
+  public ProfileCreator getProfileAdapter(OidcConfiguration config, OidcClient client) {
+    return new IdcsProfileAdapter(config, client, profileFactory, applicantRepositoryProvider);
+  }
+
+  @Override
+  protected String getClientID() {
+    return getConfigurationValue(CLIENT_ID_CONFIG_NAME).orElseThrow();
+  }
+
+  @Override
+  protected String getClientSecret() {
+    return getConfigurationValue(CLIENT_SECRET_CONFIG_NAME).orElseThrow();
+  }
+
+  @Override
+  protected String getDiscoveryURI() {
+    return getConfigurationValue(DISCOVERY_URI_CONFIG_NAME).orElseThrow();
   }
 
   @Override
@@ -33,23 +69,25 @@ public class IdcsProvider extends OidcProvider {
   }
 
   @Override
-  protected String[] getExtraScopes() {
-    return new String[] {};
+  protected String getResponseType() {
+    // Our local fake IDCS doesn't support 'token' auth.
+    // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#responsetypes
+    // TODO: turn this into it's own fake provider or make the local provider allow
+    // 'token'.
+    if (baseUrl.contains("localhost:")) {
+      return "id_token";
+    }
+    return "id_token token";
   }
 
   @Override
-  protected String attributePrefix() {
-    return attributePrefix;
-  }
-  ;
-
-  @Override
-  protected String getClientSecret() {
-    return getConfigurationValue(attributePrefix() + ".secret");
+  protected ImmutableList<String> getDefaultScopes() {
+    return DEFAULT_SCOPES;
   }
 
   @Override
-  public ProfileCreator getProfileAdapter(OidcConfiguration config, OidcClient client) {
-    return new IdcsProfileAdapter(config, client, profileFactory, applicantRepositoryProvider);
+  protected ImmutableList<String> getExtraScopes() {
+    return ImmutableList.<String>of();
   }
+
 }
