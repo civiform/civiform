@@ -46,6 +46,8 @@ public interface QuestionService {
   /** Gets all question admin names */
   ImmutableSet<String> getQuestionNames();
 
+  boolean questionExists(String questionName);
+
   /**
    * Destructive overwrite of a question at a given path.
    *

@@ -18,17 +18,20 @@ import services.question.types.QuestionDefinition;
 public class DatabaseSeedTaskTest extends ResetPostgres {
 
   private QuestionRepository questionRepository;
+  private DatabaseSeedTask databaseSeedTask;
 
   @Before
   public void setUp() {
     questionRepository = instanceOf(QuestionRepository.class);
+    databaseSeedTask = instanceOf(DatabaseSeedTask.class);
   }
 
   @Test
-  public void seedCanonicalQuestions_whenQuestionsNotSeededYet_itSeedsTheCanonicalQuestions() {
+  public void seedCanonicalQuestions_whenQuestionsNotSeededYet_itSeedsTheCanonicalQuestions()
+      throws Exception {
     assertThat(getAllQuestions().size()).isEqualTo(0);
 
-    instanceOf(DatabaseSeedTask.class);
+    databaseSeedTask.run();
 
     assertThat(getAllQuestions().size()).isEqualTo(2);
     assertThat(
@@ -52,7 +55,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
                 /* questionHelpText= */ LocalizedStrings.empty()));
     assertThat(getAllQuestions().size()).isEqualTo(1);
 
-    instanceOf(DatabaseSeedTask.class);
+    databaseSeedTask.run();
 
     assertThat(getAllQuestions().size()).isEqualTo(2);
     assertThat(

@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.SerializableConflictException;
@@ -12,9 +11,9 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.RollbackException;
 import org.slf4j.Logger;
@@ -37,7 +36,11 @@ import services.question.types.QuestionDefinition;
  *
  * <p>To avoid attempting to insert duplicate resources it uses a thread-local database transaction
  * with a transaction scope of SERIALIZABLE. If the transaction fails it retries up to {@code
- * MAX_RETRIES} times.
+ * MAX_RETRIES} times, sleeping the thread with exponential backoff + jitter before each retry.
+ *
+ * <p>If the task fails {@code MAX_RETRIES} times, it throws a {@code RuntimeException} wrapping the
+ * exception causing it to fail. This will not cause the server itself to crash or prevent it from
+ * starting and serving requests.
  */
 public final class DatabaseSeedTask {
 
@@ -71,26 +74,19 @@ public final class DatabaseSeedTask {
                   "Please enter your date of birth in the format mm/dd/yyyy"),
               /* questionHelpText= */ LocalizedStrings.empty()));
 
-  private final Provider<QuestionService> questionServiceProvider;
-  private final Provider<VersionRepository> versionRepository;
+  private final QuestionService questionService;
+  private final VersionRepository versionRepository;
   private final Database database;
 
   @Inject
-  public DatabaseSeedTask(
-      Provider<QuestionService> questionService, Provider<VersionRepository> versionRepository) {
-    this.questionServiceProvider = checkNotNull(questionService);
+  public DatabaseSeedTask(QuestionService questionService, VersionRepository versionRepository) {
+    this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
     this.database = DB.getDefault();
-
-    this.run();
   }
 
-  private void run() {
-    if (isMissingCanonicalQuestions()) {
-      // Ensure a draft version exists to avoid transaction collisions.
-      versionRepository.get().getDraftVersion();
-      inSerializableTransaction(this::seedCanonicalQuestions, 1);
-    }
+  public void run() {
+    seedCanonicalQuestions();
   }
 
   /**
@@ -98,32 +94,36 @@ public final class DatabaseSeedTask {
    * the database, inserting the definitions in {@code CANONICAL_QUESTIONS} if any aren't found.
    */
   private void seedCanonicalQuestions() {
-    var questionService = questionServiceProvider.get();
-    ImmutableSet<String> existingQuestionNames = questionService.getQuestionNames();
+    if (!isMissingCanonicalQuestions()) {
+      return;
+    }
+
+    // Ensure a draft version exists to avoid transaction collisions with getDraftVersion.
+    versionRepository.getDraftVersion();
 
     for (QuestionDefinition questionDefinition : CANONICAL_QUESTIONS) {
-      if (existingQuestionNames.contains(questionDefinition.getName())) {
-        LOGGER.info(
-            "Canonical question \"%s\" exists at server start", questionDefinition.getName());
-        continue;
-      }
+      inSerializableTransaction(() -> ensureQuestion(questionDefinition), 1);
+    }
+  }
 
-      ErrorAnd<QuestionDefinition, CiviFormError> result =
-          questionService.create(questionDefinition);
+  private void ensureQuestion(QuestionDefinition questionDefinition) {
+    if (questionService.questionExists(questionDefinition.getName())) {
+      LOGGER.info("Canonical question \"%s\" exists at server start", questionDefinition.getName());
+      return;
+    }
 
-      if (result.isError()) {
-        String errorMessages =
-            result.getErrors().stream()
-                .map(CiviFormError::message)
-                .collect(Collectors.joining(", "));
+    ErrorAnd<QuestionDefinition, CiviFormError> result = questionService.create(questionDefinition);
 
-        LOGGER.error(
-            String.format(
-                "Unable to create canonical question \"%s\" due to %s",
-                questionDefinition.getName(), errorMessages));
-      } else {
-        LOGGER.info("Created canonical question \"%s\"", questionDefinition.getName());
-      }
+    if (result.isError()) {
+      String errorMessages =
+          result.getErrors().stream().map(CiviFormError::message).collect(Collectors.joining(", "));
+
+      LOGGER.error(
+          String.format(
+              "Unable to create canonical question \"%s\" due to %s",
+              questionDefinition.getName(), errorMessages));
+    } else {
+      LOGGER.info("Created canonical question \"%s\"", questionDefinition.getName());
     }
   }
 
@@ -142,6 +142,15 @@ public final class DatabaseSeedTask {
       }
 
       transaction.end();
+
+      long sleepDurMillis = Math.round(Math.pow(2, tryCount)) + new Random().nextInt(100);
+
+      try {
+        Thread.sleep(sleepDurMillis);
+      } catch (InterruptedException ie) {
+        throw new RuntimeException(ie);
+      }
+
       inSerializableTransaction(fn, ++tryCount);
     } finally {
       if (transaction.isActive()) {
@@ -151,12 +160,11 @@ public final class DatabaseSeedTask {
   }
 
   private boolean isMissingCanonicalQuestions() {
-    var questionService = questionServiceProvider.get();
-    ImmutableSet<String> existingQuestionNames = questionService.getQuestionNames();
-
-    return !existingQuestionNames.containsAll(
-        CANONICAL_QUESTIONS.stream()
-            .map(QuestionDefinition::getName)
-            .collect(ImmutableList.toImmutableList()));
+    return !questionService
+        .getQuestionNames()
+        .containsAll(
+            CANONICAL_QUESTIONS.stream()
+                .map(QuestionDefinition::getName)
+                .collect(ImmutableList.toImmutableList()));
   }
 }

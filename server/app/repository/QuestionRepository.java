@@ -7,11 +7,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
-import io.ebean.SqlRow;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -176,14 +174,13 @@ public class QuestionRepository {
   }
 
   public ImmutableSet<String> getQuestionNames() {
-    ImmutableSet.Builder<String> names = ImmutableSet.builder();
-    List<SqlRow> rows = database.sqlQuery("SELECT DISTINCT name FROM questions").findList();
+    return database.sqlQuery("SELECT DISTINCT name FROM questions").findList().stream()
+        .map((row) -> row.getString("name"))
+        .collect(ImmutableSet.toImmutableSet());
+  }
 
-    for (SqlRow row : rows) {
-      names.add(row.getString("name"));
-    }
-
-    return names.build();
+  public boolean questionExists(String questionName) {
+    return database.find(Question.class).where().eq("name", questionName).exists();
   }
 
   private static class ConflictDetector {
