@@ -28,6 +28,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -37,11 +38,10 @@ import java.util.stream.IntStream;
 import javax.inject.Inject;
 import models.Application;
 import models.LifecycleStage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.applicant.ApplicantService;
 import services.MessageKey;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
@@ -63,7 +63,6 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final Optional<String> maybeLogoUrl;
   private final String civicEntityFullName;
   private final ZoneId zoneId;
-  private final Logger logger = LoggerFactory.getLogger(ProgramIndexView.class);
 
   @Inject
   public ProgramIndexView(ApplicantLayout layout, Config config, ZoneId zoneId) {
@@ -82,10 +81,8 @@ public final class ProgramIndexView extends BaseHtmlView {
    *
    * @param messages the localized {@link Messages} for the current applicant
    * @param applicantId the ID of the current applicant
-   * @param applications an {@link ImmutableSet} of {@link Application}s that the applicant has
-   *     created.
-   * @param allPrograms an {@link ImmutableList} of {@link ProgramDefinition}s with the most recent
-   *     published versions
+   * @param relevantPrograms an {@link ImmutableList} of programs (with attached application)
+   *    information that should be displayed in the list
    * @return HTML content for rendering the list of available programs
    */
   public Content render(
@@ -93,8 +90,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       Http.Request request,
       long applicantId,
       Optional<String> userName,
-      ImmutableSet<Application> applications,
-      ImmutableList<ProgramDefinition> allPrograms,
+      ImmutableList<ApplicantService.ProgramWithApplication> relevantPrograms,
       Optional<String> banner) {
     HtmlBundle bundle = layout.getBundle();
     bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
@@ -106,7 +102,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()),
             messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_1.getKeyName()),
             messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_2.getKeyName())),
-        mainContent(messages, applications, allPrograms, applicantId, messages.lang().toLocale()));
+        mainContent(messages, relevantPrograms, applicantId, messages.lang().toLocale()));
 
     return layout.renderWithNav(request, userName, messages, bundle);
   }
@@ -160,8 +156,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private ContainerTag mainContent(
       Messages messages,
-      ImmutableSet<Application> applications,
-      ImmutableList<ProgramDefinition> allPrograms,
+      ImmutableList<ApplicantService.ProgramWithApplication> relevantPrograms,
       long applicantId,
       Locale preferredLocale) {
     ContainerTag content =
@@ -172,50 +167,21 @@ public final class ProgramIndexView extends BaseHtmlView {
                 h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
                     .withClasses(Styles.MB_4, Styles.TEXT_XL, Styles.FONT_SEMIBOLD));
 
-    Map<String, Map<LifecycleStage, Application>> latestApplicationPerProgramLookup =
-        Maps.newHashMap();
-    for (Application application : applications) {
-      String programKey = application.getProgram().getProgramDefinition().adminName();
-      LifecycleStage applicationStage = application.getLifecycleStage();
-      if (applicationStage == LifecycleStage.DRAFT) {}
-      Map<LifecycleStage, Application> latestProgramLookup =
-          latestApplicationPerProgramLookup.getOrDefault(programKey, Maps.newHashMap());
-      if (latestProgramLookup.containsKey(applicationStage)) {
-        Application existingApplicationForStage = latestProgramLookup.get(applicationStage);
-        if (applicationStage == LifecycleStage.DRAFT) {
-          // If we had to deduplicate, log data for debugging purposes.
-          logger.debug(
-              String.format(
-                  "DEBUG LOG ID: 98afa07855eb8e69338b5af13236a6b7. Program"
-                      + " Admin Name: %1$s, Duplicate Program Definition"
-                      + " id: %2$s. Original Program Definition id: %3$s",
-                  application.getProgram().getProgramDefinition().adminName(),
-                  application.getProgram().getProgramDefinition().id(),
-                  existingApplicationForStage.id));
-        }
-        // Store the version with the largest database ID (e.g. latest).
-        if (application.id > existingApplicationForStage.id) {
-          latestProgramLookup.put(applicationStage, application);
-        }
-      } else {
-        latestProgramLookup.put(applicationStage, application);
-      }
-      latestApplicationPerProgramLookup.put(programKey, latestProgramLookup);
-    }
-
     List<ProgramCardData> draftPrograms = Lists.newArrayList();
     List<ProgramCardData> alreadyAppliedPrograms = Lists.newArrayList();
     List<ProgramCardData> newPrograms = Lists.newArrayList();
-    for (ProgramDefinition programDefinition : allPrograms) {
-      Map<LifecycleStage, Application> applicationByStatusLookup =
-          latestApplicationPerProgramLookup.getOrDefault(
-              programDefinition.adminName(), Maps.newHashMap());
+    // Order the returned programs by database ID.
+    ImmutableList<ApplicantService.ProgramWithApplication> sortedRelevantPrograms = relevantPrograms.stream()
+        .sorted(Comparator.comparing(p -> p.program().id()))
+        .collect(ImmutableList.toImmutableList());
+    for (ApplicantService.ProgramWithApplication relevantProgram : sortedRelevantPrograms) {
+      Map<LifecycleStage, Application> applicationByStatusLookup = relevantProgram.mostRecentApplication();
       Optional<Application> maybeDraftApplication =
-          applicationByStatusLookup.containsKey(LifecycleStage.DRAFT)
+      applicationByStatusLookup.containsKey(LifecycleStage.DRAFT)
               ? Optional.of(applicationByStatusLookup.get(LifecycleStage.DRAFT))
               : Optional.empty();
       Optional<Application> maybeSubmittedApplication =
-          applicationByStatusLookup.containsKey(LifecycleStage.ACTIVE)
+      applicationByStatusLookup.containsKey(LifecycleStage.ACTIVE)
               ? Optional.of(applicationByStatusLookup.get(LifecycleStage.ACTIVE))
               : Optional.empty();
       Optional<Instant> maybeSubmitTime = maybeSubmittedApplication.map(Application::getSubmitTime);
@@ -228,9 +194,9 @@ public final class ProgramIndexView extends BaseHtmlView {
             ProgramCardData.create(
                 maybeDraftApplication.get().getProgram().getProgramDefinition(), maybeSubmitTime));
       } else if (maybeSubmittedApplication.isPresent()) {
-        alreadyAppliedPrograms.add(ProgramCardData.create(programDefinition, maybeSubmitTime));
+        alreadyAppliedPrograms.add(ProgramCardData.create(relevantProgram.program(), maybeSubmitTime));
       } else {
-        newPrograms.add(ProgramCardData.create(programDefinition, maybeSubmitTime));
+        newPrograms.add(ProgramCardData.create(relevantProgram.program(), maybeSubmitTime));
       }
     }
 

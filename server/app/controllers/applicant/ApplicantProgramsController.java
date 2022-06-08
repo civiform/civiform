@@ -65,21 +65,18 @@ public class ApplicantProgramsController extends CiviFormController {
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
             v -> {
-              return applicantService.getApplicationsForApplicant(
-                  applicantId, ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT));
+              return applicantService.relevantProgramsForApplicant(
+                applicantId, ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT));
             },
             httpContext.current())
         .thenApplyAsync(
-            allApplications -> {
-              return ok(
-                  programIndexView.render(
+            relevantPrograms -> {
+              return ok(programIndexView.render(
                       messagesApi.preferred(request),
                       request,
                       applicantId,
                       applicantStage.toCompletableFuture().join(),
-                      allApplications,
-                      // TODO(#2573): Get programs in an async process rather than sync.
-                      programService.getActiveAndDraftPrograms().getActivePrograms(),
+                      relevantPrograms,
                       banner));
             },
             httpContext.current())

@@ -8,6 +8,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
 import java.net.URI;
@@ -15,6 +16,7 @@ import java.time.Clock;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -22,10 +24,15 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
+import models.DisplayMode;
 import models.LifecycleStage;
+import models.Program;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
 import repository.UserRepository;
+import repository.VersionRepository;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationSubmissionException;
@@ -45,6 +52,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
   private final ApplicationRepository applicationRepository;
   private final UserRepository userRepository;
+  private final VersionRepository versionRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
   private final Clock clock;
@@ -54,11 +62,13 @@ public class ApplicantServiceImpl implements ApplicantService {
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
+  private final Logger logger = LoggerFactory.getLogger(ApplicantServiceImpl.class);
 
   @Inject
   public ApplicantServiceImpl(
       ApplicationRepository applicationRepository,
       UserRepository userRepository,
+      VersionRepository versionRepository,
       ProgramService programService,
       SimpleEmail amazonSESClient,
       Clock clock,
@@ -66,6 +76,7 @@ public class ApplicantServiceImpl implements ApplicantService {
       HttpExecutionContext httpExecutionContext) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
+    this.versionRepository = checkNotNull(versionRepository);
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
@@ -353,10 +364,80 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
-  public CompletionStage<ImmutableSet<Application>> getApplicationsForApplicant(
-      long applicantId, ImmutableSet<LifecycleStage> stages) {
-    return applicationRepository.getApplicationsForApplicant(applicantId, stages);
+  public CompletionStage<ImmutableList<ProgramWithApplication>> relevantProgramsForApplicant(
+      long applicantId, ImmutableSet<LifecycleStage> applicationLifecycleStages) {
+    CompletableFuture<ImmutableSet<Application>> applicationsFuture = applicationRepository.getApplicationsForApplicant(applicantId, applicationLifecycleStages).toCompletableFuture();
+    ImmutableList<ProgramDefinition> activePrograms = versionRepository.getActiveVersion().getPrograms().stream()
+        .map(Program::getProgramDefinition)
+        .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
+        .collect(ImmutableList.toImmutableList());
+
+    return applicationsFuture.thenApplyAsync(applications -> buildRelevantProgramList(activePrograms, applications),
+        httpExecutionContext.current());
   }
+
+  private ImmutableList<ProgramWithApplication> buildRelevantProgramList(ImmutableList<ProgramDefinition> activePrograms,
+      ImmutableSet<Application> applications) {
+    // Sort in descending database ID order. Add to set if it doesn't already exist.
+    // If it does, then don't add.
+    ImmutableList<Application> sortedApplications = applications.stream()
+        .sorted(Comparator.comparing(app -> app.id))
+        .collect(ImmutableList.toImmutableList())
+        .reverse();
+    Map<String, Map<LifecycleStage, Application>> mostRecentAppsPerProgram =
+        Maps.newHashMap();
+    for (Application application : sortedApplications) {
+      String programKey = application.getProgram().getProgramDefinition().adminName();
+      Map<LifecycleStage, Application> appsByStage = mostRecentAppsPerProgram.getOrDefault(programKey, Maps.newHashMap());
+      LifecycleStage applicationStage = application.getLifecycleStage();
+      if (appsByStage.containsKey(applicationStage)) {
+        // Normally we'd continue onwards.
+        Application existingApplicationForStage = appsByStage.get(applicationStage);
+        if (applicationStage == LifecycleStage.DRAFT) {
+          // If we had to deduplicate, log data for debugging purposes.
+          logger.debug(
+              String.format(
+                  "DEBUG LOG ID: 98afa07855eb8e69338b5af13236a6b7. Program"
+                      + " Admin Name: %1$s, Duplicate Program Definition"
+                      + " id: %2$s. Original Program Definition id: %3$s",
+                  application.getProgram().getProgramDefinition().adminName(),
+                  application.getProgram().getProgramDefinition().id(),
+                  existingApplicationForStage.id));
+        }
+        continue;
+      }
+      appsByStage.put(applicationStage, application);
+      mostRecentAppsPerProgram.put(programKey, appsByStage);
+    }
+
+    ImmutableMap<String, ProgramDefinition> activeProgramNameLookup = activePrograms.stream()
+      .collect(ImmutableMap.toImmutableMap(ProgramDefinition::adminName, pdef -> pdef));
+    
+    // Loop through all of the applications so that we can make sure a ProgramDefinition
+    // is added for already completed / draft programs who's current version may not be visible
+    // in the index.
+    ImmutableList.Builder<ProgramWithApplication> resultBuilder = ImmutableList.builder();
+    mostRecentAppsPerProgram.forEach((programName, appsByStage) -> {
+      ProgramDefinition programDef;
+      if (activeProgramNameLookup.containsKey(programName)) {
+        programDef = activeProgramNameLookup.get(programName);
+      } else if (appsByStage.containsKey(LifecycleStage.DRAFT)) {
+        programDef = appsByStage.get(LifecycleStage.DRAFT).getProgram().getProgramDefinition();
+      } else {
+        programDef = appsByStage.get(LifecycleStage.ACTIVE).getProgram().getProgramDefinition();
+      }
+      resultBuilder.add(ProgramWithApplication.create(programDef, ImmutableMap.copyOf(appsByStage)));
+    });
+
+    Set<String> missingActivePrograms = Sets.difference(
+      activeProgramNameLookup.keySet(),
+      mostRecentAppsPerProgram.keySet());
+    missingActivePrograms.forEach(programName -> {
+      resultBuilder.add(ProgramWithApplication.create(activeProgramNameLookup.get(programName), ImmutableMap.of()));
+    });
+    
+    return resultBuilder.build();
+    }
 
   /**
    * In-place update of {@link ApplicantData}. Adds program id and timestamp metadata with updates.
