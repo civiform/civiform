@@ -121,6 +121,8 @@ link.createAccountOrSignIn=Create account or sign in
 button.apply=Apply
 # The text read for screen readers.
 button.applySr=Apply to {0}
+# The text on the button an applicant clicks to edit the application for a specific program.
+button.edit=Edit
 
 # "Get benefits" floating text
 content.benefits=Get benefits
@@ -143,10 +145,13 @@ link.externalLink=External site
 title.programs=Programs & services
 
 # Subtitle for the list of programs with draft applications
-title.inProgressPrograms=Continue
+title.inProgressPrograms=In progress
 
 # Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=New Programs
+title.activePrograms=Not started
+
+# Subtitle for the list of programs for which the applicant has already submitted an application
+title.submittedPrograms=Submitted
 
 # Screen reader format string for program cards
 title.programCard=Program {0} of {1} -- {2}

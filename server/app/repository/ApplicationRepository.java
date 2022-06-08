@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.util.List;
@@ -202,6 +203,25 @@ public class ApplicationRepository {
   public CompletionStage<Optional<Application>> getApplication(long applicationId) {
     return supplyAsync(
         () -> database.find(Application.class).setId(applicationId).findOneOrEmpty(),
+        executionContext.current());
+  }
+
+  public CompletionStage<ImmutableSet<Application>> getApplicationsForApplicant(
+      long applicantId, ImmutableSet<LifecycleStage> stages) {
+    return supplyAsync(
+        () -> {
+          return database
+              .find(Application.class)
+              .alias("a")
+              .where()
+              .isIn("lifecycle_stage", stages)
+              .query()
+              // Eagerly fetch the program in a SQL join.
+              .fetch("program")
+              .findSet()
+              .stream()
+              .collect(ImmutableSet.toImmutableSet());
+        },
         executionContext.current());
   }
 }

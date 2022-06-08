@@ -251,12 +251,6 @@ public class ApplicantServiceImpl implements ApplicantService {
             httpExecutionContext.current());
   }
 
-  @Override
-  public CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>>
-      relevantPrograms(long applicantId) {
-    return userRepository.programsForApplicant(applicantId);
-  }
-
   private void notifyProgramAdmins(
       long applicantId, long programId, long applicationId, String programName) {
     String viewLink =
@@ -356,6 +350,12 @@ public class ApplicantServiceImpl implements ApplicantService {
   @Override
   public ImmutableList<Application> getAllApplications() {
     return applicationRepository.getAllApplications();
+  }
+
+  @Override
+  public CompletionStage<ImmutableSet<Application>> getApplicationsForApplicant(
+      long applicantId, ImmutableSet<LifecycleStage> stages) {
+    return applicationRepository.getApplicationsForApplicant(applicantId, stages);
   }
 
   /**

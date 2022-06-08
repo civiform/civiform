@@ -3,6 +3,7 @@ package services.applicant;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Applicant;
@@ -82,15 +83,6 @@ public interface ApplicantService {
   ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       Application application, ProgramDefinition programDefinition);
 
-  /**
-   * Return all programs that are appropriate to serve to an applicant - which is any active program
-   * that is public and any program where they have an application in the draft stage.
-   *
-   * <p>The programs do not have question definitions loaded into its program question definitions.
-   */
-  CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>> relevantPrograms(
-      long applicantId);
-
   /** Return the name of the given applicant id. */
   CompletionStage<Optional<String>> getName(long applicantId);
 
@@ -98,8 +90,11 @@ public interface ApplicantService {
   CompletionStage<Optional<String>> getEmail(long applicantId);
 
   /**
-   * Return all applications, including applications from previous versions, with program,
-   * applicant, and account associations eager loaded.
+   * Return all applications for all applicants, including applications from previous versions, with
+   * program, applicant, and account associations eager loaded.
    */
   ImmutableList<Application> getAllApplications();
+
+  CompletionStage<ImmutableSet<Application>> getApplicationsForApplicant(
+      long applicantId, ImmutableSet<LifecycleStage> stages);
 }

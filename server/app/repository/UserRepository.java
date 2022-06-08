@@ -5,8 +5,6 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import io.ebean.DB;
@@ -17,13 +15,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import models.Account;
 import models.Applicant;
-import models.Application;
-import models.DisplayMode;
-import models.LifecycleStage;
-import models.Program;
 import models.TrustedIntermediaryGroup;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
@@ -39,15 +32,11 @@ public class UserRepository {
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;
-  private final Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
-  public UserRepository(
-      DatabaseExecutionContext executionContext,
-      Provider<VersionRepository> versionRepositoryProvider) {
+  public UserRepository(DatabaseExecutionContext executionContext) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
-    this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
   }
 
   public CompletionStage<Set<Applicant>> listApplicants() {
@@ -57,44 +46,6 @@ public class UserRepository {
   public CompletionStage<Optional<Applicant>> lookupApplicant(long id) {
     return supplyAsync(
         () -> database.find(Applicant.class).setId(id).findOneOrEmpty(), executionContext);
-  }
-
-  /**
-   * Returns all programs that are appropriate to serve to an applicant - which is any program where
-   * they have an application in the draft stage, and any active program that is public.
-   */
-  public CompletionStage<ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>>>
-      programsForApplicant(long applicantId) {
-    return supplyAsync(
-        () -> {
-          ImmutableList<ProgramDefinition> inProgressPrograms =
-              database
-                  .find(Program.class)
-                  .alias("p")
-                  .where()
-                  .exists(
-                      database
-                          .find(Application.class)
-                          .where()
-                          .eq("applicant.id", applicantId)
-                          .eq("lifecycle_stage", LifecycleStage.DRAFT)
-                          .raw("program.id = p.id")
-                          .query())
-                  .endOr()
-                  .findList()
-                  .stream()
-                  .map(Program::getProgramDefinition)
-                  .collect(ImmutableList.toImmutableList());
-          ImmutableList<ProgramDefinition> activePrograms =
-              versionRepositoryProvider.get().getActiveVersion().getPrograms().stream()
-                  .map(Program::getProgramDefinition)
-                  .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
-                  .collect(ImmutableList.toImmutableList());
-          return ImmutableMap.of(
-              LifecycleStage.DRAFT, inProgressPrograms,
-              LifecycleStage.ACTIVE, activePrograms);
-        },
-        executionContext.current());
   }
 
   public Optional<Account> lookupAccountByAuthorityId(String authorityId) {
