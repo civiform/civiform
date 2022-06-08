@@ -95,18 +95,20 @@ public interface ApplicantService {
    * program, applicant, and account associations eager loaded.
    */
   ImmutableList<Application> getAllApplications();
-    
+
   CompletionStage<ImmutableList<ProgramWithApplication>> relevantProgramsForApplicant(
       long applicantId, ImmutableSet<LifecycleStage> applicationLifecycleStages);
 
-    @AutoValue
-    public abstract static class ProgramWithApplication {
-        static ProgramWithApplication create(ProgramDefinition program, ImmutableMap<LifecycleStage, Application> mostRecentApplication) {
-            return new AutoValue_ApplicantService_ProgramWithApplication(program, mostRecentApplication);
-        }
-
-        public abstract ProgramDefinition program();
-
-        public abstract ImmutableMap<LifecycleStage, Application> mostRecentApplication();
+  @AutoValue
+  public abstract static class ProgramWithApplication {
+    static ProgramWithApplication create(
+        ProgramDefinition program,
+        ImmutableMap<LifecycleStage, Application> mostRecentApplication) {
+      return new AutoValue_ApplicantService_ProgramWithApplication(program, mostRecentApplication);
     }
+
+    public abstract ProgramDefinition program();
+
+    public abstract ImmutableMap<LifecycleStage, Application> mostRecentApplication();
+  }
 }

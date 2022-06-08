@@ -16,9 +16,7 @@ import static j2html.attributes.Attr.HREF;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -41,8 +39,8 @@ import models.LifecycleStage;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.applicant.ApplicantService;
 import services.MessageKey;
+import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -82,7 +80,7 @@ public final class ProgramIndexView extends BaseHtmlView {
    * @param messages the localized {@link Messages} for the current applicant
    * @param applicantId the ID of the current applicant
    * @param relevantPrograms an {@link ImmutableList} of programs (with attached application)
-   *    information that should be displayed in the list
+   *     information that should be displayed in the list
    * @return HTML content for rendering the list of available programs
    */
   public Content render(
@@ -171,17 +169,19 @@ public final class ProgramIndexView extends BaseHtmlView {
     List<ProgramCardData> alreadyAppliedPrograms = Lists.newArrayList();
     List<ProgramCardData> newPrograms = Lists.newArrayList();
     // Order the returned programs by database ID.
-    ImmutableList<ApplicantService.ProgramWithApplication> sortedRelevantPrograms = relevantPrograms.stream()
-        .sorted(Comparator.comparing(p -> p.program().id()))
-        .collect(ImmutableList.toImmutableList());
+    ImmutableList<ApplicantService.ProgramWithApplication> sortedRelevantPrograms =
+        relevantPrograms.stream()
+            .sorted(Comparator.comparing(p -> p.program().id()))
+            .collect(ImmutableList.toImmutableList());
     for (ApplicantService.ProgramWithApplication relevantProgram : sortedRelevantPrograms) {
-      Map<LifecycleStage, Application> applicationByStatusLookup = relevantProgram.mostRecentApplication();
+      Map<LifecycleStage, Application> applicationByStatusLookup =
+          relevantProgram.mostRecentApplication();
       Optional<Application> maybeDraftApplication =
-      applicationByStatusLookup.containsKey(LifecycleStage.DRAFT)
+          applicationByStatusLookup.containsKey(LifecycleStage.DRAFT)
               ? Optional.of(applicationByStatusLookup.get(LifecycleStage.DRAFT))
               : Optional.empty();
       Optional<Application> maybeSubmittedApplication =
-      applicationByStatusLookup.containsKey(LifecycleStage.ACTIVE)
+          applicationByStatusLookup.containsKey(LifecycleStage.ACTIVE)
               ? Optional.of(applicationByStatusLookup.get(LifecycleStage.ACTIVE))
               : Optional.empty();
       Optional<Instant> maybeSubmitTime = maybeSubmittedApplication.map(Application::getSubmitTime);
@@ -194,7 +194,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             ProgramCardData.create(
                 maybeDraftApplication.get().getProgram().getProgramDefinition(), maybeSubmitTime));
       } else if (maybeSubmittedApplication.isPresent()) {
-        alreadyAppliedPrograms.add(ProgramCardData.create(relevantProgram.program(), maybeSubmitTime));
+        alreadyAppliedPrograms.add(
+            ProgramCardData.create(relevantProgram.program(), maybeSubmitTime));
       } else {
         newPrograms.add(ProgramCardData.create(relevantProgram.program(), maybeSubmitTime));
       }

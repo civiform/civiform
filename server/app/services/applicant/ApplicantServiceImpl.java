@@ -366,29 +366,35 @@ public class ApplicantServiceImpl implements ApplicantService {
   @Override
   public CompletionStage<ImmutableList<ProgramWithApplication>> relevantProgramsForApplicant(
       long applicantId, ImmutableSet<LifecycleStage> applicationLifecycleStages) {
-    CompletableFuture<ImmutableSet<Application>> applicationsFuture = applicationRepository.getApplicationsForApplicant(applicantId, applicationLifecycleStages).toCompletableFuture();
-    ImmutableList<ProgramDefinition> activePrograms = versionRepository.getActiveVersion().getPrograms().stream()
-        .map(Program::getProgramDefinition)
-        .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
-        .collect(ImmutableList.toImmutableList());
+    CompletableFuture<ImmutableSet<Application>> applicationsFuture =
+        applicationRepository
+            .getApplicationsForApplicant(applicantId, applicationLifecycleStages)
+            .toCompletableFuture();
+    ImmutableList<ProgramDefinition> activePrograms =
+        versionRepository.getActiveVersion().getPrograms().stream()
+            .map(Program::getProgramDefinition)
+            .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
+            .collect(ImmutableList.toImmutableList());
 
-    return applicationsFuture.thenApplyAsync(applications -> buildRelevantProgramList(activePrograms, applications),
+    return applicationsFuture.thenApplyAsync(
+        applications -> buildRelevantProgramList(activePrograms, applications),
         httpExecutionContext.current());
   }
 
-  private ImmutableList<ProgramWithApplication> buildRelevantProgramList(ImmutableList<ProgramDefinition> activePrograms,
-      ImmutableSet<Application> applications) {
+  private ImmutableList<ProgramWithApplication> buildRelevantProgramList(
+      ImmutableList<ProgramDefinition> activePrograms, ImmutableSet<Application> applications) {
     // Sort in descending database ID order. Add to set if it doesn't already exist.
     // If it does, then don't add.
-    ImmutableList<Application> sortedApplications = applications.stream()
-        .sorted(Comparator.comparing(app -> app.id))
-        .collect(ImmutableList.toImmutableList())
-        .reverse();
-    Map<String, Map<LifecycleStage, Application>> mostRecentAppsPerProgram =
-        Maps.newHashMap();
+    ImmutableList<Application> sortedApplications =
+        applications.stream()
+            .sorted(Comparator.comparing(app -> app.id))
+            .collect(ImmutableList.toImmutableList())
+            .reverse();
+    Map<String, Map<LifecycleStage, Application>> mostRecentAppsPerProgram = Maps.newHashMap();
     for (Application application : sortedApplications) {
       String programKey = application.getProgram().getProgramDefinition().adminName();
-      Map<LifecycleStage, Application> appsByStage = mostRecentAppsPerProgram.getOrDefault(programKey, Maps.newHashMap());
+      Map<LifecycleStage, Application> appsByStage =
+          mostRecentAppsPerProgram.getOrDefault(programKey, Maps.newHashMap());
       LifecycleStage applicationStage = application.getLifecycleStage();
       if (appsByStage.containsKey(applicationStage)) {
         // Normally we'd continue onwards.
@@ -410,34 +416,39 @@ public class ApplicantServiceImpl implements ApplicantService {
       mostRecentAppsPerProgram.put(programKey, appsByStage);
     }
 
-    ImmutableMap<String, ProgramDefinition> activeProgramNameLookup = activePrograms.stream()
-      .collect(ImmutableMap.toImmutableMap(ProgramDefinition::adminName, pdef -> pdef));
-    
+    ImmutableMap<String, ProgramDefinition> activeProgramNameLookup =
+        activePrograms.stream()
+            .collect(ImmutableMap.toImmutableMap(ProgramDefinition::adminName, pdef -> pdef));
+
     // Loop through all of the applications so that we can make sure a ProgramDefinition
     // is added for already completed / draft programs who's current version may not be visible
     // in the index.
     ImmutableList.Builder<ProgramWithApplication> resultBuilder = ImmutableList.builder();
-    mostRecentAppsPerProgram.forEach((programName, appsByStage) -> {
-      ProgramDefinition programDef;
-      if (activeProgramNameLookup.containsKey(programName)) {
-        programDef = activeProgramNameLookup.get(programName);
-      } else if (appsByStage.containsKey(LifecycleStage.DRAFT)) {
-        programDef = appsByStage.get(LifecycleStage.DRAFT).getProgram().getProgramDefinition();
-      } else {
-        programDef = appsByStage.get(LifecycleStage.ACTIVE).getProgram().getProgramDefinition();
-      }
-      resultBuilder.add(ProgramWithApplication.create(programDef, ImmutableMap.copyOf(appsByStage)));
-    });
+    mostRecentAppsPerProgram.forEach(
+        (programName, appsByStage) -> {
+          ProgramDefinition programDef;
+          if (activeProgramNameLookup.containsKey(programName)) {
+            programDef = activeProgramNameLookup.get(programName);
+          } else if (appsByStage.containsKey(LifecycleStage.DRAFT)) {
+            programDef = appsByStage.get(LifecycleStage.DRAFT).getProgram().getProgramDefinition();
+          } else {
+            programDef = appsByStage.get(LifecycleStage.ACTIVE).getProgram().getProgramDefinition();
+          }
+          resultBuilder.add(
+              ProgramWithApplication.create(programDef, ImmutableMap.copyOf(appsByStage)));
+        });
 
-    Set<String> missingActivePrograms = Sets.difference(
-      activeProgramNameLookup.keySet(),
-      mostRecentAppsPerProgram.keySet());
-    missingActivePrograms.forEach(programName -> {
-      resultBuilder.add(ProgramWithApplication.create(activeProgramNameLookup.get(programName), ImmutableMap.of()));
-    });
-    
+    Set<String> missingActivePrograms =
+        Sets.difference(activeProgramNameLookup.keySet(), mostRecentAppsPerProgram.keySet());
+    missingActivePrograms.forEach(
+        programName -> {
+          resultBuilder.add(
+              ProgramWithApplication.create(
+                  activeProgramNameLookup.get(programName), ImmutableMap.of()));
+        });
+
     return resultBuilder.build();
-    }
+  }
 
   /**
    * In-place update of {@link ApplicantData}. Adds program id and timestamp metadata with updates.

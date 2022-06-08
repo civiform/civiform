@@ -66,12 +66,13 @@ public class ApplicantProgramsController extends CiviFormController {
         .thenComposeAsync(
             v -> {
               return applicantService.relevantProgramsForApplicant(
-                applicantId, ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT));
+                  applicantId, ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT));
             },
             httpContext.current())
         .thenApplyAsync(
             relevantPrograms -> {
-              return ok(programIndexView.render(
+              return ok(
+                  programIndexView.render(
                       messagesApi.preferred(request),
                       request,
                       applicantId,
