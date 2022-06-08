@@ -55,6 +55,16 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
+  public ImmutableSet<String> getQuestionNames() {
+    return questionRepository.getQuestionNames();
+  }
+
+  @Override
+  public boolean questionExists(String questionName) {
+    return questionRepository.questionExists(questionName);
+  }
+
+  @Override
   public CompletionStage<ReadOnlyQuestionService> getReadOnlyQuestionService() {
     return CompletableFuture.completedStage(
         new ReadOnlyCurrentQuestionServiceImpl(

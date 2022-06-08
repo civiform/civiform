@@ -1,6 +1,7 @@
 package services.question;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.QuestionTag;
@@ -41,6 +42,11 @@ public interface QuestionService {
    * <p>NOTE: This does not update the version.
    */
   ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition definition);
+
+  /** Gets all question admin names */
+  ImmutableSet<String> getQuestionNames();
+
+  boolean questionExists(String questionName);
 
   /**
    * Destructive overwrite of a question at a given path.

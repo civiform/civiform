@@ -157,6 +157,18 @@ public class QuestionDefinitionBuilder {
     return this;
   }
 
+  /**
+   * Calls {@code build} and throws a {@link RuntimeException} if the {@link QuestionType} is
+   * invalid.
+   */
+  public QuestionDefinition unsafeBuild() {
+    try {
+      return build();
+    } catch (UnsupportedQuestionTypeException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   public QuestionDefinition build() throws UnsupportedQuestionTypeException {
     switch (this.questionType) {
       case ADDRESS:
