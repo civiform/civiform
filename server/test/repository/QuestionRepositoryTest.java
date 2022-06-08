@@ -170,6 +170,14 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void getQuestionNames() {
+    resourceCreator.insertQuestion("question-one");
+    resourceCreator.insertQuestion("question-two");
+
+    assertThat(repo.getQuestionNames()).containsOnly("question-one", "question-two");
+  }
+
+  @Test
   public void updateQuestion() throws UnsupportedQuestionTypeException {
     Question question = resourceCreator.insertQuestion();
     QuestionDefinition questionDefinition = question.getQuestionDefinition();

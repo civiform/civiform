@@ -5,13 +5,22 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import io.ebean.DB;
+import io.ebean.Database;
+import io.ebean.SerializableConflictException;
+import io.ebean.Transaction;
+import io.ebean.TxScope;
+import io.ebean.annotation.TxIsolation;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.persistence.NonUniqueResultException;
+import javax.persistence.RollbackException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
@@ -25,10 +34,15 @@ import services.question.types.QuestionDefinition;
  * public method.
  *
  * <p>Logic for seeding different resources should be factored into separate methods for clarity.
+ *
+ * <p>To avoid attempting to insert duplicate resources it uses a thread-local database transaction
+ * with a transaction scope of SERIALIZABLE. If the transaction fails it retries up to {@code
+ * MAX_RETRIES} times.
  */
 public final class DatabaseSeedTask {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseSeedTask.class);
+  private static final int MAX_RETRIES = 10;
   private static final ImmutableList<QuestionDefinition> CANONICAL_QUESTIONS =
       ImmutableList.of(
           new NameQuestionDefinition(
@@ -58,16 +72,23 @@ public final class DatabaseSeedTask {
               /* questionHelpText= */ LocalizedStrings.empty()));
 
   private final Provider<QuestionService> questionServiceProvider;
+  private final Provider<VersionRepository> versionRepository;
+  private final Database database;
 
   @Inject
-  public DatabaseSeedTask(Provider<QuestionService> questionService) {
+  public DatabaseSeedTask(
+      Provider<QuestionService> questionService, Provider<VersionRepository> versionRepository) {
     this.questionServiceProvider = checkNotNull(questionService);
+    this.versionRepository = checkNotNull(versionRepository);
+    this.database = DB.getDefault();
 
     this.run();
   }
 
   private void run() {
-    seedCanonicalQuestions();
+    // Ensure a draft version exists to avoid transaction collisions.
+    versionRepository.get().getDraftVersion();
+    inSerializableTransaction(this::seedCanonicalQuestions, 1);
   }
 
   /**
@@ -76,8 +97,7 @@ public final class DatabaseSeedTask {
    */
   private void seedCanonicalQuestions() {
     var questionService = questionServiceProvider.get();
-
-    ImmutableSet<String> existingQuestionNames = getExistingQuestionNames();
+    ImmutableSet<String> existingQuestionNames = questionService.getQuestionNames();
 
     for (QuestionDefinition questionDefinition : CANONICAL_QUESTIONS) {
       if (existingQuestionNames.contains(questionDefinition.getName())) {
@@ -105,15 +125,26 @@ public final class DatabaseSeedTask {
     }
   }
 
-  private ImmutableSet<String> getExistingQuestionNames() {
-    return questionServiceProvider
-        .get()
-        .getReadOnlyQuestionService()
-        .toCompletableFuture()
-        .join()
-        .getAllQuestions()
-        .stream()
-        .map(QuestionDefinition::getName)
-        .collect(ImmutableSet.toImmutableSet());
+  private void inSerializableTransaction(Runnable fn, int tryCount) {
+    Transaction transaction =
+        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
+
+    try {
+      fn.run();
+      transaction.commit();
+    } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
+      LOGGER.warn("Database seed transaction failed: %s", e);
+
+      if (tryCount > MAX_RETRIES) {
+        throw new RuntimeException(e);
+      }
+
+      transaction.end();
+      inSerializableTransaction(fn, ++tryCount);
+    } finally {
+      if (transaction.isActive()) {
+        transaction.end();
+      }
+    }
   }
 }
