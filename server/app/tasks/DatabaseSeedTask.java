@@ -49,13 +49,12 @@ public final class DatabaseSeedTask {
               /* questionText= */ LocalizedStrings.of(
                   Lang.forCode("en-US").toLocale(),
                   "Please enter your date of birth in the format mm/dd/yyyy"),
-              /* questionHelpText */ LocalizedStrings.empty()));
+              /* questionHelpText= */ LocalizedStrings.empty()));
 
   private final Provider<QuestionService> questionServiceProvider;
 
   @Inject
-  public DatabaseSeedTask(
-      Provider<QuestionService> questionService) {
+  public DatabaseSeedTask(Provider<QuestionService> questionService) {
     this.questionServiceProvider = checkNotNull(questionService);
 
     this.run();
@@ -72,7 +71,8 @@ public final class DatabaseSeedTask {
 
     for (QuestionDefinition questionDefinition : CANONICAL_QUESTIONS) {
       if (existingQuestionNames.contains(questionDefinition.getName())) {
-        LOGGER.info("Canonical question \"%s\" exists at server start", questionDefinition.getName());
+        LOGGER.info(
+            "Canonical question \"%s\" exists at server start", questionDefinition.getName());
         continue;
       }
 
