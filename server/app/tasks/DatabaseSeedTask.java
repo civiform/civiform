@@ -28,8 +28,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /**
- * Task for seeding the database. All of its work is done in the constructor, which is its only
- * public method.
+ * Task for seeding the database.
  *
  * <p>Logic for seeding different resources should be factored into separate methods for clarity.
  *
