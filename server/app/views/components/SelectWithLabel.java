@@ -90,44 +90,6 @@ public class SelectWithLabel extends FieldWithLabel {
   }
 
   @Override
-  protected void applyAttributesFromList(Tag fieldTag) {
-    // Same as the corresponding superclass method except without the line
-    // line that applies the `type="text"` html attribute
-    this.attributesListBuilder.build().forEach(attr -> fieldTag.attr(attr, null));
-  }
-
-  protected DivTag getSelectTagContainer(SelectTag fieldTag) {
-    genRandIdIfEmpty();
-    if (this.fieldType.equals("number")) {
-      numberTagApplyAttrs(fieldTag);
-      // For number types, only set the value if it's present since there is no empty string
-      // equivalent for numbers.
-      if (this.fieldValueNumber.isPresent()) {
-        fieldTag.attr("value", String.valueOf(this.fieldValueNumber.getAsLong()));
-      }
-    } else {
-      fieldTag.attr("value", this.fieldValue);
-    }
-
-    String fieldErrorsId = String.format("%s-errors", this.id);
-    boolean hasFieldErrors = getHasFieldErrors();
-    if (hasFieldErrors) {
-      fieldTag.attr("aria-invalid", "true");
-      fieldTag.attr("aria-describedBy", fieldErrorsId);
-    }
-
-    generalApplyAttrsClassesToTag(fieldTag, hasFieldErrors);
-
-    if (this.fieldType.equals("checkbox") || this.fieldType.equals("radio")) {
-      return super.getCheckboxContainer(fieldTag);
-    }
-
-    LabelTag labelTag = super.genLabelTag();
-
-    return super.wrapInDivTag(fieldTag, labelTag, fieldErrorsId);
-  }
-
-  @Override
   public DivTag getContainer() {
     SelectTag fieldTag = TagCreator.select();
     OptionTag placeholder = option(placeholderText).withValue("").attr(Attr.HIDDEN);
@@ -151,6 +113,6 @@ public class SelectWithLabel extends FieldWithLabel {
           });
     }
 
-    return super.getTagContainer(fieldTag);
+    return applyAttrsAndGenLabel(fieldTag);
   }
 }
