@@ -19,7 +19,7 @@ RUN set -o pipefail && \
     apk update && \
     apk add --upgrade apk-tools && \
     apk upgrade --available && \
-    wget -Os https://uploader.codecov.io/latest/linux/codecov && \
+    wget -s https://codecov.io/env && \
     apk add --no-cache --update bash wget npm git openssh && \
     npm install -g npm@8.5.1 && \
     mkdir -p "${SBT_HOME}" && \
@@ -32,7 +32,6 @@ ENV PROJECT_NAME server
 COPY "${PROJECT_NAME}" "${PROJECT_HOME}/${PROJECT_NAME}"
 
 COPY entrypoint.sh /entrypoint.sh
-COPY codecov /${PROJECT_HOME}/${PROJECT_NAME}/codecov
 
 ENTRYPOINT ["/entrypoint.sh"]
 
