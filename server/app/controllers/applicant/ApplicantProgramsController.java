@@ -64,10 +64,7 @@ public class ApplicantProgramsController extends CiviFormController {
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
-            v -> {
-              return applicantService.relevantProgramsForApplicant(
-                  applicantId, ImmutableSet.of(LifecycleStage.ACTIVE, LifecycleStage.DRAFT));
-            },
+            v -> applicantService.relevantProgramsForApplicant(applicantId),
             httpContext.current())
         .thenApplyAsync(
             relevantPrograms -> {

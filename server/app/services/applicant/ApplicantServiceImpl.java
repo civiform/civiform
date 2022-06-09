@@ -13,6 +13,7 @@ import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
 import java.net.URI;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -364,11 +365,10 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
-  public CompletionStage<ImmutableList<ProgramWithApplication>> relevantProgramsForApplicant(
-      long applicantId, ImmutableSet<LifecycleStage> applicationLifecycleStages) {
+  public CompletionStage<RelevantPrograms> relevantProgramsForApplicant(long applicantId) {
     CompletableFuture<ImmutableSet<Application>> applicationsFuture =
         applicationRepository
-            .getApplicationsForApplicant(applicantId, applicationLifecycleStages)
+            .getApplicationsForApplicant(applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
     ImmutableList<ProgramDefinition> activePrograms =
         versionRepository.getActiveVersion().getPrograms().stream()
@@ -381,7 +381,7 @@ public class ApplicantServiceImpl implements ApplicantService {
         httpExecutionContext.current());
   }
 
-  private ImmutableList<ProgramWithApplication> buildRelevantProgramList(
+  private RelevantPrograms buildRelevantProgramList(
       ImmutableList<ProgramDefinition> activePrograms, ImmutableSet<Application> applications) {
     // Sort in descending database ID order. Add to set if it doesn't already exist.
     // If it does, then don't add.
@@ -421,33 +421,54 @@ public class ApplicantServiceImpl implements ApplicantService {
             .collect(ImmutableMap.toImmutableMap(ProgramDefinition::adminName, pdef -> pdef));
 
     // Loop through all of the applications so that we can make sure a ProgramDefinition
-    // is added for already completed / draft programs who's current version may not be visible
+    // is added for already completed / draft programs where the current version may not be visible
     // in the index.
-    ImmutableList.Builder<ProgramWithApplication> resultBuilder = ImmutableList.builder();
+    ImmutableList.Builder<ApplicantProgramData> inProgressPrograms = ImmutableList.builder();
+    ImmutableList.Builder<ApplicantProgramData> submittedPrograms = ImmutableList.builder();
+    ImmutableList.Builder<ApplicantProgramData> unappliedPrograms = ImmutableList.builder();
+
     mostRecentAppsPerProgram.forEach(
         (programName, appsByStage) -> {
-          ProgramDefinition programDef;
-          if (activeProgramNameLookup.containsKey(programName)) {
-            programDef = activeProgramNameLookup.get(programName);
-          } else if (appsByStage.containsKey(LifecycleStage.DRAFT)) {
-            programDef = appsByStage.get(LifecycleStage.DRAFT).getProgram().getProgramDefinition();
+          Optional<Instant> maybeSubmitTime = appsByStage.containsKey(LifecycleStage.ACTIVE) ?
+            Optional.of(appsByStage.get(LifecycleStage.ACTIVE).getSubmitTime())
+            : Optional.empty();
+          if (appsByStage.containsKey(LifecycleStage.DRAFT)) {
+            // We want to ensure that any generated links points to the version
+            // of the program associated with the draft, not the most recent version.
+            // As such, we use the program definition associated with the application.
+            inProgressPrograms.add(ApplicantProgramData.create(
+              appsByStage.get(LifecycleStage.DRAFT).getProgram().getProgramDefinition(),
+              maybeSubmitTime));
+          } else if (activeProgramNameLookup.containsKey(programName)) {
+            unappliedPrograms.add(ApplicantProgramData.create(activeProgramNameLookup.get(programName), maybeSubmitTime));
           } else {
-            programDef = appsByStage.get(LifecycleStage.ACTIVE).getProgram().getProgramDefinition();
+            submittedPrograms.add(ApplicantProgramData.create(
+              appsByStage.get(LifecycleStage.ACTIVE).getProgram().getProgramDefinition(),
+              maybeSubmitTime));
           }
-          resultBuilder.add(
-              ProgramWithApplication.create(programDef, ImmutableMap.copyOf(appsByStage)));
         });
 
     Set<String> missingActivePrograms =
         Sets.difference(activeProgramNameLookup.keySet(), mostRecentAppsPerProgram.keySet());
     missingActivePrograms.forEach(
         programName -> {
-          resultBuilder.add(
-              ProgramWithApplication.create(
-                  activeProgramNameLookup.get(programName), ImmutableMap.of()));
+          unappliedPrograms.add(
+              ApplicantProgramData.create(
+                  activeProgramNameLookup.get(programName), Optional.empty()));
         });
-
-    return resultBuilder.build();
+    
+    // Ensure each list is ordered by database ID for consistent ordering.
+    return RelevantPrograms.builder()
+        .setInProgress(inProgressPrograms.build().stream()
+          .sorted(Comparator.comparing(p -> p.program().id()))
+          .collect(ImmutableList.toImmutableList()))
+        .setSubmitted(submittedPrograms.build().stream()
+          .sorted(Comparator.comparing(p -> p.program().id()))
+          .collect(ImmutableList.toImmutableList()))
+        .setUnapplied(unappliedPrograms.build().stream()
+          .sorted(Comparator.comparing(p -> p.program().id()))
+          .collect(ImmutableList.toImmutableList()))
+        .build();
   }
 
   /**

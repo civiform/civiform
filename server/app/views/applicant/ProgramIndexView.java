@@ -13,7 +13,6 @@ import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static j2html.attributes.Attr.HREF;
 
-import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -88,7 +87,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       Http.Request request,
       long applicantId,
       Optional<String> userName,
-      ImmutableList<ApplicantService.ProgramWithApplication> relevantPrograms,
+      ApplicantService.RelevantPrograms relevantPrograms,
       Optional<String> banner) {
     HtmlBundle bundle = layout.getBundle();
     bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
@@ -154,7 +153,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private ContainerTag mainContent(
       Messages messages,
-      ImmutableList<ApplicantService.ProgramWithApplication> relevantPrograms,
+      ApplicantService.RelevantPrograms relevantPrograms,
       long applicantId,
       Locale preferredLocale) {
     ContainerTag content =
@@ -165,50 +164,15 @@ public final class ProgramIndexView extends BaseHtmlView {
                 h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
                     .withClasses(Styles.MB_4, Styles.TEXT_XL, Styles.FONT_SEMIBOLD));
 
-    List<ProgramCardData> draftPrograms = Lists.newArrayList();
-    List<ProgramCardData> alreadyAppliedPrograms = Lists.newArrayList();
-    List<ProgramCardData> newPrograms = Lists.newArrayList();
-    // Order the returned programs by database ID.
-    ImmutableList<ApplicantService.ProgramWithApplication> sortedRelevantPrograms =
-        relevantPrograms.stream()
-            .sorted(Comparator.comparing(p -> p.program().id()))
-            .collect(ImmutableList.toImmutableList());
-    for (ApplicantService.ProgramWithApplication relevantProgram : sortedRelevantPrograms) {
-      Map<LifecycleStage, Application> applicationByStatusLookup =
-          relevantProgram.mostRecentApplication();
-      Optional<Application> maybeDraftApplication =
-          applicationByStatusLookup.containsKey(LifecycleStage.DRAFT)
-              ? Optional.of(applicationByStatusLookup.get(LifecycleStage.DRAFT))
-              : Optional.empty();
-      Optional<Application> maybeSubmittedApplication =
-          applicationByStatusLookup.containsKey(LifecycleStage.ACTIVE)
-              ? Optional.of(applicationByStatusLookup.get(LifecycleStage.ACTIVE))
-              : Optional.empty();
-      Optional<Instant> maybeSubmitTime = maybeSubmittedApplication.map(Application::getSubmitTime);
-
-      if (maybeDraftApplication.isPresent()) {
-        // We want to ensure that any generated links points to the version
-        // of the program associated with the draft, not the most recent version.
-        // As such, we use the program definition associated with the application.
-        draftPrograms.add(
-            ProgramCardData.create(
-                maybeDraftApplication.get().getProgram().getProgramDefinition(), maybeSubmitTime));
-      } else if (maybeSubmittedApplication.isPresent()) {
-        alreadyAppliedPrograms.add(
-            ProgramCardData.create(relevantProgram.program(), maybeSubmitTime));
-      } else {
-        newPrograms.add(ProgramCardData.create(relevantProgram.program(), maybeSubmitTime));
-      }
-    }
-
     // The different program card containers should have the same styling, by using the program
     // count of the larger set of programs
     String cardContainerStyles =
         programCardsContainerStyles(
             Math.max(
-                Math.max(newPrograms.size(), alreadyAppliedPrograms.size()), draftPrograms.size()));
+                Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
+                    relevantPrograms.inProgress().size()));
 
-    if (!draftPrograms.isEmpty()) {
+    if (!relevantPrograms.inProgress().isEmpty()) {
       content.with(
           programCardsSection(
               messages,
@@ -216,10 +180,10 @@ public final class ProgramIndexView extends BaseHtmlView {
               cardContainerStyles,
               applicantId,
               preferredLocale,
-              ImmutableList.copyOf(draftPrograms),
+              relevantPrograms.inProgress(),
               MessageKey.BUTTON_CONTINUE));
     }
-    if (!alreadyAppliedPrograms.isEmpty()) {
+    if (!relevantPrograms.submitted().isEmpty()) {
       content.with(
           programCardsSection(
               messages,
@@ -227,10 +191,10 @@ public final class ProgramIndexView extends BaseHtmlView {
               cardContainerStyles,
               applicantId,
               preferredLocale,
-              ImmutableList.copyOf(alreadyAppliedPrograms),
+              relevantPrograms.submitted(),
               MessageKey.BUTTON_EDIT));
     }
-    if (!newPrograms.isEmpty()) {
+    if (!relevantPrograms.unapplied().isEmpty()) {
       content.with(
           programCardsSection(
               messages,
@@ -238,7 +202,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               cardContainerStyles,
               applicantId,
               preferredLocale,
-              ImmutableList.copyOf(newPrograms),
+              relevantPrograms.unapplied(),
               MessageKey.BUTTON_APPLY));
     }
 
@@ -265,7 +229,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       String cardContainerStyles,
       long applicantId,
       Locale preferredLocale,
-      ImmutableList<ProgramCardData> cards,
+      ImmutableList<ApplicantService.ApplicantProgramData> cards,
       MessageKey applyTitle) {
     return div()
         .with(
@@ -290,7 +254,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private ContainerTag programCard(
       Messages messages,
-      ProgramCardData cardData,
+      ApplicantService.ApplicantProgramData cardData,
       int programIndex,
       int totalProgramCount,
       Long applicantId,
@@ -365,8 +329,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       programData.with(externalLink);
     }
 
-    if (cardData.submitTime().isPresent()) {
-      programData.with(programCardSubmittedDate(messages, cardData.submitTime().get()));
+    if (cardData.latestApplicationSubmitTime().isPresent()) {
+      programData.with(programCardSubmittedDate(messages, cardData.latestApplicationSubmitTime().get()));
     }
 
     String actionUrl =
@@ -442,16 +406,5 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
 
     return div().withClasses(Styles.TEXT_XS, Styles.TEXT_GRAY_700).with(submittedComponents);
-  }
-
-  @AutoValue
-  abstract static class ProgramCardData {
-    static ProgramCardData create(ProgramDefinition program, Optional<Instant> submitTime) {
-      return new AutoValue_ProgramIndexView_ProgramCardData(program, submitTime);
-    }
-
-    abstract ProgramDefinition program();
-
-    abstract Optional<Instant> submitTime();
   }
 }

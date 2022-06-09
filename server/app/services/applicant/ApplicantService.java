@@ -5,11 +5,13 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
+import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramDefinition;
 
@@ -96,19 +98,36 @@ public interface ApplicantService {
    */
   ImmutableList<Application> getAllApplications();
 
-  CompletionStage<ImmutableList<ProgramWithApplication>> relevantProgramsForApplicant(
-      long applicantId, ImmutableSet<LifecycleStage> applicationLifecycleStages);
+  CompletionStage<RelevantPrograms> relevantProgramsForApplicant(long applicantId);
 
   @AutoValue
-  public abstract static class ProgramWithApplication {
-    static ProgramWithApplication create(
+  public abstract static class ApplicantProgramData {
+    static ApplicantProgramData create(
         ProgramDefinition program,
-        ImmutableMap<LifecycleStage, Application> mostRecentApplication) {
-      return new AutoValue_ApplicantService_ProgramWithApplication(program, mostRecentApplication);
+        Optional<Instant> latestApplicationSubmitTime) {
+      return new AutoValue_ApplicantService_ApplicantProgramData(program, latestApplicationSubmitTime);
     }
 
     public abstract ProgramDefinition program();
+    public abstract Optional<Instant> latestApplicationSubmitTime();
+  }
 
-    public abstract ImmutableMap<LifecycleStage, Application> mostRecentApplication();
+  @AutoValue
+  public abstract static class RelevantPrograms {
+      public abstract ImmutableList<ApplicantProgramData> inProgress();
+      public abstract ImmutableList<ApplicantProgramData> submitted();
+      public abstract ImmutableList<ApplicantProgramData> unapplied();
+
+      static Builder builder() {
+          return new AutoValue_ApplicantService_RelevantPrograms.Builder();
+      }
+
+      @AutoValue.Builder
+      abstract static class Builder {
+          abstract Builder setInProgress(ImmutableList<ApplicantProgramData> value);
+          abstract Builder setSubmitted(ImmutableList<ApplicantProgramData> value);
+          abstract Builder setUnapplied(ImmutableList<ApplicantProgramData> value);
+          abstract RelevantPrograms build();
+      }
   }
 }
