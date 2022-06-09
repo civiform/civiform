@@ -19,7 +19,7 @@ readonly CURRENT_PROD_TAG="$(azure::get_container_tag \
 # that is not the current production tag.
 readonly IMAGE_TAG="$(log::get_last_deployed_image_tag "${CURRENT_PROD_TAG}")"
 
-if ! terraform::perform_apply "$(azure::is_service_principal)"; then
+if ! terraform::perform_apply; then
   out::error "Terraform deployment failed."
   log::rollback_failed "${IMAGE_TAG}" "${AZURE_USER_ID}"
   azure_log::upload_log_file

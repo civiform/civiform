@@ -15,7 +15,7 @@ readonly TERRAFORM_APPLY=(${TERRAFORM_CMD[@]} "apply" "-input=false" "-json")
 #   auto_approve boolean
 #######################################
 function terraform::perform_apply() {
-  if [[ "${CIVIFORM_MODE}" == "dev" ]]; then
+  if civiform_mode::is_dev; then
     "${TERRAFORM_CMD[@]}" init -upgrade
   else
     "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/setup_tf_shared_state" \
@@ -43,8 +43,8 @@ function terraform::perform_apply() {
   if civiform_mode::is_test; then
     return 0
   fi
-  auto_approve = $1
-  if ["$auto_approve"]; then
+
+  if ! civiform_mode::is_dev; then
     "${TERRAFORM_APPLY[@]}" -auto-approve "${TERRAFORM_PLAN_OUT_FILE}"
   else
     "${TERRAFORM_APPLY[@]}" "${TERRAFORM_PLAN_OUT_FILE}"
