@@ -19,7 +19,7 @@ RUN set -o pipefail && \
     apk update && \
     apk add --upgrade apk-tools && \
     apk upgrade --available && \
-    wget -Os https://uploader.codecov.io/latest/linux/codecov
+    wget -Os https://uploader.codecov.io/latest/linux/codecov && \
     apk add --no-cache --update bash wget npm git openssh && \
     npm install -g npm@8.5.1 && \
     mkdir -p "${SBT_HOME}" && \
