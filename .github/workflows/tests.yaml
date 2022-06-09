@@ -16,7 +16,6 @@ permissions: read-all
 
 jobs:
   run_junit_tests:
-    needs:  [build_civifom-dev]
     runs-on: ubuntu-latest
     steps:
     - name: check out ${{ env.GITHUB_REF }}
@@ -38,7 +37,6 @@ jobs:
       run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
 
   run_browser_tests:
-    needs:  [build_browser_tests, build_civifom-dev]
     strategy:
       matrix:
         batch_number: [1, 2, 3, 4]
@@ -81,7 +79,6 @@ jobs:
       run: cat .dockerlogs
 
   test_prod:
-    needs:  [build_civifom]
     runs-on: ubuntu-latest
     steps:
     - name: check out ${{ env.GITHUB_REF }}

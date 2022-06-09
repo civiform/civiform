@@ -15,25 +15,17 @@ on:
 permissions: read-all
 
 jobs:
-  run_junit_tests:
+  build_browser_tests:
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "skipping"'
 
-  run_browser_tests:
-    strategy:
-      matrix:
-        batch_number: [1, 2, 3, 4]
-        include:
-        - env: azure
-          emulator: Localstack
-        - env: aws
-          emulator: Azurite
+  build_civifom-dev:
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "skipping"'
 
-  test_prod:
+  build_civifom:
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "skipping"'

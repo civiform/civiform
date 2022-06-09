@@ -27,5 +27,6 @@ jobs:
     uses: ./.github/workflows/build.yaml
     secrets: inherit
   run_all_tests:
+    needs:  [run_all_builds]
     uses: ./.github/workflows/tests.yaml
     secrets: inherit
