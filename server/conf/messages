@@ -148,10 +148,18 @@ link.externalLink=External site
 title.programs=Programs & services
 
 # Subtitle for the list of programs with draft applications
-title.inProgressPrograms=In progress
+# TODO(#2573): Remove this once translations are available for inProgressProgramsUpdated
+title.inProgressPrograms=Continue
+
+# Subtitle for the list of programs with draft applications
+title.inProgressProgramsUpdated=In progress
 
 # Subtitle for the list of programs for which the applicant has no draft applications
-title.activePrograms=Not started
+# TODO(#2573): Remove this once translations are available for activeProgramsUpdated
+title.activePrograms=New Programs
+
+# Subtitle for the list of programs for which the applicant has no draft applications
+title.activeProgramsUpdated=Not started
 
 # Subtitle for the list of programs for which the applicant has already submitted an application
 title.submittedPrograms=Submitted
