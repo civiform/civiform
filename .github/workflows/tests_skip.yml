@@ -20,18 +20,15 @@ jobs:
     steps:
       - run: 'echo "skipping"'
 
-  run_browser_tests_aws:
+  run_browser_tests:
     strategy:
       matrix:
         batch_number: [1, 2, 3, 4]
-    runs-on: ubuntu-latest
-    steps:
-      - run: 'echo "skipping"'
-
-  run_browser_tests_azure:
-    strategy:
-      matrix:
-        batch_number: [1, 2, 3, 4]
+        include:
+        - env: azure
+          emulator: Localstack
+        - env: aws
+          emulator: Azurite
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "skipping"'
