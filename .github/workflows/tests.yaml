@@ -15,34 +15,6 @@ on:
 permissions: read-all
 
 jobs:
-  build_browser_tests:
-    runs-on: ubuntu-latest
-    steps:
-    - name: check out ${{ env.GITHUB_REF }}
-      uses: actions/checkout@v3
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-    - name: Build browser testing container
-      uses: docker/build-push-action@v3
-      with:
-        context: browser-test/
-        file: browser-test/playwright.Dockerfile
-        load: true
-        push: false
-        tags: civiform-browser-test:latest
-        cache-from: |
-          civiform/civiform-browser-test:latest
-          type=gha
-        outputs: type=docker,dest=/tmp/civiform-browser-test.tar
-    - name: Upload civiform-browser-test artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: civiform-browser-test
-        path: /tmp/civiform-browser-test.tar
-        retention-days: 1
-        if-no-files-found: error
-
-
   build_civifom-dev:
     runs-on: ubuntu-latest
     steps:
@@ -58,8 +30,8 @@ jobs:
         push: false
         tags: civiform
         cache-from: |
-          civiform/civiform-dev:latest
           type=gha
+          civiform/civiform-dev:latest
         outputs: type=docker,dest=/tmp/civiform-dev.tar
     - name: Upload civiform-dev artifact
       uses: actions/upload-artifact@v3
@@ -86,13 +58,12 @@ jobs:
         tags: civiform-dev
         cache-from: |
           civiform/civiform-dev:latest
-          type=gha
         cache-to: type=gha,mode=max
     - name: Run tests
       run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
 
   run_browser_tests:
-    needs:  [build_civifom-dev,build_browser_tests]
+    needs:  [build_civifom-dev]
     strategy:
       matrix:
         batch_number: [1, 2, 3, 4]
@@ -117,15 +88,18 @@ jobs:
       run: |
         docker load --input /tmp/civiform-dev.tar
         docker image ls -a
-    - name: Download civiform-browser-test artifact
-      uses: actions/download-artifact@v3
+    - name: Build browser testing container
+      uses: docker/build-push-action@v3
       with:
-        name: civiform-browser-test
-        path: /tmp
-    - name: Load civiform-browser-test image
-      run: |
-        docker load --input /tmp/civiform-browser-test.tar
-        docker image ls -a
+        context: browser-test/
+        file: browser-test/playwright.Dockerfile
+        load: true
+        push: false
+        tags: civiform-browser-test:latest
+        cache-from: |
+          civiform/civiform-browser-test:latest
+        outputs: type=docker,dest=/tmp/civiform-browser-test.tar
+
     - name: Bring up test env with ${{ matrix.emulator }}
       run: bin/run-browser-test-env --${{ matrix.env}} --ci
     - name: Run browser tests with ${{ matrix.emulator }}

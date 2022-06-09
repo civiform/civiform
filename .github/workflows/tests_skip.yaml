@@ -15,12 +15,19 @@ on:
 permissions: read-all
 
 jobs:
+  build_civifom-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "skipping"'
+
   run_junit_tests:
+    needs:  [build_civifom-dev]
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "skipping"'
 
   run_browser_tests:
+    needs:  [build_civifom-dev]
     strategy:
       matrix:
         batch_number: [1, 2, 3, 4]
