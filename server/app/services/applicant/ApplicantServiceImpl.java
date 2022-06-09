@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
@@ -417,12 +418,10 @@ public final class ApplicantServiceImpl implements ApplicantService {
       mostRecentAppsPerProgram.put(programKey, appsByStage);
     }
 
-    // TODO(#2573): This assumes that only one entry exists for a given admin
-    // name. We should ensure that this is actually true, otherwise the collector
-    // below will throw an error.
     ImmutableMap<String, ProgramDefinition> activeProgramNameLookup =
-        activePrograms.stream()
-            .collect(ImmutableMap.toImmutableMap(ProgramDefinition::adminName, pdef -> pdef));
+        ImmutableMap.copyOf(
+            activePrograms.stream()
+                .collect(Collectors.toMap(ProgramDefinition::adminName, pdef -> pdef)));
 
     // Loop through all of the applications so that we can make sure a ProgramDefinition
     // is added for already completed / draft programs where the current version may not be visible
