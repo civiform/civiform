@@ -12,8 +12,8 @@ permissions: read-all
 
 jobs:
   run_all_builds:
-    uses: ./.github/workflows/build.yml
+    uses: ./.github/workflows/build.yaml
     secrets: inherit
   run_all_tests:
-    uses: ./.github/workflows/tests.yml
+    uses: ./.github/workflows/tests.yaml
     secrets: inherit
