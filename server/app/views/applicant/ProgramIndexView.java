@@ -13,7 +13,6 @@ import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static j2html.attributes.Attr.HREF;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
@@ -39,6 +38,7 @@ import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.TranslationUtils;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.TextFormatter;
@@ -373,21 +373,14 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Tag programCardSubmittedDate(Messages messages, Instant submittedDate) {
-    String placeholder = "DATE_PLACEHOLDER";
-    String translatedSubmittedDate =
-        messages.at(MessageKey.SUBMITTED_DATE.getKeyName(), placeholder);
-    // Now split into components.
-    List<String> components = Splitter.onPattern(placeholder).splitToList(translatedSubmittedDate);
-    if (components.size() != 2) {
-      throw new RuntimeException(
-          String.format(
-              "Expected exactly one occurrence of %s in translated string: %s",
-              placeholder, translatedSubmittedDate));
-    }
-    // First component is everything before, second is everything after.
+    TranslationUtils.TranslatedStringSplitResult translateResult =
+        TranslationUtils.splitTranslatedSingleString(messages, MessageKey.SUBMITTED_DATE);
+    String beforeContent = translateResult.beforeInterpretedContent();
+    String afterContent = translateResult.afterInterpretedContent();
+
     List<DomContent> submittedComponents = Lists.newArrayList();
-    if (!components.get(0).isEmpty()) {
-      submittedComponents.add(text(components.get(0)));
+    if (!beforeContent.isEmpty()) {
+      submittedComponents.add(text(beforeContent));
     }
 
     ZonedDateTime dateTime = submittedDate.atZone(zoneId);
@@ -398,8 +391,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             .format(dateTime);
     submittedComponents.add(span(formattedSubmitTime).withClass(Styles.FONT_SEMIBOLD));
 
-    if (!components.get(1).isEmpty()) {
-      submittedComponents.add(text(components.get(1)));
+    if (!afterContent.isEmpty()) {
+      submittedComponents.add(text(afterContent));
     }
 
     return div().withClasses(Styles.TEXT_XS, Styles.TEXT_GRAY_700).with(submittedComponents);
