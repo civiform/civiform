@@ -25,16 +25,12 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.inject.Inject;
-import models.Application;
-import models.LifecycleStage;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -170,7 +166,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         programCardsContainerStyles(
             Math.max(
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
-                    relevantPrograms.inProgress().size()));
+                relevantPrograms.inProgress().size()));
 
     if (!relevantPrograms.inProgress().isEmpty()) {
       content.with(
@@ -330,7 +326,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
 
     if (cardData.latestApplicationSubmitTime().isPresent()) {
-      programData.with(programCardSubmittedDate(messages, cardData.latestApplicationSubmitTime().get()));
+      programData.with(
+          programCardSubmittedDate(messages, cardData.latestApplicationSubmitTime().get()));
     }
 
     String actionUrl =

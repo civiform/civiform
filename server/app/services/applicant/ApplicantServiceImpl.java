@@ -368,7 +368,8 @@ public class ApplicantServiceImpl implements ApplicantService {
   public CompletionStage<RelevantPrograms> relevantProgramsForApplicant(long applicantId) {
     CompletableFuture<ImmutableSet<Application>> applicationsFuture =
         applicationRepository
-            .getApplicationsForApplicant(applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
+            .getApplicationsForApplicant(
+                applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
     ImmutableList<ProgramDefinition> activePrograms =
         versionRepository.getActiveVersion().getPrograms().stream()
@@ -429,22 +430,27 @@ public class ApplicantServiceImpl implements ApplicantService {
 
     mostRecentAppsPerProgram.forEach(
         (programName, appsByStage) -> {
-          Optional<Instant> maybeSubmitTime = appsByStage.containsKey(LifecycleStage.ACTIVE) ?
-            Optional.of(appsByStage.get(LifecycleStage.ACTIVE).getSubmitTime())
-            : Optional.empty();
+          Optional<Instant> maybeSubmitTime =
+              appsByStage.containsKey(LifecycleStage.ACTIVE)
+                  ? Optional.of(appsByStage.get(LifecycleStage.ACTIVE).getSubmitTime())
+                  : Optional.empty();
           if (appsByStage.containsKey(LifecycleStage.DRAFT)) {
             // We want to ensure that any generated links points to the version
             // of the program associated with the draft, not the most recent version.
             // As such, we use the program definition associated with the application.
-            inProgressPrograms.add(ApplicantProgramData.create(
-              appsByStage.get(LifecycleStage.DRAFT).getProgram().getProgramDefinition(),
-              maybeSubmitTime));
+            inProgressPrograms.add(
+                ApplicantProgramData.create(
+                    appsByStage.get(LifecycleStage.DRAFT).getProgram().getProgramDefinition(),
+                    maybeSubmitTime));
           } else if (activeProgramNameLookup.containsKey(programName)) {
-            unappliedPrograms.add(ApplicantProgramData.create(activeProgramNameLookup.get(programName), maybeSubmitTime));
+            unappliedPrograms.add(
+                ApplicantProgramData.create(
+                    activeProgramNameLookup.get(programName), maybeSubmitTime));
           } else {
-            submittedPrograms.add(ApplicantProgramData.create(
-              appsByStage.get(LifecycleStage.ACTIVE).getProgram().getProgramDefinition(),
-              maybeSubmitTime));
+            submittedPrograms.add(
+                ApplicantProgramData.create(
+                    appsByStage.get(LifecycleStage.ACTIVE).getProgram().getProgramDefinition(),
+                    maybeSubmitTime));
           }
         });
 
@@ -456,18 +462,21 @@ public class ApplicantServiceImpl implements ApplicantService {
               ApplicantProgramData.create(
                   activeProgramNameLookup.get(programName), Optional.empty()));
         });
-    
+
     // Ensure each list is ordered by database ID for consistent ordering.
     return RelevantPrograms.builder()
-        .setInProgress(inProgressPrograms.build().stream()
-          .sorted(Comparator.comparing(p -> p.program().id()))
-          .collect(ImmutableList.toImmutableList()))
-        .setSubmitted(submittedPrograms.build().stream()
-          .sorted(Comparator.comparing(p -> p.program().id()))
-          .collect(ImmutableList.toImmutableList()))
-        .setUnapplied(unappliedPrograms.build().stream()
-          .sorted(Comparator.comparing(p -> p.program().id()))
-          .collect(ImmutableList.toImmutableList()))
+        .setInProgress(
+            inProgressPrograms.build().stream()
+                .sorted(Comparator.comparing(p -> p.program().id()))
+                .collect(ImmutableList.toImmutableList()))
+        .setSubmitted(
+            submittedPrograms.build().stream()
+                .sorted(Comparator.comparing(p -> p.program().id()))
+                .collect(ImmutableList.toImmutableList()))
+        .setUnapplied(
+            unappliedPrograms.build().stream()
+                .sorted(Comparator.comparing(p -> p.program().id()))
+                .collect(ImmutableList.toImmutableList()))
         .build();
   }
 

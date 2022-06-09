@@ -4,13 +4,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.ProfileUtils;
-import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -64,8 +62,7 @@ public class ApplicantProgramsController extends CiviFormController {
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
-            v -> applicantService.relevantProgramsForApplicant(applicantId),
-            httpContext.current())
+            v -> applicantService.relevantProgramsForApplicant(applicantId), httpContext.current())
         .thenApplyAsync(
             relevantPrograms -> {
               return ok(
