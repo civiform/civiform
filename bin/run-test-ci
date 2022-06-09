@@ -9,7 +9,7 @@ docker::compose_unit_test up -d
 docker::compose_unit_test exec civiform sbt coverage test
 docker::compose_unit_test exec civiform sbt coverageReport
 docker::compose_unit_test exec civiform chmod +x codecov
-docker::compose_unit_test exec civiform ./codecov -t 66ca15a8-c677-4707-8d1b-46b185e7c786
+docker::compose_unit_test exec civiform ./codecov
 # Upon a successful test run (exit code zero), we also
 # assert that SBT actually ran the test suite by evaluating
 # whether a well-known test name exists in the set of
