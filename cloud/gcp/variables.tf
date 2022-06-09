@@ -38,3 +38,4 @@ variable "civiform_image_name" {
   description = "the image name postfix for civiform."
   default     = "civiform:latest"
 }
+

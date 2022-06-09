@@ -30,15 +30,16 @@ variable "db_secret_id" {
 
 variable "civiform_image_name" {
   type        = string
-  description = "Suffix of the civiform image"
+  description = "Suffix for the latest civiform image. For example, `civform-latest`."
 }
 
 variable "project_id" {
   type        = string
-  description = "project id for the project"
+  description = "GCP project id name for the civform project."
 }
 
 variable "terraform_service_account_email" {
   type        = string
   description = "service account that runs terraform."
 }
+

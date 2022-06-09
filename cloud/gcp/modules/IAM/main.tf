@@ -55,3 +55,4 @@ resource "google_storage_bucket_iam_binding" "binding" {
     "serviceAccount:${var.terraform_service_account_email}",
   ]
 }
+
