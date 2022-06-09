@@ -5,7 +5,6 @@
 .gitignore
 .idea
 .secrets
-Dockerfile
 LICENSE
 README.md
 bin
