@@ -42,7 +42,7 @@ resource "aws_secretsmanager_secret" "adfs_secret_secret" {
 # Creating a AWS secret versions fro adfs_secret
 resource "aws_secretsmanager_secret_version" "adfs_secret_secret_version" {
   secret_id     = aws_secretsmanager_secret.adfs_secret_secret.id
-  secret_string = ""
+  secret_string = " "
 }
 
 # Creating a AWS secret for aws_secret_access_token
@@ -75,7 +75,7 @@ resource "aws_secretsmanager_secret" "adfs_client_id_secret" {
 # Creating a AWS secret versions fro adfs_client_id
 resource "aws_secretsmanager_secret_version" "adfs_client_id_secret_version" {
   secret_id     = aws_secretsmanager_secret.adfs_client_id_secret.id
-  secret_string = ""
+  secret_string = " "
 }
 
 # Creating a AWS secret for adfs_discovery_uri
@@ -86,5 +86,5 @@ resource "aws_secretsmanager_secret" "adfs_discovery_uri_secret" {
 # Creating a AWS secret versions fro adfs_discovery_uri
 resource "aws_secretsmanager_secret_version" "adfs_discovery_uri_secret_version" {
   secret_id     = aws_secretsmanager_secret.adfs_discovery_uri_secret.id
-  secret_string = ""
+  secret_string = " "
 }

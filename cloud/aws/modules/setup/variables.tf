@@ -13,11 +13,11 @@ variable "log_storage_bucket" {
 variable "backend_state_bucket" {
   type        = string
   description = "Name for S3 bucket to store backend state for TF"
-  default     = "civiform-backend-bucket"
+  default     = "civiform-tfstate-bucket"
 }
 
 variable "lock_table_name" {
   type        = string
   description = "Name for DymanoDB table that handles locking of TF backend state"
-  default     = "civiform-backend-lock-table"
+  default     = "civiform-backend-lock-table-tfstate"
 }
