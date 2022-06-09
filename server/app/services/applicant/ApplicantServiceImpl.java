@@ -445,10 +445,11 @@ public class ApplicantServiceImpl implements ApplicantService {
           } else if (appsByStage.containsKey(LifecycleStage.ACTIVE)) {
             // Prefer the most recent version of the program. If none exists,
             // fall back on the version used to submit the application.
-            ProgramDefinition programDef = activeProgramNameLookup.getOrDefault(programName,
-              appsByStage.get(LifecycleStage.ACTIVE).getProgram().getProgramDefinition());
-            submittedPrograms.add(
-                ApplicantProgramData.create(programDef, maybeSubmitTime));
+            ProgramDefinition programDef =
+                activeProgramNameLookup.getOrDefault(
+                    programName,
+                    appsByStage.get(LifecycleStage.ACTIVE).getProgram().getProgramDefinition());
+            submittedPrograms.add(ApplicantProgramData.create(programDef, maybeSubmitTime));
           }
         });
 

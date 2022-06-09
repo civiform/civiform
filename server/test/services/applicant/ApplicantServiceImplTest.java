@@ -835,29 +835,30 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     assertThat(email).hasValue("test@example.com");
   }
 
-//   @Test
-//   public void relevantPrograms() {
-//     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
-//     Program p1 =
-//         ProgramBuilder.newActiveProgram()
-//             .withBlock()
-//             .withRequiredQuestion(testQuestionBank.applicantName())
-//             .build();
-//     Program p2 =
-//         ProgramBuilder.newActiveProgram()
-//             .withBlock()
-//             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
-//             .build();
-//     applicationRepository.createOrUpdateDraft(applicant.id, p1.id).toCompletableFuture().join();
+  //   @Test
+  //   public void relevantPrograms() {
+  //     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+  //     Program p1 =
+  //         ProgramBuilder.newActiveProgram()
+  //             .withBlock()
+  //             .withRequiredQuestion(testQuestionBank.applicantName())
+  //             .build();
+  //     Program p2 =
+  //         ProgramBuilder.newActiveProgram()
+  //             .withBlock()
+  //             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+  //             .build();
+  //     applicationRepository.createOrUpdateDraft(applicant.id,
+  // p1.id).toCompletableFuture().join();
 
-//     ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>> programs =
-//         subject.relevantPrograms(applicant.id).toCompletableFuture().join();
+  //     ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>> programs =
+  //         subject.relevantPrograms(applicant.id).toCompletableFuture().join();
 
-//     assertThat(programs.get(LifecycleStage.DRAFT).stream().map(ProgramDefinition::id))
-//         .containsExactly(p1.id);
-//     assertThat(programs.get(LifecycleStage.ACTIVE).stream().map(ProgramDefinition::id))
-//         .containsExactly(p1.id, p2.id);
-//   }
+  //     assertThat(programs.get(LifecycleStage.DRAFT).stream().map(ProgramDefinition::id))
+  //         .containsExactly(p1.id);
+  //     assertThat(programs.get(LifecycleStage.ACTIVE).stream().map(ProgramDefinition::id))
+  //         .containsExactly(p1.id, p2.id);
+  //   }
 
   private void createQuestions() {
     questionDefinition =
