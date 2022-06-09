@@ -442,15 +442,13 @@ public class ApplicantServiceImpl implements ApplicantService {
                 ApplicantProgramData.create(
                     appsByStage.get(LifecycleStage.DRAFT).getProgram().getProgramDefinition(),
                     maybeSubmitTime));
-          } else if (activeProgramNameLookup.containsKey(programName)) {
-            unappliedPrograms.add(
-                ApplicantProgramData.create(
-                    activeProgramNameLookup.get(programName), maybeSubmitTime));
-          } else {
+          } else if (appsByStage.containsKey(LifecycleStage.ACTIVE)) {
+            // Prefer the most recent version of the program. If none exists,
+            // fall back on the version used to submit the application.
+            ProgramDefinition programDef = activeProgramNameLookup.getOrDefault(programName,
+              appsByStage.get(LifecycleStage.ACTIVE).getProgram().getProgramDefinition());
             submittedPrograms.add(
-                ApplicantProgramData.create(
-                    appsByStage.get(LifecycleStage.ACTIVE).getProgram().getProgramDefinition(),
-                    maybeSubmitTime));
+                ApplicantProgramData.create(programDef, maybeSubmitTime));
           }
         });
 
