@@ -20,6 +20,7 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.NavTag;
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.SelectTag;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -131,9 +132,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
-  private DivTag getLanguageForm(
+  private ContainerTag<?> getLanguageForm(
       Http.Request request, Optional<CiviFormProfile> profile, Messages messages) {
-    DivTag languageForm = div();
+    ContainerTag<?> languageForm = div();
     if (profile.isPresent()) { // Show language switcher.
       long userId = profile.get().getApplicant().join().id;
 
@@ -156,7 +157,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .attr("onchange", "this.form.submit()")
                 .attr("aria-label", messages.at(MessageKey.LANGUAGE_LABEL_SR.getKeyName()));
         languageForm =
-            languageForm.with(
                 form()
                     .withAction(updateLanguageAction)
                     .withMethod(Http.HttpVerbs.POST)
@@ -167,7 +167,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                         TagCreator.button()
                             .withId("cf-update-lang")
                             .attr("type", "submit")
-                            .isHidden()));
+                            .isHidden());
       }
     }
     return languageForm;

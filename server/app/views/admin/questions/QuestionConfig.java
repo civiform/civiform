@@ -18,6 +18,7 @@ import forms.QuestionForm;
 import forms.TextQuestionForm;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.LabelTag;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -211,17 +212,15 @@ public class QuestionConfig {
             .showFieldErrors(false)
             .getContainer()
             .withClasses(Styles.FLEX, Styles.ML_2, Styles.GAP_X_3);
-    DivTag optionIndexInput =
+    ContainerTag<?> optionIndexInput =
         isForNewOption
             ? div()
-            : div()
-                .with(
-                    FieldWithLabel.input()
+            : FieldWithLabel.input()
                         .setFieldName("optionIds[]")
                         .setValue(String.valueOf(existingOption.get().id()))
                         .setScreenReaderText("option ids")
                         .getContainer()
-                        .withClasses(Styles.HIDDEN));
+                        .withClasses(Styles.HIDDEN);
     ButtonTag removeOptionButton =
         button("Remove")
             .attr("type", "button")

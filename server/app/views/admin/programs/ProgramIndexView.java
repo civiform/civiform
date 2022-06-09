@@ -110,17 +110,15 @@ public final class ProgramIndexView extends BaseHtmlView {
         .asButton();
   }
 
-  private DivTag maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {
+  private ContainerTag<?> maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {
     // We should only render the publish button if there is at least one draft.
     if (programs.anyDraft()) {
       String link = routes.AdminProgramController.publish().url();
-      FormTag linkElementAsForm =
-          new LinkElement()
+      return new LinkElement()
               .setId("publish-programs-button")
               .setHref(link)
               .setText("Publish all drafts")
               .asHiddenForm(request);
-      return div().with(linkElementAsForm);
     } else {
       return div();
     }
@@ -249,7 +247,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     throw new IllegalArgumentException("Program neither active nor draft.");
   }
 
-  ContainerTag maybeRenderEditLink(
+  ContainerTag<?> maybeRenderEditLink(
       Optional<ProgramDefinition> draftProgram,
       Optional<ProgramDefinition> activeProgram,
       Http.Request request) {
@@ -279,7 +277,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               .setText(newVersionText)
               .setStyles(Styles.MR_2)
               .asHiddenForm(request);
-      return div().with(linkElementAsForm);
+      return linkElementAsForm;
     } else {
       // obsolete or deleted, no edit link, empty div.
       return div();

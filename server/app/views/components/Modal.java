@@ -5,6 +5,7 @@ import static views.BaseHtmlView.button;
 
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.Tag;
 import java.util.Optional;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -14,7 +15,7 @@ import views.style.Styles;
 public class Modal {
 
   private String modalId;
-  private DivTag content;
+  private Tag<?> content;
   private String modalTitle;
   private String triggerButtonText;
   private Optional<ButtonTag> triggerButtonContent;
@@ -31,7 +32,7 @@ public class Modal {
     this.width = builder.width;
   }
 
-  public DivTag getContainerTag() {
+  public Tag<?> getContainerTag() {
     return div()
         .withId(modalId)
         .withClasses(ReferenceClasses.MODAL, BaseStyles.MODAL, width.getStyle())
@@ -48,11 +49,11 @@ public class Modal {
     }
   }
 
-  private DivTag getContent() {
+  private Tag<?> getContent() {
     return div(content).withClasses(BaseStyles.MODAL_CONTENT);
   }
 
-  private DivTag getModalHeader() {
+  private Tag<?> getModalHeader() {
     return div()
         .withClasses(BaseStyles.MODAL_HEADER)
         .with(div(modalTitle).withClasses(Styles.TEXT_LG))
@@ -60,14 +61,14 @@ public class Modal {
         .with(div("x").withId(modalId + "-close").withClasses(BaseStyles.MODAL_CLOSE_BUTTON));
   }
 
-  public static ModalBuilder builder(String modalId, DivTag content) {
+  public static ModalBuilder builder(String modalId, Tag<?> content) {
     return new ModalBuilder(modalId, content);
   }
 
   public static class ModalBuilder {
 
     private String modalId;
-    private DivTag content;
+    private Tag<?> content;
     private String buttonStyles = BaseStyles.MODAL_BUTTON;
 
     // Optional fields. See #setOptionalFields().
@@ -77,7 +78,7 @@ public class Modal {
     private Optional<ButtonTag> triggerButtonContent = Optional.empty();
     private Width width = Width.DEFAULT;
 
-    public ModalBuilder(String modalId, DivTag content) {
+    public ModalBuilder(String modalId, Tag<?> content) {
       this.modalId = modalId;
       this.content = content;
     }
