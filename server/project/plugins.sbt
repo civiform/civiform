@@ -9,3 +9,5 @@ addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
 
 // IDE compatibility plugin
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.2")
+
+addSbtPlugin("net.virtual-void" % "sbt-optimizer" % "0.1.2")

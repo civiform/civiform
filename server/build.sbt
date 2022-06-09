@@ -1,8 +1,9 @@
 import play.sbt.PlayImport.PlayKeys.playRunHooks
 import sbt.internal.io.{Source, WatchState}
+import net.virtualvoid.optimizer.SbtOptimizerPlugin
 
 lazy val root = (project in file("."))
-  .enablePlugins(PlayJava, PlayEbean)
+  .enablePlugins(PlayJava, PlayEbean, SbtOptimizerPlugin)
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
@@ -78,7 +79,7 @@ lazy val root = (project in file("."))
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.9.0",
-      
+
       //pdf library for export
        "com.itextpdf" % "itextpdf" % "5.5.13.3",
 

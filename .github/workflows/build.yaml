@@ -34,6 +34,8 @@ jobs:
         name: civiform-browser-test
         path: /tmp/civiform-browser-test.tar
         retention-days: 1
+        if-no-files-found: error
+
 
   build_civifom-dev:
     runs-on: ubuntu-latest
@@ -59,6 +61,8 @@ jobs:
         name: civiform-dev
         path: /tmp/civiform-dev.tar
         retention-days: 1
+        if-no-files-found: error
+
 
   build_civifom:
     runs-on: ubuntu-latest
@@ -85,3 +89,5 @@ jobs:
         name: civiform
         path: /tmp/civiform.tar
         retention-days: 1
+        if-no-files-found: error
+
