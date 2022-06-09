@@ -6,13 +6,17 @@ import auth.Authorizers;
 import auth.ProfileUtils;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.Account;
+import models.StoredFile;
 import org.pac4j.play.java.Secure;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.StoredFileRepository;
 import services.cloud.StorageClient;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -23,17 +27,20 @@ public class FileController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final ProgramService programService;
   private final StorageClient storageClient;
+  private final StoredFileRepository storedFileRepository;
   private final ProfileUtils profileUtils;
 
   @Inject
   public FileController(
       HttpExecutionContext httpExecutionContext,
       ProgramService programService,
+      StoredFileRepository storedFileRepository,
       StorageClient storageClient,
       ProfileUtils profileUtils) {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.programService = checkNotNull(programService);
     this.storageClient = checkNotNull(storageClient);
+    this.storedFileRepository = checkNotNull(storedFileRepository);
     this.profileUtils = checkNotNull(profileUtils);
   }
 
@@ -66,6 +73,44 @@ public class FileController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result adminShow(Request request, long programId, String fileKey) {
+    return adminShowInternal(request, Optional.of(programId), fileKey);
+  }
+
+  @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
+  public Result acledAdminShow(Request request, String fileKey) {
+    return adminShowInternal(request, /* maybeProgramId= */ Optional.empty(), fileKey);
+  }
+
+  public Result adminShowInternal(Request request, Optional<Long> maybeProgramId, String fileKey) {
+    Optional<StoredFile> maybeFile =
+        storedFileRepository.lookupFile(fileKey).toCompletableFuture().join();
+
+    if (maybeFile.isEmpty()) {
+      return notFound();
+    }
+
+    Account adminAccount =
+        profileUtils.currentUserProfile(request).orElseThrow().getAccount().join();
+
+    if (!maybeFile.get().getAcls().hasProgramReadPermission(adminAccount)) {
+      // If the request includes a program ID in the URL, try the legacy logic
+      // that assumes the admin is associated with the original program the
+      // file was uploaded for.
+      return maybeProgramId
+          .map(programId -> legacyAdminShow(request, programId, fileKey))
+          .orElse(unauthorized());
+    }
+
+    String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
+    return redirect(storageClient.getPresignedUrlString(decodedFileKey));
+  }
+
+  /**
+   * The old auth logic assumes that the admin viewing the file should be an admin for the original
+   * program the file was uploaded for. This is not the case, since file upload questions can be
+   * shared between programs.
+   */
+  private Result legacyAdminShow(Request request, long programId, String fileKey) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();

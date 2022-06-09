@@ -15,6 +15,7 @@ import java.time.Clock;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -23,8 +24,10 @@ import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
+import models.StoredFile;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
+import repository.StoredFileRepository;
 import repository.UserRepository;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
@@ -45,6 +48,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
   private final ApplicationRepository applicationRepository;
   private final UserRepository userRepository;
+  private final StoredFileRepository storedFileRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
   private final Clock clock;
@@ -59,6 +63,7 @@ public class ApplicantServiceImpl implements ApplicantService {
   public ApplicantServiceImpl(
       ApplicationRepository applicationRepository,
       UserRepository userRepository,
+      StoredFileRepository storedFileRepository,
       ProgramService programService,
       SimpleEmail amazonSESClient,
       Clock clock,
@@ -66,6 +71,7 @@ public class ApplicantServiceImpl implements ApplicantService {
       HttpExecutionContext httpExecutionContext) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
+    this.storedFileRepository = checkNotNull(storedFileRepository);
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
@@ -234,19 +240,60 @@ public class ApplicantServiceImpl implements ApplicantService {
     return applicationRepository
         .submitApplication(applicantId, programId, submitterEmail)
         .thenComposeAsync(
-            applicationMaybe -> {
+            (Optional<Application> applicationMaybe) -> {
               if (applicationMaybe.isEmpty()) {
                 return CompletableFuture.failedFuture(
                     new ApplicationSubmissionException(applicantId, programId));
               }
+
               Application application = applicationMaybe.get();
               String programName = application.getProgram().getProgramDefinition().adminName();
               notifyProgramAdmins(applicantId, programId, application.id, programName);
+
               if (submitterEmail.isPresent()) {
                 notifySubmitter(submitterEmail.get(), applicantId, application.id, programName);
               }
+
               maybeNotifyApplicant(applicantId, application.id, programName);
-              return CompletableFuture.completedFuture(application);
+
+              return updateStoredFileAclsForSubmit(applicantId, programId)
+                  .thenApplyAsync((ignoreVoid) -> application, httpExecutionContext.current());
+            },
+            httpExecutionContext.current());
+  }
+
+  /**
+   * When an application is submitted, we store the name of its program in the ACLs for each file in
+   * the application. This is so that when a program admin goes to view it we can authorize them,
+   * both for the original program the file was uploaded for as well as programs that the applicant
+   * applies to subsequently using the same file.
+   */
+  private CompletionStage<Void> updateStoredFileAclsForSubmit(long applicantId, long programId) {
+    CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
+        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
+
+    CompletableFuture<List<StoredFile>> storedFilesFuture =
+        getReadOnlyApplicantProgramService(applicantId, programId)
+            .thenApplyAsync(
+                ReadOnlyApplicantProgramService::getStoredFileKeys, httpExecutionContext.current())
+            .thenComposeAsync(storedFileRepository::lookupFiles, httpExecutionContext.current())
+            .toCompletableFuture();
+
+    return CompletableFuture.allOf(programDefinitionCompletableFuture, storedFilesFuture)
+        .thenComposeAsync(
+            (ignoreVoid) -> {
+              List<StoredFile> storedFiles = storedFilesFuture.join();
+              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
+              CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
+
+              for (StoredFile file : storedFiles) {
+                file.getAcls().addProgramToReaders(programDefinition);
+                future =
+                    CompletableFuture.allOf(
+                        future, storedFileRepository.update(file).toCompletableFuture());
+              }
+
+              return future;
             },
             httpExecutionContext.current());
   }

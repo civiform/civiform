@@ -64,9 +64,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 h2("Program: " + programName).withClasses(Styles.MY_4),
                 h1(applicantNameWithApplicationId).withClasses(Styles.MY_4),
                 renderDownloadButton(programId, applicationId),
-                each(
-                    blocks,
-                    block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))));
+                each(blocks, block -> renderApplicationBlock(block, blockToAnswers.get(block))));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
     return layout.render(htmlBundle);
@@ -83,7 +81,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .asRightAlignedButton();
   }
 
-  private Tag renderApplicationBlock(long programId, Block block, Collection<AnswerData> answers) {
+  private Tag renderApplicationBlock(Block block, Collection<AnswerData> answers) {
     Tag topContent =
         div()
             .withClasses(Styles.FLEX)
@@ -96,9 +94,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(p(block.getDescription()).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC));
 
     Tag mainContent =
-        div()
-            .withClasses(Styles.W_FULL)
-            .with(each(answers, answer -> renderAnswer(programId, answer)));
+        div().withClasses(Styles.W_FULL).with(each(answers, answer -> renderAnswer(answer)));
 
     Tag innerDiv =
         div(topContent, mainContent)
@@ -113,14 +109,13 @@ public final class ProgramApplicationView extends BaseHtmlView {
             Styles.MB_4);
   }
 
-  private Tag renderAnswer(long programId, AnswerData answerData) {
+  private Tag renderAnswer(AnswerData answerData) {
     LocalDate date =
         Instant.ofEpochMilli(answerData.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
     Tag answerContent;
     if (answerData.fileKey().isPresent()) {
       String encodedFileKey = URLEncoder.encode(answerData.fileKey().get(), StandardCharsets.UTF_8);
-      String fileLink =
-          controllers.routes.FileController.adminShow(programId, encodedFileKey).url();
+      String fileLink = controllers.routes.FileController.acledAdminShow(encodedFileKey).url();
       answerContent = a(answerData.answerText()).withHref(fileLink);
     } else {
       answerContent = div(answerData.answerText());
