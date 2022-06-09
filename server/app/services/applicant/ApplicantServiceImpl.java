@@ -417,6 +417,9 @@ public final class ApplicantServiceImpl implements ApplicantService {
       mostRecentAppsPerProgram.put(programKey, appsByStage);
     }
 
+    // TODO(#2573): This assumes that only one entry exists for a given admin
+    // name. We should ensure that this is actually true, otherwise the collector
+    // below will throw an error.
     ImmutableMap<String, ProgramDefinition> activeProgramNameLookup =
         activePrograms.stream()
             .collect(ImmutableMap.toImmutableMap(ProgramDefinition::adminName, pdef -> pdef));

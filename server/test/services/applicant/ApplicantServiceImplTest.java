@@ -15,13 +15,17 @@ import java.util.concurrent.CompletionException;
 import models.Account;
 import models.Applicant;
 import models.Application;
+import models.DisplayMode;
 import models.LifecycleStage;
+import models.Program;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import repository.ApplicationRepository;
 import repository.ResetPostgres;
 import repository.UserRepository;
+import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
@@ -45,6 +49,8 @@ public class ApplicantServiceImplTest extends ResetPostgres {
   private QuestionDefinition questionDefinition;
   private ProgramDefinition programDefinition;
   private UserRepository userRepository;
+  private ApplicationRepository applicationRepository;
+  private VersionRepository versionRepository;
   private CiviFormProfile trustedIntermediaryProfile;
 
   @Before
@@ -52,6 +58,8 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     subject = instanceOf(ApplicantServiceImpl.class);
     questionService = instanceOf(QuestionService.class);
     userRepository = instanceOf(UserRepository.class);
+    applicationRepository = instanceOf(ApplicationRepository.class);
+    versionRepository = instanceOf(VersionRepository.class);
     createQuestions();
     createProgram();
 
@@ -835,30 +843,188 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     assertThat(email).hasValue("test@example.com");
   }
 
-  //   @Test
-  //   public void relevantPrograms() {
-  //     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
-  //     Program p1 =
-  //         ProgramBuilder.newActiveProgram()
-  //             .withBlock()
-  //             .withRequiredQuestion(testQuestionBank.applicantName())
-  //             .build();
-  //     Program p2 =
-  //         ProgramBuilder.newActiveProgram()
-  //             .withBlock()
-  //             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
-  //             .build();
-  //     applicationRepository.createOrUpdateDraft(applicant.id,
-  // p1.id).toCompletableFuture().join();
+  @Test
+  public void relevantPrograms() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Program programForDraft =
+        ProgramBuilder.newActiveProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    Program programForSubmitted =
+        ProgramBuilder.newActiveProgram("program_for_submitted")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    Program programForUnapplied =
+        ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
 
-  //     ImmutableMap<LifecycleStage, ImmutableList<ProgramDefinition>> programs =
-  //         subject.relevantPrograms(applicant.id).toCompletableFuture().join();
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, programForDraft.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
 
-  //     assertThat(programs.get(LifecycleStage.DRAFT).stream().map(ProgramDefinition::id))
-  //         .containsExactly(p1.id);
-  //     assertThat(programs.get(LifecycleStage.ACTIVE).stream().map(ProgramDefinition::id))
-  //         .containsExactly(p1.id, p2.id);
-  //   }
+    ApplicantService.RelevantPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress().stream().map(p -> p.program().id()))
+        .containsExactly(programForDraft.id);
+    assertThat(result.submitted().stream().map(p -> p.program().id()))
+        .containsExactly(programForSubmitted.id);
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programForUnapplied.id);
+  }
+
+  @Test
+  public void relevantPrograms_draftWithNewerProgramVersionUsesOriginalDraftVersion() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+
+    // Create a draft based on the original version of a program.
+    Program originalProgram =
+        ProgramBuilder.newActiveProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, originalProgram.id)
+        .toCompletableFuture()
+        .join();
+    // Create a new program version.
+    ProgramBuilder.newDraftProgram("program_for_draft")
+        .withBlock()
+        .withRequiredQuestion(testQuestionBank.applicantName())
+        .build();
+    versionRepository.publishNewSynchronizedVersion();
+
+    ApplicantService.RelevantPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress().stream().map(p -> p.program().id()))
+        .containsExactly(originalProgram.id);
+    assertThat(result.submitted()).isEmpty();
+    // As part of test setup, a "test program" is initialized.
+    // When calling publish, this will become active. This provides
+    // confidence that the draft version created above is actually published.
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programDefinition.id());
+  }
+
+  @Test
+  public void relevantPrograms_hiddenFromIndex() {
+    // This ensures that the applicant can always see that submitted / draft
+    // applications for a given program, even if a newer version of the
+    // program is hidden from the index.
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+
+    // Create a submitted application based on the original version of a program.
+    Program originalProgramForDraftApp =
+        ProgramBuilder.newActiveProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    Program originalProgramForSubmittedApp =
+        ProgramBuilder.newActiveProgram("program_for_application")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, originalProgramForDraftApp.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, originalProgramForSubmittedApp.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    // Create a new program version.
+    Program updatedProgramForDraftApp =
+        ProgramBuilder.newDraftProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    updatedProgramForDraftApp.getProgramDefinition().toBuilder()
+        .setDisplayMode(DisplayMode.HIDDEN_IN_INDEX)
+        .build()
+        .toProgram()
+        .update();
+    Program updatedProgramForSubmittedApp =
+        ProgramBuilder.newDraftProgram("program_for_application")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    updatedProgramForSubmittedApp.getProgramDefinition().toBuilder()
+        .setDisplayMode(DisplayMode.HIDDEN_IN_INDEX)
+        .build()
+        .toProgram()
+        .update();
+    versionRepository.publishNewSynchronizedVersion();
+
+    ApplicantService.RelevantPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress().stream().map(p -> p.program().id()))
+        .containsExactly(originalProgramForDraftApp.id);
+    assertThat(result.submitted().stream().map(p -> p.program().id()))
+        .containsExactly(originalProgramForSubmittedApp.id);
+    // As part of test setup, a "test program" is initialized.
+    // When calling publish, this will become active. This provides
+    // confidence that the draft version created above is actually published.
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programDefinition.id());
+  }
+
+  @Test
+  public void relevantPrograms_submittedTimestamp() {
+    // Creates an app + draft app for a program as well as
+    // an application for another program and ensures that
+    // the submitted timestamp is present.
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+
+    // Create a submitted application based on the original version of a program.
+    Program programForDraftApp =
+        ProgramBuilder.newActiveProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    Program programForSubmittedApp =
+        ProgramBuilder.newActiveProgram("program_for_application")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    Optional<Application> firstApp =
+        applicationRepository
+            .submitApplication(applicant.id, programForDraftApp.id, Optional.empty())
+            .toCompletableFuture()
+            .join();
+    Instant firstAppSubmitTime = firstApp.orElseThrow().getSubmitTime();
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, programForDraftApp.id)
+        .toCompletableFuture()
+        .join();
+    Optional<Application> secondApp =
+        applicationRepository
+            .submitApplication(applicant.id, programForSubmittedApp.id, Optional.empty())
+            .toCompletableFuture()
+            .join();
+    Instant secondAppSubmitTime = secondApp.orElseThrow().getSubmitTime();
+
+    ApplicantService.RelevantPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress().stream().map(p -> p.program().id()))
+        .containsExactly(programForDraftApp.id);
+    assertThat(result.inProgress().stream().map(p -> p.latestApplicationSubmitTime()))
+        .containsExactly(Optional.of(firstAppSubmitTime));
+    assertThat(result.submitted().stream().map(p -> p.program().id()))
+        .containsExactly(programForSubmittedApp.id);
+    assertThat(result.submitted().stream().map(p -> p.latestApplicationSubmitTime()))
+        .containsExactly(Optional.of(secondAppSubmitTime));
+    assertThat(result.unapplied()).isEmpty();
+  }
 
   private void createQuestions() {
     questionDefinition =
