@@ -27,13 +27,14 @@ jobs:
         cache-from: |
           civiform/civiform-browser-test:latest
           type=gha
-        cache-to: type=gha,mode=max
+        cache-to: type=gha
         outputs: type=docker,dest=/tmp/civiform-browser-test.tar
     - name: Upload civiform-browser-test artifact
       uses: actions/upload-artifact@v3
       with:
         name: civiform-browser-test
         path: /tmp/civiform-browser-test.tar
+        retention-days: 1
 
   build_civifom-dev:
     runs-on: ubuntu-latest
@@ -52,13 +53,14 @@ jobs:
         cache-from: |
           civiform/civiform-dev:latest
           type=gha
-        cache-to: type=gha,mode=max
+        cache-to: type=gha
         outputs: type=docker,dest=/tmp/civiform-dev.tar
     - name: Upload civiform-dev artifact
       uses: actions/upload-artifact@v3
       with:
         name: civiform-dev
         path: /tmp/civiform-dev.tar
+        retention-days: 1
 
   build_civifom:
     runs-on: ubuntu-latest
@@ -78,10 +80,11 @@ jobs:
         cache-from: |
           civiform/civiform:latest
           type=gha
-        cache-to: type=gha,mode=max
+        cache-to: type=gha
         outputs: type=docker,dest=/tmp/civiform.tar
     - name: Upload civiform artifact
       uses: actions/upload-artifact@v3
       with:
         name: civiform
         path: /tmp/civiform.tar
+        retention-days: 1
