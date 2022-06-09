@@ -26,7 +26,7 @@ import views.applicant.ProgramIndexView;
  * explicitly check the current profile so that an unauthorized user cannot access another
  * applicant's data!
  */
-public class ApplicantProgramsController extends CiviFormController {
+public final class ApplicantProgramsController extends CiviFormController {
 
   private final HttpExecutionContext httpContext;
   private final ApplicantService applicantService;

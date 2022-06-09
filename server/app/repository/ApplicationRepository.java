@@ -25,7 +25,7 @@ import services.program.ProgramNotFoundException;
  * ApplicationRepository performs complicated operations on {@link Application} that often involve
  * other EBean models or asynchronous handling.
  */
-public class ApplicationRepository {
+public final class ApplicationRepository {
   private final ProgramRepository programRepository;
   private final UserRepository userRepository;
   private final Database database;

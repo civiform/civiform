@@ -49,7 +49,7 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 
 /** Implementation class for ApplicantService interface. */
-public class ApplicantServiceImpl implements ApplicantService {
+public final class ApplicantServiceImpl implements ApplicantService {
 
   private final ApplicationRepository applicationRepository;
   private final UserRepository userRepository;

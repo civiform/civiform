@@ -28,7 +28,7 @@ import services.ti.NoSuchTrustedIntermediaryGroupError;
  * UserRepository performs complicated operations on {@link Account} and {@link Applicant} that
  * often involve other EBean models or asynchronous handling.
  */
-public class UserRepository {
+public final class UserRepository {
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;
