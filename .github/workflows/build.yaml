@@ -19,8 +19,8 @@ jobs:
     - name: Build browser testing container
       uses: docker/build-push-action@v3
       with:
-        context: browser-test
-        file: playwright.Dockerfile
+        context: browser-test/
+        file: browser-test/playwright.Dockerfile
         load: true
         push: false
         tags: civiform-browser-test:latest
