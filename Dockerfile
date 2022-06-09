@@ -20,8 +20,7 @@ RUN set -o pipefail && \
     apk add --upgrade apk-tools && \
     apk upgrade --available && \
     apk add --no-cache --update bash wget npm git openssh && \
-    apk add curl && \
-    curl -s https://codecov.io/env && \
+    wget -Os https://uploader.codecov.io/latest/alpine/codecov && \
     npm install -g npm@8.5.1 && \
     mkdir -p "${SBT_HOME}" && \
     wget -qO - "${SBT_URL}" | tar xz -C "${INSTALL_DIR}" && \
