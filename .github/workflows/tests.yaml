@@ -112,6 +112,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: civiform-dev
+        path: /tmp
     - name: Load civiform-dev image
       run: |
         docker load --input /tmp/civiform-dev.tar
@@ -120,6 +121,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: civiform-browser-test
+        path: /tmp
     - name: Load civiform-browser-test image
       run: |
         docker load --input /tmp/civiform-browser-test.tar
