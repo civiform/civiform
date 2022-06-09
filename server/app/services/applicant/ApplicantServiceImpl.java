@@ -8,7 +8,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
 import java.net.URI;
@@ -16,7 +16,9 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -385,37 +387,42 @@ public final class ApplicantServiceImpl implements ApplicantService {
 
   private RelevantPrograms buildRelevantProgramList(
       ImmutableList<ProgramDefinition> activePrograms, ImmutableSet<Application> applications) {
-    // Sort in descending database ID order. Add to set if it doesn't already exist.
-    // If it does, then don't add.
-    ImmutableList<Application> sortedApplications =
+    Map<String, Map<LifecycleStage, Optional<Application>>> groupedApplications =
         applications.stream()
-            .sorted(Comparator.comparing(app -> app.id))
-            .collect(ImmutableList.toImmutableList())
-            .reverse();
-    Map<String, Map<LifecycleStage, Application>> mostRecentAppsPerProgram = Maps.newHashMap();
-    for (Application application : sortedApplications) {
-      String programKey = application.getProgram().getProgramDefinition().adminName();
-      Map<LifecycleStage, Application> appsByStage =
-          mostRecentAppsPerProgram.getOrDefault(programKey, Maps.newHashMap());
-      LifecycleStage applicationStage = application.getLifecycleStage();
-      if (appsByStage.containsKey(applicationStage)) {
-        // Normally we'd continue onwards.
-        Application existingApplicationForStage = appsByStage.get(applicationStage);
-        if (applicationStage == LifecycleStage.DRAFT) {
-          // If we had to deduplicate, log data for debugging purposes.
+            .collect(
+                Collectors.groupingBy(
+                    a -> {
+                      return a.getProgram().getProgramDefinition().adminName();
+                    },
+                    Collectors.groupingBy(
+                        Application::getLifecycleStage,
+                        Collectors.maxBy(Comparator.comparingLong(a -> a.id)))));
+
+    Collection<Map<LifecycleStage, List<Application>>> groupedByStatus =
+        applications.stream()
+            .collect(
+                Collectors.groupingBy(
+                    a -> {
+                      return a.getProgram().getProgramDefinition().adminName();
+                    },
+                    Collectors.groupingBy(Application::getLifecycleStage)))
+            .values();
+    for (Map<LifecycleStage, List<Application>> programAppsMap : groupedByStatus) {
+      List<Application> draftApplications =
+          programAppsMap.getOrDefault(LifecycleStage.DRAFT, Lists.newArrayList());
+      if (draftApplications.size() > 1) {
+        for (Application draftApplication : draftApplications) {
+          // TODO(#2573): Confirm this is correct.
           logger.debug(
               String.format(
                   "DEBUG LOG ID: 98afa07855eb8e69338b5af13236a6b7. Program"
                       + " Admin Name: %1$s, Duplicate Program Definition"
-                      + " id: %2$s. Original Program Definition id: %3$s",
-                  application.getProgram().getProgramDefinition().adminName(),
-                  application.getProgram().getProgramDefinition().id(),
-                  existingApplicationForStage.id));
+                      + " id: %2$s. Application id: %3$s",
+                  draftApplication.getProgram().getProgramDefinition().adminName(),
+                  draftApplication.getProgram().getProgramDefinition().id(),
+                  draftApplication.id));
         }
-        continue;
       }
-      appsByStage.put(applicationStage, application);
-      mostRecentAppsPerProgram.put(programKey, appsByStage);
     }
 
     ImmutableMap<String, ProgramDefinition> activeProgramNameLookup =
@@ -430,33 +437,32 @@ public final class ApplicantServiceImpl implements ApplicantService {
     ImmutableList.Builder<ApplicantProgramData> submittedPrograms = ImmutableList.builder();
     ImmutableList.Builder<ApplicantProgramData> unappliedPrograms = ImmutableList.builder();
 
-    mostRecentAppsPerProgram.forEach(
-        (programName, appsByStage) -> {
-          Optional<Instant> maybeSubmitTime =
-              appsByStage.containsKey(LifecycleStage.ACTIVE)
-                  ? Optional.of(appsByStage.get(LifecycleStage.ACTIVE).getSubmitTime())
-                  : Optional.empty();
-          if (appsByStage.containsKey(LifecycleStage.DRAFT)) {
+    groupedApplications.forEach(
+        (programName, appByStage) -> {
+          Optional<Application> maybeDraftApp =
+              appByStage.getOrDefault(LifecycleStage.DRAFT, Optional.empty());
+          Optional<Application> maybeSubmittedApp =
+              appByStage.getOrDefault(LifecycleStage.ACTIVE, Optional.empty());
+          Optional<Instant> maybeSubmitTime = maybeSubmittedApp.map(Application::getSubmitTime);
+          if (maybeDraftApp.isPresent()) {
             // We want to ensure that any generated links points to the version
             // of the program associated with the draft, not the most recent version.
             // As such, we use the program definition associated with the application.
             inProgressPrograms.add(
                 ApplicantProgramData.create(
-                    appsByStage.get(LifecycleStage.DRAFT).getProgram().getProgramDefinition(),
-                    maybeSubmitTime));
-          } else if (appsByStage.containsKey(LifecycleStage.ACTIVE)) {
+                    maybeDraftApp.get().getProgram().getProgramDefinition(), maybeSubmitTime));
+          } else if (maybeSubmittedApp.isPresent()) {
             // Prefer the most recent version of the program. If none exists,
             // fall back on the version used to submit the application.
             ProgramDefinition programDef =
                 activeProgramNameLookup.getOrDefault(
-                    programName,
-                    appsByStage.get(LifecycleStage.ACTIVE).getProgram().getProgramDefinition());
+                    programName, maybeSubmittedApp.get().getProgram().getProgramDefinition());
             submittedPrograms.add(ApplicantProgramData.create(programDef, maybeSubmitTime));
           }
         });
 
     Set<String> missingActivePrograms =
-        Sets.difference(activeProgramNameLookup.keySet(), mostRecentAppsPerProgram.keySet());
+        Sets.difference(activeProgramNameLookup.keySet(), groupedApplications.keySet());
     missingActivePrograms.forEach(
         programName -> {
           unappliedPrograms.add(
