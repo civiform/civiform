@@ -20,6 +20,7 @@ RUN set -o pipefail && \
     apk add --upgrade apk-tools && \
     apk upgrade --available && \
     apk add --no-cache --update bash wget npm git openssh && \
+    apk add curl &&\
     npm install -g npm@8.5.1 && \
     mkdir -p "${SBT_HOME}" && \
     wget -qO - "${SBT_URL}" | tar xz -C "${INSTALL_DIR}" && \
