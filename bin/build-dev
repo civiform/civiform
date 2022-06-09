@@ -7,7 +7,7 @@ source bin/lib.sh
 # Build the new development image.
 docker build \
   -t civiform-dev \
-  --cache-from civiform/civiform-browser-test:latest \
+  --cache-from civiform/civiform:latest \
   --build-arg BUILDKIT_INLINE_CACHE=1 \
   .
 

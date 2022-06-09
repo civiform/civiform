@@ -16,6 +16,7 @@ permissions: read-all
 
 jobs:
   run_junit_tests:
+    needs:  [build_civifom-dev]
     runs-on: ubuntu-latest
     steps:
     - name: check out ${{ env.GITHUB_REF }}
@@ -23,13 +24,21 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
     - name: Build test container
-      env:
-        DOCKER_BUILDKIT: 1
-      run: docker build -t civiform-dev --cache-from docker.io/civiform/civiform-dev:latest ./
+      uses: docker/build-push-action@v3
+      with:
+        context: ./
+        load: true
+        push: false
+        tags: civiform-dev
+        cache-from: |
+          civiform/civiform-dev:latest
+          type=gha
+        cache-to: type=gha,mode=max
     - name: Run tests
       run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
 
   run_browser_tests:
+    needs:  [build_browser_tests, build_civifom-dev]
     strategy:
       matrix:
         batch_number: [1, 2, 3, 4]
@@ -45,16 +54,24 @@ jobs:
       uses: actions/checkout@v3
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
-    - name: Build test app container
-      env:
-        DOCKER_BUILDKIT: 1
-      run: docker build -t civiform --cache-from docker.io/civiform/civiform:latest ./
-    - name: Build browser testing container
-      env:
-        DOCKER_BUILDKIT: 1
-        DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-        DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-      run: bin/build-browser-tests
+    - name: Download civiform-dev artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: civiform-dev
+        path: /tmp/civiform-dev.tar
+    - name: Load civiform-dev image
+      run: |
+        docker load --input /tmp/civiform-dev.tar
+        docker image ls -a
+    - name: Download civiform-browser-test artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: civiform-browser-test
+        path: /tmp/civiform-browser-test.tar
+    - name: Load civiform-browser-test image
+      run: |
+        docker load --input /tmp/civiform-browser-test.tar
+        docker image ls -a
     - name: Bring up test env with ${{ matrix.emulator }}
       run: bin/run-browser-test-env --${{ matrix.env}} --ci
     - name: Run browser tests with ${{ matrix.emulator }}
@@ -64,16 +81,22 @@ jobs:
       run: cat .dockerlogs
 
   test_prod:
+    needs:  [build_civifom]
     runs-on: ubuntu-latest
     steps:
     - name: check out ${{ env.GITHUB_REF }}
       uses: actions/checkout@v3
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
-    - name: Build prod container
-      env:
-        DOCKER_BUILDKIT: 1
-      run: docker build -f prod.Dockerfile -t civiform:prod --cache-from docker.io/civiform/civiform:latest ./
+    - name: Download civiform artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: civiform
+        path: /tmp/civiform.tar
+    - name: Load civiform image
+      run: |
+        docker load --input /tmp/civiform.tar
+        docker image ls -a
     - name: Build the stack
       env:
         SECRET_KEY: notarealsecret
