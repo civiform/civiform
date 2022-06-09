@@ -8,14 +8,14 @@ source "cloud/azure/bin/lib.sh"
 python3 "cloud/shared/bin/lib/tf_apply_setup.py"
 
 azure::set_common_vars
-azure_log::ensure_log_role_assignments
+azure_log::ensure_log_role_assignmen
 azure_log::fetch_log_file
 
 if [[ "${CIVIFORM_MODE}" == "dev" ]]; then
   terraform::copy_override
 fi
 
-if ! terraform::perform_apply; then
+if ! terraform::perform_apply "$(azure::is_service_principal)"; then
   out::error "Terraform deployment failed."
   log::deploy_failed "${IMAGE_TAG}" "${AZURE_USER_ID}"
   azure_log::upload_log_file

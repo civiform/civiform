@@ -11,6 +11,8 @@ readonly TERRAFORM_APPLY=(${TERRAFORM_CMD[@]} "apply" "-input=false" "-json")
 #   TERRAFORM_TEMPLATE_DIR
 #   BACKEND_VARS_FILENAME
 #   TF_VAR_FILENAME
+#  Input:
+#   auto_approve boolean
 #######################################
 function terraform::perform_apply() {
   if [[ "${CIVIFORM_MODE}" == "dev" ]]; then
@@ -41,8 +43,8 @@ function terraform::perform_apply() {
   if civiform_mode::is_test; then
     return 0
   fi
-
-  if azure::is_service_principal; then
+  auto_approve = $1
+  if ["$auto_approve"]; then
     "${TERRAFORM_APPLY[@]}" -auto-approve "${TERRAFORM_PLAN_OUT_FILE}"
   else
     "${TERRAFORM_APPLY[@]}" "${TERRAFORM_PLAN_OUT_FILE}"
