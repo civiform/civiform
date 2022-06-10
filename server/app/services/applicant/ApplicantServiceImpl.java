@@ -381,7 +381,10 @@ public final class ApplicantServiceImpl implements ApplicantService {
             .collect(ImmutableList.toImmutableList());
 
     return applicationsFuture.thenApplyAsync(
-        applications -> buildRelevantProgramList(activePrograms, applications),
+        applications -> {
+          checkForDuplicateDrafts(applications);
+          return buildRelevantProgramList(activePrograms, applications);
+        },
         httpExecutionContext.current());
   }
 
@@ -398,41 +401,11 @@ public final class ApplicantServiceImpl implements ApplicantService {
                         Application::getLifecycleStage,
                         Collectors.maxBy(Comparator.comparingLong(a -> a.id)))));
 
-    Collection<Map<LifecycleStage, List<Application>>> groupedByStatus =
-        applications.stream()
-            .collect(
-                Collectors.groupingBy(
-                    a -> {
-                      return a.getProgram().getProgramDefinition().adminName();
-                    },
-                    Collectors.groupingBy(Application::getLifecycleStage)))
-            .values();
-    for (Map<LifecycleStage, List<Application>> programAppsMap : groupedByStatus) {
-      List<Application> draftApplications =
-          programAppsMap.getOrDefault(LifecycleStage.DRAFT, Lists.newArrayList());
-      if (draftApplications.size() > 1) {
-        for (Application draftApplication : draftApplications) {
-          // TODO(#2573): Confirm this is correct.
-          logger.debug(
-              String.format(
-                  "DEBUG LOG ID: 98afa07855eb8e69338b5af13236a6b7. Program"
-                      + " Admin Name: %1$s, Duplicate Program Definition"
-                      + " id: %2$s. Application id: %3$s",
-                  draftApplication.getProgram().getProgramDefinition().adminName(),
-                  draftApplication.getProgram().getProgramDefinition().id(),
-                  draftApplication.id));
-        }
-      }
-    }
-
     ImmutableMap<String, ProgramDefinition> activeProgramNameLookup =
         ImmutableMap.copyOf(
             activePrograms.stream()
                 .collect(Collectors.toMap(ProgramDefinition::adminName, pdef -> pdef)));
 
-    // Loop through all of the applications so that we can make sure a ProgramDefinition
-    // is added for already completed / draft programs where the current version may not be visible
-    // in the index.
     ImmutableList.Builder<ApplicantProgramData> inProgressPrograms = ImmutableList.builder();
     ImmutableList.Builder<ApplicantProgramData> submittedPrograms = ImmutableList.builder();
     ImmutableList.Builder<ApplicantProgramData> unappliedPrograms = ImmutableList.builder();
@@ -472,19 +445,48 @@ public final class ApplicantServiceImpl implements ApplicantService {
 
     // Ensure each list is ordered by database ID for consistent ordering.
     return RelevantPrograms.builder()
-        .setInProgress(
-            inProgressPrograms.build().stream()
-                .sorted(Comparator.comparing(p -> p.program().id()))
-                .collect(ImmutableList.toImmutableList()))
-        .setSubmitted(
-            submittedPrograms.build().stream()
-                .sorted(Comparator.comparing(p -> p.program().id()))
-                .collect(ImmutableList.toImmutableList()))
-        .setUnapplied(
-            unappliedPrograms.build().stream()
-                .sorted(Comparator.comparing(p -> p.program().id()))
-                .collect(ImmutableList.toImmutableList()))
+        .setInProgress(sortByProgramId(inProgressPrograms.build()))
+        .setSubmitted(sortByProgramId(submittedPrograms.build()))
+        .setUnapplied(sortByProgramId(unappliedPrograms.build()))
         .build();
+  }
+
+  private ImmutableList<ApplicantProgramData> sortByProgramId(
+      ImmutableList<ApplicantProgramData> programs) {
+    return programs.stream()
+        .sorted(Comparator.comparing(p -> p.program().id()))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  private void checkForDuplicateDrafts(ImmutableSet<Application> applications) {
+    Collection<Map<LifecycleStage, List<Application>>> groupedByStatus =
+        applications.stream()
+            .collect(
+                Collectors.groupingBy(
+                    a -> {
+                      return a.getProgram().getProgramDefinition().adminName();
+                    },
+                    Collectors.groupingBy(Application::getLifecycleStage)))
+            .values();
+    for (Map<LifecycleStage, List<Application>> programAppsMap : groupedByStatus) {
+      List<Application> draftApplications =
+          programAppsMap.getOrDefault(LifecycleStage.DRAFT, Lists.newArrayList());
+      if (draftApplications.size() > 1) {
+        String joinedProgramIds =
+            String.join(
+                ", ",
+                draftApplications.stream()
+                    .map(a -> String.format("%d", a.getProgram().getProgramDefinition().id()))
+                    .collect(ImmutableList.toImmutableList()));
+        logger.debug(
+            String.format(
+                "DEBUG LOG ID: 98afa07855eb8e69338b5af13236a6b7. Program"
+                    + " Admin Name: %1$s, Duplicate Program Definition"
+                    + " ids: %2$s.",
+                draftApplications.get(0).getProgram().getProgramDefinition().adminName(),
+                joinedProgramIds));
+      }
+    }
   }
 
   /**
