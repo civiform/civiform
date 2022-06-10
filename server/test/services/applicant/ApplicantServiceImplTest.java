@@ -880,32 +880,53 @@ public class ApplicantServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantPrograms_draftWithNewerProgramVersionUsesOriginalDraftVersion() {
+  public void relevantPrograms_withNewerProgramVersion() {
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
 
     // Create a draft based on the original version of a program.
-    Program originalProgram =
+    Program originalProgramForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantName())
             .build();
     applicationRepository
-        .createOrUpdateDraft(applicant.id, originalProgram.id)
+        .createOrUpdateDraft(applicant.id, originalProgramForDraft.id)
         .toCompletableFuture()
         .join();
-    // Create a new program version.
+
+    // Submit an application based on the original version of a program.
+    Program originalProgramForSubmit =
+        ProgramBuilder.newActiveProgram("program_for_submit")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    applicationRepository
+        .submitApplication(applicant.id, originalProgramForSubmit.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    // Create new program versions.
     ProgramBuilder.newDraftProgram("program_for_draft")
         .withBlock()
         .withRequiredQuestion(testQuestionBank.applicantName())
         .build();
+    Program updatedProgramForSubmit =
+        ProgramBuilder.newDraftProgram("program_for_submit")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
     versionRepository.publishNewSynchronizedVersion();
 
     ApplicantService.RelevantPrograms result =
         subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
 
+    // Drafts always use the version of the program they were
+    // started on.
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
-        .containsExactly(originalProgram.id);
-    assertThat(result.submitted()).isEmpty();
+        .containsExactly(originalProgramForDraft.id);
+    // Submitted programs always use the most recent version of the program.
+    assertThat(result.submitted().stream().map(p -> p.program().id()))
+        .containsExactly(updatedProgramForSubmit.id);
     // As part of test setup, a "test program" is initialized.
     // When calling publish, this will become active. This provides
     // confidence that the draft version created above is actually published.
