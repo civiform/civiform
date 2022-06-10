@@ -4,10 +4,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
@@ -16,8 +18,8 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
-import services.program.ProgramService;
 import views.applicant.ApplicantProgramInfoView;
 import views.applicant.ProgramIndexView;
 
@@ -30,7 +32,6 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   private final HttpExecutionContext httpContext;
   private final ApplicantService applicantService;
-  private final ProgramService programService;
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
   private final ApplicantProgramInfoView programInfoView;
@@ -40,14 +41,12 @@ public final class ApplicantProgramsController extends CiviFormController {
   public ApplicantProgramsController(
       HttpExecutionContext httpContext,
       ApplicantService applicantService,
-      ProgramService programService,
       MessagesApi messagesApi,
       ProgramIndexView programIndexView,
       ApplicantProgramInfoView programInfoView,
       ProfileUtils profileUtils) {
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
-    this.programService = checkNotNull(programService);
     this.messagesApi = checkNotNull(messagesApi);
     this.programIndexView = checkNotNull(programIndexView);
     this.programInfoView = checkNotNull(programInfoView);
@@ -93,16 +92,29 @@ public final class ApplicantProgramsController extends CiviFormController {
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
-            v -> programService.getProgramDefinitionAsync(programId), httpContext.current())
+            v -> applicantService.relevantProgramsForApplicant(applicantId), httpContext.current())
         .thenApplyAsync(
-            programDefinition -> {
-              return ok(
-                  programInfoView.render(
-                      messagesApi.preferred(request),
-                      programDefinition,
-                      request,
-                      applicantId,
-                      applicantStage.toCompletableFuture().join()));
+            relevantPrograms -> {
+              Optional<ProgramDefinition> programDefinition =
+                  Stream.of(
+                          relevantPrograms.inProgress(),
+                          relevantPrograms.submitted(),
+                          relevantPrograms.unapplied())
+                      .flatMap(ImmutableList::stream)
+                      .map(p -> p.program())
+                      .filter(program -> program.id() == programId)
+                      .findFirst();
+
+              if (programDefinition.isPresent()) {
+                return ok(
+                    programInfoView.render(
+                        messagesApi.preferred(request),
+                        programDefinition.get(),
+                        request,
+                        applicantId,
+                        applicantStage.toCompletableFuture().join()));
+              }
+              return badRequest();
             },
             httpContext.current())
         .exceptionally(
@@ -110,8 +122,6 @@ public final class ApplicantProgramsController extends CiviFormController {
               if (ex instanceof CompletionException) {
                 if (ex.getCause() instanceof SecurityException) {
                   return unauthorized();
-                } else if (ex.getCause() instanceof ProgramNotFoundException) {
-                  return badRequest();
                 }
               }
               throw new RuntimeException(ex);
