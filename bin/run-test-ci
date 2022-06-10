@@ -15,6 +15,7 @@ docker::compose_unit_test exec civiform sbt jacoco
 # a new target can be used.
 # This serves as a regression test for
 # https://github.com/seattle-uat/civiform/pull/2459.
+docker::compose_unit_test exec civiform cp /usr/src/server/target/scala-2.13/jacoco/report/jacoco.csv ./target/site/jacoco/jacoco.csv
 echo "[$(date)] Searching for MessageKeyTest in defined tests..."
 docker::compose_unit_test exec civiform sbt "show Test/definedTestNames" | grep -iq "services.MessageKeyTest"
 docker::compose_unit_test down
