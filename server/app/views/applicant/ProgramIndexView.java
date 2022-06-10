@@ -172,7 +172,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       content.with(
           programCardsSection(
               messages,
-              MessageKey.TITLE_PROGRAMS_IN_PROGRESS,
+              MessageKey.TITLE_PROGRAMS_IN_PROGRESS_UPDATED,
               cardContainerStyles,
               applicantId,
               preferredLocale,
@@ -194,7 +194,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       content.with(
           programCardsSection(
               messages,
-              MessageKey.TITLE_PROGRAMS_ACTIVE,
+              MessageKey.TITLE_PROGRAMS_ACTIVE_UPDATED,
               cardContainerStyles,
               applicantId,
               preferredLocale,
