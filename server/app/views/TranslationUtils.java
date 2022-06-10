@@ -3,6 +3,7 @@ package views;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;
 import java.util.List;
+import java.util.UUID;
 import play.i18n.Messages;
 import services.MessageKey;
 
@@ -10,8 +11,12 @@ import services.MessageKey;
 public final class TranslationUtils {
   public static TranslatedStringSplitResult splitTranslatedSingleString(
       Messages messages, MessageKey messageKey) {
-    String placeholder = "PLACEHOLDER";
-    String translatedWithPlaceholder = messages.at(messageKey.getKeyName(), placeholder);
+    return splitTranslatedSingleString(messages, messageKey.getKeyName());
+  }
+
+  static TranslatedStringSplitResult splitTranslatedSingleString(Messages messages, String key) {
+    String placeholder = UUID.randomUUID().toString();
+    String translatedWithPlaceholder = messages.at(key, placeholder);
     // Now split into components.
     List<String> components =
         Splitter.onPattern(placeholder).splitToList(translatedWithPlaceholder);
