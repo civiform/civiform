@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.Tag;
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
@@ -345,7 +346,7 @@ public class FieldWithLabel {
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
   }
 
-  protected ContainerTag<?> applyAttrsAndGenLabel(Tag fieldTag) {
+  protected DivTag applyAttrsAndGenLabel(Tag fieldTag) {
     String fieldErrorsId = String.format("%s-errors", this.id);
     boolean hasFieldErrors = hasFieldErrors();
     if (hasFieldErrors) {
@@ -368,12 +369,13 @@ public class FieldWithLabel {
    * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
    * attribute.
    */
-  private LabelTag getCheckboxContainer(Tag fieldTag) {
+  private DivTag getCheckboxContainer(Tag fieldTag) {
     if (this.checked) {
       fieldTag.attr("checked");
     }
 
-    return label()
+    return div().with(
+            label()
                 .withClasses(
                     StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
                     BaseStyles.CHECKBOX_LABEL,
@@ -381,7 +383,7 @@ public class FieldWithLabel {
                     labelText.isEmpty() ? Styles.W_MIN : "")
                 .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
                 .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
-                .withText(this.labelText);
+                .withText(this.labelText));
   }
 
   private FieldWithLabel setTagTypeInput() {
