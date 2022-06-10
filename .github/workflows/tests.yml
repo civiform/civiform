@@ -28,9 +28,12 @@ jobs:
       run: docker build -t civiform-dev --cache-from docker.io/civiform/civiform-dev:latest ./
     - name: Run tests
       run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
+    - name: Create folder
+      run: mkdir target/site/jacoco/
+    - name: Get Report
+      run: docker cp civiform-dev:/usr/src/server/target/scala-2.13/jacoco/report/jacoco.csv target/site/jacoco/jacoco.csv
     - name: jacoco-badge-generator
       uses: cicirello/jacoco-badge-generator@v2.6.1
-
 
   run_browser_tests_aws:
     strategy:
