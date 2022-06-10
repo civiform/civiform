@@ -369,6 +369,7 @@ public final class ApplicantServiceImpl implements ApplicantService {
 
   @Override
   public CompletionStage<RelevantPrograms> relevantProgramsForApplicant(long applicantId) {
+    // Note: The Program model associated with the application is eagerly loaded.
     CompletableFuture<ImmutableSet<Application>> applicationsFuture =
         applicationRepository
             .getApplicationsForApplicant(
@@ -383,14 +384,22 @@ public final class ApplicantServiceImpl implements ApplicantService {
     return applicationsFuture.thenApplyAsync(
         applications -> {
           checkForDuplicateDrafts(applications);
-          return buildRelevantProgramList(activePrograms, applications);
+          return relevantProgramsForApplicant(activePrograms, applications);
         },
         httpExecutionContext.current());
   }
 
-  private RelevantPrograms buildRelevantProgramList(
+  private RelevantPrograms relevantProgramsForApplicant(
       ImmutableList<ProgramDefinition> activePrograms, ImmutableSet<Application> applications) {
-    Map<String, Map<LifecycleStage, Optional<Application>>> groupedApplications =
+    ImmutableMap<String, ProgramDefinition> activeProgramNames =
+        ImmutableMap.copyOf(
+            activePrograms.stream()
+                .collect(Collectors.toMap(ProgramDefinition::adminName, pdef -> pdef)));
+
+    // When new versions of Programs are created, they have distinct IDs but retain the
+    // same adminName. In order to find the most recent draft / active application,
+    // we first group by the unique name rather than the ID.
+    Map<String, Map<LifecycleStage, Optional<Application>>> mostRecentApplicationsByProgram =
         applications.stream()
             .collect(
                 Collectors.groupingBy(
@@ -399,18 +408,16 @@ public final class ApplicantServiceImpl implements ApplicantService {
                     },
                     Collectors.groupingBy(
                         Application::getLifecycleStage,
+                        // In practice, we don't expect an applicant to have multiple applications
+                        // for a given program / LifecycleStage combination. Grabbing the latest
+                        // application here guards against that case, should it occur.
                         Collectors.maxBy(Comparator.comparingLong(a -> a.id)))));
-
-    ImmutableMap<String, ProgramDefinition> activeProgramNameLookup =
-        ImmutableMap.copyOf(
-            activePrograms.stream()
-                .collect(Collectors.toMap(ProgramDefinition::adminName, pdef -> pdef)));
 
     ImmutableList.Builder<ApplicantProgramData> inProgressPrograms = ImmutableList.builder();
     ImmutableList.Builder<ApplicantProgramData> submittedPrograms = ImmutableList.builder();
     ImmutableList.Builder<ApplicantProgramData> unappliedPrograms = ImmutableList.builder();
 
-    groupedApplications.forEach(
+    mostRecentApplicationsByProgram.forEach(
         (programName, appByStage) -> {
           Optional<Application> maybeDraftApp =
               appByStage.getOrDefault(LifecycleStage.DRAFT, Optional.empty());
@@ -428,19 +435,18 @@ public final class ApplicantServiceImpl implements ApplicantService {
             // Prefer the most recent version of the program. If none exists,
             // fall back on the version used to submit the application.
             ProgramDefinition programDef =
-                activeProgramNameLookup.getOrDefault(
+                activeProgramNames.getOrDefault(
                     programName, maybeSubmittedApp.get().getProgram().getProgramDefinition());
             submittedPrograms.add(ApplicantProgramData.create(programDef, maybeSubmitTime));
           }
         });
 
     Set<String> missingActivePrograms =
-        Sets.difference(activeProgramNameLookup.keySet(), groupedApplications.keySet());
+        Sets.difference(activeProgramNames.keySet(), mostRecentApplicationsByProgram.keySet());
     missingActivePrograms.forEach(
         programName -> {
           unappliedPrograms.add(
-              ApplicantProgramData.create(
-                  activeProgramNameLookup.get(programName), Optional.empty()));
+              ApplicantProgramData.create(activeProgramNames.get(programName), Optional.empty()));
         });
 
     // Ensure each list is ordered by database ID for consistent ordering.
@@ -459,6 +465,10 @@ public final class ApplicantServiceImpl implements ApplicantService {
   }
 
   private void checkForDuplicateDrafts(ImmutableSet<Application> applications) {
+    // Add logging to better understand a bug where some applicants were seeing
+    // duplicates of programs for which they had draft applications. We can remove
+    // this logging once we determine and resolve the root cause of the duplicate
+    // draft applicatoins.
     Collection<Map<LifecycleStage, List<Application>>> groupedByStatus =
         applications.stream()
             .collect(

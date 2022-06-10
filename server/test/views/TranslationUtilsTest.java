@@ -23,7 +23,7 @@ public class TranslationUtilsTest extends ResetPostgres {
   }
 
   @Test
-  public void splitTranslatedSingleString() {
+  public void splitTranslatedSingleArgString() {
     String key = "to_translate_key";
     Lang en = Lang.forCode("en-US");
     Lang es = Lang.forCode("es-US");
@@ -36,13 +36,13 @@ public class TranslationUtilsTest extends ResetPostgres {
 
     Messages enMessages = messagesApi.preferred(ImmutableList.of(en));
     TranslationUtils.TranslatedStringSplitResult enResult =
-        TranslationUtils.splitTranslatedSingleString(enMessages, key);
+        TranslationUtils.splitTranslatedSingleArgString(enMessages, key);
     assertThat(enResult.beforeInterpretedContent()).isEqualTo("Submitted ");
     assertThat(enResult.afterInterpretedContent()).isEmpty();
 
     Messages esMessages = messagesApi.preferred(ImmutableList.of(es));
     TranslationUtils.TranslatedStringSplitResult esResult =
-        TranslationUtils.splitTranslatedSingleString(esMessages, key);
+        TranslationUtils.splitTranslatedSingleArgString(esMessages, key);
     assertThat(esResult.beforeInterpretedContent()).isEmpty();
     assertThat(esResult.afterInterpretedContent()).isEqualTo(" submitted");
   }

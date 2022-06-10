@@ -9,12 +9,25 @@ import services.MessageKey;
 
 /** Utility class for managing translated content. */
 public final class TranslationUtils {
-  public static TranslatedStringSplitResult splitTranslatedSingleString(
+  /**
+   * Helper to split a translated string with a single argument into the components preceeding the
+   * argument and the components after the argument.
+   *
+   * <p>This makes it possible to visually style subcomponents of the translated message separately
+   * when different languages may put the argument in a different position within the translated
+   * text.
+   *
+   * <p>For example: * English - Submitted 2 days ago * Korean - 2일 전에 제출
+   *
+   * <p>If we wanted to highlight the "2" independently, splitting into the preceeding / postceeding
+   * components makes it possible to dynamically build the string.
+   */
+  public static TranslatedStringSplitResult splitTranslatedSingleArgString(
       Messages messages, MessageKey messageKey) {
-    return splitTranslatedSingleString(messages, messageKey.getKeyName());
+    return splitTranslatedSingleArgString(messages, messageKey.getKeyName());
   }
 
-  static TranslatedStringSplitResult splitTranslatedSingleString(Messages messages, String key) {
+  static TranslatedStringSplitResult splitTranslatedSingleArgString(Messages messages, String key) {
     String placeholder = UUID.randomUUID().toString();
     String translatedWithPlaceholder = messages.at(key, placeholder);
     // Now split into components.

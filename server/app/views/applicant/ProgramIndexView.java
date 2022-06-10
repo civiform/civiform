@@ -374,7 +374,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private Tag programCardSubmittedDate(Messages messages, Instant submittedDate) {
     TranslationUtils.TranslatedStringSplitResult translateResult =
-        TranslationUtils.splitTranslatedSingleString(messages, MessageKey.SUBMITTED_DATE);
+        TranslationUtils.splitTranslatedSingleArgString(messages, MessageKey.SUBMITTED_DATE);
     String beforeContent = translateResult.beforeInterpretedContent();
     String afterContent = translateResult.afterInterpretedContent();
 

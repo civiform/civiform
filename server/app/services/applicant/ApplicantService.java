@@ -96,19 +96,24 @@ public interface ApplicantService {
    */
   ImmutableList<Application> getAllApplications();
 
+  /**
+   * Return all programs that are appropriate to serve to an applicant. Appropriate programs are
+   * those where the applicant: * Has a draft application * Has previously applied * Any other
+   * programs that are public.
+   */
   CompletionStage<RelevantPrograms> relevantProgramsForApplicant(long applicantId);
 
   @AutoValue
   public abstract static class ApplicantProgramData {
+    public abstract ProgramDefinition program();
+
+    public abstract Optional<Instant> latestApplicationSubmitTime();
+
     static ApplicantProgramData create(
         ProgramDefinition program, Optional<Instant> latestApplicationSubmitTime) {
       return new AutoValue_ApplicantService_ApplicantProgramData(
           program, latestApplicationSubmitTime);
     }
-
-    public abstract ProgramDefinition program();
-
-    public abstract Optional<Instant> latestApplicationSubmitTime();
   }
 
   @AutoValue

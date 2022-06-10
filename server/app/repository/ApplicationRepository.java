@@ -206,6 +206,11 @@ public final class ApplicationRepository {
         executionContext.current());
   }
 
+  /**
+   * Get all applications with the specified {@link LifecyleStage}s for an applicant.
+   *
+   * <p>The {@link Program} associated with the application is eagerly loaded.
+   */
   public CompletionStage<ImmutableSet<Application>> getApplicationsForApplicant(
       long applicantId, ImmutableSet<LifecycleStage> stages) {
     return supplyAsync(
