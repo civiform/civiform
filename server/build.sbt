@@ -1,5 +1,6 @@
 import play.sbt.PlayImport.PlayKeys.playRunHooks
 import sbt.internal.io.{Source, WatchState}
+import com.github.sbt.jacoco.JacocoPlugin.autoImport._
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayJava, PlayEbean)
@@ -122,6 +123,10 @@ lazy val root = (project in file("."))
     Compile / doc / sources := Seq.empty
   )
   .settings(excludeTailwindGeneration: _*)
+
+    jacocoReportSettings := JacocoReportSettings()
+  .withTitle("Report Title")
+  .withFormats(JacocoReportFormats.CSV)
 
 // Ignore the tailwind.sbt generated css file when watching for recompilation.
 // Since this file is generated when build.sbt is loaded, it causes the server
