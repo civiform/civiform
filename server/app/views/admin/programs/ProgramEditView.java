@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
 import forms.ProgramForm;
-import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import j2html.tags.specialized.FormTag;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -63,7 +63,7 @@ public class ProgramEditView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ContainerTag<?> buildManageQuestionLink(long id) {
+  private Tag<?> buildManageQuestionLink(long id) {
     String manageQuestionLink =
         controllers.admin.routes.AdminProgramBlocksController.index(id).url();
     return new LinkElement()

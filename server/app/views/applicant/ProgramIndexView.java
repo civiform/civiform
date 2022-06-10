@@ -15,6 +15,7 @@ import static j2html.attributes.Attr.HREF;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -267,7 +268,7 @@ public class ProgramIndexView extends BaseHtmlView {
     String infoUrl =
         controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
             .url();
-    ContainerTag<?> infoLink =
+    Tag<?> infoLink =
         new LinkElement()
             .setId(baseId + "-info-link")
             .setStyles(Styles.BLOCK, Styles.MY_2, Styles.TEXT_SM, Styles.UNDERLINE)

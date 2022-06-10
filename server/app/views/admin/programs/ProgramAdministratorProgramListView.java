@@ -11,7 +11,7 @@ import static j2html.TagCreator.p;
 import auth.CiviFormProfile;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LabelTag;
 import java.time.ZoneId;
@@ -165,7 +165,7 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
     throw new IllegalArgumentException("Program neither active nor draft.");
   }
 
-  ContainerTag<?> maybeRenderViewApplicationsLink(
+  Tag<?> maybeRenderViewApplicationsLink(
       String text, Optional<ProgramDefinition> activeProgram) {
     if (activeProgram.isPresent()) {
       String viewApplicationsLink =

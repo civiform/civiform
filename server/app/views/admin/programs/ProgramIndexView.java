@@ -12,7 +12,7 @@ import auth.CiviFormProfile;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
@@ -110,7 +110,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         .asButton();
   }
 
-  private ContainerTag<?> maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {
+  private Tag<?> maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {
     // We should only render the publish button if there is at least one draft.
     if (programs.anyDraft()) {
       String link = routes.AdminProgramController.publish().url();
@@ -247,7 +247,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     throw new IllegalArgumentException("Program neither active nor draft.");
   }
 
-  ContainerTag<?> maybeRenderEditLink(
+  Tag<?> maybeRenderEditLink(
       Optional<ProgramDefinition> draftProgram,
       Optional<ProgramDefinition> activeProgram,
       Http.Request request) {
@@ -284,7 +284,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
   }
 
-  private ContainerTag<?> maybeRenderManageTranslationsLink(
+  private Tag<?> maybeRenderManageTranslationsLink(
       Optional<ProgramDefinition> draftProgram) {
     if (draftProgram.isPresent()) {
       String linkText = "Manage Translations →";
@@ -303,7 +303,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
   }
 
-  private ContainerTag<?> maybeRenderViewApplicationsLink(
+  private Tag<?> maybeRenderViewApplicationsLink(
       Optional<ProgramDefinition> activeProgram, Optional<CiviFormProfile> userProfile) {
     // TODO(#2582): Determine if this has N+1 query behavior and fix if
     // necessary.
@@ -331,7 +331,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return div();
   }
 
-  private ContainerTag<?> renderManageProgramAdminsLink(
+  private Tag<?> renderManageProgramAdminsLink(
       Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
     // We can use the ID of either, since we just add the program name and not ID to indicate
     // ownership.

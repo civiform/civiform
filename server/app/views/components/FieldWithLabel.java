@@ -345,7 +345,7 @@ public class FieldWithLabel {
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
   }
 
-  protected DivTag applyAttrsAndGenLabel(Tag fieldTag) {
+  protected ContainerTag<?> applyAttrsAndGenLabel(Tag fieldTag) {
     String fieldErrorsId = String.format("%s-errors", this.id);
     boolean hasFieldErrors = hasFieldErrors();
     if (hasFieldErrors) {
@@ -368,14 +368,12 @@ public class FieldWithLabel {
    * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
    * attribute.
    */
-  private DivTag getCheckboxContainer(Tag fieldTag) {
+  private LabelTag getCheckboxContainer(Tag fieldTag) {
     if (this.checked) {
       fieldTag.attr("checked");
     }
 
-    return div()
-        .with(
-            label()
+    return label()
                 .withClasses(
                     StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
                     BaseStyles.CHECKBOX_LABEL,
@@ -383,7 +381,7 @@ public class FieldWithLabel {
                     labelText.isEmpty() ? Styles.W_MIN : "")
                 .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
                 .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
-                .withText(this.labelText));
+                .withText(this.labelText);
   }
 
   private FieldWithLabel setTagTypeInput() {

@@ -11,7 +11,7 @@ import static j2html.TagCreator.span;
 
 import com.google.inject.Inject;
 import controllers.admin.routes;
-import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.SpanTag;
 import java.time.ZoneId;
@@ -165,7 +165,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     }
   }
 
-  private ContainerTag<?> renderViewLink(String text, Application application) {
+  private Tag<?> renderViewLink(String text, Application application) {
     String viewLink =
         controllers.admin.routes.AdminApplicationController.show(
                 application.getProgram().id, application.id)
