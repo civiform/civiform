@@ -8,7 +8,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
-import j2html.attributes.Attr;
 import j2html.tags.Tag;
 import j2html.tags.attributes.IName;
 import j2html.tags.specialized.DivTag;
@@ -341,10 +340,10 @@ public class FieldWithLabel {
                 BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
         .withId(this.id)
         .withName(this.fieldName)
-        .condAttr(this.disabled, Attr.DISABLED, "true")
-        .condAttr(
-            !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
-        .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
+        .withCondDisabled(this.disabled)
+        .withCondPlaceholder(
+            !Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
+        .withCondForm(!Strings.isNullOrEmpty(this.formId), formId);
   }
 
   protected <T extends Tag<T> & IName<T>> DivTag applyAttrsAndGenLabel(T fieldTag) {
@@ -383,7 +382,7 @@ public class FieldWithLabel {
                     BaseStyles.CHECKBOX_LABEL,
                     BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
                     labelText.isEmpty() ? Styles.W_MIN : "")
-                .condAttr(!this.id.isEmpty(), Attr.FOR, this.id)
+                .withCondFor(!this.id.isEmpty(), this.id)
                 .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
                 .withText(this.labelText));
   }

@@ -6,7 +6,6 @@ import static j2html.TagCreator.label;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LabelTag;
 import java.util.Comparator;
@@ -43,10 +42,10 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
             // Hidden input that's always selected to allow for clearing mutli-select data.
             .with(
                 input()
-                    .attr("type", "checkbox")
-                    .attr("name", multiOptionQuestion.getSelectionPathAsArray())
-                    .attr("value", "")
-                    .condAttr(!multiOptionQuestion.hasValue(), Attr.CHECKED, "")
+                    .withType("checkbox")
+                    .withName(multiOptionQuestion.getSelectionPathAsArray())
+                    .withValue("")
+                    .withCondChecked(!multiOptionQuestion.hasValue())
                     .withClasses(ReferenceClasses.RADIO_DEFAULT, Styles.HIDDEN))
             .with(
                 multiOptionQuestion.getOptions().stream()
@@ -73,10 +72,10 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
             .with(
                 input()
                     .withId(id)
-                    .attr("type", "checkbox")
-                    .attr("name", selectionPath)
-                    .attr("value", String.valueOf(option.id()))
-                    .condAttr(isSelected, Attr.CHECKED, "")
+                    .withType("checkbox")
+                    .withName(selectionPath)
+                    .withValue(String.valueOf(option.id()))
+                    .withCondChecked(isSelected)
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)))
             .withText(option.optionText());

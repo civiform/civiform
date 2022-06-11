@@ -343,10 +343,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
           submitButton("Delete Screen")
               .withId("delete-block-button")
               .attr(Attr.FORM, DELETE_BLOCK_FORM_ID)
-              .condAttr(!canDelete, Attr.DISABLED, "")
-              .condAttr(
+              .withCondDisabled(!canDelete, "")
+              .withCondTitle(
                   !canDelete,
-                  Attr.TITLE,
                   "A screen can only be deleted when it has no repeated screens.")
               .withClasses(
                   Styles.MX_4,
@@ -513,10 +512,9 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .withId("block-question-" + questionDefinition.getId())
             .attr("name", "questionDefinitionId")
             .attr("value", String.valueOf(questionDefinition.getId()))
-            .condAttr(!canRemove, Attr.DISABLED, "")
-            .condAttr(
+            .withCondDisabled(!canRemove, "")
+            .withCondTitle(
                 !canRemove,
-                Attr.TITLE,
                 "An enumerator question can only be removed from the screen when the screen has no"
                     + " repeated screens.")
             .withClasses(

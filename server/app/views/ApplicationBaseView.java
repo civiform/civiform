@@ -1,7 +1,6 @@
 package views;
 
 import static j2html.TagCreator.a;
-import static j2html.attributes.Attr.HREF;
 
 import com.google.auto.value.AutoValue;
 import controllers.applicant.routes;
@@ -22,7 +21,7 @@ public class ApplicationBaseView extends BaseHtmlView {
     String reviewUrl =
         routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
             .url();
-    return a().attr(HREF, reviewUrl)
+    return a().withHref(reviewUrl)
         .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
         .withId(REVIEW_APPLICATION_BUTTON_ID)
         .withClasses(ApplicantStyles.BUTTON_REVIEW);
@@ -42,7 +41,7 @@ public class ApplicationBaseView extends BaseHtmlView {
           routes.ApplicantProgramReviewController.preview(params.applicantId(), params.programId())
               .url();
     }
-    return a().attr(HREF, redirectUrl)
+    return a().withHref(redirectUrl)
         .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
         .withClasses(ApplicantStyles.BUTTON_BLOCK_PREVIOUS)
         .withId("cf-block-previous");
