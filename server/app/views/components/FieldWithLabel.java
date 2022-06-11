@@ -11,6 +11,7 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.Tag;
 import j2html.tags.ContainerTag;
+import j2html.tags.attributes.IName;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
@@ -333,20 +334,20 @@ public class FieldWithLabel {
     }
   }
 
-  private void generalApplyAttrsClassesToTag(Tag fieldTag, boolean hasFieldErrors) {
+  private <T extends Tag<T> & IName<T>> void generalApplyAttrsClassesToTag(T fieldTag, boolean hasFieldErrors) {
     fieldTag
         .withClasses(
             StyleUtils.joinStyles(
                 BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
         .withId(this.id)
-        .attr("name", this.fieldName)
+        .withName(this.fieldName)
         .condAttr(this.disabled, Attr.DISABLED, "true")
         .condAttr(
             !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
   }
 
-  protected DivTag applyAttrsAndGenLabel(Tag fieldTag) {
+  protected <T extends Tag<T> & IName<T>> DivTag applyAttrsAndGenLabel(T fieldTag) {
     String fieldErrorsId = String.format("%s-errors", this.id);
     boolean hasFieldErrors = hasFieldErrors();
     if (hasFieldErrors) {
