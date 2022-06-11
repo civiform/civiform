@@ -69,8 +69,8 @@ public class BaseHtmlLayout {
   public HtmlBundle getBundle(HtmlBundle bundle) {
     // Add basic page metadata.
     bundle.addMetadata(
-        meta().attr("name", "viewport").attr("content", "width=device-width, initial-scale=1"));
-    bundle.addMetadata(meta().attr("name", "civiform-build-tag").attr("content", civiformImageTag));
+        meta().withName("viewport").withContent("width=device-width, initial-scale=1"));
+    bundle.addMetadata(meta().withName("civiform-build-tag").withContent(civiformImageTag));
 
     // Add the warning toast, only for staging
     if (isStaging) {
@@ -109,8 +109,8 @@ public class BaseHtmlLayout {
     ScriptTag scriptImport =
         script()
             .withSrc("https://www.googletagmanager.com/gtag/js?id=" + trackingTag)
-            .attr("async", "true")
-            .attr("type", "text/javascript");
+            .isAsync()
+            .withType("text/javascript");
     String googleAnalyticsCode =
         "window.dataLayer = window.dataLayer || [];"
             + "\nfunction gtag() {"
@@ -121,7 +121,7 @@ public class BaseHtmlLayout {
     ScriptTag rawScript =
         script()
             .with(rawHtml(String.format(googleAnalyticsCode, trackingTag)))
-            .attr("type", "text/javascript");
+            .withType("text/javascript");
     return new ImmutableList.Builder<ScriptTag>().add(scriptImport).add(rawScript).build();
   }
 }

@@ -6,7 +6,6 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
-import static j2html.attributes.Attr.HREF;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -100,7 +99,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       String applyUrl =
           routes.ApplicantProgramsController.edit(params.applicantId(), params.programId()).url();
       continueOrSubmitButton =
-          a().attr(HREF, applyUrl)
+          a().withHref(applyUrl)
               .withText(messages.at(MessageKey.BUTTON_CONTINUE.getKeyName()))
               .withId("continue-application-button")
               .withClasses(
@@ -231,7 +230,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             Styles.PT_4,
             Styles.BORDER_B,
             Styles.BORDER_GRAY_300)
-        .attr("style", "word-break:break-word");
+        .withStyle("word-break:break-word");
   }
 
   private DivTag renderRepeatedEntitySection(RepeatedEntity repeatedEntity, Messages messages) {

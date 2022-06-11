@@ -147,9 +147,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
       boolean showLanguageSwitcher = !request.uri().equals(applicantInfoUrl);
       if (showLanguageSwitcher) {
         String csrfToken = CSRF.getToken(request.asScala()).value();
-        InputTag csrfInput = input().isHidden().attr("value", csrfToken).attr("name", "csrfToken");
+        InputTag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
         InputTag redirectInput =
-            input().isHidden().attr("value", request.uri()).attr("name", "redirectLink");
+            input().isHidden().withValue(request.uri()).withName("redirectLink");
         String preferredLanguage = languageSelector.getPreferredLangage(request).code();
         SelectTag languageDropdown =
             languageSelector
@@ -166,7 +166,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                     .with(
                         TagCreator.button()
                             .withId("cf-update-lang")
-                            .attr("type", "submit")
+                            .withType("submit")
                             .isHidden());
       }
     }

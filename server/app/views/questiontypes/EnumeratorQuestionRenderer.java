@@ -119,7 +119,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
         messages.at(MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE.getKeyName(), localizedEntityType);
     ButtonTag removeEntityButton =
         TagCreator.button()
-            .attr("type", "button")
+            .withType("button")
             .withCondId(existingIndex.isPresent(), existingIndex.map(String::valueOf).orElse(""))
             .attr(
                 "onclick",
@@ -157,8 +157,8 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
   private static EmptyTag hiddenDeleteInputTemplate() {
     return input()
         .withId(DELETE_ENTITY_TEMPLATE_ID)
-        .attr("name", Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
-        .attr(Attr.DISABLED, true) // do not submit this with the form
+        .withName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
+        .isDisabled() // do not submit this with the form
         .withClasses(Styles.HIDDEN);
   }
 }

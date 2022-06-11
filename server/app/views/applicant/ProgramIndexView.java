@@ -10,7 +10,6 @@ import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.hr;
 import static j2html.TagCreator.img;
-import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
@@ -133,8 +132,8 @@ public class ProgramIndexView extends BaseHtmlView {
                 logoImg
                     .withAlt(civicEntityFullName + " logo")
                     .attr("aria-hidden", "true")
-                    .attr("width", 175)
-                    .attr("height", 70))
+                    .withWidth("175")
+                    .withHeight("70"))
             .withClasses(Styles.TOP_2, Styles.LEFT_2);
 
     return div()
@@ -310,7 +309,7 @@ public class ProgramIndexView extends BaseHtmlView {
                 applicantId, program.id())
             .url();
     ATag applyButton =
-        a().attr(HREF, applyUrl)
+        a().withHref(applyUrl)
             .attr(
                 "aria-label",
                 messages.at(

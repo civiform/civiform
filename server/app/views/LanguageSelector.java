@@ -8,7 +8,6 @@ import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
 
 import com.google.common.collect.ImmutableList;
-import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.OptionTag;
@@ -48,7 +47,7 @@ public class LanguageSelector {
     SelectTag dropdownTag =
         select()
             .withId("select-language")
-            .attr("name", "locale")
+            .withName("locale")
             .withClasses(
                 Styles.BLOCK,
                 Styles.OUTLINE_NONE,
@@ -69,9 +68,9 @@ public class LanguageSelector {
             locale -> {
               String value = locale.toLanguageTag();
               String label = formatLabel(locale);
-              OptionTag optionTag = option(label).attr("value", value);
+              OptionTag optionTag = option(label).withValue(value);
               if (value.equals(preferredLanguage)) {
-                optionTag.attr(Attr.SELECTED);
+                optionTag.isSelected();
               }
               dropdownTag.with(optionTag);
             });
@@ -100,10 +99,10 @@ public class LanguageSelector {
                 checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
             .with(
                 input()
-                    .attr("type", "radio")
-                    .attr("name", "locale")
-                    .attr("value", value)
-                    .condAttr(checked, Attr.CHECKED, "")
+                    .withType("radio")
+                    .withName("locale")
+                    .withValue(value)
+                    .withCondChecked(checked)
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO)))
             .withText(text);

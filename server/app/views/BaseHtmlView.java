@@ -54,7 +54,7 @@ public abstract class BaseHtmlView {
   }
 
   public static ButtonTag button(String textContents) {
-    return TagCreator.button(text(textContents)).attr("type", "button");
+    return TagCreator.button(text(textContents)).withType("button");
   }
 
   public static ButtonTag button(String id, String textContents) {
@@ -62,7 +62,7 @@ public abstract class BaseHtmlView {
   }
 
   protected static ButtonTag submitButton(String textContents) {
-    return TagCreator.button(text(textContents)).attr("type", "submit");
+    return TagCreator.button(text(textContents)).withType("submit");
   }
 
   protected static ButtonTag submitButton(String id, String textContents) {
@@ -90,7 +90,7 @@ public abstract class BaseHtmlView {
    * present in all CiviForm forms.
    */
   protected static InputTag makeCsrfTokenInputTag(Http.Request request) {
-    return input().isHidden().attr("value", getCsrfToken(request)).attr("name", "csrfToken");
+    return input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken");
   }
 
   private static String getCsrfToken(Http.Request request) {
@@ -167,6 +167,6 @@ public abstract class BaseHtmlView {
             .withAction(href)
             .with(input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken"));
 
-    return buttonEl.attr("form", formId).with(hiddenForm);
+    return buttonEl.withForm(formId).with(hiddenForm);
   }
 }

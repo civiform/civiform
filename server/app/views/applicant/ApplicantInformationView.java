@@ -47,7 +47,7 @@ public class ApplicantInformationView extends BaseHtmlView {
     String redirectLink =
         redirectTo.orElse(routes.ApplicantProgramsController.index(applicantId).url());
     InputTag redirectInput =
-        input().isHidden().attr("value", redirectLink).attr("name", "redirectLink");
+        input().isHidden().withValue(redirectLink).withName("redirectLink");
 
     String questionText = messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName());
     DivTag questionTextDiv =

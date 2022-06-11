@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.input;
 
 import com.google.common.collect.ImmutableList;
-import j2html.attributes.Attr;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
@@ -41,7 +40,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
             .withType("hidden")
             .withName("successActionRedirect")
             .withValue(signedRequest.successActionRedirect()),
-        input().withType("file").withName("file").attr(Attr.ACCEPT, MIME_TYPES_IMAGES_AND_PDF));
+        input().withType("file").withName("file").withAccept(MIME_TYPES_IMAGES_AND_PDF));
     return builder.build();
   }
 

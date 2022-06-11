@@ -3,7 +3,6 @@ package views;
 import static j2html.TagCreator.input;
 
 import com.google.common.collect.ImmutableList;
-import j2html.attributes.Attr;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import java.util.Optional;
@@ -51,7 +50,7 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     // https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-HTTPPOSTForms.html
     // for more context.
     builder.add(
-        input().withType("file").withName("file").attr(Attr.ACCEPT, MIME_TYPES_IMAGES_AND_PDF));
+        input().withType("file").withName("file").withAccept(MIME_TYPES_IMAGES_AND_PDF));
     return builder.build();
   }
 
