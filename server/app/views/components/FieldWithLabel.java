@@ -341,8 +341,7 @@ public class FieldWithLabel {
         .withId(this.id)
         .withName(this.fieldName)
         .withCondDisabled(this.disabled)
-        .withCondPlaceholder(
-            !Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
+        .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
         .withCondForm(!Strings.isNullOrEmpty(this.formId), formId);
   }
 

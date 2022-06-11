@@ -345,8 +345,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
               .attr(Attr.FORM, DELETE_BLOCK_FORM_ID)
               .withCondDisabled(!canDelete, "")
               .withCondTitle(
-                  !canDelete,
-                  "A screen can only be deleted when it has no repeated screens.")
+                  !canDelete, "A screen can only be deleted when it has no repeated screens.")
               .withClasses(
                   Styles.MX_4,
                   Styles.MY_1,
