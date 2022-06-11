@@ -8,9 +8,9 @@ import static j2html.TagCreator.h1;
 
 import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.ContainerTag;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
@@ -126,15 +126,15 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .build();
 
     return form()
-            .withId(BLOCK_FORM_ID)
-            .withAction(formAction)
-            .withMethod(HttpVerbs.POST)
-            .with(makeCsrfTokenInputTag(params.request()))
-            .with(
-                each(
-                    params.block().getQuestions(),
-                    question -> renderQuestion(question, rendererParams)))
-            .with(renderBottomNavButtons(params));
+        .withId(BLOCK_FORM_ID)
+        .withAction(formAction)
+        .withMethod(HttpVerbs.POST)
+        .with(makeCsrfTokenInputTag(params.request()))
+        .with(
+            each(
+                params.block().getQuestions(),
+                question -> renderQuestion(question, rendererParams)))
+        .with(renderBottomNavButtons(params));
   }
 
   private DivTag renderQuestion(

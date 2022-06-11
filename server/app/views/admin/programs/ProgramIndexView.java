@@ -115,10 +115,10 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (programs.anyDraft()) {
       String link = routes.AdminProgramController.publish().url();
       return new LinkElement()
-              .setId("publish-programs-button")
-              .setHref(link)
-              .setText("Publish all drafts")
-              .asHiddenForm(request);
+          .setId("publish-programs-button")
+          .setHref(link)
+          .setText("Publish all drafts")
+          .asHiddenForm(request);
     } else {
       return div();
     }
@@ -284,8 +284,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
   }
 
-  private Tag<?> maybeRenderManageTranslationsLink(
-      Optional<ProgramDefinition> draftProgram) {
+  private Tag<?> maybeRenderManageTranslationsLink(Optional<ProgramDefinition> draftProgram) {
     if (draftProgram.isPresent()) {
       String linkText = "Manage Translations →";
       String linkDestination =

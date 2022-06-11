@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
-import j2html.attributes.Attr;
 import j2html.tags.EmptyTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;

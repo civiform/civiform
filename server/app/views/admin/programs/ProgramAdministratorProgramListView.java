@@ -165,8 +165,7 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
     throw new IllegalArgumentException("Program neither active nor draft.");
   }
 
-  Tag<?> maybeRenderViewApplicationsLink(
-      String text, Optional<ProgramDefinition> activeProgram) {
+  Tag<?> maybeRenderViewApplicationsLink(String text, Optional<ProgramDefinition> activeProgram) {
     if (activeProgram.isPresent()) {
       String viewApplicationsLink =
           routes.AdminApplicationController.index(

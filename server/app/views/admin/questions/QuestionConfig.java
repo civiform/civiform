@@ -16,9 +16,9 @@ import forms.MultiOptionQuestionForm;
 import forms.NumberQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.ContainerTag;
 import j2html.tags.specialized.LabelTag;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -216,11 +216,11 @@ public class QuestionConfig {
         isForNewOption
             ? div()
             : FieldWithLabel.input()
-                        .setFieldName("optionIds[]")
-                        .setValue(String.valueOf(existingOption.get().id()))
-                        .setScreenReaderText("option ids")
-                        .getContainer()
-                        .withClasses(Styles.HIDDEN);
+                .setFieldName("optionIds[]")
+                .setValue(String.valueOf(existingOption.get().id()))
+                .setScreenReaderText("option ids")
+                .getContainer()
+                .withClasses(Styles.HIDDEN);
     ButtonTag removeOptionButton =
         button("Remove")
             .attr("type", "button")

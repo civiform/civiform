@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.Tag;
-import j2html.tags.ContainerTag;
 import j2html.tags.attributes.IName;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
@@ -334,7 +333,8 @@ public class FieldWithLabel {
     }
   }
 
-  private <T extends Tag<T> & IName<T>> void generalApplyAttrsClassesToTag(T fieldTag, boolean hasFieldErrors) {
+  private <T extends Tag<T> & IName<T>> void generalApplyAttrsClassesToTag(
+      T fieldTag, boolean hasFieldErrors) {
     fieldTag
         .withClasses(
             StyleUtils.joinStyles(
@@ -375,7 +375,8 @@ public class FieldWithLabel {
       fieldTag.attr("checked");
     }
 
-    return div().with(
+    return div()
+        .with(
             label()
                 .withClasses(
                     StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),

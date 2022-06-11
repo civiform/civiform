@@ -49,8 +49,7 @@ public final class AwsFileUploadViewStrategy extends FileUploadViewStrategy {
     // after that. See #2653 /
     // https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-HTTPPOSTForms.html
     // for more context.
-    builder.add(
-        input().withType("file").withName("file").withAccept(MIME_TYPES_IMAGES_AND_PDF));
+    builder.add(input().withType("file").withName("file").withAccept(MIME_TYPES_IMAGES_AND_PDF));
     return builder.build();
   }
 

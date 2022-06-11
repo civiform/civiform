@@ -3,9 +3,8 @@ package views.components;
 import static j2html.TagCreator.div;
 import static views.BaseHtmlView.button;
 
-import j2html.tags.specialized.ButtonTag;
-import j2html.tags.specialized.DivTag;
 import j2html.tags.Tag;
+import j2html.tags.specialized.ButtonTag;
 import java.util.Optional;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;

@@ -6,9 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
-import j2html.tags.Tag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
 
