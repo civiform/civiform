@@ -5,6 +5,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.ProfileFactory;
 import com.typesafe.config.Config;
 import javax.inject.Provider;
+
+import org.checkerframework.errorprone.dataflow.cfg.node.ReturnNode;
 import org.pac4j.core.http.callback.PathParameterCallbackUrlResolver;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
@@ -15,6 +17,7 @@ import repository.UserRepository;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * This class provides the base applicant OIDC implementation. It's abstract because AD and other
@@ -37,7 +40,8 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     this.profileFactory = checkNotNull(profileFactory);
     this.applicantRepositoryProvider = checkNotNull(applicantRepositoryProvider);
 
-    this.baseUrl = getConfigurationValue("base_url").orElseThrow();
+    this.baseUrl = getBaseConfigurationValue("base_url")
+        .orElseThrow(() -> new RuntimeException("base_url must be set"));
   }
 
   /*
@@ -96,6 +100,14 @@ public abstract class OidcProvider implements Provider<OidcClient> {
    */
   protected final Optional<String> getConfigurationValue(String suffix) {
     String name = attributePrefix() + "." + suffix;
+    return getBaseConfigurationValue(name);
+  }
+
+  /*
+   * Helper function for retriving values from the application.conf,
+   * prepended with "<attributePrefix>."
+   */
+  protected final Optional<String> getBaseConfigurationValue(String name) {
     if (configuration.hasPath(name)) {
       return Optional.ofNullable(configuration.getString(name));
     }
@@ -132,8 +144,9 @@ public abstract class OidcProvider implements Provider<OidcClient> {
         responseMode,
         responseType,
         callbackURL);
+    var missing = requiredAttributes.stream().map(Strings::nullToEmpty);
     // Check that none are null or blank.
-    if (requiredAttributes.stream().map(Strings::nullToEmpty).anyMatch(String::isBlank)) {
+    if (missing.anyMatch(String::isBlank)) {
       logger.error(
           String.format(
               "Can't get OIDC client - Missing some required Provider data: "
@@ -149,7 +162,7 @@ public abstract class OidcProvider implements Provider<OidcClient> {
               responseMode,
               responseType,
               callbackURL));
-      return null;
+      throw new RuntimeException("Missing OIDC attributes " + missing.collect(Collectors.joining(", ")));
     }
     Optional<String> providerName = getProviderName();
     OidcConfiguration config = new OidcConfiguration();

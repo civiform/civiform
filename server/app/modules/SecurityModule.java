@@ -127,19 +127,26 @@ public class SecurityModule extends AbstractModule {
   private void bindApplicantIdpProvider(String applicantIdpName) {
     AuthIdentityProviderName idpName = AuthIdentityProviderName.forString(applicantIdpName).get();
 
-    switch (idpName) {
-      case LOGIN_RADIUS_APPLICANT:
-        bind(IndirectClient.class)
-            .annotatedWith(ApplicantAuthClient.class)
-            .toProvider(LoginRadiusProvider.class);
-        logger.info("Using Login Radius for applicant auth provider");
-        break;
-      case IDCS_APPLICANT:
-      default:
-        bind(IndirectClient.class)
-            .annotatedWith(ApplicantAuthClient.class)
-            .toProvider(IdcsProvider.class);
-        logger.info("Using IDCS for applicant auth provider");
+    try {
+      switch (idpName) {
+        case LOGIN_RADIUS_APPLICANT:
+          bind(IndirectClient.class)
+              .annotatedWith(ApplicantAuthClient.class)
+              .toProvider(LoginRadiusProvider.class);
+          logger.info("Using Login Radius for applicant auth provider");
+          break;
+        case IDCS_APPLICANT:
+          bind(IndirectClient.class)
+              .annotatedWith(ApplicantAuthClient.class)
+              .toProvider(IdcsProvider.class);
+          logger.info("Using IDCS for applicant auth provider");
+          break;
+        default:
+          logger.info("No provider specified for for applicants");
+      }
+    } catch (RuntimeException e) {
+      logger.error("Error getting applicant auth provider");
+      throw e;
     }
   }
 

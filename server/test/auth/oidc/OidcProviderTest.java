@@ -1,6 +1,7 @@
 package auth.oidc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import auth.ProfileFactory;
 import auth.oidc.applicant.IdcsProfileAdapter;
@@ -48,6 +49,7 @@ public class OidcProviderTest extends ResetPostgres {
                 baseUrl));
 
     // Just need some complete adaptor to access methods.
+    try {
     oidcProvider =
         new IdcsProvider(
             config,
@@ -58,6 +60,11 @@ public class OidcProviderTest extends ResetPostgres {
                 return userRepository;
               }
             });
+  } catch (RuntimeException e) {
+    fail(e);
+    return;
+  }
+
   }
 
   @Test
@@ -104,7 +111,9 @@ public class OidcProviderTest extends ResetPostgres {
   public void Test_get(String name, String wantResponseType, ImmutableMap<String, String> c) {
     Config config = ConfigFactory.parseMap(c);
 
-    OidcProvider oidcProvider =
+    OidcProvider oidcProvider;
+    try {
+      oidcProvider =
         new IdcsProvider(
             config,
             profileFactory,
@@ -114,6 +123,10 @@ public class OidcProviderTest extends ResetPostgres {
                 return userRepository;
               }
             });
+    } catch (RuntimeException e) {
+      fail(e);
+      return;
+    }
     OidcClient client = oidcProvider.get();
 
     assertThat(client.getCallbackUrl()).isEqualTo(c.get("base_url") + "/callback");
@@ -188,8 +201,9 @@ public class OidcProviderTest extends ResetPostgres {
   @Parameters(method = "provideConfigsForInvalidConfig")
   public void get_invalidConfig(String name, ImmutableMap<String, String> c) {
     Config empty_secret_config = ConfigFactory.parseMap(c);
-
-    OidcProvider badOidcProvider =
+    OidcProvider badOidcProvider;
+    try {
+      badOidcProvider =
         new IdcsProvider(
             empty_secret_config,
             profileFactory,
@@ -198,7 +212,12 @@ public class OidcProviderTest extends ResetPostgres {
               public UserRepository get() {
                 return userRepository;
               }
-            });
+              });
+      fail("Initilizing without correct config should cause runtimeException");
+    } catch (RuntimeException e) {
+      // pass
+      return;
+    }
     OidcClient client = badOidcProvider.get();
     assertThat(client).isNull();
   }
