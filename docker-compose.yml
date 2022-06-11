@@ -46,6 +46,8 @@ services:
     expose:
       - "9000"
       - "8457"
+    volumes:
+      - project-coverage:/var/lib/
     environment:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-test}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-test}
@@ -79,3 +81,7 @@ services:
       - WHITELABEL_CIVIC_ENTITY_SHORT_NAME
       - WHITELABEL_CIVIC_ENTITY_FULL_NAME
     command: ~run -Dconfig.file=conf/application.dev.conf
+
+    volumes:
+      project-coverage:
+        driver: local
