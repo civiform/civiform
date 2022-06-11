@@ -178,6 +178,3 @@ resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.
 Global / onChangedBuildSource := ReloadOnSourceChanges
-// uncomment to show debug logging.
-logLevel := Level.Debug
-Compile / compile / logLevel := Level.Debug
