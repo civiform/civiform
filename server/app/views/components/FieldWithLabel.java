@@ -10,6 +10,9 @@ import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.tags.Tag;
 import j2html.tags.attributes.IName;
+import j2html.tags.attributes.IDisabled;
+import j2html.tags.attributes.IPlaceholder;
+import j2html.tags.attributes.IFormaction;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
@@ -248,6 +251,7 @@ public class FieldWithLabel {
       TextareaTag textareaFieldTag = TagCreator.textarea();
       applyAttributesFromSet(textareaFieldTag);
       textareaFieldTag.withText(this.fieldValue);
+      textareaFieldTag.withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText);
       return applyAttrsAndGenLabel(textareaFieldTag);
     } else {
       InputTag inputFieldTag = TagCreator.input();
@@ -258,6 +262,8 @@ public class FieldWithLabel {
       } else {
         inputFieldTag.withValue(this.fieldValue);
       }
+      inputFieldTag.withCondForm(!Strings.isNullOrEmpty(this.formId), this.formId);
+      inputFieldTag.withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText);
       return applyAttrsAndGenLabel(inputFieldTag);
     }
   }
@@ -332,7 +338,7 @@ public class FieldWithLabel {
     }
   }
 
-  private <T extends Tag<T> & IName<T>> void generalApplyAttrsClassesToTag(
+  private <T extends Tag<T> & IName<T> & IDisabled<T>> void generalApplyAttrsClassesToTag(
       T fieldTag, boolean hasFieldErrors) {
     fieldTag
         .withClasses(
@@ -340,12 +346,10 @@ public class FieldWithLabel {
                 BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
         .withId(this.id)
         .withName(this.fieldName)
-        .withCondDisabled(this.disabled)
-        .withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText)
-        .withCondForm(!Strings.isNullOrEmpty(this.formId), formId);
+        .withCondDisabled(this.disabled);
   }
 
-  protected <T extends Tag<T> & IName<T>> DivTag applyAttrsAndGenLabel(T fieldTag) {
+  protected <T extends Tag<T> & IName<T> & IDisabled<T>> DivTag applyAttrsAndGenLabel(T fieldTag) {
     String fieldErrorsId = String.format("%s-errors", this.id);
     boolean hasFieldErrors = hasFieldErrors();
     if (hasFieldErrors) {
