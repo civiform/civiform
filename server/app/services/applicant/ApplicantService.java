@@ -98,8 +98,13 @@ public interface ApplicantService {
 
   /**
    * Return all programs that are appropriate to serve to an applicant. Appropriate programs are
-   * those where the applicant: * Has a draft application * Has previously applied * Any other
-   * programs that are public.
+   * those where the applicant:
+   *
+   * <ul>
+   *   <li>Has a draft application
+   *   <li>Has previously applied
+   *   <li>Any other programs that are public
+   * </ul>
    */
   CompletionStage<RelevantPrograms> relevantProgramsForApplicant(long applicantId);
 

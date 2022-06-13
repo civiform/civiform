@@ -391,6 +391,11 @@ public final class ApplicantServiceImpl implements ApplicantService {
 
   private RelevantPrograms relevantProgramsForApplicant(
       ImmutableList<ProgramDefinition> activePrograms, ImmutableSet<Application> applications) {
+    // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
+    // provided active programs contains duplicaate entries with the same adminName. In this
+    // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
+    // construction where the same key is provided twice. Using Collectors.toMap would just
+    // use the last provided key.
     ImmutableMap<String, ProgramDefinition> activeProgramNames =
         ImmutableMap.copyOf(
             activePrograms.stream()
@@ -408,8 +413,8 @@ public final class ApplicantServiceImpl implements ApplicantService {
                     },
                     Collectors.groupingBy(
                         Application::getLifecycleStage,
-                        // In practice, we don't expect an applicant to have multiple applications
-                        // for a given program / LifecycleStage combination. Grabbing the latest
+                        // In practice, we don't expect an applicant to have multiple
+                        // DRAFT or ACTIVE applications for a given program. Grabbing the latest
                         // application here guards against that case, should it occur.
                         Collectors.maxBy(Comparator.comparingLong(a -> a.id)))));
 
@@ -425,9 +430,6 @@ public final class ApplicantServiceImpl implements ApplicantService {
               appByStage.getOrDefault(LifecycleStage.ACTIVE, Optional.empty());
           Optional<Instant> maybeSubmitTime = maybeSubmittedApp.map(Application::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
-            // We want to ensure that any generated links points to the version
-            // of the program associated with the draft, not the most recent version.
-            // As such, we use the program definition associated with the application.
             inProgressPrograms.add(
                 ApplicantProgramData.create(
                     maybeDraftApp.get().getProgram().getProgramDefinition(), maybeSubmitTime));

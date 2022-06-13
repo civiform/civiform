@@ -217,7 +217,6 @@ public final class ApplicationRepository {
         () -> {
           return database
               .find(Application.class)
-              .alias("a")
               .where()
               .isIn("lifecycle_stage", stages)
               .query()
