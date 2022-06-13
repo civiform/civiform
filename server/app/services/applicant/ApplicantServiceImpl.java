@@ -422,6 +422,7 @@ public final class ApplicantServiceImpl implements ApplicantService {
     ImmutableList.Builder<ApplicantProgramData> submittedPrograms = ImmutableList.builder();
     ImmutableList.Builder<ApplicantProgramData> unappliedPrograms = ImmutableList.builder();
 
+    Set<String> programNamesWithApplications = Sets.newHashSet();
     mostRecentApplicationsByProgram.forEach(
         (programName, appByStage) -> {
           Optional<Application> maybeDraftApp =
@@ -433,18 +434,16 @@ public final class ApplicantServiceImpl implements ApplicantService {
             inProgressPrograms.add(
                 ApplicantProgramData.create(
                     maybeDraftApp.get().getProgram().getProgramDefinition(), maybeSubmitTime));
-          } else if (maybeSubmittedApp.isPresent()) {
-            // Prefer the most recent version of the program. If none exists,
-            // fall back on the version used to submit the application.
-            ProgramDefinition programDef =
-                activeProgramNames.getOrDefault(
-                    programName, maybeSubmittedApp.get().getProgram().getProgramDefinition());
+            programNamesWithApplications.add(programName);
+          } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
+            ProgramDefinition programDef =activeProgramNames.get(programName);
             submittedPrograms.add(ApplicantProgramData.create(programDef, maybeSubmitTime));
+            programNamesWithApplications.add(programName);
           }
         });
 
     Set<String> missingActivePrograms =
-        Sets.difference(activeProgramNames.keySet(), mostRecentApplicationsByProgram.keySet());
+        Sets.difference(activeProgramNames.keySet(), programNamesWithApplications);
     missingActivePrograms.forEach(
         programName -> {
           unappliedPrograms.add(

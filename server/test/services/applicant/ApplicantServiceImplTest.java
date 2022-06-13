@@ -936,7 +936,7 @@ public class ApplicantServiceImplTest extends ResetPostgres {
 
   @Test
   public void relevantPrograms_hiddenFromIndex() {
-    // This ensures that the applicant can always see that submitted / draft
+    // This ensures that the applicant can always see that draft
     // applications for a given program, even if a newer version of the
     // program is hidden from the index.
     Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
@@ -989,8 +989,9 @@ public class ApplicantServiceImplTest extends ResetPostgres {
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(originalProgramForDraftApp.id);
-    assertThat(result.submitted().stream().map(p -> p.program().id()))
-        .containsExactly(originalProgramForSubmittedApp.id);
+    // TODO(#2573): Determine if already submitted applications for hidden
+    // programs should show in the index, similar to draft applications.
+    assertThat(result.submitted()).isEmpty();
     // As part of test setup, a "test program" is initialized.
     // When calling publish, this will become active. This provides
     // confidence that the draft version created above is actually published.
