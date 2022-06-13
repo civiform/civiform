@@ -125,6 +125,10 @@ lazy val root = (project in file("."))
 
     // Save build artifacts to a cache that isn't shadowed by docker.
     // https://www.scala-sbt.org/1.x/docs/Remote-Caching.html
+    // During the build step, we push build artifacts to the "build-cache" dir,
+    // which is saved in the image file by the deploy process.
+    // On later loads, we pull assets from that cache and incrementally compile,
+    // any changes, plus the dynamically generated code (autovalue and routes).
     publish / skip := true,
     Global / pushRemoteCacheTo := Some(MavenCache("local-cache", file(baseDirectory.value+"/../build-cache"))),
 
