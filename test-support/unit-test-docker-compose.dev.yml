@@ -8,7 +8,6 @@ services:
       - node_modules-data:/usr/src/server/node_modules
       - project-data:/usr/src/server/project/project
       - project-target-data:/usr/src/server/project/target
-      - project-coverage:/usr/src/server/target/scala-2.13/jacoco/report
       - coursier-data:/root/.cache/coursier
       - sbt-data:/root/.sbt
       - ivy2-data:/root/.ivy2
@@ -30,6 +29,4 @@ volumes:
   m2-data:
     driver: local
   target:
-    driver: local
-  project-coverage:
     driver: local

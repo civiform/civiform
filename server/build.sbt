@@ -79,7 +79,7 @@ lazy val root = (project in file("."))
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.9.0",
-      
+
       //pdf library for export
        "com.itextpdf" % "itextpdf" % "5.5.13.3",
 
@@ -124,9 +124,12 @@ lazy val root = (project in file("."))
   )
   .settings(excludeTailwindGeneration: _*)
 
-    jacocoReportSettings := JacocoReportSettings()
+  Test / jacocoReportSettings := JacocoReportSettings()
   .withTitle("Report Title")
   .withFormats(JacocoReportFormats.CSV)
+
+Test / jacocoExcludes := Seq("views*", "*Routes*")
+Test / jacocoDirectory := baseDirectory.value /"jacoco"
 
 // Ignore the tailwind.sbt generated css file when watching for recompilation.
 // Since this file is generated when build.sbt is loaded, it causes the server
