@@ -16,6 +16,15 @@ public class StoredFileAclsTest extends ResetPostgres {
       ProgramBuilder.newDraftProgram("program-two").buildDefinition();
 
   @Test
+  public void hasProgramReadPermission_emptyPermissions() {
+    var acls = new StoredFileAcls();
+    var account =
+        new Account().addAdministeredProgram(programOne).addAdministeredProgram(programTwo);
+
+    assertThat(acls.hasProgramReadPermission(account)).isFalse();
+  }
+
+  @Test
   public void hasProgramReadPermission_hasPermission() {
     var acls = new StoredFileAcls().addProgramToReaders(programOne);
     var account = new Account().addAdministeredProgram(programOne);
