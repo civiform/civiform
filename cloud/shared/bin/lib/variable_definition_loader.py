@@ -1,12 +1,14 @@
 import os
 import json
 
+
 # Loads all configuration variable definition files
 #
 # Requires that:
 #   - Each variable definition file is referenced in
 #     def load_repo_variable_definitions_files():
 class VariableDefinitionLoader:
+
     def __init__(self, variable_definitions={}):
         self.variable_definitions: dict = variable_definitions
 
@@ -16,7 +18,9 @@ class VariableDefinitionLoader:
 
             for name, definition in definitions.items():
                 if name in self.variable_definitions:
-                    raise RuntimeError(f"Duplicate variable name: {name} at {definition_file_path}")
+                    raise RuntimeError(
+                        f"Duplicate variable name: {name} at {definition_file_path}"
+                    )
 
                 self.variable_definitions[name] = definition
 
