@@ -3,7 +3,7 @@ package views.components;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.label;
-
+import j2html.attributes.Attr;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -251,7 +251,6 @@ public class FieldWithLabel {
       TextareaTag textareaFieldTag = TagCreator.textarea();
       applyAttributesFromSet(textareaFieldTag);
       textareaFieldTag.withText(this.fieldValue);
-      textareaFieldTag.withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText);
       return applyAttrsAndGenLabel(textareaFieldTag);
     } else {
       InputTag inputFieldTag = TagCreator.input();
@@ -262,8 +261,6 @@ public class FieldWithLabel {
       } else {
         inputFieldTag.withValue(this.fieldValue);
       }
-      inputFieldTag.withCondForm(!Strings.isNullOrEmpty(this.formId), this.formId);
-      inputFieldTag.withCondPlaceholder(!Strings.isNullOrEmpty(this.placeholderText), this.placeholderText);
       return applyAttrsAndGenLabel(inputFieldTag);
     }
   }
@@ -338,15 +335,23 @@ public class FieldWithLabel {
     }
   }
 
-  private <T extends Tag<T> & IName<T> & IDisabled<T>> void generalApplyAttrsClassesToTag(
-      T fieldTag, boolean hasFieldErrors) {
+  private void generalApplyAttrsClassesToTag(
+      Tag<?> fieldTag, boolean hasFieldErrors) {
+    // Here we use `.condAttr` instead of the more typesafe methods in a couple instances 
+    // since not all types of the `fieldTag` argument passed to this have those attributes.
+    // 
+    // Adding useless attributes does not hurt the DOM, and helps us avoid putting those calls
+    // before the calls to this method, thus simplifying the code.
     fieldTag
         .withClasses(
             StyleUtils.joinStyles(
                 BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
         .withId(this.id)
-        .withName(this.fieldName)
-        .withCondDisabled(this.disabled);
+        .attr("name", this.fieldName)
+        .condAttr(this.disabled, Attr.DISABLED, "true")
+        .condAttr(
+            !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
+        .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
   }
 
   protected <T extends Tag<T> & IName<T> & IDisabled<T>> DivTag applyAttrsAndGenLabel(T fieldTag) {
@@ -377,9 +382,7 @@ public class FieldWithLabel {
       fieldTag.attr("checked");
     }
 
-    return div()
-        .with(
-            label()
+    return div().with(label()
                 .withClasses(
                     StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
                     BaseStyles.CHECKBOX_LABEL,
