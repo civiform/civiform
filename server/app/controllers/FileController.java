@@ -82,6 +82,11 @@ public class FileController extends CiviFormController {
     return adminShowInternal(request, Optional.of(programId), fileKey);
   }
 
+  /**
+   * Action for program admins to view uploaded files. Relies on the file referenced by {@code
+   * fileKey} to have {@link auth.StoredFileAcls} to authorize the caller, returns unauthorized if
+   * not.
+   */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result acledAdminShow(Request request, String fileKey) {
     return adminShowInternal(request, /* maybeProgramId= */ Optional.empty(), fileKey);

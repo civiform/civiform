@@ -62,6 +62,15 @@ public class FileControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void adminShow_invalidProgram_returnsNotFound() {
+    Program program = ProgramBuilder.newDraftProgram().build();
+    createProgramAdminWithMockedProfile(program);
+    String fileKey = fakeFileKey(1L, program.id);
+    Result result = controller.adminShow(request, program.id + 1, fileKey);
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
   public void adminShow_differentProgram_returnsUnauthorizedResult() {
     Program programOne = ProgramBuilder.newDraftProgram("one").build();
     Program programTwo = ProgramBuilder.newDraftProgram("two").build();
