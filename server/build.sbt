@@ -127,7 +127,7 @@ lazy val root = (project in file("."))
 jacocoReportSettings := JacocoReportSettings()
   .withTitle("Jacoco")
   .withFormats(JacocoReportFormats.CSV)
-
+//html for local views
 jacocoReportSettings := JacocoReportSettings()
   .withTitle("Jacoco")
   .withFormats(JacocoReportFormats.HTML)
