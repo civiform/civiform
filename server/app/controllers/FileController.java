@@ -71,6 +71,12 @@ public class FileController extends CiviFormController {
             });
   }
 
+  /**
+   * The legacy show action for admins viewing uploaded files. Needed because file URLs exported
+   * before the move to using {@link auth.StoredFileAcls} relied on asserting that the program ID
+   * embedded in the {@code fileKey} param matched the one in the URL and that the user calling the
+   * action was a program admin for the specified program ID.
+   */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result adminShow(Request request, long programId, String fileKey) {
     return adminShowInternal(request, Optional.of(programId), fileKey);
@@ -81,7 +87,14 @@ public class FileController extends CiviFormController {
     return adminShowInternal(request, /* maybeProgramId= */ Optional.empty(), fileKey);
   }
 
-  public Result adminShowInternal(Request request, Optional<Long> maybeProgramId, String fileKey) {
+  /**
+   * Asserts the caller has permission to view the file specified by {@code fileKey} and redirects
+   * them to a presigned access URL to get the file from cloud storage. It first attempts to check
+   * access permission using the stored file's {@link auth.StoredFileAcls}. If they are not present,
+   * it falls back to the legacy auth logic of checking the if the caller is an admin of the program
+   * identified by {@code maybeProgramId} if it is present.
+   */
+  private Result adminShowInternal(Request request, Optional<Long> maybeProgramId, String fileKey) {
     Optional<StoredFile> maybeFile =
         storedFileRepository.lookupFile(fileKey).toCompletableFuture().join();
 
@@ -110,6 +123,8 @@ public class FileController extends CiviFormController {
    * program the file was uploaded for. This is not the case, since file upload questions can be
    * shared between programs.
    */
+  // TODO(https://github.com/seattle-uat/civiform/issues/2709): add ACLs to previously uploaded
+  // StoredFiles
   private Result legacyAdminShow(Request request, long programId, String fileKey) {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
