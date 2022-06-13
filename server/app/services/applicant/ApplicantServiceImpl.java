@@ -436,7 +436,7 @@ public final class ApplicantServiceImpl implements ApplicantService {
                     maybeDraftApp.get().getProgram().getProgramDefinition(), maybeSubmitTime));
             programNamesWithApplications.add(programName);
           } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
-            ProgramDefinition programDef =activeProgramNames.get(programName);
+            ProgramDefinition programDef = activeProgramNames.get(programName);
             submittedPrograms.add(ApplicantProgramData.create(programDef, maybeSubmitTime));
             programNamesWithApplications.add(programName);
           }
