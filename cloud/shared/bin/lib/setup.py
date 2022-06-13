@@ -4,11 +4,9 @@ import os
 import subprocess
 import sys
 
-
 from config_loader import ConfigLoader
 from write_tfvars import TfVarWriter
 from setup_class_loader import load_class
-
 """
 Setup.py sets up and runs the initial terraform deployment. It's broken into
 3 parts:
@@ -35,7 +33,9 @@ config_loader = ConfigLoader()
 is_valid, validation_errors = config_loader.load_config()
 if not is_valid:
     new_line = '\n\t'
-    exit(f"Found the following validation errors: {new_line}{f'{new_line}'.join(validation_errors)}")
+    exit(
+        f"Found the following validation errors: {new_line}{f'{new_line}'.join(validation_errors)}"
+    )
 
 ###############################################################################
 # Load Setup Class for the specific template directory
@@ -47,10 +47,12 @@ Setup = load_class(template_dir)
 template_setup = Setup(config_loader)
 template_setup.setup_log_file()
 
-current_user_function = subprocess.run([
-    "/bin/bash", "-c",
-    f"source cloud/azure/bin/lib.sh && azure::get_current_user_id"
-], capture_output=True)
+current_user_function = subprocess.run(
+    [
+        "/bin/bash", "-c",
+        f"source cloud/azure/bin/lib.sh && azure::get_current_user_id"
+    ],
+    capture_output=True)
 
 if current_user_function:
     current_user = current_user_function.stdout.decode("ascii")
@@ -82,19 +84,18 @@ try:
         "-upgrade",
     ]
     if config_loader.use_backend_config():
-        terraform_init_args.append(f"-backend-config={config_loader.backend_vars_filename}")
+        terraform_init_args.append(
+            f"-backend-config={config_loader.backend_vars_filename}")
 
     print(" - Run terraform init")
     subprocess.check_call(terraform_init_args)
 
     print(" - Run terraform apply")
-    subprocess.check_call([
-        "terraform",
-        f"-chdir={template_dir}",
-        "apply",
-        "-input=false",
-        f"-var-file={config_loader.tfvars_filename}"
-    ])
+    subprocess.check_call(
+        [
+            "terraform", f"-chdir={template_dir}", "apply", "-input=false",
+            f"-var-file={config_loader.tfvars_filename}"
+        ])
 
     ###############################################################################
     # Post Run Setup Tasks (if needed)
@@ -103,24 +104,26 @@ try:
         print("Starting port-terraform setup")
         template_setup.post_terraform_setup()
 
-        subprocess.check_call([
-            "terraform",
-            f"-chdir={template_dir}",
-            "apply",
-            "-input=false",
-            f"-var-file={config_loader.tfvars_filename}"
-        ])
-    subprocess.run([
-        "/bin/bash", "-c",
-        f"source cloud/shared/bin/lib.sh && LOG_TEMPFILE={template_setup.log_file_path} log::deploy_succeeded {log_args}"
-    ], check=True)
+        subprocess.check_call(
+            [
+                "terraform", f"-chdir={template_dir}", "apply", "-input=false",
+                f"-var-file={config_loader.tfvars_filename}"
+            ])
+    subprocess.run(
+        [
+            "/bin/bash", "-c",
+            f"source cloud/shared/bin/lib.sh && LOG_TEMPFILE={template_setup.log_file_path} log::deploy_succeeded {log_args}"
+        ],
+        check=True)
 except BaseException as err:
-    subprocess.run([
-        "/bin/bash", "-c",
-        f"source cloud/shared/bin/lib.sh && LOG_TEMPFILE={template_setup.log_file_path} log::deploy_failed {log_args}"
-    ], check=True)
+    subprocess.run(
+        [
+            "/bin/bash", "-c",
+            f"source cloud/shared/bin/lib.sh && LOG_TEMPFILE={template_setup.log_file_path} log::deploy_failed {log_args}"
+        ],
+        check=True)
     print("Deployment Failed :(", file=sys.stderr)
-    print ("error:", err)
+    print("error:", err)
 
 finally:
     template_setup.cleanup()
