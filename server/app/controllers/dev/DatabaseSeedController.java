@@ -38,11 +38,13 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.RadioButtonQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
+import tasks.DatabaseSeedTask;
 import views.dev.DatabaseSeedView;
 
 /** Controller for seeding the database with test content to develop against. */
 public class DatabaseSeedController extends DevController {
 
+  private final DatabaseSeedTask databaseSeedTask;
   private final DatabaseSeedView view;
   private final Database database;
   private final QuestionService questionService;
@@ -50,12 +52,14 @@ public class DatabaseSeedController extends DevController {
 
   @Inject
   public DatabaseSeedController(
+      DatabaseSeedTask databaseSeedTask,
       DatabaseSeedView view,
       QuestionService questionService,
       ProgramService programService,
       Environment environment,
       Config configuration) {
     super(environment, configuration);
+    this.databaseSeedTask = checkNotNull(databaseSeedTask);
     this.view = checkNotNull(view);
     this.database = DB.getDefault();
     this.questionService = checkNotNull(questionService);
@@ -67,7 +71,7 @@ public class DatabaseSeedController extends DevController {
    * database content and another to clear the database.
    */
   public Result index(Request request) {
-    if (!isDevEnvironment()) {
+    if (!isDevOrStagingEnvironment()) {
       return notFound();
     }
     ActiveAndDraftPrograms activeAndDraftPrograms = programService.getActiveAndDraftPrograms();
@@ -78,9 +82,20 @@ public class DatabaseSeedController extends DevController {
             request, activeAndDraftPrograms, questionDefinitions, request.flash().get("success")));
   }
 
+  public Result seedCanonicalQuestions() {
+    if (!isDevOrStagingEnvironment()) {
+      return notFound();
+    }
+
+    databaseSeedTask.run();
+
+    return redirect(routes.DatabaseSeedController.index().url())
+        .flashing("success", "Canonical questions seeded");
+  }
+
   public Result seed() {
     // TODO: consider checking whether the test program already exists.
-    if (!isDevEnvironment()) {
+    if (!isDevOrStagingEnvironment()) {
       return notFound();
     }
     insertProgramWithBlocks("Mock program");
@@ -90,7 +105,7 @@ public class DatabaseSeedController extends DevController {
 
   /** Remove all content from the program and question tables. */
   public Result clear() {
-    if (!isDevEnvironment()) {
+    if (!isDevOrStagingEnvironment()) {
       return notFound();
     }
     resetTables();
