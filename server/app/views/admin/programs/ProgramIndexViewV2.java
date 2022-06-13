@@ -359,13 +359,13 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     // TODO(#1238): Rather than navigating to the program link
     // consider renaming the action and copying the link to the clipboard
     // or opening it in a new tab.
-    String programLink =
+    String viewLink =
         baseUrl
             + controllers.applicant.routes.RedirectController.programByName(program.slug()).url();
     ContainerTag button =
         makeSvgTextButton("View", Icons.VISIBILITY_SVG_PATH)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-    return asRedirectButton(button, programLink);
+    return asRedirectButton(button, viewLink);
   }
 
   Tag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
