@@ -29,13 +29,14 @@ class AdminPrograms {
     }
 
     const withCopyableProgramLink = Array.from(
-      cardsParent.querySelectorAll(
-        `[${AdminPrograms.PROGRAM_LINK_ATTRIBUTE}]`
-      ) as any as Array<HTMLElement>
+      cardsParent.querySelectorAll(`[${AdminPrograms.PROGRAM_LINK_ATTRIBUTE}]`)
     )
     withCopyableProgramLink.forEach((el) => {
       const programLink = el.getAttribute(AdminPrograms.PROGRAM_LINK_ATTRIBUTE)
       if (!programLink) {
+        console.warn(
+          `Empty ${AdminPrograms.PROGRAM_LINK_ATTRIBUTE} for element`
+        )
         return
       }
       el.addEventListener('click', () => {
@@ -46,9 +47,7 @@ class AdminPrograms {
 
   sortCards(cardsParent: HTMLElement) {
     const cards = Array.from(
-      cardsParent.querySelectorAll(
-        AdminPrograms.PROGRAM_CARDS_SELECTOR
-      ) as any as Array<HTMLElement>
+      cardsParent.querySelectorAll(AdminPrograms.PROGRAM_CARDS_SELECTOR)
     )
     cards.sort((first, second) => {
       const firstComparator = this.comparatorObject(first)
@@ -68,7 +67,7 @@ class AdminPrograms {
     })
   }
 
-  comparatorObject(el: HTMLElement) {
+  comparatorObject(el: Element) {
     const lastUpdatedMillisString =
       el.getAttribute(AdminPrograms.LAST_UPDATED_MILLIS) || ''
     const lastUpdatedMillis = Number(lastUpdatedMillisString)
@@ -78,14 +77,17 @@ class AdminPrograms {
     }
   }
 
-  static async tryCopyToClipboard(programLink: string): Promise<boolean> {
+  /**
+   * Attempts to copy the given content to the clipboard.
+   * @param content
+   * @returns bool indicating whether the content was copied to the clipboard
+   */
+  static async tryCopyToClipboard(content: string): Promise<boolean> {
     if (!window.navigator['clipboard']) {
       return false
     }
     try {
-      ;(await window.navigator['clipboard'].writeText(
-        programLink
-      )) as unknown as Promise<void>
+      await window.navigator['clipboard'].writeText(content)
       return true
     } catch {
       return false
