@@ -15,12 +15,12 @@ import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DateConverter;
 import services.LocalizedStrings;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
@@ -41,13 +41,14 @@ import views.style.Styles;
 public final class ProgramIndexViewV2 extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
-  private final ZoneId zoneId;
+  private final DateConverter dateConverter;
 
   @Inject
-  public ProgramIndexViewV2(AdminLayoutFactory layoutFactory, Config config, ZoneId zoneId) {
+  public ProgramIndexViewV2(
+      AdminLayoutFactory layoutFactory, Config config, DateConverter dateConverter) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
-    this.zoneId = checkNotNull(zoneId);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   public Content render(
@@ -172,8 +173,10 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
       updatedPrefix = "Published on ";
     }
 
-    String formattedUpdateTime = updatedTime.map(t -> renderDateTime(t, zoneId)).orElse("unknown");
-    String formattedUpdateDate = updatedTime.map(t -> renderDate(t, zoneId)).orElse("unknown");
+    String formattedUpdateTime =
+        updatedTime.map(t -> dateConverter.renderDateTime(t)).orElse("unknown");
+    String formattedUpdateDate =
+        updatedTime.map(t -> dateConverter.renderDate(t)).orElse("unknown");
 
     int blockCount = program.getBlockCount();
     int questionCount = program.getQuestionCount();

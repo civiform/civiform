@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -39,5 +40,17 @@ public class DateConverter {
    */
   public Instant parseIso8601DateToStartOfDateInstant(String dateString) {
     return LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE).atStartOfDay(zoneId).toInstant();
+  }
+
+  /** Formats an {@link Instant} to a date and time in the local time zone. */
+  public String renderDateTime(Instant time) {
+    ZonedDateTime dateTime = time.atZone(zoneId);
+    return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a z"));
+  }
+
+  /** Formats an {@link Instant} to a date in the local time zone. */
+  public String renderDate(Instant time) {
+    ZonedDateTime dateTime = time.atZone(zoneId);
+    return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
   }
 }
