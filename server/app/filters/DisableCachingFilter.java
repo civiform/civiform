@@ -2,25 +2,30 @@ package filters;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableList;
 import java.util.concurrent.Executor;
 import javax.inject.Inject;
+import java.util.Optional;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
-
+import com.google.common.base.Splitter;
+import java.lang.Iterables;
 /** A filter to disable caching our responses. */
 public class DisableCachingFilter extends EssentialFilter {
   private final Executor exec;
 
-  private final ImmutableList<String> staticAssetPaths =
-      ImmutableList.of("/public/", "/assets/", "favicon.ico", "/favicon.ico");
+  private static final ImmutableSet<String> ASSET_PATH_PREFIXES =
+      ImmutableSet.of("public", "assets", "favicon.ico");
+  private static final Splitter PATH_SPLITTER = Splitter.on("/");
 
-  @Inject private play.Environment environment;
+  private final play.Environment environment;
 
   @Inject
-  public DisableCachingFilter(Executor exec) {
+  public DisableCachingFilter(Executor exec, play.Environment environment) {
     super();
     this.exec = checkNotNull(exec);
+    this.environment = checkNotNull(environment);
   }
 
   @Override
@@ -30,15 +35,14 @@ public class DisableCachingFilter extends EssentialFilter {
             next.apply(request)
                 .map(
                     result -> {
-                      String path = request.uri();
+                      Optional<String> pathPrefix = Iterables.getFirst(PATH_SPLITTER.splitToList(request.uri()));
                       Integer status = result.status();
-                      ImmutableList<String> assets = staticAssetPaths;
 
                       if (environment.isDev()) {
                         // Must revalidate status asset caches in dev mode
-                        assets = ImmutableList.<String>of();
+                        // pathPrefix = Optional.empty();
                       }
-                      if (assets.stream().anyMatch(m -> path.contains(m))) {
+                      if (pathPrefix.map(ASSET_PATH_PREFIXES::contains).orElse(false)) {
                         // Only cache when Status is OK https://web.dev/uses-long-cache-ttl/
                         if (status == 200 || status == 203 || status == 206) {
                           // In prod/staging, static assets are fingerprinted,
