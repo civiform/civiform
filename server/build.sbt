@@ -78,7 +78,7 @@ lazy val root = (project in file("."))
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.9.0",
-      
+
       //pdf library for export
        "com.itextpdf" % "itextpdf" % "5.5.13.3",
 
@@ -105,7 +105,9 @@ lazy val root = (project in file("."))
       "-Werror"
     ),
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
-    // Recompile everything if >10% files have changed
+    // Recompile everything if >30% files have changed, to help avoid infinate
+    // incremental compilation.
+    // (but still allow some incremental building for speed.)
     incOptions := incOptions.value.withRecompileAllFraction(.3),
     // After 2 transitive steps, do more aggressive invalidation
     // https://github.com/sbt/zinc/issues/911
@@ -122,6 +124,7 @@ lazy val root = (project in file("."))
     Compile / doc / sources := Seq.empty,
 
     // Save build artifacts to a cache that isn't shadowed by docker.
+    // https://www.scala-sbt.org/1.x/docs/Remote-Caching.html
     publish / skip := true,
     Global / pushRemoteCacheTo := Some(MavenCache("local-cache", file(baseDirectory.value+"/../build-cache"))),
 

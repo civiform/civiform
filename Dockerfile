@@ -14,7 +14,6 @@ ENV INSTALL_DIR /usr/local
 ENV SBT_HOME /usr/local/sbt
 ENV PATH "${PATH}:${SBT_HOME}/bin"
 ENV SBT_URL "https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz"
-ENV SBT_OPTS="${SBT_OPTS} -Dsbt.io.jdktimestamps=true"
 
 ENV PROJECT_HOME /usr/src
 ENV PROJECT_NAME server
