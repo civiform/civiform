@@ -912,7 +912,9 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 ApplicantData.APPLICANT_PATH
                     .join(fileQuestionDefinition.getQuestionPathSegment())
                     .join(Scalar.FILE_KEY),
-                String.format("%s/admin/applicant-files/%s", FAKE_BASE_URL, "file-key")));
+                String.format(
+                    "%s/admin/programs/%d/files/%s",
+                    FAKE_BASE_URL, programDefinition.id(), "file-key")));
 
     // check enumerator and repeated answers
     assertThat(result.get(6).questionIndex()).isEqualTo(0);

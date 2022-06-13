@@ -44,7 +44,9 @@ public class JsonExporterTest extends AbstractExporterTest {
         2, ".applicant_favorite_color.text", "Some Value \" containing ,,, special characters");
     resultAsserter.assertValueAtPath(2, ".applicant_monthly_income.currency_dollars", 1234.56);
     resultAsserter.assertValueAtPath(
-        2, ".applicant_file.file_key", "http://localhost:9000/admin/applicant-files/my-file-key");
+        2,
+        ".applicant_file.file_key",
+        "http://localhost:9000/admin/programs/" + fakeProgram.id + "/files/my-file-key");
     resultAsserter.assertValueAtPath(2, ".number_of_items_applicant_can_juggle.number", 123456);
     resultAsserter.assertValueAtPath(2, ".kitchen_tools.selections[0]", "toaster");
     resultAsserter.assertValueAtPath(2, ".kitchen_tools.selections[1]", "pepper grinder");
@@ -66,7 +68,9 @@ public class JsonExporterTest extends AbstractExporterTest {
         1, ".applicant_favorite_color.text", "Some Value \" containing ,,, special characters");
     resultAsserter.assertValueAtPath(1, ".applicant_monthly_income.currency_dollars", 1234.56);
     resultAsserter.assertValueAtPath(
-        1, ".applicant_file.file_key", "http://localhost:9000/admin/applicant-files/my-file-key");
+        1,
+        ".applicant_file.file_key",
+        "http://localhost:9000/admin/programs/" + fakeProgram.id + "/files/my-file-key");
     resultAsserter.assertValueAtPath(1, ".number_of_items_applicant_can_juggle.number", 123456);
     resultAsserter.assertValueAtPath(1, ".kitchen_tools.selections[0]", "toaster");
     resultAsserter.assertValueAtPath(1, ".kitchen_tools.selections[1]", "pepper grinder");

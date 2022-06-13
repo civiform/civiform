@@ -368,7 +368,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .map(
                     fileKey ->
                         baseUrl
-                            + controllers.routes.FileController.acledAdminShow(
+                            + controllers.routes.FileController.adminShow(
+                                    programDefinition.id(),
                                     URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
                                 .url())
                 .orElse(""));

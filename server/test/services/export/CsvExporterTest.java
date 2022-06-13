@@ -129,7 +129,7 @@ public class CsvExporterTest extends AbstractExporterTest {
     String fileKeyHeader =
         ExporterService.pathToHeader(fileuploadApplicantQuestion.getFileKeyPath());
     assertThat(records.get(1).get(fileKeyHeader))
-        .contains(String.format("/admin/applicant-files/my-file-key"));
+        .contains(String.format("/admin/programs/%d/files/my-file-key", fakeProgram.id));
   }
 
   @Test
