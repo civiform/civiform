@@ -62,11 +62,6 @@ public class QuestionConfigTest {
             QuestionConfig.buildQuestionConfig(new RadioButtonQuestionForm(), messages)
                 .renderFormatted())
         .contains("single-select-question-config");
-
-    assertThat(
-            QuestionConfig.buildQuestionConfig(new EnumeratorQuestionForm(), messages)
-                .renderFormatted())
-        .contains("enumerator-question-config");
   }
 
   @Test
