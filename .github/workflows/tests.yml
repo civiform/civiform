@@ -31,7 +31,7 @@ jobs:
     - name: jacoco-badge-generator
       uses: cicirello/jacoco-badge-generator@v2
       with:
-      jacoco-csv-file: /var/lib/docker/volumes/civiform-test-support_project-coverage/_data/jacoco.csv
+        jacoco-csv-file: var/lib/docker/volumes/civiform-test-support_project-coverage/_data/jacoco.csv
 
   run_browser_tests_aws:
     strategy:
