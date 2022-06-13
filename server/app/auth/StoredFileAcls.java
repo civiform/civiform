@@ -39,12 +39,6 @@ public class StoredFileAcls {
   }
 
   public boolean hasProgramReadPermission(Account account) {
-    for (String administeredProgramName : account.getAdministeredProgramNames()) {
-      if (programReadAcls.contains(administeredProgramName)) {
-        return true;
-      }
-    }
-
-    return false;
+    return account.getAdministeredProgramNames().stream().anyMatch(programReadAcls::contains);
   }
 }

@@ -75,10 +75,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   public ImmutableList<String> getStoredFileKeys() {
     return getAllActiveBlocks().stream()
         .filter(Block::isFileUpload)
-        .flatMap(
-            block ->
-                block.getQuestions().stream()
-                    .filter(question -> question.isAnswered() && question.isFileUploadQuestion()))
+        .flatMap(block -> block.getQuestions().stream())
+        .filter(ApplicantQuestion::isAnswered)
+        .filter(ApplicantQuestion::isFileUploadQuestion)
         .map(ApplicantQuestion::createFileUploadQuestion)
         .map(FileUploadQuestion::getFileKeyValue)
         .flatMap(Optional::stream)
