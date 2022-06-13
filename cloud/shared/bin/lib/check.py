@@ -1,6 +1,7 @@
 import subprocess
 import os
 
+
 class Check():
     remedy = None
 
@@ -46,7 +47,8 @@ class Check():
         return [int(x) for x in semver_string.split(".")]
 
     def version_at_least(self, min_version, test_version):
-        min_version, test_version = map(self._semver_string_to_int_array, [min_version, test_version])
+        min_version, test_version = map(
+            self._semver_string_to_int_array, [min_version, test_version])
 
         for i, min_int in enumerate(min_version):
             # Treat missing entries in shorter array as 0. e.g. "2" is
