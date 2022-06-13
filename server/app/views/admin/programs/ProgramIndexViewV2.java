@@ -50,15 +50,6 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     this.zoneId = checkNotNull(zoneId);
   }
 
-  /*
-    TODO(#1238): When screen real estate is smaller, fix the following
-    issues:
-    * The "dot" before the draft/active badge shrinks
-    * Draft/active pills become misaligned when there are multiple
-      row actions
-    * Actions in the dropdown menu are center aligned.
-  */
-
   public Content render(
       ActiveAndDraftPrograms programs, Http.Request request, Optional<CiviFormProfile> profile) {
     if (profile.isPresent() && profile.get().isProgramAdmin() && !profile.get().isCiviFormAdmin()) {
