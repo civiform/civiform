@@ -1,7 +1,6 @@
 package auth.oidc.applicant;
 
 import auth.ProfileFactory;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.nimbusds.jose.util.DefaultResourceRetriever;
@@ -13,7 +12,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.inject.Provider;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.oidc.client.OidcClient;

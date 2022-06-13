@@ -2,13 +2,10 @@ package auth.oidc.applicant;
 
 import auth.ProfileFactory;
 import auth.oidc.OidcProvider;
-
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-
 import java.util.Optional;
-
 import javax.inject.Provider;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
@@ -18,12 +15,13 @@ import repository.UserRepository;
 /** This class customized the OIDC provider to a specific provider, allowing overrides to be set. */
 public class IdcsProvider extends OidcProvider {
 
-  private final static String attributePrefix = "idcs";
+  private static final String attributePrefix = "idcs";
   private static final String CLIENT_ID_CONFIG_NAME = "client_id";
   private static final String CLIENT_SECRET_CONFIG_NAME = "secret";
   private static final String DISCOVERY_URI_CONFIG_NAME = "discovery_uri";
 
-  private static final ImmutableList<String> DEFAULT_SCOPES = ImmutableList.of("openid", "profile", "email");
+  private static final ImmutableList<String> DEFAULT_SCOPES =
+      ImmutableList.of("openid", "profile", "email");
 
   @Inject
   public IdcsProvider(
@@ -51,19 +49,28 @@ public class IdcsProvider extends OidcProvider {
   @Override
   protected String getClientID() {
     return getConfigurationValue(CLIENT_ID_CONFIG_NAME)
-        .orElseThrow(() -> new RuntimeException(attributePrefix + "." + CLIENT_ID_CONFIG_NAME + " must be set"));
+        .orElseThrow(
+            () ->
+                new RuntimeException(
+                    attributePrefix + "." + CLIENT_ID_CONFIG_NAME + " must be set"));
   }
 
   @Override
   protected String getClientSecret() {
     return getConfigurationValue(CLIENT_SECRET_CONFIG_NAME)
-        .orElseThrow(() -> new RuntimeException(attributePrefix + "." + CLIENT_SECRET_CONFIG_NAME + " must be set"));
+        .orElseThrow(
+            () ->
+                new RuntimeException(
+                    attributePrefix + "." + CLIENT_SECRET_CONFIG_NAME + " must be set"));
   }
 
   @Override
   protected String getDiscoveryURI() {
     return getConfigurationValue(DISCOVERY_URI_CONFIG_NAME)
-        .orElseThrow(() -> new RuntimeException(attributePrefix + "." + DISCOVERY_URI_CONFIG_NAME + " must be set"));
+        .orElseThrow(
+            () ->
+                new RuntimeException(
+                    attributePrefix + "." + DISCOVERY_URI_CONFIG_NAME + " must be set"));
   }
 
   @Override
@@ -92,5 +99,4 @@ public class IdcsProvider extends OidcProvider {
   protected ImmutableList<String> getExtraScopes() {
     return ImmutableList.<String>of();
   }
-
 }

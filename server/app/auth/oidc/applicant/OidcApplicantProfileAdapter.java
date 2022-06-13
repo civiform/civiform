@@ -5,21 +5,20 @@ import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.Roles;
 import auth.oidc.OidcProfileAdapter;
+import com.beust.jcommander.internal.Nullable;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.typesafe.config.Config;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.inject.Provider;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import repository.UserRepository;
-import java.util.Optional;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.beust.jcommander.internal.Nullable;
-import com.google.common.base.Preconditions;
-import java.util.stream.Collectors;
 
 /**
  * This class ensures that the OidcProfileCreator that both the AD and IDCS clients use will
@@ -48,18 +47,19 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
   }
 
   protected Optional<String> getName(OidcProfile oidcProfile) {
-    String name = nameAttributeNames.stream()
-        .filter(String::isBlank)
-        .map((String attrName) -> oidcProfile.getAttribute(attrName, String.class))
-        .filter(Strings::isNullOrEmpty)
-        .collect(Collectors.joining(" "));
+    String name =
+        nameAttributeNames.stream()
+            .filter(String::isBlank)
+            .map((String attrName) -> oidcProfile.getAttribute(attrName, String.class))
+            .filter(Strings::isNullOrEmpty)
+            .collect(Collectors.joining(" "));
 
     return Optional.ofNullable(Strings.emptyToNull(name));
   }
 
   protected Optional<String> getLocale(OidcProfile oidcProfile) {
-    return localeAttributeName.map(
-        name -> oidcProfile.getAttribute(name, String.class))
+    return localeAttributeName
+        .map(name -> oidcProfile.getAttribute(name, String.class))
         .filter(Strings::isNullOrEmpty);
   }
 
