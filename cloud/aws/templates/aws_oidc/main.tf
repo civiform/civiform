@@ -76,7 +76,7 @@ resource "aws_db_instance" "civiform" {
   allocated_storage       = var.postgres_storage_gb
   engine                  = "postgres"
   engine_version          = "12"
-  username                = "db_user_name"
+  username                = module.secrets.database_username
   password                = module.secrets.database_password
   db_subnet_group_name    = aws_db_subnet_group.civiform.name
   vpc_security_group_ids  = [aws_security_group.rds.id]

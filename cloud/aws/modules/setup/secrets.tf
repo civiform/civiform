@@ -13,6 +13,25 @@ resource "random_password" "postgres_password" {
   override_special = "_%@"
 }
 
+# Creating a AWS secret for postgres_username
+resource "aws_secretsmanager_secret" "postgres_username_secret" {
+  name       = "postgres_username"
+  kms_key_id = aws_kms_key.civiform_kms_key.arn
+}
+
+# Creating a AWS secret versions for postgres_username
+resource "aws_secretsmanager_secret_version" "postgres_username_secret_version" {
+  secret_id     = aws_secretsmanager_secret.postgres_username_secret.id
+  secret_string = random_password.postgres_username.result
+}
+
+# Create a random generated password to use for postgres_password.
+resource "random_password" "postgres_password" {
+  length           = 16
+  special          = true
+  override_special = "_%@"
+}
+
 # Creating a AWS secret for postgres_password
 resource "aws_secretsmanager_secret" "postgres_password_secret" {
   name       = "postgres_password"
