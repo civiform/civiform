@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableSet;
 import forms.AddressQuestionForm;
 import forms.CheckboxQuestionForm;
 import forms.DropdownQuestionForm;
-import forms.EnumeratorQuestionForm;
 import forms.FileUploadQuestionForm;
 import forms.IdQuestionForm;
 import forms.NameQuestionForm;
