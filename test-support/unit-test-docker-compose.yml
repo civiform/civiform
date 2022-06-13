@@ -24,6 +24,7 @@ services:
       - ./sbt_cache/coursier:/root/.cache/coursier
       - ~/.sbt:/root/.sbt
       - ~/.ivy:/root/.ivy2
+      - project-coverage:/usr/src/server/target/scala-2.13/jacoco/report
     entrypoint: /bin/bash
     tty: true        # keep the container running
     stdin_open: true

@@ -9,5 +9,5 @@ docker::set_project_name_unit_tests
 bin/pull-image
 
 bin/sbt-test jacoco
-docker cp container_id:/usr/src/server/target/scala-2.13/jacoco/report ./report
+docker cp $container_id:/usr/src/server/target/scala-2.13/jacoco/report ./report
 bin/remove-test-env
