@@ -32,7 +32,7 @@ lazy val root = (project in file("."))
       "com.azure" % "azure-storage-blob" % "12.17.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.3.6",
+      "org.postgresql" % "postgresql" % "42.4.0",
       "org.junit.jupiter" % "junit-jupiter-engine" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-api" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-params" % "5.8.2" % Test,
