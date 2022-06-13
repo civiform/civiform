@@ -1,4 +1,5 @@
 # Use postgres/example user/password credentials
+
 services:
   db:
     image: postgres:12.5
@@ -21,13 +22,16 @@ services:
       - "db:database"
       - "oidc"
     volumes:
+      - project-coverage:/usr/src/server/target/scala-2.13/jacoco/report
       - ./sbt_cache/coursier:/root/.cache/coursier
       - ~/.sbt:/root/.sbt
       - ~/.ivy:/root/.ivy2
-      - project-coverage:/usr/src/server/target/scala-2.13/jacoco/report
     entrypoint: /bin/bash
     tty: true        # keep the container running
     stdin_open: true
     ports: # For debugging
       - 9100:9000
       - 8459:8459
+volumes:
+  project-coverage:
+    driver: local
