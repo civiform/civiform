@@ -12,7 +12,7 @@ import {
 } from './support'
 
 describe('file upload applicant flow', () => {
-  let pageObject : Page
+  let pageObject: Page
 
   beforeAll(async () => {
     const { page } = await startSession()
@@ -24,7 +24,7 @@ describe('file upload applicant flow', () => {
   })
 
   describe('single file upload question', () => {
-    let applicantQuestions : ApplicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single file upload'
 
     beforeAll(async () => {
@@ -71,7 +71,8 @@ describe('file upload applicant flow', () => {
       await applicantQuestions.answerFileUploadQuestion(fileContent)
       await applicantQuestions.clickUpload()
 
-      const downloadedFileContent = await applicantQuestions.downloadSingleQuestionFromReviewPage()
+      const downloadedFileContent =
+        await applicantQuestions.downloadSingleQuestionFromReviewPage()
       expect(downloadedFileContent).toEqual(fileContent)
       await applicantQuestions.submitFromReviewPage(programName)
     })
@@ -90,7 +91,7 @@ describe('file upload applicant flow', () => {
 
   // Optional file upload.
   describe('optional file upload question', () => {
-    let applicantQuestions : ApplicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for optional file upload'
 
     beforeAll(async () => {
