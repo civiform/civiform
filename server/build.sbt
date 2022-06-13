@@ -124,12 +124,11 @@ lazy val root = (project in file("."))
   )
   .settings(excludeTailwindGeneration: _*)
 
-  Test / jacocoReportSettings := JacocoReportSettings()
+  jacocoReportSettings := JacocoReportSettings()
   .withTitle("Report Title")
   .withFormats(JacocoReportFormats.CSV)
 
-Test / jacocoExcludes := Seq("views*", "*Routes*")
-Test / jacocoDirectory := baseDirectory.value /"jacoco"
+jacocoDirectory := baseDirectory.value /"jacoco"
 
 // Ignore the tailwind.sbt generated css file when watching for recompilation.
 // Since this file is generated when build.sbt is loaded, it causes the server
