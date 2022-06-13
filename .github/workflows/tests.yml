@@ -30,7 +30,9 @@ jobs:
       run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
     - name: jacoco-badge-generator
       uses: cicirello/jacoco-badge-generator@v2.6.1
-      jacoco-csv-file: /var/lib/docker/volumes/civiform-test-support_project-coverage/_data/jacoco.csv
+      with:
+      	generate-branches-badge: true
+      	jacoco-csv-file: /var/lib/docker/volumes/civiform-test-support_project-coverage/_data/jacoco.csv
 
 
   run_browser_tests_aws:
