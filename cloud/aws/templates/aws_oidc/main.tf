@@ -13,7 +13,7 @@ resource "aws_apprunner_service" "civiform_dev" {
         port = "9000"
 
         runtime_environment_variables = {
-          SECRET_KEY = module.secrets.app_secret_key_version
+          SECRET_KEY = module.secrets.app_secret_key
           PORT       = "9000"
 
           DB_JDBC_STRING = "jdbc:postgresql://${aws_db_instance.civiform.address}:${aws_db_instance.civiform.port}/postgres?ssl=true&sslmode=require"

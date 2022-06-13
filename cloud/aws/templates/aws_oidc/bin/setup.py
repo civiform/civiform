@@ -1,6 +1,5 @@
-import shutil
+import os
 import subprocess
-import tempfile
 
 from cloud.shared.bin.lib.setup_template import SetupTemplate
 
@@ -14,7 +13,7 @@ class Setup(SetupTemplate):
         self._setup_shared_state_file()
     
     def _run_tf_to_setup(self):
-        template_dir = f'{self.config.get_template_dir()}/setup'
+        template_dir = os.path.join(self.config.get_template_dir(), 'setup')
         print(" - Run terraform init")
         subprocess.check_call([
             "terraform",
@@ -39,7 +38,8 @@ class Setup(SetupTemplate):
 
     
     def _setup_shared_state_file(self):
-        backend_file_location = f'{self.config.get_template_dir()}/{self.config.backend_vars_filename}'
+        backend_file_location = os.path.join(self.config.get_template_dir(), 
+                                             self.config.backend_vars_filename)
         with open(backend_file_location, 'w') as f:
             f.write(f'bucket         = "civiform-tfstate-bucket"\n')
             f.write(f'key            = "tfstate/terraform.tfstate"\n')

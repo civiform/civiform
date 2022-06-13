@@ -1,4 +1,4 @@
-output "app_secret_key_version" {
+output "app_secret_key" {
   value     = data.aws_secretsmanager_secret_version.app_secret_key_version.secret_string
   sensitive = true
 }
