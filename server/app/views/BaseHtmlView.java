@@ -99,6 +99,11 @@ public abstract class BaseHtmlView {
     return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a z"));
   }
 
+  protected String renderDate(Instant time, ZoneId zoneId) {
+    ZonedDateTime dateTime = time.atZone(zoneId);
+    return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+  }
+
   protected ContainerTag renderPaginationDiv(
       int page, int pageCount, Function<Integer, Call> linkForPage) {
     ContainerTag div = div();

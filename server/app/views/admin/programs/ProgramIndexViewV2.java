@@ -182,6 +182,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     }
 
     String formattedUpdateTime = updatedTime.map(t -> renderDateTime(t, zoneId)).orElse("unknown");
+    String formattedUpdateDate = updatedTime.map(t -> renderDate(t, zoneId)).orElse("unknown");
 
     int blockCount = program.getBlockCount();
     int questionCount = program.getQuestionCount();
@@ -199,7 +200,6 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return div()
         .withClasses(
             Styles.PY_7,
-            Styles.SPACE_X_10,
             Styles.FLEX,
             Styles.FLEX_ROW,
             StyleUtils.hover(Styles.BG_GRAY_100),
@@ -208,7 +208,8 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
             p().withClasses(
                     badgeBGColor,
                     badgeFillColor,
-                    Styles.ML_8,
+                    Styles.ML_2,
+                    StyleUtils.responsiveXLarge(Styles.ML_8),
                     Styles.FONT_MEDIUM,
                     Styles.ROUNDED_FULL,
                     Styles.FLEX,
@@ -222,10 +223,19 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                         .withClasses(Styles.INLINE_BLOCK, Styles.ML_3_5),
                     span(badgeText).withClass(Styles.MR_4)),
             div()
+                .withClasses(Styles.ML_4, StyleUtils.responsiveXLarge(Styles.ML_10))
                 .with(
                     p().with(
                             span(updatedPrefix),
-                            span(formattedUpdateTime).withClass(Styles.FONT_SEMIBOLD)),
+                            span(formattedUpdateTime)
+                                .withClasses(
+                                    Styles.FONT_SEMIBOLD,
+                                    Styles.HIDDEN,
+                                    StyleUtils.responsiveLarge(Styles.INLINE)),
+                            span(formattedUpdateDate)
+                                .withClasses(
+                                    Styles.FONT_SEMIBOLD,
+                                    StyleUtils.responsiveLarge(Styles.HIDDEN))),
                     p().with(
                             span(String.format("%d", blockCount)).withClass(Styles.FONT_SEMIBOLD),
                             span(blockCount == 1 ? " screen, " : " screens, "),
@@ -311,7 +321,10 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                         Styles.TEXT_BLACK,
                         Styles.FONT_BOLD,
                         Styles.TEXT_XL),
-                statusDiv.withClass(Styles.FLEX_GROW));
+                statusDiv.withClasses(
+                    Styles.FLEX_GROW,
+                    Styles.TEXT_SM,
+                    StyleUtils.responsiveLarge(Styles.TEXT_BASE)));
 
     return div()
         .withClasses(
