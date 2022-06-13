@@ -17,7 +17,6 @@ on:
       - 'Dockerfile'
       - 'prod.Dockerfile'
       - '.github/workflows/**'
-      - 'docker-compose.yml'
 
 jobs:
   run_all_tests:

@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import forms.AddressQuestionForm;
 import forms.CheckboxQuestionForm;
 import forms.DropdownQuestionForm;
+import forms.EnumeratorQuestionForm;
 import forms.FileUploadQuestionForm;
 import forms.IdQuestionForm;
 import forms.NameQuestionForm;
@@ -61,6 +62,11 @@ public class QuestionConfigTest {
             QuestionConfig.buildQuestionConfig(new RadioButtonQuestionForm(), messages)
                 .renderFormatted())
         .contains("single-select-question-config");
+
+    assertThat(
+            QuestionConfig.buildQuestionConfig(new EnumeratorQuestionForm(), messages)
+                .renderFormatted())
+        .contains("enumerator-question-config");
   }
 
   @Test
