@@ -1,4 +1,14 @@
 # Importing the AWS secrets created previously using name.
+data "aws_secretsmanager_secret" "postgres_username" {
+  name = "postgres_username"
+}
+
+# Importing the AWS secret version created previously using arn.
+data "aws_secretsmanager_secret_version" "postgres_username_version" {
+  secret_id = data.aws_secretsmanager_secret.postgres_username.arn
+}
+
+# Importing the AWS secrets created previously using name.
 data "aws_secretsmanager_secret" "postgres_password" {
   name = "postgres_password"
 }
