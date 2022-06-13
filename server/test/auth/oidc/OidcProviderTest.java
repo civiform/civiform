@@ -50,21 +50,20 @@ public class OidcProviderTest extends ResetPostgres {
 
     // Just need some complete adaptor to access methods.
     try {
-    oidcProvider =
-        new IdcsProvider(
-            config,
-            profileFactory,
-            new Provider<UserRepository>() {
-              @Override
-              public UserRepository get() {
-                return userRepository;
-              }
-            });
-  } catch (RuntimeException e) {
-    fail(e);
-    return;
-  }
-
+      oidcProvider =
+          new IdcsProvider(
+              config,
+              profileFactory,
+              new Provider<UserRepository>() {
+                @Override
+                public UserRepository get() {
+                  return userRepository;
+                }
+              });
+    } catch (RuntimeException e) {
+      fail(e);
+      return;
+    }
   }
 
   @Test
@@ -114,15 +113,15 @@ public class OidcProviderTest extends ResetPostgres {
     OidcProvider oidcProvider;
     try {
       oidcProvider =
-        new IdcsProvider(
-            config,
-            profileFactory,
-            new Provider<UserRepository>() {
-              @Override
-              public UserRepository get() {
-                return userRepository;
-              }
-            });
+          new IdcsProvider(
+              config,
+              profileFactory,
+              new Provider<UserRepository>() {
+                @Override
+                public UserRepository get() {
+                  return userRepository;
+                }
+              });
     } catch (RuntimeException e) {
       fail(e);
       return;
@@ -200,25 +199,24 @@ public class OidcProviderTest extends ResetPostgres {
   @TestCaseName("{index} {0} config get() should return null config")
   @Parameters(method = "provideConfigsForInvalidConfig")
   public void get_invalidConfig(String name, ImmutableMap<String, String> c) {
-    Config empty_secret_config = ConfigFactory.parseMap(c);
+    Config bad_secret_config = ConfigFactory.parseMap(c);
     OidcProvider badOidcProvider;
     try {
       badOidcProvider =
-        new IdcsProvider(
-            empty_secret_config,
-            profileFactory,
-            new Provider<UserRepository>() {
-              @Override
-              public UserRepository get() {
-                return userRepository;
-              }
+          new IdcsProvider(
+              bad_secret_config,
+              profileFactory,
+              new Provider<UserRepository>() {
+                @Override
+                public UserRepository get() {
+                  return userRepository;
+                }
               });
+      badOidcProvider.get();
       fail("Initilizing without correct config should cause runtimeException");
     } catch (RuntimeException e) {
       // pass
       return;
     }
-    OidcClient client = badOidcProvider.get();
-    assertThat(client).isNull();
   }
 }
