@@ -289,7 +289,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
-      activeRowActions.add(renderCopyProgramLink(activeProgram.get()));
+      activeRowActions.add(renderViewLink(activeProgram.get()));
       statusDiv =
           statusDiv.with(
               renderProgramRow(
@@ -355,13 +355,17 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return program.lastModifiedTime().orElse(Instant.EPOCH);
   }
 
-  Tag renderCopyProgramLink(ProgramDefinition program) {
+  Tag renderViewLink(ProgramDefinition program) {
+    // TODO(#1238): Rather than navigating to the program link
+    // consider renaming the action and copying the link to the clipboard
+    // or opening it in a new tab.
     String programLink =
         baseUrl
             + controllers.applicant.routes.RedirectController.programByName(program.slug()).url();
-    return makeSvgTextButton("Copy link", Icons.CONTENT_COPY_SVG_PATH)
-        .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
-        .withData("copyable-program-link", programLink);
+    ContainerTag button =
+        makeSvgTextButton("View", Icons.VISIBILITY_SVG_PATH)
+            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
+    return asRedirectButton(button, programLink);
   }
 
   Tag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
