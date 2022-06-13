@@ -28,10 +28,24 @@ jobs:
       run: docker build -t civiform-dev --cache-from docker.io/civiform/civiform-dev:latest ./
     - name: Run tests
       run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
+
+  run_test_coverage:
+    runs-on: ubuntu-latest
+    steps:
+    - name: check out ${{ env.GITHUB_REF }}
+      uses: actions/checkout@v3
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Build test container
+      env:
+        DOCKER_BUILDKIT: 1
+      run: docker build -t civiform-dev --cache-from docker.io/civiform/civiform-dev:latest ./
+    - name: Run tests
+      run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
     - name: jacoco-badge-generator
       uses: cicirello/jacoco-badge-generator@v2
       with:
-        jacoco-csv-file: /var/lib/docker/volumes/civiform-test-support-civiform-1-project-coverage/_data/jacoco.csv
+        jacoco-csv-file: server/jacoco/report/jacoco.csv
 
   run_browser_tests_aws:
     strategy:
