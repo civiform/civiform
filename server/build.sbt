@@ -124,9 +124,9 @@ lazy val root = (project in file("."))
   )
   .settings(excludeTailwindGeneration: _*)
 
-  jacocoReportSettings := JacocoReportSettings()
-  .withTitle("Report Title")
-  .withFormats(JacocoReportFormats.CSV)
+jacocoReportSettings := JacocoReportSettings()
+.withTitle("Report Title")
+.withFormats(JacocoReportFormats.CSV)
 
 jacocoDirectory := baseDirectory.value /"jacoco"
 
