@@ -61,7 +61,52 @@ jobs:
         run: |
           echo "${BASE_URL}"
           bin/run-prober
-      - name: Run terraform destory
+  cleanup: 
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    needs: deploy
+    env:
+      ARM_TENANT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_TENANT }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_PASSWORD }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v2
+
+      # TODO: assume a role
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Login to Azure
+        run: cloud/azure/bin/cli-login
+
+      - name: Resolve latest snapshot tag
+        run: source cloud/shared/bin/resolve-latest-snapshot-tag
+
+      - name: Copy the config from staging 
         run: |
-          echo "$AZURE_RESOURCE_GROUP"
+          #  Grab the config from the staging deploy repo to confirm
+          #  the changes work with actual data
+          curl https://raw.githubusercontent.com/civiform/staging-azure-deploy/main/civiform_config.sh > civiform_config.sh
+
+      - name: Source config, set CIVIFORM_MODE to be "test" and deploy with latest snapshot tag
+        run: |
+          source civiform_config.sh
+          export CIVIFORM_MODE="prober"
+          export FAKE_AUTH="true"
+          export CUSTOM_HOSTNAME=""
+          export STAGING_HOSTNAME=""
+          export AZURE_RESOURCE_GROUP="civiformprober"
+          export CIVIFORM_APPLICANT_AUTH_PROTOCOL="oidc"
+          export KEY_VAULT_NAME="civiformproberkv"
+          export SAML_KEYSTORE_ACCOUNT_NAME="proberkeystore"
+          export AWS_USERNAME="civiform-azure-prober"
           cloud/shared/bin/destroy "--tag=${LATEST_SNAPSHOT_TAG}"
+          exit $?
