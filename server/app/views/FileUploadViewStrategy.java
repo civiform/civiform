@@ -4,8 +4,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.footer;
 import static j2html.TagCreator.form;
-import static j2html.attributes.Attr.ENCTYPE;
-import static j2html.attributes.Attr.FORM;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;

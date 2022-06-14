@@ -18,13 +18,12 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.routes;
 import j2html.TagCreator;
-import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
-import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.OptionTag;
 import java.util.Arrays;
 import javax.inject.Inject;
@@ -326,11 +325,16 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                   // Add this operator's allowed scalar types as data, so that we can determine
                   // whether to show or hide each operator based on the current type of scalar
                   // selected.
-                  OptionTag option =
-                      option(operator.toDisplayString()).withValue(operator.name());
+                  OptionTag option = option(operator.toDisplayString()).withValue(operator.name());
                   operator
                       .getOperableTypes()
-                      .forEach(type -> option.attr("data-", type.name().toLowerCase())); // TODO probably a bug since a value needs to be passed?
+                      .forEach(
+                          type ->
+                              option.attr(
+                                  "data-",
+                                  type.name()
+                                      .toLowerCase())); // TODO probably a bug since a value needs
+                                                        // to be passed?
                   return option;
                 })
             .collect(toImmutableList());

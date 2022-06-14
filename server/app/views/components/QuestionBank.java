@@ -9,7 +9,6 @@ import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
-import j2html.attributes.Attr;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;

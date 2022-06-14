@@ -15,7 +15,6 @@ import com.typesafe.config.Config;
 import controllers.admin.routes;
 import forms.BlockForm;
 import j2html.TagCreator;
-import j2html.attributes.Attr;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -264,11 +263,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     .withAction(moveUpFormAction)
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
-                    .with(
-                        input()
-                            .isHidden()
-                            .withName("direction")
-                            .withValue(Direction.UP.name()))
+                    .with(input().isHidden().withName("direction").withValue(Direction.UP.name()))
                     .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
 
     String moveDownFormAction =
@@ -286,11 +281,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     .withAction(moveDownFormAction)
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
-                    .with(
-                        input()
-                            .isHidden()
-                            .withName("direction")
-                            .withValue(Direction.DOWN.name()))
+                    .with(input().isHidden().withName("direction").withValue(Direction.DOWN.name()))
                     .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
     DivTag moveButtons =
         div().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.SELF_CENTER).with(moveUp, moveDown);
@@ -491,11 +482,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
         form(csrfTag)
             .withMethod(HttpVerbs.POST)
             .withAction(toggleOptionalAction)
-            .with(
-                input()
-                    .isHidden()
-                    .withName("optional")
-                    .withValue(isOptional ? "false" : "true"))
+            .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
             .with(optionalButton));
   }
 

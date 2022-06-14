@@ -157,9 +157,7 @@ public class LinkElement {
             .withAction(href)
             .withCondId(!Strings.isNullOrEmpty(id), id);
     hiddenFormValues.entrySet().stream()
-        .map(
-            entry ->
-                input().isHidden().withName(entry.getKey()).withValue(entry.getValue()))
+        .map(entry -> input().isHidden().withName(entry.getKey()).withValue(entry.getValue()))
         .forEach(tag -> form.with(tag));
     return form;
   }

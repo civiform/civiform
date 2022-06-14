@@ -3,17 +3,17 @@ package views.components;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.label;
-import j2html.attributes.Attr;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
-import j2html.tags.Tag;
-import j2html.tags.ContainerTag;
+import j2html.attributes.Attr;
 import j2html.tags.EmptyTag;
-import j2html.tags.attributes.IName;
-import j2html.tags.attributes.IDisabled;
+import j2html.tags.Tag;
 import j2html.tags.attributes.IChecked;
+import j2html.tags.attributes.IDisabled;
+import j2html.tags.attributes.IName;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
@@ -39,7 +39,7 @@ public class FieldWithLabel {
   private String fieldType = "text";
   protected String fieldValue = "";
 
-  /** For use with fields of type `number`. **/
+  /** For use with fields of type `number`. * */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
 
   protected OptionalLong minValue = OptionalLong.empty();
@@ -69,10 +69,10 @@ public class FieldWithLabel {
     }
   }
 
-  /** Make all constructors protected **/
+  /** Make all constructors protected * */
   protected FieldWithLabel() {}
 
-  /** Choose which type of tag (one of these is called first) **/
+  /** Choose which type of tag (one of these is called first) * */
   public static FieldWithLabel checkbox() {
     return new FieldWithLabel().setTagTypeInput().setFieldType("checkbox");
   }
@@ -111,7 +111,7 @@ public class FieldWithLabel {
     return this;
   }
 
-  /** Public setters **/
+  /** Public setters * */
   public FieldWithLabel setChecked(boolean checked) {
     this.checked = checked;
     return this;
@@ -254,12 +254,12 @@ public class FieldWithLabel {
     return this;
   }
 
-  /** Attribute getters **/
+  /** Attribute getters * */
   protected String getFieldType() {
     return this.fieldType;
   }
 
-  /** Internal getters for final tag generation **/
+  /** Internal getters for final tag generation * */
   private InputTag nonNumberGenTagApplyAttrs() {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
@@ -295,7 +295,7 @@ public class FieldWithLabel {
     return applyAttrsAndGenLabel(inputFieldTag);
   }
 
-  /** Public final tag getters **/
+  /** Public final tag getters * */
   public DivTag getTextareaTag() throws RuntimeException {
     genRandIdIfEmpty();
     if (isTagTypeTextarea()) {
@@ -331,7 +331,7 @@ public class FieldWithLabel {
     }
     return applyAttrsAndGenLabel(inputFieldTag);
   }
- 
+
   public DivTag getDateTag() {
     return getNonNumberInputTag();
   }
@@ -414,7 +414,7 @@ public class FieldWithLabel {
       T fieldTag, boolean hasFieldErrors) {
     // Here we use `.condAttr` instead of the more typesafe methods in 3 instances  here
     // since not all types of the `fieldTag` argument passed to this have those attributes.
-    // 
+    //
     // Adding useless attributes does not hurt the DOM, and helps us avoid putting those calls
     // before the calls to this method, thus simplifying the code.
     fieldTag
@@ -429,7 +429,8 @@ public class FieldWithLabel {
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
   }
 
-  protected <T extends Tag<T> & IName<T> & IDisabled<T>> FieldErrorsInfo applyAttrsGenFieldErrorsInfo(T fieldTag) {
+  protected <T extends Tag<T> & IName<T> & IDisabled<T>>
+      FieldErrorsInfo applyAttrsGenFieldErrorsInfo(T fieldTag) {
     String fieldErrorsId = String.format("%s-errors", this.id);
     boolean hasFieldErrors = hasFieldErrors();
 
@@ -444,7 +445,8 @@ public class FieldWithLabel {
     return fieldErrorsInfo;
   }
 
-  protected <T extends EmptyTag<T> & IChecked<T> & IName<T> & IDisabled<T>> LabelTag checkboxApplyAttrsAndGenLabel(T fieldTag) throws RuntimeException {
+  protected <T extends EmptyTag<T> & IChecked<T> & IName<T> & IDisabled<T>>
+      LabelTag checkboxApplyAttrsAndGenLabel(T fieldTag) throws RuntimeException {
     // Apply attributes
     applyAttrsGenFieldErrorsInfo(fieldTag);
 
@@ -474,14 +476,14 @@ public class FieldWithLabel {
     }
 
     return label()
-                .withClasses(
-                    StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
-                    BaseStyles.CHECKBOX_LABEL,
-                    BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
-                    labelText.isEmpty() ? Styles.W_MIN : "")
-                .withCondFor(!this.id.isEmpty(), this.id)
-                .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
-                .withText(this.labelText);
+        .withClasses(
+            StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
+            BaseStyles.CHECKBOX_LABEL,
+            BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
+            labelText.isEmpty() ? Styles.W_MIN : "")
+        .withCondFor(!this.id.isEmpty(), this.id)
+        .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
+        .withText(this.labelText);
   }
 
   private FieldWithLabel setTagTypeInput() {
