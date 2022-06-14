@@ -9,10 +9,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.tags.Tag;
+import j2html.tags.ContainerTag;
+import j2html.tags.EmptyTag;
 import j2html.tags.attributes.IName;
 import j2html.tags.attributes.IDisabled;
-import j2html.tags.attributes.IPlaceholder;
-import j2html.tags.attributes.IFormaction;
+import j2html.tags.attributes.IChecked;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
@@ -277,7 +278,7 @@ public class FieldWithLabel {
     return applyAttrsAndGenLabel(inputFieldTag);
   }
 
-  private LabelTag getCheckboxInputTag() {
+  public LabelTag getCheckboxTag() {
     InputTag inputFieldTag = nonNumberGenTagApplyAttrs();
     return checkboxApplyAttrsAndGenLabel(inputFieldTag);
   }
@@ -308,18 +309,18 @@ public class FieldWithLabel {
   }
 
   public LabelTag getRadioTag() {
-    return getCheckboxInputTag();
+    return getCheckboxTag();
   }
 
   public DivTag getCurrencyTag() {
     return getNonNumberInputTag();
   }
 
-  public DivTag getTextInputTag() {
+  public DivTag getInputTag() {
     return getNonNumberInputTag();
   }
 
-  public DivTag getNumberInputTag() throws RuntimeException {
+  public DivTag getNumberTag() throws RuntimeException {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
     applyAttributesFromSet(inputFieldTag);
@@ -331,11 +332,11 @@ public class FieldWithLabel {
     return applyAttrsAndGenLabel(inputFieldTag);
   }
  
-  public DivTag getDateInputTag() {
+  public DivTag getDateTag() {
     return getNonNumberInputTag();
   }
 
-  public DivTag getEmailInputTag() {
+  public DivTag getEmailTag() {
     return getNonNumberInputTag();
   }
 
@@ -409,9 +410,9 @@ public class FieldWithLabel {
     }
   }
 
-  private void generalApplyAttrsClassesToTag(
-      Tag<?> fieldTag, boolean hasFieldErrors) {
-    // Here we use `.condAttr` instead of the more typesafe methods in a couple instances 
+  private <T extends Tag<T> & IName<T> & IDisabled<T>> void generalApplyAttrsClassesToTag(
+      T fieldTag, boolean hasFieldErrors) {
+    // Here we use `.condAttr` instead of the more typesafe methods in 3 instances  here
     // since not all types of the `fieldTag` argument passed to this have those attributes.
     // 
     // Adding useless attributes does not hurt the DOM, and helps us avoid putting those calls
@@ -422,13 +423,13 @@ public class FieldWithLabel {
                 BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
         .withId(this.id)
         .withName(this.fieldName)
-        .condAttr(this.disabled, Attr.DISABLED, "true")
+        .withCondDisabled(this.disabled)
         .condAttr(
             !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
         .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
   }
 
-  protected FieldErrorsInfo applyAttrsGenFieldErrorsInfo(Tag fieldTag) {
+  protected <T extends Tag<T> & IName<T> & IDisabled<T>> FieldErrorsInfo applyAttrsGenFieldErrorsInfo(T fieldTag) {
     String fieldErrorsId = String.format("%s-errors", this.id);
     boolean hasFieldErrors = hasFieldErrors();
 
@@ -443,7 +444,7 @@ public class FieldWithLabel {
     return fieldErrorsInfo;
   }
 
-  protected LabelTag checkboxApplyAttrsAndGenLabel(Tag fieldTag) throws RuntimeException {
+  protected <T extends EmptyTag<T> & IChecked<T> & IName<T> & IDisabled<T>> LabelTag checkboxApplyAttrsAndGenLabel(T fieldTag) throws RuntimeException {
     // Apply attributes
     applyAttrsGenFieldErrorsInfo(fieldTag);
 
@@ -454,7 +455,7 @@ public class FieldWithLabel {
     throw new RuntimeException("needs to be a checkbox or radio type for this method");
   }
 
-  protected DivTag applyAttrsAndGenLabel(Tag fieldTag) {
+  protected <T extends Tag<T> & IName<T> & IDisabled<T>> DivTag applyAttrsAndGenLabel(T fieldTag) {
     // Apply attributes
     FieldErrorsInfo fieldErrorsInfo = applyAttrsGenFieldErrorsInfo(fieldTag);
     LabelTag labelTag = genLabelTag();
@@ -467,7 +468,7 @@ public class FieldWithLabel {
    * Swaps the order of the label and field, adds different styles, and possibly adds "checked"
    * attribute.
    */
-  private LabelTag getCheckboxContainer(Tag fieldTag) {
+  private <T extends EmptyTag<T> & IChecked<T>> LabelTag getCheckboxContainer(T fieldTag) {
     if (this.checked) {
       fieldTag.isChecked();
     }
