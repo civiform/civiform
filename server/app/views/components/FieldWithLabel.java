@@ -322,10 +322,10 @@ public class FieldWithLabel {
 
     // Set min and max values for client-side validation
     if (this.minValue.isPresent()) {
-      fieldTag.withMin("min", String.valueOf(minValue.getAsLong()));
+      fieldTag.withMin(String.valueOf(minValue.getAsLong()));
     }
     if (this.maxValue.isPresent()) {
-      fieldTag.withMax("max", String.valueOf(maxValue.getAsLong()));
+      fieldTag.withMax(String.valueOf(maxValue.getAsLong()));
     }
 
     // For number types, only set the value if it's present since there is no empty string
