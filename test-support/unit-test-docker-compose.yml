@@ -11,8 +11,8 @@ services:
   oidc:
     image: civiform/oidc-provider
     restart: always
-    expose:
-      - "3380"
+    ports: # For debugging
+      - 3380:3380
 
   civiform:
     image: civiform-dev
