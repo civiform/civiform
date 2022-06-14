@@ -17,7 +17,7 @@ services:
       - 8033:3380
 
   civiform:
-    image: civiform
+    image: civiform-dev
     restart: always
     links:
       - 'db:database'
