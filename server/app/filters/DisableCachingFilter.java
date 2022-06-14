@@ -17,6 +17,7 @@ public class DisableCachingFilter extends EssentialFilter {
 
   private static final ImmutableSet<String> ASSET_PATH_PREFIXES =
       ImmutableSet.of("public", "assets", "favicon.ico");
+  private static final ImmutableSet<Integer> OK_STATUS_CODES = ImmutableSet.of(200, 203, 206);
 
   private final play.Environment environment;
 
@@ -43,7 +44,10 @@ public class DisableCachingFilter extends EssentialFilter {
                         // Must revalidate status asset caches in dev mode
                         pathPrefix = Optional.empty();
                       }
-                      if (pathPrefix.map(ASSET_PATH_PREFIXES::contains).orElse(false)) {
+
+                      if (pathPrefix.isPresent() &&
+                         ASSET_PATH_PREFIXES.contains(pathPrefix.get().toLowerCase()) &&
+                        OK_STATUS_CODES.contains(status)){
                         // Only cache when Status is OK https://web.dev/uses-long-cache-ttl/
                         if (status == 200 || status == 203 || status == 206) {
                           // In prod/staging, static assets are fingerprinted,
