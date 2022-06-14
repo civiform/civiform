@@ -6,5 +6,4 @@ source cloud/shared/bin/lib.sh
 
 export TF_VAR_image_tag="${IMAGE_TAG}"
 
-terraform::perform_destory
 exec cloud/shared/bin/lib/destroy.py
