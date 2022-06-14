@@ -46,7 +46,7 @@ import services.question.types.ScalarType;
  * ExporterService generates CSV files for applications to a program or demographic information
  * across all programs.
  */
-public class ExporterService {
+public final class ExporterService {
 
   private final ExporterFactory exporterFactory;
   private final ProgramService programService;
@@ -139,7 +139,7 @@ public class ExporterService {
     return exportCsv(csvExporter, applications);
   }
 
-  public String exportCsv(CsvExporter csvExporter, ImmutableList<Application> applications) {
+  private String exportCsv(CsvExporter csvExporter, ImmutableList<Application> applications) {
     try {
       OutputStream inMemoryBytes = new ByteArrayOutputStream();
       Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8);
@@ -178,7 +178,7 @@ public class ExporterService {
    * applications. This means if one application had a question repeated for N repeated entities,
    * then there would be N columns for each of that question's scalars.
    */
-  CsvExportConfig generateDefaultCsvConfig(long programId) {
+  private CsvExportConfig generateDefaultCsvConfig(long programId) {
     ImmutableList<Application> applications;
 
     try {
@@ -323,7 +323,7 @@ public class ExporterService {
         applicantService.getAllApplications());
   }
 
-  public CsvExportConfig getDemographicsExporterConfig() {
+  private CsvExportConfig getDemographicsExporterConfig() {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
     // First add the ID, submit time, and submitter email columns.
     columnsBuilder.add(
