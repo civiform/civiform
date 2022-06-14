@@ -98,6 +98,7 @@ public class DatabaseSeedController extends DevController {
     if (!isDevOrStagingEnvironment()) {
       return notFound();
     }
+    databaseSeedTask.run();
     insertProgramWithBlocks("Mock program");
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been seeded");
