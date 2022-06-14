@@ -75,7 +75,10 @@ public class FileController extends CiviFormController {
    * The legacy show action for admins viewing uploaded files. Needed because file URLs exported
    * before the move to using {@link auth.StoredFileAcls} relied on asserting that the program ID
    * embedded in the {@code fileKey} param matched the one in the URL and that the user calling the
-   * action was a program admin for the specified program ID.
+   * action was a program admin for the specified program ID. New auth logic was introduced June 14,
+   * 2022 that uses ACLs, but users at City of Seattle with data exported from CiviForm before the
+   * data migration require the old route to exist. We can remove the old route if/when Elise and
+   * the Seattle time say it's alright to break the old links.
    */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result adminShow(Request request, long programId, String fileKey) {
