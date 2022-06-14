@@ -43,7 +43,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   private ImmutableList<Block> allBlockList;
   private ImmutableList<Block> currentBlockList;
 
-  protected ReadOnlyApplicantProgramServiceImpl(
+  public ReadOnlyApplicantProgramServiceImpl(
       ApplicantData applicantData, ProgramDefinition programDefinition, String baseUrl) {
     this(applicantData, programDefinition, baseUrl, ImmutableMap.of());
   }
