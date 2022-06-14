@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.twirl.api.Content;
-import services.DateConverter;;
+import services.DateConverter;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
