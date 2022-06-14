@@ -40,14 +40,10 @@ public class DisableCachingFilter extends EssentialFilter {
                               Iterables.getFirst(Splitter.on('/').split(request.uri()), null));
                       Integer status = result.status();
 
-                      if (environment.isDev()) {
-                        // Must revalidate status asset caches in dev mode
-                        pathPrefix = Optional.empty();
-                      }
-
-                      if (pathPrefix.isPresent() &&
-                         ASSET_PATH_PREFIXES.contains(pathPrefix.get().toLowerCase()) &&
-                        OK_STATUS_CODES.contains(status)){
+                      if (!environment.isDev() &&  // Must revalidate status asset caches in dev mode
+                          pathPrefix.isPresent() &&
+                          ASSET_PATH_PREFIXES.contains(pathPrefix.get().toLowerCase()) &&
+                          OK_STATUS_CODES.contains(status)){
                         // Only cache when Status is OK https://web.dev/uses-long-cache-ttl/
                         if (status == 200 || status == 203 || status == 206) {
                           // In prod/staging, static assets are fingerprinted,
