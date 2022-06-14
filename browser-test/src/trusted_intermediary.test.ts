@@ -2,11 +2,12 @@ import { Browser, Page } from 'playwright'
 import {
   startSession,
   loginAsAdmin,
+  loginAsTrustedIntermediary,
   endSession,
   AdminTIGroups,
 } from './support'
 
-describe('normal application flow', () => {
+describe('Trusted intermediaries', () => {
   let browser: Browser
   let page: Page
 
@@ -21,7 +22,7 @@ describe('normal application flow', () => {
     await endSession(browser)
   })
 
-  it('all major steps', async () => {
+  it('managing trusted intermediary groups', async () => {
     await loginAsAdmin(page)
     const adminGroups = new AdminTIGroups(page)
     await adminGroups.gotoAdminTIPage()
@@ -31,5 +32,12 @@ describe('normal application flow', () => {
     await adminGroups.editGroup('group name')
     await adminGroups.addGroupMember('foo@bar.com')
     await adminGroups.expectGroupMemberExist('<Unnamed User>', 'foo@bar.com')
+  })
+
+  it('logging in as a trusted intermediary', async () => {
+    await loginAsTrustedIntermediary(page)
+    expect(await page.innerText('#ti-dashboard-link')).toContain(
+      'Trusted intermediary dashboard'
+    )
   })
 })

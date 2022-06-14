@@ -70,6 +70,9 @@ public interface ReadOnlyApplicantProgramService {
   /** Returns summary data for each question in this application. */
   ImmutableList<AnswerData> getSummaryData();
 
+  /** Get the string identifiers for all stored files for this application. */
+  ImmutableList<String> getStoredFileKeys();
+
   /**
    * Returns true if this program fully supports this applicant's preferred language, and false
    * otherwise.
