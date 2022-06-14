@@ -288,7 +288,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
-      activeRowActions.add(renderCopyProgramLink(activeProgram.get()));
+      activeRowActions.add(renderShareLink(activeProgram.get()));
       statusDiv =
           statusDiv.with(
               renderProgramRow(
@@ -351,12 +351,15 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return program.lastModifiedTime().orElse(Instant.EPOCH);
   }
 
-  Tag renderCopyProgramLink(ProgramDefinition program) {
+  Tag renderShareLink(ProgramDefinition program) {
     String programLink =
         baseUrl
             + controllers.applicant.routes.RedirectController.programByName(program.slug()).url();
-    return makeSvgTextButton("Copy link", Icons.CONTENT_COPY_SVG_PATH)
+    return makeSvgTextButton("Share link", Icons.CONTENT_COPY_SVG_PATH)
         .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
+        .withTitle(
+            "Copies a shareable deep link to the clipboard. Use it to link to this "
+                + "program from outside of CiviForm.")
         .withData("copyable-program-link", programLink);
   }
 
