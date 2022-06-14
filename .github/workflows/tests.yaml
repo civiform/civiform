@@ -30,10 +30,8 @@ jobs:
         push: false
         tags: civiform-dev
         cache-from: |
-          type=gha
           civiform/civiform-dev:latest
         outputs: type=docker,dest=/tmp/civiform-dev.tar
-        cache-to: type=gha,mode=max
     - name: Upload civiform-dev artifact
       uses: actions/upload-artifact@v3
       with:
@@ -58,7 +56,6 @@ jobs:
         tags: civiform-dev
         cache-from: |
           civiform/civiform-dev:latest
-        cache-to: type=gha,mode=max
     - name: Run tests
       run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
     - name: Generate code coverage badge
