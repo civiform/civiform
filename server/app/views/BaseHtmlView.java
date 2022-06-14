@@ -13,10 +13,6 @@ import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.function.Function;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -92,11 +88,6 @@ public abstract class BaseHtmlView {
 
   private static String getCsrfToken(Http.Request request) {
     return CSRF.getToken(request.asScala()).value();
-  }
-
-  protected String renderDateTime(Instant time, ZoneId zoneId) {
-    ZonedDateTime dateTime = time.atZone(zoneId);
-    return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a z"));
   }
 
   protected ContainerTag renderPaginationDiv(

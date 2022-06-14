@@ -12,13 +12,13 @@ import static j2html.TagCreator.span;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.Tag;
-import java.time.ZoneId;
 import java.util.Optional;
 import models.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DateConverter;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.program.ProgramDefinition;
@@ -36,15 +36,17 @@ import views.style.Styles;
 public final class ProgramApplicationListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final ApplicantUtils applicantUtils;
-  private final ZoneId zoneId;
+  private final DateConverter dateConverter;
   private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
 
   @Inject
   public ProgramApplicationListView(
-      AdminLayoutFactory layoutFactory, ApplicantUtils applicantUtils, ZoneId zoneId) {
+      AdminLayoutFactory layoutFactory,
+      ApplicantUtils applicantUtils,
+      DateConverter dateConverter) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS).setOnlyProgramAdminType();
     this.applicantUtils = checkNotNull(applicantUtils);
-    this.zoneId = checkNotNull(zoneId);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   public Content render(
@@ -156,7 +158,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   private Tag renderSubmitTime(Application application) {
     try {
-      return span().withText(renderDateTime(application.getSubmitTime(), zoneId));
+      return span().withText(dateConverter.renderDateTime(application.getSubmitTime()));
     } catch (NullPointerException e) {
       log.error("Application {} submitted without submission time marked.", application.id);
       return span();

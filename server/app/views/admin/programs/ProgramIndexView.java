@@ -15,11 +15,11 @@ import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DateConverter;
 import services.LocalizedStrings;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
@@ -38,13 +38,14 @@ import views.style.Styles;
 public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
-  private final ZoneId zoneId;
+  private final DateConverter dateConverter;
 
   @Inject
-  public ProgramIndexView(AdminLayoutFactory layoutFactory, Config config, ZoneId zoneId) {
+  public ProgramIndexView(
+      AdminLayoutFactory layoutFactory, Config config, DateConverter dateConverter) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
-    this.zoneId = checkNotNull(zoneId);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   public Content render(
@@ -150,7 +151,8 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     String lastEditText =
         displayProgram.lastModifiedTime().isPresent()
-            ? "Last updated: " + renderDateTime(displayProgram.lastModifiedTime().get(), zoneId)
+            ? "Last updated: "
+                + dateConverter.renderDateTime(displayProgram.lastModifiedTime().get())
             : "Could not find latest update time";
     String programTitleText = displayProgram.adminName();
     String programDescriptionText = displayProgram.adminDescription();
