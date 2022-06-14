@@ -223,7 +223,7 @@ public class QuestionConfig {
                 .withClasses(Styles.HIDDEN);
     ButtonTag removeOptionButton =
         button("Remove")
-            .attr("type", "button")
+            .withType("button")
             .withClasses(Styles.FLEX, Styles.ML_4, "multi-option-question-field-remove-button");
 
     return div()
@@ -271,7 +271,7 @@ public class QuestionConfig {
         .with(optionsBuilder.build())
         .with(
             button("Add answer option")
-                .attr("type", "button")
+                .withType("button")
                 .withId("add-new-option")
                 .withClasses(Styles.M_2));
     return this;

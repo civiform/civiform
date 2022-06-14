@@ -267,8 +267,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     .with(
                         input()
                             .isHidden()
-                            .attr("name", "direction")
-                            .attr("value", Direction.UP.name()))
+                            .withName("direction")
+                            .withValue(Direction.UP.name()))
                     .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
 
     String moveDownFormAction =
@@ -289,8 +289,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     .with(
                         input()
                             .isHidden()
-                            .attr("name", "direction")
-                            .attr("value", Direction.DOWN.name()))
+                            .withName("direction")
+                            .withValue(Direction.DOWN.name()))
                     .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
     DivTag moveButtons =
         div().withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.SELF_CENTER).with(moveUp, moveDown);
@@ -461,7 +461,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                 Styles.BG_TRANSPARENT,
                 Styles.ROUNDED_FULL,
                 StyleUtils.hover(Styles.BG_GRAY_400, Styles.TEXT_GRAY_300))
-            .attr("type", "submit")
+            .withType("submit")
             .with(p("optional").withClasses("hover-group:text-white"))
             .with(
                 div()
@@ -494,8 +494,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
             .with(
                 input()
                     .isHidden()
-                    .attr("name", "optional")
-                    .attr("value", isOptional ? "false" : "true"))
+                    .withName("optional")
+                    .withValue(isOptional ? "false" : "true"))
             .with(optionalButton));
   }
 
@@ -507,10 +507,10 @@ public class ProgramBlockEditView extends BaseHtmlView {
       boolean canRemove) {
     ButtonTag removeButton =
         TagCreator.button(text("DELETE"))
-            .attr("type", "submit")
+            .withType("submit")
             .withId("block-question-" + questionDefinition.getId())
-            .attr("name", "questionDefinitionId")
-            .attr("value", String.valueOf(questionDefinition.getId()))
+            .withName("questionDefinitionId")
+            .withValue(String.valueOf(questionDefinition.getId()))
             .withCondDisabled(!canRemove)
             .withCondTitle(
                 !canRemove,

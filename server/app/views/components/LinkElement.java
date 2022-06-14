@@ -148,10 +148,10 @@ public class LinkElement {
 
     FormTag form =
         form(
-                input().isHidden().attr("value", csrfToken).attr("name", "csrfToken"),
+                input().isHidden().withValue(csrfToken).withName("csrfToken"),
                 button(TagCreator.text(text))
                     .withClasses(DEFAULT_LINK_BUTTON_STYLES)
-                    .attr("type", "submit"))
+                    .withType("submit"))
             .withMethod("POST")
             .withCondOnsubmit(!Strings.isNullOrEmpty(onsubmit), onsubmit)
             .withAction(href)
@@ -159,7 +159,7 @@ public class LinkElement {
     hiddenFormValues.entrySet().stream()
         .map(
             entry ->
-                input().isHidden().attr("name", entry.getKey()).attr("value", entry.getValue()))
+                input().isHidden().withName(entry.getKey()).withValue(entry.getValue()))
         .forEach(tag -> form.with(tag));
     return form;
   }
@@ -174,10 +174,10 @@ public class LinkElement {
 
     FormTag form =
         form(
-                input().isHidden().attr("value", csrfToken).attr("name", "csrfToken"),
+                input().isHidden().withValue(csrfToken).withName("csrfToken"),
                 button(TagCreator.text(text))
                     .withClasses(BUTTON_LOOKS_LIKE_LINK_STYLES)
-                    .attr("type", "submit"))
+                    .withType("submit"))
             .withClasses(Styles.INLINE)
             .withMethod("POST")
             .withCondOnsubmit(!Strings.isNullOrEmpty(onsubmit), onsubmit)

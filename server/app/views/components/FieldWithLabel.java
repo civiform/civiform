@@ -322,10 +322,10 @@ public class FieldWithLabel {
 
     // Set min and max values for client-side validation
     if (this.minValue.isPresent()) {
-      fieldTag.attr("min", minValue.getAsLong());
+      fieldTag.withMin("min", String.valueOf(minValue.getAsLong()));
     }
     if (this.maxValue.isPresent()) {
-      fieldTag.attr("max", maxValue.getAsLong());
+      fieldTag.withMax("max", String.valueOf(maxValue.getAsLong()));
     }
 
     // For number types, only set the value if it's present since there is no empty string
@@ -347,7 +347,7 @@ public class FieldWithLabel {
             StyleUtils.joinStyles(
                 BaseStyles.INPUT, hasFieldErrors ? BaseStyles.FORM_FIELD_ERROR_BORDER_COLOR : ""))
         .withId(this.id)
-        .attr("name", this.fieldName)
+        .withName(this.fieldName)
         .condAttr(this.disabled, Attr.DISABLED, "true")
         .condAttr(
             !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
@@ -379,7 +379,7 @@ public class FieldWithLabel {
    */
   private DivTag getCheckboxContainer(Tag fieldTag) {
     if (this.checked) {
-      fieldTag.attr("checked");
+      fieldTag.isChecked();
     }
 
     return div().with(label()

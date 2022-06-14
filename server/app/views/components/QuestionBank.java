@@ -90,9 +90,9 @@ public class QuestionBank {
     InputTag filterInput =
         input()
             .withId("question-bank-filter")
-            .attr("type", "text")
-            .attr("name", "questionFilter")
-            .attr(Attr.PLACEHOLDER, "Filter questions")
+            .withType("text")
+            .withName("questionFilter")
+            .withPlaceholder("Filter questions")
             .withClasses(
                 Styles.H_10,
                 Styles.PX_10,
@@ -144,10 +144,10 @@ public class QuestionBank {
 
     ButtonTag addButton =
         TagCreator.button(text(definition.getName()))
-            .attr("type", "submit")
+            .withType("submit")
             .withId("question-" + definition.getId())
-            .attr("name", "question-" + definition.getId())
-            .attr("value", definition.getId() + "")
+            .withName("question-" + definition.getId())
+            .withValue(definition.getId() + "")
             .withClasses(ReferenceClasses.ADD_QUESTION_BUTTON, AdminStyles.CLICK_TARGET_BUTTON);
 
     SvgTag icon =

@@ -283,9 +283,9 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
 
   private InputTag createHiddenQuestionDefinitionInput(QuestionDefinition questionDefinition) {
     return input()
-        .attr("name", "questionId")
-        .attr("type", "hidden")
-        .attr("value", String.valueOf(questionDefinition.getId()));
+        .withName("questionId")
+        .withType("hidden")
+        .withValue(String.valueOf(questionDefinition.getId()));
   }
 
   private DivTag createScalarDropdown(QuestionDefinition questionDefinition) {
@@ -303,7 +303,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
             .map(
                 scalar ->
                     option(scalar.toDisplayString())
-                        .attr("value", scalar.name())
+                        .withValue(scalar.name())
                         // Add the scalar type as data so we can determine which operators to allow.
                         .withData("type", scalar.toScalarType().name().toLowerCase()))
             .collect(toImmutableList());
@@ -325,7 +325,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                   // whether to show or hide each operator based on the current type of scalar
                   // selected.
                   OptionTag option =
-                      option(operator.toDisplayString()).attr("value", operator.name());
+                      option(operator.toDisplayString()).withValue(operator.name());
                   operator
                       .getOperableTypes()
                       .forEach(type -> option.attr("data-" + type.name().toLowerCase()));
