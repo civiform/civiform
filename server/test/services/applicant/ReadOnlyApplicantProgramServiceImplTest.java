@@ -74,6 +74,47 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
+  public void getStoredFileKeys_includesAnsweredFileQuestions() {
+    QuestionDefinition fileQuestionDefinition =
+        testQuestionBank.applicantFile().getQuestionDefinition();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withLocalizedName(Locale.GERMAN, "Mein Programm")
+            .withBlock("Block one")
+            .withBlock("file-one")
+            .withRequiredQuestionDefinition(fileQuestionDefinition)
+            .buildDefinition();
+
+    QuestionAnswerer.answerFileQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(fileQuestionDefinition.getQuestionPathSegment()),
+        "file-key");
+
+    ReadOnlyApplicantProgramService service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
+
+    assertThat(service.getStoredFileKeys()).containsExactly("file-key");
+  }
+
+  @Test
+  public void getStoredFileKeys_doesNotIncludeUnansweredFileQuestions() {
+    QuestionDefinition fileQuestionDefinition =
+        testQuestionBank.applicantFile().getQuestionDefinition();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withLocalizedName(Locale.GERMAN, "Mein Programm")
+            .withBlock("Block one")
+            .withBlock("file-one")
+            .withRequiredQuestionDefinition(fileQuestionDefinition)
+            .buildDefinition();
+
+    ReadOnlyApplicantProgramService service =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
+
+    assertThat(service.getStoredFileKeys()).isEmpty();
+  }
+
+  @Test
   public void getAllBlocks_includesPreviouslyCompletedBlocks() {
     ProgramDefinition programDefinitionWithStatic =
         ProgramBuilder.newDraftProgram("My Program")

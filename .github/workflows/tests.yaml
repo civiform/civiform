@@ -42,8 +42,7 @@ jobs:
         retention-days: 1
         if-no-files-found: error
 
-  run_junit_tests:
-    needs:  [build_civifom-dev]
+  run_junit_tests_and_coverage:
     runs-on: ubuntu-latest
     steps:
     - name: check out ${{ env.GITHUB_REF }}
@@ -62,6 +61,11 @@ jobs:
         cache-to: type=gha,mode=max
     - name: Run tests
       run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
+    - name: Generate code coverage badge
+      uses: cicirello/jacoco-badge-generator@v2
+      with:
+        generate-branches-badge: true
+        jacoco-csv-file: server/code-coverage/report/jacoco.csv
 
   run_browser_tests:
     needs:  [build_civifom-dev]

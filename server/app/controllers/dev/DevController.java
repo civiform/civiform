@@ -21,7 +21,7 @@ public class DevController extends Controller {
     this.hostName = URI.create(baseUrl).getHost();
   }
 
-  public boolean isDevEnvironment() {
+  public boolean isDevOrStagingEnvironment() {
     if (environment.isDev()) {
       return true;
     }
