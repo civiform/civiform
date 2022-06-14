@@ -296,8 +296,8 @@ public class Icons {
     // with what one would expect given the method signature.
     return svg(pathString)
         .attr("viewBox", String.format("0 0 %1$d %2$d", width, height))
-        .withWidth("width", String.valueOf(width))
-        .withHeight("height", String.valueOf(height));
+        .withWidth(String.valueOf(width))
+        .withHeight(String.valueOf(height));
   }
 
   private static SvgTag svg(String pathString) {

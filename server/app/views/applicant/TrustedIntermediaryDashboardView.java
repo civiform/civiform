@@ -185,7 +185,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 firstNameField.getInputTag(),
                 middleNameField.getInputTag(),
                 lastNameField.getInputTag(),
-                dateOfBirthField.getDateInputTag(),
+                dateOfBirthField.getDateTag(),
                 makeCsrfTokenInputTag(request),
                 submitButton("Add").withClasses(Styles.ML_2, Styles.MB_6)))
         .withClasses(

@@ -19,7 +19,9 @@ import com.google.common.collect.ImmutableSet;
 import controllers.admin.routes;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
@@ -328,7 +330,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                       option(operator.toDisplayString()).withValue(operator.name());
                   operator
                       .getOperableTypes()
-                      .forEach(type -> option.withData(type.name().toLowerCase()));
+                      .forEach(type -> option.attr("data-", type.name().toLowerCase())); // TODO probably a bug since a value needs to be passed?
                   return option;
                 })
             .collect(toImmutableList());
@@ -341,7 +343,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .getSelectTag();
   }
 
-  private DivTag createValueField(QuestionDefinition questionDefinition) {
+  private ContainerTag createValueField(QuestionDefinition questionDefinition) {
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       // If it's a multi-option question, we need to provide a discrete list of possible values to
       // choose from instead of a freeform text field. Not only is it a better UX, but we store the
@@ -352,7 +354,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
       DivTag valueOptionsDiv =
           div().with(div("Values").withClasses(BaseStyles.CHECKBOX_GROUP_LABEL));
       for (QuestionOption option : options) {
-        DivTag optionCheckbox =
+        LabelTag optionCheckbox =
             FieldWithLabel.checkbox()
                 .setFieldName("predicateValues[]")
                 .setValue(String.valueOf(option.id()))

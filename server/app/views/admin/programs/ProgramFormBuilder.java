@@ -79,7 +79,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Hidden in Index")
             .setValue(DisplayMode.HIDDEN_IN_INDEX.getValue())
             .setChecked(displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()))
-            .getContainer(),
+            .getRadioTag(),
         h2("Public program information"),
         h3("This will be visible to the public"),
         FieldWithLabel.input()
