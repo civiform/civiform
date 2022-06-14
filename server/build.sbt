@@ -1,10 +1,11 @@
-import play.sbt.PlayImport.PlayKeys.playRunHooks
 import sbt.internal.io.{Source, WatchState}
-import com.typesafe.sbt.digest.Import.digest
-import com.typesafe.sbt.gzip.Import.gzip
-import com.typesafe.sbt.web.Import._
+import play.sbt.PlayImport.PlayKeys.playRunHooks
 import com.typesafe.sbt.web.SbtWeb
 import com.typesafe.sbt.web.Import.pipelineStages
+import com.typesafe.sbt.web.Import._
+import com.typesafe.sbt.gzip.Import.gzip
+import com.typesafe.sbt.digest.Import.digest
+import com.github.sbt.jacoco.JacocoPlugin.autoImport._
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayJava, PlayEbean, SbtWeb)
@@ -152,12 +153,20 @@ lazy val root = (project in file("."))
       }
   )
   .settings(excludeTailwindGeneration: _*)
+//jacoco report setting
+jacocoReportSettings := JacocoReportSettings()
+  .withFormats(
+    JacocoReportFormats.HTML,
+    JacocoReportFormats.CSV
+  )
+
+jacocoExcludes := Seq("views*", "*Routes*")
+jacocoDirectory := baseDirectory.value / "code-coverage"
 
 // Define a transition to pull the "remote" (really local filesystem) cache on startup.
 lazy val startupTransition: State => State = { s: State =>
   "pullRemoteCache" :: s
 }
-
 
 // Ignore the tailwind.sbt generated css file when watching for recompilation.
 // Since this file is generated when build.sbt is loaded, it causes the server
