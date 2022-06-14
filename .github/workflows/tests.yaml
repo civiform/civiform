@@ -28,7 +28,7 @@ jobs:
         context: ./
         load: true
         push: false
-        tags: civiform
+        tags: civiform-dev
         cache-from: |
           type=gha
           civiform/civiform-dev:latest
