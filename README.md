@@ -1,7 +1,7 @@
 ![CI status](https://github.com/seattle-uat/civiform/actions/workflows/push.yaml/badge.svg)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6008/badge)](https://bestpractices.coreinfrastructure.org/projects/6008)
 [![Seattle Staging Deploy](https://github.com/seattle-uat/civiform-deploy/actions/workflows/deploy-staging.yml/badge.svg?branch=main)](https://github.com/seattle-uat/civiform-deploy/actions/workflows/deploy-staging.yml)
-[![Coverage](.github/badges/jacoco.svg)](https://github.com/seattle-uat/civiform/actions/workflows/pr_server.yaml)
+[![Coverage](.github/badges/jacoco.svg)](https://github.com/seattle-uat/civiform/actions/workflows/tests.yaml)
 
 # CiviForm
 
