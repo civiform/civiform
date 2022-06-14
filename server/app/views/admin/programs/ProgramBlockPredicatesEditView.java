@@ -278,7 +278,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .setLabelText(String.format("%s should be", blockName))
         .setOptions(actionOptions)
         .addReferenceClass(ReferenceClasses.PREDICATE_ACTION)
-        .getContainer();
+        .getSelectTag();
   }
 
   private InputTag createHiddenQuestionDefinitionInput(QuestionDefinition questionDefinition) {
@@ -313,7 +313,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .setLabelText("Field")
         .setCustomOptions(options)
         .addReferenceClass(ReferenceClasses.PREDICATE_SCALAR_SELECT)
-        .getContainer();
+        .getSelectTag();
   }
 
   private DivTag createOperatorDropdown() {
@@ -338,7 +338,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .setLabelText("Operator")
         .setCustomOptions(operatorOptions)
         .addReferenceClass(ReferenceClasses.PREDICATE_OPERATOR_SELECT)
-        .getContainer();
+        .getSelectTag();
   }
 
   private DivTag createValueField(QuestionDefinition questionDefinition) {

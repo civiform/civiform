@@ -53,7 +53,7 @@ public class DropdownQuestionRenderer extends ApplicantQuestionRendererImpl {
       select.setValue(String.valueOf(singleSelectQuestion.getSelectedOptionId().get()));
     }
 
-    DivTag dropdownQuestionFormContent = div().with(select.getContainer());
+    DivTag dropdownQuestionFormContent = div().with(select.getSelectTag());
 
     return dropdownQuestionFormContent;
   }

@@ -290,7 +290,7 @@ public final class QuestionEditView extends BaseHtmlView {
     // If this form is not for creation, the fields are disabled, and hidden fields to pass
     // enumerator
     // and name data are added.
-    formTag.with(enumeratorOptions.setDisabled(!forCreate).getContainer());
+    formTag.with(enumeratorOptions.setDisabled(!forCreate).getSelectTag());
     formTag.with(repeatedQuestionInformation());
     FieldWithLabel nameField =
         FieldWithLabel.input()
@@ -404,7 +404,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .setLabelText("Question type")
         .setOptions(options)
         .setValue(selectedType.name())
-        .getContainer()
+        .getSelectTag()
         .withClasses(Styles.HIDDEN);
   }
 

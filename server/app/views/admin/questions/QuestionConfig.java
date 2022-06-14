@@ -128,14 +128,14 @@ public class QuestionConfig {
             .setLabelText("Default state")
             .setOptions(stateOptions())
             .setValue("-")
-            .getContainer(),
+            .getSelectTag(),
         FieldWithLabel.checkbox()
             .setId("address-question-disallow-po-box-checkbox")
             .setFieldName("disallowPoBox")
             .setLabelText("Disallow post office boxes")
             .setValue("true")
             .setChecked(addressQuestionForm.getDisallowPoBox())
-            .getContainer());
+            .getCheckboxTag());
     return this;
   }
 
@@ -146,13 +146,13 @@ public class QuestionConfig {
             .setFieldName("minLength")
             .setLabelText("Minimum length")
             .setValue(idQuestionForm.getMinLength())
-            .getContainer(),
+            .getNumberTag(),
         FieldWithLabel.number()
             .setId("id-question-max-length-input")
             .setFieldName("maxLength")
             .setLabelText("Maximum length")
             .setValue(idQuestionForm.getMaxLength())
-            .getContainer());
+            .getNumberTag());
     return this;
   }
 
@@ -163,13 +163,13 @@ public class QuestionConfig {
             .setFieldName("minLength")
             .setLabelText("Minimum length")
             .setValue(textQuestionForm.getMinLength())
-            .getContainer(),
+            .getNumberTag(),
         FieldWithLabel.number()
             .setId("text-question-max-length-input")
             .setFieldName("maxLength")
             .setLabelText("Maximum length")
             .setValue(textQuestionForm.getMaxLength())
-            .getContainer());
+            .getNumberTag());
     return this;
   }
 
@@ -182,7 +182,7 @@ public class QuestionConfig {
             .setLabelText("Repeated entity type")
             .setPlaceholderText("What are we enumerating?")
             .setValue(enumeratorQuestionForm.getEntityType())
-            .getContainer());
+            .getInputTag());
     return this;
   }
 

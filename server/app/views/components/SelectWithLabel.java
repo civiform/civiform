@@ -87,7 +87,6 @@ public class SelectWithLabel extends FieldWithLabel {
     return this;
   }
 
-  @Override
   public DivTag getSelectTag() {
     SelectTag fieldTag = TagCreator.select();
     OptionTag placeholder = option(placeholderText).withValue("").isHidden();
