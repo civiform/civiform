@@ -264,9 +264,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
   /**
    * When an application is submitted, we store the name of its program in the ACLs for each file in
-   * the application. This is so that when a program admin goes to view it we can authorize them,
-   * both for the original program the file was uploaded for as well as programs that the applicant
-   * applies to subsequently using the same file.
+   * the application.
    */
   private CompletionStage<Void> updateStoredFileAclsForSubmit(long applicantId, long programId) {
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
