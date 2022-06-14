@@ -1,7 +1,7 @@
 /project/
 flakes
 logs/
-server/jacoco/*
+server/code-coverage/*
 .log/
 target/
 RUNNING_PID

@@ -153,7 +153,7 @@ jacocoReportSettings := JacocoReportSettings()
   )
 
 jacocoExcludes := Seq("views*", "*Routes*")
-jacocoDirectory := baseDirectory.value /"jacoco"
+jacocoDirectory := baseDirectory.value / "code-coverage"
 
 // Define a transition to pull the "remote" (really local filesystem) cache on startup.
 lazy val startupTransition: State => State = { s: State =>
