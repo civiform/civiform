@@ -19,4 +19,5 @@ services:
     ports:
       - 9000:9000
     environment:
-      - SECRET_KEY
+      - IDCS_CLIENT_ID=client
+      - IDCS_CLIENT_ID=SECRET_KEY
