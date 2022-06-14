@@ -41,7 +41,7 @@ public class DisableCachingFilter extends EssentialFilter {
 
                       if (environment.isDev()) {
                         // Must revalidate status asset caches in dev mode
-                        // pathPrefix = Optional.empty();
+                        pathPrefix = Optional.empty();
                       }
                       if (pathPrefix.map(ASSET_PATH_PREFIXES::contains).orElse(false)) {
                         // Only cache when Status is OK https://web.dev/uses-long-cache-ttl/
