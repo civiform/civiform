@@ -12,7 +12,6 @@ x-sbt-volumes:
     - node_modules-data:/usr/src/server/node_modules
     - project-data:/usr/src/server/project/project
     - project-target-data:/usr/src/server/project/target
-    - project-coverage:/usr/src/server/target/scala-2.13/jacoco/report
 
 services:
   dev-oidc:
@@ -85,6 +84,4 @@ volumes:
   project-target-data:
     driver: local
   target:
-    driver: local
-  project-coverage:
     driver: local

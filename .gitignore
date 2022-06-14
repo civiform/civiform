@@ -1,7 +1,6 @@
 /project/
 flakes
 logs/
-*.html
 server/jacoco/*
 .log/
 target/

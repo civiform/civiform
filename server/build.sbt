@@ -145,15 +145,12 @@ lazy val root = (project in file("."))
       }
   )
   .settings(excludeTailwindGeneration: _*)
-
-  //jacoco report setting
+//jacoco report setting
 jacocoReportSettings := JacocoReportSettings()
-  .withTitle("Jacoco")
-  .withFormats(JacocoReportFormats.CSV)
-//html for local views
-jacocoReportSettings := JacocoReportSettings()
-  .withTitle("Jacoco")
-  .withFormats(JacocoReportFormats.HTML)
+  .withFormats(
+    JacocoReportFormats.HTML,
+    JacocoReportFormats.CSV
+  )
 
 jacocoExcludes := Seq("views*", "*Routes*")
 jacocoDirectory := baseDirectory.value /"jacoco"
