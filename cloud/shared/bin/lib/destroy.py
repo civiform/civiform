@@ -6,7 +6,7 @@ import sys
 
 from config_loader import ConfigLoader
 from write_tfvars import TfVarWriter
-from setup_class_loader import load_class
+from setup_class_loader import load_destroy_class
 """
 Destroy.py destroys the setup
 """
@@ -36,7 +36,7 @@ if not is_valid:
 ###############################################################################
 
 template_dir = config_loader.get_template_dir()
-Destroy = load_class(template_dir)
+Destroy = load_destroy_class(template_dir)
 
 template_destroy = Destroy(config_loader)
 template_destroy.pre_terraform_destroy()
@@ -62,3 +62,4 @@ if config_loader.is_prober():
     terraform_destroy_args.append("-auto-approve")
 
 subprocess.check_call(terraform_destroy_args)
+template_destroy.post_terraform_destroy()
