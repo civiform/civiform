@@ -357,7 +357,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                 .setFieldName("predicateValues[]")
                 .setValue(String.valueOf(option.id()))
                 .setLabelText(option.optionText().getDefault())
-                .getContainer();
+                .getCheckboxTag();
         valueOptionsDiv.with(optionCheckbox);
       }
       return valueOptionsDiv;
@@ -368,7 +368,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                   .setFieldName("predicateValue")
                   .setLabelText("Value")
                   .addReferenceClass(ReferenceClasses.PREDICATE_VALUE_INPUT)
-                  .getContainer())
+                  .getInputTag())
           .with(
               div()
                   .withClasses(

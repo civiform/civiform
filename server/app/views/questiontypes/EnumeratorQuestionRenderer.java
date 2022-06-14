@@ -113,7 +113,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
                     localizedEntityType))
             .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT)
-            .getContainer();
+            .getInputTag();
     String confirmationMessage =
         messages.at(MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE.getKeyName(), localizedEntityType);
     ButtonTag removeEntityButton =

@@ -157,7 +157,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     .setFieldName(ENUMERATOR_ID_FORM_FIELD)
                     .setScreenReaderText(ENUMERATOR_ID_FORM_FIELD)
                     .setValue(OptionalLong.of(blockId))
-                    .getContainer());
+                    .getNumberTag());
 
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.destroy(programId, blockId).url();
@@ -566,13 +566,13 @@ public class ProgramBlockEditView extends BaseHtmlView {
                         .setFieldName("name")
                         .setLabelText("Screen name")
                         .setValue(blockForm.getName())
-                        .getContainer(),
+                        .getInputTag(),
                     FieldWithLabel.textArea()
                         .setId("block-description-textarea")
                         .setFieldName("description")
                         .setLabelText("Screen description")
                         .setValue(blockForm.getDescription())
-                        .getContainer())
+                        .getTextareaTag())
                 .withClasses(Styles.MX_4),
             submitButton("Save")
                 .withId("update-block-button")

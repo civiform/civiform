@@ -35,7 +35,7 @@ public class IdQuestionRenderer extends ApplicantQuestionRendererImpl {
                 params.messages(),
                 validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of()))
             .setScreenReaderText(question.getQuestionText())
-            .getContainer();
+            .getInputTag();
 
     return questionFormContent;
   }

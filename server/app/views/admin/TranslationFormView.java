@@ -87,7 +87,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
             .withMethod("POST")
             .with(makeCsrfTokenInputTag(request))
             .withAction(formAction)
-            .with(each(formFields, FieldWithLabel::getContainer))
+            .with(each(formFields, FieldWithLabel::getInputTag)) // TODO fix this ugliness
             .with(
                 submitButton(
                         String.format(

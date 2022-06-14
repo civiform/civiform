@@ -113,7 +113,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             .setValue(existing)
             // If there is an existing value, do not allow changes in the input field.
             .setDisabled(existing.isPresent())
-            .getContainer()
+            .getEmailTag()
             .withClasses(Styles.FLEX, Styles.M_2);
 
     ButtonTag removeAdminButton =

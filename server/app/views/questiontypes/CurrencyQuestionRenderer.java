@@ -61,7 +61,7 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
                 Styles.TEXT_LG);
 
     DivTag currencyQuestionFormContent =
-        div().withClasses(Styles.FLEX).with(dollarSign).with(currencyField.getContainer());
+        div().withClasses(Styles.FLEX).with(dollarSign).with(currencyField.getCurrencyTag());
 
     return currencyQuestionFormContent;
   }

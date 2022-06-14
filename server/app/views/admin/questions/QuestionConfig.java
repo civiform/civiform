@@ -210,7 +210,7 @@ public class QuestionConfig {
                 messages,
                 ImmutableSet.of(ValidationErrorMessage.create(MessageKey.MULTI_OPTION_VALIDATION)))
             .showFieldErrors(false)
-            .getContainer()
+            .getInputTag()
             .withClasses(Styles.FLEX, Styles.ML_2, Styles.GAP_X_3);
     ContainerTag<?> optionIndexInput =
         isForNewOption
@@ -219,7 +219,7 @@ public class QuestionConfig {
                 .setFieldName("optionIds[]")
                 .setValue(String.valueOf(existingOption.get().id()))
                 .setScreenReaderText("option ids")
-                .getContainer()
+                .getInputTag()
                 .withClasses(Styles.HIDDEN);
     ButtonTag removeOptionButton =
         button("Remove")
@@ -291,7 +291,7 @@ public class QuestionConfig {
             // a positive number.
             .setMin(OptionalLong.of(0L))
             .setValue(multiOptionForm.getMinChoicesRequired())
-            .getContainer(),
+            .getNumberTag(),
         FieldWithLabel.number()
             .setId("multi-select-max-choices-input")
             .setFieldName("maxChoicesAllowed")
@@ -300,7 +300,7 @@ public class QuestionConfig {
             // a positive number.
             .setMin(OptionalLong.of(0L))
             .setValue(multiOptionForm.getMaxChoicesAllowed())
-            .getContainer());
+            .getNumberTag());
     return this;
   }
 
@@ -311,13 +311,13 @@ public class QuestionConfig {
             .setFieldName("min")
             .setLabelText("Minimum value")
             .setValue(numberQuestionForm.getMin())
-            .getContainer(),
+            .getNumberTag(),
         FieldWithLabel.number()
             .setId("number-question-max-value-input")
             .setFieldName("max")
             .setLabelText("Maximum value")
             .setValue(numberQuestionForm.getMax())
-            .getContainer());
+            .getNumberTag());
     return this;
   }
 

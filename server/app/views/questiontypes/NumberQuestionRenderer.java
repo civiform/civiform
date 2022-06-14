@@ -49,6 +49,6 @@ public class NumberQuestionRenderer extends ApplicantQuestionRendererImpl {
       numberField.setValue(value);
     }
 
-    return div().with(numberField.getContainer());
+    return div().with(numberField.getNumberTag());
   }
 }

@@ -45,7 +45,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                         validationErrors.getOrDefault(
                             nameQuestion.getFirstNamePath(), ImmutableSet.of()))
                     .addReferenceClass(ReferenceClasses.NAME_FIRST)
-                    .getContainer())
+                    .getInputTag())
             .with(
                 FieldWithLabel.input()
                     .setFieldName(nameQuestion.getMiddleNamePath().toString())
@@ -56,7 +56,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                         messages,
                         validationErrors.getOrDefault(
                             nameQuestion.getMiddleNamePath(), ImmutableSet.of()))
-                    .getContainer())
+                    .getInputTag())
             .with(
                 FieldWithLabel.input()
                     .setFieldName(nameQuestion.getLastNamePath().toString())
@@ -67,7 +67,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                         validationErrors.getOrDefault(
                             nameQuestion.getLastNamePath(), ImmutableSet.of()))
                     .addReferenceClass(ReferenceClasses.NAME_LAST)
-                    .getContainer());
+                    .getInputTag());
 
     return nameQuestionFormContent;
   }

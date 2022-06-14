@@ -59,20 +59,20 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Enter internal name or nickname of this program")
             .setValue(adminName)
             .setDisabled(editExistingProgram)
-            .getContainer(),
+            .getInputTag(),
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
             .setLabelText("Describe this program for administrative use")
             .setValue(adminDescription)
-            .getContainer(),
+            .getTextareaTag(),
         FieldWithLabel.radio()
             .setId("program-display-mode-public")
             .setFieldName("displayMode")
             .setLabelText("Public")
             .setValue(DisplayMode.PUBLIC.getValue())
             .setChecked(displayMode.equals(DisplayMode.PUBLIC.getValue()))
-            .getContainer(),
+            .getRadioTag(),
         FieldWithLabel.radio()
             .setId("program-display-mode-hidden")
             .setFieldName("displayMode")
@@ -87,19 +87,19 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .setFieldName("localizedDisplayName")
             .setLabelText("Enter the publicly displayed name for this program")
             .setValue(displayName)
-            .getContainer(),
+            .getInputTag(),
         FieldWithLabel.textArea()
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
             .setLabelText("Describe this program for the public")
             .setValue(displayDescription)
-            .getContainer(),
+            .getTextareaTag(),
         FieldWithLabel.input()
             .setId("program-external-link-input")
             .setFieldName("externalLink")
             .setLabelText("Link for additional program information")
             .setValue(externalLink)
-            .getContainer(),
+            .getInputTag(),
         submitButton("Save").withId("program-update-button"));
     return formTag;
   }

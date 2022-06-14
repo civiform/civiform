@@ -69,6 +69,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
+  // TODO emailField should call `.email()` instead of `.input()`
   private DivTag renderAddNewButton(TrustedIntermediaryGroup tiGroup, Http.Request request) {
     FormTag formTag =
         form()
@@ -85,7 +86,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
     return div()
         .with(
             formTag.with(
-                emailField.getContainer(),
+                emailField.getInputTag(),
                 makeCsrfTokenInputTag(request),
                 submitButton("Add").withClasses(Styles.ML_2, Styles.MB_6)))
         .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.MT_6);

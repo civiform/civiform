@@ -31,7 +31,7 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
     return FieldWithLabel.input()
         .setFieldName(fileuploadQuestion.getFileKeyPath().toString())
         .setValue(value)
-        .getContainer();
+        .getInputTag();
   }
 
   public FileUploadQuestionRenderer(

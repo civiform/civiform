@@ -36,7 +36,7 @@ public class EmailQuestionRenderer extends ApplicantQuestionRendererImpl {
                 params.messages(),
                 validationErrors.getOrDefault(emailQuestion.getEmailPath(), ImmutableSet.of()))
             .setScreenReaderText(question.getQuestionText())
-            .getContainer();
+            .getEmailTag();
 
     return questionFormContent;
   }

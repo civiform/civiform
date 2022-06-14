@@ -150,7 +150,7 @@ public abstract class BaseHtmlView {
                 .setLabelText(labelText.orElse("Search"))
                 .setValue(search.orElse(""))
                 .setPlaceholderText("Search")
-                .getContainer()
+                .getInputTag()
                 .withClasses(htmlClasses.orElse(Styles.W_1_4)),
             makeCsrfTokenInputTag(request),
             submitButton("Search").withClasses(Styles.M_2));

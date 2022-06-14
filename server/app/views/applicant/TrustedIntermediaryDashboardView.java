@@ -181,11 +181,11 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return div()
         .with(
             formTag.with(
-                emailField.getContainer(),
-                firstNameField.getContainer(),
-                middleNameField.getContainer(),
-                lastNameField.getContainer(),
-                dateOfBirthField.getContainer(),
+                emailField.getInputTag(),
+                firstNameField.getInputTag(),
+                middleNameField.getInputTag(),
+                lastNameField.getInputTag(),
+                dateOfBirthField.getDateInputTag(),
                 makeCsrfTokenInputTag(request),
                 submitButton("Add").withClasses(Styles.ML_2, Styles.MB_6)))
         .withClasses(

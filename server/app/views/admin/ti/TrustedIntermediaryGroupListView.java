@@ -100,8 +100,8 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     return div()
         .with(
             formTag.with(
-                nameField.getContainer(),
-                descriptionField.getContainer(),
+                nameField.getInputTag(),
+                descriptionField.getInputTag(),
                 makeCsrfTokenInputTag(request),
                 submitButton("Create").withClasses(Styles.ML_2, Styles.MB_6)))
         .withClasses(

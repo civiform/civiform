@@ -44,7 +44,7 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
       Optional<String> value = dateQuestion.getDateValue().map(LocalDate::toString);
       dateField.setValue(value);
     }
-    DivTag dateQuestionFormContent = dateField.getContainer();
+    DivTag dateQuestionFormContent = dateField.getDateTag();
 
     return dateQuestionFormContent;
   }

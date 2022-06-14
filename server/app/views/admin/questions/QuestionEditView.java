@@ -239,7 +239,7 @@ public final class QuestionEditView extends BaseHtmlView {
           FieldWithLabel.number()
               .setFieldName("nextAvailableId")
               .setValue(((MultiOptionQuestionForm) questionForm).getNextAvailableId())
-              .getContainer()
+              .getNumberTag()
               .withClasses(Styles.HIDDEN));
     }
     return multiOptionQuestionField;
@@ -300,7 +300,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setDisabled(!submittable)
             .setPlaceholderText("The name displayed in the question builder")
             .setValue(questionForm.getQuestionName());
-    formTag.with(nameField.setDisabled(!forCreate).getContainer());
+    formTag.with(nameField.setDisabled(!forCreate).getInputTag());
     if (!forCreate) {
       formTag.with(
           input()
@@ -325,7 +325,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setPlaceholderText("The question help text displayed to the applicant")
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionHelpText())
-            .getContainer();
+            .getTextareaTag();
     if (questionType.equals(QuestionType.STATIC)) { // Hide help text for static questions.
       questionHelpTextField.withClasses(Styles.HIDDEN);
     }
@@ -339,7 +339,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setPlaceholderText("The description displayed in the question builder")
                 .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionDescription())
-                .getContainer(),
+                .getTextareaTag(),
             FieldWithLabel.textArea()
                 .setId("question-text-textarea")
                 .setFieldName("questionText")
@@ -347,7 +347,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setPlaceholderText("The question text displayed to the applicant")
                 .setDisabled(!submittable)
                 .setValue(questionForm.getQuestionText())
-                .getContainer(),
+                .getTextareaTag(),
             questionHelpTextField)
         .with(formQuestionTypeSelect(questionType));
 
@@ -375,7 +375,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setLabelText("No export")
             .setValue(QuestionTag.NON_DEMOGRAPHIC.getValue())
             .setChecked(exportState == QuestionTag.NON_DEMOGRAPHIC)
-            .getContainer(),
+            .getRadioTag(),
         FieldWithLabel.radio()
             .setId("question-demographic-export-demographic")
             .setDisabled(!submittable)
@@ -383,7 +383,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setLabelText("Export Value")
             .setValue(QuestionTag.DEMOGRAPHIC.getValue())
             .setChecked(exportState == QuestionTag.DEMOGRAPHIC)
-            .getContainer(),
+            .getRadioTag(),
         FieldWithLabel.radio()
             .setId("question-demographic-export-pii")
             .setDisabled(!submittable)
@@ -391,7 +391,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setLabelText("Export Obfuscated")
             .setValue(QuestionTag.DEMOGRAPHIC_PII.getValue())
             .setChecked(exportState == QuestionTag.DEMOGRAPHIC_PII)
-            .getContainer());
+            .getRadioTag());
   }
 
   private DomContent formQuestionTypeSelect(QuestionType selectedType) {

@@ -91,7 +91,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                             .setLabelText("API key name"),
                         dynamicForm,
                         ApiKeyService.FORM_FIELD_NAME_KEY_NAME)
-                    .getContainer(),
+                    .getInputTag(),
                 h2("Expiration date"),
                 p(EXPIRATION_DESCRIPTION),
                 setStateIfPresent(
@@ -101,7 +101,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                             .setLabelText("Expiration date"),
                         dynamicForm,
                         ApiKeyService.FORM_FIELD_NAME_EXPIRATION)
-                    .getContainer(),
+                    .getDateTag(),
                 h2("Allowed IP addresses"),
                 p(SUBNET_DESCRIPTION),
                 setStateIfPresent(
@@ -111,7 +111,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                             .setLabelText("API key subnet"),
                         dynamicForm,
                         ApiKeyService.FORM_FIELD_NAME_SUBNET)
-                    .getContainer());
+                    .getInputTag());
 
     formTag.with(h2("Allowed programs"), p("Select the programs this key grants read access to."));
 
@@ -122,7 +122,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
               .setLabelText(name)
               .setId(slugifier.slugify(name))
               .setValue("true")
-              .getContainer());
+              .getCheckboxTag());
     }
 
     DivTag contentDiv =

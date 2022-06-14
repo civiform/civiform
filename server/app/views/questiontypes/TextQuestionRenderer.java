@@ -35,7 +35,7 @@ public class TextQuestionRenderer extends ApplicantQuestionRendererImpl {
                 params.messages(),
                 validationErrors.getOrDefault(textQuestion.getTextPath(), ImmutableSet.of()))
             .setScreenReaderText(question.getQuestionText())
-            .getContainer();
+            .getInputTag();
 
     return questionFormContent;
   }

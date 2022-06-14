@@ -49,7 +49,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                         validationErrors.getOrDefault(
                             addressQuestion.getStreetPath(), ImmutableSet.of()))
                     .addReferenceClass(ReferenceClasses.ADDRESS_STREET_1)
-                    .getContainer(),
+                    .getInputTag(),
                 /** Second line of address entry: Address line 2 AKA apartment, unit, etc. */
                 FieldWithLabel.input()
                     .setFieldName(addressQuestion.getLine2Path().toString())
@@ -62,7 +62,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                         validationErrors.getOrDefault(
                             addressQuestion.getLine2Path(), ImmutableSet.of()))
                     .addReferenceClass(ReferenceClasses.ADDRESS_STREET_2)
-                    .getContainer(),
+                    .getInputTag(),
                 /** Third line of address entry: City, State, Zip */
                 div()
                     .withClasses(Styles.GRID, Styles.GRID_COLS_3, Styles.GAP_2)
@@ -76,7 +76,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                                 messages,
                                 validationErrors.getOrDefault(
                                     addressQuestion.getCityPath(), ImmutableSet.of()))
-                            .getContainer(),
+                            .getInputTag(),
                         FieldWithLabel.input()
                             .setFieldName(addressQuestion.getStatePath().toString())
                             .setLabelText(messages.at(MessageKey.ADDRESS_LABEL_STATE.getKeyName()))
@@ -86,7 +86,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                                 validationErrors.getOrDefault(
                                     addressQuestion.getStatePath(), ImmutableSet.of()))
                             .addReferenceClass(ReferenceClasses.ADDRESS_STATE)
-                            .getContainer(),
+                            .getInputTag(),
                         FieldWithLabel.input()
                             .setFieldName(addressQuestion.getZipPath().toString())
                             .setLabelText(
@@ -97,7 +97,7 @@ public class AddressQuestionRenderer extends ApplicantQuestionRendererImpl {
                                 validationErrors.getOrDefault(
                                     addressQuestion.getZipPath(), ImmutableSet.of()))
                             .addReferenceClass(ReferenceClasses.ADDRESS_ZIP)
-                            .getContainer()));
+                            .getInputTag()));
 
     return addressQuestionFormContent;
   }
