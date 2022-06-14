@@ -186,7 +186,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     ret.with(
         submitButton("Add Screen")
             .withId("add-block-button")
-            .attr(Attr.FORM, CREATE_BLOCK_FORM_ID)
+            .withForm(CREATE_BLOCK_FORM_ID)
             .withClasses(Styles.M_4));
     return ret;
   }
@@ -333,7 +333,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       buttons.with(
           submitButton("Create Repeated Screen")
               .withId("create-repeated-block-button")
-              .attr(Attr.FORM, CREATE_REPEATED_BLOCK_FORM_ID));
+              .withForm(CREATE_REPEATED_BLOCK_FORM_ID));
     }
     // TODO: Maybe add alpha variants to button color on hover over so we do not have
     //  to hard-code what the color will be when button is in hover state?
@@ -342,7 +342,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
       buttons.with(
           submitButton("Delete Screen")
               .withId("delete-block-button")
-              .attr(Attr.FORM, DELETE_BLOCK_FORM_ID)
+              .withForm(DELETE_BLOCK_FORM_ID)
               .withCondDisabled(!canDelete)
               .withCondTitle(
                   !canDelete, "A screen can only be deleted when it has no repeated screens.")
@@ -582,7 +582,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     Styles.INLINE,
                     Styles.OPACITY_100,
                     StyleUtils.disabled(Styles.OPACITY_50))
-                .attr("disabled", ""));
+                .isDisabled());
     return Modal.builder("block-description-modal", div(blockDescriptionForm))
         .setModalTitle(modalTitle)
         .setTriggerButtonText(modalButtonText)

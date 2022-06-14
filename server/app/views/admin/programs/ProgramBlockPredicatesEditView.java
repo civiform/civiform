@@ -101,8 +101,8 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
             .withAction(removePredicateUrl)
             .with(
                 submitButton("Remove visibility condition")
-                    .attr(Attr.FORM, removePredicateFormId)
-                    .attr(blockDefinition.visibilityPredicate().isEmpty() ? Attr.DISABLED : ""));
+                    .withForm(removePredicateFormId)
+                    .withCondDisabled(blockDefinition.visibilityPredicate().isEmpty()));
 
     String editBlockUrl =
         routes.AdminProgramBlocksController.edit(programDefinition.id(), blockDefinition.id())
@@ -237,7 +237,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                 .with(createScalarDropdown(questionDefinition))
                 .with(createOperatorDropdown())
                 .with(createValueField(questionDefinition)))
-        .with(submitButton("Submit").attr(Attr.FORM, formId));
+        .with(submitButton("Submit").withForm(formId));
   }
 
   private DivTag renderPredicateModalTriggerButtons(ImmutableList<Modal> modals) {
@@ -328,7 +328,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                       option(operator.toDisplayString()).withValue(operator.name());
                   operator
                       .getOperableTypes()
-                      .forEach(type -> option.attr("data-" + type.name().toLowerCase()));
+                      .forEach(type -> option.withData(type.name().toLowerCase()));
                   return option;
                 })
             .collect(toImmutableList());

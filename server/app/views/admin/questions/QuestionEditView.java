@@ -253,7 +253,7 @@ public final class QuestionEditView extends BaseHtmlView {
             questionForm, enumeratorQuestionDefinitions);
     FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOptions, true);
     formTag
-        .withAction(,
+        .withAction(
             controllers.admin.routes.AdminQuestionController.create(
                     questionForm.getQuestionType().toString())
                 .url())
@@ -270,7 +270,7 @@ public final class QuestionEditView extends BaseHtmlView {
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
     FormTag formTag = buildSubmittableQuestionForm(questionForm, enumeratorOption, false);
     formTag
-        .withAction(,
+        .withAction(
             controllers.admin.routes.AdminQuestionController.update(
                     id, questionForm.getQuestionType().toString())
                 .url())

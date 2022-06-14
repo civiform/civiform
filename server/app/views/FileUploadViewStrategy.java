@@ -118,7 +118,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
   protected FormTag renderFileUploadFormElement(Params params, StorageUploadRequest request) {
     return form()
         .withId(BLOCK_FORM_ID)
-        .attr(ENCTYPE, "multipart/form-data")
+        .withEnctype("multipart/form-data")
         .withMethod(HttpVerbs.POST);
   }
 
@@ -147,7 +147,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     ButtonTag button =
         TagCreator.button(buttonText)
             .withType("submit")
-            .attr(FORM, FILEUPLOAD_DELETE_FORM_ID)
+            .withForm(FILEUPLOAD_DELETE_FORM_ID)
             .withClasses(ApplicantStyles.BUTTON_REVIEW)
             .withId(buttonId);
     return Optional.of(button);
@@ -164,7 +164,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     }
     ButtonTag button =
         submitButton(params.messages().at(MessageKey.BUTTON_KEEP_FILE.getKeyName()))
-            .attr(FORM, FILEUPLOAD_CONTINUE_FORM_ID)
+            .withForm(FILEUPLOAD_CONTINUE_FORM_ID)
             .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
             .withId(FILEUPLOAD_CONTINUE_BUTTON_ID);
     return Optional.of(button);
@@ -221,7 +221,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
       styles = ApplicantStyles.BUTTON_REVIEW;
     }
     return submitButton(params.messages().at(MessageKey.BUTTON_UPLOAD.getKeyName()))
-        .attr(FORM, BLOCK_FORM_ID)
+        .withForm(BLOCK_FORM_ID)
         .withClasses(styles)
         .withId(FILEUPLOAD_SUBMIT_FORM_ID);
   }

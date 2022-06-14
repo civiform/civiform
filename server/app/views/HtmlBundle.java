@@ -113,7 +113,7 @@ public class HtmlBundle {
   }
 
   private HtmlTag getContent() {
-    return html(renderHead(), renderBody()).attr("lang", language);
+    return html(renderHead(), renderBody()).withLang(language);
   }
 
   public String getTitle() {

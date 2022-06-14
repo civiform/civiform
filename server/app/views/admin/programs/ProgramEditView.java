@@ -32,8 +32,7 @@ public class ProgramEditView extends BaseHtmlView {
         ProgramFormBuilder.buildProgramForm(program, /* editExistingProgram = */ true)
             .with(makeCsrfTokenInputTag(request))
             .with(buildManageQuestionLink(program.id()))
-            .attr(
-                "action",
+            .withAction(
                 controllers.admin.routes.AdminProgramController.update(program.id()).url());
 
     String title = String.format("Edit program: %s", program.adminName());

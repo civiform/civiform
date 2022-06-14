@@ -189,13 +189,13 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withClasses(Styles.W_FULL)
             .with(
                 input()
-                    .attr(
-                        "value",
+                    .withValue(
                         baseUrl
                             + controllers.applicant.routes.RedirectController.programByName(
                                     displayProgram.slug())
                                 .url())
-                    .attr("disabled", "readonly")
+                    .isDisabled()
+                    .isReadonly()
                     .withClasses(Styles.W_FULL, Styles.MB_2)
                     .withType("text"));
 

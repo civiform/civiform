@@ -134,12 +134,12 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
             .with(
                 input()
                     .attr(
-                        "value",
                         baseUrl
                             + controllers.applicant.routes.RedirectController.programByName(
                                     displayProgram.slug())
                                 .url())
-                    .attr("disabled", "readonly")
+                    .isDisabled()
+                    .isReadonly()
                     .withClasses(Styles.W_FULL, Styles.MB_2)
                     .withType("text"));
 
