@@ -107,5 +107,5 @@ jobs:
       run: docker compose -f test-support/prod-simulator-compose.yml up -d
     - name: Test
       # Confirm that we get a response on port 9000.
-      run: while ! docker run --network host appropriate/curl -v -s --retry-max-time 180 --retry-connrefused http://localhost:9000/ ; do sleep 5; done
+      run: while ! docker run --env IDCS_CLIENT_ID=client --env IDCS_SECRET=secret --network host appropriate/curl -v -s --retry-max-time 180 --retry-connrefused http://localhost:9000/ ; do sleep 5; done
       timeout-minutes: 3
