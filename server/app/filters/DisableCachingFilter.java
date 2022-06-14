@@ -2,22 +2,21 @@ package filters;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import javax.inject.Inject;
-import java.util.Optional;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
-import com.google.common.base.Splitter;
-import java.lang.Iterables;
+
 /** A filter to disable caching our responses. */
 public class DisableCachingFilter extends EssentialFilter {
   private final Executor exec;
 
   private static final ImmutableSet<String> ASSET_PATH_PREFIXES =
       ImmutableSet.of("public", "assets", "favicon.ico");
-  private static final Splitter PATH_SPLITTER = Splitter.on("/");
 
   private final play.Environment environment;
 
@@ -35,7 +34,9 @@ public class DisableCachingFilter extends EssentialFilter {
             next.apply(request)
                 .map(
                     result -> {
-                      Optional<String> pathPrefix = Iterables.getFirst(PATH_SPLITTER.splitToList(request.uri()));
+                      Optional<String> pathPrefix =
+                          Optional.ofNullable(
+                              Iterables.getFirst(Splitter.on('/').split(request.uri()), null));
                       Integer status = result.status();
 
                       if (environment.isDev()) {
