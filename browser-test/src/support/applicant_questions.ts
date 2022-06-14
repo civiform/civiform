@@ -241,7 +241,7 @@ export class ApplicantQuestions {
 
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('a:has-text("click to download")')
+      this.page.click('a:has-text("click to download")'),
     ])
     const path = await downloadEvent.path()
     if (path === null) {

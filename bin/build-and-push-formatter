@@ -9,6 +9,7 @@ pushd formatter
 docker build \
   -t civiform/formatter:latest \
   -f formatter.Dockerfile \
+  --cache-from civiform/formatter:latest \
   .
 
 docker push docker.io/civiform/formatter:latest

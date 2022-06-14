@@ -30,14 +30,14 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.4.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.205",
+      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.210",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.5.2",
       "com.azure" % "azure-storage-blob" % "12.17.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.3.6",
+      "org.postgresql" % "postgresql" % "42.4.0",
       "org.junit.jupiter" % "junit-jupiter-engine" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-api" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-params" % "5.8.2" % Test,
@@ -110,8 +110,10 @@ lazy val root = (project in file("."))
       "-Werror"
     ),
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
-    // Recompile everything if >10% files have changed
-    incOptions := incOptions.value.withRecompileAllFraction(.1),
+    // Recompile everything if >30% files have changed, to help avoid infinate
+    // incremental compilation.
+    // (but still allow some incremental building for speed.)
+    incOptions := incOptions.value.withRecompileAllFraction(.3),
     // After 2 transitive steps, do more aggressive invalidation
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
@@ -127,9 +129,35 @@ lazy val root = (project in file("."))
     Compile / doc / scalacOptions += "-no-link-warnings",
     // Turn off scaladoc
     Compile / packageDoc / publishArtifact := false,
-    Compile / doc / sources := Seq.empty
+    Compile / doc / sources := Seq.empty,
+
+    // Save build artifacts to a cache that isn't shadowed by docker.
+    // https://www.scala-sbt.org/1.x/docs/Remote-Caching.html
+    // During the build step, we push build artifacts to the "build-cache" dir,
+    // which is saved in the image file by the deploy process.
+    // On later loads, we pull assets from that cache and incrementally compile,
+    // any changes, plus the dynamically generated code (autovalue and routes).
+    publish / skip := true,
+    Global / pushRemoteCacheTo := Some(MavenCache("local-cache", file(baseDirectory.value+"/../build-cache"))),
+
+    Compile / pushRemoteCacheConfiguration := (Compile / pushRemoteCacheConfiguration).value.withOverwrite(true),
+    Test / pushRemoteCacheConfiguration := (Test / pushRemoteCacheConfiguration).value.withOverwrite(true),
+
+    // Load the "remote" cache on startup.
+    Global / onLoad := {
+        val previous = (Global / onLoad).value
+        // compose the new transition on top of the existing one
+        // in case your plugins are using this hook.
+        startupTransition compose previous
+      }
   )
   .settings(excludeTailwindGeneration: _*)
+
+// Define a transition to pull the "remote" (really local filesystem) cache on startup.
+lazy val startupTransition: State => State = { s: State =>
+  "pullRemoteCache" :: s
+}
+
 
 // Ignore the tailwind.sbt generated css file when watching for recompilation.
 // Since this file is generated when build.sbt is loaded, it causes the server

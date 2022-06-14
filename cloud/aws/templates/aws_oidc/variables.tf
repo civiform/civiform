@@ -4,6 +4,18 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "civiform_image_repo" {
+  type        = string
+  description = "Public ECR repository with Civiform images"
+  default     = "public.ecr.aws/t1q6b4h2/universal-application-tool"
+}
+
+variable "civiform_image_tag" {
+  type        = string
+  description = "Image tag of the Civiform docker image to deploy"
+  default     = "prod"
+}
+
 variable "civiform_time_zone_id" {
   type        = string
   description = "Time zone for Civiform server to use when displaying dates."
@@ -40,174 +52,57 @@ variable "civic_entity_small_logo_url" {
   default     = "https://raw.githubusercontent.com/civiform/staging-azure-deploy/main/logos/civiform-staging.png"
 }
 
-variable "docker_username" {
+variable "vpc_name" {
   type        = string
-  description = "Docker username"
-  default     = "civiform"
+  description = "Name of the VPC for the database"
+  default     = "civiform_rds_vpc"
 }
 
-variable "docker_repository_name" {
+variable "vpc_cidr" {
   type        = string
-  description = "Name of container image"
-  default     = "civiform"
+  description = "Cidr for VPC"
+  default     = "10.0.0.0/16"
 }
 
-variable "location_name" {
-  type        = string
-  description = "Name of the location for the resource group"
-  default     = "eastus"
-}
-
-variable "vnet_address_space" {
+variable "private_subnets" {
   type        = list(string)
-  description = "List of vnet address_spaces"
-  default = [
-    "10.0.0.0/16"
-  ]
+  description = "List of the private subnets for the VPC"
+  default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
 }
 
-variable "subnet_address_prefixes" {
-  type        = list(string)
-  description = "List of the apps subnet address prefixes (must be distinct from the postgress subnet)"
-  default = [
-    "10.0.2.0/24"
-  ]
-}
-
-variable "canary_subnet_address_prefixes" {
-  type        = list(string)
-  description = "List of the apps subnet address prefixes (must be distinct from the postgress subnet)"
-  default = [
-    "10.0.0.0/24"
-  ]
-}
-
-variable "bastion_address_prefixes" {
-  type        = list(string)
-  description = "Prefixes for the bastion instance (must be distinct from other subnets)"
-  default = [
-    "10.0.6.0/24"
-  ]
-}
-
-variable "app_sku" {
+# TODO: determine reasonable max concurrency for a civiform server
+variable "auto_scaling_config" {
   type        = map(string)
-  description = "SKU tier/size/capacity information"
+  description = "Autoscaling config for AppRunner"
   default = {
-    tier     = "Standard",
-    size     = "S2",
-    capacity = "2"
+    max_concurrency = "100",
+    max_size        = "10",
+    min_size        = "1"
   }
 }
 
-variable "postgres_sku_name" {
+variable "postgress_name" {
   type        = string
-  description = "The sku name for postgres server"
-  default     = "GP_Gen5_2"
+  description = "Name for Postress DB"
+  default     = "civiform"
 }
 
-variable "postgres_storage_mb" {
+variable "postgres_instance_class" {
+  type        = string
+  description = "The instance class for postgres server"
+  default     = "db.t3.micro"
+}
+
+variable "postgres_storage_gb" {
   type        = number
-  description = "The mb of storage for postgres instance"
-  default     = 5120
+  description = "The gb of storage for postgres instance"
+  default     = 5
 }
 
 variable "postgres_backup_retention_days" {
   type        = number
   description = "Number of days to retain postgres backup"
   default     = 7
-}
-
-variable "postgres_subnet_address_prefixes" {
-  type        = list(string)
-  description = "A list of the subnet address prefixes for postgres (must be distinct from the app's subnet addresses)"
-  default = [
-    "10.0.4.0/24"
-  ]
-}
-
-variable "log_sku" {
-  type        = string
-  description = "The SKU for the sever logs"
-  default     = "PerGB2018"
-}
-
-variable "log_retention" {
-  type        = number
-  description = "The number of days the logs will be retained for"
-  default     = 30
-}
-
-variable "ses_sender_email" {
-  type        = string
-  description = "Email address of who is sending the email, passed to the app"
-  default     = "azizoval@google.com"
-}
-
-variable "adfs_admin_group" {
-  type        = string
-  description = "Active Directory Federation Service group name"
-  default     = "ec42e57f-0fff-48ec-a345-908eed538668"
-}
-
-variable "ad_groups_attribute_name" {
-  type        = string
-  description = "Name of the Active Directory claim that returns groups a user is in"
-  default     = "groups"
-}
-
-variable "civiform_applicant_idp" {
-  type        = string
-  description = "identity provider to use for applicant auth. supported values are idcs and login-radius"
-  default     = "login-radius"
-}
-
-variable "login_radius_api_key" {
-  type        = string
-  description = "Login Radius API Key"
-  default     = "CHANGE_ME"
-}
-
-variable "login_radius_metadata_uri" {
-  type        = string
-  description = "LoginRadius endpoint for fetching IdP metadata"
-  default     = "https://civiform-staging.hub.loginradius.com/service/saml/idp/metadata"
-}
-
-variable "login_radius_saml_app_name" {
-  type        = string
-  description = "The App Name for the LoginRadius SAML integration"
-  default     = "civiform-saml"
-}
-
-variable "saml_keystore_filename" {
-  description = "Name of Java Keystore file stored in Azure blob storage"
-  default     = null
-}
-
-variable "saml_keystore_password" {
-  description = "Password for Java Keystore file"
-  default     = null
-}
-
-variable "saml_private_key_password" {
-  description = "Password for Java Keystore private key"
-  default     = null
-}
-
-variable "saml_keystore_storage_account_name" {
-  description = "Name of storage account where Java Keystore is stored"
-  default     = null
-}
-
-variable "saml_keystore_storage_container_name" {
-  description = "Name of storage container where Java Keystore is stored"
-  default     = null
-}
-
-variable "saml_keystore_storage_access_key" {
-  description = "Key needed to access keystore file"
-  default     = null
 }
 
 variable "staging_program_admin_notification_mailing_list" {
@@ -238,4 +133,10 @@ variable "log_storage_bucket" {
   type        = string
   description = "Name for S3 bucket to store logs"
   default     = "civiform-aws-staging-log-bucket"
+}
+
+variable "ses_sender_email" {
+  type        = string
+  description = "Email address that emails will be sent from"
+  default     = "azizoval@google.com"
 }

@@ -1,7 +1,6 @@
 import os
 
 from variable_definition_loader import VariableDefinitionLoader
-
 """
 Config Loader
   Handles validating and getting data from the configuration/variable files
@@ -11,21 +10,23 @@ Config Loader
   
   Provides getters to return values from the config. 
 """
+
+
 class ConfigLoader:
 
     @property
     def tfvars_filename(self):
         return os.environ['TF_VAR_FILENAME']
-    
+
     @property
     def backend_vars_filename(self):
         return os.environ['BACKEND_VARS_FILENAME']
-    
+
     def load_config(self):
         self._load_config()
         return self.validate_config()
-        
-    def _load_config(self): 
+
+    def _load_config(self):
         # get the shared variable definitions
         variable_def_loader = VariableDefinitionLoader()
         cwd = os.getcwd()
@@ -33,24 +34,25 @@ class ConfigLoader:
         variable_def_loader.load_definition_file(definition_file_path)
         shared_definitions = variable_def_loader.get_variable_definitions()
         self.configs = self.get_env_variables(shared_definitions)
-        
+
         template_definitions_file_path = f'{self.get_template_dir()}/variable_definitions.json'
-        variable_def_loader.load_definition_file(template_definitions_file_path) 
-        self.variable_definitions = variable_def_loader.get_variable_definitions()
+        variable_def_loader.load_definition_file(template_definitions_file_path)
+        self.variable_definitions = variable_def_loader.get_variable_definitions(
+        )
         self.configs = self.get_env_variables(self.variable_definitions)
-        
+
     def get_shared_variable_definitions(self):
         variable_def_loader = VariableDefinitionLoader()
         variable_def_loader.load_repo_variable_definitions_files()
         return variable_def_loader.get_variable_definitions()
-    
+
     def get_env_variables(self, variable_definitions: dict):
         configs: dict = {}
         for name in variable_definitions.keys():
             configs[name] = os.environ.get(name, None)
         return configs
-     
-    # TODO: we do not validate type of the variable as we only have 
+
+    # TODO: we do not validate type of the variable as we only have
     # strings currently. If we add non-strings, will need to validate
     def _validate_config(self, variable_definitions: dict, configs: dict):
         is_valid = True
@@ -62,7 +64,8 @@ class ConfigLoader:
 
             if is_required and config_value is None:
                 is_valid = False
-                validation_errors.append(f"{name} is required, but not provided")
+                validation_errors.append(
+                    f"{name} is required, but not provided")
 
             is_enum = definition.get("type") == "enum"
 
@@ -70,15 +73,14 @@ class ConfigLoader:
                 if config_value not in definition.get("values"):
                     is_valid = False
                     validation_errors.append(
-                        f"{config_value} not supported enum for {name}"
-                    )
+                        f"{config_value} not supported enum for {name}")
 
         return is_valid, validation_errors
 
     def validate_config(self):
         return self._validate_config(self.variable_definitions, self.configs)
 
-    def get_config_var(self, variable_name): 
+    def get_config_var(self, variable_name):
         return self.configs.get(variable_name)
 
     def get_cloud_provider(self):
@@ -86,24 +88,24 @@ class ConfigLoader:
 
     def get_template_dir(self):
         return self.configs.get("TERRAFORM_TEMPLATE_DIR")
-    
+
     def is_dev(self):
         civiform_mode = self.configs.get("CIVIFORM_MODE")
         return civiform_mode == "dev"
-    
+
     def use_backend_config(self):
         return not self.is_dev()
-    
+
     def get_config_variables(self):
         return self.configs
 
-    def _get_terraform_variables(self, variable_definitions: dict, configs: dict):
+    def _get_terraform_variables(
+            self, variable_definitions: dict, configs: dict):
         tf_variables = list(
             filter(
                 lambda x: variable_definitions.get(x).get("tfvar"),
                 self.variable_definitions,
-            )
-        )
+            ))
         tf_config_vars = {}
         for key, value in configs.items():
             if key in tf_variables:
@@ -111,4 +113,5 @@ class ConfigLoader:
         return tf_config_vars
 
     def get_terraform_variables(self):
-        return self._get_terraform_variables(self.variable_definitions, self.configs)
+        return self._get_terraform_variables(
+            self.variable_definitions, self.configs)

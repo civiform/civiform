@@ -173,6 +173,16 @@ public class QuestionRepository {
         .collect(ImmutableList.toImmutableList());
   }
 
+  public ImmutableSet<String> getQuestionNames() {
+    return database.sqlQuery("SELECT DISTINCT name FROM questions").findList().stream()
+        .map((row) -> row.getString("name"))
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  public boolean questionExists(String questionName) {
+    return database.find(Question.class).where().eq("name", questionName).exists();
+  }
+
   private static class ConflictDetector {
     private Optional<Question> conflictedQuestion = Optional.empty();
     private final Optional<Long> enumeratorId;
