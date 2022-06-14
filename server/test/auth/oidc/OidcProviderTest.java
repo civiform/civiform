@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import javax.inject.Provider;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import junitparams.naming.TestCaseName;
@@ -23,14 +22,15 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import play.api.test.Helpers;
 import repository.ResetPostgres;
 import repository.UserRepository;
+import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
 public class OidcProviderTest extends ResetPostgres {
   private OidcProvider oidcProvider;
   private ProfileFactory profileFactory;
   private static UserRepository userRepository;
-  private static String discoveryUri = "http://oidc:3380/.well-known/openid-configuration";
-  private static String baseUrl = String.format("http://localhost:%d", Helpers.testServerPort());
+  private static String DISCOVERY_URI = "http://oidc:3380/.well-known/openid-configuration";
+  private static String BASE_URL = String.format("http://localhost:%d", Helpers.testServerPort());
 
   @Before
   public void setup() {
@@ -44,26 +44,14 @@ public class OidcProviderTest extends ResetPostgres {
                 "idcs.secret",
                 "bar",
                 "idcs.discovery_uri",
-                discoveryUri,
+                DISCOVERY_URI,
                 "base_url",
-                baseUrl));
+                BASE_URL));
 
     // Just need some complete adaptor to access methods.
-    try {
-      oidcProvider =
-          new IdcsProvider(
-              config,
-              profileFactory,
-              new Provider<UserRepository>() {
-                @Override
-                public UserRepository get() {
-                  return userRepository;
-                }
-              });
-    } catch (RuntimeException e) {
-      fail(e);
-      return;
-    }
+    oidcProvider =
+        new IdcsProvider(
+            config, profileFactory, CfTestHelpers.userRepositoryProvider(userRepository));
   }
 
   @Test
@@ -86,21 +74,28 @@ public class OidcProviderTest extends ResetPostgres {
               "idcs.secret",
               "bar",
               "idcs.discovery_uri",
-              discoveryUri,
+              DISCOVERY_URI,
               "base_url",
-              baseUrl)
+              BASE_URL)
         },
         new Object[] {
           "extra args that aren't used",
           "id_token",
           ImmutableMap.of(
-              "idcs.client_id", "foo",
-              "idcs.secret", "bar",
-              "idcs.provider_name", "Provider Name here",
-              "idcs.response_mode", "Try to override",
-              "idcs.additional_scopes", "No more scopes",
-              "idcs.discovery_uri", discoveryUri,
-              "base_url", baseUrl)
+              "idcs.client_id",
+              "foo",
+              "idcs.secret",
+              "bar",
+              "idcs.provider_name",
+              "Provider Name here",
+              "idcs.response_mode",
+              "Try to override",
+              "idcs.additional_scopes",
+              "No more scopes",
+              "idcs.discovery_uri",
+              DISCOVERY_URI,
+              "base_url",
+              BASE_URL)
         });
   }
 
@@ -114,14 +109,8 @@ public class OidcProviderTest extends ResetPostgres {
     try {
       oidcProvider =
           new IdcsProvider(
-              config,
-              profileFactory,
-              new Provider<UserRepository>() {
-                @Override
-                public UserRepository get() {
-                  return userRepository;
-                }
-              });
+              config, profileFactory, CfTestHelpers.userRepositoryProvider(userRepository));
+
     } catch (RuntimeException e) {
       fail(e);
       return;
@@ -155,9 +144,9 @@ public class OidcProviderTest extends ResetPostgres {
               "idcs.secret",
               "bar",
               "idcs.discovery_uri",
-              discoveryUri,
+              DISCOVERY_URI,
               "base_url",
-              baseUrl)
+              BASE_URL)
         },
         new Object[] {
           "blank secret",
@@ -167,31 +156,31 @@ public class OidcProviderTest extends ResetPostgres {
               "idcs.secret",
               "",
               "idcs.discovery_uri",
-              discoveryUri,
+              DISCOVERY_URI,
               "base_url",
-              baseUrl)
+              BASE_URL)
         },
         new Object[] {
           "missing secret",
           ImmutableMap.of(
-              "idcs.client_id", "foo",
-              "idcs.discovery_uri", discoveryUri,
-              "base_url", baseUrl)
+              "idcs.client_id", "foo", "idcs.discovery_uri", DISCOVERY_URI, "base_url", BASE_URL)
         },
         new Object[] {
           "missing base_url",
           ImmutableMap.of(
-              "idcs.client_id", "foo",
-              "idcs.secret", "bar",
-              "idcs.discovery_uri", discoveryUri)
+              "idcs.client_id", "foo", "idcs.secret", "bar", "idcs.discovery_uri", DISCOVERY_URI)
         },
         new Object[] {
           "blank discovery uri",
           ImmutableMap.of(
-              "idcs.client_id", "foo",
-              "idcs.secret", "bar",
-              "idcs.discovery_uri", "",
-              "base_url", baseUrl)
+              "idcs.client_id",
+              "foo",
+              "idcs.secret",
+              "bar",
+              "idcs.discovery_uri",
+              "",
+              "base_url",
+              BASE_URL)
         });
   }
 
@@ -206,12 +195,7 @@ public class OidcProviderTest extends ResetPostgres {
           new IdcsProvider(
               bad_secret_config,
               profileFactory,
-              new Provider<UserRepository>() {
-                @Override
-                public UserRepository get() {
-                  return userRepository;
-                }
-              });
+              CfTestHelpers.userRepositoryProvider(userRepository));
       badOidcProvider.get();
       fail("Initilizing without correct config should cause runtimeException");
     } catch (RuntimeException e) {

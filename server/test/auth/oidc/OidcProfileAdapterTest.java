@@ -6,14 +6,16 @@ import auth.ProfileFactory;
 import auth.oidc.applicant.IdcsProfileAdapter;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
-import javax.inject.Provider;
 import models.Account;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
+import org.pac4j.oidc.client.OidcClient;
+import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import repository.ResetPostgres;
 import repository.UserRepository;
+import support.CfTestHelpers;
 
 public class OidcProfileAdapterTest extends ResetPostgres {
   private static final String EMAIL = "foo@bar.com";
@@ -23,23 +25,21 @@ public class OidcProfileAdapterTest extends ResetPostgres {
 
   private OidcProfileAdapter oidcProfileAdapter;
   private ProfileFactory profileFactory;
+  private static UserRepository userRepository;
 
   @Before
   public void setup() {
-    UserRepository repository = instanceOf(UserRepository.class);
+    userRepository = instanceOf(UserRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
+    OidcClient client = CfTestHelpers.getOidcClient("oidc", 3380);
+    OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("oidc", 3380);
+    // Just need some complete adaptor to access methods.
     oidcProfileAdapter =
-        // Just need some complete adaptor to access methods.
         new IdcsProfileAdapter(
-            /* configuration= */ null,
-            /* client= */ null,
+            client_config,
+            client,
             profileFactory,
-            new Provider<UserRepository>() {
-              @Override
-              public UserRepository get() {
-                return repository;
-              }
-            });
+            CfTestHelpers.userRepositoryProvider(userRepository));
   }
 
   @Test
