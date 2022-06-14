@@ -24,6 +24,7 @@ import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
 import play.libs.concurrent.HttpExecutionContext;
+import repository.ApplicationFilter;
 import repository.ApplicationRepository;
 import repository.UserRepository;
 import services.Path;
@@ -354,8 +355,8 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
-  public ImmutableList<Application> getAllApplications() {
-    return applicationRepository.getAllApplications();
+  public ImmutableList<Application> getApplications(Optional<ApplicationFilter> filter) {
+    return applicationRepository.getApplications(filter);
   }
 
   /**

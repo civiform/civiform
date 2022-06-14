@@ -6,6 +6,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.ExpressionList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -17,6 +18,7 @@ import models.LifecycleStage;
 import models.Program;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import repository.ApplicationFilter.TimeFilter;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.program.ProgramNotFoundException;
 
@@ -139,9 +141,23 @@ public class ApplicationRepository {
             });
   }
 
-  public ImmutableList<Application> getAllApplications() {
-    return ImmutableList.copyOf(
-        database.find(Application.class).fetch("program").fetch("applicant.account").findList());
+  public ImmutableList<Application> getApplications(Optional<ApplicationFilter> maybeFilter) {
+    ExpressionList<Application> query =
+        database.find(Application.class).fetch("program").fetch("applicant.account").where();
+    if (maybeFilter.isPresent()) {
+      ApplicationFilter filter = maybeFilter.get();
+      if (filter.submitTimeFilter().isPresent()) {
+        TimeFilter submitTimeFilter = filter.submitTimeFilter().get();
+        // Inclusive from, exclusive to.
+        if (submitTimeFilter.beforeTime().isPresent()) {
+          query = query.lt("submit_time", submitTimeFilter.beforeTime().get());
+        }
+        if (submitTimeFilter.afterTime().isPresent()) {
+          query = query.ge("submit_time", submitTimeFilter.afterTime().get());
+        }
+      }
+    }
+    return ImmutableList.copyOf(query.findList());
   }
 
   // Need to transmit both arguments to submitApplication through the CompletionStage pipeline.

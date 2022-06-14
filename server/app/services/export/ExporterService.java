@@ -22,6 +22,8 @@ import javax.inject.Inject;
 import models.Application;
 import models.QuestionTag;
 import play.libs.F;
+import repository.ApplicationFilter;
+import repository.ApplicationFilter.TimeFilter;
 import services.IdentifierBasedPaginationSpec;
 import services.Path;
 import services.applicant.AnswerData;
@@ -318,9 +320,19 @@ public final class ExporterService {
    * A string containing the CSV which maps applicants (opaquely) to the programs they applied to.
    */
   public String getDemographicsCsv() {
+    // TODO(#1743): Plumb filter information through here.
     return exportCsv(
         exporterFactory.csvExporter(getDemographicsExporterConfig()),
-        applicantService.getAllApplications());
+        applicantService.getApplications(
+            Optional.of(
+                ApplicationFilter.builder()
+                    .setSubmitTimeFilter(
+                        Optional.of(
+                            TimeFilter.builder()
+                                .setAfterTime(Optional.empty())
+                                .setBeforeTime(Optional.empty())
+                                .build()))
+                    .build())));
   }
 
   private CsvExportConfig getDemographicsExporterConfig() {
