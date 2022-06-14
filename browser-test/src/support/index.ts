@@ -157,6 +157,11 @@ export const dropTables = async (page: Page) => {
   await page.click('#clear')
 }
 
+export const seedCanonicalQuestions = async (page: Page) => {
+  await page.goto(BASE_URL + '/dev/seed')
+  await page.click('#canonical-questions')
+}
+
 export const closeWarningMessage = async (page: Page) => {
   // The warning message may be in the way of this link
   var element = await page.$('#warning-message-dismiss')
