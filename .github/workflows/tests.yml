@@ -32,6 +32,7 @@ jobs:
       uses: cicirello/jacoco-badge-generator@v2
       with:
         jacoco-csv-file: server/code-coverage/report/jacoco.csv
+        generate-branches-badge: true
 
   run_browser_tests_aws:
     strategy:
