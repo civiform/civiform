@@ -1,9 +1,14 @@
-import play.sbt.PlayImport.PlayKeys.playRunHooks
 import sbt.internal.io.{Source, WatchState}
+import play.sbt.PlayImport.PlayKeys.playRunHooks
+import com.typesafe.sbt.web.SbtWeb
+import com.typesafe.sbt.web.Import.pipelineStages
+import com.typesafe.sbt.web.Import._
+import com.typesafe.sbt.gzip.Import.gzip
+import com.typesafe.sbt.digest.Import.digest
 import com.github.sbt.jacoco.JacocoPlugin.autoImport._
 
 lazy val root = (project in file("."))
-  .enablePlugins(PlayJava, PlayEbean)
+  .enablePlugins(PlayJava, PlayEbean, SbtWeb)
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
@@ -113,6 +118,9 @@ lazy val root = (project in file("."))
     // After 2 transitive steps, do more aggressive invalidation
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
+    pipelineStages := Seq(digest, gzip), // plugins to use for assets
+    // Uncomment to test the sbt-web asset pipeline locally.
+    // Assets / pipelineStages  := Seq(digest, gzip), // Test the sbt-web pipeline locally.
 
     // Make verbose tests
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")),
