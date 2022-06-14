@@ -1,0 +1,16 @@
+name: ci
+
+on:
+  push:
+    branches: main
+
+  # Setting this enables manually triggering workflow in the GitHub UI
+  # see https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
+  workflow_dispatch: {}
+
+permissions: read-all
+
+jobs:
+  run_all_tests:
+    uses: ./.github/workflows/tests.yaml
+    secrets: inherit

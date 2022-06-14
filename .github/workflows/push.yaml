@@ -70,7 +70,3 @@ jobs:
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-and-push
-
-  run_all_tests:
-    uses: ./.github/workflows/tests.yml
-    secrets: inherit
