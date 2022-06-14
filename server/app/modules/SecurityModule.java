@@ -195,7 +195,7 @@ public class SecurityModule extends AbstractModule {
                 // Display the string "403 forbidden" to forbidden requests.
                 // Helpful for test assertions.
                 HttpConstants.FORBIDDEN,
-                forbidden("403 forbidden").as(HttpConstants.HTML_CONTENT_TYPE)));
+                redirect(routes.HomeController.loginForm(Optional.of("login")))));
 
     return actionAdapter;
   }
