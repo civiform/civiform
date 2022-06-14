@@ -4,11 +4,9 @@ import os
 import subprocess
 import sys
 
-
 from config_loader import ConfigLoader
 from write_tfvars import TfVarWriter
 from setup_class_loader import load_class
-
 """
 Destroy.py destroys the setup
 """
@@ -29,7 +27,9 @@ config_loader = ConfigLoader()
 is_valid, validation_errors = config_loader.load_config()
 if not is_valid:
     new_line = '\n\t'
-    exit(f"Found the following validation errors: {new_line}{f'{new_line}'.join(validation_errors)}")
+    exit(
+        f"Found the following validation errors: {new_line}{f'{new_line}'.join(validation_errors)}"
+    )
 
 ###############################################################################
 # Load Setup Class for the specific template directory
@@ -48,19 +48,17 @@ terraform_init_args = [
     "-upgrade",
 ]
 if config_loader.use_backend_config():
-    terraform_init_args.append(f"-backend-config={config_loader.backend_vars_filename}")
+    terraform_init_args.append(
+        f"-backend-config={config_loader.backend_vars_filename}")
 
 print(" - Run terraform init")
 subprocess.check_call(terraform_init_args)
 
 terraform_destroy_args = [
-    "terraform",
-    f"-chdir={template_dir}",
-    "destroy",
-    "-input=false"
+    "terraform", f"-chdir={template_dir}", "destroy", "-input=false"
 ]
 
 if config_loader.is_prober():
     terraform_destroy_args.append("-auto-approve")
-    
+
 subprocess.check_call(terraform_destroy_args)

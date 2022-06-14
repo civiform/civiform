@@ -91,16 +91,13 @@ try:
     subprocess.check_call(terraform_init_args)
 
     terraform_apply_args = [
-        "terraform",
-        f"-chdir={template_dir}",
-        "apply",
-        "-input=false",
+        "terraform", f"-chdir={template_dir}", "apply", "-input=false",
         f"-var-file={config_loader.tfvars_filename}"
     ]
-    
+
     if config_loader.is_prober():
         terraform_apply_args.append("-auto-approve")
-    
+
     print(" - Run terraform apply")
     subprocess.check_call(terraform_apply_args)
 
