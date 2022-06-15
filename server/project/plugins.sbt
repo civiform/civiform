@@ -17,4 +17,4 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-gzip" % "1.0.2")
 addSbtPlugin("com.github.sbt" % "sbt-jacoco" % "3.4.0")
 
 // Code indexing plugin
-addSbtPlugin("com.sourcegraph" % "sbt-sourcegraph" % "0.2.1")
+addSbtPlugin("com.sourcegraph" % "sbt-sourcegraph" % "0.4.0")
