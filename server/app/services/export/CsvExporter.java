@@ -22,7 +22,7 @@ import services.program.Column;
  * {@link Path} indexing into an applicant's data, and CsvExporter takes the path and reads the
  * answer from {@link ReadOnlyApplicantProgramService} if present.
  */
-public class CsvExporter {
+public final class CsvExporter {
   private final String EMPTY_VALUE = "";
 
   private ImmutableList<Column> columns;
@@ -38,10 +38,6 @@ public class CsvExporter {
   public CsvExporter(ImmutableList<Column> columns, String secret) {
     this(columns);
     this.secret = Optional.of(secret);
-  }
-
-  protected ImmutableList<Column> getColumns() {
-    return columns;
   }
 
   public void start(Writer writer) throws IOException {
@@ -74,7 +70,7 @@ public class CsvExporter {
         roApplicantService.getSummaryData().stream()
             .flatMap(data -> data.scalarAnswersInDefaultLocale().entrySet().stream())
             .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
-    for (Column column : getColumns()) {
+    for (Column column : columns) {
       switch (column.columnType()) {
         case APPLICANT_ANSWER:
           printer.print(getValueFromAnswerMap(column, answerMap));
