@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-import shutil
 import subprocess
 import tempfile
 
@@ -99,13 +98,7 @@ class Setup(SetupTemplate):
             check=True)
         self.resource_group = resource_group
         self.resource_group_location = resource_group_location
-
-    def _make_backend_override(self):
-        current_directory = self.config.get_template_dir()
-        shutil.copy2(
-            f'{current_directory}/backend_override',
-            f'{current_directory}/backend_override.tf')
-
+        
     def _setup_shared_state(self):
         if not self.resource_group:
             raise RuntimeError("Resource group required")

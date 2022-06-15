@@ -12,6 +12,8 @@ Destroy the setup
 class Destroy(SetupTemplate):
 
     def pre_terraform_destroy(self):
+        if not self.config.use_backend_config():
+            self._make_backend_override()
         print(" - Deleting AWS Access Key")
         self._delete_aws_access_key()
 
