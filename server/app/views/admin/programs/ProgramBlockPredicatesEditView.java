@@ -334,7 +334,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                                   "data-",
                                   type.name()
                                       .toLowerCase())); // TODO probably a bug since a value needs
-                                                        // to be passed?
+                  // to be passed?
                   return option;
                 })
             .collect(toImmutableList());
