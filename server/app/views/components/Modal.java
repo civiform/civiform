@@ -5,6 +5,7 @@ import static views.BaseHtmlView.button;
 
 import j2html.tags.Tag;
 import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -31,7 +32,7 @@ public class Modal {
     this.width = builder.width;
   }
 
-  public Tag<?> getContainerTag() {
+  public DivTag getContainerTag() {
     return div()
         .withId(modalId)
         .withClasses(ReferenceClasses.MODAL, BaseStyles.MODAL, width.getStyle())
@@ -48,11 +49,11 @@ public class Modal {
     }
   }
 
-  private Tag<?> getContent() {
+  private DivTag getContent() {
     return div(content).withClasses(BaseStyles.MODAL_CONTENT);
   }
 
-  private Tag<?> getModalHeader() {
+  private DivTag getModalHeader() {
     return div()
         .withClasses(BaseStyles.MODAL_HEADER)
         .with(div(modalTitle).withClasses(Styles.TEXT_LG))
