@@ -98,8 +98,8 @@ lazy val root = (project in file("."))
       "com.linkedin.urls" % "url-detector" % "0.1.17",
 
       // Sourcegraph indexer.
-      "com.sourcegraph" %% "scip-java" % "0.8.1"
-
+      "com.sourcegraph" %% "scip-java" % "0.8.1",
+      "org.scalameta" %% "semanticdb" % "4.5.9"
     ),
     javacOptions ++= Seq(
       "-encoding",
@@ -210,3 +210,4 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 // Enable indexing.
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := "4.4.7"
+ThisBuild / scalacOptions += "-Yrangepos"

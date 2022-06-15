@@ -18,3 +18,4 @@ addSbtPlugin("com.github.sbt" % "sbt-jacoco" % "3.4.0")
 
 // Code indexing plugin
 addSbtPlugin("com.sourcegraph" % "sbt-sourcegraph" % "0.4.0")
+addCompilerPlugin("org.scalameta" % "semanticdb-scalac" % "4.5.9")
