@@ -36,6 +36,7 @@ jobs:
 
   run_browser_tests_aws:
     strategy:
+      fail-fast: false
       matrix:
         batch_number: [1, 2, 3, 4]
     runs-on: ubuntu-latest
@@ -64,6 +65,7 @@ jobs:
 
   run_browser_tests_azure:
     strategy:
+      fail-fast: false
       matrix:
         batch_number: [1, 2, 3, 4]
     runs-on: ubuntu-latest
