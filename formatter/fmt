@@ -9,7 +9,9 @@ cd /code
 # Gets the list of file paths for files that are tracked by git and have
 # changes relative to the main branch.
 function get_tracked_modified_files() {
-  git diff --name-only origin/main
+  # Exclude deleted files:
+  # https://git-scm.com/docs/git-diff#Documentation/git-diff.txt---diff-filterACDMRTUXB82308203
+  git diff --diff-filter=d --name-only origin/main
 }
 
 # Gets the list of file paths for files that are not tracked by git and are
@@ -45,3 +47,10 @@ echo 'Start format shell'
 shfmt -bn -ci -i 2 -w -l \
   $(shfmt -f . | grep -v -e /node_modules)
 echo 'Done formatting shell'
+
+echo 'Start format python'
+yapf -i -r -p -vv \
+  --no-local-style \
+  --style='{based_on_style: google, SPLIT_BEFORE_FIRST_ARGUMENT:true}' \
+  {cloud,bin}
+echo 'Done formatting python'

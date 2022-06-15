@@ -43,7 +43,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   private ImmutableList<Block> allBlockList;
   private ImmutableList<Block> currentBlockList;
 
-  protected ReadOnlyApplicantProgramServiceImpl(
+  public ReadOnlyApplicantProgramServiceImpl(
       ApplicantData applicantData, ProgramDefinition programDefinition, String baseUrl) {
     this(applicantData, programDefinition, baseUrl, ImmutableMap.of());
   }
@@ -69,6 +69,19 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public String getProgramTitle() {
     return programDefinition.localizedName().getOrDefault(applicantData.preferredLocale());
+  }
+
+  @Override
+  public ImmutableList<String> getStoredFileKeys() {
+    return getAllActiveBlocks().stream()
+        .filter(Block::isFileUpload)
+        .flatMap(block -> block.getQuestions().stream())
+        .filter(ApplicantQuestion::isAnswered)
+        .filter(ApplicantQuestion::isFileUploadQuestion)
+        .map(ApplicantQuestion::createFileUploadQuestion)
+        .map(FileUploadQuestion::getFileKeyValue)
+        .flatMap(Optional::stream)
+        .collect(ImmutableList.toImmutableList());
   }
 
   @Override
@@ -173,7 +186,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
         Optional<String> originalFileName = Optional.empty();
         Optional<String> fileKey = Optional.empty();
-        if (isAnswered && question.getType().equals(QuestionType.FILEUPLOAD)) {
+        if (isAnswered && question.isFileUploadQuestion()) {
           FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
           originalFileName = fileUploadQuestion.getOriginalFileName();
           fileKey = fileUploadQuestion.getFileKeyValue();

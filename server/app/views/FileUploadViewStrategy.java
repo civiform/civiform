@@ -86,7 +86,9 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
                     params.inReview())
                 .url();
 
-    String key = FileNameFormatter.formatFileUploadQuestionFilename(params);
+    String key =
+        FileNameFormatter.formatFileUploadQuestionFilename(
+            params.applicantId(), params.programId(), params.block().getId());
     StorageUploadRequest signedRequest =
         params.storageClient().getSignedUploadRequest(key, onSuccessRedirectUrl);
 

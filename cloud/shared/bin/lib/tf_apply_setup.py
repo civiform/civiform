@@ -2,7 +2,6 @@
 
 from config_loader import ConfigLoader
 from write_tfvars import TfVarWriter
-
 """
 This script generates a .tfvars file that is used to deploy via terraform.
 """
@@ -17,7 +16,9 @@ config_loader = ConfigLoader()
 is_valid, validation_errors = config_loader.load_config()
 if not is_valid:
     new_line = '\n\t'
-    exit(f"Found the following validation errors: {new_line}{f'{new_line}'.join(validation_errors)}")
+    exit(
+        f"Found the following validation errors: {new_line}{f'{new_line}'.join(validation_errors)}"
+    )
 
 template_dir = config_loader.get_template_dir()
 
