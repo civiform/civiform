@@ -52,7 +52,7 @@ public class IdcsProvider extends OidcProvider {
         .orElseThrow(
             () ->
                 new RuntimeException(
-                ATTRIBUTE_PREFIX + "." + CLIENT_ID_CONFIG_NAME + " must be set"));
+                    ATTRIBUTE_PREFIX + "." + CLIENT_ID_CONFIG_NAME + " must be set"));
   }
 
   @Override
@@ -61,7 +61,7 @@ public class IdcsProvider extends OidcProvider {
         .orElseThrow(
             () ->
                 new RuntimeException(
-                ATTRIBUTE_PREFIX + "." + CLIENT_SECRET_CONFIG_NAME + " must be set"));
+                    ATTRIBUTE_PREFIX + "." + CLIENT_SECRET_CONFIG_NAME + " must be set"));
   }
 
   @Override
@@ -70,7 +70,7 @@ public class IdcsProvider extends OidcProvider {
         .orElseThrow(
             () ->
                 new RuntimeException(
-                ATTRIBUTE_PREFIX + "." + DISCOVERY_URI_CONFIG_NAME + " must be set"));
+                    ATTRIBUTE_PREFIX + "." + DISCOVERY_URI_CONFIG_NAME + " must be set"));
   }
 
   @Override

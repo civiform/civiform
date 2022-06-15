@@ -134,9 +134,11 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     String responseType = getResponseType();
     String callbackURL = getCallbackURL();
     String scope = getScope();
-    var missing = ImmutableList.of(
-            clientID, clientSecret, discoveryURI, responseMode, responseType, callbackURL)
-      .stream().map(Strings::nullToEmpty);
+    var missing =
+        ImmutableList.of(
+                clientID, clientSecret, discoveryURI, responseMode, responseType, callbackURL)
+            .stream()
+            .map(Strings::nullToEmpty);
     // Check that none are null or blank.
     if (missing.anyMatch(String::isBlank)) {
       logger.error(

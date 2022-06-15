@@ -110,11 +110,13 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
           .thenApplyAsync(
               applicant -> {
                 maybeLocale.ifPresent(
-                  locale->applicant.getApplicantData().setPreferredLocale(Locale.forLanguageTag(locale)))
-                }
-                maybeName.ifPresent(
-                  name->applicant.getApplicantData().setUserName(name))
-                }
+                    locale ->
+                        applicant
+                            .getApplicantData()
+                            .setPreferredLocale(Locale.forLanguageTag(locale)));
+
+                maybeName.ifPresent(name -> applicant.getApplicantData().setUserName(name));
+
                 applicant.save();
                 return null;
               })
