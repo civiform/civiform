@@ -59,7 +59,7 @@ public class FieldWithLabel {
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
   private ImmutableSet.Builder<String> attributesSetBuilder = ImmutableSet.builder();
 
-  private class FieldErrorsInfo {
+  private static class FieldErrorsInfo {
     public String fieldErrorsId;
     public boolean hasFieldErrors;
 
@@ -273,11 +273,6 @@ public class FieldWithLabel {
     return inputFieldTag;
   }
 
-  private DivTag getNonNumberCheckboxInputTag() throws RuntimeException {
-    InputTag inputFieldTag = nonNumberGenTagApplyAttrs();
-    return applyAttrsAndGenLabel(inputFieldTag);
-  }
-
   public LabelTag getCheckboxTag() {
     InputTag inputFieldTag = nonNumberGenTagApplyAttrs();
     return checkboxApplyAttrsAndGenLabel(inputFieldTag);
@@ -435,7 +430,7 @@ public class FieldWithLabel {
     boolean hasFieldErrors = hasFieldErrors();
 
     FieldErrorsInfo fieldErrorsInfo = new FieldErrorsInfo(fieldErrorsId, hasFieldErrors);
-    if (hasFieldErrors) {
+    if (fieldErrorsInfo.hasFieldErrors) {
       fieldTag.attr("aria-invalid", "true");
       fieldTag.attr("aria-describedBy", fieldErrorsId);
     }
