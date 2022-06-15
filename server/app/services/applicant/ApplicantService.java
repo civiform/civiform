@@ -116,7 +116,7 @@ public interface ApplicantService {
   public abstract static class ApplicantProgramData {
     public abstract ProgramDefinition program();
 
-    public abstract Optional<Instant> latestApplicationSubmitTime();
+    public abstract Optional<Instant> latestSubmittedApplicationTime();
 
     static ApplicantProgramData create(
         ProgramDefinition program, Optional<Instant> latestSubmittedApplicationTime) {
