@@ -14,6 +14,7 @@ import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.ContainerTag;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -133,7 +134,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         params.request(), params.applicantName(), params.messages(), bundle);
   }
 
-  private DivTag renderQuestionSummary(
+  private ContainerTag renderQuestionSummary(
       AnswerData data,
       Messages messages,
       long applicantId,
@@ -154,11 +155,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       questionContent.with(timestampContent);
     }
 
-    final DivTag answerContent;
+    final ContainerTag answerContent;
     if (data.fileKey().isPresent()) {
       String encodedFileKey = URLEncoder.encode(data.fileKey().get(), StandardCharsets.UTF_8);
       String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
-      answerContent = div().with(a().withHref(fileLink).withClasses(Styles.W_2_3));
+      answerContent = a().withHref(fileLink).withClasses(Styles.W_2_3);
     } else {
       answerContent = div();
     }
