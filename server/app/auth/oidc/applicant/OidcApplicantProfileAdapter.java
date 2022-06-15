@@ -49,9 +49,9 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
   protected Optional<String> getName(OidcProfile oidcProfile) {
     String name =
         nameAttributeNames.stream()
-            .filter(String::isBlank)
+            .filter(s -> !s.isBlank())
             .map((String attrName) -> oidcProfile.getAttribute(attrName, String.class))
-            .filter(Strings::isNullOrEmpty)
+            .filter(s -> !Strings.isNullOrEmpty(s))
             .collect(Collectors.joining(" "));
 
     return Optional.ofNullable(Strings.emptyToNull(name));
