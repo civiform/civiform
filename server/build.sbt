@@ -1,8 +1,14 @@
-import play.sbt.PlayImport.PlayKeys.playRunHooks
 import sbt.internal.io.{Source, WatchState}
+import play.sbt.PlayImport.PlayKeys.playRunHooks
+import com.typesafe.sbt.web.SbtWeb
+import com.typesafe.sbt.web.Import.pipelineStages
+import com.typesafe.sbt.web.Import._
+import com.typesafe.sbt.gzip.Import.gzip
+import com.typesafe.sbt.digest.Import.digest
+import com.github.sbt.jacoco.JacocoPlugin.autoImport._
 
 lazy val root = (project in file("."))
-  .enablePlugins(PlayJava, PlayEbean)
+  .enablePlugins(PlayJava, PlayEbean, SbtWeb)
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
@@ -25,7 +31,7 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.4.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.210",
+      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.211",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.5.2",
@@ -36,7 +42,7 @@ lazy val root = (project in file("."))
       "org.junit.jupiter" % "junit-jupiter-engine" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-api" % "5.8.2" % Test,
       "org.junit.jupiter" % "junit-jupiter-params" % "5.8.2" % Test,
-      "com.h2database" % "h2" % "2.1.212" % Test,
+      "com.h2database" % "h2" % "2.1.214" % Test,
 
       // Parameterized testing
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
@@ -112,6 +118,9 @@ lazy val root = (project in file("."))
     // After 2 transitive steps, do more aggressive invalidation
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
+    pipelineStages := Seq(digest, gzip), // plugins to use for assets
+    // Uncomment to test the sbt-web asset pipeline locally.
+    // Assets / pipelineStages  := Seq(digest, gzip), // Test the sbt-web pipeline locally.
 
     // Make verbose tests
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")),
@@ -144,12 +153,20 @@ lazy val root = (project in file("."))
       }
   )
   .settings(excludeTailwindGeneration: _*)
+//jacoco report setting
+jacocoReportSettings := JacocoReportSettings()
+  .withFormats(
+    JacocoReportFormats.HTML,
+    JacocoReportFormats.CSV
+  )
+
+jacocoExcludes := Seq("views*", "*Routes*")
+jacocoDirectory := baseDirectory.value / "code-coverage"
 
 // Define a transition to pull the "remote" (really local filesystem) cache on startup.
 lazy val startupTransition: State => State = { s: State =>
   "pullRemoteCache" :: s
 }
-
 
 // Ignore the tailwind.sbt generated css file when watching for recompilation.
 // Since this file is generated when build.sbt is loaded, it causes the server

@@ -41,4 +41,4 @@ for item in batch_contents:
 
 shell_command = ["./bin/run-browser-tests-ci"] + batch_contents
 
-subprocess.run(shell_command)
+subprocess.run(shell_command, check=True)

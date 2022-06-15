@@ -1,6 +1,7 @@
 /project/
 flakes
 logs/
+server/code-coverage/*
 .log/
 target/
 RUNNING_PID
@@ -20,6 +21,7 @@ tailwind.css
 *.terraform.lock.hcl
 *.tfvars
 /cloud/deploys/dev_azure/civiform_config.sh
+/cloud/deploys/dev_aws/civiform_config.sh
 *_override.tf
 !*example.auto.tfvars
 terraform.tfstate**

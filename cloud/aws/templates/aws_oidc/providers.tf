@@ -5,13 +5,7 @@ terraform {
       version = "4.18.0"
     }
   }
-  backend "s3" {
-    bucket         = "civiform-aws-staging-log-bucket"
-    key            = "tfstate/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "civiform-backend-lock-table"
-    encrypt        = true
-  }
+  backend "s3" {}
 }
 
 provider "aws" {

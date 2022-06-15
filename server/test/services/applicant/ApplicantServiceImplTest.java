@@ -18,6 +18,7 @@ import models.Application;
 import models.LifecycleStage;
 import models.Program;
 import models.Question;
+import models.StoredFile;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -36,6 +37,7 @@ import services.program.ProgramNotFoundException;
 import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
@@ -701,6 +703,73 @@ public class ApplicantServiceImplTest extends ResetPostgres {
         .isEqualTo(programDefinition.id());
     assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(application.getApplicantData().asJsonString()).contains("Alice", "Doe");
+  }
+
+  @Test
+  public void submitApplication_addsProgramToStoredFileAcls() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    var fileKey = "test-file-key";
+
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(Path.create("applicant.fileupload").join(Scalar.FILE_KEY).toString(), fileKey)
+            .build();
+
+    var fileUploadQuestion =
+        questionService
+            .create(
+                new FileUploadQuestionDefinition(
+                    "fileupload",
+                    Optional.empty(),
+                    "description",
+                    LocalizedStrings.of(Locale.US, "question?"),
+                    LocalizedStrings.of(Locale.US, "help text")))
+            .getResult();
+
+    Program firstProgram =
+        ProgramBuilder.newDraftProgram("first test program", "desc")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(fileUploadQuestion))
+            .build();
+    firstProgram.save();
+
+    Program secondProgram =
+        ProgramBuilder.newDraftProgram("second test program", "desc")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(fileUploadQuestion))
+            .build();
+    secondProgram.save();
+
+    subject
+        .stageAndUpdateIfValid(applicant.id, firstProgram.id, "1", updates)
+        .toCompletableFuture()
+        .join();
+
+    var storedFile = new StoredFile().setName(fileKey);
+    storedFile.save();
+
+    subject
+        .submitApplication(applicant.id, firstProgram.id, trustedIntermediaryProfile)
+        .toCompletableFuture()
+        .join();
+
+    storedFile.refresh();
+    assertThat(storedFile.getAcls().getProgramReadAcls())
+        .containsOnly(firstProgram.getProgramDefinition().adminName());
+
+    subject
+        .submitApplication(applicant.id, secondProgram.id, trustedIntermediaryProfile)
+        .toCompletableFuture()
+        .join();
+
+    storedFile.refresh();
+    assertThat(storedFile.getAcls().getProgramReadAcls())
+        .containsOnly(
+            firstProgram.getProgramDefinition().adminName(),
+            secondProgram.getProgramDefinition().adminName());
   }
 
   @Test
