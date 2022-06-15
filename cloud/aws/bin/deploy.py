@@ -3,6 +3,7 @@ import subprocess
 import os
 import sys
 
+# TODO(#2743): move this to deploy specific script.
 sys.path.append(os.getcwd())
 
 from cloud.shared.bin.lib import civiform_mode
@@ -18,9 +19,9 @@ if civiform_mode.is_dev():
     terraform.copy_backend_override()
 
 if not terraform.perform_apply():
-    print('Terraform deployment failed.')
-    # TODO: write and upload logs.
-    raise 1
+    sys.stderr.write('Terraform deployment failed.')
+    # TODO(#2606): write and upload logs.
+    raise ValueError('Terraform deployment failed.')
 
 if civiform_mode.is_test():
     print('Test completed')
