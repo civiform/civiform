@@ -9,6 +9,7 @@ import io.ebean.Database;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.inject.Inject;
 import models.Applicant;
@@ -43,6 +44,19 @@ public class ApplicationRepository {
   }
 
   /**
+   * Pages through all submitted applications calling the provided consumer function with each one.
+   * Program association is eager loaded.
+   */
+  public void forEachSubmittedApplication(Consumer<Application> fn) {
+    database
+        .find(Application.class)
+        .fetch("program")
+        .where()
+        .in("lifecycle_stage", ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
+        .findEach(fn);
+  }
+
+  /**
    * Submit an application, which will delete any in-progress drafts, obsolete any submitted
    * applications to a program with the same name (to include past versions of the same program),
    * and create a new application in the active state.
@@ -50,9 +64,7 @@ public class ApplicationRepository {
   public CompletionStage<Application> submitApplication(
       Applicant applicant, Program program, Optional<String> submitterEmail) {
     return supplyAsync(
-        () -> {
-          return submitApplicationInternal(applicant, program, submitterEmail);
-        },
+        () -> submitApplicationInternal(applicant, program, submitterEmail),
         executionContext.current());
   }
 
