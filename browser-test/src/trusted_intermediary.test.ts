@@ -37,7 +37,7 @@ describe('Trusted intermediaries', () => {
   it('logging in as a trusted intermediary', async () => {
     await loginAsTrustedIntermediary(page)
     expect(await page.innerText('#ti-dashboard-link')).toContain(
-      'Trusted intermediary dashboard'
+      'TRUSTED INTERMEDIARY DASHBOARD'
     )
   })
 })
