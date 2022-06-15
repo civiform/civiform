@@ -3,6 +3,7 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
@@ -11,6 +12,7 @@ import static j2html.TagCreator.p;
 import auth.CiviFormProfile;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import controllers.admin.Filters;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
@@ -66,6 +68,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setTriggerButtonText("Publish all programs")
             .build();
 
+    Modal downloadDemographicsModal = renderDownloadExportCsvModal();
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
@@ -89,24 +92,37 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     programs.getDraftProgramDefinition(name),
                                     request,
                                     profile))))
-            .with(renderDownloadExportCsvButton());
+            .with(downloadDemographicsModal.getButton());
 
     HtmlBundle htmlBundle =
         layout
             .getBundle()
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
-            .addModals(publishAllModal)
+            .addModals(publishAllModal, downloadDemographicsModal)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
     return layout.renderCentered(htmlBundle);
   }
 
-  private ContainerTag renderDownloadExportCsvButton() {
-    return new LinkElement()
-        .setId("download-export-csv-button")
-        .setHref(routes.AdminApplicationController.downloadDemographics().url())
-        .setText("Download Exported Data (CSV)")
-        .asButton();
+  private Modal renderDownloadExportCsvModal() {
+    ContainerTag downloadDemographicCsvModalContent =
+        div()
+            .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.PX_8)
+            .with(
+                form()
+                    .withMethod("GET")
+                    .withAction(routes.AdminApplicationController.downloadDemographics().url())
+                    .with(
+                        div()
+                            .with(
+                                label("Before date: "),
+                                input().withName(Filters.BEFORE_DATE_QUERY_PARAM).withType("date"),
+                                label("After date: "),
+                                input().withName(Filters.AFTER_DATE_QUERY_PARAM).withType("date")),
+                        button("Download").withType("submit")));
+    return Modal.builder("download-demographics-csv-modal", downloadDemographicCsvModalContent)
+        .setModalTitle("Download Exported Data (CSV)")
+        .build();
   }
 
   private Tag maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {

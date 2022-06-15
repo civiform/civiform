@@ -10,7 +10,11 @@ import com.google.inject.Provider;
 import com.itextpdf.text.DocumentException;
 import controllers.CiviFormController;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
@@ -21,6 +25,8 @@ import play.i18n.MessagesApi;
 import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.ApplicationFilter;
+import repository.ApplicationFilter.TimeFilter;
 import repository.ApplicationRepository;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
@@ -53,6 +59,7 @@ public class AdminApplicationController extends CiviFormController {
   private final ProfileUtils profileUtils;
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
+  private final ZoneId zoneId;
   private static final int PAGE_SIZE = 10;
 
   @Inject
@@ -67,6 +74,7 @@ public class AdminApplicationController extends CiviFormController {
       ApplicationRepository applicationRepository,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
+      ZoneId zoneId,
       @Now Provider<LocalDateTime> nowProvider) {
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
@@ -79,6 +87,7 @@ public class AdminApplicationController extends CiviFormController {
     this.jsonExporter = checkNotNull(jsonExporter);
     this.pdfExporter = checkNotNull(pdfExporter);
     this.messagesApi = checkNotNull(messagesApi);
+    this.zoneId = checkNotNull(zoneId);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -143,15 +152,35 @@ public class AdminApplicationController extends CiviFormController {
     }
   }
 
+  private Optional<Instant> parseDateFromQuery(Http.Request request, String queryParam) {
+    return request
+        .queryString(queryParam)
+        .filter(s -> !s.isBlank())
+        .map(
+            raw -> {
+              LocalDate localDate = LocalDate.parse(raw, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+              return localDate.atStartOfDay(zoneId).toInstant();
+            });
+  }
+
   /**
    * Download a CSV file containing demographics information of the current live version.
    * Demographics information is collected from answers to a collection of questions specially
    * marked by CiviForm admins.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result downloadDemographics() {
+  public Result downloadDemographics(Http.Request request) {
+    ApplicationFilter filter =
+        ApplicationFilter.builder()
+            .setSubmitTimeFilter(
+                Optional.of(
+                    TimeFilter.builder()
+                        .setBeforeTime(parseDateFromQuery(request, Filters.BEFORE_DATE_QUERY_PARAM))
+                        .setAfterTime(parseDateFromQuery(request, Filters.AFTER_DATE_QUERY_PARAM))
+                        .build()))
+            .build();
     String filename = String.format("demographics-%s.csv", nowProvider.get());
-    String csv = exporterService.getDemographicsCsv();
+    String csv = exporterService.getDemographicsCsv(filter);
     return ok(csv)
         .as(Http.MimeTypes.BINARY)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
