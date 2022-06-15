@@ -570,7 +570,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
                     Styles.OPACITY_100,
                     StyleUtils.disabled(Styles.OPACITY_50))
                 .isDisabled());
-    return Modal.builder("block-description-modal", div(blockDescriptionForm))
+    return Modal.builder("block-description-modal", blockDescriptionForm)
         .setModalTitle(modalTitle)
         .setTriggerButtonText(modalButtonText)
         .setWidth(Modal.Width.THIRD)
