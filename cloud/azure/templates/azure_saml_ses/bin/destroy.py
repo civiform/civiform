@@ -13,7 +13,7 @@ class Destroy(SetupTemplate):
 
     def pre_terraform_destroy(self):
         print(" - Deleting AWS Access Key")
-        self._delete_access_key()
+        self._delete_aws_access_key()
 
     def post_terraform_destroy(self):
         print(" - Purge the keyvault")
