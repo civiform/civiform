@@ -22,9 +22,6 @@ services:
       - "oidc"
     volumes:
       - ../server/code-coverage:/usr/src/server/code-coverage
-      - ./sbt_cache/coursier:/root/.cache/coursier
-      - ~/.sbt:/root/.sbt
-      - ~/.ivy:/root/.ivy2
     entrypoint: /bin/bash
     tty: true        # keep the container running
     stdin_open: true

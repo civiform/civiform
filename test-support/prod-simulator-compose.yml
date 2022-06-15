@@ -20,4 +20,4 @@ services:
       - 9000:9000
     environment:
       - IDCS_CLIENT_ID=client
-      - IDCS_CLIENT_ID=SECRET_KEY
+      - IDCS_SECRET=SECRET_KEY
