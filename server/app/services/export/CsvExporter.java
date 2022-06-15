@@ -6,7 +6,6 @@ import com.google.common.hash.Hashing;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import models.Application;
@@ -22,34 +21,25 @@ import services.program.Column;
  * {@link Path} indexing into an applicant's data, and CsvExporter takes the path and reads the
  * answer from {@link ReadOnlyApplicantProgramService} if present.
  */
-public final class CsvExporter {
+public final class CsvExporter implements AutoCloseable {
   private final String EMPTY_VALUE = "";
 
-  private ImmutableList<Column> columns;
-  private Optional<String> secret;
-  private Optional<CSVPrinter> resultPrinter = Optional.empty();
-
-  public CsvExporter(List<Column> columns) {
-    this.columns = ImmutableList.copyOf(columns);
-    this.secret = Optional.empty();
-  }
+  private final ImmutableList<Column> columns;
+  private final Optional<String> secret;
+  private final CSVPrinter printer;
 
   /** Provide a secret if you will need to use OPAQUE_ID type columns. */
-  public CsvExporter(ImmutableList<Column> columns, String secret) {
-    this(columns);
+  public CsvExporter(ImmutableList<Column> columns, String secret, Writer writer)
+      throws IOException {
+    this.columns = columns;
     this.secret = Optional.of(secret);
-  }
 
-  public void start(Writer writer) throws IOException {
-    if (!resultPrinter.isEmpty()) {
-      throw new RuntimeException("invalid state: start() should only be called once");
-    }
     CSVFormat format =
         CSVFormat.DEFAULT
             .builder()
             .setHeader(columns.stream().map(Column::header).toArray(String[]::new))
             .build();
-    resultPrinter = Optional.of(new CSVPrinter(writer, format));
+    this.printer = new CSVPrinter(writer, format);
   }
 
   /**
@@ -57,15 +47,8 @@ public final class CsvExporter {
    * applications, this function is intended to be called several times.
    */
   public void exportRecord(
-      Application application, ReadOnlyApplicantProgramService roApplicantService, Writer writer)
+      Application application, ReadOnlyApplicantProgramService roApplicantService)
       throws IOException {
-    if (resultPrinter.isEmpty()) {
-      throw new RuntimeException(
-          "invalid state: start() should be called prior to exporting a record");
-    }
-
-    CSVPrinter printer = resultPrinter.get();
-
     ImmutableMap<Path, String> answerMap =
         roApplicantService.getSummaryData().stream()
             .flatMap(data -> data.scalarAnswersInDefaultLocale().entrySet().stream())
@@ -167,5 +150,10 @@ public final class CsvExporter {
         .putString(value, StandardCharsets.UTF_8)
         .hash()
         .toString();
+  }
+
+  @Override
+  public void close() throws IOException {
+    printer.close();
   }
 }

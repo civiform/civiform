@@ -2,6 +2,7 @@ package services.export;
 
 import com.google.common.base.Preconditions;
 import com.typesafe.config.Config;
+import java.io.IOException;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Program;
@@ -17,7 +18,7 @@ public class ExporterFactory {
     this.config = Preconditions.checkNotNull(config);
   }
 
-  public CsvExporter csvExporter(Program program) throws NotConfiguredException {
+  public CsvExporter csvExporter(Program program) throws NotConfiguredException, IOException {
     Optional<CsvExportConfig> exportConfig =
         program.getProgramDefinition().exportDefinitions().stream()
             .filter(exportDefinition -> exportDefinition.csvConfig().isPresent())
@@ -29,7 +30,7 @@ public class ExporterFactory {
     return csvExporter(exportConfig.get());
   }
 
-  public CsvExporter csvExporter(CsvExportConfig exportConfig) {
-    return new CsvExporter(exportConfig.columns(), config.getString("play.http.secret.key"));
+  public CsvExporter csvExporter(CsvExportConfig exportConfig) throws IOException {
+    return new CsvExporter(exportConfig.columns(), config.getString("play.http.secret.key"), null);
   }
 }

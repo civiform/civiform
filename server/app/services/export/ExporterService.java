@@ -138,39 +138,38 @@ public final class ExporterService {
   }
 
   private String exportCsv(CsvExportConfig exportConfig, ImmutableList<Application> applications) {
-    CsvExporter csvExporter =
-        new CsvExporter(exportConfig.columns(), config.getString("play.http.secret.key"));
-    try {
-      OutputStream inMemoryBytes = new ByteArrayOutputStream();
-      Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8);
-      csvExporter.start(writer);
-      // Cache Program data which doesn't change, so we only look it up once rather than on every
-      // exported row.
-      // TODO(#1750): Lookup all relevant programs in one request to reduce cost of N lookups.
-      // TODO(#1750): Consider Play's JavaCache over this caching.
-      HashMap<Long, ProgramDefinition> programDefinitions = new HashMap<>();
-      for (Application application : applications) {
-        Long programId = application.getProgram().id;
-        if (!programDefinitions.containsKey(programId)) {
-          try {
-            programDefinitions.put(programId, programService.getProgramDefinition(programId));
-          } catch (ProgramNotFoundException e) {
-            throw new RuntimeException("Cannot find a program that has applications for it.", e);
+    OutputStream inMemoryBytes = new ByteArrayOutputStream();
+    try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
+      try (CsvExporter csvExporter =
+          new CsvExporter(
+              exportConfig.columns(), config.getString("play.http.secret.key"), writer)) {
+        // Cache Program data which doesn't change, so we only look it up once rather than on every
+        // exported row.
+        // TODO(#1750): Lookup all relevant programs in one request to reduce cost of N lookups.
+        // TODO(#1750): Consider Play's JavaCache over this caching.
+        HashMap<Long, ProgramDefinition> programDefinitions = new HashMap<>();
+        for (Application application : applications) {
+          Long programId = application.getProgram().id;
+          if (!programDefinitions.containsKey(programId)) {
+            try {
+              programDefinitions.put(programId, programService.getProgramDefinition(programId));
+            } catch (ProgramNotFoundException e) {
+              throw new RuntimeException("Cannot find a program that has applications for it.", e);
+            }
           }
-        }
-        ProgramDefinition programDefinition = programDefinitions.get(programId);
+          ProgramDefinition programDefinition = programDefinitions.get(programId);
 
-        ReadOnlyApplicantProgramService roApplicantService =
-            applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
-        csvExporter.exportRecord(application, roApplicantService, writer);
+          ReadOnlyApplicantProgramService roApplicantService =
+              applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
+          csvExporter.exportRecord(application, roApplicantService);
+        }
       }
-      writer.close();
-      return inMemoryBytes.toString();
     } catch (IOException e) {
       // Since it's an in-memory writer, this shouldn't happen.  Catch so that callers don't
       // have to deal with it.
       throw new RuntimeException(e);
     }
+    return inMemoryBytes.toString();
   }
 
   /**
