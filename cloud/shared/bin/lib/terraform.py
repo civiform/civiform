@@ -4,6 +4,7 @@ import shutil
 
 from cloud.shared.bin.lib import civiform_mode
 
+
 # TODO(#2741): When using this for Azure make sure to setup backend bucket prior to calling these functions.
 def perform_apply():
     '''Generates terraform variable files and runs terraform init and apply.'''
@@ -28,7 +29,9 @@ def perform_apply():
         print(
             f'{TF_VARS_FILENAME} exists in {TERRAFORM_TEMPLATE_DIR} directory')
     else:
-        raise ValueError(f'Aborting the script. {TF_VARS_FILENAME} does not exist in {TERRAFORM_TEMPLATE_DIR} directory')
+        raise ValueError(
+            f'Aborting the script. {TF_VARS_FILENAME} does not exist in {TERRAFORM_TEMPLATE_DIR} directory'
+        )
 
     subprocess.check_call(
         terraform_cmd + [
@@ -41,12 +44,10 @@ def perform_apply():
 
     terraform_apply_cmd = terraform_cmd + ['apply', '-input=false', '-json']
     if civiform_mode.is_dev():
-          subprocess.check_call(
-            terraform_apply_cmd + [TERRAFORM_PLAN_OUT_FILE])
+        subprocess.check_call(terraform_apply_cmd + [TERRAFORM_PLAN_OUT_FILE])
     else:
         subprocess.check_call(
-            terraform_apply_cmd +
-            ['-auto-approve', TERRAFORM_PLAN_OUT_FILE])
+            terraform_apply_cmd + ['-auto-approve', TERRAFORM_PLAN_OUT_FILE])
 
     return True
 
