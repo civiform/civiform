@@ -285,7 +285,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       .createFileUploadQuestion();
 
               ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
-                  new ImmutableMap.Builder<String, String>();
+                  new ImmutableMap.Builder<>();
               fileUploadQuestionFormData.put(
                   fileUploadQuestion.getFileKeyPath().toString(), key.get());
               if (originalFileName.isPresent()) {

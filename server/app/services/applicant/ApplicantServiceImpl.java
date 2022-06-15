@@ -33,8 +33,10 @@ import models.LifecycleStage;
 import models.Program;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import models.StoredFile;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
+import repository.StoredFileRepository;
 import repository.UserRepository;
 import repository.VersionRepository;
 import services.Path;
@@ -57,6 +59,7 @@ public final class ApplicantServiceImpl implements ApplicantService {
   private final ApplicationRepository applicationRepository;
   private final UserRepository userRepository;
   private final VersionRepository versionRepository;
+  private final StoredFileRepository storedFileRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
   private final Clock clock;
@@ -73,6 +76,7 @@ public final class ApplicantServiceImpl implements ApplicantService {
       ApplicationRepository applicationRepository,
       UserRepository userRepository,
       VersionRepository versionRepository,
+      StoredFileRepository storedFileRepository,
       ProgramService programService,
       SimpleEmail amazonSESClient,
       Clock clock,
@@ -81,6 +85,7 @@ public final class ApplicantServiceImpl implements ApplicantService {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
     this.versionRepository = checkNotNull(versionRepository);
+    this.storedFileRepository = checkNotNull(storedFileRepository);
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
@@ -249,19 +254,58 @@ public final class ApplicantServiceImpl implements ApplicantService {
     return applicationRepository
         .submitApplication(applicantId, programId, submitterEmail)
         .thenComposeAsync(
-            applicationMaybe -> {
+            (Optional<Application> applicationMaybe) -> {
               if (applicationMaybe.isEmpty()) {
                 return CompletableFuture.failedFuture(
                     new ApplicationSubmissionException(applicantId, programId));
               }
+
               Application application = applicationMaybe.get();
               String programName = application.getProgram().getProgramDefinition().adminName();
               notifyProgramAdmins(applicantId, programId, application.id, programName);
+
               if (submitterEmail.isPresent()) {
                 notifySubmitter(submitterEmail.get(), applicantId, application.id, programName);
               }
+
               maybeNotifyApplicant(applicantId, application.id, programName);
-              return CompletableFuture.completedFuture(application);
+
+              return updateStoredFileAclsForSubmit(applicantId, programId)
+                  .thenApplyAsync((ignoreVoid) -> application, httpExecutionContext.current());
+            },
+            httpExecutionContext.current());
+  }
+
+  /**
+   * When an application is submitted, we store the name of its program in the ACLs for each file in
+   * the application.
+   */
+  private CompletionStage<Void> updateStoredFileAclsForSubmit(long applicantId, long programId) {
+    CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
+        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
+
+    CompletableFuture<List<StoredFile>> storedFilesFuture =
+        getReadOnlyApplicantProgramService(applicantId, programId)
+            .thenApplyAsync(
+                ReadOnlyApplicantProgramService::getStoredFileKeys, httpExecutionContext.current())
+            .thenComposeAsync(storedFileRepository::lookupFiles, httpExecutionContext.current())
+            .toCompletableFuture();
+
+    return CompletableFuture.allOf(programDefinitionCompletableFuture, storedFilesFuture)
+        .thenComposeAsync(
+            (ignoreVoid) -> {
+              List<StoredFile> storedFiles = storedFilesFuture.join();
+              ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
+              CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
+
+              for (StoredFile file : storedFiles) {
+                file.getAcls().addProgramToReaders(programDefinition);
+                future =
+                    CompletableFuture.allOf(
+                        future, storedFileRepository.update(file).toCompletableFuture());
+              }
+
+              return future;
             },
             httpExecutionContext.current());
   }
