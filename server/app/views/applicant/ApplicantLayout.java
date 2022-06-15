@@ -187,6 +187,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
               .url();
       return div(
           a(tiDashboardText)
+              .withId("ti-dashboard-link")
               .withHref(tiDashboardLink)
               .withClasses(
                   Styles.PX_3,

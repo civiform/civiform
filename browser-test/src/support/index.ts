@@ -91,6 +91,11 @@ export const loginAsProgramAdmin = async (page: Page) => {
   await waitForPageJsLoad(page)
 }
 
+export const loginAsTrustedIntermediary = async (page: Page) => {
+  await page.click('#trusted-intermediary')
+  await waitForPageJsLoad(page)
+}
+
 export const loginAsGuest = async (page: Page) => {
   await page.click('#guest')
   await waitForPageJsLoad(page)
@@ -155,6 +160,11 @@ export const selectApplicantLanguage = async (
 export const dropTables = async (page: Page) => {
   await page.goto(BASE_URL + '/dev/seed')
   await page.click('#clear')
+}
+
+export const seedCanonicalQuestions = async (page: Page) => {
+  await page.goto(BASE_URL + '/dev/seed')
+  await page.click('#canonical-questions')
 }
 
 export const closeWarningMessage = async (page: Page) => {

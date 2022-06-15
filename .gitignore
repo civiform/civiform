@@ -1,6 +1,7 @@
 /project/
 flakes
 logs/
+server/code-coverage/*
 .log/
 target/
 RUNNING_PID

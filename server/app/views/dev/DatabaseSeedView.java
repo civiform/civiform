@@ -70,6 +70,13 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .with(
                         form()
                             .with(makeCsrfTokenInputTag(request))
+                            .with(submitButton("canonical-questions", "Seed canonical questions"))
+                            .withMethod("post")
+                            .withAction(
+                                routes.DatabaseSeedController.seedCanonicalQuestions().url()))
+                    .with(
+                        form()
+                            .with(makeCsrfTokenInputTag(request))
                             .with(submitButton("clear", "Clear entire database (irreversible!)"))
                             .withMethod("post")
                             .withAction(routes.DatabaseSeedController.clear().url())))

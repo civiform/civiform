@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.twirl.api.Content;
+import services.DateConverter;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
@@ -36,14 +37,14 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
 
   private final AdminLayout layout;
   private final String baseUrl;
-  private final ZoneId zoneId;
+  private final DateConverter dateConverter;
 
   @Inject
   public ProgramAdministratorProgramListView(
-      AdminLayoutFactory layoutFactory, Config config, ZoneId zoneId) {
+      AdminLayoutFactory layoutFactory, Config config, DateConverter dateConverter) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
-    this.zoneId = checkNotNull(zoneId);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   public Content render(
@@ -93,7 +94,8 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
 
     String lastEditText =
         displayProgram.lastModifiedTime().isPresent()
-            ? "Last updated: " + renderDateTime(displayProgram.lastModifiedTime().get(), zoneId)
+            ? "Last updated: "
+                + dateConverter.renderDateTime(displayProgram.lastModifiedTime().get())
             : "Could not find latest update time";
     String programTitleText = displayProgram.adminName();
     String programDescriptionText = displayProgram.adminDescription();

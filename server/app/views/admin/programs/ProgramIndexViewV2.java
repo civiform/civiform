@@ -15,12 +15,12 @@ import controllers.admin.routes;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DateConverter;
 import services.LocalizedStrings;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
@@ -41,23 +41,15 @@ import views.style.Styles;
 public final class ProgramIndexViewV2 extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
-  private final ZoneId zoneId;
+  private final DateConverter dateConverter;
 
   @Inject
-  public ProgramIndexViewV2(AdminLayoutFactory layoutFactory, Config config, ZoneId zoneId) {
+  public ProgramIndexViewV2(
+      AdminLayoutFactory layoutFactory, Config config, DateConverter dateConverter) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
-    this.zoneId = checkNotNull(zoneId);
+    this.dateConverter = checkNotNull(dateConverter);
   }
-
-  /*
-    TODO(#1238): When screen real estate is smaller, fix the following
-    issues:
-    * The "dot" before the draft/active badge shrinks
-    * Draft/active pills become misaligned when there are multiple
-      row actions
-    * Actions in the dropdown menu are center aligned.
-  */
 
   public Content render(
       ActiveAndDraftPrograms programs, Http.Request request, Optional<CiviFormProfile> profile) {
@@ -181,7 +173,10 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
       updatedPrefix = "Published on ";
     }
 
-    String formattedUpdateTime = updatedTime.map(t -> renderDateTime(t, zoneId)).orElse("unknown");
+    String formattedUpdateTime =
+        updatedTime.map(t -> dateConverter.renderDateTime(t)).orElse("unknown");
+    String formattedUpdateDate =
+        updatedTime.map(t -> dateConverter.renderDate(t)).orElse("unknown");
 
     int blockCount = program.getBlockCount();
     int questionCount = program.getQuestionCount();
@@ -199,7 +194,6 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return div()
         .withClasses(
             Styles.PY_7,
-            Styles.SPACE_X_10,
             Styles.FLEX,
             Styles.FLEX_ROW,
             StyleUtils.hover(Styles.BG_GRAY_100),
@@ -208,7 +202,8 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
             p().withClasses(
                     badgeBGColor,
                     badgeFillColor,
-                    Styles.ML_8,
+                    Styles.ML_2,
+                    StyleUtils.responsiveXLarge(Styles.ML_8),
                     Styles.FONT_MEDIUM,
                     Styles.ROUNDED_FULL,
                     Styles.FLEX,
@@ -222,10 +217,19 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                         .withClasses(Styles.INLINE_BLOCK, Styles.ML_3_5),
                     span(badgeText).withClass(Styles.MR_4)),
             div()
+                .withClasses(Styles.ML_4, StyleUtils.responsiveXLarge(Styles.ML_10))
                 .with(
                     p().with(
                             span(updatedPrefix),
-                            span(formattedUpdateTime).withClass(Styles.FONT_SEMIBOLD)),
+                            span(formattedUpdateTime)
+                                .withClasses(
+                                    Styles.FONT_SEMIBOLD,
+                                    Styles.HIDDEN,
+                                    StyleUtils.responsiveLarge(Styles.INLINE)),
+                            span(formattedUpdateDate)
+                                .withClasses(
+                                    Styles.FONT_SEMIBOLD,
+                                    StyleUtils.responsiveLarge(Styles.HIDDEN))),
                     p().with(
                             span(String.format("%d", blockCount)).withClass(Styles.FONT_SEMIBOLD),
                             span(blockCount == 1 ? " screen, " : " screens, "),
@@ -288,7 +292,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
-      activeRowActions.add(renderViewLink(activeProgram.get()));
+      activeRowActions.add(renderShareLink(activeProgram.get()));
       statusDiv =
           statusDiv.with(
               renderProgramRow(
@@ -311,7 +315,10 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                         Styles.TEXT_BLACK,
                         Styles.FONT_BOLD,
                         Styles.TEXT_XL),
-                statusDiv.withClass(Styles.FLEX_GROW));
+                statusDiv.withClasses(
+                    Styles.FLEX_GROW,
+                    Styles.TEXT_SM,
+                    StyleUtils.responsiveLarge(Styles.TEXT_BASE)));
 
     return div()
         .withClasses(
@@ -351,17 +358,13 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return program.lastModifiedTime().orElse(Instant.EPOCH);
   }
 
-  ButtonTag renderViewLink(ProgramDefinition program) {
-    // TODO(#1238): Rather than navigating to the program link
-    // consider renaming the action and copying the link to the clipboard
-    // or opening it in a new tab.
-    String viewLink =
+  ButtonTag renderShareLink(ProgramDefinition program) {
+    String programLink =
         baseUrl
             + controllers.applicant.routes.RedirectController.programByName(program.slug()).url();
-    ButtonTag button =
-        makeSvgTextButton("View", Icons.VISIBILITY_SVG_PATH)
-            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
-    return asRedirectButton(button, viewLink);
+    return makeSvgTextButton("Share link", Icons.CONTENT_COPY_SVG_PATH)
+        .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
+        .withData("copyable-program-link", programLink);
   }
 
   ButtonTag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {

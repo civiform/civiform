@@ -97,11 +97,6 @@ public abstract class BaseHtmlView {
     return CSRF.getToken(request.asScala()).value();
   }
 
-  protected String renderDateTime(Instant time, ZoneId zoneId) {
-    ZonedDateTime dateTime = time.atZone(zoneId);
-    return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd 'at' h:mm a z"));
-  }
-
   protected DivTag renderPaginationDiv(
       int page, int pageCount, Function<Integer, Call> linkForPage) {
     DivTag div = div();

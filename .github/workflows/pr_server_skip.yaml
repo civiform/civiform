@@ -20,5 +20,5 @@ on:
 
 jobs:
   run_all_tests:
-    uses: ./.github/workflows/tests_skip.yml
+    uses: ./.github/workflows/tests_skip.yaml
     secrets: inherit
