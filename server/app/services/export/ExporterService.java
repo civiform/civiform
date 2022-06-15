@@ -143,6 +143,7 @@ public class ExporterService {
     try {
       OutputStream inMemoryBytes = new ByteArrayOutputStream();
       Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8);
+      csvExporter.start(writer);
       // Cache Program data which doesn't change, so we only look it up once rather than on every
       // exported row.
       // TODO(#1750): Lookup all relevant programs in one request to reduce cost of N lookups.
@@ -161,7 +162,7 @@ public class ExporterService {
 
         ReadOnlyApplicantProgramService roApplicantService =
             applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
-        csvExporter.export(application, roApplicantService, writer);
+        csvExporter.exportRecord(application, roApplicantService, writer);
       }
       writer.close();
       return inMemoryBytes.toString();

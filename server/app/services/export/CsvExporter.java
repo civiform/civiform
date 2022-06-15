@@ -23,17 +23,13 @@ import services.program.Column;
  * answer from {@link ReadOnlyApplicantProgramService} if present.
  */
 public class CsvExporter {
-  public static final CSVFormat DEFAULT_CSV_FORMAT =
-      CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build();
-
   private final String EMPTY_VALUE = "";
 
-  private boolean wroteHeaders;
   private ImmutableList<Column> columns;
   private Optional<String> secret;
+  private Optional<CSVPrinter> resultPrinter = Optional.empty();
 
   public CsvExporter(List<Column> columns) {
-    this.wroteHeaders = false;
     this.columns = ImmutableList.copyOf(columns);
     this.secret = Optional.empty();
   }
@@ -44,31 +40,35 @@ public class CsvExporter {
     this.secret = Optional.of(secret);
   }
 
-  private void writeHeadersOnFirstExport(CSVPrinter printer) throws IOException {
-    if (!wroteHeaders) {
-      for (Column column : columns) {
-        printer.print(column.header());
-      }
-      printer.println();
-      wroteHeaders = true;
-    }
-  }
-
   protected ImmutableList<Column> getColumns() {
     return columns;
   }
 
+  public void start(Writer writer) throws IOException {
+    if (!resultPrinter.isEmpty()) {
+      throw new RuntimeException("invalid state: start() should only be called once");
+    }
+    CSVFormat format =
+        CSVFormat.DEFAULT
+            .builder()
+            .setHeader(columns.stream().map(Column::header).toArray(String[]::new))
+            .build();
+    resultPrinter = Optional.of(new CSVPrinter(writer, format));
+  }
+
   /**
-   * The CSV exporter will write the headers on first call to services.export(). It does not store
-   * the writer between calls. Since it is intended for many applications, this function is intended
-   * to be called several times.
+   * The CSV exporter does not store the writer between calls. Since it is intended for many
+   * applications, this function is intended to be called several times.
    */
-  public void export(
+  public void exportRecord(
       Application application, ReadOnlyApplicantProgramService roApplicantService, Writer writer)
       throws IOException {
-    CSVPrinter printer = new CSVPrinter(writer, DEFAULT_CSV_FORMAT);
+    if (resultPrinter.isEmpty()) {
+      throw new RuntimeException(
+          "invalid state: start() should be called prior to exporting a record");
+    }
 
-    writeHeadersOnFirstExport(printer);
+    CSVPrinter printer = resultPrinter.get();
 
     ImmutableMap<Path, String> answerMap =
         roApplicantService.getSummaryData().stream()
