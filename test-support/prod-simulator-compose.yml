@@ -21,3 +21,4 @@ services:
     environment:
       - IDCS_CLIENT_ID=client
       - IDCS_SECRET=SECRET_KEY
+      - SECRET_KEY
