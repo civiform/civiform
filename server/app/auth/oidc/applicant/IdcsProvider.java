@@ -15,7 +15,7 @@ import repository.UserRepository;
 /** This class customized the OIDC provider to a specific provider, allowing overrides to be set. */
 public class IdcsProvider extends OidcProvider {
 
-  private static final String attributePrefix = "idcs";
+  private static final String ATTRIBUTE_PREFIX = "idcs";
   private static final String CLIENT_ID_CONFIG_NAME = "client_id";
   private static final String CLIENT_SECRET_CONFIG_NAME = "secret";
   private static final String DISCOVERY_URI_CONFIG_NAME = "discovery_uri";
@@ -33,7 +33,7 @@ public class IdcsProvider extends OidcProvider {
 
   @Override
   protected String attributePrefix() {
-    return attributePrefix;
+    return ATTRIBUTE_PREFIX;
   }
 
   @Override
@@ -52,7 +52,7 @@ public class IdcsProvider extends OidcProvider {
         .orElseThrow(
             () ->
                 new RuntimeException(
-                    attributePrefix + "." + CLIENT_ID_CONFIG_NAME + " must be set"));
+                ATTRIBUTE_PREFIX + "." + CLIENT_ID_CONFIG_NAME + " must be set"));
   }
 
   @Override
@@ -61,7 +61,7 @@ public class IdcsProvider extends OidcProvider {
         .orElseThrow(
             () ->
                 new RuntimeException(
-                    attributePrefix + "." + CLIENT_SECRET_CONFIG_NAME + " must be set"));
+                ATTRIBUTE_PREFIX + "." + CLIENT_SECRET_CONFIG_NAME + " must be set"));
   }
 
   @Override
@@ -70,7 +70,7 @@ public class IdcsProvider extends OidcProvider {
         .orElseThrow(
             () ->
                 new RuntimeException(
-                    attributePrefix + "." + DISCOVERY_URI_CONFIG_NAME + " must be set"));
+                ATTRIBUTE_PREFIX + "." + DISCOVERY_URI_CONFIG_NAME + " must be set"));
   }
 
   @Override
