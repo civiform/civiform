@@ -56,9 +56,9 @@ def perform_apply():
 
 def copy_backend_override():
     ''' 
-  Copies the terraform backend_override to backend_override.tf (used to
-  make backend local instead of a shared state for dev deploys)
-  '''
+    Copies the terraform backend_override to backend_override.tf (used to
+    make backend local instead of a shared state for dev deploys)
+    '''
     backend_override_path = os.path.join(
         os.getenv('TERRAFORM_TEMPLATE_DIR'), 'backend_override')
     if not os.path.exists(backend_override_path):
