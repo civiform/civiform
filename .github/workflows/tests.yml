@@ -31,11 +31,7 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
-       directory: server/code-coverage/report/
-       fail_ci_if_error: true
-       files: ./jacoco.xml
-       flags: unittests
-       name: codecov-umbrella
+       file: server/code-coverage/report/jacoco.xml
        verbose: true
 
   run_browser_tests_aws:
