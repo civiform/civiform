@@ -17,7 +17,6 @@ public class SelectWithLabel extends FieldWithLabel {
 
   public SelectWithLabel() {
     super();
-    this.setFieldType("text");
   }
 
   @Override
