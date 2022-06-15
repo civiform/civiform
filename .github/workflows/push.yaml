@@ -72,5 +72,5 @@ jobs:
         run: bin/build-and-push
 
   run_all_tests:
-    uses: ./.github/workflows/tests.yml
+    uses: ./.github/workflows/tests.yaml
     secrets: inherit

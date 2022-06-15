@@ -1,4 +1,8 @@
 # TODO: split this into modules.
+module "secrets" {
+  source = "../../modules/secrets_manager"
+}
+
 resource "aws_apprunner_service" "civiform_dev" {
   auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.auto_scaling_config.arn
   service_name                   = "civiform_dev"
@@ -9,7 +13,7 @@ resource "aws_apprunner_service" "civiform_dev" {
         port = "9000"
 
         runtime_environment_variables = {
-          SECRET_KEY = "secretkeyplaceholder"
+          SECRET_KEY = module.secrets.app_secret_key
           PORT       = "9000"
 
           DB_JDBC_STRING = "jdbc:postgresql://${aws_db_instance.civiform.address}:${aws_db_instance.civiform.port}/postgres?ssl=true&sslmode=require"
@@ -72,8 +76,8 @@ resource "aws_db_instance" "civiform" {
   allocated_storage       = var.postgres_storage_gb
   engine                  = "postgres"
   engine_version          = "12"
-  username                = "db_user_name"
-  password                = "CHANGE_ME"
+  username                = module.secrets.database_username
+  password                = module.secrets.database_password
   db_subnet_group_name    = aws_db_subnet_group.civiform.name
   vpc_security_group_ids  = [aws_security_group.rds.id]
   parameter_group_name    = aws_db_parameter_group.civiform.name
