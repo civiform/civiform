@@ -27,8 +27,4 @@ describe('applicant security', () => {
 
     await endSession(browser)
   })
-  
-  it('test batch scripts fails', async () => {
-    expect("a").toBe("b")
-  })
 })
