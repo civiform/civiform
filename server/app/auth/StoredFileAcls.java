@@ -41,4 +41,8 @@ public class StoredFileAcls {
   public boolean hasProgramReadPermission(Account account) {
     return account.getAdministeredProgramNames().stream().anyMatch(programReadAcls::contains);
   }
+
+  public boolean hasProgramReadPermission(ProgramDefinition programDefinition) {
+    return programReadAcls.contains(programDefinition.adminName());
+  }
 }
