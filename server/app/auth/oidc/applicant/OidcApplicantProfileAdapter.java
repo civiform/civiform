@@ -60,7 +60,7 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
   protected Optional<String> getLocale(OidcProfile oidcProfile) {
     return localeAttributeName
         .map(name -> oidcProfile.getAttribute(name, String.class))
-        .filter(Strings::isNullOrEmpty);
+        .filter(s -> !Strings.isNullOrEmpty(s));
   }
 
   // Legacy. TODO: remove.
