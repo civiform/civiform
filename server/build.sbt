@@ -107,8 +107,8 @@ lazy val root = (project in file("."))
       // Turn off the AutoValueSubclassLeaked error since the generated
       // code contains it - we can't control that.
       "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF",
-      "-implicit:class"//,
-      //"-Werror"
+      "-implicit:class",
+      "-Werror"
     ),
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
     // Recompile everything if >30% files have changed, to help avoid infinate
