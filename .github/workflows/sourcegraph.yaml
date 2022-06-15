@@ -23,6 +23,8 @@ jobs:
         with:
           jvm: adopt:11
       - run: |
+          cd server/
+      - run: |
           cs launch com.sourcegraph:scip-java_2.13:latest.stable -M com.sourcegraph.scip_java.ScipJava -- index
       - run: yarn global add @sourcegraph/src
       - run: |
