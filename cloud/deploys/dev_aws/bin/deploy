@@ -1,0 +1,5 @@
+#! /usr/bin/env bash
+
+source cloud/deploys/dev_aws/bin/lib.sh
+
+cloud/shared/bin/deploy

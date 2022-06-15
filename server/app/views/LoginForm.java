@@ -153,7 +153,7 @@ public class LoginForm extends BaseHtmlView {
     return div()
         .withClasses(Styles.ABSOLUTE)
         .with(
-            h1("DEBUG MODE. LOGIN AS:"),
+            h1("DEMO MODE. LOGIN AS:"),
             redirectButton(
                 "admin",
                 "CiviForm Admin",
