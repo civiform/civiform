@@ -12,11 +12,11 @@ import com.google.common.collect.ImmutableMap;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import j2html.tags.attributes.IHref;
+import j2html.tags.attributes.ITarget;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.attributes.IHref;
-import j2html.tags.attributes.ITarget;
 import play.filters.csrf.CSRF;
 import play.mvc.Http;
 import scala.Option;
@@ -120,12 +120,12 @@ public class LinkElement {
         .withClasses(DEFAULT_LINK_STYLES, styles);
   }
 
-  private <T extends ContainerTag<T> & IHref<T> & ITarget<T>> void setTargetMaybeHref(T tag) throws RuntimeException {
+  private <T extends ContainerTag<T> & IHref<T> & ITarget<T>> void setTargetMaybeHref(T tag)
+      throws RuntimeException {
     if (tag.getTagName().equals("a") && Strings.isNullOrEmpty(href)) {
       throw new RuntimeException("trying to create an <a> tag with no href defined!");
     }
-    tag.withCondHref(!Strings.isNullOrEmpty(href), href)
-        .withCondTarget(doesOpenInNewTab, "_blank");
+    tag.withCondHref(!Strings.isNullOrEmpty(href), href).withCondTarget(doesOpenInNewTab, "_blank");
   }
 
   private void maybeSetId(Tag tag) {

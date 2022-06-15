@@ -6,9 +6,8 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 
 import com.google.common.collect.ImmutableList;
-import j2html.tags.Tag;
-import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import play.i18n.Lang;

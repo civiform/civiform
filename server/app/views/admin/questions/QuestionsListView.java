@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.*;
 
 import com.google.inject.Inject;
-import j2html.tags.Tag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -73,7 +72,8 @@ public final class QuestionsListView extends BaseHtmlView {
   private DivTag renderAddQuestionLink() {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
-    DivTag linkButton = new LinkElement().setId(parentId).setText("Create new question").asButtonNoHref();
+    DivTag linkButton =
+        new LinkElement().setId(parentId).setText("Create new question").asButtonNoHref();
     DivTag dropdown =
         div()
             .withId(dropdownId)
