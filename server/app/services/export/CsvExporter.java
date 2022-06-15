@@ -1,5 +1,7 @@
 package services.export;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
@@ -7,7 +9,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Optional;
 import models.Application;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.csv.CSVFormat;
@@ -20,19 +21,22 @@ import services.program.Column;
  * CsvExporter takes a list of {@link Column}s and exports the data specified. A column contains a
  * {@link Path} indexing into an applicant's data, and CsvExporter takes the path and reads the
  * answer from {@link ReadOnlyApplicantProgramService} if present.
+ *
+ * <p>The close method should be called when complete in order for the underlying {@link CsvPrinter}
+ * to be closed.
  */
 public final class CsvExporter implements AutoCloseable {
   private final String EMPTY_VALUE = "";
 
   private final ImmutableList<Column> columns;
-  private final Optional<String> secret;
+  private final String secret;
   private final CSVPrinter printer;
 
   /** Provide a secret if you will need to use OPAQUE_ID type columns. */
   public CsvExporter(ImmutableList<Column> columns, String secret, Writer writer)
       throws IOException {
-    this.columns = columns;
-    this.secret = Optional.of(secret);
+    this.columns = checkNotNull(columns);
+    this.secret = checkNotNull(secret);
 
     CSVFormat format =
         CSVFormat.DEFAULT
@@ -42,10 +46,7 @@ public final class CsvExporter implements AutoCloseable {
     this.printer = new CSVPrinter(writer, format);
   }
 
-  /**
-   * The CSV exporter does not store the writer between calls. Since it is intended for many
-   * applications, this function is intended to be called several times.
-   */
+  /** Writes a single {@link Application} record to the CSV. */
   public void exportRecord(
       Application application, ReadOnlyApplicantProgramService roApplicantService)
       throws IOException {
@@ -77,13 +78,13 @@ public final class CsvExporter implements AutoCloseable {
                   : EMPTY_VALUE);
           break;
         case SUBMITTER_EMAIL_OPAQUE:
-          if (this.secret.isEmpty()) {
+          if (this.secret.isBlank()) {
             throw new RuntimeException("Secret not present, but opaque ID requested.");
           }
           printer.print(
               application
                   .getSubmitterEmail()
-                  .map(email -> opaqueIdentifier(this.secret.get(), email))
+                  .map(email -> opaqueIdentifier(this.secret, email))
                   .orElse(EMPTY_VALUE));
           break;
         case SUBMITTER_EMAIL:

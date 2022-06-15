@@ -127,6 +127,8 @@ public final class ExporterService {
    */
   public String getProgramCsv(long programId) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(programId);
+    // TODO(#1743): Determine if export definitions are necessary and remove them
+    // if not.
     Optional<CsvExportConfig> maybeExportConfig =
         program.exportDefinitions().stream()
             .filter(exportDefinition -> exportDefinition.csvConfig().isPresent())
