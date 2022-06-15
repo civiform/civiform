@@ -42,7 +42,7 @@ public class QuestionBank {
   private BlockDefinition blockDefinition;
   private Optional<Long> enumeratorQuestionId;
   private ImmutableList<QuestionDefinition> questions = ImmutableList.of();
-  private DivTag csrfTag = div();
+  private Optional<InputTag> maybeCsrfTag = Optional.empty();
   private String questionAction = "";
 
   public QuestionBank setProgram(ProgramDefinition program) {
@@ -61,7 +61,7 @@ public class QuestionBank {
   }
 
   public QuestionBank setCsrfTag(InputTag csrfTag) {
-    this.csrfTag.with(csrfTag);
+    this.maybeCsrfTag = Optional.of(csrfTag);
     return this;
   }
 
@@ -74,8 +74,12 @@ public class QuestionBank {
     return questionBankPanel();
   }
 
-  private FormTag questionBankPanel() {
-    FormTag questionForm = form(this.csrfTag).withMethod(HttpVerbs.POST).withAction(questionAction);
+  private FormTag questionBankPanel() throws RuntimeException {
+    if (this.maybeCsrfTag.isEmpty()) {
+      throw new RuntimeException("trying to access empty csrf tag for rendering");
+    }
+    InputTag csrfTag = this.maybeCsrfTag.get();
+    FormTag questionForm = form(csrfTag).withMethod(HttpVerbs.POST).withAction(questionAction);
 
     DivTag innerDiv = div().withClasses(Styles.SHADOW_LG, Styles.OVERFLOW_HIDDEN, Styles.H_FULL);
     questionForm.with(innerDiv);
