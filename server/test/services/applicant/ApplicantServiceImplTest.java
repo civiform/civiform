@@ -1108,11 +1108,11 @@ public class ApplicantServiceImplTest extends ResetPostgres {
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(programForDraftApp.id);
-    assertThat(result.inProgress().stream().map(p -> p.latestApplicationSubmitTime()))
+    assertThat(result.inProgress().stream().map(p -> p.latestSubmittedApplicationTime()))
         .containsExactly(Optional.of(firstAppSubmitTime));
     assertThat(result.submitted().stream().map(p -> p.program().id()))
         .containsExactly(programForSubmittedApp.id);
-    assertThat(result.submitted().stream().map(p -> p.latestApplicationSubmitTime()))
+    assertThat(result.submitted().stream().map(p -> p.latestSubmittedApplicationTime()))
         .containsExactly(Optional.of(secondAppSubmitTime));
     assertThat(result.unapplied()).isEmpty();
   }

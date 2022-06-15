@@ -325,9 +325,9 @@ public final class ProgramIndexView extends BaseHtmlView {
       programData.with(externalLink);
     }
 
-    if (cardData.latestApplicationSubmitTime().isPresent()) {
+    if (cardData.latestSubmittedApplicationTime().isPresent()) {
       programData.with(
-          programCardSubmittedDate(messages, cardData.latestApplicationSubmitTime().get()));
+          programCardSubmittedDate(messages, cardData.latestSubmittedApplicationTime().get()));
     }
 
     String actionUrl =

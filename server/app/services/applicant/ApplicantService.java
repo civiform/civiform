@@ -108,6 +108,10 @@ public interface ApplicantService {
    */
   CompletionStage<RelevantPrograms> relevantProgramsForApplicant(long applicantId);
 
+  /**
+   * Relevant program data to be shown to the applicant, including the time at which the applicant
+   * most recently submitted an application for some version of the program.
+   */
   @AutoValue
   public abstract static class ApplicantProgramData {
     public abstract ProgramDefinition program();
@@ -115,12 +119,15 @@ public interface ApplicantService {
     public abstract Optional<Instant> latestApplicationSubmitTime();
 
     static ApplicantProgramData create(
-        ProgramDefinition program, Optional<Instant> latestApplicationSubmitTime) {
+        ProgramDefinition program, Optional<Instant> latestSubmittedApplicationTime) {
       return new AutoValue_ApplicantService_ApplicantProgramData(
-          program, latestApplicationSubmitTime);
+          program, latestSubmittedApplicationTime);
     }
   }
 
+  /**
+   * A categorized list of relevant {@link ApplicantProgramData}s to be displayed to the applicant.
+   */
   @AutoValue
   public abstract static class RelevantPrograms {
     public abstract ImmutableList<ApplicantProgramData> inProgress();

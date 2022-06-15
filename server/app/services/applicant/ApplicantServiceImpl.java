@@ -447,7 +447,7 @@ public final class ApplicantServiceImpl implements ApplicantService {
 
     // When new revisions of Programs are created, they have distinct IDs but retain the
     // same adminName. In order to find the most recent draft / active application,
-    // we first group by the unique name rather than the ID.
+    // we first group by the unique program name rather than the ID.
     Map<String, Map<LifecycleStage, Optional<Application>>> mostRecentApplicationsByProgram =
         applications.stream()
             .collect(
@@ -473,15 +473,18 @@ public final class ApplicantServiceImpl implements ApplicantService {
               appByStage.getOrDefault(LifecycleStage.DRAFT, Optional.empty());
           Optional<Application> maybeSubmittedApp =
               appByStage.getOrDefault(LifecycleStage.ACTIVE, Optional.empty());
-          Optional<Instant> maybeSubmitTime = maybeSubmittedApp.map(Application::getSubmitTime);
+          Optional<Instant> latestSubmittedApplicationTime =
+              maybeSubmittedApp.map(Application::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
             inProgressPrograms.add(
                 ApplicantProgramData.create(
-                    maybeDraftApp.get().getProgram().getProgramDefinition(), maybeSubmitTime));
+                    maybeDraftApp.get().getProgram().getProgramDefinition(),
+                    latestSubmittedApplicationTime));
             programNamesWithApplications.add(programName);
           } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
             ProgramDefinition programDef = activeProgramNames.get(programName);
-            submittedPrograms.add(ApplicantProgramData.create(programDef, maybeSubmitTime));
+            submittedPrograms.add(
+                ApplicantProgramData.create(programDef, latestSubmittedApplicationTime));
             programNamesWithApplications.add(programName);
           }
         });
