@@ -12,7 +12,7 @@ permissions: read-all
 
 # Two probers running at once can break each other.
 concurrency:
-  group: stagingenvironment
+  group: ${{ github.workflow }}-stagingenvironment
   cancel-in-progress: true
 
 jobs:

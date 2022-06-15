@@ -4,7 +4,7 @@ name: pr_server
 # avoids wasted work when a new commit is pushed
 
 concurrency:
-  group: ${{ github.head_ref || github.run_id }}
+  group:  ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 on:
