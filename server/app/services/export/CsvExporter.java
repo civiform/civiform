@@ -78,13 +78,13 @@ public final class CsvExporter implements AutoCloseable {
                   : EMPTY_VALUE);
           break;
         case SUBMITTER_EMAIL_OPAQUE:
-          if (this.secret.isBlank()) {
+          if (secret.isBlank()) {
             throw new RuntimeException("Secret not present, but opaque ID requested.");
           }
           printer.print(
               application
                   .getSubmitterEmail()
-                  .map(email -> opaqueIdentifier(this.secret, email))
+                  .map(email -> opaqueIdentifier(secret, email))
                   .orElse(EMPTY_VALUE));
           break;
         case SUBMITTER_EMAIL:
@@ -103,18 +103,17 @@ public final class CsvExporter implements AutoCloseable {
                   .orElse(EMPTY_VALUE));
           break;
         case OPAQUE_ID:
-          if (this.secret.isEmpty()) {
+          if (secret.isEmpty()) {
             throw new RuntimeException("Secret not present, but opaque ID requested.");
           }
-          printer.print(opaqueIdentifier(this.secret.get(), application.getApplicant().id));
+          printer.print(opaqueIdentifier(secret, application.getApplicant().id));
           break;
         case APPLICANT_OPAQUE:
-          if (this.secret.isEmpty()) {
+          if (secret.isEmpty()) {
             throw new RuntimeException("Secret not present, but opaque applicant data requested.");
           }
           // We still hash the empty value.
-          printer.print(
-              opaqueIdentifier(this.secret.get(), getValueFromAnswerMap(column, answerMap)));
+          printer.print(opaqueIdentifier(secret, getValueFromAnswerMap(column, answerMap)));
       }
     }
 
