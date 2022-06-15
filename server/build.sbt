@@ -95,7 +95,11 @@ lazy val root = (project in file("."))
       "commons-net" % "commons-net" % "3.8.0",
 
       // Url detector for program descriptions.
-      "com.linkedin.urls" % "url-detector" % "0.1.17"
+      "com.linkedin.urls" % "url-detector" % "0.1.17",
+
+      // Sourcegraph indexer.
+      "com.sourcegraph" %% "scip-java" % "0.8.1"
+
     ),
     javacOptions ++= Seq(
       "-encoding",
@@ -202,3 +206,7 @@ resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.
 Global / onChangedBuildSource := ReloadOnSourceChanges
+
+// Enable indexing.
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := "4.4.7"
