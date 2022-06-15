@@ -13,6 +13,7 @@ import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ATag;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -193,7 +194,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                       applicantId, data.programId(), data.blockId())
                   .url();
 
-      ContainerTag<?> editAction =
+      ATag editAction =
           new LinkElement()
               .setHref(editLink)
               .setText(editText)

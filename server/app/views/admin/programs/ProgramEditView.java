@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import forms.ProgramForm;
 import j2html.tags.Tag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.ATag;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
@@ -61,7 +62,7 @@ public class ProgramEditView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private Tag<?> buildManageQuestionLink(long id) {
+  private ATag buildManageQuestionLink(long id) {
     String manageQuestionLink =
         controllers.admin.routes.AdminProgramBlocksController.index(id).url();
     return new LinkElement()

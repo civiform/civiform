@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ATag;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -72,7 +73,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     return layout.render(htmlBundle);
   }
 
-  private DivTag renderDownloadButton(long programId, long applicationId) {
+  private ATag renderDownloadButton(long programId, long applicationId) {
     String link =
         controllers.admin.routes.AdminApplicationController.download(programId, applicationId)
             .url();

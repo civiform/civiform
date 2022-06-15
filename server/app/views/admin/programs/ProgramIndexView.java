@@ -13,6 +13,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.Tag;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
@@ -103,7 +104,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private DivTag renderDownloadExportCsvButton() {
+  private ATag renderDownloadExportCsvButton() {
     return new LinkElement()
         .setId("download-export-csv-button")
         .setHref(routes.AdminApplicationController.downloadDemographics().url())
@@ -125,7 +126,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
   }
 
-  private DivTag renderNewProgramButton() {
+  private ATag renderNewProgramButton() {
     String link = controllers.admin.routes.AdminProgramController.newOne().url();
     return new LinkElement()
         .setId("new-program-button")
@@ -332,7 +333,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return div();
   }
 
-  private Tag<?> renderManageProgramAdminsLink(
+  private ATag renderManageProgramAdminsLink(
       Optional<ProgramDefinition> draftProgram, Optional<ProgramDefinition> activeProgram) {
     // We can use the ID of either, since we just add the program name and not ID to indicate
     // ownership.

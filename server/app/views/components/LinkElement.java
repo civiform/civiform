@@ -10,9 +10,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import j2html.TagCreator;
+import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.attributes.IHref;
+import j2html.tags.attributes.ITarget;
 import play.filters.csrf.CSRF;
 import play.mvc.Http;
 import scala.Option;
@@ -116,22 +120,42 @@ public class LinkElement {
         .withClasses(DEFAULT_LINK_STYLES, styles);
   }
 
-  public DivTag asButton() {
-    DivTag tag =
-        Strings.isNullOrEmpty(href)
-            ? div(text)
-            : div().with(a(text).withHref(href).withCondTarget(doesOpenInNewTab, "_blank"));
-    return tag.withCondId(!Strings.isNullOrEmpty(id), id)
-        .withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);
+  private <T extends ContainerTag<T> & IHref<T> & ITarget<T>> void setTargetMaybeHref(T tag) throws RuntimeException {
+    if (tag.getTagName().equals("a") && Strings.isNullOrEmpty(href)) {
+      throw new RuntimeException("trying to create an <a> tag with no href defined!");
+    }
+    tag.withCondHref(!Strings.isNullOrEmpty(href), href)
+        .withCondTarget(doesOpenInNewTab, "_blank");
   }
 
-  public DivTag asRightAlignedButton() {
-    DivTag tag =
-        Strings.isNullOrEmpty(href)
-            ? div(text)
-            : div().with(a(text).withHref(href).withCondTarget(doesOpenInNewTab, "_blank"));
-    return tag.withCondId(!Strings.isNullOrEmpty(id), id)
-        .withClasses(RIGHT_ALIGNED_LINK_BUTTON_STYLES, styles);
+  private void maybeSetId(Tag tag) {
+    tag.withCondId(!Strings.isNullOrEmpty(id), id);
+  }
+
+  public ATag asButton() {
+    ATag tag = a(text);
+    setTargetMaybeHref(tag);
+    maybeSetId(tag);
+    return tag.withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);
+  }
+
+  public ATag asRightAlignedButton() {
+    ATag tag = a(text);
+    setTargetMaybeHref(tag);
+    maybeSetId(tag);
+    return tag.withClasses(RIGHT_ALIGNED_LINK_BUTTON_STYLES, styles);
+  }
+
+  public DivTag asButtonNoHref() {
+    DivTag tag = div(text);
+    maybeSetId(tag);
+    return tag.withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);
+  }
+
+  public DivTag asRightAlignedButtonNoHref() {
+    DivTag tag = div(text);
+    maybeSetId(tag);
+    return tag.withClasses(RIGHT_ALIGNED_LINK_BUTTON_STYLES, styles);
   }
 
   public FormTag asHiddenForm(Http.Request request) {

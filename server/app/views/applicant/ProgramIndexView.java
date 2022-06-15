@@ -267,7 +267,7 @@ public class ProgramIndexView extends BaseHtmlView {
     String infoUrl =
         controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
             .url();
-    Tag<?> infoLink =
+    ATag infoLink =
         new LinkElement()
             .setId(baseId + "-info-link")
             .setStyles(Styles.BLOCK, Styles.MY_2, Styles.TEXT_SM, Styles.UNDERLINE)
@@ -283,7 +283,7 @@ public class ProgramIndexView extends BaseHtmlView {
 
     // Add external link if it is set.
     if (!program.externalLink().isEmpty()) {
-      ContainerTag<?> externalLink =
+      ATag externalLink =
           new LinkElement()
               .setId(baseId + "-external-link")
               .setStyles(Styles.BLOCK, Styles.MY_2, Styles.TEXT_SM, Styles.UNDERLINE)

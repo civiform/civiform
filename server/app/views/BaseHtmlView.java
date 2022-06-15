@@ -97,7 +97,7 @@ public abstract class BaseHtmlView {
       int page, int pageCount, Function<Integer, Call> linkForPage) {
     DivTag div = div();
     if (page <= 1) {
-      div.with(new LinkElement().setText("∅").asButton());
+      div.with(new LinkElement().setText("∅").asButtonNoHref());
     } else {
       div.with(
           new LinkElement().setText("←").setHref(linkForPage.apply(page - 1).url()).asButton());
@@ -110,7 +110,7 @@ public abstract class BaseHtmlView {
       div.with(
           new LinkElement().setText("→").setHref(linkForPage.apply(page + 1).url()).asButton());
     } else {
-      div.with(new LinkElement().setText("∅").asButton());
+      div.with(new LinkElement().setText("∅").asButtonNoHref());
     }
     return div.with(br());
   }

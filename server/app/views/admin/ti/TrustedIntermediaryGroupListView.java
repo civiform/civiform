@@ -13,6 +13,7 @@ import static j2html.TagCreator.tr;
 
 import com.google.inject.Inject;
 import controllers.admin.routes;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
@@ -145,7 +146,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         .asHiddenForm(request);
   }
 
-  private DivTag renderEditButton(TrustedIntermediaryGroup tiGroup) {
+  private ATag renderEditButton(TrustedIntermediaryGroup tiGroup) {
     return new LinkElement()
         .setText("Edit")
         .setId("edit-" + tiGroup.id + "-button")

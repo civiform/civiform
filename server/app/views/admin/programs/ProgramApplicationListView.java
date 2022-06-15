@@ -13,6 +13,7 @@ import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.Tag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
 import models.Application;
@@ -103,7 +104,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private DivTag renderCsvDownloadButton(long programId) {
+  private ATag renderCsvDownloadButton(long programId) {
     String link = controllers.admin.routes.AdminApplicationController.downloadAll(programId).url();
     return new LinkElement()
         .setId("download-all-button")
@@ -113,7 +114,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .asButton();
   }
 
-  private DivTag renderJsonDownloadButton(long programId) {
+  private ATag renderJsonDownloadButton(long programId) {
     String link =
         controllers.admin.routes.AdminApplicationController.downloadAllJson(programId).url();
     return new LinkElement()
@@ -167,7 +168,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     }
   }
 
-  private Tag<?> renderViewLink(String text, Application application) {
+  private ATag renderViewLink(String text, Application application) {
     String viewLink =
         controllers.admin.routes.AdminApplicationController.show(
                 application.getProgram().id, application.id)

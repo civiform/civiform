@@ -73,7 +73,7 @@ public final class QuestionsListView extends BaseHtmlView {
   private DivTag renderAddQuestionLink() {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
-    DivTag linkButton = new LinkElement().setId(parentId).setText("Create new question").asButton();
+    DivTag linkButton = new LinkElement().setId(parentId).setText("Create new question").asButtonNoHref();
     DivTag dropdown =
         div()
             .withId(dropdownId)
@@ -219,7 +219,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag<?> renderQuestionEditLink(QuestionDefinition definition, String linkText) {
+  private ATag renderQuestionEditLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
     return new LinkElement()
         .setId("edit-question-link-" + definition.getId())
@@ -229,7 +229,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .asAnchorText();
   }
 
-  private Tag<?> renderQuestionTranslationLink(QuestionDefinition definition, String linkText) {
+  private ATag renderQuestionTranslationLink(QuestionDefinition definition, String linkText) {
     String link =
         controllers.admin.routes.AdminQuestionTranslationsController.edit(
                 definition.getId(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
@@ -242,7 +242,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .asAnchorText();
   }
 
-  private Tag<?> renderQuestionViewLink(QuestionDefinition definition, String linkText) {
+  private ATag renderQuestionViewLink(QuestionDefinition definition, String linkText) {
     String link = controllers.admin.routes.AdminQuestionController.show(definition.getId()).url();
     return new LinkElement()
         .setId("view-question-link-" + definition.getId())
