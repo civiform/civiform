@@ -31,9 +31,9 @@ import models.Application;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.Program;
+import models.StoredFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import models.StoredFile;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
 import repository.StoredFileRepository;
@@ -436,7 +436,7 @@ public final class ApplicantServiceImpl implements ApplicantService {
   private RelevantPrograms relevantProgramsForApplicant(
       ImmutableList<ProgramDefinition> activePrograms, ImmutableSet<Application> applications) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
-    // provided active programs contains duplicaate entries with the same adminName. In this
+    // provided active programs contains duplicate entries with the same adminName. In this
     // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
     // construction where the same key is provided twice. Using Collectors.toMap would just
     // use the last provided key.
@@ -445,7 +445,7 @@ public final class ApplicantServiceImpl implements ApplicantService {
             activePrograms.stream()
                 .collect(Collectors.toMap(ProgramDefinition::adminName, pdef -> pdef)));
 
-    // When new versions of Programs are created, they have distinct IDs but retain the
+    // When new revisions of Programs are created, they have distinct IDs but retain the
     // same adminName. In order to find the most recent draft / active application,
     // we first group by the unique name rather than the ID.
     Map<String, Map<LifecycleStage, Optional<Application>>> mostRecentApplicationsByProgram =
@@ -486,9 +486,9 @@ public final class ApplicantServiceImpl implements ApplicantService {
           }
         });
 
-    Set<String> missingActivePrograms =
+    Set<String> unappliedActivePrograms =
         Sets.difference(activeProgramNames.keySet(), programNamesWithApplications);
-    missingActivePrograms.forEach(
+    unappliedActivePrograms.forEach(
         programName -> {
           unappliedPrograms.add(
               ApplicantProgramData.create(activeProgramNames.get(programName), Optional.empty()));
@@ -513,7 +513,7 @@ public final class ApplicantServiceImpl implements ApplicantService {
     // Add logging to better understand a bug where some applicants were seeing
     // duplicates of programs for which they had draft applications. We can remove
     // this logging once we determine and resolve the root cause of the duplicate
-    // draft applicatoins.
+    // draft applications.
     Collection<Map<LifecycleStage, List<Application>>> groupedByStatus =
         applications.stream()
             .collect(

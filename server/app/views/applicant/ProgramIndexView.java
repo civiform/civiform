@@ -386,7 +386,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ZonedDateTime dateTime = submittedDate.atZone(zoneId);
     String formattedSubmitTime =
         DateTimeFormatter.ofLocalizedDate(
-                // SHORT will print dates as 1/2/2022
+                // SHORT will print dates as 1/2/2022.
                 FormatStyle.SHORT)
             .format(dateTime);
     submittedComponents.add(span(formattedSubmitTime).withClass(Styles.FONT_SEMIBOLD));
