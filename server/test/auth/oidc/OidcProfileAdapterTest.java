@@ -16,9 +16,11 @@ import org.pac4j.oidc.profile.OidcProfile;
 import repository.ResetPostgres;
 import repository.UserRepository;
 import support.CfTestHelpers;
+import auth.CiviFormProfileData;
 
 public class OidcProfileAdapterTest extends ResetPostgres {
   private static final String EMAIL = "foo@bar.com";
+  private static final String NAME = "Philip J. Fry";
   private static final String ISSUER = "issuer";
   private static final String SUBJECT = "subject";
   private static final String AUTHORITY_ID = "iss: issuer sub: subject";
@@ -105,5 +107,27 @@ public class OidcProfileAdapterTest extends ResetPostgres {
     // one.
     assertThat(account.getEmailAddress()).isEqualTo(otherEmail);
     assertThat(account.getAuthorityId()).isEqualTo(AUTHORITY_ID);
+  }
+
+  @Test
+  public void mergeCiviFormProfile_succeeds_new_user() {
+    OidcProfile profile = new OidcProfile();
+    profile.addAttribute("user_emailid", EMAIL);
+    profile.addAttribute("user_displayname", NAME);
+    profile.addAttribute("user_locale", "EN");
+    profile.addAttribute("iss", ISSUER);
+    profile.setId(SUBJECT);
+
+    // Execute.
+    CiviFormProfileData profileData = oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+
+    // Verify.
+    assertThat(profileData).isNotNull();
+
+    // The email of the existing account is the pre-existing one, not a new profile
+    // one.
+    assertThat(profileData.getEmail()).isEqualTo(EMAIL);
+    assertThat(profileData.getDisplayName()).isEqualTo(NAME);
+    assertThat(profileData.getLocale()).isEqualTo("EN");
   }
 }

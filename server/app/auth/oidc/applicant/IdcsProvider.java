@@ -48,29 +48,17 @@ public final class IdcsProvider extends OidcProvider {
 
   @Override
   protected String getClientID() {
-    return getConfigurationValue(CLIENT_ID_CONFIG_NAME)
-        .orElseThrow(
-            () ->
-                new RuntimeException(
-                    ATTRIBUTE_PREFIX + "." + CLIENT_ID_CONFIG_NAME + " must be set"));
+    return getConfigurationValueOrThrow(CLIENT_ID_CONFIG_NAME);
   }
 
   @Override
   protected String getClientSecret() {
-    return getConfigurationValue(CLIENT_SECRET_CONFIG_NAME)
-        .orElseThrow(
-            () ->
-                new RuntimeException(
-                    ATTRIBUTE_PREFIX + "." + CLIENT_SECRET_CONFIG_NAME + " must be set"));
+    return getConfigurationValueOrThrow(CLIENT_SECRET_CONFIG_NAME);
   }
 
   @Override
   protected String getDiscoveryURI() {
-    return getConfigurationValue(DISCOVERY_URI_CONFIG_NAME)
-        .orElseThrow(
-            () ->
-                new RuntimeException(
-                    ATTRIBUTE_PREFIX + "." + DISCOVERY_URI_CONFIG_NAME + " must be set"));
+    return getConfigurationValueOrThrow(DISCOVERY_URI_CONFIG_NAME);
   }
 
   @Override

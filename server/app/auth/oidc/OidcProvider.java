@@ -3,6 +3,7 @@ package auth.oidc;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileFactory;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -100,6 +101,16 @@ public abstract class OidcProvider implements Provider<OidcClient> {
   protected final Optional<String> getConfigurationValue(String suffix) {
     String name = attributePrefix() + "." + suffix;
     return getBaseConfigurationValue(name);
+  }
+
+  /*
+   * Helper function for retriving values from the application.conf,
+   * prepended with "<attributePrefix>."
+   */
+  protected final String getConfigurationValueOrThrow(String suffix) {
+    String name = attributePrefix() + "." + suffix;
+    return getBaseConfigurationValue(name)
+        .orElseThrow(() -> new RuntimeException(name + " must be set"));
   }
 
   /*
