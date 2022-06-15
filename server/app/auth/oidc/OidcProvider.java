@@ -133,11 +133,10 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     String responseMode = getResponseMode();
     String responseType = getResponseType();
     String callbackURL = getCallbackURL();
-    String scopes = getScope();
-    var requiredAttributes =
-        ImmutableList.of(
-            clientID, clientSecret, discoveryURI, responseMode, responseType, callbackURL);
-    var missing = requiredAttributes.stream().map(Strings::nullToEmpty);
+    String scope = getScope();
+    var missing = ImmutableList.of(
+            clientID, clientSecret, discoveryURI, responseMode, responseType, callbackURL)
+      .stream().map(Strings::nullToEmpty);
     // Check that none are null or blank.
     if (missing.anyMatch(String::isBlank)) {
       logger.error(
@@ -167,7 +166,7 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     config.setUseNonce(true);
     config.setWithState(false);
 
-    config.setScope(scopes);
+    config.setScope(scope);
 
     OidcClient client = new OidcClient(config);
 

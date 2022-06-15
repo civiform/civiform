@@ -46,7 +46,7 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
     this.nameAttributeNames = Preconditions.checkNotNull(nameAttributeNames);
   }
 
-  protected Optional<String> getName(OidcProfile oidcProfile) {
+  private Optional<String> getName(OidcProfile oidcProfile) {
     String name =
         nameAttributeNames.stream()
             .filter(s -> !s.isBlank())
@@ -57,13 +57,13 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
     return Optional.ofNullable(Strings.emptyToNull(name));
   }
 
-  protected Optional<String> getLocale(OidcProfile oidcProfile) {
+  private Optional<String> getLocale(OidcProfile oidcProfile) {
     return localeAttributeName
+        .filter(s -> !s.isBlank())
         .map(name -> oidcProfile.getAttribute(name, String.class))
         .filter(s -> !Strings.isNullOrEmpty(s));
   }
 
-  // Legacy. TODO: remove.
   @Override
   protected String emailAttributeName() {
     return emailAttributeName;
@@ -101,19 +101,19 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
   @Override
   protected CiviFormProfileData mergeCiviFormProfile(
       CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
-    final String locale = getLocale(oidcProfile).orElse("");
-    final String name = getName(oidcProfile).orElse("");
+    final Optional<String> maybeLocale = getLocale(oidcProfile);
+    final Optional<String> maybeName = getName(oidcProfile);
 
-    if (!locale.isBlank() || !name.isBlank()) {
+    if (maybeLocale.isPresent() || maybeName.isPresent()) {
       civiformProfile
           .getApplicant()
           .thenApplyAsync(
               applicant -> {
-                if (!locale.isBlank()) {
-                  applicant.getApplicantData().setPreferredLocale(Locale.forLanguageTag(locale));
+                maybeLocale.ifPresent(
+                  locale->applicant.getApplicantData().setPreferredLocale(Locale.forLanguageTag(locale)))
                 }
-                if (!name.isBlank()) {
-                  applicant.getApplicantData().setUserName(name);
+                maybeName.ifPresent(
+                  name->applicant.getApplicantData().setUserName(name))
                 }
                 applicant.save();
                 return null;
