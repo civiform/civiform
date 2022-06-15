@@ -160,12 +160,12 @@ public class ApplicationRepository {
       ApplicationFilter filter = maybeFilter.get();
       if (filter.submitTimeFilter().isPresent()) {
         TimeFilter submitTimeFilter = filter.submitTimeFilter().get();
-        // Inclusive from, exclusive to.
-        if (submitTimeFilter.beforeTime().isPresent()) {
-          query = query.lt("submit_time", submitTimeFilter.beforeTime().get());
-        }
+        // Inclusive "after", exclusive "before".
         if (submitTimeFilter.afterTime().isPresent()) {
           query = query.ge("submit_time", submitTimeFilter.afterTime().get());
+        }
+        if (submitTimeFilter.beforeTime().isPresent()) {
+          query = query.lt("submit_time", submitTimeFilter.beforeTime().get());
         }
       }
     }

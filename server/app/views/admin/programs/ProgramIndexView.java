@@ -3,10 +3,12 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 
 import auth.CiviFormProfile;
@@ -30,6 +32,7 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.style.ReferenceClasses;
@@ -105,22 +108,36 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Modal renderDownloadExportCsvModal() {
+    String modalId = "download-demographics-csv-modal";
     ContainerTag downloadDemographicCsvModalContent =
         div()
-            .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.PX_8)
+            .withClasses(Styles.PX_8)
             .with(
                 form()
                     .withMethod("GET")
                     .withAction(routes.AdminApplicationController.downloadDemographics().url())
                     .with(
-                        div()
+                        p("This will download all applications for all programs and can take"
+                              + " potentially be quite slow without filtering down the set of"
+                              + " returned applications. Consider using the filters below to"
+                              + " decrease the time to generate the report.")
+                            .withClass(Styles.TEXT_SM),
+                        fieldset()
+                            .withClasses(Styles.MT_4, Styles.PT_1, Styles.PB_2, Styles.BORDER)
                             .with(
-                                label("Before date: "),
-                                input().withName(Filters.BEFORE_DATE_QUERY_PARAM).withType("date"),
-                                label("After date: "),
-                                input().withName(Filters.AFTER_DATE_QUERY_PARAM).withType("date")),
-                        button("Download").withType("submit")));
-    return Modal.builder("download-demographics-csv-modal", downloadDemographicCsvModalContent)
+                                legend("Applications submitted").withClass(Styles.ML_3),
+                                FieldWithLabel.date()
+                                    .setFieldName(Filters.AFTER_DATE_QUERY_PARAM)
+                                    .setLabelText("From:")
+                                    .getContainer()
+                                    .withClasses(Styles.ML_3, Styles.INLINE_FLEX),
+                                FieldWithLabel.date()
+                                    .setFieldName(Filters.BEFORE_DATE_QUERY_PARAM)
+                                    .setLabelText("To:")
+                                    .getContainer()
+                                    .withClasses(Styles.ML_3, Styles.INLINE_FLEX)),
+                        button("Download").withClass(Styles.MT_6).withType("submit")));
+    return Modal.builder(modalId, downloadDemographicCsvModalContent)
         .setModalTitle("Download Exported Data (CSV)")
         .build();
   }
