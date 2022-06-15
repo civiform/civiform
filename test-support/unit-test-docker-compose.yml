@@ -33,5 +33,5 @@ services:
       - IDCS_SECRET=bar
       - IDCS_DISCOVERY_URI=http://oidc:3380/.well-known/openid-configuration
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
-      - BASE_URL=http://civiform:9000
+      - BASE_URL=http://localhost:9000
       - CIVIFORM_TIME_ZONE_ID
