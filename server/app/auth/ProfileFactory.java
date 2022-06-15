@@ -1,15 +1,18 @@
 package auth;
 
 import com.google.common.base.Preconditions;
+import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Account;
 import models.ApiKey;
 import models.Applicant;
+import models.TrustedIntermediaryGroup;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
+import repository.UserRepository;
 import repository.VersionRepository;
 import services.apikey.ApiKeyService;
 
@@ -20,21 +23,24 @@ import services.apikey.ApiKeyService;
 public class ProfileFactory {
 
   public static final String FAKE_ADMIN_AUTHORITY_ID = "fake-admin";
-  private DatabaseExecutionContext dbContext;
-  private HttpExecutionContext httpContext;
-  private Provider<VersionRepository> versionRepositoryProvider;
-  private Provider<ApiKeyService> apiKeyService;
+  private final DatabaseExecutionContext dbContext;
+  private final HttpExecutionContext httpContext;
+  private final Provider<VersionRepository> versionRepositoryProvider;
+  private final Provider<ApiKeyService> apiKeyService;
+  private final Provider<UserRepository> userRepositoryProvider;
 
   @Inject
   public ProfileFactory(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
       Provider<VersionRepository> versionRepositoryProvider,
-      Provider<ApiKeyService> apiKeyService) {
+      Provider<ApiKeyService> apiKeyService,
+      Provider<UserRepository> userRepositoryProvider) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
     this.versionRepositoryProvider = Preconditions.checkNotNull(versionRepositoryProvider);
     this.apiKeyService = Preconditions.checkNotNull(apiKeyService);
+    this.userRepositoryProvider = Preconditions.checkNotNull(userRepositoryProvider);
   }
 
   public CiviFormProfileData createNewApplicant() {
@@ -149,6 +155,34 @@ public class ProfileFactory {
             })
         .join();
     return p;
+  }
+
+  /** This creates a trusted intermediary. */
+  public CiviFormProfileData createFakeTrustedIntermediary() {
+    UserRepository userRepository = userRepositoryProvider.get();
+    List<TrustedIntermediaryGroup> existingGroups = userRepository.listTrustedIntermediaryGroups();
+    TrustedIntermediaryGroup group;
+
+    if (existingGroups.isEmpty()) {
+      group = userRepository.createNewTrustedIntermediaryGroup("Test group", "Created for testing");
+    } else {
+      group = existingGroups.get(0);
+    }
+
+    CiviFormProfileData tiProfileData = create(new Roles[] {Roles.ROLE_TI});
+    wrapProfileData(tiProfileData)
+        .getAccount()
+        .thenAccept(
+            account -> {
+              account.setAuthorityId(generateFakeAdminAuthorityId());
+              String email = String.format("fake-trusted-intermediary-%d@example.com", account.id);
+              account.setEmailAddress(email);
+              account.save();
+              userRepository.addTrustedIntermediaryToGroup(group.id, email);
+            })
+        .join();
+
+    return tiProfileData;
   }
 
   private static String generateFakeAdminAuthorityId() {
