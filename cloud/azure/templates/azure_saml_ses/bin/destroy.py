@@ -9,13 +9,13 @@ Destroy the setup
 """
 
 
-class Destroy:
+class Destroy(SetupTemplate):
 
-    def pre_terraform_destroy(self):
+    def pre_terraform_setup(self):
         print(" - Deleting AWS Access Key")
         self._delete_access_key()
 
-    def post_terraform_destroy(self):
+    def post_terraform_setup(self):
         print(" - Purge the keyvault")
         self._purge_keyvault()
 
