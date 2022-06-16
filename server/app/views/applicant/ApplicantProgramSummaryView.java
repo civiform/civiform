@@ -14,7 +14,6 @@ import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.ContainerTag;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
