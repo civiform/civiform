@@ -36,6 +36,18 @@ class Setup(SetupTemplate):
         if not self.config.use_backend_config():
             self._make_backend_override()
 
+    def get_current_user(self):
+        current_user_function = subprocess.run(
+            [
+                "/bin/bash", "-c",
+                f"source cloud/azure/bin/lib.sh && azure::get_current_user_id"
+            ],
+            capture_output=True)
+
+        if current_user_function:
+            current_user = current_user_function.stdout.decode("ascii")
+        return current_user
+
     def setup_log_file(self):
         self._setup_resource_group()
         _, self.log_file_path = tempfile.mkstemp()
