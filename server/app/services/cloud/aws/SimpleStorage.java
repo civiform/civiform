@@ -170,7 +170,7 @@ public class SimpleStorage implements StorageClient {
 
     @Override
     public String bucketAddress() {
-      return String.format("https://s3-%s.amazonaws.com/%s", region.id(), bucket);
+      return String.format("https://%s.s3.%s.amazonaws.com/",  bucket, region.id());
     }
 
     @Override
