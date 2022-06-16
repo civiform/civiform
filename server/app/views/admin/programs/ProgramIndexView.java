@@ -72,7 +72,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setTriggerButtonText("Publish all programs")
             .build();
 
-    Modal downloadDemographicsModal = renderDownloadExportCsvModal();
+    Modal demographicsCsvModal = renderDemographicsCsvModal();
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
@@ -96,20 +96,22 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     programs.getDraftProgramDefinition(name),
                                     request,
                                     profile))))
-            .with(downloadDemographicsModal.getButton());
+            .with(demographicsCsvModal.getButton());
 
     HtmlBundle htmlBundle =
         layout
             .getBundle()
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
-            .addModals(publishAllModal, downloadDemographicsModal)
+            .addModals(publishAllModal, demographicsCsvModal)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
     return layout.renderCentered(htmlBundle);
   }
 
-  private Modal renderDownloadExportCsvModal() {
+  private Modal renderDemographicsCsvModal() {
     String modalId = "download-demographics-csv-modal";
+    String downloadActionText = "Download Exported Data (CSV)";
+
     ContainerTag downloadDemographicCsvModalContent =
         div()
             .withClasses(Styles.PX_8)
@@ -137,11 +139,11 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     .setLabelText("To:")
                                     .getContainer()
                                     .withClasses(Styles.ML_3, Styles.INLINE_FLEX)),
-                        button("Download")
+                        button(downloadActionText)
                             .withClasses(BaseStyles.MODAL_BUTTON, Styles.MT_6)
                             .withType("submit")));
     return Modal.builder(modalId, downloadDemographicCsvModalContent)
-        .setModalTitle("Download Exported Data (CSV)")
+        .setModalTitle(downloadActionText)
         .build();
   }
 

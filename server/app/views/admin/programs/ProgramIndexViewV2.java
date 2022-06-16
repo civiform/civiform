@@ -3,7 +3,10 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.fieldset;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
@@ -11,6 +14,7 @@ import auth.CiviFormProfile;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import controllers.admin.Filters;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
@@ -29,6 +33,7 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
 import views.style.AdminStyles;
@@ -60,6 +65,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     String pageTitle = "All programs";
     Optional<Modal> maybePublishModal = maybeRenderPublishModal(programs, request);
 
+    Modal demographicsCsvModal = renderDemographicsCsvModal();
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_4)
@@ -74,7 +80,9 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                     .with(
                         h1(pageTitle),
                         div().withClass(Styles.FLEX_GROW),
-                        renderDownloadExportCsvButton(),
+                        demographicsCsvModal
+                            .getButton()
+                            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2),
                         renderNewProgramButton(),
                         maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null),
                 div()
@@ -96,18 +104,49 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
             .getBundle()
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
+            .addModals(demographicsCsvModal)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
     maybePublishModal.ifPresent(htmlBundle::addModals);
     return layout.renderCentered(htmlBundle);
   }
 
-  private Tag renderDownloadExportCsvButton() {
-    String link = routes.AdminApplicationController.downloadDemographics().url();
-    ContainerTag button =
-        makeSvgTextButton("Download Exported Data (CSV)", Icons.DOWNLOAD_SVG_PATH)
-            .withId("download-export-csv-button")
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2);
-    return asRedirectButton(button, link);
+  private Modal renderDemographicsCsvModal() {
+    String modalId = "download-demographics-csv-modal";
+    String downloadActionText = "Download Exported Data (CSV)";
+    ContainerTag downloadDemographicCsvModalContent =
+        div()
+            .withClasses(Styles.PX_8)
+            .with(
+                form()
+                    .withMethod("GET")
+                    .withAction(routes.AdminApplicationController.downloadDemographics().url())
+                    .with(
+                        p("This will download all applications for all programs and can take"
+                                + " potentially be quite slow without filtering down the set of"
+                                + " returned applications. Consider using the filters below to"
+                                + " decrease the time to generate the report.")
+                            .withClass(Styles.TEXT_SM),
+                        fieldset()
+                            .withClasses(Styles.MT_4, Styles.PT_1, Styles.PB_2, Styles.BORDER)
+                            .with(
+                                legend("Applications submitted").withClass(Styles.ML_3),
+                                FieldWithLabel.date()
+                                    .setFieldName(Filters.FROM_DATE_QUERY_PARAM)
+                                    .setLabelText("From:")
+                                    .getContainer()
+                                    .withClasses(Styles.ML_3, Styles.INLINE_FLEX),
+                                FieldWithLabel.date()
+                                    .setFieldName(Filters.TO_DATE_QUERY_PARAM)
+                                    .setLabelText("To:")
+                                    .getContainer()
+                                    .withClasses(Styles.ML_3, Styles.INLINE_FLEX)),
+                        makeSvgTextButton(downloadActionText, Icons.DOWNLOAD_SVG_PATH)
+                            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, Styles.MT_6)
+                            .withType("submit")));
+    return Modal.builder(modalId, downloadDemographicCsvModalContent)
+        .setModalTitle(downloadActionText)
+        .setTriggerButtonContent(makeSvgTextButton(downloadActionText, Icons.DOWNLOAD_SVG_PATH))
+        .build();
   }
 
   private ContainerTag makePublishButton() {
