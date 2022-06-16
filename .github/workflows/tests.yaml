@@ -24,7 +24,7 @@ jobs:
     - name: Run tests
       run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
       with:
        file: server/code-coverage/report/jacoco.xml
        verbose: true
