@@ -12,6 +12,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.Before;
 import org.junit.Test;
+import repository.TimeFilter;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
@@ -138,7 +139,9 @@ public class CsvExporterTest extends AbstractExporterTest {
 
     ExporterService exporterService = instanceOf(ExporterService.class);
     CSVParser parser =
-        CSVParser.parse(exporterService.getDemographicsCsv(), CsvExporter.DEFAULT_CSV_FORMAT);
+        CSVParser.parse(
+            exporterService.getDemographicsCsv(TimeFilter.builder().build()),
+            CsvExporter.DEFAULT_CSV_FORMAT);
 
     int id = 0;
     assertThat(parser.getHeaderMap())
