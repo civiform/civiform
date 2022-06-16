@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-
+import os
 from cloud.shared.bin.lib.config_loader import ConfigLoader
 from cloud.shared.bin.lib.write_tfvars import TfVarWriter
 """
@@ -23,12 +23,10 @@ def load_config():
             f"Found the following validation errors: {new_line}{f'{new_line}'.join(validation_errors)}"
         )
 
-    template_dir = config_loader.get_template_dir()
-
-    terraform_tfvars_filename = f"{template_dir}/setup.auto.tfvars"
+    terraform_tfvars_filename = os.path.join(
+        config_loader.get_template_dir(), "setup.auto.tfvars")
 
     # Write the passthrough vars to a temporary file
     tf_var_writter = TfVarWriter(terraform_tfvars_filename)
-    variables_to_write = config_loader.get_terraform_variables()
-    tf_var_writter.write_variables(variables_to_write)
+    tf_var_writter.write_variables(config_loader.get_terraform_variables())
     return config_loader
