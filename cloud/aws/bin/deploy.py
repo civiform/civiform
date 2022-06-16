@@ -3,6 +3,7 @@ import subprocess
 import os
 import sys
 
+# We modify the system path here so that the imports below can be resolved.
 # TODO(#2743): move this to deploy specific script.
 sys.path.append(os.getcwd())
 
