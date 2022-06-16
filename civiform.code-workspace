@@ -2,9 +2,6 @@
 	"folders": [
 		{
 			"path": "server"
-		},
-		{
-			"path": "."
 		}
 	],
 	"settings": {

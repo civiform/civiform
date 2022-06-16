@@ -3,19 +3,17 @@ import os
 import shutil
 import shlex
 
-from cloud.shared.bin.lib import civiform_mode
-
 
 # TODO(#2741): When using this for Azure make sure to setup backend bucket prior to calling these functions.
-def perform_apply():
+def perform_apply(config_loader):
     '''Generates terraform variable files and runs terraform init and apply.'''
 
-    terraform_template_dir = os.getenv('TERRAFORM_TEMPLATE_DIR')
-    tf_vars_filename = os.getenv('TF_VAR_FILENAME')
+    terraform_template_dir = config_loader.get_template_dir()
+    tf_vars_filename = config_loader.tfvars_filename
 
     terraform_cmd = f'terraform -chdir={terraform_template_dir}'
 
-    if civiform_mode.is_dev():
+    if config_loader.is_dev():
         subprocess.check_call(
             shlex.split(f'{terraform_cmd} init -upgrade -reconfigure'))
     else:
@@ -35,14 +33,14 @@ def perform_apply():
     terraform_plan_out_file = 'terraform_plan'
     subprocess.check_call(
         shlex.split(
-            f'{terraform_cmd} plan -input=false -out={terraform_plan_out_file} -varfile={tf_vars_filename}'
+            f'{terraform_cmd} plan -input=false -out={terraform_plan_out_file} -var-file={tf_vars_filename}'
         ))
 
-    if civiform_mode.is_test():
+    if config_loader.is_test():
         return True
 
     terraform_apply_cmd = f'{terraform_cmd} apply -input=false -json'
-    if civiform_mode.is_dev():
+    if config_loader.is_dev():
         subprocess.check_call(
             shlex.split(f'{terraform_apply_cmd} {terraform_plan_out_file}'))
     else:
@@ -54,18 +52,17 @@ def perform_apply():
     return True
 
 
-def copy_backend_override():
+def copy_backend_override(config_loader):
     ''' 
     Copies the terraform backend_override to backend_override.tf (used to
     make backend local instead of a shared state for dev deploys)
     '''
     backend_override_path = os.path.join(
-        os.getenv('TERRAFORM_TEMPLATE_DIR'), 'backend_override')
+        config_loader.get_template_dir(), 'backend_override')
     if not os.path.exists(backend_override_path):
         print(f'{backend_override_path} does not exist.')
         return
 
     shutil.copy(
         backend_override_path,
-        os.path.join(
-            os.getenv('TERRAFORM_TEMPLATE_DIR'), 'backend_override.tf'))
+        os.path.join(config_loader.get_template_dir(), 'backend_override.tf'))

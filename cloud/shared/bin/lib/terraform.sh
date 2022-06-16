@@ -11,8 +11,6 @@ readonly TERRAFORM_APPLY=(${TERRAFORM_CMD[@]} "apply" "-input=false" "-json")
 #   TERRAFORM_TEMPLATE_DIR
 #   BACKEND_VARS_FILENAME
 #   TF_VAR_FILENAME
-#  Input:
-#   auto_approve boolean
 #######################################
 function terraform::perform_apply() {
   if civiform_mode::is_dev; then

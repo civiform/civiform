@@ -3,26 +3,18 @@ import subprocess
 import os
 import sys
 
-# We modify the system path here so that the imports below can be resolved.
-# TODO(#2743): move this to deploy specific script.
-sys.path.append(os.getcwd())
-
-from cloud.shared.bin.lib import civiform_mode
 from cloud.shared.bin.lib import terraform
+from cloud.shared.bin.lib import tf_apply_setup
 
-# Keep in sync with cloud/shared/bin/lib.sh
-os.environ['TF_VAR_FILENAME'] = 'setup.auto.tfvars'
-os.environ['BACKEND_VARS_FILENAME'] = 'backend_vars'
+config_loader = tf_apply_setup.load_config()
 
-subprocess.check_call(['cloud/shared/bin/lib/tf_apply_setup.py'])
+if config_loader.is_dev():
+    terraform.copy_backend_override(config_loader)
 
-if civiform_mode.is_dev():
-    terraform.copy_backend_override()
-
-if not terraform.perform_apply():
+if not terraform.perform_apply(config_loader):
     sys.stderr.write('Terraform deployment failed.')
     # TODO(#2606): write and upload logs.
     raise ValueError('Terraform deployment failed.')
 
-if civiform_mode.is_test():
+if config_loader.is_test():
     print('Test completed')
