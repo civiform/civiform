@@ -99,8 +99,10 @@ public abstract class BaseHtmlView {
       div.with(
           new LinkElement().setText("←").setHref(linkForPage.apply(page - 1).url()).asButton());
     }
+    String paginationText =
+        pageCount > 0 ? String.format("Page %d of %d", page, pageCount) : "No results";
     div.with(
-        div("Page " + page + " of " + pageCount)
+        div(paginationText)
             .withClasses(
                 Styles.LEADING_3, Styles.FLOAT_LEFT, Styles.INLINE_BLOCK, Styles.P_2, Styles.M_4));
     if (pageCount > page) {
