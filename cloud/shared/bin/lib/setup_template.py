@@ -18,6 +18,9 @@ class SetupTemplate:
     def pre_terraform_setup(self):
         print(" - TODO: Pre terraform setup.")
 
+    def get_current_user(self):
+        print(" - TODO: Get Current user.")
+
     def setup_log_file(self):
         _, self.log_file_path = tempfile.mkstemp()
         print(" - TODO: Setup log file here.")
