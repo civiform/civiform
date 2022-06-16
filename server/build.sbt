@@ -157,7 +157,7 @@ lazy val root = (project in file("."))
 jacocoReportSettings := JacocoReportSettings()
   .withFormats(
     JacocoReportFormats.HTML,
-    JacocoReportFormats.CSV
+    JacocoReportFormats.XML
   )
 
 jacocoExcludes := Seq("views*", "*Routes*")
