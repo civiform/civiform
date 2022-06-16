@@ -14,7 +14,7 @@ resource "aws_s3_bucket_versioning" "logging_versioning" {
   }
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "backend_state_encryption" {
+resource "aws_s3_bucket_server_side_encryption_configuration" "logging_encryption" {
   bucket = aws_s3_bucket.log_bucket.bucket
 
   rule {

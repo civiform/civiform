@@ -20,7 +20,7 @@ resource "aws_kms_key" "file_storage_key" {
   deletion_window_in_days = 10
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "backend_state_encryption" {
+resource "aws_s3_bucket_server_side_encryption_configuration" "civiform_files_encryption" {
   bucket = aws_s3_bucket.civiform_files_s3.bucket
 
   rule {
