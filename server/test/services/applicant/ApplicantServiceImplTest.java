@@ -1117,6 +1117,84 @@ public class ApplicantServiceImplTest extends ResetPostgres {
     assertThat(result.unapplied()).isEmpty();
   }
 
+  @Test
+  public void relevantPrograms_multipleActiveAndDraftApplications() {
+    Applicant applicant = subject.createApplicant(1L).toCompletableFuture().join();
+    Program programForDraft =
+        ProgramBuilder.newActiveProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    Program programForSubmitted =
+        ProgramBuilder.newActiveProgram("program_for_submitted")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+
+    // Create multiple submitted applications and ensure the most recently submitted
+    // version's timestamp is chosen.
+    Application firstSubmitted =
+        applicationRepository
+            .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+            .toCompletableFuture()
+            .join()
+            .get();
+    applicationRepository
+        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+    // We want to ensure ordering is occuring by submit time, NOT by application ID.
+    // Simulate a bad state where the first submission (lower database ID) has a later
+    // submit time.
+    firstSubmitted.refresh();
+    Instant submittedLater = Instant.now().plusSeconds(60 * 60);
+    // We have to reset the lifecycle stage since submitting another application will mark
+    // the previous as obsolete.
+    firstSubmitted
+        .setLifecycleStage(LifecycleStage.ACTIVE)
+        .setSubmitTimeForTest(submittedLater)
+        .save();
+
+    // We submit the application since the system should prevent multiple drafts from
+    // being created. Below, we'll manually set the lifecycle stage to DRAFT. This simulates
+    // a bad state where we have multiple draft apps and the lower database ID has a later
+    // creation time.
+    Application firstDraft =
+        applicationRepository
+            .submitApplication(applicant.id, programForDraft.id, Optional.empty())
+            .toCompletableFuture()
+            .join()
+            .get();
+    Program updatedProgramForDraft =
+        ProgramBuilder.newDraftProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    versionRepository.publishNewSynchronizedVersion();
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, updatedProgramForDraft.id)
+        .toCompletableFuture()
+        .join();
+    Instant draftLater = Instant.now().plusSeconds(60 * 60);
+    firstDraft.refresh();
+    firstDraft.setLifecycleStage(LifecycleStage.DRAFT).setCreateTimeForTest(draftLater).save();
+
+    ApplicantService.RelevantPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.submitted().stream().map(p -> p.program().id()))
+        .containsExactly(programForSubmitted.id);
+    assertThat(result.submitted().stream().map(p -> p.latestSubmittedApplicationTime()))
+        .containsExactly(Optional.of(submittedLater));
+    assertThat(result.inProgress().stream().map(p -> p.program().id()))
+        .containsExactly(firstDraft.getProgram().id);
+    // As part of test setup, a "test program" is initialized.
+    // When calling publish, this will become active. This provides
+    // confidence that the draft version created above is actually published.
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programDefinition.id());
+  }
+
   private void createQuestions() {
     questionDefinition =
         questionService

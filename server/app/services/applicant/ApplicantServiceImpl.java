@@ -460,7 +460,14 @@ public final class ApplicantServiceImpl implements ApplicantService {
                         // In practice, we don't expect an applicant to have multiple
                         // DRAFT or ACTIVE applications for a given program. Grabbing the latest
                         // application here guards against that case, should it occur.
-                        Collectors.maxBy(Comparator.comparingLong(a -> a.id)))));
+                        Collectors.maxBy(
+                            Comparator.<Application, Instant>comparing(
+                                    a -> {
+                                      return a.getSubmitTime() != null
+                                          ? a.getSubmitTime()
+                                          : Instant.ofEpochMilli(0);
+                                    })
+                                .thenComparing(Application::getCreateTime)))));
 
     ImmutableList.Builder<ApplicantProgramData> inProgressPrograms = ImmutableList.builder();
     ImmutableList.Builder<ApplicantProgramData> submittedPrograms = ImmutableList.builder();
