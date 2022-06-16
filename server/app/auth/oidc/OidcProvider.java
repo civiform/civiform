@@ -150,7 +150,8 @@ private final String getScopesAttribute() {
             .entrySet()
             .stream()
             .filter( e->Strings.isNullOrEmpty(e.getValue()))
-            .collect(ImmutableList.toImmutableList(Map.Entry::getKey));
+            .map(Map.Entry::getKey)
+            .collect(ImmutableList.toImmutableList());
 
     // Check that none are null or blank.
     if (missingData.size()) {
