@@ -5,9 +5,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.ProfileFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Provider;
@@ -18,7 +19,7 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.UserRepository;
-import java.util.Map;
+
 /**
  * This class provides the base applicant OIDC implementation. It's abstract because AD and other
  * providers need slightly different implementations and profile adaptors, and use different config
@@ -26,7 +27,6 @@ import java.util.Map;
  */
 public abstract class OidcProvider implements Provider<OidcClient> {
 
-  private static final Logger logger = LoggerFactory.getLogger(OidcProvider.class);
   protected final Config configuration;
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
@@ -123,10 +123,15 @@ public abstract class OidcProvider implements Provider<OidcClient> {
    * Helper function for combining the default and additional scopes,
    * and return them in the space-seperated string required bu OIDC.
    */
-private final String getScopesAttribute() {
+  private final String getScopesAttribute() {
     // Scopes are the other things that we want from the OIDC endpoint
     // (needs to also be configured on provider side).
-    return ImmutableSet.<String>builder().addAll(getDefaultScopes()).addAll(getExtraScopes()).build().stream().collect(Collectors.joining(" "));
+    return ImmutableSet.<String>builder()
+        .addAll(getDefaultScopes())
+        .addAll(getExtraScopes())
+        .build()
+        .stream()
+        .collect(Collectors.joining(" "));
   }
 
   @Override
@@ -139,22 +144,22 @@ private final String getScopesAttribute() {
     String callbackURL = getCallbackURL();
     String scope = getScopesAttribute();
     var missingData =
-        ImmutableMap.<String,String>builder()
-              .put("clientID",clientID)
-              .put("clientSecret",clientSecret)
-              .put("discoveryURI",discoveryURI)
-              .put("responseMode",responseMode)
-              .put("responseType",responseType)
-              .put("callbackURL",callbackURL)
+        ImmutableMap.<String, String>builder()
+            .put("clientID", clientID)
+            .put("clientSecret", clientSecret)
+            .put("discoveryURI", discoveryURI)
+            .put("responseMode", responseMode)
+            .put("responseType", responseType)
+            .put("callbackURL", callbackURL)
             .build()
             .entrySet()
             .stream()
-            .filter( e->Strings.isNullOrEmpty(e.getValue()))
+            .filter(e -> Strings.isNullOrEmpty(e.getValue()))
             .map(Map.Entry::getKey)
             .collect(ImmutableList.toImmutableList());
 
     // Check that none are null or blank.
-    if (missingData.size()) {
+    if (missingData.size() > 0) {
       throw new RuntimeException(
           "Missing OIDC attributes " + missingData.stream().collect(Collectors.joining(", ")));
     }
@@ -177,7 +182,7 @@ private final String getScopesAttribute() {
 
     OidcClient client = new OidcClient(config);
 
-    if (!Strings.isNullOrEmpty(providerName)) {
+    if (providerName.isPresent()) {
       client.setName(providerName.get());
     }
 
