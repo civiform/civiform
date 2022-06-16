@@ -19,7 +19,6 @@ import models.LifecycleStage;
 import models.Program;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import repository.ApplicationFilter.TimeFilter;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.program.ProgramNotFoundException;
 
@@ -153,21 +152,14 @@ public class ApplicationRepository {
             });
   }
 
-  public ImmutableList<Application> getApplications(Optional<ApplicationFilter> maybeFilter) {
+  public ImmutableList<Application> getApplications(TimeFilter submitTimeFilter) {
     ExpressionList<Application> query =
         database.find(Application.class).fetch("program").fetch("applicant.account").where();
-    if (maybeFilter.isPresent()) {
-      ApplicationFilter filter = maybeFilter.get();
-      if (filter.submitTimeFilter().isPresent()) {
-        TimeFilter submitTimeFilter = filter.submitTimeFilter().get();
-        // Inclusive "after", exclusive "before".
-        if (submitTimeFilter.afterTime().isPresent()) {
-          query = query.ge("submit_time", submitTimeFilter.afterTime().get());
-        }
-        if (submitTimeFilter.beforeTime().isPresent()) {
-          query = query.lt("submit_time", submitTimeFilter.beforeTime().get());
-        }
-      }
+    if (submitTimeFilter.fromTime().isPresent()) {
+      query = query.where().ge("submit_time", submitTimeFilter.fromTime().get());
+    }
+    if (submitTimeFilter.toTime().isPresent()) {
+      query = query.where().lt("submit_time", submitTimeFilter.toTime().get());
     }
     return ImmutableList.copyOf(query.findList());
   }

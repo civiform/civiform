@@ -11,9 +11,8 @@ import com.itextpdf.text.DocumentException;
 import controllers.CiviFormController;
 import java.io.IOException;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
@@ -24,9 +23,8 @@ import play.i18n.MessagesApi;
 import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.ApplicationFilter;
-import repository.ApplicationFilter.TimeFilter;
 import repository.ApplicationRepository;
+import repository.TimeFilter;
 import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
@@ -156,7 +154,14 @@ public class AdminApplicationController extends CiviFormController {
     return request
         .queryString(queryParam)
         .filter(s -> !s.isBlank())
-        .map(s -> dateConverter.parseIso8601DateToStartOfDateInstant(s));
+        .map(
+            s -> {
+              try {
+                return dateConverter.parseIso8601DateToStartOfDateInstant(s);
+              } catch (DateTimeParseException e) {
+                throw new BadRequestException("Malformed query param: " + queryParam);
+              }
+            });
   }
 
   /**
@@ -166,17 +171,13 @@ public class AdminApplicationController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result downloadDemographics(Http.Request request) {
-    ApplicationFilter filter =
-        ApplicationFilter.builder()
-            .setSubmitTimeFilter(
-                Optional.of(
-                    TimeFilter.builder()
-                        .setBeforeTime(parseDateFromQuery(request, Filters.BEFORE_DATE_QUERY_PARAM))
-                        .setAfterTime(parseDateFromQuery(request, Filters.AFTER_DATE_QUERY_PARAM))
-                        .build()))
+    TimeFilter submitTimeFilter =
+        TimeFilter.builder()
+            .setFromTime(parseDateFromQuery(request, Filters.FROM_DATE_QUERY_PARAM))
+            .setToTime(parseDateFromQuery(request, Filters.TO_DATE_QUERY_PARAM))
             .build();
     String filename = String.format("demographics-%s.csv", nowProvider.get());
-    String csv = exporterService.getDemographicsCsv(filter);
+    String csv = exporterService.getDemographicsCsv(submitTimeFilter);
     return ok(csv)
         .as(Http.MimeTypes.BINARY)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));

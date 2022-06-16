@@ -8,7 +8,7 @@ import java.util.concurrent.CompletionStage;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
-import repository.ApplicationFilter;
+import repository.TimeFilter;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramDefinition;
 
@@ -102,5 +102,5 @@ public interface ApplicantService {
    * Return a filtered set of applications, including applications from previous versions, with
    * program, applicant, and account associations eager loaded.
    */
-  ImmutableList<Application> getApplications(Optional<ApplicationFilter> filter);
+  ImmutableList<Application> getApplications(TimeFilter submitTimeFilter);
 }

@@ -3,6 +3,7 @@ package controllers;
 import auth.UnauthorizedApiRequestException;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
+import controllers.admin.BadRequestException;
 import controllers.admin.NotChangeableException;
 import controllers.api.BadApiRequestException;
 import java.util.Optional;
@@ -35,6 +36,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   private static final ImmutableSet<Class<? extends Exception>> BAD_REQUEST_EXCEPTION_TYPES =
       ImmutableSet.of(
           ApiKeyNotFoundException.class,
+          BadRequestException.class,
           BadApiRequestException.class,
           NotChangeableException.class,
           ProgramNotFoundException.class);

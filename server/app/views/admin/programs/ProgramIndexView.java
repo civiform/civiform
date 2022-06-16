@@ -119,28 +119,27 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .withAction(routes.AdminApplicationController.downloadDemographics().url())
                     .with(
                         p("This will download all applications for all programs and can take"
-                              + " potentially be quite slow without filtering down the set of"
-                              + " returned applications. Consider using the filters below to"
-                              + " decrease the time to generate the report.")
+                                + " potentially be quite slow without filtering down the set of"
+                                + " returned applications. Consider using the filters below to"
+                                + " decrease the time to generate the report.")
                             .withClass(Styles.TEXT_SM),
                         fieldset()
                             .withClasses(Styles.MT_4, Styles.PT_1, Styles.PB_2, Styles.BORDER)
                             .with(
                                 legend("Applications submitted").withClass(Styles.ML_3),
                                 FieldWithLabel.date()
-                                    .setFieldName(Filters.AFTER_DATE_QUERY_PARAM)
+                                    .setFieldName(Filters.FROM_DATE_QUERY_PARAM)
                                     .setLabelText("From:")
                                     .getContainer()
                                     .withClasses(Styles.ML_3, Styles.INLINE_FLEX),
                                 FieldWithLabel.date()
-                                    .setFieldName(Filters.BEFORE_DATE_QUERY_PARAM)
+                                    .setFieldName(Filters.TO_DATE_QUERY_PARAM)
                                     .setLabelText("To:")
                                     .getContainer()
                                     .withClasses(Styles.ML_3, Styles.INLINE_FLEX)),
                         button("Download")
-                          .withClasses(BaseStyles.MODAL_BUTTON,
-                                       Styles.MT_6)
-                          .withType("submit")));
+                            .withClasses(BaseStyles.MODAL_BUTTON, Styles.MT_6)
+                            .withType("submit")));
     return Modal.builder(modalId, downloadDemographicCsvModalContent)
         .setModalTitle("Download Exported Data (CSV)")
         .build();

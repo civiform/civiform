@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import models.Application;
 import models.QuestionTag;
 import play.libs.F;
-import repository.ApplicationFilter;
+import repository.TimeFilter;
 import services.IdentifierBasedPaginationSpec;
 import services.Path;
 import services.applicant.AnswerData;
@@ -318,10 +318,10 @@ public final class ExporterService {
   /**
    * A string containing the CSV which maps applicants (opaquely) to the programs they applied to.
    */
-  public String getDemographicsCsv(ApplicationFilter filter) {
+  public String getDemographicsCsv(TimeFilter filter) {
     return exportCsv(
         exporterFactory.csvExporter(getDemographicsExporterConfig()),
-        applicantService.getApplications(Optional.of(filter)));
+        applicantService.getApplications(filter));
   }
 
   private CsvExportConfig getDemographicsExporterConfig() {
