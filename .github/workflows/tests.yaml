@@ -2,11 +2,6 @@ name: tests
 
 on:
   workflow_call:
-    secrets:
-      DOCKER_HUB_ACCESS_TOKEN:
-        required: false
-      DOCKER_HUB_USERNAME:
-        required: false
 
   # Setting this enables manually triggering workflow in the GitHub UI
   # see https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
