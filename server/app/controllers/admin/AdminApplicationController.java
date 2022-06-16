@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -28,6 +27,7 @@ import play.mvc.Result;
 import repository.ApplicationFilter;
 import repository.ApplicationFilter.TimeFilter;
 import repository.ApplicationRepository;
+import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
@@ -59,7 +59,7 @@ public class AdminApplicationController extends CiviFormController {
   private final ProfileUtils profileUtils;
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
-  private final ZoneId zoneId;
+  private final DateConverter dateConverter;
   private static final int PAGE_SIZE = 10;
 
   @Inject
@@ -74,7 +74,7 @@ public class AdminApplicationController extends CiviFormController {
       ApplicationRepository applicationRepository,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
-      ZoneId zoneId,
+      DateConverter dateConverter,
       @Now Provider<LocalDateTime> nowProvider) {
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
@@ -87,7 +87,7 @@ public class AdminApplicationController extends CiviFormController {
     this.jsonExporter = checkNotNull(jsonExporter);
     this.pdfExporter = checkNotNull(pdfExporter);
     this.messagesApi = checkNotNull(messagesApi);
-    this.zoneId = checkNotNull(zoneId);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -156,11 +156,7 @@ public class AdminApplicationController extends CiviFormController {
     return request
         .queryString(queryParam)
         .filter(s -> !s.isBlank())
-        .map(
-            raw -> {
-              LocalDate localDate = LocalDate.parse(raw, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-              return localDate.atStartOfDay(zoneId).toInstant();
-            });
+        .map(s -> dateConverter.parseIso8601DateToStartOfDateInstant(s));
   }
 
   /**

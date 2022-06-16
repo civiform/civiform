@@ -35,6 +35,7 @@ import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.Modal;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -136,7 +137,10 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     .setLabelText("To:")
                                     .getContainer()
                                     .withClasses(Styles.ML_3, Styles.INLINE_FLEX)),
-                        button("Download").withClass(Styles.MT_6).withType("submit")));
+                        button("Download")
+                          .withClasses(BaseStyles.MODAL_BUTTON,
+                                       Styles.MT_6)
+                          .withType("submit")));
     return Modal.builder(modalId, downloadDemographicCsvModalContent)
         .setModalTitle("Download Exported Data (CSV)")
         .build();
