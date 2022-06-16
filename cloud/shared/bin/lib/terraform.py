@@ -1,6 +1,7 @@
 import subprocess
 import os
 import shutil
+import shlex
 
 from cloud.shared.bin.lib import civiform_mode
 
@@ -9,45 +10,46 @@ from cloud.shared.bin.lib import civiform_mode
 def perform_apply():
     '''Generates terraform variable files and runs terraform init and apply.'''
 
-    TERRAFORM_PLAN_OUT_FILE = 'terraform_plan'
-    TERRAFORM_TEMPLATE_DIR = os.getenv('TERRAFORM_TEMPLATE_DIR')
-    TF_VARS_FILENAME = os.getenv('TF_VAR_FILENAME')
+    terraform_template_dir = os.getenv('TERRAFORM_TEMPLATE_DIR')
+    tf_vars_filename = os.getenv('TF_VAR_FILENAME')
 
-    terraform_cmd = ['terraform', f'-chdir={TERRAFORM_TEMPLATE_DIR}']
+    terraform_cmd = f'terraform -chdir={terraform_template_dir}'
 
     if civiform_mode.is_dev():
         subprocess.check_call(
-            terraform_cmd + ['init', '-upgrade', '-reconfigure'])
+            shlex.split(f'{terraform_cmd} init -upgrade -reconfigure'))
     else:
         subprocess.check_call(
-            terraform_cmd + [
-                'init', '-input=false', '-upgrade',
-                f'-backend-config={os.getenv("BACKEND_VARS_FILENAME")}'
-            ])
+            shlex.split(
+                f'{terraform_cmd} init -input=false -upgrade -backend-config={os.getenv("BACKEND_VARS_FILENAME")}'
+            ))
 
-    if os.path.exists(os.path.join(TERRAFORM_TEMPLATE_DIR, TF_VARS_FILENAME)):
+    if os.path.exists(os.path.join(terraform_template_dir, tf_vars_filename)):
         print(
-            f'{TF_VARS_FILENAME} exists in {TERRAFORM_TEMPLATE_DIR} directory')
+            f'{tf_vars_filename} exists in {terraform_template_dir} directory')
     else:
         raise ValueError(
-            f'Aborting the script. {TF_VARS_FILENAME} does not exist in {TERRAFORM_TEMPLATE_DIR} directory'
+            f'Aborting the script. {tf_vars_filename} does not exist in {terraform_template_dir} directory'
         )
 
+    terraform_plan_out_file = 'terraform_plan'
     subprocess.check_call(
-        terraform_cmd + [
-            'plan', '-input=false', f'-out={TERRAFORM_PLAN_OUT_FILE}',
-            f'-var-file={os.getenv("TF_VAR_FILENAME")}'
-        ])
+        shlex.split(
+            f'{terraform_cmd} plan -input=false -out={terraform_plan_out_file} -varfile={tf_vars_filename}'
+        ))
 
     if civiform_mode.is_test():
         return True
 
-    terraform_apply_cmd = terraform_cmd + ['apply', '-input=false', '-json']
+    terraform_apply_cmd = f'{terraform_cmd} apply -input=false -json'
     if civiform_mode.is_dev():
-        subprocess.check_call(terraform_apply_cmd + [TERRAFORM_PLAN_OUT_FILE])
+        subprocess.check_call(
+            shlex.split(f'{terraform_apply_cmd} {terraform_plan_out_file}'))
     else:
         subprocess.check_call(
-            terraform_apply_cmd + ['-auto-approve', TERRAFORM_PLAN_OUT_FILE])
+            shlex.split(
+                f'{terraform_apply_cmd} -auto-approve {terraform_plan_out_file}'
+            ))
 
     return True
 
