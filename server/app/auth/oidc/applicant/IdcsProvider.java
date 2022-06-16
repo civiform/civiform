@@ -13,7 +13,7 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import repository.UserRepository;
 
 /** This class customized the OIDC provider to a specific provider, allowing overrides to be set. */
-public class IdcsProvider extends OidcProvider {
+public final class IdcsProvider extends OidcProvider {
 
   private static final String ATTRIBUTE_PREFIX = "idcs";
   private static final String CLIENT_ID_CONFIG_NAME = "client_id";

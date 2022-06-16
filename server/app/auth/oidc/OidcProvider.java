@@ -5,6 +5,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.ProfileFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,7 +18,7 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.UserRepository;
-
+import java.util.Map;
 /**
  * This class provides the base applicant OIDC implementation. It's abstract because AD and other
  * providers need slightly different implementations and profile adaptors, and use different config
@@ -117,12 +119,14 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     return baseUrl + "/callback";
   }
 
-  private final String getScope() {
+  /*
+   * Helper function for combining the default and additional scopes,
+   * and return them in the space-seperated string required bu OIDC.
+   */
+private final String getScopesAttribute() {
     // Scopes are the other things that we want from the OIDC endpoint
     // (needs to also be configured on provider side).
-    ImmutableList<String> allClaims =
-        ImmutableList.<String>builder().addAll(getDefaultScopes()).addAll(getExtraScopes()).build();
-    return String.join(" ", allClaims);
+    return ImmutableSet.<String>builder().addAll(getDefaultScopes()).addAll(getExtraScopes()).build().stream().collect(Collectors.joining(" "));
   }
 
   @Override
@@ -133,26 +137,25 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     String responseMode = getResponseMode();
     String responseType = getResponseType();
     String callbackURL = getCallbackURL();
-    String scope = getScope();
-    var missing =
-        ImmutableList.of(
-                clientID, clientSecret, discoveryURI, responseMode, responseType, callbackURL)
+    String scope = getScopesAttribute();
+    var missingData =
+        ImmutableMap.<String,String>builder()
+              .put("clientID",clientID)
+              .put("clientSecret",clientSecret)
+              .put("discoveryURI",discoveryURI)
+              .put("responseMode",responseMode)
+              .put("responseType",responseType)
+              .put("callbackURL",callbackURL)
+            .build()
+            .entrySet()
             .stream()
-            .map(Strings::nullToEmpty);
+            .filter( e->Strings.isNullOrEmpty(e.getValue()))
+            .collect(ImmutableList.toImmutableList(Map.Entry::getKey));
+
     // Check that none are null or blank.
-    if (missing.anyMatch(String::isBlank)) {
-      logger.error(
-          String.format(
-              "Can't get OIDC client - Missing some required Provider data: "
-                  + "clientID=%s, "
-                  + "clientSecret=%s, "
-                  + "discoveryURI=%s, "
-                  + "responseMode=%s, "
-                  + "responseType=%s, "
-                  + "callbackURL=%s",
-              clientID, clientSecret, discoveryURI, responseMode, responseType, callbackURL));
+    if (missingData.size()) {
       throw new RuntimeException(
-          "Missing OIDC attributes " + missing.collect(Collectors.joining(", ")));
+          "Missing OIDC attributes " + missingData.stream().collect(Collectors.joining(", ")));
     }
     Optional<String> providerName = getProviderName();
     OidcConfiguration config = new OidcConfiguration();
@@ -160,6 +163,7 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     config.setClientId(clientID);
     config.setSecret(clientSecret);
     config.setDiscoveryURI(discoveryURI);
+
     // Tells the OIDC provider what type of response to use when it sends info back
     // from the auth request.
     config.setResponseMode(responseMode);
@@ -172,7 +176,7 @@ public abstract class OidcProvider implements Provider<OidcClient> {
 
     OidcClient client = new OidcClient(config);
 
-    if (!providerName.orElse("").isBlank()) {
+    if (!Strings.isNullOrEmpty(providerName)) {
       client.setName(providerName.get());
     }
 

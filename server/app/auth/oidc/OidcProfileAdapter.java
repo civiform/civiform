@@ -60,7 +60,7 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
   /** Create a totally new CiviForm profile informed by the provided OidcProfile. */
   public abstract CiviFormProfile createEmptyCiviFormProfile(OidcProfile profile);
 
-  protected Optional<String> getEmail(OidcProfile oidcProfile) {
+  protected final Optional<String> getEmail(OidcProfile oidcProfile) {
     final String emailAttributeName = emailAttributeName();
 
     if (!emailAttributeName.isBlank()) {
@@ -69,7 +69,7 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
     return Optional.empty();
   }
 
-  protected Optional<String> getAuthorityId(OidcProfile oidcProfile) {
+  protected final Optional<String> getAuthorityId(OidcProfile oidcProfile) {
     // In OIDC the user is uniquely identified by the iss(user) and sub(ject)
     // claims.
     // https://openid.net/specs/openid-connect-core-1_0.html#IDToken
@@ -134,7 +134,7 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
   }
 
   @Override
-  public Optional<UserProfile> create(
+  public final Optional<UserProfile> create(
       Credentials cred, WebContext context, SessionStore sessionStore) {
     ProfileUtils profileUtils = new ProfileUtils(sessionStore, profileFactory);
     possiblyModifyConfigBasedOnCred(cred);
@@ -160,7 +160,7 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
   }
 
   @VisibleForTesting
-  Optional<Applicant> getExistingApplicant(OidcProfile profile) {
+  public final Optional<Applicant> getExistingApplicant(OidcProfile profile) {
     // User keying changed in March 2022 and is reflected and managed here.
     // Originally users were keyed on their email address, however this is not
     // guaranteed to be a unique stable ID. In March 2022 the code base changed to

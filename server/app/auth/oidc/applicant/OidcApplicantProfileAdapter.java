@@ -46,7 +46,7 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
     this.nameAttributeNames = Preconditions.checkNotNull(nameAttributeNames);
   }
 
-  private Optional<String> getName(OidcProfile oidcProfile) {
+  private final Optional<String> getName(OidcProfile oidcProfile) {
     String name =
         nameAttributeNames.stream()
             .filter(s -> !s.isBlank())
@@ -57,7 +57,7 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
     return Optional.ofNullable(Strings.emptyToNull(name));
   }
 
-  private Optional<String> getLocale(OidcProfile oidcProfile) {
+  private final Optional<String> getLocale(OidcProfile oidcProfile) {
     return localeAttributeName
         .filter(s -> !s.isBlank())
         .map(name -> oidcProfile.getAttribute(name, String.class))
@@ -65,22 +65,22 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
   }
 
   @Override
-  protected String emailAttributeName() {
+  protected final String emailAttributeName() {
     return emailAttributeName;
   }
 
   /** Create a totally new Applicant CiviForm profile informed by the provided OidcProfile. */
   @Override
-  public CiviFormProfile createEmptyCiviFormProfile(OidcProfile profile) {
+  public final CiviFormProfile createEmptyCiviFormProfile(OidcProfile profile) {
     return profileFactory.wrapProfileData(profileFactory.createNewApplicant());
   }
 
-  protected boolean isTrustedIntermediary(CiviFormProfile profile) {
+  protected final boolean isTrustedIntermediary(CiviFormProfile profile) {
     return profile.getAccount().join().getMemberOfGroup().isPresent();
   }
 
   @Override
-  protected ImmutableSet<Roles> roles(CiviFormProfile profile, OidcProfile oidcProfile) {
+  protected final ImmutableSet<Roles> roles(CiviFormProfile profile, OidcProfile oidcProfile) {
     if (isTrustedIntermediary(profile)) {
       return ImmutableSet.of(Roles.ROLE_APPLICANT, Roles.ROLE_TI);
     }
@@ -88,18 +88,18 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
   }
 
   @Override
-  protected void adaptForRole(CiviFormProfile profile, ImmutableSet<Roles> roles) {
-    // not needed
+  protected final void adaptForRole(CiviFormProfile profile, ImmutableSet<Roles> roles) {
+    // Not used for applicants.
   }
 
   @Override
   protected void possiblyModifyConfigBasedOnCred(Credentials cred) {
-    // not needed
+    // Only used for Idcs.
   }
 
   /** Merge the two provided profiles into a new CiviFormProfileData. */
   @Override
-  protected CiviFormProfileData mergeCiviFormProfile(
+  protected final CiviFormProfileData mergeCiviFormProfile(
       CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
     final Optional<String> maybeLocale = getLocale(oidcProfile);
     final Optional<String> maybeName = getName(oidcProfile);
