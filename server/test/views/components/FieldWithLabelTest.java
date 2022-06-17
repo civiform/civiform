@@ -82,6 +82,18 @@ public class FieldWithLabelTest {
   }
 
   @Test
+  public void radio_setsName() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.radio().setFieldName("radio_name_222");
+    assertThat(fieldWithLabel.getRadioTag().render()).contains("name=\"radio_name_222\"");
+  }
+
+  @Test
+  public void radio_setsId() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.radio().setId("666");
+    assertThat(fieldWithLabel.getRadioTag().render()).contains("id=\"666\"");
+  }
+
+  @Test
   public void withNoErrors_DoesNotContainAriaAttributes() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.number().setId("field-id");
     String rendered = fieldWithLabel.getNumberTag().render();
