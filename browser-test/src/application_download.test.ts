@@ -1,5 +1,7 @@
 import {
   startSession,
+  seedCanonicalQuestions,
+  dropTables,
   logout,
   loginAsTestUser,
   loginAsGuest,
@@ -14,6 +16,13 @@ import {
 } from './support'
 
 describe('normal application flow', () => {
+
+  beforeAll(async () => {
+    const { page } = await startSession()
+    await dropTables(page)
+    await seedCanonicalQuestions(page)
+  })
+
   it('all major steps', async () => {
     const { browser, page } = await startSession()
     // Timeout for clicks and element fills. If your selector fails to locate
