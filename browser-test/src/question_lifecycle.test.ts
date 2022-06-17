@@ -1,16 +1,25 @@
+import { Browser, Page } from 'playwright'
 import {
   startSession,
   loginAsAdmin,
   AdminQuestions,
   AdminPrograms,
   endSession,
+  dropTables,
+  seedCanonicalQuestions,
   waitForPageJsLoad,
 } from './support'
 
 describe('normal question lifecycle', () => {
+
+  beforeAll(async () => {
+    const { page } = await startSession()
+    await dropTables(page)
+    await seedCanonicalQuestions(page)
+  })
+
   it('has canonical questions available by default', async () => {
     const { browser, page } = await startSession()
-
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
 
