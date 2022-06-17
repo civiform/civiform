@@ -43,9 +43,11 @@ class Setup(SetupTemplate):
                 f"source cloud/azure/bin/lib.sh && azure::get_current_user_id"
             ],
             capture_output=True)
-
+        current_user = None
         if current_user_function:
             current_user = current_user_function.stdout.decode("ascii")
+        if not current_user:
+            raise RuntimeError("Could not find the logged in userd")
         return current_user
 
     def setup_log_file(self):
