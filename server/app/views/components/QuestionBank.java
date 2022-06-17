@@ -74,10 +74,7 @@ public class QuestionBank {
     return questionBankPanel();
   }
 
-  private FormTag questionBankPanel() throws RuntimeException {
-    if (this.maybeCsrfTag.isEmpty()) {
-      throw new RuntimeException("trying to access empty csrf tag for rendering");
-    }
+  private FormTag questionBankPanel() {
     InputTag csrfTag = this.maybeCsrfTag.get();
     FormTag questionForm = form(csrfTag).withMethod(HttpVerbs.POST).withAction(questionAction);
 
