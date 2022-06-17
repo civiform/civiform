@@ -31,11 +31,11 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.5.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.211",
+      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.213",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.5.2",
-      "com.azure" % "azure-storage-blob" % "12.17.0",
+      "com.azure" % "azure-storage-blob" % "12.17.1",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.4.0",
@@ -157,7 +157,7 @@ lazy val root = (project in file("."))
 jacocoReportSettings := JacocoReportSettings()
   .withFormats(
     JacocoReportFormats.HTML,
-    JacocoReportFormats.CSV
+    JacocoReportFormats.XML
   )
 
 jacocoExcludes := Seq("views*", "*Routes*")

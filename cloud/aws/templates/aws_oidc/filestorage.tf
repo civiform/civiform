@@ -15,6 +15,22 @@ resource "aws_s3_bucket_policy" "civiform_files_policy" {
   policy = data.aws_iam_policy_document.civiform_files_policy.json
 }
 
+resource "aws_kms_key" "file_storage_key" {
+  description             = "This key is used to encrypt files uploaded by the user"
+  deletion_window_in_days = 10
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "civiform_files_encryption" {
+  bucket = aws_s3_bucket.civiform_files_s3.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.file_storage_key.arn
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
 data "aws_iam_policy_document" "civiform_files_policy" {
   statement {
     actions   = ["s3:*"]

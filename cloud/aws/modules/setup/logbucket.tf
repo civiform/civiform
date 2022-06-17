@@ -13,3 +13,14 @@ resource "aws_s3_bucket_versioning" "logging_versioning" {
     status = "Enabled"
   }
 }
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "logging_encryption" {
+  bucket = aws_s3_bucket.log_bucket.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.backend_storage_key.arn
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
