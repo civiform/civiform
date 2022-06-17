@@ -330,10 +330,9 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                       .getOperableTypes()
                       .forEach(
                           type ->
-                              option.attr(
-                                  "data-",
+                              option.withData(
                                   type.name()
-                                      .toLowerCase())); // TODO probably a bug since a value needs
+                                      .toLowerCase()));
                   // to be passed?
                   return option;
                 })

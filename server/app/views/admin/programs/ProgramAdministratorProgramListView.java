@@ -134,7 +134,7 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
             .withClasses(Styles.W_FULL)
             .with(
                 input()
-                    .attr(
+                    .withValue(
                         baseUrl
                             + controllers.applicant.routes.RedirectController.programByName(
                                     displayProgram.slug())
