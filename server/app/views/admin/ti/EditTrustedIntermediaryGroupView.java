@@ -69,7 +69,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  // TODO emailField should call `.email()` instead of `.input()`
+  // TODO https://github.com/seattle-uat/civiform/issues/2762
   private DivTag renderAddNewButton(TrustedIntermediaryGroup tiGroup, Http.Request request) {
     FormTag formTag =
         form()
