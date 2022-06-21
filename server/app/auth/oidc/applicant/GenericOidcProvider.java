@@ -60,8 +60,7 @@ public class GenericOidcProvider extends OidcProvider {
 
     var nameAttrsBuilder = ImmutableList.<String>builder();
     getConfigurationValue(FIRST_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
-    getConfigurationValue(MIDDLE_NAME_ATTRIBUTE_CONFIG_NAME)
-        .ifPresent(nameAttrsBuilder::add);
+    getConfigurationValue(MIDDLE_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
     getConfigurationValue(LAST_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
     return new GenericOidcProfileAdapter(
         config,
