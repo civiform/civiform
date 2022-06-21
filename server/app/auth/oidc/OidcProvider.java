@@ -132,7 +132,8 @@ public abstract class OidcProvider implements Provider<OidcClient> {
    * Helper function for combining the default and additional scopes,
    * and return them in the space-seperated string required bu OIDC.
    */
-  private final String getScopesAttribute() {
+  @VisibleForTesting
+  public final String getScopesAttribute() {
     // Scopes are the other things that we want from the OIDC endpoint
     // (needs to also be configured on provider side).
     return ImmutableSet.<String>builder()
