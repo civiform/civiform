@@ -46,7 +46,6 @@ public class GenericOidcProvider extends OidcProvider {
   public String attributePrefix() {
     return ATTRIBUTE_PREFIX;
   }
-  ;
 
   @Override
   protected Optional<String> getProviderName() {
