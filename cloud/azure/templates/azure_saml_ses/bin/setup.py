@@ -37,15 +37,13 @@ class Setup(SetupTemplate):
             self._make_backend_override()
 
     def get_current_user(self):
-        current_user_function = subprocess.run(
+        current_user_process = subprocess.run(
             [
                 "/bin/bash", "-c",
                 f"source cloud/azure/bin/lib.sh && azure::get_current_user_id"
             ],
             capture_output=True)
-        current_user = None
-        if current_user_function:
-            current_user = current_user_function.stdout.decode("ascii")
+        current_user = current_user_process.stdout.decode("ascii")
         if not current_user:
             raise RuntimeError("Could not find the logged in user")
         return current_user
