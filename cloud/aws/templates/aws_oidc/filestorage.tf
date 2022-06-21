@@ -33,18 +33,25 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "civiform_files_en
 
 data "aws_iam_policy_document" "civiform_files_policy" {
   statement {
-    actions   = ["s3:*"]
-    effect    = "Deny"
-    resources = ["${aws_s3_bucket.civiform_files_s3.arn}/*"]
-    not_principals {
-      type        = "AWS"
-      identifiers = [aws_iam_role.apprunner_instance_role.arn]
+    actions = ["s3:*"]
+    effect  = "Deny"
+    resources = [aws_s3_bucket.civiform_files_s3.arn,
+    "${aws_s3_bucket.civiform_files_s3.arn}/*"]
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    condition {
+      test     = "ArnNotEquals"
+      variable = "aws:PrincipalArn"
+      values   = [aws_iam_role.apprunner_instance_role.arn]
     }
   }
   statement {
-    actions   = ["s3:*"]
-    effect    = "Allow"
-    resources = ["${aws_s3_bucket.civiform_files_s3.arn}/*"]
+    actions = ["s3:*"]
+    effect  = "Allow"
+    resources = [aws_s3_bucket.civiform_files_s3.arn,
+    "${aws_s3_bucket.civiform_files_s3.arn}/*"]
     principals {
       type        = "AWS"
       identifiers = [aws_iam_role.apprunner_instance_role.arn]
