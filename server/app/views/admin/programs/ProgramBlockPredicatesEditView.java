@@ -332,7 +332,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                           type ->
                               option.withData(
                                   type.name()
-                                      .toLowerCase()));
+                                      .toLowerCase(), ""));
                   // to be passed?
                   return option;
                 })
