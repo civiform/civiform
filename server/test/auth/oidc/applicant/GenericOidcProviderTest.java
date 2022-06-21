@@ -80,7 +80,7 @@ public class GenericOidcProviderTest extends ResetPostgres {
     String responseMode = genericOidcProvider.getResponseMode();
     assertThat(responseMode).isEqualTo("form_post");
 
-    String scope = genericOidcProvider.getScope();
+    String scope = genericOidcProvider.getScopesAttribute();
     assertThat(scope).isEqualTo("openid profile email group");
 
     String discoveryUri = genericOidcProvider.getDiscoveryURI();
