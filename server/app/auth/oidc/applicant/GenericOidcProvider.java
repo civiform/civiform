@@ -27,8 +27,9 @@ public class GenericOidcProvider extends OidcProvider {
   private static final String RESPONSE_TYPE_CONFIG_NAME = "response_type";
   private static final String EXTRA_SCOPES_CONFIG_NAME = "additional_scopes";
 
-  private static final String FIRST_NAME_ATTRIBUTE_CONFIG_NAME = "second_name_attribute";
-  private static final String SECOND_NAME_ATTRIBUTE_CONFIG_NAME = "second_name_attribute";
+  private static final String FIRST_NAME_ATTRIBUTE_CONFIG_NAME = "first_name_attribute";
+  private static final String MIDDLE_NAME_ATTRIBUTE_CONFIG_NAME = "middle_name_attribute";
+  private static final String LAST_NAME_ATTRIBUTE_CONFIG_NAME = "last_name_attribute";
   private static final String EMAIL_ATTRIBUTE_CONFIG_NAME = "email_attribute";
   private static final String LOCALE_ATTRIBUTE_CONFIG_NAME = "locale_attribute";
 
@@ -54,14 +55,13 @@ public class GenericOidcProvider extends OidcProvider {
 
   @Override
   public ProfileCreator getProfileAdapter(OidcConfiguration config, OidcClient client) {
-    Optional<String> firstNameAttr = getConfigurationValue(FIRST_NAME_ATTRIBUTE_CONFIG_NAME);
-    Optional<String> secondNameAttr = getConfigurationValue(SECOND_NAME_ATTRIBUTE_CONFIG_NAME);
     String emailAttr = getConfigurationValueOrThrow(EMAIL_ATTRIBUTE_CONFIG_NAME);
     Optional<String> localeAttr = getConfigurationValue(LOCALE_ATTRIBUTE_CONFIG_NAME);
 
     var nameAttrsBuilder = ImmutableList.<String>builder();
-    firstNameAttr.ifPresent(n -> nameAttrsBuilder.add(n));
-    secondNameAttr.ifPresent(n -> nameAttrsBuilder.add(n));
+    getConfigurationValue(FIRST_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(n -> nameAttrsBuilder.add(n));
+    getConfigurationValue(MIDDLE_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(n -> nameAttrsBuilder.add(n));
+    getConfigurationValue(LAST_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(n -> nameAttrsBuilder.add(n));
     return new GenericOidcProfileAdapter(
         config,
         client,

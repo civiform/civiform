@@ -75,7 +75,7 @@ public class GenericOidcProfileAdapterTest extends ResetPostgres {
 
     ApplicantData applicantData = maybeApplicant.get().getApplicantData();
 
-    assertThat(applicantData.getApplicantName()).isEqualTo("Fry, Philip");
+    assertThat(applicantData.getApplicantName().orElse("<empty optional>")).isEqualTo("Fry, Philip");
     Locale l = applicantData.preferredLocale();
     assertThat(l).isEqualTo(Locale.ENGLISH);
   }
