@@ -87,7 +87,11 @@ public abstract class TranslationFormView extends BaseHtmlView {
             .withMethod("POST")
             .with(makeCsrfTokenInputTag(request))
             .withAction(formAction)
-            .with(each(formFields, FieldWithLabel::getInputTag)) // https://github.com/seattle-uat/civiform/issues/2764
+            .with(
+                each(
+                    formFields,
+                    FieldWithLabel
+                        ::getInputTag)) // https://github.com/seattle-uat/civiform/issues/2764
             .with(
                 submitButton(
                         String.format(

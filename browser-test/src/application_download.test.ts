@@ -16,7 +16,6 @@ import {
 } from './support'
 
 describe('normal application flow', () => {
-
   beforeAll(async () => {
     const { page } = await startSession()
     await dropTables(page)

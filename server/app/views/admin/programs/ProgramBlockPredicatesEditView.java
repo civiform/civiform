@@ -328,11 +328,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                   OptionTag option = option(operator.toDisplayString()).withValue(operator.name());
                   operator
                       .getOperableTypes()
-                      .forEach(
-                          type ->
-                              option.withData(
-                                  type.name()
-                                      .toLowerCase(), ""));
+                      .forEach(type -> option.withData(type.name().toLowerCase(), ""));
                   // to be passed?
                   return option;
                 })
