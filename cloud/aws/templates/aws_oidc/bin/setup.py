@@ -1,10 +1,16 @@
 import os
 import subprocess
+import shlex
 
 from cloud.shared.bin.lib.setup_template import SetupTemplate
 
 
 class Setup(SetupTemplate):
+
+    def get_current_user(self):
+        get_current_command = "aws sts get-caller-identity --query UserId --output text"
+        return subprocess.run(
+            shlex.split(get_current_command), capture_output=True)
 
     def pre_terraform_setup(self):
         print(" - Running the setup script in terraform")

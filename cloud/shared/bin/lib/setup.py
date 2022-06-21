@@ -46,16 +46,8 @@ Setup = load_class(template_dir)
 
 template_setup = Setup(config_loader)
 template_setup.setup_log_file()
+current_user = template_setup.get_current_user()
 
-current_user_function = subprocess.run(
-    [
-        "/bin/bash", "-c",
-        f"source cloud/azure/bin/lib.sh && azure::get_current_user_id"
-    ],
-    capture_output=True)
-
-if current_user_function:
-    current_user = current_user_function.stdout.decode("ascii")
 image_tag = config_loader.get_config_var("IMAGE_TAG")
 log_args = f"\"{image_tag}\" {current_user}"
 
