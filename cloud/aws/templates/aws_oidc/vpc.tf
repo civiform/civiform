@@ -6,7 +6,7 @@ module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "3.14.2"
 
-  name                    = var.vpc_name
+  name                    = "${var.app_prefix}-${var.vpc_name}"
   cidr                    = var.vpc_cidr
   azs                     = data.aws_availability_zones.available.names
   private_subnets         = var.private_subnets
@@ -16,12 +16,12 @@ module "vpc" {
 }
 
 resource "aws_db_subnet_group" "civiform" {
-  name       = "civiform"
+  name       = "${var.app_prefix}-civiform"
   subnet_ids = module.vpc.private_subnets
 }
 
 resource "aws_security_group" "rds" {
-  name   = "civiform_rds"
+  name   = "${var.app_prefix}-civiform_rds"
   vpc_id = module.vpc.vpc_id
 
   ingress {
@@ -40,7 +40,7 @@ resource "aws_security_group" "rds" {
 }
 
 resource "aws_apprunner_vpc_connector" "connector" {
-  vpc_connector_name = "civiform_connector"
+  vpc_connector_name = "${var.app_prefix}-civiform_connector"
   subnets            = module.vpc.private_subnets
   security_groups    = [aws_security_group.rds.id]
 }
