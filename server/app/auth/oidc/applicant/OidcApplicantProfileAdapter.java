@@ -34,8 +34,7 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
 
   @VisibleForTesting public final Optional<String> localeAttributeName;
 
-  @VisibleForTesting
-  public final ImmutableList<String> nameAttributeNames;
+  @VisibleForTesting public final ImmutableList<String> nameAttributeNames;
 
   public OidcApplicantProfileAdapter(
       OidcConfiguration configuration,

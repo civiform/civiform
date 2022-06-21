@@ -17,12 +17,8 @@ import repository.ResetPostgres;
 import repository.UserRepository;
 import services.applicant.ApplicantData;
 import support.CfTestHelpers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GenericOidcProfileAdapterTest extends ResetPostgres {
-  private static final Logger logger = LoggerFactory.getLogger(GenericOidcProfileAdapterTest.class);
-
   private static final String ISSUER = "issuer";
   private static final String SUBJECT = "subject";
 
@@ -66,7 +62,6 @@ public class GenericOidcProfileAdapterTest extends ResetPostgres {
     profile.setId(SUBJECT);
 
     CiviFormProfileData profileData = oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
-    logger.info("profileData:" + profileData.getAttributes());
     assertThat(profileData).isNotNull();
     assertThat(profileData.getEmail()).isEqualTo("foo@bar.com");
 
@@ -75,7 +70,8 @@ public class GenericOidcProfileAdapterTest extends ResetPostgres {
 
     ApplicantData applicantData = maybeApplicant.get().getApplicantData();
 
-    assertThat(applicantData.getApplicantName().orElse("<empty optional>")).isEqualTo("Fry, Philip");
+    assertThat(applicantData.getApplicantName().orElse("<empty optional>"))
+        .isEqualTo("Fry, Philip");
     Locale l = applicantData.preferredLocale();
     assertThat(l).isEqualTo(Locale.ENGLISH);
   }

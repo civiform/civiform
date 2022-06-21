@@ -6,6 +6,8 @@ import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.oidc.applicant.IdcsProfileAdapter;
 import com.google.common.collect.ImmutableList;
+
+import java.util.Locale;
 import java.util.Optional;
 import models.Account;
 import models.Applicant;
@@ -17,6 +19,7 @@ import org.pac4j.oidc.profile.OidcProfile;
 import repository.ResetPostgres;
 import repository.UserRepository;
 import support.CfTestHelpers;
+import services.applicant.ApplicantData;
 
 public class OidcProfileAdapterTest extends ResetPostgres {
   private static final String EMAIL = "foo@bar.com";
@@ -114,7 +117,7 @@ public class OidcProfileAdapterTest extends ResetPostgres {
     OidcProfile profile = new OidcProfile();
     profile.addAttribute("user_emailid", EMAIL);
     profile.addAttribute("user_displayname", NAME);
-    profile.addAttribute("user_locale", "EN");
+    profile.addAttribute("user_locale", "fr");
     profile.addAttribute("iss", ISSUER);
     profile.setId(SUBJECT);
 
@@ -128,7 +131,15 @@ public class OidcProfileAdapterTest extends ResetPostgres {
     // The email of the existing account is the pre-existing one, not a new profile
     // one.
     assertThat(profileData.getEmail()).isEqualTo(EMAIL);
-    assertThat(profileData.getDisplayName()).isEqualTo(NAME);
-    assertThat(profileData.getLocale()).isEqualTo("EN");
+
+    Optional<Applicant> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    assertThat(maybeApplicant).isPresent();
+
+    ApplicantData applicantData = maybeApplicant.get().getApplicantData();
+
+    assertThat(applicantData.getApplicantName().orElse("<empty optional>"))
+        .isEqualTo("Fry, Philip");
+    Locale l = applicantData.preferredLocale();
+    assertThat(l).isEqualTo(Locale.FRENCH);
   }
 }
