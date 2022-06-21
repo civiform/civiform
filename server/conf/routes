@@ -18,6 +18,8 @@ POST    /admin/programs/:programId/newVersion                   controllers.admi
 POST    /admin/programs                                         controllers.admin.AdminProgramController.create(request: Request)
 POST    /admin/programs/publish                                 controllers.admin.AdminProgramController.publish()
 POST    /admin/programs/:programId                              controllers.admin.AdminProgramController.update(request: Request, programId: Long)
+#TODO make post and take data.
+GET    /admin/programs/:programId/statuses controllers.admin.AdminProgramStatusController.update( programId: Long)
 
 # Routes for a CiviForm admin to manage program admins for a given program.
 GET     /admin/programs/:programId/admins/edit  controllers.admin.ProgramAdminManagementController.edit(request: Request, programId: Long)

@@ -28,6 +28,7 @@ import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.ExportDefinition;
 import services.program.ProgramDefinition;
+import services.program.StatusDefinitions;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -83,6 +84,8 @@ public class Program extends BaseModel {
 
   @Constraints.Required @DbJson private ImmutableList<ExportDefinition> exportDefinitions;
 
+  @Constraints.Required @DbJson private StatusDefinitions statusDefinitions;
+
   /** When was this program created. */
   @WhenCreated private Instant createTime;
 
@@ -107,6 +110,10 @@ public class Program extends BaseModel {
     return checkNotNull(this.programDefinition);
   }
 
+  public StatusDefinitions getStatusDefinitions() {
+    return checkNotNull(this.statusDefinitions);
+  }
+
   public Program(ProgramDefinition definition) {
     this(definition, Optional.empty());
   }
@@ -126,6 +133,7 @@ public class Program extends BaseModel {
     this.blockDefinitions = definition.blockDefinitions();
     this.exportDefinitions = definition.exportDefinitions();
     this.displayMode = definition.displayMode().getValue();
+    this.statusDefinitions = definition.statusDefinitions();
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -163,6 +171,7 @@ public class Program extends BaseModel {
     this.exportDefinitions = ImmutableList.of();
     this.blockDefinitions = ImmutableList.of(emptyBlock);
     this.versions.add(associatedVersion);
+    this.statusDefinitions = new StatusDefinitions();
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -195,6 +204,7 @@ public class Program extends BaseModel {
             .setBlockDefinitions(blockDefinitions)
             .setExportDefinitions(exportDefinitions)
             .setExternalLink(externalLink)
+            .setStatusDefinitions(statusDefinitions)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setCreateTime(createTime)
             .setLastModifiedTime(lastModifiedTime);

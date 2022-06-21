@@ -385,4 +385,6 @@ public interface ProgramService {
 
   /** Get the slugs for all programs. */
   ImmutableSet<String> getAllProgramSlugs();
+
+  ErrorAnd<ProgramDefinition, CiviFormError> updateStatuses(long programId) throws ProgramNotFoundException;
 }
