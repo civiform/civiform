@@ -15,7 +15,7 @@ import repository.UserRepository;
 
 public class GenericOidcProvider extends OidcProvider {
 
-  private static final String ATTRIBUTE_PREFIX = "generic_oidc";
+  private static final String ATTRIBUTE_PREFIX = "applicant_generic_oidc";
   private static final ImmutableList<String> DEFAULT_SCOPES =
       ImmutableList.of("openid", "profile", "email");
 
@@ -59,10 +59,10 @@ public class GenericOidcProvider extends OidcProvider {
     Optional<String> localeAttr = getConfigurationValue(LOCALE_ATTRIBUTE_CONFIG_NAME);
 
     var nameAttrsBuilder = ImmutableList.<String>builder();
-    getConfigurationValue(FIRST_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(n -> nameAttrsBuilder.add(n));
+    getConfigurationValue(FIRST_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
     getConfigurationValue(MIDDLE_NAME_ATTRIBUTE_CONFIG_NAME)
-        .ifPresent(n -> nameAttrsBuilder.add(n));
-    getConfigurationValue(LAST_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(n -> nameAttrsBuilder.add(n));
+        .ifPresent(nameAttrsBuilder::add);
+    getConfigurationValue(LAST_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
     return new GenericOidcProfileAdapter(
         config,
         client,
