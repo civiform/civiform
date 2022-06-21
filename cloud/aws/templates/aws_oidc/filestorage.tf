@@ -38,7 +38,8 @@ data "aws_iam_policy_document" "civiform_files_policy" {
     resources = [aws_s3_bucket.civiform_files_s3.arn,
     "${aws_s3_bucket.civiform_files_s3.arn}/*"]
     principals {
-      type = "*"
+      type        = "*"
+      identifiers = ["*"]
     }
     condition {
       test     = "ArnNotEquals"
