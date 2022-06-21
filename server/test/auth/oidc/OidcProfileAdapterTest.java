@@ -6,7 +6,6 @@ import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.oidc.applicant.IdcsProfileAdapter;
 import com.google.common.collect.ImmutableList;
-
 import java.util.Locale;
 import java.util.Optional;
 import models.Account;
@@ -18,8 +17,8 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import repository.ResetPostgres;
 import repository.UserRepository;
-import support.CfTestHelpers;
 import services.applicant.ApplicantData;
+import support.CfTestHelpers;
 
 public class OidcProfileAdapterTest extends ResetPostgres {
   private static final String EMAIL = "foo@bar.com";

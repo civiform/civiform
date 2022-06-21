@@ -39,15 +39,16 @@ public class GenericOidcProfileAdapterTest extends ResetPostgres {
     OidcClient client = CfTestHelpers.getOidcClient("oidc", 3380);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("oidc", 3380);
     // Just need some complete adaptor to access methods.
-    oidcProfileAdapter = new GenericOidcProfileAdapter(
-        client_config,
-        client,
-        profileFactory,
-        CfTestHelpers.userRepositoryProvider(userRepository),
-        EMAIL_ATTRIBUTE_NAME,
-        LOCALE_ATTRIBUTE_NAME,
-        ImmutableList.of(
-            FIRST_NAME_ATTRIBUTE_NAME, MIDDLE_NAME_ATTRIBUTE_NAME, LAST_NAME_ATTRIBUTE_NAME));
+    oidcProfileAdapter =
+        new GenericOidcProfileAdapter(
+            client_config,
+            client,
+            profileFactory,
+            CfTestHelpers.userRepositoryProvider(userRepository),
+            EMAIL_ATTRIBUTE_NAME,
+            LOCALE_ATTRIBUTE_NAME,
+            ImmutableList.of(
+                FIRST_NAME_ATTRIBUTE_NAME, MIDDLE_NAME_ATTRIBUTE_NAME, LAST_NAME_ATTRIBUTE_NAME));
   }
 
   @Test
@@ -61,7 +62,8 @@ public class GenericOidcProfileAdapterTest extends ResetPostgres {
     profile.addAttribute("iss", ISSUER);
     profile.setId(SUBJECT);
 
-    CiviFormProfileData profileData = oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+    CiviFormProfileData profileData =
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
     assertThat(profileData).isNotNull();
     assertThat(profileData.getEmail()).isEqualTo("foo@bar.com");
 
