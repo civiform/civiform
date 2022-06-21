@@ -125,7 +125,7 @@ public class OidcProviderTest extends ResetPostgres {
     assertThat(client_config.getClientId()).isEqualTo(c.get("idcs.client_id"));
     assertThat(client_config.getSecret()).isEqualTo(c.get("idcs.secret"));
     assertThat(client_config.getDiscoveryURI()).isEqualTo(c.get("idcs.discovery_uri"));
-    assertThat(client_config.getScope()).isEqualTo("openid profile email");
+    assertThat(client_config.getScopesAttribute()).isEqualTo("openid profile email");
     assertThat(client_config.getResponseType()).isEqualTo(wantResponseType);
     assertThat(client_config.getResponseMode()).isEqualTo("form_post");
 
