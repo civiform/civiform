@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +19,6 @@ import play.api.test.Helpers;
 import repository.ResetPostgres;
 import repository.UserRepository;
 import support.CfTestHelpers;
-import java.util.Optional;
 
 @RunWith(JUnitParamsRunner.class)
 public class GenericOidcProviderTest extends ResetPostgres {
@@ -91,6 +91,7 @@ public class GenericOidcProviderTest extends ResetPostgres {
 
     assertThat(profileAdapter.emailAttributeName).isEqualTo("email");
     assertThat(profileAdapter.localeAttributeName).isEqualTo(Optional.of("country"));
-    assertThat(profileAdapter.nameAttributeNames).isEqualTo(ImmutableList.of("first", "middle", "last"));
+    assertThat(profileAdapter.nameAttributeNames)
+        .isEqualTo(ImmutableList.of("first", "middle", "last"));
   }
 }

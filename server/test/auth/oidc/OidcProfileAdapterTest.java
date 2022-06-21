@@ -2,6 +2,7 @@ package auth.oidc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.oidc.applicant.IdcsProfileAdapter;
 import com.google.common.collect.ImmutableList;
@@ -16,7 +17,6 @@ import org.pac4j.oidc.profile.OidcProfile;
 import repository.ResetPostgres;
 import repository.UserRepository;
 import support.CfTestHelpers;
-import auth.CiviFormProfileData;
 
 public class OidcProfileAdapterTest extends ResetPostgres {
   private static final String EMAIL = "foo@bar.com";
@@ -119,7 +119,8 @@ public class OidcProfileAdapterTest extends ResetPostgres {
     profile.setId(SUBJECT);
 
     // Execute.
-    CiviFormProfileData profileData = oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+    CiviFormProfileData profileData =
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
 
     // Verify.
     assertThat(profileData).isNotNull();
