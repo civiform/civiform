@@ -13,12 +13,14 @@ if [[ -n "${CI}" ]]; then
   # .git needed for github actions to diff
   docker run --rm \
     -v "$(pwd)/src:/code" \
-    civiform/formatter sh -c "$CMD"
+    --entrypoint sh \
+    civiform/formatter -c "$CMD"
   exit 0
 fi
 
 docker run --rm -it \
   -v "$(pwd)/src:/code" \
-  civiform/formatter sh -c "$CMD"
+  --entrypoint sh \
+  civiform/formatter -c "$CMD"
 
 popd
