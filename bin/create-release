@@ -1,0 +1,173 @@
+#! /usr/bin/env python3
+
+import os
+import re
+import requests
+import subprocess
+import shlex
+import sys
+
+if not os.path.exists("gh-release-token.txt"):
+    print("gh-release-token.txt not found in root directory", file=sys.stderr)
+    print(
+        "Create one with repo and read:org scopes at https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token",
+        file=sys.stderr)
+    exit(1)
+
+if len(sys.argv) != 3:
+    print(
+        "Usage: bin/create-release COMMIT_SHA RELEASE_NUMBER", file=sys.stderr)
+    exit(1)
+
+
+def shell_cmd(command_string):
+    try:
+        process = subprocess.run(
+            shlex.split(command_string), capture_output=True)
+    except FileNotFoundError:
+        return ''
+    return process.stdout.decode('ascii') if process else ''
+
+
+################################################################################
+# Resolve and validate GitHub token, check auth
+################################################################################
+
+with open("gh-release-token.txt", "r") as file:
+    GH_TOKEN = file.read().rstrip()
+
+if not GH_TOKEN.startswith("ghp_"):
+    print("Invalid token found in gh-release-token.txt", file=sys.stderr)
+    exit(1)
+
+check_gh_auth_response = requests.get(
+    "https://api.github.com/repos/seattle-uat/civiform",
+    headers={"Authorization": "token " + GH_TOKEN})
+if check_gh_auth_response.status_code != 200:
+    print(
+        "GitHub API auth failed, satus code: " +
+        str(check_gh_auth_response.status_code),
+        file=sys.stderr)
+    exit(1)
+
+################################################################################
+# Set release variables
+################################################################################
+
+COMMIT_SHA = sys.argv[1]
+RELEASE_NUMBER = sys.argv[2]
+RELEASER_NAME = shell_cmd("git config --get user.name")
+RELEASER_EMAIL = shell_cmd("git config --get user.email")
+
+################################################################################
+# Validate release version number
+################################################################################
+
+if not re.match("^v\d+\.\d+\.\d+$", RELEASE_NUMBER):
+    print("Invalid version number: " + RELEASE_NUMBER, file=sys.stderr)
+
+################################################################################
+# Validate commit SHA
+################################################################################
+
+branches_containing_commit_sha = shell_cmd(
+    "git --no-pager branch --contains " + COMMIT_SHA)
+if not re.match("^\*? ?main$", branches_containing_commit_sha, re.MULTILINE):
+    print("Invalid commit SHA: " + COMMIT_SHA, file=sys.stderr)
+    exit(1)
+
+################################################################################
+# Find snapshot tag that matches commit SHA
+################################################################################
+
+# Git defaults to using the first 7 chars of the full SHA for the short SHA.
+SHORT_SHA = shell_cmd("git rev-parse --short " + COMMIT_SHA)[:7]
+
+print(f"Searching for an image tag with short SHA {SHORT_SHA}")
+
+tags_url = "https://registry.hub.docker.com/v2/repositories/civiform/civiform/tags?order=-last_activity&page_size=100"
+snapshot_tag = None
+while True:
+    response = requests.get(tags_url)
+
+    if response.status_code != 200:
+        print(
+            "Docker Hub request failed with status code: " +
+            str(response.status_code),
+            file=sys.stderr)
+        exit(2)
+
+    response_json = response.json()
+
+    for tag_info in response_json['results']:
+        print(tag_info["name"])
+        if SHORT_SHA in tag_info["name"]:
+            snapshot_tag = tag_info["name"]
+            break
+
+    if snapshot_tag is not None:
+        break
+
+    if response_json['next'] is None:
+        print(
+            "No snapshot tag found with short SHA: " + SHORT_SHA,
+            file=sys.stderr)
+        exit(1)
+
+    tags_url = response_json['next']
+
+print(f"Found existing server image: {snapshot_tag}")
+
+################################################################################
+# Add tag to git history
+################################################################################
+
+print("Adding tag to git history")
+
+shell_cmd(
+    f"git tag -a {RELEASE_NUMBER} -m 'Releaser: {RELEASER_EMAIL}' {COMMIT_SHA}")
+shell_cmd(f"git push origin {RELEASE_NUMBER}")
+
+################################################################################
+# Tag Docker image with release
+################################################################################
+
+print("Tagging Docker image and pushing to Docker Hub")
+
+shell_cmd(f"docker pull civiform/civiform:{snapshot_tag}")
+shell_cmd(
+    f"docker tag civiform/civiform:{snapshot_tag} civiform/civiform:{RELEASE_NUMBER}"
+)
+shell_cmd(f"docker push civiform/civiform:{RELEASE_NUMBER}")
+
+################################################################################
+# Create GitHub release
+################################################################################
+
+print("Creating GitHub release")
+
+create_release_url = "https://api.github.com/seattle-uat/civiform/releases"
+create_release_params = {
+    "tag_name": RELEASE_NUMBER,
+    "target_commitish": COMMIT_SHA,
+    "name": RELEASE_NUMBER,
+    "draft": "true",
+    "generate_release_notes": "true"
+}
+create_release_headers = {
+    "Accept": "application/vnd.github.v3+json",
+    "Authorization": "token " + GH_TOKEN
+}
+
+response = requests.post(
+    create_release_url,
+    params=create_release_params,
+    headers=create_release_headers)
+if response.status_code != 201:
+    print(
+        "GitHub request failed with status code: " + str(response.status_code),
+        file=sys.stderr)
+    exit(2)
+
+RELEASE_URL = response.json()["url"]
+print(f"\nDraft release created at: {release_url}")
