@@ -1,6 +1,7 @@
 # TODO: split this into modules.
 module "secrets" {
-  source = "../../modules/secrets_manager"
+  source     = "../../modules/secrets_manager"
+  app_prefix = var.app_prefix
 }
 
 resource "aws_apprunner_service" "civiform_dev" {

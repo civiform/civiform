@@ -1,6 +1,6 @@
 # Importing the AWS secrets created previously using name.
 data "aws_secretsmanager_secret" "postgres_username" {
-  name = "postgres_username"
+  name = "${var.app_prefix}-postgres_username"
 }
 
 # Importing the AWS secret version created previously using arn.
@@ -10,7 +10,7 @@ data "aws_secretsmanager_secret_version" "postgres_username_version" {
 
 # Importing the AWS secrets created previously using name.
 data "aws_secretsmanager_secret" "postgres_password" {
-  name = "postgres_password"
+  name = "${var.app_prefix}-postgres_password"
 }
 
 # Importing the AWS secret version created previously using arn.
@@ -19,28 +19,8 @@ data "aws_secretsmanager_secret_version" "postgres_password_version" {
 }
 
 # Importing the AWS secrets created previously using name.
-data "aws_secretsmanager_secret" "aws_secret_access_token" {
-  name = "aws_secret_access_token"
-}
-
-# Importing the AWS secret version created previously using arn.
-data "aws_secretsmanager_secret_version" "aws_secret_access_token_version" {
-  secret_id = data.aws_secretsmanager_secret.aws_secret_access_token.arn
-}
-
-# Importing the AWS secrets created previously using name.
-data "aws_secretsmanager_secret" "aws_access_key_id" {
-  name = "aws_access_key_id"
-}
-
-# Importing the AWS secret version created previously using arn.
-data "aws_secretsmanager_secret_version" "aws_access_key_id_version" {
-  secret_id = data.aws_secretsmanager_secret.aws_access_key_id.arn
-}
-
-# Importing the AWS secrets created previously using name.
 data "aws_secretsmanager_secret" "app_secret_key" {
-  name = "app_secret_key"
+  name = "${var.app_prefix}-app_secret_key"
 }
 
 # Importing the AWS secret version created previously using arn.
@@ -50,7 +30,7 @@ data "aws_secretsmanager_secret_version" "app_secret_key_version" {
 
 # Importing the AWS secrets created previously using name.
 data "aws_secretsmanager_secret" "adfs_secret" {
-  name = "adfs_secret"
+  name = "${var.app_prefix}-adfs_secret"
 }
 
 # Importing the AWS secret version created previously using arn.
