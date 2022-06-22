@@ -7,6 +7,17 @@ docker::set_project_name_dev
 
 bin/pull-image --formatter
 
+echo "mapping $(pwd) to container"
+
+# Can't use TTY in CI
+if [[ -n "${CI}" ]]; then
+  # .git needed for github actions to diff
+  docker run --rm \
+    -v "$(pwd):/code" \
+    civiform/formatter
+  exit 0
+fi
+
 docker run --rm -it \
   -v "$(pwd):/code" \
-  civiform/formatter:latest
+  civiform/formatter

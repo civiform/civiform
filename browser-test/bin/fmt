@@ -1,10 +1,21 @@
 #!/usr/bin/env bash
 
+# DOC: Autoformat Javascript and TypeScript source files in browser tests.
+
+bin/pull-image --formatter
+
 pushd $(git rev-parse --show-toplevel)/browser-test
 
 CMD="cd /code; npx prettier --write --config /.prettierrc.js --ignore-path /.prettierignore /code"
 
-bin/pull-image
+# Can't use TTY in CI
+if [[ -n "${CI}" ]]; then
+  # .git needed for github actions to diff
+  docker run --rm \
+    -v "$(pwd)/src:/code" \
+    civiform/formatter sh -c "$CMD"
+  exit 0
+fi
 
 docker run --rm -it \
   -v "$(pwd)/src:/code" \
