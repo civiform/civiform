@@ -8,6 +8,12 @@ on:
     branches:
       - main
 
+# cancels in-progress jobs on this pull request
+# avoids wasted work when a new commit is pushed
+concurrency:
+  group: format-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 permissions: read-all
 
 jobs:
@@ -75,6 +81,26 @@ jobs:
       - name: show bin/fmt diff
         run: git add .; git diff --exit-code HEAD
 
+  scala-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # get main
+      - id: file_changes
+        uses: trilom/file-changes-action@v1.2.3
+        with:
+          output: 'json'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Run bin/fmt-sbt
+        env:
+          DOCKER_BUILDKIT: 1
+        if: contains(toJSON(steps.file_changes.outputs.files), '.sbt') || contains(toJSON(steps.file_changes.outputs.files), '.scala')|| contains(toJSON(steps.file_changes.outputs.files), '.github/workflows/format.yaml')
+        run: bin/fmt-sbt
+      - name: show bin/fmt-sbt diff
+        run: git add .; git diff --exit-code HEAD
+
   shell-formatting:
     runs-on: ubuntu-latest
     steps:
@@ -88,7 +114,7 @@ jobs:
             # -i 2   indent 2 spaces
             # -bn    binary ops like && and | may start a line
             # -ci    switch cases will be indented
-  formatting-check:
+  python-formatting:
     name: Formatting Check
     runs-on: ubuntu-latest
     steps:
