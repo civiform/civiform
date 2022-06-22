@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import tempfile
+import shutil
 """
 Template Setup
 
@@ -24,6 +25,12 @@ class SetupTemplate:
     def setup_log_file(self):
         _, self.log_file_path = tempfile.mkstemp()
         print(" - TODO: Setup log file here.")
+
+    def _make_backend_override(self):
+        current_directory = self.config.get_template_dir()
+        shutil.copy2(
+            f'{current_directory}/backend_override',
+            f'{current_directory}/backend_override.tf')
 
     def requires_post_terraform_setup(self):
         return False

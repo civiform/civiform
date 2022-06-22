@@ -45,6 +45,15 @@ current_user = template_setup.get_current_user()
 image_tag = config_loader.get_config_var("IMAGE_TAG")
 log_args = f"\"{image_tag}\" {current_user}"
 
+print("Writing TF Vars file")
+terraform_tfvars_path = os.path.join(
+    template_dir, config_loader.tfvars_filename)
+
+# Write the passthrough vars to a temporary file
+tf_var_writter = TfVarWriter(terraform_tfvars_path)
+conf_variables = config_loader.get_terraform_variables()
+tf_var_writter.write_variables(conf_variables)
+
 try:
     print("Starting pre-terraform setup")
     template_setup.pre_terraform_setup()
@@ -53,13 +62,6 @@ try:
     # Terraform Init/Plan/Apply
     ###############################################################################
     print("Starting terraform setup")
-    terraform_tfvars_path = f"{template_dir}/{config_loader.tfvars_filename}"
-
-    # Write the passthrough vars to a temporary file
-    tf_var_writter = TfVarWriter(terraform_tfvars_path)
-    conf_variables = config_loader.get_terraform_variables()
-    tf_var_writter.write_variables(conf_variables)
-
     # Note that the -chdir means we use the relative paths for
     # both the backend config and the var file
     terraform_init_args = [
