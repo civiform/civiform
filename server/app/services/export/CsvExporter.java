@@ -22,8 +22,8 @@ import services.program.Column;
  * {@link Path} indexing into an applicant's data, and CsvExporter takes the path and reads the
  * answer from {@link ReadOnlyApplicantProgramService} if present.
  *
- * <p>The close method should be called when complete in order for the underlying {@link CsvPrinter}
- * to be closed.
+ * <p>Call close() directly or use the try-with-resources pattern in order for the underlying {@link
+ * CsvPrinter} to be closed.
  */
 public final class CsvExporter implements AutoCloseable {
   private final String EMPTY_VALUE = "";
