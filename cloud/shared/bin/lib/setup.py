@@ -4,9 +4,9 @@ import os
 import subprocess
 import sys
 
-from config_loader import ConfigLoader
-from write_tfvars import TfVarWriter
-from setup_class_loader import load_class
+from cloud.shared.bin.lib.config_loader import ConfigLoader
+from cloud.shared.bin.lib.write_tfvars import TfVarWriter
+from cloud.shared.bin.lib.setup_class_loader import load_class
 """
 Setup.py sets up and runs the initial terraform deployment. It's broken into
 3 parts:
@@ -16,12 +16,6 @@ Setup.py sets up and runs the initial terraform deployment. It's broken into
 
 The script generates a .tfvars file that is used to deploy via terraform.
 """
-
-###############################################################################
-# Add top level directory so we can import modules
-###############################################################################
-
-sys.path.append(os.getcwd())
 
 ###############################################################################
 # Load and Validate Inputs
