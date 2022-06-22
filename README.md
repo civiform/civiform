@@ -2,6 +2,7 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6008/badge)](https://bestpractices.coreinfrastructure.org/projects/6008)
 [![Seattle Staging Deploy](https://github.com/seattle-uat/civiform-deploy/actions/workflows/deploy-staging.yml/badge.svg?branch=main)](https://github.com/seattle-uat/civiform-deploy/actions/workflows/deploy-staging.yml)
 ![codecov.io](https://codecov.io/github/seattle-uat/civiform/coverage.svg?branch=main)
+[![Code Style: Google](https://img.shields.io/badge/code%20style-google-blueviolet.svg)](https://google.github.io/styleguide/)
 
 # CiviForm
 

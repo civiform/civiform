@@ -14,7 +14,9 @@ RUN npm install -g typescript \
 
 COPY .prettierrc.js /.prettierrc.js
 COPY .prettierignore /.prettierignore
-COPY fmt /fmt
+COPY .editorconfig /.editorconfig
+
+COPY formatter/fmt /fmt
 
 VOLUME /code
 

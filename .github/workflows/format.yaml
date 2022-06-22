@@ -37,6 +37,15 @@ jobs:
       - name: show diff
         run: git add .; git diff --exit-code HEAD
 
+      - name: Prettier diff
+        uses: actionsx/prettier@v2
+        with:
+          # prettier CLI arguments.
+          args: --check .
+
+      - name: show diff
+        run: git add .; git diff --exit-code HEAD
+
       - name: Check bin scripts have docstrings.
         if: contains(toJSON(steps.file_changes.outputs.files), 'bin/') || contains(toJSON(steps.file_changes.outputs.files), '.github/workflows/format.yaml')
         id: check_bin_script_docs

@@ -1,0 +1,43 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+[*]
+# Unix-style newlines with a newline ending every file
+end_of_line = lf
+insert_final_newline = true
+max_line_length = 80
+charset = utf-8
+# 2 space indentation for everything but python
+indent_style = space
+indent_size = 2
+
+# 4 space indentation for python
+[*.py]
+indent_style = space
+indent_size = 4
+
+[*.sh]
+# -bn, --binary-next-line Binary ops like && and | may start a line.
+binary_next_line   = true
+# -ci, --switch-case-indent Switch cases will be indented.
+switch_case_indent = true
+
+binary_next_line   = true
+space_redirects    = true
+keep_padding       = true
+
+# Applies to all Markdown files
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{js,ts}]
+quote_type = single
+
+# Ignore generated directories
+[node_modules/**]
+ignore = true
+
+[target/**]
+ignore = true
