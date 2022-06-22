@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "log_bucket" {
-  bucket = var.log_storage_bucket
+  bucket = "${var.app_prefix}-civiformlogs"
 }
 
 resource "aws_s3_bucket_acl" "log_bucket_acl" {
