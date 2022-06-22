@@ -11,7 +11,6 @@ import {
 } from './support'
 
 describe('normal question lifecycle', () => {
-
   beforeAll(async () => {
     const { page } = await startSession()
     await dropTables(page)

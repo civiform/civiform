@@ -6,6 +6,7 @@ import auth.ProfileFactory;
 import auth.Roles;
 import auth.oidc.OidcProfileAdapter;
 import com.beust.jcommander.internal.Nullable;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -28,9 +29,12 @@ import repository.UserRepository;
  * implementations of the two abstract methods.
  */
 public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
-  private final String emailAttributeName;
-  private final Optional<String> localeAttributeName;
-  private final ImmutableList<String> nameAttributeNames;
+
+  @VisibleForTesting public final String emailAttributeName;
+
+  @VisibleForTesting public final Optional<String> localeAttributeName;
+
+  @VisibleForTesting public final ImmutableList<String> nameAttributeNames;
 
   public OidcApplicantProfileAdapter(
       OidcConfiguration configuration,

@@ -2,9 +2,11 @@ package auth.oidc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.oidc.applicant.IdcsProfileAdapter;
 import com.google.common.collect.ImmutableList;
+import java.util.Locale;
 import java.util.Optional;
 import models.Account;
 import models.Applicant;
@@ -15,10 +17,12 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import repository.ResetPostgres;
 import repository.UserRepository;
+import services.applicant.ApplicantData;
 import support.CfTestHelpers;
 
 public class OidcProfileAdapterTest extends ResetPostgres {
   private static final String EMAIL = "foo@bar.com";
+  private static final String NAME = "Philip J. Fry";
   private static final String ISSUER = "issuer";
   private static final String SUBJECT = "subject";
   private static final String AUTHORITY_ID = "iss: issuer sub: subject";
@@ -105,5 +109,36 @@ public class OidcProfileAdapterTest extends ResetPostgres {
     // one.
     assertThat(account.getEmailAddress()).isEqualTo(otherEmail);
     assertThat(account.getAuthorityId()).isEqualTo(AUTHORITY_ID);
+  }
+
+  @Test
+  public void mergeCiviFormProfile_succeeds_new_user() {
+    OidcProfile profile = new OidcProfile();
+    profile.addAttribute("user_emailid", EMAIL);
+    profile.addAttribute("user_displayname", NAME);
+    profile.addAttribute("user_locale", "fr");
+    profile.addAttribute("iss", ISSUER);
+    profile.setId(SUBJECT);
+
+    // Execute.
+    CiviFormProfileData profileData =
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+
+    // Verify.
+    assertThat(profileData).isNotNull();
+
+    // The email of the existing account is the pre-existing one, not a new profile
+    // one.
+    assertThat(profileData.getEmail()).isEqualTo(EMAIL);
+
+    Optional<Applicant> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    assertThat(maybeApplicant).isPresent();
+
+    ApplicantData applicantData = maybeApplicant.get().getApplicantData();
+
+    assertThat(applicantData.getApplicantName().orElse("<empty optional>"))
+        .isEqualTo("Fry, Philip");
+    Locale l = applicantData.preferredLocale();
+    assertThat(l).isEqualTo(Locale.FRENCH);
   }
 }

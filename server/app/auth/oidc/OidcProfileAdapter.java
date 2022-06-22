@@ -154,9 +154,9 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
 
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
-    Optional<CiviFormProfile> existingProfile = profileUtils.currentUserProfile(context);
+    Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
     return civiFormProfileMerger.mergeProfiles(
-        existingApplicant, existingProfile, profile, this::mergeCiviFormProfile);
+        existingApplicant, guestProfile, profile, this::mergeCiviFormProfile);
   }
 
   @VisibleForTesting

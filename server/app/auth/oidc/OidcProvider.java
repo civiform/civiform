@@ -3,6 +3,7 @@ package auth.oidc;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileFactory;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -106,6 +107,16 @@ public abstract class OidcProvider implements Provider<OidcClient> {
    * Helper function for retriving values from the application.conf,
    * prepended with "<attributePrefix>."
    */
+  protected final String getConfigurationValueOrThrow(String suffix) {
+    String name = attributePrefix() + "." + suffix;
+    return getBaseConfigurationValue(name)
+        .orElseThrow(() -> new RuntimeException(name + " must be set"));
+  }
+
+  /*
+   * Helper function for retriving values from the application.conf,
+   * prepended with "<attributePrefix>."
+   */
   protected final Optional<String> getBaseConfigurationValue(String name) {
     if (configuration.hasPath(name)) {
       return Optional.ofNullable(configuration.getString(name));
@@ -121,7 +132,8 @@ public abstract class OidcProvider implements Provider<OidcClient> {
    * Helper function for combining the default and additional scopes,
    * and return them in the space-seperated string required bu OIDC.
    */
-  private final String getScopesAttribute() {
+  @VisibleForTesting
+  public final String getScopesAttribute() {
     // Scopes are the other things that we want from the OIDC endpoint
     // (needs to also be configured on provider side).
     return ImmutableSet.<String>builder()
