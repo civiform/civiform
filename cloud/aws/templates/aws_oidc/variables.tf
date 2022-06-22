@@ -153,20 +153,20 @@ variable "app_prefix" {
 }
 
 variable "staging_hostname" {
-  type = string
+  type        = string
   description = "If provided will enable DEMO mode on this hostname"
-  default = "staging-aws.civiform.dev"
+  default     = "staging-aws.civiform.dev"
 }
 
 variable "base_url" {
-  type = string
+  type        = string
   description = "Base url for the app"
-  default = "https://staging-aws.civiform.dev"
+  default     = "https://staging-aws.civiform.dev"
 }
 
 variable "port" {
-  type = string
+  type        = string
   description = "Port the app is running on"
-  default = "9000"
-  
+  default     = "9000"
+
 }
