@@ -40,33 +40,21 @@
     "secret": false,
     "tfvar": true,
     "type": "enum",
-    "values": [
-      "oidc",
-      "saml"
-    ]
+    "values": ["oidc", "saml"]
   },
   "CIVIFORM_CLOUD_PROVIDER": {
     "required": true,
     "secret": false,
     "tfvar": false,
     "type": "enum",
-    "values": [
-      "gcp",
-      "azure",
-      "aws"
-    ]
+    "values": ["gcp", "azure", "aws"]
   },
   "CIVIFORM_MODE": {
     "required": true,
     "secret": false,
     "tfvar": false,
     "type": "enum",
-    "values": [
-      "prod",
-      "staging",
-      "dev",
-      "test"
-    ]
+    "values": ["prod", "staging", "dev", "test"]
   },
   "CUSTOM_HOSTNAME": {
     "required": true,

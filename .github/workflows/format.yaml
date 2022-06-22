@@ -117,8 +117,9 @@ jobs:
         uses: luizm/action-sh-checker@master
         env:
           SHELLCHECK_OPTS: -s bash -S error
-          sh_checker_exclude: "*.md cloud/shared/bin/doctor_impl"
-          SHFMT_OPTS: -bn -ci -i 2
+          sh_checker_exclude: '*.md cloud/shared/bin/doctor_impl'
+          SHFMT_OPTS:
+            -bn -ci -i 2
             # -i 2   indent 2 spaces
             # -bn    binary ops like && and | may start a line
             # -ci    switch cases will be indented
@@ -126,8 +127,8 @@ jobs:
     name: Formatting Check
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: run YAPF to test if python code is correctly formatted
-      uses: AlexanderMelde/yapf-action@v1.0
-      with:
-        args: "--verbose --style='{based_on_style: google, SPLIT_BEFORE_FIRST_ARGUMENT:true}'"
+      - uses: actions/checkout@v2
+      - name: run YAPF to test if python code is correctly formatted
+        uses: AlexanderMelde/yapf-action@v1.0
+        with:
+          args: "--verbose --style='{based_on_style: google, SPLIT_BEFORE_FIRST_ARGUMENT:true}'"

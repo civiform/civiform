@@ -18,7 +18,7 @@ function attachDropdown(elementId: string) {
 
     // Attach onblur event to page to hide dropdown if it wasn't the clicked element.
     document.addEventListener('click', (e) =>
-      maybeHideElement(e, dropdownId, elementId)
+      maybeHideElement(e, dropdownId, elementId),
     )
   }
 }
@@ -69,7 +69,7 @@ function changeUpdateBlockButtonState(event: Event) {
 function addNewInput(
   inputTemplateId: string,
   addButtonId: string,
-  divContainerId: string
+  divContainerId: string,
 ) {
   // Copy the answer template and remove ID and hidden properties.
   const newField = document
@@ -176,7 +176,7 @@ function addEnumeratorListeners() {
     return
   }
   const enumeratorInputs = Array.from(
-    enumeratorQuestion.querySelectorAll('input')
+    enumeratorQuestion.querySelectorAll('input'),
   ).filter((item) => item.id !== 'enumerator-delete-template')
   // Whenever an input changes we need to revalidate.
   enumeratorInputs.forEach((enumeratorInput) => {
@@ -190,7 +190,7 @@ function addEnumeratorListeners() {
     for (const record of records) {
       for (const newNode of Array.from(record.addedNodes)) {
         const newInputs = Array.from(
-          (<Element>newNode).querySelectorAll('input')
+          (<Element>newNode).querySelectorAll('input'),
         )
         newInputs.forEach((newInput) => {
           newInput.addEventListener('input', () => {
@@ -213,7 +213,7 @@ function addEnumeratorListeners() {
 function maybeHideEnumeratorAddButton(enumeratorQuestion: Element) {
   if (enumeratorQuestion) {
     const enumeratorInputValues = Array.from(
-      enumeratorQuestion.querySelectorAll('input')
+      enumeratorQuestion.querySelectorAll('input'),
     )
       .filter((item) => {
         return (
@@ -246,10 +246,10 @@ function removeLineClamp(event: Event) {
 
 function attachLineClampListeners() {
   const applicationCardDescriptions = Array.from(
-    document.querySelectorAll('.cf-application-card-description')
+    document.querySelectorAll('.cf-application-card-description'),
   )
   applicationCardDescriptions.forEach((el) =>
-    el.addEventListener('click', removeLineClamp)
+    el.addEventListener('click', removeLineClamp),
   )
 }
 
@@ -265,7 +265,7 @@ function configurePredicateFormOnScalarChange(event: Event) {
   configurePredicateValueInput(
     scalarDropdown,
     selectedScalarType,
-    selectedScalarValue
+    selectedScalarValue,
   )
 }
 
@@ -275,7 +275,7 @@ function configurePredicateFormOnScalarChange(event: Event) {
 function filterOperators(
   scalarDropdown: HTMLSelectElement,
   selectedScalarType: string,
-  selectedScalarValue: string
+  selectedScalarValue: string,
 ) {
   // Filter the operators available for the given selected scalar type.
   const operatorDropdown = scalarDropdown
@@ -291,7 +291,7 @@ function filterOperators(
       shouldHideOperator(
         selectedScalarType,
         selectedScalarValue,
-        operatorOption
+        operatorOption,
       )
     ) {
       operatorOption.classList.add('hidden')
@@ -302,7 +302,7 @@ function filterOperators(
 function shouldHideOperator(
   selectedScalarType: string,
   selectedScalarValue: string,
-  operatorOption: HTMLOptionElement
+  operatorOption: HTMLOptionElement,
 ): boolean {
   // If this operator is not for the currently selected type, hide it.
   return (
@@ -323,7 +323,7 @@ function shouldHideOperator(
 function configurePredicateValueInput(
   scalarDropdown: HTMLSelectElement,
   selectedScalarType: string,
-  selectedScalarValue: string
+  selectedScalarValue: string,
 ) {
   // If the scalar is from a multi-option question, there is not an input box for the 'Value'
   // field (there's a set of checkboxes instead), so return immediately.
@@ -411,7 +411,7 @@ function configurePredicateFormOnOperatorChange(event: Event) {
   configurePredicateValueInput(
     scalarDropdown,
     selectedScalarType,
-    selectedScalarValue
+    selectedScalarValue,
   )
 }
 
@@ -427,7 +427,7 @@ function attachFormDebouncers() {
       formEl.addEventListener('submit', () => {
         submitEl.setAttribute('disabled', '')
       })
-    }
+    },
   )
 }
 
@@ -442,11 +442,11 @@ window.addEventListener('load', (event) => {
   // Configure the admin predicate builder to show the appropriate options based on
   // the type of scalar selected.
   Array.from(document.querySelectorAll('.cf-scalar-select')).forEach((el) =>
-    el.addEventListener('input', configurePredicateFormOnScalarChange)
+    el.addEventListener('input', configurePredicateFormOnScalarChange),
   )
 
   Array.from(document.querySelectorAll('.cf-operator-select')).forEach((el) =>
-    el.addEventListener('input', configurePredicateFormOnOperatorChange)
+    el.addEventListener('input', configurePredicateFormOnOperatorChange),
   )
 
   // Submit button is disabled by default until program block edit form is changed
@@ -462,14 +462,14 @@ window.addEventListener('load', (event) => {
       addNewInput(
         'multi-option-question-answer-template',
         'add-new-option',
-        'question-settings'
+        'question-settings',
       )
     })
   }
 
   // Bind click handler for remove options in multi-option edit view
   Array.from(
-    document.querySelectorAll('.multi-option-question-field-remove-button')
+    document.querySelectorAll('.multi-option-question-field-remove-button'),
   ).forEach((el) => el.addEventListener('click', removeInput))
 
   // Configure the button on the manage program admins form to add more email inputs
@@ -479,19 +479,19 @@ window.addEventListener('load', (event) => {
       addNewInput(
         'program-admin-email-template',
         'add-program-admin-button',
-        'program-admin-emails'
+        'program-admin-emails',
       )
     })
   }
 
   // Bind click handler for removing program admins in the program admin management view
   Array.from(
-    document.querySelectorAll('.cf-program-admin-remove-button')
+    document.querySelectorAll('.cf-program-admin-remove-button'),
   ).forEach((el) => el.addEventListener('click', hideInput))
 
   // Configure the button on the enumerator question form to add more enumerator field options
   const enumeratorOptionButton = document.getElementById(
-    'enumerator-field-add-button'
+    'enumerator-field-add-button',
   )
   if (enumeratorOptionButton) {
     enumeratorOptionButton.addEventListener('click', addNewEnumeratorField)
@@ -499,7 +499,7 @@ window.addEventListener('load', (event) => {
 
   // Configure existing enumerator entity remove buttons
   Array.from(document.querySelectorAll('.cf-enumerator-delete-button')).forEach(
-    (el) => el.addEventListener('click', removeExistingEnumeratorField)
+    (el) => el.addEventListener('click', removeExistingEnumeratorField),
   )
   addEnumeratorListeners()
 
