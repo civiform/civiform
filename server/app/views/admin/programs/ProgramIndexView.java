@@ -14,7 +14,6 @@ import static j2html.TagCreator.p;
 import auth.CiviFormProfile;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import controllers.admin.Filters;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
@@ -118,7 +117,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             .with(
                 form()
                     .withMethod("GET")
-                    .withAction(routes.AdminApplicationController.downloadDemographics().url())
+                    .withAction(routes.AdminApplicationController.downloadDemographics(
+                      Optional.empty(), Optional.empty()).url())
                     .with(
                         p("This will download all applications for all programs and can take"
                                 + " potentially be quite slow without filtering down the set of"
@@ -129,13 +129,15 @@ public final class ProgramIndexView extends BaseHtmlView {
                             .withClasses(Styles.MT_4, Styles.PT_1, Styles.PB_2, Styles.BORDER)
                             .with(
                                 legend("Applications submitted").withClass(Styles.ML_3),
+                                // The field names below should be kept in sync with
+                                // AdminApplicationController.downloadDemographics.
                                 FieldWithLabel.date()
-                                    .setFieldName(Filters.FROM_DATE_QUERY_PARAM)
+                                    .setFieldName("fromDate")
                                     .setLabelText("From:")
                                     .getContainer()
                                     .withClasses(Styles.ML_3, Styles.INLINE_FLEX),
                                 FieldWithLabel.date()
-                                    .setFieldName(Filters.TO_DATE_QUERY_PARAM)
+                                    .setFieldName("untilDate")
                                     .setLabelText("To:")
                                     .getContainer()
                                     .withClasses(Styles.ML_3, Styles.INLINE_FLEX)),

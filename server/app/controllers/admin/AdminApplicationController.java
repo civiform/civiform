@@ -150,16 +150,15 @@ public class AdminApplicationController extends CiviFormController {
     }
   }
 
-  private Optional<Instant> parseDateFromQuery(Http.Request request, String queryParam) {
-    return request
-        .queryString(queryParam)
+  private Optional<Instant> parseDateFromQuery(Optional<String> maybeQueryParam) {
+    return maybeQueryParam
         .filter(s -> !s.isBlank())
         .map(
             s -> {
               try {
                 return dateConverter.parseIso8601DateToStartOfDateInstant(s);
               } catch (DateTimeParseException e) {
-                throw new BadRequestException("Malformed query param: " + queryParam);
+                throw new BadRequestException("Malformed query param");
               }
             });
   }
@@ -170,11 +169,11 @@ public class AdminApplicationController extends CiviFormController {
    * marked by CiviForm admins.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result downloadDemographics(Http.Request request) {
+  public Result downloadDemographics(Http.Request request, Optional<String> fromDate, Optional<String> untilDate) {
     TimeFilter submitTimeFilter =
         TimeFilter.builder()
-            .setFromTime(parseDateFromQuery(request, Filters.FROM_DATE_QUERY_PARAM))
-            .setToTime(parseDateFromQuery(request, Filters.TO_DATE_QUERY_PARAM))
+            .setFromTime(parseDateFromQuery(fromDate))
+            .setToTime(parseDateFromQuery(untilDate))
             .build();
     String filename = String.format("demographics-%s.csv", nowProvider.get());
     String csv = exporterService.getDemographicsCsv(submitTimeFilter);
