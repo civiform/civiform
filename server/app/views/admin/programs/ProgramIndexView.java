@@ -117,13 +117,15 @@ public final class ProgramIndexView extends BaseHtmlView {
             .with(
                 form()
                     .withMethod("GET")
-                    .withAction(routes.AdminApplicationController.downloadDemographics(
-                      Optional.empty(), Optional.empty()).url())
+                    .withAction(
+                        routes.AdminApplicationController.downloadDemographics(
+                                Optional.empty(), Optional.empty())
+                            .url())
                     .with(
-                        p("This will download all applications for all programs and can take"
-                                + " potentially be quite slow without filtering down the set of"
-                                + " returned applications. Consider using the filters below to"
-                                + " decrease the time to generate the report.")
+                        p("This will download all applications for all programs. Use the filters"
+                                + " below to select a date range for the exported data. If you"
+                                + " select a large date range or leave it blank, the data could"
+                                + " be slow to export.")
                             .withClass(Styles.TEXT_SM),
                         fieldset()
                             .withClasses(Styles.MT_4, Styles.PT_1, Styles.PB_2, Styles.BORDER)

@@ -4,7 +4,7 @@ import com.google.auto.value.AutoValue;
 import java.time.Instant;
 import java.util.Optional;
 
-/** Allows filtering data based on an optional fromTime (inclusive) / untilTime (exclusive).ß */
+/** Allows filtering data based on an optional fromTime (inclusive) / untilTime (exclusive). */
 @AutoValue
 public abstract class TimeFilter {
   public abstract Optional<Instant> fromTime();

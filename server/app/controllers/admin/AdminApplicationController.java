@@ -170,7 +170,8 @@ public class AdminApplicationController extends CiviFormController {
    * marked by CiviForm admins.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result downloadDemographics(Http.Request request, Optional<String> fromDate, Optional<String> untilDate) {
+  public Result downloadDemographics(
+      Http.Request request, Optional<String> fromDate, Optional<String> untilDate) {
     TimeFilter submitTimeFilter =
         TimeFilter.builder()
             .setFromTime(parseDateFromQuery(fromDate))

@@ -1,6 +1,5 @@
 package models;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
@@ -107,12 +106,6 @@ public class Application extends BaseModel {
 
   public Application setSubmitTimeToNow() {
     this.submitTime = Instant.now();
-    return this;
-  }
-
-  @VisibleForTesting
-  public Application setSubmitTimeForTest(Instant v) {
-    this.submitTime = v;
     return this;
   }
 }

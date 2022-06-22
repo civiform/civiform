@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import services.DateConverter;
 import services.Path;
+import support.CfTestHelpers;
 
 public class ApplicationRepositoryTest extends ResetPostgres {
   private ApplicationRepository repo;
@@ -149,10 +150,15 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     // Use a distinct applicant for each application since it's not possible to create multiple
     // submitted applications for the same program for a given applicant.
     Applicant applicant = saveApplicant("Alice");
-    Application app =
-        repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+    Application app = repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
+    CfTestHelpers.withMockedInstantNow(
+        submitTime.toString(),
+        () -> {
+          app.setLifecycleStage(LifecycleStage.ACTIVE);
+          app.setSubmitTimeToNow();
+          app.save();
+        });
     app.refresh();
-    app.setSubmitTimeForTest(submitTime).save();
     return app;
   }
 
