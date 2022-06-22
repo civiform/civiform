@@ -208,6 +208,11 @@ public class ApplicationRepositoryTest extends ResetPostgres {
             .build();
     assertThat(repo.getApplications(bothFilter).stream().map(a -> a.id))
         .containsExactly(programOneToday.id, programTwoToday.id);
+
+    // Overly restrictive, no apps.
+    TimeFilter restrictiveFilter =
+        TimeFilter.builder().setFromTime(Optional.of(Instant.now())).build();
+    assertThat(repo.getApplications(restrictiveFilter)).isEmpty();
   }
 
   private Applicant saveApplicant(String name) {
