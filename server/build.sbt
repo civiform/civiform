@@ -89,7 +89,7 @@ lazy val root = (project in file("."))
        "com.itextpdf" % "itextpdf" % "5.5.13.3",
 
       // Slugs for deeplinking.
-      "com.github.slugify" % "slugify" % "2.5",
+      "com.github.slugify" % "slugify" % "3.0.1",
 
       // Apache libraries for testing subnets
       "commons-net" % "commons-net" % "3.8.0",

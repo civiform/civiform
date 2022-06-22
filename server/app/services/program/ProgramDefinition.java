@@ -426,7 +426,7 @@ public abstract class ProgramDefinition {
   }
 
   public String slug() {
-    return new Slugify().slugify(this.adminName());
+    return Slugify.builder().build().slugify(this.adminName());
   }
 
   public int getQuestionCount() {
