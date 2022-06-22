@@ -46,6 +46,12 @@ npx prettier \
   .
 echo 'Done formatting with prettier'
 
+echo 'Start formatting with eslint'
+npx eslint \
+  --fix \
+  .
+echo 'Done formatting with prettier'
+
 echo 'Start format shell'
 shfmt -bn -ci -i 2 -w -l \
   $(shfmt -f . | grep -v -e /node_modules)
