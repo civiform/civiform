@@ -25,7 +25,7 @@ class ConfigLoader:
     @property
     def app_prefix(self):
         return os.environ['APP_PREFIX']
-    
+
     def load_config(self):
         self._load_config()
         return self.validate_config()
