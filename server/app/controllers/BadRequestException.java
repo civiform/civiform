@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers;
 
 /**
  * Thrown when a request is malformed. This class is final to ensure that it works with {@link

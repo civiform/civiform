@@ -8,6 +8,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
 import com.itextpdf.text.DocumentException;
+import controllers.BadRequestException;
 import controllers.CiviFormController;
 import java.io.IOException;
 import java.time.Instant;

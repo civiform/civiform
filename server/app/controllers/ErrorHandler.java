@@ -3,7 +3,6 @@ package controllers;
 import auth.UnauthorizedApiRequestException;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
-import controllers.admin.BadRequestException;
 import controllers.admin.NotChangeableException;
 import controllers.api.BadApiRequestException;
 import java.util.Optional;
