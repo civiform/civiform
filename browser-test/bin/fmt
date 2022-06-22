@@ -9,16 +9,12 @@ pushd $(git rev-parse --show-toplevel)/browser-test
 CMD="cd /code; npx prettier --write --config /.prettierrc.js --ignore-path /.prettierignore /code"
 
 # Can't use TTY in CI
+interactive_flag="-it"
 if [[ -n "${CI}" ]]; then
-  # .git needed for github actions to diff
-  docker run --rm \
-    -v "$(pwd)/src:/code" \
-    --entrypoint sh \
-    civiform/formatter -c "$CMD"
-  exit 0
+  interactive_flag=""
 fi
 
-docker run --rm -it \
+docker run --rm ${interactive_flag} \
   -v "$(pwd)/src:/code" \
   --entrypoint sh \
   civiform/formatter -c "$CMD"
