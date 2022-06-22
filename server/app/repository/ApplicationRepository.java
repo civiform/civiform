@@ -158,8 +158,8 @@ public class ApplicationRepository {
     if (submitTimeFilter.fromTime().isPresent()) {
       query = query.where().ge("submit_time", submitTimeFilter.fromTime().get());
     }
-    if (submitTimeFilter.toTime().isPresent()) {
-      query = query.where().lt("submit_time", submitTimeFilter.toTime().get());
+    if (submitTimeFilter.untilTime().isPresent()) {
+      query = query.where().lt("submit_time", submitTimeFilter.untilTime().get());
     }
     return ImmutableList.copyOf(query.findList());
   }

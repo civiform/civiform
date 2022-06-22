@@ -173,7 +173,7 @@ public class AdminApplicationController extends CiviFormController {
     TimeFilter submitTimeFilter =
         TimeFilter.builder()
             .setFromTime(parseDateFromQuery(fromDate))
-            .setToTime(parseDateFromQuery(untilDate))
+            .setUntilTime(parseDateFromQuery(untilDate))
             .build();
     String filename = String.format("demographics-%s.csv", nowProvider.get());
     String csv = exporterService.getDemographicsCsv(submitTimeFilter);

@@ -190,7 +190,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
             programOneToday.id, programOneTomorrow.id, programTwoToday.id, programTwoTomorrow.id);
 
     // Only to.
-    TimeFilter toFilter = TimeFilter.builder().setToTime(Optional.of(today)).build();
+    TimeFilter toFilter = TimeFilter.builder().setUntilTime(Optional.of(today)).build();
     assertThat(repo.getApplications(toFilter).stream().map(a -> a.id))
         .containsExactly(programOneYesterday.id, programTwoYesterday.id);
 
@@ -198,7 +198,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     TimeFilter bothFilter =
         TimeFilter.builder()
             .setFromTime(Optional.of(today))
-            .setToTime(Optional.of(tomorrow))
+            .setUntilTime(Optional.of(tomorrow))
             .build();
     assertThat(repo.getApplications(bothFilter).stream().map(a -> a.id))
         .containsExactly(programOneToday.id, programTwoToday.id);
