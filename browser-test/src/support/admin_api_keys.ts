@@ -1,7 +1,5 @@
 import {Page} from 'playwright'
-import {readFileSync} from 'fs'
 import {waitForPageJsLoad} from './wait'
-import {BASE_URL} from './config'
 
 type CreateApiKeyParamsType = {
   name: string

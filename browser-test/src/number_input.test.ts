@@ -7,7 +7,6 @@ import {
   AdminQuestions,
   AdminPrograms,
   ApplicantQuestions,
-  waitForPageJsLoad,
   endSession,
 } from './support'
 

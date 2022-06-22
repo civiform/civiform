@@ -108,6 +108,7 @@ class ToastController {
     const toastContainer = document.getElementById(ToastController.containerId)
     if (toastContainer) {
       toastContainer.appendChild(toastMessage)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       toastContainer!.classList.remove('hidden')
       if (message.duration > 0) {
         setTimeout(
@@ -120,7 +121,7 @@ class ToastController {
     }
   }
 
-  private getToastIcon(type: String): Element {
+  private getToastIcon(type: string): Element {
     const svgContainer = document.createElement('div')
     svgContainer.classList.add('flex-none', 'pr-2')
 
@@ -160,11 +161,14 @@ class ToastController {
     )
     messages.forEach((element) => {
       const message: ToastMessage = {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         id: element.getAttribute('id')!,
         canDismiss: element.getAttribute('canDismiss') === 'true',
         canIgnore: element.getAttribute('canIgnore') === 'true',
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         content: element.textContent!,
         duration: Number(element.getAttribute('toastDuration')),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         type: element.getAttribute('toastType')!.toLowerCase(),
       }
       element.remove()
@@ -177,6 +181,7 @@ class ToastController {
     const target = event.target as Element
     const toast = target.closest('.' + ToastController.messageClass)
     if (toast && toast.hasAttribute('id')) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const toastId = toast.getAttribute('id')!
       ToastController.dismissToast(toastId, /* dismissClicked = */ true)
     }
@@ -224,4 +229,5 @@ type ToastMessage = {
   type: string
 }
 
-let toastController = new ToastController()
+// eslint-disable-next-line no-unused-vars
+const toastController = new ToastController()

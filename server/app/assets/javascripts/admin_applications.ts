@@ -18,7 +18,8 @@ class AdminApplications {
     this.displayFrame = frame
     this.cards = document.querySelectorAll(
       AdminApplications.CARD_SELECTOR,
-    ) as any as Array<HTMLElement>
+    ) as any as Array<HTMLElement> // eslint-disable-line @typescript-eslint/no-explicit-any
+
 
     this.registerApplicationCardEventListeners()
   }

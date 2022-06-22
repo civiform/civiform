@@ -30,7 +30,7 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPage()
   }
 
-  async goToViewQuestionPage(questionName: string) {
+  async goToViewQuestionPage(_questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click('text=View')
     await waitForPageJsLoad(this.page)
@@ -45,7 +45,7 @@ export class AdminQuestions {
     expect(await this.page.innerText('h1')).toEqual('All Questions')
   }
 
-  async expectViewOnlyQuestion(questionName: string) {
+  async expectViewOnlyQuestion(_questionName: string) {
     expect(await this.page.isDisabled('text=No Export')).toEqual(true)
     // TODO(sgoldblatt): This test does not find any questions need to look into
     // expect(await this.page.isDisabled(`text=${questionName}`)).toEqual(true)
@@ -71,11 +71,11 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPageWithSuccessToast('created')
   }
 
-  async expectMultiOptionBlankOptionError(options: String[]) {
+  async expectMultiOptionBlankOptionError(options: string[]) {
     const questionSettings = await this.page.$('#question-settings')
     const errors = await questionSettings.$$('.cf-multi-option-input-error')
     // Checks that the error is not hidden when it's corresponding option is empty. The order of the options array corresponds to the order of the errors array.
-    for (let i in errors) {
+    for (const i in errors) {
       if (options[i] === '') {
         expect(await errors[i].isHidden()).toEqual(false)
       } else {
@@ -325,25 +325,25 @@ export class AdminQuestions {
   }
 
   async updateAllQuestions(questions: string[]) {
-    for (var i in questions) {
+    for (const i in questions) {
       await this.updateQuestion(questions[i])
     }
   }
 
   async createNewVersionForQuestions(questions: string[]) {
-    for (var i in questions) {
+    for (const i in questions) {
       await this.createNewVersion(questions[i])
     }
   }
 
   async expectDraftQuestions(questions: string[]) {
-    for (var i in questions) {
+    for (const i in questions) {
       await this.expectDraftQuestionExist(questions[i])
     }
   }
 
   async expectActiveQuestions(questions: string[]) {
-    for (var i in questions) {
+    for (const i in questions) {
       await this.expectActiveQuestionExist(questions[i])
     }
   }
@@ -432,9 +432,9 @@ export class AdminQuestions {
       exportOption,
     })
 
-    for (var index in options) {
+    for (const index in options) {
       await this.page.click('#add-new-option')
-      var matchIndex = Number(index) + 1
+      const matchIndex = Number(index) + 1
       await this.page.fill(
         `:nth-match(#question-settings div.flex-row, ${matchIndex}) input`,
         options[index],
@@ -474,9 +474,9 @@ export class AdminQuestions {
       exportOption,
     })
 
-    for (let index in options) {
+    for (const index in options) {
       await this.page.click('#add-new-option')
-      let matchIndex = Number(index) + 1
+      const matchIndex = Number(index) + 1
       await this.changeMultiOptionAnswer(matchIndex, options[index])
     }
 
@@ -533,6 +533,7 @@ export class AdminQuestions {
       questionText,
       helpText,
       enumeratorName,
+      exportOption
     })
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
@@ -575,7 +576,6 @@ export class AdminQuestions {
     description = 'static description',
     questionText = 'static question text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
-    exportOption = '',
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -673,6 +673,7 @@ export class AdminQuestions {
       questionText,
       helpText,
       enumeratorName,
+      exportOption
     })
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
@@ -704,9 +705,9 @@ export class AdminQuestions {
       exportOption,
     })
 
-    for (var index in options) {
+    for (const index in options) {
       await this.page.click('#add-new-option')
-      var matchIndex = Number(index) + 1
+      const matchIndex = Number(index) + 1
       await this.page.fill(
         `:nth-match(#question-settings div.flex-row, ${matchIndex}) input`,
         options[index],

@@ -43,7 +43,7 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
 }
 
 /** In admin program block edit form - enabling submit button when form is changed or if not empty */
-function changeUpdateBlockButtonState(event: Event) {
+function changeUpdateBlockButtonState(_event: Event) {
   const blockEditForm = document.getElementById('block-edit-form')
   const submitButton = document.getElementById('update-block-button')
 
@@ -109,7 +109,7 @@ function hideInput(event: Event) {
 }
 
 /** In the enumerator form - add a new input field for a repeated entity. */
-function addNewEnumeratorField(event: Event) {
+function addNewEnumeratorField(_event: Event) {
   // Copy the enumerator field template
   const newField = document
     .getElementById('enumerator-field-template')
@@ -186,7 +186,7 @@ function addEnumeratorListeners() {
   })
 
   // Whenever an input is added, we need to add a change listener.
-  let mutationObserver = new MutationObserver((records: MutationRecord[]) => {
+  const mutationObserver = new MutationObserver((records: MutationRecord[]) => {
     for (const record of records) {
       for (const newNode of Array.from(record.addedNodes)) {
         const newInputs = Array.from(
@@ -431,7 +431,7 @@ function attachFormDebouncers() {
   )
 }
 
-window.addEventListener('load', (event) => {
+window.addEventListener('load', (_event) => {
   attachDropdown('create-question-button')
   Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
     attachDropdown(el.id)

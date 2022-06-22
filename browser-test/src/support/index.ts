@@ -28,7 +28,7 @@ function makeBrowserContext(browser: Browser) {
     // until it causes a problem. In practice, this
     // will only be used when debugging failures.
     const suffix =
-      (global as any)['expect'] === undefined
+      (global as any)['expect'] === undefined // eslint-disable-line @typescript-eslint/no-explicit-any
         ? ''
         : expect.getState().currentTestName
     return browser.newContext({
@@ -169,7 +169,7 @@ export const seedCanonicalQuestions = async (page: Page) => {
 
 export const closeWarningMessage = async (page: Page) => {
   // The warning message may be in the way of this link
-  var element = await page.$('#warning-message-dismiss')
+  const element = await page.$('#warning-message-dismiss')
 
   if (element !== null) {
     await element

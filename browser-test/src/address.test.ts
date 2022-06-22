@@ -114,7 +114,7 @@ describe('address applicant flow', () => {
       )
       await applicantQuestions.clickNext()
 
-      let error = await pageObject.$('.cf-address-zip-error')
+      const error = await pageObject.$('.cf-address-zip-error')
       expect(await error.isHidden()).toEqual(false)
     })
   })

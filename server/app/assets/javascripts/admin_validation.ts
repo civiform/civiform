@@ -35,12 +35,14 @@ class AdminValidationController {
     fieldErrorName: string,
     isValid: boolean,
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const errorDiv = element.parentElement!.querySelector(fieldErrorName)
     if (errorDiv) {
       errorDiv.classList.toggle('hidden', isValid)
     }
 
     // Also toggle the border on error inputs (if applicable).
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const field = element.parentElement!.querySelector('input')
     if (field) {
       field.classList.toggle('border-red-600', !isValid)
@@ -89,4 +91,5 @@ class AdminValidationController {
   }
 }
 
-let adminValidationController = new AdminValidationController()
+// eslint-disable-next-line no-unused-vars
+const adminValidationController = new AdminValidationController()
