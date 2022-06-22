@@ -16,7 +16,3 @@ fi
 docker::run_shell_container
 docker::run_shell_command sbt scalafmtSbt
 docker::stop_shell_container
-# docker run --rm ${interactive_flag} \
-#   -v "$(pwd)/server:/usr/src/server" \
-#   -p 9000:9000 \
-#   civiform/civiform-dev:latest scalafmtSbt
