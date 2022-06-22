@@ -12,7 +12,7 @@ class AdminValidationController {
     const adminProgramEditForm = document.getElementById('question-form')
     if (adminProgramEditForm) {
       adminProgramEditForm.addEventListener('submit', (event) =>
-        this.attemptSubmit(event)
+        this.attemptSubmit(event),
       )
     }
   }
@@ -33,7 +33,7 @@ class AdminValidationController {
   private updateFieldErrorState(
     element: Element,
     fieldErrorName: string,
-    isValid: boolean
+    isValid: boolean,
   ) {
     const errorDiv = element.parentElement!.querySelector(fieldErrorName)
     if (errorDiv) {
@@ -55,7 +55,7 @@ class AdminValidationController {
       this.updateFieldErrorState(
         option,
         AdminValidationController.MULTI_OPTION_QUESTION_ERROR_CLASS,
-        inputIsValid
+        inputIsValid,
       )
       if (!inputIsValid) {
         multiOptionIsValid = inputIsValid
@@ -69,9 +69,9 @@ class AdminValidationController {
     const options = Array.from(
       <NodeListOf<HTMLInputElement>>(
         document.querySelectorAll(
-          AdminValidationController.MULTI_OPTION_QUESTION_FIELD_NAME_CREATE
+          AdminValidationController.MULTI_OPTION_QUESTION_FIELD_NAME_CREATE,
         )
-      )
+      ),
     )
     return this.validateMultiOptionQuestionOptions(options)
   }
@@ -81,9 +81,9 @@ class AdminValidationController {
     const options = Array.from(
       <NodeListOf<HTMLInputElement>>(
         document.querySelectorAll(
-          AdminValidationController.MULTI_OPTION_QUESTION_FIELD_NAME_EDIT
+          AdminValidationController.MULTI_OPTION_QUESTION_FIELD_NAME_EDIT,
         )
-      )
+      ),
     )
     return this.validateMultiOptionQuestionOptions(options)
   }

@@ -4,17 +4,17 @@ version: '3.4'
 services:
   localstack:
     image: localstack/localstack
-    profiles: [ "aws", "emulator" ]
+    profiles: ['aws', 'emulator']
     expose:
-      - "4566"
+      - '4566'
     environment:
       - SERVICES=s3,ses
 
   azurite:
-     image: mcr.microsoft.com/azure-storage/azurite
-     profiles: ["azure", "emulator"]
-     expose:
-      - "10000"
+    image: mcr.microsoft.com/azure-storage/azurite
+    profiles: ['azure', 'emulator']
+    expose:
+      - '10000'
 
   # The dev oidc server needs to be visible to the Civiform server and web browsers
   # on the same host:port. Developers need to add a localhost IP alias for this
@@ -33,7 +33,7 @@ services:
     image: postgres:12.11
     restart: always
     expose:
-      - "5432"
+      - '5432'
     environment:
       POSTGRES_PASSWORD: example
 
@@ -41,11 +41,11 @@ services:
     image: civiform-dev
     restart: always
     links:
-      - "db:database"
-      - "dev-oidc"
+      - 'db:database'
+      - 'dev-oidc'
     expose:
-      - "9000"
-      - "8457"
+      - '9000'
+      - '8457'
     environment:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-test}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-test}
