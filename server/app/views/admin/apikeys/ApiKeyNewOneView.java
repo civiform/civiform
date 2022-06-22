@@ -35,7 +35,7 @@ import views.style.Styles;
 public final class ApiKeyNewOneView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages enUsMessages;
-  private final Slugify slugifier = new Slugify();
+  private final Slugify slugifier = Slugify.builder().build();
 
   private static final String EXPIRATION_DESCRIPTION =
       "Specify a date when this API key will no longer be valid. The expiration date"

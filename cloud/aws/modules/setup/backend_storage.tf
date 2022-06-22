@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "backend_state_bucket" {
-  bucket = var.backend_state_bucket
+  bucket = "${var.app_prefix}-backendstate"
 }
 
 resource "aws_s3_bucket_versioning" "backend_state_versioning" {
@@ -55,7 +55,7 @@ data "aws_iam_policy_document" "backend_state_files_policy" {
 
 resource "aws_dynamodb_table" "state_locking" {
   hash_key = "LockID"
-  name     = var.lock_table_name
+  name     = "${var.app_prefix}-locktable"
   attribute {
     name = "LockID"
     type = "S"

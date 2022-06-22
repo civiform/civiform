@@ -44,9 +44,9 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
       OidcClient client,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {
-    super(configuration, client);
+    super(Preconditions.checkNotNull(configuration), Preconditions.checkNotNull(client));
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
-    this.applicantRepositoryProvider = applicantRepositoryProvider;
+    this.applicantRepositoryProvider = Preconditions.checkNotNull(applicantRepositoryProvider);
     this.civiFormProfileMerger =
         new CiviFormProfileMerger(profileFactory, applicantRepositoryProvider);
   }
@@ -57,15 +57,26 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
 
   protected abstract void adaptForRole(CiviFormProfile profile, ImmutableSet<Roles> roles);
 
-  protected Optional<String> getAuthorityId(OidcProfile oidcProfile) {
+  /** Create a totally new CiviForm profile informed by the provided OidcProfile. */
+  public abstract CiviFormProfile createEmptyCiviFormProfile(OidcProfile profile);
+
+  protected final Optional<String> getEmail(OidcProfile oidcProfile) {
+    final String emailAttributeName = emailAttributeName();
+
+    if (!emailAttributeName.isBlank()) {
+      return Optional.ofNullable(oidcProfile.getAttribute(emailAttributeName, String.class));
+    }
+    return Optional.empty();
+  }
+
+  protected final Optional<String> getAuthorityId(OidcProfile oidcProfile) {
     // In OIDC the user is uniquely identified by the iss(user) and sub(ject)
     // claims.
     // https://openid.net/specs/openid-connect-core-1_0.html#IDToken
     //
     // We combine the two to create the unique authority id.
     // Issuer is necessary as CiviForm has different authentication systems for
-    // Admins and
-    // Applicants.
+    // Admins and Applicants.
     String issuer = oidcProfile.getAttribute("iss", String.class);
     // Subject identifies the specific user in the issuer.
     // Pac4j treats the subject as special, and you can't simply ask for the "sub"
@@ -99,18 +110,20 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
   protected CiviFormProfileData mergeCiviFormProfile(
       CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
     String emailAddress =
-        Optional.ofNullable(oidcProfile.getAttribute(emailAttributeName(), String.class))
+        getEmail(oidcProfile)
             .orElseThrow(
                 () -> new InvalidOidcProfileException("Unable to get email from profile."));
+    civiformProfile.setEmailAddress(emailAddress).join();
 
     String authorityId =
         getAuthorityId(oidcProfile)
             .orElseThrow(
                 () -> new InvalidOidcProfileException("Unable to get authority ID from profile."));
 
-    civiformProfile.setEmailAddress(emailAddress).join();
     civiformProfile.setAuthorityId(authorityId).join();
+
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
+
     // Meaning: whatever you signed in with most recently is the role you have.
     ImmutableSet<Roles> roles = roles(civiformProfile, oidcProfile);
     roles.stream()
@@ -120,11 +133,8 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
     return civiformProfile.getProfileData();
   }
 
-  /** Create a totally new CiviForm profile informed by the provided OidcProfile. */
-  public abstract CiviFormProfile createEmptyCiviFormProfile(OidcProfile profile);
-
   @Override
-  public Optional<UserProfile> create(
+  public final Optional<UserProfile> create(
       Credentials cred, WebContext context, SessionStore sessionStore) {
     ProfileUtils profileUtils = new ProfileUtils(sessionStore, profileFactory);
     possiblyModifyConfigBasedOnCred(cred);
@@ -135,8 +145,6 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
       return Optional.empty();
     }
 
-    logger.debug("oidcProfile: {}", oidcProfile.get());
-
     if (!(oidcProfile.get() instanceof OidcProfile)) {
       logger.warn(
           "Got a profile from OIDC callback but it wasn't an OIDC profile: %s",
@@ -146,20 +154,17 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
 
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
-    Optional<CiviFormProfile> existingProfile = profileUtils.currentUserProfile(context);
+    Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
     return civiFormProfileMerger.mergeProfiles(
-        existingApplicant, existingProfile, profile, this::mergeCiviFormProfile);
+        existingApplicant, guestProfile, profile, this::mergeCiviFormProfile);
   }
 
   @VisibleForTesting
-  Optional<Applicant> getExistingApplicant(OidcProfile profile) {
+  public final Optional<Applicant> getExistingApplicant(OidcProfile profile) {
     // User keying changed in March 2022 and is reflected and managed here.
     // Originally users were keyed on their email address, however this is not
-    // guaranteed to be a
-    // unique stable ID.
-    // In March 2022 the code base changed to using authority_id which is unique and
-    // stable per
-    // authentication provider.
+    // guaranteed to be a unique stable ID. In March 2022 the code base changed to
+    // using authority_id which is unique and stable per authentication provider.
 
     String authorityId =
         getAuthorityId(profile)
@@ -178,8 +183,7 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
     }
 
     // For pre-existing deployments before April 2022, users will exist without an
-    // authority ID and
-    // will be keyed on their email.
+    // authority ID and will be keyed on their email.
     String userEmail = profile.getAttribute(emailAttributeName(), String.class);
     logger.debug("Looking up user using email {}", userEmail);
     return applicantRepositoryProvider

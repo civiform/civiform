@@ -2,11 +2,6 @@ name: tests
 
 on:
   workflow_call:
-    secrets:
-      DOCKER_HUB_ACCESS_TOKEN:
-        required: false
-      DOCKER_HUB_USERNAME:
-        required: false
 
   # Setting this enables manually triggering workflow in the GitHub UI
   # see https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
@@ -28,11 +23,12 @@ jobs:
       run: docker build -t civiform-dev --cache-from docker.io/civiform/civiform-dev:latest ./
     - name: Run tests
       run: USE_LOCAL_CIVIFORM=true bin/run-test-ci
-    - name: jacoco-badge-generator
-      uses: cicirello/jacoco-badge-generator@v2
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
       with:
-        generate-branches-badge: true
-        jacoco-csv-file: server/code-coverage/report/jacoco.csv
+       file: server/code-coverage/report/jacoco.xml
+       verbose: true
+       fail_ci_if_error: true
 
   run_browser_tests_aws:
     strategy:

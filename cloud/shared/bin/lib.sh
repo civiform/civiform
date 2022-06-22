@@ -17,3 +17,5 @@ if [[ "${SOURCED_CLOUD_LIB}" != "true" ]]; then
 
   SOURCED_CLOUD_LIB="true"
 fi
+
+export PYTHONPATH="${PYTHONPATH}:$(pwd)"

@@ -1,6 +1,6 @@
 import os
 
-from variable_definition_loader import VariableDefinitionLoader
+from cloud.shared.bin.lib.variable_definition_loader import VariableDefinitionLoader
 """
 Config Loader
   Handles validating and getting data from the configuration/variable files
@@ -92,6 +92,10 @@ class ConfigLoader:
     def is_dev(self):
         civiform_mode = self.configs.get("CIVIFORM_MODE")
         return civiform_mode == "dev"
+
+    def is_test(self):
+        civiform_mode = self.configs.get("CIVIFORM_MODE")
+        return civiform_mode == "test"
 
     def use_backend_config(self):
         return not self.is_dev()
