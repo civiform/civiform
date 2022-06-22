@@ -4,7 +4,7 @@ ENV JAVA_FORMATTER_URL "https://github.com/google/google-java-format/releases/do
 RUN wget $JAVA_FORMATTER_URL -O /fmt.jar
 
 RUN apk update && apk add --no-cache --update \
-  bash wget npm shfmt git py3-pip
+  bash wget npm shfmt shellcheck git py3-pip
 
 RUN npm install -g typescript \
   prettier \
@@ -17,6 +17,7 @@ COPY .prettierignore /.prettierignore
 COPY .eslintrc.json /.eslintrc.json
 COPY .eslintignore /.eslintignore
 COPY .editorconfig /.editorconfig
+COPY .shellcheckrc /.shellcheckrc
 
 COPY formatter/fmt /fmt
 
