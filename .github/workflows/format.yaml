@@ -26,7 +26,7 @@ jobs:
         with:
           java-version: '11.0.10'
       - id: file_changes
-        uses: trilom/file-changes-action@v1.2.3
+        uses: trilom/file-changes-action@v1.2.4
         with:
           output: 'json'
       - uses: axel-op/googlejavaformat-action@master
@@ -56,7 +56,7 @@ jobs:
         with:
           fetch-depth: 0 # get main
       - id: file_changes
-        uses: trilom/file-changes-action@v1.2.3
+        uses: trilom/file-changes-action@v1.2.4
         with:
           output: 'json'
       - name: Set up Docker Buildx
@@ -88,7 +88,7 @@ jobs:
         with:
           fetch-depth: 0 # get main
       - id: file_changes
-        uses: trilom/file-changes-action@v1.2.3
+        uses: trilom/file-changes-action@v1.2.4
         with:
           output: 'json'
       - name: Set up Docker Buildx
