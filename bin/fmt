@@ -7,8 +7,6 @@ docker::set_project_name_dev
 
 bin/pull-image --formatter
 
-echo "mapping $(pwd) to container"
-
 # Can't use TTY in CI
 if [[ -n "${CI}" ]]; then
   # .git needed for github actions to diff

@@ -4,9 +4,9 @@ set -e
 set +x
 set -o pipefail
 
+# https://git-scm.com/docs/git-config/2.35.2#Documentation/git-config.txt-safedirectory
 git config --global --add safe.directory /code
 cd /code
-# https://git-scm.com/docs/git-config/2.35.2#Documentation/git-config.txt-safedirectory
 
 # Gets the list of file paths for files that are tracked by git and have
 # changes relative to the main branch.
