@@ -117,6 +117,12 @@ variable "staging_ti_notification_mailing_list" {
   default     = ""
 }
 
+variable "sender_email_address" {
+  type        = string
+  description = "Email address that emails will be sent from"
+  default     = ""
+}
+
 variable "staging_applicant_notification_mailing_list" {
   type        = string
   description = "Applicant notification mailing list for staging"
@@ -139,4 +145,9 @@ variable "ses_sender_email" {
   type        = string
   description = "Email address that emails will be sent from"
   default     = "azizoval@google.com"
+}
+
+variable "app_prefix" {
+  type        = string
+  description = "A prefix to add to values so we can have multiple deploys in the same aws account"
 }

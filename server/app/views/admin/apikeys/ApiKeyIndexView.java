@@ -38,7 +38,7 @@ import views.style.Styles;
 public final class ApiKeyIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final DateConverter dateConverter;
-  private final Slugify slugifier = new Slugify();
+  private final Slugify slugifier = Slugify.builder().build();
 
   @Inject
   public ApiKeyIndexView(AdminLayoutFactory layoutFactory, DateConverter dateConverter) {

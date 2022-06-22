@@ -5,7 +5,7 @@ module "secrets" {
 
 resource "aws_apprunner_service" "civiform_dev" {
   auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.auto_scaling_config.arn
-  service_name                   = "civiform_dev"
+  service_name                   = "${var.app_prefix}-civiform_dev"
 
   source_configuration {
     image_repository {
@@ -61,7 +61,7 @@ resource "aws_apprunner_service" "civiform_dev" {
 }
 
 resource "aws_db_parameter_group" "civiform" {
-  name   = "civiform"
+  name   = "${var.app_prefix}-civiform"
   family = "postgres12"
 
   parameter {
@@ -71,7 +71,7 @@ resource "aws_db_parameter_group" "civiform" {
 }
 
 resource "aws_db_instance" "civiform" {
-  identifier              = var.postgress_name
+  identifier              = "${var.app_prefix}-${var.postgress_name}"
   instance_class          = var.postgres_instance_class
   allocated_storage       = var.postgres_storage_gb
   engine                  = "postgres"
@@ -84,4 +84,15 @@ resource "aws_db_instance" "civiform" {
   publicly_accessible     = false
   skip_final_snapshot     = true
   backup_retention_period = var.postgres_backup_retention_days
+}
+
+module "email_service" {
+  for_each = toset([
+    var.sender_email_address,
+    var.staging_applicant_notification_mailing_list,
+    var.staging_ti_notification_mailing_list,
+    var.staging_program_admin_notification_mailing_list
+  ])
+  source               = "../../modules/ses"
+  sender_email_address = each.key
 }
