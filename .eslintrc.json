@@ -16,7 +16,16 @@
   ],
   "rules": {
     "require-jsdoc": "off",
-    "@typescript-eslint/no-explicit-any": "warn",
-    "valid-jsdoc": "warn"
+    "@typescript-eslint/no-explicit-any": "off",
+    "valid-jsdoc": "warn",
+    "@typescript-eslint/no-unused-vars": "off", // overlaps with standard eslint no-unused-vars.
+    "no-unused-vars": [
+      "warn", // or error
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ]
   }
 }
