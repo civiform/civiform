@@ -16,9 +16,9 @@ module "civiform_app" {
   staging_ti_notification_mailing_list            = var.staging_ti_notification_mailing_list
   staging_program_admin_notification_mailing_list = var.staging_program_admin_notification_mailing_list
 
-    civiform_image_repo = var.civiform_image_repo
-    civiform_image_tag = var.civiform_image_tag
-    app_prefix = var.app_prefix
+  civiform_image_repo = var.civiform_image_repo
+  civiform_image_tag  = var.civiform_image_tag
+  app_prefix          = var.app_prefix
 }
 
 module "email_service" {

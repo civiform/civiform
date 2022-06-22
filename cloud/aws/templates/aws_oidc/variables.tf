@@ -4,6 +4,18 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "civiform_image_repo" {
+  type        = string
+  description = "Public ECR repository with Civiform images"
+  default     = "public.ecr.aws/t1q6b4h2/universal-application-tool"
+}
+
+variable "civiform_image_tag" {
+  type        = string
+  description = "Image tag of the Civiform docker image to deploy"
+  default     = "prod"
+}
+
 variable "civiform_time_zone_id" {
   type        = string
   description = "Time zone for Civiform server to use when displaying dates."
@@ -62,18 +74,6 @@ variable "staging_applicant_notification_mailing_list" {
   type        = string
   description = "Applicant notification mailing list for staging"
   default     = ""
-}
-
-variable "civiform_image_repo" {
-  type        = string
-  description = "Public ECR repository with Civiform images"
-  default     = "public.ecr.aws/t1q6b4h2/universal-application-tool"
-}
-
-variable "civiform_image_tag" {
-  type        = string
-  description = "Image tag of the Civiform docker image to deploy"
-  default     = "prod"
 }
 
 variable "app_prefix" {
