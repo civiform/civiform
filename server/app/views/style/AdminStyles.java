@@ -98,4 +98,30 @@ public class AdminStyles {
           Styles.FONT_NORMAL,
           Styles.BG_WHITE,
           StyleUtils.hover(Styles.TEXT_GRAY_800, Styles.BG_GRAY_100));
+
+  private static final String BASE_BUTTON_STYLES =
+      StyleUtils.joinStyles(Styles.FLEX, Styles.ITEMS_CENTER, Styles.FONT_MEDIUM);
+
+  public static final String PRIMARY_BUTTON_STYLES =
+      StyleUtils.joinStyles(
+          BASE_BUTTON_STYLES, Styles.ROUNDED_FULL, BaseStyles.BG_SEATTLE_BLUE, Styles.TEXT_WHITE);
+
+  public static final String SECONDARY_BUTTON_STYLES =
+      StyleUtils.joinStyles(
+          BASE_BUTTON_STYLES,
+          Styles.ROUNDED_FULL,
+          Styles.BORDER,
+          BaseStyles.BORDER_SEATTLE_BLUE,
+          Styles.BG_WHITE,
+          BaseStyles.TEXT_SEATTLE_BLUE,
+          StyleUtils.hover(Styles.BG_GRAY_200));
+
+  public static final String TERTIARY_BUTTON_STYLES =
+      StyleUtils.joinStyles(
+          BASE_BUTTON_STYLES,
+          Styles.BORDER_NONE,
+          Styles.ROUNDED,
+          Styles.BG_TRANSPARENT,
+          Styles.TEXT_BLACK,
+          StyleUtils.hover(Styles.BG_GRAY_200));
 }

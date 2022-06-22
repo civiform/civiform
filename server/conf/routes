@@ -91,7 +91,11 @@ GET     /admin/apiKeys/new                          controllers.admin.AdminApiKe
 POST    /admin/apiKeys                              controllers.admin.AdminApiKeysController.create(request: Request)
 POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKeysController.retire(request: Request, apiKeyId: Long)
 
+# Admin data migrations
+GET     /admin/migrateStoredFileAcls                controllers.admin.DataMigrationsController.migrateStoredFileAcls()
+
 # Controller for admins and applicants to access applicants' uploaded files
+GET     /admin/applicant-files/:fileKey             controllers.FileController.acledAdminShow(request: Request, fileKey: String)
 GET     /admin/programs/:programId/files/:fileKey   controllers.FileController.adminShow(request: Request, programId: Long, fileKey: String)
 GET     /applicants/:applicantId/files/:fileKey     controllers.FileController.show(request: Request, applicantId: Long, fileKey: String)
 
@@ -114,6 +118,10 @@ GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review     
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockIndex/previous/:inReview     controllers.applicant.ApplicantProgramBlocksController.previous(request: Request, applicantId: Long, programId: Long, blockIndex: Int, inReview: Boolean)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/updateFile/:inReview      controllers.applicant.ApplicantProgramBlocksController.updateFile(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview                 controllers.applicant.ApplicantProgramBlocksController.update(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+
+# API
+GET     /api/v1/checkAuth                                   controllers.api.CiviFormApiController.checkAuth()
+GET     /api/v1/admin/programs/:programSlug/applications    controllers.api.ProgramApplicationsApiController.list(request: Request, programSlug: String, fromDate: java.util.Optional[String], toDate: java.util.Optional[String], nextPageToken: java.util.Optional[String], pageSize: java.util.Optional[Integer])
 
 # Methods for user support incidents
 GET     /support/unconfirmedIdcsEmail  controllers.SupportController.handleUnconfirmedIdcsEmail(request: Request)
@@ -160,11 +168,8 @@ GET     /loginRadiusLogin            controllers.LegacyRoutesController.loginRad
 GET     /logout                      @org.pac4j.play.LogoutController.logout(request: Request)
 
 # Methods for development: seed the database with test content to develop against, and clear the database
-GET     /dev/seed                    controllers.dev.DatabaseSeedController.index(request: Request)
-POST    /dev/seed                    controllers.dev.DatabaseSeedController.seed()
-POST    /dev/seed/clear              controllers.dev.DatabaseSeedController.clear()
+GET     /dev/seed                        controllers.dev.DatabaseSeedController.index(request: Request)
+POST    /dev/seed/canonicalQuestions     controllers.dev.DatabaseSeedController.seedCanonicalQuestions()
+POST    /dev/seed                        controllers.dev.DatabaseSeedController.seed()
+POST    /dev/seed/clear                  controllers.dev.DatabaseSeedController.clear()
 
-# Methods for development: directly upload file to S3.
-# We redirect to create page on success to update our own record in db. Unfortunately this can only be GET.
-GET     /dev/fileUpload              controllers.dev.FileUploadController.index(request: Request)
-GET     /dev/fileUpload/create       controllers.dev.FileUploadController.create(request: Request)

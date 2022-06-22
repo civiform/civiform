@@ -13,8 +13,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import javax.persistence.Entity;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -92,8 +92,7 @@ public class Program extends BaseModel {
    */
   @WhenModified private Instant lastModifiedTime;
 
-  @ManyToMany
-  @JoinTable(name = "versions_programs")
+  @ManyToMany(mappedBy = "programs")
   private List<Version> versions;
 
   @OneToMany(mappedBy = "program")
@@ -109,6 +108,14 @@ public class Program extends BaseModel {
   }
 
   public Program(ProgramDefinition definition) {
+    this(definition, Optional.empty());
+  }
+
+  public Program(ProgramDefinition definition, Version version) {
+    this(definition, Optional.of(version));
+  }
+
+  private Program(ProgramDefinition definition, Optional<Version> version) {
     this.programDefinition = definition;
     this.id = definition.id();
     this.name = definition.adminName();
@@ -121,6 +128,10 @@ public class Program extends BaseModel {
     this.displayMode = definition.displayMode().getValue();
 
     orderBlockDefinitionsBeforeUpdate();
+
+    if (version.isPresent()) {
+      this.versions.add(version.get());
+    }
   }
 
   /**
@@ -133,7 +144,8 @@ public class Program extends BaseModel {
       String defaultDisplayName,
       String defaultDisplayDescription,
       String externalLink,
-      String displayMode) {
+      String displayMode,
+      Version associatedVersion) {
     this.name = adminName;
     this.description = adminDescription;
     // A program is always created with the default CiviForm locale first, then localized.
@@ -150,6 +162,7 @@ public class Program extends BaseModel {
             .build();
     this.exportDefinitions = ImmutableList.of();
     this.blockDefinitions = ImmutableList.of(emptyBlock);
+    this.versions.add(associatedVersion);
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -226,11 +239,6 @@ public class Program extends BaseModel {
                 application.getLifecycleStage().equals(LifecycleStage.ACTIVE)
                     || application.getLifecycleStage().equals(LifecycleStage.OBSOLETE))
         .collect(ImmutableList.toImmutableList());
-  }
-
-  public Program addVersion(Version version) {
-    this.versions.add(version);
-    return this;
   }
 
   public String getSlug() {

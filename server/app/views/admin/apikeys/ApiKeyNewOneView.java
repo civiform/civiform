@@ -25,6 +25,8 @@ import services.apikey.ApiKeyService;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.style.Styles;
@@ -33,7 +35,7 @@ import views.style.Styles;
 public final class ApiKeyNewOneView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages enUsMessages;
-  private final Slugify slugifier = new Slugify();
+  private final Slugify slugifier = Slugify.builder().build();
 
   private static final String EXPIRATION_DESCRIPTION =
       "Specify a date when this API key will no longer be valid. The expiration date"
@@ -61,8 +63,8 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
   };
 
   @Inject
-  public ApiKeyNewOneView(AdminLayout layout, @EnUsLang Messages enUsMessages) {
-    this.layout = checkNotNull(layout);
+  public ApiKeyNewOneView(AdminLayoutFactory layoutFactory, @EnUsLang Messages enUsMessages) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.API_KEYS);
     this.enUsMessages = checkNotNull(enUsMessages);
   }
 

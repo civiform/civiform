@@ -3,19 +3,14 @@
  */
 
 class AzureUploadController {
-  static UPLOAD_CONTAINER_ID = 'azure-upload-form-component'
   static FILEUPLOAD_FORM_ID = 'cf-block-form'
 
   constructor() {
-    const uploadContainer = document.getElementById(
-      AzureUploadController.UPLOAD_CONTAINER_ID
-    )
-
     const blockForm = document.getElementById(
       AzureUploadController.FILEUPLOAD_FORM_ID
     )
     blockForm.addEventListener('submit', (event) => {
-      this.attemptUpload(event, uploadContainer)
+      this.attemptUpload(event, blockForm)
     })
   }
 
@@ -40,6 +35,7 @@ class AzureUploadController {
     const options = {
       blobHTTPHeaders: {
         blobContentType: azureUploadProps.file.type,
+        blobContentDisposition: `attachment; filename=${azureUploadProps.file.name}`,
       },
     }
 

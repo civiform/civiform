@@ -1,0 +1,58 @@
+#! /usr/bin/env bash
+
+set -e
+set +x
+set -o pipefail
+
+# https://git-scm.com/docs/git-config/2.35.2#Documentation/git-config.txt-safedirectory
+git config --global --add safe.directory /code
+cd /code
+
+# Gets the list of file paths for files that are tracked by git and have
+# changes relative to the main branch.
+function get_tracked_modified_files() {
+  # Exclude deleted files:
+  # https://git-scm.com/docs/git-diff#Documentation/git-diff.txt---diff-filterACDMRTUXB82308203
+  git diff --diff-filter=d --name-only origin/main
+}
+
+# Gets the list of file paths for files that are not tracked by git and are
+# not excluded by the .gitignore file.
+function get_untracked_files() {
+  git ls-files --others --exclude-standard
+}
+
+function get_modified_java_files() {
+  (
+    get_tracked_modified_files
+    get_untracked_files
+  ) | grep -E ".+\.java$"
+}
+
+if [[ -z $(get_modified_java_files) ]]; then
+  echo 'No modified java files found'
+else
+  echo 'Start format java'
+  java -jar /fmt.jar --replace $(get_modified_java_files)
+  echo 'Done formatting java'
+fi
+
+echo 'Start format TS'
+npx prettier \
+  --write \
+  --config /.prettierrc.js \
+  --ignore-path /.prettierignore \
+  {server,browser-test}
+echo 'Done formatting TS'
+
+echo 'Start format shell'
+shfmt -bn -ci -i 2 -w -l \
+  $(shfmt -f . | grep -v -e /node_modules)
+echo 'Done formatting shell'
+
+echo 'Start format python'
+yapf -i -r -p -vv \
+  --no-local-style \
+  --style='{based_on_style: google, SPLIT_BEFORE_FIRST_ARGUMENT:true}' \
+  {cloud,bin}
+echo 'Done formatting python'

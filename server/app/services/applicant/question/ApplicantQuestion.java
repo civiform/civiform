@@ -222,6 +222,10 @@ public class ApplicantQuestion {
     return new FileUploadQuestion(this);
   }
 
+  public boolean isFileUploadQuestion() {
+    return getType().equals(QuestionType.FILEUPLOAD);
+  }
+
   public IdQuestion createIdQuestion() {
     return new IdQuestion(this);
   }

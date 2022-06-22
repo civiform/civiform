@@ -1,3 +1,4 @@
+import { Page } from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -11,7 +12,7 @@ import {
 } from './support'
 
 describe('file upload applicant flow', () => {
-  let pageObject
+  let pageObject: Page
 
   beforeAll(async () => {
     const { page } = await startSession()
@@ -23,7 +24,7 @@ describe('file upload applicant flow', () => {
   })
 
   describe('single file upload question', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single file upload'
 
     beforeAll(async () => {
@@ -50,7 +51,7 @@ describe('file upload applicant flow', () => {
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion('file key')
       const error = await pageObject.$('.cf-fileupload-error')
-      expect(await error.isHidden()).toEqual(true)
+      expect(await error?.isHidden()).toEqual(true)
     })
 
     it('does not show skip button for required question', async () => {
@@ -66,9 +67,13 @@ describe('file upload applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerFileUploadQuestion('file key')
+      const fileContent = 'some sample text'
+      await applicantQuestions.answerFileUploadQuestion(fileContent)
       await applicantQuestions.clickUpload()
 
+      const downloadedFileContent =
+        await applicantQuestions.downloadSingleQuestionFromReviewPage()
+      expect(downloadedFileContent).toEqual(fileContent)
       await applicantQuestions.submitFromReviewPage(programName)
     })
 
@@ -80,13 +85,13 @@ describe('file upload applicant flow', () => {
       await applicantQuestions.clickUpload()
 
       const error = await pageObject.$('.cf-fileupload-error')
-      expect(await error.isHidden()).toEqual(false)
+      expect(await error?.isHidden()).toEqual(false)
     })
   })
 
   // Optional file upload.
   describe('optional file upload question', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for optional file upload'
 
     beforeAll(async () => {
@@ -121,7 +126,7 @@ describe('file upload applicant flow', () => {
       // is optional.
       await applicantQuestions.clickUpload()
       const error = await pageObject.$('.cf-fileupload-error')
-      expect(await error.isHidden()).toEqual(false)
+      expect(await error?.isHidden()).toEqual(false)
       await applicantQuestions.clickSkip()
 
       await applicantQuestions.submitFromReviewPage(programName)

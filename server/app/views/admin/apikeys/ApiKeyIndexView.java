@@ -27,6 +27,8 @@ import services.PaginationResult;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -35,11 +37,11 @@ import views.style.Styles;
 public final class ApiKeyIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final DateConverter dateConverter;
-  private final Slugify slugifier = new Slugify();
+  private final Slugify slugifier = Slugify.builder().build();
 
   @Inject
-  public ApiKeyIndexView(AdminLayout layout, DateConverter dateConverter) {
-    this.layout = checkNotNull(layout);
+  public ApiKeyIndexView(AdminLayoutFactory layoutFactory, DateConverter dateConverter) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.API_KEYS);
     this.dateConverter = checkNotNull(dateConverter);
   }
 

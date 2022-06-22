@@ -18,5 +18,5 @@ variable "application_name_postfix" {
 variable "db_tier_type" {
   type        = string
   description = "vm tier type to run db instance"
-  default     = "db-n1-standard-4"
+  default     = "db-f1-micro"
 }

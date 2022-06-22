@@ -1,13 +1,34 @@
+import { Browser, Page } from 'playwright'
 import {
   startSession,
   loginAsAdmin,
   AdminQuestions,
   AdminPrograms,
   endSession,
+  dropTables,
+  seedCanonicalQuestions,
   waitForPageJsLoad,
 } from './support'
 
 describe('normal question lifecycle', () => {
+  beforeAll(async () => {
+    const { page } = await startSession()
+    await dropTables(page)
+    await seedCanonicalQuestions(page)
+  })
+
+  it('has canonical questions available by default', async () => {
+    const { browser, page } = await startSession()
+    await loginAsAdmin(page)
+    const adminQuestions = new AdminQuestions(page)
+
+    await adminQuestions.gotoAdminQuestionsPage()
+    await adminQuestions.expectDraftQuestionExist('Applicant Name')
+    await adminQuestions.expectDraftQuestionExist('Applicant Date of Birth')
+
+    await endSession(browser)
+  })
+
   it('create, update, publish, create a new version, and update all questions', async () => {
     const { browser, page } = await startSession()
     page.setDefaultTimeout(4000)

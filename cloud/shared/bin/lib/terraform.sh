@@ -13,7 +13,7 @@ readonly TERRAFORM_APPLY=(${TERRAFORM_CMD[@]} "apply" "-input=false" "-json")
 #   TF_VAR_FILENAME
 #######################################
 function terraform::perform_apply() {
-  if [[ "${CIVIFORM_MODE}" == "dev" ]]; then
+  if civiform_mode::is_dev; then
     "${TERRAFORM_CMD[@]}" init -upgrade
   else
     "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/setup_tf_shared_state" \
@@ -42,7 +42,7 @@ function terraform::perform_apply() {
     return 0
   fi
 
-  if azure::is_service_principal; then
+  if ! civiform_mode::is_dev; then
     "${TERRAFORM_APPLY[@]}" -auto-approve "${TERRAFORM_PLAN_OUT_FILE}"
   else
     "${TERRAFORM_APPLY[@]}" "${TERRAFORM_PLAN_OUT_FILE}"

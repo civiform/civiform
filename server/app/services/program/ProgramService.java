@@ -3,15 +3,18 @@ package services.program;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.BlockForm;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Application;
 import models.Program;
+import play.libs.F;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.IdentifierBasedPaginationSpec;
+import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 import services.program.predicate.PredicateDefinition;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
@@ -50,6 +53,16 @@ public interface ProgramService {
    *     a real Program
    */
   CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id);
+
+  /**
+   * Get the definition of a given program asynchronously. Gets the active version for the slug.
+   *
+   * @param programSlug the slug of the program to retrieve
+   * @return the {@link ProgramDefinition} for the given slug if it exists, or a
+   *     ProgramNotFoundException is thrown when the future completes and slug does not correspond
+   *     to a real Program
+   */
+  CompletionStage<ProgramDefinition> getProgramDefinitionAsync(String programSlug);
 
   /**
    * Create a new program with an empty block.
@@ -319,12 +332,34 @@ public interface ProgramService {
    * <p>If searchNameFragment is an unsigned integer, query will filter to applications with an
    * applicant ID matching it.
    *
-   * @param paginationSpec specification for paginating the results.
+   * @param paginationSpecEither the query supports two types of pagination, F.Either wraps the
+   *     pagination spec to use for a given call.
    * @param searchNameFragment a text fragment used for filtering the applications.
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
-      long programId, PaginationSpec paginationSpec, Optional<String> searchNameFragment)
+      long programId,
+      F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
+          paginationSpecEither,
+      Optional<String> searchNameFragment)
+      throws ProgramNotFoundException;
+
+  /**
+   * Get all submitted applications for this program and all other previous and future versions of
+   * it where the application's submit time is in the specified range.
+   *
+   * @param paginationSpecEither the query supports two types of pagination, F.Either wraps the
+   *     pagination spec to use for a given call.
+   * @param submitTimeFrom specifies the oldest submission time to include.
+   * @param submitTimeTo specifies a time all results must have been submitted before.
+   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
+   */
+  PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
+      long programId,
+      F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
+          paginationSpecEither,
+      Optional<Instant> submitTimeFrom,
+      Optional<Instant> submitTimeTo)
       throws ProgramNotFoundException;
 
   /** Create a new draft starting from the program specified by `id`. */

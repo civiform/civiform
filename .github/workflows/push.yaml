@@ -29,6 +29,7 @@ jobs:
     steps:
       - id: file_changes
         uses: trilom/file-changes-action@v1.2.4
+        if: ${{ github.event_name == 'push' }}
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -44,8 +45,8 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-dev
 
-      - name: Run build-browser-tests.
-        id: build_browser_tests
+      - name: Run build-browser-tests and push to Docker Hub.
+        id: build_and_pushbrowser_tests
         env:
           DOCKER_BUILDKIT: 1
           PUSH_BROWSER_TEST_IMAGE: 1
@@ -53,7 +54,16 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-browser-tests
 
-      - name: Run build-and-push.
+      - name: Run build-localstack-env and push to Docker Hub.
+        id: build_and_push_localstack_env
+        env:
+          DOCKER_BUILDKIT: 1
+          PUSH_LOCALSTACK_IMAGE: 1
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: bin/build-localstack-env
+
+      - name: Run build-and-push civiform:latest
         id: build_and_push
         env:
           DOCKER_BUILDKIT: 1
@@ -61,20 +71,10 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-and-push
 
-      - name: Deploy Seattle staging.
-        id: deploy_staging
+      - name: Run build-and-push-formatter
+        id: build_and_push_formatter
         env:
           DOCKER_BUILDKIT: 1
-          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
-        run: cloud/deploys/seattle/bin/deploy-staging
-
-      - name: Run prober test
-        run: bin/run-prober
-        env:
-          TEST_USER_LOGIN: ${{ secrets.TEST_USER_LOGIN }}
-          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-
-  run_all_tests:
-    uses: ./.github/workflows/tests.yml
-    secrets: inherit
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: bin/build-and-push-formatter

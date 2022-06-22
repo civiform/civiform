@@ -77,6 +77,9 @@ link.adminLogin=Admin login
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
 
+# The text displayed when a file has already been uploaded and the name is being displayed.
+input.fileAlreadyUploaded=File uploaded: {0}
+
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=Delete
 
@@ -118,6 +121,11 @@ link.createAccountOrSignIn=Create account or sign in
 button.apply=Apply
 # The text read for screen readers.
 button.applySr=Apply to {0}
+# The text on the button an applicant clicks to edit the application for a specific program.
+button.edit=Edit
+
+# Text describing the date the application was last submitted.
+content.submittedDate=Submitted {0}
 
 # "Get benefits" floating text
 content.benefits=Get benefits
@@ -140,10 +148,21 @@ link.externalLink=External site
 title.programs=Programs & services
 
 # Subtitle for the list of programs with draft applications
+# TODO(#2573): Remove this once translations are available for inProgressProgramsUpdated
 title.inProgressPrograms=Continue
 
+# Subtitle for the list of programs with draft applications
+title.inProgressProgramsUpdated=In progress
+
 # Subtitle for the list of programs for which the applicant has no draft applications
+# TODO(#2573): Remove this once translations are available for activeProgramsUpdated
 title.activePrograms=New Programs
+
+# Subtitle for the list of programs for which the applicant has no draft applications
+title.activeProgramsUpdated=Not started
+
+# Subtitle for the list of programs for which the applicant has already submitted an application
+title.submittedPrograms=Submitted
 
 # Screen reader format string for program cards
 title.programCard=Program {0} of {1} -- {2}
@@ -263,10 +282,6 @@ placeholder.entityName={0} name
 
 # Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=Please select a file.
-
-# Label shown on the dev file upload page. This is shown before users hit the
-# submit button, to show users what files they are about to upload.
-label.currentFiles=Current files:
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

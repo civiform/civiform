@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import forms.BlockForm;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -21,14 +22,16 @@ import models.DisplayMode;
 import models.Program;
 import models.Version;
 import play.db.ebean.Transactional;
+import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ProgramRepository;
 import repository.UserRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.IdentifierBasedPaginationSpec;
+import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
-import services.PaginationSpec;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -38,7 +41,7 @@ import services.question.types.QuestionDefinition;
 /** Implementation class for {@link ProgramService} interface. */
 public class ProgramServiceImpl implements ProgramService {
 
-  private final Slugify slugifier = new Slugify();
+  private final Slugify slugifier = Slugify.builder().build();
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
@@ -90,6 +93,13 @@ public class ProgramServiceImpl implements ProgramService {
               return syncProgramAssociations(programMaybe.get());
             },
             httpExecutionContext.current());
+  }
+
+  @Override
+  public CompletionStage<ProgramDefinition> getProgramDefinitionAsync(String programSlug) {
+    return programRepository
+        .getForSlug(programSlug)
+        .thenComposeAsync(this::syncProgramAssociations, httpExecutionContext.current());
   }
 
   private CompletionStage<ProgramDefinition> syncProgramAssociations(Program program) {
@@ -157,9 +167,9 @@ public class ProgramServiceImpl implements ProgramService {
             defaultDisplayName,
             defaultDisplayDescription,
             externalLink,
-            displayMode);
+            displayMode,
+            versionRepository.getDraftVersion());
 
-    program.addVersion(versionRepository.getDraftVersion());
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
 
@@ -238,7 +248,7 @@ public class ProgramServiceImpl implements ProgramService {
   // we can check both by just checking for slug collisions.
   // For more info on URL slugs see: https://en.wikipedia.org/wiki/Clean_URL#Slug
   private boolean hasProgramNameCollision(String programName) {
-    Slugify slugifier = new Slugify();
+    Slugify slugifier = Slugify.builder().build();
     return getAllProgramNames().stream()
         .map(slugifier::slugify)
         .anyMatch(slugifier.slugify(programName)::equals);
@@ -564,9 +574,31 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   public PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
-      long programId, PaginationSpec paginationSpec, Optional<String> searchNameFragment) {
+      long programId,
+      F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
+          paginationSpecEither,
+      Optional<String> searchNameFragment) {
     return programRepository.getApplicationsForAllProgramVersions(
-        programId, paginationSpec, searchNameFragment);
+        programId,
+        paginationSpecEither,
+        searchNameFragment,
+        /* submitTimeFrom= */ Optional.empty(),
+        /* submitTimeTo= */ Optional.empty());
+  }
+
+  @Override
+  public PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
+      long programId,
+      F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
+          paginationSpecEither,
+      Optional<Instant> submitTimeFrom,
+      Optional<Instant> submitTimeTo) {
+    return programRepository.getApplicationsForAllProgramVersions(
+        programId,
+        paginationSpecEither,
+        /* searchNameFragment= */ Optional.empty(),
+        submitTimeFrom,
+        submitTimeTo);
   }
 
   @Override

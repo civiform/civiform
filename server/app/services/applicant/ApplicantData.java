@@ -77,7 +77,8 @@ public class ApplicantData extends CfJsonDocumentContext {
       }
       return Optional.of(firstName);
     } catch (NoSuchElementException e) {
-      logger.error("Application {} does not include an applicant name.");
+      logger.warn(
+          "Application {} does not include an applicant name. This is expected for guest users.");
       return Optional.empty();
     }
   }

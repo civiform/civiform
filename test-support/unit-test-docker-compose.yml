@@ -11,8 +11,8 @@ services:
   oidc:
     image: civiform/oidc-provider
     restart: always
-    expose:
-      - "3380"
+    ports: # For debugging
+      - 3380:3380
 
   civiform:
     image: civiform-dev
@@ -21,12 +21,17 @@ services:
       - "db:database"
       - "oidc"
     volumes:
-      - ./sbt_cache/coursier:/root/.cache/coursier
-      - ~/.sbt:/root/.sbt
-      - ~/.ivy:/root/.ivy2
+      - ../server/code-coverage:/usr/src/server/code-coverage
     entrypoint: /bin/bash
     tty: true        # keep the container running
     stdin_open: true
     ports: # For debugging
       - 9100:9000
       - 8459:8459
+    environment:
+      - IDCS_CLIENT_ID=foo
+      - IDCS_SECRET=bar
+      - IDCS_DISCOVERY_URI=http://oidc:3380/.well-known/openid-configuration
+      - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
+      - BASE_URL=http://localhost:9000
+      - CIVIFORM_TIME_ZONE_ID

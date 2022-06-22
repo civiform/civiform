@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
@@ -32,6 +33,8 @@ import services.question.types.StaticContentQuestionDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
+import views.admin.AdminLayout.NavPage;
+import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
@@ -54,8 +57,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
 
   @Inject
-  public ProgramBlockEditView(AdminLayout layout, Config config) {
-    this.layout = checkNotNull(layout);
+  public ProgramBlockEditView(AdminLayoutFactory layoutFactory, Config config) {
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
   }
 
@@ -545,6 +548,8 @@ public class ProgramBlockEditView extends BaseHtmlView {
         .withId("block-edit-form")
         .with(
             div(
+                    h1("The following fields will only be visible to administrators")
+                        .withClasses("text-base", "mb-2"),
                     FieldWithLabel.input()
                         .setId("block-name-input")
                         .setFieldName("name")

@@ -153,16 +153,16 @@ public class LoginForm extends BaseHtmlView {
     return div()
         .withClasses(Styles.ABSOLUTE)
         .with(
-            h1("DEBUG MODE: BECOME ADMIN"),
+            h1("DEMO MODE. LOGIN AS:"),
             redirectButton(
                 "admin",
-                "Global",
+                "CiviForm Admin",
                 routes.CallbackController.fakeAdmin(
                         FakeAdminClient.CLIENT_NAME, FakeAdminClient.GLOBAL_ADMIN)
                     .url()),
             redirectButton(
                 "program-admin",
-                "Of All Active Programs",
+                "Program Admin",
                 routes.CallbackController.fakeAdmin(
                         FakeAdminClient.CLIENT_NAME, FakeAdminClient.PROGRAM_ADMIN)
                     .url()),
@@ -171,6 +171,12 @@ public class LoginForm extends BaseHtmlView {
                 "Program and Civiform Admin",
                 routes.CallbackController.fakeAdmin(
                         FakeAdminClient.CLIENT_NAME, FakeAdminClient.DUAL_ADMIN)
+                    .url()),
+            redirectButton(
+                "trusted-intermediary",
+                "Trusted Intermediary",
+                routes.CallbackController.fakeAdmin(
+                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.TRUSTED_INTERMEDIARY)
                     .url()));
   }
 

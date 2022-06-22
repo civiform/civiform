@@ -12,6 +12,7 @@ import repository.ResetPostgres;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.question.types.QuestionType;
+import support.CfTestHelpers;
 import support.ProgramBuilder;
 import support.QuestionAnswerer;
 
@@ -19,7 +20,7 @@ import support.QuestionAnswerer;
  * Superclass for tests that exercise exporters. Helps with generating programs, questions, and
  * applications.
  */
-abstract class AbstractExporterTest extends ResetPostgres {
+public abstract class AbstractExporterTest extends ResetPostgres {
   protected Program fakeProgramWithEnumerator;
   protected Program fakeProgram;
   protected ImmutableList<Question> fakeQuestions;
@@ -148,6 +149,10 @@ abstract class AbstractExporterTest extends ResetPostgres {
     this.fakeProgram = fakeProgram.build();
   }
 
+  /**
+   * Creates a program that has an enumerator question with children, three applicants, and three
+   * applications. The applications have submission times one month apart starting on 2022-01-01.
+   */
   protected void createFakeProgramWithEnumerator() {
     Question nameQuestion = testQuestionBank.applicantName();
     Question colorQuestion = testQuestionBank.applicantFavoriteColor();
@@ -218,7 +223,9 @@ abstract class AbstractExporterTest extends ResetPostgres {
     applicantOne.save();
     applicationOne =
         new Application(applicantOne, fakeProgramWithEnumerator, LifecycleStage.ACTIVE);
-    applicationOne.setSubmitTimeToNow();
+
+    CfTestHelpers.withMockedInstantNow(
+        "2022-01-01T00:00:00Z", () -> applicationOne.setSubmitTimeToNow());
     applicationOne.save();
 
     // Second applicant has one household member that has two jobs.
@@ -274,12 +281,14 @@ abstract class AbstractExporterTest extends ResetPostgres {
     applicantTwo.save();
     applicationTwo =
         new Application(applicantTwo, fakeProgramWithEnumerator, LifecycleStage.ACTIVE);
-    applicationTwo.setSubmitTimeToNow();
+    CfTestHelpers.withMockedInstantNow(
+        "2022-02-01T00:00:00Z", () -> applicationTwo.setSubmitTimeToNow());
     applicationTwo.save();
 
     applicationThree =
         new Application(applicantTwo, fakeProgramWithEnumerator, LifecycleStage.OBSOLETE);
-    applicationThree.setSubmitTimeToNow();
+    CfTestHelpers.withMockedInstantNow(
+        "2022-03-01T00:00:00Z", () -> applicationThree.setSubmitTimeToNow());
     applicationThree.save();
   }
 }

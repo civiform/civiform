@@ -45,7 +45,8 @@ export class AdminApiKeys {
   }
 
   async gotoNewApiKeyPage() {
-    await this.page.goto(BASE_URL + '/admin/apiKeys/new')
+    await this.gotoApiKeyIndexPage()
+    await this.page.click('#new-api-key-button')
     await waitForPageJsLoad(this.page)
     await this.expectNewApiKeyPage()
   }
@@ -56,27 +57,31 @@ export class AdminApiKeys {
 
   async retireApiKey(keyNameSlugified: string) {
     await this.gotoApiKeyIndexPage()
-    this.page.on('dialog', dialog => dialog.accept())
+    this.page.on('dialog', (dialog) => dialog.accept())
     await this.page.click(`#retire-${keyNameSlugified} button`)
   }
 
   async expectApiKeyIsActive(keyName: string) {
     await this.gotoApiKeyIndexPage()
-    expect(await this.page.innerText('.cf-api-key-name')).toContain(`${keyName} active`)
+    expect(await this.page.innerText('.cf-api-key-name')).toContain(
+      `${keyName} active`
+    )
   }
 
   async expectApiKeyIsRetired(keyName: string) {
     await this.gotoApiKeyIndexPage()
-    expect(await this.page.innerText('.cf-api-key-name')).toContain(`${keyName} retired`)
+    expect(await this.page.innerText('.cf-api-key-name')).toContain(
+      `${keyName} retired`
+    )
   }
 
   async gotoApiKeyIndexPage() {
-    await this.page.goto(BASE_URL + '/admin/apiKeys')
+    await this.page.click('nav :text("API keys")')
     await waitForPageJsLoad(this.page)
     await this.expectApiKeysIndexPage()
   }
 
   async expectApiKeysIndexPage() {
-    expect(await this.page.innerText('h1')).toEqual("API Keys")
+    expect(await this.page.innerText('h1')).toEqual('API Keys')
   }
 }

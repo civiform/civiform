@@ -1,14 +1,13 @@
 #! /usr/bin/env bash
 
 # DOC: Run the unit tests in CI mode.
+# sbt jacoco - also runs sbt test command
 
 source bin/lib.sh
 docker::set_project_name_unit_tests
 
-readonly COMPOSE_CMD="${DOCKER_COMPOSE_UNIT_TEST}"
-
-${COMPOSE_CMD} up -d
-${COMPOSE_CMD} exec civiform sbt test
+docker::compose_unit_test up -d
+docker::compose_unit_test exec civiform sbt jacoco
 # Upon a successful test run (exit code zero), we also
 # assert that SBT actually ran the test suite by evaluating
 # whether a well-known test name exists in the set of
@@ -18,5 +17,5 @@ ${COMPOSE_CMD} exec civiform sbt test
 # This serves as a regression test for
 # https://github.com/seattle-uat/civiform/pull/2459.
 echo "[$(date)] Searching for MessageKeyTest in defined tests..."
-${COMPOSE_CMD} exec civiform sbt "show Test/definedTestNames" | grep -iq "services.MessageKeyTest"
-${COMPOSE_CMD} down
+docker::compose_unit_test exec civiform sbt "show Test/definedTestNames" | grep -iq "services.MessageKeyTest"
+docker::compose_unit_test down

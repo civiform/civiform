@@ -7,7 +7,8 @@ import java.util.Optional;
 public enum AuthIdentityProviderName {
   IDCS_APPLICANT("idcs"),
   LOGIN_RADIUS_APPLICANT("login-radius"),
-  ADFS_ADMIN("adfs");
+  ADFS_ADMIN("adfs"),
+  GENERIC_OIDC_APPLICANT("generic-oidc");
 
   private final String authIdentityProviderNameString;
 

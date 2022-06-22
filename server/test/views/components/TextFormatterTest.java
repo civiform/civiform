@@ -10,37 +10,81 @@ import org.junit.Test;
 public class TextFormatterTest {
 
   @Test
-  public void urlsRenderCorrectly() {
+  public void urlsRenderToOpenInSameTabCorrectly() {
     ImmutableList<DomContent> content =
-        TextFormatter.createLinksAndEscapeText("hello google.com http://internet.website");
+        TextFormatter.createLinksAndEscapeText(
+            "hello google.com http://internet.website", TextFormatter.UrlOpenAction.SameTab);
 
     assertThat(content).hasSize(4);
     assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
     assertThat(content.get(1).render())
-        .isEqualTo("<a href=\"http://google.com/\" class=\"opacity-75\">google.com</a>");
+        .isEqualTo("<a href=\"http://google.com/\" class=\"text-seattle-blue\">google.com</a>");
     assertThat(content.get(2).render()).isEqualTo(new Text(" ").render());
     assertThat(content.get(3).render())
         .isEqualTo(
             "<a href=\"http://internet.website/\""
-                + " class=\"opacity-75\">http://internet.website</a>");
+                + " class=\"text-seattle-blue\">http://internet.website</a>");
+  }
+
+  @Test
+  public void urlsRenderToOpenInNewTabCorrectly() {
+    ImmutableList<DomContent> content =
+        TextFormatter.createLinksAndEscapeText(
+            "hello google.com http://internet.website", TextFormatter.UrlOpenAction.NewTab);
+
+    assertThat(content).hasSize(4);
+    assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
+    assertIsExternalUrlWithIcon(
+        content.get(1).render(),
+        "<a href=\"http://google.com/\" class=\"text-seattle-blue\""
+            + " target=\"_blank\">google.com<svg");
+    assertThat(content.get(2).render()).isEqualTo(new Text(" ").render());
+    assertIsExternalUrlWithIcon(
+        content.get(3).render(),
+        "<a href=\"http://internet.website/\" class=\"text-seattle-blue\""
+            + " target=\"_blank\">http://internet.website<svg");
+  }
+
+  private void assertIsExternalUrlWithIcon(String actualValue, String expectedValue) {
+    assertThat(actualValue).startsWith(expectedValue).endsWith("</svg></a>");
+  }
+
+  @Test
+  public void verifyUrlsMaintainSchemeCorrectly() {
+    ImmutableList<DomContent> content =
+        TextFormatter.createLinksAndEscapeText(
+            "hello google.com https://secure.website", TextFormatter.UrlOpenAction.SameTab);
+
+    assertThat(content).hasSize(4);
+    assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
+    assertThat(content.get(1).render())
+        .isEqualTo("<a href=\"http://google.com/\" class=\"text-seattle-blue\">google.com</a>");
+    assertThat(content.get(2).render()).isEqualTo(new Text(" ").render());
+    assertThat(content.get(3).render())
+        .isEqualTo(
+            "<a href=\"https://secure.website/\""
+                + " class=\"text-seattle-blue\">https://secure.website</a>");
   }
 
   @Test
   public void urlParserSkipsTrailingPunctuation() {
     ImmutableList<DomContent> content =
         TextFormatter.createLinksAndEscapeText(
-            "Hello google.com, crawl (http://seattle.gov/); and http://mysite.com...!");
+            "Hello google.com, crawl (http://seattle.gov/); and http://mysite.com...!",
+            TextFormatter.UrlOpenAction.SameTab);
 
     assertThat(content).hasSize(7);
     assertThat(content.get(0).render()).isEqualTo(new Text("Hello ").render());
     assertThat(content.get(1).render())
-        .isEqualTo("<a href=\"http://google.com/\" class=\"opacity-75\">google.com</a>");
+        .isEqualTo("<a href=\"http://google.com/\" class=\"text-seattle-blue\">google.com</a>");
     assertThat(content.get(2).render()).isEqualTo(new Text(", crawl (").render());
     assertThat(content.get(3).render())
-        .isEqualTo("<a href=\"http://seattle.gov/\" class=\"opacity-75\">http://seattle.gov/</a>");
+        .isEqualTo(
+            "<a href=\"http://seattle.gov/\" class=\"text-seattle-blue\">http://seattle.gov/</a>");
     assertThat(content.get(4).render()).isEqualTo(new Text("); and ").render());
     assertThat(content.get(5).render())
-        .isEqualTo("<a href=\"http://mysite.com/\" class=\"opacity-75\">http://mysite.com</a>");
+        .isEqualTo(
+            "<a href=\"http://mysite.com/\" class=\"text-seattle-blue\">http://mysite.com</a>");
     assertThat(content.get(6).render()).isEqualTo(new Text("...!").render());
   }
 
@@ -129,7 +173,9 @@ public class TextFormatterTest {
     // ...and a link.
     assertThat(contentStrings[2])
         .contains(
-            "<a href=\"http://epicurious.com/\"" + " class=\"opacity-75\">epicurious.com</a>");
+            "<a href=\"http://epicurious.com/\" class=\"text-seattle-blue\""
+                + " target=\"_blank\">epicurious.com<svg")
+        .contains("</svg></a>");
   }
 
   @Test

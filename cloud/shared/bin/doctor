@@ -2,7 +2,13 @@
 
 set -e
 
-export PROJECT_BASE_DIR="$(realpath "$(dirname "${BASH_SOURCE}")/../../../")"
+readonly PROJECT_BASE_DIR="${PWD}"
+readonly DOCTOR_IMPL_PATH="${PWD}/cloud/shared/bin/doctor_impl"
+if [ ! -f "${DOCTOR_IMPL_PATH}" ]; then
+  echo "Could not find ${DOCTOR_IMPL_PATH}. Please run the doctor binary from the root of the Git repository."
+  exit 1
+fi
+
 "${PROJECT_BASE_DIR}/cloud/shared/bin/validate_cloud_provider"
 
 source "${PROJECT_BASE_DIR}/bin/lib.sh"

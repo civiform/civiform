@@ -1,12 +1,20 @@
 package views.components;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.test.Helpers.stubMessagesApi;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import org.junit.Test;
+import play.data.validation.ValidationError;
+import play.i18n.Lang;
+import play.i18n.Messages;
 
 public class FieldWithLabelTest {
+
+  private final Messages messages =
+      stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
 
   @Test
   public void createInput_rendersInput() {
@@ -71,6 +79,28 @@ public class FieldWithLabelTest {
   public void number_setsStepAnyDefault() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.number().setMax(OptionalLong.of(5L));
     assertThat(fieldWithLabel.getContainer().render()).contains("step=\"any\"");
+  }
+
+  @Test
+  public void withNoErrors_DoesNotContainAriaAttributes() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.number().setId("field-id");
+    String rendered = fieldWithLabel.getContainer().render();
+
+    assertThat(rendered).doesNotContain("aria-");
+  }
+
+  @Test
+  public void withErrors() {
+    FieldWithLabel fieldWithLabel =
+        FieldWithLabel.number()
+            .setId("field-id")
+            .setFieldErrors(messages, new ValidationError("", "an error message"));
+    String rendered = fieldWithLabel.getContainer().render();
+
+    assertThat(rendered).contains("aria-invalid=\"true\"");
+    assertThat(rendered).contains("aria-describedBy=\"field-id-errors\"");
+    assertThat(rendered).contains("id=\"field-id-errors\"");
+    assertThat(rendered).contains("an error message");
   }
 
   @Test

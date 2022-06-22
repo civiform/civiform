@@ -4,7 +4,6 @@
 
 source bin/lib.sh
 docker::set_project_name_dev
-readonly COMPOSE_CMD="${DOCKER_COMPOSE_DEV}"
 
 if [[ ! -f "${1}" ]]; then
   echo "Usage: bin/dev-restore-db DUMP_FILE_NAME"
@@ -32,17 +31,17 @@ TRUNCATE_SQL="${TRUNCATE_SQL//$'\n'/}"
 # location of dump file in docker container
 readonly DUMP_FILE="${1}"
 
-${COMPOSE_CMD} up db \
+docker::compose_dev up db \
   --no-deps \
   --wait \
   -d
 
-${COMPOSE_CMD} cp ${DUMP_FILE} db:/${DUMP_FILE}
+docker::compose_dev cp ${DUMP_FILE} db:/${DUMP_FILE}
 
 echo "start truncate"
 
 # command for invoking psql with the dev database
-${COMPOSE_CMD} \
+docker::compose_dev \
   exec -it -e "PGPASSWORD=example" db \
   /usr/bin/psql -h db -U postgres \
   -c "${TRUNCATE_SQL}" postgres
@@ -50,7 +49,7 @@ ${COMPOSE_CMD} \
 echo "start restore"
 
 # command for invoking pg_restore with the dev database
-${COMPOSE_CMD} \
+docker::compose_dev \
   exec -it -e "PGPASSWORD=example" db \
   /bin/sh -c "/usr/bin/pg_restore --clean -v -h db -U postgres -d postgres\
   <\"${DUMP_FILE}\""

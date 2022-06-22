@@ -1,0 +1,28 @@
+name: pr_server
+
+# cancels in-progress jobs or runs on pull_request events only
+# avoids wasted work when a new commit is pushed
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - 'server/**'
+      - 'bin/**'
+      - 'browser-test/**'
+      - 'test-support/**'
+      - 'Dockerfile'
+      - 'prod.Dockerfile'
+      - '.github/workflows/**'
+
+permissions: read-all
+
+jobs:
+  run_all_tests:
+    uses: ./.github/workflows/tests.yaml
+    secrets: inherit
