@@ -21,6 +21,7 @@ import models.Application;
 import models.DisplayMode;
 import models.Program;
 import models.Version;
+import modules.MainModule;
 import play.db.ebean.Transactional;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
@@ -41,7 +42,6 @@ import services.question.types.QuestionDefinition;
 /** Implementation class for {@link ProgramService} interface. */
 public class ProgramServiceImpl implements ProgramService {
 
-  private final Slugify slugifier = Slugify.builder().build();
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
@@ -129,7 +129,7 @@ public class ProgramServiceImpl implements ProgramService {
   @Override
   public ImmutableSet<String> getAllProgramSlugs() {
     return getAllProgramNames().stream()
-        .map(slugifier::slugify)
+        .map(MainModule.SLUGIFIER::slugify)
         .collect(ImmutableSet.toImmutableSet());
   }
 
