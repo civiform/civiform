@@ -28,14 +28,6 @@ jobs:
       - name: show diff
         run: git add .; git diff --exit-code HEAD
 
-      - name: TS diff
-        if: contains(toJSON(steps.file_changes.outputs.files), 'browser-test/')
-        id: run_browser_test_formatter
-        run: browser-test/bin/fmt
-
-      - name: show diff
-        run: git add .; git diff --exit-code HEAD
-
       - name: Check bin scripts have docstrings.
         if: contains(toJSON(steps.file_changes.outputs.files), 'bin/')
         id: check_bin_script_docs
@@ -47,7 +39,35 @@ jobs:
       - name: terraform fmt
         id: tf_fmt
         run: terraform fmt -check -recursive -diff cloud
-  sh-checker:
+
+  formatter-dockerfile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build formatter
+        uses: docker/build-push-action@v3
+        with:
+          context: formatter
+          file: formatter/formatter.Dockerfile
+          load: true
+          push: false
+          tags: civiform/formatter
+          cache-from: |
+            civiform/formatter:latest
+      - name: Run Browsertest formatter
+        if: contains(toJSON(steps.file_changes.outputs.files), 'browser-test/')
+        run: USE_LOCAL_CIVIFORM=true browser-test/bin/fmt
+      - name: show Browsertest diff
+        if: contains(toJSON(steps.file_changes.outputs.files), 'browser-test/')
+        run: git add .; git diff --exit-code HEAD
+      - name: run bin/fmt
+        run: USE_LOCAL_CIVIFORM=true bin/fmt
+      - name: show bin/fmt diff
+        run: git add .; git diff --exit-code HEAD
+
+  shell-formatting:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
