@@ -13,7 +13,6 @@ fi
 
 export TF_VAR_image_tag="${IMAGE_TAG}"
 # TODO(#2741): remove the fork after Azure scripts are in python
-export PYTHONPATH="${PYTHONPATH}:$(pwd)"
 if [[ -f "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/deploy.py" ]]; then
   echo "Running python deploy script."
   python3 "cloud/${CIVIFORM_CLOUD_PROVIDER}/bin/deploy.py"
