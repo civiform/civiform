@@ -42,8 +42,11 @@ function maybeHideElement(e: Event, id: string, parentId: string) {
   }
 }
 
-/** In admin program block edit form - enabling submit button when form is changed or if not empty */
-function changeUpdateBlockButtonState(event: Event) {
+/**
+ * In admin program block edit form - enabling submit button when form is changed or if not empty
+ * @param {Event} _event Unused. The event that triggered this.
+ *  */
+function changeUpdateBlockButtonState(_event: Event) {
   const blockEditForm = document.getElementById('block-edit-form')
   const submitButton = document.getElementById('update-block-button')
 
@@ -65,6 +68,10 @@ function changeUpdateBlockButtonState(event: Event) {
 /**
  * Copy the specified hidden template and append it to the end of the parent divContainerId,
  * above the add button (addButtonId).
+ * @param {string} inputTemplateId The ID of the input template to clone.
+ * @param {string} addButtonId The ID of "add" button to add imput before.
+ * @param {string} divContainerId The ID of the divContainer to add imput before.
+
  */
 function addNewInput(
   inputTemplateId: string,
@@ -89,6 +96,7 @@ function addNewInput(
 /**
  * Removes an input field and its associated elements, like the remove button. All
  * elements must be contained in a parent div.
+ * @param {Event} event The event that triggered this action.
  */
 function removeInput(event: Event) {
   // Get the parent div, which contains the input field and remove button, and remove it.
@@ -99,6 +107,7 @@ function removeInput(event: Event) {
 /**
  * If we want to remove an existing element, hide the input div and set disabled to false
  * so the field is submitted.
+ * @param {Event} event The event that triggered this action.
  */
 function hideInput(event: Event) {
   const inputDiv = (event.target as Element).parentElement
@@ -108,8 +117,10 @@ function hideInput(event: Event) {
   inputDiv.classList.add('hidden')
 }
 
-/** In the enumerator form - add a new input field for a repeated entity. */
-function addNewEnumeratorField(event: Event) {
+/** In the enumerator form - add a new input field for a repeated entity.
+ * @param {Event} _event Unused. The event that triggered this.
+ */
+function addNewEnumeratorField(_event: Event) {
   // Copy the enumerator field template
   const newField = document
     .getElementById('enumerator-field-template')
@@ -130,6 +141,10 @@ function addNewEnumeratorField(event: Event) {
   newField.querySelector('input').focus()
 }
 
+/**
+ * In the enumerator form - remove a input field for a repeated entity
+ * @param {Event} event The event that triggered this action.
+ */
 function removeEnumeratorField(event: Event) {
   // Get the parent div, which contains the input field and remove button, and remove it.
   const enumeratorFieldDiv = (event.currentTarget as HTMLElement).parentNode
@@ -139,6 +154,7 @@ function removeEnumeratorField(event: Event) {
 /**
  * Enumerator delete buttons for existing entities behave differently than removing fields that
  * were just added client-side and were not saved server-side.
+ * @param {Event} event The event that triggered this action.
  */
 function removeExistingEnumeratorField(event: Event) {
   // Get the button that was clicked
@@ -209,7 +225,9 @@ function addEnumeratorListeners() {
   })
 }
 
-/** If we have empty inputs then disable the add input button. (We don't need two blank inputs.) */
+/** If we have empty inputs then disable the add input button. (We don't need two blank inputs.)
+ * @param {Element} enumeratorQuestion The question to hide/show the add button for.
+ */
 function maybeHideEnumeratorAddButton(enumeratorQuestion: Element) {
   if (enumeratorQuestion) {
     const enumeratorInputValues = Array.from(
@@ -238,6 +256,7 @@ function maybeHideEnumeratorAddButton(enumeratorQuestion: Element) {
  *
  * NOTE: This is in no way discoverable, but it's just a temporary fix until we have a program
  * landing page.
+ * @param {Event} event The event that triggered this action.
  */
 function removeLineClamp(event: Event) {
   const target = event.target as HTMLElement
@@ -271,6 +290,9 @@ function configurePredicateFormOnScalarChange(event: Event) {
 
 /**
  * Filter the operators available for each scalar type based on the current scalar selected.
+ *   @param {HTMLSelectElement} scalarDropdown The element to filter the operators for.
+ *   @param {string} selectedScalarType The tyoe of the selected option
+ *   @param {string} selectedScalarValue The value of the selected option
  */
 function filterOperators(
   scalarDropdown: HTMLSelectElement,
@@ -299,6 +321,13 @@ function filterOperators(
   })
 }
 
+/**
+ * Logic that decides if a operator should be hidden.
+ *   @param {string} selectedScalarType The tyoe of the selected option
+ *   @param {string} selectedScalarValue The value of the selected option
+ *   @param {HTMLOptionElement} operatorOption The operator to check if we should hide.
+ * @return {boolean} If the operator should be hidden
+ */
 function shouldHideOperator(
   selectedScalarType: string,
   selectedScalarValue: string,
@@ -306,7 +335,6 @@ function shouldHideOperator(
 ): boolean {
   // If this operator is not for the currently selected type, hide it.
   return (
-    !(selectedScalarType in operatorOption.dataset) ||
     // Special case for SELECTION scalars (which are of type STRING):
     // do not include EQUAL_TO or NOT_EQUAL_TO. This is because we use a set of checkbox
     // inputs for values for multi-option question predicates, which works well for list
@@ -314,12 +342,20 @@ function shouldHideOperator(
     // of EQUAL_TO with ANY_OF and NOT_EQUAL_TO with NONE_OF, we made a technical choice to
     // exclude these operators from single-select predicates to simplify the code on both
     // the form processing side and on the admin user side.
+    !(selectedScalarType in operatorOption.dataset) ||
     (selectedScalarValue.toUpperCase() === 'SELECTION' &&
       (operatorOption.value === 'EQUAL_TO' ||
         operatorOption.value === 'NOT_EQUAL_TO'))
   )
 }
 
+/**
+ *  Setup the the html attributes for value inputs so they acccept the correct
+ *  type of input (nubers, text, email, ect.)
+ *  @param {HTMLSelectElement} scalarDropdown The element to configure the value input for.
+ *  @param {string} selectedScalarType The tyoe of the selected option
+ *  @param {string} selectedScalarValue The value of the selected option
+ */
 function configurePredicateValueInput(
   scalarDropdown: HTMLSelectElement,
   selectedScalarType: string,
@@ -431,7 +467,7 @@ function attachFormDebouncers() {
   )
 }
 
-window.addEventListener('load', (event) => {
+window.addEventListener('load', (_event) => {
   attachDropdown('create-question-button')
   Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
     attachDropdown(el.id)

@@ -34,4 +34,5 @@ class ModalController {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 const modalController = new ModalController()

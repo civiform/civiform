@@ -35,19 +35,26 @@ class AdminValidationController {
     fieldErrorName: string,
     isValid: boolean,
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const errorDiv = element.parentElement!.querySelector(fieldErrorName)
     if (errorDiv) {
       errorDiv.classList.toggle('hidden', isValid)
     }
 
     // Also toggle the border on error inputs (if applicable).
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const field = element.parentElement!.querySelector('input')
     if (field) {
       field.classList.toggle('border-red-600', !isValid)
     }
   }
 
-  /** Validates that there are no empty options. Returns true if all fields are valid.  */
+  /**
+   * Validates that there are no empty options. and updates the field error state.
+   * @param {HTMLInputElement[]} options All the options to verify
+   *
+   * @return {boolean} true if all fields are valid
+   *  */
   private validateMultiOptionQuestionOptions(options: HTMLInputElement[]) {
     let multiOptionIsValid = true
     for (const option of options) {
@@ -64,7 +71,10 @@ class AdminValidationController {
     return multiOptionIsValid
   }
 
-  /** Validates multi option question options when creating a multi option question.  */
+  /**
+   * Validates multi option question options when creating a multi option question.
+   * @return {boolean} true if all fields are valid
+   * */
   private validateMultiOptionQuestionCreate(): boolean {
     const options = Array.from(
       <NodeListOf<HTMLInputElement>>(
@@ -76,7 +86,10 @@ class AdminValidationController {
     return this.validateMultiOptionQuestionOptions(options)
   }
 
-  /** Validates multi option question options when editing a multi option question.  */
+  /**
+   * Validates multi option question options when editing a multi option question.
+   * @return {boolean} true if all fields are valid
+   * */
   private validateMultiOptionQuestionEdit(): boolean {
     const options = Array.from(
       <NodeListOf<HTMLInputElement>>(
@@ -89,4 +102,5 @@ class AdminValidationController {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 const adminValidationController = new AdminValidationController()

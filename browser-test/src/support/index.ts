@@ -29,6 +29,7 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
     // until it causes a problem. In practice, this
     // will only be used when debugging failures.
     const dirs = ['tmp/videos']
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((global as any)['expect'] != null) {
       const testPath = expect.getState().testPath
       const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)

@@ -190,6 +190,9 @@ class PreviewController {
    *
    * This will only work when the selected div is only supposed to contain
    * text and has no other child nodes.
+   *
+   * @param {string} selector The query selector used to find the preview div
+   * @param {string} text The text to parse for $this and $this.parent (etc) strings.
    */
   static setTextAndHighlightEnumeratorReferences(
     selector: string,
@@ -322,4 +325,5 @@ class PreviewController {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 const previewController = new PreviewController()

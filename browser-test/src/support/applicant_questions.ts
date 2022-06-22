@@ -253,7 +253,7 @@ export class ApplicantQuestions {
     return readFileSync(path, 'utf8')
   }
 
-  async submitFromReviewPage(programName: string) {
+  async submitFromReviewPage(_programName: string) {
     // Assert that we're on the review page.
     expect(await this.page.innerText('h1')).toContain(
       'Program application review',
@@ -270,7 +270,7 @@ export class ApplicantQuestions {
     expect(await this.page.url().split('/').pop()).toEqual('programs')
   }
 
-  async submitFromPreviewPage(programName: string) {
+  async submitFromPreviewPage(_programName: string) {
     // Assert that we're on the preview page.
     expect(await this.page.innerText('h1')).toContain(
       'Program application preview',
