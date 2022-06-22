@@ -41,7 +41,7 @@ import services.question.types.QuestionDefinition;
 /** Implementation class for {@link ProgramService} interface. */
 public class ProgramServiceImpl implements ProgramService {
 
-  private final Slugify slugifier = new Slugify();
+  private final Slugify slugifier = Slugify.builder().build();
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
@@ -248,7 +248,7 @@ public class ProgramServiceImpl implements ProgramService {
   // we can check both by just checking for slug collisions.
   // For more info on URL slugs see: https://en.wikipedia.org/wiki/Clean_URL#Slug
   private boolean hasProgramNameCollision(String programName) {
-    Slugify slugifier = new Slugify();
+    Slugify slugifier = Slugify.builder().build();
     return getAllProgramNames().stream()
         .map(slugifier::slugify)
         .anyMatch(slugifier.slugify(programName)::equals);
