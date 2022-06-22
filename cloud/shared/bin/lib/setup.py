@@ -52,13 +52,13 @@ image_tag = config_loader.get_config_var("IMAGE_TAG")
 log_args = f"\"{image_tag}\" {current_user}"
 
 print("Writing TF Vars file")
-terraform_tfvars_path = f"{template_dir}/{config_loader.tfvars_filename}"
+terraform_tfvars_path = os.path.join(
+    template_dir, config_loader.tfvars_filename)
 
 # Write the passthrough vars to a temporary file
 tf_var_writter = TfVarWriter(terraform_tfvars_path)
 conf_variables = config_loader.get_terraform_variables()
 tf_var_writter.write_variables(conf_variables)
-
 
 try:
     print("Starting pre-terraform setup")

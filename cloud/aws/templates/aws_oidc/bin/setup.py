@@ -21,13 +21,16 @@ class Setup(SetupTemplate):
         # Only run in dev mode
         if not self.config.use_backend_config():
             self._make_backend_override()
-            
+
     def _run_tf_to_setup(self):
         template_dir = os.path.join(self.config.get_template_dir(), 'setup')
         print(" - Copy the tfvars file into the setup dir")
         shutil.copy2(
-            os.path.join(self.config.get_template_dir(), 'setup.auto.tfvars'),
-            os.path.join(self.config.get_template_dir(), 'setup', 'setup.auto.tfvars'))
+            os.path.join(
+                self.config.get_template_dir(), self.config.tfvars_filename),
+            os.path.join(
+                self.config.get_template_dir(), 'setup',
+                self.config.tfvars_filename))
         print(" - Run terraform init")
         subprocess.check_call(
             [
@@ -51,10 +54,12 @@ class Setup(SetupTemplate):
     def _setup_shared_state_file(self):
         if self.config.use_backend_config():
             backend_file_location = os.path.join(
-                self.config.get_template_dir(), self.config.backend_vars_filename)
+                self.config.get_template_dir(),
+                self.config.backend_vars_filename)
             with open(backend_file_location, 'w') as f:
                 f.write(f'bucket         = "civiform-tfstate-bucket"\n')
                 f.write(f'key            = "tfstate/terraform.tfstate"\n')
                 f.write(f'region         = "us-east-1"\n')
-                f.write(f'dynamodb_table = "civiform-backend-lock-table-tfstate"\n')
+                f.write(
+                    f'dynamodb_table = "civiform-backend-lock-table-tfstate"\n')
                 f.write(f'encrypt        = true\n')

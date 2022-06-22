@@ -2,7 +2,6 @@
 
 import tempfile
 import shutil
-
 """
 Template Setup
 
@@ -32,7 +31,7 @@ class SetupTemplate:
         shutil.copy2(
             f'{current_directory}/backend_override',
             f'{current_directory}/backend_override.tf')
-        
+
     def requires_post_terraform_setup(self):
         return False
 
