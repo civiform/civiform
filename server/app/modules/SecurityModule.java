@@ -23,6 +23,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.util.Providers;
 import controllers.routes;
 import java.net.URI;
 import java.util.ArrayList;
@@ -129,6 +130,12 @@ public class SecurityModule extends AbstractModule {
 
     try {
       switch (idpName) {
+        case DISABLED_APPLICANT:
+          bind(IndirectClient.class)
+              .annotatedWith(ApplicantAuthClient.class)
+              .toProvider(Providers.of(null));
+          logger.info("No applicant auth provider");
+          break;
         case LOGIN_RADIUS_APPLICANT:
           bind(IndirectClient.class)
               .annotatedWith(ApplicantAuthClient.class)

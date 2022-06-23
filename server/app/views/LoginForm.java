@@ -8,6 +8,7 @@ import static j2html.TagCreator.img;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
+import auth.AuthIdentityProviderName;
 import auth.FakeAdminClient;
 import auth.GuestClient;
 import com.google.inject.Inject;
@@ -29,6 +30,7 @@ public class LoginForm extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final boolean idcsIsAvailable;
   private final String applicantIdp;
+  private final AuthIdentityProviderName applicantIdpName;
   private final Optional<String> maybeLogoUrl;
   private final String civicEntityFullName;
   private final String civicEntityShortName;
@@ -38,7 +40,9 @@ public class LoginForm extends BaseHtmlView {
   public LoginForm(BaseHtmlLayout layout, Config config, FakeAdminClient fakeAdminClient) {
     this.layout = checkNotNull(layout);
     this.applicantIdp = checkNotNull(config).getString("auth.applicant_idp");
-    this.idcsIsAvailable = checkNotNull(config).hasPath("idcs.register_uri");
+    this.applicantIdpName = AuthIdentityProviderName.forString(applicantIdp).get();
+    this.idcsIsAvailable = (this.applicantIdpName == AuthIdentityProviderName.IDCS_APPLICANT
+        && checkNotNull(config).hasPath("idcs.register_uri"));
     this.maybeLogoUrl =
         checkNotNull(config).hasPath("whitelabel.small_logo_url")
             ? Optional.of(config.getString("whitelabel.small_logo_url"))
@@ -90,22 +94,23 @@ public class LoginForm extends BaseHtmlView {
             .with(p(civicEntityShortName).withClasses(Styles.FONT_BOLD))
             .with(p("CiviForm")));
 
-    String loginMessage =
-        messages.at(MessageKey.CONTENT_LOGIN_PROMPT.getKeyName(), civicEntityFullName);
-    content.with(
-        div()
-            .withClasses(
-                Styles.FLEX,
-                Styles.FLEX_COL,
-                Styles.GAP_2,
-                Styles.PY_6,
-                Styles.PX_8,
-                Styles.TEXT_LG,
-                Styles.W_FULL,
-                Styles.PLACE_ITEMS_CENTER)
-            .with(p(loginMessage))
-            .with(loginButton(messages)));
-
+    if (applicantIdpName != AuthIdentityProviderName.DISABLED_APPLICANT) {
+      String loginMessage =
+          messages.at(MessageKey.CONTENT_LOGIN_PROMPT.getKeyName(), civicEntityFullName);
+      content.with(
+          div()
+              .withClasses(
+                  Styles.FLEX,
+                  Styles.FLEX_COL,
+                  Styles.GAP_2,
+                  Styles.PY_6,
+                  Styles.PX_8,
+                  Styles.TEXT_LG,
+                  Styles.W_FULL,
+                  Styles.PLACE_ITEMS_CENTER)
+              .with(p(loginMessage))
+              .with(loginButton(messages)));
+    }
     String alternativeMessage =
         messages.at(MessageKey.CONTENT_LOGIN_PROMPT_ALTERNATIVE.getKeyName());
     String or = messages.at(MessageKey.CONTENT_OR.getKeyName());
@@ -129,7 +134,7 @@ public class LoginForm extends BaseHtmlView {
     }
     content.with(alternativeLoginButtons);
 
-    String somethingElse = messages.at(MessageKey.CONTENT_ADMIN_LOGIN_PROMPT.getKeyName());
+    String adminPrompt = messages.at(MessageKey.CONTENT_ADMIN_LOGIN_PROMPT.getKeyName());
     content.with(
         div()
             .withClasses(
@@ -142,7 +147,7 @@ public class LoginForm extends BaseHtmlView {
                 Styles.JUSTIFY_CENTER,
                 Styles.ITEMS_CENTER,
                 Styles.TEXT_BASE)
-            .with(p(somethingElse).with(text(" ")).with(adminLink(messages))));
+            .with(p(adminPrompt).with(text(" ")).with(adminLink(messages))));
 
     return div()
         .withClasses(Styles.FIXED, Styles.W_SCREEN, Styles.H_SCREEN, Styles.BG_GRAY_200)
