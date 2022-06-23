@@ -1,5 +1,7 @@
+# TODO this is actually should be an input into filestorage
+# b/c it relies on this
 resource "aws_s3_bucket" "log_bucket" {
-  bucket = "${var.app_prefix}-civiformlogs"
+  bucket = "${var.app_prefix}-logs"
 }
 
 resource "aws_s3_bucket_acl" "log_bucket_acl" {

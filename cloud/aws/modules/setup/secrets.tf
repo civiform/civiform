@@ -27,9 +27,8 @@ resource "aws_secretsmanager_secret_version" "postgres_username_secret_version" 
 
 # Create a random generated password to use for postgres_password.
 resource "random_password" "postgres_password" {
-  length           = 16
-  special          = true
-  override_special = "_%@"
+  length  = 16
+  special = false
 }
 
 # Creating a AWS secret for postgres_password
