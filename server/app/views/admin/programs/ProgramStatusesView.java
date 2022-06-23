@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -19,6 +20,7 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.Icons;
 import views.style.AdminStyles;
+import views.style.StyleUtils;
 import views.style.Styles;
 
 public final class ProgramStatusesView extends BaseHtmlView {
@@ -67,11 +69,38 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return div()
         .with(
             // TODO(clouser): Add JS for hiding / unhiding this.
-            p("Loading").withClass(Styles.HIDDEN), p(numResultsText))
-        .with(each(statuses, status -> renderStatusItem(status)));
+            p("Loading").withClass(Styles.HIDDEN),
+            p(numResultsText),
+            div()
+                .withClasses(Styles.MT_6, Styles.BORDER, Styles.ROUNDED_MD, Styles.DIVIDE_Y)
+                .with(each(statuses, status -> renderStatusItem(status))));
   }
 
   private Tag renderStatusItem(String status) {
-    return p(status);
+    return div()
+        .withClasses(
+            Styles.PL_7,
+            Styles.PR_6,
+            Styles.PY_9,
+            Styles.FONT_NORMAL,
+            Styles.SPACE_X_2,
+            Styles.FLEX,
+            Styles.ITEMS_CENTER,
+            StyleUtils.hover(Styles.BG_GRAY_100))
+        .with(
+            div()
+                .withClass(Styles.W_1_4)
+                .with(
+                    // TODO(clouser): Optional SVG icon.
+                    span(status).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
+            p().with(
+                    span("Edited on "),
+                    // TODO(clouser): Get actual edit date from data model.
+                    span("06/02/2022").withClass(Styles.FONT_SEMIBOLD)),
+            div().withClass(Styles.FLEX_GROW),
+            makeSvgTextButton("Delete", Icons.DELETE_SVG_PATH)
+                .withClass(AdminStyles.TERTIARY_BUTTON_STYLES),
+            makeSvgTextButton("Edit", Icons.EDIT_SVG_PATH)
+                .withClass(AdminStyles.TERTIARY_BUTTON_STYLES));
   }
 }

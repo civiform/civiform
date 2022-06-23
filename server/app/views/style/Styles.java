@@ -519,6 +519,7 @@ public final class Styles {
   public static final String BORDER_OPACITY_90 = "border-opacity-90";
   public static final String BORDER_OPACITY_95 = "border-opacity-95";
   public static final String BORDER_OPACITY_100 = "border-opacity-100";
+  public static final String DIVIDE_Y = "divide-y";
   public static final String ROUNDED_NONE = "rounded-none";
   public static final String ROUNDED_SM = "rounded-sm";
   public static final String ROUNDED = "rounded";
