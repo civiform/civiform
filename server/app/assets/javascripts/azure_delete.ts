@@ -6,12 +6,12 @@ class AzureDeleteController {
 
   constructor() {
     const deleteContainer = document.getElementById(
-      AzureDeleteController.FILEUPLOAD_DELETE_ID
+      AzureDeleteController.FILEUPLOAD_DELETE_ID,
     )
     if (deleteContainer) {
       const azblob = window['azblob']
       deleteContainer.addEventListener('click', (event) =>
-        this.attemptDelete(azblob)
+        this.attemptDelete(azblob),
       )
     }
   }
@@ -20,7 +20,7 @@ class AzureDeleteController {
     const blockBlobUrl = this.getBlockBlobUrl(azblob)
     if (!blockBlobUrl) {
       throw new Error(
-        'Attempting to delete file from a block blob URL that does not exist'
+        'Attempting to delete file from a block blob URL that does not exist',
       )
     }
     blockBlobUrl.delete(azblob.Aborter.none)

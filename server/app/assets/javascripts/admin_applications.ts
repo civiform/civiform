@@ -8,7 +8,7 @@ class AdminApplications {
 
   constructor() {
     const frame = document.querySelector(
-      AdminApplications.DISPLAY_FRAME_SELECTOR
+      AdminApplications.DISPLAY_FRAME_SELECTOR,
     )
 
     if (frame == null) {
@@ -17,7 +17,7 @@ class AdminApplications {
 
     this.displayFrame = frame
     this.cards = document.querySelectorAll(
-      AdminApplications.CARD_SELECTOR
+      AdminApplications.CARD_SELECTOR,
     ) as any as Array<HTMLElement>
 
     this.registerApplicationCardEventListeners()
@@ -50,14 +50,14 @@ class AdminApplications {
     // Remove selection style from previously selected card.
     this.cards.forEach((card) =>
       this._assertNotNull(card.children[0], 'card inner div').classList.remove(
-        AdminApplications.BACKGROUND_GRAY_CLASS
-      )
+        AdminApplications.BACKGROUND_GRAY_CLASS,
+      ),
     )
 
     // Add selection style to selected card.
     this._assertNotNull(
       selectedCard.children[0],
-      'card inner div'
+      'card inner div',
     ).classList.add(AdminApplications.BACKGROUND_GRAY_CLASS)
 
     // Set iframe to display selected application.
