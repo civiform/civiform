@@ -11,7 +11,7 @@ class AccordionController {
 
   private init() {
     const items = Array.from(
-      document.querySelectorAll(AccordionController.accordionHeaderSelector)
+      document.querySelectorAll(AccordionController.accordionHeaderSelector),
     )
 
     items.forEach((item) => {
@@ -22,11 +22,11 @@ class AccordionController {
   static toggleAccordion(event: Event) {
     const target = event.target as Element
     const parentAccordion = target.closest(
-      AccordionController.accordionSelector
+      AccordionController.accordionSelector,
     )
     if (parentAccordion) {
       parentAccordion.classList.toggle(
-        AccordionController.accordionVisibleClass
+        AccordionController.accordionVisibleClass,
       )
     }
   }

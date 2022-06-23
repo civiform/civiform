@@ -7,7 +7,7 @@ class AzureUploadController {
 
   constructor() {
     const blockForm = document.getElementById(
-      AzureUploadController.FILEUPLOAD_FORM_ID
+      AzureUploadController.FILEUPLOAD_FORM_ID,
     )
     blockForm.addEventListener('submit', (event) => {
       this.attemptUpload(event, blockForm)
@@ -42,8 +42,8 @@ class AzureUploadController {
     const blockBlobUrl = azblob.BlockBlobURL.fromBlobURL(
       new azblob.BlobURL(
         `${azureUploadProps.blobUrl}?${azureUploadProps.sasToken}`,
-        azblob.StorageURL.newPipeline(new azblob.AnonymousCredential())
-      )
+        azblob.StorageURL.newPipeline(new azblob.AnonymousCredential()),
+      ),
     )
 
     azblob
@@ -51,7 +51,7 @@ class AzureUploadController {
         azblob.Aborter.none,
         azureUploadProps.file,
         blockBlobUrl,
-        options
+        options,
       )
       .then((resp, err) => {
         if (err) {
@@ -61,7 +61,7 @@ class AzureUploadController {
           redirectUrl,
           azureUploadProps,
           resp,
-          blockBlobUrl.url
+          blockBlobUrl.url,
         )
         window.location.replace(redirectUrl.toString())
       })
@@ -72,7 +72,7 @@ class AzureUploadController {
       sasToken: this.getValueFromInputLabel('sasToken'),
       blobUrl: this.getValueFromInputLabel('blobUrl'),
       successActionRedirect: this.getValueFromInputLabel(
-        'successActionRedirect'
+        'successActionRedirect',
       ),
       containerName: this.getValueFromInputLabel('containerName'),
       file: (<HTMLInputElement>(
@@ -86,7 +86,7 @@ class AzureUploadController {
     redirectUrl: URL,
     azureUploadProps: any,
     resp: any,
-    blockBlobUrlString: string
+    blockBlobUrlString: string,
   ) {
     redirectUrl.searchParams.set('originalFileName', azureUploadProps.file.name)
     redirectUrl.searchParams.set('etag', resp.eTag)
