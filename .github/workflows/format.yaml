@@ -8,6 +8,12 @@ on:
     branches:
       - main
 
+# cancels in-progress jobs on this pull request
+# avoids wasted work when a new commit is pushed
+concurrency:
+  group: format-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 permissions: read-all
 
 jobs:
@@ -20,13 +26,22 @@ jobs:
         with:
           java-version: '11.0.10'
       - id: file_changes
-        uses: trilom/file-changes-action@v1.2.3
+        uses: trilom/file-changes-action@v1.2.4
         with:
           output: 'json'
       - uses: axel-op/googlejavaformat-action@master
         with:
           version: 1.9
           skipCommit: true
+
+      - name: show diff
+        run: git add .; git diff --exit-code HEAD
+
+      - name: Prettier diff
+        uses: actionsx/prettier@v2
+        with:
+          # prettier CLI arguments.
+          args: --check .
 
       - name: show diff
         run: git add .; git diff --exit-code HEAD
@@ -50,7 +65,7 @@ jobs:
         with:
           fetch-depth: 0 # get main
       - id: file_changes
-        uses: trilom/file-changes-action@v1.2.3
+        uses: trilom/file-changes-action@v1.2.4
         with:
           output: 'json'
       - name: Set up Docker Buildx
@@ -58,7 +73,6 @@ jobs:
       - name: Build formatter
         uses: docker/build-push-action@v3
         with:
-          context: formatter
           file: formatter/formatter.Dockerfile
           load: true
           push: false
@@ -75,6 +89,26 @@ jobs:
       - name: show bin/fmt diff
         run: git add .; git diff --exit-code HEAD
 
+  scala-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # get main
+      - id: file_changes
+        uses: trilom/file-changes-action@v1.2.4
+        with:
+          output: 'json'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Run bin/fmt-sbt
+        env:
+          DOCKER_BUILDKIT: 1
+        if: contains(toJSON(steps.file_changes.outputs.files), '.sbt') || contains(toJSON(steps.file_changes.outputs.files), '.scala')|| contains(toJSON(steps.file_changes.outputs.files), '.github/workflows/format.yaml')
+        run: bin/fmt-sbt
+      - name: show bin/fmt-sbt diff
+        run: git add .; git diff --exit-code HEAD
+
   shell-formatting:
     runs-on: ubuntu-latest
     steps:
@@ -83,17 +117,18 @@ jobs:
         uses: luizm/action-sh-checker@master
         env:
           SHELLCHECK_OPTS: -s bash -S error
-          sh_checker_exclude: "*.md cloud/shared/bin/doctor_impl"
-          SHFMT_OPTS: -bn -ci -i 2
+          sh_checker_exclude: '*.md cloud/shared/bin/doctor_impl'
+          SHFMT_OPTS:
+            -bn -ci -i 2
             # -i 2   indent 2 spaces
             # -bn    binary ops like && and | may start a line
             # -ci    switch cases will be indented
-  formatting-check:
+  python-formatting:
     name: Formatting Check
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: run YAPF to test if python code is correctly formatted
-      uses: AlexanderMelde/yapf-action@v1.0
-      with:
-        args: "--verbose --style='{based_on_style: google, SPLIT_BEFORE_FIRST_ARGUMENT:true}'"
+      - uses: actions/checkout@v2
+      - name: run YAPF to test if python code is correctly formatted
+        uses: AlexanderMelde/yapf-action@v1.0
+        with:
+          args: "--verbose --style='{based_on_style: google, SPLIT_BEFORE_FIRST_ARGUMENT:true}'"

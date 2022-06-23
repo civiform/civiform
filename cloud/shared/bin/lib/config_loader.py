@@ -22,6 +22,10 @@ class ConfigLoader:
     def backend_vars_filename(self):
         return os.environ['BACKEND_VARS_FILENAME']
 
+    @property
+    def app_prefix(self):
+        return os.environ['APP_PREFIX']
+
     def load_config(self):
         self._load_config()
         return self.validate_config()

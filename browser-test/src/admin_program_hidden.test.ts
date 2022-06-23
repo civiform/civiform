@@ -14,7 +14,7 @@ import {
 
 describe('Hide a program that should not be public yet', () => {
   it('Create a new hidden program, verify applicants cannot see it on the home page', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
     page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
@@ -42,7 +42,7 @@ describe('Hide a program that should not be public yet', () => {
   })
 
   it('create a public program, verify applicants can see it on the home page', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
     page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
@@ -64,7 +64,7 @@ describe('Hide a program that should not be public yet', () => {
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.expectProgramPublic(
       programName,
-      programDescription
+      programDescription,
     )
 
     await endSession(browser)

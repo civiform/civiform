@@ -24,9 +24,9 @@ function pull_all() {
   docker pull -q mcr.microsoft.com/azure-storage/azurite &
   docker pull -q localstack/localstack &
 
-  docker pull -q civiform/civiform-localstack:latest &
-  docker pull -q civiform/formatter:latest &
-  docker pull -q civiform/civiform-browser-test:latest &
+  docker pull -q docker.io/civiform/civiform-localstack:latest &
+  docker pull -q docker.io/civiform/formatter:latest &
+  docker pull -q docker.io/civiform/civiform-browser-test:latest &
 
   wait
 
@@ -45,14 +45,21 @@ while [ "${1:-}" != "" ]; do
       pull_all
       ;;
 
+    "--dev")
+      echo "Pull dev docker image"
+      docker pull -q docker.io/civiform/civiform-dev:latest
+      docker tag civiform/civiform-dev:latest civiform-dev
+
+      ;;
+
     "--formatter")
       echo "Pull formatter docker image"
-      docker pull -q civiform/formatter:latest
+      docker pull -q docker.io/civiform/formatter:latest
       ;;
 
     "--localstack")
       echo "Pull localstack docker image"
-      docker pull -q civiform/civiform-localstack:latest
+      docker pull -q docker.io/civiform/civiform-localstack:latest
       docker tag civiform/civiform-localstack:latest civiform-localstack
       ;;
 
@@ -68,7 +75,7 @@ while [ "${1:-}" != "" ]; do
 
     "--browser-tests")
       echo "Pull browser-tests docker image"
-      docker pull -q civiform/civiform-browser-test:latest
+      docker pull -q docker.io/civiform/civiform-browser-test:latest
       ;;
 
     *)

@@ -1,7 +1,7 @@
-import { Page } from 'playwright'
-import { readFileSync } from 'fs'
-import { waitForPageJsLoad } from './wait'
-import { BASE_URL } from './config'
+import {Page} from 'playwright'
+import {readFileSync} from 'fs'
+import {waitForPageJsLoad} from './wait'
+import {BASE_URL} from './config'
 
 type CreateApiKeyParamsType = {
   name: string
@@ -64,14 +64,14 @@ export class AdminApiKeys {
   async expectApiKeyIsActive(keyName: string) {
     await this.gotoApiKeyIndexPage()
     expect(await this.page.innerText('.cf-api-key-name')).toContain(
-      `${keyName} active`
+      `${keyName} active`,
     )
   }
 
   async expectApiKeyIsRetired(keyName: string) {
     await this.gotoApiKeyIndexPage()
     expect(await this.page.innerText('.cf-api-key-name')).toContain(
-      `${keyName} retired`
+      `${keyName} retired`,
     )
   }
 

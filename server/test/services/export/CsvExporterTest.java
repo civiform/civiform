@@ -8,9 +8,9 @@ import java.util.AbstractMap;
 import java.util.List;
 import java.util.Optional;
 import models.Question;
+import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.junit.Before;
 import org.junit.Test;
 import services.Path;
 import services.applicant.ApplicantData;
@@ -29,6 +29,8 @@ import services.question.types.QuestionType;
 import support.ProgramBuilder;
 
 public class CsvExporterTest extends AbstractExporterTest {
+
+  private static final CSVFormat DEFAULT_FORMAT = CSVFormat.DEFAULT.builder().setHeader().build();
 
   private ApplicantQuestion getApplicantQuestion(QuestionDefinition questionDefinition) {
     return new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty());
@@ -71,18 +73,14 @@ public class CsvExporterTest extends AbstractExporterTest {
             .build();
   }
 
-  @Before
-  public void setUp() {
-    createFakeProgram();
-    createFakeApplications();
-  }
-
   @Test
   public void useProgramCsvExport_noRepeatedEntities() throws Exception {
+    createFakeProgram();
+    createFakeApplications();
+
     ExporterService exporterService = instanceOf(ExporterService.class);
     CSVParser parser =
-        CSVParser.parse(
-            exporterService.getProgramCsv(fakeProgram.id), CsvExporter.DEFAULT_CSV_FORMAT);
+        CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
 
     assertThat(records).hasSize(3);
@@ -133,12 +131,43 @@ public class CsvExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  public void demographyExport_withRepeatedEntities() throws Exception {
-    createFakeProgramWithEnumerator();
+  public void useProgramCsvExport_noEntities() throws Exception {
+    createFakeProgram();
 
     ExporterService exporterService = instanceOf(ExporterService.class);
     CSVParser parser =
-        CSVParser.parse(exporterService.getDemographicsCsv(), CsvExporter.DEFAULT_CSV_FORMAT);
+        CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
+    List<CSVRecord> records = parser.getRecords();
+
+    assertThat(records).hasSize(0);
+
+    // Assert CSV headers
+    Streams.mapWithIndex(
+            fakeQuestions.stream()
+                .filter(question -> !question.getQuestionDefinition().isEnumerator())
+                .flatMap(
+                    question ->
+                        getApplicantQuestion(question.getQuestionDefinition())
+                            .getContextualizedScalars()
+                            .keySet()
+                            .stream()
+                            .filter(
+                                path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))),
+            (path, index) -> new AbstractMap.SimpleEntry<Path, Integer>(path, (int) index))
+        .forEach(
+            entry ->
+                assertThat(parser.getHeaderMap())
+                    .containsEntry(ExporterService.pathToHeader(entry.getKey()), entry.getValue()));
+  }
+
+  @Test
+  public void demographyExport_withRepeatedEntities() throws Exception {
+    createFakeProgram();
+    createFakeApplications();
+    createFakeProgramWithEnumerator();
+
+    ExporterService exporterService = instanceOf(ExporterService.class);
+    CSVParser parser = CSVParser.parse(exporterService.getDemographicsCsv(), DEFAULT_FORMAT);
 
     int id = 0;
     assertThat(parser.getHeaderMap())
@@ -154,15 +183,35 @@ public class CsvExporterTest extends AbstractExporterTest {
   }
 
   @Test
+  public void demographyExport_noEntities() throws Exception {
+    ExporterService exporterService = instanceOf(ExporterService.class);
+    CSVParser parser = CSVParser.parse(exporterService.getDemographicsCsv(), DEFAULT_FORMAT);
+
+    int id = 0;
+    assertThat(parser.getHeaderMap())
+        .containsExactlyEntriesOf(
+            ImmutableMap.<String, Integer>builder()
+                .put("Opaque ID", id++)
+                .put("Program", id++)
+                .put("Submitter Email (Opaque)", id++)
+                .put("TI Organization", id++)
+                .put("Create time", id++)
+                .put("Submit time", id++)
+                .build());
+    assertThat(parser.getRecords()).hasSize(0);
+  }
+
+  @Test
   public void useDefaultCsvConfig_withRepeatedEntities() throws Exception {
+    createFakeProgram();
+    createFakeApplications();
     createFakeProgramWithEnumerator();
 
     // Generate default CSV
     ExporterService exporterService = instanceOf(ExporterService.class);
     CSVParser parser =
         CSVParser.parse(
-            exporterService.getProgramCsv(fakeProgramWithEnumerator.id),
-            CsvExporter.DEFAULT_CSV_FORMAT);
+            exporterService.getProgramCsv(fakeProgramWithEnumerator.id), DEFAULT_FORMAT);
 
     int id = 0;
     assertThat(parser.getHeaderMap())
