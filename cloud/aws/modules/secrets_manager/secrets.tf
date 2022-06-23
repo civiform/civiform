@@ -40,7 +40,7 @@ data "aws_secretsmanager_secret_version" "adfs_secret_version" {
 
 # Importing the AWS secrets created previously using name.
 data "aws_secretsmanager_secret" "oidc_secret" {
-  name       = "${var.app_prefix}-oidc_secret"
+  name = "${var.app_prefix}-oidc_secret"
 }
 
 # Importing the AWS secret version created previously using arn.
@@ -50,7 +50,7 @@ data "aws_secretsmanager_secret_version" "oidc_secret_version" {
 
 # Importing the AWS secrets created previously using name.
 data "aws_secretsmanager_secret" "oidc_client_id" {
-  name       = "${var.app_prefix}-oidc_client_id"
+  name = "${var.app_prefix}-oidc_client_id"
 }
 
 # Importing the AWS secret version created previously using arn.
@@ -60,7 +60,7 @@ data "aws_secretsmanager_secret_version" "oidc_client_id_version" {
 
 # Importing the AWS secrets created previously using name.
 data "aws_secretsmanager_secret" "oidc_discovery_uri" {
-  name       = "${var.app_prefix}-oidc_discovery_uri"
+  name = "${var.app_prefix}-oidc_discovery_uri"
 }
 
 # Importing the AWS secret version created previously using arn.

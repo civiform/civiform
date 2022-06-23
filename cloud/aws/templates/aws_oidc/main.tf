@@ -41,9 +41,9 @@ resource "aws_apprunner_service" "civiform_dev" {
           STAGING_TI_LIST        = var.staging_ti_notification_mailing_list
           STAGING_APPLICANT_LIST = var.staging_applicant_notification_mailing_list
 
-          APPLICANT_OIDC_PROVICER_NAME=var.applicant_oidc_provider_name
-          CIVIFORM_APPLICANT_IDP = var.civiform_applicant_idp
-          APPLICANT_OIDC_CLIENT_ID = module.secrets.oidc_client_id
+          APPLICANT_OIDC_PROVICER_NAME = var.applicant_oidc_provider_name
+          CIVIFORM_APPLICANT_IDP       = var.civiform_applicant_idp
+          APPLICANT_OIDC_CLIENT_ID     = module.secrets.oidc_client_id
           APPLICANT_OIDC_CLIENT_SECRET = module.secrets.oidc_secret
           APPLICANT_OIDC_DISCOVERY_URI = module.secrets.oidc_discovery_uri
         }

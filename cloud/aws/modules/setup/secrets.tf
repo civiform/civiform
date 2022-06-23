@@ -8,8 +8,8 @@ resource "aws_kms_key" "civiform_kms_key" {
 
 # Create a random generated password to use for postgres_password.
 resource "random_password" "postgres_username" {
-  length           = 16
-  special          = false
+  length  = 16
+  special = false
 }
 
 # Creating a AWS secret for postgres_username
