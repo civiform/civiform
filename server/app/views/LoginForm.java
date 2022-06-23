@@ -40,14 +40,15 @@ public class LoginForm extends BaseHtmlView {
   public LoginForm(BaseHtmlLayout layout, Config config, FakeAdminClient fakeAdminClient) {
     this.layout = checkNotNull(layout);
     checkNotNull(config);
-    this.applicantIdp = checkNotNull(config).getString("auth.applicant_idp");
+
+    this.applicantIdp = config.getString("auth.applicant_idp");
     this.maybeLogoUrl =
-        checkNotNull(config).hasPath("whitelabel.small_logo_url")
+        config.hasPath("whitelabel.small_logo_url")
             ? Optional.of(config.getString("whitelabel.small_logo_url"))
             : Optional.empty();
-    this.civicEntityFullName = checkNotNull(config).getString("whitelabel.civic_entity_full_name");
+    this.civicEntityFullName = config.getString("whitelabel.civic_entity_full_name");
     this.civicEntityShortName =
-        checkNotNull(config).getString("whitelabel.civic_entity_short_name");
+        config.getString("whitelabel.civic_entity_short_name");
     this.fakeAdminClient = checkNotNull(fakeAdminClient);
 
     // Adjust UI for applicant-provider specific settings.
