@@ -14,7 +14,7 @@ describe('applicant navigation flow', () => {
   let pageObject
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
   })
 
@@ -32,8 +32,8 @@ describe('applicant navigation flow', () => {
       const adminPrograms = new AdminPrograms(pageObject)
       applicantQuestions = new ApplicantQuestions(pageObject)
 
-      await adminQuestions.addDateQuestion({ questionName: 'nav-date-q' })
-      await adminQuestions.addEmailQuestion({ questionName: 'nav-email-q' })
+      await adminQuestions.addDateQuestion({questionName: 'nav-date-q'})
+      await adminQuestions.addEmailQuestion({questionName: 'nav-email-q'})
       await adminQuestions.addAddressQuestion({
         questionName: 'nav-address-q',
       })
@@ -41,7 +41,7 @@ describe('applicant navigation flow', () => {
         questionName: 'nav-radio-q',
         options: ['one', 'two', 'three'],
       })
-      await adminQuestions.addStaticQuestion({ questionName: 'nav-static-q' })
+      await adminQuestions.addStaticQuestion({questionName: 'nav-static-q'})
 
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName, 'first description', [
@@ -73,7 +73,7 @@ describe('applicant navigation flow', () => {
 
       // Assert that we're on the preview page.
       expect(await pageObject.innerText('h1')).toContain(
-        'Program application preview'
+        'Program application preview',
       )
     })
 
@@ -97,7 +97,7 @@ describe('applicant navigation flow', () => {
         'Unit B',
         'Sim',
         'Ames',
-        '54321'
+        '54321',
       )
       await applicantQuestions.clickNext()
 
@@ -108,7 +108,7 @@ describe('applicant navigation flow', () => {
         'Unit B',
         'Sim',
         'Ames',
-        '54321'
+        '54321',
       )
 
       // Click previous and see static question page
@@ -123,7 +123,7 @@ describe('applicant navigation flow', () => {
       // Assert that we're on the preview page.
       await applicantQuestions.clickPrevious()
       expect(await pageObject.innerText('h1')).toContain(
-        'Program application preview'
+        'Program application preview',
       )
     })
   })

@@ -2,6 +2,7 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6008/badge)](https://bestpractices.coreinfrastructure.org/projects/6008)
 [![Seattle Staging Deploy](https://github.com/seattle-uat/civiform-deploy/actions/workflows/deploy-staging.yml/badge.svg?branch=main)](https://github.com/seattle-uat/civiform-deploy/actions/workflows/deploy-staging.yml)
 ![codecov.io](https://codecov.io/github/seattle-uat/civiform/coverage.svg?branch=main)
+[![Code Style: Google](https://img.shields.io/badge/code%20style-google-blueviolet.svg)](https://google.github.io/styleguide/)
 
 # CiviForm
 
@@ -26,8 +27,9 @@ To get started please first read our
 [Contributing](https://docs.civiform.us/contributor-guide/developer-guide/technical-contribution-guide#getting-up-to-speed) wiki page.
 
 And more specifically:
-* [Technical contribution guide](https://docs.civiform.us/contributor-guide/developer-guide)
-* [UX contribution guide](https://docs.civiform.us/contributor-guide/ui-ux-guide)
+
+- [Technical contribution guide](https://docs.civiform.us/contributor-guide/developer-guide)
+- [UX contribution guide](https://docs.civiform.us/contributor-guide/ui-ux-guide)
 
 If you're interested in just digging around and interacting with the code, see
 [Getting started](https://docs.civiform.us/contributor-guide/developer-guide/getting-started) for guidance on

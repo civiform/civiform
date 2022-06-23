@@ -34,7 +34,7 @@ class ToastController {
       'left-1/2',
       'top-0',
       'transform',
-      '-translate-x-1/2'
+      '-translate-x-1/2',
     )
     document.body.appendChild(this.toastContainer)
 
@@ -65,7 +65,7 @@ class ToastController {
       'shadow-lg',
       'transition-opacity',
       'transform',
-      'text-gray-700'
+      'text-gray-700',
     )
 
     if (message.type === 'alert') {
@@ -97,7 +97,7 @@ class ToastController {
         'right-4',
         'top-2',
         'cursor-pointer',
-        'hover:opacity-100'
+        'hover:opacity-100',
       )
       dismissButton.textContent = 'x'
       dismissButton.addEventListener('click', this.dismissClicked)
@@ -114,7 +114,7 @@ class ToastController {
           ToastController.dismissToast,
           message.duration,
           message.id,
-          /* dismissClicked = */ false
+          /* dismissClicked = */ false,
         )
       }
     }
@@ -134,7 +134,7 @@ class ToastController {
 
     const svgPath = document.createElementNS(
       'http://www.w3.org/2000/svg',
-      'path'
+      'path',
     )
     svg.appendChild(svgPath)
 
@@ -156,7 +156,7 @@ class ToastController {
   /** If a toast message is present, create it and add it to the container. */
   maybeShowToasts() {
     const messages = Array.from(
-      document.querySelectorAll('.' + ToastController.messageDataClass)
+      document.querySelectorAll('.' + ToastController.messageDataClass),
     )
     messages.forEach((element) => {
       const message: ToastMessage = {

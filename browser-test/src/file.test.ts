@@ -1,4 +1,4 @@
-import { Page } from 'playwright'
+import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -15,7 +15,7 @@ describe('file upload applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
   })
 
@@ -38,7 +38,7 @@ describe('file upload applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['file-upload-test-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -108,7 +108,7 @@ describe('file upload applicant flow', () => {
         programName,
         'Optional question block',
         [],
-        'file-upload-test-optional-q'
+        'file-upload-test-optional-q',
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()
