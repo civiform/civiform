@@ -9,13 +9,13 @@ class AdminPrograms {
 
   constructor() {
     const cardsParent = document.querySelector(
-      AdminPrograms.PROGRAM_ADIN_LIST_SELECTOR
+      AdminPrograms.PROGRAM_ADIN_LIST_SELECTOR,
     )
     if (!cardsParent) {
       return
     }
     const cardsPlaceholder = cardsParent.querySelector(
-      AdminPrograms.PROGRAM_CARDS_PLACEHOLDER_SELECTOR
+      AdminPrograms.PROGRAM_CARDS_PLACEHOLDER_SELECTOR,
     )
     try {
       this.sortCards(cardsParent as HTMLElement)
@@ -29,13 +29,13 @@ class AdminPrograms {
     }
 
     const withCopyableProgramLink = Array.from(
-      cardsParent.querySelectorAll(`[${AdminPrograms.PROGRAM_LINK_ATTRIBUTE}]`)
+      cardsParent.querySelectorAll(`[${AdminPrograms.PROGRAM_LINK_ATTRIBUTE}]`),
     )
     withCopyableProgramLink.forEach((el) => {
       const programLink = el.getAttribute(AdminPrograms.PROGRAM_LINK_ATTRIBUTE)
       if (!programLink) {
         console.warn(
-          `Empty ${AdminPrograms.PROGRAM_LINK_ATTRIBUTE} for element`
+          `Empty ${AdminPrograms.PROGRAM_LINK_ATTRIBUTE} for element`,
         )
         return
       }
@@ -47,7 +47,7 @@ class AdminPrograms {
 
   sortCards(cardsParent: HTMLElement) {
     const cards = Array.from(
-      cardsParent.querySelectorAll(AdminPrograms.PROGRAM_CARDS_SELECTOR)
+      cardsParent.querySelectorAll(AdminPrograms.PROGRAM_CARDS_SELECTOR),
     )
     cards.sort((first, second) => {
       const firstComparator = this.comparatorObject(first)

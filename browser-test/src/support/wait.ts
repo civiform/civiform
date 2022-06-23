@@ -1,4 +1,4 @@
-import { Page, Frame } from 'playwright'
+import {Page, Frame} from 'playwright'
 
 /**
  * Civiform attaches JS event handlers after pages load, so after any action
