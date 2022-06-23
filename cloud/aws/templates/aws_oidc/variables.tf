@@ -161,3 +161,22 @@ variable "civiform_applicant_idp" {
   type        = string
   description = "Applicant IDP"
 }
+
+variable "staging_hostname" {
+  type        = string
+  description = "If provided will enable DEMO mode on this hostname"
+  default     = "staging-aws.civiform.dev"
+}
+
+variable "base_url" {
+  type        = string
+  description = "Base url for the app"
+  default     = "https://staging-aws.civiform.dev"
+}
+
+variable "port" {
+  type        = string
+  description = "Port the app is running on"
+  default     = "9000"
+
+}
