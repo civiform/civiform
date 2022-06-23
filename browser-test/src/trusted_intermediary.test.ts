@@ -1,4 +1,4 @@
-import { Browser, Page } from 'playwright'
+import {Browser, Page} from 'playwright'
 import {
   startSession,
   loginAsAdmin,
@@ -37,7 +37,7 @@ describe('Trusted intermediaries', () => {
   it('logging in as a trusted intermediary', async () => {
     await loginAsTrustedIntermediary(page)
     expect(await page.innerText('#ti-dashboard-link')).toContain(
-      'TRUSTED INTERMEDIARY DASHBOARD'
+      'TRUSTED INTERMEDIARY DASHBOARD',
     )
   })
 })

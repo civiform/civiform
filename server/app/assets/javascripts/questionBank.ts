@@ -6,13 +6,13 @@ class QuestionBankController {
 
   constructor() {
     const questionBankFilter = document.getElementById(
-      QuestionBankController.FILTER_ID
+      QuestionBankController.FILTER_ID,
     )
     if (questionBankFilter) {
       questionBankFilter.addEventListener(
         'input',
         QuestionBankController.filterQuestions,
-        false
+        false,
       )
       QuestionBankController.filterQuestions()
     }
@@ -24,11 +24,11 @@ class QuestionBankController {
   static filterQuestions() {
     const filterString = (
       document.getElementById(
-        QuestionBankController.FILTER_ID
+        QuestionBankController.FILTER_ID,
       ) as HTMLInputElement
     ).value.toUpperCase()
     const questions = Array.from(
-      document.getElementsByClassName(QuestionBankController.QUESTION_CLASS)
+      document.getElementsByClassName(QuestionBankController.QUESTION_CLASS),
     )
     questions.forEach((question) => {
       const questionElement = question as HTMLElement
@@ -36,7 +36,7 @@ class QuestionBankController {
       questionElement.classList.toggle(
         'hidden',
         filterString.length &&
-          !questionContents.toUpperCase().includes(filterString)
+          !questionContents.toUpperCase().includes(filterString),
       )
     })
   }

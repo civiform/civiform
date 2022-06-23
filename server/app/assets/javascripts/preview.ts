@@ -46,13 +46,13 @@ class PreviewController {
 
   constructor() {
     const textInput = document.getElementById(
-      PreviewController.QUESTION_TEXT_INPUT_ID
+      PreviewController.QUESTION_TEXT_INPUT_ID,
     )
     if (textInput) {
       textInput.addEventListener(
         'input',
         PreviewController.onTextChanged,
-        false
+        false,
       )
       let text = (<HTMLInputElement>textInput).value
       if (text.length > 0) {
@@ -60,55 +60,55 @@ class PreviewController {
       }
     }
     const helpTextInput = document.getElementById(
-      PreviewController.QUESTION_HELP_TEXT_INPUT_ID
+      PreviewController.QUESTION_HELP_TEXT_INPUT_ID,
     )
     if (helpTextInput) {
       helpTextInput.addEventListener(
         'input',
         PreviewController.onHelpTextChanged,
-        false
+        false,
       )
       let helpText = (<HTMLInputElement>helpTextInput).value
       if (helpText.length > 0) {
         PreviewController.setTextAndHighlightEnumeratorReferences(
           PreviewController.QUESTION_HELP_TEXT_CLASS,
-          helpText
+          helpText,
         )
       }
     }
     const enumeratorSelector = document.getElementById(
-      PreviewController.QUESTION_ENUMERATOR_INPUT_ID
+      PreviewController.QUESTION_ENUMERATOR_INPUT_ID,
     )
     if (enumeratorSelector) {
       enumeratorSelector.addEventListener(
         'input',
         PreviewController.onEnumeratorSelectorChanged,
-        false
+        false,
       )
       let enumerator = (<HTMLInputElement>enumeratorSelector).value
       const repeatedQuestionInformation = document.querySelector(
-        PreviewController.REPEATED_QUESTION_INFORMATION_ID
+        PreviewController.REPEATED_QUESTION_INFORMATION_ID,
       )
       repeatedQuestionInformation.classList.toggle('hidden', enumerator === '')
     }
     const entityTypeInput = document.getElementById(
-      PreviewController.QUESTION_ENTITY_TYPE_INPUT_ID
+      PreviewController.QUESTION_ENTITY_TYPE_INPUT_ID,
     )
     if (entityTypeInput) {
       entityTypeInput.addEventListener(
         'input',
         PreviewController.onEntityTypeChanged,
-        false
+        false,
       )
       let entityType = (<HTMLInputElement>entityTypeInput).value
       if (entityType.length > 0) {
         PreviewController.setAllMatchingPlaceholders(
           PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS + ' input',
-          entityType + ' name'
+          entityType + ' name',
         )
         PreviewController.setTextContent(
           PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID,
-          'Add ' + entityType
+          'Add ' + entityType,
         )
       }
     }
@@ -134,7 +134,7 @@ class PreviewController {
       contentElement.classList.add('pr-16')
 
       let contentParent = document.querySelector(
-        PreviewController.QUESTION_TEXT_CLASS
+        PreviewController.QUESTION_TEXT_CLASS,
       ) as Element
       if (contentParent) {
         contentParent.innerHTML = ''
@@ -143,7 +143,7 @@ class PreviewController {
     } else {
       PreviewController.setTextAndHighlightEnumeratorReferences(
         PreviewController.QUESTION_TEXT_CLASS,
-        text
+        text,
       )
     }
   }
@@ -156,13 +156,13 @@ class PreviewController {
 
     PreviewController.setTextAndHighlightEnumeratorReferences(
       PreviewController.QUESTION_HELP_TEXT_CLASS,
-      text
+      text,
     )
   }
 
   static onEnumeratorSelectorChanged(e: Event) {
     const repeatedQuestionInformation = document.querySelector(
-      PreviewController.REPEATED_QUESTION_INFORMATION_ID
+      PreviewController.REPEATED_QUESTION_INFORMATION_ID,
     )
     let enumerator = (<HTMLInputElement>e.target).value
     repeatedQuestionInformation.classList.toggle('hidden', enumerator === '')
@@ -175,11 +175,11 @@ class PreviewController {
     }
     PreviewController.setAllMatchingPlaceholders(
       PreviewController.QUESTION_ENTITY_NAME_INPUT_CLASS,
-      entityType + ' name'
+      entityType + ' name',
     )
     PreviewController.setTextContent(
       PreviewController.QUESTION_ENTITY_TYPE_BUTTON_ID,
-      'Add ' + entityType
+      'Add ' + entityType,
     )
   }
 
@@ -193,7 +193,7 @@ class PreviewController {
    */
   static setTextAndHighlightEnumeratorReferences(
     selector: string,
-    text: string
+    text: string,
   ) {
     const previewDiv = document.querySelector(selector)
     const pieces = text.split(PreviewController.THIS_REGEX)
@@ -271,11 +271,11 @@ class PreviewController {
   static buildAccordion(title: string, content: string): Element {
     let childContent = PreviewController.formatText(
       content,
-      /* preserveEmptyLines = */ true
+      /* preserveEmptyLines = */ true,
     )
     let accordion = document.createElement('div')
     this.accordionClasses.forEach((accordionClass) =>
-      accordion.classList.add(accordionClass)
+      accordion.classList.add(accordionClass),
     )
 
     let accordionHeader = document.createElement('div')
@@ -286,12 +286,12 @@ class PreviewController {
       }
     })
     this.accordionHeaderClasses.forEach((headerClass) =>
-      accordionHeader.classList.add(headerClass)
+      accordionHeader.classList.add(headerClass),
     )
 
     let accordionTitle = document.createElement('div')
     this.accordionTitleClasses.forEach((titleClass) =>
-      accordionHeader.classList.add(titleClass)
+      accordionHeader.classList.add(titleClass),
     )
     accordionTitle.textContent = title
     accordionHeader.appendChild(accordionTitle)
@@ -302,7 +302,7 @@ class PreviewController {
     accordion.appendChild(accordionHeader)
 
     this.accordionContentClasses.forEach((contentClass) =>
-      childContent.classList.add(contentClass)
+      childContent.classList.add(contentClass),
     )
     accordion.appendChild(childContent)
     return accordion

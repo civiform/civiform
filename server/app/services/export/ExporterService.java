@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.typesafe.config.Config;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -46,12 +47,12 @@ import services.question.types.ScalarType;
  * ExporterService generates CSV files for applications to a program or demographic information
  * across all programs.
  */
-public class ExporterService {
+public final class ExporterService {
 
-  private final ExporterFactory exporterFactory;
   private final ProgramService programService;
   private final QuestionService questionService;
   private final ApplicantService applicantService;
+  private final Config config;
 
   private static final String HEADER_SPACER_ENUM = " - ";
   private static final String HEADER_SPACER_SCALAR = " ";
@@ -64,14 +65,14 @@ public class ExporterService {
 
   @Inject
   public ExporterService(
-      ExporterFactory exporterFactory,
       ProgramService programService,
       QuestionService questionService,
-      ApplicantService applicantService) {
-    this.exporterFactory = checkNotNull(exporterFactory);
+      ApplicantService applicantService,
+      Config config) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.applicantService = checkNotNull(applicantService);
+    this.config = checkNotNull(config);
   }
 
   /** Return a string containing a CSV of all applications at all versions of particular program. */
@@ -80,7 +81,6 @@ public class ExporterService {
         programService.getAllProgramDefinitionVersions(programId).stream()
             .collect(ImmutableList.toImmutableList());
     CsvExportConfig exportConfig = generateDefaultCsvExportConfig(allProgramVersions);
-    CsvExporter csvExporter = exporterFactory.csvExporter(exportConfig);
 
     ImmutableList<Application> applications =
         programService
@@ -90,7 +90,7 @@ public class ExporterService {
                 /* searchNameFragment= */ Optional.empty())
             .getPageContents();
 
-    return exportCsv(csvExporter, applications);
+    return exportCsv(exportConfig, applications);
   }
 
   private CsvExportConfig generateDefaultCsvExportConfig(
@@ -127,49 +127,51 @@ public class ExporterService {
    */
   public String getProgramCsv(long programId) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(programId);
-    CsvExporter csvExporter;
-    if (program.exportDefinitions().stream()
-        .anyMatch(exportDefinition -> exportDefinition.csvConfig().isPresent())) {
-      csvExporter = exporterFactory.csvExporter(program.toProgram());
-    } else {
-      csvExporter = exporterFactory.csvExporter(generateDefaultCsvConfig(programId));
-    }
+    // TODO(#1743): Determine if export definitions are necessary and remove them
+    // if not.
+    Optional<CsvExportConfig> maybeExportConfig =
+        program.exportDefinitions().stream()
+            .filter(exportDefinition -> exportDefinition.csvConfig().isPresent())
+            .map(exportDefinition -> exportDefinition.csvConfig().get())
+            .findFirst();
     ImmutableList<Application> applications =
         programService.getSubmittedProgramApplications(programId);
-    return exportCsv(csvExporter, applications);
+    return exportCsv(maybeExportConfig.orElse(generateDefaultCsvConfig(programId)), applications);
   }
 
-  public String exportCsv(CsvExporter csvExporter, ImmutableList<Application> applications) {
-    try {
-      OutputStream inMemoryBytes = new ByteArrayOutputStream();
-      Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8);
-      // Cache Program data which doesn't change, so we only look it up once rather than on every
-      // exported row.
-      // TODO(#1750): Lookup all relevant programs in one request to reduce cost of N lookups.
-      // TODO(#1750): Consider Play's JavaCache over this caching.
-      HashMap<Long, ProgramDefinition> programDefinitions = new HashMap<>();
-      for (Application application : applications) {
-        Long programId = application.getProgram().id;
-        if (!programDefinitions.containsKey(programId)) {
-          try {
-            programDefinitions.put(programId, programService.getProgramDefinition(programId));
-          } catch (ProgramNotFoundException e) {
-            throw new RuntimeException("Cannot find a program that has applications for it.", e);
+  private String exportCsv(CsvExportConfig exportConfig, ImmutableList<Application> applications) {
+    OutputStream inMemoryBytes = new ByteArrayOutputStream();
+    try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
+      try (CsvExporter csvExporter =
+          new CsvExporter(
+              exportConfig.columns(), config.getString("play.http.secret.key"), writer)) {
+        // Cache Program data which doesn't change, so we only look it up once rather than on every
+        // exported row.
+        // TODO(#1750): Lookup all relevant programs in one request to reduce cost of N lookups.
+        // TODO(#1750): Consider Play's JavaCache over this caching.
+        HashMap<Long, ProgramDefinition> programDefinitions = new HashMap<>();
+        for (Application application : applications) {
+          Long programId = application.getProgram().id;
+          if (!programDefinitions.containsKey(programId)) {
+            try {
+              programDefinitions.put(programId, programService.getProgramDefinition(programId));
+            } catch (ProgramNotFoundException e) {
+              throw new RuntimeException("Cannot find a program that has applications for it.", e);
+            }
           }
-        }
-        ProgramDefinition programDefinition = programDefinitions.get(programId);
+          ProgramDefinition programDefinition = programDefinitions.get(programId);
 
-        ReadOnlyApplicantProgramService roApplicantService =
-            applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
-        csvExporter.export(application, roApplicantService, writer);
+          ReadOnlyApplicantProgramService roApplicantService =
+              applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
+          csvExporter.exportRecord(application, roApplicantService);
+        }
       }
-      writer.close();
-      return inMemoryBytes.toString();
     } catch (IOException e) {
       // Since it's an in-memory writer, this shouldn't happen.  Catch so that callers don't
       // have to deal with it.
       throw new RuntimeException(e);
     }
+    return inMemoryBytes.toString();
   }
 
   /**
@@ -318,9 +320,7 @@ public class ExporterService {
    * A string containing the CSV which maps applicants (opaquely) to the programs they applied to.
    */
   public String getDemographicsCsv() {
-    return exportCsv(
-        exporterFactory.csvExporter(getDemographicsExporterConfig()),
-        applicantService.getAllApplications());
+    return exportCsv(getDemographicsExporterConfig(), applicantService.getAllApplications());
   }
 
   public CsvExportConfig getDemographicsExporterConfig() {

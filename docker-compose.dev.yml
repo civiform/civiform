@@ -22,7 +22,7 @@ services:
     build: .
     volumes: *sbt-volumes
     stdin_open: true # docker run -i
-    tty: true        # docker run -t
+    tty: true # docker run -t
     ports:
       - 9000:9000
       - 8457:8457
@@ -31,10 +31,10 @@ services:
   civiform-shell:
     image: civiform-dev
     entrypoint: /bin/bash
-    profiles: ["shell"]
+    profiles: ['shell']
     volumes: *sbt-volumes
     stdin_open: true # docker run -i
-    tty: true        # docker run -t
+    tty: true # docker run -t
 
   localstack:
     # Overrides the localstack image used to work around
@@ -45,7 +45,7 @@ services:
     ports:
       - 4566:4566
   azurite:
-     ports:
+    ports:
       - 10000:10000
 
   db:
@@ -58,7 +58,7 @@ services:
       - db-data:/var/lib/postgresql/data
 
   pgadmin:
-    profiles: ["pgadmin"]
+    profiles: ['pgadmin']
     image: dpage/pgadmin4
     restart: always
     depends_on:
@@ -71,8 +71,8 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: user@localhost.localdomain
       PGADMIN_DEFAULT_PASSWORD: password
-      PGADMIN_CONFIG_SERVER_MODE: "False"
-      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
 
 volumes:
   db-data:

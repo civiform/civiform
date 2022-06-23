@@ -127,18 +127,16 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
               return ok(responseJson).as("application/json");
             },
             httpContext.current())
-        .whenCompleteAsync(
-            (result, exception) -> {
-              if (exception != null) {
-                if (exception instanceof CompletionException) {
-                  Throwable cause = exception.getCause();
-                  if (cause instanceof ProgramNotFoundException) {
-                    throw new BadApiRequestException(exception.getMessage());
-                  }
-                  throw new RuntimeException(cause);
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof ProgramNotFoundException) {
+                  return badRequest(cause.toString());
                 }
-                throw new RuntimeException(exception);
+                throw new RuntimeException(cause);
               }
+              throw new RuntimeException(ex);
             });
   }
 
