@@ -252,7 +252,8 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                                     Styles.BORDER,
                                     Styles.BG_WHITE,
                                     Styles.ABSOLUTE,
-                                    Styles.RIGHT_0)
+                                    Styles.RIGHT_0,
+                                    Styles.Z_50)
                                 .with(extraActions))));
   }
 
