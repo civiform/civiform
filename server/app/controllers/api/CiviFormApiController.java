@@ -11,10 +11,14 @@ import controllers.CiviFormController;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Optional;
+import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApiKey;
+import play.api.libs.concurrent.AkkaSchedulerProvider;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.ApiKeyRepository;
+import scala.concurrent.ExecutionContext;
 
 /**
  * Base class for controllers that handle API requests. Requests that reach an API controller have
@@ -24,13 +28,23 @@ import play.mvc.Result;
 public class CiviFormApiController extends CiviFormController {
 
   protected final ApiPaginationTokenSerializer apiPaginationTokenSerializer;
+  protected final ApiKeyRepository apiKeyRepository;
+  protected final AkkaSchedulerProvider akkaSchedulerProvider;
   protected final ProfileUtils profileUtils;
+  protected final ExecutionContext executionContext;
 
   @Inject
   public CiviFormApiController(
-      ApiPaginationTokenSerializer apiPaginationTokenSerializer, ProfileUtils profileUtils) {
+      ApiPaginationTokenSerializer apiPaginationTokenSerializer,
+      ApiKeyRepository apiKeyRepository,
+      AkkaSchedulerProvider akkaSchedulerProvider,
+      ExecutionContext executionContext,
+      ProfileUtils profileUtils) {
     this.apiPaginationTokenSerializer = checkNotNull(apiPaginationTokenSerializer);
+    this.apiKeyRepository = checkNotNull(apiKeyRepository);
+    this.akkaSchedulerProvider = checkNotNull(akkaSchedulerProvider);
     this.profileUtils = checkNotNull(profileUtils);
+    this.executionContext = checkNotNull(executionContext);
   }
 
   /**
@@ -42,14 +56,22 @@ public class CiviFormApiController extends CiviFormController {
   }
 
   protected void assertHasProgramReadPermission(Http.Request request, String programSlug) {
-    ApiKey apiKey =
-        profileUtils
-            .currentApiKey(request)
-            .orElseThrow(() -> new AccountNonexistentException("No API key found for profile"));
+    ApiKey apiKey = getApiKey(request);
 
     if (!apiKey.getGrants().hasProgramPermission(programSlug, ApiKeyGrants.Permission.READ)) {
       throw new UnauthorizedApiRequestException(apiKey, programSlug);
     }
+  }
+
+  protected ApiKey getApiKey(Http.Request request) {
+    return profileUtils
+        .currentApiKey(request)
+        .orElseThrow(() -> new AccountNonexistentException("No API key found for profile"));
+  }
+
+  protected CompletionStage<ApiKey> recordApiKeyUsage(Http.Request request) {
+    return apiKeyRepository.recordApiKeyUsage(
+        getApiKey(request).getKeyId(), request.remoteAddress());
   }
 
   protected String getResponseJson(

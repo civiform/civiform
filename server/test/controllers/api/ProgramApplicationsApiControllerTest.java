@@ -70,6 +70,9 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
     assertThat(resultJson.read("payload.length()", Integer.class)).isEqualTo(1);
     assertThat(resultJson.read("payload[0].application_id", Long.class))
         .isEqualTo(februaryApplication.id);
+    apiKey.refresh();
+    assertThat(apiKey.getCallCount()).isEqualTo(1);
+    assertThat(apiKey.getLastCallIpAddress()).contains("1.1.1.1");
   }
 
   @Test
@@ -92,6 +95,9 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
         .isEqualTo(marchApplication.id);
     assertThat(resultJson.read("payload[1].application_id", Long.class))
         .isEqualTo(februaryApplication.id);
+    apiKey.refresh();
+    assertThat(apiKey.getCallCount()).isEqualTo(1);
+    assertThat(apiKey.getLastCallIpAddress()).contains("1.1.1.1");
   }
 
   @Test
@@ -130,6 +136,10 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
     assertThat(resultJson.read("payload[0].application_id", Long.class))
         .isEqualTo(januaryApplication.id);
     assertThat(resultJson.read("payload.length()", Integer.class)).isEqualTo(1);
+
+    apiKey.refresh();
+    assertThat(apiKey.getCallCount()).isEqualTo(2);
+    assertThat(apiKey.getLastCallIpAddress()).contains("1.1.1.1");
   }
 
   @Test
@@ -149,6 +159,9 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
         assertThrows(UnauthorizedApiRequestException.class, () -> doRequest(requestUrl));
 
     assertThat(exception).hasMessage("API key key-id does not have access to test-program");
+    apiKey.refresh();
+    assertThat(apiKey.getCallCount()).isEqualTo(0);
+    assertThat(apiKey.getLastCallIpAddress()).isEqualTo(Optional.empty());
   }
 
   private Result doRequest(String requestUrl) {

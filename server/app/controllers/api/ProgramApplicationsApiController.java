@@ -15,10 +15,13 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nullable;
 import models.Application;
+import play.api.libs.concurrent.AkkaSchedulerProvider;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.ApiKeyRepository;
+import scala.concurrent.ExecutionContext;
 import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
@@ -41,13 +44,21 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
   @Inject
   public ProgramApplicationsApiController(
       ApiPaginationTokenSerializer apiPaginationTokenSerializer,
+      ApiKeyRepository apiKeyRepository,
+      AkkaSchedulerProvider akkaSchedulerProvider,
       DateConverter dateConverter,
-      ProfileUtils profileUtils,
-      JsonExporter jsonExporter,
+      ExecutionContext executionContext,
       HttpExecutionContext httpContext,
+      JsonExporter jsonExporter,
+      ProfileUtils profileUtils,
       ProgramService programService,
       Config config) {
-    super(apiPaginationTokenSerializer, profileUtils);
+    super(
+        apiPaginationTokenSerializer,
+        apiKeyRepository,
+        akkaSchedulerProvider,
+        executionContext,
+        profileUtils);
     this.dateConverter = checkNotNull(dateConverter);
     this.httpContext = checkNotNull(httpContext);
     this.jsonExporter = checkNotNull(jsonExporter);
@@ -89,8 +100,9 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
 
     return programService
         .getProgramDefinitionAsync(programSlug)
-        .thenApplyAsync(
-            programDefinition -> {
+        .thenCombineAsync(
+            recordApiKeyUsage(request),
+            (programDefinition, unusedApiKey) -> {
               PaginationResult<Application> paginationResult;
 
               // By now the program specified by the request has already been found and
@@ -115,16 +127,18 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
               return ok(responseJson).as("application/json");
             },
             httpContext.current())
-        .exceptionally(
-            ex -> {
-              if (ex instanceof CompletionException) {
-                Throwable cause = ex.getCause();
-                if (cause instanceof ProgramNotFoundException) {
-                  return badRequest(cause.toString());
+        .whenCompleteAsync(
+            (result, exception) -> {
+              if (exception != null) {
+                if (exception instanceof CompletionException) {
+                  Throwable cause = exception.getCause();
+                  if (cause instanceof ProgramNotFoundException) {
+                    throw new BadApiRequestException(exception.getMessage());
+                  }
+                  throw new RuntimeException(cause);
                 }
-                throw new RuntimeException(cause);
+                throw new RuntimeException(exception);
               }
-              throw new RuntimeException(ex);
             });
   }
 

@@ -43,10 +43,24 @@ public class ApiKeyRepository {
 
     pagedList.loadCount();
 
-    return new PaginationResult<ApiKey>(
+    return new PaginationResult<>(
         pagedList.hasNext(),
         pagedList.getTotalPageCount(),
         ImmutableList.copyOf(pagedList.getList()));
+  }
+
+  public CompletionStage<ApiKey> recordApiKeyUsage(String apiKeyId, String remoteAddress) {
+    return supplyAsync(
+        () -> {
+          ApiKey apiKey = database.find(ApiKey.class).where().eq("key_id", apiKeyId).findOne();
+
+          apiKey.incrementCallCount();
+          apiKey.setLastCallIpAddress(remoteAddress);
+
+          apiKey.save();
+          return apiKey;
+        },
+        executionContext);
   }
 
   /** Insert a new {@link ApiKey} record asynchronously. */
