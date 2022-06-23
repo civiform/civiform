@@ -9,8 +9,7 @@ resource "aws_kms_key" "civiform_kms_key" {
 # Create a random generated password to use for postgres_password.
 resource "random_password" "postgres_username" {
   length           = 16
-  special          = true
-  override_special = "_%@"
+  special          = false
 }
 
 # Creating a AWS secret for postgres_username
@@ -94,5 +93,41 @@ resource "aws_secretsmanager_secret" "adfs_discovery_uri_secret" {
 # Creating a AWS secret versions for adfs_discovery_uri
 resource "aws_secretsmanager_secret_version" "adfs_discovery_uri_secret_version" {
   secret_id     = aws_secretsmanager_secret.adfs_discovery_uri_secret.id
+  secret_string = " "
+}
+
+# Creating a AWS secret for oidc_secret
+resource "aws_secretsmanager_secret" "oidc_secret_secret" {
+  name       = "${var.app_prefix}-oidc_secret"
+  kms_key_id = aws_kms_key.civiform_kms_key.arn
+}
+
+# Creating a AWS secret versions for oidc_secret
+resource "aws_secretsmanager_secret_version" "oidc_secret_secret_version" {
+  secret_id     = aws_secretsmanager_secret.oidc_secret_secret.id
+  secret_string = " "
+}
+
+# Creating a AWS secret for oidc_client_id
+resource "aws_secretsmanager_secret" "oidc_client_id_secret" {
+  name       = "${var.app_prefix}-oidc_client_id"
+  kms_key_id = aws_kms_key.civiform_kms_key.arn
+}
+
+# Creating a AWS secret versions for oidc_client_id
+resource "aws_secretsmanager_secret_version" "oidc_client_id_secret_version" {
+  secret_id     = aws_secretsmanager_secret.oidc_client_id_secret.id
+  secret_string = " "
+}
+
+# Creating a AWS secret for oidc_discovery_uri
+resource "aws_secretsmanager_secret" "oidc_discovery_uri_secret" {
+  name       = "${var.app_prefix}-oidc_discovery_uri"
+  kms_key_id = aws_kms_key.civiform_kms_key.arn
+}
+
+# Creating a AWS secret versions for oidc_discovery_uri
+resource "aws_secretsmanager_secret_version" "oidc_discovery_uri_secret_version" {
+  secret_id     = aws_secretsmanager_secret.oidc_discovery_uri_secret.id
   secret_string = " "
 }

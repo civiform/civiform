@@ -10,7 +10,7 @@ variable "civiform_image_repo" {
   default     = "public.ecr.aws/t1q6b4h2/universal-application-tool"
 }
 
-variable "civiform_image_tag" {
+variable "image_tag" {
   type        = string
   description = "Image tag of the Civiform docker image to deploy"
   default     = "prod"
@@ -150,4 +150,14 @@ variable "ses_sender_email" {
 variable "app_prefix" {
   type        = string
   description = "A prefix to add to values so we can have multiple deploys in the same aws account"
+}
+
+variable "applicant_oidc_provider_name" {
+  type        = string
+  description = "OIDC provider name for the applicant"
+}
+
+variable "civiform_applicant_idp" {
+  type        = string
+  description = "Applicant IDP"
 }

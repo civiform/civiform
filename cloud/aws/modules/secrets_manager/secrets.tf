@@ -37,3 +37,33 @@ data "aws_secretsmanager_secret" "adfs_secret" {
 data "aws_secretsmanager_secret_version" "adfs_secret_version" {
   secret_id = data.aws_secretsmanager_secret.adfs_secret.arn
 }
+
+# Importing the AWS secrets created previously using name.
+data "aws_secretsmanager_secret" "oidc_secret" {
+  name       = "${var.app_prefix}-oidc_secret"
+}
+
+# Importing the AWS secret version created previously using arn.
+data "aws_secretsmanager_secret_version" "oidc_secret_version" {
+  secret_id = data.aws_secretsmanager_secret.oidc_secret.arn
+}
+
+# Importing the AWS secrets created previously using name.
+data "aws_secretsmanager_secret" "oidc_client_id" {
+  name       = "${var.app_prefix}-oidc_client_id"
+}
+
+# Importing the AWS secret version created previously using arn.
+data "aws_secretsmanager_secret_version" "oidc_client_id_version" {
+  secret_id = data.aws_secretsmanager_secret.oidc_client_id.arn
+}
+
+# Importing the AWS secrets created previously using name.
+data "aws_secretsmanager_secret" "oidc_discovery_uri" {
+  name       = "${var.app_prefix}-oidc_discovery_uri"
+}
+
+# Importing the AWS secret version created previously using arn.
+data "aws_secretsmanager_secret_version" "oidc_discovery_uri_version" {
+  secret_id = data.aws_secretsmanager_secret.oidc_discovery_uri.arn
+}

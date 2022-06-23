@@ -40,10 +40,16 @@ resource "aws_apprunner_service" "civiform_dev" {
           STAGING_ADMIN_LIST     = var.staging_program_admin_notification_mailing_list
           STAGING_TI_LIST        = var.staging_ti_notification_mailing_list
           STAGING_APPLICANT_LIST = var.staging_applicant_notification_mailing_list
+
+          APPLICANT_OIDC_PROVICER_NAME=var.applicant_oidc_provider_name
+          CIVIFORM_APPLICANT_IDP = var.civiform_applicant_idp
+          APPLICANT_OIDC_CLIENT_ID = module.secrets.oidc_client_id
+          APPLICANT_OIDC_CLIENT_SECRET = module.secrets.oidc_secret
+          APPLICANT_OIDC_DISCOVERY_URI = module.secrets.oidc_discovery_uri
         }
       }
 
-      image_identifier      = "${var.civiform_image_repo}:${var.civiform_image_tag}"
+      image_identifier      = "${var.civiform_image_repo}:${var.image_tag}"
       image_repository_type = "ECR_PUBLIC"
     }
 
@@ -61,6 +67,8 @@ resource "aws_apprunner_service" "civiform_dev" {
   }
 }
 
+# List of params that we could configure:
+# https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.PostgreSQL.CommonDBATasks.Parameters.html#Appendix.PostgreSQL.CommonDBATasks.Parameters.parameters-list
 resource "aws_db_parameter_group" "civiform" {
   name   = "${var.app_prefix}-civiform"
   family = "postgres12"
