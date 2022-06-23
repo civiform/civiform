@@ -47,8 +47,7 @@ public class LoginForm extends BaseHtmlView {
             ? Optional.of(config.getString("whitelabel.small_logo_url"))
             : Optional.empty();
     this.civicEntityFullName = config.getString("whitelabel.civic_entity_full_name");
-    this.civicEntityShortName =
-        config.getString("whitelabel.civic_entity_short_name");
+    this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
     this.fakeAdminClient = checkNotNull(fakeAdminClient);
 
     // Adjust UI for applicant-provider specific settings.
