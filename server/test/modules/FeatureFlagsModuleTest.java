@@ -22,7 +22,7 @@ public class FeatureFlagsModuleTest {
     Application app =
         new GuiceApplicationBuilder()
             .configure(
-                ConfigFactory.parseMap(ImmutableMap.of("status_tracking_enabled", isEnabled)))
+                ConfigFactory.parseMap(ImmutableMap.of("application_status_tracking_enabled", isEnabled)))
             .build();
     BindingKey<Boolean> key =
         new BindingKey<Boolean>(Boolean.class)
