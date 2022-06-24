@@ -58,10 +58,10 @@ class Setup(SetupTemplate):
                 self.config.backend_vars_filename)
             with open(backend_file_location, 'w') as f:
                 f.write(
-                    f'bucket         = "${self.config.app_prefix}-backendstate"\n'
+                    f'bucket         = "{self.config.app_prefix}-backendstate"\n'
                 )
                 f.write(f'key            = "tfstate/terraform.tfstate"\n')
                 f.write(f'region         = "us-east-1"\n')
                 f.write(
-                    f'dynamodb_table = "${self.config.app_prefix}-locktable"\n')
+                    f'dynamodb_table = "{self.config.app_prefix}-locktable"\n')
                 f.write(f'encrypt        = true\n')

@@ -11,21 +11,21 @@ resource "aws_apprunner_service" "civiform_dev" {
   source_configuration {
     image_repository {
       image_configuration {
-        port = "9000"
+        port = var.port
 
         runtime_environment_variables = {
           SECRET_KEY = module.secrets.app_secret_key
-          PORT       = "9000"
+          PORT       = var.port
 
           DB_JDBC_STRING = "jdbc:postgresql://${aws_db_instance.civiform.address}:${aws_db_instance.civiform.port}/postgres?ssl=true&sslmode=require"
           DB_USERNAME    = aws_db_instance.civiform.username
           DB_PASSWORD    = aws_db_instance.civiform.password
 
-          STAGING_HOSTNAME = "staging-aws.civiform.dev"
-          BASE_URL         = "https://staging-aws.civiform.dev"
+          STAGING_HOSTNAME = var.staging_hostname
+          BASE_URL         = var.base_url
 
           STORAGE_SERVICE_NAME = "s3"
-          AWS_S3_BUCKET_NAME   = "${aws_s3_bucket.civiform_files_s3.id}"
+          AWS_S3_BUCKET_NAME   = aws_s3_bucket.civiform_files_s3.id
 
           CIVIFORM_TIME_ZONE_ID              = var.civiform_time_zone_id
           WHITELABEL_CIVIC_ENTITY_SHORT_NAME = var.civic_entity_short_name
@@ -43,7 +43,7 @@ resource "aws_apprunner_service" "civiform_dev" {
         }
       }
 
-      image_identifier      = "${var.civiform_image_repo}:${var.civiform_image_tag}"
+      image_identifier      = "${var.civiform_image_repo}:${var.image_tag}"
       image_repository_type = "ECR_PUBLIC"
     }
 
