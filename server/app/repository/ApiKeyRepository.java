@@ -49,6 +49,7 @@ public class ApiKeyRepository {
         ImmutableList.copyOf(pagedList.getList()));
   }
 
+  /** Increment an API key's call count and set its last call IP address to the one provided. */
   public CompletionStage<ApiKey> recordApiKeyUsage(String apiKeyId, String remoteAddress) {
     return supplyAsync(
         () -> {
