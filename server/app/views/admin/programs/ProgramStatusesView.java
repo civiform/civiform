@@ -10,11 +10,13 @@ import static j2html.TagCreator.span;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.time.Instant;
 import play.twirl.api.Content;
 import services.DateConverter;
+import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -60,6 +62,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                             String.format(
                                 "Manage application status options for %s", program.adminName())),
                         div().withClass(Styles.FLEX_GROW),
+                        renderManageTranslationsLink(program),
                         renderCreateStatusButton()),
                 renderStatusContainer(actualStatuses));
 
@@ -74,6 +77,17 @@ public final class ProgramStatusesView extends BaseHtmlView {
     // has been created (and routes have been created).
     return makeSvgTextButton("Create a new status", Icons.PLUS_SVG_PATH)
         .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2);
+  }
+
+  private Tag renderManageTranslationsLink(ProgramDefinition program) {
+    String linkDestination =
+        routes.AdminProgramTranslationsController.edit(
+                program.id(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
+            .url();
+    ContainerTag button =
+        makeSvgTextButton("Manage translations", Icons.LANGUAGE_SVG_PATH)
+            .withClass(AdminStyles.SECONDARY_BUTTON_STYLES);
+    return asRedirectButton(button, linkDestination);
   }
 
   private Tag renderStatusContainer(ImmutableList<ApplicationStatus> statuses) {
