@@ -39,10 +39,11 @@ public final class ProgramStatusesView extends BaseHtmlView {
   public Content render(ProgramDefinition program) {
     // TODO(clouser): Use real statuses from the program. Also may be able
     // to do away with the AutoValue below if this information is encoded elsewhere.
-    ImmutableList<ApplicationStatus> actualStatuses = ImmutableList.of(
-        ApplicationStatus.create("Approved", Instant.now(), true),
-        ApplicationStatus.create("Denied", Instant.now(), false),
-        ApplicationStatus.create("Needs more information", Instant.now(), false));
+    ImmutableList<ApplicationStatus> actualStatuses =
+        ImmutableList.of(
+            ApplicationStatus.create("Approved", Instant.now(), true),
+            ApplicationStatus.create("Denied", Instant.now(), false),
+            ApplicationStatus.create("Needs more information", Instant.now(), false));
     ContainerTag contentDiv =
         div()
             .withClasses(Styles.PX_4)
