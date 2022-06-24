@@ -40,6 +40,8 @@ public class FieldWithLabel {
 
   protected OptionalLong minValue = OptionalLong.empty();
   protected OptionalLong maxValue = OptionalLong.empty();
+  private OptionalLong rows = OptionalLong.empty();
+  private OptionalLong cols = OptionalLong.empty();
 
   protected String formId = "";
   protected String id = "";
@@ -170,6 +172,24 @@ public class FieldWithLabel {
     return this;
   }
 
+  public FieldWithLabel setRows(OptionalLong value) {
+    if (!this.fieldTag.getTagName().equals("textarea")) {
+      throw new RuntimeException("setting rows is only available on fields of type 'textarea'");
+    }
+
+    this.rows = value;
+    return this;
+  }
+
+  public FieldWithLabel setCols(OptionalLong value) {
+    if (!this.fieldTag.getTagName().equals("textarea")) {
+      throw new RuntimeException("setting cols is only available on fields of type 'textarea'");
+    }
+
+    this.cols = value;
+    return this;
+  }
+
   public FieldWithLabel setValue(String value) {
     if (!STRING_TYPES.contains(this.fieldType)) {
       throw new RuntimeException(
@@ -257,6 +277,12 @@ public class FieldWithLabel {
       // Have to recreate the field here in case the value is modified.
       ContainerTag textAreaTag = textarea().withType("text").withText(this.fieldValue);
       fieldTag = textAreaTag;
+      if (this.rows.isPresent()) {
+        fieldTag.attr(Attr.ROWS, this.rows.getAsLong());
+      }
+      if (this.cols.isPresent()) {
+        fieldTag.attr(Attr.COLS, this.cols.getAsLong());
+      }
     } else if (this.fieldType.equals("number")) {
       // Setting inputmode to decimal gives iOS users a more accessible keyboard
       fieldTag.attr("inputmode", "decimal");

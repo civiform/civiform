@@ -3,6 +3,7 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
@@ -14,6 +15,7 @@ import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.time.Instant;
+import java.util.OptionalLong;
 import play.twirl.api.Content;
 import services.DateConverter;
 import services.LocalizedStrings;
@@ -23,7 +25,10 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.Modal;
+import views.components.Modal.Width;
 import views.style.AdminStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -46,6 +51,9 @@ public final class ProgramStatusesView extends BaseHtmlView {
             ApplicationStatus.create("Approved", Instant.now(), true),
             ApplicationStatus.create("Denied", Instant.now(), false),
             ApplicationStatus.create("Needs more information", Instant.now(), false));
+
+    Modal createStatusModal = makeCreateStatusModal();
+
     ContainerTag contentDiv =
         div()
             .withClasses(Styles.PX_4)
@@ -63,20 +71,17 @@ public final class ProgramStatusesView extends BaseHtmlView {
                                 "Manage application status options for %s", program.adminName())),
                         div().withClass(Styles.FLEX_GROW),
                         renderManageTranslationsLink(program),
-                        renderCreateStatusButton()),
+                        createStatusModal.getButton()),
                 renderStatusContainer(actualStatuses));
 
     HtmlBundle htmlBundle =
-        layout.getBundle().setTitle("Manage program statuses").addMainContent(contentDiv);
+        layout
+            .getBundle()
+            .setTitle("Manage program statuses")
+            .addMainContent(contentDiv)
+            .addModals(createStatusModal);
 
     return layout.renderCentered(htmlBundle);
-  }
-
-  private Tag renderCreateStatusButton() {
-    // TODO(#2752): Make this a link or modal button once that part of the UI
-    // has been created (and routes have been created).
-    return makeSvgTextButton("Create a new status", Icons.PLUS_SVG_PATH)
-        .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2);
   }
 
   private Tag renderManageTranslationsLink(ProgramDefinition program) {
@@ -101,7 +106,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 .condWith(!statuses.isEmpty(), each(statuses, status -> renderStatusItem(status)))
                 .condWith(
                     statuses.isEmpty(),
-                    div().withClasses(Styles.ML_4, Styles.MY_4).with(renderCreateStatusButton())));
+                    p("No statuses have been created yet").withClasses(Styles.ML_4, Styles.MY_4)));
   }
 
   private Tag renderStatusItem(ApplicationStatus status) {
@@ -144,6 +149,34 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 .withClass(AdminStyles.TERTIARY_BUTTON_STYLES),
             makeSvgTextButton("Edit", Icons.EDIT_SVG_PATH)
                 .withClass(AdminStyles.TERTIARY_BUTTON_STYLES));
+  }
+
+  private Modal makeCreateStatusModal() {
+    ContainerTag content =
+        form()
+            .withClasses(Styles.P_6)
+            .with(
+                FieldWithLabel.input().setLabelText("Status name").getContainer(),
+                div()
+                    .withClasses(Styles.PT_8)
+                    .with(
+                        FieldWithLabel.textArea()
+                            .setLabelText("Applicant status change email")
+                            .setRows(OptionalLong.of(5))
+                            .getContainer()),
+                div()
+                    .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+                    .with(
+                        div().withClass(Styles.FLEX_GROW),
+                        // TODO(#2752): Add a cancel button that clears state.
+                        submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+    return Modal.builder("publish-all-programs-modal", content)
+        .setModalTitle("Create a new status")
+        .setWidth(Width.HALF)
+        .setTriggerButtonContent(makeSvgTextButton("Create a new status", Icons.PLUS_SVG_PATH))
+        .setTriggerButtonStyles(
+            StyleUtils.joinStyles(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2))
+        .build();
   }
 
   @AutoValue
