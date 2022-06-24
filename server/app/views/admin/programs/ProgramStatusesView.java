@@ -98,7 +98,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
             div()
                 .withClass(Styles.W_1_4)
                 .with(
-                    // TODO(clouser): Optional SVG icon.
+                    // TODO(clouser): Optional SVG icon for status attribute.
                     span(status.statusName()).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
             div()
                 .with(
