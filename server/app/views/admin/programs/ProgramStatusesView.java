@@ -77,8 +77,6 @@ public final class ProgramStatusesView extends BaseHtmlView {
         statuses.size() == 1 ? "1 result" : String.format("%d results", statuses.size());
     return div()
         .with(
-            // TODO(clouser): Add JS for hiding / unhiding this.
-            p("Loading").withClass(Styles.HIDDEN),
             p(numResultsText),
             div()
                 .withClasses(Styles.MT_6, Styles.BORDER, Styles.ROUNDED_MD, Styles.DIVIDE_Y)
