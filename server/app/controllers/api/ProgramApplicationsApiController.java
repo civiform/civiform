@@ -49,10 +49,7 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
       ProfileUtils profileUtils,
       ProgramService programService,
       Config config) {
-    super(
-        apiPaginationTokenSerializer,
-        apiKeyRepository,
-        profileUtils);
+    super(apiPaginationTokenSerializer, apiKeyRepository, profileUtils);
     this.dateConverter = checkNotNull(dateConverter);
     this.httpContext = checkNotNull(httpContext);
     this.jsonExporter = checkNotNull(jsonExporter);
