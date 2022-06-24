@@ -154,14 +154,18 @@ public final class ProgramStatusesView extends BaseHtmlView {
   private Modal makeCreateStatusModal() {
     ContainerTag content =
         form()
-            .withClasses(Styles.P_6)
+            .withClasses(Styles.PX_6, Styles.PY_2)
             .with(
-                FieldWithLabel.input().setLabelText("Status name").getContainer(),
+                FieldWithLabel.input()
+                    .setLabelText("Status name (required)")
+                    .setPlaceholderText("Enter status name here")
+                    .getContainer(),
                 div()
                     .withClasses(Styles.PT_8)
                     .with(
                         FieldWithLabel.textArea()
                             .setLabelText("Applicant status change email")
+                            .setPlaceholderText("Notify the Applicant about the status change")
                             .setRows(OptionalLong.of(5))
                             .getContainer()),
                 div()
