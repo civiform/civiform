@@ -39,11 +39,10 @@ public final class ProgramStatusesView extends BaseHtmlView {
   public Content render(ProgramDefinition program) {
     // TODO(clouser): Use real statuses from the program. Also may be able
     // to do away with the AutoValue below if this information is encoded elsewhere.
-    ImmutableList<ApplicationStatus> actualStatuses =
-        ImmutableList.of(
-            ApplicationStatus.create("Approved", Instant.now(), true),
-            ApplicationStatus.create("Denied", Instant.now(), false),
-            ApplicationStatus.create("Needs more information", Instant.now(), false));
+    ImmutableList<ApplicationStatus> actualStatuses = ImmutableList.of(
+        ApplicationStatus.create("Approved", Instant.now(), true),
+        ApplicationStatus.create("Denied", Instant.now(), false),
+        ApplicationStatus.create("Needs more information", Instant.now(), false));
     ContainerTag contentDiv =
         div()
             .withClasses(Styles.PX_4)
@@ -60,16 +59,20 @@ public final class ProgramStatusesView extends BaseHtmlView {
                             String.format(
                                 "Manage application status options for %s", program.adminName())),
                         div().withClass(Styles.FLEX_GROW),
-                        // TODO(clouser): Make this a link or modal button once that part of the UI
-                        // has been created (and routes have been created).
-                        makeSvgTextButton("Create a new status", Icons.PLUS_SVG_PATH)
-                            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)),
+                        renderCreateStatusButton()),
                 renderStatusContainer(actualStatuses));
 
     HtmlBundle htmlBundle =
         layout.getBundle().setTitle("Manage program statuses").addMainContent(contentDiv);
 
     return layout.renderCentered(htmlBundle);
+  }
+
+  private Tag renderCreateStatusButton() {
+    // TODO(clouser): Make this a link or modal button once that part of the UI
+    // has been created (and routes have been created).
+    return makeSvgTextButton("Create a new status", Icons.PLUS_SVG_PATH)
+        .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2);
   }
 
   private Tag renderStatusContainer(ImmutableList<ApplicationStatus> statuses) {
@@ -80,7 +83,10 @@ public final class ProgramStatusesView extends BaseHtmlView {
             p(numResultsText),
             div()
                 .withClasses(Styles.MT_6, Styles.BORDER, Styles.ROUNDED_MD, Styles.DIVIDE_Y)
-                .with(each(statuses, status -> renderStatusItem(status))));
+                .condWith(!statuses.isEmpty(), each(statuses, status -> renderStatusItem(status)))
+                .condWith(
+                    statuses.isEmpty(),
+                    div().withClasses(Styles.ML_4, Styles.MY_4).with(renderCreateStatusButton())));
   }
 
   private Tag renderStatusItem(ApplicationStatus status) {
