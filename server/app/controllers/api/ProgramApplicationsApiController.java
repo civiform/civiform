@@ -15,13 +15,11 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nullable;
 import models.Application;
-import play.api.libs.concurrent.AkkaSchedulerProvider;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApiKeyRepository;
-import scala.concurrent.ExecutionContext;
 import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
@@ -45,9 +43,7 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
   public ProgramApplicationsApiController(
       ApiPaginationTokenSerializer apiPaginationTokenSerializer,
       ApiKeyRepository apiKeyRepository,
-      AkkaSchedulerProvider akkaSchedulerProvider,
       DateConverter dateConverter,
-      ExecutionContext executionContext,
       HttpExecutionContext httpContext,
       JsonExporter jsonExporter,
       ProfileUtils profileUtils,
@@ -56,8 +52,6 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
     super(
         apiPaginationTokenSerializer,
         apiKeyRepository,
-        akkaSchedulerProvider,
-        executionContext,
         profileUtils);
     this.dateConverter = checkNotNull(dateConverter);
     this.httpContext = checkNotNull(httpContext);

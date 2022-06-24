@@ -14,11 +14,9 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApiKey;
-import play.api.libs.concurrent.AkkaSchedulerProvider;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApiKeyRepository;
-import scala.concurrent.ExecutionContext;
 
 /**
  * Base class for controllers that handle API requests. Requests that reach an API controller have
@@ -29,22 +27,16 @@ public class CiviFormApiController extends CiviFormController {
 
   protected final ApiPaginationTokenSerializer apiPaginationTokenSerializer;
   protected final ApiKeyRepository apiKeyRepository;
-  protected final AkkaSchedulerProvider akkaSchedulerProvider;
   protected final ProfileUtils profileUtils;
-  protected final ExecutionContext executionContext;
 
   @Inject
   public CiviFormApiController(
       ApiPaginationTokenSerializer apiPaginationTokenSerializer,
       ApiKeyRepository apiKeyRepository,
-      AkkaSchedulerProvider akkaSchedulerProvider,
-      ExecutionContext executionContext,
       ProfileUtils profileUtils) {
     this.apiPaginationTokenSerializer = checkNotNull(apiPaginationTokenSerializer);
     this.apiKeyRepository = checkNotNull(apiKeyRepository);
-    this.akkaSchedulerProvider = checkNotNull(akkaSchedulerProvider);
     this.profileUtils = checkNotNull(profileUtils);
-    this.executionContext = checkNotNull(executionContext);
   }
 
   /**
