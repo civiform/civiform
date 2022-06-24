@@ -5,7 +5,7 @@ window.addEventListener('load', () => {
       return
     }
     const bbox = svgEl.getBBox()
-    rowEl.querySelectorAll('p')[0].textContent = `${bbox.x + bbox.width}`
-    rowEl.querySelectorAll('p')[1].textContent = `${bbox.y + bbox.height}`
+    rowEl.querySelector('.icon-width')!.textContent = `${bbox.x + bbox.width}`
+    rowEl.querySelector('.icon-height')!.textContent = `${bbox.y + bbox.height}`
   })
 })

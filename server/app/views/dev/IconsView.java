@@ -1,10 +1,8 @@
 package views.dev;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.p;
-import static j2html.TagCreator.script;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
@@ -30,20 +28,10 @@ public final class IconsView extends BaseHtmlView {
 
   public Content render() {
     ContainerTag content =
-        div()
+        table()
             .with(
-                table()
-                    .with(
-                        tr().with(th("Icon name"), th("Icon"), th("Width"), th("Height")),
-                        each(ImmutableList.copyOf(Icons.values()), icon -> renderIconRow(icon))),
-                script(
-                    String.join(
-                        "\n",
-                        "document.querySelectorAll('svg').forEach(el => {",
-                        "  bbox = el.getBBox();",
-                        "  el.parentElement.querySelector('p').textContent = `Total width:"
-                            + " ${bbox.x + bbox.width} Total height: ${bbox.y + bbox.height}`;",
-                        "});")));
+                tr().with(th("Icon name"), th("Icon"), th("Width"), th("Height")),
+                each(ImmutableList.copyOf(Icons.values()), icon -> renderIconRow(icon)));
     HtmlBundle bundle =
         layout
             .getBundle()
@@ -54,6 +42,10 @@ public final class IconsView extends BaseHtmlView {
   }
 
   private Tag renderIconRow(Icons icon) {
-    return tr().with(td(icon.name()), td(Icons.svg(icon.path, 24)), td(p("")), td(p("")));
+    return tr().with(
+            td(icon.name()),
+            td(Icons.svg(icon.path, 24)),
+            td(p("").withClass("icon-width")),
+            td(p("").withClass("icon-height")));
   }
 }
