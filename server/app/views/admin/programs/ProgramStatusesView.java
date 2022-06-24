@@ -7,11 +7,14 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import java.time.Instant;
 import play.twirl.api.Content;
+import services.DateConverter;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -25,16 +28,22 @@ import views.style.Styles;
 
 public final class ProgramStatusesView extends BaseHtmlView {
   private final AdminLayout layout;
+  private final DateConverter dateConverter;
 
   @Inject
-  public ProgramStatusesView(AdminLayoutFactory layoutFactory) {
+  public ProgramStatusesView(AdminLayoutFactory layoutFactory, DateConverter dateConverter) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   public Content render(ProgramDefinition program) {
-    // TODO(clouser): Pull this from the database model once available.
-    ImmutableList<String> actualStatuses =
-        ImmutableList.of("Approved", "Denied", "Needs more information");
+    // TODO(clouser): Use real statuses from the program. Also may be able
+    // to do away with the AutoValue below if this information is encoded elsewhere.
+    ImmutableList<ApplicationStatus> actualStatuses =
+        ImmutableList.of(
+            ApplicationStatus.create("Approved", Instant.now(), true),
+            ApplicationStatus.create("Denied", Instant.now(), false),
+            ApplicationStatus.create("Needs more information", Instant.now(), false));
     ContainerTag contentDiv =
         div()
             .withClasses(Styles.PX_4)
@@ -63,7 +72,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private Tag renderStatusContainer(ImmutableList<String> statuses) {
+  private Tag renderStatusContainer(ImmutableList<ApplicationStatus> statuses) {
     String numResultsText =
         statuses.size() == 1 ? "1 result" : String.format("%d results", statuses.size());
     return div()
@@ -76,7 +85,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 .with(each(statuses, status -> renderStatusItem(status))));
   }
 
-  private Tag renderStatusItem(String status) {
+  private Tag renderStatusItem(ApplicationStatus status) {
     return div()
         .withClasses(
             Styles.PL_7,
@@ -92,16 +101,16 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 .withClass(Styles.W_1_4)
                 .with(
                     // TODO(clouser): Optional SVG icon.
-                    span(status).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
+                    span(status.statusName()).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
             div()
                 .with(
                     p().withClass(Styles.TEXT_SM)
                         .with(
                             span("Edited on "),
-                            // TODO(clouser): Get actual edit date from data model.
-                            span("06/02/2022").withClass(Styles.FONT_SEMIBOLD)))
+                            span(dateConverter.renderDate(status.lastEdited()))
+                                .withClass(Styles.FONT_SEMIBOLD)))
                 .condWith(
-                    status.equals("Approved"),
+                    status.hasEmail(),
                     p().withClasses(Styles.MT_1, Styles.TEXT_XS, Styles.FLEX, Styles.ITEMS_CENTER)
                         .with(
                             Icons.svg(Icons.EMAIL_SVG_PATH, 22)
@@ -116,5 +125,19 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 .withClass(AdminStyles.TERTIARY_BUTTON_STYLES),
             makeSvgTextButton("Edit", Icons.EDIT_SVG_PATH)
                 .withClass(AdminStyles.TERTIARY_BUTTON_STYLES));
+  }
+
+  @AutoValue
+  abstract static class ApplicationStatus {
+
+    static ApplicationStatus create(String statusName, Instant lastEdited, boolean hasEmail) {
+      return new AutoValue_ProgramStatusesView_ApplicationStatus(statusName, lastEdited, hasEmail);
+    }
+
+    abstract String statusName();
+
+    abstract Instant lastEdited();
+
+    abstract boolean hasEmail();
   }
 }
