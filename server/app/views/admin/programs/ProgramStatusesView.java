@@ -37,7 +37,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   public Content render(ProgramDefinition program) {
-    // TODO(clouser): Use real statuses from the program. Also may be able
+    // TODO(#2752): Use real statuses from the program. Also may be able
     // to do away with the AutoValue below if this information is encoded elsewhere.
     ImmutableList<ApplicationStatus> actualStatuses =
         ImmutableList.of(
@@ -70,7 +70,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   private Tag renderCreateStatusButton() {
-    // TODO(clouser): Make this a link or modal button once that part of the UI
+    // TODO(#2752): Make this a link or modal button once that part of the UI
     // has been created (and routes have been created).
     return makeSvgTextButton("Create a new status", Icons.PLUS_SVG_PATH)
         .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2);
@@ -105,7 +105,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
             div()
                 .withClass(Styles.W_1_4)
                 .with(
-                    // TODO(clouser): Optional SVG icon for status attribute.
+                    // TODO(#2752): Optional SVG icon for status attribute.
                     span(status.statusName()).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
             div()
                 .with(
@@ -119,7 +119,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     p().withClasses(Styles.MT_1, Styles.TEXT_XS, Styles.FLEX, Styles.ITEMS_CENTER)
                         .with(
                             Icons.svg(Icons.EMAIL_SVG_PATH, 22)
-                                // TODO(clouser): Once SVG icon sizes are consistent, just set size
+                                // TODO(#2752): Once SVG icon sizes are consistent, just set size
                                 // to 18.
                                 .attr("width", 18)
                                 .attr("height", 18)
