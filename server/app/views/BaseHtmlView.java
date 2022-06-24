@@ -71,10 +71,10 @@ public abstract class BaseHtmlView {
     return buttonEl.attr("onclick", String.format("window.location = '%s';", redirectUrl));
   }
 
-  protected static ContainerTag makeSvgTextButton(String buttonText, String svgPath) {
+  protected static ContainerTag makeSvgTextButton(String buttonText, Icons icon) {
     return TagCreator.button()
         .with(
-            Icons.svg(svgPath, 18).withClasses(Styles.ML_1, Styles.MR_2, Styles.INLINE_BLOCK),
+            Icons.svg(icon, 18).withClasses(Styles.ML_1, Styles.MR_2, Styles.INLINE_BLOCK),
             span(buttonText));
   }
 
