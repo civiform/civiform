@@ -2,7 +2,6 @@ package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.p;
@@ -15,7 +14,10 @@ import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.UUID;
+import org.apache.commons.lang3.tuple.Pair;
 import play.twirl.api.Content;
 import services.DateConverter;
 import services.LocalizedStrings;
@@ -48,11 +50,18 @@ public final class ProgramStatusesView extends BaseHtmlView {
     // to do away with the AutoValue below if this information is encoded elsewhere.
     ImmutableList<ApplicationStatus> actualStatuses =
         ImmutableList.of(
-            ApplicationStatus.create("Approved", Instant.now(), true),
-            ApplicationStatus.create("Denied", Instant.now(), false),
-            ApplicationStatus.create("Needs more information", Instant.now(), false));
+            ApplicationStatus.create("Approved", Instant.now(), "Some email"),
+            ApplicationStatus.create("Denied", Instant.now(), ""),
+            ApplicationStatus.create("Needs more information", Instant.now(), ""));
 
-    Modal createStatusModal = makeCreateStatusModal();
+    Modal createStatusModal = makeStatusModal(Optional.empty());
+    Tag createStatusTriggerButton =
+        makeSvgTextButton("Create a new status", Icons.PLUS_SVG_PATH)
+            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
+            .withId(createStatusModal.getTriggerButtonId());
+
+    Pair<Tag, ImmutableList<Modal>> statusContainerAndModals =
+        renderStatusContainer(actualStatuses);
 
     ContainerTag contentDiv =
         div()
@@ -71,15 +80,16 @@ public final class ProgramStatusesView extends BaseHtmlView {
                                 "Manage application status options for %s", program.adminName())),
                         div().withClass(Styles.FLEX_GROW),
                         renderManageTranslationsLink(program),
-                        createStatusModal.getButton()),
-                renderStatusContainer(actualStatuses));
+                        createStatusTriggerButton),
+                statusContainerAndModals.getLeft());
 
     HtmlBundle htmlBundle =
         layout
             .getBundle()
             .setTitle("Manage program statuses")
             .addMainContent(contentDiv)
-            .addModals(createStatusModal);
+            .addModals(createStatusModal)
+            .addModals(statusContainerAndModals.getRight());
 
     return layout.renderCentered(htmlBundle);
   }
@@ -95,63 +105,77 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return asRedirectButton(button, linkDestination);
   }
 
-  private Tag renderStatusContainer(ImmutableList<ApplicationStatus> statuses) {
+  private Pair<Tag, ImmutableList<Modal>> renderStatusContainer(
+      ImmutableList<ApplicationStatus> statuses) {
     String numResultsText =
         statuses.size() == 1 ? "1 result" : String.format("%d results", statuses.size());
-    return div()
-        .with(
-            p(numResultsText),
-            div()
-                .withClasses(Styles.MT_6, Styles.BORDER, Styles.ROUNDED_MD, Styles.DIVIDE_Y)
-                .condWith(!statuses.isEmpty(), each(statuses, status -> renderStatusItem(status)))
-                .condWith(
-                    statuses.isEmpty(),
-                    p("No statuses have been created yet").withClasses(Styles.ML_4, Styles.MY_4)));
+    ImmutableList<Pair<Tag, Modal>> statusTagsAndModals =
+        statuses.stream().map(s -> renderStatusItem(s)).collect(ImmutableList.toImmutableList());
+    return Pair.of(
+        div()
+            .with(
+                p(numResultsText),
+                div()
+                    .withClasses(Styles.MT_6, Styles.BORDER, Styles.ROUNDED_MD, Styles.DIVIDE_Y)
+                    .with(statusTagsAndModals.stream().map(Pair::getLeft))
+                    .condWith(
+                        statuses.isEmpty(),
+                        p("No statuses have been created yet")
+                            .withClasses(Styles.ML_4, Styles.MY_4))),
+        statusTagsAndModals.stream().map(Pair::getRight).collect(ImmutableList.toImmutableList()));
   }
 
-  private Tag renderStatusItem(ApplicationStatus status) {
-    return div()
-        .withClasses(
-            Styles.PL_7,
-            Styles.PR_6,
-            Styles.PY_9,
-            Styles.FONT_NORMAL,
-            Styles.SPACE_X_2,
-            Styles.FLEX,
-            Styles.ITEMS_CENTER,
-            StyleUtils.hover(Styles.BG_GRAY_100))
-        .with(
-            div()
-                .withClass(Styles.W_1_4)
-                .with(
-                    // TODO(#2752): Optional SVG icon for status attribute.
-                    span(status.statusName()).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
-            div()
-                .with(
-                    p().withClass(Styles.TEXT_SM)
-                        .with(
-                            span("Edited on "),
-                            span(dateConverter.renderDate(status.lastEdited()))
-                                .withClass(Styles.FONT_SEMIBOLD)))
-                .condWith(
-                    status.hasEmail(),
-                    p().withClasses(Styles.MT_1, Styles.TEXT_XS, Styles.FLEX, Styles.ITEMS_CENTER)
-                        .with(
-                            Icons.svg(Icons.EMAIL_SVG_PATH, 22)
-                                // TODO(#2752): Once SVG icon sizes are consistent, just set size
-                                // to 18.
-                                .attr("width", 18)
-                                .attr("height", 18)
-                                .withClasses(Styles.MR_2, Styles.INLINE_BLOCK),
-                            span("Applicant notification email added"))),
-            div().withClass(Styles.FLEX_GROW),
-            makeSvgTextButton("Delete", Icons.DELETE_SVG_PATH)
-                .withClass(AdminStyles.TERTIARY_BUTTON_STYLES),
-            makeSvgTextButton("Edit", Icons.EDIT_SVG_PATH)
-                .withClass(AdminStyles.TERTIARY_BUTTON_STYLES));
+  private Pair<Tag, Modal> renderStatusItem(ApplicationStatus status) {
+    Modal editStatusModal = makeStatusModal(Optional.of(status));
+    Tag editStatusTriggerButton =
+        makeSvgTextButton("Edit", Icons.EDIT_SVG_PATH)
+            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
+            .withId(editStatusModal.getTriggerButtonId());
+    return Pair.of(
+        div()
+            .withClasses(
+                Styles.PL_7,
+                Styles.PR_6,
+                Styles.PY_9,
+                Styles.FONT_NORMAL,
+                Styles.SPACE_X_2,
+                Styles.FLEX,
+                Styles.ITEMS_CENTER,
+                StyleUtils.hover(Styles.BG_GRAY_100))
+            .with(
+                div()
+                    .withClass(Styles.W_1_4)
+                    .with(
+                        // TODO(#2752): Optional SVG icon for status attribute.
+                        span(status.statusName()).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
+                div()
+                    .with(
+                        p().withClass(Styles.TEXT_SM)
+                            .with(
+                                span("Edited on "),
+                                span(dateConverter.renderDate(status.lastEdited()))
+                                    .withClass(Styles.FONT_SEMIBOLD)))
+                    .condWith(
+                        !status.emailContent().isEmpty(),
+                        p().withClasses(
+                                Styles.MT_1, Styles.TEXT_XS, Styles.FLEX, Styles.ITEMS_CENTER)
+                            .with(
+                                Icons.svg(Icons.EMAIL_SVG_PATH, 22)
+                                    // TODO(#2752): Once SVG icon sizes are consistent, just set
+                                    // size
+                                    // to 18.
+                                    .attr("width", 18)
+                                    .attr("height", 18)
+                                    .withClasses(Styles.MR_2, Styles.INLINE_BLOCK),
+                                span("Applicant notification email added"))),
+                div().withClass(Styles.FLEX_GROW),
+                makeSvgTextButton("Delete", Icons.DELETE_SVG_PATH)
+                    .withClass(AdminStyles.TERTIARY_BUTTON_STYLES),
+                editStatusTriggerButton),
+        editStatusModal);
   }
 
-  private Modal makeCreateStatusModal() {
+  private Modal makeStatusModal(Optional<ApplicationStatus> status) {
     ContainerTag content =
         form()
             .withClasses(Styles.PX_6, Styles.PY_2)
@@ -159,6 +183,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 FieldWithLabel.input()
                     .setLabelText("Status name (required)")
                     .setPlaceholderText("Enter status name here")
+                    .setValue(status.map(ApplicationStatus::statusName))
                     .getContainer(),
                 div()
                     .withClasses(Styles.PT_8)
@@ -167,6 +192,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                             .setLabelText("Applicant status change email")
                             .setPlaceholderText("Notify the Applicant about the status change")
                             .setRows(OptionalLong.of(5))
+                            .setValue(status.map(ApplicationStatus::emailContent))
                             .getContainer()),
                 div()
                     .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
@@ -174,26 +200,27 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         div().withClass(Styles.FLEX_GROW),
                         // TODO(#2752): Add a cancel button that clears state.
                         submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
-    return Modal.builder("publish-all-programs-modal", content)
-        .setModalTitle("Create a new status")
+    // We prepend a "a-" since element IDs must start with an alphabetic character, whereas UUIDs
+    // can start with a numeric character.
+    String modalId = "a-" + UUID.randomUUID().toString();
+    return Modal.builder(modalId, content)
+        .setModalTitle(status.isPresent() ? "Edit this status" : "Create a new status")
         .setWidth(Width.HALF)
-        .setTriggerButtonContent(makeSvgTextButton("Create a new status", Icons.PLUS_SVG_PATH))
-        .setTriggerButtonStyles(
-            StyleUtils.joinStyles(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2))
         .build();
   }
 
   @AutoValue
   abstract static class ApplicationStatus {
 
-    static ApplicationStatus create(String statusName, Instant lastEdited, boolean hasEmail) {
-      return new AutoValue_ProgramStatusesView_ApplicationStatus(statusName, lastEdited, hasEmail);
+    static ApplicationStatus create(String statusName, Instant lastEdited, String emailContent) {
+      return new AutoValue_ProgramStatusesView_ApplicationStatus(
+          statusName, lastEdited, emailContent);
     }
 
     abstract String statusName();
 
     abstract Instant lastEdited();
 
-    abstract boolean hasEmail();
+    abstract String emailContent();
   }
 }
