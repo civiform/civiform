@@ -93,10 +93,24 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 .with(
                     // TODO(clouser): Optional SVG icon.
                     span(status).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
-            p().with(
-                    span("Edited on "),
-                    // TODO(clouser): Get actual edit date from data model.
-                    span("06/02/2022").withClass(Styles.FONT_SEMIBOLD)),
+            div()
+                .with(
+                    p().withClass(Styles.TEXT_SM)
+                        .with(
+                            span("Edited on "),
+                            // TODO(clouser): Get actual edit date from data model.
+                            span("06/02/2022").withClass(Styles.FONT_SEMIBOLD)))
+                .condWith(
+                    status.equals("Approved"),
+                    p().withClasses(Styles.MT_1, Styles.TEXT_XS, Styles.FLEX, Styles.ITEMS_CENTER)
+                        .with(
+                            Icons.svg(Icons.EMAIL_SVG_PATH, 22)
+                                // TODO(clouser): Once SVG icon sizes are consistent, just set size
+                                // to 18.
+                                .attr("width", 18)
+                                .attr("height", 18)
+                                .withClasses(Styles.MR_2, Styles.INLINE_BLOCK),
+                            span("Applicant notification email added"))),
             div().withClass(Styles.FLEX_GROW),
             makeSvgTextButton("Delete", Icons.DELETE_SVG_PATH)
                 .withClass(AdminStyles.TERTIARY_BUTTON_STYLES),
