@@ -36,6 +36,7 @@ def perform_apply(config_loader):
             f'{terraform_cmd} plan -input=false -out={terraform_plan_out_file} -var-file={tf_vars_filename}'
         ))
 
+    # if in test mode, don't apply 
     if config_loader.is_test():
         return True
 
