@@ -50,11 +50,11 @@ jobs:
           DOCKER_BUILDKIT: 1
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        run: USE_LOCAL_CIVIFORM=1 bin/build-browser-tests
+        run: bin/build-browser-tests
       - name: Bring up test env with Localstack
-        run: USE_LOCAL_CIVIFORM=1 bin/run-browser-test-env --aws --ci
+        run: bin/run-browser-test-env --aws --ci
       - name: Run browser tests with Localstack
-        run: USE_LOCAL_CIVIFORM=1 bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
+        run: bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
       - name: Print logs on failure
         if: failure()
         run: cat .dockerlogs
@@ -79,11 +79,11 @@ jobs:
           DOCKER_BUILDKIT: 1
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        run: USE_LOCAL_CIVIFORM=1 bin/build-browser-tests
+        run: bin/build-browser-tests
       - name: Bring up test env with Azurite
-        run: USE_LOCAL_CIVIFORM=1 bin/run-browser-test-env --azure --ci
+        run: bin/run-browser-test-env --azure --ci
       - name: Run browser tests with Azurite
-        run: USE_LOCAL_CIVIFORM=1 bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
+        run: bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
       - name: Print logs on failure
         if: failure()
         run: cat .dockerlogs
