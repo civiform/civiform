@@ -10,7 +10,7 @@ variable "civiform_image_repo" {
   default     = "public.ecr.aws/t1q6b4h2/universal-application-tool"
 }
 
-variable "civiform_image_tag" {
+variable "image_tag" {
   type        = string
   description = "Image tag of the Civiform docker image to deploy"
   default     = "prod"
@@ -150,4 +150,23 @@ variable "ses_sender_email" {
 variable "app_prefix" {
   type        = string
   description = "A prefix to add to values so we can have multiple deploys in the same aws account"
+}
+
+variable "staging_hostname" {
+  type        = string
+  description = "If provided will enable DEMO mode on this hostname"
+  default     = "staging-aws.civiform.dev"
+}
+
+variable "base_url" {
+  type        = string
+  description = "Base url for the app"
+  default     = "https://staging-aws.civiform.dev"
+}
+
+variable "port" {
+  type        = string
+  description = "Port the app is running on"
+  default     = "9000"
+
 }

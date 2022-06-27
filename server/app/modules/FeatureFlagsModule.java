@@ -16,6 +16,6 @@ public class FeatureFlagsModule extends AbstractModule {
   @Provides
   @ApplicationStatusTrackingEnabled
   public boolean provideStatusTrackingEnabled(Config config) {
-    return checkNotNull(config).getBoolean("status_tracking_enabled");
+    return checkNotNull(config).getBoolean("application_status_tracking_enabled");
   }
 }
