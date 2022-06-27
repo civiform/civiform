@@ -110,7 +110,7 @@ public class LoginForm extends BaseHtmlView {
             .with(p(civicEntityShortName).withClasses(Styles.FONT_BOLD))
             .with(p("CiviForm")));
 
-    ContainerTag applicantAccountLogin =
+    DivTag applicantAccountLogin =
         div()
             .withClasses(
                 Styles.FLEX,
@@ -138,7 +138,7 @@ public class LoginForm extends BaseHtmlView {
     content.with(applicantAccountLogin);
 
     DivTag alternativeLoginButtons =
-n       div()
+        div()
             .withClasses(
                 Styles.PB_12,
                 Styles.PX_8,
