@@ -1,3 +1,5 @@
+/** This handler is responsible for annotating each rendered SVG icon
+ * with its size as calculated by the browser.  */
 window.addEventListener('load', () => {
   Array.from(document.querySelectorAll('tr')).forEach((rowEl) => {
     const svgEl = rowEl.querySelector('svg')

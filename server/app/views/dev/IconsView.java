@@ -18,6 +18,10 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.Icons;
 
+/**
+ * Renders a listing of all SVG icons and metadata about the icon size. This is generally useful for
+ * seeing what icons are already available and debugging any SVG scaling / sizing issues.
+ */
 public final class IconsView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
 
