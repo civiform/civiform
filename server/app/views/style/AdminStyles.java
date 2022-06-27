@@ -130,6 +130,7 @@ public class AdminStyles {
           Styles.BG_TRANSPARENT,
           BaseStyles.TEXT_SEATTLE_BLUE,
           StyleUtils.hover(Styles.BG_GRAY_200));
+
   public static final String DROPDOWN_BUTTON_STYLES =
       StyleUtils.joinStyles(
           BASE_BUTTON_STYLES,
