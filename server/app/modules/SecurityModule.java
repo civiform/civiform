@@ -151,8 +151,8 @@ public class SecurityModule extends AbstractModule {
           break;
         case GENERIC_OIDC_APPLICANT:
           bind(IndirectClient.class)
-            .annotatedWith(ApplicantAuthClient.class)
-            .toProvider(GenericOidcProvider.class);
+              .annotatedWith(ApplicantAuthClient.class)
+              .toProvider(GenericOidcProvider.class);
         default:
           logger.info("No provider specified for for applicants");
       }
