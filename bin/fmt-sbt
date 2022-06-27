@@ -11,6 +11,8 @@ bin/pull-image --dev
 interactive_flag="-T"
 if [[ -n "${CI}" ]]; then
   interactive_flag=""
+  docker pull -q docker.io/civiform/civiform-dev:latest
+  docker tag civiform/civiform-dev:latest civiform-dev
 fi
 
 docker::run_shell_container
