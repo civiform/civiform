@@ -162,8 +162,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                             .with(
                                 Icons.svg(Icons.EMAIL_SVG_PATH, 22)
                                     // TODO(#2752): Once SVG icon sizes are consistent, just set
-                                    // size
-                                    // to 18.
+                                    // size to 18.
                                     .attr("width", 18)
                                     .attr("height", 18)
                                     .withClasses(Styles.MR_2, Styles.INLINE_BLOCK),
@@ -182,6 +181,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
             .with(
                 FieldWithLabel.input()
                     .setLabelText("Status name (required)")
+                    // TODO(#2752): Potentially move placeholder text to an actual
+                    // description.
                     .setPlaceholderText("Enter status name here")
                     .setValue(status.map(ApplicationStatus::statusName))
                     .getContainer(),

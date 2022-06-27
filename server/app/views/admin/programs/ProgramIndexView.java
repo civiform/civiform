@@ -1,5 +1,6 @@
 package views.admin.programs;
 
+import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -39,13 +40,18 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final DateConverter dateConverter;
+  private final boolean statusTrackingEnabled;
 
   @Inject
   public ProgramIndexView(
-      AdminLayoutFactory layoutFactory, Config config, DateConverter dateConverter) {
+      AdminLayoutFactory layoutFactory,
+      Config config,
+      DateConverter dateConverter,
+      @ApplicationStatusTrackingEnabled boolean statusTrackingEnabled) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.dateConverter = checkNotNull(dateConverter);
+    this.statusTrackingEnabled = statusTrackingEnabled;
   }
 
   public Content render(
@@ -202,6 +208,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         div(
                 p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
+                maybeRenderEditStatusesLink(draftProgram),
                 maybeRenderManageTranslationsLink(draftProgram),
                 maybeRenderEditLink(draftProgram, activeProgram, request),
                 maybeRenderViewApplicationsLink(activeProgram, profile),
@@ -289,6 +296,21 @@ public final class ProgramIndexView extends BaseHtmlView {
               .url();
       return new LinkElement()
           .setId("program-translations-link-" + draftProgram.get().id())
+          .setHref(linkDestination)
+          .setText(linkText)
+          .setStyles(Styles.MR_2)
+          .asAnchorText();
+    } else {
+      return div();
+    }
+  }
+
+  private Tag maybeRenderEditStatusesLink(Optional<ProgramDefinition> draftProgram) {
+    if (statusTrackingEnabled && draftProgram.isPresent()) {
+      String linkText = "Manage statuses →";
+      String linkDestination =
+          routes.AdminProgramStatusesController.index(draftProgram.get().id()).url();
+      return new LinkElement()
           .setHref(linkDestination)
           .setText(linkText)
           .setStyles(Styles.MR_2)
