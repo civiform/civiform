@@ -16,6 +16,7 @@ import auth.GuestClient;
 import auth.ProfileFactory;
 import auth.Roles;
 import auth.oidc.admin.AdfsProvider;
+import auth.oidc.applicant.GenericOidcProvider;
 import auth.oidc.applicant.IdcsProvider;
 import auth.saml.LoginRadiusProvider;
 import com.google.common.collect.ImmutableMap;
@@ -148,6 +149,10 @@ public class SecurityModule extends AbstractModule {
               .toProvider(IdcsProvider.class);
           logger.info("Using IDCS for applicant auth provider");
           break;
+        case GENERIC_OIDC_APPLICANT:
+          bind(IndirectClient.class)
+            .annotatedWith(ApplicantAuthClient.class)
+            .toProvider(GenericOidcProvider.class);
         default:
           logger.info("No provider specified for for applicants");
       }
