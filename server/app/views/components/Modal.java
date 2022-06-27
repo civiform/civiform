@@ -42,7 +42,7 @@ public class Modal {
   public Tag getButton() {
     String triggerButtonId = getTriggerButtonId();
     if (triggerButtonContent.isPresent()) {
-      return triggerButtonContent.get().withClasses(buttonStyles).withId(triggerButtonId);
+      return triggerButtonContent.get().withId(triggerButtonId);
     } else {
       return button(triggerButtonId, triggerButtonText).withClasses(buttonStyles);
     }
