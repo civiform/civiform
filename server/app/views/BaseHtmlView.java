@@ -74,8 +74,9 @@ public abstract class BaseHtmlView {
   protected static ContainerTag makeSvgTextButton(String buttonText, String svgPath) {
     return TagCreator.button()
         .with(
-            Icons.svg(svgPath, 18).withClasses(Styles.ML_1, Styles.MR_2, Styles.INLINE_BLOCK),
-            span(buttonText));
+            Icons.svg(svgPath, 18)
+                .withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.FLEX_SHRINK_0),
+            span(buttonText).withClass(Styles.TEXT_LEFT));
   }
 
   /**
