@@ -137,12 +137,12 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                                 FieldWithLabel.date()
                                     .setFieldName("fromDate")
                                     .setLabelText("From:")
-                                    .getContainer()
+                                    .getDateTag()
                                     .withClasses(Styles.ML_3, Styles.INLINE_FLEX),
                                 FieldWithLabel.date()
                                     .setFieldName("untilDate")
                                     .setLabelText("To:")
-                                    .getContainer()
+                                    .getDateTag()
                                     .withClasses(Styles.ML_3, Styles.INLINE_FLEX)),
                         makeSvgTextButton(downloadActionText, Icons.DOWNLOAD_SVG_PATH)
                             .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, Styles.MT_6)
