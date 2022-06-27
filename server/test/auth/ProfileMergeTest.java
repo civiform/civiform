@@ -12,21 +12,24 @@ import io.ebean.Database;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
-import javax.inject.Provider;
 import models.Account;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.core.profile.definition.CommonProfileDefinition;
+import org.pac4j.oidc.client.OidcClient;
+import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.saml.profile.SAML2Profile;
 import repository.ResetPostgres;
 import repository.UserRepository;
+import support.CfTestHelpers;
 
 public class ProfileMergeTest extends ResetPostgres {
 
   private IdcsProfileAdapter idcsProfileAdapter;
   private SamlProfileAdapter samlProfileAdapter;
   private ProfileFactory profileFactory;
+  private static UserRepository userRepository;
   private Database database;
 
   @Before
@@ -37,29 +40,22 @@ public class ProfileMergeTest extends ResetPostgres {
   @Before
   public void setupFactory() {
     profileFactory = instanceOf(ProfileFactory.class);
-    UserRepository repository = instanceOf(UserRepository.class);
+    userRepository = instanceOf(UserRepository.class);
+    OidcClient client = CfTestHelpers.getOidcClient("oidc", 3380);
+    OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("oidc", 3380);
+    // Just need some complete adaptor to access methods.
     idcsProfileAdapter =
         new IdcsProfileAdapter(
-            /* configuration = */ null,
-            /* client = */ null,
+            client_config,
+            client,
             profileFactory,
-            new Provider<UserRepository>() {
-              @Override
-              public UserRepository get() {
-                return repository;
-              }
-            });
+            CfTestHelpers.userRepositoryProvider(userRepository));
     samlProfileAdapter =
         new SamlProfileAdapter(
             /* configuration = */ null,
             /* client = */ null,
             profileFactory,
-            new Provider<UserRepository>() {
-              @Override
-              public UserRepository get() {
-                return repository;
-              }
-            });
+            CfTestHelpers.userRepositoryProvider(userRepository));
   }
 
   private OidcProfile createOidcProfile(String email, String issuer, String subject) {

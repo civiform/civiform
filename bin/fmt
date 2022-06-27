@@ -7,6 +7,12 @@ docker::set_project_name_dev
 
 bin/pull-image --formatter
 
-docker run --rm -it \
+# Can't use TTY in CI
+interactive_flag="-it"
+if [[ -n "${CI}" ]]; then
+  interactive_flag=""
+fi
+
+docker run --rm ${interactive_flag} \
   -v "$(pwd):/code" \
-  civiform/formatter:latest
+  civiform/formatter

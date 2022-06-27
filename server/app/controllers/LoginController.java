@@ -20,6 +20,8 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.play.PlayWebContext;
 import org.pac4j.play.http.PlayHttpActionAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -30,6 +32,7 @@ import play.mvc.Result;
  */
 public class LoginController extends Controller {
 
+  private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
   private final IndirectClient adminClient;
 
   private final IndirectClient applicantClient;
@@ -80,6 +83,7 @@ public class LoginController extends Controller {
     // technically
     // never happen.
     if (!isIDCS) {
+      logger.warn("Attempted to do IDCS registration with other provider");
       return login(request, applicantClient);
     }
 
@@ -110,7 +114,7 @@ public class LoginController extends Controller {
   // Logic taken from org.pac4j.play.deadbolt2.Pac4jHandler.beforeAuthCheck.
   private Result login(Http.Request request, IndirectClient client) {
     if (client == null) {
-      return badRequest("Identity provider secrets not configured.");
+      return badRequest("Login not configured.");
     }
     PlayWebContext webContext = new PlayWebContext(request);
     if (client instanceof OidcClient) {

@@ -1,7 +1,6 @@
 version: '3.1'
 
 services:
-
   db:
     image: postgres:12.5
     restart: always
@@ -15,8 +14,10 @@ services:
     restart: always
     container_name: play
     links:
-      - "db:database"
+      - 'db:database'
     ports:
       - 9000:9000
     environment:
+      - IDCS_CLIENT_ID=client
+      - IDCS_SECRET=SECRET_KEY
       - SECRET_KEY

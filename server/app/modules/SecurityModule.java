@@ -23,6 +23,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.util.Providers;
 import controllers.routes;
 import java.net.URI;
 import java.util.ArrayList;
@@ -48,11 +49,14 @@ import org.pac4j.play.CallbackController;
 import org.pac4j.play.LogoutController;
 import org.pac4j.play.store.PlayCookieSessionStore;
 import org.pac4j.play.store.ShiroAesDataEncrypter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Environment;
 
 /** SecurityModule configures and initializes all authentication and authorization classes. */
 public class SecurityModule extends AbstractModule {
 
+  private static final Logger logger = LoggerFactory.getLogger(SecurityModule.class);
   private final com.typesafe.config.Config configuration;
   private final String baseUrl;
 
@@ -124,17 +128,32 @@ public class SecurityModule extends AbstractModule {
   private void bindApplicantIdpProvider(String applicantIdpName) {
     AuthIdentityProviderName idpName = AuthIdentityProviderName.forString(applicantIdpName).get();
 
-    switch (idpName) {
-      case LOGIN_RADIUS_APPLICANT:
-        bind(IndirectClient.class)
-            .annotatedWith(ApplicantAuthClient.class)
-            .toProvider(LoginRadiusProvider.class);
-        break;
-      case IDCS_APPLICANT:
-      default:
-        bind(IndirectClient.class)
-            .annotatedWith(ApplicantAuthClient.class)
-            .toProvider(IdcsProvider.class);
+    try {
+      switch (idpName) {
+        case DISABLED_APPLICANT:
+          bind(IndirectClient.class)
+              .annotatedWith(ApplicantAuthClient.class)
+              .toProvider(Providers.of(null));
+          logger.info("No applicant auth provider");
+          break;
+        case LOGIN_RADIUS_APPLICANT:
+          bind(IndirectClient.class)
+              .annotatedWith(ApplicantAuthClient.class)
+              .toProvider(LoginRadiusProvider.class);
+          logger.info("Using Login Radius for applicant auth provider");
+          break;
+        case IDCS_APPLICANT:
+          bind(IndirectClient.class)
+              .annotatedWith(ApplicantAuthClient.class)
+              .toProvider(IdcsProvider.class);
+          logger.info("Using IDCS for applicant auth provider");
+          break;
+        default:
+          logger.info("No provider specified for for applicants");
+      }
+    } catch (RuntimeException e) {
+      logger.error("Error getting applicant auth provider");
+      throw e;
     }
   }
 

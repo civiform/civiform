@@ -8,7 +8,7 @@ import {
 
 describe('applicant security', () => {
   it('applicant cannot access another applicant data', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
 
     await loginAsGuest(page)
 
@@ -19,7 +19,7 @@ describe('applicant security', () => {
   })
 
   it('admin cannot access applicant pages', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
 
     await loginAsAdmin(page)
     const response = await gotoEndpoint(page, '/applicants/1234567/programs')
