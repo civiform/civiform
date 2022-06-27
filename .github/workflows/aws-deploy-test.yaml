@@ -1,0 +1,38 @@
+name: azure_saml_ses deploy test
+on:
+  workflow_dispatch: {}
+  pull_request:
+    branches: main
+    paths:
+      - 'cloud/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Resolve latest snapshot tag
+        run: source cloud/shared/bin/resolve-latest-snapshot-tag
+
+      - name: Copy the config from staging
+        run: |
+          #  Grab the config from the staging deploy repo to confirm
+          #  the changes work with actual data
+          curl https://raw.githubusercontent.com/civiform/staging-aws-deploy/main/civiform_config.sh > civiform_config.sh
+
+      - name: Source config, set CIVIFORM_MODE to be "test" and deploy with latest snapshot tag
+        run: |
+          source civiform_config.sh
+          export CIVIFORM_MODE="test"
+          echo "${LATEST_SNAPSHOT_TAG}"
+          cloud/shared/bin/deploy "--tag=${LATEST_SNAPSHOT_TAG}"
+          exit $?
