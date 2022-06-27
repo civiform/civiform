@@ -43,7 +43,7 @@ public class Modal {
   public ButtonTag getButton() {
     String triggerButtonId = modalId + "-button";
     if (triggerButtonContent.isPresent()) {
-      return triggerButtonContent.get().withClasses(buttonStyles).withId(triggerButtonId);
+      return triggerButtonContent.get().withId(triggerButtonId);
     } else {
       return button(triggerButtonId, triggerButtonText).withClasses(buttonStyles);
     }
