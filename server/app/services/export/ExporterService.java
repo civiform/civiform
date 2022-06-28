@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import models.Application;
 import models.QuestionTag;
 import play.libs.F;
+import repository.TimeFilter;
 import services.IdentifierBasedPaginationSpec;
 import services.Path;
 import services.applicant.AnswerData;
@@ -180,7 +181,7 @@ public final class ExporterService {
    * applications. This means if one application had a question repeated for N repeated entities,
    * then there would be N columns for each of that question's scalars.
    */
-  CsvExportConfig generateDefaultCsvConfig(long programId) {
+  private CsvExportConfig generateDefaultCsvConfig(long programId) {
     ImmutableList<Application> applications;
 
     try {
@@ -319,11 +320,11 @@ public final class ExporterService {
   /**
    * A string containing the CSV which maps applicants (opaquely) to the programs they applied to.
    */
-  public String getDemographicsCsv() {
-    return exportCsv(getDemographicsExporterConfig(), applicantService.getAllApplications());
+  public String getDemographicsCsv(TimeFilter filter) {
+    return exportCsv(getDemographicsExporterConfig(), applicantService.getApplications(filter));
   }
 
-  public CsvExportConfig getDemographicsExporterConfig() {
+  private CsvExportConfig getDemographicsExporterConfig() {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
     // First add the ID, submit time, and submitter email columns.
     columnsBuilder.add(
