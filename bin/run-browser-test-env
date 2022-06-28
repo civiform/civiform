@@ -106,7 +106,7 @@ if truth::is_disabled continuous_integration; then
   truth::enable use_dev
 fi
 
-echo "Running docker compose to remove existing contianers."
+echo "Running docker compose to remove existing containers."
 compose_browser_test "${use_dev}" --profile ${cloud_provider} down
 
 # Start emulator.
@@ -117,14 +117,19 @@ compose_browser_test "${use_dev}" --profile ${cloud_provider} up -d ${emulator}
 echo "Waiting for the cloud emulator"
 "bin/${emulator}/wait" "${emulator_url}"
 
+# The --no-recreate option is particularly important for CI scenarios
+# where localstack may be recreated due to the additional time involved
+# in pulling images.
+# See https://github.com/seattle-uat/civiform/issues/2810#issuecomment-1168993637
+
 # localstack emulator is also required for Azurite. This should only run for
 # Azure browser tests.
 if truth::is_enabled both_emulators; then
   echo "Starting localstack emulator as well"
   if truth::is_enabled continuous_integration; then
-    compose_browser_test "${use_dev}" --profile aws up -d localstack >.dockerlogs 2>&1 &
+    compose_browser_test "${use_dev}" --profile aws up --no-recreate -d localstack >.dockerlogs 2>&1 &
   else
-    compose_browser_test "${use_dev}" --profile aws up -d localstack
+    compose_browser_test "${use_dev}" --profile aws up --no-recreate -d localstack
   fi
 fi
 

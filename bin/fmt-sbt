@@ -11,6 +11,9 @@ bin/pull-image --dev
 interactive_flag="-T"
 if [[ -n "${CI}" ]]; then
   interactive_flag=""
+  # We manually pull the dev image here since bin/pull-image
+  # is disabled in CI mode. We need the dev image in order
+  # to run the SBT shell.
   docker pull -q docker.io/civiform/civiform-dev:latest
   docker tag civiform/civiform-dev:latest civiform-dev
 fi
