@@ -50,18 +50,13 @@ public class ApiKeyRepository {
   }
 
   /** Increment an API key's call count and set its last call IP address to the one provided. */
-  public CompletionStage<ApiKey> recordApiKeyUsage(String apiKeyId, String remoteAddress) {
-    return supplyAsync(
-        () -> {
-          ApiKey apiKey = database.find(ApiKey.class).where().eq("key_id", apiKeyId).findOne();
+  public void recordApiKeyUsage(String apiKeyId, String remoteAddress) {
+    ApiKey apiKey = database.find(ApiKey.class).where().eq("key_id", apiKeyId).findOne();
 
-          apiKey.incrementCallCount();
-          apiKey.setLastCallIpAddress(remoteAddress);
+    apiKey.incrementCallCount();
+    apiKey.setLastCallIpAddress(remoteAddress);
 
-          apiKey.save();
-          return apiKey;
-        },
-        executionContext);
+    apiKey.save();
   }
 
   /** Insert a new {@link ApiKey} record asynchronously. */

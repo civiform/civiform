@@ -1,3 +1,4 @@
+import axios from 'axios'
 import {Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {waitForPageJsLoad} from './wait'
@@ -40,6 +41,12 @@ export class AdminApiKeys {
     return await this.page.innerText('#api-key-credentials')
   }
 
+  async callCheckAuth(credentials: string): Promise<{status: number}> {
+    return await axios.get(BASE_URL + '/api/v1/checkAuth', {
+      headers: {Authorization: 'Basic ' + credentials},
+    })
+  }
+
   async expectApiKeyCredentialsPage(name: string) {
     expect(await this.page.innerText('h1')).toEqual(`Created API key: ${name}`)
   }
@@ -53,6 +60,26 @@ export class AdminApiKeys {
 
   async expectNewApiKeyPage() {
     expect(await this.page.innerText('h1')).toEqual('Create a new API key')
+  }
+
+  async expectKeyCallCount(
+    keyNameSlugified: string,
+    expectedCallCount: number,
+  ) {
+    await this.gotoApiKeyIndexPage()
+
+    expect(
+      await this.page.innerText(`${keyNameSlugified}-call-count`),
+    ).toContain(`Call count: ${expectedCallCount}`)
+  }
+
+  async expectLastCallIpAddressToBeSet(keyNameSlugified: string) {
+    await this.gotoApiKeyIndexPage()
+    const lastCallIpText = await this.page.innerText(
+      `${keyNameSlugified}-last-call-ip`,
+    )
+    expect(lastCallIpText).toContain('Last used by')
+    expect(lastCallIpText).not.toContain('N/A')
   }
 
   async retireApiKey(keyNameSlugified: string) {

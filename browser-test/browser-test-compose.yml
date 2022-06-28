@@ -31,4 +31,5 @@ services:
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
       - BASE_URL=http://civiform:9000
       - CIVIFORM_TIME_ZONE_ID
+      - CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET=false
     command: ~run -Dconfig.file=conf/application.dev.conf

@@ -11,12 +11,10 @@ import controllers.CiviFormController;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Optional;
-import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApiKey;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.ApiKeyRepository;
 
 /**
  * Base class for controllers that handle API requests. Requests that reach an API controller have
@@ -26,16 +24,12 @@ import repository.ApiKeyRepository;
 public class CiviFormApiController extends CiviFormController {
 
   protected final ApiPaginationTokenSerializer apiPaginationTokenSerializer;
-  protected final ApiKeyRepository apiKeyRepository;
   protected final ProfileUtils profileUtils;
 
   @Inject
   public CiviFormApiController(
-      ApiPaginationTokenSerializer apiPaginationTokenSerializer,
-      ApiKeyRepository apiKeyRepository,
-      ProfileUtils profileUtils) {
+      ApiPaginationTokenSerializer apiPaginationTokenSerializer, ProfileUtils profileUtils) {
     this.apiPaginationTokenSerializer = checkNotNull(apiPaginationTokenSerializer);
-    this.apiKeyRepository = checkNotNull(apiKeyRepository);
     this.profileUtils = checkNotNull(profileUtils);
   }
 
@@ -48,22 +42,14 @@ public class CiviFormApiController extends CiviFormController {
   }
 
   protected void assertHasProgramReadPermission(Http.Request request, String programSlug) {
-    ApiKey apiKey = getApiKey(request);
+    ApiKey apiKey =
+        profileUtils
+            .currentApiKey(request)
+            .orElseThrow(() -> new AccountNonexistentException("No API key found for profile"));
 
     if (!apiKey.getGrants().hasProgramPermission(programSlug, ApiKeyGrants.Permission.READ)) {
       throw new UnauthorizedApiRequestException(apiKey, programSlug);
     }
-  }
-
-  protected ApiKey getApiKey(Http.Request request) {
-    return profileUtils
-        .currentApiKey(request)
-        .orElseThrow(() -> new AccountNonexistentException("No API key found for profile"));
-  }
-
-  protected CompletionStage<ApiKey> recordApiKeyUsage(Http.Request request) {
-    return apiKeyRepository.recordApiKeyUsage(
-        getApiKey(request).getKeyId(), request.remoteAddress());
   }
 
   protected String getResponseJson(

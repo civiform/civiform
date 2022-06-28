@@ -19,7 +19,6 @@ import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.ApiKeyRepository;
 import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
@@ -42,14 +41,13 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
   @Inject
   public ProgramApplicationsApiController(
       ApiPaginationTokenSerializer apiPaginationTokenSerializer,
-      ApiKeyRepository apiKeyRepository,
       DateConverter dateConverter,
-      HttpExecutionContext httpContext,
-      JsonExporter jsonExporter,
       ProfileUtils profileUtils,
+      JsonExporter jsonExporter,
+      HttpExecutionContext httpContext,
       ProgramService programService,
       Config config) {
-    super(apiPaginationTokenSerializer, apiKeyRepository, profileUtils);
+    super(apiPaginationTokenSerializer, profileUtils);
     this.dateConverter = checkNotNull(dateConverter);
     this.httpContext = checkNotNull(httpContext);
     this.jsonExporter = checkNotNull(jsonExporter);
@@ -91,9 +89,8 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
 
     return programService
         .getProgramDefinitionAsync(programSlug)
-        .thenCombineAsync(
-            recordApiKeyUsage(request),
-            (programDefinition, unusedApiKey) -> {
+        .thenApplyAsync(
+            programDefinition -> {
               PaginationResult<Application> paginationResult;
 
               // By now the program specified by the request has already been found and
