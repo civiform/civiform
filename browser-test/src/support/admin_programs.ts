@@ -480,10 +480,14 @@ export class AdminPrograms {
   }
 
   async getDemographicsCsv() {
+    await clickAndWaitForModal(this.page, 'download-demographics-csv-modal')
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('text="Download Exported Data (CSV)"'),
+      this.page.click(
+        '#download-demographics-csv-modal button:has-text("Download Exported Data (CSV)")',
+      ),
     ])
+    await this.page.click('#download-demographics-csv-modal-close')
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')
