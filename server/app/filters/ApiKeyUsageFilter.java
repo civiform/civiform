@@ -8,6 +8,9 @@ import java.util.Optional;
 import java.util.concurrent.Executor;
 import javax.inject.Inject;
 import javax.inject.Provider;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.api.libs.concurrent.AkkaSchedulerProvider;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
@@ -17,7 +20,7 @@ import services.apikey.ApiKeyService;
 
 /**
  * This filter looks for requests with paths that begin with /api and record the usage data for the
- * relevant API key if it has one. The API key update is scheduled to run in a background through to
+ * relevant API key if it has one. The API key update is scheduled to run in a background thread through to
  * reduce latency and to ensure issues with recording the usage do not cause API requests to fail.
  */
 public class ApiKeyUsageFilter extends EssentialFilter {
@@ -26,6 +29,7 @@ public class ApiKeyUsageFilter extends EssentialFilter {
   private final Provider<ApiKeyService> apiKeyServiceProvider;
   private final Executor exec;
   private final Provider<ProfileUtils> profileUtilsProvider;
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApiKeyUsageFilter.class);
 
   @Inject
   public ApiKeyUsageFilter(
@@ -46,25 +50,29 @@ public class ApiKeyUsageFilter extends EssentialFilter {
             next.apply(request)
                 .map(
                     result -> {
-                      if (request.path().startsWith("/api")) {
-                        Optional<String> maybeApiKeyId =
+                      try {
+                        if (request.path().startsWith("/api/")) {
+                          Optional<String> maybeApiKeyId =
                             profileUtilsProvider.get().currentApiKeyId(request);
 
-                        // If the key ID is not present then the request was not
-                        // authenticated and does not need to be recorded.
-                        if (maybeApiKeyId.isPresent()) {
-                          String remoteAddress = request.remoteAddress();
+                          // If the key ID is not present then the request was not
+                          // authenticated and does not need to be recorded.
+                          if (maybeApiKeyId.isPresent()) {
+                            String remoteAddress = request.remoteAddress();
 
-                          akkaSchedulerProvider
+                            akkaSchedulerProvider
                               .get()
                               .scheduleOnce(
-                                  Duration.ZERO,
-                                  () ->
-                                      apiKeyServiceProvider
-                                          .get()
-                                          .recordApiKeyUsage(maybeApiKeyId.get(), remoteAddress),
-                                  ExecutionContext.fromExecutor(exec));
+                                Duration.ZERO,
+                                () ->
+                                  apiKeyServiceProvider
+                                    .get()
+                                    .recordApiKeyUsage(maybeApiKeyId.get(), remoteAddress),
+                                ExecutionContext.fromExecutor(exec));
+                          }
                         }
+                      } catch (RuntimeException e) {
+                        LOGGER.error("Error updating ApiKey usage: %s", e.toString());
                       }
 
                       return result;
