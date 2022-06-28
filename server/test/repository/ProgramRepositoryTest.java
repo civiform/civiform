@@ -210,8 +210,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
             program.id,
             F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 10)),
             Optional.empty(),
-            Optional.of(Instant.parse("2022-01-25T00:00:00Z")),
-            Optional.of(Instant.parse("2022-02-10T00:00:00Z")));
+            TimeFilter.builder()
+                .setFromTime(Optional.of(Instant.parse("2022-01-25T00:00:00Z")))
+                .setUntilTime(Optional.of(Instant.parse("2022-02-10T00:00:00Z")))
+                .build());
 
     assertThat(paginationResult.hasMorePages()).isFalse();
     assertThat(
@@ -244,8 +246,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             nextVersion.id,
             F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 2)),
             Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+            TimeFilter.builder().build());
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
@@ -259,8 +260,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             F.Either.Right(
                 new PageNumberBasedPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2)),
             Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+            TimeFilter.builder().build());
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
@@ -291,8 +291,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             nextVersion.id,
             F.Either.Left(new IdentifierBasedPaginationSpec<>(2, Long.MAX_VALUE)),
             Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+            TimeFilter.builder().build());
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
@@ -307,8 +306,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 new IdentifierBasedPaginationSpec<>(
                     2, paginationResult.getPageContents().get(1).id)),
             Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+            TimeFilter.builder().build());
 
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
     assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantOne);

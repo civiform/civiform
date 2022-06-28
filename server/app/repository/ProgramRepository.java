@@ -14,7 +14,6 @@ import io.ebean.Query;
 import io.ebean.SqlRow;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -227,8 +226,7 @@ public class ProgramRepository {
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
       Optional<String> searchNameFragment,
-      Optional<Instant> submitTimeFrom,
-      Optional<Instant> submitTimeTo) {
+      TimeFilter submitTimeFilter) {
     ExpressionList<Application> query =
         database
             .find(Application.class)
@@ -240,12 +238,12 @@ public class ProgramRepository {
                 "lifecycle_stage",
                 ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE));
 
-    if (submitTimeFrom.isPresent()) {
-      query = query.where().ge("submit_time", submitTimeFrom.get());
+    if (submitTimeFilter.fromTime().isPresent()) {
+      query = query.where().ge("submit_time", submitTimeFilter.fromTime().get());
     }
 
-    if (submitTimeTo.isPresent()) {
-      query = query.where().lt("submit_time", submitTimeTo.get());
+    if (submitTimeFilter.untilTime().isPresent()) {
+      query = query.where().lt("submit_time", submitTimeFilter.untilTime().get());
     }
 
     if (searchNameFragment.isPresent() && !searchNameFragment.get().isBlank()) {

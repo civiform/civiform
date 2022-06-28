@@ -19,6 +19,7 @@ import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.TimeFilter;
 import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
@@ -31,7 +32,7 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
 
   public static final String PROGRAM_SLUG_PARAM_NAME = "programSlug";
   public static final String FROM_DATE_PARAM_NAME = "fromDate";
-  public static final String TO_DATE_PARAM_NAME = "toDate";
+  public static final String UNTIL_DATE_PARAM_NAME = "toDate";
   private final DateConverter dateConverter;
   private final ProgramService programService;
   private final HttpExecutionContext httpContext;
@@ -77,10 +78,11 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
           }
         });
 
-    // TODO(#1743): Use TimeFilter.
-    Optional<Instant> fromTime =
-        resolveDateParam(paginationToken, FROM_DATE_PARAM_NAME, fromDateParam);
-    Optional<Instant> toTime = resolveDateParam(paginationToken, TO_DATE_PARAM_NAME, toDateParam);
+    TimeFilter submitTimeFilter =
+        TimeFilter.builder()
+            .setFromTime(resolveDateParam(paginationToken, FROM_DATE_PARAM_NAME, fromDateParam))
+            .setUntilTime(resolveDateParam(paginationToken, UNTIL_DATE_PARAM_NAME, toDateParam))
+            .build();
     int pageSize = resolvePageSize(paginationToken, pageSizeParam);
 
     IdentifierBasedPaginationSpec<Long> paginationSpec =
@@ -100,7 +102,10 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
               try {
                 paginationResult =
                     programService.getSubmittedProgramApplicationsAllVersions(
-                        programDefinition.id(), F.Either.Left(paginationSpec), fromTime, toTime);
+                        programDefinition.id(),
+                        F.Either.Left(paginationSpec),
+                        /* searchNameFragment= */ Optional.empty(),
+                        submitTimeFilter);
               } catch (ProgramNotFoundException e) {
                 throw new RuntimeException(e);
               }
@@ -111,7 +116,7 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
               String responseJson =
                   getResponseJson(
                       applicationsJson,
-                      getNextPageToken(paginationResult, programSlug, pageSize, fromTime, toTime));
+                      getNextPageToken(paginationResult, programSlug, pageSize, submitTimeFilter));
 
               return ok(responseJson).as("application/json");
             },
@@ -133,8 +138,7 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
       PaginationResult<Application> paginationResult,
       String programSlug,
       int pageSize,
-      Optional<Instant> fromTime,
-      Optional<Instant> toTime) {
+      TimeFilter timeFilter) {
     if (!paginationResult.hasMorePages()) {
       return Optional.empty();
     }
@@ -145,12 +149,18 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
 
     ImmutableMap.Builder<String, String> requestSpec = ImmutableMap.builder();
     requestSpec.put(PROGRAM_SLUG_PARAM_NAME, programSlug);
-    fromTime.ifPresent(
-        (fromInstant) ->
-            requestSpec.put(FROM_DATE_PARAM_NAME, dateConverter.formatIso8601Date(fromInstant)));
-    toTime.ifPresent(
-        (toInstant) ->
-            requestSpec.put(TO_DATE_PARAM_NAME, dateConverter.formatIso8601Date(toInstant)));
+    timeFilter
+        .fromTime()
+        .ifPresent(
+            (fromInstant) ->
+                requestSpec.put(
+                    FROM_DATE_PARAM_NAME, dateConverter.formatIso8601Date(fromInstant)));
+    timeFilter
+        .untilTime()
+        .ifPresent(
+            (untilInstant) ->
+                requestSpec.put(
+                    UNTIL_DATE_PARAM_NAME, dateConverter.formatIso8601Date(untilInstant)));
 
     return Optional.of(new ApiPaginationTokenPayload(pageSpec, requestSpec.build()));
   }
