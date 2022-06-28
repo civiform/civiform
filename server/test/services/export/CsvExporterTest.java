@@ -20,11 +20,6 @@ import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
 import services.applicant.question.Scalar;
-import services.program.Column;
-import services.program.ColumnType;
-import services.program.CsvExportConfig;
-import services.program.ExportDefinition;
-import services.program.ExportEngine;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import support.ProgramBuilder;
@@ -37,25 +32,6 @@ public class CsvExporterTest extends AbstractExporterTest {
     return new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty());
   }
 
-  private CsvExportConfig createFakeCsvConfig() {
-    CsvExportConfig.Builder csvExportConfigBuilder = CsvExportConfig.builder();
-    fakeQuestions.stream()
-        .map(question -> question.getQuestionDefinition())
-        .filter(question -> !question.isEnumerator())
-        .flatMap(
-            question -> getApplicantQuestion(question).getContextualizedScalars().keySet().stream())
-        .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
-        .forEach(
-            path ->
-                csvExportConfigBuilder.addColumn(
-                    Column.builder()
-                        .setHeader(ExporterService.pathToHeader(path))
-                        .setJsonPath(path)
-                        .setColumnType(ColumnType.APPLICANT_ANSWER)
-                        .build()));
-    return csvExportConfigBuilder.build();
-  }
-
   @Override
   protected void createFakeProgram() {
     ProgramBuilder fakeProgram = ProgramBuilder.newActiveProgram();
@@ -64,14 +40,7 @@ public class CsvExporterTest extends AbstractExporterTest {
     fakeQuestions.forEach(
         question -> fakeProgram.withBlock().withRequiredQuestion(question).build());
 
-    this.fakeProgram =
-        fakeProgram
-            .withExportDefinition(
-                ExportDefinition.builder()
-                    .setEngine(ExportEngine.CSV)
-                    .setCsvConfig(Optional.of(createFakeCsvConfig()))
-                    .build())
-            .build();
+    this.fakeProgram = fakeProgram.build();
   }
 
   @Test
