@@ -83,7 +83,7 @@ GET     /admin/programs/:programId/applications/all                       contro
 GET     /admin/programs/:programId/applications/singleVersion             controllers.admin.AdminApplicationController.downloadSingleVersion(request: Request, programId: Long)
 GET     /admin/programs/:programId/applications/:applicationId            controllers.admin.AdminApplicationController.show(request: Request, programId: Long, applicationId: Long)
 GET     /admin/programs/:programId/applications/:applicationId/download   controllers.admin.AdminApplicationController.download(request: Request, programId: Long, applicationId: Long)
-GET     /admin/demographics                                               controllers.admin.AdminApplicationController.downloadDemographics()
+GET     /admin/demographics                                               controllers.admin.AdminApplicationController.downloadDemographics(request: Request, fromDate: java.util.Optional[String], untilDate: java.util.Optional[String])
 
 # Admin API key management
 GET     /admin/apiKeys                              controllers.admin.AdminApiKeysController.index(request: Request)

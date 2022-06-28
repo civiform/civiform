@@ -77,6 +77,7 @@ public class ProgramApplicationsApiController extends CiviFormApiController {
           }
         });
 
+    // TODO(#1743): Use TimeFilter.
     Optional<Instant> fromTime =
         resolveDateParam(paginationToken, FROM_DATE_PARAM_NAME, fromDateParam);
     Optional<Instant> toTime = resolveDateParam(paginationToken, TO_DATE_PARAM_NAME, toDateParam);
