@@ -282,7 +282,7 @@ public class AdminApplicationController extends CiviFormController {
     var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
     PaginationResult<Application> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programId, F.Either.Right(paginationSpec), search, TimeFilter.builder().build());
+            programId, F.Either.Right(paginationSpec), search, TimeFilter.EMPTY);
 
     return ok(applicationListView.render(request, program, paginationSpec, applications, search));
   }

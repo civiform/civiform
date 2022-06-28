@@ -51,7 +51,7 @@ public class JsonExporter {
               programDefinition.id(),
               F.Either.Left(paginationSpec),
               /* searchNameFragment= */ Optional.empty(),
-              /* submitTimeFilter= */ TimeFilter.builder().build());
+              /* submitTimeFilter= */ TimeFilter.EMPTY);
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException(e);
     }

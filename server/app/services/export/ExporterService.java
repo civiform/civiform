@@ -89,7 +89,7 @@ public final class ExporterService {
                 programId,
                 F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
                 /* searchNameFragment= */ Optional.empty(),
-                /* submitTimeFilter= */ TimeFilter.builder().build())
+                /* submitTimeFilter= */ TimeFilter.EMPTY)
             .getPageContents();
 
     return exportCsv(exportConfig, applications);
