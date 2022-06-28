@@ -3,6 +3,7 @@ import os
 import shutil
 import shlex
 
+
 # TODO(#2741): When using this for Azure make sure to setup backend bucket prior to calling these functions.
 def perform_apply(config_loader, is_destroy=False):
     '''Generates terraform variable files and runs terraform init and apply.'''
@@ -49,6 +50,7 @@ def perform_apply(config_loader, is_destroy=False):
             ))
 
     return True
+
 
 def copy_backend_override(config_loader):
     ''' 

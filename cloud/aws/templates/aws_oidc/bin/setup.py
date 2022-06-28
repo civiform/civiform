@@ -8,6 +8,7 @@ from cloud.aws.bin.lib import backend_setup
 
 
 class Setup(AwsSetupTemplate):
+
     def get_current_user(self):
         get_current_command = "aws sts get-caller-identity --query UserId --output text"
         return subprocess.run(

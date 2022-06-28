@@ -15,7 +15,7 @@ class SetupTemplate:
 
     def __init__(self, config):
         self.config = config
-    
+
     def _make_backend_override(self):
         current_directory = self.config.get_template_dir()
         shutil.copy2(

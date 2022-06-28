@@ -8,6 +8,7 @@ from cloud.aws.bin.lib import backend_setup
 
 
 class AwsSetupTemplate(SetupTemplate):
+
     def _tf_run_for_aws(self, is_destroy=False):
         template_dir = os.path.join(self.config.get_template_dir(), 'setup')
         print(" - Copy the tfvars file into the setup dir")
@@ -30,7 +31,7 @@ class AwsSetupTemplate(SetupTemplate):
         tf_apply_args = [
             "terraform", f"-chdir={template_dir}", "apply", "-input=false"
         ]
-        
+
         if is_destroy:
             tf_apply_args.append("-destroy")
 

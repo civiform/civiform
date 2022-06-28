@@ -13,6 +13,7 @@ def load_setup_class(template_dir):
     spec.loader.exec_module(loaded_module)
     return loaded_module.Setup
 
+
 def load_destroy_class(template_dir):
     spec = importlib.util.spec_from_file_location(
         "destroy", f"{os.getcwd()}/{template_dir}/bin/destroy.py")
