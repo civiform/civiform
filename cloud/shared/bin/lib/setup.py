@@ -77,9 +77,10 @@ try:
 
     print(" - Run terraform init")
     subprocess.check_call(terraform_init_args)
-    
+
     tf_apply_args = [
-        "terraform", f"-chdir={template_dir}", "apply", "-input=false", f"-var-file={config_loader.tfvars_filename}"
+        "terraform", f"-chdir={template_dir}", "apply", "-input=false",
+        f"-var-file={config_loader.tfvars_filename}"
     ]
 
     if not config_loader.is_dev():
