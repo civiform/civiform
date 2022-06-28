@@ -8,10 +8,6 @@ resource "aws_apprunner_service" "civiform_dev" {
   auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.auto_scaling_config.arn
   service_name                   = "${var.app_prefix}-civiform_dev"
 
-  health_check_configuration {
-    unhealthy_threshold = 1
-  }
-
   source_configuration {
     image_repository {
       image_configuration {
