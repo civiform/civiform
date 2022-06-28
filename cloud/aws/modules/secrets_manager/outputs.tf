@@ -27,4 +27,3 @@ output "applicant_oidc_discovery_uri" {
   value     = data.aws_secretsmanager_secret_version.applicant_oidc_discovery_uri_version.secret_string
   sensitive = true
 }
-
