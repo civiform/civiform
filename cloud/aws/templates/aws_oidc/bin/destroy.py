@@ -2,18 +2,19 @@
 
 import os
 import subprocess
+import shutil
 
-from cloud.shared.bin.lib.setup_template import SetupTemplate
+from cloud.aws.templates.aws_oidc.bin.awsSetupTemplate import AwsSetupTemplate
 """
 Destroy the setup
 """
 
 
-class Destroy(SetupTemplate):
+class Destroy(AwsSetupTemplate):
 
     def pre_terraform_destroy(self):
         if not self.config.use_backend_config():
             self._make_backend_override()
 
     def post_terraform_destroy(self):
-        # need to do the setup destroy here should be pretty simple tho
+        self._tf_run_for_aws(is_destroy=True)

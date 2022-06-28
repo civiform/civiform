@@ -5,7 +5,7 @@ import subprocess
 import sys
 
 from config_loader import ConfigLoader
-from write_tfvars import TfVarWriter
+from cloud.shared.bin.lib import terraform
 from setup_class_loader import load_destroy_class
 """
 Destroy.py destroys the setup
@@ -40,26 +40,5 @@ Destroy = load_destroy_class(template_dir)
 
 template_destroy = Destroy(config_loader)
 template_destroy.pre_terraform_destroy()
-terraform_init_args = [
-    "terraform",
-    f"-chdir={template_dir}",
-    "init",
-    "-input=false",
-    "-upgrade",
-]
-if config_loader.use_backend_config():
-    terraform_init_args.append(
-        f"-backend-config={config_loader.backend_vars_filename}")
-
-print(" - Run terraform init")
-subprocess.check_call(terraform_init_args)
-
-terraform_destroy_args = [
-    "terraform", f"-chdir={template_dir}", "destroy", "-input=false"
-]
-
-if config_loader.is_prober():
-    terraform_destroy_args.append("-auto-approve")
-
-subprocess.check_call(terraform_destroy_args)
+terraform.perform_apply(config_loader, is_destroy=True)
 template_destroy.post_terraform_destroy()
