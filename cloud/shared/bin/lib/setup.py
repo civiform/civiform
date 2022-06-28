@@ -78,12 +78,16 @@ try:
     print(" - Run terraform init")
     subprocess.check_call(terraform_init_args)
 
-    print(" - Run terraform apply")
-    subprocess.check_call(
-        [
-            "terraform", f"-chdir={template_dir}", "apply", "-input=false",
-            f"-var-file={config_loader.tfvars_filename}"
-        ])
+    tf_apply_args = [
+        "terraform", f"-chdir={template_dir}", "apply", "-input=false",
+        f"-var-file={config_loader.tfvars_filename}"
+    ]
+
+    if not config_loader.is_dev():
+        tf_apply_args.append("-auto-approve")
+
+    print(" - Run terraform apply in setup.py")
+    subprocess.check_call(tf_apply_args)
 
     ###############################################################################
     # Post Run Setup Tasks (if needed)

@@ -4,6 +4,7 @@ import shlex
 import shutil
 
 from cloud.shared.bin.lib.setup_template import SetupTemplate
+from cloud.aws.bin.lib import backend_setup
 
 
 class Setup(SetupTemplate):
@@ -53,15 +54,4 @@ class Setup(SetupTemplate):
 
     def _setup_shared_state_file(self):
         if self.config.use_backend_config():
-            backend_file_location = os.path.join(
-                self.config.get_template_dir(),
-                self.config.backend_vars_filename)
-            with open(backend_file_location, 'w') as f:
-                f.write(
-                    f'bucket         = "{self.config.app_prefix}-backendstate"\n'
-                )
-                f.write(f'key            = "tfstate/terraform.tfstate"\n')
-                f.write(f'region         = "us-east-1"\n')
-                f.write(
-                    f'dynamodb_table = "{self.config.app_prefix}-locktable"\n')
-                f.write(f'encrypt        = true\n')
+            backend_setup.setup_backend_config(self.config)
