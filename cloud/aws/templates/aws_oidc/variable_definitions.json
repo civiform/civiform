@@ -16,5 +16,11 @@
     "secret": false,
     "tfvar": true,
     "type": "string"
+  },
+  "APPLICANT_OIDC_ADDITIONAL_SCOPES": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
   }
 }

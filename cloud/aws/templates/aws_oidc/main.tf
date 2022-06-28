@@ -8,6 +8,10 @@ resource "aws_apprunner_service" "civiform_dev" {
   auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.auto_scaling_config.arn
   service_name                   = "${var.app_prefix}-civiform_dev"
 
+  health_check_configuration {
+    unhealthy_threshold = 1
+  }
+
   source_configuration {
     image_repository {
       image_configuration {
@@ -41,11 +45,12 @@ resource "aws_apprunner_service" "civiform_dev" {
           STAGING_TI_LIST        = var.staging_ti_notification_mailing_list
           STAGING_APPLICANT_LIST = var.staging_applicant_notification_mailing_list
 
-          APPLICANT_OIDC_PROVICER_NAME = var.applicant_oidc_provider_name
-          CIVIFORM_APPLICANT_IDP       = var.civiform_applicant_idp
-          APPLICANT_OIDC_CLIENT_ID     = module.secrets.oidc_client_id
-          APPLICANT_OIDC_CLIENT_SECRET = module.secrets.oidc_secret
-          APPLICANT_OIDC_DISCOVERY_URI = module.secrets.oidc_discovery_uri
+          APPLICANT_OIDC_PROVIDER_NAME     = var.applicant_oidc_provider_name
+          CIVIFORM_APPLICANT_IDP           = var.civiform_applicant_idp
+          APPLICANT_OIDC_CLIENT_ID         = module.secrets.applicant_oidc_client_id
+          APPLICANT_OIDC_CLIENT_SECRET     = module.secrets.applicant_oidc_client_secret
+          APPLICANT_OIDC_DISCOVERY_URI     = module.secrets.applicant_oidc_discovery_uri
+          APPLICANT_OIDC_ADDITIONAL_SCOPES = var.applicant_oidc_additional_scopes
         }
       }
 

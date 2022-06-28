@@ -178,5 +178,10 @@ variable "port" {
   type        = string
   description = "Port the app is running on"
   default     = "9000"
+}
 
+variable "applicant_oidc_additional_scopes" {
+  type        = string
+  description = "Additional scopes for Applicant oidc"
+  default     = "allatclaims"
 }
