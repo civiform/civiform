@@ -498,7 +498,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateFile_storedFileAlreadyExists_doesNotCrateDuplicate() {
+  public void updateFile_storedFileAlreadyExists_doesNotCreateDuplicateStoredFile() {
     var storedFileRepo = instanceOf(StoredFileRepository.class);
 
     program =
