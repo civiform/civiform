@@ -106,6 +106,9 @@ if truth::is_disabled continuous_integration; then
   truth::enable use_dev
 fi
 
+echo "Running docker compose to remove existing contianers."
+compose_browser_test "${use_dev}" --profile ${cloud_provider} down
+
 # Start emulator.
 echo "Running docker compose to start the cloud emulator"
 compose_browser_test "${use_dev}" --profile ${cloud_provider} up -d ${emulator}
@@ -117,7 +120,7 @@ echo "Waiting for the cloud emulator"
 # localstack emulator is also required for Azurite. This should only run for
 # Azure browser tests.
 if truth::is_enabled both_emulators; then
-  echo "Staring localstack emulator as well"
+  echo "Starting localstack emulator as well"
   if truth::is_enabled continuous_integration; then
     compose_browser_test "${use_dev}" --profile aws up -d localstack >.dockerlogs 2>&1 &
   else
@@ -128,7 +131,7 @@ fi
 # Start everything else.
 echo "Running docker compose to start the CiviForm environment:"
 if truth::is_enabled continuous_integration; then
-  compose_browser_test "${use_dev}" --profile ${cloud_provider} up >.dockerlogs 2>&1 &
+  compose_browser_test "${use_dev}" --profile ${cloud_provider} up --no-recreate >.dockerlogs 2>&1 &
 else
-  compose_browser_test "${use_dev}" --profile ${cloud_provider} up
+  compose_browser_test "${use_dev}" --profile ${cloud_provider} up --no-recreate
 fi
