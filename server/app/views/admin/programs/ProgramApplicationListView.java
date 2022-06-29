@@ -4,9 +4,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.iframe;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
@@ -14,6 +16,9 @@ import static j2html.TagCreator.span;
 import com.google.auto.value.AutoValue;
 import com.google.inject.Inject;
 import controllers.admin.routes;
+import j2html.TagCreator;
+import j2html.attributes.Attr;
+import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
 import models.Application;
@@ -34,12 +39,17 @@ import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.Modal;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.Styles;
 
 /** Renders a page for viewing applications to a program. */
 public final class ProgramApplicationListView extends BaseHtmlView {
+  private static final String FROM_DATE_PARAM = "fromDate";
+  private static final String UNTIL_DATE_PARAM = "untilDate";
+  private static final String SEARCH_PARAM = "search";
+
   private final AdminLayout layout;
   private final ApplicantUtils applicantUtils;
   private final DateConverter dateConverter;
@@ -61,6 +71,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       PageNumberBasedPaginationSpec paginationSpec,
       PaginationResult<Application> paginatedApplications,
       RenderFilterParams filterParams) {
+
+    Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
@@ -78,7 +90,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 filterParams.untilDate()))
                     .withClasses(Styles.MB_2),
                 br(),
-                renderSearchForm(request, program),
+                renderSearchForm(request, program, downloadModal.getButton(), filterParams),
                 each(paginatedApplications.getPageContents(), this::renderApplicationListItem))
             .withClasses(Styles.MB_16, Styles.MR_2);
 
@@ -95,13 +107,18 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .getBundle()
             .setTitle(program.adminName() + " - Applications")
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_applications"))
+            .addModals(downloadModal)
             .addMainStyles(Styles.FLEX)
             .addMainContent(contentDiv, applicationShowDiv);
 
     return layout.renderCentered(htmlBundle);
   }
 
-  private Tag renderSearchForm(Http.Request request, ProgramDefinition program) {
+  private Tag renderSearchForm(
+      Http.Request request,
+      ProgramDefinition program,
+      Tag downloadButton,
+      RenderFilterParams filterParams) {
     return form()
         .withClasses(Styles.MT_6)
         .withMethod("GET")
@@ -114,24 +131,27 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     Optional.empty())
                 .url())
         .with(
-            div()
+            fieldset()
                 .with(
                     legend("Application submitted").withClasses(Styles.ML_1, Styles.TEXT_GRAY_600),
                     div()
                         .withClass(Styles.FLEX)
                         .with(
                             FieldWithLabel.date()
-                                .setFieldName("fromDate")
+                                .setFieldName(FROM_DATE_PARAM)
+                                .setValue(filterParams.fromDate().orElse(""))
                                 .setLabelText("From:")
                                 .getContainer()
                                 .withClasses(Styles.FLEX),
                             FieldWithLabel.date()
-                                .setFieldName("untilDate")
+                                .setFieldName(UNTIL_DATE_PARAM)
+                                .setValue(filterParams.untilDate().orElse(""))
                                 .setLabelText("Until:")
                                 .getContainer()
                                 .withClasses(Styles.FLEX))),
             FieldWithLabel.input()
-                .setFieldName("search")
+                .setFieldName(SEARCH_PARAM)
+                .setValue(filterParams.search().orElse(""))
                 .setLabelText("Search by name or application ID")
                 .getContainer()
                 .withClasses(Styles.W_FULL, Styles.MT_2),
@@ -140,35 +160,66 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .withClasses(Styles.MT_4, Styles.MB_6, Styles.FLEX, Styles.SPACE_X_2)
                 .with(
                     div().withClass(Styles.FLEX_GROW),
-                    makeSvgTextButton("Download", Icons.DOWNLOAD)
-                        .withClass(AdminStyles.SECONDARY_BUTTON_STYLES),
+                    downloadButton,
                     // TODO(clouser): Change the icon.
                     makeSvgTextButton("Filter", Icons.LANGUAGE)
                         .withClass(AdminStyles.PRIMARY_BUTTON_STYLES)
                         .withType("submit")));
   }
 
-  // private Tag renderCsvDownloadButton(long programId) {
-  //   String link =
-  // controllers.admin.routes.AdminApplicationController.downloadAll(programId).url();
-  //   return new LinkElement()
-  //       .setId("download-all-button")
-  //       .setHref(link)
-  //       .setText("Download all versions (CSV)")
-  //       .setStyles(ReferenceClasses.DOWNLOAD_ALL_BUTTON)
-  //       .asButton();
-  // }
-
-  // private Tag renderJsonDownloadButton(long programId) {
-  //   String link =
-  //       controllers.admin.routes.AdminApplicationController.downloadAllJson(programId).url();
-  //   return new LinkElement()
-  //       .setId("download-all-json-button")
-  //       .setHref(link)
-  //       .setText("Download all versions (JSON)")
-  //       .setStyles(ReferenceClasses.DOWNLOAD_ALL_BUTTON)
-  //       .asButton();
-  // }
+  private Modal renderDownloadApplicationsModal(
+      ProgramDefinition program, RenderFilterParams filterParams) {
+    String modalId = "download-program-applications-modal";
+    ContainerTag modalContent =
+        div()
+            .withClasses(Styles.PX_8)
+            .with(
+                form()
+                    .withMethod("GET")
+                    .with(
+                        input()
+                            .withName(FROM_DATE_PARAM)
+                            .withValue(filterParams.fromDate().orElse(""))
+                            .withType("hidden"),
+                        input()
+                            .withName(UNTIL_DATE_PARAM)
+                            .withValue(filterParams.untilDate().orElse(""))
+                            .withType("hidden"),
+                        input()
+                            .withName(SEARCH_PARAM)
+                            .withValue(filterParams.search().orElse(""))
+                            .withType("hidden"),
+                        div()
+                            .withClasses(Styles.FLEX, Styles.SPACE_X_2)
+                            .with(
+                                TagCreator.button("Download CSV")
+                                    .withClasses(
+                                        ReferenceClasses.DOWNLOAD_ALL_BUTTON,
+                                        AdminStyles.PRIMARY_BUTTON_STYLES)
+                                    .attr(
+                                        Attr.FORMACTION,
+                                        controllers.admin.routes.AdminApplicationController
+                                            .downloadAll(program.id())
+                                            .url())
+                                    .withType("submit"),
+                                TagCreator.button("Download JSON")
+                                    .withClasses(
+                                        ReferenceClasses.DOWNLOAD_ALL_BUTTON,
+                                        AdminStyles.PRIMARY_BUTTON_STYLES)
+                                    .attr(
+                                        Attr.FORMACTION,
+                                        controllers.admin.routes.AdminApplicationController
+                                            .downloadAllJson(program.id())
+                                            .url())
+                                    .withType("submit"))));
+    return Modal.builder(modalId, modalContent)
+        .setModalTitle("Download application data")
+        .setTriggerButtonContent(
+            makeSvgTextButton("Download", Icons.DOWNLOAD)
+                .withClass(AdminStyles.SECONDARY_BUTTON_STYLES)
+                .withType("button"))
+        .build();
+  }
 
   private Tag renderApplicationListItem(Application application) {
     String applicantNameWithApplicationId =
