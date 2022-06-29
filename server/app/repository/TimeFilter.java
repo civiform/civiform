@@ -7,6 +7,8 @@ import java.util.Optional;
 /** Allows filtering data based on an optional fromTime (inclusive) / untilTime (exclusive). */
 @AutoValue
 public abstract class TimeFilter {
+  public static final TimeFilter EMPTY = TimeFilter.builder().build();
+
   public abstract Optional<Instant> fromTime();
 
   public abstract Optional<Instant> untilTime();
