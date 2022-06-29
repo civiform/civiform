@@ -497,6 +497,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
   }
 
+  /**
+   * This test guards regression for the bugfix to
+   * https://github.com/seattle-uat/civiform/issues/2818
+   */
   @Test
   public void updateFile_storedFileAlreadyExists_doesNotCreateDuplicateStoredFile() {
     var storedFileRepo = instanceOf(StoredFileRepository.class);
