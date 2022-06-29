@@ -1,17 +1,8 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
-import static j2html.TagCreator.form;
-import static j2html.TagCreator.h2;
-import static j2html.TagCreator.hr;
-import static j2html.TagCreator.table;
-import static j2html.TagCreator.tbody;
-import static j2html.TagCreator.td;
-import static j2html.TagCreator.th;
-import static j2html.TagCreator.thead;
-import static j2html.TagCreator.tr;
+import static j2html.TagCreator.*;
+import static views.components.FieldWithLabel.date;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -75,7 +66,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     search,
                     routes.TrustedIntermediaryController.dashboard(
                         Optional.empty(), Optional.empty())),
-                renderTIApplicantsTable(managedAccounts, search, page, totalPageCount),
+                renderTIApplicantsTable(
+                    managedAccounts, search, page, totalPageCount, tiGroup, request),
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Trusted Intermediary Members"),
                 renderTIMembersTable(tiGroup).withClasses(Styles.ML_2))
@@ -98,10 +90,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       ImmutableList<Account> managedAccounts,
       Optional<String> search,
       int page,
-      int totalPageCount) {
+      int totalPageCount,
+      TrustedIntermediaryGroup tiGroup,
+      Http.Request request) {
     ContainerTag main =
         div(table()
-                .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_3_4)
+                .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
                 .with(renderApplicantTableHeader())
                 .with(
                     tbody(
@@ -109,7 +103,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                             managedAccounts.stream()
                                 .sorted(Comparator.comparing(Account::getApplicantName))
                                 .collect(Collectors.toList()),
-                            account -> renderApplicantRow(account)))))
+                            account -> renderApplicantRow(account, tiGroup, request)))))
             .withClasses(Styles.MB_16);
     return main.with(
         renderPaginationDiv(
@@ -160,7 +154,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setValue(request.flash().get("providedLastName").orElse(""))
             .setPlaceholderText("Applicant last name (Required)");
     FieldWithLabel dateOfBirthField =
-        FieldWithLabel.date()
+        date()
             .setId("date-of-birth-input")
             .setFieldName("dob")
             .setLabelText("Date Of Birth")
@@ -198,7 +192,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderStatusCell(ti));
   }
 
-  private Tag renderApplicantRow(Account applicant) {
+  private Tag renderApplicantRow(
+      Account applicant, TrustedIntermediaryGroup tiGroup, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             Styles.BORDER_B,
@@ -207,24 +202,34 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderInfoCell(applicant))
         .with(renderApplicantInfoCell(applicant))
         .with(renderActionsCell(applicant))
-        .with(renderDOBCell(applicant));
+        .with(renderDOBCell(applicant, tiGroup, request));
   }
 
-  private Tag renderDOBCell(Account applicant) {
+  private Tag renderDOBCell(
+      Account applicant, TrustedIntermediaryGroup tiGroup, Http.Request request) {
 
     Optional<Applicant> newestApplicant = applicant.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
     }
-    String applicantDOB = "";
-    Optional<String> dob = newestApplicant.get().getApplicantData().getDOB();
-    if (dob.isPresent()) {
-      applicantDOB = dob.get();
-    }
-    return td().with(div(applicantDOB).withClasses(Styles.FONT_SEMIBOLD))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+    String current_DOB = newestApplicant.get().getApplicantData().getDOB().orElse("");
+    return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12, Styles.FONT_SEMIBOLD)
+        .with(
+            form()
+                .withClass(Styles.FLEX)
+                .withMethod("POST")
+                .withAction(
+                    routes.TrustedIntermediaryController.updateDateOfBirth(tiGroup.id, applicant.id)
+                        .url())
+                .with(
+                    input()
+                        .withType("date")
+                        .withName("dob")
+                        .withValue(current_DOB)
+                        .withPlaceholder("Click to Enter"),
+                    makeCsrfTokenInputTag(request),
+                    submitButton("Update").withClass(Styles.P_0)));
   }
-
   private Tag renderApplicantInfoCell(Account applicantAccount) {
     int applicationCount =
         applicantAccount.getApplicants().stream()

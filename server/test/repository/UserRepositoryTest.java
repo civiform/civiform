@@ -2,10 +2,12 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import java.util.Optional;
 import java.util.Set;
 import models.Account;
 import models.Applicant;
+import models.TrustedIntermediaryGroup;
 import org.junit.Before;
 import org.junit.Test;
 import services.CiviFormError;
@@ -19,10 +21,18 @@ public class UserRepositoryTest extends ResetPostgres {
   public static final String AUTHORITY_ID = "I'm an authority ID";
 
   private UserRepository repo;
+  AddApplicantToTrustedIntermediaryGroupForm applicantform;
+  TrustedIntermediaryGroup tiGroup;
 
   @Before
   public void setupApplicantRepository() {
     repo = instanceOf(UserRepository.class);
+    applicantform = new AddApplicantToTrustedIntermediaryGroupForm();
+    applicantform.setFirstName("John");
+    applicantform.setLastName("Doe");
+    applicantform.setEmailAddress(EMAIL);
+    applicantform.setDob("2020-10-10");
+    tiGroup = new TrustedIntermediaryGroup("Example", "Description");
   }
 
   @Test
@@ -78,7 +88,7 @@ public class UserRepositoryTest extends ResetPostgres {
   @Test
   public void insertApplicant() {
     Applicant applicant = new Applicant();
-    String path = "$.applicant.birthdate";
+    String path = "$.applicant.date_of_birth";
     applicant.getApplicantData().putString(Path.create(path), "1/1/2021");
 
     repo.insertApplicant(applicant).toCompletableFuture().join();
@@ -90,10 +100,18 @@ public class UserRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void testWithDOB() {
+    repo.createNewApplicantForTrustedIntermediaryGroup(applicantform, tiGroup);
+    Account applicant = repo.lookupAccountByEmail(EMAIL).get();
+    assertThat(applicant.getApplicantName())
+        .isEqualTo(applicantform.getFirstName() + applicantform.getLastName());
+  }
+
+  @Test
   public void updateApplicant() {
     Applicant applicant = new Applicant();
     repo.insertApplicant(applicant).toCompletableFuture().join();
-    String path = "$.applicant.birthdate";
+    String path = "$.applicant.date_of_birth";
     applicant.getApplicantData().putString(Path.create(path), "1/1/2021");
 
     repo.updateApplicant(applicant).toCompletableFuture().join();

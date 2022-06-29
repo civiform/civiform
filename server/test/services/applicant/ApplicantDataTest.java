@@ -63,4 +63,14 @@ public class ApplicantDataTest {
     assertThat(data.getFailedUpdates()).isEqualTo(ImmutableMap.of(samplePath, "invalid_value"));
     assertThrows(IllegalStateException.class, () -> data.asJsonString());
   }
+
+  @Test
+  public void checkDateOfBirth() {
+    ApplicantData data = new ApplicantData();
+    String sampleDOB = "2022-10-05";
+    data.setDOB(sampleDOB);
+    assertThat(data.getDOB().get()).isEqualTo(sampleDOB);
+    assertThat(data.asJsonString())
+        .isEqualTo("\"{\"applicant\":{\"date_of_birth\":\"2022-10-05\"}}\"");
+  }
 }

@@ -13,9 +13,11 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
+import forms.UpdateApplicantDOB;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Account;
+import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -90,6 +92,38 @@ public class TrustedIntermediaryController {
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
+  public Result updateDateOfBirth(Long tiId, Long applicantId, Http.Request request) {
+    Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
+
+    if (civiformProfile.isEmpty()) {
+      return unauthorized();
+    }
+    Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
+        userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+    if (trustedIntermediaryGroup.isEmpty()) {
+      return notFound();
+    }
+    if (!trustedIntermediaryGroup.get().id.equals(tiId)) {
+      return unauthorized();
+    }
+    Form<UpdateApplicantDOB> form =
+        formFactory.form(UpdateApplicantDOB.class).bindFromRequest(request);
+    if (form.hasErrors()) {
+      return redirectToDashboardWithDOBError(form.errors().get(0).message(), form);
+    }
+    if (Strings.isNullOrEmpty(form.get().getDob())) {
+      return redirectToDashboardWithDOBError("DOB is required.", form);
+    }
+
+    Applicant applicant =
+        userRepository.lookupApplicant(applicantId).toCompletableFuture().join().get();
+    applicant.getApplicantData().setDOB(form.get().getDob());
+    userRepository.updateApplicant(applicant);
+    return redirect(
+        routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty()));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.TI)
   public Result addApplicant(Long id, Http.Request request) {
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
     if (civiformProfile.isEmpty()) {
@@ -113,6 +147,9 @@ public class TrustedIntermediaryController {
     }
     if (Strings.isNullOrEmpty(form.get().getLastName())) {
       return redirectToDashboardWithError("Last name required.", form);
+    }
+    if (Strings.isNullOrEmpty(form.get().getDob())) {
+      return redirectToDashboardWithError("Date Of Birth required.", form);
     }
     try {
       userRepository.createNewApplicantForTrustedIntermediaryGroup(
@@ -140,6 +177,14 @@ public class TrustedIntermediaryController {
         .flashing("providedMiddleName", form.get().getMiddleName())
         .flashing("providedLastName", form.get().getLastName())
         .flashing("providedEmail", form.get().getEmailAddress())
-        .flashing("providedDob", form.get().getDob());
+        .flashing("providedDateOfBirth", form.get().getDob());
+  }
+
+  private Result redirectToDashboardWithDOBError(
+      String errorMessage, Form<UpdateApplicantDOB> form) {
+    return redirect(
+            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty()))
+        .flashing("error", errorMessage)
+        .flashing("providedDateOfBirth", form.get().getDob());
   }
 }

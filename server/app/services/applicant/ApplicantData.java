@@ -152,13 +152,10 @@ public class ApplicantData extends CfJsonDocumentContext {
   }
 
   public Optional<String> getDOB() {
-    String dob = readString(WellKnownPaths.APPLICANT_DOB).get();
-    return Optional.of(dob);
+    return readString(WellKnownPaths.APPLICANT_DOB);
   }
 
   public void setDOB(@Nullable String dob) {
-    if (!hasPath(WellKnownPaths.APPLICANT_DOB)) {
-      putString(WellKnownPaths.APPLICANT_DOB, dob);
-    }
+    putString(WellKnownPaths.APPLICANT_DOB, dob);
   }
 }
