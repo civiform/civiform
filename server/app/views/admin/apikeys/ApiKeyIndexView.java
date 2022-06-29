@@ -13,7 +13,6 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.tr;
 
 import auth.ApiKeyGrants;
-import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
@@ -21,6 +20,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
 import java.util.function.Function;
 import models.ApiKey;
+import modules.MainModule;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DateConverter;
@@ -38,7 +38,6 @@ import views.style.Styles;
 public final class ApiKeyIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final DateConverter dateConverter;
-  private final Slugify slugifier = Slugify.builder().build();
 
   @Inject
   public ApiKeyIndexView(AdminLayoutFactory layoutFactory, DateConverter dateConverter) {
@@ -74,17 +73,19 @@ public final class ApiKeyIndexView extends BaseHtmlView {
 
   private DivTag renderApiKey(
       Http.Request request, ApiKey apiKey, ImmutableMap<String, String> programSlugToName) {
+    String keyNameSlugified = MainModule.SLUGIFIER.slugify(apiKey.getName());
+
     DivTag statsDiv =
         div()
             .with(
                 p("Created " + dateConverter.formatRfc1123(apiKey.getCreateTime())),
                 p("Created by " + apiKey.getCreatedBy()),
-                p(
-                    apiKey
+                p(apiKey
                         .getLastCallIpAddress()
                         .map(ip -> "Last used by " + ip)
-                        .orElse("Last used by N/A")),
-                p("Call count: " + apiKey.getCallCount()))
+                        .orElse("Last used by N/A"))
+                    .withId(keyNameSlugified + "-last-call-ip"),
+                p("Call count: " + apiKey.getCallCount()).withId(keyNameSlugified + "-call-count"))
             .withClasses(Styles.TEXT_XS);
 
     DivTag linksDiv = div().withClasses(Styles.FLEX);
@@ -102,7 +103,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                       + apiKey.getName()
                       + "?')")
               .setText("Retire key")
-              .setId(String.format("retire-%s", slugifier.slugify(apiKey.getName())))
+              .setId(String.format("retire-%s", keyNameSlugified))
               .asHiddenForm(request));
     }
 
@@ -161,6 +162,6 @@ public final class ApiKeyIndexView extends BaseHtmlView {
 
   private ImmutableMap<String, String> buildProgramSlugToName(ImmutableSet<String> programNames) {
     return programNames.stream()
-        .collect(ImmutableMap.toImmutableMap(slugifier::slugify, Function.identity()));
+        .collect(ImmutableMap.toImmutableMap(MainModule.SLUGIFIER::slugify, Function.identity()));
   }
 }

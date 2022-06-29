@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-
+import shutil
 import tempfile
 import shutil
 """
@@ -15,6 +15,12 @@ class SetupTemplate:
 
     def __init__(self, config):
         self.config = config
+
+    def _make_backend_override(self):
+        current_directory = self.config.get_template_dir()
+        shutil.copy2(
+            f'{current_directory}/backend_override',
+            f'{current_directory}/backend_override.tf')
 
     def pre_terraform_setup(self):
         print(" - TODO: Pre terraform setup.")

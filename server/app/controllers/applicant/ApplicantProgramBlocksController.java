@@ -1,6 +1,7 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
@@ -294,22 +295,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     originalFileName.get());
               }
 
-              updateFileRecord(key.get(), originalFileName);
-              return applicantService.stageAndUpdateIfValid(
-                  applicantId, programId, blockId, fileUploadQuestionFormData.build());
+              return ensureFileRecord(key.get(), originalFileName)
+                  .thenComposeAsync(
+                      (StoredFile unused) ->
+                          applicantService.stageAndUpdateIfValid(
+                              applicantId, programId, blockId, fileUploadQuestionFormData.build()));
             },
             httpExecutionContext.current())
         .thenComposeAsync(
-            (roApplicantProgramService) -> {
-              return renderErrorOrRedirectToNextBlock(
-                  request,
-                  applicantId,
-                  programId,
-                  blockId,
-                  applicantStage.toCompletableFuture().join(),
-                  inReview,
-                  roApplicantProgramService);
-            },
+            (roApplicantProgramService) ->
+                renderErrorOrRedirectToNextBlock(
+                    request,
+                    applicantId,
+                    programId,
+                    blockId,
+                    applicantStage.toCompletableFuture().join(),
+                    inReview,
+                    roApplicantProgramService),
             httpExecutionContext.current())
         .exceptionally(ex -> handleUpdateExceptions(ex));
   }
@@ -440,13 +442,26 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .build();
   }
 
-  private void updateFileRecord(String key, Optional<String> originalFileName) {
-    StoredFile storedFile = new StoredFile();
-    storedFile.setName(key);
-    if (originalFileName.isPresent()) {
-      storedFile.setOriginalFileName(originalFileName.get());
-    }
-    storedFileRepository.insert(storedFile);
+  private CompletionStage<StoredFile> ensureFileRecord(
+      String key, Optional<String> originalFileName) {
+    return storedFileRepository
+        .lookupFile(key)
+        .thenComposeAsync(
+            (Optional<StoredFile> maybeStoredFile) -> {
+              // If there is already a stored file with this key in the database, then
+              // the applicant has uploaded a file with the same name for the same
+              // block and question, overwriting the original in file storage.
+              if (maybeStoredFile.isPresent()) {
+                return completedFuture(maybeStoredFile.get());
+              }
+
+              var storedFile = new StoredFile();
+              storedFile.setName(key);
+              originalFileName.ifPresent(storedFile::setOriginalFileName);
+
+              return storedFileRepository.insert(storedFile);
+            },
+            httpExecutionContext.current());
   }
 
   private Result handleUpdateExceptions(Throwable throwable) {
