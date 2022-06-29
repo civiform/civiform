@@ -152,9 +152,18 @@ public class ApplicationRepository {
             });
   }
 
+  /**
+   * Returns all applications submitted within the provided time range. Results are returned in the
+   * order that the applications were created.
+   */
   public ImmutableList<Application> getApplications(TimeFilter submitTimeFilter) {
     ExpressionList<Application> query =
-        database.find(Application.class).fetch("program").fetch("applicant.account").where();
+        database
+            .find(Application.class)
+            .fetch("program")
+            .fetch("applicant.account")
+            .orderBy("id")
+            .where();
     if (submitTimeFilter.fromTime().isPresent()) {
       query = query.where().ge("submit_time", submitTimeFilter.fromTime().get());
     }

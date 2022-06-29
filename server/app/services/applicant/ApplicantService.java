@@ -100,7 +100,8 @@ public interface ApplicantService {
 
   /**
    * Return a filtered set of applications, including applications from previous versions, with
-   * program, applicant, and account associations eager loaded.
+   * program, applicant, and account associations eager loaded. Results are ordered by application
+   * ID in ascending order.
    */
   ImmutableList<Application> getApplications(TimeFilter submitTimeFilter);
 }
