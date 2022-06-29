@@ -1,15 +1,5 @@
 import {Page, Frame} from 'playwright'
 
-export const untilWithTimeout = async (
-  page: Page,
-  timeoutMillis: number,
-  fn: () => Promise<void>,
-) => {
-  const startTime = Date.now()
-
-  page.setDefaultTimeout(10)
-}
-
 /**
  * Civiform attaches JS event handlers after pages load, so after any action
  * that loads a new page, browser tests should call this function to wait
