@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.iframe;
 import static j2html.TagCreator.p;
@@ -28,6 +29,7 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.style.ReferenceClasses;
 import views.style.Styles;
@@ -68,14 +70,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 program.id(), search, Optional.of(pageNumber)))
                     .withClasses(Styles.MB_2),
                 br(),
-                renderSearchForm(
-                        request,
-                        search,
-                        routes.AdminApplicationController.index(
-                            program.id(), Optional.empty(), Optional.empty()),
-                        Optional.of(Styles.W_FULL),
-                        Optional.of("Search first name, last name, or application ID"))
-                    .withClasses(Styles.MT_6),
+                renderSearchForm(request, program),
                 each(paginatedApplications.getPageContents(), this::renderApplicationListItem),
                 br(),
                 renderCsvDownloadButton(program.id()),
@@ -99,6 +94,24 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .addMainContent(contentDiv, applicationShowDiv);
 
     return layout.renderCentered(htmlBundle);
+  }
+
+  private Tag renderSearchForm(Http.Request request, ProgramDefinition program) {
+    return form()
+        .withClasses(Styles.MT_6)
+        .withMethod("GET")
+        .withAction(
+            routes.AdminApplicationController.index(
+                    program.id(), Optional.empty(), Optional.empty())
+                .url())
+        .with(
+            FieldWithLabel.input()
+                .setFieldName("search")
+                .setLabelText("Search by name or application ID")
+                .getContainer()
+                .withClasses(Styles.W_FULL),
+            makeCsrfTokenInputTag(request),
+            submitButton("Search").withClasses(Styles.M_2));
   }
 
   private Tag renderCsvDownloadButton(long programId) {
