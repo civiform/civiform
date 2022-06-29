@@ -2,8 +2,8 @@ package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.Optional;
 import auth.CiviFormProfile;
+import auth.ProfileUtils;
 import auth.UnauthorizedApiRequestException;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
@@ -19,15 +19,14 @@ import play.Environment;
 import play.api.OptionalSourceMapper;
 import play.api.routing.Router;
 import play.http.DefaultHttpErrorHandler;
+import play.i18n.MessagesApi;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import play.mvc.Results;
 import services.apikey.ApiKeyNotFoundException;
 import services.program.ProgramNotFoundException;
 import views.errors.NotFound;
-import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
-import auth.ProfileUtils;
 
 /**
  * Override for the system default {@code HttpErrorHandler}.

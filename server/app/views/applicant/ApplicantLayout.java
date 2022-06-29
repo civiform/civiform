@@ -27,7 +27,6 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
-import views.ApplicantUtils;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.LanguageSelector;
@@ -125,8 +124,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(maybeRenderTiButton(profile, userName))
         .with(
             div(getLanguageForm(request, profile, messages), logoutButton(userName, messages))
-              .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW)
-            );
+                .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
   public ContainerTag renderNavBarLoggedOut(Http.RequestHeader request, Messages messages) {

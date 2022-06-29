@@ -1,6 +1,6 @@
-import { Page } from 'playwright'
-import { waitForPageJsLoad } from './wait'
-import { BASE_URL } from './'
+import {Page} from 'playwright'
+import {waitForPageJsLoad} from './wait'
+import {BASE_URL} from './'
 
 export class NotFoundPage {
   public page!: Page
@@ -10,7 +10,7 @@ export class NotFoundPage {
   }
 
   async gotoNonExistentPage(page: Page) {
-    return await page.goto(BASE_URL + "/dirjwlqickhdfguyqrm");
+    return await page.goto(BASE_URL + '/dirjwlqickhdfguyqrm')
   }
 
   async loginAsGuest() {
@@ -19,18 +19,20 @@ export class NotFoundPage {
   }
 
   async gotoMockNotFoundPage(page: Page) {
-    return await page.goto(BASE_URL + "/dev/abc");
+    return await page.goto(BASE_URL + '/dev/abc')
   }
 
   async checkPageHeaderEnUS() {
-    expect(await this.page.innerText('h1')).toContain("We were unable to find the page you tried to visit");
+    expect(await this.page.innerText('h1')).toContain(
+      'We were unable to find the page you tried to visit',
+    )
   }
 
   async checkNotLoggedIn() {
-    await this.page.waitForSelector('#guestLogin');
+    await this.page.waitForSelector('#guestLogin')
   }
 
   async checkIsGuest() {
-    await this.page.waitForSelector('text=Logged in as Guest');
+    await this.page.waitForSelector('text=Logged in as Guest')
   }
 }

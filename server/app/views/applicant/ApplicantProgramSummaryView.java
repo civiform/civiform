@@ -131,7 +131,6 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     return layout.renderWithNav(
         params.request(), params.applicantName(), params.messages(), bundle);
-
   }
 
   private ContainerTag renderQuestionSummary(

@@ -1,7 +1,5 @@
 package views.errors;
 
-import com.google.common.base.Strings;
-import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
@@ -43,18 +41,15 @@ public class NotFound extends BaseHtmlView {
   }
 
   private ContainerTag descriptionContent(Messages messages) {
-    return div(
-            p(
-                    span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A.getKeyName())),
-                    space(),
-                    spanNowrap(
-                        messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A_END.getKeyName())),
-                    space(),
-                    a(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_LINK.getKeyName()))
-                        .withHref("/")
-                        .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT)
-                    )
-                .withClasses(ErrorStyles.P_MOBILE_INLINE))
+    return div(p(
+                span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A.getKeyName())),
+                space(),
+                spanNowrap(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A_END.getKeyName())),
+                space(),
+                a(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_LINK.getKeyName()))
+                    .withHref("/")
+                    .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT))
+            .withClasses(ErrorStyles.P_MOBILE_INLINE))
         .withClasses(ErrorStyles.P_DESCRIPTION);
   }
 
