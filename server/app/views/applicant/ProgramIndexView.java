@@ -289,7 +289,7 @@ public class ProgramIndexView extends BaseHtmlView {
               .asAnchorText()
               .withTarget("_blank")
               .with(
-                  Icons.svg(Icons.OPEN_IN_NEW_PATH, 24, 24)
+                  Icons.svg(Icons.OPEN_IN_NEW, 24, 24)
                       .withClasses(
                           Styles.FLEX_SHRINK_0,
                           Styles.H_5,
