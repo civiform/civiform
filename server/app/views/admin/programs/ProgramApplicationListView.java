@@ -5,9 +5,9 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.legend;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.iframe;
+import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
@@ -115,21 +115,21 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .url())
         .with(
             div()
-              .with(
-                legend("Application submitted")
-                  .withClasses(Styles.ML_1, Styles.TEXT_GRAY_600),
-                div()
-                .withClass(Styles.FLEX)
-                .with(FieldWithLabel.date()
-                        .setFieldName("fromDate")
-                        .setLabelText("From:")
-                        .getContainer()
-                        .withClasses(Styles.FLEX),
-                    FieldWithLabel.date()
-                        .setFieldName("untilDate")
-                        .setLabelText("Until:")
-                        .getContainer()
-                        .withClasses(Styles.FLEX))),
+                .with(
+                    legend("Application submitted").withClasses(Styles.ML_1, Styles.TEXT_GRAY_600),
+                    div()
+                        .withClass(Styles.FLEX)
+                        .with(
+                            FieldWithLabel.date()
+                                .setFieldName("fromDate")
+                                .setLabelText("From:")
+                                .getContainer()
+                                .withClasses(Styles.FLEX),
+                            FieldWithLabel.date()
+                                .setFieldName("untilDate")
+                                .setLabelText("Until:")
+                                .getContainer()
+                                .withClasses(Styles.FLEX))),
             FieldWithLabel.input()
                 .setFieldName("search")
                 .setLabelText("Search by name or application ID")
@@ -137,19 +137,20 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .withClasses(Styles.W_FULL, Styles.MT_2),
             makeCsrfTokenInputTag(request),
             div()
-              .withClasses(Styles.MT_4, Styles.MB_6, Styles.FLEX, Styles.SPACE_X_2)
-              .with(
-                div().withClass(Styles.FLEX_GROW),
-                makeSvgTextButton("Download", Icons.DOWNLOAD)
-                  .withClass(AdminStyles.SECONDARY_BUTTON_STYLES),
-                // TODO(clouser): Change the icon.
-                makeSvgTextButton("Filter", Icons.LANGUAGE)
-                  .withClass(AdminStyles.PRIMARY_BUTTON_STYLES)
-                  .withType("submit")));
+                .withClasses(Styles.MT_4, Styles.MB_6, Styles.FLEX, Styles.SPACE_X_2)
+                .with(
+                    div().withClass(Styles.FLEX_GROW),
+                    makeSvgTextButton("Download", Icons.DOWNLOAD)
+                        .withClass(AdminStyles.SECONDARY_BUTTON_STYLES),
+                    // TODO(clouser): Change the icon.
+                    makeSvgTextButton("Filter", Icons.LANGUAGE)
+                        .withClass(AdminStyles.PRIMARY_BUTTON_STYLES)
+                        .withType("submit")));
   }
 
   // private Tag renderCsvDownloadButton(long programId) {
-  //   String link = controllers.admin.routes.AdminApplicationController.downloadAll(programId).url();
+  //   String link =
+  // controllers.admin.routes.AdminApplicationController.downloadAll(programId).url();
   //   return new LinkElement()
   //       .setId("download-all-button")
   //       .setHref(link)
