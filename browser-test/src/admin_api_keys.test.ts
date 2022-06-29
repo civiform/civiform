@@ -34,7 +34,7 @@ describe('Managing API keys', () => {
 
     const credentials = await adminApiKeys.createApiKey({
       name: 'Test API key',
-      expiration: '2022-01-31',
+      expiration: '2100-01-01',
       subnet: '0.0.0.0/0',
       programSlugs: ['api-using-program'],
     })
