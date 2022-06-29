@@ -89,7 +89,12 @@ public class AdminApplicationController extends CiviFormController {
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result downloadAllJson(Http.Request request, long programId)
+  public Result downloadAllJson(
+      Http.Request request,
+      long programId,
+      Optional<String> search,
+      Optional<String> fromDate,
+      Optional<String> untilDate)
       throws ProgramNotFoundException {
     final ProgramDefinition program;
 
@@ -100,10 +105,20 @@ public class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
 
+    TimeFilter submitTimeFilter =
+        TimeFilter.builder()
+            .setFromTime(parseDateFromQuery(dateConverter, fromDate))
+            .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+            .build();
+
     String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
     String json =
         jsonExporter
-            .export(program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG)
+            .export(
+                program,
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                search,
+                submitTimeFilter)
             .getLeft();
 
     return ok(json)
@@ -113,12 +128,23 @@ public class AdminApplicationController extends CiviFormController {
 
   /** Download a CSV file containing all applications to all versions of the specified program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result downloadAll(Http.Request request, long programId) throws ProgramNotFoundException {
+  public Result downloadAll(
+      Http.Request request,
+      long programId,
+      Optional<String> search,
+      Optional<String> fromDate,
+      Optional<String> untilDate)
+      throws ProgramNotFoundException {
     try {
+      TimeFilter submitTimeFilter =
+          TimeFilter.builder()
+              .setFromTime(parseDateFromQuery(dateConverter, fromDate))
+              .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+              .build();
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramAllVersionsCsv(programId);
+      String csv = exporterService.getProgramAllVersionsCsv(programId, search, submitTimeFilter);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(

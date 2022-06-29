@@ -199,7 +199,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                     .attr(
                                         Attr.FORMACTION,
                                         controllers.admin.routes.AdminApplicationController
-                                            .downloadAll(program.id())
+                                            .downloadAll(
+                                                program.id(),
+                                                Optional.empty(),
+                                                Optional.empty(),
+                                                Optional.empty())
                                             .url())
                                     .withType("submit"),
                                 TagCreator.button("Download JSON")
@@ -209,7 +213,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                     .attr(
                                         Attr.FORMACTION,
                                         controllers.admin.routes.AdminApplicationController
-                                            .downloadAllJson(program.id())
+                                            .downloadAllJson(
+                                                program.id(),
+                                                Optional.empty(),
+                                                Optional.empty(),
+                                                Optional.empty())
                                             .url())
                                     .withType("submit"))));
     return Modal.builder(modalId, modalContent)
