@@ -4,9 +4,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.iframe;
+import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
@@ -105,6 +107,21 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     program.id(), Optional.empty(), Optional.empty())
                 .url())
         .with(
+            fieldset()
+                .withClasses(
+                    Styles.MT_4, Styles.PT_1, Styles.PB_2, Styles.PR_2, Styles.FLEX, Styles.BORDER)
+                .with(
+                    legend("Application submitted").withClass(Styles.ML_3),
+                    FieldWithLabel.date()
+                        .setFieldName("fromDate")
+                        .setLabelText("From:")
+                        .getContainer()
+                        .withClasses(Styles.ML_3, Styles.FLEX),
+                    FieldWithLabel.date()
+                        .setFieldName("untilDate")
+                        .setLabelText("Until:")
+                        .getContainer()
+                        .withClasses(Styles.ML_3, Styles.FLEX)),
             FieldWithLabel.input()
                 .setFieldName("search")
                 .setLabelText("Search by name or application ID")

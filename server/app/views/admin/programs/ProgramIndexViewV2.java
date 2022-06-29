@@ -141,7 +141,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                                     .withClasses(Styles.ML_3, Styles.INLINE_FLEX),
                                 FieldWithLabel.date()
                                     .setFieldName("untilDate")
-                                    .setLabelText("To:")
+                                    .setLabelText("Until:")
                                     .getContainer()
                                     .withClasses(Styles.ML_3, Styles.INLINE_FLEX)),
                         makeSvgTextButton(downloadActionText, Icons.DOWNLOAD)
