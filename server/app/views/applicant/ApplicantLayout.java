@@ -117,7 +117,23 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(branding());
   }
 
-  /** Nav bar when logged in */
+  public ContainerTag renderNavBarLoggedIn(
+      Http.RequestHeader request, String userName, Messages messages) {
+    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+
+    return renderBaseNavBar()
+        .with(maybeRenderTiButton(profile, userName))
+        .with(
+            div(getLanguageForm(request, profile, messages), logoutButton(userName, messages))
+              .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW)
+            );
+  }
+
+  public ContainerTag renderNavBarLoggedOut(Http.RequestHeader request, Messages messages) {
+    return renderBaseNavBar().with(div(), loginButton(messages));
+  }
+
+  /** LOGGED IN */
   public Content renderWithNav(
       Http.RequestHeader request, Optional<String> userName, Messages messages, HtmlBundle bundle) {
     String language = languageSelector.getPreferredLangage(request).code();
@@ -130,28 +146,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return renderWithSupportFooter(bundle, messages);
   }
 
-  /** Nav bar when logged out */
+  /** LOGGED OUT */
   public Content renderWithNav(Http.RequestHeader request, Messages messages, HtmlBundle bundle) {
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBarLoggedOut(request, messages));
     return renderWithSupportFooter(bundle, messages);
-  }
-
-  public ContainerTag renderNavBarLoggedIn(
-      Http.RequestHeader request, String userName, Messages messages) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
-
-    return renderBaseNavBar()
-        .with(
-            maybeRenderTiButton(profile, userName),
-            div(getLanguageForm(request, profile, messages)),
-            logoutButton(userName, messages))
-              .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW);
-  }
-
-  public ContainerTag renderNavBarLoggedOut(Http.RequestHeader request, Messages messages) {
-    return renderBaseNavBar().with(div(), loginButton(messages));
   }
 
   private ContainerTag getLanguageForm(

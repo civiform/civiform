@@ -1,5 +1,6 @@
 package views.errors;
 
+import com.google.common.base.Strings;
 import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
@@ -107,13 +108,15 @@ public class NotFound extends BaseHtmlView {
     return bundle;
   }
 
-  public Content render(Http.RequestHeader request, Messages messages, Optional<String> userName) {
+  public Content renderLoggedOut(Http.RequestHeader request, Messages messages) {
     HtmlBundle bundle = addBodyFooter(request, messages);
-    if (userName.isPresent()) {
-      bundle.addHeaderContent(layout.renderNavBarLoggedIn(request, userName.get(), messages));
-    } else {
-      bundle.addHeaderContent(layout.renderNavBarLoggedOut(request, messages));
-    }
+    bundle.addHeaderContent(layout.renderNavBarLoggedOut(request, messages));
+    return layout.render(bundle);
+  }
+
+  public Content renderLoggedIn(Http.RequestHeader request, Messages messages, String userName) {
+    HtmlBundle bundle = addBodyFooter(request, messages);
+    bundle.addHeaderContent(layout.renderNavBarLoggedIn(request, userName, messages));
     return layout.render(bundle);
   }
 }

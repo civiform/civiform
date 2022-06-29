@@ -118,7 +118,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
     if (maybeProfile.isEmpty()) {
       return CompletableFuture.completedFuture(
-          Results.ok(notFoundPage.render(request, messagesApi.preferred(request), Optional.empty())));
+          Results.ok(notFoundPage.renderLoggedOut(request, messagesApi.preferred(request))));
     }
 
     return maybeProfile
@@ -127,10 +127,10 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
         .thenApplyAsync(
             applicant ->
                 Results.ok(
-                    notFoundPage.render(
+                    notFoundPage.renderLoggedIn(
                         request,
                         messagesApi.preferred(request),
-                        applicant.getApplicantData().getApplicantName())),
+                        applicant.getApplicantData().getApplicantName().get())),
             httpExecutionContext.current());
   }
 }
