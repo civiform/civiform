@@ -2,9 +2,6 @@ package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Streams;
-import java.util.AbstractMap;
 import java.util.List;
 import java.util.Optional;
 import models.Question;
@@ -13,13 +10,11 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.Test;
 import repository.TimeFilter;
-import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
-import services.applicant.question.Scalar;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import support.ProgramBuilder;
@@ -44,7 +39,7 @@ public class CsvExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  public void useProgramCsvExport_noRepeatedEntities() throws Exception {
+  public void programCsv_noRepeatedEnties() throws Exception {
     createFakeProgram();
     createFakeApplications();
 
@@ -54,24 +49,31 @@ public class CsvExporterTest extends AbstractExporterTest {
     List<CSVRecord> records = parser.getRecords();
 
     assertThat(records).hasSize(3);
-
-    // Assert CSV headers
-    Streams.mapWithIndex(
-            fakeQuestions.stream()
-                .filter(question -> !question.getQuestionDefinition().isEnumerator())
-                .flatMap(
-                    question ->
-                        getApplicantQuestion(question.getQuestionDefinition())
-                            .getContextualizedScalars()
-                            .keySet()
-                            .stream()
-                            .filter(
-                                path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))),
-            (path, index) -> new AbstractMap.SimpleEntry<Path, Integer>(path, (int) index))
-        .forEach(
-            entry ->
-                assertThat(parser.getHeaderMap())
-                    .containsEntry(ExporterService.pathToHeader(entry.getKey()), entry.getValue()));
+    assertThat(parser.getHeaderNames())
+        .containsExactly(
+            "Applicant ID",
+            "Application ID",
+            "Applicant language",
+            "Submit time",
+            "Submitted by",
+            "applicant email address (email)",
+            "applicant name (first_name)",
+            "applicant name (middle_name)",
+            "applicant name (last_name)",
+            "kitchen tools (selections)",
+            "number of items applicant can juggle (number)",
+            "radio (selection)",
+            "applicant address (street)",
+            "applicant address (line2)",
+            "applicant address (city)",
+            "applicant address (state)",
+            "applicant address (zip)",
+            "applicant birth date (date)",
+            "applicant favorite color (text)",
+            "applicant file (file_key)",
+            "applicant ice cream (selection)",
+            "applicant id (id)",
+            "applicant monthly income (currency)");
 
     NameQuestion nameApplicantQuestion =
         getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition())
@@ -101,7 +103,7 @@ public class CsvExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  public void useProgramCsvExport_noEntities() throws Exception {
+  public void programCsv_noEntities() throws Exception {
     createFakeProgram();
 
     ExporterService exporterService = instanceOf(ExporterService.class);
@@ -111,27 +113,14 @@ public class CsvExporterTest extends AbstractExporterTest {
 
     assertThat(records).hasSize(0);
 
-    // Assert CSV headers
-    Streams.mapWithIndex(
-            fakeQuestions.stream()
-                .filter(question -> !question.getQuestionDefinition().isEnumerator())
-                .flatMap(
-                    question ->
-                        getApplicantQuestion(question.getQuestionDefinition())
-                            .getContextualizedScalars()
-                            .keySet()
-                            .stream()
-                            .filter(
-                                path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))),
-            (path, index) -> new AbstractMap.SimpleEntry<Path, Integer>(path, (int) index))
-        .forEach(
-            entry ->
-                assertThat(parser.getHeaderMap())
-                    .containsEntry(ExporterService.pathToHeader(entry.getKey()), entry.getValue()));
+    // No applications means there are no answers to add columns for.
+    assertThat(parser.getHeaderNames())
+        .containsExactly(
+            "Applicant ID", "Application ID", "Applicant language", "Submit time", "Submitted by");
   }
 
   @Test
-  public void demographyExport_withRepeatedEntities() throws Exception {
+  public void demographicsCsv_withRepeatedEntities() throws Exception {
     createFakeProgram();
     createFakeApplications();
     createFakeProgramWithEnumerator();
@@ -141,42 +130,36 @@ public class CsvExporterTest extends AbstractExporterTest {
         CSVParser.parse(
             exporterService.getDemographicsCsv(TimeFilter.builder().build()), DEFAULT_FORMAT);
 
-    int id = 0;
-    assertThat(parser.getHeaderMap())
-        .containsExactlyEntriesOf(
-            ImmutableMap.<String, Integer>builder()
-                .put("Opaque ID", id++)
-                .put("Program", id++)
-                .put("Submitter Email (Opaque)", id++)
-                .put("TI Organization", id++)
-                .put("Create time", id++)
-                .put("Submit time", id++)
-                .build());
+    assertThat(parser.getHeaderNames())
+        .containsExactly(
+            "Opaque ID",
+            "Program",
+            "Submitter Email (Opaque)",
+            "TI Organization",
+            "Create time",
+            "Submit time");
   }
 
   @Test
-  public void demographyExport_noEntities() throws Exception {
+  public void demographicsCsv_noEntities() throws Exception {
     ExporterService exporterService = instanceOf(ExporterService.class);
     CSVParser parser =
         CSVParser.parse(
             exporterService.getDemographicsCsv(TimeFilter.builder().build()), DEFAULT_FORMAT);
 
-    int id = 0;
-    assertThat(parser.getHeaderMap())
-        .containsExactlyEntriesOf(
-            ImmutableMap.<String, Integer>builder()
-                .put("Opaque ID", id++)
-                .put("Program", id++)
-                .put("Submitter Email (Opaque)", id++)
-                .put("TI Organization", id++)
-                .put("Create time", id++)
-                .put("Submit time", id++)
-                .build());
+    assertThat(parser.getHeaderNames())
+        .containsExactly(
+            "Opaque ID",
+            "Program",
+            "Submitter Email (Opaque)",
+            "TI Organization",
+            "Create time",
+            "Submit time");
     assertThat(parser.getRecords()).hasSize(0);
   }
 
   @Test
-  public void useDefaultCsvConfig_withRepeatedEntities() throws Exception {
+  public void programCsv_withRepeatedEntities() throws Exception {
     createFakeProgram();
     createFakeApplications();
     createFakeProgramWithEnumerator();
@@ -187,43 +170,32 @@ public class CsvExporterTest extends AbstractExporterTest {
         CSVParser.parse(
             exporterService.getProgramCsv(fakeProgramWithEnumerator.id), DEFAULT_FORMAT);
 
-    int id = 0;
-    assertThat(parser.getHeaderMap())
-        .containsExactlyEntriesOf(
-            ImmutableMap.<String, Integer>builder()
-                .put("Applicant ID", id++)
-                .put("Application ID", id++)
-                .put("Applicant language", id++)
-                .put("Submit time", id++)
-                .put("Submitted by", id++)
-                .put("applicant name (first_name)", id++)
-                .put("applicant name (middle_name)", id++)
-                .put("applicant name (last_name)", id++)
-                .put("applicant favorite color (text)", id++)
-                .put("applicant monthly income (currency)", id++)
-                .put("applicant household members[0] - household members name (first_name)", id++)
-                .put("applicant household members[0] - household members name (middle_name)", id++)
-                .put("applicant household members[0] - household members name (last_name)", id++)
-                .put("applicant household members[1] - household members name (first_name)", id++)
-                .put("applicant household members[1] - household members name (middle_name)", id++)
-                .put("applicant household members[1] - household members name (last_name)", id++)
-                .put(
-                    "applicant household members[0] - household members jobs[0] - household"
-                        + " members days worked (number)",
-                    id++)
-                .put(
-                    "applicant household members[0] - household members jobs[1] - household"
-                        + " members days worked (number)",
-                    id++)
-                .put(
-                    "applicant household members[0] - household members jobs[2] - household"
-                        + " members days worked (number)",
-                    id++)
-                .put(
-                    "applicant household members[1] - household members jobs[0] - household"
-                        + " members days worked (number)",
-                    id++)
-                .build());
+    assertThat(parser.getHeaderNames())
+        .containsExactly(
+            "Applicant ID",
+            "Application ID",
+            "Applicant language",
+            "Submit time",
+            "Submitted by",
+            "applicant name (first_name)",
+            "applicant name (middle_name)",
+            "applicant name (last_name)",
+            "applicant favorite color (text)",
+            "applicant monthly income (currency)",
+            "applicant household members[0] - household members name (first_name)",
+            "applicant household members[0] - household members name (middle_name)",
+            "applicant household members[0] - household members name (last_name)",
+            "applicant household members[1] - household members name (first_name)",
+            "applicant household members[1] - household members name (middle_name)",
+            "applicant household members[1] - household members name (last_name)",
+            "applicant household members[0] - household members jobs[0] - household"
+                + " members days worked (number)",
+            "applicant household members[0] - household members jobs[1] - household"
+                + " members days worked (number)",
+            "applicant household members[0] - household members jobs[2] - household"
+                + " members days worked (number)",
+            "applicant household members[1] - household members jobs[0] - household"
+                + " members days worked (number)");
 
     List<CSVRecord> records = parser.getRecords();
     assertThat(records).hasSize(3);
