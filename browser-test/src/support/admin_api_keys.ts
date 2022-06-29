@@ -65,19 +65,51 @@ export class AdminApiKeys {
   async expectKeyCallCount(
     keyNameSlugified: string,
     expectedCallCount: number,
+    timeoutMillis = 3000,
   ) {
-    await this.gotoApiKeyIndexPage()
+    const startTime = Date.now()
+    const maxWaitTime = startTime + timeoutMillis
+    let callCountString: string
+    let callCount: number
 
-    expect(
-      await this.page.innerText(`${keyNameSlugified}-call-count`),
-    ).toContain(`Call count: ${expectedCallCount}`)
+    while (true) {
+      await this.gotoApiKeyIndexPage()
+
+      callCountString = await this.page.innerText(
+        `${keyNameSlugified}-call-count`,
+        {timeout: 0},
+      )
+      callCount = parseInt(callCountString, 10)
+
+      if (callCount >= expectedCallCount || Date.now() > maxWaitTime) {
+        break
+      }
+    }
+
+    expect(callCount).toContain(`Call count: ${expectedCallCount}`)
   }
 
-  async expectLastCallIpAddressToBeSet(keyNameSlugified: string) {
-    await this.gotoApiKeyIndexPage()
-    const lastCallIpText = await this.page.innerText(
-      `${keyNameSlugified}-last-call-ip`,
-    )
+  async expectLastCallIpAddressToBeSet(
+    keyNameSlugified: string,
+    timeoutMillis = 3000,
+  ) {
+    const startTime = Date.now()
+    const maxWaitTime = startTime + timeoutMillis
+    let lastCallIpText: string
+
+    while (true) {
+      await this.gotoApiKeyIndexPage()
+
+      lastCallIpText = await this.page.innerText(
+        `${keyNameSlugified}-last-call-ip`,
+        {timeout: 0},
+      )
+
+      if (!lastCallIpText.includes('N/A') || Date.now() > maxWaitTime) {
+        break
+      }
+    }
+
     expect(lastCallIpText).toContain('Last used by')
     expect(lastCallIpText).not.toContain('N/A')
   }

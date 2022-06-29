@@ -1,6 +1,10 @@
 import {Page, Frame} from 'playwright'
 
-export const untilWithTimeout = async (page: Page, timeoutMillis: number, fn: () => Promise<void>) => {
+export const untilWithTimeout = async (
+  page: Page,
+  timeoutMillis: number,
+  fn: () => Promise<void>,
+) => {
   const startTime = Date.now()
 
   page.setDefaultTimeout(10)
