@@ -49,19 +49,11 @@ public class NotFound extends BaseHtmlView {
                     space(),
                     spanNowrap(
                         messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A_END.getKeyName())),
-                    space())
-                .withClasses(ErrorStyles.P_MOBILE_INLINE),
-            p(
-                    span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_B.getKeyName())),
                     space(),
-                    spanNowrap(
-                        span(
-                            messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_B_END.getKeyName())),
-                        space(),
-                        a(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_LINK.getKeyName()))
-                            .withHref("/")
-                            .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT),
-                        period()))
+                    a(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_LINK.getKeyName()))
+                        .withHref("/")
+                        .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT)
+                    )
                 .withClasses(ErrorStyles.P_MOBILE_INLINE))
         .withClasses(ErrorStyles.P_DESCRIPTION);
   }

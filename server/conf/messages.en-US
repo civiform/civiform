@@ -45,18 +45,11 @@ content.benefits=Get benefits
 content.description1=CiviForm lets you apply for many benefits at once by reusing information.
 content.description2=Get started by choosing an application below.
 
-error.not_found_title=We''re sorry, we lost
-error.not_found_title_end=the page
-error.not_found_description_a=Don''t worry though, the benefits
-error.not_found_description_a_end=are still there.
-error.not_found_description_b=Find them on
-error.not_found_description_b_end=the
+error.not_found_title=We were unable to find the page you
+error.not_found_title_end=tried to visit
+error.not_found_description_a=Please go back or return
+error.not_found_description_a_end=to the
 error.not_found_description_link=homepage
-
-error.img_caption_a=Photo by
-error.img_caption_b=Michael Dziedzic
-error.img_caption_c=on
-error.img_caption_d=Unsplash
 
 label.street=Address line 1
 placeholder.street=Street address
