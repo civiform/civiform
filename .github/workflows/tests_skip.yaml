@@ -1,0 +1,42 @@
+name: tests
+
+on:
+  workflow_call:
+    secrets:
+      DOCKER_HUB_ACCESS_TOKEN:
+        required: false
+      DOCKER_HUB_USERNAME:
+        required: false
+
+  # Setting this enables manually triggering workflow in the GitHub UI
+  # see https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
+  workflow_dispatch: {}
+
+permissions: read-all
+
+jobs:
+  run_junit_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "skipping"'
+
+  run_browser_tests_aws:
+    strategy:
+      matrix:
+        batch_number: [1, 2, 3, 4]
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "skipping"'
+
+  run_browser_tests_azure:
+    strategy:
+      matrix:
+        batch_number: [1, 2, 3, 4]
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "skipping"'
+
+  test_prod:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "skipping"'

@@ -1,0 +1,22 @@
+{
+  "extends": ["config:base"],
+  "ignoreDeps": ["bellsoft/liberica-openjdk-alpine", "adoptopenjdk/openjdk11"],
+  "packageRules": [
+    {
+      "groupName": "autovalue",
+      "matchPackagePrefixes": ["com.google.auto.value:"]
+    },
+    {
+      "groupName": "jackson",
+      "matchPackagePrefixes": ["com.fasterxml.jackson:"]
+    },
+    {
+      "groupName": "jupiter",
+      "matchPackagePrefixes": ["org.junit.jupiter:"]
+    },
+    {
+      "groupName": "pac4j",
+      "matchPackagePrefixes": ["org.pac4j:pac4j"]
+    }
+  ]
+}

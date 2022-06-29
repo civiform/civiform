@@ -8,7 +8,7 @@ import {
 
 describe('deleting question lifecycle', () => {
   it('create, publish, delete unused questions', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
     page.setDefaultTimeout(4000)
 
     await loginAsAdmin(page)
@@ -16,19 +16,24 @@ describe('deleting question lifecycle', () => {
     const adminPrograms = new AdminPrograms(page)
     const programName = 'deleting program'
     const questions = await adminQuestions.addAllNonSingleBlockQuestionTypes(
-      'delete-'
+      'delete-',
     )
     await adminPrograms.addProgram(programName)
     const onlyUsedQuestion = questions[0]
     await adminPrograms.editProgramBlock(
       programName,
       'qlc program description',
-      [onlyUsedQuestion]
+      [onlyUsedQuestion],
     )
-    await adminQuestions.discardDraft(questions[1])
     await adminPrograms.publishProgram(programName)
     await adminQuestions.expectActiveQuestionExist(onlyUsedQuestion)
-    await adminQuestions.expectActiveQuestionNotExist(questions[1])
+
+    // Make a Draft then discard it.
+    await adminQuestions.createNewVersion(questions[1])
+    await adminQuestions.expectDraftQuestionExist(questions[1])
+    await adminQuestions.discardDraft(questions[1])
+    await adminQuestions.expectActiveQuestionExist(questions[1])
+    // Archive, unarchive, archive all other questions.
     for (let i = 2; i < questions.length; i++) {
       await adminQuestions.expectActiveQuestionExist(questions[i])
       await adminQuestions.archiveQuestion(questions[i])
@@ -36,6 +41,7 @@ describe('deleting question lifecycle', () => {
       await adminQuestions.expectActiveQuestionExist(questions[i])
       await adminQuestions.archiveQuestion(questions[i])
     }
+    // Publish all the above changes.
     await adminPrograms.createNewVersion(programName)
     await adminPrograms.publishProgram(programName)
     await adminQuestions.expectActiveQuestionExist(onlyUsedQuestion)

@@ -1,0 +1,36 @@
+name: pr_cloud
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - 'cloud/**'
+
+permissions: read-all
+
+jobs:
+  validate_deployment_variable_definitions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out pr branch
+        uses: actions/checkout@v3
+      - name: Run deployment variable definition validation test
+        run: python3 cloud/shared/validate_variable_definitions_test.py
+
+  validate_terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out pr branch
+        uses: actions/checkout@v3
+      - name: setup terraform
+        uses: hashicorp/setup-terraform@v2
+      # as we add more templates, we will add checks to validate them.
+      - name: terraform init azure_saml_ses
+        run: terraform -chdir=cloud/azure/templates/azure_saml_ses init -backend=false
+      - name: terraform validate azure_saml_ses
+        run: terraform -chdir=cloud/azure/templates/azure_saml_ses validate
+      - name: terraform init aws_oidc
+        run: terraform -chdir=cloud/aws/templates/aws_oidc init -backend=false
+      - name: terraform validate aws_oidc
+        run: terraform -chdir=cloud/aws/templates/aws_oidc validate

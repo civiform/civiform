@@ -15,14 +15,14 @@ import {
 
 describe('create and edit predicates', () => {
   it('add a hide predicate', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
     // Add a program with two screens
-    await adminQuestions.addTextQuestion({ questionName: 'hide-predicate-q' })
+    await adminQuestions.addTextQuestion({questionName: 'hide-predicate-q'})
     await adminQuestions.addTextQuestion({
       questionName: 'hide-other-q',
       description: 'desc',
@@ -46,10 +46,10 @@ describe('create and edit predicates', () => {
       'hidden if',
       'text',
       'is equal to',
-      'hide me'
+      'hide me',
     )
     await adminPredicates.expectVisibilityConditionEquals(
-      'Screen 2 is hidden if hide-predicate-q\'s text is equal to "hide me"'
+      'Screen 2 is hidden if hide-predicate-q\'s text is equal to "hide me"',
     )
 
     // Publish the program
@@ -72,7 +72,7 @@ describe('create and edit predicates', () => {
 
     // We should be on the review page, with an answer to Screen 2's question
     expect(await page.innerText('#application-summary')).toContain(
-      'conditional question'
+      'conditional question',
     )
 
     // Return to the first screen and answer it so that the second screen is hidden
@@ -82,7 +82,7 @@ describe('create and edit predicates', () => {
 
     // We should be on the review page
     expect(await page.innerText('#application-summary')).not.toContain(
-      'conditional question'
+      'conditional question',
     )
     await applicant.submitFromReviewPage(programName)
 
@@ -91,20 +91,25 @@ describe('create and edit predicates', () => {
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
     await adminPrograms.viewApplicationForApplicant(userDisplayName())
-    expect(await page.innerText('#application-view')).not.toContain('Screen 2')
+
+    const applicationText = await adminPrograms
+      .applicationFrame()
+      .locator('#application-view')
+      .innerText()
+    expect(applicationText).not.toContain('Screen 2')
 
     await endSession(browser)
   })
 
   it('add a show predicate', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
     // Add a program with two screens
-    await adminQuestions.addTextQuestion({ questionName: 'show-predicate-q' })
+    await adminQuestions.addTextQuestion({questionName: 'show-predicate-q'})
     await adminQuestions.addTextQuestion({
       questionName: 'show-other-q',
       description: 'desc',
@@ -128,10 +133,10 @@ describe('create and edit predicates', () => {
       'shown if',
       'text',
       'is equal to',
-      'show me'
+      'show me',
     )
     await adminPredicates.expectVisibilityConditionEquals(
-      'Screen 2 is shown if show-predicate-q\'s text is equal to "show me"'
+      'Screen 2 is shown if show-predicate-q\'s text is equal to "show me"',
     )
 
     // Publish the program
@@ -151,10 +156,10 @@ describe('create and edit predicates', () => {
     // We should be on the review page, with no Screen 2 questions shown. We should
     // be able to submit the application
     expect(await page.innerText('#application-summary')).not.toContain(
-      'conditional question'
+      'conditional question',
     )
     expect((await page.innerText('.cf-submit-button')).toLowerCase()).toContain(
-      'submit'
+      'submit',
     )
 
     // Return to the first screen and answer it so that the second screen is shown
@@ -168,7 +173,7 @@ describe('create and edit predicates', () => {
 
     // We should be on the review page
     expect(await page.innerText('#application-summary')).toContain(
-      'conditional question'
+      'conditional question',
     )
     await applicant.submitFromReviewPage(programName)
 
@@ -176,25 +181,31 @@ describe('create and edit predicates', () => {
     await logout(page)
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
+
     await adminPrograms.viewApplicationForApplicant(userDisplayName())
-    expect(await page.innerText('#application-view')).toContain('Screen 2')
+    expect(
+      await adminPrograms
+        .applicationFrame()
+        .locator('#application-view')
+        .innerText(),
+    ).toContain('Screen 2')
 
     await endSession(browser)
   })
 
   it('every right hand type evaluates correctly', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
     // DATE, STRING, LONG, LIST_OF_STRINGS, LIST_OF_LONGS
-    await adminQuestions.addNameQuestion({ questionName: 'single-string' })
-    await adminQuestions.addTextQuestion({ questionName: 'list of strings' })
-    await adminQuestions.addNumberQuestion({ questionName: 'single-long' })
-    await adminQuestions.addNumberQuestion({ questionName: 'list of longs' })
-    await adminQuestions.addDateQuestion({ questionName: 'predicate-date' })
+    await adminQuestions.addNameQuestion({questionName: 'single-string'})
+    await adminQuestions.addTextQuestion({questionName: 'list of strings'})
+    await adminQuestions.addNumberQuestion({questionName: 'single-long'})
+    await adminQuestions.addNumberQuestion({questionName: 'list of longs'})
+    await adminQuestions.addDateQuestion({questionName: 'predicate-date'})
     await adminQuestions.addCheckboxQuestion({
       questionName: 'both sides are lists',
       options: ['dog', 'rabbit', 'cat'],
@@ -231,7 +242,7 @@ describe('create and edit predicates', () => {
       'shown if',
       'first name',
       'is not equal to',
-      'hidden'
+      'hidden',
     )
 
     // Single string one of a list of strings
@@ -241,7 +252,7 @@ describe('create and edit predicates', () => {
       'shown if',
       'text',
       'is one of',
-      'blue, green'
+      'blue, green',
     )
 
     // Simple long predicate
@@ -251,7 +262,7 @@ describe('create and edit predicates', () => {
       'shown if',
       'number',
       'is equal to',
-      '42'
+      '42',
     )
 
     // Single long one of a list of longs
@@ -261,7 +272,7 @@ describe('create and edit predicates', () => {
       'shown if',
       'number',
       'is one of',
-      '123, 456'
+      '123, 456',
     )
 
     // Date predicate
@@ -271,7 +282,7 @@ describe('create and edit predicates', () => {
       'shown if',
       'date',
       'is earlier than',
-      '2021-01-01'
+      '2021-01-01',
     )
 
     // Lists of strings on both sides (multi-option question checkbox)
@@ -281,7 +292,7 @@ describe('create and edit predicates', () => {
       'shown if',
       'selections',
       'contains any of',
-      'dog,cat'
+      'dog,cat',
     )
 
     await adminPrograms.publishProgram(programName)

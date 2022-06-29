@@ -2,22 +2,17 @@
 
 # DOC: Load a postgres dump into the dev database (pg_restore), replacing whatever state is currently in it. Takes a file name argument, file must be in project base directory.
 
-pushd $(git rev-parse --show-toplevel)
+source bin/lib.sh
+docker::set_project_name_dev
 
-set -e
-set +x
-
-if [[ ! -f "$1" ]]; then
+if [[ ! -f "${1}" ]]; then
   echo "Usage: bin/dev-restore-db DUMP_FILE_NAME"
   exit 1
 fi
 
-# Find repo root name (currently civiform), also support any names for backward
-# and forward compatibility.
-CIVIFORM_DIR=$(basename $(pwd))
-
 # set TRUNCATE_SQL to heredoc contents
-TRUNCATE_SQL=$(cat <<EOF
+TRUNCATE_SQL=$(
+  cat <<EOF
 TRUNCATE TABLE files;
 TRUNCATE TABLE applications CASCADE;
 TRUNCATE TABLE applicants CASCADE;
@@ -31,24 +26,30 @@ EOF
 )
 
 # remove newlines
-TRUNCATE_SQL=${TRUNCATE_SQL//$'\n'/}
+TRUNCATE_SQL="${TRUNCATE_SQL//$'\n'/}"
 
 # location of dump file in docker container
-DUMP_FILE="project/$1"
+readonly DUMP_FILE="${1}"
+
+docker::compose_dev up db \
+  --no-deps \
+  --wait \
+  -d
+
+docker::compose_dev cp ${DUMP_FILE} db:/${DUMP_FILE}
+
+echo "start truncate"
 
 # command for invoking psql with the dev database
-TRUNCATE_DB_CMD="/usr/bin/psql -h db -U postgres -c '${TRUNCATE_SQL}' postgres"
+docker::compose_dev \
+  exec -it -e "PGPASSWORD=example" db \
+  /usr/bin/psql -h db -U postgres \
+  -c "${TRUNCATE_SQL}" postgres
+
+echo "start restore"
 
 # command for invoking pg_restore with the dev database
-PG_RESTORE_CMD="/usr/bin/pg_restore -h db -U postgres -d postgres < ${DUMP_FILE}"
-
-CMD="${TRUNCATE_DB_CMD} && ${PG_RESTORE_CMD}"
-
-docker run --rm -it \
-  -v "$(pwd):/project" \
-  -e PGPASSWORD=example \
-  --network ${CIVIFORM_DIR}_default \
-  postgres:12.5 \
-  /bin/bash -c "${CMD}"
-
-popd
+docker::compose_dev \
+  exec -it -e "PGPASSWORD=example" db \
+  /bin/sh -c "/usr/bin/pg_restore --clean -v -h db -U postgres -d postgres\
+  <\"${DUMP_FILE}\""

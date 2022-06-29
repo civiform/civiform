@@ -1,0 +1,19 @@
+{
+  "name": "server",
+  "version": "0.0.1",
+  "description": "Universal Application Tool (UAT aka CiviForm) that aims to simplify the application process for benefits programs.",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "@tailwindcss/line-clamp": "0.4.0",
+    "@tsconfig/recommended": "1.0.1",
+    "autoprefixer": "10.4.7",
+    "postcss": "8.4.14",
+    "tailwindcss": "2.2.19"
+  }
+}

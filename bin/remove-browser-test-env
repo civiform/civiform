@@ -1,0 +1,8 @@
+#! /usr/bin/env bash
+
+# DOC: Stop and delete the running browser test environment.
+
+source bin/lib.sh
+docker::set_project_name_browser_tests
+
+docker::compose_browser_test down --remove-orphans

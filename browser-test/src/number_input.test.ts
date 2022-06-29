@@ -13,7 +13,7 @@ import {
 
 describe('input validation for number questions', () => {
   it('displays error message for non-numeric characters in input', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
     page.setDefaultTimeout(4000)
 
     // Set up test program and question
@@ -23,10 +23,10 @@ describe('input validation for number questions', () => {
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
-    await adminQuestions.addNumberQuestion({ questionName })
+    await adminQuestions.addNumberQuestion({questionName})
     await adminPrograms.addAndPublishProgramWithQuestions(
       [questionName],
-      programName
+      programName,
     )
 
     // Switch to applicant view and open an application for the new program

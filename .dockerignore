@@ -13,9 +13,8 @@ browser-test
 code_of_conduct.md
 docker-compose.yml
 formatter.Dockerfile
-infra
 prod.Dockerfile
 test-support
-universal-application-tool-0.0.1/target
-universal-application-tool-0.0.1/project/project
-universal-application-tool-0.0.1/project/target
+server/target
+server/project/project
+server/project/target

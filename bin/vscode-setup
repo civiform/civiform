@@ -1,0 +1,51 @@
+#! /usr/bin/env bash
+
+# DOC: Setup for editing the application using VSCode, by generating a pom.xml.
+# This allows VSCode IDE features to find Java imports for symbols and code
+# compleation.  Needs to be rerun when dependancies are changed.
+
+source bin/lib.sh
+docker::set_project_name_dev
+
+bin/pull-image
+
+if [ -e server/pom.xml ]; then
+  cp server/pom.xml server/pom.bkp
+fi
+
+bin/sbt makePom
+
+# Copy the generated target directory from the docker container to a local dir
+# so that we can use globs to copy the correct file out.
+docker::compose_dev --profile shell cp civiform-shell:/usr/src/server/target server/temp
+
+cp server/temp/scala-*/*.pom \
+  server/pom.xml
+
+rm -rf server/temp
+
+BUILD=$(
+  cat <<END
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+    <build>
+        <sourceDirectory>app</sourceDirectory>
+        <testSourceDirectory>test</testSourceDirectory>
+        <resources>
+            <resource>
+            <directory>conf</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+            <directory>test/conf</directory>
+            </testResource>
+        </testResources>
+    </build>
+    <modelVersion>
+END
+)
+
+perl -i -pe "s|\s+<modelVersion>|${BUILD}|g" server/pom.xml

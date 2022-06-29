@@ -1,0 +1,41 @@
+#! /usr/bin/env bash
+source cloud/azure/bin/lib.sh
+
+# DOC: Connect to the database via the bastion.
+# DOC: Required to pass in the resource group (-g), the database name (-d) and the keyvault name (-v).
+# DOC: example: bin/db-connection -g sgdev -d civiform-artistic-halibut -v sgdev-civiform-kv
+key_name="bastion"
+while getopts g:d:k:v: flag; do
+  case "${flag}" in
+    g) resource_group=${OPTARG} ;;
+    d) database_name=${OPTARG} ;;
+    k) key_name=${OPTARG} ;;
+    v) vault_name=${OPTARG} ;;
+  esac
+done
+
+if [[ ! "${resource_group}" ]] \
+  || [[ ! "${database_name}" ]] \
+  || [[ ! "${vault_name}" ]]; then
+  out::error "arguments -g and -d and -v must be provided"
+  exit 1
+fi
+
+readonly KEY_FILE="${HOME}/.ssh/${key_name}"
+bastion::setup_bastion_ssh "${resource_group}" "${KEY_FILE}"
+
+readonly VM_IP_ADDRESS=$(bastion::get_vm_ip "${resource_group}")
+echo "Bastion vm ip address: ${VM_IP_ADDRESS}"
+
+readonly POSTGRES_HOST=$(bastion::get_postgres_host \
+  "${resource_group}" "${database_name}")
+echo "postgres host: ${POSTGRES_HOST}"
+
+readonly PSQL_CONNECT=$(bastion::get_connect_to_postgres_command \
+  "${POSTGRES_HOST}" "${vault_name}")
+echo "SSHing into machine and opening postgres, \
+type command here and \\q to exit"
+bastion::bastion_ssh_exec \
+  "${VM_IP_ADDRESS}" "${KEY_FILE}" "${PSQL_CONNECT}"
+
+bastion::teardown_bastion_ssh "${resource_group}" "${KEY_FILE}"

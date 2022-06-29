@@ -17,7 +17,7 @@ describe('currency applicant flow', () => {
   let pageObject
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
   })
 
@@ -35,10 +35,10 @@ describe('currency applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject)
       applicantQuestions = new ApplicantQuestions(pageObject)
 
-      await adminQuestions.addCurrencyQuestion({ questionName: 'currency-q' })
+      await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'})
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['currency-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -60,15 +60,16 @@ describe('currency applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      const error = await pageObject.$('.cf-currency-value-error')
-      expect(await error.isHidden()).toEqual(true)
+      const currencyError = '.cf-currency-value-error'
+      // When there are no validation errors, the div still exists but is hidden.
+      expect(await pageObject.isHidden(currencyError)).toEqual(true)
 
       // Input has not enough decimal points.
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency)
       await applicantQuestions.clickNext()
 
       // The block should be displayed still with the error shown.
-      expect(await error.isHidden()).toEqual(false)
+      expect(await pageObject.isHidden(currencyError)).toEqual(false)
     })
   })
 
@@ -90,7 +91,7 @@ describe('currency applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['currency-a-q', 'currency-b-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -113,14 +114,15 @@ describe('currency applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      const error = await pageObject.$('.cf-currency-value-error >> nth=0')
-      expect(await error.isHidden()).toEqual(true)
+      const currencyError = '.cf-currency-value-error >> nth=0'
+      // When there are no validation errors, the div still exists but is hidden.
+      expect(await pageObject.isHidden(currencyError)).toEqual(true)
 
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency, 0)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
 
-      expect(await error.isHidden()).toEqual(false)
+      expect(await pageObject.isHidden(currencyError)).toEqual(false)
     })
 
     it('with second invalid does not submit', async () => {
@@ -128,14 +130,15 @@ describe('currency applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      const error = await pageObject.$('.cf-currency-value-error >> nth=1')
-      expect(await error.isHidden()).toEqual(true)
+      const currencyError = '.cf-currency-value-error >> nth=1'
+      // When there are no validation errors, the div still exists but is hidden.
+      expect(await pageObject.isHidden(currencyError)).toEqual(true)
 
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 0)
       await applicantQuestions.answerCurrencyQuestion(invalidCurrency, 1)
       await applicantQuestions.clickNext()
 
-      expect(await error.isHidden()).toEqual(false)
+      expect(await pageObject.isHidden(currencyError)).toEqual(false)
     })
   })
 })

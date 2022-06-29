@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "server"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.watcherExclude": {
+      "**/target": true,
+      "**/.bloop": true
+    },
+		"search.exclude": {
+			"*/target": true,
+			"**/.bloop": true
+		},
+		"java.configuration.updateBuildConfiguration": "automatic"
+	}
+}

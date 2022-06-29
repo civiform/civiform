@@ -15,15 +15,15 @@ import {
 
 describe('normal application flow', () => {
   it('all major steps', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
     page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
-    await adminQuestions.addDateQuestion({ questionName: 'date-q' })
-    await adminQuestions.addEmailQuestion({ questionName: 'email-q' })
+    await adminQuestions.addDateQuestion({questionName: 'date-q'})
+    await adminQuestions.addEmailQuestion({questionName: 'email-q'})
     await adminQuestions.addDropdownQuestion({
       questionName: 'ice-cream-q',
       options: ['chocolate', 'banana', 'black raspberry'],
@@ -43,22 +43,23 @@ describe('normal application flow', () => {
     await adminQuestions.addCurrencyQuestion({
       questionName: 'monthly-income-q',
     })
-    await adminQuestions.addAddressQuestion({ questionName: 'address-q' })
+    await adminQuestions.addAddressQuestion({questionName: 'address-q'})
     await adminQuestions.addFileUploadQuestion({
       questionName: 'fileupload-q',
     })
-    await adminQuestions.addNameQuestion({ questionName: 'name-q' })
-    await adminQuestions.addNumberQuestion({ questionName: 'number-q' })
-    await adminQuestions.addTextQuestion({ questionName: 'text-q' })
+    await adminQuestions.addNameQuestion({questionName: 'name-q'})
+    await adminQuestions.addNumberQuestion({questionName: 'number-q'})
+    await adminQuestions.addTextQuestion({questionName: 'text-q'})
     await adminQuestions.addRadioButtonQuestion({
       questionName: 'radio-q',
       options: ['one', 'two', 'three'],
     })
-    await adminQuestions.addStaticQuestion({ questionName: 'first-static-q' })
-    await adminQuestions.addStaticQuestion({ questionName: 'second-static-q' })
+    await adminQuestions.addStaticQuestion({questionName: 'first-static-q'})
+    await adminQuestions.addStaticQuestion({questionName: 'second-static-q'})
 
     const programName = 'a shiny new program'
     await adminPrograms.addProgram(programName)
+
     await adminPrograms.editProgramBlock(programName, 'block description', [
       'date-q',
       'address-q',
@@ -84,6 +85,10 @@ describe('normal application flow', () => {
       'second-static-q',
       'monthly-income-q',
     ])
+
+    // Intentionally add an empty block to ensure that empty blocks do not
+    // prevent applicants from being able to submit applications.
+    await adminPrograms.addProgramBlock(programName, 'empty block')
 
     await adminPrograms.gotoAdminProgramsPage()
     await adminPrograms.expectDraftProgram(programName)
@@ -128,24 +133,24 @@ describe('normal application flow', () => {
     // Application doesn't progress because of name and address question errors.
     // Verify that address error messages are visible.
     expect(await page.innerText('.cf-address-street-1-error:visible')).toEqual(
-      'Please enter valid street name and number.'
+      'Please enter valid street name and number.',
     )
     expect(await page.innerText('.cf-address-city-error:visible')).toEqual(
-      'Please enter city.'
+      'Please enter city.',
     )
     expect(await page.innerText('.cf-address-state-error:visible')).toEqual(
-      'Please enter state.'
+      'Please enter state.',
     )
     expect(await page.innerText('.cf-address-zip-error:visible')).toEqual(
-      'Please enter valid 5-digit ZIP code.'
+      'Please enter valid 5-digit ZIP code.',
     )
 
     // Verify that name question error messages are visible.
     expect(await page.innerText('.cf-name-first-error:visible')).toEqual(
-      'Please enter your first name.'
+      'Please enter your first name.',
     )
     expect(await page.innerText('.cf-name-last-error:visible')).toEqual(
-      'Please enter your last name.'
+      'Please enter your last name.',
     )
 
     // Fix the address and name questions and submit.
@@ -155,7 +160,7 @@ describe('normal application flow', () => {
       'Unit B',
       'Sim',
       'Ames',
-      '54321'
+      '54321',
     )
     await applicantQuestions.clickNext()
 
@@ -192,7 +197,7 @@ describe('normal application flow', () => {
     await adminPrograms.expectApplicationAnswers(
       'Screen 1',
       'address-q',
-      '1234 St'
+      '1234 St',
     )
     await adminPrograms.expectApplicationAnswers('Screen 1', 'name-q', 'Queen')
 
@@ -202,26 +207,26 @@ describe('normal application flow', () => {
     await adminPrograms.expectApplicationAnswers(
       'Screen 1',
       'date-q',
-      '05/10/2021'
+      '05/10/2021',
     )
     await adminPrograms.expectApplicationAnswers(
       'Screen 1',
       'email-q',
-      'test1@gmail.com'
+      'test1@gmail.com',
     )
 
     await adminPrograms.expectApplicationAnswers('Screen 2', 'ice-cream-q', '2')
     await adminPrograms.expectApplicationAnswers(
       'Screen 2',
       'favorite-trees-q',
-      'pine cherry'
+      'pine cherry',
     )
 
     await adminPrograms.expectApplicationAnswers('Screen 2', 'number-q', '42')
     await adminPrograms.expectApplicationAnswers(
       'Screen 2',
       'text-q',
-      'some text'
+      'some text',
     )
     await adminPrograms.expectApplicationAnswerLinks('Screen 3', 'fileupload-q')
 
@@ -236,19 +241,19 @@ describe('normal application flow', () => {
     await logout(page)
     await loginAsProgramAdmin(page)
 
-    await adminPrograms.viewApplicationsForOldVersion(programName)
+    await adminPrograms.viewApplications(programName)
     await adminPrograms.viewApplicationForApplicant(userDisplayName())
     await adminPrograms.expectApplicationAnswers(
       'Screen 2',
       'favorite-trees-q',
-      'pine cherry'
+      'pine cherry',
     )
 
     await endSession(browser)
   })
 
   it('program applications listed most recent first', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
     page.setDefaultTimeout(5000)
 
     // Create a simple one question program application.
@@ -256,11 +261,11 @@ describe('normal application flow', () => {
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
-    await adminQuestions.addTextQuestion({ questionName: 'fruit-text-q' })
+    await adminQuestions.addTextQuestion({questionName: 'fruit-text-q'})
     const programName = 'fruit program'
     await adminPrograms.addAndPublishProgramWithQuestions(
       ['fruit-text-q'],
-      programName
+      programName,
     )
 
     await logout(page)
@@ -286,14 +291,19 @@ describe('normal application flow', () => {
     await adminPrograms.viewApplications(programName)
     for (let i = 0; i < answers.length; i++) {
       await page.click(
-        `:nth-match(.cf-admin-application-card, ${i + 1}) a:text("View")`
+        `:nth-match(.cf-admin-application-card, ${i + 1}) a:text("View")`,
       )
+      await adminPrograms.waitForApplicationFrame()
+
+      // TODO(https://github.com/seattle-uat/civiform/issues/2018):
+      //   make this more robust so an explicit wait time is not needed.
+      await page.waitForTimeout(2000)
+
       await adminPrograms.expectApplicationAnswers(
         'Screen 1',
         'fruit-text-q',
-        answers[answers.length - i - 1]
+        answers[answers.length - i - 1],
       )
-      await page.goBack()
     }
 
     await logout(page)

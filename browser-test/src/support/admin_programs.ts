@@ -1,6 +1,6 @@
-import { Page } from 'playwright'
-import { readFileSync } from 'fs'
-import { clickAndWaitForModal, waitForPageJsLoad } from './wait'
+import {Page} from 'playwright'
+import {readFileSync} from 'fs'
+import {clickAndWaitForModal, waitForPageJsLoad} from './wait'
 
 export class AdminPrograms {
   public page!: Page
@@ -31,7 +31,7 @@ export class AdminPrograms {
     programName: string,
     description = 'program description',
     externalLink = '',
-    hidden = false
+    hidden = false,
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
@@ -57,6 +57,12 @@ export class AdminPrograms {
     await this.expectProgramExist(programName, description)
   }
 
+  async programNames() {
+    await this.gotoAdminProgramsPage()
+    const titles = this.page.locator('.cf-admin-program-card .cf-program-title')
+    return titles.allTextContents()
+  }
+
   selectProgramCard(programName: string, lifecycle: string) {
     return `.cf-admin-program-card:has(:text("${programName}")):has(:text("${lifecycle}"))`
   }
@@ -64,7 +70,7 @@ export class AdminPrograms {
   selectWithinProgramCard(
     programName: string,
     lifecycle: string,
-    selector: string
+    selector: string,
   ) {
     return this.selectProgramCard(programName, lifecycle) + ' ' + selector
   }
@@ -73,7 +79,7 @@ export class AdminPrograms {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
     await this.page.click(
-      this.selectWithinProgramCard(programName, 'DRAFT', ':text("Edit")')
+      this.selectWithinProgramCard(programName, 'DRAFT', ':text("Edit")'),
     )
     await waitForPageJsLoad(this.page)
     await this.expectProgramEditPage(programName)
@@ -86,8 +92,8 @@ export class AdminPrograms {
       this.selectWithinProgramCard(
         programName,
         'DRAFT',
-        ':text("Manage Translations")'
-      )
+        ':text("Manage Translations")',
+      ),
     )
     await waitForPageJsLoad(this.page)
     await this.expectProgramManageTranslationsPage()
@@ -100,8 +106,8 @@ export class AdminPrograms {
       this.selectWithinProgramCard(
         programName,
         'DRAFT',
-        ':text("Manage Admins")'
-      )
+        ':text("Manage Admins")',
+      ),
     )
     await waitForPageJsLoad(this.page)
     await this.expectManageProgramAdminsPage()
@@ -125,50 +131,52 @@ export class AdminPrograms {
 
   async expectDraftProgram(programName: string) {
     expect(
-      await this.page.innerText(this.selectProgramCard(programName, 'DRAFT'))
+      await this.page.innerText(this.selectProgramCard(programName, 'DRAFT')),
     ).not.toContain('New Version')
   }
 
   async expectActiveProgram(programName: string) {
     expect(
-      await this.page.innerText(this.selectProgramCard(programName, 'ACTIVE'))
+      await this.page.innerText(this.selectProgramCard(programName, 'ACTIVE')),
     ).toContain('New Version')
   }
 
   async expectObsoleteProgram(programName: string) {
     expect(
-      await this.page.innerText(this.selectProgramCard(programName, 'OBSOLETE'))
+      await this.page.innerText(
+        this.selectProgramCard(programName, 'OBSOLETE'),
+      ),
     ).toContain('Applications')
   }
 
   async expectProgramEditPage(programName: string = '') {
     expect(await this.page.innerText('h1')).toContain(
-      `Edit program: ${programName}`
+      `Edit program: ${programName}`,
     )
   }
 
   async expectProgramManageTranslationsPage() {
     expect(await this.page.innerText('h1')).toContain(
-      'Manage program translations'
+      'Manage program translations',
     )
   }
 
   async expectManageProgramAdminsPage() {
     expect(await this.page.innerText('h1')).toContain(
-      'Manage Admins for Program'
+      'Manage Admins for Program',
     )
   }
 
   async expectAddProgramAdminErrorToast() {
     const toastMessages = await this.page.innerText('#toast-container')
     expect(toastMessages).toContain(
-      'does not have an admin account and cannot be added as a Program Admin.'
+      'does not have an admin account and cannot be added as a Program Admin.',
     )
   }
 
   async expectEditPredicatePage(blockName: string) {
     expect(await this.page.innerText('h1')).toContain(
-      'Visibility condition for ' + blockName
+      'Visibility condition for ' + blockName,
     )
   }
 
@@ -177,12 +185,12 @@ export class AdminPrograms {
     expect(await this.page.innerText('id=block-edit-form')).not.toBeNull()
     // Compare string case insensitively because style may not have been computed.
     expect(
-      (await this.page.innerText('[for=block-name-input]')).toUpperCase()
+      (await this.page.innerText('[for=block-name-input]')).toUpperCase(),
     ).toEqual('SCREEN NAME')
     expect(
       (
         await this.page.innerText('[for=block-description-textarea]')
-      ).toUpperCase()
+      ).toUpperCase(),
     ).toEqual('SCREEN DESCRIPTION')
     expect(await this.page.innerText('h1')).toContain('Question bank')
   }
@@ -190,7 +198,7 @@ export class AdminPrograms {
   async editProgramBlock(
     programName: string,
     blockDescription = 'screen description',
-    questionNames: string[] = []
+    questionNames: string[] = [],
   ) {
     await this.gotoDraftProgramEditPage(programName)
 
@@ -212,7 +220,7 @@ export class AdminPrograms {
     programName: string,
     blockDescription = 'screen description',
     questionNames: string[],
-    optionalQuestionName: string
+    optionalQuestionName: string,
   ) {
     await this.gotoDraftProgramEditPage(programName)
 
@@ -240,7 +248,7 @@ export class AdminPrograms {
   async addProgramBlock(
     programName: string,
     blockDescription = 'screen description',
-    questionNames: string[] = []
+    questionNames: string[] = [],
   ) {
     await this.gotoDraftProgramEditPage(programName)
 
@@ -263,12 +271,12 @@ export class AdminPrograms {
       await waitForPageJsLoad(this.page)
       // Make sure the question is successfully added to the screen.
       await this.page.waitForSelector(
-        `div.cf-program-question p:text("${questionName}")`
+        `div.cf-program-question p:text("${questionName}")`,
       )
     }
     return await this.page.$eval(
       '#block-name-input',
-      (el) => (el as HTMLInputElement).value
+      (el) => (el as HTMLInputElement).value,
     )
   }
 
@@ -277,7 +285,7 @@ export class AdminPrograms {
     programName: string,
     blockDescription = 'screen description',
     questionNames: string[],
-    optionalQuestionName: string
+    optionalQuestionName: string,
   ) {
     await this.page.click('#add-block-button')
     await waitForPageJsLoad(this.page)
@@ -304,7 +312,7 @@ export class AdminPrograms {
     programName: string,
     enumeratorBlockName: string,
     blockDescription = 'screen description',
-    questionNames: string[] = []
+    questionNames: string[] = [],
   ) {
     await this.gotoDraftProgramEditPage(programName)
 
@@ -347,8 +355,8 @@ export class AdminPrograms {
       this.selectWithinProgramCard(
         programName,
         'ACTIVE',
-        ':text("New Version")'
-      )
+        ':text("New Version")',
+      ),
     )
     await waitForPageJsLoad(this.page)
     await this.page.click('#program-update-button')
@@ -365,8 +373,8 @@ export class AdminPrograms {
       this.selectWithinProgramCard(
         programName,
         'ACTIVE',
-        ':text("New Version")'
-      )
+        ':text("New Version")',
+      ),
     )
     await waitForPageJsLoad(this.page)
     await this.page.check(`label:has-text("Public")`)
@@ -381,27 +389,9 @@ export class AdminPrograms {
       this.selectWithinProgramCard(
         programName,
         'ACTIVE',
-        'a:text("Applications")'
-      )
+        'a:text("Applications")',
+      ),
     )
-    await waitForPageJsLoad(this.page)
-  }
-
-  async viewApplicationsInOldVersion() {
-    await this.page.click('a:text("Applications")')
-    await waitForPageJsLoad(this.page)
-  }
-
-  async viewApplicationsForOldVersion(programName: string) {
-    await this.page.click(
-      this.selectWithinProgramCard(
-        programName,
-        'ACTIVE',
-        ':text("Applications")'
-      )
-    )
-    await waitForPageJsLoad(this.page)
-    await this.page.click('a:has-text("Applications")')
     await waitForPageJsLoad(this.page)
   }
 
@@ -425,34 +415,56 @@ export class AdminPrograms {
 
   async viewApplicationForApplicant(applicantName: string) {
     await this.page.click(
-      this.selectWithinApplicationForApplicant(applicantName, 'a:text("View")')
+      this.selectWithinApplicationForApplicant(applicantName, 'a:text("View")'),
     )
-    await waitForPageJsLoad(this.page)
+    await this.waitForApplicationFrame()
+  }
+
+  applicationFrame() {
+    return this.page.frameLocator('#application-display-frame')
+  }
+
+  async waitForApplicationFrame() {
+    await waitForPageJsLoad(this.page.frames()[0])
   }
 
   async expectApplicationAnswers(
     blockName: string,
     questionName: string,
-    answer: string
+    answer: string,
   ) {
-    expect(
-      await this.page.innerText(this.selectApplicationBlock(blockName))
-    ).toContain(questionName)
-    expect(
-      await this.page.innerText(this.selectApplicationBlock(blockName))
-    ).toContain(answer)
+    const blockText = await this.applicationFrame()
+      .locator(this.selectApplicationBlock(blockName))
+      .innerText()
+
+    expect(blockText).toContain(questionName)
+    expect(blockText).toContain(answer)
   }
 
   async expectApplicationAnswerLinks(blockName: string, questionName: string) {
     expect(
-      await this.page.innerText(this.selectApplicationBlock(blockName))
+      await this.applicationFrame()
+        .locator(this.selectApplicationBlock(blockName))
+        .innerText(),
     ).toContain(questionName)
     expect(
-      await this.page.getAttribute(
-        this.selectWithinApplicationBlock(blockName, 'a'),
-        'href'
-      )
+      await this.applicationFrame()
+        .locator(this.selectWithinApplicationBlock(blockName, 'a'))
+        .getAttribute('href'),
     ).not.toBeNull()
+  }
+
+  async getJson() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.click('text="Download all versions (JSON)"'),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+
+    return readFileSync(path, 'utf8')
   }
 
   async getCsv() {
@@ -468,10 +480,14 @@ export class AdminPrograms {
   }
 
   async getDemographicsCsv() {
+    await clickAndWaitForModal(this.page, 'download-demographics-csv-modal')
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('text="Download Exported Data (CSV)"'),
+      this.page.click(
+        '#download-demographics-csv-modal button:has-text("Download Exported Data (CSV)")',
+      ),
     ])
+    await this.page.click('#download-demographics-csv-modal-close')
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')
@@ -481,7 +497,7 @@ export class AdminPrograms {
 
   async addAndPublishProgramWithQuestions(
     questionNames: string[],
-    programName: string
+    programName: string,
   ) {
     await this.addProgram(programName)
     await this.editProgramBlock(programName, 'dummy description', questionNames)

@@ -1,0 +1,12 @@
+#! /usr/bin/env bash
+
+# DOC: Open a bash shell in the dev environment container.
+
+source bin/lib.sh
+docker::set_project_name_dev
+
+bin/pull-image
+
+docker::run_shell_container
+docker::run_shell_command /bin/bash "$@"
+docker::stop_shell_container

@@ -1,0 +1,20 @@
+# Builds on unit-test-docker-compose.yml
+# Mount code for hot reloading and cache for faster compile in dev mode.
+services:
+  civiform:
+    volumes:
+      - ../server:/usr/src/server
+      - target:/usr/src/server/target
+      - node_modules-data:/usr/src/server/node_modules
+      - project-data:/usr/src/server/project/project
+      - project-target-data:/usr/src/server/project/target
+
+volumes:
+  node_modules-data:
+    driver: local
+  project-data:
+    driver: local
+  project-target-data:
+    driver: local
+  target:
+    driver: local

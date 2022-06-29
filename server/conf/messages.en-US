@@ -1,0 +1,104 @@
+# -------------------------------------------------------------------------------------------------- #
+# US English
+# NOTE! This is not the default messages file - please add all messages to the file named "messages"
+#
+# CAUTION: Apostrophes are used as escape characters
+# To type an apostrophe in a message, please type two. Example: can't -> can''t
+# https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
+# -------------------------------------------------------------------------------------------------- #
+
+button.apply=Apply
+button.continue=Continue
+button.deleteFile=Delete
+button.keepFile=Continue
+button.logout=Logout
+button.nextScreen=Save and next
+button.previousScreen=Previous
+button.review=Review
+button.skipFileUpload=Skip
+button.submit=Submit
+button.upload=Upload
+footer.supportLinkDescription=For technical support, contact
+toast.localeNotSupported=We''re sorry, this program is not fully translated to English.
+toast.programCompleted=Application was already completed.
+toast.applicationSaved=Successfully saved application: application ID {0}
+title.applicationConfirmation=Application confirmation
+title.createAnAccount=Create an account or sign in
+content.confirmed=Thank you for applying to {0}.  Your application has been received, and your application ID is {1}.
+content.pleaseCreateAccount=If you sign into a city account now, your information will be saved and you''ll be able to return at any time to complete future applications.  If you do not already have an account, the login page will allow you to register.  You won''t lose any data you''ve already entered.
+link.allDone=I''m all done
+link.applyToAnotherProgram=Apply to another program
+link.createAccountOrSignIn=Create account or sign in
+
+link.begin=Start here
+link.edit=Edit
+title.programPreview=Program application preview
+title.programReview=Program application review
+
+title.programs=Programs & services
+title.inProgressPrograms=Continue
+title.activePrograms=New Programs
+title.programCard=Program {0} of {1} -- {2}
+link.programDetails=Program details
+link.externalLink=External site
+content.benefits=Get benefits
+content.description1=CiviForm lets you apply for many benefits at once by reusing information.
+content.description2=Get started by choosing an application below.
+
+error.not_found_title=We''re sorry, we lost
+error.not_found_title_end=the page
+error.not_found_description_a=Don''t worry though, the benefits
+error.not_found_description_a_end=are still there.
+error.not_found_description_b=Find them on
+error.not_found_description_b_end=the
+error.not_found_description_link=homepage
+
+error.img_caption_a=Photo by
+error.img_caption_b=Michael Dziedzic
+error.img_caption_c=on
+error.img_caption_d=Unsplash
+
+label.street=Address line 1
+placeholder.street=Street address
+label.addressLine2=Unit/Apartment Number
+placeholder.line2=Apartment, suite, unit, building, floor, etc.
+label.city=City
+placeholder.city=City
+label.state=State
+placeholder.state=State
+label.zipcode=ZIP Code
+placeholder.zipcode=ZIP Code
+label.firstName=First name
+placeholder.firstName=First name
+label.middleName=Middle name
+placeholder.middleName=Middle name
+label.lastName=Last name
+placeholder.lastName=Last name
+placeholder.entityName={0} name
+button.addEntity=Add {0}
+button.removeEntity=Remove {0}
+validation.isRequired=This question is required.
+validation.invalidInput=Please enter valid input.
+validation.duplicateEntityName=Please enter a unique value for each line.
+validation.firstNameRequired=Please enter your first name.
+validation.lastNameRequired=Please enter your last name.
+validation.textTooShort=Must contain at least {0} characters.
+validation.textTooLong=Must contain at most {0} characters.
+validation.numberTooSmall=Must be at least {0}.
+validation.numberTooBig=Must be at most {0}.
+validation.numberNonInteger=Number must be a positive whole number and can only contain numeric characters 0-9.
+validation.tooFewSelections=Please select at least {0}.
+validation.tooManySelections=Please select fewer than {0}.
+validation.streetRequired=Please enter valid street name and number.
+validation.cityRequired=Please enter city.
+validation.currencyMisformatted=Currency must be one of the following formats: 1000 1,000 1000.30 1,000.30
+validation.stateRequired=Please enter state.
+validation.invalidZipcode=Please enter valid 5-digit ZIP code.
+validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
+validation.dateMisformatted=Please enter a date in the format YYYY/MM/DD.
+validation.entityNameRequired=Please enter a value for each line.
+validation.fileRequired=Please select a file.
+validation.idTooShort=Must contain at least {0} characters.
+validation.idTooLong=Must contain at most {0} characters.
+validation.numberRequired=Must contain only numbers.
+adminValidation.multiOptionEmpty=Multi option questions cannot have blank options.

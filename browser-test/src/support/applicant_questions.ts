@@ -1,5 +1,6 @@
-import { Page } from 'playwright'
-import { waitForPageJsLoad } from './wait'
+import {Page} from 'playwright'
+import {readFileSync} from 'fs'
+import {waitForPageJsLoad} from './wait'
 
 export class ApplicantQuestions {
   public page!: Page
@@ -14,7 +15,7 @@ export class ApplicantQuestions {
     city: string,
     state: string,
     zip: string,
-    index = 0
+    index = 0,
   ) {
     await this.page.fill(`.cf-address-street-1 input >> nth=${index}`, street)
     await this.page.fill(`.cf-address-street-2 input >> nth=${index}`, line2)
@@ -28,7 +29,7 @@ export class ApplicantQuestions {
     line2: string,
     city: string,
     state: string,
-    zip: string
+    zip: string,
   ) {
     // Verify elements are present
     await this.page.waitForSelector('.cf-address-street-1 input')
@@ -48,17 +49,18 @@ export class ApplicantQuestions {
   async answerNameQuestion(
     firstName: string,
     lastName: string,
-    middleName = ''
+    middleName = '',
+    index = 0,
   ) {
-    await this.page.fill('.cf-name-first input', firstName)
-    await this.page.fill('.cf-name-middle input', middleName)
-    await this.page.fill('.cf-name-last input', lastName)
+    await this.page.fill(`.cf-name-first input >> nth=${index}`, firstName)
+    await this.page.fill(`.cf-name-middle input >> nth=${index}`, middleName)
+    await this.page.fill(`.cf-name-last input >> nth=${index}`, lastName)
   }
 
   async checkNameQuestionValue(
     firstName: string,
     lastName: string,
-    middleName = ''
+    middleName = '',
   ) {
     // Verify elements are present
     await this.page.waitForSelector('.cf-name-first input')
@@ -139,17 +141,17 @@ export class ApplicantQuestions {
     // TODO(leonwong): may need to specify row index to wait for newly added row.
     await this.page.fill(
       '#enumerator-fields .cf-enumerator-field:last-of-type input',
-      entityName
+      entityName,
     )
   }
 
   async checkEnumeratorAnswerValue(entityName: string, index: number) {
     await this.page.waitForSelector(
-      `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`
+      `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
     )
     await this.validateInputValue(
       entityName,
-      `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`
+      `#enumerator-fields .cf-enumerator-field:nth-of-type(${index}) input`,
     )
   }
 
@@ -172,7 +174,7 @@ export class ApplicantQuestions {
 
   async clickApplyProgramButton(programName: string) {
     await this.page.click(
-      `.cf-application-card:has-text("${programName}") .cf-apply-button`
+      `.cf-application-card:has-text("${programName}") .cf-apply-button`,
     )
     await waitForPageJsLoad(this.page)
   }
@@ -191,7 +193,7 @@ export class ApplicantQuestions {
   }
 
   async clickNext() {
-    await this.page.click('text="Next"')
+    await this.page.click('text="Save and next"')
     await waitForPageJsLoad(this.page)
   }
 
@@ -220,7 +222,7 @@ export class ApplicantQuestions {
       await dialog.accept()
     })
     await this.page.click(
-      `.cf-enumerator-field:has(input[value="${entityName}"]) button`
+      `.cf-enumerator-field:has(input[value="${entityName}"]) button`,
     )
   }
 
@@ -231,10 +233,27 @@ export class ApplicantQuestions {
     await this.page.click(`:nth-match(:text("Remove Entity"), ${entityIndex})`)
   }
 
+  async downloadSingleQuestionFromReviewPage() {
+    // Assert that we're on the review page.
+    expect(await this.page.innerText('h1')).toContain(
+      'Program application review',
+    )
+
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.click('a:has-text("click to download")'),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
+    return readFileSync(path, 'utf8')
+  }
+
   async submitFromReviewPage(programName: string) {
     // Assert that we're on the review page.
     expect(await this.page.innerText('h1')).toContain(
-      'Program application review'
+      'Program application review',
     )
 
     // Click on submit button.
@@ -249,9 +268,9 @@ export class ApplicantQuestions {
   }
 
   async submitFromPreviewPage(programName: string) {
-    // Assert that we're on the review page.
+    // Assert that we're on the preview page.
     expect(await this.page.innerText('h1')).toContain(
-      'Program application preview'
+      'Program application preview',
     )
 
     // Click on submit button.
@@ -268,7 +287,7 @@ export class ApplicantQuestions {
   async validateHeader(lang: string) {
     expect(await this.page.getAttribute('html', 'lang')).toEqual(lang)
     expect(await this.page.innerHTML('head')).toContain(
-      '<meta name="viewport" content="width=device-width, initial-scale=1">'
+      '<meta name="viewport" content="width=device-width, initial-scale=1">',
     )
   }
 

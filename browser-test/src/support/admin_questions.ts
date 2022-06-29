@@ -1,5 +1,5 @@
-import { Page } from 'playwright'
-import { waitForPageJsLoad } from './wait'
+import {Page} from 'playwright'
+import {waitForPageJsLoad} from './wait'
 
 type QuestionParams = {
   questionName: string
@@ -8,12 +8,17 @@ type QuestionParams = {
   questionText?: string
   helpText?: string
   enumeratorName?: string
+  exportOption?: string
 }
 
 export class AdminQuestions {
   public page!: Page
 
   static readonly DOES_NOT_REPEAT_OPTION = 'does not repeat'
+
+  public static readonly NO_EXPORT_OPTION = 'No export'
+  public static readonly EXPORT_VALUE_OPTION = 'Export Value'
+  public static readonly EXPORT_OBFUSCATED_OPTION = 'Export Obfuscated'
 
   constructor(page: Page) {
     this.page = page
@@ -26,9 +31,9 @@ export class AdminQuestions {
   }
 
   async goToViewQuestionPage(questionName: string) {
-      await this.gotoAdminQuestionsPage()
-      await this.page.click('text=View')
-      await waitForPageJsLoad(this.page)
+    await this.gotoAdminQuestionsPage()
+    await this.page.click('text=View')
+    await waitForPageJsLoad(this.page)
   }
 
   async clickSubmitButtonAndNavigate(buttonText: string) {
@@ -44,6 +49,10 @@ export class AdminQuestions {
     expect(await this.page.isDisabled('text=No Export')).toEqual(true)
     // TODO(sgoldblatt): This test does not find any questions need to look into
     // expect(await this.page.isDisabled(`text=${questionName}`)).toEqual(true)
+  }
+
+  selectorForExportOption(exportOption: string) {
+    return `label:has-text("${exportOption}") input`
   }
 
   async expectAdminQuestionsPageWithSuccessToast(successText: string) {
@@ -75,13 +84,14 @@ export class AdminQuestions {
     }
   }
 
-  async fillInQuestionBasics(
-    questionName: string,
-    description: string,
-    questionText: string,
-    helpText: string,
-    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION
-  ) {
+  async fillInQuestionBasics({
+    questionName,
+    description,
+    questionText,
+    helpText,
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
+  }: QuestionParams) {
     // This function should only be called on question create/edit page.
     await this.page.fill('label:has-text("Name")', questionName)
     await this.page.fill('label:has-text("Description")', description)
@@ -90,6 +100,16 @@ export class AdminQuestions {
     await this.page.selectOption('#question-enumerator-select', {
       label: enumeratorName,
     })
+    if (exportOption) {
+      await this.selectExportOption(exportOption)
+    }
+  }
+
+  async selectExportOption(exportOption: string) {
+    if (!exportOption) {
+      throw new Error('A non-empty export option must be provided')
+    }
+    await this.page.check(this.selectorForExportOption(exportOption))
   }
 
   async updateQuestionText(updateText: string) {
@@ -116,7 +136,7 @@ export class AdminQuestions {
     expect(tableInnerText).toContain(questionName)
     expect(tableInnerText).toContain(questionText)
     expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName))
+      await this.page.innerText(this.selectQuestionTableRow(questionName)),
     ).toContain('Edit Draft')
   }
 
@@ -127,10 +147,10 @@ export class AdminQuestions {
     expect(tableInnerText).toContain(questionName)
     expect(tableInnerText).toContain(questionText)
     expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName))
+      await this.page.innerText(this.selectQuestionTableRow(questionName)),
     ).toContain('View')
     expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName))
+      await this.page.innerText(this.selectQuestionTableRow(questionName)),
     ).toContain('New Version')
   }
 
@@ -144,7 +164,7 @@ export class AdminQuestions {
   async gotoQuestionEditPage(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Edit")')
+      this.selectWithinQuestionTableRow(questionName, ':text("Edit")'),
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionEditPage(questionName)
@@ -153,7 +173,7 @@ export class AdminQuestions {
   async undeleteQuestion(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Restore")')
+      this.selectWithinQuestionTableRow(questionName, ':text("Restore")'),
     )
     await waitForPageJsLoad(this.page)
     await this.expectAdminQuestionsPage()
@@ -162,7 +182,7 @@ export class AdminQuestions {
   async discardDraft(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Discard Draft")')
+      this.selectWithinQuestionTableRow(questionName, ':text("Discard Draft")'),
     )
     await waitForPageJsLoad(this.page)
     await this.expectAdminQuestionsPage()
@@ -171,7 +191,7 @@ export class AdminQuestions {
   async archiveQuestion(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Archive")')
+      this.selectWithinQuestionTableRow(questionName, ':text("Archive")'),
     )
     await waitForPageJsLoad(this.page)
     await this.expectAdminQuestionsPage()
@@ -182,8 +202,8 @@ export class AdminQuestions {
     await this.page.click(
       this.selectWithinQuestionTableRow(
         questionName,
-        ':text("Manage Translations")'
-      )
+        ':text("Manage Translations")',
+      ),
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionTranslationPage()
@@ -192,13 +212,13 @@ export class AdminQuestions {
   async expectQuestionEditPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain('Edit')
     expect(
-      await this.page.getAttribute('input#question-name-input', 'value')
+      await this.page.getAttribute('input#question-name-input', 'value'),
     ).toEqual(questionName)
   }
 
   async expectQuestionTranslationPage() {
     expect(await this.page.innerText('h1')).toContain(
-      'Manage Question Translations'
+      'Manage Question Translations',
     )
   }
 
@@ -238,7 +258,7 @@ export class AdminQuestions {
   async createNewVersion(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("New Version")')
+      this.selectWithinQuestionTableRow(questionName, ':text("New Version")'),
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionEditPage(questionName)
@@ -260,14 +280,14 @@ export class AdminQuestions {
     await this.addCurrencyQuestion({
       questionName: questionNamePrefix + 'currency',
     })
-    await this.addDateQuestion({ questionName: questionNamePrefix + 'date' })
+    await this.addDateQuestion({questionName: questionNamePrefix + 'date'})
     await this.addDropdownQuestion({
       questionName: questionNamePrefix + 'dropdown',
       options: ['op1', 'op2', 'op3'],
     })
-    await this.addEmailQuestion({ questionName: questionNamePrefix + 'email' })
-    await this.addIdQuestion({ questionName: questionNamePrefix + 'id' })
-    await this.addNameQuestion({ questionName: questionNamePrefix + 'name' })
+    await this.addEmailQuestion({questionName: questionNamePrefix + 'email'})
+    await this.addIdQuestion({questionName: questionNamePrefix + 'id'})
+    await this.addNameQuestion({questionName: questionNamePrefix + 'name'})
     await this.addNumberQuestion({
       questionName: questionNamePrefix + 'number',
     })
@@ -275,7 +295,7 @@ export class AdminQuestions {
       questionName: questionNamePrefix + 'radio',
       options: ['one', 'two', 'three'],
     })
-    await this.addTextQuestion({ questionName: questionNamePrefix + 'text' })
+    await this.addTextQuestion({questionName: questionNamePrefix + 'text'})
     return [
       questionNamePrefix + 'address',
       questionNamePrefix + 'checkbox',
@@ -334,6 +354,7 @@ export class AdminQuestions {
     questionText = 'address question text',
     helpText = 'address question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -341,13 +362,14 @@ export class AdminQuestions {
     await this.page.click('#create-address-question')
     await waitForPageJsLoad(this.page)
 
-    await this.fillInQuestionBasics(
+    await this.fillInQuestionBasics({
       questionName,
       description,
       questionText,
       helpText,
-      enumeratorName
-    )
+      enumeratorName,
+      exportOption,
+    })
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -362,6 +384,7 @@ export class AdminQuestions {
     questionText = 'date question text',
     helpText = 'date question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -369,13 +392,14 @@ export class AdminQuestions {
     await this.page.click('#create-date-question')
     await waitForPageJsLoad(this.page)
 
-    await this.fillInQuestionBasics(
+    await this.fillInQuestionBasics({
       questionName,
       description,
       questionText,
       helpText,
-      enumeratorName
-    )
+      enumeratorName,
+      exportOption,
+    })
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -391,6 +415,7 @@ export class AdminQuestions {
     questionText = 'checkbox question text',
     helpText = 'checkbox question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -398,20 +423,21 @@ export class AdminQuestions {
     await this.page.click('#create-checkbox-question')
     await waitForPageJsLoad(this.page)
 
-    await this.fillInQuestionBasics(
+    await this.fillInQuestionBasics({
       questionName,
       description,
       questionText,
       helpText,
-      enumeratorName
-    )
+      enumeratorName,
+      exportOption,
+    })
 
     for (var index in options) {
       await this.page.click('#add-new-option')
       var matchIndex = Number(index) + 1
       await this.page.fill(
         `:nth-match(#question-settings div.flex-row, ${matchIndex}) input`,
-        options[index]
+        options[index],
       )
     }
 
@@ -430,6 +456,7 @@ export class AdminQuestions {
     questionText = 'dropdown question text',
     helpText = 'dropdown question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -438,13 +465,14 @@ export class AdminQuestions {
     await this.page.waitForURL('**/admin/questions/new?type=dropdown')
     await waitForPageJsLoad(this.page)
 
-    await this.fillInQuestionBasics(
+    await this.fillInQuestionBasics({
       questionName,
       description,
       questionText,
       helpText,
-      enumeratorName
-    )
+      enumeratorName,
+      exportOption,
+    })
 
     for (let index in options) {
       await this.page.click('#add-new-option')
@@ -459,7 +487,7 @@ export class AdminQuestions {
   async changeMultiOptionAnswer(index: number, text: string) {
     await this.page.fill(
       `:nth-match(#question-settings div.cf-multi-option-question-option, ${index}) input`,
-      text
+      text,
     )
   }
 
@@ -469,18 +497,20 @@ export class AdminQuestions {
     questionText = 'currency question text',
     helpText = 'currency question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
     await this.page.click('#create-question-button')
     await this.page.click('#create-currency-question')
     await waitForPageJsLoad(this.page)
-    await this.fillInQuestionBasics(
+    await this.fillInQuestionBasics({
       questionName,
       description,
       questionText,
       helpText,
-      enumeratorName
-    )
+      enumeratorName,
+      exportOption,
+    })
     await this.clickSubmitButtonAndNavigate('Create')
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
     await this.expectDraftQuestionExist(questionName, questionText)
@@ -494,6 +524,7 @@ export class AdminQuestions {
     questionText = 'dropdown question text',
     helpText = 'dropdown question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     await this.createDropdownQuestion({
       questionName,
@@ -515,6 +546,7 @@ export class AdminQuestions {
     questionText = 'fileupload question text',
     helpText = 'fileupload question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -522,13 +554,14 @@ export class AdminQuestions {
     await this.page.click('#create-fileupload-question')
     await waitForPageJsLoad(this.page)
 
-    await this.fillInQuestionBasics(
+    await this.fillInQuestionBasics({
       questionName,
       description,
       questionText,
       helpText,
-      enumeratorName
-    )
+      enumeratorName,
+      exportOption,
+    })
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -542,6 +575,7 @@ export class AdminQuestions {
     description = 'static description',
     questionText = 'static question text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = '',
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -569,6 +603,7 @@ export class AdminQuestions {
     questionText = 'name question text',
     helpText = 'name question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -576,13 +611,14 @@ export class AdminQuestions {
     await this.page.click('#create-name-question')
     await waitForPageJsLoad(this.page)
 
-    await this.fillInQuestionBasics(
+    await this.fillInQuestionBasics({
       questionName,
       description,
       questionText,
       helpText,
-      enumeratorName
-    )
+      enumeratorName,
+      exportOption,
+    })
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -597,6 +633,7 @@ export class AdminQuestions {
     questionText = 'number question text',
     helpText = 'number question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -604,13 +641,14 @@ export class AdminQuestions {
     await this.page.click('#create-number-question')
     await waitForPageJsLoad(this.page)
 
-    await this.fillInQuestionBasics(
+    await this.fillInQuestionBasics({
       questionName,
       description,
       questionText,
       helpText,
-      enumeratorName
-    )
+      enumeratorName,
+      exportOption,
+    })
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -626,6 +664,7 @@ export class AdminQuestions {
     questionText = 'radio button question text',
     helpText = 'radio button question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     await this.createRadioButtonQuestion({
       questionName,
@@ -648,6 +687,7 @@ export class AdminQuestions {
     questionText = 'radio button question text',
     helpText = 'radio button question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -655,20 +695,21 @@ export class AdminQuestions {
     await this.page.click('#create-radio_button-question')
     await waitForPageJsLoad(this.page)
 
-    await this.fillInQuestionBasics(
+    await this.fillInQuestionBasics({
       questionName,
       description,
       questionText,
       helpText,
-      enumeratorName
-    )
+      enumeratorName,
+      exportOption,
+    })
 
     for (var index in options) {
       await this.page.click('#add-new-option')
       var matchIndex = Number(index) + 1
       await this.page.fill(
         `:nth-match(#question-settings div.flex-row, ${matchIndex}) input`,
-        options[index]
+        options[index],
       )
     }
 
@@ -681,6 +722,7 @@ export class AdminQuestions {
     questionText = 'text question text',
     helpText = 'text question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -688,13 +730,14 @@ export class AdminQuestions {
     await this.page.click('#create-text-question')
     await waitForPageJsLoad(this.page)
 
-    await this.fillInQuestionBasics(
+    await this.fillInQuestionBasics({
       questionName,
       description,
       questionText,
       helpText,
-      enumeratorName
-    )
+      enumeratorName,
+      exportOption,
+    })
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -709,6 +752,7 @@ export class AdminQuestions {
     questionText = 'id question text',
     helpText = 'id question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -716,13 +760,14 @@ export class AdminQuestions {
     await this.page.click('#create-id-question')
     await waitForPageJsLoad(this.page)
 
-    await this.fillInQuestionBasics(
+    await this.fillInQuestionBasics({
       questionName,
       description,
       questionText,
       helpText,
-      enumeratorName
-    )
+      enumeratorName,
+      exportOption,
+    })
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -737,6 +782,7 @@ export class AdminQuestions {
     questionText = 'email question text',
     helpText = 'email question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -744,13 +790,14 @@ export class AdminQuestions {
     await this.page.click('#create-email-question')
     await waitForPageJsLoad(this.page)
 
-    await this.fillInQuestionBasics(
+    await this.fillInQuestionBasics({
       questionName,
       description,
       questionText,
       helpText,
-      enumeratorName
-    )
+      enumeratorName,
+      exportOption,
+    })
 
     await this.clickSubmitButtonAndNavigate('Create')
 
@@ -768,6 +815,7 @@ export class AdminQuestions {
     questionText = 'enumerator question text',
     helpText = 'enumerator question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = '',
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -775,13 +823,14 @@ export class AdminQuestions {
     await this.page.click('#create-enumerator-question')
     await waitForPageJsLoad(this.page)
 
-    await this.fillInQuestionBasics(
+    await this.fillInQuestionBasics({
       questionName,
       description,
       questionText,
       helpText,
-      enumeratorName
-    )
+      enumeratorName,
+      exportOption,
+    })
 
     await this.page.fill('text=Repeated Entity Type', 'Entity')
 

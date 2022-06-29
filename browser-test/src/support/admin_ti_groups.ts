@@ -1,4 +1,4 @@
-import { Page } from 'playwright'
+import {Page} from 'playwright'
 
 export class AdminTIGroups {
   public page!: Page
@@ -8,17 +8,13 @@ export class AdminTIGroups {
   }
 
   async gotoAdminTIPage() {
-    // The warning message may be in the way of this link
-    await this.page
-      .click('#warning-message-dismiss')
-      .catch((error) => console.log("didn't find a warning, which is fine."))
     await this.page.click('nav :text("Intermediaries")')
     await this.expectAdminTIPage()
   }
 
   async expectAdminTIPage() {
     expect(await this.page.innerText('h1')).toEqual(
-      'Create New Trusted Intermediary'
+      'Create New Trusted Intermediary',
     )
   }
 
