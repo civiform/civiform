@@ -14,13 +14,13 @@ class Destroy(SetupTemplate):
     def pre_terraform_destroy(self):
         if not self.config.use_backend_config():
             self._make_backend_override()
-        print(" - Deleting AWS Access Key")
-        self._delete_aws_access_key()
 
     def post_terraform_destroy(self):
         print(" - Purge the keyvault")
         self._purge_keyvault()
-
+        print(" - Deleting AWS Access Key")
+        self._delete_aws_access_key()
+        
     def _delete_aws_access_key(self):
         access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
         if access_key_id:

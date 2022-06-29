@@ -4,7 +4,7 @@ import os
 import subprocess
 import shutil
 
-from cloud.aws.templates.aws_oidc.bin.awsSetupTemplate import AwsSetupTemplate
+from cloud.aws.templates.aws_oidc.bin.aws_template import AwsSetupTemplate
 """
 Destroy the setup
 """

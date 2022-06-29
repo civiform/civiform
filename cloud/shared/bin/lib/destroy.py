@@ -1,21 +1,11 @@
 #! /usr/bin/env python3
 
-import os
-import subprocess
-import sys
-
 from config_loader import ConfigLoader
 from cloud.shared.bin.lib import terraform
 from setup_class_loader import load_destroy_class
 """
 Destroy.py destroys the setup
 """
-
-###############################################################################
-# Add top level directory so we can import modules
-###############################################################################
-
-sys.path.append(os.getcwd())
 
 ###############################################################################
 # Load and Validate Inputs
