@@ -68,9 +68,6 @@ public abstract class ProgramDefinition {
   /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
-  /** The list of {@link ExportDefinition}s that make up the program. */
-  public abstract ImmutableList<ExportDefinition> exportDefinitions();
-
   /** When was this program created. Could be null for older programs. */
   public abstract Optional<Instant> createTime();
 
@@ -579,11 +576,7 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
 
-    public abstract Builder setExportDefinitions(ImmutableList<ExportDefinition> exportDefinitions);
-
     public abstract ImmutableList.Builder<BlockDefinition> blockDefinitionsBuilder();
-
-    public abstract ImmutableList.Builder<ExportDefinition> exportDefinitionsBuilder();
 
     public abstract LocalizedStrings.Builder localizedNameBuilder();
 
@@ -597,11 +590,6 @@ public abstract class ProgramDefinition {
 
     public Builder addBlockDefinition(BlockDefinition blockDefinition) {
       blockDefinitionsBuilder().add(blockDefinition);
-      return this;
-    }
-
-    public Builder addExportDefinition(ExportDefinition exportDefinition) {
-      exportDefinitionsBuilder().add(exportDefinition);
       return this;
     }
 
