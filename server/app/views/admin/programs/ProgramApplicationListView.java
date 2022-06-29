@@ -162,8 +162,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .with(
                     div().withClass(Styles.FLEX_GROW),
                     downloadButton,
-                    // TODO(clouser): Change the icon.
-                    makeSvgTextButton("Filter", Icons.LANGUAGE)
+                    makeSvgTextButton("Filter", Icons.FILTER_ALT)
                         .withClass(AdminStyles.PRIMARY_BUTTON_STYLES)
                         .withType("submit")));
   }
@@ -202,7 +201,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             .withValue(filterParams.search().orElse(""))
                             .withType("hidden"),
                         div()
-                            .withClasses(Styles.FLEX, Styles.SPACE_X_2)
+                            .withClasses(Styles.FLEX, Styles.MT_6, Styles.SPACE_X_2)
                             .with(
                                 TagCreator.button("Download CSV")
                                     .withClasses(
