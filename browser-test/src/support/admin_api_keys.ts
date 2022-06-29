@@ -70,7 +70,7 @@ export class AdminApiKeys {
     const startTime = Date.now()
     const maxWaitTime = startTime + timeoutMillis
     const expectedCallCountText = `Call count: ${expectedCallCount}`
-    let callCountText = ""
+    let callCountText = ''
 
     while (true) {
       await this.gotoApiKeyIndexPage()
@@ -98,7 +98,7 @@ export class AdminApiKeys {
   ) {
     const startTime = Date.now()
     const maxWaitTime = startTime + timeoutMillis
-    let lastCallIpText = ""
+    let lastCallIpText = ''
 
     while (true) {
       await this.gotoApiKeyIndexPage()

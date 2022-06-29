@@ -20,7 +20,7 @@ import services.apikey.ApiKeyService;
 /**
  * This filter looks for requests with paths that begin with /api and record the usage data for the
  * relevant API key if it has one. The API key update is scheduled to run in a background thread
- * through to reduce latency and to ensure issues with recording the usage do not cause API requests
+ * to reduce latency and to ensure issues with recording the usage do not cause API requests
  * to fail. Note that there is no retry logic, so if updating the key's usage info fails it will be
  * inconsistent. This is acceptable since it's not critical that the call count be perfectly
  * accurate.
