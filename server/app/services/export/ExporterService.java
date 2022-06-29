@@ -88,7 +88,8 @@ public final class ExporterService {
             .getSubmittedProgramApplicationsAllVersions(
                 programId,
                 F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
-                /* searchNameFragment= */ Optional.empty())
+                /* searchNameFragment= */ Optional.empty(),
+                /* submitTimeFilter= */ TimeFilter.EMPTY)
             .getPageContents();
 
     return exportCsv(exportConfig, applications);
