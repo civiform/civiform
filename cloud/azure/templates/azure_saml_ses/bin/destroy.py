@@ -20,7 +20,7 @@ class Destroy(SetupTemplate):
         self._purge_keyvault()
         print(" - Deleting AWS Access Key")
         self._delete_aws_access_key()
-        
+
     def _delete_aws_access_key(self):
         access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
         if access_key_id:
