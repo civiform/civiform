@@ -94,7 +94,8 @@ public class AdminApplicationController extends CiviFormController {
       long programId,
       Optional<String> search,
       Optional<String> fromDate,
-      Optional<String> untilDate)
+      Optional<String> untilDate,
+      Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
     final ProgramDefinition program;
 
@@ -105,11 +106,15 @@ public class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
 
+    boolean shouldApplyFilters = ignoreFilters.orElse("").isEmpty();
     TimeFilter submitTimeFilter =
-        TimeFilter.builder()
-            .setFromTime(parseDateFromQuery(dateConverter, fromDate))
-            .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
-            .build();
+        shouldApplyFilters
+            ? TimeFilter.builder()
+                .setFromTime(parseDateFromQuery(dateConverter, fromDate))
+                .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+                .build()
+            : TimeFilter.EMPTY;
+    Optional<String> searchFragment = shouldApplyFilters ? search : Optional.empty();
 
     String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
     String json =
@@ -117,7 +122,7 @@ public class AdminApplicationController extends CiviFormController {
             .export(
                 program,
                 IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                search,
+                searchFragment,
                 submitTimeFilter)
             .getLeft();
 
@@ -133,18 +138,24 @@ public class AdminApplicationController extends CiviFormController {
       long programId,
       Optional<String> search,
       Optional<String> fromDate,
-      Optional<String> untilDate)
+      Optional<String> untilDate,
+      Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
+    boolean shouldApplyFilters = ignoreFilters.orElse("").isEmpty();
     try {
       TimeFilter submitTimeFilter =
-          TimeFilter.builder()
-              .setFromTime(parseDateFromQuery(dateConverter, fromDate))
-              .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
-              .build();
+          shouldApplyFilters
+              ? TimeFilter.builder()
+                  .setFromTime(parseDateFromQuery(dateConverter, fromDate))
+                  .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+                  .build()
+              : TimeFilter.EMPTY;
+      Optional<String> searchFragment = shouldApplyFilters ? search : Optional.empty();
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramAllVersionsCsv(programId, search, submitTimeFilter);
+      String csv =
+          exporterService.getProgramAllVersionsCsv(programId, searchFragment, submitTimeFilter);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(

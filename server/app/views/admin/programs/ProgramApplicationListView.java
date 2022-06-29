@@ -49,6 +49,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private static final String FROM_DATE_PARAM = "fromDate";
   private static final String UNTIL_DATE_PARAM = "untilDate";
   private static final String SEARCH_PARAM = "search";
+  private static final String IGNORE_FILTERS_PARAM = "ignoreFilters";
 
   private final AdminLayout layout;
   private final ApplicantUtils applicantUtils;
@@ -177,6 +178,17 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 form()
                     .withMethod("GET")
                     .with(
+                        FieldWithLabel.radio()
+                            .setFieldName(IGNORE_FILTERS_PARAM)
+                            .setLabelText("Apply current filters")
+                            .setChecked(true)
+                            .getContainer(),
+                        FieldWithLabel.radio()
+                            .setFieldName(IGNORE_FILTERS_PARAM)
+                            .setLabelText("Download all data")
+                            .setValue("1")
+                            .setChecked(false)
+                            .getContainer(),
                         input()
                             .withName(FROM_DATE_PARAM)
                             .withValue(filterParams.fromDate().orElse(""))
@@ -203,6 +215,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                                 program.id(),
                                                 Optional.empty(),
                                                 Optional.empty(),
+                                                Optional.empty(),
                                                 Optional.empty())
                                             .url())
                                     .withType("submit"),
@@ -215,6 +228,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                         controllers.admin.routes.AdminApplicationController
                                             .downloadAllJson(
                                                 program.id(),
+                                                Optional.empty(),
                                                 Optional.empty(),
                                                 Optional.empty(),
                                                 Optional.empty())
