@@ -17,7 +17,7 @@ window.addEventListener('load', (event) => {
 function validateFileUploadQuestions(formEl: Element): boolean {
   let isAllValid = true
   const questions = Array.from(
-    formEl.querySelectorAll('.cf-question-fileupload')
+    formEl.querySelectorAll('.cf-question-fileupload'),
   )
   for (const question of questions) {
     // validate a file is selected.

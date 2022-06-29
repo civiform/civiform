@@ -72,17 +72,19 @@ public final class ApiKeyIndexView extends BaseHtmlView {
 
   private ContainerTag renderApiKey(
       Http.Request request, ApiKey apiKey, ImmutableMap<String, String> programSlugToName) {
+    String keyNameSlugified = MainModule.SLUGIFIER.slugify(apiKey.getName());
+
     ContainerTag statsDiv =
         div()
             .with(
                 p("Created " + dateConverter.formatRfc1123(apiKey.getCreateTime())),
                 p("Created by " + apiKey.getCreatedBy()),
-                p(
-                    apiKey
+                p(apiKey
                         .getLastCallIpAddress()
                         .map(ip -> "Last used by " + ip)
-                        .orElse("Last used by N/A")),
-                p("Call count: " + apiKey.getCallCount()))
+                        .orElse("Last used by N/A"))
+                    .withId(keyNameSlugified + "-last-call-ip"),
+                p("Call count: " + apiKey.getCallCount()).withId(keyNameSlugified + "-call-count"))
             .withClasses(Styles.TEXT_XS);
 
     ContainerTag linksDiv = div().withClasses(Styles.FLEX);
@@ -100,7 +102,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                       + apiKey.getName()
                       + "?')")
               .setText("Retire key")
-              .setId(String.format("retire-%s", MainModule.SLUGIFIER.slugify(apiKey.getName())))
+              .setId(String.format("retire-%s", keyNameSlugified))
               .asHiddenForm(request));
     }
 

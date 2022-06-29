@@ -4,7 +4,7 @@ services:
     image: postgres:12.5
     restart: always
     expose:
-      - "5432"
+      - '5432'
     environment:
       POSTGRES_PASSWORD: example
 
@@ -18,12 +18,12 @@ services:
     image: civiform-dev
     restart: always
     links:
-      - "db:database"
-      - "oidc"
+      - 'db:database'
+      - 'oidc'
     volumes:
       - ../server/code-coverage:/usr/src/server/code-coverage
     entrypoint: /bin/bash
-    tty: true        # keep the container running
+    tty: true # keep the container running
     stdin_open: true
     ports: # For debugging
       - 9100:9000

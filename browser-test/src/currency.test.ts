@@ -17,7 +17,7 @@ describe('currency applicant flow', () => {
   let pageObject
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {page} = await startSession()
     pageObject = page
   })
 
@@ -35,10 +35,10 @@ describe('currency applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject)
       applicantQuestions = new ApplicantQuestions(pageObject)
 
-      await adminQuestions.addCurrencyQuestion({ questionName: 'currency-q' })
+      await adminQuestions.addCurrencyQuestion({questionName: 'currency-q'})
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['currency-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -91,7 +91,7 @@ describe('currency applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['currency-a-q', 'currency-b-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)

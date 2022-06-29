@@ -6,6 +6,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.ExpressionList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -151,9 +152,25 @@ public class ApplicationRepository {
             });
   }
 
-  public ImmutableList<Application> getAllApplications() {
-    return ImmutableList.copyOf(
-        database.find(Application.class).fetch("program").fetch("applicant.account").findList());
+  /**
+   * Returns all applications submitted within the provided time range. Results are returned in the
+   * order that the applications were created.
+   */
+  public ImmutableList<Application> getApplications(TimeFilter submitTimeFilter) {
+    ExpressionList<Application> query =
+        database
+            .find(Application.class)
+            .fetch("program")
+            .fetch("applicant.account")
+            .orderBy("id")
+            .where();
+    if (submitTimeFilter.fromTime().isPresent()) {
+      query = query.where().ge("submit_time", submitTimeFilter.fromTime().get());
+    }
+    if (submitTimeFilter.untilTime().isPresent()) {
+      query = query.where().lt("submit_time", submitTimeFilter.untilTime().get());
+    }
+    return ImmutableList.copyOf(query.findList());
   }
 
   // Need to transmit both arguments to submitApplication through the CompletionStage pipeline.

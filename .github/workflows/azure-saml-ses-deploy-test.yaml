@@ -27,7 +27,7 @@ jobs:
       - name: Resolve latest snapshot tag
         run: source cloud/shared/bin/resolve-latest-snapshot-tag
 
-      - name: Copy the config from staging 
+      - name: Copy the config from staging
         run: |
           #  Grab the config from the staging deploy repo to confirm
           #  the changes work with actual data

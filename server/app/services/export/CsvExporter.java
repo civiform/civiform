@@ -1,14 +1,14 @@
 package services.export;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import models.Application;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.csv.CSVFormat;
@@ -21,60 +21,40 @@ import services.program.Column;
  * CsvExporter takes a list of {@link Column}s and exports the data specified. A column contains a
  * {@link Path} indexing into an applicant's data, and CsvExporter takes the path and reads the
  * answer from {@link ReadOnlyApplicantProgramService} if present.
+ *
+ * <p>Call close() directly or use the try-with-resources pattern in order for the underlying {@link
+ * CsvPrinter} to be closed.
  */
-public class CsvExporter {
-  public static final CSVFormat DEFAULT_CSV_FORMAT =
-      CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build();
-
+public final class CsvExporter implements AutoCloseable {
   private final String EMPTY_VALUE = "";
 
-  private boolean wroteHeaders;
-  private ImmutableList<Column> columns;
-  private Optional<String> secret;
-
-  public CsvExporter(List<Column> columns) {
-    this.wroteHeaders = false;
-    this.columns = ImmutableList.copyOf(columns);
-    this.secret = Optional.empty();
-  }
+  private final ImmutableList<Column> columns;
+  private final String secret;
+  private final CSVPrinter printer;
 
   /** Provide a secret if you will need to use OPAQUE_ID type columns. */
-  public CsvExporter(ImmutableList<Column> columns, String secret) {
-    this(columns);
-    this.secret = Optional.of(secret);
-  }
-
-  private void writeHeadersOnFirstExport(CSVPrinter printer) throws IOException {
-    if (!wroteHeaders) {
-      for (Column column : columns) {
-        printer.print(column.header());
-      }
-      printer.println();
-      wroteHeaders = true;
-    }
-  }
-
-  protected ImmutableList<Column> getColumns() {
-    return columns;
-  }
-
-  /**
-   * The CSV exporter will write the headers on first call to services.export(). It does not store
-   * the writer between calls. Since it is intended for many applications, this function is intended
-   * to be called several times.
-   */
-  public void export(
-      Application application, ReadOnlyApplicantProgramService roApplicantService, Writer writer)
+  public CsvExporter(ImmutableList<Column> columns, String secret, Writer writer)
       throws IOException {
-    CSVPrinter printer = new CSVPrinter(writer, DEFAULT_CSV_FORMAT);
+    this.columns = checkNotNull(columns);
+    this.secret = checkNotNull(secret);
 
-    writeHeadersOnFirstExport(printer);
+    CSVFormat format =
+        CSVFormat.DEFAULT
+            .builder()
+            .setHeader(columns.stream().map(Column::header).toArray(String[]::new))
+            .build();
+    this.printer = new CSVPrinter(writer, format);
+  }
 
+  /** Writes a single {@link Application} record to the CSV. */
+  public void exportRecord(
+      Application application, ReadOnlyApplicantProgramService roApplicantService)
+      throws IOException {
     ImmutableMap<Path, String> answerMap =
         roApplicantService.getSummaryData().stream()
             .flatMap(data -> data.scalarAnswersInDefaultLocale().entrySet().stream())
             .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
-    for (Column column : getColumns()) {
+    for (Column column : columns) {
       switch (column.columnType()) {
         case APPLICANT_ANSWER:
           printer.print(getValueFromAnswerMap(column, answerMap));
@@ -98,13 +78,13 @@ public class CsvExporter {
                   : EMPTY_VALUE);
           break;
         case SUBMITTER_EMAIL_OPAQUE:
-          if (this.secret.isEmpty()) {
+          if (secret.isBlank()) {
             throw new RuntimeException("Secret not present, but opaque ID requested.");
           }
           printer.print(
               application
                   .getSubmitterEmail()
-                  .map(email -> opaqueIdentifier(this.secret.get(), email))
+                  .map(email -> opaqueIdentifier(secret, email))
                   .orElse(EMPTY_VALUE));
           break;
         case SUBMITTER_EMAIL:
@@ -123,18 +103,17 @@ public class CsvExporter {
                   .orElse(EMPTY_VALUE));
           break;
         case OPAQUE_ID:
-          if (this.secret.isEmpty()) {
+          if (secret.isEmpty()) {
             throw new RuntimeException("Secret not present, but opaque ID requested.");
           }
-          printer.print(opaqueIdentifier(this.secret.get(), application.getApplicant().id));
+          printer.print(opaqueIdentifier(secret, application.getApplicant().id));
           break;
         case APPLICANT_OPAQUE:
-          if (this.secret.isEmpty()) {
+          if (secret.isEmpty()) {
             throw new RuntimeException("Secret not present, but opaque applicant data requested.");
           }
           // We still hash the empty value.
-          printer.print(
-              opaqueIdentifier(this.secret.get(), getValueFromAnswerMap(column, answerMap)));
+          printer.print(opaqueIdentifier(secret, getValueFromAnswerMap(column, answerMap)));
       }
     }
 
@@ -171,5 +150,10 @@ public class CsvExporter {
         .putString(value, StandardCharsets.UTF_8)
         .hash()
         .toString();
+  }
+
+  @Override
+  public void close() throws IOException {
+    printer.close();
   }
 }

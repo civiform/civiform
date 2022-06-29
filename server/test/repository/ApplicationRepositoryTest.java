@@ -13,16 +13,20 @@ import models.Program;
 import models.Version;
 import org.junit.Before;
 import org.junit.Test;
+import services.DateConverter;
 import services.Path;
+import support.CfTestHelpers;
 
 public class ApplicationRepositoryTest extends ResetPostgres {
   private ApplicationRepository repo;
+  private DateConverter dateConverter;
 
   private Version draftVersion;
 
   @Before
   public void setUp() {
     repo = instanceOf(ApplicationRepository.class);
+    dateConverter = instanceOf(DateConverter.class);
     draftVersion = new Version(LifecycleStage.DRAFT);
     draftVersion.save();
   }
@@ -140,6 +144,75 @@ public class ApplicationRepositoryTest extends ResetPostgres {
         repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
     assertThat(repo.getApplication(app.id).toCompletableFuture().join().get().getLifecycleStage())
         .isEqualTo(LifecycleStage.ACTIVE);
+  }
+
+  private Application createSubmittedAppAtInstant(Program program, Instant submitTime) {
+    // Use a distinct applicant for each application since it's not possible to create multiple
+    // submitted applications for the same program for a given applicant.
+    Applicant applicant = saveApplicant("Alice");
+    Application app = repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
+    CfTestHelpers.withMockedInstantNow(
+        submitTime.toString(),
+        () -> {
+          app.setLifecycleStage(LifecycleStage.ACTIVE);
+          app.setSubmitTimeToNow();
+          app.save();
+        });
+    app.refresh();
+    return app;
+  }
+
+  @Test
+  public void getApplications() {
+    Program programOne = createDraftProgram("first");
+    Program programTwo = createDraftProgram("second");
+
+    Instant yesterday = dateConverter.parseIso8601DateToStartOfDateInstant("2022-01-02");
+    Instant today = dateConverter.parseIso8601DateToStartOfDateInstant("2022-01-03");
+    Instant tomorrow = dateConverter.parseIso8601DateToStartOfDateInstant("2022-01-04");
+
+    // Create applications at each instant in each program.
+    Application programOneYesterday = createSubmittedAppAtInstant(programOne, yesterday);
+    Application programOneToday = createSubmittedAppAtInstant(programOne, today);
+    Application programOneTomorrow = createSubmittedAppAtInstant(programOne, tomorrow);
+    Application programTwoYesterday = createSubmittedAppAtInstant(programTwo, yesterday);
+    Application programTwoToday = createSubmittedAppAtInstant(programTwo, today);
+    Application programTwoTomorrow = createSubmittedAppAtInstant(programTwo, tomorrow);
+
+    // No filters. Includes all.
+    assertThat(repo.getApplications(TimeFilter.EMPTY).stream().map(a -> a.id))
+        .containsExactly(
+            programOneYesterday.id,
+            programOneToday.id,
+            programOneTomorrow.id,
+            programTwoYesterday.id,
+            programTwoToday.id,
+            programTwoTomorrow.id);
+
+    // Only from.
+    TimeFilter fromFilter = TimeFilter.builder().setFromTime(Optional.of(today)).build();
+    assertThat(repo.getApplications(fromFilter).stream().map(a -> a.id))
+        .containsExactly(
+            programOneToday.id, programOneTomorrow.id, programTwoToday.id, programTwoTomorrow.id);
+
+    // Only to.
+    TimeFilter toFilter = TimeFilter.builder().setUntilTime(Optional.of(today)).build();
+    assertThat(repo.getApplications(toFilter).stream().map(a -> a.id))
+        .containsExactly(programOneYesterday.id, programTwoYesterday.id);
+
+    // Both.
+    TimeFilter bothFilter =
+        TimeFilter.builder()
+            .setFromTime(Optional.of(today))
+            .setUntilTime(Optional.of(tomorrow))
+            .build();
+    assertThat(repo.getApplications(bothFilter).stream().map(a -> a.id))
+        .containsExactly(programOneToday.id, programTwoToday.id);
+
+    // Overly restrictive, no apps.
+    TimeFilter restrictiveFilter =
+        TimeFilter.builder().setFromTime(Optional.of(Instant.now())).build();
+    assertThat(repo.getApplications(restrictiveFilter)).isEmpty();
   }
 
   private Applicant saveApplicant(String name) {

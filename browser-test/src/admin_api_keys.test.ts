@@ -1,4 +1,4 @@
-import { Browser, Page } from 'playwright'
+import {Browser, Page} from 'playwright'
 import {
   startSession,
   loginAsAdmin,
@@ -34,14 +34,24 @@ describe('Managing API keys', () => {
 
     const credentials = await adminApiKeys.createApiKey({
       name: 'Test API key',
-      expiration: '2022-01-31',
-      subnet: '8.8.8.8/32',
+      expiration: '2100-01-01',
+      subnet: '0.0.0.0/0',
       programSlugs: ['api-using-program'],
     })
 
     expect(typeof credentials).toEqual('string')
 
     await adminApiKeys.expectApiKeyIsActive('Test API key')
+
+    let apiResponse = await adminApiKeys.callCheckAuth(credentials)
+    expect(apiResponse.status).toEqual(200)
+    await adminApiKeys.expectKeyCallCount('test-api-key', 1)
+    await adminApiKeys.expectLastCallIpAddressToBeSet('test-api-key')
+
+    apiResponse = await adminApiKeys.callCheckAuth(credentials)
+    expect(apiResponse.status).toEqual(200)
+    await adminApiKeys.expectKeyCallCount('test-api-key', 2)
+
     await adminApiKeys.retireApiKey('test-api-key')
     await adminApiKeys.expectApiKeyIsRetired('Test API key')
   })
