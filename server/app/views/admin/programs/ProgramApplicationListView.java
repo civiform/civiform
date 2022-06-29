@@ -12,6 +12,7 @@ import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
+import com.google.auto.value.AutoValue;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.Tag;
@@ -58,7 +59,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ProgramDefinition program,
       PageNumberBasedPaginationSpec paginationSpec,
       PaginationResult<Application> paginatedApplications,
-      Optional<String> search) {
+      RenderFilterParams filterParams) {
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
@@ -69,7 +70,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                         paginatedApplications.getNumPages(),
                         pageNumber ->
                             routes.AdminApplicationController.index(
-                                program.id(), search, Optional.of(pageNumber)))
+                                program.id(),
+                                filterParams.search(),
+                                Optional.of(pageNumber),
+                                filterParams.fromDate(),
+                                filterParams.untilDate()))
                     .withClasses(Styles.MB_2),
                 br(),
                 renderSearchForm(request, program),
@@ -104,7 +109,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .withMethod("GET")
         .withAction(
             routes.AdminApplicationController.index(
-                    program.id(), Optional.empty(), Optional.empty())
+                    program.id(),
+                    Optional.empty(),
+                    Optional.empty(),
+                    Optional.empty(),
+                    Optional.empty())
                 .url())
         .with(
             fieldset()
@@ -207,5 +216,29 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .setText(text)
         .setStyles(Styles.MR_2, ReferenceClasses.VIEW_BUTTON)
         .asAnchorText();
+  }
+
+  @AutoValue
+  public abstract static class RenderFilterParams {
+    public abstract Optional<String> search();
+
+    public abstract Optional<String> fromDate();
+
+    public abstract Optional<String> untilDate();
+
+    public static Builder builder() {
+      return new AutoValue_ProgramApplicationListView_RenderFilterParams.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder setSearch(Optional<String> search);
+
+      public abstract Builder setFromDate(Optional<String> fromDate);
+
+      public abstract Builder setUntilDate(Optional<String> untilDate);
+
+      public abstract RenderFilterParams build();
+    }
   }
 }

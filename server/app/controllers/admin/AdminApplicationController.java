@@ -8,12 +8,9 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
 import com.itextpdf.text.DocumentException;
-import controllers.BadRequestException;
 import controllers.CiviFormController;
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
@@ -42,6 +39,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.ApplicantUtils;
 import views.admin.programs.ProgramApplicationListView;
+import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
 import views.admin.programs.ProgramApplicationView;
 
 /** Controller for admins viewing applications to programs. */
@@ -151,19 +149,6 @@ public class AdminApplicationController extends CiviFormController {
     }
   }
 
-  private Optional<Instant> parseDateFromQuery(Optional<String> maybeQueryParam) {
-    return maybeQueryParam
-        .filter(s -> !s.isBlank())
-        .map(
-            s -> {
-              try {
-                return dateConverter.parseIso8601DateToStartOfDateInstant(s);
-              } catch (DateTimeParseException e) {
-                throw new BadRequestException("Malformed query param");
-              }
-            });
-  }
-
   /**
    * Download a CSV file containing demographics information of the current live version.
    * Demographics information is collected from answers to a collection of questions specially
@@ -174,8 +159,8 @@ public class AdminApplicationController extends CiviFormController {
       Http.Request request, Optional<String> fromDate, Optional<String> untilDate) {
     TimeFilter submitTimeFilter =
         TimeFilter.builder()
-            .setFromTime(parseDateFromQuery(fromDate))
-            .setUntilTime(parseDateFromQuery(untilDate))
+            .setFromTime(parseDateFromQuery(dateConverter, fromDate))
+            .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
             .build();
     String filename = String.format("demographics-%s.csv", nowProvider.get());
     String csv = exporterService.getDemographicsCsv(submitTimeFilter);
@@ -265,11 +250,24 @@ public class AdminApplicationController extends CiviFormController {
   /** Return a paginated HTML page displaying (part of) all applications to the program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result index(
-      Http.Request request, long programId, Optional<String> search, Optional<Integer> page)
+      Http.Request request,
+      long programId,
+      Optional<String> search,
+      Optional<Integer> page,
+      Optional<String> fromDate,
+      Optional<String> untilDate)
       throws ProgramNotFoundException {
     if (page.isEmpty()) {
-      return redirect(routes.AdminApplicationController.index(programId, search, Optional.of(1)));
+      return redirect(
+          routes.AdminApplicationController.index(
+              programId, search, Optional.of(1), fromDate, untilDate));
     }
+
+    TimeFilter submitTimeFilter =
+        TimeFilter.builder()
+            .setFromTime(parseDateFromQuery(dateConverter, fromDate))
+            .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+            .build();
 
     final ProgramDefinition program;
     try {
@@ -282,8 +280,18 @@ public class AdminApplicationController extends CiviFormController {
     var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
     PaginationResult<Application> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programId, F.Either.Right(paginationSpec), search, TimeFilter.EMPTY);
+            programId, F.Either.Right(paginationSpec), search, submitTimeFilter);
 
-    return ok(applicationListView.render(request, program, paginationSpec, applications, search));
+    return ok(
+        applicationListView.render(
+            request,
+            program,
+            paginationSpec,
+            applications,
+            RenderFilterParams.builder()
+                .setSearch(search)
+                .setFromDate(fromDate)
+                .setUntilDate(untilDate)
+                .build()));
   }
 }
