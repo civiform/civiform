@@ -2,7 +2,6 @@ package services.program;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
-import com.github.slugify.Slugify;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
@@ -23,6 +22,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import models.DisplayMode;
 import models.Program;
+import modules.MainModule;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -426,7 +426,7 @@ public abstract class ProgramDefinition {
   }
 
   public String slug() {
-    return Slugify.builder().build().slugify(this.adminName());
+    return MainModule.SLUGIFIER.slugify(this.adminName());
   }
 
   public int getQuestionCount() {

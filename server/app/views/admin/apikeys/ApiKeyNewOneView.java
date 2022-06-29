@@ -9,7 +9,6 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
 import annotations.BindingAnnotations.EnUsLang;
-import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
@@ -17,6 +16,7 @@ import controllers.admin.routes;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import java.util.Optional;
+import modules.MainModule;
 import play.data.DynamicForm;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
@@ -35,7 +35,6 @@ import views.style.Styles;
 public final class ApiKeyNewOneView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages enUsMessages;
-  private final Slugify slugifier = Slugify.builder().build();
 
   private static final String EXPIRATION_DESCRIPTION =
       "Specify a date when this API key will no longer be valid. The expiration date"
@@ -119,7 +118,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
           FieldWithLabel.checkbox()
               .setFieldName(programReadGrantFieldName(name))
               .setLabelText(name)
-              .setId(slugifier.slugify(name))
+              .setId(MainModule.SLUGIFIER.slugify(name))
               .setValue("true")
               .getContainer());
     }
@@ -139,7 +138,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
   }
 
   private String programReadGrantFieldName(String name) {
-    return "grant-program-read[" + slugifier.slugify(name) + "]";
+    return "grant-program-read[" + MainModule.SLUGIFIER.slugify(name) + "]";
   }
 
   private FieldWithLabel setStateIfPresent(

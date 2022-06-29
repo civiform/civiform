@@ -13,13 +13,13 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.tr;
 
 import auth.ApiKeyGrants;
-import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import j2html.tags.ContainerTag;
 import java.util.function.Function;
 import models.ApiKey;
+import modules.MainModule;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DateConverter;
@@ -37,7 +37,6 @@ import views.style.Styles;
 public final class ApiKeyIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final DateConverter dateConverter;
-  private final Slugify slugifier = Slugify.builder().build();
 
   @Inject
   public ApiKeyIndexView(AdminLayoutFactory layoutFactory, DateConverter dateConverter) {
@@ -73,7 +72,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
 
   private ContainerTag renderApiKey(
       Http.Request request, ApiKey apiKey, ImmutableMap<String, String> programSlugToName) {
-    String keyNameSlugified = slugifier.slugify(apiKey.getName());
+    String keyNameSlugified = MainModule.SLUGIFIER.slugify(apiKey.getName());
 
     ContainerTag statsDiv =
         div()
@@ -162,6 +161,6 @@ public final class ApiKeyIndexView extends BaseHtmlView {
 
   private ImmutableMap<String, String> buildProgramSlugToName(ImmutableSet<String> programNames) {
     return programNames.stream()
-        .collect(ImmutableMap.toImmutableMap(slugifier::slugify, Function.identity()));
+        .collect(ImmutableMap.toImmutableMap(MainModule.SLUGIFIER::slugify, Function.identity()));
   }
 }
