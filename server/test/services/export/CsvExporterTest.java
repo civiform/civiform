@@ -127,8 +127,7 @@ public class CsvExporterTest extends AbstractExporterTest {
 
     ExporterService exporterService = instanceOf(ExporterService.class);
     CSVParser parser =
-        CSVParser.parse(
-            exporterService.getDemographicsCsv(TimeFilter.builder().build()), DEFAULT_FORMAT);
+        CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
 
     assertThat(parser.getHeaderNames())
         .containsExactly(
@@ -144,8 +143,7 @@ public class CsvExporterTest extends AbstractExporterTest {
   public void demographicsCsv_noEntities() throws Exception {
     ExporterService exporterService = instanceOf(ExporterService.class);
     CSVParser parser =
-        CSVParser.parse(
-            exporterService.getDemographicsCsv(TimeFilter.builder().build()), DEFAULT_FORMAT);
+        CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
 
     assertThat(parser.getHeaderNames())
         .containsExactly(
