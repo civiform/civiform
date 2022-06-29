@@ -8,9 +8,12 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
 import com.itextpdf.text.DocumentException;
+import controllers.BadRequestException;
 import controllers.CiviFormController;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
@@ -22,6 +25,8 @@ import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApplicationRepository;
+import repository.TimeFilter;
+import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
@@ -53,6 +58,7 @@ public class AdminApplicationController extends CiviFormController {
   private final ProfileUtils profileUtils;
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
+  private final DateConverter dateConverter;
   private static final int PAGE_SIZE = 10;
 
   @Inject
@@ -67,6 +73,7 @@ public class AdminApplicationController extends CiviFormController {
       ApplicationRepository applicationRepository,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
+      DateConverter dateConverter,
       @Now Provider<LocalDateTime> nowProvider) {
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
@@ -79,6 +86,7 @@ public class AdminApplicationController extends CiviFormController {
     this.jsonExporter = checkNotNull(jsonExporter);
     this.pdfExporter = checkNotNull(pdfExporter);
     this.messagesApi = checkNotNull(messagesApi);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
@@ -143,15 +151,34 @@ public class AdminApplicationController extends CiviFormController {
     }
   }
 
+  private Optional<Instant> parseDateFromQuery(Optional<String> maybeQueryParam) {
+    return maybeQueryParam
+        .filter(s -> !s.isBlank())
+        .map(
+            s -> {
+              try {
+                return dateConverter.parseIso8601DateToStartOfDateInstant(s);
+              } catch (DateTimeParseException e) {
+                throw new BadRequestException("Malformed query param");
+              }
+            });
+  }
+
   /**
    * Download a CSV file containing demographics information of the current live version.
    * Demographics information is collected from answers to a collection of questions specially
    * marked by CiviForm admins.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result downloadDemographics() {
+  public Result downloadDemographics(
+      Http.Request request, Optional<String> fromDate, Optional<String> untilDate) {
+    TimeFilter submitTimeFilter =
+        TimeFilter.builder()
+            .setFromTime(parseDateFromQuery(fromDate))
+            .setUntilTime(parseDateFromQuery(untilDate))
+            .build();
     String filename = String.format("demographics-%s.csv", nowProvider.get());
-    String csv = exporterService.getDemographicsCsv();
+    String csv = exporterService.getDemographicsCsv(submitTimeFilter);
     return ok(csv)
         .as(Http.MimeTypes.BINARY)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
@@ -255,7 +282,7 @@ public class AdminApplicationController extends CiviFormController {
     var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
     PaginationResult<Application> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programId, F.Either.Right(paginationSpec), search);
+            programId, F.Either.Right(paginationSpec), search, TimeFilter.EMPTY);
 
     return ok(applicationListView.render(request, program, paginationSpec, applications, search));
   }
