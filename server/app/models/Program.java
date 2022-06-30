@@ -81,8 +81,6 @@ public class Program extends BaseModel {
 
   @Constraints.Required @DbJson private ImmutableList<BlockDefinition> blockDefinitions;
 
-  @Constraints.Required @DbJson private ImmutableList<ExportDefinition> exportDefinitions;
-
   @Constraints.Required @DbJson private StatusDefinitions statusDefinitions;
 
   /** When was this program created. */

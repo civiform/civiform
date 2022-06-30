@@ -70,9 +70,6 @@ public abstract class ProgramDefinition {
   /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
-  /** The list of {@link ExportDefinition}s that make up the program. */
-  public abstract ImmutableList<ExportDefinition> exportDefinitions();
-
   public abstract StatusDefinitions statusDefinitions();
 
   /** When was this program created. Could be null for older programs. */
@@ -582,8 +579,6 @@ public abstract class ProgramDefinition {
     public abstract Builder setLocalizedDescription(LocalizedStrings localizedDescription);
 
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
-
-    public abstract Builder setExportDefinitions(ImmutableList<ExportDefinition> exportDefinitions);
 
     public abstract Builder setStatusDefinitions(StatusDefinitions statusDefinitions);
 
