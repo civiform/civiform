@@ -1,0 +1,6 @@
+#! /usr/bin/env bash
+
+source cloud/deploys/dev_aws/bin/lib.sh
+
+export TERRAFORM_TEMPLATE_DIR="${TERRAFORM_TEMPLATE_DIR}/setup"
+cloud/shared/bin/terraform "$@"
