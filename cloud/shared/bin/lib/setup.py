@@ -70,6 +70,7 @@ try:
         "init",
         "-input=false",
         "-upgrade",
+        "-migrate-state"
     ]
     if config_loader.use_backend_config():
         terraform_init_args.append(

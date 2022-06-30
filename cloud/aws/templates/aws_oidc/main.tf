@@ -71,7 +71,7 @@ resource "aws_apprunner_service" "civiform_dev" {
 # List of params that we could configure:
 # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.PostgreSQL.CommonDBATasks.Parameters.html#Appendix.PostgreSQL.CommonDBATasks.Parameters.parameters-list
 resource "aws_db_parameter_group" "civiform" {
-  name   = "${var.app_prefix}-civiform"
+  name   = "${var.app_prefix}-civiform-db-params"
   family = "postgres12"
 
   parameter {
@@ -81,7 +81,7 @@ resource "aws_db_parameter_group" "civiform" {
 }
 
 resource "aws_db_instance" "civiform" {
-  identifier              = "${var.app_prefix}-${var.postgress_name}"
+  identifier              = "${var.app_prefix}-${var.postgress_name}-db"
   instance_class          = var.postgres_instance_class
   allocated_storage       = var.postgres_storage_gb
   engine                  = "postgres"
