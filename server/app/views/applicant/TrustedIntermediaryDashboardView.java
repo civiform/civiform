@@ -101,7 +101,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             FieldWithLabel.input()
                 .setFieldName("search")
                 .setValue(searchParam)
-                .setLabelText("Search first name, last name, or application ID")
+                .setLabelText("Search")
                 .getContainer()
                 .withClasses(Styles.W_FULL),
             makeCsrfTokenInputTag(request),
