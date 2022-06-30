@@ -129,7 +129,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
                     notFoundPage.renderLoggedIn(
                         request,
                         messagesApi.preferred(request),
-                        applicant.getApplicantData().getApplicantName().get())),
+                        applicant.getApplicantData().getApplicantName())),
             httpExecutionContext.current());
   }
 }

@@ -1,5 +1,6 @@
 package views.errors;
 
+import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
@@ -76,7 +77,7 @@ public class NotFound extends BaseHtmlView {
     return layout.render(bundle);
   }
 
-  public Content renderLoggedIn(Http.RequestHeader request, Messages messages, String userName) {
+  public Content renderLoggedIn(Http.RequestHeader request, Messages messages, Optional<String> userName) {
     HtmlBundle bundle = addBodyFooter(request, messages);
     bundle.addHeaderContent(layout.renderNavBarLoggedIn(request, userName, messages));
     return layout.render(bundle);

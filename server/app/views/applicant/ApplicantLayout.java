@@ -31,6 +31,7 @@ import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.LanguageSelector;
 import views.ViewUtils;
+import views.ApplicantUtils;
 import views.html.helper.CSRF;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
@@ -117,13 +118,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   public ContainerTag renderNavBarLoggedIn(
-      Http.RequestHeader request, String userName, Messages messages) {
+      Http.RequestHeader request, Optional<String> userName, Messages messages) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
+    String displayUserName = ApplicantUtils.getApplicantName(userName, messages);
     return renderBaseNavBar()
-        .with(maybeRenderTiButton(profile, userName))
+        .with(maybeRenderTiButton(profile, displayUserName))
         .with(
-            div(getLanguageForm(request, profile, messages), logoutButton(userName, messages))
+            div(getLanguageForm(request, profile, messages), logoutButton(displayUserName, messages))
                 .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
@@ -136,11 +138,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Http.RequestHeader request, Optional<String> userName, Messages messages, HtmlBundle bundle) {
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
-    if (userName.isPresent()) {
-      bundle.addHeaderContent(renderNavBarLoggedIn(request, userName.get(), messages));
-    } else {
-      bundle.addHeaderContent(renderNavBarLoggedOut(request, messages));
-    }
+    bundle.addHeaderContent(renderNavBarLoggedIn(request, userName, messages));
     return renderWithSupportFooter(bundle, messages);
   }
 
