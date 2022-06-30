@@ -14,7 +14,7 @@ import {
 
 describe('view an application in an older version', () => {
   it('create an application, and create a new version of the program, and view the application in the old version of the program', async () => {
-    const { browser, page } = await startSession()
+    const {browser, page} = await startSession()
     page.setDefaultTimeout(5000)
 
     await loginAsAdmin(page)
@@ -23,11 +23,11 @@ describe('view an application in an older version', () => {
 
     // Create a program with one question
     const questionName = 'text-to-be-obsolete-q'
-    await adminQuestions.addTextQuestion({ questionName })
+    await adminQuestions.addTextQuestion({questionName})
     const programName = 'program with previous applications'
     await adminPrograms.addAndPublishProgramWithQuestions(
       [questionName],
-      programName
+      programName,
     )
 
     await logout(page)
@@ -51,7 +51,7 @@ describe('view an application in an older version', () => {
     await adminPrograms.expectApplicationAnswers(
       'Screen 1',
       questionName,
-      'some text'
+      'some text',
     )
 
     await logout(page)
@@ -70,7 +70,7 @@ describe('view an application in an older version', () => {
     await adminPrograms.expectApplicationAnswers(
       'Screen 1',
       questionName,
-      'some text'
+      'some text',
     )
 
     await endSession(browser)

@@ -5,6 +5,30 @@ readonly TERRAFORM_CMD=("terraform" "-chdir=${TERRAFORM_TEMPLATE_DIR}")
 readonly TERRAFORM_APPLY=(${TERRAFORM_CMD[@]} "apply" "-input=false" "-json")
 
 #######################################
+# Destorys the terraform code
+# Globals:
+#   TERRAFORM_PLAN_OUT_FILE
+#   TF_VAR_FILENAME
+#######################################
+function terraform::perform_destory() {
+  "${TERRAFORM_CMD[@]}" plan \
+    -input=false \
+    -out="${TERRAFORM_PLAN_OUT_FILE}" \
+    -var-file="${TF_VAR_FILENAME}"
+  -destroy
+
+  if civiform_mode::is_test; then
+    return 0
+  fi
+
+  if azure::is_service_principal; then
+    "${TERRAFORM_APPLY[@]}" -auto-approve "${TERRAFORM_PLAN_OUT_FILE}"
+  else
+    "${TERRAFORM_APPLY[@]}" "${TERRAFORM_PLAN_OUT_FILE}"
+  fi
+}
+
+#######################################
 # Generates terraform variable files and runs terraform init and apply.
 # Also initializes the storage bucket for tfstate if it's not setup yet.
 # Globals:

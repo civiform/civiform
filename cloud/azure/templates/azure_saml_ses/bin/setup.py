@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-import shutil
 import subprocess
 import tempfile
 
@@ -35,6 +34,18 @@ class Setup(SetupTemplate):
         # Only run in dev mode
         if not self.config.use_backend_config():
             self._make_backend_override()
+
+    def get_current_user(self):
+        current_user_process = subprocess.run(
+            [
+                "/bin/bash", "-c",
+                f"source cloud/azure/bin/lib.sh && azure::get_current_user_id"
+            ],
+            capture_output=True)
+        current_user = current_user_process.stdout.decode("ascii")
+        if not current_user:
+            raise RuntimeError("Could not find the logged in user")
+        return current_user
 
     def setup_log_file(self):
         self._setup_resource_group()
@@ -98,12 +109,6 @@ class Setup(SetupTemplate):
             check=True)
         self.resource_group = resource_group
         self.resource_group_location = resource_group_location
-
-    def _make_backend_override(self):
-        current_directory = self.config.get_template_dir()
-        shutil.copy2(
-            f'{current_directory}/backend_override',
-            f'{current_directory}/backend_override.tf')
 
     def _setup_shared_state(self):
         if not self.resource_group:

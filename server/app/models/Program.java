@@ -26,7 +26,6 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
-import services.program.ExportDefinition;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
 import services.question.types.QuestionDefinition;
@@ -131,7 +130,6 @@ public class Program extends BaseModel {
     this.localizedName = definition.localizedName();
     this.localizedDescription = definition.localizedDescription();
     this.blockDefinitions = definition.blockDefinitions();
-    this.exportDefinitions = definition.exportDefinitions();
     this.displayMode = definition.displayMode().getValue();
     this.statusDefinitions = definition.statusDefinitions();
 
@@ -168,7 +166,6 @@ public class Program extends BaseModel {
             .setDescription("Screen 1 Description")
             .setProgramQuestionDefinitions(ImmutableList.of())
             .build();
-    this.exportDefinitions = ImmutableList.of();
     this.blockDefinitions = ImmutableList.of(emptyBlock);
     this.versions.add(associatedVersion);
     this.statusDefinitions = new StatusDefinitions();
@@ -184,7 +181,6 @@ public class Program extends BaseModel {
     localizedName = programDefinition.localizedName();
     localizedDescription = programDefinition.localizedDescription();
     blockDefinitions = programDefinition.blockDefinitions();
-    exportDefinitions = programDefinition.exportDefinitions();
     slug = programDefinition.slug();
     displayMode = programDefinition.displayMode().getValue();
 
@@ -202,7 +198,6 @@ public class Program extends BaseModel {
             .setAdminName(name)
             .setAdminDescription(description)
             .setBlockDefinitions(blockDefinitions)
-            .setExportDefinitions(exportDefinitions)
             .setExternalLink(externalLink)
             .setStatusDefinitions(statusDefinitions)
             .setDisplayMode(DisplayMode.valueOf(displayMode))

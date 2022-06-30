@@ -71,11 +71,11 @@ public abstract class BaseHtmlView {
     return buttonEl.attr("onclick", String.format("window.location = '%s';", redirectUrl));
   }
 
-  protected static ContainerTag makeSvgTextButton(String buttonText, String svgPath) {
+  protected static ContainerTag makeSvgTextButton(String buttonText, Icons icon) {
     return TagCreator.button()
         .with(
-            Icons.svg(svgPath, 18).withClasses(Styles.ML_1, Styles.MR_2, Styles.INLINE_BLOCK),
-            span(buttonText));
+            Icons.svg(icon, 18).withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.FLEX_SHRINK_0),
+            span(buttonText).withClass(Styles.TEXT_LEFT));
   }
 
   /**
@@ -99,8 +99,10 @@ public abstract class BaseHtmlView {
       div.with(
           new LinkElement().setText("←").setHref(linkForPage.apply(page - 1).url()).asButton());
     }
+    String paginationText =
+        pageCount > 0 ? String.format("Page %d of %d", page, pageCount) : "No results";
     div.with(
-        div("Page " + page + " of " + pageCount)
+        div(paginationText)
             .withClasses(
                 Styles.LEADING_3, Styles.FLOAT_LEFT, Styles.INLINE_BLOCK, Styles.P_2, Styles.M_4));
     if (pageCount > page) {

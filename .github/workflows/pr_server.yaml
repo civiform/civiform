@@ -1,10 +1,9 @@
 name: pr_server
 
-# cancels in-progress jobs or runs on pull_request events only
+# cancels in-progress jobs on this pull request
 # avoids wasted work when a new commit is pushed
-
 concurrency:
-  group: ${{ github.head_ref || github.run_id }}
+  group: pr-server-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 on:

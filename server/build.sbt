@@ -31,7 +31,7 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.4.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.213",
+      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.222",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.5.2",
@@ -72,12 +72,12 @@ lazy val root = (project in file("."))
       "org.pac4j" % "pac4j-saml" % "5.4.3",
 
       // Encrypted cookies require encryption.
-      "org.apache.shiro" % "shiro-crypto-cipher" % "1.9.0",
+      "org.apache.shiro" % "shiro-crypto-cipher" % "1.9.1",
 
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.9",
       "com.google.auto.value" % "auto-value" % "1.9",
-      "com.google.auto.value" % "auto-value-parent" % "1.9" pomOnly(),
+      "com.google.auto.value" % "auto-value-parent" % "1.9" pomOnly (),
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.14.0",
@@ -85,11 +85,11 @@ lazy val root = (project in file("."))
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.9.0",
 
-      //pdf library for export
-       "com.itextpdf" % "itextpdf" % "5.5.13.3",
+      // pdf library for export
+      "com.itextpdf" % "itextpdf" % "5.5.13.3",
 
       // Slugs for deeplinking.
-      "com.github.slugify" % "slugify" % "2.5",
+      "com.github.slugify" % "slugify" % "3.0.1",
 
       // Apache libraries for testing subnets
       "commons-net" % "commons-net" % "3.8.0",
@@ -123,7 +123,9 @@ lazy val root = (project in file("."))
     // Assets / pipelineStages  := Seq(digest, gzip), // Test the sbt-web pipeline locally.
 
     // Make verbose tests
-    Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")),
+    Test / testOptions := Seq(
+      Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")
+    ),
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
     // Turn off scaladoc link warnings
@@ -139,26 +141,26 @@ lazy val root = (project in file("."))
     // On later loads, we pull assets from that cache and incrementally compile,
     // any changes, plus the dynamically generated code (autovalue and routes).
     publish / skip := true,
-    Global / pushRemoteCacheTo := Some(MavenCache("local-cache", file(baseDirectory.value+"/../build-cache"))),
-
-    Compile / pushRemoteCacheConfiguration := (Compile / pushRemoteCacheConfiguration).value.withOverwrite(true),
-    Test / pushRemoteCacheConfiguration := (Test / pushRemoteCacheConfiguration).value.withOverwrite(true),
+    Global / pushRemoteCacheTo := Some(
+      MavenCache("local-cache", file(baseDirectory.value + "/../build-cache"))
+    ),
+    Compile / pushRemoteCacheConfiguration := (Compile / pushRemoteCacheConfiguration).value
+      .withOverwrite(true),
+    Test / pushRemoteCacheConfiguration := (Test / pushRemoteCacheConfiguration).value
+      .withOverwrite(true),
 
     // Load the "remote" cache on startup.
     Global / onLoad := {
-        val previous = (Global / onLoad).value
-        // compose the new transition on top of the existing one
-        // in case your plugins are using this hook.
-        startupTransition compose previous
-      }
+      val previous = (Global / onLoad).value
+      // compose the new transition on top of the existing one
+      // in case your plugins are using this hook.
+      startupTransition compose previous
+    }
   )
   .settings(excludeTailwindGeneration: _*)
 //jacoco report setting
 jacocoReportSettings := JacocoReportSettings()
-  .withFormats(
-    JacocoReportFormats.HTML,
-    JacocoReportFormats.XML
-  )
+  .withFormats(JacocoReportFormats.HTML, JacocoReportFormats.XML)
 
 jacocoExcludes := Seq("views*", "*Routes*")
 jacocoDirectory := baseDirectory.value / "code-coverage"

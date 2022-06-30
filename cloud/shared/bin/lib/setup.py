@@ -4,9 +4,9 @@ import os
 import subprocess
 import sys
 
-from config_loader import ConfigLoader
-from write_tfvars import TfVarWriter
-from setup_class_loader import load_class
+from cloud.shared.bin.lib.config_loader import ConfigLoader
+from cloud.shared.bin.lib.write_tfvars import TfVarWriter
+from setup_class_loader import load_setup_class
 """
 Setup.py sets up and runs the initial terraform deployment. It's broken into
 3 parts:
@@ -16,12 +16,6 @@ Setup.py sets up and runs the initial terraform deployment. It's broken into
 
 The script generates a .tfvars file that is used to deploy via terraform.
 """
-
-###############################################################################
-# Add top level directory so we can import modules
-###############################################################################
-
-sys.path.append(os.getcwd())
 
 ###############################################################################
 # Load and Validate Inputs
@@ -42,22 +36,23 @@ if not is_valid:
 ###############################################################################
 
 template_dir = config_loader.get_template_dir()
-Setup = load_class(template_dir)
+Setup = load_setup_class(template_dir)
 
 template_setup = Setup(config_loader)
 template_setup.setup_log_file()
+current_user = template_setup.get_current_user()
 
-current_user_function = subprocess.run(
-    [
-        "/bin/bash", "-c",
-        f"source cloud/azure/bin/lib.sh && azure::get_current_user_id"
-    ],
-    capture_output=True)
-
-if current_user_function:
-    current_user = current_user_function.stdout.decode("ascii")
 image_tag = config_loader.get_config_var("IMAGE_TAG")
 log_args = f"\"{image_tag}\" {current_user}"
+
+print("Writing TF Vars file")
+terraform_tfvars_path = os.path.join(
+    template_dir, config_loader.tfvars_filename)
+
+# Write the passthrough vars to a temporary file
+tf_var_writter = TfVarWriter(terraform_tfvars_path)
+conf_variables = config_loader.get_terraform_variables()
+tf_var_writter.write_variables(conf_variables)
 
 try:
     print("Starting pre-terraform setup")
@@ -67,13 +62,6 @@ try:
     # Terraform Init/Plan/Apply
     ###############################################################################
     print("Starting terraform setup")
-    terraform_tfvars_path = f"{template_dir}/{config_loader.tfvars_filename}"
-
-    # Write the passthrough vars to a temporary file
-    tf_var_writter = TfVarWriter(terraform_tfvars_path)
-    conf_variables = config_loader.get_terraform_variables()
-    tf_var_writter.write_variables(conf_variables)
-
     # Note that the -chdir means we use the relative paths for
     # both the backend config and the var file
     terraform_init_args = [
@@ -90,12 +78,16 @@ try:
     print(" - Run terraform init")
     subprocess.check_call(terraform_init_args)
 
-    print(" - Run terraform apply")
-    subprocess.check_call(
-        [
-            "terraform", f"-chdir={template_dir}", "apply", "-input=false",
-            f"-var-file={config_loader.tfvars_filename}"
-        ])
+    tf_apply_args = [
+        "terraform", f"-chdir={template_dir}", "apply", "-input=false",
+        f"-var-file={config_loader.tfvars_filename}"
+    ]
+
+    if not config_loader.is_dev():
+        tf_apply_args.append("-auto-approve")
+
+    print(" - Run terraform apply in setup.py")
+    subprocess.check_call(tf_apply_args)
 
     ###############################################################################
     # Post Run Setup Tasks (if needed)

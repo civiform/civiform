@@ -10,7 +10,7 @@ on:
 
   # Setting this enables manually triggering workflow in the GitHub UI
   # see https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
-  workflow_dispatch: { }
+  workflow_dispatch: {}
 
 permissions: read-all
 

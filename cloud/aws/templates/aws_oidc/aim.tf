@@ -1,5 +1,5 @@
 resource "aws_iam_role" "apprunner_instance_role" {
-  name               = "AppRunnerInstanceRole"
+  name               = "${var.app_prefix}-AppRunnerInstanceRole"
   path               = "/"
   assume_role_policy = data.aws_iam_policy_document.apprunner_instance_assume_policy.json
 }
@@ -16,7 +16,7 @@ data "aws_iam_policy_document" "apprunner_instance_assume_policy" {
 }
 
 resource "aws_iam_policy" "apprunner_s3_policy" {
-  name   = "apprunner_s3_policy"
+  name   = "${var.app_prefix}-apprunner_s3_policy"
   policy = data.aws_iam_policy_document.apprunner_instance_s3_policy.json
 }
 
