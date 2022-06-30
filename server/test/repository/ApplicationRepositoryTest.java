@@ -180,7 +180,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     Application programTwoTomorrow = createSubmittedAppAtInstant(programTwo, tomorrow);
 
     // No filters. Includes all.
-    assertThat(repo.getApplications(TimeFilter.builder().build()).stream().map(a -> a.id))
+    assertThat(repo.getApplications(TimeFilter.EMPTY).stream().map(a -> a.id))
         .containsExactly(
             programOneYesterday.id,
             programOneToday.id,

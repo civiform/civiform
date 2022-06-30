@@ -5,10 +5,10 @@ import shlex
 
 
 # TODO(#2741): When using this for Azure make sure to setup backend bucket prior to calling these functions.
-def perform_apply(config_loader):
+def perform_apply(config_loader, is_destroy=False, terraform_template_dir=None):
     '''Generates terraform variable files and runs terraform init and apply.'''
-
-    terraform_template_dir = config_loader.get_template_dir()
+    if not terraform_template_dir:
+        terraform_template_dir = config_loader.get_template_dir()
     tf_vars_filename = config_loader.tfvars_filename
 
     terraform_cmd = f'terraform -chdir={terraform_template_dir}'
@@ -31,10 +31,10 @@ def perform_apply(config_loader):
         )
 
     terraform_plan_out_file = 'terraform_plan'
-    subprocess.check_call(
-        shlex.split(
-            f'{terraform_cmd} plan -input=false -out={terraform_plan_out_file} -var-file={tf_vars_filename}'
-        ))
+    plan_arguments = f'{terraform_cmd} plan -input=false -out={terraform_plan_out_file} -var-file={tf_vars_filename}'
+    if is_destroy:
+        plan_arguments += " -destroy"
+    subprocess.check_call(shlex.split(plan_arguments))
 
     if config_loader.is_test():
         return True

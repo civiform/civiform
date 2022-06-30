@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import annotations.BindingAnnotations.EnUsLang;
 import annotations.BindingAnnotations.Now;
+import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -30,6 +31,8 @@ import services.question.QuestionServiceImpl;
  * `application.conf` configuration file.
  */
 public class MainModule extends AbstractModule {
+
+  public static final Slugify SLUGIFIER = Slugify.builder().build();
 
   @Override
   public void configure() {

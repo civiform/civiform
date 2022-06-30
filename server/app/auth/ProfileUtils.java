@@ -45,20 +45,18 @@ public class ProfileUtils {
     return Optional.of(profileFactory.wrapProfileData(p.get()));
   }
 
-  public Optional<ApiKey> currentApiKey(Http.RequestHeader request) {
+  public Optional<String> currentApiKeyId(Http.RequestHeader request) {
     PlayWebContext webContext = new PlayWebContext(request);
-    return currentApiKey(webContext);
+    ProfileManager profileManager = new ProfileManager(webContext, sessionStore);
+    Optional<BasicUserProfile> profileMaybe = profileManager.getProfile(BasicUserProfile.class);
+
+    return profileMaybe.map(BasicUserProfile::getId);
   }
 
-  public Optional<ApiKey> currentApiKey(WebContext webContext) {
-    ProfileManager profileManager = new ProfileManager(webContext, sessionStore);
-    Optional<BasicUserProfile> profile = profileManager.getProfile(BasicUserProfile.class);
+  public Optional<ApiKey> currentApiKey(Http.RequestHeader request) {
+    Optional<String> maybeApiKeyId = currentApiKeyId(request);
 
-    if (profile.isEmpty()) {
-      return Optional.empty();
-    }
-
-    return Optional.of(profileFactory.retrieveApiKey(profile.get().getId()));
+    return maybeApiKeyId.map(profileFactory::retrieveApiKey);
   }
 
   // A temporary placeholder email value, used while the user needs to verify their account.

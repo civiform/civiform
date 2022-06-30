@@ -6,7 +6,7 @@ import sys
 
 from cloud.shared.bin.lib.config_loader import ConfigLoader
 from cloud.shared.bin.lib.write_tfvars import TfVarWriter
-from cloud.shared.bin.lib.setup_class_loader import load_class
+from setup_class_loader import load_setup_class
 """
 Setup.py sets up and runs the initial terraform deployment. It's broken into
 3 parts:
@@ -36,7 +36,7 @@ if not is_valid:
 ###############################################################################
 
 template_dir = config_loader.get_template_dir()
-Setup = load_class(template_dir)
+Setup = load_setup_class(template_dir)
 
 template_setup = Setup(config_loader)
 template_setup.setup_log_file()

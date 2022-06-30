@@ -4,5 +4,23 @@
     "secret": false,
     "tfvar": true,
     "type": "string"
+  },
+  "CIVIFORM_APPLICANT_IDP": {
+    "required": true,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "APPLICANT_OIDC_PROVIDER_NAME": {
+    "required": true,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "APPLICANT_OIDC_ADDITIONAL_SCOPES": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
   }
 }
