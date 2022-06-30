@@ -1,6 +1,5 @@
 package views.errors;
 
-import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
@@ -10,6 +9,7 @@ import static j2html.TagCreator.span;
 
 import com.google.inject.Inject;
 import j2html.tags.ContainerTag;
+import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -77,7 +77,8 @@ public class NotFound extends BaseHtmlView {
     return layout.render(bundle);
   }
 
-  public Content renderLoggedIn(Http.RequestHeader request, Messages messages, Optional<String> userName) {
+  public Content renderLoggedIn(
+      Http.RequestHeader request, Messages messages, Optional<String> userName) {
     HtmlBundle bundle = addBodyFooter(request, messages);
     bundle.addHeaderContent(layout.renderNavBarLoggedIn(request, userName, messages));
     return layout.render(bundle);

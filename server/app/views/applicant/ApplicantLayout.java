@@ -27,11 +27,11 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
+import views.ApplicantUtils;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.LanguageSelector;
 import views.ViewUtils;
-import views.ApplicantUtils;
 import views.html.helper.CSRF;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
@@ -125,7 +125,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return renderBaseNavBar()
         .with(maybeRenderTiButton(profile, displayUserName))
         .with(
-            div(getLanguageForm(request, profile, messages), logoutButton(displayUserName, messages))
+            div(
+                    getLanguageForm(request, profile, messages),
+                    logoutButton(displayUserName, messages))
                 .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
