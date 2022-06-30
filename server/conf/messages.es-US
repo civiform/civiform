@@ -117,13 +117,6 @@ content.description1=CiviForm le permite solicitar varios beneficios a la vez vo
 # Long form description of the CiviForm site shown to the applicant. Line 2.
 content.description2=Empiece por elegir una solicitud.
 
-# 404 page title
-error.not_found_title=No Pudimos encontrar la página que
-error.not_found_title_end=intentó visitar
-error.not_found_description_a=Por favor revise la URL o
-error.not_found_description_a_end=regrese a la
-error.not_found_description_link=página de inicio
-
 # Link text to read more about a program.
 link.programDetails=Detalles del programa
 
@@ -314,10 +307,11 @@ validation.textTooShort=Debe contener al menos {0} caracteres.
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=Las preguntas de opción múltiple no pueden quedar en blanco.
 
-
 #-------------------------------------------------------#
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
-
-error.not_found=Esta página no parece existir 
-error.not_found_description=Por favor revise la URL o regrese 
+error.not_found_title=No Pudimos encontrar la página que
+error.not_found_title_end=intentó visitar
+error.not_found_description_a=Por favor revise la URL o
+error.not_found_description_a_end=regrese a la
+error.not_found_description_link=página de inicio
