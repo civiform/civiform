@@ -199,7 +199,12 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     client.setCallbackUrl(callbackURL);
     client.setProfileCreator(getProfileAdapter(config, client));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
-    client.init();
+    try {
+      client.init();
+    } catch (Exception e) {
+      logger.error("Error while initilizing OIDC provider", e);
+      throw e;
+    }
     return client;
   }
 }

@@ -179,6 +179,22 @@ variable "civiform_applicant_idp" {
   default     = "login-radius"
 }
 
+variable "applicant_oidc_client_id" {
+  type        = string
+  description = "Client ID"
+}
+
+variable "applicant_oidc_client_secret" {
+  type        = string
+  description = "Client Secret"
+}
+
+variable "applicant_oidc_discovery_uri" {
+  type        = string
+  description = "Discovery URI"
+}
+
+
 variable "civiform_applicant_auth_protocol" {
   type        = string
   description = "auth protocol to use for applicant auth. supported values are oidc and saml"
