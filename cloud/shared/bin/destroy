@@ -1,0 +1,9 @@
+#! /usr/bin/env bash
+
+set -e
+
+source cloud/shared/bin/lib.sh
+
+export TF_VAR_image_tag="${IMAGE_TAG}"
+
+exec cloud/shared/bin/lib/destroy.py

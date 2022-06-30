@@ -130,17 +130,9 @@ public final class ExporterService {
    * @throws ProgramNotFoundException If the program ID refers to a program that does not exist.
    */
   public String getProgramCsv(long programId) throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
-    // TODO(#1743): Determine if export definitions are necessary and remove them
-    // if not.
-    Optional<CsvExportConfig> maybeExportConfig =
-        program.exportDefinitions().stream()
-            .filter(exportDefinition -> exportDefinition.csvConfig().isPresent())
-            .map(exportDefinition -> exportDefinition.csvConfig().get())
-            .findFirst();
     ImmutableList<Application> applications =
         programService.getSubmittedProgramApplications(programId);
-    return exportCsv(maybeExportConfig.orElse(generateDefaultCsvConfig(programId)), applications);
+    return exportCsv(generateDefaultCsvConfig(programId), applications);
   }
 
   private String exportCsv(CsvExportConfig exportConfig, ImmutableList<Application> applications) {

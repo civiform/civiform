@@ -26,7 +26,6 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
 import services.program.BlockDefinition;
-import services.program.ExportDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 
@@ -81,8 +80,6 @@ public class Program extends BaseModel {
 
   @Constraints.Required @DbJson private ImmutableList<BlockDefinition> blockDefinitions;
 
-  @Constraints.Required @DbJson private ImmutableList<ExportDefinition> exportDefinitions;
-
   /** When was this program created. */
   @WhenCreated private Instant createTime;
 
@@ -124,7 +121,6 @@ public class Program extends BaseModel {
     this.localizedName = definition.localizedName();
     this.localizedDescription = definition.localizedDescription();
     this.blockDefinitions = definition.blockDefinitions();
-    this.exportDefinitions = definition.exportDefinitions();
     this.displayMode = definition.displayMode().getValue();
 
     orderBlockDefinitionsBeforeUpdate();
@@ -160,7 +156,6 @@ public class Program extends BaseModel {
             .setDescription("Screen 1 Description")
             .setProgramQuestionDefinitions(ImmutableList.of())
             .build();
-    this.exportDefinitions = ImmutableList.of();
     this.blockDefinitions = ImmutableList.of(emptyBlock);
     this.versions.add(associatedVersion);
   }
@@ -175,7 +170,6 @@ public class Program extends BaseModel {
     localizedName = programDefinition.localizedName();
     localizedDescription = programDefinition.localizedDescription();
     blockDefinitions = programDefinition.blockDefinitions();
-    exportDefinitions = programDefinition.exportDefinitions();
     slug = programDefinition.slug();
     displayMode = programDefinition.displayMode().getValue();
 
@@ -193,7 +187,6 @@ public class Program extends BaseModel {
             .setAdminName(name)
             .setAdminDescription(description)
             .setBlockDefinitions(blockDefinitions)
-            .setExportDefinitions(exportDefinitions)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setCreateTime(createTime)
