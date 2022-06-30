@@ -21,6 +21,10 @@ resource "aws_db_subnet_group" "civiform" {
 }
 
 resource "aws_security_group" "rds" {
+  tags = {
+    Name = "${var.app_prefix} Civiform DB Security Group"
+    Type = "Civiform DB Security Group"
+  }
   name   = "${var.app_prefix}-civiform_rds"
   vpc_id = module.vpc.vpc_id
 
@@ -37,9 +41,21 @@ resource "aws_security_group" "rds" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
 }
 
+
 resource "aws_apprunner_vpc_connector" "connector" {
+  tags = {
+    Name = "${var.app_prefix} Civiform Apprunner VPC Connector"
+    Type = "Civiform Apprunner VPC Connector"
+  }
   vpc_connector_name = "${var.app_prefix}-civiform_connector"
   subnets            = module.vpc.private_subnets
   security_groups    = [aws_security_group.rds.id]

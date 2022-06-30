@@ -1,4 +1,8 @@
 resource "aws_iam_role" "apprunner_instance_role" {
+  tags = {
+    Name = "${var.app_prefix} Civiform Apprunner Role"
+    Type = "Civiform Apprunner Role"
+  }
   name               = "${var.app_prefix}-AppRunnerInstanceRole"
   path               = "/"
   assume_role_policy = data.aws_iam_policy_document.apprunner_instance_assume_policy.json
@@ -16,6 +20,10 @@ data "aws_iam_policy_document" "apprunner_instance_assume_policy" {
 }
 
 resource "aws_iam_policy" "apprunner_s3_policy" {
+  tags = {
+    Name = "${var.app_prefix} Civiform Apprunner S3 Policy"
+    Type = "Civiform Apprunner S3 Policy"
+  }
   name   = "${var.app_prefix}-apprunner_s3_policy"
   policy = data.aws_iam_policy_document.apprunner_instance_s3_policy.json
 }
