@@ -5,7 +5,7 @@
     "tfvar": true,
     "type": "string"
   },
-  "STAGING_HOSTNAME":{
+  "STAGING_HOSTNAME": {
     "required": false,
     "secret": false,
     "tfvar": true,
