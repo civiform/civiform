@@ -152,6 +152,16 @@ variable "app_prefix" {
   description = "A prefix to add to values so we can have multiple deploys in the same aws account"
 }
 
+variable "applicant_oidc_provider_name" {
+  type        = string
+  description = "OIDC provider name for the applicant"
+}
+
+variable "civiform_applicant_idp" {
+  type        = string
+  description = "Applicant IDP"
+}
+
 variable "staging_hostname" {
   type        = string
   description = "If provided will enable DEMO mode on this hostname"
@@ -168,5 +178,10 @@ variable "port" {
   type        = string
   description = "Port the app is running on"
   default     = "9000"
+}
 
+variable "applicant_oidc_additional_scopes" {
+  type        = string
+  description = "Additional scopes for Applicant oidc"
+  default     = "allatclaims"
 }
