@@ -30,7 +30,7 @@ resource "aws_secretsmanager_secret_version" "postgres_username_secret_version" 
 # Create a random generated password to use for postgres_password.
 resource "random_password" "postgres_password" {
   length           = 40
-  special          = false
+  special          = true
   min_special      = 5
   override_special = "!#$%^&*()-_=+[]{}<>:?"
   keepers = {
