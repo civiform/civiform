@@ -153,7 +153,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             FieldWithLabel.input()
                 .setFieldName(SEARCH_PARAM)
                 .setValue(filterParams.search().orElse(""))
-                .setLabelText("Search first name, last name, or application ID")
+                .setLabelText("Search by name, email, or application ID")
                 .getContainer()
                 .withClasses(Styles.W_FULL, Styles.MT_2),
             makeCsrfTokenInputTag(request),
