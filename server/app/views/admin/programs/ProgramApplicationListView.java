@@ -130,28 +130,27 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             application.id);
     String viewLinkText = "View →";
 
-    Tag topContent =
-        div(
-                div(
-                    div(applicantNameWithApplicationId)
-                        .withClasses(
-                            Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.TEXT_XL, Styles.MB_2)),
-                p().withClasses(Styles.FLEX_GROW))
-            .withClasses(Styles.FLEX);
-
-    Tag bottomContent =
-        div(
-                p(renderSubmitTime(application)).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
-                p().withClasses(Styles.FLEX_GROW),
-                renderViewLink(viewLinkText, application))
-            .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL);
-
-    Tag innerDiv =
-        div(topContent, bottomContent)
+    Tag cardContent =
+        div()
             .withClasses(
-                Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4);
+                Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4)
+            .with(
+                p(applicantNameWithApplicationId)
+                    .withClasses(Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.TEXT_XL, Styles.MB_1))
+            .condWith(
+                application.getSubmitterEmail().isPresent(),
+                p(application.getSubmitterEmail().orElse(""))
+                    .withClasses(Styles.TEXT_LG, Styles.TEXT_GRAY_800, Styles.MB_2))
+            .with(
+                div()
+                    .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL)
+                    .with(
+                        p(renderSubmitTime(application))
+                            .withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
+                        p().withClasses(Styles.FLEX_GROW),
+                        renderViewLink(viewLinkText, application)));
 
-    return div(innerDiv)
+    return div(cardContent)
         .withClasses(
             ReferenceClasses.ADMIN_APPLICATION_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
   }
