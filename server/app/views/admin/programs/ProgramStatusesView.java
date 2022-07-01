@@ -56,7 +56,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
 
     Modal createStatusModal = makeStatusModal(Optional.empty());
     Tag createStatusTriggerButton =
-        makeSvgTextButton("Create a new status", Icons.PLUS_SVG_PATH)
+        makeSvgTextButton("Create a new status", Icons.PLUS)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
             .withId(createStatusModal.getTriggerButtonId());
 
@@ -100,7 +100,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 program.id(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
             .url();
     ContainerTag button =
-        makeSvgTextButton("Manage translations", Icons.LANGUAGE_SVG_PATH)
+        makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withClass(AdminStyles.SECONDARY_BUTTON_STYLES);
     return asRedirectButton(button, linkDestination);
   }
@@ -128,7 +128,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
   private Pair<Tag, Modal> renderStatusItem(ApplicationStatus status) {
     Modal editStatusModal = makeStatusModal(Optional.of(status));
     Tag editStatusTriggerButton =
-        makeSvgTextButton("Edit", Icons.EDIT_SVG_PATH)
+        makeSvgTextButton("Edit", Icons.EDIT)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
             .withId(editStatusModal.getTriggerButtonId());
     return Pair.of(
@@ -160,7 +160,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         p().withClasses(
                                 Styles.MT_1, Styles.TEXT_XS, Styles.FLEX, Styles.ITEMS_CENTER)
                             .with(
-                                Icons.svg(Icons.EMAIL_SVG_PATH, 22)
+                                Icons.svg(Icons.EMAIL, 22)
                                     // TODO(#2752): Once SVG icon sizes are consistent, just set
                                     // size to 18.
                                     .attr("width", 18)
@@ -168,7 +168,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                                     .withClasses(Styles.MR_2, Styles.INLINE_BLOCK),
                                 span("Applicant notification email added"))),
                 div().withClass(Styles.FLEX_GROW),
-                makeSvgTextButton("Delete", Icons.DELETE_SVG_PATH)
+                makeSvgTextButton("Delete", Icons.DELETE)
                     .withClass(AdminStyles.TERTIARY_BUTTON_STYLES),
                 editStatusTriggerButton),
         editStatusModal);
