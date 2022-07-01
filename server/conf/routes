@@ -86,7 +86,7 @@ GET     /admin/programs/:programId/applications/all                       contro
 GET     /admin/programs/:programId/applications/singleVersion             controllers.admin.AdminApplicationController.downloadSingleVersion(request: Request, programId: Long)
 GET     /admin/programs/:programId/applications/:applicationId            controllers.admin.AdminApplicationController.show(request: Request, programId: Long, applicationId: Long)
 GET     /admin/programs/:programId/applications/:applicationId/download   controllers.admin.AdminApplicationController.download(request: Request, programId: Long, applicationId: Long)
-GET     /admin/demographics                                               controllers.admin.AdminApplicationController.downloadDemographics()
+GET     /admin/demographics                                               controllers.admin.AdminApplicationController.downloadDemographics(request: Request, fromDate: java.util.Optional[String], untilDate: java.util.Optional[String])
 
 # Admin API key management
 GET     /admin/apiKeys                              controllers.admin.AdminApiKeysController.index(request: Request)
@@ -173,6 +173,7 @@ GET     /logout                      @org.pac4j.play.LogoutController.logout(req
 # Methods for development: seed the database with test content to develop against, and clear the database
 GET     /dev/seed                        controllers.dev.DatabaseSeedController.index(request: Request)
 POST    /dev/seed/canonicalQuestions     controllers.dev.DatabaseSeedController.seedCanonicalQuestions()
+GET     /dev/icons                       controllers.dev.IconsController.index()
 POST    /dev/seed                        controllers.dev.DatabaseSeedController.seed()
 POST    /dev/seed/clear                  controllers.dev.DatabaseSeedController.clear()
 

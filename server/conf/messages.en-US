@@ -7,85 +7,336 @@
 # https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
 # -------------------------------------------------------------------------------------------------- #
 
-button.apply=Apply
-button.continue=Continue
-button.deleteFile=Delete
-button.keepFile=Continue
+#-------------------------------------------------------------#
+# GENERAL - contains text that corresponds to multiple views. #
+#-------------------------------------------------------------#
+
+# The text on the button an applicant clicks to log out of their session.
 button.logout=Logout
-button.nextScreen=Save and next
-button.previousScreen=Previous
-button.review=Review
-button.skipFileUpload=Skip
-button.submit=Submit
-button.upload=Upload
+
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+label.selectLanguage=Please select your preferred language.
+
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+content.applicantInformation=Applicant Information
+
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+button.untranslatedSubmit=Submit
+
+# Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=For technical support, contact
+
+# Placeholder message when an applicant clicked the "Continue as Guest".
+# This should be consistent with button.guestLogin.
+guest=Guest
+
+# Label read by screen readers for the language dropdown shown in the page header.
+label.languageSr=Choose a language
+
+# Message with user's name to show who you are logged in as.
+header.userName=Logged in as {0}
+
+# Error message to answer a required question
+validation.isRequired=This question is required.
+
+# Validation error that is shown when the user input couldn't be converted for any reason.
+validation.invalidInput=Please enter valid input.
+
+#-------------------------------------------------------------#
+# LOGIN - contains text that for login page.                  #
+#-------------------------------------------------------------#
+
+# Prompt for applicant to log in, input is the full civic entity name.
+content.loginPrompt=Please log in with your {0} account
+
+# The text on the button an applicant clicks to log in to their session.
+button.login=Log in
+
+# Prompt for applicant to create a new account or become a guest
+content.alternativeLoginPrompt=Don''t have an account?
+
+# The text between creating a new account, and becoming a guest
+content.or=or
+
+# The text on the button for applicants to create a new account.
+button.createAccount=Create account
+
+# The text on the button for guests to log in to their session.
+button.guestLogin=Continue as guest
+
+# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
+content.loginDisabledPrompt=Account login currently disabled
+
+# The words leading up to the admin login anchor
+content.adminLoginPrompt=Looking for something else?
+
+# The text on the anchor for admins to log in to their session.
+link.adminLogin=Admin login
+
+#--------------------------------------------------------------------------#
+# PROGRAM FORM - contains text shown when filling out an application form. #
+#--------------------------------------------------------------------------#
+
+# The text displayed when a file has already been uploaded and the name is being displayed.
+input.fileAlreadyUploaded=File uploaded: {0}
+
+# The text on the button an applicant clicks to delete an uploaded file.
+button.deleteFile=Delete
+
+# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
+button.keepFile=Continue
+
+# The button text for saving the current applicant-entered data and continuing to the next screen in the form.
+button.nextScreen=Save and next
+
+# The button text for navigating to the previous screen in the form.
+button.previousScreen=Previous
+
+# The text on the button an applicant clicks to jump to the review page.
+button.review=Review
+
+# The text on the button an applicant clicks to skip uploading a file.
+button.skipFileUpload=Skip
+
+# The text on the button an applicant clicks to upload a file and continue to the next screen.
+button.upload=Upload
+
+# A toast message that displays when a program is not fully localized to the applicant's preferred locale.
 toast.localeNotSupported=We''re sorry, this program is not fully translated to English.
-toast.programCompleted=Application was already completed.
-toast.applicationSaved=Successfully saved application: application ID {0}
-title.applicationConfirmation=Application confirmation
-title.createAnAccount=Create an account or sign in
-content.confirmed=Thank you for applying to {0}.  Your application has been received, and your application ID is {1}.
-content.pleaseCreateAccount=If you sign into a city account now, your information will be saved and you''ll be able to return at any time to complete future applications.  If you do not already have an account, the login page will allow you to register.  You won''t lose any data you''ve already entered.
+
+# A link that logs out a guest user after they submit an application.
 link.allDone=I''m all done
+
+# A link that appears next to the create account button that offers applicants the option to not create an account right now.
 link.applyToAnotherProgram=Apply to another program
+
+# A link that offers applicants the option to create an account.
 link.createAccountOrSignIn=Create account or sign in
 
-link.begin=Start here
-link.edit=Edit
-title.programPreview=Program application preview
-title.programReview=Program application review
+#----------------------------------------------------------------------------#
+# APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
+#----------------------------------------------------------------------------#
 
-title.programs=Programs & services
-title.inProgressPrograms=Continue
-title.activePrograms=New Programs
-title.programCard=Program {0} of {1} -- {2}
-link.programDetails=Program details
-link.externalLink=External site
+# The text on the button an applicant clicks to apply to a specific program.
+button.apply=Apply
+# The text read for screen readers.
+button.applySr=Apply to {0}
+# The text on the button an applicant clicks to edit the application for a specific program.
+button.edit=Edit
+
+# Text describing the date the application was last submitted.
+content.submittedDate=Submitted {0}
+
+# "Get benefits" floating text
 content.benefits=Get benefits
+
+# Long form description of the CiviForm site shown to the applicant. Line 1.
 content.description1=CiviForm lets you apply for many benefits at once by reusing information.
+
+# Long form description of the CiviForm site shown to the applicant. Line 2.
 content.description2=Get started by choosing an application below.
 
-label.street=Address line 1
-placeholder.street=Street address
+# Link text to read more about a program.
+link.programDetails=Program details
+# The same text, read for screen readers.
+link.programDetailsSr=Program details for {0}
+
+# Link text to an external site to read more about a program.
+link.externalLink=External site
+
+# The title of the page for the list of programs.
+title.programs=Programs & services
+
+# Subtitle for the list of programs with draft applications
+title.inProgressPrograms=Continue
+
+# Subtitle for the list of programs with draft applications
+title.inProgressProgramsUpdated=In progress
+
+# Subtitle for the list of programs for which the applicant has no draft applications
+title.activePrograms=New Programs
+
+# Subtitle for the list of programs for which the applicant has no draft applications
+title.activeProgramsUpdated=Not started
+
+# Subtitle for the list of programs for which the applicant has already submitted an application
+title.submittedPrograms=Submitted
+
+# Screen reader format string for program cards
+title.programCard=Program {0} of {1} -- {2}
+
+# A toast message that displays when an applicant submits an application.
+toast.applicationSaved=Successfully saved application: application ID {0}
+
+# A toast message that displays when an applicant tries to apply to a previously completed program.
+toast.programCompleted=Application was already completed.
+
+#------------------------------------------------------------------------#
+# APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
+#------------------------------------------------------------------------#
+
+# Submit application button
+button.submit=Submit
+
+# Continue application button
+button.continue=Continue
+
+# The text that appears next to the first unanswered question that the applicant can click on to continue filling out the program.
+link.begin=Start here
+
+# The text that appears next to an answered question that the applicant can click on to modify the response.
+link.edit=Edit
+
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.edit=Edit {0}
+
+# Program Preview Title
+title.programPreview=Program application preview
+
+# Program Review Title
+title.programReview=Program application review
+
+#---------------------------------------------------------------------------------------------#
+# APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
+#---------------------------------------------------------------------------------------------#
+
+# Title on the page after the applicant has successfully submitted an application.
+title.applicationConfirmation=Application confirmation
+
+# A confirmation message that shows after an applicant has submitted their application.
+content.confirmed=Thank you for applying to {0}.  Your application has been received, and your application ID is {1}.
+
+# Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
+title.createAnAccount=Create an account or sign in
+
+# A message urging users to create an account to save their data.
+content.pleaseCreateAccount=If you sign into a city account now, your information will be saved and you''ll be able to return at any time to complete future applications.  If you do not already have an account, the login page will allow you to register.  You won''t lose any data you''ve already entered.
+
+#----------------------------------------------------------#
+# ADDRESS QUESTION - text when viewing an address question #
+#----------------------------------------------------------#
+
+# Address question labels - these are shown as the field label before an input box.
 label.addressLine2=Unit/Apartment Number
-placeholder.line2=Apartment, suite, unit, building, floor, etc.
 label.city=City
-placeholder.city=City
 label.state=State
-placeholder.state=State
+label.street=Address line 1
 label.zipcode=ZIP Code
+
+# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
+placeholder.city=City
+placeholder.line2=Apartment, suite, unit, building, floor, etc.
+placeholder.state=State
+placeholder.street=Street address
 placeholder.zipcode=ZIP Code
-label.firstName=First name
-placeholder.firstName=First name
-label.middleName=Middle name
-placeholder.middleName=Middle name
-label.lastName=Last name
-placeholder.lastName=Last name
-placeholder.entityName={0} name
-button.addEntity=Add {0}
-button.removeEntity=Remove {0}
-validation.isRequired=This question is required.
-validation.invalidInput=Please enter valid input.
-validation.duplicateEntityName=Please enter a unique value for each line.
-validation.firstNameRequired=Please enter your first name.
-validation.lastNameRequired=Please enter your last name.
-validation.textTooShort=Must contain at least {0} characters.
-validation.textTooLong=Must contain at most {0} characters.
-validation.numberTooSmall=Must be at least {0}.
-validation.numberTooBig=Must be at most {0}.
-validation.numberNonInteger=Number must be a positive whole number and can only contain numeric characters 0-9.
-validation.tooFewSelections=Please select at least {0}.
-validation.tooManySelections=Please select fewer than {0}.
+
+# Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=Please enter valid street name and number.
 validation.cityRequired=Please enter city.
 validation.currencyMisformatted=Currency must be one of the following formats: 1000 1,000 1000.30 1,000.30
 validation.stateRequired=Please enter state.
 validation.invalidZipcode=Please enter valid 5-digit ZIP code.
 validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
+
+#----------------------------------------------------------------------------------------------------------#
+# DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
+#----------------------------------------------------------------------------------------------------------#
+
+# Placeholder text shown in a dropdown selector before the user has made a selection.
+placeholder.noDropdownSelection=Choose an option:
+
+
+#----------------------------------------------------------------------------------------------------------#
+# DATE QUESTION - text shown when answering a question where a user must select date. #
+#----------------------------------------------------------------------------------------------------------#
 validation.dateMisformatted=Please enter a date in the format YYYY/MM/DD.
+
+#--------------------------------------------------------------------------------------------------------#
+# ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
+#--------------------------------------------------------------------------------------------------------#
+
+# Text on a button an applicant would click to add another entity
+button.addEntity=Add {0}
+
+# Text on a button an applicant would click to delete an entity
+button.removeEntity=Remove {0}
+
+# The confirmation dialog when an applicant deletes an enumerator entry.
+dialog.confirmDelete=Are you sure you want to remove this {0}? This change will be saved after you click "Next" and all data associated with this {0} will be lost.
+
+# Validation error that shows when an applicant does not enter a value.
 validation.entityNameRequired=Please enter a value for each line.
+
+# Validation error that shows when an applicant uses a duplicate entity name
+validation.duplicateEntityName=Please enter a unique value for each line.
+
+# The placeholder text for enumerator fields
+placeholder.entityName={0} name
+
+#---------------------------------------------------------------------------------#
+# FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
+#---------------------------------------------------------------------------------#
+
+# Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=Please select a file.
-validation.idTooShort=Must contain at least {0} characters.
+
+#---------------------------------------------------------------------#
+# ID QUESTION - id specific to filling out a question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
 validation.idTooLong=Must contain at most {0} characters.
+validation.idTooShort=Must contain at least {0} characters.
 validation.numberRequired=Must contain only numbers.
+
+#----------------------------------------------------------------------------------------------------------#
+# MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
+#----------------------------------------------------------------------------------------------------------#
+
+# Validation errors that are shown if a user selects too many or too few answers.
+validation.tooFewSelections=Please select at least {0}.
+validation.tooManySelections=Please select fewer than {0}.
+
+#---------------------------------------------------#
+# NAME QUESTION - text when viewing a name question #
+#---------------------------------------------------#
+
+# Name question labels - these are shown as the field label before an input box.
+label.firstName=First name
+label.lastName=Last name
+label.middleName=Middle name
+
+# Placeholder text - this is shown inside the input box, before a user enters an answer.
+placeholder.firstName=First name
+placeholder.lastName=Last name
+placeholder.middleName=Middle name
+
+# Validation errors - these are shown if a user enters an invalid name.
+validation.firstNameRequired=Please enter your first name.
+validation.lastNameRequired=Please enter your last name.
+
+#------------------------------------------------------------------------#
+# NUMBER QUESTION - text specific to answering a question with a number. #
+#------------------------------------------------------------------------#
+
+# Validation errors that are shown when a user enters a number that is too big or too small, or a non-integer.
+validation.numberTooBig=Must be at most {0}.
+validation.numberTooSmall=Must be at least {0}.
+validation.numberNonInteger=Number must be a positive whole number and can only contain numeric characters 0-9.
+
+#---------------------------------------------------------------------#
+# TEXT QUESTION - text specific to filling out a question with words. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
+validation.textTooLong=Must contain at most {0} characters.
+validation.textTooShort=Must contain at least {0} characters.
+
+
+#---------------------------------------------------------------------#
+# MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=Multi option questions cannot have blank options.

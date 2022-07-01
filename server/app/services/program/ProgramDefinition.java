@@ -2,7 +2,6 @@ package services.program;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
-import com.github.slugify.Slugify;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
@@ -23,6 +22,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import models.DisplayMode;
 import models.Program;
+import modules.MainModule;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
@@ -67,9 +67,6 @@ public abstract class ProgramDefinition {
 
   /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
-
-  /** The list of {@link ExportDefinition}s that make up the program. */
-  public abstract ImmutableList<ExportDefinition> exportDefinitions();
 
   /** When was this program created. Could be null for older programs. */
   public abstract Optional<Instant> createTime();
@@ -426,7 +423,7 @@ public abstract class ProgramDefinition {
   }
 
   public String slug() {
-    return Slugify.builder().build().slugify(this.adminName());
+    return MainModule.SLUGIFIER.slugify(this.adminName());
   }
 
   public int getQuestionCount() {
@@ -579,11 +576,7 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
 
-    public abstract Builder setExportDefinitions(ImmutableList<ExportDefinition> exportDefinitions);
-
     public abstract ImmutableList.Builder<BlockDefinition> blockDefinitionsBuilder();
-
-    public abstract ImmutableList.Builder<ExportDefinition> exportDefinitionsBuilder();
 
     public abstract LocalizedStrings.Builder localizedNameBuilder();
 
@@ -597,11 +590,6 @@ public abstract class ProgramDefinition {
 
     public Builder addBlockDefinition(BlockDefinition blockDefinition) {
       blockDefinitionsBuilder().add(blockDefinition);
-      return this;
-    }
-
-    public Builder addExportDefinition(ExportDefinition exportDefinition) {
-      exportDefinitionsBuilder().add(exportDefinition);
       return this;
     }
 

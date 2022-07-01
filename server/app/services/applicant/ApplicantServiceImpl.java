@@ -28,6 +28,7 @@ import models.StoredFile;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
 import repository.StoredFileRepository;
+import repository.TimeFilter;
 import repository.UserRepository;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
@@ -399,8 +400,8 @@ public class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
-  public ImmutableList<Application> getAllApplications() {
-    return applicationRepository.getAllApplications();
+  public ImmutableList<Application> getApplications(TimeFilter submitTimeFilter) {
+    return applicationRepository.getApplications(submitTimeFilter);
   }
 
   /**

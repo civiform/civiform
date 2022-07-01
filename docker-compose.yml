@@ -73,7 +73,7 @@ services:
       - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
       - ADFS_CLIENT_ID
       - ADFS_SECRET
-      - APPLICANT_OIDC_PROVICER_NAME
+      - APPLICANT_OIDC_PROVIDER_NAME
       - APPLICANT_OIDC_CLIENT_ID
       - APPLICANT_OIDC_CLIENT_SECRET
       - APPLICANT_OIDC_DISCOVERY_URI
