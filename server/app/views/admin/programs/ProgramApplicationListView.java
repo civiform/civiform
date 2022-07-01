@@ -42,6 +42,7 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a page for viewing applications to a program. */
@@ -74,9 +75,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       RenderFilterParams filterParams) {
 
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
-    Tag contentDiv =
+    Tag applicationListDiv =
         div()
-            .withClasses(Styles.PX_20)
             .with(
                 h1(program.adminName()).withClasses(Styles.MY_4),
                 renderPaginationDiv(
@@ -93,11 +93,17 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 br(),
                 renderSearchForm(request, program, downloadModal.getButton(), filterParams),
                 each(paginatedApplications.getPageContents(), this::renderApplicationListItem))
-            .withClasses(Styles.MB_16, Styles.MR_2);
+            .withClasses(
+                Styles.MT_6,
+                StyleUtils.responsiveLarge(Styles.MT_12),
+                Styles.MB_16,
+                Styles.ML_6,
+                Styles.MR_2);
 
     Tag applicationShowDiv =
         div()
-            .withClasses(Styles.W_FULL, Styles.H_FULL)
+            .withClasses(
+                Styles.MT_6, StyleUtils.responsiveLarge(Styles.MT_12), Styles.W_FULL, Styles.H_FULL)
             .with(
                 iframe()
                     .withId("application-display-frame")
@@ -110,7 +116,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_applications"))
             .addModals(downloadModal)
             .addMainStyles(Styles.FLEX)
-            .addMainContent(contentDiv, applicationShowDiv);
+            .addMainContent(applicationListDiv, applicationShowDiv);
 
     return layout.renderCentered(htmlBundle);
   }
