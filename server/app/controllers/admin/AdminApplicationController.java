@@ -8,9 +8,12 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
 import com.itextpdf.text.DocumentException;
+import controllers.BadRequestException;
 import controllers.CiviFormController;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
@@ -184,6 +187,20 @@ public class AdminApplicationController extends CiviFormController {
     } catch (CompletionException e) {
       return unauthorized();
     }
+  }
+
+  private Optional<Instant> parseDateFromQuery(
+      DateConverter dateConverter, Optional<String> maybeQueryParam) {
+    return maybeQueryParam
+        .filter(s -> !s.isBlank())
+        .map(
+            s -> {
+              try {
+                return dateConverter.parseIso8601DateToStartOfDateInstant(s);
+              } catch (DateTimeParseException e) {
+                throw new BadRequestException("Malformed query param");
+              }
+            });
   }
 
   /**
