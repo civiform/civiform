@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
 import repository.StoredFileRepository;
+import repository.TimeFilter;
 import repository.UserRepository;
 import repository.VersionRepository;
 import services.Path;
@@ -407,8 +408,8 @@ public final class ApplicantServiceImpl implements ApplicantService {
   }
 
   @Override
-  public ImmutableList<Application> getAllApplications() {
-    return applicationRepository.getAllApplications();
+  public ImmutableList<Application> getApplications(TimeFilter submitTimeFilter) {
+    return applicationRepository.getApplications(submitTimeFilter);
   }
 
   @Override

@@ -17,6 +17,9 @@ import services.Path;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.Column;
 
+// TODO(#2821): Create a DB evolution to remove the programs.export_definitions
+// column.
+
 /**
  * CsvExporter takes a list of {@link Column}s and exports the data specified. A column contains a
  * {@link Path} indexing into an applicant's data, and CsvExporter takes the path and reads the

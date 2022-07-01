@@ -81,11 +81,11 @@ jobs:
             civiform/formatter:latest
       - name: Run Browsertest formatter
         if: contains(toJSON(steps.file_changes.outputs.files), 'browser-test/') || contains(toJSON(steps.file_changes.outputs.files), '.github/workflows/format.yaml')
-        run: USE_LOCAL_CIVIFORM=true browser-test/bin/fmt
+        run: browser-test/bin/fmt
       - name: show Browsertest diff
         run: git add .; git diff --exit-code HEAD
       - name: run bin/fmt
-        run: USE_LOCAL_CIVIFORM=true bin/fmt
+        run: bin/fmt
       - name: show bin/fmt diff
         run: git add .; git diff --exit-code HEAD
 

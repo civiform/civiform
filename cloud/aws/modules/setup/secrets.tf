@@ -8,9 +8,11 @@ resource "aws_kms_key" "civiform_kms_key" {
 
 # Create a random generated password to use for postgres_password.
 resource "random_password" "postgres_username" {
-  length           = 16
-  special          = true
-  override_special = "_%@"
+  length  = 7
+  special = false
+  keepers = {
+    version = 1
+  }
 }
 
 # Creating a AWS secret for postgres_username
@@ -22,13 +24,18 @@ resource "aws_secretsmanager_secret" "postgres_username_secret" {
 # Creating a AWS secret versions for postgres_username
 resource "aws_secretsmanager_secret_version" "postgres_username_secret_version" {
   secret_id     = aws_secretsmanager_secret.postgres_username_secret.id
-  secret_string = random_password.postgres_username.result
+  secret_string = "db_admin_${random_password.postgres_username.result}"
 }
 
 # Create a random generated password to use for postgres_password.
 resource "random_password" "postgres_password" {
-  length  = 16
-  special = false
+  length           = 40
+  special          = true
+  min_special      = 5
+  override_special = "!#$%^&*()-_=+[]{}<>:?"
+  keepers = {
+    version = 1
+  }
 }
 
 # Creating a AWS secret for postgres_password
@@ -94,5 +101,41 @@ resource "aws_secretsmanager_secret" "adfs_discovery_uri_secret" {
 # Creating a AWS secret versions for adfs_discovery_uri
 resource "aws_secretsmanager_secret_version" "adfs_discovery_uri_secret_version" {
   secret_id     = aws_secretsmanager_secret.adfs_discovery_uri_secret.id
+  secret_string = " "
+}
+
+# Creating a AWS secret for applicant_oidc_secret
+resource "aws_secretsmanager_secret" "applicant_oidc_client_secret_secret" {
+  name       = "${var.app_prefix}-applicant_oidc_client_secret"
+  kms_key_id = aws_kms_key.civiform_kms_key.arn
+}
+
+# Creating a AWS secret versions for applicant_oidc_secret
+resource "aws_secretsmanager_secret_version" "applicant_oidc_client_secret_secret_version" {
+  secret_id     = aws_secretsmanager_secret.applicant_oidc_client_secret_secret.id
+  secret_string = " "
+}
+
+# Creating a AWS secret for applicant_oidc_client_id
+resource "aws_secretsmanager_secret" "applicant_oidc_client_id_secret" {
+  name       = "${var.app_prefix}-applicant_oidc_client_id"
+  kms_key_id = aws_kms_key.civiform_kms_key.arn
+}
+
+# Creating a AWS secret versions for applicant_oidc_client_id
+resource "aws_secretsmanager_secret_version" "applicant_oidc_client_id_secret_version" {
+  secret_id     = aws_secretsmanager_secret.applicant_oidc_client_id_secret.id
+  secret_string = " "
+}
+
+# Creating a AWS secret for applicant_oidc_discovery_uri
+resource "aws_secretsmanager_secret" "applicant_oidc_discovery_uri_secret" {
+  name       = "${var.app_prefix}-applicant_oidc_discovery_uri"
+  kms_key_id = aws_kms_key.civiform_kms_key.arn
+}
+
+# Creating a AWS secret versions for applicant_oidc_discovery_uri
+resource "aws_secretsmanager_secret_version" "applicant_oidc_discovery_uri_secret_version" {
+  secret_id     = aws_secretsmanager_secret.applicant_oidc_discovery_uri_secret.id
   secret_string = " "
 }

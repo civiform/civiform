@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Applicant;
 import models.Application;
+import repository.TimeFilter;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramDefinition;
@@ -91,10 +92,11 @@ public interface ApplicantService {
   CompletionStage<Optional<String>> getEmail(long applicantId);
 
   /**
-   * Return all applications for all applicants, including applications from previous versions, with
-   * program, applicant, and account associations eager loaded.
+   * Return a filtered set of applications for all applicants, including applications from previous versions, with
+   * program, applicant, and account associations eager loaded. Results are ordered by application
+   * ID in ascending order.
    */
-  ImmutableList<Application> getAllApplications();
+  ImmutableList<Application> getAllApplications(TimeFilter submitTimeFilter);
 
   /**
    * Return all programs that are appropriate to serve to an applicant. Appropriate programs are
