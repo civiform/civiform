@@ -92,11 +92,11 @@ public interface ApplicantService {
   CompletionStage<Optional<String>> getEmail(long applicantId);
 
   /**
-   * Return a filtered set of applications for all applicants, including applications from previous versions, with
-   * program, applicant, and account associations eager loaded. Results are ordered by application
-   * ID in ascending order.
+   * Return a filtered set of applications for all applicants, including applications from previous
+   * versions, with program, applicant, and account associations eager loaded. Results are ordered
+   * by application ID in ascending order.
    */
-  ImmutableList<Application> getAllApplications(TimeFilter submitTimeFilter);
+  ImmutableList<Application> getApplications(TimeFilter submitTimeFilter);
 
   /**
    * Return all programs that are appropriate to serve to an applicant. Appropriate programs are
