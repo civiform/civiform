@@ -120,8 +120,7 @@ public class LinkElement {
         .withClasses(DEFAULT_LINK_STYLES, styles);
   }
 
-  private <T extends ContainerTag<T> & IHref<T> & ITarget<T>> void setTargetMaybeHref(T tag)
-      throws RuntimeException {
+  private <T extends ContainerTag<T> & IHref<T> & ITarget<T>> void setTargetMaybeHref(T tag) {
     if (tag.getTagName().equals("a") && Strings.isNullOrEmpty(href)) {
       throw new RuntimeException("trying to create an <a> tag with no href defined!");
     }

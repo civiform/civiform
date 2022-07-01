@@ -329,7 +329,6 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
                   operator
                       .getOperableTypes()
                       .forEach(type -> option.withData(type.name().toLowerCase(), ""));
-                  // to be passed?
                   return option;
                 })
             .collect(toImmutableList());
