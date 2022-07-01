@@ -91,7 +91,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 filterParams.untilDate()))
                     .withClasses(Styles.MB_2),
                 br(),
-                renderSearchForm(request, program, downloadModal.getButton(), filterParams),
+                renderSearchForm(program, downloadModal.getButton(), filterParams),
                 each(paginatedApplications.getPageContents(), this::renderApplicationListItem))
             .withClasses(
                 Styles.MT_6,
@@ -122,10 +122,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   private Tag renderSearchForm(
-      Http.Request request,
-      ProgramDefinition program,
-      Tag downloadButton,
-      RenderFilterParams filterParams) {
+      ProgramDefinition program, Tag downloadButton, RenderFilterParams filterParams) {
     return form()
         .withClasses(Styles.MT_6)
         .withMethod("GET")
@@ -163,7 +160,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .setLabelText("Search by name, email, or application ID")
                 .getContainer()
                 .withClasses(Styles.W_FULL, Styles.MT_4),
-            makeCsrfTokenInputTag(request),
             div()
                 .withClasses(Styles.MT_6, Styles.MB_8, Styles.FLEX, Styles.SPACE_X_2)
                 .with(
