@@ -31,6 +31,8 @@ import play.libs.F;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
+import services.Path;
+import services.WellKnownPaths;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 
@@ -206,10 +208,10 @@ public class ProgramRepository {
 
   /**
    * Get all submitted applications for this program and all other previous and future versions of
-   * it where the applicant's first name, last name, email, or application ID contains the search
-   * query. Does not include drafts or deleted applications. Results returned in reverse order that
-   * the applications were created. Results are optionally limited to applications submitted after
-   * {@code submitTimeFrom} and/or before {@code submitTimeTo}, inclusive of both values.
+   * it where the applicant's name, email, or application ID contains the search query. Does not
+   * include drafts or deleted applications. Results returned in reverse order that the applications
+   * were created. Results are optionally limited to applications submitted after {@code
+   * submitTimeFrom} and/or before {@code submitTimeTo}, inclusive of both values.
    *
    * <p>If searchNameFragment is not an unsigned integer, the query will filter to applications with
    * email, first name, or last name that contain it.
@@ -247,23 +249,20 @@ public class ProgramRepository {
     }
 
     if (searchNameFragment.isPresent() && !searchNameFragment.get().isBlank()) {
-      String search = searchNameFragment.get();
+      String search = searchNameFragment.get().trim();
 
       if (search.matches("^\\d+$")) {
         query = query.eq("id", Integer.parseInt(search));
       } else {
-        search = search.toLowerCase(java.util.Locale.ROOT);
-
+        String firstNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_FIRST_NAME);
+        String lastNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_LAST_NAME);
         query =
             query
                 .or()
-                .eq("submitter_email", search)
-                .raw(
-                    getApplicationObjectPath("applicant", "name", "first_name") + " ILIKE ?",
-                    "%" + search + "%")
-                .raw(
-                    getApplicationObjectPath("applicant", "name", "last_name") + " ILIKE ?",
-                    "%" + search + "%")
+                .ieq("submitter_email", search)
+                .raw(firstNamePath + " || ' ' || " + lastNamePath + " ILIKE ?", "%" + search + "%")
+                .raw(lastNamePath + " || ' ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
+                .raw(lastNamePath + " || ', ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
                 .endOr();
       }
     }
@@ -302,29 +301,29 @@ public class ProgramRepository {
     return database.find(Program.class).select("id").where().in("name", programNameQuery).query();
   }
 
-  private String getApplicationObjectPath(String... pathComponents) {
-    StringBuilder path = new StringBuilder();
+  private String getApplicationObjectPath(Path path) {
+    StringBuilder result = new StringBuilder();
 
-    path.append("(");
+    result.append("(");
 
     // While the column type is JSONB, CiviForm writes the JSON object into the database as a
     // string.
     // This requires queries that interact with the JSON column to instruct postgres to parse the
     // contents
     // into JSON, which we do here with (object #>> '{}')::jsonb
-    path.append("(object #>> '{}')::jsonb");
+    result.append("(object #>> '{}')::jsonb");
 
-    int lastIndex = pathComponents.length - 1;
+    int lastIndex = path.segments().size() - 1;
     for (int i = 0; i < lastIndex; i++) {
-      path.append(" -> '");
-      path.append(pathComponents[i]);
-      path.append("'");
+      result.append(" -> '");
+      result.append(path.segments().get(i));
+      result.append("'");
     }
 
-    path.append(" ->> '");
-    path.append(pathComponents[lastIndex]);
-    path.append("')");
+    result.append(" ->> '");
+    result.append(path.segments().get(lastIndex));
+    result.append("')");
 
-    return path.toString();
+    return result.toString();
   }
 }

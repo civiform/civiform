@@ -94,6 +94,10 @@ public class ResourceCreator {
     return Application.create(applicant, program, LifecycleStage.ACTIVE);
   }
 
+  public Application insertDraftApplication(Applicant applicant, Program program) {
+    return Application.create(applicant, program, LifecycleStage.DRAFT);
+  }
+
   public Application insertApplication(
       Applicant applicant, Program program, LifecycleStage lifecycleStage) {
     return Application.create(applicant, program, lifecycleStage);
@@ -120,6 +124,7 @@ public class ResourceCreator {
     Account account = insertAccount();
 
     accountEmail.ifPresent(account::setEmailAddress);
+    account.save();
     applicant.setAccount(account);
     applicant.save();
 
