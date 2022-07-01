@@ -8,8 +8,11 @@ resource "aws_kms_key" "civiform_kms_key" {
 
 # Create a random generated password to use for postgres_password.
 resource "random_password" "postgres_username" {
-  length  = 16
+  length  = 7
   special = false
+  keepers = {
+    version = 1
+  }
 }
 
 # Creating a AWS secret for postgres_username
@@ -21,13 +24,18 @@ resource "aws_secretsmanager_secret" "postgres_username_secret" {
 # Creating a AWS secret versions for postgres_username
 resource "aws_secretsmanager_secret_version" "postgres_username_secret_version" {
   secret_id     = aws_secretsmanager_secret.postgres_username_secret.id
-  secret_string = random_password.postgres_username.result
+  secret_string = "db_admin_${random_password.postgres_username.result}"
 }
 
 # Create a random generated password to use for postgres_password.
 resource "random_password" "postgres_password" {
-  length  = 16
-  special = false
+  length           = 40
+  special          = true
+  min_special      = 5
+  override_special = "!#$%^&*()-_=+[]{}<>:?"
+  keepers = {
+    version = 1
+  }
 }
 
 # Creating a AWS secret for postgres_password

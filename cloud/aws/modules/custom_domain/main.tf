@@ -11,7 +11,7 @@ resource "aws_route53_record" "civiform_domain_record" {
   ttl     = 60
 }
 
-# this updates CNAME records with certificates. 
+# this updates CNAME records with certificates.
 # The records are only known after AppRunner is up and associated with custom domain.
 # to make this work we need to run terraform apply -target aws_apprunner_custom_domain_association.civiform_domain first
 resource "aws_route53_record" "civiform_domain_validation" {
