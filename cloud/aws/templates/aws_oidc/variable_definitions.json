@@ -22,5 +22,11 @@
     "secret": false,
     "tfvar": true,
     "type": "string"
+  },
+  "SES_SENDER_EMAIL": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
   }
 }

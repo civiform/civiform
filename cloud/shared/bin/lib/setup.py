@@ -65,11 +65,8 @@ try:
     # Note that the -chdir means we use the relative paths for
     # both the backend config and the var file
     terraform_init_args = [
-        "terraform",
-        f"-chdir={template_dir}",
-        "init",
-        "-input=false",
-        "-upgrade",
+        "terraform", f"-chdir={template_dir}", "init", "-input=false",
+        "-upgrade", "-migrate-state"
     ]
     if config_loader.use_backend_config():
         terraform_init_args.append(
