@@ -133,10 +133,11 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .url())
         .with(
             fieldset()
+                .withClasses(Styles.PT_1)
                 .with(
                     legend("Application submitted").withClasses(Styles.ML_1, Styles.TEXT_GRAY_600),
                     div()
-                        .withClass(Styles.FLEX)
+                        .withClasses(Styles.FLEX, Styles.SPACE_X_3)
                         .with(
                             FieldWithLabel.date()
                                 .setFieldName(FROM_DATE_PARAM)
@@ -155,10 +156,10 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .setValue(filterParams.search().orElse(""))
                 .setLabelText("Search by name, email, or application ID")
                 .getContainer()
-                .withClasses(Styles.W_FULL, Styles.MT_2),
+                .withClasses(Styles.W_FULL, Styles.MT_4),
             makeCsrfTokenInputTag(request),
             div()
-                .withClasses(Styles.MT_4, Styles.MB_6, Styles.FLEX, Styles.SPACE_X_2)
+                .withClasses(Styles.MT_6, Styles.MB_8, Styles.FLEX, Styles.SPACE_X_2)
                 .with(
                     div().withClass(Styles.FLEX_GROW),
                     downloadButton,
@@ -273,7 +274,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     return div(innerDiv)
         .withClasses(
-            ReferenceClasses.ADMIN_APPLICATION_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MB_4);
+            ReferenceClasses.ADMIN_APPLICATION_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MT_4);
   }
 
   private Tag renderSubmitTime(Application application) {
