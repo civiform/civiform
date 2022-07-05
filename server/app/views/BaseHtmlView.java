@@ -11,6 +11,7 @@ import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
+import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
 import java.util.Optional;
@@ -27,6 +28,8 @@ import views.html.helper.CSRF;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
+
+import javax.swing.*;
 
 /**
  * Base class for all HTML views. Provides stateless convenience methods for generating HTML.
@@ -144,6 +147,32 @@ public abstract class BaseHtmlView {
                 .withClasses(htmlClasses.orElse(Styles.W_1_4)),
             makeCsrfTokenInputTag(request),
             submitButton("Search").withClasses(Styles.M_2));
+  }
+  protected ContainerTag renderSearchWithDateForm(
+    Http.Request request,
+    Optional<String> search,
+    Optional<String> searchDate,
+    Call searchCall,
+    Optional<String> htmlClasses) {
+    return form()
+      .withStyle(Styles.FLEX_AUTO)
+      .withMethod("GET")
+      .withAction(searchCall.url())
+      .with(div(),
+        input()
+          .withType("text")
+          .withValue(search.orElse(""))
+          .withName("search")
+          .withPlaceholder("Search")
+          .withStyle(Styles.MR_32),
+      input()
+        .withType("date")
+          .withName("searchDate")
+          .withValue(searchDate.orElse(""))
+          .withPlaceholder("DateOfBirth")
+        .withStyle(Styles.MR_32),
+        makeCsrfTokenInputTag(request),
+        submitButton("Search"));
   }
 
   protected static ContainerTag toLinkButtonForPost(

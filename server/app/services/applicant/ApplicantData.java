@@ -151,11 +151,11 @@ public class ApplicantData extends CfJsonDocumentContext {
     return getFailedUpdates().containsKey(path);
   }
 
-  public Optional<String> getDOB() {
+  public Optional<String> getDateOfBirth() {
     return readString(WellKnownPaths.APPLICANT_DOB);
   }
 
-  public void setDOB(@Nullable String dob) {
+  public void setDateOfBirth(@Nullable String dob) {
     putString(WellKnownPaths.APPLICANT_DOB, dob);
   }
 }

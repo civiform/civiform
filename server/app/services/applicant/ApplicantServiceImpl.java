@@ -327,7 +327,7 @@ public class ApplicantServiceImpl implements ApplicantService {
     String tiDashLink =
         baseUrl
             + controllers.ti.routes.TrustedIntermediaryController.dashboard(
-                    Optional.empty(), Optional.empty())
+                    Optional.empty(), Optional.empty(), Optional.empty())
                 .url();
     String subject =
         String.format(

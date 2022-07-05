@@ -47,6 +47,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       int totalPageCount,
       int page,
       Optional<String> search,
+      Optional<String> searchDate,
       Http.Request request,
       Messages messages) {
     HtmlBundle bundle =
@@ -61,13 +62,17 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 renderAddNewForm(tiGroup, request),
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Clients"),
-                renderSearchForm(
+                div(),
+              renderSearchWithDateForm(
                     request,
                     search,
+                    searchDate,
                     routes.TrustedIntermediaryController.dashboard(
-                        Optional.empty(), Optional.empty())),
+                        Optional.empty(),Optional.empty(), Optional.empty()),
+                  Optional.empty()),
+                div().withClass(Styles.M_2),
                 renderTIApplicantsTable(
-                    managedAccounts, search, page, totalPageCount, tiGroup, request),
+                    managedAccounts, search, searchDate,page, totalPageCount, tiGroup, request),
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Trusted Intermediary Members"),
                 renderTIMembersTable(tiGroup).withClasses(Styles.ML_2))
@@ -89,6 +94,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   private ContainerTag renderTIApplicantsTable(
       ImmutableList<Account> managedAccounts,
       Optional<String> search,
+      Optional<String> searchDate,
       int page,
       int totalPageCount,
       TrustedIntermediaryGroup tiGroup,
@@ -110,7 +116,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             page,
             totalPageCount,
             pageNumber ->
-                routes.TrustedIntermediaryController.dashboard(search, Optional.of(pageNumber))));
+                routes.TrustedIntermediaryController.dashboard(search, searchDate,Optional.of(pageNumber))));
   }
 
   private ContainerTag renderTIMembersTable(TrustedIntermediaryGroup tiGroup) {
@@ -202,17 +208,27 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderInfoCell(applicant))
         .with(renderApplicantInfoCell(applicant))
         .with(renderActionsCell(applicant))
-        .with(renderDOBCell(applicant, tiGroup, request));
+        .with(renderDateOfBirthCell(applicant, tiGroup, request));
   }
 
-  private Tag renderDOBCell(
+  private Tag renderDateOfBirthCell(
       Account applicant, TrustedIntermediaryGroup tiGroup, Http.Request request) {
 
     Optional<Applicant> newestApplicant = applicant.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
     }
-    String current_DOB = newestApplicant.get().getApplicantData().getDOB().orElse("");
+    Optional<String> current_DOB = newestApplicant.get().getApplicantData().getDateOfBirth();
+    //for cases where DOB is already present, display the Date of Birth
+    //for other cases, show the form to update the DOB.
+    //Note: the update can be done only once.
+    if(current_DOB.isPresent())
+    {
+      return td().with(
+          div(current_DOB.get())
+            .withClasses(Styles.FONT_SEMIBOLD))
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+    }
     return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12, Styles.FONT_SEMIBOLD)
         .with(
             form()
@@ -225,7 +241,6 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                     input()
                         .withType("date")
                         .withName("dob")
-                        .withValue(current_DOB)
                         .withPlaceholder("Click to Enter"),
                     makeCsrfTokenInputTag(request),
                     submitButton("Update").withClass(Styles.P_0)));

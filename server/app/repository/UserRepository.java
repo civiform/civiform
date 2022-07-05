@@ -282,7 +282,7 @@ public class UserRepository {
     applicant.setAccount(newAccount);
     ApplicantData applicantData = applicant.getApplicantData();
     applicantData.setUserName(form.getFirstName(), form.getMiddleName(), form.getLastName());
-    applicantData.setDOB(form.getDob());
+    applicantData.setDateOfBirth(form.getDob());
     applicant.save();
   }
 

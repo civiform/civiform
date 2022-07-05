@@ -61,9 +61,9 @@ public class TrustedIntermediaryController {
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
-  public Result dashboard(Http.Request request, Optional<String> search, Optional<Integer> page) {
+  public Result dashboard(Http.Request request, Optional<String> search, Optional<String> searchDate,Optional<Integer> page) {
     if (page.isEmpty()) {
-      return redirect(routes.TrustedIntermediaryController.dashboard(search, Optional.of(1)));
+      return redirect(routes.TrustedIntermediaryController.dashboard(search, searchDate, Optional.of(1)));
     }
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
     if (civiformProfile.isEmpty()) {
@@ -75,7 +75,7 @@ public class TrustedIntermediaryController {
       return notFound();
     }
     ImmutableList<Account> managedAccounts =
-        trustedIntermediaryGroup.get().getManagedAccounts(search);
+        trustedIntermediaryGroup.get().getManagedAccounts(search,searchDate);
     PaginationInfo<Account> pageInfo =
         PaginationInfo.paginate(managedAccounts, PAGE_SIZE, page.get());
 
@@ -87,6 +87,7 @@ public class TrustedIntermediaryController {
             pageInfo.getPageCount(),
             pageInfo.getPage(),
             search,
+            searchDate,
             request,
             messagesApi.preferred(request)));
   }
@@ -112,15 +113,15 @@ public class TrustedIntermediaryController {
       return redirectToDashboardWithDOBError(form.errors().get(0).message(), form);
     }
     if (Strings.isNullOrEmpty(form.get().getDob())) {
-      return redirectToDashboardWithDOBError("DOB is required.", form);
+      return redirectToDashboardWithDOBError("Date Of Birth is required.", form);
     }
 
     Applicant applicant =
         userRepository.lookupApplicant(applicantId).toCompletableFuture().join().get();
-    applicant.getApplicantData().setDOB(form.get().getDob());
+    applicant.getApplicantData().setDateOfBirth(form.get().getDob());
     userRepository.updateApplicant(applicant);
     return redirect(
-        routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty()));
+        routes.TrustedIntermediaryController.dashboard(Optional.empty(),Optional.empty(),Optional.empty()));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -155,7 +156,7 @@ public class TrustedIntermediaryController {
       userRepository.createNewApplicantForTrustedIntermediaryGroup(
           form.get(), trustedIntermediaryGroup.get());
       return redirect(
-          routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty()));
+          routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty(), Optional.empty()));
     } catch (EmailAddressExistsException e) {
       String trustedIntermediaryUrl = baseUrl + "/trustedIntermediaries";
 
@@ -171,7 +172,7 @@ public class TrustedIntermediaryController {
   private Result redirectToDashboardWithError(
       String errorMessage, Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
     return redirect(
-            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty()))
+            routes.TrustedIntermediaryController.dashboard(Optional.empty(),Optional.empty(),Optional.empty()))
         .flashing("error", errorMessage)
         .flashing("providedFirstName", form.get().getFirstName())
         .flashing("providedMiddleName", form.get().getMiddleName())
@@ -183,7 +184,7 @@ public class TrustedIntermediaryController {
   private Result redirectToDashboardWithDOBError(
       String errorMessage, Form<UpdateApplicantDOB> form) {
     return redirect(
-            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty()))
+            routes.TrustedIntermediaryController.dashboard(Optional.empty(),Optional.empty(), Optional.empty()))
         .flashing("error", errorMessage)
         .flashing("providedDateOfBirth", form.get().getDob());
   }

@@ -160,4 +160,10 @@ public class Account extends BaseModel {
         .map(u -> u.getApplicantData().getApplicantName().orElse("<Unnamed User>"))
         .orElse("<Unnamed User>");
   }
+  public String getApplicantDateOfBirth() {
+    return this.getApplicants().stream()
+      .max(Comparator.comparing(Applicant::getWhenCreated))
+      .map(u -> u.getApplicantData().getDateOfBirth().orElse(""))
+      .orElse("");
+  }
 }

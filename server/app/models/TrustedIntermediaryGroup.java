@@ -8,6 +8,8 @@ import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 
 /**
  * An EBean mapped class that represents a group of trusted intermediaries, usually corresponding to
@@ -53,9 +55,10 @@ public class TrustedIntermediaryGroup extends BaseModel {
     return this.description;
   }
 
-  public ImmutableList<Account> getManagedAccounts(Optional<String> search) {
+  public ImmutableList<Account> getManagedAccounts(Optional<String> search,Optional<String> searchDate) {
     ImmutableList<Account> allAccounts = getManagedAccounts();
-    if (search.isPresent()) {
+    if (search.isPresent())
+    {
       allAccounts =
           allAccounts.stream()
               .filter(
@@ -65,6 +68,16 @@ public class TrustedIntermediaryGroup extends BaseModel {
                           .toLowerCase(Locale.ROOT)
                           .contains(search.get().toLowerCase(Locale.ROOT)))
               .collect(ImmutableList.toImmutableList());
+    }
+    if(searchDate.isPresent())
+    {
+      allAccounts =
+          allAccounts.stream()
+            .filter(
+              account ->
+                account
+                  .getApplicantDateOfBirth().equals(searchDate.get()))
+                  .collect(ImmutableList.toImmutableList());
     }
     return allAccounts;
   }

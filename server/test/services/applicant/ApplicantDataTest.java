@@ -68,8 +68,8 @@ public class ApplicantDataTest {
   public void checkDateOfBirth() {
     ApplicantData data = new ApplicantData();
     String sampleDOB = "2022-10-05";
-    data.setDOB(sampleDOB);
-    assertThat(data.getDOB().get()).isEqualTo(sampleDOB);
+    data.setDateOfBirth(sampleDOB);
+    assertThat(data.getDateOfBirth().get()).isEqualTo(sampleDOB);
     assertThat(data.asJsonString())
         .isEqualTo("\"{\"applicant\":{\"date_of_birth\":\"2022-10-05\"}}\"");
   }
