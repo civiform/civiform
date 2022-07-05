@@ -29,6 +29,12 @@ jobs:
           file: server/code-coverage/report/jacoco.xml
           verbose: true
           fail_ci_if_error: true
+        coverage:
+          status:
+            project:
+              default:
+                target:50%
+                threshhold:25%
 
   run_browser_tests_aws:
     strategy:
