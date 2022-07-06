@@ -74,6 +74,10 @@ describe('Checkbox question for applicant flow', () => {
       // Check checkbox error and required error are present.
       expect(await pageObject.isHidden(checkBoxError)).toEqual(false)
       const checkboxId = '.cf-question-checkbox'
+<<<<<<< HEAD
+=======
+      // Contains this substring. Is this brittle? Would have to update text every time. Or can I add an ID just for testing?
+>>>>>>> f46b6f4a (Add checkbox browser test)
       expect(await pageObject.innerText(checkboxId)).toContain(
         'This question is required.',
       )
@@ -149,7 +153,11 @@ describe('Checkbox question for applicant flow', () => {
       await applicantQuestions.submitFromReviewPage(programName)
     })
 
+<<<<<<< HEAD
     it('with unanswered optional question submits successfully', async () => {
+=======
+    it('unanswered optional question submits successfully', async () => {
+>>>>>>> f46b6f4a (Add checkbox browser test)
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
 
