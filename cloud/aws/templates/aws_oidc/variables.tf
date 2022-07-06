@@ -185,3 +185,8 @@ variable "applicant_oidc_additional_scopes" {
   description = "Additional scopes for Applicant oidc"
   default     = "allatclaims"
 }
+
+variable "civiform_mode" {
+  type        = string
+  description = "The civiform environment mode (test/dev/staging/prod)"
+}

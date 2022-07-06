@@ -10,4 +10,11 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
+  default_tags {
+    tags = {
+      Group       = "${var.app_prefix}"
+      Environment = "${var.civiform_mode}"
+      Service     = "Civiform"
+    }
+  }
 }
