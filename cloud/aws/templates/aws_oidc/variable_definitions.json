@@ -65,6 +65,7 @@
     "tfvar": true,
     "type": "string"
   },
+<<<<<<< HEAD
   "APPLICANT_OIDC_LOCALE_ATTRIBUTE": {
     "required": false,
     "secret": false,
@@ -90,6 +91,12 @@
     "type": "string"
   },
   "APPLICANT_OIDC_LAST_NAME_ATTRIBUTE": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "SES_SENDER_EMAIL": {
     "required": false,
     "secret": false,
     "tfvar": true,
