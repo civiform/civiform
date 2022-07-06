@@ -73,6 +73,10 @@ module "vpc" {
 }
 
 resource "aws_security_group" "rds" {
+  tags = {
+    Name = "${var.app_prefix} Civiform DB Security Group"
+    Type = "Civiform DB Security Group"
+  }
   name   = "${var.app_prefix}-civiform_rds"
   vpc_id = module.vpc.vpc_id
 
@@ -91,7 +95,12 @@ resource "aws_security_group" "rds" {
   }
 }
 
+
 resource "aws_apprunner_vpc_connector" "connector" {
+  tags = {
+    Name = "${var.app_prefix} Civiform Apprunner VPC Connector"
+    Type = "Civiform Apprunner VPC Connector"
+  }
   vpc_connector_name = "${var.app_prefix}-civiform_connector"
   subnets            = module.vpc.private_subnets
   security_groups    = [aws_security_group.rds.id]

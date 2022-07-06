@@ -251,3 +251,8 @@ variable "port" {
   description = "Port the app is running on"
   default     = "9000"
 }
+
+variable "civiform_mode" {
+  type        = string
+  description = "The civiform environment mode (test/dev/staging/prod)"
+}
