@@ -23,6 +23,7 @@ module "vpc" {
 
   map_public_ip_on_launch = false
 
+  # TODO - make sure the DB is not accessable from the internet
   create_database_subnet_route_table     = true
   create_database_subnet_group           = true
   create_database_internet_gateway_route = false
