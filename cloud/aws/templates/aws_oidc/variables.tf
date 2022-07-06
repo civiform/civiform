@@ -70,6 +70,18 @@ variable "private_subnets" {
   default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
 }
 
+variable "database_subnets" {
+  type        = list(string)
+  description = "List of the database subnets for the VPC"
+  default     = ["10.0.21.0/24", "10.0.22.0/24", "10.0.23.0/24"]
+}
+
+variable "public_subnets" {
+  type        = list(string)
+  description = "List of the public subnets for the VPC"
+  default     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+}
+
 # TODO: determine reasonable max concurrency for a civiform server
 variable "auto_scaling_config" {
   type        = map(string)
@@ -154,12 +166,73 @@ variable "app_prefix" {
 
 variable "applicant_oidc_provider_name" {
   type        = string
-  description = "OIDC provider name for the applicant"
+  description = "Applicant OIDC login provider name"
+}
+
+variable "applicant_oidc_response_mode" {
+  type        = string
+  description = "Applicant OIDC login response mode"
+}
+
+variable "applicant_oidc_response_type" {
+  type        = string
+  description = "Applicant OIDC login response type"
+}
+
+variable "applicant_oidc_additional_scopes" {
+  type        = string
+  description = "Applicant OIDC login additional scopes to request"
+}
+
+variable "applicant_oidc_locale_attribute" {
+  type        = string
+  description = "Applicant OIDC login user locale returned in token"
+}
+
+variable "applicant_oidc_email_attribute" {
+  type        = string
+  description = "Applicant OIDC login user email returned in token"
+}
+
+variable "applicant_oidc_first_name_attribute" {
+  type        = string
+  description = "Applicant OIDC login first name (or display name) returned in token"
+}
+
+variable "applicant_oidc_middle_name_attribute" {
+  type        = string
+  description = "Applicant OIDC login middle name (if not using display name) returned in token"
+}
+
+variable "applicant_oidc_last_name_attribute" {
+  type        = string
+  description = "Applicant OIDC login last name (if not using display name) returned in token"
 }
 
 variable "civiform_applicant_idp" {
   type        = string
   description = "Applicant IDP"
+}
+
+variable "applicant_oidc_client_id" {
+  type        = string
+  description = "Client ID"
+}
+
+variable "applicant_oidc_client_secret" {
+  type        = string
+  description = "Client Secret"
+}
+
+variable "applicant_oidc_discovery_uri" {
+  type        = string
+  description = "Discovery URI"
+}
+
+variable "custom_hostname" {
+  type        = string
+  description = "The custom hostname this app is deployed on"
+  default     = "staging-aws.civiform.dev"
 }
 
 variable "staging_hostname" {
@@ -170,20 +243,13 @@ variable "staging_hostname" {
 
 variable "base_url" {
   type        = string
-  description = "Base url for the app"
-  default     = "https://staging-aws.civiform.dev"
+  description = "Base url for the app, only need to set if you don't have a custom hostname setup"
 }
 
 variable "port" {
   type        = string
   description = "Port the app is running on"
   default     = "9000"
-}
-
-variable "applicant_oidc_additional_scopes" {
-  type        = string
-  description = "Additional scopes for Applicant oidc"
-  default     = "allatclaims"
 }
 
 variable "civiform_mode" {

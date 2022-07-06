@@ -5,6 +5,18 @@
     "tfvar": true,
     "type": "string"
   },
+  "STAGING_HOSTNAME": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "BASE_URL": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
   "CIVIFORM_APPLICANT_IDP": {
     "required": true,
     "secret": false,
@@ -12,12 +24,72 @@
     "type": "string"
   },
   "APPLICANT_OIDC_PROVIDER_NAME": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "APPLICANT_OIDC_CLIENT_ID": {
+    "required": true,
+    "secret": true,
+    "tfvar": true,
+    "type": "string"
+  },
+  "APPLICANT_OIDC_CLIENT_SECRET": {
+    "required": true,
+    "secret": true,
+    "tfvar": true,
+    "type": "string"
+  },
+  "APPLICANT_OIDC_DISCOVERY_URI": {
     "required": true,
     "secret": false,
     "tfvar": true,
     "type": "string"
   },
+  "APPLICANT_OIDC_RESPONSE_MODE": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "APPLICANT_OIDC_RESPONSE_TYPE": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
   "APPLICANT_OIDC_ADDITIONAL_SCOPES": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "APPLICANT_OIDC_LOCALE_ATTRIBUTE": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "APPLICANT_OIDC_EMAIL_ATTRIBUTE": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "APPLICANT_OIDC_FIRST_NAME_ATTRIBUTE": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "APPLICANT_OIDC_MIDDLE_NAME_ATTRIBUTE": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
+  "APPLICANT_OIDC_LAST_NAME_ATTRIBUTE": {
     "required": false,
     "secret": false,
     "tfvar": true,
