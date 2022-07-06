@@ -65,7 +65,6 @@
     "tfvar": true,
     "type": "string"
   },
-<<<<<<< HEAD
   "APPLICANT_OIDC_LOCALE_ATTRIBUTE": {
     "required": false,
     "secret": false,
