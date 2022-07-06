@@ -82,8 +82,8 @@ try:
 
     print(" - Run terraform apply")
     tf_apply_args = [
-        "terraform", f"-chdir={terraform_template_dir}", "apply", "-input=false",
-        f"-var-file={config_loader.tfvars_filename}"
+        "terraform", f"-chdir={terraform_template_dir}", "apply",
+        "-input=false", f"-var-file={config_loader.tfvars_filename}"
     ]
 
     if not config_loader.is_dev():
@@ -101,8 +101,8 @@ try:
 
         subprocess.check_call(
             [
-                "terraform", f"-chdir={terraform_template_dir}", "apply", "-input=false",
-                f"-var-file={config_loader.tfvars_filename}"
+                "terraform", f"-chdir={terraform_template_dir}", "apply",
+                "-input=false", f"-var-file={config_loader.tfvars_filename}"
             ])
 
     subprocess.run(
