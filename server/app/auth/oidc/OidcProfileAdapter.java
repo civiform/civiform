@@ -138,7 +138,13 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
       Credentials cred, WebContext context, SessionStore sessionStore) {
     ProfileUtils profileUtils = new ProfileUtils(sessionStore, profileFactory);
     possiblyModifyConfigBasedOnCred(cred);
-    Optional<UserProfile> oidcProfile = super.create(cred, context, sessionStore);
+    Optional<UserProfile> oidcProfile = Optional.empty();
+    try {
+      oidcProfile = super.create(cred, context, sessionStore);
+    } catch (IllegalArgumentException e) {
+      logger.warn("Error creating oidc profile: " + e.toString());
+      throw e;
+    }
 
     if (oidcProfile.isEmpty()) {
       logger.warn("Didn't get a valid profile back from OIDC.");

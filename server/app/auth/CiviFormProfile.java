@@ -13,6 +13,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityNotFoundException;
 import models.Account;
 import models.Applicant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.DatabaseExecutionContext;
 
@@ -22,6 +24,8 @@ import repository.DatabaseExecutionContext;
  * contain only server-local information, like execution contexts, database connections, etc.
  */
 public class CiviFormProfile {
+
+  private static final Logger logger = LoggerFactory.getLogger(OidcProfileAdapter.class);
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
   private CiviFormProfileData profileData;
@@ -118,12 +122,16 @@ public class CiviFormProfile {
               // The authority id can never change once set.
               if (existingAuthorityId.isPresent()
                   && !existingAuthorityId.get().equals(authorityId)) {
-                throw new ProfileMergeConflictException(
-                    String.format(
-                        "Profile already contains an authority ID: %s - which is different from"
-                            + " the new authority ID address %s.",
-                        existingAuthorityId, authorityId));
+                var e =
+                    new ProfileMergeConflictException(
+                        String.format(
+                            "Profile already contains an authority ID: %s - which is different from"
+                                + " the new authority ID address %s.",
+                            existingAuthorityId, authorityId));
+                logger.error(e.getMessage());
+                throw e;
               }
+
               a.setAuthorityId(authorityId);
               a.save();
               return null;
@@ -146,11 +154,13 @@ public class CiviFormProfile {
             a -> {
               String existingEmail = a.getEmailAddress();
               if (existingEmail != null && !existingEmail.equals(emailAddress)) {
-                throw new ProfileMergeConflictException(
+                var e = new ProfileMergeConflictException(
                     String.format(
                         "Profile already contains an email address: %s - which is different from"
                             + " the new email address %s.",
                         existingEmail, emailAddress));
+                logger.error(e.getMessage());
+                throw e;
               }
               a.setEmailAddress(emailAddress);
               a.save();
