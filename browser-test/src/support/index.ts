@@ -1,4 +1,5 @@
 import {Browser, chromium, Page} from 'playwright'
+import * as path from 'path';
 import {waitForPageJsLoad} from './wait'
 export {AdminApiKeys} from './admin_api_keys'
 export {AdminQuestions} from './admin_questions'
@@ -27,14 +28,21 @@ function makeBrowserContext(browser: Browser) {
     // context is possible, but likely not necessary
     // until it causes a problem. In practice, this
     // will only be used when debugging failures.
-    const suffix =
-      (global as any)['expect'] === undefined
-        ? ''
-        : expect.getState().currentTestName
+    const dirs = ['tmp/videos'];
+    if ((global as any)['expect'] != null) {
+      const testPath = expect.getState().testPath;
+      const testFile = testPath.substring(testPath.lastIndexOf('/') + 1);
+      dirs.push(testFile);
+      // Some test initialize context in beforeAll at which point test name is
+      // not set.
+      if (expect.getState().currentTestName) {
+        dirs.push(expect.getState().currentTestName);
+      }
+    }
     return browser.newContext({
       acceptDownloads: true,
       recordVideo: {
-        dir: `tmp/videos/${suffix}/`,
+        dir: path.join(...dirs),
       },
     })
   } else {
