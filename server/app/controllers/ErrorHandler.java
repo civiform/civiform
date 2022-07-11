@@ -7,6 +7,7 @@ import controllers.admin.NotChangeableException;
 import controllers.api.BadApiRequestException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -66,6 +67,11 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
     if (match.isPresent()) {
       return CompletableFuture.completedFuture(Results.unauthorized());
+    }
+
+    // Unwrap CompletionException
+    if (exception instanceof CompletionException) {
+      return super.onServerError(request, exception.getCause());
     }
 
     return super.onServerError(request, exception);
