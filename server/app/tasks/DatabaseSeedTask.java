@@ -48,7 +48,7 @@ public final class DatabaseSeedTask {
       ImmutableList.of(
           new QuestionDefinitionBuilder()
               .setQuestionType(QuestionType.NAME)
-              .setName("Applicant Name")
+              .setName("Name")
               .setDescription("The applicant's name")
               .setQuestionText(
                   LocalizedStrings.of(

@@ -17,6 +17,8 @@ import org.pac4j.core.http.callback.PathParameterCallbackUrlResolver;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
 /**
@@ -26,6 +28,7 @@ import repository.UserRepository;
  */
 public abstract class OidcProvider implements Provider<OidcClient> {
 
+  private static final Logger logger = LoggerFactory.getLogger(OidcProvider.class);
   protected final Config configuration;
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
@@ -199,7 +202,12 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     client.setCallbackUrl(callbackURL);
     client.setProfileCreator(getProfileAdapter(config, client));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
-    client.init();
+    try {
+      client.init();
+    } catch (Exception e) {
+      logger.error("Error while initilizing OIDC provider", e);
+      throw e;
+    }
     return client;
   }
 }
