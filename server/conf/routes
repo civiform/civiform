@@ -125,6 +125,7 @@ GET     /api/v1/admin/programs/:programSlug/applications    controllers.api.Prog
 
 # Methods for user support incidents
 GET     /support/unconfirmedIdcsEmail  controllers.SupportController.handleUnconfirmedIdcsEmail(request: Request)
+GET     /support/unsupportedBrowser  controllers.SupportController.handleUnsupportedBrowser()
 
 # Methods for program admins
 GET     /programAdmin       controllers.admin.ProgramAdminController.index(request: Request)
