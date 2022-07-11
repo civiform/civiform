@@ -52,7 +52,7 @@
   "CIVIFORM_MODE": {
     "required": true,
     "secret": false,
-    "tfvar": false,
+    "tfvar": true,
     "type": "enum",
     "values": ["prod", "staging", "dev", "test"]
   },

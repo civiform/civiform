@@ -1,6 +1,11 @@
 # TODO this is actually should be an input into filestorage
 # b/c it relies on this
 resource "aws_s3_bucket" "log_bucket" {
+  tags = {
+    Name = "${var.app_prefix} Civiform Logs"
+    Type = "Civiform Logs"
+  }
+
   bucket = "${var.app_prefix}-logs"
 }
 
