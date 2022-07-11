@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Result;
 import repository.ResetPostgres;
+import services.program.ProgramNotFoundException;
 import support.ProgramBuilder;
 
 public class AdminProgramStatusesControllerTest extends ResetPostgres {
@@ -23,7 +24,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void index_ok() {
+  public void index_ok() throws ProgramNotFoundException {
     Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
 
     Result result = controller.index(fakeRequest().build(), program.id);
@@ -33,7 +34,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void index_missingProgram() {
+  public void index_missingProgram() throws ProgramNotFoundException {
     Result result = controller.index(fakeRequest().build(), Long.MAX_VALUE);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
