@@ -64,7 +64,6 @@ public class StoredFileAclMigrationTask implements Runnable {
           } catch (ProgramNotFoundException | RuntimeException e) {
             counter.incrementErrorCount();
             LOGGER.error(String.format("StoredFileMigrationError: %s", e.toString()));
-            throw e;
           }
         });
 
