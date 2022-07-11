@@ -92,8 +92,8 @@ module "ecs_fargate_service" {
   vpc_id                  = module.vpc.vpc_id
   task_definition_arn     = module.td.aws_ecs_task_definition_td_arn
   container_name          = var.app_prefix
-  ecs_cluster_name        = module.ecs-cluster.aws_ecs_cluster_cluster_name
-  ecs_cluster_arn         = module.ecs-cluster.aws_ecs_cluster_cluster_arn
+  ecs_cluster_name        = module.ecs_cluster.aws_ecs_cluster_cluster_name
+  ecs_cluster_arn         = module.ecs_cluster.aws_ecs_cluster_cluster_arn
   private_subnets         = module.vpc.private_subnets
   public_subnets          = module.vpc.public_subnets
 
