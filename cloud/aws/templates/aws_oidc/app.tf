@@ -1,12 +1,20 @@
 module "ecs_cluster" {
   source = "cn-terraform/ecs-cluster/aws"
   name   = var.app_prefix
+  tags = {
+    Name = "${var.app_prefix} Civiform ECS Cluster"
+    Type = "Civiform ECS Cluster"
+  }
 }
 
 # TODO: reconcile with other logs bucket. We should only have one.
 module "aws_cw_logs" {
   source    = "cn-terraform/cloudwatch-logs/aws"
   logs_path = "ecslogs/"
+  tags = {
+    Name = "${var.app_prefix} Civiform Cloud Watch Logs"
+    Type = "Civiform Cloud Watch Logs"
+  }
 }
 
 module "td" {
@@ -81,12 +89,16 @@ module "td" {
     }
     secretOptions = null
   }
+  tags = {
+    Name = "${var.app_prefix} Civiform EC2 Task Definition"
+    Type = "Civiform EC2 Task Definition"
+  }
 }
 
 module "ecs_fargate_service" {
   source      = "cn-terraform/ecs-fargate-service/aws"
   name_prefix = var.app_prefix
-  # TODO: create and validate this certificate in terraform
+  # TODO: use https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate
   default_certificate_arn = "arn:aws:acm:us-east-1:664198874744:certificate/2b765469-2ddd-4b03-94b4-fc670e80f84b"
   ssl_policy              = "ELBSecurityPolicy-FS-1-2-Res-2020-10"
   vpc_id                  = module.vpc.vpc_id
@@ -104,4 +116,8 @@ module "ecs_fargate_service" {
     target_group_port = 9000
   } }
   health_check_grace_period_seconds = 20
+  tags = {
+    Name = "${var.app_prefix} Civiform Fargate Service"
+    Type = "Civiform Fargate Service"
+  }
 }

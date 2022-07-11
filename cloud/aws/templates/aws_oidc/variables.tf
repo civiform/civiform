@@ -6,7 +6,7 @@ variable "aws_region" {
 
 variable "civiform_image_repo" {
   type        = string
-  description = "Public ECR repository with Civiform images"
+  description = "Dockerhub repository with Civiform images"
   default     = "civiform/civiform"
 }
 
