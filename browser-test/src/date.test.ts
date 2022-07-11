@@ -1,0 +1,124 @@
+import {
+  AdminPrograms,
+  AdminQuestions,
+  ApplicantQuestions,
+  loginAsAdmin,
+  loginAsGuest,
+  logout,
+  selectApplicantLanguage,
+  startSession,
+  resetSession,
+} from './support'
+
+// Date validation is done by browser itself, so we do not test it here.
+
+describe('Date question for applicant flow', () => {
+  let pageObject
+
+  beforeAll(async () => {
+    const {page} = await startSession()
+    pageObject = page
+  })
+
+  afterEach(async () => {
+    await resetSession(pageObject)
+  })
+
+  describe('single date question', () => {
+    let applicantQuestions
+    const programName = 'test program for single date'
+
+    beforeAll(async () => {
+      // As admin, create program with single date question.
+      await loginAsAdmin(pageObject)
+      const adminQuestions = new AdminQuestions(pageObject)
+      const adminPrograms = new AdminPrograms(pageObject)
+      applicantQuestions = new ApplicantQuestions(pageObject)
+
+      await adminQuestions.addDateQuestion({questionName: 'date-q'})
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        ['date-q'],
+        programName,
+      )
+
+      await logout(pageObject)
+    })
+
+    it('with filled in date submits successfully', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerDateQuestion('2022-05-02')
+      await applicantQuestions.clickNext()
+
+      await applicantQuestions.submitFromReviewPage(programName)
+    })
+
+    it('with no answer does not submit', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      // Click next without selecting anything.
+      await applicantQuestions.clickNext()
+
+      // Check required error is present
+      const dateId = '.cf-question-date'
+      expect(await pageObject.innerText(dateId)).toContain(
+        'This question is required.',
+      )
+    })
+  })
+
+  describe('multiple date questions', () => {
+    let applicantQuestions
+    const programName = 'test program for multiple date questions'
+
+    beforeAll(async () => {
+      await loginAsAdmin(pageObject)
+      const adminQuestions = new AdminQuestions(pageObject)
+      const adminPrograms = new AdminPrograms(pageObject)
+      applicantQuestions = new ApplicantQuestions(pageObject)
+
+      await adminQuestions.addDateQuestion({questionName: 'birthday-date-q'})
+      await adminQuestions.addDateQuestion({questionName: 'todays-date-q'})
+
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockWithOptional(
+        programName,
+        'Optional question block',
+        ['birthday-date-q'],
+        'todays-date-q', // optional
+      )
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishAllPrograms()
+
+      await logout(pageObject)
+    })
+
+    it('with valid dates submits successfully', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerDateQuestion('2022-07-04', 0)
+      await applicantQuestions.answerDateQuestion('1990-10-10', 1)
+      await applicantQuestions.clickNext()
+
+      await applicantQuestions.submitFromReviewPage(programName)
+    })
+
+    it('with unanswered optional question submits successfully', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      // Only answer second question.
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerDateQuestion('1990-10-10', 1)
+      await applicantQuestions.clickNext()
+
+      await applicantQuestions.submitFromReviewPage(programName)
+    })
+  })
+})
