@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -78,20 +79,22 @@ public class ProgramTranslationView extends TranslationFormView {
     return routes.AdminProgramTranslationsController.edit(programId, locale.toLanguageTag()).url();
   }
 
-  private ImmutableList<FieldWithLabel> formFields(
+  private ImmutableList<Tag> formFields(
       Optional<String> localizedName, Optional<String> localizedDescription) {
     return ImmutableList.of(
         FieldWithLabel.input()
             .setId("localize-display-name")
             .setFieldName("displayName")
-            .setPlaceholderText("Program display name")
+            .setLabelText("Program display name")
             .setScreenReaderText("Program display name")
-            .setValue(localizedName),
+            .setValue(localizedName)
+            .getContainer(),
         FieldWithLabel.input()
             .setId("localize-display-description")
             .setFieldName("displayDescription")
-            .setPlaceholderText("Program description")
+            .setLabelText("Program description")
             .setScreenReaderText("Program description")
-            .setValue(localizedDescription));
+            .setValue(localizedDescription)
+            .getContainer());
   }
 }
