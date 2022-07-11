@@ -98,8 +98,11 @@ public class DatabaseSeedController extends DevController {
     if (!isDevOrStagingEnvironment()) {
       return notFound();
     }
-    databaseSeedTask.run();
-    insertProgramWithBlocks("Mock program");
+    QuestionDefinition canonicalNameQuestion = databaseSeedTask.run().stream()
+        .filter(q -> q.getName().equals("Name"))
+        .findFirst()
+        .orElseThrow();
+    insertProgramWithBlocks("Mock program", canonicalNameQuestion);
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been seeded");
   }
@@ -112,31 +115,6 @@ public class DatabaseSeedController extends DevController {
     resetTables();
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been cleared");
-  }
-
-  private QuestionDefinition insertNameQuestionDefinition() {
-    // TODO(#2843): Remove this in favor of the question definition
-    // created by the seed canonical questions task. This doesn't currently
-    // conflict with the canonical question since it has a different
-    // character casing. When constructing the mock program above, the
-    // canonical name question will need to be retrieved.
-    return questionService
-        .create(
-            new NameQuestionDefinition(
-                "name",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.of(
-                    Locale.US,
-                    "What is your name?",
-                    Locale.forLanguageTag("es-US"),
-                    "¿Cómo se llama?"),
-                LocalizedStrings.of(
-                    Locale.US,
-                    "help text",
-                    Locale.forLanguageTag("es-US"),
-                    "Ponga su nombre legal")))
-        .getResult();
   }
 
   private QuestionDefinition insertColorQuestionDefinition() {
@@ -217,7 +195,7 @@ public class DatabaseSeedController extends DevController {
         .getResult();
   }
 
-  private ProgramDefinition insertProgramWithBlocks(String name) {
+  private ProgramDefinition insertProgramWithBlocks(String name, QuestionDefinition nameQuestion) {
     try {
       ProgramDefinition programDefinition =
           programService
@@ -241,7 +219,7 @@ public class DatabaseSeedController extends DevController {
           blockId,
           ImmutableList.of(
               ProgramQuestionDefinition.create(
-                  insertNameQuestionDefinition(), Optional.of(programId)),
+                  nameQuestion, Optional.of(programId)),
               ProgramQuestionDefinition.create(
                   insertColorQuestionDefinition(), Optional.of(programId))));
 

@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
@@ -173,14 +174,12 @@ public class QuestionRepository {
         .collect(ImmutableList.toImmutableList());
   }
 
-  public ImmutableSet<String> getQuestionNames() {
-    return database.sqlQuery("SELECT DISTINCT name FROM questions").findList().stream()
-        .map((row) -> row.getString("name"))
-        .collect(ImmutableSet.toImmutableSet());
-  }
-
-  public boolean questionExists(String questionName) {
-    return database.find(Question.class).where().eq("name", questionName).exists();
+  public ImmutableMap<String, QuestionDefinition> getExistingQuestions(ImmutableSet<String> questionNames) {
+    // TODO(#2843): Need to retrieve the latest id for each question since multiple versions of a question
+    // with the same name can exist.
+    return database.find(Question.class).where().in("name", questionNames).findList().stream()
+      .map(Question::getQuestionDefinition)
+      .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, q -> q));
   }
 
   private static class ConflictDetector {

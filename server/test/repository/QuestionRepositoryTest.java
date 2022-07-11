@@ -170,16 +170,11 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void getQuestionNames() {
+  public void getExistingQuestions() {
     resourceCreator.insertQuestion("question-one");
     resourceCreator.insertQuestion("question-two");
-
-    assertThat(repo.getQuestionNames()).containsOnly("question-one", "question-two");
-  }
-
-  @Test
-  public void questionExists_doesNotExist() {
-    assertThat(repo.questionExists("question-one")).isFalse();
+    assertThat(repo.getExistingQuestions("question-one", "question-two", "question-three"))
+      .containsExactly("question-one", "question-two");
   }
 
   @Test

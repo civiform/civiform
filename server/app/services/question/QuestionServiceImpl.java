@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -55,13 +56,8 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public ImmutableSet<String> getQuestionNames() {
-    return questionRepository.getQuestionNames();
-  }
-
-  @Override
-  public boolean questionExists(String questionName) {
-    return questionRepository.questionExists(questionName);
+  public ImmutableMap<String, QuestionDefinition> getExistingQuestions(ImmutableSet<String> questionNames) {
+    return questionRepository.getExistingQuestions(questionNames);
   }
 
   @Override
