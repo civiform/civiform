@@ -6,8 +6,8 @@ variable "aws_region" {
 
 variable "civiform_image_repo" {
   type        = string
-  description = "Public ECR repository with Civiform images"
-  default     = "public.ecr.aws/t1q6b4h2/universal-application-tool"
+  description = "Dockerhub repository with Civiform images"
+  default     = "civiform/civiform"
 }
 
 variable "image_tag" {
@@ -167,66 +167,79 @@ variable "app_prefix" {
 variable "applicant_oidc_provider_name" {
   type        = string
   description = "Applicant OIDC login provider name"
+  default     = ""
 }
 
 variable "applicant_oidc_response_mode" {
   type        = string
   description = "Applicant OIDC login response mode"
+  default     = ""
 }
 
 variable "applicant_oidc_response_type" {
   type        = string
   description = "Applicant OIDC login response type"
+  default     = ""
 }
 
 variable "applicant_oidc_additional_scopes" {
   type        = string
   description = "Applicant OIDC login additional scopes to request"
+  default     = ""
 }
 
 variable "applicant_oidc_locale_attribute" {
   type        = string
   description = "Applicant OIDC login user locale returned in token"
+  default     = ""
 }
 
 variable "applicant_oidc_email_attribute" {
   type        = string
   description = "Applicant OIDC login user email returned in token"
+  default     = ""
 }
 
 variable "applicant_oidc_first_name_attribute" {
   type        = string
   description = "Applicant OIDC login first name (or display name) returned in token"
+  default     = ""
 }
 
 variable "applicant_oidc_middle_name_attribute" {
   type        = string
   description = "Applicant OIDC login middle name (if not using display name) returned in token"
+  default     = ""
 }
 
 variable "applicant_oidc_last_name_attribute" {
   type        = string
   description = "Applicant OIDC login last name (if not using display name) returned in token"
+  default     = ""
 }
 
 variable "civiform_applicant_idp" {
   type        = string
   description = "Applicant IDP"
+  default     = ""
 }
 
 variable "applicant_oidc_client_id" {
   type        = string
   description = "Client ID"
+  default     = ""
 }
 
 variable "applicant_oidc_client_secret" {
   type        = string
   description = "Client Secret"
+  default     = ""
 }
 
 variable "applicant_oidc_discovery_uri" {
   type        = string
   description = "Discovery URI"
+  default     = ""
 }
 
 variable "custom_hostname" {
@@ -244,6 +257,7 @@ variable "staging_hostname" {
 variable "base_url" {
   type        = string
   description = "Base url for the app, only need to set if you don't have a custom hostname setup"
+  default     = ""
 }
 
 variable "port" {
