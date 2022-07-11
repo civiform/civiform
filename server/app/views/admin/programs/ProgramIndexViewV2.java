@@ -147,7 +147,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                                     .withClasses(Styles.ML_3, Styles.INLINE_FLEX),
                                 FieldWithLabel.date()
                                     .setFieldName("untilDate")
-                                    .setLabelText("To:")
+                                    .setLabelText("Until:")
                                     .getContainer()
                                     .withClasses(Styles.ML_3, Styles.INLINE_FLEX)),
                         makeSvgTextButton(downloadActionText, Icons.DOWNLOAD)
@@ -474,7 +474,11 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     if (userIsAuthorized) {
       String editLink =
           routes.AdminApplicationController.index(
-                  activeProgram.id(), Optional.empty(), Optional.empty())
+                  activeProgram.id(),
+                  Optional.empty(),
+                  Optional.empty(),
+                  Optional.empty(),
+                  Optional.empty())
               .url();
 
       ContainerTag button =
