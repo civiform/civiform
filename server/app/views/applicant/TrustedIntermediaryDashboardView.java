@@ -174,7 +174,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setLabelText("Last Name")
             .setValue(request.flash().get("providedLastName").orElse(""))
             .setPlaceholderText("Applicant last name (Required)");
-    // TODO: do something with this field.  currently doesn't do anything.
+    // TODO: do something with this field.  currently doesn't do anything. Add a Path
+    // to WellKnownPaths referencing the canonical date of birth question.
     FieldWithLabel dateOfBirthField =
         FieldWithLabel.date()
             .setId("date-of-birth-input")
