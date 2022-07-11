@@ -44,6 +44,11 @@ public interface QuestionService {
    */
   ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition definition);
 
+  /**
+   * Retrieves the latest question definition for all questions identified by the given set of
+   * question names. If a question with the given name does not exist, it is not a key in the
+   * resulting map.
+   */
   ImmutableMap<String, QuestionDefinition> getExistingQuestions(ImmutableSet<String> questionNames);
 
   /**
