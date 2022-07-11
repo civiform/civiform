@@ -1,4 +1,4 @@
-module "ecs-cluster" {
+module "ecs_cluster" {
   source = "cn-terraform/ecs-cluster/aws"
   name   = var.app_prefix
 }
