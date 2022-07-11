@@ -6,6 +6,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
@@ -14,6 +15,7 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -175,11 +177,14 @@ public class QuestionRepository {
   }
 
   public ImmutableMap<String, QuestionDefinition> getExistingQuestions(ImmutableSet<String> questionNames) {
-    // TODO(#2843): Need to retrieve the latest id for each question since multiple versions of a question
-    // with the same name can exist.
-    return database.find(Question.class).where().in("name", questionNames).findList().stream()
+    // We need to retrieve the latest id for each question since multiple versions of a question
+    // with the same name can exist. We achieve this by ordering the returned questions by ID and
+    // using Collectors.toMap so that the latest entry for each key is used.
+    // Note that the ImmutableMap.toImmutableMap collector can't be used for this since it will
+    // throw upon receiving a duplicate key.
+    return ImmutableMap.copyOf(database.find(Question.class).where().in("name", questionNames).orderBy().asc("id").findList().stream()
       .map(Question::getQuestionDefinition)
-      .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, q -> q));
+      .collect(Collectors.toMap(QuestionDefinition::getName, q -> q)));
   }
 
   private static class ConflictDetector {
