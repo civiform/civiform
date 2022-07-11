@@ -21,7 +21,7 @@ module "vpc" {
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  map_public_ip_on_launch = false
+  map_public_ip_on_launch = true
 
   # TODO - make sure the DB is not accessable from the internet
   create_database_subnet_route_table     = true
@@ -94,7 +94,6 @@ resource "aws_security_group" "rds" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
 
 resource "aws_apprunner_vpc_connector" "connector" {
   tags = {
