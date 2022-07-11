@@ -10,8 +10,6 @@ import {
   resetSession,
 } from './support'
 
-// Date validation is done by browser itself, so we do not test it here.
-
 describe('Date question for applicant flow', () => {
   let pageObject
 

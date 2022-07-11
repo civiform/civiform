@@ -153,7 +153,7 @@ describe('Checkbox question for applicant flow', () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
 
-      // Only answer first question. Leave second question blank.
+      // Only answer required question.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['red'])
       await applicantQuestions.clickNext()
