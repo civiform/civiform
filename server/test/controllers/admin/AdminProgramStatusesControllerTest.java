@@ -36,7 +36,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   @Test
   public void index_missingProgram() throws ProgramNotFoundException {
     assertThrows(
-      ProgramNotFoundException.class,
-      () -> controller.index(fakeRequest().build(), Long.MAX_VALUE));
+        ProgramNotFoundException.class,
+        () -> controller.index(fakeRequest().build(), Long.MAX_VALUE));
   }
 }
