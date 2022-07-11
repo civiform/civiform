@@ -455,7 +455,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
   private Tag renderEditStatusesLink(ProgramDefinition program) {
     String linkDestination = routes.AdminProgramStatusesController.index(program.id()).url();
     ContainerTag button =
-        makeSvgTextButton("Manage application status options", Icons.FLAKY)
+        makeSvgTextButton("Manage application statuses", Icons.FLAKY)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
     return asRedirectButton(button, linkDestination);
   }

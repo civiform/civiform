@@ -348,18 +348,17 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Tag maybeRenderEditStatusesLink(Optional<ProgramDefinition> draftProgram) {
-    if (statusTrackingEnabled && draftProgram.isPresent()) {
-      String linkText = "Manage statuses →";
-      String linkDestination =
-          routes.AdminProgramStatusesController.index(draftProgram.get().id()).url();
-      return new LinkElement()
-          .setHref(linkDestination)
-          .setText(linkText)
-          .setStyles(Styles.MR_2)
-          .asAnchorText();
-    } else {
+    if (!statusTrackingEnabled || draftProgram.isEmpty()) {
       return div();
     }
+    String linkText = "Manage statuses →";
+    String linkDestination =
+        routes.AdminProgramStatusesController.index(draftProgram.get().id()).url();
+    return new LinkElement()
+        .setHref(linkDestination)
+        .setText(linkText)
+        .setStyles(Styles.MR_2)
+        .asAnchorText();
   }
 
   private Tag maybeRenderViewApplicationsLink(

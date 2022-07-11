@@ -77,7 +77,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .with(
                         h1(
                             String.format(
-                                "Manage application status options for %s", program.adminName())),
+                                "Manage application statuses for %s", program.adminName())),
                         div().withClass(Styles.FLEX_GROW),
                         renderManageTranslationsLink(program),
                         createStatusTriggerButton),

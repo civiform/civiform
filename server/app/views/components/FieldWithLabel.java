@@ -37,10 +37,13 @@ public class FieldWithLabel {
 
   /** For use with fields of type `number`. */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
-
+  /** For use with fields of type `number`. */
   protected OptionalLong minValue = OptionalLong.empty();
+  /** For use with fields of type `number`. */
   protected OptionalLong maxValue = OptionalLong.empty();
+  /** For use with fields of type `textarea`. */
   private OptionalLong rows = OptionalLong.empty();
+  /** For use with fields of type `textarea`. */
   private OptionalLong cols = OptionalLong.empty();
 
   protected String formId = "";

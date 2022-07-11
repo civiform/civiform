@@ -9,7 +9,6 @@ import controllers.CiviFormController;
 import org.pac4j.play.java.Secure;
 import play.mvc.Http;
 import play.mvc.Result;
-import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.programs.ProgramStatusesView;
@@ -31,16 +30,10 @@ public final class AdminProgramStatusesController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result index(Http.Request request, long programId) {
+  public Result index(Http.Request request, long programId) throws ProgramNotFoundException {
     if (!statusTrackingEnabled) {
       return notFound("status tracking is not enabled");
     }
-    ProgramDefinition program;
-    try {
-      program = service.getProgramDefinition(programId);
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", programId));
-    }
-    return ok(statusesView.render(program));
+    return ok(statusesView.render(service.getProgramDefinition(programId)));
   }
 }
