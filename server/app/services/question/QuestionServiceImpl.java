@@ -56,7 +56,8 @@ public final class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public ImmutableMap<String, QuestionDefinition> getExistingQuestions(ImmutableSet<String> questionNames) {
+  public ImmutableMap<String, QuestionDefinition> getExistingQuestions(
+      ImmutableSet<String> questionNames) {
     return questionRepository.getExistingQuestions(questionNames);
   }
 

@@ -34,7 +34,6 @@ import services.question.QuestionService;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
-import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.RadioButtonQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
@@ -98,10 +97,11 @@ public class DatabaseSeedController extends DevController {
     if (!isDevOrStagingEnvironment()) {
       return notFound();
     }
-    QuestionDefinition canonicalNameQuestion = databaseSeedTask.run().stream()
-        .filter(q -> q.getName().equals("Name"))
-        .findFirst()
-        .orElseThrow();
+    QuestionDefinition canonicalNameQuestion =
+        databaseSeedTask.run().stream()
+            .filter(q -> q.getName().equals("Name"))
+            .findFirst()
+            .orElseThrow();
     insertProgramWithBlocks("Mock program", canonicalNameQuestion);
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been seeded");
@@ -218,8 +218,7 @@ public class DatabaseSeedController extends DevController {
           programId,
           blockId,
           ImmutableList.of(
-              ProgramQuestionDefinition.create(
-                  nameQuestion, Optional.of(programId)),
+              ProgramQuestionDefinition.create(nameQuestion, Optional.of(programId)),
               ProgramQuestionDefinition.create(
                   insertColorQuestionDefinition(), Optional.of(programId))));
 
