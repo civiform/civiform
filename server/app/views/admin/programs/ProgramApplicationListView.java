@@ -182,12 +182,12 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     .with(
                         FieldWithLabel.radio()
                             .setFieldName(IGNORE_FILTERS_PARAM)
-                            .setLabelText("Apply current filters")
+                            .setLabelText("Current results")
                             .setChecked(true)
                             .getContainer(),
                         FieldWithLabel.radio()
                             .setFieldName(IGNORE_FILTERS_PARAM)
-                            .setLabelText("Download all data")
+                            .setLabelText("All data")
                             .setValue("1")
                             .setChecked(false)
                             .getContainer(),

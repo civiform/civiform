@@ -463,9 +463,9 @@ export class AdminPrograms {
   async getJson(applyFilters: boolean) {
     await clickAndWaitForModal(this.page, 'download-program-applications-modal')
     if (applyFilters) {
-      await this.page.check('text="Apply current filters"')
+      await this.page.check('text="Current results"')
     } else {
-      await this.page.check('text="Download all data"')
+      await this.page.check('text="All data"')
     }
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
@@ -483,9 +483,9 @@ export class AdminPrograms {
   async getCsv(applyFilters: boolean) {
     await clickAndWaitForModal(this.page, 'download-program-applications-modal')
     if (applyFilters) {
-      await this.page.check('text="Apply current filters"')
+      await this.page.check('text="Current results"')
     } else {
-      await this.page.check('text="Download all data"')
+      await this.page.check('text="All data"')
     }
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),

@@ -189,6 +189,10 @@ public class AdminApplicationController extends CiviFormController {
     }
   }
 
+  /**
+   * Parses a date from a raw query string (e.g. 2022-01-02) and returns an instant representing the
+   * start of that date in the time zone configured for the server deployment.
+   */
   private Optional<Instant> parseDateFromQuery(
       DateConverter dateConverter, Optional<String> maybeQueryParam) {
     return maybeQueryParam
