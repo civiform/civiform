@@ -145,7 +145,7 @@ public final class DatabaseSeedTask {
       return Optional.empty();
     } else {
       LOGGER.info("Created canonical question \"%s\"", questionDefinition.getName());
-      return Optional.of(questionDefinition);
+      return Optional.of(result.getResult());
     }
   }
 
