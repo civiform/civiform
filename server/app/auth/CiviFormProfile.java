@@ -25,7 +25,7 @@ import repository.DatabaseExecutionContext;
  */
 public class CiviFormProfile {
 
-  private static final Logger logger = LoggerFactory.getLogger(OidcProfileAdapter.class);
+  private static final Logger logger = LoggerFactory.getLogger(CiviFormProfile.class);
   private DatabaseExecutionContext dbContext;
   private HttpExecutionContext httpContext;
   private CiviFormProfileData profileData;
@@ -116,8 +116,8 @@ public class CiviFormProfile {
    */
   public CompletableFuture<Void> setAuthorityId(String authorityId) {
     return this.getAccount()
-        .thenApplyAsync(
-            a -> {
+        .thenApply(
+            (Account a) -> {
               Optional<String> existingAuthorityId = Optional.ofNullable(a.getAuthorityId());
               // The authority id can never change once set.
               if (existingAuthorityId.isPresent()
@@ -133,6 +133,10 @@ public class CiviFormProfile {
               }
 
               a.setAuthorityId(authorityId);
+              return a;
+            })
+        .thenApplyAsync(
+            a -> {
               a.save();
               return null;
             },
@@ -154,11 +158,12 @@ public class CiviFormProfile {
             a -> {
               String existingEmail = a.getEmailAddress();
               if (existingEmail != null && !existingEmail.equals(emailAddress)) {
-                var e = new ProfileMergeConflictException(
-                    String.format(
-                        "Profile already contains an email address: %s - which is different from"
-                            + " the new email address %s.",
-                        existingEmail, emailAddress));
+                var e =
+                    new ProfileMergeConflictException(
+                        String.format(
+                            "Profile already contains an email address: %s - which is different"
+                                + " from the new email address %s.",
+                            existingEmail, emailAddress));
                 logger.error(e.getMessage());
                 throw e;
               }
