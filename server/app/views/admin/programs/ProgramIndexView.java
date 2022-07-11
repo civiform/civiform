@@ -42,13 +42,13 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 /** Renders a page so the admin can view all active programs and draft programs. */
-public final class ProgramIndexViewV2 extends BaseHtmlView {
+public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final DateConverter dateConverter;
 
   @Inject
-  public ProgramIndexViewV2(
+  public ProgramIndexView(
       AdminLayoutFactory layoutFactory, Config config, DateConverter dateConverter) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
