@@ -26,6 +26,10 @@ class ConfigLoader:
     def app_prefix(self):
         return os.environ['APP_PREFIX']
 
+    @property
+    def civiform_mode(self):
+        return os.environ['CIVIFORM_MODE']
+
     def load_config(self):
         self._load_config()
         return self.validate_config()
@@ -94,12 +98,10 @@ class ConfigLoader:
         return self.configs.get("TERRAFORM_TEMPLATE_DIR")
 
     def is_dev(self):
-        civiform_mode = self.configs.get("CIVIFORM_MODE")
-        return civiform_mode == "dev"
+        return self.civiform_mode == "dev"
 
     def is_test(self):
-        civiform_mode = self.configs.get("CIVIFORM_MODE")
-        return civiform_mode == "test"
+        return self.civiform_mode == "test"
 
     def use_backend_config(self):
         return not self.is_dev()
