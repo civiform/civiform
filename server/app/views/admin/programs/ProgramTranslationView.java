@@ -88,7 +88,7 @@ public class ProgramTranslationView extends TranslationFormView {
         fieldset()
             .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
             .with(
-                legend("Program details:"),
+                legend("Program details"),
                 FieldWithLabel.input()
                     .setId("localize-display-name")
                     .setFieldName("displayName")
