@@ -88,18 +88,18 @@ public class ProgramTranslationView extends TranslationFormView {
         fieldset()
             .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
             .with(
-                legend("Program details"),
+                legend("Program details (visible to applicants)"),
                 FieldWithLabel.input()
                     .setId("localize-display-name")
                     .setFieldName("displayName")
-                    .setLabelText("Display name")
+                    .setLabelText("Program name")
                     .setScreenReaderText("Program display name")
                     .setValue(localizedName)
                     .getContainer(),
                 FieldWithLabel.input()
                     .setId("localize-display-description")
                     .setFieldName("displayDescription")
-                    .setLabelText("Description")
+                    .setLabelText("Program description")
                     .setScreenReaderText("Program description")
                     .setValue(localizedDescription)
                     .getContainer()));
