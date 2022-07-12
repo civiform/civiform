@@ -67,6 +67,6 @@ echo "Civiform starting locally at http://localhost:9000/loginForm"
 
 # Attach to the civiform container.
 docker::compose_dev up civiform \
-  --no-recreate \
+  --force-recreate \
   --no-deps \
   --no-log-prefix
