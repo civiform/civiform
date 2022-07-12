@@ -28,11 +28,11 @@ import repository.UserRepository;
  */
 public abstract class OidcProvider implements Provider<OidcClient> {
 
+  private static final Logger logger = LoggerFactory.getLogger(OidcProvider.class);
   protected final Config configuration;
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
   protected final String baseUrl;
-  private static final Logger logger = LoggerFactory.getLogger(OidcProvider.class);
 
   public OidcProvider(
       Config configuration,
@@ -208,8 +208,6 @@ public abstract class OidcProvider implements Provider<OidcClient> {
       logger.error("Error while initilizing OIDC provider", e);
       throw e;
     }
-
-    logger.debug("Oidc client: " + client.toString());
     return client;
   }
 }

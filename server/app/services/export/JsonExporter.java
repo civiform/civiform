@@ -43,15 +43,18 @@ public class JsonExporter {
   }
 
   public Pair<String, PaginationResult<Application>> export(
-      ProgramDefinition programDefinition, IdentifierBasedPaginationSpec<Long> paginationSpec) {
+      ProgramDefinition programDefinition,
+      IdentifierBasedPaginationSpec<Long> paginationSpec,
+      Optional<String> searchFragment,
+      TimeFilter submitTimeFilter) {
     PaginationResult<Application> paginationResult;
     try {
       paginationResult =
           programService.getSubmittedProgramApplicationsAllVersions(
               programDefinition.id(),
               F.Either.Left(paginationSpec),
-              /* searchNameFragment= */ Optional.empty(),
-              /* submitTimeFilter= */ TimeFilter.EMPTY);
+              searchFragment,
+              submitTimeFilter);
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException(e);
     }

@@ -3,6 +3,8 @@ import {waitForPageJsLoad} from './wait'
 
 type QuestionParams = {
   questionName: string
+  minNumChoices?: number | null
+  maxNumChoices?: number | null
   options?: Array<string>
   description?: string
   questionText?: string
@@ -411,6 +413,8 @@ export class AdminQuestions {
   async addCheckboxQuestion({
     questionName,
     options,
+    minNumChoices = null,
+    maxNumChoices = null,
     description = 'checkbox description',
     questionText = 'checkbox question text',
     helpText = 'checkbox question help text',
@@ -431,6 +435,19 @@ export class AdminQuestions {
       enumeratorName,
       exportOption,
     })
+
+    if (minNumChoices != null) {
+      await this.page.fill(
+        'label:has-text("Minimum number of choices required")',
+        String(minNumChoices),
+      )
+    }
+    if (maxNumChoices != null) {
+      await this.page.fill(
+        'label:has-text("Maximum number of choices allowed")',
+        String(maxNumChoices),
+      )
+    }
 
     for (var index in options) {
       await this.page.click('#add-new-option')

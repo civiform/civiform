@@ -38,7 +38,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
             getAllQuestions().stream()
                 .map(Question::getQuestionDefinition)
                 .map(QuestionDefinition::getName))
-        .containsOnly("Applicant Name", "Applicant Date of Birth");
+        .containsOnly("Name", "Applicant Date of Birth");
   }
 
   @Test
@@ -62,7 +62,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
             getAllQuestions().stream()
                 .map(Question::getQuestionDefinition)
                 .map(QuestionDefinition::getName))
-        .containsOnly("Applicant Name", "Applicant Date of Birth");
+        .containsOnly("Name", "Applicant Date of Birth");
   }
 
   private Set<Question> getAllQuestions() {

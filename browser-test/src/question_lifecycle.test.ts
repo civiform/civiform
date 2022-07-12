@@ -23,7 +23,7 @@ describe('normal question lifecycle', () => {
     const adminQuestions = new AdminQuestions(page)
 
     await adminQuestions.gotoAdminQuestionsPage()
-    await adminQuestions.expectDraftQuestionExist('Applicant Name')
+    await adminQuestions.expectDraftQuestionExist('Name')
     await adminQuestions.expectDraftQuestionExist('Applicant Date of Birth')
 
     await endSession(browser)

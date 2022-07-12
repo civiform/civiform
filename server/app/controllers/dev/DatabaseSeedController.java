@@ -115,6 +115,11 @@ public class DatabaseSeedController extends DevController {
   }
 
   private QuestionDefinition insertNameQuestionDefinition() {
+    // TODO(#2843): Remove this in favor of the question definition
+    // created by the seed canonical questions task. This doesn't currently
+    // conflict with the canonical question since it has a different
+    // character casing. When constructing the mock program above, the
+    // canonical name question will need to be retrieved.
     return questionService
         .create(
             new NameQuestionDefinition(
