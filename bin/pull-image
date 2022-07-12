@@ -23,16 +23,16 @@ echo "Making sure we're up to date with the latest dev... " \
 
 function pull_all() {
   echo "Pull all docker images"
-  docker pull -q civiform/civiform-dev:latest
+  docker pull civiform/civiform-dev:latest
 
   # Explicitly pull dev dependencies. (in parallel)
-  docker pull -q docker.io/civiform/oidc-provider:latest &
-  docker pull -q mcr.microsoft.com/azure-storage/azurite &
-  docker pull -q localstack/localstack &
+  docker pull docker.io/civiform/oidc-provider:latest &
+  docker pull mcr.microsoft.com/azure-storage/azurite &
+  docker pull localstack/localstack &
 
-  docker pull -q docker.io/civiform/civiform-localstack:latest &
-  docker pull -q docker.io/civiform/formatter:latest &
-  docker pull -q docker.io/civiform/civiform-browser-test:latest &
+  docker pull docker.io/civiform/civiform-localstack:latest &
+  docker pull docker.io/civiform/formatter:latest &
+  docker pull docker.io/civiform/civiform-browser-test:latest &
 
   wait
 
@@ -47,47 +47,47 @@ fi
 
 while [ "${1:-}" != "" ]; do
   case "${1}" in
-    "--all")
-      pull_all
-      ;;
+  "--all")
+    pull_all
+    ;;
 
-    "--dev")
-      echo "Pull dev docker image"
-      docker pull -q docker.io/civiform/civiform-dev:latest
-      docker tag civiform/civiform-dev:latest civiform-dev
+  "--dev")
+    echo "Pull dev docker image"
+    docker pull docker.io/civiform/civiform-dev:latest
+    docker tag civiform/civiform-dev:latest civiform-dev
 
-      ;;
+    ;;
 
-    "--formatter")
-      echo "Pull formatter docker image"
-      docker pull -q docker.io/civiform/formatter:latest
-      ;;
+  "--formatter")
+    echo "Pull formatter docker image"
+    docker pull docker.io/civiform/formatter:latest
+    ;;
 
-    "--localstack")
-      echo "Pull localstack docker image"
-      docker pull -q docker.io/civiform/civiform-localstack:latest
-      docker tag civiform/civiform-localstack:latest civiform-localstack
-      ;;
+  "--localstack")
+    echo "Pull localstack docker image"
+    docker pull docker.io/civiform/civiform-localstack:latest
+    docker tag civiform/civiform-localstack:latest civiform-localstack
+    ;;
 
-    "--azurite")
-      echo "Pull azurite docker image"
-      docker pull -q mcr.microsoft.com/azure-storage/azurite
-      ;;
+  "--azurite")
+    echo "Pull azurite docker image"
+    docker pull mcr.microsoft.com/azure-storage/azurite
+    ;;
 
-    "--oidc-provider")
-      echo "Pull oidc-provider docker image"
-      docker pull -q docker.io/civiform/oidc-provider:latest
-      ;;
+  "--oidc-provider")
+    echo "Pull oidc-provider docker image"
+    docker pull docker.io/civiform/oidc-provider:latest
+    ;;
 
-    "--browser-tests")
-      echo "Pull browser-tests docker image"
-      docker pull -q docker.io/civiform/civiform-browser-test:latest
-      ;;
+  "--browser-tests")
+    echo "Pull browser-tests docker image"
+    docker pull docker.io/civiform/civiform-browser-test:latest
+    ;;
 
-    *)
-      out::error "Unexpected flag value ${1}"
-      exit 1
-      ;;
+  *)
+    out::error "Unexpected flag value ${1}"
+    exit 1
+    ;;
   esac
 
   shift

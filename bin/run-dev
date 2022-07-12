@@ -22,15 +22,15 @@ emulators::set_localstack_emulator_vars
 function set_args() {
   while [ "${1:-}" != "" ]; do
     case "$1" in
-      "--azure")
-        emulators::ensure_only_one_cloud_provider_flag azure
-        emulators::set_azurite_emulator_vars
-        ;;
+    "--azure")
+      emulators::ensure_only_one_cloud_provider_flag azure
+      emulators::set_azurite_emulator_vars
+      ;;
 
-      "--aws")
-        emulators::ensure_only_one_cloud_provider_flag aws
-        # Already defaulted to AWS.
-        ;;
+    "--aws")
+      emulators::ensure_only_one_cloud_provider_flag aws
+      # Already defaulted to AWS.
+      ;;
     esac
 
     shift
@@ -49,9 +49,14 @@ docker::compose_dev --profile "${cloud_provider}" \
 # Wait until the emulator is running.
 "bin/${emulator}/wait"
 
-# Attach to the civiform container.
+# Start the civiform container and dependancies.
 docker::compose_dev up \
   --wait \
   -d
 
-bin/attach-dev
+# Attach to the civiform container.
+
+docker::compose_dev up civiform \
+  --no-recreate \
+  --no-deps \
+  --no-log-prefix

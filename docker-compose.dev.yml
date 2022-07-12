@@ -5,7 +5,8 @@ version: '3.4'
 # Shared yaml extensions (https://docs.docker.com/compose/compose-file/compose-file-v3/#extension-fields)
 # Volume mapping shared between containers.
 x-sbt-volumes:
-  volumes: &sbt-volumes
+  volumes:
+    &sbt-volumes
     - ./server:/usr/src/server
     # Un-shadow the build directories under server.
     - target:/usr/src/server/target
@@ -23,15 +24,16 @@ services:
     volumes: *sbt-volumes
     stdin_open: true # docker run -i
     tty: true # docker run -t
+    restart: always
     ports:
       - 9000:9000
       - 8457:8457
-    command: -jvm-debug "*:8457" ~run -Dconfig.file=conf/application.dev.conf
+    command: -jvm-debug "*:8457" ~run -Dsbt.offline -Dconfig.file=conf/application.dev.conf
 
   civiform-shell:
     image: civiform-dev
     entrypoint: /bin/bash
-    profiles: ['shell']
+    profiles: [ 'shell' ]
     volumes: *sbt-volumes
     stdin_open: true # docker run -i
     tty: true # docker run -t
@@ -58,7 +60,7 @@ services:
       - db-data:/var/lib/postgresql/data
 
   pgadmin:
-    profiles: ['pgadmin']
+    profiles: [ 'pgadmin' ]
     image: dpage/pgadmin4
     restart: always
     depends_on:

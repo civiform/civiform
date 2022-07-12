@@ -10,17 +10,16 @@ readonly SNAPSHOT_TAG="SNAPSHOT-${SHORT_SHA}-${DATE_IN_UNIX_SECONDS}"
 
 echo "Building ${SNAPSHOT_TAG}..."
 
-docker build -f prod.Dockerfile \
-  -t civiform:latest \
-  --cache-from civiform/civiform:latest \
-  --build-arg BUILDKIT_INLINE_CACHE=1 \
-  --build-arg "image_tag=${SNAPSHOT_TAG}" \
-  .
+# docker build -f prod.Dockerfile \
+#   -t civiform:debug0711 \
+#   --cache-from civiform/civiform:latest \
+#   --build-arg BUILDKIT_INLINE_CACHE=1 \
+#   --build-arg "image_tag=${SNAPSHOT_TAG}" \
+#   .
 
-docker::do_dockerhub_login
+# docker::do_dockerhub_login
 
-docker tag civiform:latest civiform/civiform:latest
-docker tag civiform:latest "civiform/civiform:${SNAPSHOT_TAG}"
+docker tag civiform:debug0711 civiform/civiform:debug0711
 
 # push the new image to the Docker Hub registry
 docker push --all-tags civiform/civiform

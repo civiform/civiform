@@ -49,9 +49,7 @@ def perform_apply(config_loader, is_destroy=False, terraform_template_dir=None):
             shlex.split(f'{terraform_apply_cmd} {terraform_plan_out_file}'))
     else:
         subprocess.check_call(
-            shlex.split(
-                f'{terraform_apply_cmd} {terraform_plan_out_file}'
-            ))
+            shlex.split(f'{terraform_apply_cmd} {terraform_plan_out_file}'))
 
     return True
 
