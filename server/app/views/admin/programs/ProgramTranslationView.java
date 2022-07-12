@@ -6,8 +6,8 @@ import static j2html.TagCreator.legend;
 
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
-import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.FieldsetTag;
+import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;

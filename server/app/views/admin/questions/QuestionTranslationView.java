@@ -6,7 +6,6 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.InputTag;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;

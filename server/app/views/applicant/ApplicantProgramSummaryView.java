@@ -1,20 +1,18 @@
 package views.applicant;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
-import j2html.tags.ContainerTag;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
+import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
-import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

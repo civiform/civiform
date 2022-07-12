@@ -16,7 +16,6 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
-import java.util.Optional;
 import java.util.function.Function;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
