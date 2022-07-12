@@ -186,7 +186,7 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setRows(OptionalLong value) {
-    if (!this.getFieldType().equals("textarea")) {
+    if (!this.isTagTypeTextarea()) {
       throw new RuntimeException("setting rows is only available on fields of type 'textarea'");
     }
 
@@ -195,7 +195,7 @@ public class FieldWithLabel {
   }
 
   public FieldWithLabel setCols(OptionalLong value) {
-    if (!this.getFieldType().equals("textarea")) {
+    if (!this.isTagTypeTextarea()) {
       throw new RuntimeException("setting cols is only available on fields of type 'textarea'");
     }
 
@@ -280,7 +280,7 @@ public class FieldWithLabel {
   }
 
   /** Attribute getters * */
-  protected String getFieldType() {
+  public String getFieldType() {
     return this.fieldType;
   }
 
