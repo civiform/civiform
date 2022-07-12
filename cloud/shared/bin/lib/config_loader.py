@@ -1,4 +1,5 @@
 import os
+import re
 
 from cloud.shared.bin.lib.variable_definition_loader import VariableDefinitionLoader
 """
@@ -79,6 +80,15 @@ class ConfigLoader:
                 if config_value not in definition.get('values'):
                     validation_errors.append(
                         f'{config_value} not supported enum for {name}')
+
+            value_regex = definition.get('value_regex', None)
+            if value_regex:
+                if not re.compile(value_regex).match(config_value):
+                    validation_error = definition.get('value_regex_error_override', '')
+                    if not validation_error:
+                        validation_error = f'{name} does not match the provided regex: {value_regex}'
+                    validation_errors.append(validation_error)
+
 
         return validation_errors
 
