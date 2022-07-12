@@ -54,6 +54,9 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
       layout.setOnlyProgramAdminType();
     }
 
+    // TODO(#1238): Create a "Program Card" UI component that encapsulates
+    // the styling of the CiviForm Admin equivalent of this view and reuse
+    // it here.
     String title = "Your programs";
     Tag contentDiv =
         div()
