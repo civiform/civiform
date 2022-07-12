@@ -166,7 +166,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     }
 
     ContainerTag actionAndTimestampDiv =
-        div().withClasses(Styles.PR_2, Styles.FLEX, Styles.FLEX_COL);
+        div().withClasses(Styles.PR_2, Styles.FLEX, Styles.FLEX_COL, Styles.TEXT_RIGHT);
     // Show timestamp if answered elsewhere.
     if (data.isPreviousResponse()) {
       LocalDate date =
