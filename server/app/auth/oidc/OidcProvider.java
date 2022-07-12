@@ -192,7 +192,6 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     config.setWithState(false);
 
     config.setScope(scope);
-    // logger.debug("Provider metadata: " + config.getProviderMetadata().toString());
     OidcClient client = new OidcClient(config);
 
     if (providerName.isPresent()) {
