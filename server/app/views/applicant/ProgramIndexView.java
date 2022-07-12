@@ -152,7 +152,7 @@ public class ProgramIndexView extends BaseHtmlView {
             .withClasses(Styles.MX_AUTO, Styles.MY_4, StyleUtils.responsiveSmall(Styles.M_10))
             .with(
                 h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
-                    .withClasses(Styles.MB_4, Styles.TEXT_XL, Styles.FONT_SEMIBOLD));
+                    .withClasses(Styles.MB_4, Styles.PX_4, Styles.TEXT_XL, Styles.FONT_SEMIBOLD));
 
     // The different program card containers should have the same styling, by using the program
     // count of the larger set of programs

@@ -41,12 +41,16 @@ public class Modal {
   }
 
   public ButtonTag getButton() {
-    String triggerButtonId = modalId + "-button";
+    String triggerButtonId = getTriggerButtonId();
     if (triggerButtonContent.isPresent()) {
       return triggerButtonContent.get().withId(triggerButtonId);
     } else {
       return button(triggerButtonId, triggerButtonText).withClasses(buttonStyles);
     }
+  }
+
+  public String getTriggerButtonId() {
+    return modalId + "-button";
   }
 
   private DivTag getContent() {

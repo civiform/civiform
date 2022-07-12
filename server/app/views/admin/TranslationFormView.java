@@ -5,9 +5,11 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 
+import j2html.tags.Tag;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import play.i18n.Lang;
@@ -15,7 +17,6 @@ import play.i18n.Langs;
 import play.mvc.Http;
 import services.LocalizedStrings;
 import views.BaseHtmlView;
-import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.style.AdminStyles;
 import views.style.Styles;
@@ -78,20 +79,13 @@ public abstract class TranslationFormView extends BaseHtmlView {
    * fields.
    */
   protected FormTag renderTranslationForm(
-      Http.Request request,
-      Locale locale,
-      String formAction,
-      ImmutableList<FieldWithLabel> formFields) {
+      Http.Request request, Locale locale, String formAction, ImmutableList<Tag> formFieldContent) {
     FormTag form =
         form()
             .withMethod("POST")
             .with(makeCsrfTokenInputTag(request))
             .withAction(formAction)
-            .with(
-                each(
-                    formFields,
-                    FieldWithLabel
-                        ::getInputTag)) // https://github.com/seattle-uat/civiform/issues/2764
+            .with(formFieldContent)
             .with(
                 submitButton(
                         String.format(

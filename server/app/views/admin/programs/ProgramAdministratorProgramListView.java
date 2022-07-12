@@ -170,7 +170,11 @@ public class ProgramAdministratorProgramListView extends BaseHtmlView {
     if (activeProgram.isPresent()) {
       String viewApplicationsLink =
           routes.AdminApplicationController.index(
-                  activeProgram.get().id(), Optional.empty(), Optional.empty())
+                  activeProgram.get().id(),
+                  Optional.empty(),
+                  Optional.empty(),
+                  Optional.empty(),
+                  Optional.empty())
               .url();
 
       return new LinkElement()

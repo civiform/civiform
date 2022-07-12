@@ -23,7 +23,6 @@ import play.i18n.Messages;
 import play.mvc.Call;
 import play.mvc.Http;
 import services.applicant.ValidationErrorMessage;
-import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.html.helper.CSRF;
@@ -115,38 +114,6 @@ public abstract class BaseHtmlView {
       div.with(new LinkElement().setText("∅").asButtonNoHref());
     }
     return div.with(br());
-  }
-
-  protected FormTag renderSearchForm(
-      Http.Request request, Optional<String> search, Call searchCall) {
-    return renderSearchForm(
-        request,
-        search,
-        searchCall,
-        /* htmlClasses= */ Optional.empty(),
-        /* labelText= */ Optional.empty());
-  }
-
-  protected FormTag renderSearchForm(
-      Http.Request request,
-      Optional<String> search,
-      Call searchCall,
-      Optional<String> htmlClasses,
-      Optional<String> labelText) {
-    return form()
-        .withMethod("GET")
-        .withAction(searchCall.url())
-        .with(
-            FieldWithLabel.input()
-                .setId("search-field")
-                .setFieldName("search")
-                .setLabelText(labelText.orElse("Search"))
-                .setValue(search.orElse(""))
-                .setPlaceholderText("Search")
-                .getInputTag()
-                .withClasses(htmlClasses.orElse(Styles.W_1_4)),
-            makeCsrfTokenInputTag(request),
-            submitButton("Search").withClasses(Styles.M_2));
   }
 
   protected static ButtonTag toLinkButtonForPost(

@@ -41,10 +41,17 @@ public class FieldWithLabel {
 
   /** For use with fields of type `number`. * */
   protected OptionalLong fieldValueNumber = OptionalLong.empty();
-
+  /** For use with fields of type `number`. */
   protected OptionalLong minValue = OptionalLong.empty();
+  /** For use with fields of type `number`. */
   protected OptionalLong maxValue = OptionalLong.empty();
+
   private String tagType = "";
+
+  /** For use with fields of type `textarea`. */
+  private OptionalLong rows = OptionalLong.empty();
+  /** For use with fields of type `textarea`. */
+  private OptionalLong cols = OptionalLong.empty();
 
   private String formId = "";
   private String id = "";
@@ -178,6 +185,24 @@ public class FieldWithLabel {
     return this;
   }
 
+  public FieldWithLabel setRows(OptionalLong value) {
+    if (!this.getFieldType().equals("textarea")) {
+      throw new RuntimeException("setting rows is only available on fields of type 'textarea'");
+    }
+
+    this.rows = value;
+    return this;
+  }
+
+  public FieldWithLabel setCols(OptionalLong value) {
+    if (!this.getFieldType().equals("textarea")) {
+      throw new RuntimeException("setting cols is only available on fields of type 'textarea'");
+    }
+
+    this.cols = value;
+    return this;
+  }
+
   public FieldWithLabel setValue(String value) {
     if (!STRING_TYPES.contains(getFieldType())) {
       throw new RuntimeException(
@@ -297,6 +322,12 @@ public class FieldWithLabel {
       TextareaTag textareaFieldTag = TagCreator.textarea();
       applyAttributesFromSet(textareaFieldTag);
       textareaFieldTag.withText(this.fieldValue);
+      if (this.rows.isPresent()) {
+        textareaFieldTag.withRows(this.rows.getAsLong());
+      }
+      if (this.cols.isPresent()) {
+        textareaFieldTag.withCols(this.cols.getAsLong());
+      }
       return applyAttrsAndGenLabel(textareaFieldTag);
     }
 
