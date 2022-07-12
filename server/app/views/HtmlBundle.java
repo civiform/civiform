@@ -15,6 +15,7 @@ import j2html.tags.EmptyTag;
 import j2html.tags.Tag;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import play.twirl.api.Content;
 import views.components.Modal;
 import views.components.ToastMessage;
@@ -100,7 +101,11 @@ public class HtmlBundle {
   }
 
   public HtmlBundle addModals(Modal... modalTags) {
-    modals.addAll(Arrays.asList(modalTags));
+    return addModals(Arrays.asList(modalTags));
+  }
+
+  public HtmlBundle addModals(Collection<Modal> modalTags) {
+    modals.addAll(modalTags);
     return this;
   }
 

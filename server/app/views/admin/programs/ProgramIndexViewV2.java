@@ -1,5 +1,6 @@
 package views.admin.programs;
 
+import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -46,13 +47,18 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final DateConverter dateConverter;
+  private final boolean statusTrackingEnabled;
 
   @Inject
   public ProgramIndexViewV2(
-      AdminLayoutFactory layoutFactory, Config config, DateConverter dateConverter) {
+      AdminLayoutFactory layoutFactory,
+      Config config,
+      DateConverter dateConverter,
+      @ApplicationStatusTrackingEnabled boolean statusTrackingEnabled) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.dateConverter = checkNotNull(dateConverter);
+    this.statusTrackingEnabled = statusTrackingEnabled;
   }
 
   public Content render(
@@ -320,6 +326,9 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
       draftRowActions.add(renderEditLink(/* isActive = */ false, draftProgram.get(), request));
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
       draftRowExtraActions.add(renderManageTranslationsLink(draftProgram.get()));
+      if (statusTrackingEnabled) {
+        draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
+      }
       statusDiv =
           statusDiv.with(
               renderProgramRow(
@@ -439,6 +448,14 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     ContainerTag button =
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withId("program-translations-link-" + program.id())
+            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
+    return asRedirectButton(button, linkDestination);
+  }
+
+  private Tag renderEditStatusesLink(ProgramDefinition program) {
+    String linkDestination = routes.AdminProgramStatusesController.index(program.id()).url();
+    ContainerTag button =
+        makeSvgTextButton("Manage application statuses", Icons.FLAKY)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
     return asRedirectButton(button, linkDestination);
   }
