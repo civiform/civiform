@@ -128,7 +128,7 @@ public class AdminStyles {
           Styles.BORDER_NONE,
           Styles.ROUNDED,
           Styles.BG_TRANSPARENT,
-          Styles.TEXT_BLACK,
+          BaseStyles.TEXT_SEATTLE_BLUE,
           StyleUtils.hover(Styles.BG_GRAY_200));
 
   public static final String DROPDOWN_BUTTON_STYLES =
@@ -138,6 +138,6 @@ public class AdminStyles {
           Styles.BORDER_NONE,
           Styles.ROUNDED,
           Styles.BG_TRANSPARENT,
-          Styles.TEXT_BLACK,
+          BaseStyles.TEXT_SEATTLE_BLUE,
           StyleUtils.hover(Styles.BG_GRAY_200));
 }

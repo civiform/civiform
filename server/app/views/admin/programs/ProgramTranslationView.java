@@ -1,10 +1,13 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.fieldset;
+import static j2html.TagCreator.legend;
 
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -18,6 +21,7 @@ import views.admin.AdminLayoutFactory;
 import views.admin.TranslationFormView;
 import views.components.FieldWithLabel;
 import views.components.ToastMessage;
+import views.style.Styles;
 
 /** Renders a list of languages to select from, and a form for updating program information. */
 public class ProgramTranslationView extends TranslationFormView {
@@ -78,20 +82,26 @@ public class ProgramTranslationView extends TranslationFormView {
     return routes.AdminProgramTranslationsController.edit(programId, locale.toLanguageTag()).url();
   }
 
-  private ImmutableList<FieldWithLabel> formFields(
+  private ImmutableList<Tag> formFields(
       Optional<String> localizedName, Optional<String> localizedDescription) {
     return ImmutableList.of(
-        FieldWithLabel.input()
-            .setId("localize-display-name")
-            .setFieldName("displayName")
-            .setPlaceholderText("Program display name")
-            .setScreenReaderText("Program display name")
-            .setValue(localizedName),
-        FieldWithLabel.input()
-            .setId("localize-display-description")
-            .setFieldName("displayDescription")
-            .setPlaceholderText("Program description")
-            .setScreenReaderText("Program description")
-            .setValue(localizedDescription));
+        fieldset()
+            .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
+            .with(
+                legend("Program details (visible to applicants)"),
+                FieldWithLabel.input()
+                    .setId("localize-display-name")
+                    .setFieldName("displayName")
+                    .setLabelText("Program name")
+                    .setScreenReaderText("Program display name")
+                    .setValue(localizedName)
+                    .getContainer(),
+                FieldWithLabel.input()
+                    .setId("localize-display-description")
+                    .setFieldName("displayDescription")
+                    .setLabelText("Program description")
+                    .setScreenReaderText("Program description")
+                    .setValue(localizedDescription)
+                    .getContainer()));
   }
 }

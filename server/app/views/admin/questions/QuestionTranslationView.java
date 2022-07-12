@@ -5,6 +5,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -52,7 +53,7 @@ public class QuestionTranslationView extends TranslationFormView {
             .url();
 
     // Add form fields for questions.
-    ImmutableList.Builder<FieldWithLabel> inputFields = ImmutableList.builder();
+    ImmutableList.Builder<Tag> inputFields = ImmutableList.builder();
     inputFields.addAll(
         questionTextFields(locale, question.getQuestionText(), question.getQuestionHelpText()));
     inputFields.addAll(getQuestionTypeSpecificFields(question, locale));
@@ -79,7 +80,7 @@ public class QuestionTranslationView extends TranslationFormView {
         .url();
   }
 
-  private ImmutableList<FieldWithLabel> getQuestionTypeSpecificFields(
+  private ImmutableList<Tag> getQuestionTypeSpecificFields(
       QuestionDefinition question, Locale toUpdate) {
     switch (question.getQuestionType()) {
       case CHECKBOX: // fallthrough intended
@@ -101,16 +102,17 @@ public class QuestionTranslationView extends TranslationFormView {
     }
   }
 
-  private ImmutableList<FieldWithLabel> questionTextFields(
+  private ImmutableList<Tag> questionTextFields(
       Locale locale, LocalizedStrings questionText, LocalizedStrings helpText) {
-    ImmutableList.Builder<FieldWithLabel> fields = ImmutableList.builder();
+    ImmutableList.Builder<Tag> fields = ImmutableList.builder();
     fields.add(
         FieldWithLabel.input()
             .setId("localize-question-text")
             .setFieldName("questionText")
             .setLabelText(questionText.getDefault())
             .setPlaceholderText("Question text")
-            .setValue(questionText.maybeGet(locale)));
+            .setValue(questionText.maybeGet(locale))
+            .getContainer());
 
     // Help text is optional - only show if present.
     if (!helpText.isEmpty()) {
@@ -120,13 +122,14 @@ public class QuestionTranslationView extends TranslationFormView {
               .setFieldName("questionHelpText")
               .setLabelText(helpText.getDefault())
               .setPlaceholderText("Question help text")
-              .setValue(helpText.maybeGet(locale)));
+              .setValue(helpText.maybeGet(locale))
+              .getContainer());
     }
 
     return fields.build();
   }
 
-  private ImmutableList<FieldWithLabel> multiOptionQuestionFields(
+  private ImmutableList<Tag> multiOptionQuestionFields(
       ImmutableList<QuestionOption> options, Locale toUpdate) {
     return options.stream()
         .map(
@@ -135,17 +138,19 @@ public class QuestionTranslationView extends TranslationFormView {
                     .setFieldName("options[]")
                     .setLabelText(option.optionText().getDefault())
                     .setPlaceholderText("Answer option")
-                    .setValue(option.optionText().translations().getOrDefault(toUpdate, "")))
+                    .setValue(option.optionText().translations().getOrDefault(toUpdate, ""))
+                    .getContainer())
         .collect(toImmutableList());
   }
 
-  private ImmutableList<FieldWithLabel> enumeratorQuestionFields(
+  private ImmutableList<Tag> enumeratorQuestionFields(
       LocalizedStrings entityType, Locale toUpdate) {
     return ImmutableList.of(
         FieldWithLabel.input()
             .setFieldName("entityType")
             .setLabelText(entityType.getDefault())
             .setPlaceholderText("What are we enumerating?")
-            .setValue(entityType.maybeGet(toUpdate).orElse("")));
+            .setValue(entityType.maybeGet(toUpdate).orElse(""))
+            .getContainer());
   }
 }

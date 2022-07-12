@@ -139,43 +139,43 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       long applicantId,
       boolean inReview,
       boolean isFirstUnanswered) {
-    ContainerTag questionPrompt =
-        div(data.questionText()).withClasses(Styles.FLEX_AUTO, Styles.FONT_SEMIBOLD);
-    ContainerTag questionContent =
-        div(questionPrompt).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
+    ContainerTag questionPrompt = div(data.questionText()).withClasses(Styles.FONT_SEMIBOLD);
+    ContainerTag questionContent = div(questionPrompt).withClasses(Styles.PR_2);
 
+    // Add existing answer.
+    if (data.isAnswered()) {
+      final ContainerTag answerContent;
+      if (data.fileKey().isPresent()) {
+        String encodedFileKey = URLEncoder.encode(data.fileKey().get(), StandardCharsets.UTF_8);
+        String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
+        answerContent = a().withHref(fileLink);
+      } else {
+        answerContent = div();
+      }
+      answerContent.withClasses(Styles.FONT_LIGHT, Styles.TEXT_SM);
+      // Add answer text, converting newlines to <br/> tags.
+      String[] texts = data.answerText().split("\n");
+      texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
+      for (int i = 0; i < texts.length; i++) {
+        if (i > 0) {
+          answerContent.with(br());
+        }
+        answerContent.withText(texts[i]);
+      }
+      questionContent.with(answerContent);
+    }
+
+    ContainerTag actionAndTimestampDiv =
+        div().withClasses(Styles.PR_2, Styles.FLEX, Styles.FLEX_COL, Styles.TEXT_RIGHT);
     // Show timestamp if answered elsewhere.
     if (data.isPreviousResponse()) {
       LocalDate date =
           Instant.ofEpochMilli(data.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
       ContainerTag timestampContent =
           div("Previously answered on " + date)
-              .withClasses(Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS);
-      questionContent.with(timestampContent);
+              .withClasses(Styles.FONT_LIGHT, Styles.TEXT_XS, Styles.FLEX_GROW);
+      actionAndTimestampDiv.with(timestampContent);
     }
-
-    final ContainerTag answerContent;
-    if (data.fileKey().isPresent()) {
-      String encodedFileKey = URLEncoder.encode(data.fileKey().get(), StandardCharsets.UTF_8);
-      String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
-      answerContent = a().withHref(fileLink).withClasses(Styles.W_2_3);
-    } else {
-      answerContent = div();
-    }
-    answerContent.withClasses(
-        Styles.FLEX_AUTO, Styles.TEXT_LEFT, Styles.FONT_LIGHT, Styles.TEXT_SM);
-    // Add answer text, converting newlines to <br/> tags.
-    String[] texts = data.answerText().split("\n");
-    texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
-    for (int i = 0; i < texts.length; i++) {
-      if (i > 0) {
-        answerContent.with(br());
-      }
-      answerContent.withText(texts[i]);
-    }
-
-    ContainerTag answerDiv =
-        div(answerContent).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
 
     // Maybe link to block containing specific question.
     if (data.isAnswered() || isFirstUnanswered) {
@@ -200,10 +200,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
               .setHref(editLink)
               .setText(editText)
               .setStyles(
-                  Styles.ABSOLUTE,
                   Styles.BOTTOM_0,
                   Styles.RIGHT_0,
-                  Styles.PR_2,
                   Styles.TEXT_BLUE_600,
                   StyleUtils.hover(Styles.TEXT_BLUE_700))
               .asAnchorText()
@@ -213,16 +211,17 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       ContainerTag editContent =
           div(editAction)
               .withClasses(
-                  Styles.FLEX_AUTO,
-                  Styles.TEXT_RIGHT,
                   Styles.FONT_MEDIUM,
-                  Styles.RELATIVE,
-                  Styles.BREAK_NORMAL);
+                  Styles.BREAK_NORMAL,
+                  Styles.FLEX,
+                  Styles.FLEX_GROW,
+                  Styles.JUSTIFY_END,
+                  Styles.ITEMS_CENTER);
 
-      answerDiv.with(editContent);
+      actionAndTimestampDiv.with(editContent);
     }
 
-    return div(questionContent, answerDiv)
+    return div(questionContent, actionAndTimestampDiv)
         .withClasses(
             ReferenceClasses.APPLICANT_SUMMARY_ROW,
             marginIndentClass(data.repeatedEntity().map(RepeatedEntity::depth).orElse(0)),
@@ -231,7 +230,9 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             Styles.P_2,
             Styles.PT_4,
             Styles.BORDER_B,
-            Styles.BORDER_GRAY_300)
+            Styles.BORDER_GRAY_300,
+            Styles.FLEX,
+            Styles.JUSTIFY_BETWEEN)
         .attr("style", "word-break:break-word");
   }
 
