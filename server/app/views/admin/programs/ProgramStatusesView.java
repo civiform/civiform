@@ -164,8 +164,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
                                 Icons.svg(Icons.EMAIL, 22)
                                     // TODO(#2752): Once SVG icon sizes are consistent, just set
                                     // size to 18.
-                                    .attr("width", 18)
-                                    .attr("height", 18)
+                                    .withWidth("18")
+                                    .withHeight("18")
                                     .withClasses(Styles.MR_2, Styles.INLINE_BLOCK),
                                 span("Applicant notification email added"))),
                 div().withClass(Styles.FLEX_GROW),
