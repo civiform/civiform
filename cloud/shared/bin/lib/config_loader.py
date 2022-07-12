@@ -84,11 +84,11 @@ class ConfigLoader:
             value_regex = definition.get('value_regex', None)
             if value_regex:
                 if not re.compile(value_regex).fullmatch(config_value):
-                    validation_error = definition.get('value_regex_error_override', '')
+                    validation_error = definition.get(
+                        'value_regex_error_override', '')
                     if not validation_error:
                         validation_error = f'does not match the provided regex: "{value_regex}"'
                     validation_errors.append(f'{name}: {validation_error}')
-
 
         return validation_errors
 
