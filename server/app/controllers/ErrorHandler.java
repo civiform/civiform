@@ -55,6 +55,13 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
   @Override
   public CompletionStage<Result> onServerError(RequestHeader request, Throwable exception) {
+
+    // Unwrap exceptions thrown within a CompletableFuture, to handle the
+    // original error stack trace.
+    if (exception instanceof CompletionException) {
+      exception = exception.getCause();
+    }
+
     // Exceptions that reach here will generate 500s. Here we convert certain ones to different user
     // visible states. Note: there are methods on the parent that handle dev and prod separately.
     Optional<Throwable> match = findThrowableByTypes(exception, BAD_REQUEST_EXCEPTION_TYPES);
@@ -67,11 +74,6 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
     if (match.isPresent()) {
       return CompletableFuture.completedFuture(Results.unauthorized());
-    }
-
-    // Unwrap CompletionException
-    if (exception instanceof CompletionException) {
-      return super.onServerError(request, exception.getCause());
     }
 
     return super.onServerError(request, exception);
