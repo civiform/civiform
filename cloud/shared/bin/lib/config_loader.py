@@ -66,19 +66,19 @@ class ConfigLoader:
         validation_errors = []
 
         for name, definition in variable_definitions.items():
-            is_required = definition.get("required", False)
+            is_required = definition.get('required', False)
             config_value = configs.get(name, None)
 
             if is_required and config_value is None:
                 validation_errors.append(
-                    f"{name} is required, but not provided")
+                    f'{name} is required, but not provided')
 
-            is_enum = definition.get("type") == "enum"
+            is_enum = definition.get('type') == 'enum'
 
             if config_value is not None and is_enum:
-                if config_value not in definition.get("values"):
+                if config_value not in definition.get('values'):
                     validation_errors.append(
-                        f"{config_value} not supported enum for {name}")
+                        f'{config_value} not supported enum for {name}')
 
         return validation_errors
 
@@ -89,16 +89,16 @@ class ConfigLoader:
         return self.configs.get(variable_name)
 
     def get_cloud_provider(self):
-        return self.configs.get("CIVIFORM_CLOUD_PROVIDER")
+        return self.configs.get('CIVIFORM_CLOUD_PROVIDER')
 
     def get_template_dir(self):
-        return self.configs.get("TERRAFORM_TEMPLATE_DIR")
+        return self.configs.get('TERRAFORM_TEMPLATE_DIR')
 
     def is_dev(self):
-        return self.civiform_mode == "dev"
+        return self.civiform_mode == 'dev'
 
     def is_test(self):
-        return self.civiform_mode == "test"
+        return self.civiform_mode == 'test'
 
     def use_backend_config(self):
         return not self.is_dev()
@@ -110,7 +110,7 @@ class ConfigLoader:
             self, variable_definitions: dict, configs: dict):
         tf_variables = list(
             filter(
-                lambda x: variable_definitions.get(x).get("tfvar"),
+                lambda x: variable_definitions.get(x).get('tfvar'),
                 self.variable_definitions,
             ))
         tf_config_vars = {}
