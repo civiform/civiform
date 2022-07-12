@@ -10,7 +10,7 @@ module "ecs_cluster" {
 # TODO: reconcile with other logs bucket. We should only have one.
 module "aws_cw_logs" {
   source    = "cn-terraform/cloudwatch-logs/aws"
-  logs_path = "ecslogs/"
+  logs_path = "${var.app_prefix}_ecslogs/"
   tags = {
     Name = "${var.app_prefix} Civiform Cloud Watch Logs"
     Type = "Civiform Cloud Watch Logs"
