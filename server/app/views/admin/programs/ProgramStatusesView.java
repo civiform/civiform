@@ -11,9 +11,9 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
 import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -56,15 +56,15 @@ public final class ProgramStatusesView extends BaseHtmlView {
             ApplicationStatus.create("Needs more information", Instant.now(), ""));
 
     Modal createStatusModal = makeStatusModal(Optional.empty());
-    Tag createStatusTriggerButton =
+    ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
             .withId(createStatusModal.getTriggerButtonId());
 
-    Pair<Tag, ImmutableList<Modal>> statusContainerAndModals =
+    Pair<DivTag, ImmutableList<Modal>> statusContainerAndModals =
         renderStatusContainer(actualStatuses);
 
-    ContainerTag contentDiv =
+    DivTag contentDiv =
         div()
             .withClasses(Styles.PX_4)
             .with(
@@ -106,11 +106,11 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return asRedirectButton(button, linkDestination);
   }
 
-  private Pair<Tag, ImmutableList<Modal>> renderStatusContainer(
+  private Pair<DivTag, ImmutableList<Modal>> renderStatusContainer(
       ImmutableList<ApplicationStatus> statuses) {
     String numResultsText =
         statuses.size() == 1 ? "1 result" : String.format("%d results", statuses.size());
-    ImmutableList<Pair<Tag, Modal>> statusTagsAndModals =
+    ImmutableList<Pair<DivTag, Modal>> statusTagsAndModals =
         statuses.stream().map(s -> renderStatusItem(s)).collect(ImmutableList.toImmutableList());
     return Pair.of(
         div()
@@ -126,9 +126,9 @@ public final class ProgramStatusesView extends BaseHtmlView {
         statusTagsAndModals.stream().map(Pair::getRight).collect(ImmutableList.toImmutableList()));
   }
 
-  private Pair<Tag, Modal> renderStatusItem(ApplicationStatus status) {
+  private Pair<DivTag, Modal> renderStatusItem(ApplicationStatus status) {
     Modal editStatusModal = makeStatusModal(Optional.of(status));
-    Tag editStatusTriggerButton =
+    ButtonTag editStatusTriggerButton =
         makeSvgTextButton("Edit", Icons.EDIT)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
             .withId(editStatusModal.getTriggerButtonId());
@@ -176,7 +176,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   private Modal makeStatusModal(Optional<ApplicationStatus> status) {
-    ContainerTag content =
+    FormTag content =
         form()
             .withClasses(Styles.PX_6, Styles.PY_2)
             .with(

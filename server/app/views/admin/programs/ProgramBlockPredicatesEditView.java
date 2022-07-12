@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.routes;
 import j2html.TagCreator;
-import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -341,7 +340,7 @@ public class ProgramBlockPredicatesEditView extends BaseHtmlView {
         .getSelectTag();
   }
 
-  private ContainerTag createValueField(QuestionDefinition questionDefinition) {
+  private DivTag createValueField(QuestionDefinition questionDefinition) {
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       // If it's a multi-option question, we need to provide a discrete list of possible values to
       // choose from instead of a freeform text field. Not only is it a better UX, but we store the

@@ -16,7 +16,6 @@ import forms.MultiOptionQuestionForm;
 import forms.NumberQuestionForm;
 import forms.QuestionForm;
 import forms.TextQuestionForm;
-import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LabelTag;
@@ -212,7 +211,7 @@ public class QuestionConfig {
             .showFieldErrors(false)
             .getInputTag()
             .withClasses(Styles.FLEX, Styles.ML_2, Styles.GAP_X_3);
-    ContainerTag<?> optionIndexInput =
+    DivTag optionIndexInput =
         isForNewOption
             ? div()
             : FieldWithLabel.input()
