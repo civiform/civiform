@@ -375,17 +375,13 @@ export class AdminPrograms {
   }
 
   async viewApplications(programName: string) {
+    // TODO(#1238): Consolidate the program admin and civiform admin views
+    // and use the updated selector for this that clicks a button rather
+    // than a link.
     await this.page.click(
       this.withinProgramCardSelector(
         programName,
-        'Active',
-        '.cf-with-dropdown',
-      ),
-    )
-    await this.page.click(
-      this.withinProgramCardSelector(
-        programName,
-        'Active',
+        'ACTIVE',
         'a:text("Applications")',
       ),
     )
