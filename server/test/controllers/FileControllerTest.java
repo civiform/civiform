@@ -6,6 +6,8 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.fakeRequest;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import models.Applicant;
 import models.Program;
 import models.StoredFile;
@@ -14,9 +16,6 @@ import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import support.ProgramBuilder;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 public class FileControllerTest extends WithMockedProfiles {
 
