@@ -27,6 +27,7 @@ services:
     ports:
       - 9000:9000
       - 8457:8457
+    # -Dsbt.offline tells sbt to run in "offline" mode and not re-download dependancies.
     command: -jvm-debug "*:8457" ~run -Dsbt.offline -Dconfig.file=conf/application.dev.conf
 
   civiform-shell:
