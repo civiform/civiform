@@ -333,7 +333,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       List<Tag> activeRowActions = Lists.newArrayList();
       List<Tag> activeRowExtraActions = Lists.newArrayList();
       Optional<Tag> applicationsLink =
-          maybeRenderViewApplicationsLink(activeProgram.get(), profile.get());
+          maybeRenderViewApplicationsLink(activeProgram.get(), profile);
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (!draftProgram.isPresent()) {
         activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
@@ -444,7 +444,11 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private Optional<Tag> maybeRenderViewApplicationsLink(
-      ProgramDefinition activeProgram, CiviFormProfile userProfile) {
+      ProgramDefinition activeProgram, Optional<CiviFormProfile> maybeUserProfile) {
+    if (maybeUserProfile.isEmpty()) {
+      return Optional.empty();
+    }
+    CiviFormProfile userProfile = maybeUserProfile.get();
     // TODO(#2582): Determine if this has N+1 query behavior and fix if
     // necessary.
     boolean userIsAuthorized;
