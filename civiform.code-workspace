@@ -9,9 +9,9 @@
 	],
 	"settings": {
 		"files.watcherExclude": {
-			"**/target": true,
-			"**/.bloop": true
-		},
+      "**/target": true,
+      "**/.bloop": true
+    },
 		"search.exclude": {
 			"*/target": true,
 			"**/.bloop": true
