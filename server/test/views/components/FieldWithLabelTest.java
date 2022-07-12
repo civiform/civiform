@@ -126,7 +126,11 @@ public class FieldWithLabelTest {
   @Test
   public void textArea_canSetRowsCols() {
     // should raise an error on failure
-    FieldWithLabel fieldWithLabel = FieldWithLabel.textArea().setId("id").setRows(OptionalLong.of(8)).setCols(OptionalLong.of(5));
+    FieldWithLabel fieldWithLabel =
+        FieldWithLabel.textArea()
+            .setId("id")
+            .setRows(OptionalLong.of(8))
+            .setCols(OptionalLong.of(5));
 
     // random check just to keep -Werror happy
     assertThat(fieldWithLabel.getFieldType()).isEqualTo("text");
