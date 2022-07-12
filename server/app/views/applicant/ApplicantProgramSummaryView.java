@@ -1,7 +1,11 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.*;
+import static j2html.TagCreator.a;
+import static j2html.TagCreator.br;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.form;
+import static j2html.TagCreator.h1;
 import static j2html.attributes.Attr.HREF;
 
 import com.google.auto.value.AutoValue;
