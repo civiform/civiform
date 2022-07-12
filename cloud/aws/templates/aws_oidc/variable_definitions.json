@@ -3,7 +3,9 @@
     "required": true,
     "secret": false,
     "tfvar": true,
-    "type": "string"
+    "type": "string",
+    "value_regex": "[a-zA-Z0-9]{1}[a-zA-Z0-9-]+",
+    "value_regex_error_override": "must only contain alphanumeric characters or the hyphen character."
   },
   "STAGING_HOSTNAME": {
     "required": false,
