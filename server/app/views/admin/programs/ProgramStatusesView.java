@@ -47,8 +47,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   public Content render(ProgramDefinition program) {
-    // TODO(#2752): Use real statuses from the program. Also may be able
-    // to do away with the AutoValue below if this information is encoded elsewhere.
+    // TODO(#2752): Use real statuses from the program.
     ImmutableList<ApplicationStatus> actualStatuses =
         ImmutableList.of(
             ApplicationStatus.create("Approved", Instant.now(), "Some email"),
@@ -211,6 +210,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
         .build();
   }
 
+  // TODO(#2752): Use a domain-specific representation of an ApplicationStatus
+  // rather than an auto-value.
   @AutoValue
   abstract static class ApplicationStatus {
 
