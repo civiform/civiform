@@ -63,7 +63,6 @@ class ConfigLoader:
     # TODO: we do not validate type of the variable as we only have
     # strings currently. If we add non-strings, will need to validate
     def _validate_config(self, variable_definitions: dict, configs: dict):
-        is_valid = True
         validation_errors = []
 
         for name, definition in variable_definitions.items():
@@ -71,7 +70,6 @@ class ConfigLoader:
             config_value = configs.get(name, None)
 
             if is_required and config_value is None:
-                is_valid = False
                 validation_errors.append(
                     f"{name} is required, but not provided")
 
@@ -79,11 +77,10 @@ class ConfigLoader:
 
             if config_value is not None and is_enum:
                 if config_value not in definition.get("values"):
-                    is_valid = False
                     validation_errors.append(
                         f"{config_value} not supported enum for {name}")
 
-        return is_valid, validation_errors
+        return validation_errors
 
     def validate_config(self):
         return self._validate_config(self.variable_definitions, self.configs)
