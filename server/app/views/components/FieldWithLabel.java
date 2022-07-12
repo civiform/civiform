@@ -323,10 +323,10 @@ public class FieldWithLabel {
       applyAttributesFromSet(textareaFieldTag);
       textareaFieldTag.withText(this.fieldValue);
       if (this.rows.isPresent()) {
-        textareaFieldTag.withRows(this.rows.getAsLong());
+        textareaFieldTag.withRows(this.rows.toString());
       }
       if (this.cols.isPresent()) {
-        textareaFieldTag.withCols(this.cols.getAsLong());
+        textareaFieldTag.withCols(this.cols.toString());
       }
       return applyAttrsAndGenLabel(textareaFieldTag);
     }

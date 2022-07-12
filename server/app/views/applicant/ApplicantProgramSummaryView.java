@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -91,7 +92,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         routes.ApplicantProgramReviewController.submit(params.applicantId(), params.programId())
             .url();
 
-    ButtonTag continueOrSubmitButton;
+    ContainerTag continueOrSubmitButton;
     if (params.completedBlockCount() == params.totalBlockCount()) {
       continueOrSubmitButton =
           submitButton(messages.at(MessageKey.BUTTON_SUBMIT.getKeyName()))

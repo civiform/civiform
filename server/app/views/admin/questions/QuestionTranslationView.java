@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import java.util.Locale;
@@ -53,7 +54,7 @@ public class QuestionTranslationView extends TranslationFormView {
             .url();
 
     // Add form fields for questions.
-    ImmutableList.Builder<InputTag> inputFields = ImmutableList.builder();
+    ImmutableList.Builder<DivTag> inputFields = ImmutableList.builder();
     inputFields.addAll(
         questionTextFields(locale, question.getQuestionText(), question.getQuestionHelpText()));
     inputFields.addAll(getQuestionTypeSpecificFields(question, locale));
@@ -80,7 +81,7 @@ public class QuestionTranslationView extends TranslationFormView {
         .url();
   }
 
-  private ImmutableList<InputTag> getQuestionTypeSpecificFields(
+  private ImmutableList<DivTag> getQuestionTypeSpecificFields(
       QuestionDefinition question, Locale toUpdate) {
     switch (question.getQuestionType()) {
       case CHECKBOX: // fallthrough intended
@@ -102,9 +103,9 @@ public class QuestionTranslationView extends TranslationFormView {
     }
   }
 
-  private ImmutableList<InputTag> questionTextFields(
+  private ImmutableList<DivTag> questionTextFields(
       Locale locale, LocalizedStrings questionText, LocalizedStrings helpText) {
-    ImmutableList.Builder<InputTag> fields = ImmutableList.builder();
+    ImmutableList.Builder<DivTag> fields = ImmutableList.builder();
     fields.add(
         FieldWithLabel.input()
             .setId("localize-question-text")
@@ -129,7 +130,7 @@ public class QuestionTranslationView extends TranslationFormView {
     return fields.build();
   }
 
-  private ImmutableList<InputTag> multiOptionQuestionFields(
+  private ImmutableList<DivTag> multiOptionQuestionFields(
       ImmutableList<QuestionOption> options, Locale toUpdate) {
     return options.stream()
         .map(
@@ -143,7 +144,7 @@ public class QuestionTranslationView extends TranslationFormView {
         .collect(toImmutableList());
   }
 
-  private ImmutableList<InputTag> enumeratorQuestionFields(
+  private ImmutableList<DivTag> enumeratorQuestionFields(
       LocalizedStrings entityType, Locale toUpdate) {
     return ImmutableList.of(
         FieldWithLabel.input()
