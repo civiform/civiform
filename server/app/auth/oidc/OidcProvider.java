@@ -192,7 +192,7 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     config.setWithState(false);
 
     config.setScope(scope);
-
+    // logger.debug("Provider metadata: " + config.getProviderMetadata().toString());
     OidcClient client = new OidcClient(config);
 
     if (providerName.isPresent()) {
@@ -207,6 +207,17 @@ public abstract class OidcProvider implements Provider<OidcClient> {
     } catch (Exception e) {
       logger.error("Error while initilizing OIDC provider", e);
       throw e;
+    }
+
+    var providerMetadata = client.getConfiguration().getProviderMetadata();
+    logger.debug("Provider metadata: " + providerMetadata.toString());
+    if (providerMetadata.supportsAuthorizationResponseIssuerParam()
+        && responseMode.equals("form_post")
+        && responseType.contains("token")
+        && !responseType.contains("code")) {
+      // The issuer param verification doesn't work for form_post token/id_token response types.
+      providerMetadata.setSupportsAuthorizationResponseIssuerParam(false);
+      logger.debug("Disabled authorization_response_iss_parameter_supported");
     }
     return client;
   }
