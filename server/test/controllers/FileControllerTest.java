@@ -15,6 +15,10 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import support.ProgramBuilder;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 public class FileControllerTest extends WithMockedProfiles {
 
   private FileController controller;
@@ -168,13 +172,19 @@ public class FileControllerTest extends WithMockedProfiles {
     createProgramAdminWithMockedProfile(program);
     String fileKey = fakeFileKey(1L, program.id);
     createStoredFileWithProgramAccess(fileKey, program);
+    String encodedFileKey = encodefakeFileKey(fileKey);
 
-    Result result = controller.acledAdminShow(fakeRequest().build(), fileKey);
+    Result result = controller.acledAdminShow(fakeRequest().build(), encodedFileKey);
+
     assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
   private String fakeFileKey(long applicantId, long programId) {
     return String.format("applicant-%d/program-%d/block-0", applicantId, programId);
+  }
+
+  private String encodefakeFileKey(String fileKey) {
+    return URLEncoder.encode(fileKey, StandardCharsets.UTF_8);
   }
 
   private void createStoredFileWithProgramAccess(String fileKey, Program program) {
