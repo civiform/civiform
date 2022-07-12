@@ -2,7 +2,9 @@
 
 Please explain the changes you made here.
 
-Release notes: Describe the change as it should be communicated to partners in the release notes.
+## Release notes:
+
+Describe the change as it should be communicated to partners in the release notes.
 
 ### Checklist
 
