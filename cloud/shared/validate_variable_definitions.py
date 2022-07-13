@@ -29,7 +29,9 @@ class ValidateVariableDefinitions:
         # add their paths here.
         cwd = os.getcwd()
         definition_file_paths = [
-            cwd + "/cloud/shared/variable_definitions.json"
+            f"{cwd}/cloud/shared/variable_definitions.json",
+            f"{cwd}/cloud/aws/templates/aws_oidc/variable_definitions.json",
+            f"{cwd}/cloud/azure/templates/azure_saml_ses/variable_definitions.json",
         ]
 
         for path in definition_file_paths:
