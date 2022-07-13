@@ -1,11 +1,8 @@
 import {
   startSession,
-  loginAsAdmin,
-  loginAsProgramAdmin,
   loginAsGuest,
-  loginAsTestUser,
-  logout,
   endSession,
+  gotoEndpoint,
   NotFoundPage,
 } from './support'
 
@@ -17,17 +14,19 @@ describe('error pages', () => {
     const notFound = new NotFoundPage(page)
 
     await notFound.gotoNonExistentPage(page)
-
-    await notFound.checkPageHeaderEnUS()
-
+    await notFound.checkPageHeader()
     await notFound.checkNotLoggedIn()
 
     await notFound.loginAsGuest()
+    await notFound.gotoNonExistentPage(page)
+    await notFound.checkIsGuest()
+    await notFound.logout()
 
     await notFound.gotoNonExistentPage(page)
-
-    await page.pause()
-    await notFound.checkIsGuest()
+    await notFound.loginAsGuest('es-US')
+    await notFound.gotoNonExistentPage(page)
+    await notFound.checkIsGuest('es-US')
+    await notFound.logout('es-US')
 
     await endSession(browser)
   })
