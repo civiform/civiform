@@ -83,11 +83,12 @@ class ConfigLoader:
 
             value_regex = definition.get('value_regex', None)
             if config_value is not None and value_regex:
+                validation_error = definition.get(
+                    'value_regex_error_message', None)
+                if not validation_error:
+                    raise ValueError(
+                        f'{name} has no value_regex_error_message configured')
                 if not re.compile(value_regex).fullmatch(config_value):
-                    validation_error = definition.get(
-                        'value_regex_error_override', '')
-                    if not validation_error:
-                        validation_error = f'does not match the provided regex: "{value_regex}"'
                     validation_errors.append(f'[{name}] {validation_error}')
 
         return validation_errors

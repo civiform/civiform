@@ -104,28 +104,8 @@ class TestConfigLoader(unittest.TestCase):
                     "required": True,
                     "secret": False,
                     "type": "string",
-                    "value_regex": "[a-z]+"
-                },
-        }
-
-        config_loader.configs = {"FOO": "onlyletters"}
-        self.assertEqual(config_loader.validate_config(), [])
-
-        config_loader.configs = {"FOO": "somenumbers123"}
-        self.assertEqual(
-            config_loader.validate_config(),
-            ['[FOO] does not match the provided regex: "[a-z]+"'])
-
-    def test_value_regex_custom_message(self):
-        config_loader = ConfigLoader()
-        config_loader.variable_definitions = {
-            "FOO":
-                {
-                    "required": True,
-                    "secret": False,
-                    "type": "string",
                     "value_regex": "[a-z]+",
-                    "value_regex_error_override": "some message"
+                    "value_regex_error_message": "some message"
                 },
         }
 
@@ -141,7 +121,8 @@ class TestConfigLoader(unittest.TestCase):
                     "required": False,
                     "secret": False,
                     "type": "string",
-                    "value_regex": "[a-z]+"
+                    "value_regex": "[a-z]+",
+                    "value_regex_error_message": "some message"
                 },
         }
 
