@@ -2,7 +2,7 @@ package views.questiontypes;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -21,7 +21,7 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final FileUploadQuestion fileuploadQuestion;
 
-  public static Tag renderFileKeyField(
+  public static DivTag renderFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params, boolean clearData) {
     FileUploadQuestion fileuploadQuestion = question.createFileUploadQuestion();
     String value = fileuploadQuestion.getFileKeyValue().orElse("");
@@ -31,7 +31,7 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
     return FieldWithLabel.input()
         .setFieldName(fileuploadQuestion.getFileKeyPath().toString())
         .setValue(value)
-        .getContainer();
+        .getInputTag();
   }
 
   public FileUploadQuestionRenderer(
@@ -42,7 +42,7 @@ public class FileUploadQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(
+  protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     return fileUploadViewStrategy.signedFileUploadFields(params, fileuploadQuestion);

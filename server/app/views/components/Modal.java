@@ -3,8 +3,9 @@ package views.components;
 import static j2html.TagCreator.div;
 import static views.BaseHtmlView.button;
 
-import com.google.common.base.Preconditions;
-import j2html.tags.Tag;
+import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -14,10 +15,10 @@ import views.style.Styles;
 public class Modal {
 
   private String modalId;
-  private Tag content;
+  private ContainerTag<?> content;
   private String modalTitle;
   private String triggerButtonText;
-  private Optional<Tag> triggerButtonContent;
+  private Optional<ButtonTag> triggerButtonContent;
   private String buttonStyles;
   private Width width;
 
@@ -31,7 +32,7 @@ public class Modal {
     this.width = builder.width;
   }
 
-  public Tag getContainerTag() {
+  public DivTag getContainerTag() {
     return div()
         .withId(modalId)
         .withClasses(ReferenceClasses.MODAL, BaseStyles.MODAL, width.getStyle())
@@ -39,7 +40,7 @@ public class Modal {
         .with(getContent());
   }
 
-  public Tag getButton() {
+  public ButtonTag getButton() {
     String triggerButtonId = getTriggerButtonId();
     if (triggerButtonContent.isPresent()) {
       return triggerButtonContent.get().withId(triggerButtonId);
@@ -52,11 +53,11 @@ public class Modal {
     return modalId + "-button";
   }
 
-  private Tag getContent() {
+  private DivTag getContent() {
     return div(content).withClasses(BaseStyles.MODAL_CONTENT);
   }
 
-  private Tag getModalHeader() {
+  private DivTag getModalHeader() {
     return div()
         .withClasses(BaseStyles.MODAL_HEADER)
         .with(div(modalTitle).withClasses(Styles.TEXT_LG))
@@ -64,24 +65,24 @@ public class Modal {
         .with(div("x").withId(modalId + "-close").withClasses(BaseStyles.MODAL_CLOSE_BUTTON));
   }
 
-  public static ModalBuilder builder(String modalId, Tag content) {
+  public static ModalBuilder builder(String modalId, ContainerTag<?> content) {
     return new ModalBuilder(modalId, content);
   }
 
   public static class ModalBuilder {
 
     private String modalId;
-    private Tag content;
+    private ContainerTag<?> content;
     private String buttonStyles = BaseStyles.MODAL_BUTTON;
 
     // Optional fields. See #setOptionalFields().
     private String modalTitle;
     private String triggerButtonText;
 
-    private Optional<Tag> triggerButtonContent = Optional.empty();
+    private Optional<ButtonTag> triggerButtonContent = Optional.empty();
     private Width width = Width.DEFAULT;
 
-    public ModalBuilder(String modalId, Tag content) {
+    public ModalBuilder(String modalId, ContainerTag<?> content) {
       this.modalId = modalId;
       this.content = content;
     }
@@ -96,9 +97,7 @@ public class Modal {
       return this;
     }
 
-    public ModalBuilder setTriggerButtonContent(Tag triggerButtonContent) {
-      Preconditions.checkState(
-          "button".equals(triggerButtonContent.getTagName()), "content must be of type button");
+    public ModalBuilder setTriggerButtonContent(ButtonTag triggerButtonContent) {
       this.triggerButtonContent = Optional.ofNullable(triggerButtonContent);
       return this;
     }

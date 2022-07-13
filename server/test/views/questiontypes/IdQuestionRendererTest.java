@@ -3,7 +3,7 @@ package views.questiontypes;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -58,7 +58,7 @@ public class IdQuestionRendererTest extends ResetPostgres {
 
   @Test
   public void render_withoutQuestionErrors() {
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render()).doesNotContain("Must contain");
   }
@@ -67,7 +67,7 @@ public class IdQuestionRendererTest extends ResetPostgres {
   public void render_withMinLengthError() {
     QuestionAnswerer.answerIdQuestion(applicantData, question.getContextualizedPath(), "1");
 
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render()).contains("Must contain at least 2 characters.");
   }
@@ -76,7 +76,7 @@ public class IdQuestionRendererTest extends ResetPostgres {
   public void render_withMaxLengthError() {
     QuestionAnswerer.answerIdQuestion(applicantData, question.getContextualizedPath(), "1234");
 
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render()).contains("Must contain at most 3 characters.");
   }
@@ -85,7 +85,7 @@ public class IdQuestionRendererTest extends ResetPostgres {
   public void render_withInvalidCharactersError() {
     QuestionAnswerer.answerIdQuestion(applicantData, question.getContextualizedPath(), "ab");
 
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render()).contains("Must contain only numbers.");
   }

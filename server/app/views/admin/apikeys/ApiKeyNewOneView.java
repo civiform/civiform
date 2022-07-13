@@ -13,8 +13,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.admin.routes;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 import java.util.Optional;
 import modules.MainModule;
 import play.data.DynamicForm;
@@ -75,7 +76,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
       Request request, ImmutableSet<String> programNames, Optional<DynamicForm> dynamicForm) {
     String title = "Create a new API key";
 
-    ContainerTag formTag =
+    FormTag formTag =
         form()
             .withMethod("POST")
             .with(
@@ -89,7 +90,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                             .setLabelText("API key name"),
                         dynamicForm,
                         ApiKeyService.FORM_FIELD_NAME_KEY_NAME)
-                    .getContainer(),
+                    .getInputTag(),
                 h2("Expiration date"),
                 p(EXPIRATION_DESCRIPTION),
                 setStateIfPresent(
@@ -99,7 +100,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                             .setLabelText("Expiration date"),
                         dynamicForm,
                         ApiKeyService.FORM_FIELD_NAME_EXPIRATION)
-                    .getContainer(),
+                    .getDateTag(),
                 h2("Allowed IP addresses"),
                 p(SUBNET_DESCRIPTION),
                 setStateIfPresent(
@@ -109,7 +110,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                             .setLabelText("API key subnet"),
                         dynamicForm,
                         ApiKeyService.FORM_FIELD_NAME_SUBNET)
-                    .getContainer());
+                    .getInputTag());
 
     formTag.with(h2("Allowed programs"), p("Select the programs this key grants read access to."));
 
@@ -120,10 +121,10 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
               .setLabelText(name)
               .setId(MainModule.SLUGIFIER.slugify(name))
               .setValue("true")
-              .getContainer());
+              .getCheckboxTag());
     }
 
-    ContainerTag contentDiv =
+    DivTag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(

@@ -5,7 +5,7 @@ import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -58,7 +58,7 @@ public class RadioButtonQuestionRendererTest {
 
   @Test
   public void render_generatesCorrectInputNames() {
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render()).contains("name=\"applicant.favorite_ice_cream.selection\"");
     assertThat(result.render()).contains("value=\"2\"");
@@ -66,7 +66,7 @@ public class RadioButtonQuestionRendererTest {
 
   @Test
   public void render_generatesIds_formatsWhitespaceAsUnderscore() {
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render()).contains("id=\"peanut_butter\"");
   }
@@ -75,12 +75,12 @@ public class RadioButtonQuestionRendererTest {
   public void render_withExistingAnswer_checksThatOption() {
     QuestionAnswerer.answerSingleSelectQuestion(
         applicantData, question.getContextualizedPath(), 2L);
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render())
         .contains(
             "<input id=\"peanut_butter\" type=\"radio\""
                 + " name=\"applicant.favorite_ice_cream.selection\""
-                + " value=\"2\" checked=\"\"");
+                + " value=\"2\" checked");
   }
 }

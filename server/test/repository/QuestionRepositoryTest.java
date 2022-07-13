@@ -2,8 +2,10 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import models.Question;
@@ -170,16 +172,17 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void getQuestionNames() {
-    resourceCreator.insertQuestion("question-one");
-    resourceCreator.insertQuestion("question-two");
-
-    assertThat(repo.getQuestionNames()).containsOnly("question-one", "question-two");
-  }
-
-  @Test
-  public void questionExists_doesNotExist() {
-    assertThat(repo.questionExists("question-one")).isFalse();
+  public void getExistingQuestions() {
+    resourceCreator.insertQuestion("name-question");
+    resourceCreator.insertQuestion("date-question");
+    Question dateQuestionV2 = resourceCreator.insertQuestion("date-question");
+    Question nameQuestionV2 = resourceCreator.insertQuestion("name-question");
+    Map<String, QuestionDefinition> result =
+        repo.getExistingQuestions(
+            ImmutableSet.of("name-question", "date-question", "other-question"));
+    assertThat(result).containsOnlyKeys("name-question", "date-question");
+    assertThat(result.get("name-question").getId()).isEqualTo(nameQuestionV2.id);
+    assertThat(result.get("date-question").getId()).isEqualTo(dateQuestionV2.id);
   }
 
   @Test

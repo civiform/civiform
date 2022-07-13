@@ -5,7 +5,7 @@ import static j2html.TagCreator.div;
 
 import com.google.inject.Inject;
 import forms.ProgramForm;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
@@ -31,7 +31,7 @@ public final class ProgramNewOneView extends BaseHtmlView {
   public Content render(Request request, ProgramForm programForm, String message) {
     String title = "New program information";
 
-    ContainerTag contentDiv =
+    DivTag contentDiv =
         div(
             ProgramFormBuilder.buildProgramForm(programForm, /* editExistingProgram = */ false)
                 .with(makeCsrfTokenInputTag(request))
