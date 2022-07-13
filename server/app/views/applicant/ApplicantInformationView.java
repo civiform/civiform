@@ -7,8 +7,10 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 
 import controllers.applicant.routes;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
@@ -44,14 +46,14 @@ public class ApplicantInformationView extends BaseHtmlView {
     String formAction = routes.ApplicantInformationController.update(applicantId).url();
     String redirectLink =
         redirectTo.orElse(routes.ApplicantProgramsController.index(applicantId).url());
-    Tag redirectInput = input().isHidden().withValue(redirectLink).withName("redirectLink");
+    InputTag redirectInput = input().isHidden().withValue(redirectLink).withName("redirectLink");
 
     String questionText = messages.at(MessageKey.CONTENT_SELECT_LANGUAGE.getKeyName());
-    ContainerTag questionTextDiv =
+    DivTag questionTextDiv =
         div(questionText)
             .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT);
     String preferredLanguage = layout.languageSelector.getPreferredLangage(request).code();
-    ContainerTag formContent =
+    FormTag formContent =
         form()
             .withAction(formAction)
             .withMethod(Http.HttpVerbs.POST)
@@ -61,7 +63,8 @@ public class ApplicantInformationView extends BaseHtmlView {
             .with(layout.languageSelector.renderRadios(preferredLanguage));
 
     String submitText = messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName());
-    Tag formSubmit = submitButton(submitText).withClasses(ApplicantStyles.BUTTON_SELECT_LANGUAGE);
+    ButtonTag formSubmit =
+        submitButton(submitText).withClasses(ApplicantStyles.BUTTON_SELECT_LANGUAGE);
     formContent.with(formSubmit);
 
     HtmlBundle bundle =

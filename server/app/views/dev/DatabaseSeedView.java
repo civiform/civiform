@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableList;
 import controllers.dev.routes;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.mvc.Http.Request;
@@ -55,7 +55,7 @@ public class DatabaseSeedView extends BaseHtmlView {
 
     String title = "Dev database seeder";
 
-    ContainerTag content =
+    DivTag content =
         div()
             .with(div(maybeFlash.orElse("")))
             .with(h1(title))

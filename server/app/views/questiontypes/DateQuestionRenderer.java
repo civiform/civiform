@@ -2,7 +2,7 @@ package views.questiontypes;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
 import java.time.LocalDate;
 import java.util.Optional;
 import services.Path;
@@ -25,7 +25,7 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(
+  protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     DateQuestion dateQuestion = question.createDateQuestion();
@@ -44,7 +44,7 @@ public class DateQuestionRenderer extends ApplicantQuestionRendererImpl {
       Optional<String> value = dateQuestion.getDateValue().map(LocalDate::toString);
       dateField.setValue(value);
     }
-    Tag dateQuestionFormContent = dateField.getContainer();
+    DivTag dateQuestionFormContent = dateField.getDateTag();
 
     return dateQuestionFormContent;
   }

@@ -6,8 +6,10 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 
 import com.google.common.collect.ImmutableList;
-import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import play.i18n.Lang;
 import play.i18n.Langs;
@@ -32,7 +34,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
   }
 
   /** Render a list of languages, with the currently selected language underlined. */
-  public ContainerTag renderLanguageLinks(long entityId, Locale currentlySelected) {
+  public DivTag renderLanguageLinks(long entityId, Locale currentlySelected) {
     return div()
         .withClasses(Styles.M_2)
         .with(
@@ -55,7 +57,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
    * Renders a single locale as the English version of the language (ex: es-US would read
    * "Spanish"). The text links to a form to translate the entity into that language.
    */
-  private ContainerTag renderLanguageLink(
+  private ATag renderLanguageLink(
       String linkDestination, Locale locale, boolean isCurrentlySelected) {
     LinkElement link =
         new LinkElement()
@@ -75,9 +77,9 @@ public abstract class TranslationFormView extends BaseHtmlView {
    * Renders a form that allows an admin to enter localized text for an entity's applicant-visible
    * fields.
    */
-  protected ContainerTag renderTranslationForm(
-      Http.Request request, Locale locale, String formAction, ImmutableList<Tag> formFieldContent) {
-    ContainerTag form =
+  protected <T extends Tag<T>> FormTag renderTranslationForm(
+      Http.Request request, Locale locale, String formAction, ImmutableList<T> formFieldContent) {
+    FormTag form =
         form()
             .withMethod("POST")
             .with(makeCsrfTokenInputTag(request))

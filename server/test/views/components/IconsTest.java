@@ -2,7 +2,6 @@ package views.components;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import j2html.tags.ContainerTag;
 import java.util.EnumSet;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -13,7 +12,7 @@ import services.question.types.QuestionType;
 @RunWith(JUnitParamsRunner.class)
 public class IconsTest {
 
-  private static final ContainerTag TEXT_ICON = Icons.questionTypeSvg(QuestionType.TEXT, 0);
+  private static final SvgTag TEXT_ICON = Icons.questionTypeSvg(QuestionType.TEXT, 0);
   // TODO(https://github.com/seattle-uat/civiform/issues/395): Implement dropdown rendering.
   private static final EnumSet<QuestionType> TYPES_WITH_DEFAULT_ICON =
       EnumSet.of(QuestionType.TEXT);

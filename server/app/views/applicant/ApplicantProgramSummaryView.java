@@ -6,14 +6,14 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
-import static j2html.attributes.Attr.HREF;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -69,7 +69,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     HtmlBundle bundle =
         layout.getBundle().setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
 
-    ContainerTag applicationSummary = div().withId("application-summary").withClasses(Styles.MB_8);
+    DivTag applicationSummary = div().withId("application-summary").withClasses(Styles.MB_8);
     Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
     boolean isFirstUnanswered = true;
     for (AnswerData answerData : params.summaryData()) {
@@ -90,7 +90,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         routes.ApplicantProgramReviewController.submit(params.applicantId(), params.programId())
             .url();
 
-    Tag continueOrSubmitButton;
+    ContainerTag continueOrSubmitButton;
     if (params.completedBlockCount() == params.totalBlockCount()) {
       continueOrSubmitButton =
           submitButton(messages.at(MessageKey.BUTTON_SUBMIT.getKeyName()))
@@ -100,14 +100,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       String applyUrl =
           routes.ApplicantProgramsController.edit(params.applicantId(), params.programId()).url();
       continueOrSubmitButton =
-          a().attr(HREF, applyUrl)
+          a().withHref(applyUrl)
               .withText(messages.at(MessageKey.BUTTON_CONTINUE.getKeyName()))
               .withId("continue-application-button")
               .withClasses(
                   ReferenceClasses.CONTINUE_BUTTON, ApplicantStyles.BUTTON_SUBMIT_APPLICATION);
     }
 
-    ContainerTag content =
+    DivTag content =
         div()
             .with(applicationSummary)
             .with(
@@ -133,14 +133,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         params.request(), params.applicantName(), params.messages(), bundle);
   }
 
-  private ContainerTag renderQuestionSummary(
+  private DivTag renderQuestionSummary(
       AnswerData data,
       Messages messages,
       long applicantId,
       boolean inReview,
       boolean isFirstUnanswered) {
-    ContainerTag questionPrompt = div(data.questionText()).withClasses(Styles.FONT_SEMIBOLD);
-    ContainerTag questionContent = div(questionPrompt).withClasses(Styles.PR_2);
+    DivTag questionPrompt = div(data.questionText()).withClasses(Styles.FONT_SEMIBOLD);
+    DivTag questionContent = div(questionPrompt).withClasses(Styles.PR_2);
 
     // Add existing answer.
     if (data.isAnswered()) {
@@ -165,13 +165,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       questionContent.with(answerContent);
     }
 
-    ContainerTag actionAndTimestampDiv =
+    DivTag actionAndTimestampDiv =
         div().withClasses(Styles.PR_2, Styles.FLEX, Styles.FLEX_COL, Styles.TEXT_RIGHT);
     // Show timestamp if answered elsewhere.
     if (data.isPreviousResponse()) {
       LocalDate date =
           Instant.ofEpochMilli(data.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
-      ContainerTag timestampContent =
+      DivTag timestampContent =
           div("Previously answered on " + date)
               .withClasses(Styles.FONT_LIGHT, Styles.TEXT_XS, Styles.FLEX_GROW);
       actionAndTimestampDiv.with(timestampContent);
@@ -195,7 +195,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                       applicantId, data.programId(), data.blockId())
                   .url();
 
-      ContainerTag editAction =
+      ATag editAction =
           new LinkElement()
               .setHref(editLink)
               .setText(editText)
@@ -208,7 +208,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
               .attr(
                   "aria-label",
                   messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName(), data.questionText()));
-      ContainerTag editContent =
+      DivTag editContent =
           div(editAction)
               .withClasses(
                   Styles.FONT_MEDIUM,
@@ -233,11 +233,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             Styles.BORDER_GRAY_300,
             Styles.FLEX,
             Styles.JUSTIFY_BETWEEN)
-        .attr("style", "word-break:break-word");
+        .withStyle("word-break:break-word");
   }
 
-  private ContainerTag renderRepeatedEntitySection(
-      RepeatedEntity repeatedEntity, Messages messages) {
+  private DivTag renderRepeatedEntitySection(RepeatedEntity repeatedEntity, Messages messages) {
     String content =
         String.format(
             "%s: %s",

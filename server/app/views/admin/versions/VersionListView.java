@@ -15,7 +15,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TableTag;
+import j2html.tags.specialized.TheadTag;
+import j2html.tags.specialized.TrTag;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -80,7 +83,8 @@ public class VersionListView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private Tag renderPastVersionTable(ImmutableList<Version> olderVersions, Http.Request request) {
+  private TableTag renderPastVersionTable(
+      ImmutableList<Version> olderVersions, Http.Request request) {
     return table()
         .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
         .with(renderVersionTableHeaderRow())
@@ -91,7 +95,7 @@ public class VersionListView extends BaseHtmlView {
                     (olderVersion) -> renderOlderVersionRow(olderVersion, request))));
   }
 
-  private Tag renderVersionTableHeaderRow() {
+  private TheadTag renderVersionTableHeaderRow() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
             .with(
@@ -102,7 +106,7 @@ public class VersionListView extends BaseHtmlView {
                 th("Publish").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_2_5)));
   }
 
-  private Tag renderOlderVersionRow(Version olderVersion, Http.Request request) {
+  private TrTag renderOlderVersionRow(Version olderVersion, Http.Request request) {
     return tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
         .with(
             td(olderVersion.id.toString()),
@@ -118,12 +122,12 @@ public class VersionListView extends BaseHtmlView {
                     .asHiddenForm(request)));
   }
 
-  private Tag renderVersionCard(Optional<Version> versionMaybe) {
+  private DivTag renderVersionCard(Optional<Version> versionMaybe) {
     if (versionMaybe.isEmpty()) {
       return div();
     }
     Version version = versionMaybe.get();
-    Tag topContent =
+    DivTag topContent =
         div(
                 div(
                     div(String.format("%s: Version %d", version.getLifecycleStage(), version.id))
@@ -153,18 +157,18 @@ public class VersionListView extends BaseHtmlView {
                         ? String.format("... + %d more)", version.getPrograms().size() - 5)
                         : ")"));
 
-    Tag midContent =
+    DivTag midContent =
         div(listOfPrograms)
             .withClasses(Styles.TEXT_GRAY_700, Styles.TEXT_BASE, Styles.MB_8, Styles.LINE_CLAMP_3);
 
-    Tag bottomContent =
+    DivTag bottomContent =
         div(
             p(String.format(
                     "Last updated: " + dateConverter.renderDateTime(version.getSubmitTime())))
                 .withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
             p().withClasses(Styles.FLEX_GROW));
 
-    Tag innerDiv =
+    DivTag innerDiv =
         div(div(topContent, midContent, bottomContent)
                 .withClasses(
                     Styles.BORDER,
