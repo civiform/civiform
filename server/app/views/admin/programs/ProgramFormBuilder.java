@@ -5,7 +5,7 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 
 import forms.ProgramForm;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.FormTag;
 import models.DisplayMode;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
@@ -18,7 +18,7 @@ import views.components.FieldWithLabel;
 public class ProgramFormBuilder extends BaseHtmlView {
 
   /** Builds the form using program form data. */
-  public static ContainerTag buildProgramForm(ProgramForm program, boolean editExistingProgram) {
+  public static FormTag buildProgramForm(ProgramForm program, boolean editExistingProgram) {
     return buildProgramForm(
         program.getAdminName(),
         program.getAdminDescription(),
@@ -30,8 +30,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
   }
 
   /** Builds the form using program definition data. */
-  public static ContainerTag buildProgramForm(
-      ProgramDefinition program, boolean editExistingProgram) {
+  public static FormTag buildProgramForm(ProgramDefinition program, boolean editExistingProgram) {
     return buildProgramForm(
         program.adminName(),
         program.adminDescription(),
@@ -42,7 +41,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         editExistingProgram);
   }
 
-  private static ContainerTag buildProgramForm(
+  private static FormTag buildProgramForm(
       String adminName,
       String adminDescription,
       String displayName,
@@ -50,7 +49,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
       String externalLink,
       String displayMode,
       boolean editExistingProgram) {
-    ContainerTag formTag = form().withMethod("POST");
+    FormTag formTag = form().withMethod("POST");
     formTag.with(
         h2("Internal program information"),
         h3("This will only be visible to administrators"),
@@ -60,27 +59,27 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Enter internal name or nickname of this program")
             .setValue(adminName)
             .setDisabled(editExistingProgram)
-            .getContainer(),
+            .getInputTag(),
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
             .setLabelText("Describe this program for administrative use")
             .setValue(adminDescription)
-            .getContainer(),
+            .getTextareaTag(),
         FieldWithLabel.radio()
             .setId("program-display-mode-public")
             .setFieldName("displayMode")
             .setLabelText("Public")
             .setValue(DisplayMode.PUBLIC.getValue())
             .setChecked(displayMode.equals(DisplayMode.PUBLIC.getValue()))
-            .getContainer(),
+            .getRadioTag(),
         FieldWithLabel.radio()
             .setId("program-display-mode-hidden")
             .setFieldName("displayMode")
             .setLabelText("Hidden in Index")
             .setValue(DisplayMode.HIDDEN_IN_INDEX.getValue())
             .setChecked(displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()))
-            .getContainer(),
+            .getRadioTag(),
         h2("Public program information"),
         h3("This will be visible to the public"),
         FieldWithLabel.input()
@@ -88,19 +87,19 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .setFieldName("localizedDisplayName")
             .setLabelText("Enter the publicly displayed name for this program")
             .setValue(displayName)
-            .getContainer(),
+            .getInputTag(),
         FieldWithLabel.textArea()
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
             .setLabelText("Describe this program for the public")
             .setValue(displayDescription)
-            .getContainer(),
+            .getTextareaTag(),
         FieldWithLabel.input()
             .setId("program-external-link-input")
             .setFieldName("externalLink")
             .setLabelText("Link for additional program information")
             .setValue(externalLink)
-            .getContainer(),
+            .getInputTag(),
         submitButton("Save").withId("program-update-button"));
     return formTag;
   }

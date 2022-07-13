@@ -3,7 +3,7 @@ package views.questiontypes;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -58,7 +58,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
 
   @Test
   public void render_withoutQuestionErrors() {
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render()).doesNotContain("Must contain at");
   }
@@ -67,7 +67,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
   public void render_withMinLengthError() {
     QuestionAnswerer.answerTextQuestion(applicantData, question.getContextualizedPath(), "a");
 
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render()).contains("Must contain at least 2 characters.");
   }
@@ -76,7 +76,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
   public void render_withMaxLengthError() {
     QuestionAnswerer.answerTextQuestion(applicantData, question.getContextualizedPath(), "abcd");
 
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render()).contains("Must contain at most 3 characters.");
   }

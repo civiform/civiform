@@ -16,8 +16,8 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.DivTag;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -71,7 +71,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     Optional<Modal> maybePublishModal = maybeRenderPublishModal(programs, request);
 
     Modal demographicsCsvModal = renderDemographicsCsvModal();
-    Tag contentDiv =
+    DivTag contentDiv =
         div()
             .withClasses(Styles.PX_4)
             .with(
@@ -118,7 +118,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
   private Modal renderDemographicsCsvModal() {
     String modalId = "download-demographics-csv-modal";
     String downloadActionText = "Download Exported Data (CSV)";
-    ContainerTag downloadDemographicCsvModalContent =
+    DivTag downloadDemographicCsvModalContent =
         div()
             .withClasses(Styles.PX_8)
             .with(
@@ -143,12 +143,12 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                                 FieldWithLabel.date()
                                     .setFieldName("fromDate")
                                     .setLabelText("From:")
-                                    .getContainer()
+                                    .getDateTag()
                                     .withClasses(Styles.ML_3, Styles.INLINE_FLEX),
                                 FieldWithLabel.date()
                                     .setFieldName("untilDate")
                                     .setLabelText("Until:")
-                                    .getContainer()
+                                    .getDateTag()
                                     .withClasses(Styles.ML_3, Styles.INLINE_FLEX)),
                         makeSvgTextButton(downloadActionText, Icons.DOWNLOAD)
                             .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, Styles.MT_6)
@@ -159,7 +159,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         .build();
   }
 
-  private ContainerTag makePublishButton() {
+  private ButtonTag makePublishButton() {
     return makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
         .withId("publish-programs-button")
         .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, Styles.MY_2);
@@ -174,7 +174,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
 
     String link = routes.AdminProgramController.publish().url();
 
-    ContainerTag publishAllModalContent =
+    DivTag publishAllModalContent =
         div()
             .withClasses(Styles.FLEX, Styles.FLEX_COL, Styles.GAP_4, Styles.PX_2)
             .with(p("Are you sure you want to publish all programs?").withClasses(Styles.P_2))
@@ -187,9 +187,9 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return Optional.of(publishAllModal);
   }
 
-  private Tag renderNewProgramButton() {
+  private ButtonTag renderNewProgramButton() {
     String link = controllers.admin.routes.AdminProgramController.newOne().url();
-    ContainerTag button =
+    ButtonTag button =
         makeSvgTextButton("Create new program", Icons.ADD)
             .withId("new-program-button")
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2);
@@ -204,11 +204,11 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return activeProgram.get();
   }
 
-  private Tag renderProgramRow(
+  private DivTag renderProgramRow(
       boolean isActive,
       ProgramDefinition program,
-      List<Tag> actions,
-      List<Tag> extraActions,
+      List<ButtonTag> actions,
+      List<ButtonTag> extraActions,
       String... extraStyles) {
     String badgeText = "Draft";
     String badgeBGColor = BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
@@ -231,7 +231,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     int questionCount = program.getQuestionCount();
 
     String extraActionsButtonId = "extra-actions-" + program.id();
-    ContainerTag extraActionsButton =
+    ButtonTag extraActionsButton =
         makeSvgTextButton("", Icons.MORE_VERT)
             .withId(extraActionsButtonId)
             .withClasses(
@@ -309,7 +309,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                                 .with(extraActions))));
   }
 
-  public Tag renderProgramListItem(
+  public DivTag renderProgramListItem(
       Optional<ProgramDefinition> activeProgram,
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
@@ -319,10 +319,10 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     String programTitleText = displayProgram.adminName();
     String programDescriptionText = displayProgram.adminDescription();
 
-    ContainerTag statusDiv = div();
+    DivTag statusDiv = div();
     if (draftProgram.isPresent()) {
-      List<Tag> draftRowActions = Lists.newArrayList();
-      List<Tag> draftRowExtraActions = Lists.newArrayList();
+      List<ButtonTag> draftRowActions = Lists.newArrayList();
+      List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
       draftRowActions.add(renderEditLink(/* isActive = */ false, draftProgram.get(), request));
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
       draftRowExtraActions.add(renderManageTranslationsLink(draftProgram.get()));
@@ -339,9 +339,9 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     }
 
     if (activeProgram.isPresent()) {
-      List<Tag> activeRowActions = Lists.newArrayList();
-      List<Tag> activeRowExtraActions = Lists.newArrayList();
-      Optional<Tag> applicationsLink =
+      List<ButtonTag> activeRowActions = Lists.newArrayList();
+      List<ButtonTag> activeRowExtraActions = Lists.newArrayList();
+      Optional<ButtonTag> applicationsLink =
           maybeRenderViewApplicationsLink(activeProgram.get(), profile.get());
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (!draftProgram.isPresent()) {
@@ -359,7 +359,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                   draftProgram.isPresent() ? Styles.BORDER_T : ""));
     }
 
-    Tag titleAndStatus =
+    DivTag titleAndStatus =
         div()
             .withClass(Styles.FLEX)
             .with(
@@ -414,7 +414,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return program.lastModifiedTime().orElse(Instant.EPOCH);
   }
 
-  Tag renderShareLink(ProgramDefinition program) {
+  ButtonTag renderShareLink(ProgramDefinition program) {
     String programLink =
         baseUrl
             + controllers.applicant.routes.RedirectController.programByName(program.slug()).url();
@@ -423,7 +423,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         .withData("copyable-program-link", programLink);
   }
 
-  Tag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
+  ButtonTag renderEditLink(boolean isActive, ProgramDefinition program, Http.Request request) {
     String editLink = controllers.admin.routes.AdminProgramController.edit(program.id()).url();
     String editLinkId = "program-edit-link-" + program.id();
     if (isActive) {
@@ -431,7 +431,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
       editLinkId = "program-new-version-link-" + program.id();
     }
 
-    ContainerTag button =
+    ButtonTag button =
         makeSvgTextButton("Edit", Icons.EDIT)
             .withId(editLinkId)
             .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
@@ -440,27 +440,27 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
         : asRedirectButton(button, editLink);
   }
 
-  private Tag renderManageTranslationsLink(ProgramDefinition program) {
+  private ButtonTag renderManageTranslationsLink(ProgramDefinition program) {
     String linkDestination =
         routes.AdminProgramTranslationsController.edit(
                 program.id(), LocalizedStrings.DEFAULT_LOCALE.toLanguageTag())
             .url();
-    ContainerTag button =
+    ButtonTag button =
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withId("program-translations-link-" + program.id())
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
     return asRedirectButton(button, linkDestination);
   }
 
-  private Tag renderEditStatusesLink(ProgramDefinition program) {
+  private ButtonTag renderEditStatusesLink(ProgramDefinition program) {
     String linkDestination = routes.AdminProgramStatusesController.index(program.id()).url();
-    ContainerTag button =
+    ButtonTag button =
         makeSvgTextButton("Manage application statuses", Icons.FLAKY)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
     return asRedirectButton(button, linkDestination);
   }
 
-  private Optional<Tag> maybeRenderViewApplicationsLink(
+  private Optional<ButtonTag> maybeRenderViewApplicationsLink(
       ProgramDefinition activeProgram, CiviFormProfile userProfile) {
     // TODO(#2582): Determine if this has N+1 query behavior and fix if
     // necessary.
@@ -481,7 +481,7 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
                   Optional.empty())
               .url();
 
-      ContainerTag button =
+      ButtonTag button =
           makeSvgTextButton("Applications", Icons.TEXT_SNIPPET)
               .withId("program-view-apps-link-" + activeProgram.id())
               .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
@@ -490,9 +490,9 @@ public final class ProgramIndexViewV2 extends BaseHtmlView {
     return Optional.empty();
   }
 
-  private Tag renderManageProgramAdminsLink(ProgramDefinition program) {
+  private ButtonTag renderManageProgramAdminsLink(ProgramDefinition program) {
     String adminLink = routes.ProgramAdminManagementController.edit(program.id()).url();
-    ContainerTag button =
+    ButtonTag button =
         makeSvgTextButton("Manage admins", Icons.GROUP)
             .withId("manage-program-admin-link-" + program.id())
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);

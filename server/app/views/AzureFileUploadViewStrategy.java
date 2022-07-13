@@ -4,8 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.input;
 
 import com.google.common.collect.ImmutableList;
-import j2html.attributes.Attr;
-import j2html.tags.Tag;
+import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
 import javax.inject.Inject;
 import services.cloud.StorageUploadRequest;
@@ -21,12 +21,12 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  protected ImmutableList<Tag> fileUploadFields(Optional<StorageUploadRequest> request) {
+  protected ImmutableList<InputTag> fileUploadFields(Optional<StorageUploadRequest> request) {
     if (request.isEmpty()) {
       return ImmutableList.of();
     }
     BlobStorageUploadRequest signedRequest = castStorageRequest(request.get());
-    ImmutableList.Builder<Tag> builder = ImmutableList.builder();
+    ImmutableList.Builder<InputTag> builder = ImmutableList.builder();
     builder.add(
         input().withType("hidden").withName("fileName").withValue(signedRequest.fileName()),
         input().withType("hidden").withName("sasToken").withValue(signedRequest.sasToken()),
@@ -40,7 +40,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
             .withType("hidden")
             .withName("successActionRedirect")
             .withValue(signedRequest.successActionRedirect()),
-        input().withType("file").withName("file").attr(Attr.ACCEPT, MIME_TYPES_IMAGES_AND_PDF));
+        input().withType("file").withName("file").withAccept(MIME_TYPES_IMAGES_AND_PDF));
     return builder.build();
   }
 
@@ -53,7 +53,7 @@ public final class AzureFileUploadViewStrategy extends FileUploadViewStrategy {
   }
 
   @Override
-  protected ImmutableList<Tag> extraScriptTags() {
+  protected ImmutableList<ScriptTag> extraScriptTags() {
     return ImmutableList.of(
         viewUtils.makeAzureBlobStoreScriptTag(),
         viewUtils.makeLocalJsTag("azure_upload"),

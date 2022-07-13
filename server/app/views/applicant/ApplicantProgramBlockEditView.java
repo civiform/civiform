@@ -9,7 +9,8 @@ import static j2html.TagCreator.h1;
 import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.DivTag;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
@@ -45,7 +46,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   }
 
   public Content render(Params params) {
-    Tag blockDiv =
+    DivTag blockDiv =
         div()
             .with(div(renderBlockWithSubmitForm(params)).withClasses(Styles.MY_8))
             .withClasses(Styles.MY_8, Styles.M_AUTO);
@@ -95,7 +96,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
    * warning. Allow them to dismiss the warning, and once it is dismissed it does not reappear for
    * the same program.
    */
-  private ContainerTag renderLocaleNotSupportedToast(
+  private DivTag renderLocaleNotSupportedToast(
       long applicantId, long programId, Messages messages) {
     // Note: we include applicantId and programId in the ID, so that the applicant sees the warning
     // for each program that is not properly localized. Otherwise, once dismissed, this toast would
@@ -110,7 +111,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .getContainerTag();
   }
 
-  private Tag renderBlockWithSubmitForm(Params params) {
+  private ContainerTag<?> renderBlockWithSubmitForm(Params params) {
     if (params.block().isFileUpload()) {
       return fileUploadStrategy.renderFileUploadBlock(params, applicantQuestionRendererFactory);
     }
@@ -136,14 +137,15 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .with(renderBottomNavButtons(params));
   }
 
-  private Tag renderQuestion(ApplicantQuestion question, ApplicantQuestionRendererParams params) {
+  private DivTag renderQuestion(
+      ApplicantQuestion question, ApplicantQuestionRendererParams params) {
     checkNotNull(
         applicantQuestionRendererFactory,
         "Must call init function for initializing ApplicantQuestionRendererFactory");
     return applicantQuestionRendererFactory.getRenderer(question).render(params);
   }
 
-  private Tag renderBottomNavButtons(Params params) {
+  private DivTag renderBottomNavButtons(Params params) {
     return div()
         .withClasses(ApplicantStyles.APPLICATION_NAV_BAR)
         // An empty div to take up the space to the left of the buttons.
@@ -153,7 +155,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .with(renderNextButton(params));
   }
 
-  private Tag renderNextButton(Params params) {
+  private ButtonTag renderNextButton(Params params) {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
         .withId("cf-block-submit");

@@ -10,8 +10,8 @@ import static j2html.TagCreator.tr;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.TableTag;
+import j2html.tags.specialized.TrTag;
 import play.twirl.api.Content;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
@@ -31,7 +31,7 @@ public final class IconsView extends BaseHtmlView {
   }
 
   public Content render() {
-    ContainerTag content =
+    TableTag content =
         table()
             .with(
                 tr().with(th("Icon name"), th("Icon"), th("Width"), th("Height")),
@@ -45,7 +45,7 @@ public final class IconsView extends BaseHtmlView {
     return layout.render(bundle);
   }
 
-  private Tag renderIconRow(Icons icon) {
+  private TrTag renderIconRow(Icons icon) {
     return tr().with(
             td(icon.name()),
             td(Icons.svg(icon.path, 24)),
