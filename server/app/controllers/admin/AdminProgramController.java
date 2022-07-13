@@ -24,7 +24,6 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.programs.ProgramEditView;
 import views.admin.programs.ProgramIndexView;
-import views.admin.programs.ProgramIndexViewV2;
 import views.admin.programs.ProgramNewOneView;
 
 /** Controller for handling methods for admins managing program definitions. */
@@ -32,7 +31,6 @@ public class AdminProgramController extends CiviFormController {
 
   private final ProgramService service;
   private final ProgramIndexView listView;
-  private final ProgramIndexViewV2 listViewV2;
   private final ProgramNewOneView newOneView;
   private final ProgramEditView editView;
   private final FormFactory formFactory;
@@ -44,7 +42,6 @@ public class AdminProgramController extends CiviFormController {
   public AdminProgramController(
       ProgramService service,
       ProgramIndexView listView,
-      ProgramIndexViewV2 listViewV2,
       ProgramNewOneView newOneView,
       ProgramEditView editView,
       VersionRepository versionRepository,
@@ -53,7 +50,6 @@ public class AdminProgramController extends CiviFormController {
       RequestChecker requestChecker) {
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
-    this.listViewV2 = checkNotNull(listViewV2);
     this.newOneView = checkNotNull(newOneView);
     this.editView = checkNotNull(editView);
     this.versionRepository = checkNotNull(versionRepository);
@@ -69,11 +65,6 @@ public class AdminProgramController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
-    // TODO(#1238): Remove the old view once the new rendering
-    // should be default.
-    if (request.queryString().containsKey("v2")) {
-      return ok(listViewV2.render(this.service.getActiveAndDraftPrograms(), request, profileMaybe));
-    }
     return ok(listView.render(this.service.getActiveAndDraftPrograms(), request, profileMaybe));
   }
 
