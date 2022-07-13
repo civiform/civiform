@@ -80,7 +80,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private Content renderWithSupportFooter(HtmlBundle bundle, Messages messages) {
-    ContainerTag supportLink = getSupportLink(messages);
+    DivTag supportLink = getSupportLink(messages);
     bundle.addFooterContent(supportLink);
 
     return render(bundle);
@@ -121,7 +121,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(branding());
   }
 
-  public ContainerTag renderNavBarLoggedIn(
+  public NavTag renderNavBarLoggedIn(
       Http.RequestHeader request, Optional<String> userName, Messages messages) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
@@ -135,7 +135,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
-  public ContainerTag renderNavBarLoggedOut(Http.RequestHeader request, Messages messages) {
+  public NavTag renderNavBarLoggedOut(Http.RequestHeader request, Messages messages) {
     return renderBaseNavBar().with(div(), loginButton(messages));
   }
 
@@ -234,7 +234,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .withClasses(ApplicantStyles.LINK_LOGOUT));
   }
 
-  private ContainerTag loginButton(Messages messages) {
+  private DivTag loginButton(Messages messages) {
     String loginLink = routes.CallbackController.callback(GuestClient.CLIENT_NAME).url();
 
     return div(
