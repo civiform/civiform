@@ -2,18 +2,29 @@
 # isn't totally necessary, but allows for custom IAM
 # policies on the key
 resource "aws_kms_key" "civiform_kms_key" {
+  tags = {
+    Name = "${var.app_prefix} Civiform KMS Key"
+    Type = "Civiform KMS Key"
+  }
   description             = "KMS key for civiform"
   deletion_window_in_days = 10
 }
 
 # Create a random generated password to use for postgres_password.
 resource "random_password" "postgres_username" {
-  length  = 16
+  length  = 7
   special = false
+  keepers = {
+    version = 1
+  }
 }
 
 # Creating a AWS secret for postgres_username
 resource "aws_secretsmanager_secret" "postgres_username_secret" {
+  tags = {
+    Name = "${var.app_prefix} Civiform Postgres Username Secret"
+    Type = "Civiform Postgres Username Secret"
+  }
   name       = "${var.app_prefix}-postgres_username"
   kms_key_id = aws_kms_key.civiform_kms_key.arn
 }
@@ -21,17 +32,26 @@ resource "aws_secretsmanager_secret" "postgres_username_secret" {
 # Creating a AWS secret versions for postgres_username
 resource "aws_secretsmanager_secret_version" "postgres_username_secret_version" {
   secret_id     = aws_secretsmanager_secret.postgres_username_secret.id
-  secret_string = random_password.postgres_username.result
+  secret_string = "db_admin_${random_password.postgres_username.result}"
 }
 
 # Create a random generated password to use for postgres_password.
 resource "random_password" "postgres_password" {
-  length  = 16
-  special = false
+  length           = 40
+  special          = true
+  min_special      = 5
+  override_special = "!#$%^&*()-_=+[]{}<>:?"
+  keepers = {
+    version = 1
+  }
 }
 
 # Creating a AWS secret for postgres_password
 resource "aws_secretsmanager_secret" "postgres_password_secret" {
+  tags = {
+    Name = "${var.app_prefix} Civiform Postgres Password Secret"
+    Type = "Civiform Postgres Password Secret"
+  }
   name       = "${var.app_prefix}-postgres_password"
   kms_key_id = aws_kms_key.civiform_kms_key.arn
 }
@@ -51,6 +71,10 @@ resource "random_password" "app_secret_key" {
 
 # Creating a AWS secret for app_secret_key
 resource "aws_secretsmanager_secret" "app_secret_key_secret" {
+  tags = {
+    Name = "${var.app_prefix} Civiform App Secret Secret"
+    Type = "Civiform App Secret Secret"
+  }
   name = "${var.app_prefix}-app_secret_key"
 }
 
@@ -62,6 +86,10 @@ resource "aws_secretsmanager_secret_version" "app_secret_key_secret_version" {
 
 # Creating a AWS secret for adfs_secret
 resource "aws_secretsmanager_secret" "adfs_secret_secret" {
+  tags = {
+    Name = "${var.app_prefix} Civiform ADFS Secret Secret"
+    Type = "Civiform ADFS Secret Secret"
+  }
   name       = "${var.app_prefix}-adfs_secret"
   kms_key_id = aws_kms_key.civiform_kms_key.arn
 }
@@ -74,6 +102,10 @@ resource "aws_secretsmanager_secret_version" "adfs_secret_secret_version" {
 
 # Creating a AWS secret for adfs_client_id
 resource "aws_secretsmanager_secret" "adfs_client_id_secret" {
+  tags = {
+    Name = "${var.app_prefix} Civiform ADFS Client ID Secret"
+    Type = "Civiform ADFS Client ID Secret"
+  }
   name       = "${var.app_prefix}-adfs_client_id"
   kms_key_id = aws_kms_key.civiform_kms_key.arn
 }
@@ -86,6 +118,10 @@ resource "aws_secretsmanager_secret_version" "adfs_client_id_secret_version" {
 
 # Creating a AWS secret for adfs_discovery_uri
 resource "aws_secretsmanager_secret" "adfs_discovery_uri_secret" {
+  tags = {
+    Name = "${var.app_prefix} Civiform ADFS Discovery URI Secret"
+    Type = "Civiform ADFS Discovery URI Secret"
+  }
   name       = "${var.app_prefix}-adfs_discovery_uri"
   kms_key_id = aws_kms_key.civiform_kms_key.arn
 }

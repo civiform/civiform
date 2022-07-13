@@ -55,7 +55,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       ImmutableList<Account> managedAccounts,
       int totalPageCount,
       int page,
-      Optional<String> search,
+      Optional<String> searchParam,
       Http.Request request,
       Messages messages) {
     HtmlBundle bundle =
@@ -70,12 +70,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 renderAddNewForm(tiGroup, request),
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Clients"),
-                renderSearchForm(
-                    request,
-                    search,
-                    routes.TrustedIntermediaryController.dashboard(
-                        Optional.empty(), Optional.empty())),
-                renderTIApplicantsTable(managedAccounts, search, page, totalPageCount),
+                renderSearchForm(request, searchParam),
+                renderTIApplicantsTable(managedAccounts, searchParam, page, totalPageCount),
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Trusted Intermediary Members"),
                 renderTIMembersTable(tiGroup).withClasses(Styles.ML_2))
@@ -94,9 +90,27 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return layout.renderWithNav(request, userName, messages, bundle);
   }
 
+  private Tag renderSearchForm(Http.Request request, Optional<String> searchParam) {
+    return form()
+        .withClass(Styles.W_1_4)
+        .withMethod("GET")
+        .withAction(
+            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty())
+                .url())
+        .with(
+            FieldWithLabel.input()
+                .setFieldName("search")
+                .setValue(searchParam)
+                .setLabelText("Search")
+                .getContainer()
+                .withClasses(Styles.W_FULL),
+            makeCsrfTokenInputTag(request),
+            submitButton("Search").withClasses(Styles.M_2));
+  }
+
   private ContainerTag renderTIApplicantsTable(
       ImmutableList<Account> managedAccounts,
-      Optional<String> search,
+      Optional<String> searchParam,
       int page,
       int totalPageCount) {
     ContainerTag main =
@@ -116,7 +130,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             page,
             totalPageCount,
             pageNumber ->
-                routes.TrustedIntermediaryController.dashboard(search, Optional.of(pageNumber))));
+                routes.TrustedIntermediaryController.dashboard(
+                    searchParam, Optional.of(pageNumber))));
   }
 
   private ContainerTag renderTIMembersTable(TrustedIntermediaryGroup tiGroup) {
@@ -159,7 +174,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setLabelText("Last Name")
             .setValue(request.flash().get("providedLastName").orElse(""))
             .setPlaceholderText("Applicant last name (Required)");
-    // TODO: do something with this field.  currently doesn't do anything.
+    // TODO: do something with this field.  currently doesn't do anything. Add a Path
+    // to WellKnownPaths referencing the canonical date of birth question.
     FieldWithLabel dateOfBirthField =
         FieldWithLabel.date()
             .setId("date-of-birth-input")

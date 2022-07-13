@@ -4,12 +4,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -48,7 +50,7 @@ public final class DatabaseSeedTask {
       ImmutableList.of(
           new QuestionDefinitionBuilder()
               .setQuestionType(QuestionType.NAME)
-              .setName("Applicant Name")
+              .setName("Name")
               .setDescription("The applicant's name")
               .setQuestionText(
                   LocalizedStrings.of(
@@ -91,33 +93,45 @@ public final class DatabaseSeedTask {
     this.database = DB.getDefault();
   }
 
-  public void run() {
-    seedCanonicalQuestions();
+  public ImmutableList<QuestionDefinition> run() {
+    return seedCanonicalQuestions();
   }
 
   /**
    * Ensures that questions with names matching those in {@code CANONICAL_QUESTIONS} are present in
    * the database, inserting the definitions in {@code CANONICAL_QUESTIONS} if any aren't found.
    */
-  private void seedCanonicalQuestions() {
-    if (canonicalQuestionsAlreadyPresent()) {
-      return;
+  private ImmutableList<QuestionDefinition> seedCanonicalQuestions() {
+    ImmutableSet<String> canonicalQuestionNames =
+        CANONICAL_QUESTIONS.stream()
+            .map(QuestionDefinition::getName)
+            .collect(ImmutableSet.toImmutableSet());
+    ImmutableMap<String, QuestionDefinition> existingCanonicalQuestions =
+        questionService.getExistingQuestions(canonicalQuestionNames);
+    if (existingCanonicalQuestions.size() < canonicalQuestionNames.size()) {
+      // Ensure a draft version exists to avoid transaction collisions with getDraftVersion.
+      versionRepository.getDraftVersion();
     }
 
-    // Ensure a draft version exists to avoid transaction collisions with getDraftVersion.
-    versionRepository.getDraftVersion();
-
+    ImmutableList.Builder<QuestionDefinition> questionDefinitions = ImmutableList.builder();
     for (QuestionDefinition questionDefinition : CANONICAL_QUESTIONS) {
-      inSerializableTransaction(() -> ensureQuestion(questionDefinition), 1);
+      if (existingCanonicalQuestions.containsKey(questionDefinition.getName())) {
+        LOGGER.info(
+            "Canonical question \"%s\" exists at server start", questionDefinition.getName());
+        questionDefinitions.add(existingCanonicalQuestions.get(questionDefinition.getName()));
+      } else {
+        inSerializableTransaction(
+            () -> {
+              Optional<QuestionDefinition> question = createQuestion(questionDefinition);
+              question.ifPresent((q) -> questionDefinitions.add(q));
+            },
+            1);
+      }
     }
+    return questionDefinitions.build();
   }
 
-  private void ensureQuestion(QuestionDefinition questionDefinition) {
-    if (questionService.questionExists(questionDefinition.getName())) {
-      LOGGER.info("Canonical question \"%s\" exists at server start", questionDefinition.getName());
-      return;
-    }
-
+  private Optional<QuestionDefinition> createQuestion(QuestionDefinition questionDefinition) {
     ErrorAnd<QuestionDefinition, CiviFormError> result = questionService.create(questionDefinition);
 
     if (result.isError()) {
@@ -128,8 +142,10 @@ public final class DatabaseSeedTask {
           String.format(
               "Unable to create canonical question \"%s\" due to %s",
               questionDefinition.getName(), errorMessages));
+      return Optional.empty();
     } else {
       LOGGER.info("Created canonical question \"%s\"", questionDefinition.getName());
+      return Optional.of(result.getResult());
     }
   }
 
@@ -163,14 +179,5 @@ public final class DatabaseSeedTask {
         transaction.end();
       }
     }
-  }
-
-  private boolean canonicalQuestionsAlreadyPresent() {
-    return questionService
-        .getQuestionNames()
-        .containsAll(
-            CANONICAL_QUESTIONS.stream()
-                .map(QuestionDefinition::getName)
-                .collect(ImmutableList.toImmutableList()));
   }
 }

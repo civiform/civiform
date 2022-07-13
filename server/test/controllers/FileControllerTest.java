@@ -6,6 +6,8 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.fakeRequest;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import models.Applicant;
 import models.Program;
 import models.StoredFile;
@@ -168,13 +170,19 @@ public class FileControllerTest extends WithMockedProfiles {
     createProgramAdminWithMockedProfile(program);
     String fileKey = fakeFileKey(1L, program.id);
     createStoredFileWithProgramAccess(fileKey, program);
+    String encodedFileKey = encodefakeFileKey(fileKey);
 
-    Result result = controller.acledAdminShow(fakeRequest().build(), fileKey);
+    Result result = controller.acledAdminShow(fakeRequest().build(), encodedFileKey);
+
     assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
   private String fakeFileKey(long applicantId, long programId) {
     return String.format("applicant-%d/program-%d/block-0", applicantId, programId);
+  }
+
+  private String encodefakeFileKey(String fileKey) {
+    return URLEncoder.encode(fileKey, StandardCharsets.UTF_8);
   }
 
   private void createStoredFileWithProgramAccess(String fileKey, Program program) {

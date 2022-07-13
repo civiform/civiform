@@ -34,7 +34,6 @@ import services.question.QuestionService;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.DropdownQuestionDefinition;
-import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.RadioButtonQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
@@ -98,8 +97,12 @@ public class DatabaseSeedController extends DevController {
     if (!isDevOrStagingEnvironment()) {
       return notFound();
     }
-    databaseSeedTask.run();
-    insertProgramWithBlocks("Mock program");
+    QuestionDefinition canonicalNameQuestion =
+        databaseSeedTask.run().stream()
+            .filter(q -> q.getName().equals("Name"))
+            .findFirst()
+            .orElseThrow();
+    insertProgramWithBlocks("Mock program", canonicalNameQuestion);
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been seeded");
   }
@@ -112,26 +115,6 @@ public class DatabaseSeedController extends DevController {
     resetTables();
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been cleared");
-  }
-
-  private QuestionDefinition insertNameQuestionDefinition() {
-    return questionService
-        .create(
-            new NameQuestionDefinition(
-                "name",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.of(
-                    Locale.US,
-                    "What is your name?",
-                    Locale.forLanguageTag("es-US"),
-                    "¿Cómo se llama?"),
-                LocalizedStrings.of(
-                    Locale.US,
-                    "help text",
-                    Locale.forLanguageTag("es-US"),
-                    "Ponga su nombre legal")))
-        .getResult();
   }
 
   private QuestionDefinition insertColorQuestionDefinition() {
@@ -212,7 +195,7 @@ public class DatabaseSeedController extends DevController {
         .getResult();
   }
 
-  private ProgramDefinition insertProgramWithBlocks(String name) {
+  private ProgramDefinition insertProgramWithBlocks(String name, QuestionDefinition nameQuestion) {
     try {
       ProgramDefinition programDefinition =
           programService
@@ -235,8 +218,7 @@ public class DatabaseSeedController extends DevController {
           programId,
           blockId,
           ImmutableList.of(
-              ProgramQuestionDefinition.create(
-                  insertNameQuestionDefinition(), Optional.of(programId)),
+              ProgramQuestionDefinition.create(nameQuestion, Optional.of(programId)),
               ProgramQuestionDefinition.create(
                   insertColorQuestionDefinition(), Optional.of(programId))));
 

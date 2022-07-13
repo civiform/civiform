@@ -13,14 +13,12 @@ import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.Optional;
 import java.util.function.Function;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
 import play.mvc.Call;
 import play.mvc.Http;
 import services.applicant.ValidationErrorMessage;
-import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.html.helper.CSRF;
@@ -128,38 +126,6 @@ public abstract class BaseHtmlView {
       div.with(new LinkElement().setText("∅").asButton());
     }
     return div.with(br());
-  }
-
-  protected ContainerTag renderSearchForm(
-      Http.Request request, Optional<String> search, Call searchCall) {
-    return renderSearchForm(
-        request,
-        search,
-        searchCall,
-        /* htmlClasses= */ Optional.empty(),
-        /* labelText= */ Optional.empty());
-  }
-
-  protected ContainerTag renderSearchForm(
-      Http.Request request,
-      Optional<String> search,
-      Call searchCall,
-      Optional<String> htmlClasses,
-      Optional<String> labelText) {
-    return form()
-        .withMethod("GET")
-        .withAction(searchCall.url())
-        .with(
-            FieldWithLabel.input()
-                .setId("search-field")
-                .setFieldName("search")
-                .setLabelText(labelText.orElse("Search"))
-                .setValue(search.orElse(""))
-                .setPlaceholderText("Search")
-                .getContainer()
-                .withClasses(htmlClasses.orElse(Styles.W_1_4)),
-            makeCsrfTokenInputTag(request),
-            submitButton("Search").withClasses(Styles.M_2));
   }
 
   protected static ContainerTag toLinkButtonForPost(
