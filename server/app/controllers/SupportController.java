@@ -18,8 +18,9 @@ public class SupportController extends Controller {
   private final UnsupportedBrowserView unsupportedBrowserView;
 
   @Inject
-  public SupportController(UnconfirmedIdcsEmailBugView unconfirmedIdcsEmailBugView,
-                           UnsupportedBrowserView unsupportedBrowserView) {
+  public SupportController(
+      UnconfirmedIdcsEmailBugView unconfirmedIdcsEmailBugView,
+      UnsupportedBrowserView unsupportedBrowserView) {
     this.unconfirmedIdcsEmailBugView = checkNotNull(unconfirmedIdcsEmailBugView);
     this.unsupportedBrowserView = checkNotNull(unsupportedBrowserView);
   }
