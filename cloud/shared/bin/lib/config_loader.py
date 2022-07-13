@@ -70,26 +70,33 @@ class ConfigLoader:
             is_required = definition.get('required', False)
             config_value = configs.get(name, None)
 
-            if is_required and config_value is None:
-                validation_errors.append(f'[{name}] required, but not provided')
+            if config_value is None:
+                if is_required:
+                    validation_errors.append(
+                        f'[{name}] required, but not provided')
+                continue
 
             is_enum = definition.get('type') == 'enum'
 
-            if config_value is not None and is_enum:
+            if is_enum:
                 if config_value not in definition.get('values'):
                     validation_errors.append(
                         f'[{name}] \'{config_value}\' is not a supported enum value. Want a value in [{", ".join(definition.get("values"))}]'
                     )
 
             value_regex = definition.get('value_regex', None)
-            if config_value is not None and value_regex:
-                validation_error = definition.get(
+            if value_regex:
+                # TODO(#2887): If we validate variable definitions prior to
+                # trying to validate an actual configuration, we can assume that
+                # this will always be set if value_regex is provided.
+                validation_error_message = definition.get(
                     'value_regex_error_message', None)
-                if not validation_error:
+                if not validation_error_message:
                     raise ValueError(
                         f'[{name}] no value_regex_error_message configured')
                 if not re.compile(value_regex).fullmatch(config_value):
-                    validation_errors.append(f'[{name}] {validation_error}')
+                    validation_errors.append(
+                        f'[{name}] {validation_error_message}')
 
         return validation_errors
 
