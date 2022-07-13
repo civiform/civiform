@@ -103,8 +103,10 @@ public class FileController extends CiviFormController {
    * identified by {@code maybeProgramId} if it is present.
    */
   private Result adminShowInternal(Request request, Optional<Long> maybeProgramId, String fileKey) {
+    String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
+
     Optional<StoredFile> maybeFile =
-        storedFileRepository.lookupFile(fileKey).toCompletableFuture().join();
+        storedFileRepository.lookupFile(decodedFileKey).toCompletableFuture().join();
 
     if (maybeFile.isEmpty()) {
       return notFound();
@@ -122,7 +124,6 @@ public class FileController extends CiviFormController {
           .orElse(unauthorized());
     }
 
-    String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
     return redirect(storageClient.getPresignedUrlString(decodedFileKey));
   }
 
