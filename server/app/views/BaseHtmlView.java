@@ -26,8 +26,11 @@ import views.html.helper.CSRF;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
+import java.util.Optional;
 
 import javax.swing.*;
+import views.components.FieldWithLabel;
+import views.components.LinkElement;
 
 /**
  * Base class for all HTML views. Provides stateless convenience methods for generating HTML.
