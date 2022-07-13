@@ -18,10 +18,6 @@ export class NotFoundPage {
     await waitForPageJsLoad(this.page)
   }
 
-  async gotoMockNotFoundPage(page: Page) {
-    return await page.goto(BASE_URL + '/dev/abc')
-  }
-
   async checkPageHeaderEnUS() {
     expect(await this.page.innerText('h1')).toContain(
       'We were unable to find the page you tried to visit',
