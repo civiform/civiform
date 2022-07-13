@@ -11,7 +11,7 @@ import play.mvc.Result;
 import views.support.UnconfirmedIdcsEmailBugView;
 import views.support.UnsupportedBrowserView;
 
-public class SupportController extends Controller {
+public final class SupportController extends Controller {
   private static final Logger logger = LoggerFactory.getLogger(SupportController.class);
 
   private final UnconfirmedIdcsEmailBugView unconfirmedIdcsEmailBugView;

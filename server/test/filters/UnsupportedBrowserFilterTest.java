@@ -5,13 +5,17 @@ import static play.test.Helpers.fakeRequest;
 
 import akka.stream.testkit.NoMaterializer$;
 import com.google.common.collect.ImmutableList;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
+@RunWith(JUnitParamsRunner.class)
 public class UnsupportedBrowserFilterTest {
 
   private final UnsupportedBrowserFilter filter = new UnsupportedBrowserFilter();
@@ -43,22 +47,28 @@ public class UnsupportedBrowserFilterTest {
   }
 
   @Test
-  public void testOldIETriggerRedirect() throws Exception {
-    for (String useragent : ImmutableList.of(IE9, IE10, IE11)) {
-      Result res =
-          runFilter(fakeRequest().header(Http.HeaderNames.USER_AGENT, useragent), Results.ok(""));
-      assertThat(res.status()).isEqualTo(303);
-      assertThat(res.headers()).containsEntry(Http.HeaderNames.LOCATION, unsupportedBrowserPath);
-    }
+  @Parameters(method = "getUnsupportedBrowsers")
+  public void testOldIETriggerRedirect(String userAgent) throws Exception {
+    Result res =
+        runFilter(fakeRequest().header(Http.HeaderNames.USER_AGENT, userAgent), Results.ok(""));
+    assertThat(res.status()).isEqualTo(303);
+    assertThat(res.headers()).containsEntry(Http.HeaderNames.LOCATION, unsupportedBrowserPath);
+  }
+
+  private ImmutableList<String> getUnsupportedBrowsers() {
+    return ImmutableList.of(IE9, IE10, IE11);
   }
 
   @Test
-  public void testModernBrowsersPassThrough() throws Exception {
-    for (String useragent : ImmutableList.of(EDGE, FIREFOX, CHROME, SAFARI)) {
-      Result res =
-          runFilter(fakeRequest().header(Http.HeaderNames.USER_AGENT, useragent), Results.ok(""));
-      assertThat(res.status()).isEqualTo(200);
-    }
+  @Parameters(method = "getSupportedBrowsers")
+  public void testModernBrowsersPassThrough(String userAgent) throws Exception {
+    Result res =
+        runFilter(fakeRequest().header(Http.HeaderNames.USER_AGENT, userAgent), Results.ok(""));
+    assertThat(res.status()).isEqualTo(200);
+  }
+
+  private ImmutableList<String> getSupportedBrowsers() {
+    return ImmutableList.of(EDGE, FIREFOX, CHROME, SAFARI);
   }
 
   @Test
