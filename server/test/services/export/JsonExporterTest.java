@@ -6,6 +6,7 @@ import java.util.Optional;
 import models.Application;
 import models.Program;
 import org.junit.Test;
+import repository.TimeFilter;
 import services.CfJsonDocumentContext;
 import services.IdentifierBasedPaginationSpec;
 import services.Path;
@@ -24,7 +25,9 @@ public class JsonExporterTest extends AbstractExporterTest {
         exporter
             .export(
                 fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG)
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                Optional.empty(),
+                TimeFilter.EMPTY)
             .getLeft();
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
@@ -92,7 +95,9 @@ public class JsonExporterTest extends AbstractExporterTest {
         exporter
             .export(
                 fakeProgramWithEnumerator.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG)
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                Optional.empty(),
+                TimeFilter.EMPTY)
             .getLeft();
 
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);

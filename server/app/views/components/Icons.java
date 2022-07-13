@@ -1,6 +1,5 @@
 package views.components;
 
-import j2html.tags.ContainerTag;
 import services.question.types.QuestionType;
 
 /**
@@ -41,6 +40,14 @@ public enum Icons {
       "M19 4h-1V3c0-.55-.45-1-1-1s-1 .45-1 1v1H8V3c0-.55-.45-1-1-1s-1 .45-1 1v1H5c-1.11"
           + " 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 15c0"
           + " .55-.45 1-1 1H6c-.55 0-1-.45-1-1V9h14v10zM7 11h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"),
+  DELETE(
+      "M5.896 17.5Q5.167 17.5 4.656 16.99Q4.146 16.479 4.146"
+          + " 15.75V5.125H3.333V3.375H7.542V2.5H12.458V3.375H16.667V5.125H15.833V15.75Q15.833"
+          + " 16.479 15.323 16.99Q14.812 17.5 14.083 17.5ZM14.083 5.125H5.896V15.75Q5.896 15.75"
+          + " 5.896 15.75Q5.896 15.75 5.896 15.75H14.083Q14.083 15.75 14.083 15.75Q14.083 15.75"
+          + " 14.083 15.75ZM7.458 14H9.208V6.875H7.458ZM10.771 14H12.521V6.875H10.771ZM5.896"
+          + " 5.125V15.75Q5.896 15.75 5.896 15.75Q5.896 15.75 5.896 15.75Q5.896 15.75 5.896"
+          + " 15.75Q5.896 15.75 5.896 15.75Z"),
   DOWNLOAD(
       "M10 13.271 5.708 8.979 6.958 7.729 9.125 9.896V3.333H10.875V9.896L13.042 7.729L14.292"
           + " 8.979ZM5.083 16.667Q4.354 16.667 3.844 16.156Q3.333 15.646 3.333"
@@ -72,6 +79,20 @@ public enum Icons {
       "M11 16V7.85L8.4 10.45L7 9L12 4L17 9L15.6 10.45L13 7.85V16ZM6 20Q5.175 20 4.588 19.413Q4"
           + " 18.825 4 18V15H6V18Q6 18 6 18Q6 18 6 18H18Q18 18 18 18Q18 18 18 18V15H20V18Q20"
           + " 18.825 19.413 19.413Q18.825 20 18 20Z"),
+  FILTER_ALT(
+      "M11.667 10.833v5q0 .355-.24.594-.239.24-.594.24H9.167q-.355"
+          + " 0-.594-.24-.24-.239-.24-.594v-5L3.5"
+          + " 4.667q-.312-.417-.094-.875.219-.459.761-.459h11.666q.542 0"
+          + " .761.459.218.458-.094.875ZM10 10.125l3.958-5.042H6.042Zm0 0Z"),
+  FLAKY(
+      "M10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2"
+          + " 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0"
+          + " 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625"
+          + " 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18ZM6.25 9.062 7.292 8l1.062"
+          + " 1.062.708-.708L8 7.292 9.062 6.25l-.708-.729-1.062 1.062L6.25 5.521l-.729.729 1.062"
+          + " 1.042-1.062 1.062ZM10 16.5q2.729 0 4.615-1.896Q16.5 12.708 16.5"
+          + " 10q0-1.25-.479-2.448t-1.417-2.156l-9.208 9.208q.958.958 2.156 1.427Q8.75 16.5 10"
+          + " 16.5Zm1.646-2.208-1.771-1.771.708-.709 1.063 1.063 1.937-1.937.709.708Z"),
   GROUP(
       "M0.833 16.667V14.271Q0.833 13.542 1.208 12.958Q1.583 12.375 2.188 12.083Q3.438 11.458 4.812"
           + " 11.146Q6.188 10.833 7.562 10.833Q8.938 10.833 10.312 11.156Q11.688 11.479 12.938"
@@ -229,11 +250,11 @@ public enum Icons {
     this.path = path;
   }
 
-  public static ContainerTag questionTypeSvg(QuestionType type, int size) {
+  public static SvgTag questionTypeSvg(QuestionType type, int size) {
     return questionTypeSvg(type, size, size);
   }
 
-  public static ContainerTag questionTypeSvg(QuestionType type, int width, int height) {
+  public static SvgTag questionTypeSvg(QuestionType type, int width, int height) {
     Icons icon;
     switch (type) {
       case ADDRESS:
@@ -290,35 +311,35 @@ public enum Icons {
     return svg(icon, width, height);
   }
 
-  public static ContainerTag svg(Icons icon, int pixelSize) {
+  public static SvgTag svg(Icons icon, int pixelSize) {
     return svg(icon.path, pixelSize);
   }
 
-  public static ContainerTag svg(String pathString, int pixelSize) {
+  public static SvgTag svg(String pathString, int pixelSize) {
     return svg(pathString, pixelSize, pixelSize);
   }
 
-  public static ContainerTag svg(Icons icon, int width, int height) {
+  public static SvgTag svg(Icons icon, int width, int height) {
     return svg(icon.path, width, height);
   }
 
-  public static ContainerTag svg(String pathString, int width, int height) {
+  public static SvgTag svg(String pathString, int width, int height) {
     // Setting the viewBox to a specific height/width is insufficient to
     // actually cause the SVG's bounds to match. Here, the width / height
     // of the SVG element are explicitly set, which is more consistent
     // with what one would expect given the method signature.
     return svg(pathString)
         .attr("viewBox", String.format("0 0 %1$d %2$d", width, height))
-        .attr("width", width)
-        .attr("height", height);
+        .withWidth(String.valueOf(width))
+        .withHeight(String.valueOf(height));
   }
 
-  private static ContainerTag svg(String pathString) {
+  private static SvgTag svg(String pathString) {
     return svg().with(path(pathString));
   }
 
-  private static ContainerTag svg() {
-    return new ContainerTag("svg")
+  private static SvgTag svg() {
+    return new SvgTag()
         .attr("xmlns", "http://www.w3.org/2000/svg")
         .attr("fill", "currentColor")
         .attr("stroke", "currentColor")
@@ -326,7 +347,7 @@ public enum Icons {
         .attr("aria-hidden", "true");
   }
 
-  private static ContainerTag path(String pathString) {
-    return new ContainerTag("path").attr("d", pathString);
+  private static PathTag path(String pathString) {
+    return new PathTag().attr("d", pathString);
   }
 }

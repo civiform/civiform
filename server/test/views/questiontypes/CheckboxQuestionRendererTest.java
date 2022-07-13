@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -59,7 +59,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
 
   @Test
   public void render_usesCorrectInputName() {
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render()).contains("applicant.question_name.selections[]");
   }
@@ -73,7 +73,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, question.getContextualizedPath(), 2, 3L);
 
-    Tag result = renderer.render(params);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render()).contains("Please select fewer than 2");
   }

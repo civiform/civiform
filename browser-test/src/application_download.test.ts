@@ -31,30 +31,27 @@ describe('normal application flow', () => {
     // selects a different entity from another test.
     page.setDefaultTimeout(4000)
 
+    const noApplyFilters = false
+    const applyFilters = true
+
     await loginAsAdmin(page)
     const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
     const applicantQuestions = new ApplicantQuestions(page)
 
     const programName = 'test program for export'
-    await adminQuestions.addNameQuestion({questionName: 'name-csv-download'})
     await adminQuestions.addDropdownQuestion({
       questionName: 'dropdown-csv-download',
       options: ['op1', 'op2', 'op3'],
     })
     await adminQuestions.addDateQuestion({questionName: 'csv-date'})
     await adminQuestions.addCurrencyQuestion({questionName: 'csv-currency'})
-    await adminQuestions.exportQuestion('name-csv-download')
+    await adminQuestions.exportQuestion('Name')
     await adminQuestions.exportQuestion('dropdown-csv-download')
     await adminQuestions.exportQuestion('csv-date')
     await adminQuestions.exportQuestion('csv-currency')
     await adminPrograms.addAndPublishProgramWithQuestions(
-      [
-        'name-csv-download',
-        'dropdown-csv-download',
-        'csv-date',
-        'csv-currency',
-      ],
+      ['Name', 'dropdown-csv-download', 'csv-date', 'csv-currency'],
       programName,
     )
 
@@ -78,7 +75,7 @@ describe('normal application flow', () => {
     await loginAsProgramAdmin(page)
 
     await adminPrograms.viewApplications(programName)
-    const csvContent = await adminPrograms.getCsv()
+    const csvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(csvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
 
     await logout(page)
@@ -124,7 +121,7 @@ describe('normal application flow', () => {
     // #######################################
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
-    const postEditCsvContent = await adminPrograms.getCsv()
+    const postEditCsvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(postEditCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
     expect(postEditCsvContent).toContain('Gus,,Guest,op2,01/01/1990,2000.00')
 
@@ -132,31 +129,52 @@ describe('normal application flow', () => {
       postEditCsvContent.split('Gus,,Guest,op2,01/01/1990,2000.00').length - 1
     expect(numberOfGusEntries).toEqual(2)
 
-    const postEditJSonContent = JSON.parse(await adminPrograms.getJson())
-    expect(postEditJSonContent.length).toEqual(3)
-    expect(postEditJSonContent[0].program_name).toEqual(programName)
-    expect(postEditJSonContent[0].language).toEqual('en-US')
+    const postEditJsonContent = JSON.parse(
+      await adminPrograms.getJson(noApplyFilters),
+    )
+    expect(postEditJsonContent.length).toEqual(3)
+    expect(postEditJsonContent[0].program_name).toEqual(programName)
+    expect(postEditJsonContent[0].language).toEqual('en-US')
     expect(
-      postEditJSonContent[0].application.csvcurrency.currency_dollars,
+      postEditJsonContent[0].application.csvcurrency.currency_dollars,
     ).toEqual(2000.0)
     expect(
-      postEditJSonContent[0].application.dropdowncsvdownload.selection,
+      postEditJsonContent[0].application.dropdowncsvdownload.selection,
     ).toEqual('op2')
-    expect(
-      postEditJSonContent[0].application.namecsvdownload.first_name,
-    ).toEqual('Gus')
-    expect(
-      postEditJSonContent[0].application.namecsvdownload.middle_name,
-    ).toBeNull()
-    expect(
-      postEditJSonContent[0].application.namecsvdownload.last_name,
-    ).toEqual('Guest')
-    expect(postEditJSonContent[0].application.csvdate.date).toEqual(
+    expect(postEditJsonContent[0].application.name.first_name).toEqual('Gus')
+    expect(postEditJsonContent[0].application.name.middle_name).toBeNull()
+    expect(postEditJsonContent[0].application.name.last_name).toEqual('Guest')
+    expect(postEditJsonContent[0].application.csvdate.date).toEqual(
       '1990-01-01',
     )
-    expect(postEditJSonContent[0].application.numbercsvdownload.number).toEqual(
+    expect(postEditJsonContent[0].application.numbercsvdownload.number).toEqual(
       1600,
     )
+
+    // Finds a partial text match on applicant name, case insensitive.
+    await adminPrograms.filterProgramApplications('SARA')
+    const filteredCsvContent = await adminPrograms.getCsv(applyFilters)
+    expect(filteredCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
+    expect(filteredCsvContent).not.toContain(
+      'Gus,,Guest,op2,01/01/1990,2000.00',
+    )
+    const filteredJsonContent = JSON.parse(
+      await adminPrograms.getJson(applyFilters),
+    )
+    expect(filteredJsonContent.length).toEqual(1)
+    expect(filteredJsonContent[0].application.name.first_name).toEqual('sarah')
+    // Ensures that choosing not to apply filters continues to return all
+    // results.
+    const allCsvContent = await adminPrograms.getCsv(noApplyFilters)
+    expect(allCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
+    expect(allCsvContent).toContain('Gus,,Guest,op2,01/01/1990,2000.00')
+    const allJsonContent = JSON.parse(
+      await adminPrograms.getJson(noApplyFilters),
+    )
+    expect(allJsonContent.length).toEqual(3)
+    expect(allJsonContent[0].application.name.first_name).toEqual('Gus')
+    expect(allJsonContent[1].application.name.first_name).toEqual('Gus')
+    expect(allJsonContent[2].application.name.first_name).toEqual('sarah')
 
     await logout(page)
 
@@ -168,21 +186,21 @@ describe('normal application flow', () => {
     const demographicsCsvContent = await adminPrograms.getDemographicsCsv()
 
     expect(demographicsCsvContent).toContain(
-      'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)',
+      'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
     )
     expect(demographicsCsvContent).toContain(
-      '1000.00,05/10/2021,op2,sarah,,smith',
+      'sarah,,smith,1000.00,05/10/2021,op2',
     )
 
-    await adminQuestions.createNewVersion('name-csv-download')
-    await adminQuestions.exportQuestionOpaque('name-csv-download')
+    await adminQuestions.createNewVersion('Name')
+    await adminQuestions.exportQuestionOpaque('Name')
     await adminPrograms.publishProgram(programName)
 
     await adminPrograms.gotoAdminProgramsPage()
     const newDemographicsCsvContent = await adminPrograms.getDemographicsCsv()
 
     expect(newDemographicsCsvContent).toContain(
-      'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),namecsvdownload (first_name),namecsvdownload (middle_name),namecsvdownload (last_name)',
+      'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
     )
     expect(newDemographicsCsvContent).not.toContain(',sarah,,smith')
     expect(newDemographicsCsvContent).toContain(',op2,')

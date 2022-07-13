@@ -3,8 +3,8 @@ import {waitForPageJsLoad} from './wait'
 
 type QuestionParams = {
   questionName: string
-  minNumChoices?: number | null
-  maxNumChoices?: number | null
+  minNum?: number | null
+  maxNum?: number | null
   options?: Array<string>
   description?: string
   questionText?: string
@@ -413,8 +413,8 @@ export class AdminQuestions {
   async addCheckboxQuestion({
     questionName,
     options,
-    minNumChoices = null,
-    maxNumChoices = null,
+    minNum = null,
+    maxNum = null,
     description = 'checkbox description',
     questionText = 'checkbox question text',
     helpText = 'checkbox question help text',
@@ -436,16 +436,16 @@ export class AdminQuestions {
       exportOption,
     })
 
-    if (minNumChoices != null) {
+    if (minNum != null) {
       await this.page.fill(
         'label:has-text("Minimum number of choices required")',
-        String(minNumChoices),
+        String(minNum),
       )
     }
-    if (maxNumChoices != null) {
+    if (maxNum != null) {
       await this.page.fill(
         'label:has-text("Maximum number of choices allowed")',
-        String(maxNumChoices),
+        String(maxNum),
       )
     }
 
@@ -738,6 +738,8 @@ export class AdminQuestions {
     description = 'text description',
     questionText = 'text question text',
     helpText = 'text question help text',
+    minNum = null,
+    maxNum = null,
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
@@ -756,6 +758,13 @@ export class AdminQuestions {
       exportOption,
     })
 
+    if (minNum != null) {
+      await this.page.fill('label:has-text("Minimum length")', String(minNum))
+    }
+    if (maxNum != null) {
+      await this.page.fill('label:has-text("Maximum length")', String(maxNum))
+    }
+
     await this.clickSubmitButtonAndNavigate('Create')
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
@@ -768,6 +777,8 @@ export class AdminQuestions {
     description = 'id description',
     questionText = 'id question text',
     helpText = 'id question help text',
+    minNum = null,
+    maxNum = null,
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
@@ -785,6 +796,13 @@ export class AdminQuestions {
       enumeratorName,
       exportOption,
     })
+
+    if (minNum != null) {
+      await this.page.fill('label:has-text("Minimum length")', String(minNum))
+    }
+    if (maxNum != null) {
+      await this.page.fill('label:has-text("Maximum length")', String(maxNum))
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 

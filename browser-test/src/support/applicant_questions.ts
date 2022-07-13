@@ -91,18 +91,21 @@ export class ApplicantQuestions {
     })
   }
 
-  async answerIdQuestion(id: string) {
-    await this.page.fill('input[type="text"]', id)
+  async answerIdQuestion(id: string, index = 0) {
+    await this.page.fill(`input[type="text"] >> nth=${index}`, id)
   }
 
   async answerRadioButtonQuestion(checked: string) {
     await this.page.check(`text=${checked}`)
   }
 
-  async answerDropdownQuestion(selected: string) {
-    await this.page.selectOption('.cf-dropdown-question select', {
-      label: selected,
-    })
+  async answerDropdownQuestion(selected: string, index = 0) {
+    await this.page.selectOption(
+      `.cf-dropdown-question select >> nth=${index}`,
+      {
+        label: selected,
+      },
+    )
   }
 
   async answerNumberQuestion(number: string) {
@@ -114,8 +117,8 @@ export class ApplicantQuestions {
     await this.validateInputValue(number)
   }
 
-  async answerDateQuestion(date: string) {
-    await this.page.fill('input[type="date"]', date)
+  async answerDateQuestion(date: string, index = 0) {
+    await this.page.fill(`input[type="date"] >> nth=${index}`, date)
   }
 
   async checkDateQuestionValue(date: string) {
@@ -123,12 +126,12 @@ export class ApplicantQuestions {
     await this.validateInputValue(date)
   }
 
-  async answerTextQuestion(text: string) {
-    await this.page.fill('input[type="text"]', text)
+  async answerTextQuestion(text: string, index = 0) {
+    await this.page.fill(`input[type="text"] >> nth=${index}`, text)
   }
 
-  async answerEmailQuestion(email: string) {
-    await this.page.fill('input[type="email"]', email)
+  async answerEmailQuestion(email: string, index = 0) {
+    await this.page.fill(`input[type="email"] >> nth=${index}`, email)
   }
 
   async checkEmailQuestionValue(email: string) {

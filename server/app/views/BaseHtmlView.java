@@ -11,16 +11,17 @@ import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
-import java.util.Optional;
+import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.H1Tag;
+import j2html.tags.specialized.InputTag;
 import java.util.function.Function;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
 import play.mvc.Call;
 import play.mvc.Http;
 import services.applicant.ValidationErrorMessage;
-import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.html.helper.CSRF;
@@ -36,42 +37,42 @@ import views.style.Styles;
  */
 public abstract class BaseHtmlView {
 
-  public static Tag renderHeader(String headerText, String... additionalClasses) {
+  public static H1Tag renderHeader(String headerText, String... additionalClasses) {
     return h1(headerText).withClasses(Styles.MB_4, StyleUtils.joinStyles(additionalClasses));
   }
 
-  public static ContainerTag fieldErrors(
+  public static DivTag fieldErrors(
       Messages messages, ImmutableSet<ValidationErrorMessage> errors, String... additionalClasses) {
     return div(each(errors, error -> div(error.getMessage(messages))))
         .withClasses(BaseStyles.FORM_ERROR_TEXT_BASE, StyleUtils.joinStyles(additionalClasses));
   }
 
-  public static Tag button(String textContents) {
+  public static ButtonTag button(String textContents) {
     return TagCreator.button(text(textContents)).withType("button");
   }
 
-  public static Tag button(String id, String textContents) {
+  public static ButtonTag button(String id, String textContents) {
     return button(textContents).withId(id);
   }
 
-  protected static Tag submitButton(String textContents) {
+  protected static ButtonTag submitButton(String textContents) {
     return TagCreator.button(text(textContents)).withType("submit");
   }
 
-  protected static Tag submitButton(String id, String textContents) {
+  protected static ButtonTag submitButton(String id, String textContents) {
     return submitButton(textContents).withId(id);
   }
 
-  protected static Tag redirectButton(String id, String text, String redirectUrl) {
+  protected static ButtonTag redirectButton(String id, String text, String redirectUrl) {
     return asRedirectButton(
         TagCreator.button(text).withId(id).withClasses(Styles.M_2), redirectUrl);
   }
 
-  protected static ContainerTag asRedirectButton(ContainerTag buttonEl, String redirectUrl) {
+  protected static ButtonTag asRedirectButton(ButtonTag buttonEl, String redirectUrl) {
     return buttonEl.attr("onclick", String.format("window.location = '%s';", redirectUrl));
   }
 
-  protected static ContainerTag makeSvgTextButton(String buttonText, Icons icon) {
+  protected static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
     return TagCreator.button()
         .with(
             Icons.svg(icon, 18).withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.FLEX_SHRINK_0),
@@ -82,7 +83,7 @@ public abstract class BaseHtmlView {
    * Generates a hidden HTML input tag containing a signed CSRF token. The token and tag must be
    * present in all CiviForm forms.
    */
-  protected static Tag makeCsrfTokenInputTag(Http.Request request) {
+  protected static InputTag makeCsrfTokenInputTag(Http.Request request) {
     return input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken");
   }
 
@@ -90,11 +91,11 @@ public abstract class BaseHtmlView {
     return CSRF.getToken(request.asScala()).value();
   }
 
-  protected ContainerTag renderPaginationDiv(
+  protected DivTag renderPaginationDiv(
       int page, int pageCount, Function<Integer, Call> linkForPage) {
-    ContainerTag div = div();
+    DivTag div = div();
     if (page <= 1) {
-      div.with(new LinkElement().setText("∅").asButton());
+      div.with(new LinkElement().setText("∅").asButtonNoHref());
     } else {
       div.with(
           new LinkElement().setText("←").setHref(linkForPage.apply(page - 1).url()).asButton());
@@ -109,47 +110,15 @@ public abstract class BaseHtmlView {
       div.with(
           new LinkElement().setText("→").setHref(linkForPage.apply(page + 1).url()).asButton());
     } else {
-      div.with(new LinkElement().setText("∅").asButton());
+      div.with(new LinkElement().setText("∅").asButtonNoHref());
     }
     return div.with(br());
   }
 
-  protected ContainerTag renderSearchForm(
-      Http.Request request, Optional<String> search, Call searchCall) {
-    return renderSearchForm(
-        request,
-        search,
-        searchCall,
-        /* htmlClasses= */ Optional.empty(),
-        /* labelText= */ Optional.empty());
-  }
-
-  protected ContainerTag renderSearchForm(
-      Http.Request request,
-      Optional<String> search,
-      Call searchCall,
-      Optional<String> htmlClasses,
-      Optional<String> labelText) {
-    return form()
-        .withMethod("GET")
-        .withAction(searchCall.url())
-        .with(
-            FieldWithLabel.input()
-                .setId("search-field")
-                .setFieldName("search")
-                .setLabelText(labelText.orElse("Search"))
-                .setValue(search.orElse(""))
-                .setPlaceholderText("Search")
-                .getContainer()
-                .withClasses(htmlClasses.orElse(Styles.W_1_4)),
-            makeCsrfTokenInputTag(request),
-            submitButton("Search").withClasses(Styles.M_2));
-  }
-
-  protected static ContainerTag toLinkButtonForPost(
-      ContainerTag buttonEl, String href, Http.Request request) {
+  protected static ButtonTag toLinkButtonForPost(
+      ButtonTag buttonEl, String href, Http.Request request) {
     String formId = RandomStringUtils.randomAlphabetic(32);
-    Tag hiddenForm =
+    FormTag hiddenForm =
         form()
             .withId(formId)
             .withClass(Styles.HIDDEN)
@@ -157,6 +126,6 @@ public abstract class BaseHtmlView {
             .withAction(href)
             .with(input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken"));
 
-    return buttonEl.attr("form", formId).with(hiddenForm);
+    return buttonEl.withForm(formId).with(hiddenForm);
   }
 }
