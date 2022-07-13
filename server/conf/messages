@@ -67,6 +67,9 @@ button.createAccount=Create account
 # The text on the button for guests to log in to their session.
 button.guestLogin=Continue as guest
 
+# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
+content.loginDisabledPrompt=Account login currently disabled
+
 # The words leading up to the admin login anchor
 content.adminLoginPrompt=Looking for something else?
 
@@ -87,7 +90,7 @@ button.deleteFile=Delete
 button.keepFile=Continue
 
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
-button.nextScreen=Next
+button.nextScreen=Save and next
 
 # The button text for navigating to the previous screen in the form.
 button.previousScreen=Previous

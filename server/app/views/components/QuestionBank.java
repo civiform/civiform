@@ -29,7 +29,7 @@ import views.style.Styles;
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
 public class QuestionBank {
   private static final ContainerTag PLUS_ICON =
-      Icons.svg(Icons.PLUS_SVG_PATH, 24)
+      Icons.svg(Icons.PLUS, 24)
           .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6)
           .attr("fill", "currentColor")
           .attr("stroke-width", "2")
@@ -106,8 +106,7 @@ public class QuestionBank {
                 Styles.SHADOW,
                 StyleUtils.focus(Styles.OUTLINE_NONE));
 
-    ContainerTag filterIcon =
-        Icons.svg(Icons.SEARCH_SVG_PATH, 56).withClasses(Styles.H_4, Styles.W_4);
+    ContainerTag filterIcon = Icons.svg(Icons.SEARCH, 56).withClasses(Styles.H_4, Styles.W_4);
     ContainerTag filterIconDiv =
         div().withClasses(Styles.ABSOLUTE, Styles.ML_4, Styles.MT_3, Styles.MR_4).with(filterIcon);
     ContainerTag filterDiv =

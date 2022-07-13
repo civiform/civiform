@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import models.Application;
 import models.QuestionTag;
 import play.libs.F;
+import repository.TimeFilter;
 import services.IdentifierBasedPaginationSpec;
 import services.Path;
 import services.applicant.AnswerData;
@@ -76,7 +77,9 @@ public final class ExporterService {
   }
 
   /** Return a string containing a CSV of all applications at all versions of particular program. */
-  public String getProgramAllVersionsCsv(long programId) throws ProgramNotFoundException {
+  public String getProgramAllVersionsCsv(
+      long programId, Optional<String> searchFragment, TimeFilter submitTimeFilter)
+      throws ProgramNotFoundException {
     ImmutableList<ProgramDefinition> allProgramVersions =
         programService.getAllProgramDefinitionVersions(programId).stream()
             .collect(ImmutableList.toImmutableList());
@@ -87,7 +90,8 @@ public final class ExporterService {
             .getSubmittedProgramApplicationsAllVersions(
                 programId,
                 F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
-                /* searchNameFragment= */ Optional.empty())
+                searchFragment,
+                submitTimeFilter)
             .getPageContents();
 
     return exportCsv(exportConfig, applications);
@@ -126,17 +130,9 @@ public final class ExporterService {
    * @throws ProgramNotFoundException If the program ID refers to a program that does not exist.
    */
   public String getProgramCsv(long programId) throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
-    // TODO(#1743): Determine if export definitions are necessary and remove them
-    // if not.
-    Optional<CsvExportConfig> maybeExportConfig =
-        program.exportDefinitions().stream()
-            .filter(exportDefinition -> exportDefinition.csvConfig().isPresent())
-            .map(exportDefinition -> exportDefinition.csvConfig().get())
-            .findFirst();
     ImmutableList<Application> applications =
         programService.getSubmittedProgramApplications(programId);
-    return exportCsv(maybeExportConfig.orElse(generateDefaultCsvConfig(programId)), applications);
+    return exportCsv(generateDefaultCsvConfig(programId), applications);
   }
 
   private String exportCsv(CsvExportConfig exportConfig, ImmutableList<Application> applications) {
@@ -180,7 +176,7 @@ public final class ExporterService {
    * applications. This means if one application had a question repeated for N repeated entities,
    * then there would be N columns for each of that question's scalars.
    */
-  CsvExportConfig generateDefaultCsvConfig(long programId) {
+  private CsvExportConfig generateDefaultCsvConfig(long programId) {
     ImmutableList<Application> applications;
 
     try {
@@ -319,11 +315,11 @@ public final class ExporterService {
   /**
    * A string containing the CSV which maps applicants (opaquely) to the programs they applied to.
    */
-  public String getDemographicsCsv() {
-    return exportCsv(getDemographicsExporterConfig(), applicantService.getAllApplications());
+  public String getDemographicsCsv(TimeFilter filter) {
+    return exportCsv(getDemographicsExporterConfig(), applicantService.getApplications(filter));
   }
 
-  public CsvExportConfig getDemographicsExporterConfig() {
+  private CsvExportConfig getDemographicsExporterConfig() {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
     // First add the ID, submit time, and submitter email columns.
     columnsBuilder.add(

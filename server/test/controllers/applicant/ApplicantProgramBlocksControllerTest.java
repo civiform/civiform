@@ -11,17 +11,20 @@ import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import models.Applicant;
 import models.Program;
+import models.StoredFile;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
+import repository.StoredFileRepository;
 import services.Path;
 import services.applicant.question.Scalar;
 import support.ProgramBuilder;
@@ -492,6 +495,48 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         routes.ApplicantProgramReviewController.review(applicant.id, program.id).url();
 
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
+  }
+
+  /**
+   * This test guards regression for the bugfix to
+   * https://github.com/seattle-uat/civiform/issues/2818
+   */
+  @Test
+  public void updateFile_storedFileAlreadyExists_doesNotCreateDuplicateStoredFile() {
+    var storedFileRepo = instanceOf(StoredFileRepository.class);
+
+    program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().applicantFile())
+            .build();
+
+    var fileKey = "fake-key";
+    var storedFile = new StoredFile();
+    storedFile.setName(fileKey);
+    storedFile.save();
+
+    RequestBuilder request =
+        fakeRequest(
+            routes.ApplicantProgramBlocksController.updateFile(
+                applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false));
+    addQueryString(request, ImmutableMap.of("key", fileKey, "bucket", "fake-bucket"));
+
+    Result result =
+        subject
+            .updateFile(
+                request.build(),
+                applicant.id,
+                program.id,
+                /* blockId = */ "1",
+                /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    int storedFileCount =
+        storedFileRepo.lookupFiles(ImmutableList.of(fileKey)).toCompletableFuture().join().size();
+    assertThat(storedFileCount).isEqualTo(1);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
   private RequestBuilder addQueryString(

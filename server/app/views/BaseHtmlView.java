@@ -14,14 +14,12 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import java.util.Optional;
 import java.util.function.Function;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
 import play.mvc.Call;
 import play.mvc.Http;
 import services.applicant.ValidationErrorMessage;
-import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.html.helper.CSRF;
@@ -74,11 +72,11 @@ public abstract class BaseHtmlView {
     return buttonEl.attr("onclick", String.format("window.location = '%s';", redirectUrl));
   }
 
-  protected static ContainerTag makeSvgTextButton(String buttonText, String svgPath) {
+  protected static ContainerTag makeSvgTextButton(String buttonText, Icons icon) {
     return TagCreator.button()
         .with(
-            Icons.svg(svgPath, 18).withClasses(Styles.ML_1, Styles.MR_2, Styles.INLINE_BLOCK),
-            span(buttonText));
+            Icons.svg(icon, 18).withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.FLEX_SHRINK_0),
+            span(buttonText).withClass(Styles.TEXT_LEFT));
   }
 
   /**

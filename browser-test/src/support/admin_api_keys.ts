@@ -1,3 +1,4 @@
+import axios from 'axios'
 import {Page} from 'playwright'
 import {readFileSync} from 'fs'
 import {waitForPageJsLoad} from './wait'
@@ -40,6 +41,12 @@ export class AdminApiKeys {
     return await this.page.innerText('#api-key-credentials')
   }
 
+  async callCheckAuth(credentials: string): Promise<{status: number}> {
+    return await axios.get(BASE_URL + '/api/v1/checkAuth', {
+      headers: {Authorization: 'Basic ' + credentials},
+    })
+  }
+
   async expectApiKeyCredentialsPage(name: string) {
     expect(await this.page.innerText('h1')).toEqual(`Created API key: ${name}`)
   }
@@ -53,6 +60,65 @@ export class AdminApiKeys {
 
   async expectNewApiKeyPage() {
     expect(await this.page.innerText('h1')).toEqual('Create a new API key')
+  }
+
+  async expectKeyCallCount(
+    keyNameSlugified: string,
+    expectedCallCount: number,
+    timeoutMillis = 3000,
+  ) {
+    const startTime = Date.now()
+    const maxWaitTime = startTime + timeoutMillis
+    const expectedCallCountText = `Call count: ${expectedCallCount}`
+    let callCountText = ''
+
+    while (true) {
+      await this.gotoApiKeyIndexPage()
+
+      try {
+        callCountText = await this.page.innerText(
+          `#${keyNameSlugified}-call-count`,
+          {timeout: 100},
+        )
+      } catch (e) {
+        console.log(`failed to find #${keyNameSlugified}-call-count`)
+      }
+
+      if (callCountText != expectedCallCountText || Date.now() > maxWaitTime) {
+        break
+      }
+    }
+
+    expect(callCountText).toContain(expectedCallCountText)
+  }
+
+  async expectLastCallIpAddressToBeSet(
+    keyNameSlugified: string,
+    timeoutMillis = 3000,
+  ) {
+    const startTime = Date.now()
+    const maxWaitTime = startTime + timeoutMillis
+    let lastCallIpText = ''
+
+    while (true) {
+      await this.gotoApiKeyIndexPage()
+
+      try {
+        lastCallIpText = await this.page.innerText(
+          `#${keyNameSlugified}-last-call-ip`,
+          {timeout: 100},
+        )
+      } catch (e) {
+        console.log(`failed to find #${keyNameSlugified}-last-call-ip`)
+      }
+
+      if (!lastCallIpText.includes('N/A') || Date.now() > maxWaitTime) {
+        break
+      }
+    }
+
+    expect(lastCallIpText).toContain('Last used by')
+    expect(lastCallIpText).not.toContain('N/A')
   }
 
   async retireApiKey(keyNameSlugified: string) {

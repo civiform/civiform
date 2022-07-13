@@ -1,11 +1,15 @@
 package views.admin.programs;
 
+import static annotations.FeatureFlags.ApplicationStatusTrackingEnabled;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.fieldset;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 
 import auth.CiviFormProfile;
@@ -28,8 +32,10 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.Modal;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 import views.style.Styles;
@@ -39,13 +45,18 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final DateConverter dateConverter;
+  private final boolean statusTrackingEnabled;
 
   @Inject
   public ProgramIndexView(
-      AdminLayoutFactory layoutFactory, Config config, DateConverter dateConverter) {
+      AdminLayoutFactory layoutFactory,
+      Config config,
+      DateConverter dateConverter,
+      @ApplicationStatusTrackingEnabled boolean statusTrackingEnabled) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.dateConverter = checkNotNull(dateConverter);
+    this.statusTrackingEnabled = statusTrackingEnabled;
   }
 
   public Content render(
@@ -66,6 +77,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setTriggerButtonText("Publish all programs")
             .build();
 
+    Modal demographicsCsvModal = renderDemographicsCsvModal();
     Tag contentDiv =
         div()
             .withClasses(Styles.PX_20)
@@ -89,24 +101,60 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     programs.getDraftProgramDefinition(name),
                                     request,
                                     profile))))
-            .with(renderDownloadExportCsvButton());
+            .with(demographicsCsvModal.getButton());
 
     HtmlBundle htmlBundle =
         layout
             .getBundle()
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
-            .addModals(publishAllModal)
+            .addModals(publishAllModal, demographicsCsvModal)
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_programs"));
     return layout.renderCentered(htmlBundle);
   }
 
-  private ContainerTag renderDownloadExportCsvButton() {
-    return new LinkElement()
-        .setId("download-export-csv-button")
-        .setHref(routes.AdminApplicationController.downloadDemographics().url())
-        .setText("Download Exported Data (CSV)")
-        .asButton();
+  private Modal renderDemographicsCsvModal() {
+    String modalId = "download-demographics-csv-modal";
+    String downloadActionText = "Download Exported Data (CSV)";
+
+    ContainerTag downloadDemographicCsvModalContent =
+        div()
+            .withClasses(Styles.PX_8)
+            .with(
+                form()
+                    .withMethod("GET")
+                    .withAction(
+                        routes.AdminApplicationController.downloadDemographics(
+                                Optional.empty(), Optional.empty())
+                            .url())
+                    .with(
+                        p("This will download all applications for all programs. Use the filters"
+                                + " below to select a date range for the exported data. If you"
+                                + " select a large date range or leave it blank, the data could"
+                                + " be slow to export.")
+                            .withClass(Styles.TEXT_SM),
+                        fieldset()
+                            .withClasses(Styles.MT_4, Styles.PT_1, Styles.PB_2, Styles.BORDER)
+                            .with(
+                                legend("Applications submitted").withClass(Styles.ML_3),
+                                // The field names below should be kept in sync with
+                                // AdminApplicationController.downloadDemographics.
+                                FieldWithLabel.date()
+                                    .setFieldName("fromDate")
+                                    .setLabelText("From:")
+                                    .getContainer()
+                                    .withClasses(Styles.ML_3, Styles.INLINE_FLEX),
+                                FieldWithLabel.date()
+                                    .setFieldName("untilDate")
+                                    .setLabelText("To:")
+                                    .getContainer()
+                                    .withClasses(Styles.ML_3, Styles.INLINE_FLEX)),
+                        button(downloadActionText)
+                            .withClasses(BaseStyles.MODAL_BUTTON, Styles.MT_6)
+                            .withType("submit")));
+    return Modal.builder(modalId, downloadDemographicCsvModalContent)
+        .setModalTitle(downloadActionText)
+        .build();
   }
 
   private Tag maybeRenderPublishButton(ActiveAndDraftPrograms programs, Http.Request request) {
@@ -202,6 +250,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         div(
                 p(lastEditText).withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
                 p().withClasses(Styles.FLEX_GROW),
+                maybeRenderEditStatusesLink(draftProgram),
                 maybeRenderManageTranslationsLink(draftProgram),
                 maybeRenderEditLink(draftProgram, activeProgram, request),
                 maybeRenderViewApplicationsLink(activeProgram, profile),
@@ -298,6 +347,20 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
   }
 
+  private Tag maybeRenderEditStatusesLink(Optional<ProgramDefinition> draftProgram) {
+    if (!statusTrackingEnabled || draftProgram.isEmpty()) {
+      return div();
+    }
+    String linkText = "Manage statuses →";
+    String linkDestination =
+        routes.AdminProgramStatusesController.index(draftProgram.get().id()).url();
+    return new LinkElement()
+        .setHref(linkDestination)
+        .setText(linkText)
+        .setStyles(Styles.MR_2)
+        .asAnchorText();
+  }
+
   private Tag maybeRenderViewApplicationsLink(
       Optional<ProgramDefinition> activeProgram, Optional<CiviFormProfile> userProfile) {
     // TODO(#2582): Determine if this has N+1 query behavior and fix if
@@ -312,7 +375,11 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (userIsAuthorized) {
         String editLink =
             routes.AdminApplicationController.index(
-                    activeProgram.get().id(), Optional.empty(), Optional.empty())
+                    activeProgram.get().id(),
+                    Optional.empty(),
+                    Optional.empty(),
+                    Optional.empty(),
+                    Optional.empty())
                 .url();
 
         return new LinkElement()

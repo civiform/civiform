@@ -6,7 +6,7 @@ import sys
 
 from cloud.shared.bin.lib.config_loader import ConfigLoader
 from cloud.shared.bin.lib.write_tfvars import TfVarWriter
-from cloud.shared.bin.lib.setup_class_loader import load_class
+from setup_class_loader import load_setup_class
 """
 Setup.py sets up and runs the initial terraform deployment. It's broken into
 3 parts:
@@ -35,8 +35,9 @@ if not is_valid:
 # Load Setup Class for the specific template directory
 ###############################################################################
 
-template_dir = config_loader.get_template_dir()
-Setup = load_class(template_dir)
+terraform_template_dir = config_loader.get_template_dir()
+app_prefix = config_loader.app_prefix
+Setup = load_setup_class(terraform_template_dir)
 
 template_setup = Setup(config_loader)
 template_setup.setup_log_file()
@@ -47,7 +48,7 @@ log_args = f"\"{image_tag}\" {current_user}"
 
 print("Writing TF Vars file")
 terraform_tfvars_path = os.path.join(
-    template_dir, config_loader.tfvars_filename)
+    terraform_template_dir, config_loader.tfvars_filename)
 
 # Write the passthrough vars to a temporary file
 tf_var_writter = TfVarWriter(terraform_tfvars_path)
@@ -65,13 +66,11 @@ try:
     # Note that the -chdir means we use the relative paths for
     # both the backend config and the var file
     terraform_init_args = [
-        "terraform",
-        f"-chdir={template_dir}",
-        "init",
-        "-input=false",
-        "-upgrade",
+        "terraform", f"-chdir={terraform_template_dir}", "init", "-input=false",
+        "-upgrade", "-migrate-state"
     ]
     if config_loader.use_backend_config():
+        print(f"Using backend config {config_loader.backend_vars_filename}")
         terraform_init_args.append(
             f"-backend-config={config_loader.backend_vars_filename}")
 
@@ -79,11 +78,16 @@ try:
     subprocess.check_call(terraform_init_args)
 
     print(" - Run terraform apply")
-    subprocess.check_call(
-        [
-            "terraform", f"-chdir={template_dir}", "apply", "-input=false",
-            f"-var-file={config_loader.tfvars_filename}"
-        ])
+    tf_apply_args = [
+        "terraform", f"-chdir={terraform_template_dir}", "apply",
+        "-input=false", f"-var-file={config_loader.tfvars_filename}"
+    ]
+
+    if not config_loader.is_dev():
+        tf_apply_args.append("-auto-approve")
+
+    print(" - Run terraform apply in setup.py")
+    subprocess.check_call(tf_apply_args)
 
     ###############################################################################
     # Post Run Setup Tasks (if needed)
@@ -94,9 +98,10 @@ try:
 
         subprocess.check_call(
             [
-                "terraform", f"-chdir={template_dir}", "apply", "-input=false",
-                f"-var-file={config_loader.tfvars_filename}"
+                "terraform", f"-chdir={terraform_template_dir}", "apply",
+                "-input=false", f"-var-file={config_loader.tfvars_filename}"
             ])
+
     subprocess.run(
         [
             "/bin/bash", "-c",

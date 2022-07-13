@@ -31,10 +31,10 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.4.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.216",
+      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.226",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.5.2",
+      "com.azure" % "azure-identity" % "1.5.3",
       "com.azure" % "azure-storage-blob" % "12.17.1",
 
       // Database and database testing libraries
@@ -72,7 +72,7 @@ lazy val root = (project in file("."))
       "org.pac4j" % "pac4j-saml" % "5.4.3",
 
       // Encrypted cookies require encryption.
-      "org.apache.shiro" % "shiro-crypto-cipher" % "1.9.0",
+      "org.apache.shiro" % "shiro-crypto-cipher" % "1.9.1",
 
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.9",

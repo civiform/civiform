@@ -73,7 +73,7 @@ public class GenericOidcProvider extends OidcProvider {
 
   @Override
   protected String getClientID() {
-    return getConfigurationValueOrThrow(CLIENT_ID_CONFIG_NAME);
+    return getConfigurationValue(CLIENT_ID_CONFIG_NAME).orElse("");
   }
 
   @Override
@@ -103,6 +103,10 @@ public class GenericOidcProvider extends OidcProvider {
 
   @Override
   protected ImmutableList<String> getExtraScopes() {
-    return ImmutableList.copyOf(getConfigurationValueOrThrow(EXTRA_SCOPES_CONFIG_NAME).split(" "));
+    Optional<String> extraScopesMaybe = getConfigurationValue(EXTRA_SCOPES_CONFIG_NAME);
+    if (!extraScopesMaybe.isPresent()) {
+      return ImmutableList.of();
+    }
+    return ImmutableList.copyOf(extraScopesMaybe.get().split(" "));
   }
 }

@@ -91,6 +91,24 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return layout.renderWithNav(request, userName, messages, bundle);
   }
 
+  private Tag renderSearchForm(Http.Request request, Optional<String> searchParam) {
+    return form()
+        .withClass(Styles.W_1_4)
+        .withMethod("GET")
+        .withAction(
+            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty())
+                .url())
+        .with(
+            FieldWithLabel.input()
+                .setFieldName("search")
+                .setValue(searchParam)
+                .setLabelText("Search")
+                .getContainer()
+                .withClasses(Styles.W_FULL),
+            makeCsrfTokenInputTag(request),
+            submitButton("Search").withClasses(Styles.M_2));
+  }
+
   private ContainerTag renderTIApplicantsTable(
       ImmutableList<Account> managedAccounts,
       Optional<String> search,

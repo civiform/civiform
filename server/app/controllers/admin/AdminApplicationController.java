@@ -8,9 +8,12 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
 import com.itextpdf.text.DocumentException;
+import controllers.BadRequestException;
 import controllers.CiviFormController;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
@@ -22,6 +25,8 @@ import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApplicationRepository;
+import repository.TimeFilter;
+import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
@@ -37,6 +42,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.ApplicantUtils;
 import views.admin.programs.ProgramApplicationListView;
+import views.admin.programs.ProgramApplicationListView.RenderFilterParams;
 import views.admin.programs.ProgramApplicationView;
 
 /** Controller for admins viewing applications to programs. */
@@ -53,6 +59,7 @@ public class AdminApplicationController extends CiviFormController {
   private final ProfileUtils profileUtils;
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
+  private final DateConverter dateConverter;
   private static final int PAGE_SIZE = 10;
 
   @Inject
@@ -67,6 +74,7 @@ public class AdminApplicationController extends CiviFormController {
       ApplicationRepository applicationRepository,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
+      DateConverter dateConverter,
       @Now Provider<LocalDateTime> nowProvider) {
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
@@ -79,11 +87,18 @@ public class AdminApplicationController extends CiviFormController {
     this.jsonExporter = checkNotNull(jsonExporter);
     this.pdfExporter = checkNotNull(pdfExporter);
     this.messagesApi = checkNotNull(messagesApi);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   /** Download a JSON file containing all applications to all versions of the specified program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result downloadAllJson(Http.Request request, long programId)
+  public Result downloadAllJson(
+      Http.Request request,
+      long programId,
+      Optional<String> search,
+      Optional<String> fromDate,
+      Optional<String> untilDate,
+      Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
     final ProgramDefinition program;
 
@@ -94,10 +109,24 @@ public class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
 
+    boolean shouldApplyFilters = ignoreFilters.orElse("").isEmpty();
+    TimeFilter submitTimeFilter =
+        shouldApplyFilters
+            ? TimeFilter.builder()
+                .setFromTime(parseDateFromQuery(dateConverter, fromDate))
+                .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+                .build()
+            : TimeFilter.EMPTY;
+    Optional<String> searchFragment = shouldApplyFilters ? search : Optional.empty();
+
     String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
     String json =
         jsonExporter
-            .export(program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG)
+            .export(
+                program,
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                searchFragment,
+                submitTimeFilter)
             .getLeft();
 
     return ok(json)
@@ -107,12 +136,29 @@ public class AdminApplicationController extends CiviFormController {
 
   /** Download a CSV file containing all applications to all versions of the specified program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result downloadAll(Http.Request request, long programId) throws ProgramNotFoundException {
+  public Result downloadAll(
+      Http.Request request,
+      long programId,
+      Optional<String> search,
+      Optional<String> fromDate,
+      Optional<String> untilDate,
+      Optional<String> ignoreFilters)
+      throws ProgramNotFoundException {
+    boolean shouldApplyFilters = ignoreFilters.orElse("").isEmpty();
     try {
+      TimeFilter submitTimeFilter =
+          shouldApplyFilters
+              ? TimeFilter.builder()
+                  .setFromTime(parseDateFromQuery(dateConverter, fromDate))
+                  .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+                  .build()
+              : TimeFilter.EMPTY;
+      Optional<String> searchFragment = shouldApplyFilters ? search : Optional.empty();
       ProgramDefinition program = programService.getProgramDefinition(programId);
       checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramAllVersionsCsv(programId);
+      String csv =
+          exporterService.getProgramAllVersionsCsv(programId, searchFragment, submitTimeFilter);
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -144,14 +190,38 @@ public class AdminApplicationController extends CiviFormController {
   }
 
   /**
+   * Parses a date from a raw query string (e.g. 2022-01-02) and returns an instant representing the
+   * start of that date in the time zone configured for the server deployment.
+   */
+  private Optional<Instant> parseDateFromQuery(
+      DateConverter dateConverter, Optional<String> maybeQueryParam) {
+    return maybeQueryParam
+        .filter(s -> !s.isBlank())
+        .map(
+            s -> {
+              try {
+                return dateConverter.parseIso8601DateToStartOfDateInstant(s);
+              } catch (DateTimeParseException e) {
+                throw new BadRequestException("Malformed query param");
+              }
+            });
+  }
+
+  /**
    * Download a CSV file containing demographics information of the current live version.
    * Demographics information is collected from answers to a collection of questions specially
    * marked by CiviForm admins.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result downloadDemographics() {
+  public Result downloadDemographics(
+      Http.Request request, Optional<String> fromDate, Optional<String> untilDate) {
+    TimeFilter submitTimeFilter =
+        TimeFilter.builder()
+            .setFromTime(parseDateFromQuery(dateConverter, fromDate))
+            .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+            .build();
     String filename = String.format("demographics-%s.csv", nowProvider.get());
-    String csv = exporterService.getDemographicsCsv();
+    String csv = exporterService.getDemographicsCsv(submitTimeFilter);
     return ok(csv)
         .as(Http.MimeTypes.BINARY)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
@@ -238,11 +308,24 @@ public class AdminApplicationController extends CiviFormController {
   /** Return a paginated HTML page displaying (part of) all applications to the program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result index(
-      Http.Request request, long programId, Optional<String> search, Optional<Integer> page)
+      Http.Request request,
+      long programId,
+      Optional<String> search,
+      Optional<Integer> page,
+      Optional<String> fromDate,
+      Optional<String> untilDate)
       throws ProgramNotFoundException {
     if (page.isEmpty()) {
-      return redirect(routes.AdminApplicationController.index(programId, search, Optional.of(1)));
+      return redirect(
+          routes.AdminApplicationController.index(
+              programId, search, Optional.of(1), fromDate, untilDate));
     }
+
+    TimeFilter submitTimeFilter =
+        TimeFilter.builder()
+            .setFromTime(parseDateFromQuery(dateConverter, fromDate))
+            .setUntilTime(parseDateFromQuery(dateConverter, untilDate))
+            .build();
 
     final ProgramDefinition program;
     try {
@@ -255,8 +338,18 @@ public class AdminApplicationController extends CiviFormController {
     var paginationSpec = new PageNumberBasedPaginationSpec(PAGE_SIZE, page.orElse(1));
     PaginationResult<Application> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
-            programId, F.Either.Right(paginationSpec), search);
+            programId, F.Either.Right(paginationSpec), search, submitTimeFilter);
 
-    return ok(applicationListView.render(request, program, paginationSpec, applications, search));
+    return ok(
+        applicationListView.render(
+            request,
+            program,
+            paginationSpec,
+            applications,
+            RenderFilterParams.builder()
+                .setSearch(search)
+                .setFromDate(fromDate)
+                .setUntilDate(untilDate)
+                .build()));
   }
 }

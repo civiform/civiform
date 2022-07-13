@@ -212,7 +212,7 @@ export class AdminPrograms {
     await this.page.click('#update-block-button:not([disabled])')
 
     for (const questionName of questionNames) {
-      await this.page.click(`button:text("${questionName}")`)
+      await this.page.click(`button >> text="${questionName}"`)
     }
   }
 
@@ -405,6 +405,12 @@ export class AdminPrograms {
     )
   }
 
+  async filterProgramApplications(filterFragment: string) {
+    await this.page.fill('input[name="search"]', filterFragment)
+    await this.page.click('button:has-text("Filter")')
+    await waitForPageJsLoad(this.page)
+  }
+
   selectApplicationBlock(blockName: string) {
     return `.cf-admin-application-block-card:has-text("${blockName}")`
   }
@@ -454,11 +460,18 @@ export class AdminPrograms {
     ).not.toBeNull()
   }
 
-  async getJson() {
+  async getJson(applyFilters: boolean) {
+    await clickAndWaitForModal(this.page, 'download-program-applications-modal')
+    if (applyFilters) {
+      await this.page.check('text="Current results"')
+    } else {
+      await this.page.check('text="All data"')
+    }
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('text="Download all versions (JSON)"'),
+      this.page.click('text="Download JSON"'),
     ])
+    await this.page.click('#download-program-applications-modal-close')
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')
@@ -467,11 +480,18 @@ export class AdminPrograms {
     return readFileSync(path, 'utf8')
   }
 
-  async getCsv() {
+  async getCsv(applyFilters: boolean) {
+    await clickAndWaitForModal(this.page, 'download-program-applications-modal')
+    if (applyFilters) {
+      await this.page.check('text="Current results"')
+    } else {
+      await this.page.check('text="All data"')
+    }
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('text="Download all versions (CSV)"'),
+      this.page.click('text="Download CSV"'),
     ])
+    await this.page.click('#download-program-applications-modal-close')
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')
@@ -480,10 +500,14 @@ export class AdminPrograms {
   }
 
   async getDemographicsCsv() {
+    await clickAndWaitForModal(this.page, 'download-demographics-csv-modal')
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('text="Download Exported Data (CSV)"'),
+      this.page.click(
+        '#download-demographics-csv-modal button:has-text("Download Exported Data (CSV)")',
+      ),
     ])
+    await this.page.click('#download-demographics-csv-modal-close')
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')

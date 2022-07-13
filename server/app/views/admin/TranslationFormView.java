@@ -7,13 +7,13 @@ import static j2html.TagCreator.form;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
 import java.util.Locale;
 import play.i18n.Lang;
 import play.i18n.Langs;
 import play.mvc.Http;
 import services.LocalizedStrings;
 import views.BaseHtmlView;
-import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.style.AdminStyles;
 import views.style.Styles;
@@ -76,16 +76,13 @@ public abstract class TranslationFormView extends BaseHtmlView {
    * fields.
    */
   protected ContainerTag renderTranslationForm(
-      Http.Request request,
-      Locale locale,
-      String formAction,
-      ImmutableList<FieldWithLabel> formFields) {
+      Http.Request request, Locale locale, String formAction, ImmutableList<Tag> formFieldContent) {
     ContainerTag form =
         form()
             .withMethod("POST")
             .with(makeCsrfTokenInputTag(request))
             .withAction(formAction)
-            .with(each(formFields, FieldWithLabel::getContainer))
+            .with(formFieldContent)
             .with(
                 submitButton(
                         String.format(

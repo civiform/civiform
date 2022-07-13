@@ -119,6 +119,11 @@ public class ApiKeyService {
         keyId, () -> findByKeyId(keyId), CACHE_EXPIRATION_TIME_SECONDS);
   }
 
+  /** Increment an API key's call count and set its last call IP address to the one provided. */
+  public void recordApiKeyUsage(String apiKeyId, String remoteAddress) {
+    repository.recordApiKeyUsage(apiKeyId, remoteAddress);
+  }
+
   /**
    * Marks an {@link ApiKey} as retired, resulting in all requests that use it to fail
    * authentication. Retiring is permanent.
