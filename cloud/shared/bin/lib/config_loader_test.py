@@ -38,7 +38,7 @@ class TestConfigLoader(unittest.TestCase):
 
         self.assertEqual(
             config_loader.validate_config(),
-            ["Bar is required, but not provided"])
+            ["[Bar] required, but not provided"])
 
     def test_validate_config_for_incorrect_enums(self):
         defs = {
@@ -47,7 +47,7 @@ class TestConfigLoader(unittest.TestCase):
                     "required": True,
                     "secret": False,
                     "type": "enum",
-                    "values": ["abc"],
+                    "values": ["abc", "def"],
                 },
         }
         configs = {"FOO": "test"}
@@ -57,8 +57,9 @@ class TestConfigLoader(unittest.TestCase):
         config_loader.configs = configs
 
         self.assertEqual(
-            config_loader.validate_config(),
-            ["test not supported enum for FOO"])
+            config_loader.validate_config(), [
+                "[FOO] 'test' is not a supported enum value. Want a value in [abc, def]"
+            ])
 
     def test_validate_config_for_correct_enums(self):
         defs = {
@@ -94,7 +95,8 @@ class TestConfigLoader(unittest.TestCase):
         config_loader.configs = configs
 
         self.assertEqual(
-            config_loader.validate_config(), [" not supported enum for FOO"])
+            config_loader.validate_config(),
+            ["[FOO] '' is not a supported enum value. Want a value in [abc]"])
 
     def test_value_regex(self):
         config_loader = ConfigLoader()

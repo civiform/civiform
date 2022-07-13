@@ -71,15 +71,15 @@ class ConfigLoader:
             config_value = configs.get(name, None)
 
             if is_required and config_value is None:
-                validation_errors.append(
-                    f'{name} is required, but not provided')
+                validation_errors.append(f'[{name}] required, but not provided')
 
             is_enum = definition.get('type') == 'enum'
 
             if config_value is not None and is_enum:
                 if config_value not in definition.get('values'):
                     validation_errors.append(
-                        f'{config_value} not supported enum for {name}')
+                        f'[{name}] \'{config_value}\' is not a supported enum value. Want a value in [{", ".join(definition.get("values"))}]'
+                    )
 
             value_regex = definition.get('value_regex', None)
             if config_value is not None and value_regex:
@@ -87,7 +87,7 @@ class ConfigLoader:
                     'value_regex_error_message', None)
                 if not validation_error:
                     raise ValueError(
-                        f'{name} has no value_regex_error_message configured')
+                        f'[{name}] no value_regex_error_message configured')
                 if not re.compile(value_regex).fullmatch(config_value):
                     validation_errors.append(f'[{name}] {validation_error}')
 
