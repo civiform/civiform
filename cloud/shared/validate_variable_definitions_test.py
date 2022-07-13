@@ -131,6 +131,106 @@ class TestValidateVariableDefinitions(unittest.TestCase):
 
         self.assertEqual(errors, expected_errors)
 
+    def test_value_regex_no_errors(self):
+        defs = {
+            "FOO":
+                {
+                    "required": True,
+                    "secret": False,
+                    "tfvar": False,
+                    "type": "string",
+                    "value_regex": "[a-z]+",
+                    "value_regex_error_message": "a custom error message"
+                }
+        }
+
+        errors = ValidateVariableDefinitions(defs).get_validation_errors()
+
+        self.assertEqual(errors, {})
+
+    def test_value_regex_uncompilable(self):
+        defs = {
+            "FOO":
+                {
+                    "required": True,
+                    "secret": False,
+                    "tfvar": False,
+                    "type": "string",
+                    "value_regex": "12387487$$&#*((((",
+                    "value_regex_error_message": "a custom error message"
+                }
+        }
+
+        errors = ValidateVariableDefinitions(defs).get_validation_errors()
+
+        self.assertEqual(
+            errors, {
+                'FOO':
+                    [
+                        "'value_regex' can not be compiled as a Python regular expression."
+                    ]
+            })
+
+    def test_value_regex_empty(self):
+        defs = {
+            "FOO":
+                {
+                    "required": True,
+                    "secret": False,
+                    "tfvar": False,
+                    "type": "string",
+                    "value_regex": "",
+                    "value_regex_error_message": "a custom error message"
+                }
+        }
+
+        errors = ValidateVariableDefinitions(defs).get_validation_errors()
+
+        self.assertEqual(
+            errors,
+            {"FOO": ["'value_regex' field must be a non-empty string."]})
+
+    def test_value_regex_undefined_error_message(self):
+        defs = {
+            "FOO":
+                {
+                    "required": True,
+                    "secret": False,
+                    "tfvar": False,
+                    "type": "string",
+                    "value_regex": "[a-z]+",
+                }
+        }
+
+        self.assertEqual(
+            ValidateVariableDefinitions(defs).get_validation_errors(), {
+                "FOO":
+                    [
+                        "'value_regex_error_message' must be provided when 'value_regex' is provided."
+                    ]
+            })
+
+    def test_value_regex_empty_error_message(self):
+        defs = {
+            "FOO":
+                {
+                    "required": True,
+                    "secret": False,
+                    "tfvar": False,
+                    "type": "string",
+                    "value_regex": "[a-z]+",
+                    "value_regex_error_message": ""
+                }
+        }
+
+        self.assertEqual(
+            ValidateVariableDefinitions(defs).get_validation_errors(), {
+                "FOO":
+                    [
+                        "'value_regex_error_message' must be provided when 'value_regex' is provided."
+                    ]
+            })
+
 
 if __name__ == '__main__':
     unittest.main()
