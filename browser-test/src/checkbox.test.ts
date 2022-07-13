@@ -36,8 +36,8 @@ describe('Checkbox question for applicant flow', () => {
       await adminQuestions.addCheckboxQuestion({
         questionName: 'checkbox-color-q',
         options: ['red', 'green', 'orange', 'blue'],
-        minNumChoices: 1,
-        maxNumChoices: 2,
+        minNum: 1,
+        maxNum: 2,
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['checkbox-color-q'],
@@ -114,14 +114,14 @@ describe('Checkbox question for applicant flow', () => {
       await adminQuestions.addCheckboxQuestion({
         questionName: 'checkbox-fave-color-q',
         options: ['red', 'green', 'orange', 'blue'],
-        minNumChoices: 1,
-        maxNumChoices: 2,
+        minNum: 1,
+        maxNum: 2,
       })
       await adminQuestions.addCheckboxQuestion({
         questionName: 'checkbox-vacation-q',
         options: ['beach', 'mountains', 'city', 'cruise'],
-        minNumChoices: 1,
-        maxNumChoices: 2,
+        minNum: 1,
+        maxNum: 2,
       })
 
       await adminPrograms.addProgram(programName)
@@ -142,8 +142,8 @@ describe('Checkbox question for applicant flow', () => {
       await selectApplicantLanguage(pageObject, 'English')
 
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerCheckboxQuestion(['blue'], 0)
-      await applicantQuestions.answerCheckboxQuestion(['beach'], 1)
+      await applicantQuestions.answerCheckboxQuestion(['blue'])
+      await applicantQuestions.answerCheckboxQuestion(['beach'])
       await applicantQuestions.clickNext()
 
       await applicantQuestions.submitFromReviewPage(programName)
@@ -153,9 +153,9 @@ describe('Checkbox question for applicant flow', () => {
       await loginAsGuest(pageObject)
       await selectApplicantLanguage(pageObject, 'English')
 
-      // Only answer first question. Leave second question blank.
+      // Only answer required question.
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerCheckboxQuestion(['red'], 0)
+      await applicantQuestions.answerCheckboxQuestion(['red'])
       await applicantQuestions.clickNext()
 
       await applicantQuestions.submitFromReviewPage(programName)
@@ -175,7 +175,7 @@ describe('Checkbox question for applicant flow', () => {
         ['red', 'green', 'orange'],
         0,
       )
-      await applicantQuestions.answerCheckboxQuestion(['beach'], 1)
+      await applicantQuestions.answerCheckboxQuestion(['beach'])
       await applicantQuestions.clickNext()
 
       expect(await pageObject.isHidden(checkboxError)).toEqual(false)
@@ -190,7 +190,7 @@ describe('Checkbox question for applicant flow', () => {
       // No validation errors on first page load.
       expect(await pageObject.isHidden(checkboxError)).toEqual(true)
 
-      await applicantQuestions.answerCheckboxQuestion(['red'], 0)
+      await applicantQuestions.answerCheckboxQuestion(['red'])
       // Max of 2 answers allowed.
       await applicantQuestions.answerCheckboxQuestion(
         ['beach', 'mountains', 'city'],

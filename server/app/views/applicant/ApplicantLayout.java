@@ -18,7 +18,11 @@ import controllers.routes;
 import io.jsonwebtoken.lang.Strings;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.NavTag;
+import j2html.tags.specialized.SelectTag;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.slf4j.Logger;
@@ -60,8 +64,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.supportEmail = checkNotNull(configuration).getString("support_email_address");
   }
 
-  public ContainerTag getSupportLink(Messages messages) {
-    ContainerTag supportLink =
+  public DivTag getSupportLink(Messages messages) {
+    DivTag supportLink =
         div()
             .with(
                 text(messages.at(MessageKey.FOOTER_SUPPORT_LINK_DESCRIPTION.getKeyName())),
@@ -105,7 +109,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return rendered;
   }
 
-  private ContainerTag renderBaseNavBar() {
+  private NavTag renderBaseNavBar() {
     return nav()
         .withClasses(
             Styles.BG_WHITE,
@@ -152,9 +156,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return renderWithSupportFooter(bundle, messages);
   }
 
-  private ContainerTag getLanguageForm(
+  private ContainerTag<?> getLanguageForm(
       Http.RequestHeader request, Optional<CiviFormProfile> profile, Messages messages) {
-    ContainerTag languageForm = div();
+    ContainerTag<?> languageForm = div();
     if (profile.isPresent()) { // Show language switcher.
       long userId = profile.get().getApplicant().join().id;
 
@@ -167,10 +171,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
       boolean showLanguageSwitcher = !request.uri().equals(applicantInfoUrl);
       if (showLanguageSwitcher) {
         String csrfToken = CSRF.getToken(request.asScala()).value();
-        Tag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
-        Tag redirectInput = input().isHidden().withValue(request.uri()).withName("redirectLink");
+        InputTag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
+        InputTag redirectInput =
+            input().isHidden().withValue(request.uri()).withName("redirectLink");
         String preferredLanguage = languageSelector.getPreferredLangage(request).code();
-        ContainerTag languageDropdown =
+        SelectTag languageDropdown =
             languageSelector
                 .renderDropdown(preferredLanguage)
                 .attr("onchange", "this.form.submit()")
@@ -188,7 +193,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return languageForm;
   }
 
-  public ContainerTag branding() {
+  public ATag branding() {
     return a().withHref(routes.HomeController.index().url())
         .with(
             div()
@@ -197,7 +202,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withText("CiviForm"));
   }
 
-  private ContainerTag maybeRenderTiButton(Optional<CiviFormProfile> profile, String userName) {
+  private DivTag maybeRenderTiButton(Optional<CiviFormProfile> profile, String userName) {
     if (profile.isPresent() && profile.get().getRoles().contains(Roles.ROLE_TI.toString())) {
       String tiDashboardText = "Trusted intermediary dashboard";
       String tiDashboardLink =
@@ -220,7 +225,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div();
   }
 
-  private ContainerTag logoutButton(String userName, Messages messages) {
+  private DivTag logoutButton(String userName, Messages messages) {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     return div(
         div(messages.at(MessageKey.USER_NAME.getKeyName(), userName)).withClasses(Styles.TEXT_SM),
@@ -252,11 +257,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
    *
    * <p>For the summary view, there is no "current" block, and full progress can be shown.
    */
-  protected ContainerTag renderProgramApplicationTitleAndProgressIndicator(
+  protected DivTag renderProgramApplicationTitleAndProgressIndicator(
       String programTitle, int blockIndex, int totalBlockCount, boolean forSummary) {
     int percentComplete = getPercentComplete(blockIndex, totalBlockCount, forSummary);
 
-    ContainerTag progressInner =
+    DivTag progressInner =
         div()
             .withClasses(
                 BaseStyles.BG_SEATTLE_BLUE,
@@ -270,7 +275,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 Styles.W_1,
                 Styles.ROUNDED_FULL)
             .withStyle("width:" + percentComplete + "%");
-    ContainerTag progressIndicator =
+    DivTag progressIndicator =
         div(progressInner)
             .withId("progress-indicator")
             .withClasses(
@@ -289,14 +294,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
       blockIndex++;
     }
 
-    ContainerTag blockNumberTag = div();
+    DivTag blockNumberTag = div();
     if (!forSummary) {
       blockNumberTag
           .withText(String.format("%d of %d", blockIndex, totalBlockCount))
           .withClasses(Styles.TEXT_GRAY_500, Styles.TEXT_RIGHT);
     }
 
-    Tag programTitleDiv =
+    DivTag programTitleDiv =
         div()
             .with(h2(programTitle).withClasses(ApplicantStyles.H2_PROGRAM_TITLE))
             .with(blockNumberTag)

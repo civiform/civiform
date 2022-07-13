@@ -9,9 +9,11 @@ import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableList;
 import j2html.TagCreator;
-import j2html.attributes.Attr;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.H1Tag;
+import j2html.tags.specialized.InputTag;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -28,7 +30,7 @@ import views.style.Styles;
 
 /** Contains methods for rendering question bank for an admin to add questions to a program. */
 public class QuestionBank {
-  private static final ContainerTag PLUS_ICON =
+  private static final SvgTag PLUS_ICON =
       Icons.svg(Icons.PLUS, 24)
           .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6)
           .attr("fill", "currentColor")
@@ -40,7 +42,7 @@ public class QuestionBank {
   private BlockDefinition blockDefinition;
   private Optional<Long> enumeratorQuestionId;
   private ImmutableList<QuestionDefinition> questions = ImmutableList.of();
-  private Tag csrfTag = div();
+  private Optional<InputTag> maybeCsrfTag = Optional.empty();
   private String questionAction = "";
 
   public QuestionBank setProgram(ProgramDefinition program) {
@@ -58,8 +60,8 @@ public class QuestionBank {
     return this;
   }
 
-  public QuestionBank setCsrfTag(Tag csrfTag) {
-    this.csrfTag = csrfTag;
+  public QuestionBank setCsrfTag(InputTag csrfTag) {
+    this.maybeCsrfTag = Optional.of(csrfTag);
     return this;
   }
 
@@ -68,32 +70,29 @@ public class QuestionBank {
     return this;
   }
 
-  public ContainerTag getContainer() {
+  public FormTag getContainer() {
     return questionBankPanel();
   }
 
-  private ContainerTag questionBankPanel() {
-    ContainerTag questionForm =
-        form(this.csrfTag).withMethod(HttpVerbs.POST).withAction(questionAction);
+  private FormTag questionBankPanel() {
+    InputTag csrfTag = this.maybeCsrfTag.get();
+    FormTag questionForm = form(csrfTag).withMethod(HttpVerbs.POST).withAction(questionAction);
 
-    div().withClasses(Styles.INLINE_BLOCK, Styles.W_1_4);
-    ContainerTag innerDiv =
-        div().withClasses(Styles.SHADOW_LG, Styles.OVERFLOW_HIDDEN, Styles.H_FULL);
+    DivTag innerDiv = div().withClasses(Styles.SHADOW_LG, Styles.OVERFLOW_HIDDEN, Styles.H_FULL);
     questionForm.with(innerDiv);
-    ContainerTag contentDiv =
+    DivTag contentDiv =
         div().withClasses(Styles.RELATIVE, Styles.GRID, Styles.GAP_6, Styles.PX_5, Styles.PY_6);
     innerDiv.with(contentDiv);
 
-    ContainerTag headerDiv =
-        h1("Question bank").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
+    H1Tag headerDiv = h1("Question bank").withClasses(Styles.MX_2, Styles._MB_3, Styles.TEXT_XL);
     contentDiv.withId("question-bank-questions").with(headerDiv);
 
-    Tag filterInput =
+    InputTag filterInput =
         input()
             .withId("question-bank-filter")
             .withType("text")
             .withName("questionFilter")
-            .attr(Attr.PLACEHOLDER, "Filter questions")
+            .withPlaceholder("Filter questions")
             .withClasses(
                 Styles.H_10,
                 Styles.PX_10,
@@ -106,11 +105,10 @@ public class QuestionBank {
                 Styles.SHADOW,
                 StyleUtils.focus(Styles.OUTLINE_NONE));
 
-    ContainerTag filterIcon = Icons.svg(Icons.SEARCH, 56).withClasses(Styles.H_4, Styles.W_4);
-    ContainerTag filterIconDiv =
+    SvgTag filterIcon = Icons.svg(Icons.SEARCH, 56).withClasses(Styles.H_4, Styles.W_4);
+    DivTag filterIconDiv =
         div().withClasses(Styles.ABSOLUTE, Styles.ML_4, Styles.MT_3, Styles.MR_4).with(filterIcon);
-    ContainerTag filterDiv =
-        div().withClasses(Styles.RELATIVE).with(filterIconDiv).with(filterInput);
+    DivTag filterDiv = div().withClasses(Styles.RELATIVE).with(filterIconDiv).with(filterInput);
     contentDiv.with(filterDiv);
 
     ImmutableList<QuestionDefinition> filteredQuestions = filterQuestions();
@@ -125,8 +123,8 @@ public class QuestionBank {
     return questionForm;
   }
 
-  private ContainerTag renderQuestionDefinition(QuestionDefinition definition) {
-    ContainerTag questionDiv =
+  private DivTag renderQuestionDefinition(QuestionDefinition definition) {
+    DivTag questionDiv =
         div()
             .withId("add-question-" + definition.getId())
             .withClasses(
@@ -144,7 +142,7 @@ public class QuestionBank {
                 StyleUtils.hover(
                     Styles.SCALE_105, Styles.TEXT_GRAY_800, Styles.BORDER, Styles.BORDER_GRAY_100));
 
-    Tag addButton =
+    ButtonTag addButton =
         TagCreator.button(text(definition.getName()))
             .withType("submit")
             .withId("question-" + definition.getId())
@@ -152,10 +150,10 @@ public class QuestionBank {
             .withValue(definition.getId() + "")
             .withClasses(ReferenceClasses.ADD_QUESTION_BUTTON, AdminStyles.CLICK_TARGET_BUTTON);
 
-    ContainerTag icon =
+    SvgTag icon =
         Icons.questionTypeSvg(definition.getQuestionType(), 24)
             .withClasses(Styles.FLEX_SHRINK_0, Styles.H_12, Styles.W_6);
-    ContainerTag content =
+    DivTag content =
         div()
             .withClasses(Styles.ML_4)
             .with(
