@@ -24,7 +24,7 @@ jobs:
       - name: check out pr branch
         uses: actions/checkout@v3
       - name: Run deployment tests
-        run: python3 cloud/shared/bin/lib/config_loader_test.py
+        run: PYTHONPATH="${PYTHONPATH}:${pwd}" python3 cloud/shared/bin/lib/config_loader_test.py
 
   validate_terraform:
     runs-on: ubuntu-latest
