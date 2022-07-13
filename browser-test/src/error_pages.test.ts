@@ -1,10 +1,4 @@
-import {
-  startSession,
-  loginAsGuest,
-  endSession,
-  gotoEndpoint,
-  NotFoundPage,
-} from './support'
+import {startSession, endSession, NotFoundPage} from './support'
 
 describe('error pages', () => {
   it('test 404 page', async () => {
