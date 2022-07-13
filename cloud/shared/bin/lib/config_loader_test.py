@@ -96,6 +96,58 @@ class TestConfigLoader(unittest.TestCase):
         self.assertEqual(
             config_loader.validate_config(), [" not supported enum for FOO"])
 
+    def test_value_regex(self):
+        config_loader = ConfigLoader()
+        config_loader.variable_definitions = {
+            "FOO":
+                {
+                    "required": True,
+                    "secret": False,
+                    "type": "string",
+                    "value_regex": "[a-z]+"
+                },
+        }
+
+        config_loader.configs = {"FOO": "onlyletters"}
+        self.assertEqual(config_loader.validate_config(), [])
+
+        config_loader.configs = {"FOO": "somenumbers123"}
+        self.assertEqual(
+            config_loader.validate_config(),
+            ['[FOO] does not match the provided regex: "[a-z]+"'])
+
+    def test_value_regex_custom_message(self):
+        config_loader = ConfigLoader()
+        config_loader.variable_definitions = {
+            "FOO":
+                {
+                    "required": True,
+                    "secret": False,
+                    "type": "string",
+                    "value_regex": "[a-z]+",
+                    "value_regex_error_override": "some message"
+                },
+        }
+
+        config_loader.configs = {"FOO": "somenumbers123"}
+        self.assertEqual(
+            config_loader.validate_config(), ['[FOO] some message'])
+
+    def test_value_regex_ignored_for_not_required_and_not_provided(self):
+        config_loader = ConfigLoader()
+        config_loader.variable_definitions = {
+            "FOO":
+                {
+                    "required": False,
+                    "secret": False,
+                    "type": "string",
+                    "value_regex": "[a-z]+"
+                },
+        }
+
+        config_loader.configs = {}
+        self.assertEqual(config_loader.validate_config(), [])
+
 
 if __name__ == "__main__":
     unittest.main()
