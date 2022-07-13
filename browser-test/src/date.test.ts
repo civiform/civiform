@@ -33,9 +33,9 @@ describe('Date question for applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject)
       applicantQuestions = new ApplicantQuestions(pageObject)
 
-      await adminQuestions.addDateQuestion({questionName: 'date-q'})
+      await adminQuestions.addDateQuestion({questionName: 'general-date-q'})
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['date-q'],
+        ['general-date-q'],
         programName,
       )
 

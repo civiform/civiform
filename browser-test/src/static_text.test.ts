@@ -30,9 +30,9 @@ describe('Static text question for applicant flow', () => {
       questionText: staticText,
     })
     // Must add an answerable question for text to show.
-    await adminQuestions.addEmailQuestion({questionName: 'email-q'})
+    await adminQuestions.addEmailQuestion({questionName: 'partner-email-q'})
     await adminPrograms.addAndPublishProgramWithQuestions(
-      ['static-text-q', 'email-q'],
+      ['static-text-q', 'partner-email-q'],
       programName,
     )
 

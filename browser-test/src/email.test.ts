@@ -33,9 +33,9 @@ describe('Email question for applicant flow', () => {
       const adminPrograms = new AdminPrograms(pageObject)
       applicantQuestions = new ApplicantQuestions(pageObject)
 
-      await adminQuestions.addEmailQuestion({questionName: 'email-q'})
+      await adminQuestions.addEmailQuestion({questionName: 'general-email-q'})
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['email-q'],
+        ['general-email-q'],
         programName,
       )
 
