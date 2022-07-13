@@ -17,9 +17,11 @@ import com.google.auto.value.AutoValue;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.TagCreator;
-import j2html.attributes.Attr;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
 import models.Application;
 import org.slf4j.Logger;
@@ -75,7 +77,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       RenderFilterParams filterParams) {
 
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
-    Tag applicationListDiv =
+    DivTag applicationListDiv =
         div()
             .with(
                 h1(program.adminName()).withClasses(Styles.MY_4),
@@ -100,7 +102,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 Styles.ML_6,
                 Styles.MR_2);
 
-    Tag applicationShowDiv =
+    DivTag applicationShowDiv =
         div()
             .withClasses(
                 Styles.MT_6, StyleUtils.responsiveLarge(Styles.MT_12), Styles.W_FULL, Styles.H_FULL)
@@ -121,8 +123,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private Tag renderSearchForm(
-      ProgramDefinition program, Tag downloadButton, RenderFilterParams filterParams) {
+  private FormTag renderSearchForm(
+      ProgramDefinition program, ButtonTag downloadButton, RenderFilterParams filterParams) {
     return form()
         .withClasses(Styles.MT_6)
         .withMethod("GET")
@@ -146,19 +148,19 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 .setFieldName(FROM_DATE_PARAM)
                                 .setValue(filterParams.fromDate().orElse(""))
                                 .setLabelText("From:")
-                                .getContainer()
+                                .getDateTag()
                                 .withClasses(Styles.FLEX),
                             FieldWithLabel.date()
                                 .setFieldName(UNTIL_DATE_PARAM)
                                 .setValue(filterParams.untilDate().orElse(""))
                                 .setLabelText("Until:")
-                                .getContainer()
+                                .getDateTag()
                                 .withClasses(Styles.FLEX))),
             FieldWithLabel.input()
                 .setFieldName(SEARCH_PARAM)
                 .setValue(filterParams.search().orElse(""))
                 .setLabelText("Search by name, email, or application ID")
-                .getContainer()
+                .getInputTag()
                 .withClasses(Styles.W_FULL, Styles.MT_4),
             div()
                 .withClasses(Styles.MT_6, Styles.MB_8, Styles.FLEX, Styles.SPACE_X_2)
@@ -173,7 +175,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private Modal renderDownloadApplicationsModal(
       ProgramDefinition program, RenderFilterParams filterParams) {
     String modalId = "download-program-applications-modal";
-    ContainerTag modalContent =
+    DivTag modalContent =
         div()
             .withClasses(Styles.PX_8)
             .with(
@@ -184,13 +186,13 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             .setFieldName(IGNORE_FILTERS_PARAM)
                             .setLabelText("Current results")
                             .setChecked(true)
-                            .getContainer(),
+                            .getRadioTag(),
                         FieldWithLabel.radio()
                             .setFieldName(IGNORE_FILTERS_PARAM)
                             .setLabelText("All data")
                             .setValue("1")
                             .setChecked(false)
-                            .getContainer(),
+                            .getRadioTag(),
                         input()
                             .withName(FROM_DATE_PARAM)
                             .withValue(filterParams.fromDate().orElse(""))
@@ -210,8 +212,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                     .withClasses(
                                         ReferenceClasses.DOWNLOAD_ALL_BUTTON,
                                         AdminStyles.PRIMARY_BUTTON_STYLES)
-                                    .attr(
-                                        Attr.FORMACTION,
+                                    .withFormaction(
                                         controllers.admin.routes.AdminApplicationController
                                             .downloadAll(
                                                 program.id(),
@@ -225,8 +226,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                     .withClasses(
                                         ReferenceClasses.DOWNLOAD_ALL_BUTTON,
                                         AdminStyles.PRIMARY_BUTTON_STYLES)
-                                    .attr(
-                                        Attr.FORMACTION,
+                                    .withFormaction(
                                         controllers.admin.routes.AdminApplicationController
                                             .downloadAllJson(
                                                 program.id(),
@@ -245,7 +245,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .build();
   }
 
-  private Tag renderApplicationListItem(Application application) {
+  private DivTag renderApplicationListItem(Application application) {
     String applicantNameWithApplicationId =
         String.format(
             "%s (%d)",
@@ -253,7 +253,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             application.id);
     String viewLinkText = "View →";
 
-    Tag cardContent =
+    DivTag cardContent =
         div()
             .withClasses(
                 Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4)
@@ -278,7 +278,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             ReferenceClasses.ADMIN_APPLICATION_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MT_4);
   }
 
-  private Tag renderSubmitTime(Application application) {
+  private SpanTag renderSubmitTime(Application application) {
     try {
       return span().withText(dateConverter.renderDateTime(application.getSubmitTime()));
     } catch (NullPointerException e) {
@@ -287,7 +287,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     }
   }
 
-  private Tag renderViewLink(String text, Application application) {
+  private ATag renderViewLink(String text, Application application) {
     String viewLink =
         controllers.admin.routes.AdminApplicationController.show(
                 application.getProgram().id, application.id)

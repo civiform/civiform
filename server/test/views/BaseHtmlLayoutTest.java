@@ -3,7 +3,7 @@ package views;
 import static j2html.TagCreator.link;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import j2html.tags.Tag;
+import j2html.tags.specialized.LinkTag;
 import org.junit.Before;
 import org.junit.Test;
 import play.twirl.api.Content;
@@ -41,7 +41,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     HtmlBundle bundle = new HtmlBundle();
 
     // Add stylesheet before default.
-    Tag linkTag = link().withHref("moose.css").withRel("stylesheet");
+    LinkTag linkTag = link().withHref("moose.css").withRel("stylesheet");
     bundle.addStylesheets(linkTag);
 
     bundle = layout.getBundle(bundle);

@@ -11,6 +11,12 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
+import j2html.tags.Tag;
+import j2html.tags.attributes.IHref;
+import j2html.tags.attributes.ITarget;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 import play.filters.csrf.CSRF;
 import play.mvc.Http;
 import scala.Option;
@@ -106,38 +112,56 @@ public class LinkElement {
     return this;
   }
 
-  public ContainerTag asAnchorText() {
-    ContainerTag tag = Strings.isNullOrEmpty(href) ? div(text) : a(text).withHref(href);
+  public ATag asAnchorText() {
+    ATag tag = a(text);
     return tag.withCondId(!Strings.isNullOrEmpty(id), id)
         .withCondHref(!Strings.isNullOrEmpty(href), href)
         .withCondTarget(doesOpenInNewTab, "_blank")
         .withClasses(DEFAULT_LINK_STYLES, styles);
   }
 
-  public ContainerTag asButton() {
-    ContainerTag tag =
-        Strings.isNullOrEmpty(href)
-            ? div(text)
-            : a(text).withHref(href).withCondTarget(doesOpenInNewTab, "_blank");
-    return tag.withCondId(!Strings.isNullOrEmpty(id), id)
-        .withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);
+  private <T extends ContainerTag<T> & IHref<T> & ITarget<T>> void setTargetMaybeHref(T tag) {
+    if (tag.getTagName().equals("a") && Strings.isNullOrEmpty(href)) {
+      throw new RuntimeException("trying to create an <a> tag with no href defined!");
+    }
+    tag.withCondHref(!Strings.isNullOrEmpty(href), href).withCondTarget(doesOpenInNewTab, "_blank");
   }
 
-  public ContainerTag asRightAlignedButton() {
-    ContainerTag tag =
-        Strings.isNullOrEmpty(href)
-            ? div(text)
-            : a(text).withHref(href).withCondTarget(doesOpenInNewTab, "_blank");
-    return tag.withCondId(!Strings.isNullOrEmpty(id), id)
-        .withClasses(RIGHT_ALIGNED_LINK_BUTTON_STYLES, styles);
+  private void maybeSetId(Tag tag) {
+    tag.withCondId(!Strings.isNullOrEmpty(id), id);
   }
 
-  public ContainerTag asHiddenForm(Http.Request request) {
+  public ATag asButton() {
+    ATag tag = a(text);
+    setTargetMaybeHref(tag);
+    maybeSetId(tag);
+    return tag.withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);
+  }
+
+  public ATag asRightAlignedButton() {
+    ATag tag = a(text);
+    setTargetMaybeHref(tag);
+    maybeSetId(tag);
+    return tag.withClasses(RIGHT_ALIGNED_LINK_BUTTON_STYLES, styles);
+  }
+
+  public DivTag asButtonNoHref() {
+    DivTag tag = div(text);
+    maybeSetId(tag);
+    return tag.withClasses(DEFAULT_LINK_BUTTON_STYLES, styles);
+  }
+
+  public DivTag asRightAlignedButtonNoHref() {
+    DivTag tag = div(text);
+    maybeSetId(tag);
+    return tag.withClasses(RIGHT_ALIGNED_LINK_BUTTON_STYLES, styles);
+  }
+
+  public FormTag asHiddenForm(Http.Request request) {
     return this.asHiddenForm(request, ImmutableMap.of());
   }
 
-  public ContainerTag asHiddenForm(
-      Http.Request request, ImmutableMap<String, String> hiddenFormValues) {
+  public FormTag asHiddenForm(Http.Request request, ImmutableMap<String, String> hiddenFormValues) {
     Preconditions.checkNotNull(href);
     Option<CSRF.Token> csrfTokenMaybe = CSRF.getToken(request.asScala());
     String csrfToken = "";
@@ -145,15 +169,15 @@ public class LinkElement {
       csrfToken = csrfTokenMaybe.get().value();
     }
 
-    ContainerTag form =
+    FormTag form =
         form(
                 input().isHidden().withValue(csrfToken).withName("csrfToken"),
                 button(TagCreator.text(text))
                     .withClasses(DEFAULT_LINK_BUTTON_STYLES)
                     .withType("submit"))
             .withMethod("POST")
+            .withCondOnsubmit(!Strings.isNullOrEmpty(onsubmit), onsubmit)
             .withAction(href)
-            .condAttr(!Strings.isNullOrEmpty(onsubmit), "onsubmit", onsubmit)
             .withCondId(!Strings.isNullOrEmpty(id), id);
     hiddenFormValues.entrySet().stream()
         .map(entry -> input().isHidden().withName(entry.getKey()).withValue(entry.getValue()))
@@ -161,7 +185,7 @@ public class LinkElement {
     return form;
   }
 
-  public ContainerTag asHiddenFormLink(Http.Request request) {
+  public FormTag asHiddenFormLink(Http.Request request) {
     Preconditions.checkNotNull(href);
     Option<CSRF.Token> csrfTokenMaybe = CSRF.getToken(request.asScala());
     String csrfToken = "";
@@ -169,7 +193,7 @@ public class LinkElement {
       csrfToken = csrfTokenMaybe.get().value();
     }
 
-    ContainerTag form =
+    FormTag form =
         form(
                 input().isHidden().withValue(csrfToken).withName("csrfToken"),
                 button(TagCreator.text(text))
@@ -177,8 +201,8 @@ public class LinkElement {
                     .withType("submit"))
             .withClasses(Styles.INLINE)
             .withMethod("POST")
+            .withCondOnsubmit(!Strings.isNullOrEmpty(onsubmit), onsubmit)
             .withAction(href)
-            .condAttr(!Strings.isNullOrEmpty(onsubmit), "onsubmit", onsubmit)
             .withCondId(!Strings.isNullOrEmpty(id), id);
     return form;
   }

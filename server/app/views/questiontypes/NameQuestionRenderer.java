@@ -4,7 +4,7 @@ import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -27,13 +27,13 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(
+  protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     Messages messages = params.messages();
     NameQuestion nameQuestion = question.createNameQuestion();
 
-    Tag nameQuestionFormContent =
+    DivTag nameQuestionFormContent =
         div()
             .with(
                 FieldWithLabel.input()
@@ -45,7 +45,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                         validationErrors.getOrDefault(
                             nameQuestion.getFirstNamePath(), ImmutableSet.of()))
                     .addReferenceClass(ReferenceClasses.NAME_FIRST)
-                    .getContainer())
+                    .getInputTag())
             .with(
                 FieldWithLabel.input()
                     .setFieldName(nameQuestion.getMiddleNamePath().toString())
@@ -56,7 +56,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                         messages,
                         validationErrors.getOrDefault(
                             nameQuestion.getMiddleNamePath(), ImmutableSet.of()))
-                    .getContainer())
+                    .getInputTag())
             .with(
                 FieldWithLabel.input()
                     .setFieldName(nameQuestion.getLastNamePath().toString())
@@ -67,7 +67,7 @@ public class NameQuestionRenderer extends ApplicantQuestionRendererImpl {
                         validationErrors.getOrDefault(
                             nameQuestion.getLastNamePath(), ImmutableSet.of()))
                     .addReferenceClass(ReferenceClasses.NAME_LAST)
-                    .getContainer());
+                    .getInputTag());
 
     return nameQuestionFormContent;
   }

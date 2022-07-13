@@ -1,6 +1,6 @@
 package views.questiontypes;
 
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
 
 /**
  * Interface for all applicant question renderers. An applicant question renderer renders a question
@@ -17,5 +17,5 @@ public interface ApplicantQuestionRenderer {
    * the form content, so we offer the ability to specify whether or not this method should render
    * the question errors here.
    */
-  Tag render(ApplicantQuestionRendererParams params);
+  DivTag render(ApplicantQuestionRendererParams params);
 }

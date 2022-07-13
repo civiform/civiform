@@ -1,6 +1,5 @@
 package views.components;
 
-import j2html.tags.ContainerTag;
 import services.question.types.QuestionType;
 
 /**
@@ -251,11 +250,11 @@ public enum Icons {
     this.path = path;
   }
 
-  public static ContainerTag questionTypeSvg(QuestionType type, int size) {
+  public static SvgTag questionTypeSvg(QuestionType type, int size) {
     return questionTypeSvg(type, size, size);
   }
 
-  public static ContainerTag questionTypeSvg(QuestionType type, int width, int height) {
+  public static SvgTag questionTypeSvg(QuestionType type, int width, int height) {
     Icons icon;
     switch (type) {
       case ADDRESS:
@@ -312,35 +311,35 @@ public enum Icons {
     return svg(icon, width, height);
   }
 
-  public static ContainerTag svg(Icons icon, int pixelSize) {
+  public static SvgTag svg(Icons icon, int pixelSize) {
     return svg(icon.path, pixelSize);
   }
 
-  public static ContainerTag svg(String pathString, int pixelSize) {
+  public static SvgTag svg(String pathString, int pixelSize) {
     return svg(pathString, pixelSize, pixelSize);
   }
 
-  public static ContainerTag svg(Icons icon, int width, int height) {
+  public static SvgTag svg(Icons icon, int width, int height) {
     return svg(icon.path, width, height);
   }
 
-  public static ContainerTag svg(String pathString, int width, int height) {
+  public static SvgTag svg(String pathString, int width, int height) {
     // Setting the viewBox to a specific height/width is insufficient to
     // actually cause the SVG's bounds to match. Here, the width / height
     // of the SVG element are explicitly set, which is more consistent
     // with what one would expect given the method signature.
     return svg(pathString)
         .attr("viewBox", String.format("0 0 %1$d %2$d", width, height))
-        .attr("width", width)
-        .attr("height", height);
+        .withWidth(String.valueOf(width))
+        .withHeight(String.valueOf(height));
   }
 
-  private static ContainerTag svg(String pathString) {
+  private static SvgTag svg(String pathString) {
     return svg().with(path(pathString));
   }
 
-  private static ContainerTag svg() {
-    return new ContainerTag("svg")
+  private static SvgTag svg() {
+    return new SvgTag()
         .attr("xmlns", "http://www.w3.org/2000/svg")
         .attr("fill", "currentColor")
         .attr("stroke", "currentColor")
@@ -348,7 +347,7 @@ public enum Icons {
         .attr("aria-hidden", "true");
   }
 
-  private static ContainerTag path(String pathString) {
-    return new ContainerTag("path").attr("d", pathString);
+  private static PathTag path(String pathString) {
+    return new PathTag().attr("d", pathString);
   }
 }

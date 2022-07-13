@@ -28,7 +28,7 @@ lazy val root = (project in file("."))
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
-      "com.j2html" % "j2html" % "1.4.0",
+      "com.j2html" % "j2html" % "1.5.0",
 
       // Amazon AWS SDK
       "software.amazon.awssdk" % "aws-sdk-java" % "2.17.226",
@@ -204,3 +204,6 @@ resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.
 Global / onChangedBuildSource := ReloadOnSourceChanges
+// uncomment to show debug logging.
+//logLevel := Level.Debug
+//Compile / compile / logLevel := Level.Debug
