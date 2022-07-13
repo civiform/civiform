@@ -7,9 +7,11 @@ import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CompletionException;
 import models.Account;
 import models.Applicant;
+import models.Program;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
+import support.ProgramBuilder;
 
 public class CiviFormProfileTest extends ResetPostgres {
 
@@ -39,6 +41,43 @@ public class CiviFormProfileTest extends ResetPostgres {
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
 
     profile.checkAuthorization(profile.getApplicant().get().id).join();
+  }
+
+  @Test
+  public void checkProgramAuthorization_program_admin_passes() {
+    String programName = "some-program-name";
+    Program program = ProgramBuilder.newActiveProgram(programName, "description-123").build();
+
+    CiviFormProfileData data = profileFactory.createNewProgramAdmin();
+    CiviFormProfile profile = profileFactory.wrapProfileData(data);
+
+    profile
+        .getAccount()
+        .thenAccept(
+            account -> {
+              account.addAdministeredProgram(program.getProgramDefinition());
+              account.save();
+            })
+        .join();
+
+    profile.checkProgramAuthorization(programName).join();
+  }
+
+  @Test
+  public void checkProgramAuthorization_civiform_admin_passes() {
+    CiviFormProfileData data = profileFactory.createNewFakeAdmin();
+    CiviFormProfile profile = profileFactory.wrapProfileData(data);
+
+    profile.checkProgramAuthorization("some program name").join();
+  }
+
+  @Test
+  public void checkProgramAuthorization_applicant_fails() {
+    CiviFormProfileData data = profileFactory.createNewApplicant();
+    CiviFormProfile profile = profileFactory.wrapProfileData(data);
+
+    assertThatThrownBy(() -> profile.checkProgramAuthorization("some program name").join())
+        .hasCauseInstanceOf(SecurityException.class);
   }
 
   @Test

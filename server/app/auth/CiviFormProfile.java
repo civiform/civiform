@@ -229,8 +229,9 @@ public class CiviFormProfile {
     return this.getAccount()
         .thenApply(
             account -> {
-              if (account.getAdministeredProgramNames().stream()
-                  .anyMatch(program -> program.equals(programName))) {
+              if (account.getGlobalAdmin()
+                  || account.getAdministeredProgramNames().stream()
+                      .anyMatch(program -> program.equals(programName))) {
                 return null;
               }
               throw new SecurityException(
