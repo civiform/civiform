@@ -1,11 +1,13 @@
 import os
 import subprocess
 import shlex
+import shutil
 
-from cloud.shared.bin.lib.setup_template import SetupTemplate
+from cloud.aws.templates.aws_oidc.bin.aws_template import AwsSetupTemplate
+from cloud.aws.bin.lib import backend_setup
 
 
-class Setup(SetupTemplate):
+class Setup(AwsSetupTemplate):
 
     def get_current_user(self):
         get_current_command = "aws sts get-caller-identity --query UserId --output text"
@@ -14,38 +16,13 @@ class Setup(SetupTemplate):
 
     def pre_terraform_setup(self):
         print(" - Running the setup script in terraform")
-        self._run_tf_to_setup()
+        self._tf_run_for_aws(is_destroy=False)
         print(" - Setting up shared state file")
         self._setup_shared_state_file()
-
-    def _run_tf_to_setup(self):
-        template_dir = os.path.join(self.config.get_template_dir(), 'setup')
-        print(" - Run terraform init")
-        subprocess.check_call(
-            [
-                "terraform",
-                f"-chdir={template_dir}",
-                "init",
-                "-input=false",
-                "-upgrade",
-            ])
-
-        tf_apply_args = [
-            "terraform", f"-chdir={template_dir}", "apply", "-input=false"
-        ]
-
-        if not self.config.is_dev():
-            tf_apply_args.append("-auto-approve")
-
-        print(" - Run terraform apply")
-        subprocess.check_call(tf_apply_args)
+        # Only run in dev mode
+        if not self.config.use_backend_config():
+            self._make_backend_override()
 
     def _setup_shared_state_file(self):
-        backend_file_location = os.path.join(
-            self.config.get_template_dir(), self.config.backend_vars_filename)
-        with open(backend_file_location, 'w') as f:
-            f.write(f'bucket         = "civiform-tfstate-bucket"\n')
-            f.write(f'key            = "tfstate/terraform.tfstate"\n')
-            f.write(f'region         = "us-east-1"\n')
-            f.write(f'dynamodb_table = "civiform-backend-lock-table-tfstate"\n')
-            f.write(f'encrypt        = true\n')
+        if self.config.use_backend_config():
+            backend_setup.setup_backend_config(self.config)

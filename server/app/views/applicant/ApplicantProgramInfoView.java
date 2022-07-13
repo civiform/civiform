@@ -9,8 +9,10 @@ import static j2html.TagCreator.span;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.routes;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.H2Tag;
 import java.util.Locale;
 import java.util.Optional;
 import play.i18n.Messages;
@@ -57,16 +59,16 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
     return layout.renderWithNav(request, userName, messages, bundle);
   }
 
-  private ContainerTag topContent(String programTitle, String programInfo, Messages messages) {
+  private DivTag topContent(String programTitle, String programInfo, Messages messages) {
     String programsLinkText = messages.at(MessageKey.TITLE_PROGRAMS.getKeyName());
     String homeLink = routes.HomeController.index().url();
-    ContainerTag allProgramsDiv =
+    ATag allProgramsDiv =
         a("<")
             .withHref(homeLink)
             .withClasses(Styles.TEXT_GRAY_500, Styles.TEXT_LEFT)
             .with(span().withText(programsLinkText).withClasses(Styles.PX_4));
 
-    ContainerTag titleDiv =
+    H2Tag titleDiv =
         h2().withText(programTitle)
             .withClasses(
                 BaseStyles.TEXT_SEATTLE_BLUE,
@@ -78,21 +80,21 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
     // "Markdown" the program description.
     ImmutableList<DomContent> items = TextFormatter.formatText(programInfo, false);
 
-    ContainerTag descriptionDiv = div().withClasses(Styles.PY_2).with(items);
+    DivTag descriptionDiv = div().withClasses(Styles.PY_2).with(items);
 
     return div(allProgramsDiv, titleDiv, descriptionDiv);
   }
 
-  private ContainerTag createButtons(Long applicantId, Long programId, Messages messages) {
+  private DivTag createButtons(Long applicantId, Long programId, Messages messages) {
     String applyUrl =
         controllers.applicant.routes.ApplicantProgramReviewController.preview(
                 applicantId, programId)
             .url();
-    ContainerTag applyLink =
+    ATag applyLink =
         a().withText(messages.at(MessageKey.BUTTON_APPLY.getKeyName()))
             .withHref(applyUrl)
             .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
-    ContainerTag buttonDiv =
+    DivTag buttonDiv =
         div(applyLink)
             .withClasses(
                 Styles.W_FULL, Styles.MB_6, Styles.FLEX_GROW, Styles.FLEX, Styles.ITEMS_END);

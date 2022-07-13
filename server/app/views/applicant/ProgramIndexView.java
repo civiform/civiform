@@ -10,13 +10,14 @@ import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.hr;
 import static j2html.TagCreator.img;
-import static j2html.attributes.Attr.HREF;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
-import j2html.tags.Tag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.H1Tag;
+import j2html.tags.specialized.ImgTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -92,9 +93,9 @@ public class ProgramIndexView extends BaseHtmlView {
     return layout.renderWithNav(request, userName, messages, bundle);
   }
 
-  private ContainerTag topContent(String titleText, String infoTextLine1, String infoTextLine2) {
+  private DivTag topContent(String titleText, String infoTextLine1, String infoTextLine2) {
     // "Get benefits"
-    ContainerTag programIndexH1 =
+    H1Tag programIndexH1 =
         h1().withText(titleText)
             .withClasses(
                 Styles.TEXT_4XL,
@@ -104,12 +105,12 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.PX_6,
                 StyleUtils.responsiveSmall(Styles.MB_6));
 
-    ContainerTag infoLine1Div =
+    DivTag infoLine1Div =
         div()
             .withText(infoTextLine1)
             .withClasses(Styles.TEXT_SM, Styles.PX_6, StyleUtils.responsiveSmall(Styles.TEXT_BASE));
 
-    ContainerTag infoLine2Div =
+    DivTag infoLine2Div =
         div()
             .withText(infoTextLine2)
             .withClasses(
@@ -118,19 +119,19 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.PB_6,
                 StyleUtils.responsiveSmall(Styles.TEXT_BASE));
 
-    Tag logoImg =
+    ImgTag logoImg =
         maybeLogoUrl.isPresent()
             ? img().withSrc(maybeLogoUrl.get())
             : this.layout.viewUtils.makeLocalImageTag("Seattle-logo_horizontal_blue-white_small");
 
-    ContainerTag logoDiv =
+    DivTag logoDiv =
         div()
             .with(
                 logoImg
                     .withAlt(civicEntityFullName + " logo")
                     .attr("aria-hidden", "true")
-                    .attr("width", 175)
-                    .attr("height", 70))
+                    .withWidth("175")
+                    .withHeight("70"))
             .withClasses(Styles.TOP_2, Styles.LEFT_2);
 
     return div()
@@ -139,19 +140,19 @@ public class ProgramIndexView extends BaseHtmlView {
         .with(logoDiv, programIndexH1, infoLine1Div, infoLine2Div);
   }
 
-  private ContainerTag mainContent(
+  private DivTag mainContent(
       Messages messages,
       ImmutableList<ProgramDefinition> draftPrograms,
       ImmutableList<ProgramDefinition> activePrograms,
       long applicantId,
       Locale preferredLocale) {
-    ContainerTag content =
+    DivTag content =
         div()
             .withId("main-content")
             .withClasses(Styles.MX_AUTO, Styles.MY_4, StyleUtils.responsiveSmall(Styles.M_10))
             .with(
                 h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
-                    .withClasses(Styles.MB_4, Styles.TEXT_XL, Styles.FONT_SEMIBOLD));
+                    .withClasses(Styles.MB_4, Styles.PX_4, Styles.TEXT_XL, Styles.FONT_SEMIBOLD));
 
     // The different program card containers should have the same styling, by using the program
     // count of the larger set of programs
@@ -225,7 +226,7 @@ public class ProgramIndexView extends BaseHtmlView {
         numPrograms >= 5 ? StyleUtils.responsive2XLarge(Styles.GRID_COLS_5) : "");
   }
 
-  private ContainerTag programCard(
+  private DivTag programCard(
       Messages messages,
       ProgramDefinition program,
       int programIndex,
@@ -235,7 +236,7 @@ public class ProgramIndexView extends BaseHtmlView {
       boolean isDraft) {
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
-    ContainerTag title =
+    DivTag title =
         div()
             .withId(baseId + "-title")
             .withClasses(Styles.TEXT_LG, Styles.FONT_SEMIBOLD)
@@ -244,7 +245,7 @@ public class ProgramIndexView extends BaseHtmlView {
         TextFormatter.createLinksAndEscapeText(
             program.localizedDescription().getOrDefault(preferredLocale),
             TextFormatter.UrlOpenAction.NewTab);
-    ContainerTag description =
+    DivTag description =
         div()
             .withId(baseId + "-description")
             .withClasses(
@@ -254,7 +255,7 @@ public class ProgramIndexView extends BaseHtmlView {
                 Styles.LINE_CLAMP_5)
             .with(descriptionContent);
 
-    ContainerTag programData =
+    DivTag programData =
         div()
             .withId(baseId + "-data")
             .withClasses(Styles.W_FULL, Styles.PX_4, Styles.OVERFLOW_AUTO)
@@ -264,7 +265,7 @@ public class ProgramIndexView extends BaseHtmlView {
     String infoUrl =
         controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
             .url();
-    ContainerTag infoLink =
+    ATag infoLink =
         new LinkElement()
             .setId(baseId + "-info-link")
             .setStyles(Styles.BLOCK, Styles.MY_2, Styles.TEXT_SM, Styles.UNDERLINE)
@@ -280,16 +281,16 @@ public class ProgramIndexView extends BaseHtmlView {
 
     // Add external link if it is set.
     if (!program.externalLink().isEmpty()) {
-      ContainerTag externalLink =
+      ATag externalLink =
           new LinkElement()
               .setId(baseId + "-external-link")
               .setStyles(Styles.BLOCK, Styles.MY_2, Styles.TEXT_SM, Styles.UNDERLINE)
               .setText(messages.at(MessageKey.EXTERNAL_LINK.getKeyName()))
               .setHref(program.externalLink())
+              .opensInNewTab()
               .asAnchorText()
-              .withTarget("_blank")
               .with(
-                  Icons.svg(Icons.OPEN_IN_NEW_PATH, 24, 24)
+                  Icons.svg(Icons.OPEN_IN_NEW, 24, 24)
                       .withClasses(
                           Styles.FLEX_SHRINK_0,
                           Styles.H_5,
@@ -305,8 +306,8 @@ public class ProgramIndexView extends BaseHtmlView {
         controllers.applicant.routes.ApplicantProgramReviewController.preview(
                 applicantId, program.id())
             .url();
-    ContainerTag applyButton =
-        a().attr(HREF, applyUrl)
+    ATag applyButton =
+        a().withHref(applyUrl)
             .attr(
                 "aria-label",
                 messages.at(
@@ -319,7 +320,7 @@ public class ProgramIndexView extends BaseHtmlView {
             .withId(baseId + "-apply")
             .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
 
-    ContainerTag applyDiv =
+    DivTag applyDiv =
         div(applyButton)
             .withClasses(
                 Styles.W_FULL, Styles.MB_6, Styles.FLEX_GROW, Styles.FLEX, Styles.ITEMS_END);

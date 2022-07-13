@@ -6,9 +6,8 @@ import static j2html.TagCreator.label;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import j2html.attributes.Attr;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LabelTag;
 import java.util.Comparator;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -33,12 +32,12 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(
+  protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
 
-    Tag radioQuestionFormContent =
+    DivTag radioQuestionFormContent =
         div()
             .with(
                 singleOptionQuestion.getOptions().stream()
@@ -53,11 +52,11 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
     return radioQuestionFormContent;
   }
 
-  private Tag renderRadioOption(
+  private DivTag renderRadioOption(
       String selectionPath, LocalizedQuestionOption option, boolean checked) {
     String id = option.optionText().replaceAll("\\s+", "_");
 
-    ContainerTag labelTag =
+    LabelTag labelTag =
         label()
             .withClasses(
                 ReferenceClasses.RADIO_OPTION,
@@ -69,7 +68,7 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .withType("radio")
                     .withName(selectionPath)
                     .withValue(String.valueOf(option.id()))
-                    .condAttr(checked, Attr.CHECKED, "")
+                    .withCondChecked(checked)
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO)))
             .withText(option.optionText());

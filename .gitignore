@@ -20,6 +20,7 @@ tailwind.css
 *.terraform
 *.terraform.lock.hcl
 *.tfvars
+cloud/**/backend_vars
 /cloud/deploys/dev_azure/civiform_config.sh
 /cloud/deploys/dev_aws/civiform_config.sh
 *_override.tf
@@ -27,6 +28,7 @@ tailwind.css
 terraform.tfstate**
 .terraform.tfstate**
 *.pyc
+terraform_plan
 
 sbt_cache/*
 !sbt_cache/.keep

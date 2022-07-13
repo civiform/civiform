@@ -23,6 +23,9 @@ POST    /admin/programs/:programId                              controllers.admi
 GET     /admin/programs/:programId/admins/edit  controllers.admin.ProgramAdminManagementController.edit(request: Request, programId: Long)
 POST    /admin/programs/:programId/admins       controllers.admin.ProgramAdminManagementController.update(request: Request, programId: Long)
 
+# Routes for a CiviForm admin to manage application statuses for a given program.
+GET     /admin/programs/:programId/statuses controllers.admin.AdminProgramStatusesController.index(request: Request, programId: Long)
+
 # Routes for managing program localization
 GET     /admin/programs/:programId/translations/:locale/edit    controllers.admin.AdminProgramTranslationsController.edit(request: Request, programId: Long, locale: String)
 POST    /admin/programs/:programId/translations/:locale         controllers.admin.AdminProgramTranslationsController.update(request: Request, programId: Long, locale: String)
@@ -77,13 +80,13 @@ GET     /admin/tiDash                      controllers.ti.TrustedIntermediaryCon
 POST    /admin/tiGroups/:id/addApplicant   controllers.ti.TrustedIntermediaryController.addApplicant(id: Long, request: Request)
 
 # Controller for admins only, related to applications
-GET     /admin/programs/:programId/applications                           controllers.admin.AdminApplicationController.index(request: Request, programId: Long, search: java.util.Optional[String], page: java.util.Optional[Integer])
-GET     /admin/programs/:programId/applications/allJson                   controllers.admin.AdminApplicationController.downloadAllJson(request: Request, programId: Long)
-GET     /admin/programs/:programId/applications/all                       controllers.admin.AdminApplicationController.downloadAll(request: Request, programId: Long)
+GET     /admin/programs/:programId/applications                           controllers.admin.AdminApplicationController.index(request: Request, programId: Long, search: java.util.Optional[String], page: java.util.Optional[Integer], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String])
+GET     /admin/programs/:programId/applications/allJson                   controllers.admin.AdminApplicationController.downloadAllJson(request: Request, programId: Long, search: java.util.Optional[String], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], ignoreFilters: java.util.Optional[String])
+GET     /admin/programs/:programId/applications/all                       controllers.admin.AdminApplicationController.downloadAll(request: Request, programId: Long, search: java.util.Optional[String], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], ignoreFilters: java.util.Optional[String])
 GET     /admin/programs/:programId/applications/singleVersion             controllers.admin.AdminApplicationController.downloadSingleVersion(request: Request, programId: Long)
 GET     /admin/programs/:programId/applications/:applicationId            controllers.admin.AdminApplicationController.show(request: Request, programId: Long, applicationId: Long)
 GET     /admin/programs/:programId/applications/:applicationId/download   controllers.admin.AdminApplicationController.download(request: Request, programId: Long, applicationId: Long)
-GET     /admin/demographics                                               controllers.admin.AdminApplicationController.downloadDemographics()
+GET     /admin/demographics                                               controllers.admin.AdminApplicationController.downloadDemographics(request: Request, fromDate: java.util.Optional[String], untilDate: java.util.Optional[String])
 
 # Admin API key management
 GET     /admin/apiKeys                              controllers.admin.AdminApiKeysController.index(request: Request)
@@ -170,6 +173,7 @@ GET     /logout                      @org.pac4j.play.LogoutController.logout(req
 # Methods for development: seed the database with test content to develop against, and clear the database
 GET     /dev/seed                        controllers.dev.DatabaseSeedController.index(request: Request)
 POST    /dev/seed/canonicalQuestions     controllers.dev.DatabaseSeedController.seedCanonicalQuestions()
+GET     /dev/icons                       controllers.dev.IconsController.index()
 POST    /dev/seed                        controllers.dev.DatabaseSeedController.seed()
 POST    /dev/seed/clear                  controllers.dev.DatabaseSeedController.clear()
 

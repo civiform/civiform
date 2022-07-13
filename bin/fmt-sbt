@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+
+# DOC: Format Format *.sbt and project/*.scala files.
+
+source bin/lib.sh
+docker::set_project_name_dev
+
+bin/pull-image --dev
+
+# Can't use TTY in CI
+interactive_flag="-T"
+if [[ -n "${CI}" ]]; then
+  interactive_flag=""
+  # We manually pull the dev image here since bin/pull-image
+  # is disabled in CI mode. We need the dev image in order
+  # to run the SBT shell.
+  docker pull -q docker.io/civiform/civiform-dev:latest
+  docker tag civiform/civiform-dev:latest civiform-dev
+fi
+
+docker::run_shell_container
+docker::run_shell_command sbt scalafmtSbt
+docker::stop_shell_container

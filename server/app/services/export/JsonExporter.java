@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import models.Application;
 import org.apache.commons.lang3.tuple.Pair;
 import play.libs.F;
+import repository.TimeFilter;
 import services.CfJsonDocumentContext;
 import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
@@ -42,14 +43,18 @@ public class JsonExporter {
   }
 
   public Pair<String, PaginationResult<Application>> export(
-      ProgramDefinition programDefinition, IdentifierBasedPaginationSpec<Long> paginationSpec) {
+      ProgramDefinition programDefinition,
+      IdentifierBasedPaginationSpec<Long> paginationSpec,
+      Optional<String> searchFragment,
+      TimeFilter submitTimeFilter) {
     PaginationResult<Application> paginationResult;
     try {
       paginationResult =
           programService.getSubmittedProgramApplicationsAllVersions(
               programDefinition.id(),
               F.Either.Left(paginationSpec),
-              /* searchNameFragment= */ Optional.empty());
+              searchFragment,
+              submitTimeFilter);
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException(e);
     }

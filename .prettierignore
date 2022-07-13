@@ -5,3 +5,15 @@ node_modules
 project
 target
 public
+code-coverage
+logs
+.terraform
+
+.classpath
+.project
+.data
+.metals
+.bloop
+.bsp
+.ammonite
+sbt_cache

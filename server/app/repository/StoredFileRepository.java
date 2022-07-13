@@ -62,11 +62,11 @@ public class StoredFileRepository {
         executionContext);
   }
 
-  public CompletionStage<Long> insert(StoredFile file) {
+  public CompletionStage<StoredFile> insert(StoredFile file) {
     return supplyAsync(
         () -> {
           database.insert(file);
-          return file.id;
+          return file;
         },
         executionContext);
   }

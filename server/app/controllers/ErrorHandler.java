@@ -35,6 +35,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   private static final ImmutableSet<Class<? extends Exception>> BAD_REQUEST_EXCEPTION_TYPES =
       ImmutableSet.of(
           ApiKeyNotFoundException.class,
+          BadRequestException.class,
           BadApiRequestException.class,
           NotChangeableException.class,
           ProgramNotFoundException.class);

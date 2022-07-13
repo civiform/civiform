@@ -1,7 +1,8 @@
 #! /usr/bin/env bash
 
 # DOC: Pull the latest development environment docker image from Docker Hub
-# DOC: unless USE_LOCAL_CIVIFORM is set. May specify what to pull with a flag
+# DOC: unless USE_LOCAL_CIVIFORM or CI (set in GitHub actions) is set. May
+# DOC: specify what to pull with a flag
 # DOC: e.g. "--formatter", "--localstack", or "--all" (the default).
 # DOC: If multiple flags are passed, all but the first will be ignored.
 
@@ -12,8 +13,13 @@ if [[ -n "${USE_LOCAL_CIVIFORM}" ]]; then
   exit 0
 fi
 
+if [[ -n "${CI}" ]]; then
+  echo "Using local civiform and dependency docker images"
+  exit 0
+fi
+
 echo "Making sure we're up to date with the latest dev... " \
-  "set environment variable USE_LOCAL_CIVIFORM=1 to skip"
+  "set environment variable USE_LOCAL_CIVIFORM=1 / CI=true to skip"
 
 function pull_all() {
   echo "Pull all docker images"
@@ -24,9 +30,9 @@ function pull_all() {
   docker pull -q mcr.microsoft.com/azure-storage/azurite &
   docker pull -q localstack/localstack &
 
-  docker pull -q civiform/civiform-localstack:latest &
-  docker pull -q civiform/formatter:latest &
-  docker pull -q civiform/civiform-browser-test:latest &
+  docker pull -q docker.io/civiform/civiform-localstack:latest &
+  docker pull -q docker.io/civiform/formatter:latest &
+  docker pull -q docker.io/civiform/civiform-browser-test:latest &
 
   wait
 
@@ -45,14 +51,21 @@ while [ "${1:-}" != "" ]; do
       pull_all
       ;;
 
+    "--dev")
+      echo "Pull dev docker image"
+      docker pull -q docker.io/civiform/civiform-dev:latest
+      docker tag civiform/civiform-dev:latest civiform-dev
+
+      ;;
+
     "--formatter")
       echo "Pull formatter docker image"
-      docker pull -q civiform/formatter:latest
+      docker pull -q docker.io/civiform/formatter:latest
       ;;
 
     "--localstack")
       echo "Pull localstack docker image"
-      docker pull -q civiform/civiform-localstack:latest
+      docker pull -q docker.io/civiform/civiform-localstack:latest
       docker tag civiform/civiform-localstack:latest civiform-localstack
       ;;
 
@@ -68,7 +81,7 @@ while [ "${1:-}" != "" ]; do
 
     "--browser-tests")
       echo "Pull browser-tests docker image"
-      docker pull -q civiform/civiform-browser-test:latest
+      docker pull -q docker.io/civiform/civiform-browser-test:latest
       ;;
 
     *)

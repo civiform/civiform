@@ -1,4 +1,4 @@
-import { Page } from 'playwright'
+import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -6,7 +6,10 @@ import {
   loginAsAdmin,
   loginAsGuest,
   logout,
+  dropTables,
+  seedCanonicalQuestions,
   resetSession,
+  endSession,
   selectApplicantLanguage,
   startSession,
 } from './support'
@@ -15,7 +18,10 @@ describe('file upload applicant flow', () => {
   let pageObject: Page
 
   beforeAll(async () => {
-    const { page } = await startSession()
+    const {browser, page} = await startSession()
+    await dropTables(page)
+    await seedCanonicalQuestions(page)
+    await resetSession(page)
     pageObject = page
   })
 
@@ -38,7 +44,7 @@ describe('file upload applicant flow', () => {
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['file-upload-test-q'],
-        programName
+        programName,
       )
 
       await logout(pageObject)
@@ -108,7 +114,7 @@ describe('file upload applicant flow', () => {
         programName,
         'Optional question block',
         [],
-        'file-upload-test-optional-q'
+        'file-upload-test-optional-q',
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishAllPrograms()

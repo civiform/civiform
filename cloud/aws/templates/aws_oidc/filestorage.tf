@@ -1,5 +1,10 @@
 resource "aws_s3_bucket" "civiform_files_s3" {
-  bucket = var.file_storage_bucket
+  tags = {
+    Name = "${var.app_prefix} Civiform Files"
+    Type = "Civiform Files"
+  }
+
+  bucket = "${var.app_prefix}-${var.file_storage_bucket}"
 }
 
 resource "aws_s3_bucket_public_access_block" "civiform_files_access" {
@@ -35,7 +40,7 @@ data "aws_iam_policy_document" "civiform_files_policy" {
   statement {
     actions = ["s3:*"]
     effect  = "Deny"
-    resources = [aws_s3_bucket.civiform_files_s3.arn,
+    resources = [
     "${aws_s3_bucket.civiform_files_s3.arn}/*"]
     principals {
       type        = "*"
@@ -70,6 +75,6 @@ resource "aws_s3_bucket_ownership_controls" "civiform_files_ownership" {
 resource "aws_s3_bucket_logging" "civiform_files_logging" {
   bucket = aws_s3_bucket.civiform_files_s3.id
 
-  target_bucket = var.log_storage_bucket
+  target_bucket = "${var.app_prefix}-logs"
   target_prefix = "file-access-log/"
 }

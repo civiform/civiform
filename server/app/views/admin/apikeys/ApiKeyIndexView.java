@@ -13,13 +13,14 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.tr;
 
 import auth.ApiKeyGrants;
-import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TableTag;
 import java.util.function.Function;
 import models.ApiKey;
+import modules.MainModule;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DateConverter;
@@ -37,7 +38,6 @@ import views.style.Styles;
 public final class ApiKeyIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final DateConverter dateConverter;
-  private final Slugify slugifier = new Slugify();
 
   @Inject
   public ApiKeyIndexView(AdminLayoutFactory layoutFactory, DateConverter dateConverter) {
@@ -50,7 +50,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
       PaginationResult<ApiKey> apiKeyPaginationResult,
       ImmutableSet<String> allProgramNames) {
     String title = "API Keys";
-    ContainerTag headerDiv =
+    DivTag headerDiv =
         div()
             .withClasses(Styles.FLEX, Styles.PLACE_CONTENT_BETWEEN, Styles.MY_8)
             .with(
@@ -61,7 +61,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                     .setText("New API Key")
                     .asButton());
 
-    ContainerTag contentDiv = div().withClasses(Styles.PX_20).with(headerDiv);
+    DivTag contentDiv = div().withClasses(Styles.PX_20).with(headerDiv);
 
     for (ApiKey apiKey : apiKeyPaginationResult.getPageContents()) {
       contentDiv.with(renderApiKey(request, apiKey, buildProgramSlugToName(allProgramNames)));
@@ -71,22 +71,24 @@ public final class ApiKeyIndexView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ContainerTag renderApiKey(
+  private DivTag renderApiKey(
       Http.Request request, ApiKey apiKey, ImmutableMap<String, String> programSlugToName) {
-    ContainerTag statsDiv =
+    String keyNameSlugified = MainModule.SLUGIFIER.slugify(apiKey.getName());
+
+    DivTag statsDiv =
         div()
             .with(
                 p("Created " + dateConverter.formatRfc1123(apiKey.getCreateTime())),
                 p("Created by " + apiKey.getCreatedBy()),
-                p(
-                    apiKey
+                p(apiKey
                         .getLastCallIpAddress()
                         .map(ip -> "Last used by " + ip)
-                        .orElse("Last used by N/A")),
-                p("Call count: " + apiKey.getCallCount()))
+                        .orElse("Last used by N/A"))
+                    .withId(keyNameSlugified + "-last-call-ip"),
+                p("Call count: " + apiKey.getCallCount()).withId(keyNameSlugified + "-call-count"))
             .withClasses(Styles.TEXT_XS);
 
-    ContainerTag linksDiv = div().withClasses(Styles.FLEX);
+    DivTag linksDiv = div().withClasses(Styles.FLEX);
 
     if (apiKey.isRetired()) {
       statsDiv.with(p("Retired " + dateConverter.formatRfc1123(apiKey.getRetiredTime().get())));
@@ -101,11 +103,11 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                       + apiKey.getName()
                       + "?')")
               .setText("Retire key")
-              .setId(String.format("retire-%s", slugifier.slugify(apiKey.getName())))
+              .setId(String.format("retire-%s", keyNameSlugified))
               .asHiddenForm(request));
     }
 
-    ContainerTag topRowDiv =
+    DivTag topRowDiv =
         div()
             .with(
                 div(
@@ -117,7 +119,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                 statsDiv)
             .withClasses(Styles.FLEX, Styles.PLACE_CONTENT_BETWEEN);
 
-    ContainerTag grantsTable =
+    TableTag grantsTable =
         table()
             .withClasses(Styles.TABLE_AUTO, Styles.W_2_3)
             .with(
@@ -138,11 +140,11 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                       td(permission.name())));
             });
 
-    ContainerTag bottomDiv =
+    DivTag bottomDiv =
         div(grantsTable, linksDiv)
             .withClasses(Styles.FLEX, Styles.PLACE_CONTENT_BETWEEN, Styles.MT_4);
 
-    ContainerTag content =
+    DivTag content =
         div()
             .withClasses(
                 Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4)
@@ -160,6 +162,6 @@ public final class ApiKeyIndexView extends BaseHtmlView {
 
   private ImmutableMap<String, String> buildProgramSlugToName(ImmutableSet<String> programNames) {
     return programNames.stream()
-        .collect(ImmutableMap.toImmutableMap(slugifier::slugify, Function.identity()));
+        .collect(ImmutableMap.toImmutableMap(MainModule.SLUGIFIER::slugify, Function.identity()));
   }
 }

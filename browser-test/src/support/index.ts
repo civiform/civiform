@@ -1,15 +1,16 @@
-import { Browser, chromium, Page } from 'playwright'
-import { waitForPageJsLoad } from './wait'
-export { AdminApiKeys } from './admin_api_keys'
-export { AdminQuestions } from './admin_questions'
-export { AdminPredicates } from './admin_predicates'
-export { AdminPrograms } from './admin_programs'
-export { AdminTranslations } from './admin_translations'
-export { AdminTIGroups } from './admin_ti_groups'
-export { ApplicantQuestions } from './applicant_questions'
-export { clickAndWaitForModal, waitForPageJsLoad } from './wait'
-import { BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD } from './config'
-export { BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD }
+import {Browser, chromium, Page} from 'playwright'
+import * as path from 'path'
+import {waitForPageJsLoad} from './wait'
+export {AdminApiKeys} from './admin_api_keys'
+export {AdminQuestions} from './admin_questions'
+export {AdminPredicates} from './admin_predicates'
+export {AdminPrograms} from './admin_programs'
+export {AdminTranslations} from './admin_translations'
+export {AdminTIGroups} from './admin_ti_groups'
+export {ApplicantQuestions} from './applicant_questions'
+export {clickAndWaitForModal, waitForPageJsLoad} from './wait'
+import {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD} from './config'
+export {BASE_URL, TEST_USER_LOGIN, TEST_USER_PASSWORD}
 
 export const isLocalDevEnvironment = () => {
   return (
@@ -27,14 +28,21 @@ function makeBrowserContext(browser: Browser) {
     // context is possible, but likely not necessary
     // until it causes a problem. In practice, this
     // will only be used when debugging failures.
-    const suffix =
-      (global as any)['expect'] === undefined
-        ? ''
-        : expect.getState().currentTestName
+    const dirs = ['tmp/videos']
+    if ((global as any)['expect'] != null) {
+      const testPath = expect.getState().testPath
+      const testFile = testPath.substring(testPath.lastIndexOf('/') + 1)
+      dirs.push(testFile)
+      // Some test initialize context in beforeAll at which point test name is
+      // not set.
+      if (expect.getState().currentTestName) {
+        dirs.push(expect.getState().currentTestName)
+      }
+    }
     return browser.newContext({
       acceptDownloads: true,
       recordVideo: {
-        dir: `tmp/videos/${suffix}/`,
+        dir: path.join(...dirs),
       },
     })
   } else {
@@ -52,7 +60,7 @@ export const startSession = async () => {
   await page.goto(BASE_URL)
   await closeWarningMessage(page)
 
-  return { browser, context, page }
+  return {browser, context, page}
 }
 
 export const endSession = async (browser: Browser) => {
@@ -113,7 +121,7 @@ export const loginAsTestUser = async (page: Page) => {
     await page.fill('input[name=userName]', TEST_USER_LOGIN)
     await page.fill('input[name=password]', TEST_USER_PASSWORD)
     await page.click('button:has-text("Login"):not([disabled])')
-    await page.waitForNavigation({ waitUntil: 'networkidle' })
+    await page.waitForNavigation({waitUntil: 'networkidle'})
   } else {
     await page.click('#guest')
   }
@@ -139,7 +147,7 @@ export const userDisplayName = () => {
 export const selectApplicantLanguage = async (
   page: Page,
   language: string,
-  assertProgramIndexPage = false
+  assertProgramIndexPage = false,
 ) => {
   const infoPageRegex = /applicants\/\d+\/edit/
   const maybeSelectLanguagePage = await page.url()
@@ -176,8 +184,8 @@ export const closeWarningMessage = async (page: Page) => {
       .click()
       .catch(() =>
         console.log(
-          "Didn't find a warning toast message to dismiss, which is fine."
-        )
+          "Didn't find a warning toast message to dismiss, which is fine.",
+        ),
       )
   }
 }

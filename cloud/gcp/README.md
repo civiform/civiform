@@ -1,6 +1,7 @@
 # Home to CivForm Terraform code for GCP.
 
 ## Initial Setup
+
 - Create a service account for terraform. Your user will need `PROJECT IAM ADMIN` role for this.
 - Add your user for role `Service Account Token Creator` to the Service Account's IAM binding. Note that this is service account IAM binding and not user IAM binding.
 - Run `gcloud auth application-default login`

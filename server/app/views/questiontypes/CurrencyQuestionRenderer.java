@@ -4,7 +4,7 @@ import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -25,7 +25,7 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(
+  protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
@@ -46,7 +46,7 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
           currencyQuestion.getFailedUpdates().getOrDefault(currencyQuestion.getCurrencyPath(), ""));
     }
 
-    Tag dollarSign =
+    DivTag dollarSign =
         div()
             .withText("$")
             .withClasses(
@@ -60,8 +60,8 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
                 // Same text as the input field.
                 Styles.TEXT_LG);
 
-    Tag currencyQuestionFormContent =
-        div().withClasses(Styles.FLEX).with(dollarSign).with(currencyField.getContainer());
+    DivTag currencyQuestionFormContent =
+        div().withClasses(Styles.FLEX).with(dollarSign).with(currencyField.getCurrencyTag());
 
     return currencyQuestionFormContent;
   }

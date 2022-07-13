@@ -1,8 +1,10 @@
-import { Page } from 'playwright'
-import { waitForPageJsLoad } from './wait'
+import {Page} from 'playwright'
+import {waitForPageJsLoad} from './wait'
 
 type QuestionParams = {
   questionName: string
+  minNum?: number | null
+  maxNum?: number | null
   options?: Array<string>
   description?: string
   questionText?: string
@@ -136,7 +138,7 @@ export class AdminQuestions {
     expect(tableInnerText).toContain(questionName)
     expect(tableInnerText).toContain(questionText)
     expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName))
+      await this.page.innerText(this.selectQuestionTableRow(questionName)),
     ).toContain('Edit Draft')
   }
 
@@ -147,10 +149,10 @@ export class AdminQuestions {
     expect(tableInnerText).toContain(questionName)
     expect(tableInnerText).toContain(questionText)
     expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName))
+      await this.page.innerText(this.selectQuestionTableRow(questionName)),
     ).toContain('View')
     expect(
-      await this.page.innerText(this.selectQuestionTableRow(questionName))
+      await this.page.innerText(this.selectQuestionTableRow(questionName)),
     ).toContain('New Version')
   }
 
@@ -164,7 +166,7 @@ export class AdminQuestions {
   async gotoQuestionEditPage(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Edit")')
+      this.selectWithinQuestionTableRow(questionName, ':text("Edit")'),
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionEditPage(questionName)
@@ -173,7 +175,7 @@ export class AdminQuestions {
   async undeleteQuestion(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Restore")')
+      this.selectWithinQuestionTableRow(questionName, ':text("Restore")'),
     )
     await waitForPageJsLoad(this.page)
     await this.expectAdminQuestionsPage()
@@ -182,7 +184,7 @@ export class AdminQuestions {
   async discardDraft(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Discard Draft")')
+      this.selectWithinQuestionTableRow(questionName, ':text("Discard Draft")'),
     )
     await waitForPageJsLoad(this.page)
     await this.expectAdminQuestionsPage()
@@ -191,7 +193,7 @@ export class AdminQuestions {
   async archiveQuestion(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Archive")')
+      this.selectWithinQuestionTableRow(questionName, ':text("Archive")'),
     )
     await waitForPageJsLoad(this.page)
     await this.expectAdminQuestionsPage()
@@ -202,8 +204,8 @@ export class AdminQuestions {
     await this.page.click(
       this.selectWithinQuestionTableRow(
         questionName,
-        ':text("Manage Translations")'
-      )
+        ':text("Manage Translations")',
+      ),
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionTranslationPage()
@@ -212,13 +214,13 @@ export class AdminQuestions {
   async expectQuestionEditPage(questionName: string) {
     expect(await this.page.innerText('h1')).toContain('Edit')
     expect(
-      await this.page.getAttribute('input#question-name-input', 'value')
+      await this.page.getAttribute('input#question-name-input', 'value'),
     ).toEqual(questionName)
   }
 
   async expectQuestionTranslationPage() {
     expect(await this.page.innerText('h1')).toContain(
-      'Manage Question Translations'
+      'Manage Question Translations',
     )
   }
 
@@ -258,7 +260,7 @@ export class AdminQuestions {
   async createNewVersion(questionName: string) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("New Version")')
+      this.selectWithinQuestionTableRow(questionName, ':text("New Version")'),
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionEditPage(questionName)
@@ -280,14 +282,14 @@ export class AdminQuestions {
     await this.addCurrencyQuestion({
       questionName: questionNamePrefix + 'currency',
     })
-    await this.addDateQuestion({ questionName: questionNamePrefix + 'date' })
+    await this.addDateQuestion({questionName: questionNamePrefix + 'date'})
     await this.addDropdownQuestion({
       questionName: questionNamePrefix + 'dropdown',
       options: ['op1', 'op2', 'op3'],
     })
-    await this.addEmailQuestion({ questionName: questionNamePrefix + 'email' })
-    await this.addIdQuestion({ questionName: questionNamePrefix + 'id' })
-    await this.addNameQuestion({ questionName: questionNamePrefix + 'name' })
+    await this.addEmailQuestion({questionName: questionNamePrefix + 'email'})
+    await this.addIdQuestion({questionName: questionNamePrefix + 'id'})
+    await this.addNameQuestion({questionName: questionNamePrefix + 'name'})
     await this.addNumberQuestion({
       questionName: questionNamePrefix + 'number',
     })
@@ -295,7 +297,7 @@ export class AdminQuestions {
       questionName: questionNamePrefix + 'radio',
       options: ['one', 'two', 'three'],
     })
-    await this.addTextQuestion({ questionName: questionNamePrefix + 'text' })
+    await this.addTextQuestion({questionName: questionNamePrefix + 'text'})
     return [
       questionNamePrefix + 'address',
       questionNamePrefix + 'checkbox',
@@ -411,6 +413,8 @@ export class AdminQuestions {
   async addCheckboxQuestion({
     questionName,
     options,
+    minNum = null,
+    maxNum = null,
     description = 'checkbox description',
     questionText = 'checkbox question text',
     helpText = 'checkbox question help text',
@@ -432,12 +436,25 @@ export class AdminQuestions {
       exportOption,
     })
 
+    if (minNum != null) {
+      await this.page.fill(
+        'label:has-text("Minimum number of choices required")',
+        String(minNum),
+      )
+    }
+    if (maxNum != null) {
+      await this.page.fill(
+        'label:has-text("Maximum number of choices allowed")',
+        String(maxNum),
+      )
+    }
+
     for (var index in options) {
       await this.page.click('#add-new-option')
       var matchIndex = Number(index) + 1
       await this.page.fill(
         `:nth-match(#question-settings div.flex-row, ${matchIndex}) input`,
-        options[index]
+        options[index],
       )
     }
 
@@ -487,7 +504,7 @@ export class AdminQuestions {
   async changeMultiOptionAnswer(index: number, text: string) {
     await this.page.fill(
       `:nth-match(#question-settings div.cf-multi-option-question-option, ${index}) input`,
-      text
+      text,
     )
   }
 
@@ -709,7 +726,7 @@ export class AdminQuestions {
       var matchIndex = Number(index) + 1
       await this.page.fill(
         `:nth-match(#question-settings div.flex-row, ${matchIndex}) input`,
-        options[index]
+        options[index],
       )
     }
 
@@ -721,6 +738,8 @@ export class AdminQuestions {
     description = 'text description',
     questionText = 'text question text',
     helpText = 'text question help text',
+    minNum = null,
+    maxNum = null,
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
@@ -739,6 +758,13 @@ export class AdminQuestions {
       exportOption,
     })
 
+    if (minNum != null) {
+      await this.page.fill('label:has-text("Minimum length")', String(minNum))
+    }
+    if (maxNum != null) {
+      await this.page.fill('label:has-text("Maximum length")', String(maxNum))
+    }
+
     await this.clickSubmitButtonAndNavigate('Create')
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
@@ -751,6 +777,8 @@ export class AdminQuestions {
     description = 'id description',
     questionText = 'id question text',
     helpText = 'id question help text',
+    minNum = null,
+    maxNum = null,
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
@@ -768,6 +796,13 @@ export class AdminQuestions {
       enumeratorName,
       exportOption,
     })
+
+    if (minNum != null) {
+      await this.page.fill('label:has-text("Minimum length")', String(minNum))
+    }
+    if (maxNum != null) {
+      await this.page.fill('label:has-text("Maximum length")', String(maxNum))
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 

@@ -114,7 +114,7 @@ public class LoginController extends Controller {
   // Logic taken from org.pac4j.play.deadbolt2.Pac4jHandler.beforeAuthCheck.
   private Result login(Http.Request request, IndirectClient client) {
     if (client == null) {
-      return badRequest("Identity provider secrets not configured.");
+      return badRequest("Login not configured.");
     }
     PlayWebContext webContext = new PlayWebContext(request);
     if (client instanceof OidcClient) {

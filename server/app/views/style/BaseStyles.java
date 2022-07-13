@@ -64,8 +64,7 @@ public final class BaseStyles {
           Styles.TEXT_LG);
 
   /** For use on `input` elements that are not of type "checkbox" or "radio". */
-  public static final String INPUT =
-      StyleUtils.joinStyles(INPUT_BASE, Styles.PLACEHOLDER_GRAY_500, Styles.H_12);
+  public static final String INPUT = StyleUtils.joinStyles(INPUT_BASE, Styles.PLACEHOLDER_GRAY_500);
 
   /** For use on `label` elements that label non-checkbox and non-radio `input` elements. */
   public static final String INPUT_LABEL =

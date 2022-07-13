@@ -3,13 +3,13 @@ package services.program;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.BlockForm;
-import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.Application;
 import models.Program;
 import play.libs.F;
+import repository.TimeFilter;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.IdentifierBasedPaginationSpec;
@@ -323,8 +323,8 @@ public interface ProgramService {
 
   /**
    * Get all submitted applications for this program and all other previous and future versions of
-   * it where the applicant's first name, last name, email, or application ID contains the search
-   * query. Does not include drafts or deleted applications.
+   * it where the applicant's name, email, or application ID contains the search query. Does not
+   * include drafts or deleted applications.
    *
    * <p>If searchNameFragment is not an unsigned integer, the query will filter to applications with
    * email, first name, or last name that contain it.
@@ -335,31 +335,15 @@ public interface ProgramService {
    * @param paginationSpecEither the query supports two types of pagination, F.Either wraps the
    *     pagination spec to use for a given call.
    * @param searchNameFragment a text fragment used for filtering the applications.
+   * @param submitTimeFilter specifies a filter for the submission time for returned results.
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
       long programId,
       F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
           paginationSpecEither,
-      Optional<String> searchNameFragment)
-      throws ProgramNotFoundException;
-
-  /**
-   * Get all submitted applications for this program and all other previous and future versions of
-   * it where the application's submit time is in the specified range.
-   *
-   * @param paginationSpecEither the query supports two types of pagination, F.Either wraps the
-   *     pagination spec to use for a given call.
-   * @param submitTimeFrom specifies the oldest submission time to include.
-   * @param submitTimeTo specifies a time all results must have been submitted before.
-   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
-   */
-  PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
-      long programId,
-      F.Either<IdentifierBasedPaginationSpec<Long>, PageNumberBasedPaginationSpec>
-          paginationSpecEither,
-      Optional<Instant> submitTimeFrom,
-      Optional<Instant> submitTimeTo)
+      Optional<String> searchNameFragment,
+      TimeFilter submitTimeFilter)
       throws ProgramNotFoundException;
 
   /** Create a new draft starting from the program specified by `id`. */

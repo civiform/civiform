@@ -8,6 +8,8 @@ import io.ebean.DB;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import models.Account;
 import models.Applicant;
 import models.Application;
@@ -15,21 +17,26 @@ import models.DisplayMode;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import play.libs.F;
 import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
+import services.WellKnownPaths;
+import services.applicant.ApplicantData;
 import services.program.ProgramNotFoundException;
 import support.CfTestHelpers;
+import support.QuestionAnswerer;
 
+@RunWith(JUnitParamsRunner.class)
 public class ProgramRepositoryTest extends ResetPostgres {
 
   private ProgramRepository repo;
   private VersionRepository versionRepo;
 
   @Before
-  public void setupProgramRepository() {
+  public void setup() {
     repo = instanceOf(ProgramRepository.class);
     versionRepo = instanceOf(VersionRepository.class);
   }
@@ -171,6 +178,104 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void getApplicationsForAllProgramVersions_searchById() {
+    Program program = resourceCreator.insertActiveProgram("test program");
+
+    Applicant bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
+    Application bobApp = makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe");
+    Applicant jane = resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
+    makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe");
+
+    PaginationResult<Application> paginationResult =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
+            Optional.of(bobApp.id.toString()),
+            TimeFilter.EMPTY);
+
+    assertThat(
+            paginationResult.getPageContents().stream()
+                .map(a -> a.getSubmitterEmail().orElse(""))
+                .collect(ImmutableSet.toImmutableSet()))
+        .containsExactly("bob@example.com");
+    assertThat(paginationResult.getNumPages()).isEqualTo(1);
+  }
+
+  private static ImmutableList<Object[]> getSearchByNameOrEmailData() {
+    // Assumes that the test has been seeded with three applications:
+    // 1. bob@example.com - Bob Doe
+    // 2. jane@example.com - Jane Doe
+    // 3. chris@exAMPLE.com - Chris Person
+    return ImmutableList.<Object[]>of(
+        new Object[] {"Bob Doe", ImmutableSet.of("bob@example.com")},
+        new Object[] {"Doe Bob", ImmutableSet.of("bob@example.com")},
+        new Object[] {"Doe, Bob", ImmutableSet.of("bob@example.com")},
+        new Object[] {"Doe", ImmutableSet.of("bob@example.com", "jane@example.com")},
+        new Object[] {"Bob", ImmutableSet.of("bob@example.com")},
+        new Object[] {"Person", ImmutableSet.of("chris@exAMPLE.com")},
+        new Object[] {"bob@example.com", ImmutableSet.of("bob@example.com")},
+        new Object[] {"Other Person", ImmutableSet.of()},
+
+        // Case insensitive search.
+        new Object[] {"bOb dOe", ImmutableSet.of("bob@example.com")},
+        new Object[] {"CHRIS@example.com", ImmutableSet.of("chris@exAMPLE.com")},
+
+        // Leading and trailing whitespace is ignored.
+        new Object[] {"    Bob Doe    ", ImmutableSet.of("bob@example.com")},
+
+        // Degenerate cases.
+        // Email must be an exact match.
+        new Object[] {"example.com", ImmutableSet.of()},
+        // Only match a single space between first and last name.
+        new Object[] {"Bob  Doe", ImmutableSet.of()});
+  }
+
+  @Test
+  @Parameters(method = "getSearchByNameOrEmailData")
+  public void getApplicationsForAllProgramVersions_searchByNameOrEmail(
+      String searchFragment, ImmutableSet<String> wantEmails) {
+    Program program = resourceCreator.insertActiveProgram("test program");
+
+    Applicant bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
+    makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe");
+    Applicant jane = resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
+    makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe");
+    // Note: The mixed casing on the email is intentional for tests of case insensitivity.
+    Applicant chris = resourceCreator.insertApplicantWithAccount(Optional.of("chris@exAMPLE.com"));
+    makeApplicationWithName(chris, program, "Chris", "MiddleName", "Person");
+
+    Applicant otherApplicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("other@example.com"));
+    resourceCreator.insertDraftApplication(otherApplicant, program);
+
+    PaginationResult<Application> paginationResult =
+        repo.getApplicationsForAllProgramVersions(
+            program.id,
+            F.Either.Left(IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG),
+            Optional.of(searchFragment),
+            TimeFilter.EMPTY);
+
+    assertThat(
+            paginationResult.getPageContents().stream()
+                .map(a -> a.getSubmitterEmail().orElse(""))
+                .collect(ImmutableSet.toImmutableSet()))
+        .isEqualTo(wantEmails);
+    assertThat(paginationResult.getNumPages()).isEqualTo(wantEmails.isEmpty() ? 0 : 1);
+  }
+
+  private Application makeApplicationWithName(
+      Applicant applicant, Program program, String firstName, String middleName, String lastName) {
+    Application application = resourceCreator.insertActiveApplication(applicant, program);
+    ApplicantData applicantData = application.getApplicantData();
+    QuestionAnswerer.answerNameQuestion(
+        applicantData, WellKnownPaths.APPLICANT_NAME, firstName, middleName, lastName);
+    application.setApplicantData(applicantData);
+    application.setSubmitterEmail(applicant.getAccount().getEmailAddress());
+    application.save();
+    return application;
+  }
+
+  @Test
   public void getApplicationsForAllProgramVersions_withDateRange() {
     Program program = resourceCreator.insertActiveProgram("test program");
 
@@ -210,8 +315,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
             program.id,
             F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 10)),
             Optional.empty(),
-            Optional.of(Instant.parse("2022-01-25T00:00:00Z")),
-            Optional.of(Instant.parse("2022-02-10T00:00:00Z")));
+            TimeFilter.builder()
+                .setFromTime(Optional.of(Instant.parse("2022-01-25T00:00:00Z")))
+                .setUntilTime(Optional.of(Instant.parse("2022-02-10T00:00:00Z")))
+                .build());
 
     assertThat(paginationResult.hasMorePages()).isFalse();
     assertThat(
@@ -244,8 +351,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             nextVersion.id,
             F.Either.Right(new PageNumberBasedPaginationSpec(/* pageSize= */ 2)),
             Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+            TimeFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
@@ -259,8 +365,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             F.Either.Right(
                 new PageNumberBasedPaginationSpec(/* pageSize= */ 2, /* currentPage= */ 2)),
             Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+            TimeFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
@@ -291,8 +396,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             nextVersion.id,
             F.Either.Left(new IdentifierBasedPaginationSpec<>(2, Long.MAX_VALUE)),
             Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+            TimeFilter.EMPTY);
 
     assertThat(paginationResult.getNumPages()).isEqualTo(2);
     assertThat(paginationResult.getPageContents().size()).isEqualTo(2);
@@ -307,8 +411,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 new IdentifierBasedPaginationSpec<>(
                     2, paginationResult.getPageContents().get(1).id)),
             Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+            TimeFilter.EMPTY);
 
     assertThat(paginationResult.getPageContents().size()).isEqualTo(1);
     assertThat(paginationResult.getPageContents().get(0).getApplicant()).isEqualTo(applicantOne);

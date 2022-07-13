@@ -10,7 +10,6 @@ import models.Question;
 import play.inject.Injector;
 import repository.VersionRepository;
 import services.program.BlockDefinition;
-import services.program.ExportDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.predicate.PredicateDefinition;
@@ -71,9 +70,7 @@ public class ProgramBuilder {
             versionRepository.getDraftVersion());
     program.save();
     ProgramDefinition.Builder builder =
-        program.getProgramDefinition().toBuilder()
-            .setBlockDefinitions(ImmutableList.of())
-            .setExportDefinitions(ImmutableList.of());
+        program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
     return new ProgramBuilder(program.id, builder);
   }
 
@@ -107,9 +104,7 @@ public class ProgramBuilder {
             versionRepository.getActiveVersion());
     program.save();
     ProgramDefinition.Builder builder =
-        program.getProgramDefinition().toBuilder()
-            .setBlockDefinitions(ImmutableList.of())
-            .setExportDefinitions(ImmutableList.of());
+        program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
     return new ProgramBuilder(program.id, builder);
   }
 
@@ -125,11 +120,6 @@ public class ProgramBuilder {
 
   public ProgramBuilder withLocalizedName(Locale locale, String name) {
     builder.addLocalizedName(locale, name);
-    return this;
-  }
-
-  public ProgramBuilder withExportDefinition(ExportDefinition exportDefinition) {
-    builder.addExportDefinition(exportDefinition);
     return this;
   }
 

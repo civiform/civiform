@@ -37,7 +37,7 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(BaseStyles.TEXT_SEATTLE_BLUE, Styles.TEXT_LG, Styles.FONT_BOLD);
 
   public static final String PROGRAM_CARDS_SUBTITLE =
-      StyleUtils.joinStyles(Styles.MY_4, Styles.TEXT_LG);
+      StyleUtils.joinStyles(Styles.MY_4, Styles.TEXT_LG, Styles.PX_4);
   public static final String PROGRAM_CARDS_CONTAINER_BASE =
       StyleUtils.joinStyles(
           Styles.GRID,

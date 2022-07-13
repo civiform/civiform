@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableSet;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
@@ -35,6 +35,6 @@ public class ApplicantQuestionRendererFactoryTest {
 
     ApplicantQuestionRenderer renderer = factory.getSampleRenderer(type);
 
-    assertThat(renderer.render(params)).isInstanceOf(Tag.class);
+    assertThat(renderer.render(params)).isInstanceOf(DivTag.class);
   }
 }

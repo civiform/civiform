@@ -9,14 +9,15 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
 import annotations.BindingAnnotations.EnUsLang;
-import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.admin.routes;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 import java.util.Optional;
+import modules.MainModule;
 import play.data.DynamicForm;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
@@ -35,7 +36,6 @@ import views.style.Styles;
 public final class ApiKeyNewOneView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages enUsMessages;
-  private final Slugify slugifier = new Slugify();
 
   private static final String EXPIRATION_DESCRIPTION =
       "Specify a date when this API key will no longer be valid. The expiration date"
@@ -76,7 +76,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
       Request request, ImmutableSet<String> programNames, Optional<DynamicForm> dynamicForm) {
     String title = "Create a new API key";
 
-    ContainerTag formTag =
+    FormTag formTag =
         form()
             .withMethod("POST")
             .with(
@@ -90,7 +90,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                             .setLabelText("API key name"),
                         dynamicForm,
                         ApiKeyService.FORM_FIELD_NAME_KEY_NAME)
-                    .getContainer(),
+                    .getInputTag(),
                 h2("Expiration date"),
                 p(EXPIRATION_DESCRIPTION),
                 setStateIfPresent(
@@ -100,7 +100,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                             .setLabelText("Expiration date"),
                         dynamicForm,
                         ApiKeyService.FORM_FIELD_NAME_EXPIRATION)
-                    .getContainer(),
+                    .getDateTag(),
                 h2("Allowed IP addresses"),
                 p(SUBNET_DESCRIPTION),
                 setStateIfPresent(
@@ -110,7 +110,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                             .setLabelText("API key subnet"),
                         dynamicForm,
                         ApiKeyService.FORM_FIELD_NAME_SUBNET)
-                    .getContainer());
+                    .getInputTag());
 
     formTag.with(h2("Allowed programs"), p("Select the programs this key grants read access to."));
 
@@ -119,12 +119,12 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
           FieldWithLabel.checkbox()
               .setFieldName(programReadGrantFieldName(name))
               .setLabelText(name)
-              .setId(slugifier.slugify(name))
+              .setId(MainModule.SLUGIFIER.slugify(name))
               .setValue("true")
-              .getContainer());
+              .getCheckboxTag());
     }
 
-    ContainerTag contentDiv =
+    DivTag contentDiv =
         div()
             .withClasses(Styles.PX_20)
             .with(
@@ -139,7 +139,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
   }
 
   private String programReadGrantFieldName(String name) {
-    return "grant-program-read[" + slugifier.slugify(name) + "]";
+    return "grant-program-read[" + MainModule.SLUGIFIER.slugify(name) + "]";
   }
 
   private FieldWithLabel setStateIfPresent(
