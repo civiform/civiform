@@ -14,7 +14,7 @@
     "jest-playwright-preset": "1.7.2",
     "playwright": "1.23.3",
     "ts-jest": "27.1.5",
-    "ts-node": "10.8.2",
+    "ts-node": "10.9.0",
     "ts-node-dev": "2.0.0",
     "typescript": "4.7.4"
   }
