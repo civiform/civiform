@@ -1,0 +1,19 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+      - deploy
+      - infrastructure
+
+  categories:
+    - title: Features
+      labels:
+        - "*"
+
+    - title: Bug fixes
+      labels:
+        - bug
+
+    - title: Dependencies
+      labels:
+        - dependencies
