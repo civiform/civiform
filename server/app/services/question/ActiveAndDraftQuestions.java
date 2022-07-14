@@ -92,18 +92,4 @@ public final class ActiveAndDraftQuestions {
   public Optional<QuestionDefinition> getDraftQuestionDefinition(String name) {
     return versionedByName.get(name).second();
   }
-
-  public ImmutableSet<String> getActiveQuestionNames() {
-    return versionedByName.entrySet().stream()
-        .filter(e -> e.getValue().first().isPresent())
-        .map(e -> e.getKey())
-        .collect(ImmutableSet.toImmutableSet());
-  }
-
-  public ImmutableSet<String> getDraftQuestionNames() {
-    return versionedByName.entrySet().stream()
-        .filter(e -> e.getValue().second().isPresent())
-        .map(e -> e.getKey())
-        .collect(ImmutableSet.toImmutableSet());
-  }
 }
