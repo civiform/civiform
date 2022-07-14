@@ -30,7 +30,7 @@ import services.question.types.QuestionDefinition;
  */
 @Entity
 @Table(name = "versions")
-public final class Version extends BaseModel {
+public class Version extends BaseModel {
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
