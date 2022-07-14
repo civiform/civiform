@@ -1163,19 +1163,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getStatuses_programNotFound_throws() throws Exception {
-    assertThatThrownBy(() -> ps.getStatuses(1000L))
-        .isInstanceOf(ProgramNotFoundException.class)
-        .hasMessageContaining("Program not found for ID: 1000");
-  }
-
-  @Test
-  public void getStatuses_none() throws Exception {
-    Program program = ProgramBuilder.newActiveProgram().build();
-    assertThat(ps.getStatuses(program.id).getStatuses()).isEmpty();
-  }
-
-  @Test
   public void updateStatuses_programNotFound_throws() throws Exception {
 
     assertThatThrownBy(() -> ps.setStatuses(1000L, new StatusDefinitions()))
