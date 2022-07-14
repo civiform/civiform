@@ -9,7 +9,7 @@ import java.util.Optional;
 import services.LocalizedStrings;
 
 /** Contains data defining status tracking configuration for a program's applications. */
-public final class StatusDefinitions {
+public class StatusDefinitions {
 
   @JsonProperty("statuses")
   private ImmutableList<Status> statuses;
