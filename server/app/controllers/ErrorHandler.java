@@ -2,7 +2,6 @@ package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.UnauthorizedApiRequestException;
 import com.google.common.collect.ImmutableSet;
@@ -39,9 +38,7 @@ import views.errors.NotFound;
 @Singleton
 public class ErrorHandler extends DefaultHttpErrorHandler {
 
-  private final ProfileUtils profileUtils;
   private final NotFound notFoundPage;
-  private final HttpExecutionContext httpExecutionContext;
   private final MessagesApi messagesApi;
 
   private static final ImmutableSet<Class<? extends Exception>> BAD_REQUEST_EXCEPTION_TYPES =
@@ -61,14 +58,10 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       Environment environment,
       OptionalSourceMapper sourceMapper,
       Provider<Router> routes,
-      ProfileUtils profileUtils,
       NotFound notFoundPage,
-      HttpExecutionContext httpExecutionContext,
       MessagesApi messagesApi) {
     super(config, environment, sourceMapper, routes);
-    this.profileUtils = checkNotNull(profileUtils);
     this.notFoundPage = notFoundPage;
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.messagesApi = messagesApi;
   }
 
@@ -113,23 +106,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
   @Override
   public CompletionStage<Result> onNotFound(RequestHeader request, String message) {
-    Optional<CiviFormProfile> maybeProfile = profileUtils.currentUserProfile(request);
-
-    if (maybeProfile.isEmpty()) {
-      return CompletableFuture.completedFuture(
-          Results.ok(notFoundPage.renderLoggedOut(request, messagesApi.preferred(request))));
-    }
-
-    return maybeProfile
-        .get()
-        .getApplicant()
-        .thenApplyAsync(
-            applicant ->
-                Results.ok(
-                    notFoundPage.renderLoggedIn(
-                        request,
-                        messagesApi.preferred(request),
-                        applicant.getApplicantData().getApplicantName())),
-            httpExecutionContext.current());
+    return CompletableFuture.completedFuture(
+        Results.ok(notFoundPage.render(request, messagesApi.preferred(request))));
   }
 }

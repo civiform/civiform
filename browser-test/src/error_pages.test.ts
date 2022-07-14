@@ -1,4 +1,4 @@
-import {startSession, endSession, NotFoundPage} from './support'
+import {startSession, gotoEndpoint, loginAsGuest, setLangEsUS, endSession, NotFoundPage} from './support'
 
 describe('error pages', () => {
   it('test 404 page', async () => {
@@ -9,18 +9,12 @@ describe('error pages', () => {
 
     await notFound.gotoNonExistentPage(page)
     await notFound.checkPageHeader()
-    await notFound.checkNotLoggedIn()
 
-    await notFound.loginAsGuest()
+    await gotoEndpoint(page, '/')
+    await loginAsGuest(page)
+    await setLangEsUS(page)
     await notFound.gotoNonExistentPage(page)
-    await notFound.checkIsGuest()
-    await notFound.logout()
-
-    await notFound.gotoNonExistentPage(page)
-    await notFound.loginAsGuest('es-US')
-    await notFound.gotoNonExistentPage(page)
-    await notFound.checkIsGuest('es-US')
-    await notFound.logout('es-US')
+    await notFound.checkPageHeader('es-US')
 
     await endSession(browser)
   })

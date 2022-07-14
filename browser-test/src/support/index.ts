@@ -110,6 +110,11 @@ export const loginAsGuest = async (page: Page) => {
   await waitForPageJsLoad(page)
 }
 
+export const setLangEsUS = async (page: Page) => {
+  await page.click('text=Español')
+  await page.click('text=Submit')
+}
+
 export const loginAsTestUser = async (page: Page) => {
   if (isTestUser()) {
     await page.click('#idcs')

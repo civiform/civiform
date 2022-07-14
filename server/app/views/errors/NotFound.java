@@ -9,7 +9,6 @@ import static j2html.TagCreator.span;
 
 import com.google.inject.Inject;
 import j2html.tags.ContainerTag;
-import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -63,24 +62,14 @@ public class NotFound extends BaseHtmlView {
   private HtmlBundle addBodyFooter(Http.RequestHeader request, Messages messages) {
     HtmlBundle bundle = layout.getBundle();
     String language = languageSelector.getPreferredLangage(request).code();
-    ContainerTag supportLink = layout.getSupportLink(messages).withClasses(Styles.TEXT_CENTER);
     bundle.setLanguage(language);
     bundle.addMainContent(mainContent(messages));
-    bundle.addFooterContent(supportLink);
 
     return bundle;
   }
 
-  public Content renderLoggedOut(Http.RequestHeader request, Messages messages) {
+  public Content render(Http.RequestHeader request, Messages messages) {
     HtmlBundle bundle = addBodyFooter(request, messages);
-    bundle.addHeaderContent(layout.renderNavBarLoggedOut(request, messages));
-    return layout.render(bundle);
-  }
-
-  public Content renderLoggedIn(
-      Http.RequestHeader request, Messages messages, Optional<String> userName) {
-    HtmlBundle bundle = addBodyFooter(request, messages);
-    bundle.addHeaderContent(layout.renderNavBarLoggedIn(request, userName, messages));
     return layout.render(bundle);
   }
 }

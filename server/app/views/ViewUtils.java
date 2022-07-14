@@ -62,12 +62,4 @@ public final class ViewUtils {
   public ImgTag makeLocalImageTag(String filename) {
     return img().withSrc(assetsFinder.path("Images/" + filename + ".png"));
   }
-
-  public ImgTag makeLocalImageTag(String filename, String alt) {
-    return img().withSrc(assetsFinder.path("Images/" + filename + ".png")).withAlt(alt);
-  }
-
-  public ImgTag makeLocalSvgTag(String filename) {
-    return img().withSrc(assetsFinder.path("Images/" + filename + ".svg"));
-  }
 }

@@ -10,7 +10,6 @@ import static j2html.TagCreator.nav;
 import static j2html.TagCreator.text;
 
 import auth.CiviFormProfile;
-import auth.GuestClient;
 import auth.ProfileUtils;
 import auth.Roles;
 import com.typesafe.config.Config;
@@ -64,7 +63,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.supportEmail = checkNotNull(configuration).getString("support_email_address");
   }
 
-  public DivTag getSupportLink(Messages messages) {
+  private Content renderWithSupportFooter(HtmlBundle bundle, Messages messages) {
     DivTag supportLink =
         div()
             .with(
@@ -76,11 +75,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
                     .withClasses(Styles.TEXT_BLUE_800))
             .withClasses(Styles.MX_AUTO, Styles.MAX_W_SCREEN_SM, Styles.W_5_6);
 
-    return supportLink;
-  }
-
-  private Content renderWithSupportFooter(HtmlBundle bundle, Messages messages) {
-    DivTag supportLink = getSupportLink(messages);
     bundle.addFooterContent(supportLink);
 
     return render(bundle);
@@ -109,7 +103,18 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return rendered;
   }
 
-  private NavTag renderBaseNavBar() {
+  public Content renderWithNav(
+      Http.Request request, Optional<String> userName, Messages messages, HtmlBundle bundle) {
+    String language = languageSelector.getPreferredLangage(request).code();
+    bundle.setLanguage(language);
+    bundle.addHeaderContent(renderNavBar(request, userName, messages));
+    return renderWithSupportFooter(bundle, messages);
+  }
+
+  private NavTag renderNavBar(Http.Request request, Optional<String> userName, Messages messages) {
+    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+
+    String displayUserName = ApplicantUtils.getApplicantName(userName, messages);
     return nav()
         .withClasses(
             Styles.BG_WHITE,
@@ -118,15 +123,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             Styles.P_4,
             Styles.GRID,
             Styles.GRID_COLS_3)
-        .with(branding());
-  }
-
-  public NavTag renderNavBarLoggedIn(
-      Http.RequestHeader request, Optional<String> userName, Messages messages) {
-    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
-
-    String displayUserName = ApplicantUtils.getApplicantName(userName, messages);
-    return renderBaseNavBar()
+        .with(branding())
         .with(maybeRenderTiButton(profile, displayUserName))
         .with(
             div(
@@ -135,29 +132,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withClasses(Styles.JUSTIFY_SELF_END, Styles.FLEX, Styles.FLEX_ROW));
   }
 
-  public NavTag renderNavBarLoggedOut(Http.RequestHeader request, Messages messages) {
-    return renderBaseNavBar().with(div(), loginButton(messages));
-  }
-
-  /** LOGGED IN */
-  public Content renderWithNav(
-      Http.RequestHeader request, Optional<String> userName, Messages messages, HtmlBundle bundle) {
-    String language = languageSelector.getPreferredLangage(request).code();
-    bundle.setLanguage(language);
-    bundle.addHeaderContent(renderNavBarLoggedIn(request, userName, messages));
-    return renderWithSupportFooter(bundle, messages);
-  }
-
-  /** LOGGED OUT */
-  public Content renderWithNav(Http.RequestHeader request, Messages messages, HtmlBundle bundle) {
-    String language = languageSelector.getPreferredLangage(request).code();
-    bundle.setLanguage(language);
-    bundle.addHeaderContent(renderNavBarLoggedOut(request, messages));
-    return renderWithSupportFooter(bundle, messages);
-  }
-
   private ContainerTag<?> getLanguageForm(
-      Http.RequestHeader request, Optional<CiviFormProfile> profile, Messages messages) {
+      Http.Request request, Optional<CiviFormProfile> profile, Messages messages) {
     ContainerTag<?> languageForm = div();
     if (profile.isPresent()) { // Show language switcher.
       long userId = profile.get().getApplicant().join().id;
@@ -193,7 +169,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return languageForm;
   }
 
-  public ATag branding() {
+  private ATag branding() {
     return a().withHref(routes.HomeController.index().url())
         .with(
             div()
@@ -232,20 +208,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
         a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
             .withHref(logoutLink)
             .withClasses(ApplicantStyles.LINK_LOGOUT));
-  }
-
-  private DivTag loginButton(Messages messages) {
-    String loginLink = routes.CallbackController.callback(GuestClient.CLIENT_NAME).url();
-
-    return div(
-            this.viewUtils
-                .makeLocalSvgTag("login_icon")
-                .withClasses(Styles.INLINE_BLOCK, Styles.MR_2, Styles.MB_1),
-            a(messages.at(MessageKey.BUTTON_LOGIN.getKeyName()))
-                .withId("guestLogin")
-                .withHref(loginLink)
-                .withClasses(ApplicantStyles.LINK_LOGOUT, Styles.INLINE_BLOCK, Styles.MT_1))
-        .withClasses(Styles.JUSTIFY_SELF_END, Styles.WHITESPACE_NOWRAP);
   }
 
   /**
