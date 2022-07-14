@@ -128,8 +128,8 @@ public class Program extends BaseModel {
     this.localizedName = definition.localizedName();
     this.localizedDescription = definition.localizedDescription();
     this.blockDefinitions = definition.blockDefinitions();
-    this.displayMode = definition.displayMode().getValue();
     this.statusDefinitions = definition.statusDefinitions();
+    this.displayMode = definition.displayMode().getValue();
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -165,8 +165,8 @@ public class Program extends BaseModel {
             .setProgramQuestionDefinitions(ImmutableList.of())
             .build();
     this.blockDefinitions = ImmutableList.of(emptyBlock);
-    this.versions.add(associatedVersion);
     this.statusDefinitions = new StatusDefinitions();
+    this.versions.add(associatedVersion);
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -179,6 +179,7 @@ public class Program extends BaseModel {
     localizedName = programDefinition.localizedName();
     localizedDescription = programDefinition.localizedDescription();
     blockDefinitions = programDefinition.blockDefinitions();
+    statusDefinitions = programDefinition.statusDefinitions();
     slug = programDefinition.slug();
     displayMode = programDefinition.displayMode().getValue();
 
@@ -196,8 +197,8 @@ public class Program extends BaseModel {
             .setAdminName(name)
             .setAdminDescription(description)
             .setBlockDefinitions(blockDefinitions)
-            .setExternalLink(externalLink)
             .setStatusDefinitions(statusDefinitions)
+            .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setCreateTime(createTime)
             .setLastModifiedTime(lastModifiedTime);

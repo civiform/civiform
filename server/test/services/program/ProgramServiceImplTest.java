@@ -1184,7 +1184,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void updateStatuses() throws Exception {
+  public void updateAndGetStatuses() throws Exception {
     Program program = ProgramBuilder.newActiveProgram().build();
 
     var status =

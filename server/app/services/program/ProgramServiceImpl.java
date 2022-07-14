@@ -357,15 +357,12 @@ public class ProgramServiceImpl implements ProgramService {
   @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> setStatuses(
       long programId, StatusDefinitions statuses) throws ProgramNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
-    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
-    ImmutableSet<CiviFormError> errors = errorsBuilder.build();
-    if (!errors.isEmpty()) {
-      return ErrorAnd.error(errors);
-    }
 
     Program program =
-        programDefinition.toBuilder().setStatusDefinitions(statuses).build().toProgram();
+        getProgramDefinition(programId).toBuilder()
+            .setStatusDefinitions(statuses)
+            .build()
+            .toProgram();
     return ErrorAnd.of(
         // Note: This method seems heavy-handed for non question updates.
         syncProgramDefinitionQuestions(
