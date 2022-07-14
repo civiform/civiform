@@ -2,7 +2,10 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import auth.StoredFileAcls;
 import com.google.common.collect.ImmutableList;
+import io.ebean.DB;
+import io.ebean.Database;
 import java.util.List;
 import models.StoredFile;
 import org.junit.Before;
@@ -63,5 +66,24 @@ public class StoredFileRepositoryTest extends ResetPostgres {
     StoredFile result = repo.lookupFile(file.getName()).toCompletableFuture().join().get();
 
     assertThat(result).isEqualTo(file);
+  }
+
+  /**
+   * This is a regression test to ensure that files created before the migration to stored file ACLs
+   * can be successfully loaded.
+   */
+  @Test
+  public void lookFile_fileHasDefaultAclsValue_doesNotThrowException() {
+    var fileName = "default_acls_value_file";
+    Database database = DB.getDefault();
+    database
+        .sqlUpdate("INSERT INTO files(name, acls) VALUES (:name, '{}')")
+        .setParameter("name", fileName)
+        .execute();
+
+    StoredFile result = repo.lookupFile(fileName).toCompletableFuture().join().get();
+
+    assertThat(result.getName()).isEqualTo(fileName);
+    assertThat(result.getAcls()).isInstanceOf(StoredFileAcls.class);
   }
 }

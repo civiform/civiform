@@ -33,7 +33,7 @@ fi
 echo "Getting an AWS access key"
 CREATED_KEY_RESULT="$(aws::create_access_key "${USERNAME}")"
 ACCESS_KEY_ID="$(aws::parse_access_key_id "${CREATED_KEY_RESULT}")"
-SECRET_ACCESS_KEY="$(aws::parse_access_secret_key "${CREATED_KEY_RESULTt}")"
+SECRET_ACCESS_KEY="$(aws::parse_access_secret_key "${CREATED_KEY_RESULT}")"
 
 echo "Adding the secret access key to the azure key vault"
 key_vault::add_secret "${VAULT_NAME}" "${AWS_SECRET_ACCESS_TOKEN_NAME}" "${SECRET_ACCESS_KEY}"

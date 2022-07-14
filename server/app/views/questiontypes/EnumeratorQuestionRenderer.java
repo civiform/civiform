@@ -7,10 +7,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
-import j2html.attributes.Attr;
-import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.ButtonTag;
+import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import play.i18n.Messages;
 import services.MessageKey;
@@ -52,7 +51,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
   }
 
   @Override
-  protected Tag renderTag(
+  protected DivTag renderTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
     Messages messages = params.messages();
@@ -60,7 +59,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
     String localizedEntityType = enumeratorQuestion.getEntityType();
     ImmutableList<String> entityNames = enumeratorQuestion.getEntityNames();
 
-    ContainerTag enumeratorFields = div().withId(ENUMERATOR_FIELDS_ID);
+    DivTag enumeratorFields = div().withId(ENUMERATOR_FIELDS_ID);
     for (int index = 0; index < entityNames.size(); index++) {
       enumeratorFields.with(
           enumeratorField(
@@ -71,7 +70,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
               Optional.of(index)));
     }
 
-    Tag enumeratorQuestionFormContent =
+    DivTag enumeratorQuestionFormContent =
         div()
             .with(hiddenDeleteInputTemplate())
             .with(enumeratorFields)
@@ -94,14 +93,14 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
    * Create an enumerator field for existing entries. These come with a checkbox to delete during
    * form submission.
    */
-  private static Tag enumeratorField(
+  private static DivTag enumeratorField(
       Messages messages,
       String localizedEntityType,
       Path contextualizedPath,
       Optional<String> existingEntity,
       Optional<Integer> existingIndex) {
 
-    ContainerTag entityNameInput =
+    DivTag entityNameInput =
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
             .setValue(existingEntity)
@@ -114,10 +113,10 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
                     MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
                     localizedEntityType))
             .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT)
-            .getContainer();
+            .getInputTag();
     String confirmationMessage =
         messages.at(MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE.getKeyName(), localizedEntityType);
-    Tag removeEntityButton =
+    ButtonTag removeEntityButton =
         TagCreator.button()
             .withType("button")
             .withCondId(existingIndex.isPresent(), existingIndex.map(String::valueOf).orElse(""))
@@ -142,7 +141,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
   /**
    * Create an enumerator field template for new entries. These come with a button to delete itself.
    */
-  public static Tag newEnumeratorFieldTemplate(
+  public static DivTag newEnumeratorFieldTemplate(
       Path contextualizedPath, String localizedEntityType, Messages messages) {
     return enumeratorField(
             messages, localizedEntityType, contextualizedPath, Optional.empty(), Optional.empty())
@@ -158,7 +157,7 @@ public class EnumeratorQuestionRenderer extends ApplicantQuestionRendererImpl {
     return input()
         .withId(DELETE_ENTITY_TEMPLATE_ID)
         .withName(Path.empty().join(Scalar.DELETE_ENTITY).asArrayElement().toString())
-        .attr(Attr.DISABLED, true) // do not submit this with the form
+        .isDisabled() // do not submit this with the form
         .withClasses(Styles.HIDDEN);
   }
 }

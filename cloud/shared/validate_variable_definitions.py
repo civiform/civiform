@@ -1,5 +1,6 @@
-import os
 import json
+import os
+import re
 
 from bin.lib.variable_definition_loader import VariableDefinitionLoader
 
@@ -28,7 +29,9 @@ class ValidateVariableDefinitions:
         # add their paths here.
         cwd = os.getcwd()
         definition_file_paths = [
-            cwd + "/cloud/shared/variable_definitions.json"
+            f"{cwd}/cloud/shared/variable_definitions.json",
+            f"{cwd}/cloud/aws/templates/aws_oidc/variable_definitions.json",
+            f"{cwd}/cloud/azure/templates/azure_saml_ses/variable_definitions.json",
         ]
 
         for path in definition_file_paths:
@@ -74,21 +77,45 @@ class ValidateVariableDefinitions:
             variable_definition["type"], None)
 
         if validator:
-            validator(variable_definition, errors)
+            errors.extend(validator(variable_definition))
         else:
             errors.append("Unknown or missing 'type' field.")
 
         return errors
 
-    def validate_float_definition_type(self, variable_definition, errors):
-        pass
+    def validate_float_definition_type(self, variable_definition):
+        return []
 
-    def validate_integer_definition_type(self, variable_definition, errors):
-        pass
+    def validate_integer_definition_type(self, variable_definition):
+        return []
 
-    def validate_string_definition_type(self, variable_definition, errors):
-        pass
+    def validate_string_definition_type(self, variable_definition):
+        maybe_value_regex = variable_definition.get("value_regex", None)
+        if maybe_value_regex is None:
+            return []
 
-    def validate_enum_definition_type(self, variable_definition, errors):
+        errors = []
+        if not maybe_value_regex or not isinstance(maybe_value_regex, str):
+            errors.append("'value_regex' field must be a non-empty string.")
+        else:
+            try:
+                re.compile(maybe_value_regex)
+            except re.error:
+                errors.append(
+                    "'value_regex' can not be compiled as a Python regular expression."
+                )
+
+        maybe_value_regex_error_message = variable_definition.get(
+            "value_regex_error_message", None)
+        if not maybe_value_regex_error_message or not isinstance(
+                maybe_value_regex_error_message, str):
+            errors.append(
+                "'value_regex_error_message' must be provided when 'value_regex' is provided."
+            )
+
+        return errors
+
+    def validate_enum_definition_type(self, variable_definition):
         if not isinstance(variable_definition.get("values", None), list):
-            errors.append("Missing 'values' field for enum.")
+            return ["Missing 'values' field for enum."]
+        return []

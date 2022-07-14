@@ -1,11 +1,10 @@
 package views;
 
 import static j2html.TagCreator.a;
-import static j2html.attributes.Attr.HREF;
 
 import com.google.auto.value.AutoValue;
 import controllers.applicant.routes;
-import j2html.tags.Tag;
+import j2html.tags.specialized.ATag;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -18,17 +17,17 @@ import views.style.ApplicantStyles;
 public class ApplicationBaseView extends BaseHtmlView {
   final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
 
-  protected Tag renderReviewButton(ApplicationBaseView.Params params) {
+  protected ATag renderReviewButton(ApplicationBaseView.Params params) {
     String reviewUrl =
         routes.ApplicantProgramReviewController.review(params.applicantId(), params.programId())
             .url();
-    return a().attr(HREF, reviewUrl)
+    return a().withHref(reviewUrl)
         .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
         .withId(REVIEW_APPLICATION_BUTTON_ID)
         .withClasses(ApplicantStyles.BUTTON_REVIEW);
   }
 
-  protected Tag renderPreviousButton(ApplicationBaseView.Params params) {
+  protected ATag renderPreviousButton(ApplicationBaseView.Params params) {
     int previousBlockIndex = params.blockIndex() - 1;
     String redirectUrl;
 
@@ -42,7 +41,7 @@ public class ApplicationBaseView extends BaseHtmlView {
           routes.ApplicantProgramReviewController.preview(params.applicantId(), params.programId())
               .url();
     }
-    return a().attr(HREF, redirectUrl)
+    return a().withHref(redirectUrl)
         .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
         .withClasses(ApplicantStyles.BUTTON_BLOCK_PREVIOUS)
         .withId("cf-block-previous");

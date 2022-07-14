@@ -8,7 +8,7 @@ import static j2html.TagCreator.h2;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import controllers.routes;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import models.Account;
 import play.i18n.Messages;
@@ -47,7 +47,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
 
     HtmlBundle bundle = layout.getBundle().setTitle(title);
 
-    ContainerTag createAccountBox =
+    DivTag createAccountBox =
         div()
             .withClasses(
                 Styles.BORDER,
@@ -96,7 +96,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
                             .asButton()
                             .withClasses(ApplicantStyles.BUTTON_CREATE_ACCOUNT)));
 
-    ContainerTag content =
+    DivTag content =
         div()
             .with(
                 div(messages.at(

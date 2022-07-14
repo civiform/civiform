@@ -63,23 +63,27 @@ export class AdminPrograms {
     return titles.allTextContents()
   }
 
-  selectProgramCard(programName: string, lifecycle: string) {
+  programCardSelector(programName: string, lifecycle: string) {
     return `.cf-admin-program-card:has(:text("${programName}")):has(:text("${lifecycle}"))`
   }
 
-  selectWithinProgramCard(
+  withinProgramCardSelector(
     programName: string,
     lifecycle: string,
     selector: string,
   ) {
-    return this.selectProgramCard(programName, lifecycle) + ' ' + selector
+    return this.programCardSelector(programName, lifecycle) + ' ' + selector
   }
 
   async gotoDraftProgramEditPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
     await this.page.click(
-      this.selectWithinProgramCard(programName, 'DRAFT', ':text("Edit")'),
+      this.withinProgramCardSelector(
+        programName,
+        'Draft',
+        'button :text("Edit")',
+      ),
     )
     await waitForPageJsLoad(this.page)
     await this.expectProgramEditPage(programName)
@@ -89,9 +93,12 @@ export class AdminPrograms {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
     await this.page.click(
-      this.selectWithinProgramCard(
+      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
+    )
+    await this.page.click(
+      this.withinProgramCardSelector(
         programName,
-        'DRAFT',
+        'Draft',
         ':text("Manage Translations")',
       ),
     )
@@ -103,9 +110,12 @@ export class AdminPrograms {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
     await this.page.click(
-      this.selectWithinProgramCard(
+      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
+    )
+    await this.page.click(
+      this.withinProgramCardSelector(
         programName,
-        'DRAFT',
+        'Draft',
         ':text("Manage Admins")',
       ),
     )
@@ -129,24 +139,13 @@ export class AdminPrograms {
     await this.expectEditPredicatePage(blockName)
   }
 
+  // TODO(clouser): More fine-grained selectors for this and active.
   async expectDraftProgram(programName: string) {
-    expect(
-      await this.page.innerText(this.selectProgramCard(programName, 'DRAFT')),
-    ).not.toContain('New Version')
+    await this.page.isVisible(this.programCardSelector(programName, 'Draft'))
   }
 
   async expectActiveProgram(programName: string) {
-    expect(
-      await this.page.innerText(this.selectProgramCard(programName, 'ACTIVE')),
-    ).toContain('New Version')
-  }
-
-  async expectObsoleteProgram(programName: string) {
-    expect(
-      await this.page.innerText(
-        this.selectProgramCard(programName, 'OBSOLETE'),
-      ),
-    ).toContain('Applications')
+    await this.page.isVisible(this.programCardSelector(programName, 'Active'))
   }
 
   async expectProgramEditPage(programName: string = '') {
@@ -212,7 +211,7 @@ export class AdminPrograms {
     await this.page.click('#update-block-button:not([disabled])')
 
     for (const questionName of questionNames) {
-      await this.page.click(`button:text("${questionName}")`)
+      await this.page.click(`button >> text="${questionName}"`)
     }
   }
 
@@ -343,7 +342,7 @@ export class AdminPrograms {
 
   async publishAllPrograms() {
     await clickAndWaitForModal(this.page, 'publish-all-programs-modal')
-    await this.page.click(`#publish-programs-button > button`)
+    await this.page.click(`#publish-programs-button`)
     await waitForPageJsLoad(this.page)
   }
 
@@ -352,11 +351,7 @@ export class AdminPrograms {
     await this.expectActiveProgram(programName)
 
     await this.page.click(
-      this.selectWithinProgramCard(
-        programName,
-        'ACTIVE',
-        ':text("New Version")',
-      ),
+      this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
     )
     await waitForPageJsLoad(this.page)
     await this.page.click('#program-update-button')
@@ -366,15 +361,10 @@ export class AdminPrograms {
 
   async createPublicVersion(programName: string) {
     await this.gotoAdminProgramsPage()
-
     await this.expectActiveProgram(programName)
 
     await this.page.click(
-      this.selectWithinProgramCard(
-        programName,
-        'ACTIVE',
-        ':text("New Version")',
-      ),
+      this.withinProgramCardSelector(programName, 'Active', ':text("Edit")'),
     )
     await waitForPageJsLoad(this.page)
     await this.page.check(`label:has-text("Public")`)
@@ -385,8 +375,11 @@ export class AdminPrograms {
   }
 
   async viewApplications(programName: string) {
+    // TODO(#1238): Consolidate the program admin and civiform admin views
+    // and use the updated selector for this that clicks a button rather
+    // than a link.
     await this.page.click(
-      this.selectWithinProgramCard(
+      this.withinProgramCardSelector(
         programName,
         'ACTIVE',
         'a:text("Applications")',
@@ -403,6 +396,12 @@ export class AdminPrograms {
     return (
       this.selectApplicationCardForApplicant(applicantName) + ' ' + selector
     )
+  }
+
+  async filterProgramApplications(filterFragment: string) {
+    await this.page.fill('input[name="search"]', filterFragment)
+    await this.page.click('button:has-text("Filter")')
+    await waitForPageJsLoad(this.page)
   }
 
   selectApplicationBlock(blockName: string) {
@@ -454,11 +453,18 @@ export class AdminPrograms {
     ).not.toBeNull()
   }
 
-  async getJson() {
+  async getJson(applyFilters: boolean) {
+    await clickAndWaitForModal(this.page, 'download-program-applications-modal')
+    if (applyFilters) {
+      await this.page.check('text="Current results"')
+    } else {
+      await this.page.check('text="All data"')
+    }
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('text="Download all versions (JSON)"'),
+      this.page.click('text="Download JSON"'),
     ])
+    await this.page.click('#download-program-applications-modal-close')
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')
@@ -467,11 +473,18 @@ export class AdminPrograms {
     return readFileSync(path, 'utf8')
   }
 
-  async getCsv() {
+  async getCsv(applyFilters: boolean) {
+    await clickAndWaitForModal(this.page, 'download-program-applications-modal')
+    if (applyFilters) {
+      await this.page.check('text="Current results"')
+    } else {
+      await this.page.check('text="All data"')
+    }
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('text="Download all versions (CSV)"'),
+      this.page.click('text="Download CSV"'),
     ])
+    await this.page.click('#download-program-applications-modal-close')
     const path = await downloadEvent.path()
     if (path === null) {
       throw new Error('download failed')

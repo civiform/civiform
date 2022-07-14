@@ -14,9 +14,11 @@ def perform_apply(config_loader, is_destroy=False, terraform_template_dir=None):
     terraform_cmd = f'terraform -chdir={terraform_template_dir}'
 
     if config_loader.is_dev():
+        print(" - Run terraform init -upgrade -reconfigure")
         subprocess.check_call(
             shlex.split(f'{terraform_cmd} init -upgrade -reconfigure'))
     else:
+        print(" - Run terraform init -upgrade -reconfigure")
         subprocess.check_call(
             shlex.split(
                 f'{terraform_cmd} init -input=false -upgrade -backend-config={os.getenv("BACKEND_VARS_FILENAME")}'
@@ -30,6 +32,7 @@ def perform_apply(config_loader, is_destroy=False, terraform_template_dir=None):
             f'Aborting the script. {tf_vars_filename} does not exist in {terraform_template_dir} directory'
         )
 
+    print(" - Run terraform plan")
     terraform_plan_out_file = 'terraform_plan'
     plan_arguments = f'{terraform_cmd} plan -input=false -out={terraform_plan_out_file} -var-file={tf_vars_filename}'
     if is_destroy:
@@ -39,6 +42,7 @@ def perform_apply(config_loader, is_destroy=False, terraform_template_dir=None):
     if config_loader.is_test():
         return True
 
+    print(" - Run terraform apply")
     terraform_apply_cmd = f'{terraform_cmd} apply -input=false -json'
     if config_loader.is_dev():
         subprocess.check_call(

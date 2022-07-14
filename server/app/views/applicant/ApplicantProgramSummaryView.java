@@ -6,14 +6,14 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
-import static j2html.attributes.Attr.HREF;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -69,7 +69,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     HtmlBundle bundle =
         layout.getBundle().setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
 
-    ContainerTag applicationSummary = div().withId("application-summary").withClasses(Styles.MB_8);
+    DivTag applicationSummary = div().withId("application-summary").withClasses(Styles.MB_8);
     Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
     boolean isFirstUnanswered = true;
     for (AnswerData answerData : params.summaryData()) {
@@ -90,7 +90,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         routes.ApplicantProgramReviewController.submit(params.applicantId(), params.programId())
             .url();
 
-    Tag continueOrSubmitButton;
+    ContainerTag continueOrSubmitButton;
     if (params.completedBlockCount() == params.totalBlockCount()) {
       continueOrSubmitButton =
           submitButton(messages.at(MessageKey.BUTTON_SUBMIT.getKeyName()))
@@ -100,14 +100,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       String applyUrl =
           routes.ApplicantProgramsController.edit(params.applicantId(), params.programId()).url();
       continueOrSubmitButton =
-          a().attr(HREF, applyUrl)
+          a().withHref(applyUrl)
               .withText(messages.at(MessageKey.BUTTON_CONTINUE.getKeyName()))
               .withId("continue-application-button")
               .withClasses(
                   ReferenceClasses.CONTINUE_BUTTON, ApplicantStyles.BUTTON_SUBMIT_APPLICATION);
     }
 
-    ContainerTag content =
+    DivTag content =
         div()
             .with(applicationSummary)
             .with(
@@ -133,49 +133,49 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         params.request(), params.applicantName(), params.messages(), bundle);
   }
 
-  private ContainerTag renderQuestionSummary(
+  private DivTag renderQuestionSummary(
       AnswerData data,
       Messages messages,
       long applicantId,
       boolean inReview,
       boolean isFirstUnanswered) {
-    ContainerTag questionPrompt =
-        div(data.questionText()).withClasses(Styles.FLEX_AUTO, Styles.FONT_SEMIBOLD);
-    ContainerTag questionContent =
-        div(questionPrompt).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
+    DivTag questionPrompt = div(data.questionText()).withClasses(Styles.FONT_SEMIBOLD);
+    DivTag questionContent = div(questionPrompt).withClasses(Styles.PR_2);
 
+    // Add existing answer.
+    if (data.isAnswered()) {
+      final ContainerTag answerContent;
+      if (data.fileKey().isPresent()) {
+        String encodedFileKey = URLEncoder.encode(data.fileKey().get(), StandardCharsets.UTF_8);
+        String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
+        answerContent = a().withHref(fileLink);
+      } else {
+        answerContent = div();
+      }
+      answerContent.withClasses(Styles.FONT_LIGHT, Styles.TEXT_SM);
+      // Add answer text, converting newlines to <br/> tags.
+      String[] texts = data.answerText().split("\n");
+      texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
+      for (int i = 0; i < texts.length; i++) {
+        if (i > 0) {
+          answerContent.with(br());
+        }
+        answerContent.withText(texts[i]);
+      }
+      questionContent.with(answerContent);
+    }
+
+    DivTag actionAndTimestampDiv =
+        div().withClasses(Styles.PR_2, Styles.FLEX, Styles.FLEX_COL, Styles.TEXT_RIGHT);
     // Show timestamp if answered elsewhere.
     if (data.isPreviousResponse()) {
       LocalDate date =
           Instant.ofEpochMilli(data.timestamp()).atZone(ZoneId.systemDefault()).toLocalDate();
-      ContainerTag timestampContent =
+      DivTag timestampContent =
           div("Previously answered on " + date)
-              .withClasses(Styles.FLEX_AUTO, Styles.TEXT_RIGHT, Styles.FONT_LIGHT, Styles.TEXT_XS);
-      questionContent.with(timestampContent);
+              .withClasses(Styles.FONT_LIGHT, Styles.TEXT_XS, Styles.FLEX_GROW);
+      actionAndTimestampDiv.with(timestampContent);
     }
-
-    final ContainerTag answerContent;
-    if (data.fileKey().isPresent()) {
-      String encodedFileKey = URLEncoder.encode(data.fileKey().get(), StandardCharsets.UTF_8);
-      String fileLink = controllers.routes.FileController.show(applicantId, encodedFileKey).url();
-      answerContent = a().withHref(fileLink).withClasses(Styles.W_2_3);
-    } else {
-      answerContent = div();
-    }
-    answerContent.withClasses(
-        Styles.FLEX_AUTO, Styles.TEXT_LEFT, Styles.FONT_LIGHT, Styles.TEXT_SM);
-    // Add answer text, converting newlines to <br/> tags.
-    String[] texts = data.answerText().split("\n");
-    texts = Arrays.stream(texts).filter(text -> text.length() > 0).toArray(String[]::new);
-    for (int i = 0; i < texts.length; i++) {
-      if (i > 0) {
-        answerContent.with(br());
-      }
-      answerContent.withText(texts[i]);
-    }
-
-    ContainerTag answerDiv =
-        div(answerContent).withClasses(Styles.FLEX, Styles.FLEX_ROW, Styles.PR_2);
 
     // Maybe link to block containing specific question.
     if (data.isAnswered() || isFirstUnanswered) {
@@ -195,34 +195,33 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                       applicantId, data.programId(), data.blockId())
                   .url();
 
-      ContainerTag editAction =
+      ATag editAction =
           new LinkElement()
               .setHref(editLink)
               .setText(editText)
               .setStyles(
-                  Styles.ABSOLUTE,
                   Styles.BOTTOM_0,
                   Styles.RIGHT_0,
-                  Styles.PR_2,
                   Styles.TEXT_BLUE_600,
                   StyleUtils.hover(Styles.TEXT_BLUE_700))
               .asAnchorText()
               .attr(
                   "aria-label",
                   messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName(), data.questionText()));
-      ContainerTag editContent =
+      DivTag editContent =
           div(editAction)
               .withClasses(
-                  Styles.FLEX_AUTO,
-                  Styles.TEXT_RIGHT,
                   Styles.FONT_MEDIUM,
-                  Styles.RELATIVE,
-                  Styles.BREAK_NORMAL);
+                  Styles.BREAK_NORMAL,
+                  Styles.FLEX,
+                  Styles.FLEX_GROW,
+                  Styles.JUSTIFY_END,
+                  Styles.ITEMS_CENTER);
 
-      answerDiv.with(editContent);
+      actionAndTimestampDiv.with(editContent);
     }
 
-    return div(questionContent, answerDiv)
+    return div(questionContent, actionAndTimestampDiv)
         .withClasses(
             ReferenceClasses.APPLICANT_SUMMARY_ROW,
             marginIndentClass(data.repeatedEntity().map(RepeatedEntity::depth).orElse(0)),
@@ -231,12 +230,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             Styles.P_2,
             Styles.PT_4,
             Styles.BORDER_B,
-            Styles.BORDER_GRAY_300)
-        .attr("style", "word-break:break-word");
+            Styles.BORDER_GRAY_300,
+            Styles.FLEX,
+            Styles.JUSTIFY_BETWEEN)
+        .withStyle("word-break:break-word");
   }
 
-  private ContainerTag renderRepeatedEntitySection(
-      RepeatedEntity repeatedEntity, Messages messages) {
+  private DivTag renderRepeatedEntitySection(RepeatedEntity repeatedEntity, Messages messages) {
     String content =
         String.format(
             "%s: %s",

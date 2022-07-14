@@ -28,14 +28,14 @@ lazy val root = (project in file("."))
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
-      "com.j2html" % "j2html" % "1.4.0",
+      "com.j2html" % "j2html" % "1.5.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.222",
+      "software.amazon.awssdk" % "aws-sdk-java" % "2.17.231",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.5.2",
-      "com.azure" % "azure-storage-blob" % "12.17.1",
+      "com.azure" % "azure-identity" % "1.5.3",
+      "com.azure" % "azure-storage-blob" % "12.18.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.4.0",
@@ -204,3 +204,6 @@ resolveFromWebjarsNodeModulesDir := true
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.
 Global / onChangedBuildSource := ReloadOnSourceChanges
+// uncomment to show debug logging.
+//logLevel := Level.Debug
+//Compile / compile / logLevel := Level.Debug
