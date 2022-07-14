@@ -66,15 +66,14 @@ public abstract class BaseHtmlView {
     return submitButton(textContents).withId(id);
   }
 
-  protected static Tag redirectButton(String id, String text, String redirectUrl) {
+  protected static ButtonTag redirectButton(String id, String text, String redirectUrl) {
     return asRedirectButton(
-        TagCreator.button(text).withId(id).withClasses(Styles.M_2), redirectUrl);
+      TagCreator.button(text).withId(id).withClasses(Styles.M_2), redirectUrl);
   }
 
-  protected static ContainerTag asRedirectButton(ContainerTag buttonEl, String redirectUrl) {
+  protected static ButtonTag asRedirectButton(ButtonTag buttonEl, String redirectUrl) {
     return buttonEl.attr("onclick", String.format("window.location = '%s';", redirectUrl));
   }
-
   protected static ContainerTag makeSvgTextButton(String buttonText, Icons icon) {
     return TagCreator.button()
         .with(
