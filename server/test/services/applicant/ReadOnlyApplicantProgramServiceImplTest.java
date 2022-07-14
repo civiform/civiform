@@ -17,6 +17,7 @@ import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
+import services.program.StatusDefinitions;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -752,6 +753,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 .setLocalizedDescription(
                     LocalizedStrings.of(Locale.US, "This program is for testing."))
                 .setExternalLink("")
+              .setStatusDefinitions(new StatusDefinitions())
                 .setDisplayMode(DisplayMode.PUBLIC)
                 .build(),
             FAKE_BASE_URL);
