@@ -228,11 +228,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void index_returnsQuestions() throws Exception {
     testQuestionBank.applicantAddress();
-    Question nameQuestion = testQuestionBank.applicantName();
+    QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
     // Create a draft version of an already published question and ensure that it isn't
     // double-counted in the rendered total number of questions.
     QuestionDefinition updatedQuestion =
-        new QuestionDefinitionBuilder(nameQuestion.getQuestionDefinition()).clearId().build();
+        new QuestionDefinitionBuilder(nameQuestion).clearId().build();
     testQuestionBank.maybeSave(updatedQuestion, LifecycleStage.DRAFT);
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
@@ -242,7 +242,31 @@ public class AdminQuestionControllerTest extends ResetPostgres {
               assertThat(result.status()).isEqualTo(OK);
               assertThat(result.contentType()).hasValue("text/html");
               assertThat(result.charset()).hasValue("utf-8");
-              assertThat(contentAsString(result)).contains("Total Questions: 2");
+              // We include the trailing "<" to ensure we don't partially match
+              // 200 rather than 2.
+              assertThat(contentAsString(result)).contains("Total Questions: 2<");
+              assertThat(contentAsString(result)).contains("All Questions");
+            })
+        .toCompletableFuture()
+        .join();
+
+    // Now add a new draft question and ensure that it is included in the total.
+    QuestionDefinition newDraftQuestion =
+        new QuestionDefinitionBuilder(nameQuestion)
+            .clearId()
+            .setName(nameQuestion.getName() + "-new-question-name")
+            .build();
+    testQuestionBank.maybeSave(newDraftQuestion, LifecycleStage.DRAFT);
+    controller
+        .index(request)
+        .thenAccept(
+            result -> {
+              assertThat(result.status()).isEqualTo(OK);
+              assertThat(result.contentType()).hasValue("text/html");
+              assertThat(result.charset()).hasValue("utf-8");
+              // We include the trailing "<" to ensure we don't partially match
+              // 300 rather than 3.
+              assertThat(contentAsString(result)).contains("Total Questions: 3<");
               assertThat(contentAsString(result)).contains("All Questions");
             })
         .toCompletableFuture()
