@@ -1,7 +1,7 @@
 package services.apikey;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.test.Helpers.fakeRequest;
 
 import auth.ApiKeyGrants.Permission;
@@ -107,19 +107,18 @@ public class ApiKeyServiceTest extends ResetPostgres {
             .getApiKey();
     apiKeyService.retireApiKey(apiKey.id, adminProfile);
 
-    NotChangeableException exception =
-        assertThrows(
-            NotChangeableException.class,
-            () -> apiKeyService.retireApiKey(apiKey.id, adminProfile));
-    assertThat(exception).hasMessage(String.format("ApiKey %s is already retired", apiKey));
+    assertThatThrownBy(() -> apiKeyService.retireApiKey(apiKey.id, adminProfile))
+        .isInstanceOf(NotChangeableException.class)
+        .hasMessage(String.format("ApiKey %s is already retired", apiKey));
   }
 
   @Test
   public void retireApiKey_keyDoesNotExist_throws() {
-    RuntimeException exception =
-        assertThrows(RuntimeException.class, () -> apiKeyService.retireApiKey(111l, adminProfile));
-    assertThat(exception.getCause()).isInstanceOf(ApiKeyNotFoundException.class);
-    assertThat(exception.getCause()).hasMessage("ApiKey not found for database ID: 111");
+    assertThatThrownBy(() -> apiKeyService.retireApiKey(111l, adminProfile))
+        .isInstanceOf(RuntimeException.class)
+        .cause()
+        .isInstanceOf(ApiKeyNotFoundException.class)
+        .hasMessage("ApiKey not found for database ID: 111");
   }
 
   @Test
@@ -260,10 +259,11 @@ public class ApiKeyServiceTest extends ResetPostgres {
                 "subnet", "0.1.1.1",
                 "grant-program-read[test-program]", "true"));
 
-    RuntimeException exception =
-        assertThrows(RuntimeException.class, () -> apiKeyService.createApiKey(form, adminProfile));
-
-    assertThat(exception).hasCause(new ProgramNotFoundException("test-program"));
+    assertThatThrownBy(() -> apiKeyService.createApiKey(form, adminProfile))
+        .isInstanceOf(RuntimeException.class)
+        .cause()
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("test-program");
   }
 
   @Test
@@ -280,8 +280,8 @@ public class ApiKeyServiceTest extends ResetPostgres {
                 "subnet", "0.0.0.1/32",
                 "grant-program-read[test-program]", "true"));
 
-    assertThrows(
-        RuntimeException.class, () -> apiKeyService.createApiKey(form, missingAuthorityIdProfile));
+    assertThatThrownBy(() -> apiKeyService.createApiKey(form, missingAuthorityIdProfile))
+        .isInstanceOf(RuntimeException.class);
   }
 
   private DynamicForm buildForm(ImmutableMap<String, String> formContents) {
