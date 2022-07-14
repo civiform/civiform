@@ -8,8 +8,8 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import com.google.inject.Inject;
-import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.H1Tag;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;

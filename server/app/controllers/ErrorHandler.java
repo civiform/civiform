@@ -1,6 +1,5 @@
 package controllers;
 
-
 import auth.UnauthorizedApiRequestException;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
