@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import services.LocalizedStrings;
 
+/** Contains data defining status tracking configuration for a program's applications. */
 public class StatusDefinitions {
 
   @JsonProperty("statuses")
@@ -30,6 +31,11 @@ public class StatusDefinitions {
     this.statuses = statuses;
   }
 
+  /**
+   * Defines a single status.
+   *
+   * <p>Email body is optionally defined and both status and email support localization.
+   */
   @AutoValue
   @JsonDeserialize(builder = AutoValue_StatusDefinitions_Status.Builder.class)
   public abstract static class Status {

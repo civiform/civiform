@@ -207,7 +207,6 @@ public class ProgramServiceImpl implements ProgramService {
             .build()
             .toProgram();
     return ErrorAnd.of(
-        // Note: This method seems heavy-handed for non question updates.
         syncProgramDefinitionQuestions(
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
@@ -348,13 +347,6 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public StatusDefinitions getStatuses(long programId) throws ProgramNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
-    return programDefinition.statusDefinitions();
-  }
-
-  @Override
-  @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> setStatuses(
       long programId, StatusDefinitions statuses) throws ProgramNotFoundException {
 
@@ -364,7 +356,6 @@ public class ProgramServiceImpl implements ProgramService {
             .build()
             .toProgram();
     return ErrorAnd.of(
-        // Note: This method seems heavy-handed for non question updates.
         syncProgramDefinitionQuestions(
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
@@ -695,8 +686,8 @@ public class ProgramServiceImpl implements ProgramService {
    */
   private CompletionStage<ProgramDefinition> syncProgramDefinitionQuestions(
       ProgramDefinition programDefinition) {
-    // Note: This method is used for non question updates.  It'd likely be good
-    // to have a focused method for that.
+    // Note: This method is also used for non question updates.  It'd likely be
+    // good to have a focused method for that.
     return questionService
         .getReadOnlyQuestionService()
         .thenApplyAsync(

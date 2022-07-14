@@ -373,7 +373,4 @@ public interface ProgramService {
   /** Set the statuses available for application reviews. */
   ErrorAnd<ProgramDefinition, CiviFormError> setStatuses(long programId, StatusDefinitions statuses)
       throws ProgramNotFoundException;
-
-  /** Get the statuses available for application reviews. */
-  StatusDefinitions getStatuses(long programId) throws ProgramNotFoundException;
 }
