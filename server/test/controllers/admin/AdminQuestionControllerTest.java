@@ -31,6 +31,7 @@ import services.question.types.DropdownQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import views.html.helper.CSRF;
 
@@ -225,9 +226,14 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void index_returnsQuestions() {
+  public void index_returnsQuestions() throws Exception {
     testQuestionBank.applicantAddress();
-    testQuestionBank.applicantName();
+    Question nameQuestion = testQuestionBank.applicantName();
+    // Create a draft version of an already published question and ensure that it isn't
+    // double-counted in the rendered total number of questions.
+    QuestionDefinition updatedQuestion =
+        new QuestionDefinitionBuilder(nameQuestion.getQuestionDefinition()).clearId().build();
+    testQuestionBank.maybeSave(updatedQuestion, LifecycleStage.DRAFT);
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
     controller
         .index(request)

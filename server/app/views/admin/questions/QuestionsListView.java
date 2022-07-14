@@ -3,6 +3,7 @@ package views.admin.questions;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.*;
 
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -116,9 +117,14 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private DivTag renderSummary(ActiveAndDraftQuestions activeAndDraftQuestions) {
+    // The total question count should be equivalent to the number of rows in the displayed table,
+    // where we have a single entry for a question that is active and has a draft.
     return div(String.format(
             "Total Questions: %d",
-            activeAndDraftQuestions.getActiveSize() + activeAndDraftQuestions.getDraftSize()))
+            Sets.union(
+                    activeAndDraftQuestions.getActiveQuestionNames(),
+                    activeAndDraftQuestions.getDraftQuestionNames())
+                .size()))
         .withClasses(Styles.FLOAT_RIGHT, Styles.TEXT_BASE, Styles.PX_4, Styles.MY_2);
   }
 

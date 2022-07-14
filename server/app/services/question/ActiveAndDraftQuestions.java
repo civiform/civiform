@@ -18,14 +18,12 @@ import services.question.types.QuestionDefinition;
  * should be measured in milliseconds - seconds at the maximum - within one request serving path -
  * because it does not have any mechanism for a refresh.
  */
-public class ActiveAndDraftQuestions {
+public final class ActiveAndDraftQuestions {
 
   private final ImmutableMap<
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
   private final ImmutableMap<String, DeletionStatus> deletionStatusByName;
-  private final int activeSize;
-  private final int draftSize;
 
   public ActiveAndDraftQuestions(Version active, Version draft) {
     ImmutableMap.Builder<String, QuestionDefinition> activeToName = ImmutableMap.builder();
@@ -39,8 +37,6 @@ public class ActiveAndDraftQuestions {
         .forEach(qd -> activeToName.put(qd.getName(), qd));
     ImmutableMap<String, QuestionDefinition> activeNames = activeToName.build();
     ImmutableMap<String, QuestionDefinition> draftNames = draftToName.build();
-    activeSize = activeNames.size();
-    draftSize = draftNames.size();
     ImmutableMap.Builder<String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
         versionedByNameBuilder = ImmutableMap.builder();
     for (String name : Sets.union(activeNames.keySet(), draftNames.keySet())) {
@@ -97,11 +93,17 @@ public class ActiveAndDraftQuestions {
     return versionedByName.get(name).second();
   }
 
-  public int getActiveSize() {
-    return activeSize;
+  public ImmutableSet<String> getActiveQuestionNames() {
+    return versionedByName.entrySet().stream()
+        .filter(e -> e.getValue().first().isPresent())
+        .map(e -> e.getKey())
+        .collect(ImmutableSet.toImmutableSet());
   }
 
-  public int getDraftSize() {
-    return draftSize;
+  public ImmutableSet<String> getDraftQuestionNames() {
+    return versionedByName.entrySet().stream()
+        .filter(e -> e.getValue().second().isPresent())
+        .map(e -> e.getKey())
+        .collect(ImmutableSet.toImmutableSet());
   }
 }
