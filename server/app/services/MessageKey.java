@@ -47,6 +47,8 @@ public enum MessageKey {
   CONTENT_OR("content.or"),
   CONTENT_PLEASE_CREATE_ACCOUNT("content.pleaseCreateAccount"),
   CONTENT_SELECT_LANGUAGE("label.selectLanguage"),
+  GENERAL_SPACE("general.space"),
+  GENERAL_COMMA("general.comma"),
   ERROR_NOT_FOUND_TITLE("error.not_found_title"),
   ERROR_NOT_FOUND_TITLE_END("error.not_found_title_end"),
   ERROR_NOT_FOUND_DESCRIPTION_A("error.not_found_description_a"),

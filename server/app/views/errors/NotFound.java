@@ -36,7 +36,7 @@ public class NotFound extends BaseHtmlView {
   private H1Tag h1Content(Messages messages) {
     return h1(
             span(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE.getKeyName())),
-            space(),
+            span(messages.at(MessageKey.GENERAL_SPACE.getKeyName())),
             spanNowrap(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE_END.getKeyName())))
         .withClasses(ErrorStyles.H1_NOT_FOUND);
   }
@@ -44,9 +44,9 @@ public class NotFound extends BaseHtmlView {
   private DivTag descriptionContent(Messages messages) {
     return div(p(
                 span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A.getKeyName())),
-                space(),
+                span(messages.at(MessageKey.GENERAL_SPACE.getKeyName())),
                 spanNowrap(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A_END.getKeyName())),
-                space(),
+                span(messages.at(MessageKey.GENERAL_SPACE.getKeyName())),
                 a(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_LINK.getKeyName()))
                     .withHref("/")
                     .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT))

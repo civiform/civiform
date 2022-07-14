@@ -81,14 +81,6 @@ public abstract class BaseHtmlView {
             span(buttonText).withClass(Styles.TEXT_LEFT));
   }
 
-  protected static SpanTag space() {
-    return span(" ");
-  }
-
-  protected static SpanTag period() {
-    return span(".");
-  }
-
   protected static SpanTag spanNowrap(String tag) {
     return span(tag).withClasses(Styles.WHITESPACE_NOWRAP);
   }

@@ -45,6 +45,10 @@ validation.isRequired=This question is required.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Please enter valid input.
 
+# For use in cases where sentences are broken up
+general.space=' '
+general.period=.
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
@@ -345,3 +349,12 @@ validation.textTooShort=Must contain at least {0} characters.
 
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=Multi option questions cannot have blank options.
+
+#-------------------------------------------------------#
+# 404 PAGE ERROR - error messages displayed on 404 page #
+#-------------------------------------------------------#
+error.not_found_title=We were unable to find the page you 
+error.not_found_title_end=tried to visit 
+error.not_found_description_a=Please go back or return 
+error.not_found_description_a_end=to the &#160;
+error.not_found_description_link=homepage

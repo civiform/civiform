@@ -42,6 +42,10 @@ validation.isRequired=This question is required.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Please enter valid input.
 
+# For use in cases where sentences are broken up
+general.space=' '
+general.period=.
+
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
