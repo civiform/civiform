@@ -23,6 +23,7 @@ import org.junit.Test;
 import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
@@ -1159,5 +1160,48 @@ public class ProgramServiceImplTest extends ResetPostgres {
     ProgramDefinition found = ps.getProgramDefinitionAsync(programId).toCompletableFuture().get();
 
     assertThat(found.hasOrderedBlockDefinitions()).isTrue();
+  }
+
+  @Test
+  public void getStatuses_programNotFound_throws() throws Exception {
+    assertThatThrownBy(() -> ps.getStatuses(1000L))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID: 1000");
+  }
+
+  @Test
+  public void getStatuses_none() throws Exception {
+    Program program = ProgramBuilder.newActiveProgram().build();
+    assertThat(ps.getStatuses(program.id).getStatuses()).isEmpty();
+  }
+
+  @Test
+  public void updateStatuses_programNotFound_throws() throws Exception {
+
+    assertThatThrownBy(() ->
+      ps.setStatuses(1000L, new StatusDefinitions())
+    )
+      .isInstanceOf(ProgramNotFoundException.class)
+      .hasMessageContaining("Program not found for ID: 1000");
+  }
+
+    @Test
+  public void updateStatuses() throws Exception {
+    Program program = ProgramBuilder.newActiveProgram().build();
+
+    var status =
+        StatusDefinitions.Status.builder()
+            .setStatusText("Approved")
+            .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
+            .setEmailBodyText("I'm an email!")
+            .setLocalizedEmailBodyText(LocalizedStrings.of(Locale.US, "I'm a US email!"))
+            .build();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.setStatuses(program.id, new StatusDefinitions(ImmutableList.of(status)));
+
+    assertThat(result.isError()).isFalse();
+    StatusDefinitions gotStatusDef = result.getResult().statusDefinitions();
+    assertThat(gotStatusDef.getStatuses()).containsExactly(status);
   }
 }
