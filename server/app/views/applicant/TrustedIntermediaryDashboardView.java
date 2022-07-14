@@ -2,14 +2,16 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.*;
-import static views.components.FieldWithLabel.date;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.ti.routes;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.TdTag;
+import j2html.tags.specialized.TheadTag;
+import j2html.tags.specialized.TrTag;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,8 +48,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       ImmutableList<Account> managedAccounts,
       int totalPageCount,
       int page,
-      Optional<String> search,
-      Optional<String> searchDate,
+      Optional<String> searchParam,
+      Optional<String> searchDate
       Http.Request request,
       Messages messages) {
     HtmlBundle bundle =
@@ -62,17 +64,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 renderAddNewForm(tiGroup, request),
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Clients"),
-                div(),
-              renderSearchWithDateForm(
-                    request,
-                    search,
-                    searchDate,
-                    routes.TrustedIntermediaryController.dashboard(
-                        Optional.empty(),Optional.empty(), Optional.empty()),
-                  Optional.empty()),
-                div().withClass(Styles.M_2),
-                renderTIApplicantsTable(
-                    managedAccounts, search, searchDate,page, totalPageCount, tiGroup, request),
+                renderSearchForm(request, searchParam,searchDate),
+                renderTIApplicantsTable(managedAccounts, searchParam,searchDate, page, totalPageCount),
                 hr().withClasses(Styles.MT_6),
                 renderHeader("Trusted Intermediary Members"),
                 renderTIMembersTable(tiGroup).withClasses(Styles.ML_2))
@@ -91,17 +84,40 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return layout.renderWithNav(request, userName, messages, bundle);
   }
 
-  private ContainerTag renderTIApplicantsTable(
+  private FormTag renderSearchForm(Http.Request request, Optional<String> searchParam, Optional<String> searchDate) {
+    return form()
+        .withClass(Styles.W_1_4)
+        .withMethod("GET")
+        .withAction(
+            routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty())
+                .url())
+        .with(
+            FieldWithLabel.input()
+                .setFieldName("search")
+                .setValue(searchParam)
+                .setLabelText("Search")
+                .getInputTag()
+                .withClasses(Styles.W_FULL),
+            FieldWithLabel.input()
+                .setFieldName("searchDate")
+                  .setValue(searchDate)
+                    .setLabelText("Search Date of Birth")
+                      .getInputTag()
+                        .withClass(Styles.W_FULL),
+
+            makeCsrfTokenInputTag(request),
+            submitButton("Search").withClasses(Styles.M_2));
+  }
+
+  private DivTag renderTIApplicantsTable(
       ImmutableList<Account> managedAccounts,
-      Optional<String> search,
+      Optional<String> searchParam,
       Optional<String> searchDate,
       int page,
-      int totalPageCount,
-      TrustedIntermediaryGroup tiGroup,
-      Http.Request request) {
-    ContainerTag main =
+      int totalPageCount) {
+    DivTag main =
         div(table()
-                .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
+                .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_3_4)
                 .with(renderApplicantTableHeader())
                 .with(
                     tbody(
@@ -109,17 +125,18 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                             managedAccounts.stream()
                                 .sorted(Comparator.comparing(Account::getApplicantName))
                                 .collect(Collectors.toList()),
-                            account -> renderApplicantRow(account, tiGroup, request)))))
+                            account -> renderApplicantRow(account)))))
             .withClasses(Styles.MB_16);
     return main.with(
         renderPaginationDiv(
             page,
             totalPageCount,
             pageNumber ->
-                routes.TrustedIntermediaryController.dashboard(search, searchDate,Optional.of(pageNumber))));
+                routes.TrustedIntermediaryController.dashboard(
+                    searchParam, searchDate, Optional.of(pageNumber))));
   }
 
-  private ContainerTag renderTIMembersTable(TrustedIntermediaryGroup tiGroup) {
+  private DivTag renderTIMembersTable(TrustedIntermediaryGroup tiGroup) {
     return div(
         table()
             .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_3_4)
@@ -133,8 +150,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         account -> renderTIRow(account)))));
   }
 
-  private Tag renderAddNewForm(TrustedIntermediaryGroup tiGroup, Http.Request request) {
-    ContainerTag formTag =
+  private DivTag renderAddNewForm(TrustedIntermediaryGroup tiGroup, Http.Request request) {
+    FormTag formTag =
         form()
             .withMethod("POST")
             .withAction(routes.TrustedIntermediaryController.addApplicant(tiGroup.id).url());
@@ -159,8 +176,10 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setLabelText("Last Name")
             .setValue(request.flash().get("providedLastName").orElse(""))
             .setPlaceholderText("Applicant last name (Required)");
+    // TODO: do something with this field.  currently doesn't do anything. Add a Path
+    // to WellKnownPaths referencing the canonical date of birth question.
     FieldWithLabel dateOfBirthField =
-        date()
+        FieldWithLabel.date()
             .setId("date-of-birth-input")
             .setFieldName("dob")
             .setLabelText("Date Of Birth")
@@ -177,18 +196,18 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     return div()
         .with(
             formTag.with(
-                emailField.getContainer(),
-                firstNameField.getContainer(),
-                middleNameField.getContainer(),
-                lastNameField.getContainer(),
-                dateOfBirthField.getContainer(),
+                emailField.getInputTag(),
+                firstNameField.getInputTag(),
+                middleNameField.getInputTag(),
+                lastNameField.getInputTag(),
+                dateOfBirthField.getDateTag(),
                 makeCsrfTokenInputTag(request),
                 submitButton("Add").withClasses(Styles.ML_2, Styles.MB_6)))
         .withClasses(
             Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_1_2, Styles.MT_6);
   }
 
-  private Tag renderTIRow(Account ti) {
+  private TrTag renderTIRow(Account ti) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             Styles.BORDER_B,
@@ -198,8 +217,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderStatusCell(ti));
   }
 
-  private Tag renderApplicantRow(
-      Account applicant, TrustedIntermediaryGroup tiGroup, Http.Request request) {
+  private TrTag renderApplicantRow(Account applicant, TrustedIntermediaryGroup tiGroup, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             Styles.BORDER_B,
@@ -208,11 +226,11 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .with(renderInfoCell(applicant))
         .with(renderApplicantInfoCell(applicant))
         .with(renderActionsCell(applicant))
-        .with(renderDateOfBirthCell(applicant, tiGroup, request));
+      .with(renderDateOfBirthCell(applicant, tiGroup, request));;
   }
 
-  private Tag renderDateOfBirthCell(
-      Account applicant, TrustedIntermediaryGroup tiGroup, Http.Request request) {
+  private TdTag renderDateOfBirthCell(
+    Account applicant, TrustedIntermediaryGroup tiGroup, Http.Request request) {
 
     Optional<Applicant> newestApplicant = applicant.newestApplicant();
     if (newestApplicant.isEmpty()) {
@@ -230,22 +248,23 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
     }
     return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12, Styles.FONT_SEMIBOLD)
-        .with(
-            form()
-                .withClass(Styles.FLEX)
-                .withMethod("POST")
-                .withAction(
-                    routes.TrustedIntermediaryController.updateDateOfBirth(tiGroup.id, applicant.id)
-                        .url())
-                .with(
-                    input()
-                        .withType("date")
-                        .withName("dob")
-                        .withPlaceholder("Click to Enter"),
-                    makeCsrfTokenInputTag(request),
-                    submitButton("Update").withClass(Styles.P_0)));
+      .with(
+        form()
+          .withClass(Styles.FLEX)
+          .withMethod("POST")
+          .withAction(
+            routes.TrustedIntermediaryController.updateDateOfBirth(tiGroup.id, applicant.id)
+              .url())
+          .with(
+            input()
+              .withType("date")
+              .withName("dob")
+              .withPlaceholder("Click to Enter"),
+            makeCsrfTokenInputTag(request),
+            submitButton("Update").withClass(Styles.P_0)));
   }
-  private Tag renderApplicantInfoCell(Account applicantAccount) {
+
+  private TdTag renderApplicantInfoCell(Account applicantAccount) {
     int applicationCount =
         applicantAccount.getApplicants().stream()
             .map(applicant -> applicant.getApplications().size())
@@ -256,7 +275,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderActionsCell(Account applicant) {
+  private TdTag renderActionsCell(Account applicant) {
     Optional<Applicant> newestApplicant = applicant.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
@@ -273,7 +292,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderInfoCell(Account ti) {
+  private TdTag renderInfoCell(Account ti) {
     String emailField = ti.getEmailAddress();
     if (Strings.isNullOrEmpty(emailField)) {
       emailField = "(no email address)";
@@ -283,7 +302,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderStatusCell(Account ti) {
+  private TdTag renderStatusCell(Account ti) {
     String accountStatus = "OK";
     if (ti.ownedApplicantIds().isEmpty()) {
       accountStatus = "Not yet signed in.";
@@ -292,16 +311,15 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 
-  private Tag renderApplicantTableHeader() {
+  private TheadTag renderApplicantTableHeader() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
             .with(th("Applications").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
-            .with(th("Actions").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
-            .with(th("DOB").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3)));
+            .with(th("Actions").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4)));
   }
 
-  private Tag renderGroupTableHeader() {
+  private TheadTag renderGroupTableHeader() {
     return thead(
         tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
