@@ -118,8 +118,9 @@ public final class QuestionServiceImpl implements QuestionService {
     }
     ActiveAndDraftQuestions activeQuestions =
         readOnlyQuestionService().getActiveAndDraftQuestions();
-    if (activeQuestions.getDeletionStatus(question.get().getQuestionDefinition().getName())
-        != DeletionStatus.PENDING_DELETION) {
+    if (!activeQuestions
+        .getDeletionStatus(question.get().getQuestionDefinition().getName())
+        .equals(DeletionStatus.PENDING_DELETION)) {
       throw new InvalidUpdateException("Question is not restorable.");
     }
     Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
@@ -138,8 +139,9 @@ public final class QuestionServiceImpl implements QuestionService {
     }
     ActiveAndDraftQuestions activeQuestions =
         readOnlyQuestionService().getActiveAndDraftQuestions();
-    if (activeQuestions.getDeletionStatus(question.get().getQuestionDefinition().getName())
-        != DeletionStatus.DELETABLE) {
+    if (!activeQuestions
+        .getDeletionStatus(question.get().getQuestionDefinition().getName())
+        .equals(DeletionStatus.DELETABLE)) {
       throw new InvalidUpdateException("Question is not archivable.");
     }
     Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
