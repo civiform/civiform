@@ -1,4 +1,5 @@
 import os
+import re
 
 from cloud.shared.bin.lib.variable_definition_loader import VariableDefinitionLoader
 """
@@ -63,27 +64,41 @@ class ConfigLoader:
     # TODO: we do not validate type of the variable as we only have
     # strings currently. If we add non-strings, will need to validate
     def _validate_config(self, variable_definitions: dict, configs: dict):
-        is_valid = True
         validation_errors = []
 
         for name, definition in variable_definitions.items():
-            is_required = definition.get("required", False)
+            is_required = definition.get('required', False)
             config_value = configs.get(name, None)
 
-            if is_required and config_value is None:
-                is_valid = False
-                validation_errors.append(
-                    f"{name} is required, but not provided")
-
-            is_enum = definition.get("type") == "enum"
-
-            if config_value is not None and is_enum:
-                if config_value not in definition.get("values"):
-                    is_valid = False
+            if config_value is None:
+                if is_required:
                     validation_errors.append(
-                        f"{config_value} not supported enum for {name}")
+                        f'[{name}] required, but not provided')
+                continue
 
-        return is_valid, validation_errors
+            is_enum = definition.get('type') == 'enum'
+
+            if is_enum:
+                if config_value not in definition.get('values'):
+                    validation_errors.append(
+                        f'[{name}] \'{config_value}\' is not a supported enum value. Want a value in [{", ".join(definition.get("values"))}]'
+                    )
+
+            value_regex = definition.get('value_regex', None)
+            if value_regex:
+                # TODO(#2887): If we validate variable definitions prior to
+                # trying to validate an actual configuration, we can assume that
+                # this will always be set if value_regex is provided.
+                validation_error_message = definition.get(
+                    'value_regex_error_message', None)
+                if not validation_error_message:
+                    raise ValueError(
+                        f'[{name}] no value_regex_error_message configured')
+                if not re.compile(value_regex).fullmatch(config_value):
+                    validation_errors.append(
+                        f'[{name}] {validation_error_message}')
+
+        return validation_errors
 
     def validate_config(self):
         return self._validate_config(self.variable_definitions, self.configs)
@@ -92,16 +107,16 @@ class ConfigLoader:
         return self.configs.get(variable_name)
 
     def get_cloud_provider(self):
-        return self.configs.get("CIVIFORM_CLOUD_PROVIDER")
+        return self.configs.get('CIVIFORM_CLOUD_PROVIDER')
 
     def get_template_dir(self):
-        return self.configs.get("TERRAFORM_TEMPLATE_DIR")
+        return self.configs.get('TERRAFORM_TEMPLATE_DIR')
 
     def is_dev(self):
-        return self.civiform_mode == "dev"
+        return self.civiform_mode == 'dev'
 
     def is_test(self):
-        return self.civiform_mode == "test"
+        return self.civiform_mode == 'test'
 
     def use_backend_config(self):
         return not self.is_dev()
@@ -113,7 +128,7 @@ class ConfigLoader:
             self, variable_definitions: dict, configs: dict):
         tf_variables = list(
             filter(
-                lambda x: variable_definitions.get(x).get("tfvar"),
+                lambda x: variable_definitions.get(x).get('tfvar'),
                 self.variable_definitions,
             ))
         tf_config_vars = {}

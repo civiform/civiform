@@ -16,8 +16,8 @@ This script generates a .tfvars file that is used to deploy via terraform.
 def load_config():
     config_loader = ConfigLoader()
 
-    is_valid, validation_errors = config_loader.load_config()
-    if not is_valid:
+    validation_errors = config_loader.load_config()
+    if validation_errors:
         new_line = '\n\t'
         exit(
             f"Found the following validation errors: {new_line}{f'{new_line}'.join(validation_errors)}"
