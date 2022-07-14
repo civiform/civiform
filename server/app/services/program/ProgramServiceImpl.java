@@ -207,6 +207,7 @@ public class ProgramServiceImpl implements ProgramService {
             .build()
             .toProgram();
     return ErrorAnd.of(
+        // Note: This method seems heavy-handed for non question updates.
         syncProgramDefinitionQuestions(
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
@@ -366,8 +367,8 @@ public class ProgramServiceImpl implements ProgramService {
     Program program =
         programDefinition.toBuilder().setStatusDefinitions(statuses).build().toProgram();
     return ErrorAnd.of(
-        // update for correct next page.
-        syncProgramDefinitionQuestions(
+      // Note: This method seems heavy-handed for non question updates.
+      syncProgramDefinitionQuestions(
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
             .join());
@@ -697,6 +698,8 @@ public class ProgramServiceImpl implements ProgramService {
    */
   private CompletionStage<ProgramDefinition> syncProgramDefinitionQuestions(
       ProgramDefinition programDefinition) {
+    // Note: This method is used for non question updates.  It'd likely be good
+    // to have a focused method for that.
     return questionService
         .getReadOnlyQuestionService()
         .thenApplyAsync(
