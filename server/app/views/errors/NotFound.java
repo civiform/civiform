@@ -8,7 +8,8 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import com.google.inject.Inject;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.H1Tag;
+import j2html.tags.specialized.DivTag;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -32,7 +33,7 @@ public class NotFound extends BaseHtmlView {
     this.languageSelector = checkNotNull(languageSelector);
   }
 
-  private ContainerTag h1Content(Messages messages) {
+  private H1Tag h1Content(Messages messages) {
     return h1(
             span(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE.getKeyName())),
             space(),
@@ -40,7 +41,7 @@ public class NotFound extends BaseHtmlView {
         .withClasses(ErrorStyles.H1_NOT_FOUND);
   }
 
-  private ContainerTag descriptionContent(Messages messages) {
+  private DivTag descriptionContent(Messages messages) {
     return div(p(
                 span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A.getKeyName())),
                 space(),
@@ -54,7 +55,7 @@ public class NotFound extends BaseHtmlView {
   }
 
   /** Page returned on 404 error */
-  private ContainerTag mainContent(Messages messages) {
+  private DivTag mainContent(Messages messages) {
     return div(h1Content(messages), descriptionContent(messages))
         .withClasses(Styles.TEXT_CENTER, Styles.MAX_W_SCREEN_SM, Styles.W_5_6, Styles.MX_AUTO);
   }
