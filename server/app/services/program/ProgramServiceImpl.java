@@ -367,8 +367,8 @@ public class ProgramServiceImpl implements ProgramService {
     Program program =
         programDefinition.toBuilder().setStatusDefinitions(statuses).build().toProgram();
     return ErrorAnd.of(
-      // Note: This method seems heavy-handed for non question updates.
-      syncProgramDefinitionQuestions(
+        // Note: This method seems heavy-handed for non question updates.
+        syncProgramDefinitionQuestions(
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
             .join());

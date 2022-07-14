@@ -753,7 +753,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 .setLocalizedDescription(
                     LocalizedStrings.of(Locale.US, "This program is for testing."))
                 .setExternalLink("")
-              .setStatusDefinitions(new StatusDefinitions())
+                .setStatusDefinitions(new StatusDefinitions())
                 .setDisplayMode(DisplayMode.PUBLIC)
                 .build(),
             FAKE_BASE_URL);
