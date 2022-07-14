@@ -8,8 +8,8 @@ import static j2html.TagCreator.legend;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
-import j2html.tags.ContainerTag;
-import j2html.tags.Tag;
+import j2html.tags.specialized.FieldsetTag;
+import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -68,7 +68,7 @@ public class ProgramTranslationView extends TranslationFormView {
         controllers.admin.routes.AdminProgramTranslationsController.update(
                 programId, locale.toLanguageTag())
             .url();
-    ContainerTag form =
+    FormTag form =
         renderTranslationForm(
             request, locale, formAction, formFields(localizedName, localizedDescription));
 
@@ -90,10 +90,10 @@ public class ProgramTranslationView extends TranslationFormView {
     return routes.AdminProgramTranslationsController.edit(programId, locale.toLanguageTag()).url();
   }
 
-  private ImmutableList<Tag> formFields(
+  private ImmutableList<FieldsetTag> formFields(
       Optional<String> localizedName, Optional<String> localizedDescription) {
-    ImmutableList.Builder<Tag> result =
-        ImmutableList.<Tag>builder()
+    ImmutableList.Builder<FieldsetTag> result =
+        ImmutableList.<FieldsetTag>builder()
             .add(
                 fieldset()
                     .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
@@ -105,14 +105,14 @@ public class ProgramTranslationView extends TranslationFormView {
                             .setLabelText("Program name")
                             .setScreenReaderText("Program display name")
                             .setValue(localizedName)
-                            .getContainer(),
+                            .getInputTag(),
                         FieldWithLabel.input()
                             .setId("localize-display-description")
                             .setFieldName("displayDescription")
                             .setLabelText("Program description")
                             .setScreenReaderText("Program description")
                             .setValue(localizedDescription)
-                            .getContainer()));
+                            .getInputTag()));
     if (statusTrackingEnabled) {
       // TODO(#2752): Use real statuses from the program.
       ImmutableList<ApplicationStatus> statusesWithEmail =
@@ -129,13 +129,13 @@ public class ProgramTranslationView extends TranslationFormView {
                         .setLabelText("Status name")
                         .setScreenReaderText("Status name")
                         .setValue(s.statusName())
-                        .getContainer(),
+                        .getInputTag(),
                     FieldWithLabel.textArea()
                         .setLabelText("Email content")
                         .setScreenReaderText("Email content")
                         .setValue(s.emailContent())
                         .setRows(OptionalLong.of(8))
-                        .getContainer()));
+                        .getTextareaTag()));
       }
     }
     return result.build();

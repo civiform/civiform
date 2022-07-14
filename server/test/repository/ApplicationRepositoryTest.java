@@ -1,7 +1,7 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -111,15 +111,15 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     Application appDraft2 = Application.create(applicant, program, LifecycleStage.DRAFT);
     appDraft2.save();
 
-    RuntimeException exception =
-        assertThrows(
-            RuntimeException.class,
+    assertThatThrownBy(
             () ->
                 repo.submitApplication(applicant, program, Optional.empty())
                     .toCompletableFuture()
-                    .join());
+                    .join())
+        .isInstanceOf(RuntimeException.class)
+        .cause()
+        .hasMessageContaining("Found more than one DRAFT application");
 
-    assertThat(exception.getCause().getMessage()).contains("Found more than one DRAFT application");
     assertThat(
             repo.getApplication(appDraft1.id)
                 .toCompletableFuture()

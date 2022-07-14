@@ -4,7 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import controllers.AssetsFinder;
-import j2html.tags.Tag;
+import j2html.tags.specialized.LinkTag;
+import j2html.tags.specialized.ScriptTag;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class ViewUtilsTest {
   @Test
   public void makeLocalJsTag_createsAScriptTagWithTheJs() {
     when(assetsFinder.path("javascripts/hello.js")).thenReturn("/full/asset/path.js");
-    Tag result = viewUtils.makeLocalJsTag("hello");
+    ScriptTag result = viewUtils.makeLocalJsTag("hello");
 
     assertThat(result.render())
         .isEqualTo("<script src=\"/full/asset/path.js\" type=\"text/javascript\"></script>");
@@ -38,7 +39,7 @@ public class ViewUtilsTest {
   @Test
   public void makeLocalCssTag_createsALinkTagWithTheCss() {
     when(assetsFinder.path("stylesheets/hello.css")).thenReturn("/full/asset/path.css");
-    Tag result = viewUtils.makeLocalCssTag("hello");
+    LinkTag result = viewUtils.makeLocalCssTag("hello");
 
     assertThat(result.render())
         .isEqualTo("<link href=\"/full/asset/path.css\" rel=\"stylesheet\">");

@@ -14,11 +14,13 @@
   "AWS_USERNAME": {
     "required": true,
     "secret": false,
+    "tfvar": false,
     "type": "string"
   },
   "AZURE_LOCATION": {
     "required": true,
     "secret": false,
+    "tfvar": false,
     "type": "enum",
     "values": [
       "eastus",
@@ -101,6 +103,7 @@
   "AZURE_LOG_STORAGE_ACCOUNT_NAME": {
     "required": true,
     "secret": false,
+    "tfvar": false,
     "type": "string"
   },
   "AZURE_RESOURCE_GROUP": {
@@ -112,6 +115,7 @@
   "AZURE_SUBSCRIPTION": {
     "required": true,
     "secret": false,
+    "tfvar": false,
     "type": "string"
   },
   "DOCKER_REPOSITORY_NAME": {

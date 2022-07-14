@@ -1,7 +1,7 @@
 package auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.test.Helpers.fakeRequest;
 
 import com.google.inject.Guice;
@@ -160,14 +160,12 @@ public class ApiAuthenticatorTest {
 
   private void assertBadCredentialsException(
       Http.Request request, UsernamePasswordCredentials credentials, String expectedMessage) {
-    var exception =
-        assertThrows(
-            BadCredentialsException.class,
+    assertThatThrownBy(
             () ->
                 apiAuthenticator.validate(
-                    credentials, new PlayWebContext(request), MOCK_SESSION_STORE));
-
-    assertThat(exception).hasMessage(expectedMessage);
+                    credentials, new PlayWebContext(request), MOCK_SESSION_STORE))
+        .isInstanceOf(BadCredentialsException.class)
+        .hasMessage(expectedMessage);
   }
 
   private static Http.Request buildFakeRequest(String rawCredentials) {

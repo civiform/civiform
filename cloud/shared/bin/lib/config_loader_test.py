@@ -5,7 +5,7 @@ from config_loader import ConfigLoader
  Tests for the ConfigLoader, calls the I/O methods to match the actual 
  experience of running the class. 
  
- To run the tests: python3 cloud/shared/bin/lib/config_loader_test.py
+ To run the tests: PYTHONPATH="${PYTHONPATH}:${pwd}" python3 cloud/shared/bin/lib/config_loader_test.py
 """
 
 
@@ -36,9 +36,9 @@ class TestConfigLoader(unittest.TestCase):
         config_loader.variable_definitions = defs
         config_loader.configs = configs
 
-        is_valid, errors = config_loader.validate_config()
-        self.assertFalse(is_valid)
-        self.assertEqual(errors, ["Bar is required, but not provided"])
+        self.assertEqual(
+            config_loader.validate_config(),
+            ["[Bar] required, but not provided"])
 
     def test_validate_config_for_incorrect_enums(self):
         defs = {
@@ -47,7 +47,7 @@ class TestConfigLoader(unittest.TestCase):
                     "required": True,
                     "secret": False,
                     "type": "enum",
-                    "values": ["abc"],
+                    "values": ["abc", "def"],
                 },
         }
         configs = {"FOO": "test"}
@@ -56,9 +56,10 @@ class TestConfigLoader(unittest.TestCase):
         config_loader.variable_definitions = defs
         config_loader.configs = configs
 
-        is_valid, errors = config_loader.validate_config()
-        self.assertFalse(is_valid)
-        self.assertEqual(errors, ["test not supported enum for FOO"])
+        self.assertEqual(
+            config_loader.validate_config(), [
+                "[FOO] 'test' is not a supported enum value. Want a value in [abc, def]"
+            ])
 
     def test_validate_config_for_correct_enums(self):
         defs = {
@@ -75,9 +76,7 @@ class TestConfigLoader(unittest.TestCase):
         config_loader.variable_definitions = defs
         config_loader.configs = configs
 
-        is_valid, errors = config_loader.validate_config()
-        self.assertTrue(is_valid)
-        self.assertEqual(errors, [])
+        self.assertEqual(config_loader.validate_config(), [])
 
     def test_validate_config_for_empty_enum(self):
         defs = {
@@ -95,9 +94,42 @@ class TestConfigLoader(unittest.TestCase):
         config_loader.variable_definitions = defs
         config_loader.configs = configs
 
-        is_valid, errors = config_loader.validate_config()
-        self.assertFalse(is_valid)
-        self.assertEqual(errors, [" not supported enum for FOO"])
+        self.assertEqual(
+            config_loader.validate_config(),
+            ["[FOO] '' is not a supported enum value. Want a value in [abc]"])
+
+    def test_value_regex(self):
+        config_loader = ConfigLoader()
+        config_loader.variable_definitions = {
+            "FOO":
+                {
+                    "required": True,
+                    "secret": False,
+                    "type": "string",
+                    "value_regex": "[a-z]+",
+                    "value_regex_error_message": "some message"
+                },
+        }
+
+        config_loader.configs = {"FOO": "somenumbers123"}
+        self.assertEqual(
+            config_loader.validate_config(), ['[FOO] some message'])
+
+    def test_value_regex_ignored_for_not_required_and_not_provided(self):
+        config_loader = ConfigLoader()
+        config_loader.variable_definitions = {
+            "FOO":
+                {
+                    "required": False,
+                    "secret": False,
+                    "type": "string",
+                    "value_regex": "[a-z]+",
+                    "value_regex_error_message": "some message"
+                },
+        }
+
+        config_loader.configs = {}
+        self.assertEqual(config_loader.validate_config(), [])
 
 
 if __name__ == "__main__":

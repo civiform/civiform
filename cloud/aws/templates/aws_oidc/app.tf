@@ -10,7 +10,7 @@ module "ecs_cluster" {
 # TODO: reconcile with other logs bucket. We should only have one.
 module "aws_cw_logs" {
   source    = "cn-terraform/cloudwatch-logs/aws"
-  logs_path = "ecslogs/"
+  logs_path = "${var.app_prefix}_ecslogs/"
   tags = {
     Name = "${var.app_prefix} Civiform Cloud Watch Logs"
     Type = "Civiform Cloud Watch Logs"
@@ -109,13 +109,32 @@ module "ecs_fargate_service" {
   private_subnets         = module.vpc.private_subnets
   public_subnets          = module.vpc.public_subnets
 
-  #TODO: add more listeners. 
-  # https://github.com/seattle-uat/civiform-deploy/blob/7ba15ce698de5da6f34d6d9cabec7d451aee9e1c/infra/load_balancer.yaml#L57
-  lb_http_ports = { default_http = {
-    listener_port     = 9000
-    target_group_port = 9000
-  } }
-  health_check_grace_period_seconds = 20
+  lb_http_ports = {
+    default_http = {
+      type          = "redirect"
+      listener_port = 80
+      port          = 443
+      protocol      = "HTTPS"
+      host          = "#{host}"
+      path          = "/#{path}"
+      query         = "#{query}"
+      status_code   = "HTTP_301"
+    }
+  }
+  lb_https_ports = {
+    default_http = {
+      listener_port         = 443
+      target_group_port     = var.port
+      target_group_protocol = "HTTP"
+    }
+  }
+  health_check_grace_period_seconds                = 20
+  lb_target_group_health_check_path                = "/playIndex"
+  lb_target_group_health_check_interval            = 10
+  lb_target_group_health_check_timeout             = 5
+  lb_target_group_health_check_healthy_threshold   = 2
+  lb_target_group_health_check_unhealthy_threshold = 2
+
   tags = {
     Name = "${var.app_prefix} Civiform Fargate Service"
     Type = "Civiform Fargate Service"

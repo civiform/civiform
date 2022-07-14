@@ -59,7 +59,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newDraftProgram("one").build();
     ProgramBuilder.newDraftProgram("two").build();
 
-    Result result = controller.index(Helpers.fakeRequest().build());
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Result result = controller.index(request);
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
@@ -114,7 +115,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
 
-    Result redirectResult = controller.index(Helpers.fakeRequest().build());
+    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
     assertThat(contentAsString(redirectResult)).contains("New Program");
     assertThat(contentAsString(redirectResult)).contains("This is a new program");
   }
@@ -143,7 +144,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
 
-    Result redirectResult = controller.index(Helpers.fakeRequest().build());
+    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
     assertThat(contentAsString(redirectResult)).contains("Existing One");
     assertThat(contentAsString(redirectResult)).contains("New Program");
     assertThat(contentAsString(redirectResult)).contains("This is a new program");
@@ -262,7 +263,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
 
-    Result redirectResult = controller.index(Helpers.fakeRequest().build());
+    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
     assertThat(contentAsString(redirectResult))
         .contains("Create new program", "Existing One", "new description");
     assertThat(contentAsString(redirectResult)).doesNotContain("old description");
