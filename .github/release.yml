@@ -8,7 +8,7 @@ changelog:
   categories:
     - title: Features
       labels:
-        - "*"
+        - '*'
 
     - title: Bug fixes
       labels:

@@ -7,6 +7,17 @@ import subprocess
 import shlex
 import sys
 
+# DOC: Create a new draft CiviForm image release. Usage: bin/create-release COMMIT_SHA RELEASE_NUMBER
+#
+# Requirements:
+#   Must have creds to login to docker hub as "civiform" user.
+#   Must have a GitHub API token with repo and read:org scopes located at "gh-release-token.txt"
+#
+# When successful, this script:
+#   1. tags the git commit for the release with the release number
+#   2. tags the docker image for the release with the release number
+#   3. creates a new draft release on github
+
 if not os.path.exists("gh-release-token.txt"):
     print("gh-release-token.txt not found in root directory", file=sys.stderr)
     print(
@@ -51,6 +62,15 @@ if check_gh_auth_response.status_code != 200:
     exit(1)
 
 ################################################################################
+# Check docker hub auth
+################################################################################
+
+if not "Login Succeeded" in shell_cmd(
+        "docker login") or not "civiform" in shell_cmd("docker info"):
+    print("Unable to login to docker hub")
+    exit(1)
+
+################################################################################
 # Set release variables
 ################################################################################
 
@@ -65,6 +85,7 @@ RELEASER_EMAIL = shell_cmd("git config --get user.email")
 
 if not re.match("^v\d+\.\d+\.\d+$", RELEASE_NUMBER):
     print("Invalid version number: " + RELEASE_NUMBER, file=sys.stderr)
+    exit(1)
 
 ################################################################################
 # Validate commit SHA
@@ -72,7 +93,11 @@ if not re.match("^v\d+\.\d+\.\d+$", RELEASE_NUMBER):
 
 branches_containing_commit_sha = shell_cmd(
     "git --no-pager branch --contains " + COMMIT_SHA)
-if not re.match("^\*? ?main$", branches_containing_commit_sha, re.MULTILINE):
+branches_containing_commit_sha = [
+    re.sub('\*', '', x).strip()
+    for x in branches_containing_commit_sha.split("\n")
+]
+if not "main" in branches_containing_commit_sha:
     print("Invalid commit SHA: " + COMMIT_SHA, file=sys.stderr)
     exit(1)
 
@@ -100,7 +125,6 @@ while True:
     response_json = response.json()
 
     for tag_info in response_json['results']:
-        print(tag_info["name"])
         if SHORT_SHA in tag_info["name"]:
             snapshot_tag = tag_info["name"]
             break
@@ -146,13 +170,13 @@ shell_cmd(f"docker push civiform/civiform:{RELEASE_NUMBER}")
 
 print("Creating GitHub release")
 
-create_release_url = "https://api.github.com/seattle-uat/civiform/releases"
-create_release_params = {
+create_release_url = "https://api.github.com/repos/seattle-uat/civiform/releases"
+create_release_body = {
     "tag_name": RELEASE_NUMBER,
-    "target_commitish": COMMIT_SHA,
+    "target_commitish": "main",
     "name": RELEASE_NUMBER,
-    "draft": "true",
-    "generate_release_notes": "true"
+    "draft": True,
+    "generate_release_notes": True
 }
 create_release_headers = {
     "Accept": "application/vnd.github.v3+json",
@@ -161,12 +185,13 @@ create_release_headers = {
 
 response = requests.post(
     create_release_url,
-    params=create_release_params,
+    json=create_release_body,
     headers=create_release_headers)
 if response.status_code != 201:
     print(
         "GitHub request failed with status code: " + str(response.status_code),
         file=sys.stderr)
+    print(response.json()["message"], file=sys.stderr)
     exit(2)
 
 RELEASE_URL = response.json()["url"]
