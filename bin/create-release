@@ -173,7 +173,6 @@ print("Creating GitHub release")
 create_release_url = "https://api.github.com/repos/seattle-uat/civiform/releases"
 create_release_body = {
     "tag_name": RELEASE_NUMBER,
-    "target_commitish": "main",
     "name": RELEASE_NUMBER,
     "draft": True,
     "generate_release_notes": True
@@ -194,5 +193,5 @@ if response.status_code != 201:
     print(response.json()["message"], file=sys.stderr)
     exit(2)
 
-RELEASE_URL = response.json()["url"]
-print(f"\nDraft release created at: {release_url}")
+RELEASE_URL = response.json()["html_url"]
+print(f"\nDraft release created at: {RELEASE_URL}")
