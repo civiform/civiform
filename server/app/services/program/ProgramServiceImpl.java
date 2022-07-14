@@ -31,7 +31,6 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.IdentifierBasedPaginationSpec;
-import services.LocalizedStrings;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.program.predicate.PredicateDefinition;
@@ -348,9 +347,15 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
-  public ErrorAnd<ProgramDefinition, CiviFormError> updateStatuses(long programId)
-  throws ProgramNotFoundException
-  {
+  public StatusDefinitions getStatuses(long programId) throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    return programDefinition.statusDefinitions();
+  }
+
+  @Override
+  @Transactional
+  public ErrorAnd<ProgramDefinition, CiviFormError> setStatuses(
+      long programId, StatusDefinitions statuses) throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
@@ -358,22 +363,12 @@ public class ProgramServiceImpl implements ProgramService {
       return ErrorAnd.error(errors);
     }
 
-    ImmutableList.Builder<StatusDefinitions.Status> statusBuilder = new ImmutableList.Builder<>();
-    statusBuilder.add(StatusDefinitions.Status.builder().setStatusText("Approved")
-        .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
-        .setEmailBodyText("I'm an email!")
-        .setLocalizedEmailBodyText(LocalizedStrings.of(Locale.US, "I'm an email!"))
-        .build());
     Program program =
-        programDefinition.toBuilder()
-            .setStatusDefinitions(new StatusDefinitions(statusBuilder.build()))
-            .build()
-            // add status
-            .toProgram();
+        programDefinition.toBuilder().setStatusDefinitions(statuses).build().toProgram();
     return ErrorAnd.of(
         // update for correct next page.
         syncProgramDefinitionQuestions(
-            programRepository.updateProgramSync(program).getProgramDefinition())
+                programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
             .join());
   }

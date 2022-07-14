@@ -7,7 +7,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import io.ebean.annotation.DbJson;
 import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -23,7 +22,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import models.DisplayMode;
 import models.Program;
-import play.data.validation.Constraints;
 import modules.MainModule;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
@@ -70,6 +68,7 @@ public abstract class ProgramDefinition {
   /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
+  /** The application review statuses available for the program. */
   public abstract StatusDefinitions statusDefinitions();
 
   /** When was this program created. Could be null for older programs. */

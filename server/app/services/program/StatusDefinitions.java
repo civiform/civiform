@@ -1,15 +1,11 @@
 package services.program;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
-import auth.ApiKeyGrants.Permission;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
-import java.util.List;
 import java.util.Optional;
 import services.LocalizedStrings;
 
@@ -60,12 +56,16 @@ public class StatusDefinitions {
 
       @JsonProperty("status")
       public abstract Builder setStatusText(String value);
+
       @JsonProperty("status_localized")
       public abstract Builder setLocalizedStatusText(LocalizedStrings value);
+
       @JsonProperty("email_body")
       public abstract Builder setEmailBodyText(String value);
+
       @JsonProperty("email_body_localized")
       public abstract Builder setLocalizedEmailBodyText(LocalizedStrings value);
+
       public abstract Status build();
     }
   }

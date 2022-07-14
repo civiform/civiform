@@ -14,6 +14,7 @@ import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.StatusDefinitions;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -67,6 +68,7 @@ public class ProgramTest extends ResetPostgres {
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .build();
     Program program = new Program(definition);
@@ -136,6 +138,7 @@ public class ProgramTest extends ResetPostgres {
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .build();
     Program program = new Program(definition);
@@ -178,6 +181,7 @@ public class ProgramTest extends ResetPostgres {
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .build();
     Program program = new Program(definition);
@@ -269,6 +273,7 @@ public class ProgramTest extends ResetPostgres {
             .setAdminName("test program")
             .setAdminDescription("test description")
             .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setLocalizedName(LocalizedStrings.withDefaultValue("test name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("test description"))
