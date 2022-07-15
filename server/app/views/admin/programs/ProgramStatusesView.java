@@ -186,6 +186,9 @@ public final class ProgramStatusesView extends BaseHtmlView {
             .with(
                 makeCsrfTokenInputTag(request),
                 FieldWithLabel.input()
+                    // TODO(#2752): Share the form identifiers between this and the controller that
+                    // validates it.
+                    .setFieldName("status_text")
                     .setLabelText("Status name (required)")
                     // TODO(#2752): Potentially move placeholder text to an actual
                     // description.
@@ -196,6 +199,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .withClasses(Styles.PT_8)
                     .with(
                         FieldWithLabel.textArea()
+                            .setFieldName("email_body")
                             .setLabelText("Applicant status change email")
                             .setPlaceholderText("Notify the Applicant about the status change")
                             .setRows(OptionalLong.of(5))
