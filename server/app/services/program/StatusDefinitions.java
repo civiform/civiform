@@ -16,7 +16,7 @@ public class StatusDefinitions {
 
   @JsonCreator
   public StatusDefinitions(@JsonProperty("statuses") ImmutableList<Status> statuses) {
-    this.statuses = ImmutableList.copyOf(statuses);
+    this.statuses = statuses;
   }
 
   public StatusDefinitions() {
