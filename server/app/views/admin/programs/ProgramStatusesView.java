@@ -48,7 +48,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     Modal createStatusModal =
         makeStatusModal(
             request,
-            routes.AdminProgramStatusesController.newOne(program.id()).url(),
+            routes.AdminProgramStatusesController.edit(program.id()).url(),
             Optional.empty());
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)

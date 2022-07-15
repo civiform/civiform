@@ -53,7 +53,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result newOne(Http.Request request, long programId) throws ProgramNotFoundException {
+  public Result edit(Http.Request request, long programId) throws ProgramNotFoundException {
     if (!statusTrackingEnabled) {
       return notFound("status tracking is not enabled");
     }
@@ -83,6 +83,8 @@ public final class AdminProgramStatusesController extends CiviFormController {
       return badRequest("TODO: Fix: Status already exists.");
     }
 
+    // TODO(#2752): If an existing status is edited, also update references in the program
+    // translations.
     // TODO(clouser): Add original name to form so that we can properly edit values.
 
     StatusDefinitions.Status newStatus =
