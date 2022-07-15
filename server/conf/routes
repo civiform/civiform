@@ -5,6 +5,10 @@
 # Untrail trailing slashes
 GET /*path/ controllers.UntrailingController.untrail(path: String)
 
+# The browser favicon
+GET     /favicon.ico    controllers.HomeController.favicon()
+GET     /favicon.png    controllers.HomeController.favicon()
+
 # The landing page
 GET     /                           controllers.HomeController.index(request: Request)
 GET     /playIndex                  controllers.HomeController.playIndex()

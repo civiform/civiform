@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.typesafe.config.Config;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -25,9 +26,11 @@ public class HomeController extends Controller {
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;
   private final HttpExecutionContext httpExecutionContext;
+  private final String civiformFaviconUrl;
 
   @Inject
   public HomeController(
+      Config configuration,
       LoginForm form,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
@@ -36,6 +39,7 @@ public class HomeController extends Controller {
     this.profileUtils = checkNotNull(profileUtils);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.civiformFaviconUrl = checkNotNull(configuration).getString("whitelabel.favicon_url");
   }
 
   public CompletionStage<Result> index(Http.Request request) {
@@ -84,6 +88,13 @@ public class HomeController extends Controller {
 
   public Result playIndex() {
     return ok("public index");
+  }
+
+  public Result favicon() {
+    if ((civiformFaviconUrl == null) || civiformFaviconUrl.isBlank()) {
+      return notFound();
+    }
+    return found(civiformFaviconUrl); // http 302
   }
 
   @Secure
