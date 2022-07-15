@@ -19,14 +19,21 @@ public class StatusDefinitions {
     this.statuses = statuses;
   }
 
+  /** Constructs a {@code StatusDefinitions} with no {@code Status} values. */
   public StatusDefinitions() {
     statuses = ImmutableList.of();
   }
 
+  /** Returns the {@code Status} values in the order originally provided. */
   public ImmutableList<Status> getStatuses() {
     return statuses;
   }
 
+  /**
+   * Sets {@param statuses} as the configured {@code Status} values.
+   *
+   * <p>The order of the items will be maintained and used as the natural order of the statuses.
+   */
   public void setStatuses(ImmutableList<Status> statuses) {
     this.statuses = statuses;
   }
