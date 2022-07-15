@@ -8,7 +8,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
-import java.util.stream.Stream;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.FormFactory;
@@ -72,36 +73,73 @@ public final class AdminProgramStatusesController extends CiviFormController {
     }
     final String emailBody = rawEmailBody.trim();
 
-    StatusDefinitions current = program.statusDefinitions();
-    boolean alreadyExists =
-        current.getStatuses().stream()
-            .map(StatusDefinitions.Status::statusText)
-            .filter(existingStatus -> existingStatus.toLowerCase().equals(statusText.toLowerCase()))
-            .findAny()
-            .isPresent();
-    if (alreadyExists) {
-      return badRequest("TODO: Fix: Status already exists.");
+    String originalStatusText = requestData.get("original_status_text");
+    if (originalStatusText == null) {
+      return badRequest("TODO: Fix: missing original_status_text");
     }
 
-    // TODO(#2752): If an existing status is edited, also update references in the program
-    // translations.
-    // TODO(clouser): Add original name to form so that we can properly edit values.
+    // TODO(clouser): This is messy, do another pass on it once more is fleshed out.
+    StatusDefinitions current = program.statusDefinitions();
+    int existingStatusIndex = matchingStatusIndex(statusText, current);
+    int originalStatusIndex = matchingStatusIndex(originalStatusText, current);
+    if (originalStatusText.isEmpty()) {
+      if (existingStatusIndex != -1) {
+        // This corresponds to creating a new status with the same name as an existing one.
+        return badRequest("TODO: Fix: Status already exists.");
+      }
+    } else {
+      if (originalStatusIndex == -1) {
+        return badRequest(
+            "TODO: Fix: Status doesn't exist in the list we're trying to update. Nothing to move.");
+      } else if (originalStatusIndex != existingStatusIndex && existingStatusIndex != -1) {
+        return badRequest(
+            "TODO: Fix: Trying to update an existing status to a name that's already present.");
+      }
+    }
 
-    StatusDefinitions.Status newStatus =
-        StatusDefinitions.Status.builder()
-            .setStatusText(statusText)
-            .setLocalizedStatusText(LocalizedStrings.withDefaultValue(statusText))
-            .setEmailBodyText(emailBody)
-            .setLocalizedEmailBodyText(LocalizedStrings.withDefaultValue(emailBody))
-            .build();
-
-    current.setStatuses(
-        Stream.concat(current.getStatuses().stream(), Stream.of(newStatus))
-            .collect(ImmutableList.toImmutableList()));
+    List<StatusDefinitions.Status> statusesForUpdate =
+        current.getStatuses().stream().collect(Collectors.toList());
+    if (originalStatusIndex != -1) {
+      StatusDefinitions.Status preExistingStatus = statusesForUpdate.get(originalStatusIndex);
+      statusesForUpdate.set(
+          originalStatusIndex,
+          StatusDefinitions.Status.builder()
+              .setStatusText(statusText)
+              .setLocalizedStatusText(preExistingStatus.localizedStatusText())
+              .setEmailBodyText(emailBody)
+              .setLocalizedEmailBodyText(
+                  preExistingStatus
+                      .localizedEmailBodyText()
+                      .orElse(LocalizedStrings.withDefaultValue(emailBody)))
+              .build());
+    } else {
+      statusesForUpdate.add(
+          StatusDefinitions.Status.builder()
+              .setStatusText(statusText)
+              .setLocalizedStatusText(LocalizedStrings.withDefaultValue(statusText))
+              .setEmailBodyText(emailBody)
+              .setLocalizedEmailBodyText(LocalizedStrings.withDefaultValue(emailBody))
+              .build());
+    }
+    current.setStatuses(ImmutableList.copyOf(statusesForUpdate));
     service.setStatuses(programId, current);
 
     // Upon success, redirect to the index view.
     return redirect(routes.AdminProgramStatusesController.index(programId).url())
-        .flashing("success", "Status created");
+        .flashing("success", originalStatusIndex == -1 ? "Status created" : "Status updated");
+  }
+
+  private int matchingStatusIndex(String statusText, StatusDefinitions statuses) {
+    for (int i = 0; i < statuses.getStatuses().size(); i++) {
+      if (statuses
+          .getStatuses()
+          .get(i)
+          .statusText()
+          .toLowerCase()
+          .equals(statusText.toLowerCase())) {
+        return i;
+      }
+    }
+    return -1;
   }
 }

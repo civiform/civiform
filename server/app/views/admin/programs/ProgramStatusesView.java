@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
@@ -45,18 +46,14 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   public Content render(Http.Request request, ProgramDefinition program) {
-    Modal createStatusModal =
-        makeStatusModal(
-            request,
-            routes.AdminProgramStatusesController.edit(program.id()).url(),
-            Optional.empty());
+    Modal createStatusModal = makeStatusModal(request, program, Optional.empty());
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
             .withId(createStatusModal.getTriggerButtonId());
 
     Pair<DivTag, ImmutableList<Modal>> statusContainerAndModals =
-        renderStatusContainer(request, program.statusDefinitions().getStatuses());
+        renderStatusContainer(request, program);
 
     DivTag contentDiv =
         div()
@@ -108,12 +105,13 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   private Pair<DivTag, ImmutableList<Modal>> renderStatusContainer(
-      Http.Request request, ImmutableList<StatusDefinitions.Status> statuses) {
+      Http.Request request, ProgramDefinition program) {
+    ImmutableList<StatusDefinitions.Status> statuses = program.statusDefinitions().getStatuses();
     String numResultsText =
         statuses.size() == 1 ? "1 result" : String.format("%d results", statuses.size());
     ImmutableList<Pair<DivTag, Modal>> statusTagsAndModals =
         statuses.stream()
-            .map(s -> renderStatusItem(request, s))
+            .map(s -> renderStatusItem(request, program, s))
             .collect(ImmutableList.toImmutableList());
     return Pair.of(
         div()
@@ -130,9 +128,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   private Pair<DivTag, Modal> renderStatusItem(
-      Http.Request request, StatusDefinitions.Status status) {
-    // TODO(#2752): Use the edit URL once it exists.
-    Modal editStatusModal = makeStatusModal(request, "", Optional.of(status));
+      Http.Request request, ProgramDefinition program, StatusDefinitions.Status status) {
+    Modal editStatusModal = makeStatusModal(request, program, Optional.of(status));
     ButtonTag editStatusTriggerButton =
         makeSvgTextButton("Edit", Icons.EDIT)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
@@ -175,16 +172,20 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   private Modal makeStatusModal(
-      Http.Request request, String url, Optional<StatusDefinitions.Status> status) {
+      Http.Request request, ProgramDefinition program, Optional<StatusDefinitions.Status> status) {
     String emailBody =
         status.map(StatusDefinitions.Status::emailBodyText).orElse(Optional.empty()).orElse("");
     FormTag content =
         form()
             .withMethod("POST")
-            .withAction(url)
+            .withAction(routes.AdminProgramStatusesController.edit(program.id()).url())
             .withClasses(Styles.PX_6, Styles.PY_2)
             .with(
                 makeCsrfTokenInputTag(request),
+                input()
+                    .isHidden()
+                    .withName("original_status_text")
+                    .withValue(status.map(StatusDefinitions.Status::statusText).orElse("")),
                 FieldWithLabel.input()
                     // TODO(#2752): Share the form identifiers between this and the controller that
                     // validates it.
