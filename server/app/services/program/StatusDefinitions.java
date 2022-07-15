@@ -11,6 +11,7 @@ import services.LocalizedStrings;
 /** Contains data defining status tracking configuration for a program's applications. */
 public class StatusDefinitions {
 
+  // The configured status options in their natural ordering.
   @JsonProperty("statuses")
   private ImmutableList<Status> statuses;
 
@@ -19,18 +20,18 @@ public class StatusDefinitions {
     this.statuses = statuses;
   }
 
-  /** Constructs a {@code StatusDefinitions} with no {@code Status} values. */
+  /** Constructs a {@code StatusDefinitions} with no {@link Status} values. */
   public StatusDefinitions() {
     statuses = ImmutableList.of();
   }
 
-  /** Returns the {@code Status} values in the order originally provided. */
+  /** Returns the {@link Status} values in the order originally provided. */
   public ImmutableList<Status> getStatuses() {
     return statuses;
   }
 
   /**
-   * Sets {@param statuses} as the configured {@code Status} values.
+   * Sets {@code statuses} as the configured {@link Status} values.
    *
    * <p>The order of the items will be maintained and used as the natural order of the statuses.
    */
