@@ -64,36 +64,38 @@ public final class AdminProgramStatusesController extends CiviFormController {
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     String rawStatusText = requestData.get("status_text");
     if (Strings.isNullOrEmpty(rawStatusText)) {
-      return badRequest("TODO: Fix: missing or empty status text");
+      return badRequest("TODO(#2752): Fix: missing or empty status text");
     }
     final String statusText = rawStatusText.trim();
     String rawEmailBody = requestData.get("email_body");
     if (rawEmailBody == null) {
-      return badRequest("TODO: Fix: missing email body");
+      return badRequest("TODO(#2752): Fix: missing email body");
     }
     final String emailBody = rawEmailBody.trim();
 
     String originalStatusText = requestData.get("original_status_text");
     if (originalStatusText == null) {
-      return badRequest("TODO: Fix: missing original_status_text");
+      return badRequest("TODO(#2752): Fix: missing original_status_text");
     }
 
-    // TODO(clouser): This is messy, do another pass on it once more is fleshed out.
+    // TODO(#2752): This is messy, do another pass on it once more is fleshed out.
     StatusDefinitions current = program.statusDefinitions();
     int existingStatusIndex = matchingStatusIndex(statusText, current);
     int originalStatusIndex = matchingStatusIndex(originalStatusText, current);
     if (originalStatusText.isEmpty()) {
       if (existingStatusIndex != -1) {
         // This corresponds to creating a new status with the same name as an existing one.
-        return badRequest("TODO: Fix: Status already exists.");
+        return badRequest("TODO(#2752): Fix: Status already exists.");
       }
     } else {
       if (originalStatusIndex == -1) {
         return badRequest(
-            "TODO: Fix: Status doesn't exist in the list we're trying to update. Nothing to move.");
+            "TODO(#2752): Fix: Status doesn't exist in the list we're trying to update. Nothing to"
+                + " move.");
       } else if (originalStatusIndex != existingStatusIndex && existingStatusIndex != -1) {
         return badRequest(
-            "TODO: Fix: Trying to update an existing status to a name that's already present.");
+            "TODO(#2752): Fix: Trying to update an existing status to a name that's already"
+                + " present.");
       }
     }
 
@@ -140,7 +142,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     String rawStatusText = requestData.get("status_text");
     if (Strings.isNullOrEmpty(rawStatusText)) {
-      return badRequest("TODO: Fix: missing or empty status text");
+      return badRequest("TODO(#2752): Fix: missing or empty status text");
     }
     final String statusText = rawStatusText.trim();
 
@@ -149,7 +151,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
         current.getStatuses().stream().collect(Collectors.toList());
     int toRemoveIndex = matchingStatusIndex(statusText, current);
     if (toRemoveIndex == -1) {
-      return badRequest("TODO: Fix: Could not find status to remove");
+      return badRequest("TODO(#2752): Fix: Could not find status to remove");
     }
     statusesForUpdate.remove(toRemoveIndex);
     current.setStatuses(ImmutableList.copyOf(statusesForUpdate));
