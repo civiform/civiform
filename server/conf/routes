@@ -25,6 +25,7 @@ POST    /admin/programs/:programId/admins       controllers.admin.ProgramAdminMa
 
 # Routes for a CiviForm admin to manage application statuses for a given program.
 GET     /admin/programs/:programId/statuses controllers.admin.AdminProgramStatusesController.index(request: Request, programId: Long)
+POST    /admin/programs/:programId/statuses/new controllers.admin.AdminProgramStatusesController.newOne(request: Request, programId: Long)
 
 # Routes for managing program localization
 GET     /admin/programs/:programId/translations/:locale/edit    controllers.admin.AdminProgramTranslationsController.edit(request: Request, programId: Long, locale: String)

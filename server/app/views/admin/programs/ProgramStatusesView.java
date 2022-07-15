@@ -7,22 +7,21 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
 import org.apache.commons.lang3.tuple.Pair;
+import play.mvc.Http;
 import play.twirl.api.Content;
-import services.DateConverter;
 import services.LocalizedStrings;
 import services.program.ProgramDefinition;
+import services.program.StatusDefinitions;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -32,36 +31,32 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
+import views.components.ToastMessage;
 import views.style.AdminStyles;
 import views.style.StyleUtils;
 import views.style.Styles;
 
 public final class ProgramStatusesView extends BaseHtmlView {
   private final AdminLayout layout;
-  private final DateConverter dateConverter;
 
   @Inject
-  public ProgramStatusesView(AdminLayoutFactory layoutFactory, DateConverter dateConverter) {
+  public ProgramStatusesView(AdminLayoutFactory layoutFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
-    this.dateConverter = checkNotNull(dateConverter);
   }
 
-  public Content render(ProgramDefinition program) {
-    // TODO(#2752): Use real statuses from the program.
-    ImmutableList<ApplicationStatus> actualStatuses =
-        ImmutableList.of(
-            ApplicationStatus.create("Approved", Instant.now(), "Some email"),
-            ApplicationStatus.create("Denied", Instant.now(), ""),
-            ApplicationStatus.create("Needs more information", Instant.now(), ""));
-
-    Modal createStatusModal = makeStatusModal(Optional.empty());
+  public Content render(Http.Request request, ProgramDefinition program) {
+    Modal createStatusModal =
+        makeStatusModal(
+            request,
+            routes.AdminProgramStatusesController.newOne(program.id()).url(),
+            Optional.empty());
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
             .withId(createStatusModal.getTriggerButtonId());
 
     Pair<DivTag, ImmutableList<Modal>> statusContainerAndModals =
-        renderStatusContainer(actualStatuses);
+        renderStatusContainer(request, program.statusDefinitions().getStatuses());
 
     DivTag contentDiv =
         div()
@@ -91,6 +86,13 @@ public final class ProgramStatusesView extends BaseHtmlView {
             .addModals(createStatusModal)
             .addModals(statusContainerAndModals.getRight());
 
+    Http.Flash flash = request.flash();
+    if (flash.get("error").isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.error(flash.get("error").get()).setDuration(-1));
+    } else if (flash.get("success").isPresent()) {
+      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
+    }
+
     return layout.renderCentered(htmlBundle);
   }
 
@@ -106,11 +108,13 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   private Pair<DivTag, ImmutableList<Modal>> renderStatusContainer(
-      ImmutableList<ApplicationStatus> statuses) {
+      Http.Request request, ImmutableList<StatusDefinitions.Status> statuses) {
     String numResultsText =
         statuses.size() == 1 ? "1 result" : String.format("%d results", statuses.size());
     ImmutableList<Pair<DivTag, Modal>> statusTagsAndModals =
-        statuses.stream().map(s -> renderStatusItem(s)).collect(ImmutableList.toImmutableList());
+        statuses.stream()
+            .map(s -> renderStatusItem(request, s))
+            .collect(ImmutableList.toImmutableList());
     return Pair.of(
         div()
             .with(
@@ -125,8 +129,10 @@ public final class ProgramStatusesView extends BaseHtmlView {
         statusTagsAndModals.stream().map(Pair::getRight).collect(ImmutableList.toImmutableList()));
   }
 
-  private Pair<DivTag, Modal> renderStatusItem(ApplicationStatus status) {
-    Modal editStatusModal = makeStatusModal(Optional.of(status));
+  private Pair<DivTag, Modal> renderStatusItem(
+      Http.Request request, StatusDefinitions.Status status) {
+    // TODO(#2752): Use the edit URL once it exists.
+    Modal editStatusModal = makeStatusModal(request, "", Optional.of(status));
     ButtonTag editStatusTriggerButton =
         makeSvgTextButton("Edit", Icons.EDIT)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
@@ -147,16 +153,10 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .withClass(Styles.W_1_4)
                     .with(
                         // TODO(#2752): Optional SVG icon for status attribute.
-                        span(status.statusName()).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
+                        span(status.statusText()).withClasses(Styles.ML_2, Styles.BREAK_WORDS)),
                 div()
-                    .with(
-                        p().withClass(Styles.TEXT_SM)
-                            .with(
-                                span("Edited on "),
-                                span(dateConverter.renderDate(status.lastEdited()))
-                                    .withClass(Styles.FONT_SEMIBOLD)))
                     .condWith(
-                        !status.emailContent().isEmpty(),
+                        status.emailBodyText().isPresent(),
                         p().withClasses(
                                 Styles.MT_1, Styles.TEXT_XS, Styles.FLEX, Styles.ITEMS_CENTER)
                             .with(
@@ -174,17 +174,23 @@ public final class ProgramStatusesView extends BaseHtmlView {
         editStatusModal);
   }
 
-  private Modal makeStatusModal(Optional<ApplicationStatus> status) {
+  private Modal makeStatusModal(
+      Http.Request request, String url, Optional<StatusDefinitions.Status> status) {
+    String emailBody =
+        status.map(StatusDefinitions.Status::emailBodyText).orElse(Optional.empty()).orElse("");
     FormTag content =
         form()
+            .withMethod("POST")
+            .withAction(url)
             .withClasses(Styles.PX_6, Styles.PY_2)
             .with(
+                makeCsrfTokenInputTag(request),
                 FieldWithLabel.input()
                     .setLabelText("Status name (required)")
                     // TODO(#2752): Potentially move placeholder text to an actual
                     // description.
                     .setPlaceholderText("Enter status name here")
-                    .setValue(status.map(ApplicationStatus::statusName))
+                    .setValue(status.map(StatusDefinitions.Status::statusText))
                     .getInputTag(),
                 div()
                     .withClasses(Styles.PT_8)
@@ -193,7 +199,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                             .setLabelText("Applicant status change email")
                             .setPlaceholderText("Notify the Applicant about the status change")
                             .setRows(OptionalLong.of(5))
-                            .setValue(status.map(ApplicationStatus::emailContent))
+                            .setValue(emailBody)
                             .getTextareaTag()),
                 div()
                     .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
@@ -208,22 +214,5 @@ public final class ProgramStatusesView extends BaseHtmlView {
         .setModalTitle(status.isPresent() ? "Edit this status" : "Create a new status")
         .setWidth(Width.HALF)
         .build();
-  }
-
-  // TODO(#2752): Use a domain-specific representation of an ApplicationStatus
-  // rather than an auto-value.
-  @AutoValue
-  abstract static class ApplicationStatus {
-
-    static ApplicationStatus create(String statusName, Instant lastEdited, String emailContent) {
-      return new AutoValue_ProgramStatusesView_ApplicationStatus(
-          statusName, lastEdited, emailContent);
-    }
-
-    abstract String statusName();
-
-    abstract Instant lastEdited();
-
-    abstract String emailContent();
   }
 }
