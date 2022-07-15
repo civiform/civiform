@@ -14,6 +14,7 @@ import controllers.admin.routes;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
@@ -46,7 +47,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   public Content render(Http.Request request, ProgramDefinition program) {
-    Modal createStatusModal = makeStatusModal(request, program, Optional.empty());
+    Modal createStatusModal = makeStatusEditModal(request, program, Optional.empty());
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
@@ -109,7 +110,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     ImmutableList<StatusDefinitions.Status> statuses = program.statusDefinitions().getStatuses();
     String numResultsText =
         statuses.size() == 1 ? "1 result" : String.format("%d results", statuses.size());
-    ImmutableList<Pair<DivTag, Modal>> statusTagsAndModals =
+    ImmutableList<Pair<DivTag, ImmutableList<Modal>>> statusTagsAndModals =
         statuses.stream()
             .map(s -> renderStatusItem(request, program, s))
             .collect(ImmutableList.toImmutableList());
@@ -124,16 +125,25 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         statuses.isEmpty(),
                         p("No statuses have been created yet")
                             .withClasses(Styles.ML_4, Styles.MY_4))),
-        statusTagsAndModals.stream().map(Pair::getRight).collect(ImmutableList.toImmutableList()));
+        statusTagsAndModals.stream()
+            .map(Pair::getRight)
+            .flatMap(Collection::stream)
+            .collect(ImmutableList.toImmutableList()));
   }
 
-  private Pair<DivTag, Modal> renderStatusItem(
+  private Pair<DivTag, ImmutableList<Modal>> renderStatusItem(
       Http.Request request, ProgramDefinition program, StatusDefinitions.Status status) {
-    Modal editStatusModal = makeStatusModal(request, program, Optional.of(status));
+    Modal editStatusModal = makeStatusEditModal(request, program, Optional.of(status));
     ButtonTag editStatusTriggerButton =
         makeSvgTextButton("Edit", Icons.EDIT)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
             .withId(editStatusModal.getTriggerButtonId());
+
+    Modal deleteStatusModal = makeStatusDeleteModal(request, program, status);
+    ButtonTag deleteStatusTriggerButton =
+        makeSvgTextButton("Delete", Icons.DELETE)
+            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
+            .withId(deleteStatusModal.getTriggerButtonId());
     return Pair.of(
         div()
             .withClasses(
@@ -165,13 +175,43 @@ public final class ProgramStatusesView extends BaseHtmlView {
                                     .withClasses(Styles.MR_2, Styles.INLINE_BLOCK),
                                 span("Applicant notification email added"))),
                 div().withClass(Styles.FLEX_GROW),
-                makeSvgTextButton("Delete", Icons.DELETE)
-                    .withClass(AdminStyles.TERTIARY_BUTTON_STYLES),
+                deleteStatusTriggerButton,
                 editStatusTriggerButton),
-        editStatusModal);
+        ImmutableList.of(editStatusModal, deleteStatusModal));
   }
 
-  private Modal makeStatusModal(
+  private Modal makeStatusDeleteModal(
+      Http.Request request, ProgramDefinition program, StatusDefinitions.Status toDelete) {
+    DivTag content =
+        div()
+            .withClasses(Styles.PX_6, Styles.PY_2)
+            .with(
+                p(
+                    "Warning: This will also remove any translated content for the status and"
+                        + " email body."),
+                form()
+                    .withMethod("POST")
+                    .withAction(routes.AdminProgramStatusesController.delete(program.id()).url())
+                    .with(
+                        makeCsrfTokenInputTag(request),
+                        input().isHidden().withName("status_text").withValue(toDelete.statusText()),
+                        div()
+                            .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
+                            .with(
+                                div().withClass(Styles.FLEX_GROW),
+                                submitButton("Delete")
+                                    .withClass(AdminStyles.SECONDARY_BUTTON_STYLES))));
+
+    return Modal.builder(randomModalId(), content).setModalTitle("Delete this status").build();
+  }
+
+  private static String randomModalId() {
+    // We prepend a "a-" since element IDs must start with an alphabetic character, whereas UUIDs
+    // can start with a numeric character.
+    return "a-" + UUID.randomUUID().toString();
+  }
+
+  private Modal makeStatusEditModal(
       Http.Request request, ProgramDefinition program, Optional<StatusDefinitions.Status> status) {
     String emailBody =
         status.map(StatusDefinitions.Status::emailBodyText).orElse(Optional.empty()).orElse("");
@@ -212,10 +252,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         div().withClass(Styles.FLEX_GROW),
                         // TODO(#2752): Add a cancel button that clears state.
                         submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
-    // We prepend a "a-" since element IDs must start with an alphabetic character, whereas UUIDs
-    // can start with a numeric character.
-    String modalId = "a-" + UUID.randomUUID().toString();
-    return Modal.builder(modalId, content)
+    return Modal.builder(randomModalId(), content)
         .setModalTitle(status.isPresent() ? "Edit this status" : "Create a new status")
         .setWidth(Width.HALF)
         .build();

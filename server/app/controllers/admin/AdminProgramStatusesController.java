@@ -129,6 +129,37 @@ public final class AdminProgramStatusesController extends CiviFormController {
         .flashing("success", originalStatusIndex == -1 ? "Status created" : "Status updated");
   }
 
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result delete(Http.Request request, long programId) throws ProgramNotFoundException {
+    if (!statusTrackingEnabled) {
+      return notFound("status tracking is not enabled");
+    }
+    requestChecker.throwIfProgramNotDraft(programId);
+    ProgramDefinition program = service.getProgramDefinition(programId);
+
+    DynamicForm requestData = formFactory.form().bindFromRequest(request);
+    String rawStatusText = requestData.get("status_text");
+    if (Strings.isNullOrEmpty(rawStatusText)) {
+      return badRequest("TODO: Fix: missing or empty status text");
+    }
+    final String statusText = rawStatusText.trim();
+
+    StatusDefinitions current = program.statusDefinitions();
+    List<StatusDefinitions.Status> statusesForUpdate =
+        current.getStatuses().stream().collect(Collectors.toList());
+    int toRemoveIndex = matchingStatusIndex(statusText, current);
+    if (toRemoveIndex == -1) {
+      return badRequest("TODO: Fix: Could not find status to remove");
+    }
+    statusesForUpdate.remove(toRemoveIndex);
+    current.setStatuses(ImmutableList.copyOf(statusesForUpdate));
+    service.setStatuses(programId, current);
+
+    // Upon success, redirect to the index view.
+    return redirect(routes.AdminProgramStatusesController.index(programId).url())
+        .flashing("success", "Status deleted");
+  }
+
   private int matchingStatusIndex(String statusText, StatusDefinitions statuses) {
     for (int i = 0; i < statuses.getStatuses().size(); i++) {
       if (statuses
