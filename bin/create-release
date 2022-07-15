@@ -19,10 +19,10 @@ import sys
 #   3. creates a new draft release on github
 
 if not os.path.exists('gh-release-token.txt'):
-    print('gh-release-token.txt not found in root directory', file=sys.stderr)
-    print(
-        'Create one with repo and read:org scopes at https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token',
-        file=sys.stderr)
+    print('''
+        gh-release-token.txt not found in root directory
+        Create one with repo and read:org scopes at https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+    ''', file=sys.stderr)
     exit(1)
 
 if len(sys.argv) != 3:
@@ -34,11 +34,19 @@ if len(sys.argv) != 3:
 def shell_cmd(command_string):
     try:
         process = subprocess.run(
-            shlex.split(command_string), capture_output=True)
+            shlex.split(command_string), check=True, capture_output=True)
     except FileNotFoundError:
         return ''
     return process.stdout.decode('ascii') if process else ''
 
+################################################################################
+# Set release variables
+################################################################################
+
+COMMIT_SHA = sys.argv[1]
+RELEASE_NUMBER = sys.argv[2]
+RELEASER_NAME = shell_cmd('git config --get user.name')
+RELEASER_EMAIL = shell_cmd('git config --get user.email')
 
 ################################################################################
 # Resolve and validate GitHub token, check auth
@@ -53,11 +61,10 @@ if not GH_TOKEN.startswith('ghp_'):
 
 check_gh_auth_response = requests.get(
     'https://api.github.com/repos/seattle-uat/civiform',
-    headers={'Authorization': 'token ' + GH_TOKEN})
+    headers={'Authorization': f'token {GH_TOKEN}'})
 if check_gh_auth_response.status_code != 200:
     print(
-        'GitHub API auth failed, satus code: ' +
-        str(check_gh_auth_response.status_code),
+        f'GitHub API auth failed, satus code: {str(check_gh_auth_response.status_code)}',
         file=sys.stderr)
     exit(1)
 
@@ -69,15 +76,6 @@ if not 'Login Succeeded' in shell_cmd(
         'docker login') or not 'civiform' in shell_cmd('docker info'):
     print('Unable to login to docker hub')
     exit(1)
-
-################################################################################
-# Set release variables
-################################################################################
-
-COMMIT_SHA = sys.argv[1]
-RELEASE_NUMBER = sys.argv[2]
-RELEASER_NAME = shell_cmd('git config --get user.name')
-RELEASER_EMAIL = shell_cmd('git config --get user.email')
 
 ################################################################################
 # Validate release version number
@@ -94,6 +92,9 @@ if not re.match('^v\d+\.\d+\.\d+$', RELEASE_NUMBER):
 branches_containing_commit_sha = shell_cmd(
     'git --no-pager branch --contains ' + COMMIT_SHA)
 branches_containing_commit_sha = [
+    # The output of the command is a list of branch names, with a '*' at the
+    # beginning of the current branch. This regex and the strip transform
+    # the list to only branch names with no trailing or preceding whitespace.
     re.sub('\*', '', x).strip()
     for x in branches_containing_commit_sha.split('\n')
 ]
@@ -111,14 +112,13 @@ SHORT_SHA = shell_cmd('git rev-parse --short ' + COMMIT_SHA)[:7]
 print(f'Searching for an image tag with short SHA {SHORT_SHA}')
 
 tags_url = 'https://registry.hub.docker.com/v2/repositories/civiform/civiform/tags?order=-last_activity&page_size=100'
-snapshot_tag = None
 while True:
+    snapshot_tag = None
     response = requests.get(tags_url)
 
     if response.status_code != 200:
         print(
-            'Docker Hub request failed with status code: ' +
-            str(response.status_code),
+            f'Docker Hub request failed with status code: {str(response.status_code)}',
             file=sys.stderr)
         exit(2)
 
@@ -134,7 +134,7 @@ while True:
 
     if response_json['next'] is None:
         print(
-            'No snapshot tag found with short SHA: ' + SHORT_SHA,
+            f'No snapshot tag found with short SHA: {SHORT_SHA}',
             file=sys.stderr)
         exit(1)
 
@@ -149,7 +149,7 @@ print(f'Found existing server image: {snapshot_tag}')
 print('Adding tag to git history')
 
 shell_cmd(
-    f'git tag -a {RELEASE_NUMBER} -m 'Releaser: {RELEASER_EMAIL}' {COMMIT_SHA}')
+    f"git tag -a {RELEASE_NUMBER} -m 'Releaser: {RELEASER_EMAIL}' {COMMIT_SHA}")
 shell_cmd(f'git push origin {RELEASE_NUMBER}')
 
 ################################################################################
@@ -179,7 +179,7 @@ create_release_body = {
 }
 create_release_headers = {
     'Accept': 'application/vnd.github.v3+json',
-    'Authorization': 'token ' + GH_TOKEN
+    'Authorization': f'token {f}'
 }
 
 response = requests.post(
