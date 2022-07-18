@@ -666,7 +666,7 @@ export class AdminQuestions {
       enumeratorName,
       exportOption,
     })
-  
+
     await this.clickSubmitButtonAndNavigate('Create')
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
