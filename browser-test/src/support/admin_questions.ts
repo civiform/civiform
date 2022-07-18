@@ -163,13 +163,24 @@ export class AdminQuestions {
     expect(tableInnerText).not.toContain(questionName)
   }
 
-  async gotoQuestionEditPage(questionName: string) {
+  private async gotoQuestionEditOrNewVersionPage(
+    questionName: string,
+    buttonText: string,
+  ) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("Edit")'),
+      this.selectWithinQuestionTableRow(questionName, `:text("${buttonText}")`),
     )
     await waitForPageJsLoad(this.page)
     await this.expectQuestionEditPage(questionName)
+  }
+
+  async gotoQuestionEditPage(questionName: string) {
+    await this.gotoQuestionEditOrNewVersionPage(questionName, 'Edit')
+  }
+
+  async gotoQuestionNewVersionPage(questionName: string) {
+    await this.gotoQuestionEditOrNewVersionPage(questionName, 'New Version')
   }
 
   async undeleteQuestion(questionName: string) {
@@ -258,12 +269,7 @@ export class AdminQuestions {
   }
 
   async createNewVersion(questionName: string) {
-    await this.gotoAdminQuestionsPage()
-    await this.page.click(
-      this.selectWithinQuestionTableRow(questionName, ':text("New Version")'),
-    )
-    await waitForPageJsLoad(this.page)
-    await this.expectQuestionEditPage(questionName)
+    await this.gotoQuestionNewVersionPage(questionName)
     const newQuestionText = await this.updateQuestionText(' new version')
 
     await this.clickSubmitButtonAndNavigate('Update')
