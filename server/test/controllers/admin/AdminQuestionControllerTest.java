@@ -190,20 +190,20 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void edit_returnsRedirectWhenEditingQuestionWithExistingDraft() {
-    Question originalNameQuestion = testQuestionBank.applicantName();
-    Question draftNameQuestion =
+    Question publishedQuestion = testQuestionBank.applicantName();
+    Question draftQuestion =
         testQuestionBank.maybeSave(
-            this.createNameQuestionDuplicate(originalNameQuestion), LifecycleStage.DRAFT);
+            this.createNameQuestionDuplicate(publishedQuestion), LifecycleStage.DRAFT);
 
-    // sanity check that thew new question has different id.
-    assertThat(originalNameQuestion.id).isNotEqualTo(draftNameQuestion.id);
+    // sanity check that the new question has different id.
+    assertThat(publishedQuestion.id).isNotEqualTo(draftQuestion.id);
 
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
-    Result result = controller.edit(request, originalNameQuestion.id).toCompletableFuture().join();
+    Result result = controller.edit(request, publishedQuestion.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminQuestionController.edit(draftNameQuestion.id).url());
+        .hasValue(routes.AdminQuestionController.edit(draftQuestion.id).url());
   }
 
   @Test
