@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "@types/jest": "27.5.2",
-    "@types/node": "16.11.44",
+    "@types/node": "16.11.45",
     "axios": "0.27.2",
     "jest": "27.5.1",
     "jest-playwright-preset": "1.7.2",
