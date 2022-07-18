@@ -27,7 +27,7 @@ def shell_cmd(command_string):
 
 
 GH_RELEASE_TOKEN_FILENAME = 'gh-release-token.txt'
-GH_RELEASE_TOKEN_ENV_VAR_NAME = 'GH_RELEASE_TOKEN'
+GH_RELEASE_TOKEN_ENV_VAR_NAME = 'GH_TOKEN'
 
 
 def main():
