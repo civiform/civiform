@@ -206,6 +206,20 @@ describe('name applicant flow', () => {
       await applicantQuestions.submitFromReviewPage(programName)
     })
 
+    it('with invalid optional name does not submit', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerNameQuestion('Tommy', '', '', 0)
+      await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 1)
+      await applicantQuestions.clickNext()
+
+      // Optional question has an error.
+      let error = await pageObject.$(`${NAME_LAST}-error >> nth=0`)
+      expect(await error?.isHidden()).toEqual(false)
+    })
+
     describe('with invalid required name', () => {
       beforeEach(async () => {
         await loginAsGuest(pageObject)

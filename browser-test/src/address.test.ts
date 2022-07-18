@@ -292,6 +292,38 @@ describe('address applicant flow', () => {
       await applicantQuestions.submitFromReviewPage(programName)
     })
 
+    it('with invalid optional address does not submit', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerAddressQuestion(
+        '1234 St',
+        '',
+        '',
+        '',
+        '',
+        0,
+      )
+      await applicantQuestions.answerAddressQuestion(
+        '1234 St',
+        'Unit B',
+        'Sim',
+        'Ames',
+        '54321',
+        1,
+      )
+      await applicantQuestions.clickNext()
+
+      // First question has errors.
+      let error = await pageObject.$('.cf-address-city-error >> nth=0')
+      expect(await error.isHidden()).toEqual(false)
+      error = await pageObject.$('.cf-address-state-error >> nth=0')
+      expect(await error.isHidden()).toEqual(false)
+      error = await pageObject.$('.cf-address-zip-error >> nth=0')
+      expect(await error.isHidden()).toEqual(false)
+    })
+
     describe('with invalid required address', () => {
       beforeEach(async () => {
         await loginAsGuest(pageObject)

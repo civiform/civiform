@@ -649,6 +649,8 @@ export class AdminQuestions {
     description = 'number description',
     questionText = 'number question text',
     helpText = 'number question help text',
+    minNum = null,
+    maxNum = null,
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
   }: QuestionParams) {
@@ -666,6 +668,13 @@ export class AdminQuestions {
       enumeratorName,
       exportOption,
     })
+
+    if (minNum != null) {
+      await this.page.fill('label:has-text("Minimum value")', String(minNum))
+    }
+    if (maxNum != null) {
+      await this.page.fill('label:has-text("Maximum value")', String(maxNum))
+    }
 
     await this.clickSubmitButtonAndNavigate('Create')
 
