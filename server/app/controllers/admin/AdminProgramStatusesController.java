@@ -62,18 +62,18 @@ public final class AdminProgramStatusesController extends CiviFormController {
     ProgramDefinition program = service.getProgramDefinition(programId);
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
-    String rawStatusText = requestData.get("status_text");
+    String rawStatusText = requestData.get(ProgramStatusesView.STATUS_TEXT_FORM_NAME);
     if (Strings.isNullOrEmpty(rawStatusText)) {
       return badRequest("TODO(#2752): Fix: missing or empty status text");
     }
     final String statusText = rawStatusText.trim();
-    String rawEmailBody = requestData.get("email_body");
+    String rawEmailBody = requestData.get(ProgramStatusesView.EMAIL_BODY_FORM_NAME);
     if (rawEmailBody == null) {
       return badRequest("TODO(#2752): Fix: missing email body");
     }
     final String emailBody = rawEmailBody.trim();
 
-    String originalStatusText = requestData.get("original_status_text");
+    String originalStatusText = requestData.get(ProgramStatusesView.ORIGINAL_STATUS_TEXT_FORM_NAME);
     if (originalStatusText == null) {
       return badRequest("TODO(#2752): Fix: missing original_status_text");
     }

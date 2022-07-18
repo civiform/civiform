@@ -39,6 +39,10 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 public final class ProgramStatusesView extends BaseHtmlView {
+  public static final String ORIGINAL_STATUS_TEXT_FORM_NAME = "original_status_text";
+  public static final String STATUS_TEXT_FORM_NAME = "status_text";
+  public static final String EMAIL_BODY_FORM_NAME = "email_body";
+
   private final AdminLayout layout;
 
   @Inject
@@ -224,12 +228,10 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 makeCsrfTokenInputTag(request),
                 input()
                     .isHidden()
-                    .withName("original_status_text")
+                    .withName(ORIGINAL_STATUS_TEXT_FORM_NAME)
                     .withValue(status.map(StatusDefinitions.Status::statusText).orElse("")),
                 FieldWithLabel.input()
-                    // TODO(#2752): Share the form identifiers between this and the controller that
-                    // validates it.
-                    .setFieldName("status_text")
+                    .setFieldName(STATUS_TEXT_FORM_NAME)
                     .setLabelText("Status name (required)")
                     // TODO(#2752): Potentially move placeholder text to an actual
                     // description.
@@ -240,7 +242,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .withClasses(Styles.PT_8)
                     .with(
                         FieldWithLabel.textArea()
-                            .setFieldName("email_body")
+                            .setFieldName(EMAIL_BODY_FORM_NAME)
                             .setLabelText("Applicant status change email")
                             .setPlaceholderText("Notify the Applicant about the status change")
                             .setRows(OptionalLong.of(5))
