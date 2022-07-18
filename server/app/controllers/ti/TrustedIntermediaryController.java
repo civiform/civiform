@@ -128,14 +128,18 @@ public class TrustedIntermediaryController {
   public Result addApplicant(Long id, Http.Request request) {
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
     if (civiformProfile.isEmpty()) {
+      System.out.println("civiformProfile not found");
       return unauthorized();
     }
     Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
         userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
+      System.out.println("trustedIntermediaryGroup Empty");
       return notFound();
     }
     if (!trustedIntermediaryGroup.get().id.equals(id)) {
+      System.out.println("trustedIntermediaryGroup unauthorized");
+      System.out.println("GivenId " + trustedIntermediaryGroup.get().id + "Id in param :" + id);
       return unauthorized();
     }
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =

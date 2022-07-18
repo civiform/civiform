@@ -104,7 +104,7 @@ public class UserRepositoryTest extends ResetPostgres {
     repo.createNewApplicantForTrustedIntermediaryGroup(applicantform, tiGroup);
     Account applicant = repo.lookupAccountByEmail(EMAIL).get();
     assertThat(applicant.getApplicantName())
-        .isEqualTo(applicantform.getFirstName() + applicantform.getLastName());
+        .isEqualTo(applicantform.getLastName()+", " + applicantform.getFirstName());
   }
 
   @Test
