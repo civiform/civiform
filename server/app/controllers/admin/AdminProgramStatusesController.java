@@ -8,14 +8,15 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
+import forms.admin.ProgramStatusesEditForm;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
-import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -50,7 +51,8 @@ public final class AdminProgramStatusesController extends CiviFormController {
       return notFound("status tracking is not enabled");
     }
     requestChecker.throwIfProgramNotDraft(programId);
-    return ok(statusesView.render(request, service.getProgramDefinition(programId)));
+    return ok(
+        statusesView.render(request, service.getProgramDefinition(programId), Optional.empty()));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -61,74 +63,23 @@ public final class AdminProgramStatusesController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition program = service.getProgramDefinition(programId);
 
-    DynamicForm requestData = formFactory.form().bindFromRequest(request);
-    String rawStatusText = requestData.get(ProgramStatusesView.STATUS_TEXT_FORM_NAME);
-    if (Strings.isNullOrEmpty(rawStatusText)) {
-      return badRequest("TODO(#2752): Fix: missing or empty status text");
-    }
-    final String statusText = rawStatusText.trim();
-    String rawEmailBody = requestData.get(ProgramStatusesView.EMAIL_BODY_FORM_NAME);
-    if (rawEmailBody == null) {
-      return badRequest("TODO(#2752): Fix: missing email body");
-    }
-    final String emailBody = rawEmailBody.trim();
-
-    String originalStatusText = requestData.get(ProgramStatusesView.ORIGINAL_STATUS_TEXT_FORM_NAME);
-    if (originalStatusText == null) {
-      return badRequest("TODO(#2752): Fix: missing original_status_text");
+    ProgramStatusesEditForm form = new ProgramStatusesEditForm(program, formFactory, request);
+    if (!form.hasErrors()) {
+      service.setStatuses(programId, form.getEditedStatuses());
+      // Upon success, redirect to the index view.
+      return redirect(routes.AdminProgramStatusesController.index(programId).url())
+          .flashing(
+              "success",
+              form.validatedForm()
+                      .get(ProgramStatusesEditForm.ORIGINAL_STATUS_TEXT_FORM_NAME)
+                      .isEmpty()
+                  ? "Status created"
+                  : "Status updated");
     }
 
-    // TODO(#2752): This is messy, do another pass on it once more is fleshed out.
-    StatusDefinitions current = program.statusDefinitions();
-    int existingStatusIndex = matchingStatusIndex(statusText, current);
-    int originalStatusIndex = matchingStatusIndex(originalStatusText, current);
-    if (originalStatusText.isEmpty()) {
-      if (existingStatusIndex != -1) {
-        // This corresponds to creating a new status with the same name as an existing one.
-        return badRequest("TODO(#2752): Fix: Status already exists.");
-      }
-    } else {
-      if (originalStatusIndex == -1) {
-        return badRequest(
-            "TODO(#2752): Fix: Status doesn't exist in the list we're trying to update. Nothing to"
-                + " move.");
-      } else if (originalStatusIndex != existingStatusIndex && existingStatusIndex != -1) {
-        return badRequest(
-            "TODO(#2752): Fix: Trying to update an existing status to a name that's already"
-                + " present.");
-      }
-    }
-
-    List<StatusDefinitions.Status> statusesForUpdate =
-        current.getStatuses().stream().collect(Collectors.toList());
-    if (originalStatusIndex != -1) {
-      StatusDefinitions.Status preExistingStatus = statusesForUpdate.get(originalStatusIndex);
-      statusesForUpdate.set(
-          originalStatusIndex,
-          StatusDefinitions.Status.builder()
-              .setStatusText(statusText)
-              .setLocalizedStatusText(preExistingStatus.localizedStatusText())
-              .setEmailBodyText(emailBody)
-              .setLocalizedEmailBodyText(
-                  preExistingStatus
-                      .localizedEmailBodyText()
-                      .orElse(LocalizedStrings.withDefaultValue(emailBody)))
-              .build());
-    } else {
-      statusesForUpdate.add(
-          StatusDefinitions.Status.builder()
-              .setStatusText(statusText)
-              .setLocalizedStatusText(LocalizedStrings.withDefaultValue(statusText))
-              .setEmailBodyText(emailBody)
-              .setLocalizedEmailBodyText(LocalizedStrings.withDefaultValue(emailBody))
-              .build());
-    }
-    current.setStatuses(ImmutableList.copyOf(statusesForUpdate));
-    service.setStatuses(programId, current);
-
-    // Upon success, redirect to the index view.
-    return redirect(routes.AdminProgramStatusesController.index(programId).url())
-        .flashing("success", originalStatusIndex == -1 ? "Status created" : "Status updated");
+    return ok(
+        statusesView.render(
+            request, service.getProgramDefinition(programId), Optional.of(form.validatedForm())));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -162,7 +113,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
         .flashing("success", "Status deleted");
   }
 
-  private int matchingStatusIndex(String statusText, StatusDefinitions statuses) {
+  private static int matchingStatusIndex(String statusText, StatusDefinitions statuses) {
     for (int i = 0; i < statuses.getStatuses().size(); i++) {
       if (statuses
           .getStatuses()
