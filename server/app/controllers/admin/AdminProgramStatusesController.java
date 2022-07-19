@@ -18,6 +18,7 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
+import play.mvc.Http.HttpVerbs;
 import play.mvc.Result;
 import services.LocalizedStrings;
 import services.program.ProgramDefinition;
@@ -55,9 +56,10 @@ public final class AdminProgramStatusesController extends CiviFormController {
     }
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition program = service.getProgramDefinition(programId);
+    int previousStatusCount = program.statusDefinitions().getStatuses().size();
 
     Optional<Form<ProgramStatusesEditForm>> maybeEditForm = Optional.empty();
-    if (request.method().equalsIgnoreCase("POST")) {
+    if (request.method().equalsIgnoreCase(HttpVerbs.POST)) {
       Pair<Form<ProgramStatusesEditForm>, Optional<StatusDefinitions>> validated =
           validateEditRequest(request, program);
       if (!validated.getLeft().hasErrors() && validated.getRight().isPresent()) {
@@ -66,8 +68,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
         return redirect(routes.AdminProgramStatusesController.index(programId).url())
             .flashing(
                 "success",
-                program.statusDefinitions().getStatuses().size()
-                        == validated.getRight().get().getStatuses().size()
+                previousStatusCount == validated.getRight().get().getStatuses().size()
                     ? "Status updated"
                     : "Status created");
       }
@@ -122,6 +123,9 @@ public final class AdminProgramStatusesController extends CiviFormController {
           originalStatusIndex,
           StatusDefinitions.Status.builder()
               .setStatusText(value.getStatusText())
+              // Note: We preserve the existing localized status / email body
+              // text so that existing translated content isn't destroyed upon
+              // editing status.
               .setLocalizedStatusText(preExistingStatus.localizedStatusText())
               .setEmailBodyText(value.getEmailBody())
               .setLocalizedEmailBodyText(
