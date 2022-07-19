@@ -160,9 +160,9 @@ public final class AdminProgramStatusesController extends CiviFormController {
     ProgramDefinition program = service.getProgramDefinition(programId);
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
-    String rawStatusText = requestData.get("status_text");
+    String rawStatusText = requestData.get(ProgramStatusesView.DELETE_STATUS_TEXT_NAME);
     if (Strings.isNullOrEmpty(rawStatusText)) {
-      return badRequest("TODO(#2752): Fix: missing or empty status text");
+      return badRequest("missing or empty status text");
     }
     final String statusText = rawStatusText.trim();
 
@@ -171,7 +171,12 @@ public final class AdminProgramStatusesController extends CiviFormController {
         current.getStatuses().stream().collect(Collectors.toList());
     int toRemoveIndex = matchingStatusIndex(statusText, current);
     if (toRemoveIndex == -1) {
-      return badRequest("TODO(#2752): Fix: Could not find status to remove");
+      return redirect(routes.AdminProgramStatusesController.index(programId).url())
+          .flashing(
+              "error",
+              String.format(
+                  "The status being removed no longer exists and may have been removed in a"
+                      + " separate window."));
     }
     statusesForUpdate.remove(toRemoveIndex);
     current.setStatuses(ImmutableList.copyOf(statusesForUpdate));

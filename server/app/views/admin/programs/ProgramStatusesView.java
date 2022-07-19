@@ -44,6 +44,8 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 public final class ProgramStatusesView extends BaseHtmlView {
+  public static final String DELETE_STATUS_TEXT_NAME = "deleteStatusText";
+
   private final AdminLayout layout;
   private final MessagesApi messagesApi;
 
@@ -211,7 +213,10 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .withAction(routes.AdminProgramStatusesController.delete(program.id()).url())
                     .with(
                         makeCsrfTokenInputTag(request),
-                        input().isHidden().withName("status_text").withValue(toDeleteStatusText),
+                        input()
+                            .isHidden()
+                            .withName(DELETE_STATUS_TEXT_NAME)
+                            .withValue(toDeleteStatusText),
                         div()
                             .withClasses(Styles.FLEX, Styles.MT_5, Styles.SPACE_X_2)
                             .with(
