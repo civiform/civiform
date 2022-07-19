@@ -65,7 +65,7 @@ jobs:
         uses: trilom/file-changes-action@v1.2.4
         if: ${{ github.event_name == 'push' }}
         with:
-          output: "json"
+          output: 'json'
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -90,7 +90,7 @@ jobs:
         uses: trilom/file-changes-action@v1.2.4
         if: ${{ github.event_name == 'push' }}
         with:
-          output: "json"
+          output: 'json'
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -115,7 +115,7 @@ jobs:
         uses: trilom/file-changes-action@v1.2.4
         if: ${{ github.event_name == 'push' }}
         with:
-          output: "json"
+          output: 'json'
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -140,7 +140,7 @@ jobs:
         uses: trilom/file-changes-action@v1.2.4
         if: ${{ github.event_name == 'push' }}
         with:
-          output: "json"
+          output: 'json'
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
