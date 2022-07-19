@@ -1,0 +1,18 @@
+#! /usr/bin/env bash
+
+# DOC: Build a new formatter docker image, and optionally push to Docker Hub if PUSH_IMAGE is set to anything.
+
+source bin/lib.sh
+
+docker build \
+  -t civiform/formatter:latest \
+  -f formatter/formatter.Dockerfile \
+  --cache-from civiform/formatter:latest \
+  .
+
+if [[ "${PUSH_IMAGE}" ]]; then
+  docker::do_dockerhub_login
+
+  # Push the new image to the Docker Hub registry.
+  docker push docker.io/civiform/formatter:latest
+fi
