@@ -1,6 +1,9 @@
 package models;
 
 import com.google.common.collect.ImmutableList;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -71,12 +74,12 @@ public class TrustedIntermediaryGroup extends BaseModel {
     }
     if(searchDate.isPresent())
     {
+      LocalDate localDate = LocalDate.parse(searchDate.get(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
       allAccounts =
           allAccounts.stream()
             .filter(
               account ->
-                account
-                  .getApplicantDateOfBirth().equals(searchDate.get()))
+                account.getApplicantDateOfBirth().isPresent() && account.getApplicantDateOfBirth().get().equals(localDate))
                   .collect(ImmutableList.toImmutableList());
     }
     return allAccounts;
