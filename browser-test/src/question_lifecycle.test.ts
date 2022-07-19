@@ -258,7 +258,6 @@ describe('normal question lifecycle', () => {
 
   it('redirects to draft question when trying to edit original question', async () => {
     const {page} = await startSession()
-    page.setDefaultTimeout(4000)
     await loginAsAdmin(page)
 
     const adminQuestions = new AdminQuestions(page)

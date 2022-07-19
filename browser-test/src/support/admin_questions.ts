@@ -163,10 +163,13 @@ export class AdminQuestions {
     expect(tableInnerText).not.toContain(questionName)
   }
 
-  private async gotoQuestionEditOrNewVersionPage(
-    questionName: string,
-    buttonText: string,
-  ) {
+  private async gotoQuestionEditOrNewVersionPage({
+    questionName,
+    buttonText,
+  }: {
+    questionName: string
+    buttonText: string
+  }) {
     await this.gotoAdminQuestionsPage()
     await this.page.click(
       this.selectWithinQuestionTableRow(questionName, `:text("${buttonText}")`),
@@ -176,11 +179,17 @@ export class AdminQuestions {
   }
 
   async gotoQuestionEditPage(questionName: string) {
-    await this.gotoQuestionEditOrNewVersionPage(questionName, 'Edit')
+    await this.gotoQuestionEditOrNewVersionPage({
+      questionName,
+      buttonText: 'Edit',
+    })
   }
 
   async gotoQuestionNewVersionPage(questionName: string) {
-    await this.gotoQuestionEditOrNewVersionPage(questionName, 'New Version')
+    await this.gotoQuestionEditOrNewVersionPage({
+      questionName,
+      buttonText: 'New Version',
+    })
   }
 
   async undeleteQuestion(questionName: string) {
