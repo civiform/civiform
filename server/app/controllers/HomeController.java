@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -26,7 +27,7 @@ public class HomeController extends Controller {
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;
   private final HttpExecutionContext httpExecutionContext;
-  private final String civiformFaviconUrl;
+  private final Optional<String> faviconURL = Optional.empty();
 
   @Inject
   public HomeController(
@@ -35,11 +36,13 @@ public class HomeController extends Controller {
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
       HttpExecutionContext httpExecutionContext) {
+    checkNotNull(configuration);
     this.loginForm = checkNotNull(form);
     this.profileUtils = checkNotNull(profileUtils);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
-    this.civiformFaviconUrl = checkNotNull(configuration).getString("whitelabel.favicon_url");
+    this.faviconURL =
+        Optional.ofNullable(Strings.emptyToNull(configuration.getString("whitelabel.favicon_url")));
   }
 
   public CompletionStage<Result> index(Http.Request request) {
@@ -91,10 +94,10 @@ public class HomeController extends Controller {
   }
 
   public Result favicon() {
-    if ((civiformFaviconUrl == null) || civiformFaviconUrl.isBlank()) {
-      return notFound();
+    if (faviconURL.isPresent()) {
+      return found(faviconURL.get()); // http 302
     }
-    return found(civiformFaviconUrl); // http 302
+    return notFound();
   }
 
   @Secure
