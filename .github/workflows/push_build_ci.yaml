@@ -10,11 +10,14 @@ on:
 
 permissions: read-all
 
-# Two probers running at once can break each other.
+# Two builds running at once can cause a race condition.
 concurrency:
   group: builders
   cancel-in-progress: true
 
+# Build and push the civiform/civiform, and civiform-dev docker image on each push
+# to master.  Also re-build the dependancy docker images only if their code has changed.
+# On a manual trigger, re-build all the images.
 jobs:
   build_prod:
     runs-on: ubuntu-latest
@@ -57,11 +60,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - id: file_change
         uses: trilom/file-changes-action@v1.2.4
         if: ${{ github.event_name == 'push' }}
         with:
-          output: 'json'
+          output: "json"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -81,11 +85,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - id: file_changes
         uses: trilom/file-changes-action@v1.2.4
         if: ${{ github.event_name == 'push' }}
         with:
-          output: 'json'
+          output: "json"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -105,11 +110,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - id: file_changes
         uses: trilom/file-changes-action@v1.2.4
         if: ${{ github.event_name == 'push' }}
         with:
-          output: 'json'
+          output: "json"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -129,11 +135,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - id: file_changes
         uses: trilom/file-changes-action@v1.2.4
         if: ${{ github.event_name == 'push' }}
         with:
-          output: 'json'
+          output: "json"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
