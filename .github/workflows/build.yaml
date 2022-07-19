@@ -29,7 +29,7 @@ jobs:
         id: build_and_push
         env:
           DOCKER_BUILDKIT: 1
-          # PUSH_IMAGE: 1
+          PUSH_IMAGE: 1
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-prod
@@ -47,7 +47,7 @@ jobs:
         id: build_dev
         env:
           DOCKER_BUILDKIT: 1
-          # PUSH_IMAGE: 1
+          PUSH_IMAGE: 1
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-dev
@@ -70,7 +70,7 @@ jobs:
         id: build_formatter
         env:
           DOCKER_BUILDKIT: 1
-          # PUSH_IMAGE: 1
+          PUSH_IMAGE: 1
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-formatter
@@ -94,7 +94,7 @@ jobs:
         id: build_and_push_localstack_env
         env:
           DOCKER_BUILDKIT: 1
-          # PUSH_IMAGE: 1
+          PUSH_IMAGE: 1
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-localstack-env
@@ -118,7 +118,7 @@ jobs:
         id: build_and_pushbrowser_tests
         env:
           DOCKER_BUILDKIT: 1
-          # PUSH_IMAGE: 1
+          PUSH_IMAGE: 1
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-browser-tests
@@ -142,7 +142,7 @@ jobs:
         id: build_and_pushbrowser_tests
         env:
           DOCKER_BUILDKIT: 1
-          # PUSH_IMAGE: 1
+          PUSH_IMAGE: 1
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: bin/build-dev-oidc
