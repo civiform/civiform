@@ -3,9 +3,6 @@ name: ci
 on:
   push:
     branches: main
-  pull_request:
-    branches:
-      - 'main'
 
   # Setting this enables manually triggering workflow in the GitHub UI
   # see https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
@@ -19,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build_container:
+  build_prod:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -64,7 +61,7 @@ jobs:
         uses: trilom/file-changes-action@v1.2.4
         if: ${{ github.event_name == 'push' }}
         with:
-          output: "json"
+          output: 'json'
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
