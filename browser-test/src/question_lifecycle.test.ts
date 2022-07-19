@@ -272,7 +272,8 @@ describe('normal question lifecycle', () => {
 
     // Update the question to create new draft version.
     await adminQuestions.gotoQuestionNewVersionPage('name-q')
-    // Save edit url as later we'll use it to imitate user having multiple tabs open.
+    // The ID in the URL after clicking new version corresponds to the active question form (e.g. ID=15).
+    // After a draft is created, the ID will reflect the newly created draft version (e.g. ID=16).
     const editUrl = page.url()
     const newQuestionText = await adminQuestions.updateQuestionText(
       'second version',
