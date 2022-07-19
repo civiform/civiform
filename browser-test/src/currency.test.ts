@@ -89,12 +89,16 @@ describe('currency applicant flow', () => {
       await adminQuestions.addCurrencyQuestion({
         questionName: 'currency-b-q',
       })
+
+      await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockWithOptional(
         programName,
         'Optional question block',
         ['currency-b-q'],
         'currency-a-q', // optional
       )
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishAllPrograms()
 
       await logout(pageObject)
     })
