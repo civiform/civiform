@@ -186,7 +186,7 @@ public class HtmlBundle {
     // TODO: Throw exception if page title is not set.
     return head()
         .with(title(pageTitle))
-        // The "orElse" value is never used, but it must be used because the
+        // The "orElse" value is never used, but it must be included because the
         // "withHref" evaluates even if the "condWith" is false.
         .condWith(faviconURL.isPresent(), link().withRel("icon").withHref(faviconURL.orElse("")))
         .with(metadata)
