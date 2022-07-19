@@ -238,6 +238,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
       ProgramDefinition program,
       Optional<StatusDefinitions.Status> maybeStatus,
       Optional<Form<ProgramStatusesEditForm>> maybeEditForm) {
+    // TODO(#2752): Pop the modal open on error on page load.
     boolean isFormForCurrentStatus =
         maybeStatus.isPresent()
             && maybeEditForm.isPresent()
@@ -263,7 +264,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     FormTag content =
         form()
             .withMethod("POST")
-            .withAction(routes.AdminProgramStatusesController.edit(program.id()).url())
+            .withAction(routes.AdminProgramStatusesController.index(program.id()).url())
             .withClasses(Styles.PX_6, Styles.PY_2)
             .with(
                 makeCsrfTokenInputTag(request),

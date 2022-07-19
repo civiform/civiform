@@ -54,35 +54,27 @@ public final class AdminProgramStatusesController extends CiviFormController {
       return notFound("status tracking is not enabled");
     }
     requestChecker.throwIfProgramNotDraft(programId);
-    return ok(
-        statusesView.render(request, service.getProgramDefinition(programId), Optional.empty()));
-  }
-
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result edit(Http.Request request, long programId) throws ProgramNotFoundException {
-    if (!statusTrackingEnabled) {
-      return notFound("status tracking is not enabled");
-    }
-    requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition program = service.getProgramDefinition(programId);
 
-    Pair<Form<ProgramStatusesEditForm>, Optional<StatusDefinitions>> validated =
-        validateEditRequest(request, program);
-    if (!validated.getLeft().hasErrors() && validated.getRight().isPresent()) {
-      service.setStatuses(programId, validated.getRight().get());
-      // Upon success, redirect to the index view.
-      return redirect(routes.AdminProgramStatusesController.index(programId).url())
-          .flashing(
-              "success",
-              program.statusDefinitions().getStatuses().size()
-                      == validated.getRight().get().getStatuses().size()
-                  ? "Status updated"
-                  : "Status created");
+    Optional<Form<ProgramStatusesEditForm>> maybeEditForm = Optional.empty();
+    if (request.method().equalsIgnoreCase("POST")) {
+      Pair<Form<ProgramStatusesEditForm>, Optional<StatusDefinitions>> validated =
+          validateEditRequest(request, program);
+      if (!validated.getLeft().hasErrors() && validated.getRight().isPresent()) {
+        service.setStatuses(programId, validated.getRight().get());
+        // Upon success, redirect to the index view.
+        return redirect(routes.AdminProgramStatusesController.index(programId).url())
+            .flashing(
+                "success",
+                program.statusDefinitions().getStatuses().size()
+                        == validated.getRight().get().getStatuses().size()
+                    ? "Status updated"
+                    : "Status created");
+      }
+      maybeEditForm = Optional.of(validated.getLeft());
     }
 
-    return ok(
-        statusesView.render(
-            request, service.getProgramDefinition(programId), Optional.of(validated.getLeft())));
+    return ok(statusesView.render(request, service.getProgramDefinition(programId), maybeEditForm));
   }
 
   private Pair<Form<ProgramStatusesEditForm>, Optional<StatusDefinitions>> validateEditRequest(
