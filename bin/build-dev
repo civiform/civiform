@@ -1,19 +1,21 @@
 #! /usr/bin/env bash
 
-# DOC: Build a new development docker image and push to Docker Hub.
+# DOC: Build a new development docker image and optionally push to Docker Hub if PUSH_IMAGE is set to anything.
 
 source bin/lib.sh
 
 # Build the new development image.
 docker build \
-  -t civiform-dev \
+  -t civiform-dev:latest \
   --cache-from civiform/civiform-dev:latest \
   --build-arg BUILDKIT_INLINE_CACHE=1 \
   .
 
-docker::do_dockerhub_login
+if [[ "${PUSH_IMAGE}" ]]; then
+  docker::do_dockerhub_login
 
-docker tag civiform-dev:latest civiform/civiform-dev:latest
+  docker tag civiform-dev:latest civiform/civiform-dev:latest
 
-# Push the new image to the Docker Hub registry.
-docker push civiform/civiform-dev:latest
+  # Push the new image to the Docker Hub registry.
+  docker push docker.io/civiform/civiform-dev:latest
+fi

@@ -89,10 +89,16 @@ describe('currency applicant flow', () => {
       await adminQuestions.addCurrencyQuestion({
         questionName: 'currency-b-q',
       })
-      await adminPrograms.addAndPublishProgramWithQuestions(
-        ['currency-a-q', 'currency-b-q'],
+
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockWithOptional(
         programName,
+        'Optional question block',
+        ['currency-b-q'],
+        'currency-a-q', // optional
       )
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishAllPrograms()
 
       await logout(pageObject)
     })
@@ -103,6 +109,17 @@ describe('currency applicant flow', () => {
 
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 0)
+      await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
+      await applicantQuestions.clickNext()
+
+      await applicantQuestions.submitFromReviewPage(programName)
+    })
+
+    it('with unanswered optional question submits', async () => {
+      await loginAsGuest(pageObject)
+      await selectApplicantLanguage(pageObject, 'English')
+
+      await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCurrencyQuestion(validCurrency, 1)
       await applicantQuestions.clickNext()
 
