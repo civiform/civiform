@@ -164,7 +164,10 @@ public class RoleServiceTest extends ResetPostgres {
     Program program = ProgramBuilder.newDraftProgram(programName).build();
 
     RoleService serviceWithGlobalAdminDisabled =
-        new RoleService(instanceOf(ProgramService.class), instanceOf(UserRepository.class), false);
+        new RoleService(
+            instanceOf(ProgramService.class),
+            instanceOf(UserRepository.class),
+            /* allowGlobalAdmins= */ false);
 
     assertThat(
             serviceWithGlobalAdminDisabled.makeProgramAdmins(
@@ -190,7 +193,10 @@ public class RoleServiceTest extends ResetPostgres {
     Program program = ProgramBuilder.newDraftProgram(programName).build();
 
     RoleService serviceWithGlobalAdminEnabled =
-        new RoleService(instanceOf(ProgramService.class), instanceOf(UserRepository.class), true);
+        new RoleService(
+            instanceOf(ProgramService.class),
+            instanceOf(UserRepository.class),
+            /* allowGlobalAdmins= */ true);
     assertThat(
             serviceWithGlobalAdminEnabled.makeProgramAdmins(
                 program.id, ImmutableSet.of(globalAdminEmail)))

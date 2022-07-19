@@ -62,7 +62,7 @@ public class RoleService {
     }
 
     ProgramDefinition program = programService.getProgramDefinition(programId);
-    ImmutableSet<String> sysAdminEmails =
+    ImmutableSet<String> globalAdminEmails =
         allowGlobalAdmins
             ? ImmutableSet.of()
             : getGlobalAdmins().stream()
@@ -73,7 +73,7 @@ public class RoleService {
     String errorMessageString = "";
 
     for (String email : accountEmails) {
-      if (sysAdminEmails.contains(email)) {
+      if (globalAdminEmails.contains(email)) {
         invalidEmailBuilder.add(email);
       } else {
         Optional<CiviFormError> maybeError = userRepository.addAdministeredProgram(email, program);
