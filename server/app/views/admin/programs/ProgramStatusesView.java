@@ -279,7 +279,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 FieldWithLabel.input()
                     .setFieldName(ProgramStatusesEditForm.STATUS_TEXT_FORM_NAME)
                     .setLabelText("Status name (required)")
-                    // TODO(#2752): Potentially move placeholder text to an actual
+                    // TODO(#2617): Potentially move placeholder text to an actual
                     // description.
                     .setPlaceholderText("Enter status name here")
                     .setValue(statusText)
@@ -295,6 +295,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         FieldWithLabel.textArea()
                             .setFieldName(ProgramStatusesEditForm.EMAIL_BODY_FORM_NAME)
                             .setLabelText("Applicant status change email")
+                            // TODO(#2617): Potentially move placeholder text to an actual
+                            // description.
                             .setPlaceholderText("Notify the Applicant about the status change")
                             .setRows(OptionalLong.of(5))
                             .setValue(emailBody)
@@ -319,7 +321,6 @@ public final class ProgramStatusesView extends BaseHtmlView {
 
   private DivTag renderFormGlobalErrors(
       Messages messages, Optional<Form<ProgramStatusesEditForm>> maybeEditForm) {
-    // TODO(#2752): Figure out styling for this.
     ImmutableList<String> errors =
         maybeEditForm.map(Form::globalErrors).orElse(ImmutableList.of()).stream()
             .map(e -> e.format(messages))
