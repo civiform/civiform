@@ -27,7 +27,7 @@ public class HomeController extends Controller {
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;
   private final HttpExecutionContext httpExecutionContext;
-  private final Optional<String> faviconURL = Optional.empty();
+  private final Optional<String> faviconURL;
 
   @Inject
   public HomeController(
