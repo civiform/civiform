@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
 import org.apache.commons.lang3.tuple.Pair;
-import play.data.DynamicForm;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
@@ -44,10 +43,6 @@ import views.style.StyleUtils;
 import views.style.Styles;
 
 public final class ProgramStatusesView extends BaseHtmlView {
-  public static final String ORIGINAL_STATUS_TEXT_FORM_NAME = "original_status_text";
-  public static final String STATUS_TEXT_FORM_NAME = "status_text";
-  public static final String EMAIL_BODY_FORM_NAME = "email_body";
-
   private final AdminLayout layout;
   private final MessagesApi messagesApi;
 
@@ -57,27 +52,16 @@ public final class ProgramStatusesView extends BaseHtmlView {
     this.messagesApi = checkNotNull(messagesApi);
   }
 
-  private Optional<DynamicForm> isFormMatchForRow(
-      Optional<DynamicForm> maybeForm, String statusText) {
-    return asStringField(maybeForm, ProgramStatusesEditForm.ORIGINAL_STATUS_TEXT_FORM_NAME)
-            .orElse("")
-            .equals(statusText)
-        ? maybeForm
-        : Optional.empty();
-  }
-
   public Content render(
-      Http.Request request, ProgramDefinition program, Optional<DynamicForm> validatedForm) {
-    Modal createStatusModal =
-        makeStatusEditModal(
-            request, program, Optional.empty(), isFormMatchForRow(validatedForm, ""));
+      Http.Request request, ProgramDefinition program, Optional<ProgramStatusesEditForm> editForm) {
+    Modal createStatusModal = makeStatusEditModal(request, program, Optional.empty(), editForm);
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
             .withId(createStatusModal.getTriggerButtonId());
 
     Pair<DivTag, ImmutableList<Modal>> statusContainerAndModals =
-        renderStatusContainer(request, program, validatedForm);
+        renderStatusContainer(request, program, editForm);
 
     DivTag contentDiv =
         div()
@@ -129,13 +113,13 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   private Pair<DivTag, ImmutableList<Modal>> renderStatusContainer(
-      Http.Request request, ProgramDefinition program, Optional<DynamicForm> maybeValidatedForm) {
+      Http.Request request, ProgramDefinition program, Optional<ProgramStatusesEditForm> editForm) {
     ImmutableList<StatusDefinitions.Status> statuses = program.statusDefinitions().getStatuses();
     String numResultsText =
         statuses.size() == 1 ? "1 result" : String.format("%d results", statuses.size());
     ImmutableList<Pair<DivTag, ImmutableList<Modal>>> statusTagsAndModals =
         statuses.stream()
-            .map(s -> renderStatusItem(request, program, s, maybeValidatedForm))
+            .map(s -> renderStatusItem(request, program, s, editForm))
             .collect(ImmutableList.toImmutableList());
     return Pair.of(
         div()
@@ -158,13 +142,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
       Http.Request request,
       ProgramDefinition program,
       StatusDefinitions.Status status,
-      Optional<DynamicForm> maybeFormData) {
-    Modal editStatusModal =
-        makeStatusEditModal(
-            request,
-            program,
-            Optional.of(status),
-            isFormMatchForRow(maybeFormData, status.statusText()));
+      Optional<ProgramStatusesEditForm> editForm) {
+    Modal editStatusModal = makeStatusEditModal(request, program, Optional.of(status), editForm);
     ButtonTag editStatusTriggerButton =
         makeSvgTextButton("Edit", Icons.EDIT)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
@@ -246,11 +225,28 @@ public final class ProgramStatusesView extends BaseHtmlView {
       Http.Request request,
       ProgramDefinition program,
       Optional<StatusDefinitions.Status> maybeStatus,
-      Optional<DynamicForm> maybeFormValues) {
+      Optional<ProgramStatusesEditForm> editForm) {
+    boolean isFormForCurrentStatus =
+        maybeStatus.isPresent()
+            && editForm.isPresent()
+            && maybeStatus
+                .get()
+                .statusText()
+                .equals(editForm.get().rawFormValues().getOriginalStatusText());
+    String originalStatusText;
+    String statusText;
+    String emailBody;
+    if (isFormForCurrentStatus) {
+      ProgramStatusesEditForm.EditFormValues values = editForm.get().rawFormValues();
+      originalStatusText = values.getOriginalStatusText();
+      statusText = values.getStatusText();
+      emailBody = values.getEmailBody();
+    } else {
+      originalStatusText = maybeStatus.map(StatusDefinitions.Status::statusText).orElse("");
+      statusText = maybeStatus.map(StatusDefinitions.Status::statusText).orElse("");
+      emailBody = maybeStatus.map(s -> s.emailBodyText().orElse("")).orElse("");
+    }
     Messages messages = messagesApi.preferred(request);
-    String originalStatusText =
-        asStringField(maybeFormValues, ProgramStatusesEditForm.ORIGINAL_STATUS_TEXT_FORM_NAME)
-            .orElse(maybeStatus.map(StatusDefinitions.Status::statusText).orElse(""));
 
     FormTag content =
         form()
@@ -263,51 +259,38 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .isHidden()
                     .withName(ProgramStatusesEditForm.ORIGINAL_STATUS_TEXT_FORM_NAME)
                     .withValue(originalStatusText),
-                renderFormGlobalErrors(messages, maybeFormValues),
+                renderFormGlobalErrors(messages, editForm),
                 FieldWithLabel.input()
-                    .setFieldName(STATUS_TEXT_FORM_NAME)
+                    .setFieldName(ProgramStatusesEditForm.STATUS_TEXT_FORM_NAME)
                     .setLabelText("Status name (required)")
                     // TODO(#2752): Potentially move placeholder text to an actual
                     // description.
                     .setPlaceholderText("Enter status name here")
-                    .setValue(
-                        asStringField(
-                                maybeFormValues, ProgramStatusesEditForm.STATUS_TEXT_FORM_NAME)
-                            .orElse(
-                                maybeStatus.map(StatusDefinitions.Status::statusText).orElse("")))
+                    .setValue(statusText)
                     .setFieldErrors(
                         messages,
-                        maybeFormValues
+                        editForm
                             .map(
-                                f ->
-                                    f.errors(
-                                        asErrorKey(ProgramStatusesEditForm.STATUS_TEXT_FORM_NAME)))
+                                f -> f.form().errors(ProgramStatusesEditForm.STATUS_TEXT_FORM_NAME))
                             .orElse(ImmutableList.of()))
                     .getInputTag(),
                 div()
                     .withClasses(Styles.PT_8)
                     .with(
                         FieldWithLabel.textArea()
-                            .setFieldName(EMAIL_BODY_FORM_NAME)
+                            .setFieldName(ProgramStatusesEditForm.EMAIL_BODY_FORM_NAME)
                             .setLabelText("Applicant status change email")
                             .setPlaceholderText("Notify the Applicant about the status change")
                             .setRows(OptionalLong.of(5))
-                            .setValue(
-                                asStringField(
-                                        maybeFormValues,
-                                        ProgramStatusesEditForm.EMAIL_BODY_FORM_NAME)
-                                    .orElse(
-                                        maybeStatus
-                                            .map(s -> s.emailBodyText().orElse(""))
-                                            .orElse("")))
+                            .setValue(emailBody)
                             .setFieldErrors(
                                 messages,
-                                maybeFormValues
+                                editForm
                                     .map(
                                         f ->
-                                            f.errors(
-                                                asErrorKey(
-                                                    ProgramStatusesEditForm.EMAIL_BODY_FORM_NAME)))
+                                            f.form()
+                                                .errors(
+                                                    ProgramStatusesEditForm.EMAIL_BODY_FORM_NAME))
                                     .orElse(ImmutableList.of()))
                             .getTextareaTag()),
                 div()
@@ -322,29 +305,12 @@ public final class ProgramStatusesView extends BaseHtmlView {
         .build();
   }
 
-  private DivTag renderFormGlobalErrors(Messages messages, Optional<DynamicForm> maybeForm) {
+  private DivTag renderFormGlobalErrors(
+      Messages messages, Optional<ProgramStatusesEditForm> editForm) {
     ImmutableList<String> errors =
-        maybeForm.map(DynamicForm::globalErrors).orElse(ImmutableList.of()).stream()
+        editForm.map(e -> e.form().globalErrors()).orElse(ImmutableList.of()).stream()
             .map(e -> e.format(messages))
             .collect(ImmutableList.toImmutableList());
     return errors.isEmpty() ? div() : div(each(errors, e -> p(e)));
-  }
-
-  private static String asErrorKey(String key) {
-    // DyanmicForm has an overload for error(String key) that
-    // performs this translation, but doesn't do the same for
-    // errors(String key).
-    return String.format("data[%s]", key);
-  }
-
-  private static Optional<String> asStringField(Optional<DynamicForm> form, String fieldName) {
-    if (!form.isPresent()) {
-      return Optional.empty();
-    }
-    Optional<Object> rawValue = form.get().value(fieldName);
-    if (!rawValue.isPresent()) {
-      return Optional.empty();
-    }
-    return Optional.of(String.valueOf(rawValue.get()));
   }
 }

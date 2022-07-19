@@ -63,23 +63,21 @@ public final class AdminProgramStatusesController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition program = service.getProgramDefinition(programId);
 
-    ProgramStatusesEditForm form = new ProgramStatusesEditForm(program, formFactory, request);
+    ProgramStatusesEditForm form =
+        ProgramStatusesEditForm.fromRequest(request, program, formFactory);
     if (!form.hasErrors()) {
       service.setStatuses(programId, form.getEditedStatuses());
       // Upon success, redirect to the index view.
       return redirect(routes.AdminProgramStatusesController.index(programId).url())
           .flashing(
               "success",
-              form.validatedForm()
-                      .get(ProgramStatusesEditForm.ORIGINAL_STATUS_TEXT_FORM_NAME)
-                      .isEmpty()
+              form.rawFormValues().getOriginalStatusText().isEmpty()
                   ? "Status created"
                   : "Status updated");
     }
 
     return ok(
-        statusesView.render(
-            request, service.getProgramDefinition(programId), Optional.of(form.validatedForm())));
+        statusesView.render(request, service.getProgramDefinition(programId), Optional.of(form)));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
