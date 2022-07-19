@@ -14,4 +14,9 @@ public class FeatureFlags {
   @Target({METHOD, PARAMETER})
   @Retention(RUNTIME)
   public @interface ApplicationStatusTrackingEnabled {}
+
+  @Qualifier
+  @Target({METHOD, PARAMETER})
+  @Retention(RUNTIME)
+  public @interface AllowGlobalAdminsBeProgramAdmins {}
 }
