@@ -60,7 +60,11 @@ public final class ProgramStatusesView extends BaseHtmlView {
       ProgramDefinition program,
       Optional<Form<ProgramStatusesEditForm>> maybeEditForm) {
     Modal createStatusModal =
-        makeStatusEditModal(request, program, Optional.empty(), maybeEditForm);
+        makeStatusEditModal(
+            request,
+            program,
+            Optional.empty(),
+            formForCurrentStatus(Optional.empty(), maybeEditForm));
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
@@ -127,7 +131,11 @@ public final class ProgramStatusesView extends BaseHtmlView {
         statuses.size() == 1 ? "1 result" : String.format("%d results", statuses.size());
     ImmutableList<Pair<DivTag, ImmutableList<Modal>>> statusTagsAndModals =
         statuses.stream()
-            .map(s -> renderStatusItem(request, program, s, maybeEditForm))
+            .map(
+                s -> {
+                  return renderStatusItem(
+                      request, program, s, formForCurrentStatus(Optional.of(s), maybeEditForm));
+                })
             .collect(ImmutableList.toImmutableList());
     return Pair.of(
         div()
@@ -233,14 +241,16 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return "a-" + UUID.randomUUID().toString();
   }
 
-  private boolean isFormForCurrentStatus(
+  private Optional<Form<ProgramStatusesEditForm>> formForCurrentStatus(
       Optional<StatusDefinitions.Status> maybeStatus,
       Optional<Form<ProgramStatusesEditForm>> maybeEditForm) {
     String wantOriginalStatusText =
         maybeStatus.map(StatusDefinitions.Status::statusText).orElse("");
     return maybeEditForm.isPresent()
-        && wantOriginalStatusText.equalsIgnoreCase(
-            maybeEditForm.get().value().get().getOriginalStatusText());
+            && wantOriginalStatusText.equalsIgnoreCase(
+                maybeEditForm.get().value().get().getOriginalStatusText())
+        ? maybeEditForm
+        : Optional.empty();
   }
 
   private Modal makeStatusEditModal(
@@ -252,7 +262,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     String originalStatusText;
     String statusText;
     String emailBody;
-    if (isFormForCurrentStatus(maybeStatus, maybeEditForm)) {
+    if (maybeEditForm.isPresent()) {
       ProgramStatusesEditForm values = maybeEditForm.get().value().get();
       originalStatusText = values.getOriginalStatusText();
       statusText = values.getStatusText();
