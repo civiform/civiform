@@ -14,6 +14,7 @@ import repository.UserRepository;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import support.ProgramBuilder;
 
 public class RoleServiceTest extends ResetPostgres {
@@ -149,6 +150,55 @@ public class RoleServiceTest extends ResetPostgres {
                             + " Admin. %2$s does not have an admin account and cannot be added as"
                             + " a Program Admin. ",
                         email1, email2))));
+  }
+
+  @Test
+  public void makeProgramAdmins_blockGlobalAdmin() throws ProgramNotFoundException {
+    String globalAdminEmail = "global@admin";
+    Account globalAdmin = new Account();
+    globalAdmin.setEmailAddress(globalAdminEmail);
+    globalAdmin.setGlobalAdmin(true);
+    globalAdmin.save();
+
+    String programName = "test program";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    RoleService serviceWithGlobalAdminDisabled =
+        new RoleService(instanceOf(ProgramService.class), instanceOf(UserRepository.class), false);
+
+    assertThat(
+            serviceWithGlobalAdminDisabled.makeProgramAdmins(
+                program.id, ImmutableSet.of(globalAdminEmail)))
+        .isEqualTo(
+            Optional.of(
+                CiviFormError.of(
+                    String.format(
+                        "The following are already CiviForm admins and could not be added as"
+                            + " program admins: %s",
+                        globalAdminEmail))));
+  }
+
+  @Test
+  public void makeProgramAdmins_allowGlobalAdmin() throws ProgramNotFoundException {
+    String globalAdminEmail = "global@admin";
+    Account globalAdmin = new Account();
+    globalAdmin.setEmailAddress(globalAdminEmail);
+    globalAdmin.setGlobalAdmin(true);
+    globalAdmin.save();
+
+    String programName = "test program";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    RoleService serviceWithGlobalAdminEnabled =
+        new RoleService(instanceOf(ProgramService.class), instanceOf(UserRepository.class), true);
+    assertThat(
+            serviceWithGlobalAdminEnabled.makeProgramAdmins(
+                program.id, ImmutableSet.of(globalAdminEmail)))
+        .isEmpty();
+
+    globalAdmin = userRepository.lookupAccountByEmail(globalAdminEmail).get();
+
+    assertThat(globalAdmin.getAdministeredProgramNames()).containsOnly(programName);
   }
 
   @Test
