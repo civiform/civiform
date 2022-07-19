@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
 import org.apache.commons.lang3.tuple.Pair;
+import play.data.Form;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
@@ -53,15 +54,18 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   public Content render(
-      Http.Request request, ProgramDefinition program, Optional<ProgramStatusesEditForm> editForm) {
-    Modal createStatusModal = makeStatusEditModal(request, program, Optional.empty(), editForm);
+      Http.Request request,
+      ProgramDefinition program,
+      Optional<Form<ProgramStatusesEditForm>> maybeEditForm) {
+    Modal createStatusModal =
+        makeStatusEditModal(request, program, Optional.empty(), maybeEditForm);
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
             .withId(createStatusModal.getTriggerButtonId());
 
     Pair<DivTag, ImmutableList<Modal>> statusContainerAndModals =
-        renderStatusContainer(request, program, editForm);
+        renderStatusContainer(request, program, maybeEditForm);
 
     DivTag contentDiv =
         div()
@@ -113,13 +117,15 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   private Pair<DivTag, ImmutableList<Modal>> renderStatusContainer(
-      Http.Request request, ProgramDefinition program, Optional<ProgramStatusesEditForm> editForm) {
+      Http.Request request,
+      ProgramDefinition program,
+      Optional<Form<ProgramStatusesEditForm>> maybeEditForm) {
     ImmutableList<StatusDefinitions.Status> statuses = program.statusDefinitions().getStatuses();
     String numResultsText =
         statuses.size() == 1 ? "1 result" : String.format("%d results", statuses.size());
     ImmutableList<Pair<DivTag, ImmutableList<Modal>>> statusTagsAndModals =
         statuses.stream()
-            .map(s -> renderStatusItem(request, program, s, editForm))
+            .map(s -> renderStatusItem(request, program, s, maybeEditForm))
             .collect(ImmutableList.toImmutableList());
     return Pair.of(
         div()
@@ -142,8 +148,9 @@ public final class ProgramStatusesView extends BaseHtmlView {
       Http.Request request,
       ProgramDefinition program,
       StatusDefinitions.Status status,
-      Optional<ProgramStatusesEditForm> editForm) {
-    Modal editStatusModal = makeStatusEditModal(request, program, Optional.of(status), editForm);
+      Optional<Form<ProgramStatusesEditForm>> maybeEditForm) {
+    Modal editStatusModal =
+        makeStatusEditModal(request, program, Optional.of(status), maybeEditForm);
     ButtonTag editStatusTriggerButton =
         makeSvgTextButton("Edit", Icons.EDIT)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
@@ -225,19 +232,19 @@ public final class ProgramStatusesView extends BaseHtmlView {
       Http.Request request,
       ProgramDefinition program,
       Optional<StatusDefinitions.Status> maybeStatus,
-      Optional<ProgramStatusesEditForm> editForm) {
+      Optional<Form<ProgramStatusesEditForm>> maybeEditForm) {
     boolean isFormForCurrentStatus =
         maybeStatus.isPresent()
-            && editForm.isPresent()
+            && maybeEditForm.isPresent()
             && maybeStatus
                 .get()
                 .statusText()
-                .equals(editForm.get().rawFormValues().getOriginalStatusText());
+                .equals(maybeEditForm.get().value().get().getOriginalStatusText());
     String originalStatusText;
     String statusText;
     String emailBody;
     if (isFormForCurrentStatus) {
-      ProgramStatusesEditForm.EditFormValues values = editForm.get().rawFormValues();
+      ProgramStatusesEditForm values = maybeEditForm.get().value().get();
       originalStatusText = values.getOriginalStatusText();
       statusText = values.getStatusText();
       emailBody = values.getEmailBody();
@@ -259,7 +266,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .isHidden()
                     .withName(ProgramStatusesEditForm.ORIGINAL_STATUS_TEXT_FORM_NAME)
                     .withValue(originalStatusText),
-                renderFormGlobalErrors(messages, editForm),
+                renderFormGlobalErrors(messages, maybeEditForm),
                 FieldWithLabel.input()
                     .setFieldName(ProgramStatusesEditForm.STATUS_TEXT_FORM_NAME)
                     .setLabelText("Status name (required)")
@@ -269,9 +276,8 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .setValue(statusText)
                     .setFieldErrors(
                         messages,
-                        editForm
-                            .map(
-                                f -> f.form().errors(ProgramStatusesEditForm.STATUS_TEXT_FORM_NAME))
+                        maybeEditForm
+                            .map(f -> f.errors(ProgramStatusesEditForm.STATUS_TEXT_FORM_NAME))
                             .orElse(ImmutableList.of()))
                     .getInputTag(),
                 div()
@@ -285,12 +291,9 @@ public final class ProgramStatusesView extends BaseHtmlView {
                             .setValue(emailBody)
                             .setFieldErrors(
                                 messages,
-                                editForm
+                                maybeEditForm
                                     .map(
-                                        f ->
-                                            f.form()
-                                                .errors(
-                                                    ProgramStatusesEditForm.EMAIL_BODY_FORM_NAME))
+                                        f -> f.errors(ProgramStatusesEditForm.EMAIL_BODY_FORM_NAME))
                                     .orElse(ImmutableList.of()))
                             .getTextareaTag()),
                 div()
@@ -306,9 +309,10 @@ public final class ProgramStatusesView extends BaseHtmlView {
   }
 
   private DivTag renderFormGlobalErrors(
-      Messages messages, Optional<ProgramStatusesEditForm> editForm) {
+      Messages messages, Optional<Form<ProgramStatusesEditForm>> maybeEditForm) {
+    // TODO(#2752): Figure out styling for this.
     ImmutableList<String> errors =
-        editForm.map(e -> e.form().globalErrors()).orElse(ImmutableList.of()).stream()
+        maybeEditForm.map(Form::globalErrors).orElse(ImmutableList.of()).stream()
             .map(e -> e.format(messages))
             .collect(ImmutableList.toImmutableList());
     return errors.isEmpty() ? div() : div(each(errors, e -> p(e)));
