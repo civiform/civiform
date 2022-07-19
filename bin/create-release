@@ -123,9 +123,9 @@ def main():
     ################################################################################
 
     # Git defaults to using the first 7 chars of the full SHA for the short SHA.
-    SHORT_SHA = shell_cmd('git rev-parse --short ' + commit_sha)[:7]
+    short_sha = shell_cmd('git rev-parse --short ' + commit_sha)[:7]
 
-    print(f'Searching for an image tag with short SHA {SHORT_SHA}')
+    print(f'Searching for an image tag with short SHA {short_sha}')
 
     tags_url = 'https://registry.hub.docker.com/v2/repositories/civiform/civiform/tags?order=-last_activity&page_size=100'
     while True:
@@ -141,7 +141,7 @@ def main():
         response_json = response.json()
 
         for tag_info in response_json['results']:
-            if SHORT_SHA in tag_info['name']:
+            if short_sha in tag_info['name']:
                 snapshot_tag = tag_info['name']
                 break
 
@@ -150,7 +150,7 @@ def main():
 
         if response_json['next'] is None:
             print(
-                f'No snapshot tag found with short SHA: {SHORT_SHA}',
+                f'No snapshot tag found with short SHA: {short_sha}',
                 file=sys.stderr)
             exit(1)
 
@@ -211,8 +211,8 @@ def main():
         print(response.json()['message'], file=sys.stderr)
         exit(2)
 
-    RELEASE_URL = response.json()['html_url']
-    print(f'\nDraft release created at: {RELEASE_URL}')
+    release_url = response.json()['html_url']
+    print(f'\nDraft release created at: {release_url}')
 
 
 if __name__ == '__main__':
