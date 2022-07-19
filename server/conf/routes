@@ -5,7 +5,7 @@
 # Untrail trailing slashes
 GET /*path/ controllers.UntrailingController.untrail(path: String)
 
-# The browser favicon
+# Redirect automatic requests from the browser to the specified favicon.
 GET     /favicon.ico    controllers.HomeController.favicon()
 GET     /favicon.png    controllers.HomeController.favicon()
 

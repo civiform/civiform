@@ -93,6 +93,8 @@ public class HomeController extends Controller {
     return ok("public index");
   }
 
+// Redirect any browsers who, by default, request favicon from root, to the
+// specified favicon link. https://stackoverflow.com/questions/56222166/prevent-browser-from-trying-to-load-favicon-from-root-directory)
   public Result favicon() {
     if (faviconURL.isPresent()) {
       return found(faviconURL.get()); // http 302
