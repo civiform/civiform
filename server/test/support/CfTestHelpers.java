@@ -30,15 +30,15 @@ public class CfTestHelpers {
   }
 
   public static ImmutableMap<String, Object> oidcConfig(String host, int port) {
-    return ImmutableMap.of(
-        "idcs.client_id",
-        "foo",
-        "idcs.secret",
-        "bar",
-        "idcs.discovery_uri",
-        String.format("http://%s:%d/.well-known/openid-configuration", host, port),
-        "base_url",
-        String.format("http://localhost:%d", Helpers.testServerPort()));
+    return new ImmutableMap.Builder<String, String>()
+        .put("auth.applicant_idp", "idcs")
+        .put("idcs.client_id", "foo")
+        .put("idcs.secret", "bar")
+        .put(
+            "idcs.discovery_uri",
+            String.format("http://%s:%d/.well-known/openid-configuration", host, port))
+        .put("base_url", String.format("http://localhost:%d", Helpers.testServerPort()))
+        .build();
   }
 
   public static Provider<UserRepository> userRepositoryProvider(UserRepository userRepository) {
