@@ -104,7 +104,8 @@ public final class AdminProgramStatusesController extends CiviFormController {
     if (value.getOriginalStatusText().isEmpty()) {
       if (existingStatusIndex != -1) {
         form =
-            form.withGlobalError(
+            form.withError(
+                ProgramStatusesEditForm.STATUS_TEXT_FORM_NAME,
                 String.format("A status with name %s already exists", value.getStatusText()));
       }
     } else {
@@ -115,7 +116,8 @@ public final class AdminProgramStatusesController extends CiviFormController {
                     + " window.");
       } else if (originalStatusIndex != existingStatusIndex && existingStatusIndex != -1) {
         form =
-            form.withGlobalError(
+            form.withError(
+                ProgramStatusesEditForm.STATUS_TEXT_FORM_NAME,
                 String.format("A status with name %s already exists", value.getStatusText()));
       }
     }

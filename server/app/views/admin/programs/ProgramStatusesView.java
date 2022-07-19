@@ -233,23 +233,26 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return "a-" + UUID.randomUUID().toString();
   }
 
+  private boolean isFormForCurrentStatus(
+      Optional<StatusDefinitions.Status> maybeStatus,
+      Optional<Form<ProgramStatusesEditForm>> maybeEditForm) {
+    String wantOriginalStatusText =
+        maybeStatus.map(StatusDefinitions.Status::statusText).orElse("");
+    return maybeEditForm.isPresent()
+        && wantOriginalStatusText.equalsIgnoreCase(
+            maybeEditForm.get().value().get().getOriginalStatusText());
+  }
+
   private Modal makeStatusEditModal(
       Http.Request request,
       ProgramDefinition program,
       Optional<StatusDefinitions.Status> maybeStatus,
       Optional<Form<ProgramStatusesEditForm>> maybeEditForm) {
     // TODO(#2752): Pop the modal open on error on page load.
-    boolean isFormForCurrentStatus =
-        maybeStatus.isPresent()
-            && maybeEditForm.isPresent()
-            && maybeStatus
-                .get()
-                .statusText()
-                .equals(maybeEditForm.get().value().get().getOriginalStatusText());
     String originalStatusText;
     String statusText;
     String emailBody;
-    if (isFormForCurrentStatus) {
+    if (isFormForCurrentStatus(maybeStatus, maybeEditForm)) {
       ProgramStatusesEditForm values = maybeEditForm.get().value().get();
       originalStatusText = values.getOriginalStatusText();
       statusText = values.getStatusText();
@@ -321,6 +324,9 @@ public final class ProgramStatusesView extends BaseHtmlView {
         maybeEditForm.map(Form::globalErrors).orElse(ImmutableList.of()).stream()
             .map(e -> e.format(messages))
             .collect(ImmutableList.toImmutableList());
-    return errors.isEmpty() ? div() : div(each(errors, e -> p(e)));
+    return errors.isEmpty()
+        ? div()
+        : div(each(errors, e -> p(e).withClasses(Styles.TEXT_SM, Styles.TEXT_RED_600)))
+            .withClasses(Styles.PB_4);
   }
 }
