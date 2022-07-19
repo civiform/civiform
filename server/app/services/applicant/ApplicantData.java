@@ -4,6 +4,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
@@ -151,11 +156,11 @@ public class ApplicantData extends CfJsonDocumentContext {
     return getFailedUpdates().containsKey(path);
   }
 
-  public Optional<String> getDateOfBirth() {
-    return readString(WellKnownPaths.APPLICANT_DOB);
+  public Optional<LocalDate> getDateOfBirth() {
+    return hasPath(WellKnownPaths.APPLICANT_DOB) ? readDate(WellKnownPaths.APPLICANT_DOB) : null;
   }
 
-  public void setDateOfBirth(@Nullable String dob) {
-    putString(WellKnownPaths.APPLICANT_DOB, dob);
+  public void setDateOfBirth(String dateString) {
+      putDate(WellKnownPaths.APPLICANT_DOB,dateString);
   }
 }

@@ -12,6 +12,9 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -238,14 +241,15 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     if (newestApplicant.isEmpty()) {
       return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
     }
-    Optional<String> current_DOB = newestApplicant.get().getApplicantData().getDateOfBirth();
+    Optional<LocalDate> current_DOB = newestApplicant.get().getApplicantData().getDateOfBirth();
     //for cases where DOB is already present, display the Date of Birth
     //for other cases, show the form to update the DOB.
     //Note: the update can be done only once.
     if(current_DOB.isPresent())
     {
+      LocalDate unformatedDate = current_DOB.get();
       return td().with(
-          div(current_DOB.get())
+          div(unformatedDate.format(DateTimeFormatter.ofPattern("MM-dd-yyyy")))
             .withClasses(Styles.FONT_SEMIBOLD))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
     }
