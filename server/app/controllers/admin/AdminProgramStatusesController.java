@@ -20,6 +20,8 @@ import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Result;
+import services.CiviFormError;
+import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -62,17 +64,24 @@ public final class AdminProgramStatusesController extends CiviFormController {
     if (request.method().equalsIgnoreCase(HttpVerbs.POST)) {
       Pair<Form<ProgramStatusesEditForm>, Optional<StatusDefinitions>> validated =
           validateEditRequest(request, program);
-      if (!validated.getLeft().hasErrors() && validated.getRight().isPresent()) {
-        service.setStatuses(programId, validated.getRight().get());
-        // Upon success, redirect to the index view.
-        return redirect(routes.AdminProgramStatusesController.index(programId).url())
-            .flashing(
-                "success",
-                previousStatusCount == validated.getRight().get().getStatuses().size()
-                    ? "Status updated"
-                    : "Status created");
-      }
       maybeEditForm = Optional.of(validated.getLeft());
+      if (!validated.getLeft().hasErrors() && validated.getRight().isPresent()) {
+        Result result = redirect(routes.AdminProgramStatusesController.index(programId).url());
+        ErrorAnd<ProgramDefinition, CiviFormError> setStatusResult =
+            service.setStatuses(programId, validated.getRight().get());
+        if (setStatusResult.isError()) {
+          String errorMessage = joinErrors(setStatusResult.getErrors());
+          result = result.flashing("error", errorMessage);
+        } else {
+          result =
+              result.flashing(
+                  "success",
+                  previousStatusCount == validated.getRight().get().getStatuses().size()
+                      ? "Status updated"
+                      : "Status created");
+        }
+        return result;
+      }
     }
 
     return ok(statusesView.render(request, service.getProgramDefinition(programId), maybeEditForm));
@@ -107,7 +116,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
       } else if (originalStatusIndex != existingStatusIndex && existingStatusIndex != -1) {
         form =
             form.withGlobalError(
-                String.format("A status with the name %s already exists", value.getStatusText()));
+                String.format("A status with name %s already exists", value.getStatusText()));
       }
     }
 
