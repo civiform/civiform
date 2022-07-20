@@ -1179,7 +1179,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .setStatusText("Approved")
             .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
             .setEmailBodyText("I'm an email!")
-            .setLocalizedEmailBodyText(LocalizedStrings.of(Locale.US, "I'm a US email!"))
+            .setLocalizedEmailBodyText(
+                Optional.of(LocalizedStrings.of(Locale.US, "I'm a US email!")))
             .build();
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =

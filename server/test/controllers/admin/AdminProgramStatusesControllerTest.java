@@ -12,6 +12,7 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Program;
@@ -41,7 +42,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
           .setStatusText("Approved")
           .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Approved"))
           .setEmailBodyText("Approved email body")
-          .setLocalizedEmailBodyText(LocalizedStrings.withDefaultValue("Approved email body"))
+          .setLocalizedEmailBodyText(
+              Optional.of(LocalizedStrings.withDefaultValue("Approved email body")))
           .build();
 
   private static final StatusDefinitions.Status REJECTED_STATUS =
@@ -49,7 +51,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
           .setStatusText("Rejected")
           .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Rejected"))
           .setEmailBodyText("Rejected email body")
-          .setLocalizedEmailBodyText(LocalizedStrings.withDefaultValue("Rejected email body"))
+          .setLocalizedEmailBodyText(
+              Optional.of(LocalizedStrings.withDefaultValue("Rejected email body")))
           .build();
 
   private static final ImmutableList<StatusDefinitions.Status> ORIGINAL_STATUSES =
@@ -121,7 +124,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
                     .setLocalizedStatusText(LocalizedStrings.withDefaultValue("foo"))
                     .setEmailBodyText("some email content")
                     .setLocalizedEmailBodyText(
-                        LocalizedStrings.withDefaultValue("some email content"))
+                        Optional.of(LocalizedStrings.withDefaultValue("some email content")))
                     .build()));
   }
 
@@ -157,7 +160,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
                     .setStatusText("Foo")
                     .setLocalizedStatusText(APPROVED_STATUS.localizedStatusText())
                     .setEmailBodyText("Updated email content")
-                    .setLocalizedEmailBodyText(APPROVED_STATUS.localizedEmailBodyText().get())
+                    .setLocalizedEmailBodyText(APPROVED_STATUS.localizedEmailBodyText())
                     .build(),
                 REJECTED_STATUS));
   }
@@ -208,7 +211,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void index_unrecognizedStatusName() throws ProgramNotFoundException {
+  public void index_editUnrecognizedStatusName() throws ProgramNotFoundException {
     Program program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
@@ -222,8 +225,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
                 "statusText", "Updated status",
                 "emailBody", "Some email body"));
 
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(Helpers.contentAsString(result))
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.flash().data().getOrDefault("error", ""))
         .contains("The status being edited no longer exists");
 
     assertThat(programService.getProgramDefinition(program.id).statusDefinitions().getStatuses())
@@ -307,8 +310,8 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data()).containsKey("error");
-    assertThat(result.flash().data().get("error"))
-        .contains("The status being removed no longer exists");
+    assertThat(result.flash().data().getOrDefault("error", ""))
+        .contains("The status being deleted no longer exists");
 
     // Load the updated program and ensure statuses weren't updated.
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
