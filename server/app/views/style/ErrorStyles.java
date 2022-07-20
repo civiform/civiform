@@ -8,9 +8,9 @@ public final class ErrorStyles {
           Styles.FONT_BOLD,
           Styles.TEXT_CENTER,
           Styles.TEXT_GRAY_800,
-          Styles.MT_14,
-          Styles.MB_4,
-          StyleUtils.responsiveSmall(Styles.MT_28, Styles.TEXT_3XL));
+          Styles.MT_28,
+          Styles.MB_10,
+          StyleUtils.responsiveSmall(Styles.MT_40, Styles.MB_5, Styles.TEXT_3XL));
 
   public static final String P_DESCRIPTION =
       StyleUtils.joinStyles(
