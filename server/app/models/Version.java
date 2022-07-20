@@ -38,9 +38,8 @@ public class Version extends BaseModel {
   private List<Question> questions;
 
   /**
-   * A tombstoned question or program is a question or program that will not be copied to the next
-   * version published. It is set on the current draft version. Questions / Programs are listed here
-   * by name rather than by ID.
+   * A tombstoned question is a question that will not be copied to the next version published. It
+   * is set on the current draft version. Questions are listed here by name rather than by ID.
    */
   @DbArray private List<String> tombstonedQuestionNames = new ArrayList<>();
 
@@ -49,9 +48,8 @@ public class Version extends BaseModel {
   private List<Program> programs;
 
   /**
-   * A tombstoned question or program is a question or program that will not be copied to the next
-   * version published. It is set on the current draft version. Questions / Programs are listed here
-   * by name rather than by ID.
+   * A tombstoned program is a program that will not be copied to the next version published. It is
+   * set on the current draft version. Programs are listed here by name rather than by ID.
    */
   @DbArray private List<String> tombstonedProgramNames = new ArrayList<>();
 

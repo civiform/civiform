@@ -22,6 +22,7 @@ module "td" {
   name_prefix     = var.app_prefix
   container_name  = var.app_prefix
   container_image = "${var.civiform_image_repo}:${var.image_tag}"
+
   port_mappings = [
     {
       containerPort = var.port
@@ -34,13 +35,88 @@ module "td" {
       protocol      = "tcp"
     },
   ]
+
+  ecs_task_execution_role_custom_policies = [
+    jsonencode(
+      {
+        "Version" : "2012-10-17",
+        "Statement" : [
+          {
+            "Effect" : "Allow",
+            "Action" : [
+              "secretsmanager:GetSecretValue"
+            ],
+            "Resource" : [
+              aws_secretsmanager_secret.postgres_username_secret.arn,
+              aws_secretsmanager_secret.postgres_password_secret.arn,
+              aws_secretsmanager_secret.app_secret_key_secret.arn,
+              aws_secretsmanager_secret.adfs_secret_secret.arn,
+              aws_secretsmanager_secret.adfs_client_id_secret.arn,
+              aws_secretsmanager_secret.adfs_discovery_uri_secret.arn,
+              aws_secretsmanager_secret.applicant_oidc_client_secret_secret.arn,
+              aws_secretsmanager_secret.applicant_oidc_client_id_secret.arn,
+              aws_secretsmanager_secret.applicant_oidc_discovery_uri_secret.arn,
+            ]
+          },
+          {
+            "Effect" : "Allow",
+            "Action" : [
+              "kms:Encrypt",
+              "kms:Decrypt",
+              "kms:ReEncrypt*",
+              "kms:GenerateDataKey*",
+              "kms:DescribeKey"
+            ],
+            "Resource" : [aws_kms_key.civiform_kms_key.arn]
+          },
+        ]
+      }
+    )
+  ]
+
+  secrets = [
+    {
+      name      = "DB_USERNAME"
+      valueFrom = aws_secretsmanager_secret_version.postgres_username_secret_version.arn
+    },
+    {
+      name      = "DB_PASSWORD"
+      valueFrom = aws_secretsmanager_secret_version.postgres_password_secret_version.arn
+    },
+    {
+      name      = "SECRET_KEY"
+      valueFrom = aws_secretsmanager_secret_version.app_secret_key_secret_version.arn
+    },
+    {
+      name      = "ADFS_DISCOVERY_URI"
+      valueFrom = aws_secretsmanager_secret_version.adfs_discovery_uri_secret_version.arn
+    },
+    {
+      name      = "ADFS_SECRET"
+      valueFrom = aws_secretsmanager_secret_version.adfs_secret_secret_version.arn
+    },
+    {
+      name      = "ADFS_CLIENT_ID"
+      valueFrom = aws_secretsmanager_secret_version.applicant_oidc_client_id_secret_version.arn
+    },
+    {
+      name      = "APPLICANT_OIDC_DISCOVERY_URI"
+      valueFrom = aws_secretsmanager_secret_version.applicant_oidc_discovery_uri_secret_version.arn
+    },
+    {
+      name      = "APPLICANT_OIDC_CLIENT_ID"
+      valueFrom = aws_secretsmanager_secret_version.applicant_oidc_client_id_secret_version.arn
+    },
+    {
+      name      = "APPLICANT_OIDC_CLIENT_SECRET"
+      valueFrom = aws_secretsmanager_secret_version.applicant_oidc_client_secret_secret_version.arn
+    }
+  ]
+
   map_environment = {
-    SECRET_KEY = module.secrets.app_secret_key
-    PORT       = var.port
+    PORT = var.port
 
     DB_JDBC_STRING = "jdbc:postgresql://${aws_db_instance.civiform.address}:${aws_db_instance.civiform.port}/postgres?ssl=true&sslmode=require"
-    DB_USERNAME    = aws_db_instance.civiform.username
-    DB_PASSWORD    = aws_db_instance.civiform.password
 
     STAGING_HOSTNAME = var.staging_hostname
     BASE_URL         = var.base_url != "" ? var.base_url : "https://${var.custom_hostname}"
@@ -58,18 +134,11 @@ module "td" {
     AWS_SES_SENDER = var.ses_sender_email
     AWS_REGION     = var.aws_region
 
-    STAGING_ADMIN_LIST           = var.staging_program_admin_notification_mailing_list
-    STAGING_TI_LIST              = var.staging_ti_notification_mailing_list
-    STAGING_APPLICANT_LIST       = var.staging_applicant_notification_mailing_list
-    APPLICANT_OIDC_PROVIDER_NAME = var.applicant_oidc_provider_name
-    CIVIFORM_APPLICANT_IDP       = var.civiform_applicant_idp
-    APPLICANT_OIDC_CLIENT_ID     = var.applicant_oidc_client_id
-    APPLICANT_OIDC_CLIENT_SECRET = var.applicant_oidc_client_secret
-    APPLICANT_OIDC_DISCOVERY_URI = var.applicant_oidc_discovery_uri
-    // TODO Switch to use secrets
-    # APPLICANT_OIDC_CLIENT_ID         = module.secrets.applicant_oidc_client_id
-    # APPLICANT_OIDC_CLIENT_SECRET     = module.secrets.applicant_oidc_client_secret
-    # APPLICANT_OIDC_DISCOVERY_URI     = module.secrets.applicant_oidc_discovery_uri
+    STAGING_ADMIN_LIST                   = var.staging_program_admin_notification_mailing_list
+    STAGING_TI_LIST                      = var.staging_ti_notification_mailing_list
+    STAGING_APPLICANT_LIST               = var.staging_applicant_notification_mailing_list
+    APPLICANT_OIDC_PROVIDER_NAME         = var.applicant_oidc_provider_name
+    CIVIFORM_APPLICANT_IDP               = var.civiform_applicant_idp
     APPLICANT_OIDC_RESPONSE_MODE         = var.applicant_oidc_response_mode
     APPLICANT_OIDC_RESPONSE_TYPE         = var.applicant_oidc_response_type
     APPLICANT_OIDC_ADDITIONAL_SCOPES     = var.applicant_oidc_additional_scopes
@@ -96,8 +165,9 @@ module "td" {
 }
 
 module "ecs_fargate_service" {
-  source      = "cn-terraform/ecs-fargate-service/aws"
-  name_prefix = var.app_prefix
+  source        = "cn-terraform/ecs-fargate-service/aws"
+  name_prefix   = var.app_prefix
+  desired_count = 0 # TODO: set this to actual value
   # TODO: use https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate
   default_certificate_arn = "arn:aws:acm:us-east-1:664198874744:certificate/2b765469-2ddd-4b03-94b4-fc670e80f84b"
   ssl_policy              = "ELBSecurityPolicy-FS-1-2-Res-2020-10"

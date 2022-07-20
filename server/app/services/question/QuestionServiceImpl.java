@@ -17,6 +17,7 @@ import models.Version;
 import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
+import services.DeletionStatus;
 import services.ErrorAnd;
 import services.export.ExporterService;
 import services.question.exceptions.InvalidUpdateException;
@@ -63,10 +64,13 @@ public final class QuestionServiceImpl implements QuestionService {
 
   @Override
   public CompletionStage<ReadOnlyQuestionService> getReadOnlyQuestionService() {
-    return CompletableFuture.completedStage(
-        new ReadOnlyCurrentQuestionServiceImpl(
-            versionRepositoryProvider.get().getActiveVersion(),
-            versionRepositoryProvider.get().getDraftVersion()));
+    return CompletableFuture.completedStage(readOnlyQuestionService());
+  }
+
+  private ReadOnlyQuestionService readOnlyQuestionService() {
+    return new ReadOnlyCurrentQuestionServiceImpl(
+        versionRepositoryProvider.get().getActiveVersion(),
+        versionRepositoryProvider.get().getDraftVersion());
   }
 
   @Override
@@ -112,6 +116,13 @@ public final class QuestionServiceImpl implements QuestionService {
     if (question.isEmpty()) {
       throw new InvalidUpdateException("Did not find question.");
     }
+    ActiveAndDraftQuestions activeQuestions =
+        readOnlyQuestionService().getActiveAndDraftQuestions();
+    if (!activeQuestions
+        .getDeletionStatus(question.get().getQuestionDefinition().getName())
+        .equals(DeletionStatus.PENDING_DELETION)) {
+      throw new InvalidUpdateException("Question is not restorable.");
+    }
     Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
     if (!draftVersion.removeTombstoneForQuestion(question.get())) {
       throw new InvalidUpdateException("Not tombstoned.");
@@ -125,6 +136,13 @@ public final class QuestionServiceImpl implements QuestionService {
         questionRepository.lookupQuestion(id).toCompletableFuture().join();
     if (question.isEmpty()) {
       throw new InvalidUpdateException("Did not find question.");
+    }
+    ActiveAndDraftQuestions activeQuestions =
+        readOnlyQuestionService().getActiveAndDraftQuestions();
+    if (!activeQuestions
+        .getDeletionStatus(question.get().getQuestionDefinition().getName())
+        .equals(DeletionStatus.DELETABLE)) {
+      throw new InvalidUpdateException("Question is not archivable.");
     }
     Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
     if (!draftVersion.addTombstoneForQuestion(question.get())) {

@@ -8,11 +8,11 @@
   },
   "devDependencies": {
     "@types/jest": "27.5.2",
-    "@types/node": "16.11.44",
+    "@types/node": "16.11.45",
     "axios": "0.27.2",
     "jest": "27.5.1",
     "jest-playwright-preset": "1.7.2",
-    "playwright": "1.23.3",
+    "playwright": "1.23.4",
     "ts-jest": "27.1.5",
     "ts-node": "10.9.1",
     "ts-node-dev": "2.0.0",

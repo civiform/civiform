@@ -87,6 +87,31 @@ public class ProgramRepositoryTest extends ResetPostgres {
         .isEqualTo(LocalizedStrings.of(Locale.US, "description"));
   }
 
+  // Verify the StatusDefinitions default value in evolution 40 loads.
+  @Test
+  public void loadStatusDefinitionsEvolution() {
+    DB.sqlUpdate(
+            "insert into programs (name, description, block_definitions, export_definitions,"
+                + " legacy_localized_name, legacy_localized_description, status_definitions)"
+                + " values ('Status Default', 'Description', '[]', '[]', '{\"en_us\": \"name\"}',"
+                + "'{\"en_us\": \"description\"}', '{\"statuses\": []}');")
+        .execute();
+    DB.sqlUpdate(
+            "insert into versions_programs (versions_id, programs_id) values ("
+                + "(select id from versions where lifecycle_stage = 'active'),"
+                + "(select id from programs where name = 'Status Default'));")
+        .execute();
+
+    Program found =
+        versionRepo.getActiveVersion().getPrograms().stream()
+            .filter(program -> program.getProgramDefinition().adminName().equals("Status Default"))
+            .findFirst()
+            .get();
+
+    assertThat(found.getProgramDefinition().adminName()).isEqualTo("Status Default");
+    assertThat(found.getStatusDefinitions().getStatuses()).isEmpty();
+  }
+
   @Test
   public void getForSlug_withOldSchema() {
     DB.sqlUpdate(

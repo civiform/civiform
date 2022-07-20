@@ -347,6 +347,23 @@ public class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
+  public ErrorAnd<ProgramDefinition, CiviFormError> setStatuses(
+      long programId, StatusDefinitions statuses) throws ProgramNotFoundException {
+
+    Program program =
+        getProgramDefinition(programId).toBuilder()
+            .setStatusDefinitions(statuses)
+            .build()
+            .toProgram();
+    return ErrorAnd.of(
+        syncProgramDefinitionQuestions(
+                programRepository.updateProgramSync(program).getProgramDefinition())
+            .toCompletableFuture()
+            .join());
+  }
+
+  @Override
+  @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> updateBlock(
       long programId, long blockDefinitionId, BlockForm blockForm)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
@@ -669,6 +686,8 @@ public class ProgramServiceImpl implements ProgramService {
    */
   private CompletionStage<ProgramDefinition> syncProgramDefinitionQuestions(
       ProgramDefinition programDefinition) {
+    // Note: This method is also used for non question updates.  It'd likely be
+    // good to have a focused method for that.
     return questionService
         .getReadOnlyQuestionService()
         .thenApplyAsync(
