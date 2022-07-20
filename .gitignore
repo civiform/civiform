@@ -45,3 +45,4 @@ test-support/sbt_cache/
 **/.ammonite/
 **/metals.sbt
 **/pom.xml
+**/gh-release-token.txt

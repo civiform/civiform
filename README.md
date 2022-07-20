@@ -1,4 +1,4 @@
-![CI status](https://github.com/seattle-uat/civiform/actions/workflows/push.yaml/badge.svg)
+[![ci](https://github.com/seattle-uat/civiform/actions/workflows/push_tests.yaml/badge.svg)](https://github.com/seattle-uat/civiform/actions/workflows/push_tests.yaml)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6008/badge)](https://bestpractices.coreinfrastructure.org/projects/6008)
 [![Seattle Staging Deploy](https://github.com/seattle-uat/civiform-deploy/actions/workflows/deploy-staging.yml/badge.svg?branch=main)](https://github.com/seattle-uat/civiform-deploy/actions/workflows/deploy-staging.yml)
 ![codecov.io](https://codecov.io/github/seattle-uat/civiform/coverage.svg?branch=main)

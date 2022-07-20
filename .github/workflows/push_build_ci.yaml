@@ -1,0 +1,156 @@
+name: ci
+
+on:
+  push:
+    branches: main
+
+  # Setting this enables manually triggering workflow in the GitHub UI
+  # see https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
+  workflow_dispatch: {}
+
+permissions: read-all
+
+# Two builds running at once can cause a race condition.
+concurrency:
+  group: builders
+  cancel-in-progress: true
+
+# Build and push the civiform/civiform, and civiform-dev docker image on each push
+# to master.  Also re-build the dependancy docker images only if their code has changed.
+# On a manual trigger, re-build all the images.
+jobs:
+  build_prod:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Run build-prod civiform:latest
+        id: build_and_push
+        env:
+          DOCKER_BUILDKIT: 1
+          PUSH_IMAGE: 1
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: bin/build-prod
+
+  build_dev:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push new development image to docker hub
+        id: build_dev
+        env:
+          DOCKER_BUILDKIT: 1
+          PUSH_IMAGE: 1
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: bin/build-dev
+
+  build_formatter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - id: file_change
+        uses: trilom/file-changes-action@v1.2.4
+        if: ${{ github.event_name == 'push' }}
+        with:
+          output: 'json'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Run build-formatter
+        id: build_formatter
+        env:
+          DOCKER_BUILDKIT: 1
+          PUSH_IMAGE: 1
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: bin/build-formatter
+        if: ${{ github.event_name != 'push' }} ||  contains(toJSON(steps.file_changes.outputs.files), 'formatter/')
+
+  build_localstack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - id: file_changes
+        uses: trilom/file-changes-action@v1.2.4
+        if: ${{ github.event_name == 'push' }}
+        with:
+          output: 'json'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Run build-localstack-env and push to Docker Hub.
+        id: build_and_push_localstack_env
+        env:
+          DOCKER_BUILDKIT: 1
+          PUSH_IMAGE: 1
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: bin/build-localstack-env
+        if: ${{ github.event_name != 'push' }} || contains(toJSON(steps.file_changes.outputs.files), 'localstack/')
+
+  build_browser_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - id: file_changes
+        uses: trilom/file-changes-action@v1.2.4
+        if: ${{ github.event_name == 'push' }}
+        with:
+          output: 'json'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Run build-browser-tests and push to Docker Hub.
+        id: build_and_pushbrowser_tests
+        env:
+          DOCKER_BUILDKIT: 1
+          PUSH_IMAGE: 1
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: bin/build-browser-tests
+        if: ${{ github.event_name != 'push' }} || contains(toJSON(steps.file_changes.outputs.files), 'browser-test/')
+
+  build_oidc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - id: file_changes
+        uses: trilom/file-changes-action@v1.2.4
+        if: ${{ github.event_name == 'push' }}
+        with:
+          output: 'json'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Run build-browser-tests and push to Docker Hub.
+        id: build_and_pushbrowser_tests
+        env:
+          DOCKER_BUILDKIT: 1
+          PUSH_IMAGE: 1
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: bin/build-dev-oidc
+        if: ${{ github.event_name != 'push' }} || contains(toJSON(steps.file_changes.outputs.files), 'test-support/')
