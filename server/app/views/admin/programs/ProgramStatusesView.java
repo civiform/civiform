@@ -241,6 +241,10 @@ public final class ProgramStatusesView extends BaseHtmlView {
     return "a-" + UUID.randomUUID().toString();
   }
 
+  /**
+   * Returns the form if it matches the current status object being rendered. The page has multiple
+   * inline modals for editing and creating statuses.
+   */
   private Optional<Form<ProgramStatusesEditForm>> formForCurrentStatus(
       Optional<StatusDefinitions.Status> maybeStatus,
       Optional<Form<ProgramStatusesEditForm>> maybeEditForm) {

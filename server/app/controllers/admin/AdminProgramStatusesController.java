@@ -106,7 +106,6 @@ public final class AdminProgramStatusesController extends CiviFormController {
       return Pair.of(form, Optional.empty());
     }
     ProgramStatusesEditForm value = form.value().get();
-    // TODO(#2752): This is messy, do another pass on it once more is fleshed out.
     StatusDefinitions current = program.statusDefinitions();
     if (value.getOriginalStatusText().isEmpty()) {
       try {
@@ -146,10 +145,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
       }
     }
 
-    if (form.hasErrors()) {
-      return Pair.of(form, Optional.empty());
-    }
-    return Pair.of(form, Optional.of(current));
+    return form.hasErrors() ? Pair.of(form, Optional.empty()) : Pair.of(form, Optional.of(current));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
