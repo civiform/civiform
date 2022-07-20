@@ -29,24 +29,18 @@ public class NotFound extends BaseHtmlView {
 
   @Inject
   public NotFound(ApplicantLayout layout, LanguageSelector languageSelector) {
-    this.layout = layout;
+    this.layout = checkNotNull(layout);
     this.languageSelector = checkNotNull(languageSelector);
   }
 
   private H1Tag h1Content(Messages messages) {
-    return h1(
-            span(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE.getKeyName())),
-            span(messages.at(MessageKey.GENERAL_SPACE.getKeyName())),
-            spanNowrap(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE_END.getKeyName())))
+    return h1(span(messages.at(MessageKey.ERROR_NOT_FOUND_TITLE.getKeyName())))
         .withClasses(ErrorStyles.H1_NOT_FOUND);
   }
 
   private DivTag descriptionContent(Messages messages) {
     return div(p(
-                span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A.getKeyName())),
-                span(messages.at(MessageKey.GENERAL_SPACE.getKeyName())),
-                spanNowrap(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_A_END.getKeyName())),
-                span(messages.at(MessageKey.GENERAL_SPACE.getKeyName())),
+                span(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION.getKeyName())),
                 a(messages.at(MessageKey.ERROR_NOT_FOUND_DESCRIPTION_LINK.getKeyName()))
                     .withHref("/")
                     .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT))
