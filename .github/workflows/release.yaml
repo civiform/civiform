@@ -19,5 +19,7 @@ jobs:
   create_release:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+
       - name: Run bin/create-release
         run: 'bin/create-release ${{ github.event.inputs.commit_sha }} ${{ github.event.inputs.release_number }}'
