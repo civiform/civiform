@@ -46,7 +46,6 @@ validation.isRequired=This question is required.
 validation.invalidInput=Please enter valid input.
 
 # For use in cases where sentences are broken up
-general.space=' '
 general.period=.
 
 #-------------------------------------------------------------#
