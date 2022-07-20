@@ -108,8 +108,8 @@ export class ApplicantQuestions {
     )
   }
 
-  async answerNumberQuestion(number: string) {
-    await this.page.fill('input[type="number"]', number)
+  async answerNumberQuestion(number: string, index = 0) {
+    await this.page.fill(`input[type="number"] >> nth=${index}`, number)
   }
 
   async checkNumberQuestionValue(number: string) {

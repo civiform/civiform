@@ -183,6 +183,24 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void edit_returnsRedirectWhenEditingQuestionWithExistingDraft() {
+    Question publishedQuestion = testQuestionBank.applicantName();
+    Question draftQuestion =
+        testQuestionBank.maybeSave(
+            this.createNameQuestionDuplicate(publishedQuestion), LifecycleStage.DRAFT);
+
+    // sanity check that the new question has different id.
+    assertThat(publishedQuestion.id).isNotEqualTo(draftQuestion.id);
+
+    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Result result = controller.edit(request, publishedQuestion.id).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminQuestionController.edit(draftQuestion.id).url());
+  }
+
+  @Test
   public void edit_returnsPopulatedForm() {
     Question question = testQuestionBank.applicantName();
     Request request = addCSRFToken(Helpers.fakeRequest()).build();
@@ -286,12 +304,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     // We can only update draft questions, so save this in the DRAFT version.
     Question originalNameQuestion =
         testQuestionBank.maybeSave(
-            new NameQuestionDefinition(
-                "applicant name",
-                Optional.empty(),
-                "name of applicant",
-                LocalizedStrings.of(Locale.US, "what is your name?"),
-                LocalizedStrings.of(Locale.US, "help text")),
+            this.createNameQuestionDuplicate(testQuestionBank.applicantName()),
             LifecycleStage.DRAFT);
     assertThat(originalNameQuestion.getQuestionTags()).isEmpty();
 
@@ -461,5 +474,15 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.update(requestBuilder.build(), question.id, "invalid_type");
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  private NameQuestionDefinition createNameQuestionDuplicate(Question question) {
+    QuestionDefinition def = question.getQuestionDefinition();
+    return new NameQuestionDefinition(
+        def.getName(),
+        Optional.empty(),
+        def.getDescription(),
+        def.getQuestionText(),
+        def.getQuestionHelpText());
   }
 }
