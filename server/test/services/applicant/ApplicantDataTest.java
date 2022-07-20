@@ -2,7 +2,6 @@ package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
-import static play.mvc.Http.Status.SEE_OTHER;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -71,8 +70,6 @@ public class ApplicantDataTest {
     String sampleDOB = "2022-10-05";
     data.setDateOfBirth(sampleDOB);
     assertThat(data.getDateOfBirth().get()).isEqualTo(sampleDOB);
-    assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{\"date_of_birth\":1664928000000}}");
-
+    assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{\"date_of_birth\":1664928000000}}");
   }
 }

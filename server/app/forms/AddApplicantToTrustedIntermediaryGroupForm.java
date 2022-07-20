@@ -1,9 +1,7 @@
 package forms;
 
-import services.question.types.QuestionType;
-
 /** Form for adding an applicant to a trusted intermediary group. */
-public class AddApplicantToTrustedIntermediaryGroupForm{
+public class AddApplicantToTrustedIntermediaryGroupForm {
   private String firstName;
   private String middleName;
   private String lastName;
@@ -49,5 +47,4 @@ public class AddApplicantToTrustedIntermediaryGroupForm{
   public void setEmailAddress(String emailAddress) {
     this.emailAddress = emailAddress;
   }
-
 }

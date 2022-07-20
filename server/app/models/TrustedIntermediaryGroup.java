@@ -1,7 +1,6 @@
 package models;
 
 import com.google.common.collect.ImmutableList;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -11,8 +10,6 @@ import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.text.SimpleDateFormat;
-import java.text.ParseException;
 
 /**
  * An EBean mapped class that represents a group of trusted intermediaries, usually corresponding to
@@ -58,10 +55,10 @@ public class TrustedIntermediaryGroup extends BaseModel {
     return this.description;
   }
 
-  public ImmutableList<Account> getManagedAccounts(Optional<String> search,Optional<String> searchDate) {
+  public ImmutableList<Account> getManagedAccounts(
+      Optional<String> search, Optional<String> searchDate) {
     ImmutableList<Account> allAccounts = getManagedAccounts();
-    if (search.isPresent())
-    {
+    if (search.isPresent()) {
       allAccounts =
           allAccounts.stream()
               .filter(
@@ -72,15 +69,16 @@ public class TrustedIntermediaryGroup extends BaseModel {
                           .contains(search.get().toLowerCase(Locale.ROOT)))
               .collect(ImmutableList.toImmutableList());
     }
-    if(searchDate.isPresent())
-    {
-      LocalDate localDate = LocalDate.parse(searchDate.get(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    if (searchDate.isPresent()) {
+      LocalDate localDate =
+          LocalDate.parse(searchDate.get(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
       allAccounts =
           allAccounts.stream()
-            .filter(
-              account ->
-                account.getApplicantDateOfBirth().isPresent() && account.getApplicantDateOfBirth().get().equals(localDate))
-                  .collect(ImmutableList.toImmutableList());
+              .filter(
+                  account ->
+                      account.getApplicantDateOfBirth().isPresent()
+                          && account.getApplicantDateOfBirth().get().equals(localDate))
+              .collect(ImmutableList.toImmutableList());
     }
     return allAccounts;
   }

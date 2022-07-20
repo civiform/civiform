@@ -4,7 +4,6 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbArray;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -162,10 +161,11 @@ public class Account extends BaseModel {
         .map(u -> u.getApplicantData().getApplicantName().orElse("<Unnamed User>"))
         .orElse("<Unnamed User>");
   }
+
   public Optional<LocalDate> getApplicantDateOfBirth() {
     return this.getApplicants().stream()
-      .max(Comparator.comparing(Applicant::getWhenCreated))
-      .map(u -> u.getApplicantData().getDateOfBirth())
-      .orElse(null);
+        .max(Comparator.comparing(Applicant::getWhenCreated))
+        .map(u -> u.getApplicantData().getDateOfBirth())
+        .orElse(Optional.empty());
   }
 }
