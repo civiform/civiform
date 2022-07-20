@@ -188,17 +188,15 @@ public final class AdminProgramStatusesController extends CiviFormController {
     statusesForUpdate.remove(toRemoveIndex);
     current.setStatuses(ImmutableList.copyOf(statusesForUpdate));
     ErrorAnd<ProgramDefinition, CiviFormError> setStatusResult =
-            service.setStatuses(programId, current);
-    Result result = redirect(routes.AdminProgramStatusesController.index(programId).url())
-      .flashing("success", "Status deleted");
+        service.setStatuses(programId, current);
+    Result result =
+        redirect(routes.AdminProgramStatusesController.index(programId).url())
+            .flashing("success", "Status deleted");
     if (setStatusResult.isError()) {
       String errorMessage = joinErrors(setStatusResult.getErrors());
       result = result.flashing("error", errorMessage);
     } else {
-      result =
-          result.flashing(
-              "success",
-              "Status deleted");
+      result = result.flashing("success", "Status deleted");
     }
 
     return result;
