@@ -31,10 +31,7 @@ import views.admin.ti.TrustedIntermediaryGroupListView;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.ToastMessage;
-import views.style.BaseStyles;
-import views.style.ReferenceClasses;
-import views.style.StyleUtils;
-import views.style.Styles;
+import views.style.*;
 
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryDashboardView extends BaseHtmlView {
@@ -235,9 +232,9 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   }
 
   private TdTag renderDateOfBirthCell(
-    Account applicant, TrustedIntermediaryGroup tiGroup, Http.Request request) {
+    Account account, TrustedIntermediaryGroup tiGroup, Http.Request request) {
 
-    Optional<Applicant> newestApplicant = applicant.newestApplicant();
+    Optional<Applicant> newestApplicant = account.newestApplicant();
     if (newestApplicant.isEmpty()) {
       return td().withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
     }
@@ -259,7 +256,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
           .withClass(Styles.FLEX)
           .withMethod("POST")
           .withAction(
-            routes.TrustedIntermediaryController.updateDateOfBirth(tiGroup.id, applicant.id)
+            routes.TrustedIntermediaryController.updateDateOfBirth(tiGroup.id, account.id)
               .url())
           .with(
             input()
@@ -267,7 +264,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
               .withName("dob")
               .withPlaceholder("Click to Enter"),
             makeCsrfTokenInputTag(request),
-            submitButton("Update").withClasses(Styles.P_0,Styles.ML_2, Styles.MB_6)));
+            submitButton("Update").withClasses(Styles.P_0, ApplicantStyles.BUTTON_PROGRAM_APPLY)));
   }
 
   private TdTag renderApplicantInfoCell(Account applicantAccount) {

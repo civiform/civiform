@@ -97,6 +97,7 @@ public class TrustedIntermediaryController {
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
 
     if (civiformProfile.isEmpty()) {
+      System.out.println("civiformProfile.isEmpty()");
       return unauthorized();
     }
     Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
@@ -105,21 +106,23 @@ public class TrustedIntermediaryController {
       return notFound();
     }
     if (!trustedIntermediaryGroup.get().id.equals(tiId)) {
+      System.out.println("!trustedIntermediaryGroup.get().id.equals(id)" + trustedIntermediaryGroup.get().id + "----" + tiId);
       return unauthorized();
     }
     Form<UpdateApplicantDOB> form =
         formFactory.form(UpdateApplicantDOB.class).bindFromRequest(request);
     if (form.hasErrors()) {
-      return redirectToDashboardWithDOBError(form.errors().get(0).message(), form);
+      return redirectToDashboardWithUpdateDateOfBirthError(form.errors().get(0).message(), form);
     }
     if (Strings.isNullOrEmpty(form.get().getDob())) {
-      return redirectToDashboardWithDOBError("Date Of Birth is required.", form);
+      return redirectToDashboardWithUpdateDateOfBirthError("Date Of Birth is required.", form);
     }
 
     Applicant applicant =
         userRepository.lookupApplicant(applicantId).toCompletableFuture().join().get();
     applicant.getApplicantData().setDateOfBirth(form.get().getDob());
     userRepository.updateApplicant(applicant);
+    System.out.println("Applicant updated");
     return redirect(
         routes.TrustedIntermediaryController.dashboard(Optional.empty(),Optional.empty(),Optional.empty()));
   }
@@ -128,40 +131,45 @@ public class TrustedIntermediaryController {
   public Result addApplicant(Long id, Http.Request request) {
     Optional<CiviFormProfile> civiformProfile = profileUtils.currentUserProfile(request);
     if (civiformProfile.isEmpty()) {
-      System.out.println("civiformProfile not found");
+      System.out.println("civiformProfile.isEmpty()");
       return unauthorized();
     }
     Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
         userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
-      System.out.println("trustedIntermediaryGroup Empty");
+      System.out.println("trustedIntermediaryGroup.isEmpty()");
       return notFound();
     }
     if (!trustedIntermediaryGroup.get().id.equals(id)) {
-      System.out.println("trustedIntermediaryGroup unauthorized");
-      System.out.println("GivenId " + trustedIntermediaryGroup.get().id + "Id in param :" + id);
+      System.out.println("!trustedIntermediaryGroup.get().id.equals(id)" + trustedIntermediaryGroup.get().id + "----" + id);
       return unauthorized();
     }
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
         formFactory.form(AddApplicantToTrustedIntermediaryGroupForm.class).bindFromRequest(request);
     if (form.hasErrors()) {
+      System.out.println("form.hasErrors()");
       return redirectToDashboardWithError(form.errors().get(0).message(), form);
     }
     if (Strings.isNullOrEmpty(form.get().getFirstName())) {
+      System.out.println("fform.get().getfirstName()");
       return redirectToDashboardWithError("First name required.", form);
     }
     if (Strings.isNullOrEmpty(form.get().getLastName())) {
+      System.out.println("form.get().getLastName()");
       return redirectToDashboardWithError("Last name required.", form);
     }
     if (Strings.isNullOrEmpty(form.get().getDob())) {
+      System.out.println("form.getDOB");
       return redirectToDashboardWithError("Date Of Birth required.", form);
     }
     try {
       userRepository.createNewApplicantForTrustedIntermediaryGroup(
           form.get(), trustedIntermediaryGroup.get());
+      System.out.println("Created Applicant");
       return redirect(
           routes.TrustedIntermediaryController.dashboard(Optional.empty(), Optional.empty(), Optional.empty()));
     } catch (EmailAddressExistsException e) {
+      System.out.println("Email00000AddressExistsException");
       String trustedIntermediaryUrl = baseUrl + "/trustedIntermediaries";
 
       return redirectToDashboardWithError(
@@ -185,7 +193,7 @@ public class TrustedIntermediaryController {
         .flashing("providedDateOfBirth", form.get().getDob());
   }
 
-  private Result redirectToDashboardWithDOBError(
+  private Result redirectToDashboardWithUpdateDateOfBirthError(
       String errorMessage, Form<UpdateApplicantDOB> form) {
     return redirect(
             routes.TrustedIntermediaryController.dashboard(Optional.empty(),Optional.empty(), Optional.empty()))

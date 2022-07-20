@@ -165,7 +165,9 @@ public class ProfileFactory {
 
     if (existingGroups.isEmpty()) {
       group = userRepository.createNewTrustedIntermediaryGroup("Test group", "Created for testing");
+      System.out.println("It is Empty");
     } else {
+      System.out.println("It has value");
       group = existingGroups.get(0);
     }
 
