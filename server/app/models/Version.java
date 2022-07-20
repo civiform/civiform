@@ -68,6 +68,11 @@ public class Version extends BaseModel {
     return this;
   }
 
+  public Version addQuestion(Question question) {
+    this.questions.add(question);
+    return this;
+  }
+
   public Version setLifecycleStage(LifecycleStage lifecycleStage) {
     this.lifecycleStage = lifecycleStage;
     return this;

@@ -95,7 +95,7 @@ public class VersionRepository {
               activeQuestion ->
                   !draftQuestionNames.contains(activeQuestion.getQuestionDefinition().getName()))
           // For each active question not associated with the draft, associate it with the draft.
-          .forEach(activeQuestionNotInDraft -> activeQuestionNotInDraft.addVersion(draft).save());
+          .forEach(activeQuestionNotInDraft -> draft.addQuestion(activeQuestionNotInDraft));
       // Move forward the ACTIVE version.
       active.setLifecycleStage(LifecycleStage.OBSOLETE).save();
       draft.setLifecycleStage(LifecycleStage.ACTIVE).save();
