@@ -36,7 +36,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 
 /** A repository object for dealing with versioning of questions and programs. */
-public class VersionRepository {
+public final class VersionRepository {
 
   private static final Logger logger = LoggerFactory.getLogger(VersionRepository.class);
   private final Database database;
@@ -53,6 +53,14 @@ public class VersionRepository {
    * ACTIVE, and all ACTIVE programs/questions without a draft will be copied to the next version.
    */
   public void publishNewSynchronizedVersion() {
+    publishNewSynchronizedVersion(false);
+  }
+
+  public Version previewPublishNewSynchronizedVersion() {
+    return publishNewSynchronizedVersion(true);
+  }
+
+  private Version publishNewSynchronizedVersion(boolean dryRun) {
     try {
       database.beginTransaction();
       Version draft = getDraftVersion();
@@ -97,10 +105,18 @@ public class VersionRepository {
           // For each active question not associated with the draft, associate it with the draft.
           .forEach(activeQuestionNotInDraft -> draft.addQuestion(activeQuestionNotInDraft));
       // Move forward the ACTIVE version.
-      active.setLifecycleStage(LifecycleStage.OBSOLETE).save();
-      draft.setLifecycleStage(LifecycleStage.ACTIVE).save();
-      draft.refresh();
+      active.setLifecycleStage(LifecycleStage.OBSOLETE);
+      draft.setLifecycleStage(LifecycleStage.ACTIVE);
+
+      if (!dryRun) {
+        draft.save();
+        active.save();
+        draft.refresh();
+        active.refresh();
+      }
       database.commitTransaction();
+
+      return draft;
     } finally {
       database.endTransaction();
     }
@@ -260,7 +276,7 @@ public class VersionRepository {
   // Update the referenced question IDs in all leaf nodes. Since nodes are immutable, we
   // recursively recreate the tree with updated leaf nodes.
   @VisibleForTesting
-  protected PredicateExpressionNode updatePredicateNode(PredicateExpressionNode current) {
+  PredicateExpressionNode updatePredicateNode(PredicateExpressionNode current) {
     switch (current.getType()) {
       case AND:
         AndNode and = current.getAndNode();

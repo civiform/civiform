@@ -74,6 +74,39 @@ public class VersionRepositoryTest extends ResetPostgres {
     Version oldDraft = versionRepository.getDraftVersion();
     Version oldActive = versionRepository.getActiveVersion();
 
+    // First, preview the changes and ensure no versions are updated.
+    Version toApplyNewActiveVersion = versionRepository.previewPublishNewSynchronizedVersion();
+    assertThat(versionRepository.getDraftVersion().id).isEqualTo(oldDraft.id);
+    assertThat(versionRepository.getActiveVersion().id).isEqualTo(oldActive.id);
+    assertThat(versionRepository.getDraftVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyElementsOf(
+            oldDraft.getPrograms().stream()
+                .map(p -> p.id)
+                .collect(ImmutableList.toImmutableList()));
+    assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyElementsOf(
+            oldDraft.getQuestions().stream()
+                .map(q -> q.id)
+                .collect(ImmutableList.toImmutableList()));
+    assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyElementsOf(
+            oldActive.getPrograms().stream()
+                .map(p -> p.id)
+                .collect(ImmutableList.toImmutableList()));
+    assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyElementsOf(
+            oldActive.getQuestions().stream()
+                .map(q -> q.id)
+                .collect(ImmutableList.toImmutableList()));
+
+    assertThat(toApplyNewActiveVersion.id).isEqualTo(oldDraft.id);
+    assertThat(toApplyNewActiveVersion.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    assertThat(toApplyNewActiveVersion.getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(secondProgramDraft.id, firstProgramActive.id);
+    assertThat(toApplyNewActiveVersion.getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
+
+    // Now actually publish the version and assert the results.
     versionRepository.publishNewSynchronizedVersion();
 
     oldDraft.refresh();
