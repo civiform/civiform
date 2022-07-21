@@ -63,9 +63,13 @@ public final class AdminProgramStatusesController extends CiviFormController {
 
     Optional<Form<ProgramStatusesEditForm>> maybeEditForm = Optional.empty();
     if (request.method().equalsIgnoreCase(HttpVerbs.POST)) {
-      Pair<Form<ProgramStatusesEditForm>, Optional<StatusDefinitions>> validated;
+      Form<ProgramStatusesEditForm> editForm;
+      Optional<StatusDefinitions> updatedStatus;
       try {
-        validated = validateEditRequest(request, program);
+        Pair<Form<ProgramStatusesEditForm>, Optional<StatusDefinitions>> validated =
+            validateEditRequest(request, program);
+        editForm = validated.getLeft();
+        updatedStatus = validated.getRight();
       } catch (MissingStatusException e) {
         return redirect(routes.AdminProgramStatusesController.index(programId).url())
             .flashing(
@@ -73,23 +77,20 @@ public final class AdminProgramStatusesController extends CiviFormController {
                 "The status being edited no longer exists and may have been modified in a separate"
                     + " window.");
       }
-      maybeEditForm = Optional.of(validated.getLeft());
-      if (!validated.getLeft().hasErrors() && validated.getRight().isPresent()) {
+      maybeEditForm = Optional.of(editForm);
+      if (!editForm.hasErrors() && updatedStatus.isPresent()) {
         Result result = redirect(routes.AdminProgramStatusesController.index(programId).url());
         ErrorAnd<ProgramDefinition, CiviFormError> setStatusResult =
-            service.setStatuses(programId, validated.getRight().get());
+            service.setStatuses(programId, updatedStatus.get());
         if (setStatusResult.isError()) {
           String errorMessage = joinErrors(setStatusResult.getErrors());
-          result = result.flashing("error", errorMessage);
-        } else {
-          result =
-              result.flashing(
-                  "success",
-                  previousStatusCount == validated.getRight().get().getStatuses().size()
-                      ? "Status updated"
-                      : "Status created");
+          return result.flashing("error", errorMessage);
         }
-        return result;
+        return result.flashing(
+            "success",
+            previousStatusCount == updatedStatus.get().getStatuses().size()
+                ? "Status updated"
+                : "Status created");
       }
     }
 
