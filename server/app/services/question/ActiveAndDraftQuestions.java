@@ -1,15 +1,23 @@
 package services.question;
 
 import akka.japi.Pair;
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Streams;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import models.Program;
 import models.Question;
 import models.Version;
 import services.DeletionStatus;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -24,8 +32,12 @@ public final class ActiveAndDraftQuestions {
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
   private final ImmutableMap<String, DeletionStatus> deletionStatusByName;
+  private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
+      referencingDraftProgramsByName;
+  private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
+      referencingActiveProgramsByName;
 
-  public ActiveAndDraftQuestions(Version active, Version draft) {
+  public ActiveAndDraftQuestions(Version active, Version draft, Version withEditsDraft) {
     ImmutableMap.Builder<String, QuestionDefinition> activeToName = ImmutableMap.builder();
     ImmutableMap.Builder<String, QuestionDefinition> draftToName = ImmutableMap.builder();
     ImmutableMap.Builder<String, DeletionStatus> deletionStatusBuilder = ImmutableMap.builder();
@@ -57,6 +69,41 @@ public final class ActiveAndDraftQuestions {
       }
     }
     deletionStatusByName = deletionStatusBuilder.build();
+
+    referencingActiveProgramsByName = buildReferencingProgramsMap(active);
+    Version forDraftVersion =
+        draft.getPrograms().isEmpty() && draft.getQuestions().isEmpty() ? draft : withEditsDraft;
+    referencingDraftProgramsByName = buildReferencingProgramsMap(forDraftVersion);
+  }
+
+  private static ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
+      Version version) {
+    ImmutableMap<Long, String> questionIdToNameLookup =
+        version.getQuestions().stream()
+            .map(Question::getQuestionDefinition)
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    QuestionDefinition::getId, QuestionDefinition::getName));
+    Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
+    for (Program program : version.getPrograms()) {
+      ImmutableList<String> programQuestionNames =
+          program.getProgramDefinition().blockDefinitions().stream()
+              .map(BlockDefinition::programQuestionDefinitions)
+              .flatMap(ImmutableList::stream)
+              .map(ProgramQuestionDefinition::id)
+              .filter(questionIdToNameLookup::containsKey)
+              .map(questionIdToNameLookup::get)
+              .collect(ImmutableList.toImmutableList());
+      for (String questionName : programQuestionNames) {
+        if (!result.containsKey(questionName)) {
+          result.put(questionName, Sets.newHashSet());
+        }
+        result.get(questionName).add(program.getProgramDefinition());
+      }
+    }
+    return result.entrySet().stream()
+        .collect(
+            ImmutableMap.toImmutableMap(e -> e.getKey(), e -> ImmutableSet.copyOf(e.getValue())));
   }
 
   private static boolean isNotDeletable(
@@ -91,5 +138,35 @@ public final class ActiveAndDraftQuestions {
 
   public Optional<QuestionDefinition> getDraftQuestionDefinition(String name) {
     return versionedByName.get(name).second();
+  }
+
+  public ReferencingPrograms getReferencingPrograms(String name) {
+    return ReferencingPrograms.builder()
+        .setActiveReferences(referencingActiveProgramsByName.getOrDefault(name, ImmutableSet.of()))
+        .setDraftReferences(referencingDraftProgramsByName.getOrDefault(name, ImmutableSet.of()))
+        .build();
+  }
+
+  @AutoValue
+  public abstract static class ReferencingPrograms {
+
+    ReferencingPrograms() {}
+
+    public abstract ImmutableSet<ProgramDefinition> draftReferences();
+
+    public abstract ImmutableSet<ProgramDefinition> activeReferences();
+
+    private static Builder builder() {
+      return new AutoValue_ActiveAndDraftQuestions_ReferencingPrograms.Builder();
+    }
+
+    @AutoValue.Builder
+    abstract static class Builder {
+      abstract Builder setDraftReferences(ImmutableSet<ProgramDefinition> v);
+
+      abstract Builder setActiveReferences(ImmutableSet<ProgramDefinition> v);
+
+      abstract ReferencingPrograms build();
+    }
   }
 }

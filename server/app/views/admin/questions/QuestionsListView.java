@@ -134,11 +134,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 each(
                     activeAndDraftQuestions.getQuestionNames(),
                     (questionName) ->
-                        renderQuestionTableRow(
-                            activeAndDraftQuestions.getActiveQuestionDefinition(questionName),
-                            activeAndDraftQuestions.getDraftQuestionDefinition(questionName),
-                            activeAndDraftQuestions.getDeletionStatus(questionName),
-                            request))));
+                        renderQuestionTableRow(questionName, activeAndDraftQuestions, request))));
   }
 
   /** Render the question table header row. */
@@ -148,6 +144,8 @@ public final class QuestionsListView extends BaseHtmlView {
             .with(th("Info").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4))
             .with(th("Question text").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_3))
             .with(th("Supported languages").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_6))
+            .with(
+                th("Referencing programs").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_6))
             .with(
                 th("Actions")
                     .withClasses(
@@ -163,10 +161,12 @@ public final class QuestionsListView extends BaseHtmlView {
    * <p>One of {@code activeDefinition} and {@code draftDefinition} must be specified.
    */
   private TrTag renderQuestionTableRow(
-      Optional<QuestionDefinition> activeDefinition,
-      Optional<QuestionDefinition> draftDefinition,
-      DeletionStatus deletionStatus,
-      Http.Request request) {
+      String questionName, ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
+    Optional<QuestionDefinition> activeDefinition =
+        activeAndDraftQuestions.getActiveQuestionDefinition(questionName);
+    Optional<QuestionDefinition> draftDefinition =
+        activeAndDraftQuestions.getDraftQuestionDefinition(questionName);
+    DeletionStatus deletionStatus = activeAndDraftQuestions.getDeletionStatus(questionName);
     if (draftDefinition.isEmpty() && activeDefinition.isEmpty()) {
       throw new IllegalArgumentException("Did not receive a valid question.");
     }
@@ -179,6 +179,8 @@ public final class QuestionsListView extends BaseHtmlView {
         .with(renderInfoCell(latestDefinition))
         .with(renderQuestionTextCell(latestDefinition))
         .with(renderSupportedLanguages(latestDefinition))
+        .with(
+            renderReferencingPrograms(activeAndDraftQuestions.getReferencingPrograms(questionName)))
         .with(renderActionsCell(activeDefinition, draftDefinition, deletionStatus, request));
   }
 
@@ -217,6 +219,17 @@ public final class QuestionsListView extends BaseHtmlView {
             .map(locale -> locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE))
             .collect(Collectors.joining(", "));
     return td().with(div(formattedLanguages))
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+  }
+
+  private TdTag renderReferencingPrograms(
+      ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms) {
+    return td().with(
+            div(
+                String.format(
+                    "Used across %d active and %d draft programs",
+                    referencingPrograms.activeReferences().size(),
+                    referencingPrograms.draftReferences().size())))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 

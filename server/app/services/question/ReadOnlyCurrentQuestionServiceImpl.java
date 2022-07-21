@@ -28,7 +28,8 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
   private final ImmutableSet<QuestionDefinition> upToDateQuestions;
   private final ActiveAndDraftQuestions activeAndDraftQuestions;
 
-  public ReadOnlyCurrentQuestionServiceImpl(Version activeVersion, Version draftVersion) {
+  public ReadOnlyCurrentQuestionServiceImpl(
+      Version activeVersion, Version draftVersion, Version withEditsVersion) {
     checkNotNull(activeVersion);
     checkState(
         activeVersion.getLifecycleStage().equals(LifecycleStage.ACTIVE),
@@ -64,7 +65,8 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
     }
     questionsById = questionIdMap.build();
     upToDateQuestions = upToDateBuilder.build();
-    activeAndDraftQuestions = new ActiveAndDraftQuestions(activeVersion, draftVersion);
+    activeAndDraftQuestions =
+        new ActiveAndDraftQuestions(activeVersion, draftVersion, withEditsVersion);
   }
 
   @Override

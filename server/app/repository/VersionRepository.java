@@ -65,8 +65,6 @@ public final class VersionRepository {
       database.beginTransaction();
       Version draft = getDraftVersion();
       Version active = getActiveVersion();
-      Preconditions.checkState(
-          draft.getPrograms().size() > 0, "Must have at least 1 program in the draft version.");
 
       ImmutableSet<String> draftProgramsNames = draft.getProgramsNames();
       ImmutableSet<String> draftQuestionNames = draft.getQuestionNames();
@@ -109,6 +107,8 @@ public final class VersionRepository {
       draft.setLifecycleStage(LifecycleStage.ACTIVE);
 
       if (!dryRun) {
+        Preconditions.checkState(
+            draft.getPrograms().size() > 0, "Must have at least 1 program in the draft version.");
         draft.save();
         active.save();
         draft.refresh();

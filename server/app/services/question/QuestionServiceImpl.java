@@ -70,7 +70,8 @@ public final class QuestionServiceImpl implements QuestionService {
   private ReadOnlyQuestionService readOnlyQuestionService() {
     return new ReadOnlyCurrentQuestionServiceImpl(
         versionRepositoryProvider.get().getActiveVersion(),
-        versionRepositoryProvider.get().getDraftVersion());
+        versionRepositoryProvider.get().getDraftVersion(),
+        versionRepositoryProvider.get().previewPublishNewSynchronizedVersion());
   }
 
   @Override
