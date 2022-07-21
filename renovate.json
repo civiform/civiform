@@ -1,6 +1,5 @@
 {
   "extends": ["config:base"],
-  "ignoreDeps": ["bellsoft/liberica-openjdk-alpine", "adoptopenjdk/openjdk11"],
   "packageRules": [
     {
       "groupName": "autovalue",
