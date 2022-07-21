@@ -8,5 +8,5 @@ docker::set_project_name_dev
 bin/pull-image
 
 docker::run_shell_container
-docker::run_shell_command npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css
+docker::run_shell_command npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css --watch
 docker::stop_shell_container
