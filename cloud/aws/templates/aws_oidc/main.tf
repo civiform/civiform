@@ -35,6 +35,7 @@ resource "aws_db_instance" "civiform" {
   publicly_accessible     = false
   skip_final_snapshot     = true
   backup_retention_period = var.postgres_backup_retention_days
+  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
 }
 
 module "email_service" {
