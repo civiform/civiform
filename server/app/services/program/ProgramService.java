@@ -369,4 +369,8 @@ public interface ProgramService {
 
   /** Get the slugs for all programs. */
   ImmutableSet<String> getAllProgramSlugs();
+
+  /** Set the statuses available for application reviews. */
+  ErrorAnd<ProgramDefinition, CiviFormError> setStatuses(long programId, StatusDefinitions statuses)
+      throws ProgramNotFoundException;
 }

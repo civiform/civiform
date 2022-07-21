@@ -21,6 +21,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
+import support.ProgramBuilder;
 
 public class QuestionServiceImplTest extends ResetPostgres {
   private static final QuestionDefinition questionDefinition =
@@ -35,12 +36,8 @@ public class QuestionServiceImplTest extends ResetPostgres {
   VersionRepository versionRepository;
 
   @Before
-  public void setProgramServiceImpl() {
+  public void setUp() {
     questionService = instanceOf(QuestionServiceImpl.class);
-  }
-
-  @Before
-  public void setVersionRepository() {
     versionRepository = instanceOf(VersionRepository.class);
   }
 
@@ -224,5 +221,85 @@ public class QuestionServiceImplTest extends ResetPostgres {
     assertThat(dependentDraft).isPresent();
     assertThat(dependentDraft.get().getQuestionDefinition().getEnumeratorId().get())
         .isEqualTo(enumeratorActiveId);
+  }
+
+  @Test
+  public void archiveQuestion_notReferencedSucceeds() throws Exception {
+    Question addressQuestion = testQuestionBank.applicantAddress();
+
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+        .doesNotContain(addressQuestion.getQuestionDefinition().getName());
+    questionService.archiveQuestion(addressQuestion.id);
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+        .contains(addressQuestion.getQuestionDefinition().getName());
+  }
+
+  @Test
+  public void archiveQuestion_referencedFails() {
+    Question addressQuestion = testQuestionBank.applicantAddress();
+    // Create a program that references the question.
+    ProgramBuilder.newDraftProgram()
+        .withBlock()
+        .withRequiredQuestion(addressQuestion)
+        .withBlock()
+        .build();
+
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+        .doesNotContain(addressQuestion.getQuestionDefinition().getName());
+    assertThatThrownBy(() -> questionService.archiveQuestion(addressQuestion.id))
+        .isInstanceOf(InvalidUpdateException.class);
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+        .doesNotContain(addressQuestion.getQuestionDefinition().getName());
+  }
+
+  @Test
+  public void archiveQuestion_alreadyArchivedFails() throws Exception {
+    Question addressQuestion = testQuestionBank.applicantAddress();
+    questionService.archiveQuestion(addressQuestion.id);
+
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+        .contains(addressQuestion.getQuestionDefinition().getName());
+    assertThatThrownBy(() -> questionService.archiveQuestion(addressQuestion.id))
+        .isInstanceOf(InvalidUpdateException.class);
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+        .contains(addressQuestion.getQuestionDefinition().getName());
+  }
+
+  @Test
+  public void archiveQuestion_invalidIdFails() {
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames()).isEmpty();
+    assertThatThrownBy(() -> questionService.archiveQuestion(Long.MAX_VALUE))
+        .isInstanceOf(InvalidUpdateException.class);
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames()).isEmpty();
+  }
+
+  @Test
+  public void restoreQuestion_pendingDeletionSucceeds() throws Exception {
+    Question addressQuestion = testQuestionBank.applicantAddress();
+    questionService.archiveQuestion(addressQuestion.id);
+
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+        .contains(addressQuestion.getQuestionDefinition().getName());
+    questionService.restoreQuestion(addressQuestion.id);
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+        .doesNotContain(addressQuestion.getQuestionDefinition().getName());
+  }
+
+  @Test
+  public void restoreQuestion_notArchivedFails() {
+    Question addressQuestion = testQuestionBank.applicantAddress();
+
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames()).isEmpty();
+    assertThatThrownBy(() -> questionService.restoreQuestion(addressQuestion.id))
+        .isInstanceOf(InvalidUpdateException.class);
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames()).isEmpty();
+  }
+
+  @Test
+  public void restoreQuestion_invalidIdFails() {
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames()).isEmpty();
+    assertThatThrownBy(() -> questionService.restoreQuestion(Long.MAX_VALUE))
+        .isInstanceOf(InvalidUpdateException.class);
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames()).isEmpty();
   }
 }

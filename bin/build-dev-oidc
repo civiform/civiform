@@ -1,0 +1,19 @@
+#! /usr/bin/env bash
+
+# DOC: Build a new fake oidc docker image, and optionally push to Docker Hub if PUSH_IMAGE is set to anything.
+
+source bin/lib.sh
+
+docker build \
+  -t civiform/oidc-provider:latest \
+  -f test-support/oidc.Dockerfile \
+  --cache-from civiform/oidc-provider:latest \
+  --build-arg BUILDKIT_INLINE_CACHE=1 \
+  test-support/
+
+if [[ "${PUSH_IMAGE}" ]]; then
+  docker::do_dockerhub_login
+
+  # Push the new image to the Docker Hub registry.
+  docker push docker.io/civiform/oidc-provider:latest
+fi

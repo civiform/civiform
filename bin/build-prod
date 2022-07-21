@@ -1,0 +1,28 @@
+#! /usr/bin/env bash
+
+# DOC: Build a new production docker image, tagged with short commit SHA and unix seconds timestamp, and optionally push to Docker Hub if PUSH_IMAGE is set to anything.
+
+source bin/lib.sh
+
+readonly SHORT_SHA="$(git rev-parse --short HEAD)"
+readonly DATE_IN_UNIX_SECONDS="$(date +%s)"
+readonly SNAPSHOT_TAG="SNAPSHOT-${SHORT_SHA}-${DATE_IN_UNIX_SECONDS}"
+
+echo "Building ${SNAPSHOT_TAG}..."
+
+docker build -f prod.Dockerfile \
+  -t civiform:latest \
+  --cache-from civiform/civiform:latest \
+  --build-arg BUILDKIT_INLINE_CACHE=1 \
+  --build-arg "image_tag=${SNAPSHOT_TAG}" \
+  .
+
+if [[ "${PUSH_IMAGE}" ]]; then
+  docker::do_dockerhub_login
+
+  docker tag civiform:latest civiform/civiform:latest
+  docker tag civiform:latest "civiform/civiform:${SNAPSHOT_TAG}"
+
+  # push the new image to the Docker Hub registry
+  docker push --all-tags civiform/civiform
+fi

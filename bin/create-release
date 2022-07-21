@@ -1,0 +1,219 @@
+#! /usr/bin/env python3
+
+import os
+import re
+import requests
+import subprocess
+import shlex
+import sys
+
+# DOC: Create a new draft CiviForm image release. Usage: bin/create-release COMMIT_SHA RELEASE_NUMBER
+#
+# Requirements:
+#   Must have creds to login to docker hub as 'civiform' user.
+#   Must have a GitHub API token with repo and read:org scopes located at 'gh-release-token.txt' or
+#   in the GH_RELEASE_TOKEN_ENV_VAR_NAME environment variable.
+#
+# When successful, this script:
+#   1. tags the git commit for the release with the release number
+#   2. tags the docker image for the release with the release number
+#   3. creates a new draft release on github
+
+
+def shell_cmd(command_string):
+    process = subprocess.run(
+        shlex.split(command_string), check=True, capture_output=True)
+    return process.stdout.decode('ascii') if process else ''
+
+
+GH_RELEASE_TOKEN_FILENAME = 'gh-release-token.txt'
+GH_RELEASE_TOKEN_ENV_VAR_NAME = 'GH_TOKEN'
+
+
+def main():
+    if len(sys.argv) != 3:
+        print(
+            'Usage: bin/create-release COMMIT_SHA RELEASE_NUMBER',
+            file=sys.stderr)
+        exit(1)
+
+    if not os.path.exists(GH_RELEASE_TOKEN_FILENAME
+                         ) and not GH_RELEASE_TOKEN_ENV_VAR_NAME in os.environ:
+        print(
+            f'''
+        {GH_RELEASE_TOKEN_FILENAME} not found in project base directory and {GH_RELEASE_TOKEN_ENV_VAR_NAME} not found in env
+        Create one with repo and read:org scopes at https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+    ''',
+            file=sys.stderr)
+        exit(1)
+
+    ################################################################################
+    # Set release variables
+    ################################################################################
+
+    commit_sha = sys.argv[1]
+    release_number = sys.argv[2]
+    releaser_email = shell_cmd('git config --get user.email')
+
+    ################################################################################
+    # Resolve and validate GitHub token, check auth
+    ################################################################################
+
+    if GH_RELEASE_TOKEN_ENV_VAR_NAME in os.environ:
+        gh_token = os.environ[GH_RELEASE_TOKEN_ENV_VAR_NAME]
+    else:
+        with open(GH_RELEASE_TOKEN_FILENAME, 'r') as file:
+            gh_token = file.read().rstrip()
+
+    if not gh_token.startswith('ghp_'):
+        print(
+            f'Invalid token found in {GH_RELEASE_TOKEN_FILENAME}',
+            file=sys.stderr)
+        exit(1)
+
+    check_gh_auth_response = requests.get(
+        'https://api.github.com/repos/seattle-uat/civiform',
+        headers={'Authorization': f'token {gh_token}'})
+    if check_gh_auth_response.status_code != 200:
+        print(
+            f'GitHub API auth failed, status code: {str(check_gh_auth_response.status_code)}',
+            file=sys.stderr)
+        exit(1)
+
+    ################################################################################
+    # Check docker hub auth
+    ################################################################################
+
+    if not 'Login Succeeded' in shell_cmd('docker login'):
+        print('Unable to login to docker hub', file=sys.stderr)
+        exit(1)
+
+    if not 'civiform' in shell_cmd('docker info'):
+        print('Unable to login to docker hub', file=sys.stderr)
+        exit(1)
+
+    ################################################################################
+    # Validate release version number
+    ################################################################################
+
+    if not re.match('^v\d+\.\d+\.\d+$', release_number):
+        print('Invalid version number: ' + release_number, file=sys.stderr)
+        exit(1)
+
+    ################################################################################
+    # Validate commit SHA
+    ################################################################################
+
+    # Validate commit SHA exists in main branch
+    branches_containing_commit_sha = shell_cmd(
+        'git --no-pager branch -r --contains ' + commit_sha)
+    branches_containing_commit_sha = [
+        # The output of the command is a list of branch names, with a '*' at the
+        # beginning of the current branch. This regex and the strip transform
+        # the list to only branch names with no trailing or preceding whitespace.
+        re.sub('\*', '', x).strip()
+        for x in branches_containing_commit_sha.split('\n')
+    ]
+    if not 'origin/main' in branches_containing_commit_sha:
+        print('Invalid commit SHA: ' + commit_sha, file=sys.stderr)
+        exit(1)
+
+    ################################################################################
+    # Find Docker Hub snapshot tag that matches commit SHA
+    ################################################################################
+
+    # Git defaults to using the first 7 chars of the full SHA for the short SHA.
+    short_sha = shell_cmd('git rev-parse --short ' + commit_sha)[:7]
+
+    print(f'Searching for an image tag with short SHA {short_sha}')
+
+    tags_url = 'https://registry.hub.docker.com/v2/repositories/civiform/civiform/tags?order=-last_activity&page_size=100'
+    while True:
+        snapshot_tag = None
+        response = requests.get(tags_url)
+
+        if response.status_code != 200:
+            print(
+                f'Docker Hub request failed with status code: {str(response.status_code)}',
+                file=sys.stderr)
+            exit(2)
+
+        response_json = response.json()
+
+        for tag_info in response_json['results']:
+            if short_sha in tag_info['name']:
+                snapshot_tag = tag_info['name']
+                break
+
+        if snapshot_tag is not None:
+            break
+
+        if response_json['next'] is None:
+            print(
+                f'No snapshot tag found with short SHA: {short_sha}',
+                file=sys.stderr)
+            exit(1)
+
+        tags_url = response_json['next']
+
+    print(f'Found existing server image: {snapshot_tag}')
+
+    ################################################################################
+    # Add tag to git history
+    ################################################################################
+
+    print('Adding git tag and pushing to GitHub')
+
+    shell_cmd(
+        f"git tag -a {release_number} -m 'Releaser: {releaser_email}' {commit_sha}"
+    )
+    shell_cmd(f'git push origin {release_number}')
+
+    ################################################################################
+    # Tag Docker image with release
+    ################################################################################
+
+    print('Tagging Docker image and pushing to Docker Hub')
+
+    shell_cmd(f'docker pull civiform/civiform:{snapshot_tag}')
+    shell_cmd(
+        f'docker tag civiform/civiform:{snapshot_tag} civiform/civiform:{release_number}'
+    )
+    shell_cmd(f'docker push civiform/civiform:{release_number}')
+
+    ################################################################################
+    # Create GitHub release
+    ################################################################################
+
+    print('Creating GitHub release')
+
+    create_release_url = 'https://api.github.com/repos/seattle-uat/civiform/releases'
+    create_release_body = {
+        'tag_name': release_number,
+        'name': release_number,
+        'draft': True,
+        'generate_release_notes': True
+    }
+    create_release_headers = {
+        'Accept': 'application/vnd.github.v3+json',
+        'Authorization': f'token {gh_token}'
+    }
+
+    response = requests.post(
+        create_release_url,
+        json=create_release_body,
+        headers=create_release_headers)
+    if response.status_code != 201:
+        print(
+            'GitHub request failed with status code: ' +
+            str(response.status_code),
+            file=sys.stderr)
+        print(response.json()['message'], file=sys.stderr)
+        exit(2)
+
+    release_url = response.json()['html_url']
+    print(f'\nDraft release created at: {release_url}')
+
+
+if __name__ == '__main__':
+    main()
