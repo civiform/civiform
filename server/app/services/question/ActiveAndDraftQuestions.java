@@ -38,26 +38,24 @@ public final class ActiveAndDraftQuestions {
   private final boolean draftHasEdits;
 
   public ActiveAndDraftQuestions(Version active, Version draft, Version withEditsDraft) {
-    ImmutableMap.Builder<String, QuestionDefinition> activeToName = ImmutableMap.builder();
-    ImmutableMap.Builder<String, QuestionDefinition> draftToName = ImmutableMap.builder();
-    draft.getQuestions().stream()
-        .map(Question::getQuestionDefinition)
-        .forEach(qd -> draftToName.put(qd.getName(), qd));
-    active.getQuestions().stream()
-        .map(Question::getQuestionDefinition)
-        .forEach(qd -> activeToName.put(qd.getName(), qd));
-    ImmutableMap<String, QuestionDefinition> activeNames = activeToName.build();
-    ImmutableMap<String, QuestionDefinition> draftNames = draftToName.build();
-    ImmutableMap.Builder<String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
-        versionedByNameBuilder = ImmutableMap.builder();
-    for (String name : Sets.union(activeNames.keySet(), draftNames.keySet())) {
-      versionedByNameBuilder.put(
-          name,
-          Pair.create(
-              Optional.ofNullable(activeNames.get(name)),
-              Optional.ofNullable(draftNames.get(name))));
-    }
-    versionedByName = versionedByNameBuilder.build();
+    ImmutableMap<String, QuestionDefinition> activeNames =
+        active.getQuestions().stream()
+            .map(Question::getQuestionDefinition)
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+    ImmutableMap<String, QuestionDefinition> draftNames =
+        draft.getQuestions().stream()
+            .map(Question::getQuestionDefinition)
+            .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, qd -> qd));
+    versionedByName =
+        Sets.union(activeNames.keySet(), draftNames.keySet()).stream()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    name -> name,
+                    name -> {
+                      return Pair.create(
+                          Optional.ofNullable(activeNames.get(name)),
+                          Optional.ofNullable(draftNames.get(name)));
+                    }));
 
     draftHasEdits = draft.getPrograms().size() > 0 || draft.getQuestions().size() > 0;
     referencingActiveProgramsByName = buildReferencingProgramsMap(active);
@@ -71,19 +69,24 @@ public final class ActiveAndDraftQuestions {
 
     ImmutableSet<String> tombstonedQuestionNames =
         ImmutableSet.copyOf(withEditsDraft.getTombstonedQuestionNames());
-    ImmutableMap.Builder<String, DeletionStatus> deletionStatusBuilder = ImmutableMap.builder();
-    for (String questionName : versionedByName.keySet()) {
-      if (withEditsDraftReferences.getOrDefault(questionName, ImmutableSet.of()).isEmpty()) {
-        if (tombstonedQuestionNames.contains(questionName)) {
-          deletionStatusBuilder.put(questionName, DeletionStatus.PENDING_DELETION);
-        } else {
-          deletionStatusBuilder.put(questionName, DeletionStatus.DELETABLE);
-        }
-      } else {
-        deletionStatusBuilder.put(questionName, DeletionStatus.NOT_DELETABLE);
-      }
-    }
-    deletionStatusByName = deletionStatusBuilder.build();
+    deletionStatusByName =
+        versionedByName.keySet().stream()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    questionName -> questionName,
+                    questionName -> {
+                      if (withEditsDraftReferences
+                          .getOrDefault(questionName, ImmutableSet.of())
+                          .isEmpty()) {
+                        if (tombstonedQuestionNames.contains(questionName)) {
+                          return DeletionStatus.PENDING_DELETION;
+                        } else {
+                          return DeletionStatus.DELETABLE;
+                        }
+                      } else {
+                        return DeletionStatus.NOT_DELETABLE;
+                      }
+                    }));
   }
 
   private static ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
