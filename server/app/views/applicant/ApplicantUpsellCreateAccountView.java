@@ -50,29 +50,29 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
     DivTag createAccountBox =
         div()
             .withClasses(
-                Styles.BORDER,
-                Styles.BORDER_GRAY_200,
-                Styles.ROUNDED_2XL,
-                Styles.SHADOW_MD,
-                Styles.BG_WHITE,
-                Styles.P_4,
-                StyleUtils.responsiveSmall(Styles.P_6),
-                Styles.MY_6)
+                "border",
+                "border-gray-200",
+                "rounded-2xl",
+                "shadow-md",
+                "bg-white",
+                "p-4",
+                StyleUtils.responsiveSmall("p-6"),
+                "my-6")
             .with(
                 h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName()))
-                    .withClasses(Styles.MB_4))
+                    .withClasses("mb-4"))
             .with(
                 div(messages.at(MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName()))
-                    .withClasses(Styles.MB_4))
+                    .withClasses("mb-4"))
             .with(
                 div()
                     .withClasses(
-                        Styles.FLEX,
-                        Styles.FLEX_COL,
-                        Styles.GAP_4,
-                        StyleUtils.responsiveSmall(Styles.FLEX_ROW))
+                        "flex",
+                        "flex-col",
+                        "gap-4",
+                        StyleUtils.responsiveSmall("flex-row"))
                     // Empty div to push buttons to the right on desktop.
-                    .with(div().withClasses(Styles.FLEX_GROW))
+                    .with(div().withClasses("flex-grow"))
                     .with(
                         new LinkElement()
                             .setHref(redirectTo)
@@ -101,7 +101,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
             .with(
                 div(messages.at(
                         MessageKey.CONTENT_CONFIRMED.getKeyName(), programTitle, applicationId))
-                    .withClasses(Styles.TEXT_LG));
+                    .withClasses("text-lg"));
 
     // Don't show "create an account" upsell box to TIs, or anyone with an email address already.
     if (Strings.isNullOrEmpty(account.getEmailAddress()) && account.getMemberOfGroup().isEmpty()) {

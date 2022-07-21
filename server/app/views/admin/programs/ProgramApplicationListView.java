@@ -80,7 +80,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     DivTag applicationListDiv =
         div()
             .with(
-                h1(program.adminName()).withClasses(Styles.MY_4),
+                h1(program.adminName()).withClasses("my-4"),
                 renderPaginationDiv(
                         paginationSpec.getCurrentPage(),
                         paginatedApplications.getNumPages(),
@@ -91,25 +91,25 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 Optional.of(pageNumber),
                                 filterParams.fromDate(),
                                 filterParams.untilDate()))
-                    .withClasses(Styles.MB_2),
+                    .withClasses("mb-2"),
                 br(),
                 renderSearchForm(program, downloadModal.getButton(), filterParams),
                 each(paginatedApplications.getPageContents(), this::renderApplicationListItem))
             .withClasses(
-                Styles.MT_6,
-                StyleUtils.responsiveLarge(Styles.MT_12),
-                Styles.MB_16,
-                Styles.ML_6,
-                Styles.MR_2);
+                "mt-6",
+                StyleUtils.responsiveLarge("mt-12"),
+                "mb-16",
+                "ml-6",
+                "mr-2");
 
     DivTag applicationShowDiv =
         div()
             .withClasses(
-                Styles.MT_6, StyleUtils.responsiveLarge(Styles.MT_12), Styles.W_FULL, Styles.H_FULL)
+                "mt-6", StyleUtils.responsiveLarge("mt-12"), "w-full", "h-full")
             .with(
                 iframe()
                     .withId("application-display-frame")
-                    .withClasses(Styles.W_FULL, Styles.H_FULL));
+                    .withClasses("w-full", "h-full"));
 
     HtmlBundle htmlBundle =
         layout
@@ -117,7 +117,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .setTitle(program.adminName() + " - Applications")
             .addFooterScripts(layout.viewUtils.makeLocalJsTag("admin_applications"))
             .addModals(downloadModal)
-            .addMainStyles(Styles.FLEX)
+            .addMainStyles("flex")
             .addMainContent(applicationListDiv, applicationShowDiv);
 
     return layout.renderCentered(htmlBundle);
@@ -126,7 +126,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private FormTag renderSearchForm(
       ProgramDefinition program, ButtonTag downloadButton, RenderFilterParams filterParams) {
     return form()
-        .withClasses(Styles.MT_6)
+        .withClasses("mt-6")
         .withMethod("GET")
         .withAction(
             routes.AdminApplicationController.index(
@@ -138,34 +138,34 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                 .url())
         .with(
             fieldset()
-                .withClasses(Styles.PT_1)
+                .withClasses("pt-1")
                 .with(
-                    legend("Application submitted").withClasses(Styles.ML_1, Styles.TEXT_GRAY_600),
+                    legend("Application submitted").withClasses("ml-1", "text-gray-600"),
                     div()
-                        .withClasses(Styles.FLEX, Styles.SPACE_X_3)
+                        .withClasses("flex", "space-x-3")
                         .with(
                             FieldWithLabel.date()
                                 .setFieldName(FROM_DATE_PARAM)
                                 .setValue(filterParams.fromDate().orElse(""))
                                 .setLabelText("From:")
                                 .getDateTag()
-                                .withClasses(Styles.FLEX),
+                                .withClasses("flex"),
                             FieldWithLabel.date()
                                 .setFieldName(UNTIL_DATE_PARAM)
                                 .setValue(filterParams.untilDate().orElse(""))
                                 .setLabelText("Until:")
                                 .getDateTag()
-                                .withClasses(Styles.FLEX))),
+                                .withClasses("flex"))),
             FieldWithLabel.input()
                 .setFieldName(SEARCH_PARAM)
                 .setValue(filterParams.search().orElse(""))
                 .setLabelText("Search by name, email, or application ID")
                 .getInputTag()
-                .withClasses(Styles.W_FULL, Styles.MT_4),
+                .withClasses("w-full", "mt-4"),
             div()
-                .withClasses(Styles.MT_6, Styles.MB_8, Styles.FLEX, Styles.SPACE_X_2)
+                .withClasses("mt-6", "mb-8", "flex", "space-x-2")
                 .with(
-                    div().withClass(Styles.FLEX_GROW),
+                    div().withClass("flex-grow"),
                     downloadButton,
                     makeSvgTextButton("Filter", Icons.FILTER_ALT)
                         .withClass(AdminStyles.PRIMARY_BUTTON_STYLES)
@@ -177,7 +177,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     String modalId = "download-program-applications-modal";
     DivTag modalContent =
         div()
-            .withClasses(Styles.PX_8)
+            .withClasses("px-8")
             .with(
                 form()
                     .withMethod("GET")
@@ -206,7 +206,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             .withValue(filterParams.search().orElse(""))
                             .withType("hidden"),
                         div()
-                            .withClasses(Styles.FLEX, Styles.MT_6, Styles.SPACE_X_2)
+                            .withClasses("flex", "mt-6", "space-x-2")
                             .with(
                                 TagCreator.button("Download CSV")
                                     .withClasses(
@@ -256,26 +256,26 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     DivTag cardContent =
         div()
             .withClasses(
-                Styles.BORDER, Styles.BORDER_GRAY_300, Styles.BG_WHITE, Styles.ROUNDED, Styles.P_4)
+                "border", "border-gray-300", "bg-white", "rounded", "p-4")
             .with(
                 p(applicantNameWithApplicationId)
-                    .withClasses(Styles.TEXT_BLACK, Styles.FONT_BOLD, Styles.TEXT_XL, Styles.MB_1))
+                    .withClasses("text-black", "font-bold", "text-xl", "mb-1"))
             .condWith(
                 application.getSubmitterEmail().isPresent(),
                 p(application.getSubmitterEmail().orElse(""))
-                    .withClasses(Styles.TEXT_LG, Styles.TEXT_GRAY_800, Styles.MB_2))
+                    .withClasses("text-lg", "text-gray-800", "mb-2"))
             .with(
                 div()
-                    .withClasses(Styles.FLEX, Styles.TEXT_SM, Styles.W_FULL)
+                    .withClasses("flex", "text-sm", "w-full")
                     .with(
                         p(renderSubmitTime(application))
-                            .withClasses(Styles.TEXT_GRAY_700, Styles.ITALIC),
-                        p().withClasses(Styles.FLEX_GROW),
+                            .withClasses("text-gray-700", "italic"),
+                        p().withClasses("flex-grow"),
                         renderViewLink(viewLinkText, application)));
 
     return div(cardContent)
         .withClasses(
-            ReferenceClasses.ADMIN_APPLICATION_CARD, Styles.W_FULL, Styles.SHADOW_LG, Styles.MT_4);
+            ReferenceClasses.ADMIN_APPLICATION_CARD, "w-full", "shadow-lg", "mt-4");
   }
 
   private SpanTag renderSubmitTime(Application application) {
@@ -297,7 +297,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .setId("application-view-link-" + application.id)
         .setHref(viewLink)
         .setText(text)
-        .setStyles(Styles.MR_2, ReferenceClasses.VIEW_BUTTON)
+        .setStyles("mr-2", ReferenceClasses.VIEW_BUTTON)
         .asAnchorText();
   }
 

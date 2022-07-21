@@ -52,7 +52,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
     HtmlBundle bundle =
         layout
             .getBundle()
-            .addMainStyles(Styles.MX_12, Styles.MY_8)
+            .addMainStyles("mx-12", "my-8")
             .addMainContent(topContent(programTitle, programInfo, messages))
             .addMainContent(createButtons(applicantId, program.id(), messages));
 
@@ -65,22 +65,22 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
     ATag allProgramsDiv =
         a("<")
             .withHref(homeLink)
-            .withClasses(Styles.TEXT_GRAY_500, Styles.TEXT_LEFT)
-            .with(span().withText(programsLinkText).withClasses(Styles.PX_4));
+            .withClasses("text-gray-500", "text-left")
+            .with(span().withText(programsLinkText).withClasses("px-4"));
 
     H2Tag titleDiv =
         h2().withText(programTitle)
             .withClasses(
                 BaseStyles.TEXT_SEATTLE_BLUE,
-                Styles.TEXT_2XL,
-                Styles.FONT_SEMIBOLD,
-                Styles.TEXT_GRAY_700,
-                Styles.MT_4);
+                "text-2xl",
+                "font-semibold",
+                "text-gray-700",
+                "mt-4");
 
     // "Markdown" the program description.
     ImmutableList<DomContent> items = TextFormatter.formatText(programInfo, false);
 
-    DivTag descriptionDiv = div().withClasses(Styles.PY_2).with(items);
+    DivTag descriptionDiv = div().withClasses("py-2").with(items);
 
     return div(allProgramsDiv, titleDiv, descriptionDiv);
   }
@@ -97,7 +97,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
     DivTag buttonDiv =
         div(applyLink)
             .withClasses(
-                Styles.W_FULL, Styles.MB_6, Styles.FLEX_GROW, Styles.FLEX, Styles.ITEMS_END);
+                "w-full", "mb-6", "flex-grow", "flex", "items-end");
 
     return buttonDiv;
   }

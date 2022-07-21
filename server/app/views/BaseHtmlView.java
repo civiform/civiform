@@ -38,7 +38,7 @@ import views.style.Styles;
 public abstract class BaseHtmlView {
 
   public static H1Tag renderHeader(String headerText, String... additionalClasses) {
-    return h1(headerText).withClasses(Styles.MB_4, StyleUtils.joinStyles(additionalClasses));
+    return h1(headerText).withClasses("mb-4", StyleUtils.joinStyles(additionalClasses));
   }
 
   public static DivTag fieldErrors(
@@ -65,7 +65,7 @@ public abstract class BaseHtmlView {
 
   protected static ButtonTag redirectButton(String id, String text, String redirectUrl) {
     return asRedirectButton(
-        TagCreator.button(text).withId(id).withClasses(Styles.M_2), redirectUrl);
+        TagCreator.button(text).withId(id).withClasses("m-2"), redirectUrl);
   }
 
   protected static ButtonTag asRedirectButton(ButtonTag buttonEl, String redirectUrl) {
@@ -75,8 +75,8 @@ public abstract class BaseHtmlView {
   protected static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
     return TagCreator.button()
         .with(
-            Icons.svg(icon, 18).withClasses(Styles.ML_1, Styles.INLINE_BLOCK, Styles.FLEX_SHRINK_0),
-            span(buttonText).withClass(Styles.TEXT_LEFT));
+            Icons.svg(icon, 18).withClasses("ml-1", "inline-block", "flex-shrink-0"),
+            span(buttonText).withClass("text-left"));
   }
 
   /**
@@ -105,7 +105,7 @@ public abstract class BaseHtmlView {
     div.with(
         div(paginationText)
             .withClasses(
-                Styles.LEADING_3, Styles.FLOAT_LEFT, Styles.INLINE_BLOCK, Styles.P_2, Styles.M_4));
+                "leading-3", "float-left", "inline-block", "p-2", "m-4"));
     if (pageCount > page) {
       div.with(
           new LinkElement().setText("→").setHref(linkForPage.apply(page + 1).url()).asButton());
@@ -121,7 +121,7 @@ public abstract class BaseHtmlView {
     FormTag hiddenForm =
         form()
             .withId(formId)
-            .withClass(Styles.HIDDEN)
+            .withClass("hidden")
             .withMethod("POST")
             .withAction(href)
             .with(input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken"));

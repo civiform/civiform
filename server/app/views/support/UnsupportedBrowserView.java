@@ -31,15 +31,15 @@ public final class UnsupportedBrowserView extends BaseHtmlView {
     bundle.setTitle("The browser you are currently using is not supported");
     DivTag container =
         div()
-            .withClasses(Styles.CONTAINER, Styles.MX_AUTO, Styles.MAX_W_XL, Styles.P_4)
+            .withClasses("container", "mx-auto", "max-w-xl", "p-4")
             .with(
-                h1("Unsupported browser").withClasses(Styles.TEXT_CENTER, Styles.MB_4),
+                h1("Unsupported browser").withClasses("text-center", "mb-4"),
                 div(
                     "Please use one of the browsers listed below. If you are using Windows you"
                         + " should have Microsoft Edge installed on your computer."));
     DivTag browsers =
         div()
-            .withClasses(Styles.FLEX, Styles.FLEX_WRAP, Styles.JUSTIFY_AROUND, Styles.MT_6)
+            .withClasses("flex", "flex-wrap", "justify-around", "mt-6")
             .with(
                 createBrowserIcon("Microsoft Edge", "edge-logo-128px.png"),
                 createBrowserIcon("Firefox", "firefox-logo-128px.png"),
@@ -53,12 +53,12 @@ public final class UnsupportedBrowserView extends BaseHtmlView {
 
   private static ContainerTag createBrowserIcon(String name, String logo) {
     return div()
-        .withClasses(Styles.W_1_2, StyleUtils.responsiveMedium(Styles.W_1_4), Styles.MB_6)
+        .withClasses("w-1/2", StyleUtils.responsiveMedium("w-1/4"), "mb-6")
         .with(
             img()
                 .withSrc("/assets/images/" + logo)
                 .withAlt(name + " logo")
-                .withClasses(Styles.W_24, Styles.H_24, Styles.MX_AUTO, Styles.MB_2),
-            div(name).withClasses(Styles.TEXT_CENTER));
+                .withClasses("w-24", "h-24", "mx-auto", "mb-2"),
+            div(name).withClasses("text-center"));
   }
 }

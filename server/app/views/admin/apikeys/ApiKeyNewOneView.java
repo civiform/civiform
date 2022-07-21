@@ -126,9 +126,9 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
 
     DivTag contentDiv =
         div()
-            .withClasses(Styles.PX_20)
+            .withClasses("px-20")
             .with(
-                h1(title).withClasses(Styles.MY_4),
+                h1(title).withClasses("my-4"),
                 formTag
                     .with(submitButton("Save").withId("apikey-submit-button"))
                     .withAction(routes.AdminApiKeysController.create().url()));

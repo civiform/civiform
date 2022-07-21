@@ -54,11 +54,11 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
             .getBundle()
             .setTitle(title)
             .addMainContent(
-                div().withClasses(Styles.MY_5).with(renderAddNewButton(tiGroup, request)),
+                div().withClasses("my-5").with(renderAddNewButton(tiGroup, request)),
                 div(
                     table()
                         .withClasses(
-                            Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
+                            "border", "border-gray-300", "shadow-md", "w-full")
                         .with(renderGroupTableHeader())
                         .with(
                             tbody(
@@ -88,25 +88,25 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
             formTag.with(
                 emailField.getInputTag(),
                 makeCsrfTokenInputTag(request),
-                submitButton("Add").withClasses(Styles.ML_2, Styles.MB_6)))
-        .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.MT_6);
+                submitButton("Add").withClasses("ml-2", "mb-6")))
+        .withClasses("border", "border-gray-300", "shadow-md", "mt-6");
   }
 
   private TrTag renderTIRow(TrustedIntermediaryGroup tiGroup, Account ti, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
-            Styles.BORDER_B,
-            Styles.BORDER_GRAY_300,
-            StyleUtils.even(Styles.BG_GRAY_100))
+            "border-b",
+            "border-gray-300",
+            StyleUtils.even("bg-gray-100"))
         .with(renderInfoCell(ti))
         .with(renderStatusCell(ti))
         .with(renderActionsCell(tiGroup, ti, request));
   }
 
   private TdTag renderInfoCell(Account ti) {
-    return td().with(div(ti.getApplicantName()).withClasses(Styles.FONT_SEMIBOLD))
-        .with(div(ti.getEmailAddress()).withClasses(Styles.TEXT_XS))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+    return td().with(div(ti.getApplicantName()).withClasses("font-semibold"))
+        .with(div(ti.getEmailAddress()).withClasses("text-xs"))
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }
 
   private TdTag renderStatusCell(Account ti) {
@@ -114,8 +114,8 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
     if (ti.ownedApplicantIds().isEmpty()) {
       accountStatus = "Not yet signed in.";
     }
-    return td().with(div(accountStatus).withClasses(Styles.FONT_SEMIBOLD))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+    return td().with(div(accountStatus).withClasses("font-semibold"))
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }
 
   private TdTag renderActionsCell(
@@ -135,15 +135,15 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
 
   private TheadTag renderGroupTableHeader() {
     return thead(
-        tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
-            .with(th("Members").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_2))
-            .with(th("Status").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4))
+        tr().withClasses("border-b", "bg-gray-200", "text-left")
+            .with(th("Members").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/2"))
+            .with(th("Status").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4"))
             .with(
                 th("Actions")
                     .withClasses(
                         BaseStyles.TABLE_CELL_STYLES,
-                        Styles.TEXT_RIGHT,
-                        Styles.PR_8,
-                        Styles.W_1_6)));
+                        "text-right",
+                        "pr-8",
+                        "w-1/6")));
   }
 }

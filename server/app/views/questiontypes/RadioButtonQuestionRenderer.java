@@ -73,6 +73,6 @@ public class RadioButtonQuestionRenderer extends ApplicantQuestionRendererImpl {
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO)))
             .withText(option.optionText());
 
-    return div().withClasses(Styles.MY_2, Styles.RELATIVE).with(labelTag);
+    return div().withClasses("my-2", "relative").with(labelTag);
   }
 }

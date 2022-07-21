@@ -49,16 +49,16 @@ public class LanguageSelector {
             .withId("select-language")
             .withName("locale")
             .withClasses(
-                Styles.BLOCK,
-                Styles.OUTLINE_NONE,
-                Styles.PX_3,
-                Styles.MX_3,
-                Styles.PY_1,
-                Styles.BORDER,
-                Styles.BORDER_GRAY_500,
-                Styles.ROUNDED_FULL,
-                Styles.BG_WHITE,
-                Styles.TEXT_XS,
+                "block",
+                "outline-none",
+                "px-3",
+                "mx-3",
+                "py-1",
+                "border",
+                "border-gray-500",
+                "rounded-full",
+                "bg-white",
+                "text-xs",
                 StyleUtils.focus(BaseStyles.BORDER_SEATTLE_BLUE));
 
     // An option consists of the language (localized to that language - for example,
@@ -107,7 +107,7 @@ public class LanguageSelector {
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO)))
             .withText(text);
 
-    return div().withClasses(Styles.MY_2, Styles.RELATIVE).with(labelTag);
+    return div().withClasses("my-2", "relative").with(labelTag);
   }
 
   /**

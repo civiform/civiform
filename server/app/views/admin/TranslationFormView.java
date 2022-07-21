@@ -36,7 +36,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
   /** Render a list of languages, with the currently selected language underlined. */
   public DivTag renderLanguageLinks(long entityId, Locale currentlySelected) {
     return div()
-        .withClasses(Styles.M_2)
+        .withClasses("m-2")
         .with(
             each(
                 supportedLocales,

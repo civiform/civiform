@@ -50,18 +50,18 @@ public class CurrencyQuestionRenderer extends ApplicantQuestionRendererImpl {
         div()
             .withText("$")
             .withClasses(
-                Styles.FLEX,
-                Styles.ITEMS_CENTER,
+                "flex",
+                "items-center",
                 // Same height and padding as the input field.
-                Styles.H_12,
-                Styles.MB_2,
+                "h-12",
+                "mb-2",
                 // Pad the right side.
-                Styles.MR_2,
+                "mr-2",
                 // Same text as the input field.
-                Styles.TEXT_LG);
+                "text-lg");
 
     DivTag currencyQuestionFormContent =
-        div().withClasses(Styles.FLEX).with(dollarSign).with(currencyField.getCurrencyTag());
+        div().withClasses("flex").with(dollarSign).with(currencyField.getCurrencyTag());
 
     return currencyQuestionFormContent;
   }

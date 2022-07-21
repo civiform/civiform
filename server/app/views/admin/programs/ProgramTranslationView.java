@@ -96,7 +96,7 @@ public class ProgramTranslationView extends TranslationFormView {
         ImmutableList.<FieldsetTag>builder()
             .add(
                 fieldset()
-                    .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
+                    .withClasses("my-4", "pt-1", "pb-2", "px-2", "border")
                     .with(
                         legend("Program details (visible to applicants)"),
                         FieldWithLabel.input()
@@ -122,7 +122,7 @@ public class ProgramTranslationView extends TranslationFormView {
       for (ApplicationStatus s : statusesWithEmail) {
         result.add(
             fieldset()
-                .withClasses(Styles.MY_4, Styles.PT_1, Styles.PB_2, Styles.PX_2, Styles.BORDER)
+                .withClasses("my-4", "pt-1", "pb-2", "px-2", "border")
                 .with(
                     legend(String.format("Application status: %s", s.statusName())),
                     FieldWithLabel.input()

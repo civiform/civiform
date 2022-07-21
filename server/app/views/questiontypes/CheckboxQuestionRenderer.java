@@ -46,7 +46,7 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
                     .withName(multiOptionQuestion.getSelectionPathAsArray())
                     .withValue("")
                     .withCondChecked(!multiOptionQuestion.hasValue())
-                    .withClasses(ReferenceClasses.RADIO_DEFAULT, Styles.HIDDEN))
+                    .withClasses(ReferenceClasses.RADIO_DEFAULT, "hidden"))
             .with(
                 multiOptionQuestion.getOptions().stream()
                     .sorted(Comparator.comparing(LocalizedQuestionOption::order))
@@ -80,6 +80,6 @@ public class CheckboxQuestionRenderer extends ApplicantQuestionRendererImpl {
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)))
             .withText(option.optionText());
 
-    return div().withClasses(Styles.MY_2, Styles.RELATIVE).with(labelTag);
+    return div().withClasses("my-2", "relative").with(labelTag);
   }
 }

@@ -53,7 +53,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
             .getBundle()
             .setTitle(title)
             .addMainContent(
-                renderHeader("Create New Trusted Intermediary").withClass(Styles.MT_8),
+                renderHeader("Create New Trusted Intermediary").withClass("mt-8"),
                 renderAddNewButton(request),
                 renderHeader("Existing Trusted Intermediaries"),
                 renderTiGroupCards(tis, request));
@@ -74,7 +74,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
   private DivTag renderTiGroupCards(List<TrustedIntermediaryGroup> tis, Http.Request request) {
     return div(
         table()
-            .withClasses(Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_FULL)
+            .withClasses("border", "border-gray-300", "shadow-md", "w-full")
             .with(renderGroupTableHeader())
             .with(tbody(each(tis, ti -> renderGroupRow(ti, request)))));
   }
@@ -104,34 +104,34 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
                 nameField.getInputTag(),
                 descriptionField.getInputTag(),
                 makeCsrfTokenInputTag(request),
-                submitButton("Create").withClasses(Styles.ML_2, Styles.MB_6)))
+                submitButton("Create").withClasses("ml-2", "mb-6")))
         .withClasses(
-            Styles.BORDER, Styles.BORDER_GRAY_300, Styles.SHADOW_MD, Styles.W_1_2, Styles.MT_6);
+            "border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
   }
 
   private TrTag renderGroupRow(TrustedIntermediaryGroup ti, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_TI_GROUP_ROW,
-            Styles.BORDER_B,
-            Styles.BORDER_GRAY_300,
-            StyleUtils.even(Styles.BG_GRAY_100))
+            "border-b",
+            "border-gray-300",
+            StyleUtils.even("bg-gray-100"))
         .with(renderInfoCell(ti))
         .with(renderMemberCountCell(ti))
         .with(renderActionsCell(ti, request));
   }
 
   private TdTag renderInfoCell(TrustedIntermediaryGroup tiGroup) {
-    return td().with(div(tiGroup.getName()).withClasses(Styles.FONT_SEMIBOLD))
-        .with(div(tiGroup.getDescription()).withClasses(Styles.TEXT_XS))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+    return td().with(div(tiGroup.getName()).withClasses("font-semibold"))
+        .with(div(tiGroup.getDescription()).withClasses("text-xs"))
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }
 
   private TdTag renderMemberCountCell(TrustedIntermediaryGroup tiGroup) {
     return td().with(
             div("Members: " + tiGroup.getTrustedIntermediaries().size())
-                .withClasses(Styles.FONT_SEMIBOLD))
-        .with(div("Clients: " + tiGroup.getManagedAccounts().size()).withClasses(Styles.TEXT_SM))
-        .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
+                .withClasses("font-semibold"))
+        .with(div("Clients: " + tiGroup.getManagedAccounts().size()).withClasses("text-sm"))
+        .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }
 
   private TdTag renderActionsCell(TrustedIntermediaryGroup tiGroup, Http.Request request) {
@@ -156,15 +156,15 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
 
   private TheadTag renderGroupTableHeader() {
     return thead(
-        tr().withClasses(Styles.BORDER_B, Styles.BG_GRAY_200, Styles.TEXT_LEFT)
-            .with(th("Name / Description").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_2))
-            .with(th("Size").withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.W_1_4))
+        tr().withClasses("border-b", "bg-gray-200", "text-left")
+            .with(th("Name / Description").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/2"))
+            .with(th("Size").withClasses(BaseStyles.TABLE_CELL_STYLES, "w-1/4"))
             .with(
                 th("Actions")
                     .withClasses(
                         BaseStyles.TABLE_CELL_STYLES,
-                        Styles.TEXT_RIGHT,
-                        Styles.PR_8,
-                        Styles.W_1_6)));
+                        "text-right",
+                        "pr-8",
+                        "w-1/6")));
   }
 }
