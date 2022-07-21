@@ -98,7 +98,7 @@ public class VersionRepositoryTest extends ResetPostgres {
             oldActive.getQuestions().stream()
                 .map(q -> q.id)
                 .collect(ImmutableList.toImmutableList()));
-    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifcycleStage.DRAFT);
+    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.DRAFT);
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
 
     assertThat(toApplyNewActiveVersion.id).isEqualTo(oldDraft.id);

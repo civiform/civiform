@@ -21,7 +21,9 @@ public class ReadOnlyCurrentQuestionServiceImplTest {
 
   private final ReadOnlyQuestionService emptyService =
       new ReadOnlyCurrentQuestionServiceImpl(
-          new Version(LifecycleStage.ACTIVE), new Version(LifecycleStage.DRAFT));
+          new Version(LifecycleStage.ACTIVE),
+          new Version(LifecycleStage.DRAFT),
+          new Version(LifecycleStage.DRAFT));
   private NameQuestionDefinition nameQuestion;
   private AddressQuestionDefinition addressQuestion;
   private TextQuestionDefinition basicQuestion;
@@ -47,6 +49,7 @@ public class ReadOnlyCurrentQuestionServiceImplTest {
                     .collect(ImmutableList.toImmutableList());
               }
             },
+            new Version(LifecycleStage.DRAFT),
             new Version(LifecycleStage.DRAFT));
   }
 
@@ -79,6 +82,7 @@ public class ReadOnlyCurrentQuestionServiceImplTest {
                     .collect(ImmutableList.toImmutableList());
               }
             },
+            new Version(LifecycleStage.DRAFT),
             new Version(LifecycleStage.DRAFT));
 
     assertThat(service.getAllEnumeratorQuestions().size()).isEqualTo(1);
