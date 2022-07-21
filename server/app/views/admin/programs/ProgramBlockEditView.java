@@ -271,7 +271,7 @@ public class ProgramBlockEditView extends BaseHtmlView {
     // Move down button is invisible for the last block
     String moveDownInvisible =
         blockDefinition.id() == blockDefinitions.get(blockDefinitions.size() - 1).id()
-            ? Styles.INVISIBLE
+            ? "invisible"
             : "";
     DivTag moveDown =
         div()
