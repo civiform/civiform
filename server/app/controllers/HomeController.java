@@ -4,12 +4,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.play.java.Secure;
+import play.i18n.Langs;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
@@ -25,17 +27,20 @@ public class HomeController extends Controller {
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;
   private final HttpExecutionContext httpExecutionContext;
+  private final Langs langs;
 
   @Inject
   public HomeController(
       LoginForm form,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
-      HttpExecutionContext httpExecutionContext) {
+      HttpExecutionContext httpExecutionContext,
+      Langs langs) {
     this.loginForm = checkNotNull(form);
     this.profileUtils = checkNotNull(profileUtils);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.langs = checkNotNull(langs);
   }
 
   public CompletionStage<Result> index(Http.Request request) {
@@ -62,6 +67,12 @@ public class HomeController extends Controller {
                 // If the applicant has not yet set their preferred language, redirect to
                 // the information controller to ask for preferred language.
                 ApplicantData data = applicant.getApplicantData();
+                if (langs.availables().size() <= 1 && !data.hasPreferredLocale()) {
+                  data.setPreferredLocale(
+                      langs.availables().isEmpty()
+                          ? Locale.US
+                          : langs.availables().get(0).toLocale());
+                }
                 if (data.hasPreferredLocale()) {
                   return redirect(
                           controllers.applicant.routes.ApplicantProgramsController.index(

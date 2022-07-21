@@ -3,12 +3,11 @@ package controllers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
-import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.fakeRequest;
-import static play.test.Helpers.route;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import controllers.applicant.RedirectController;
 import java.util.List;
 import models.Applicant;
 import org.junit.Before;
@@ -19,18 +18,22 @@ import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.direct.AnonymousClient;
 import org.pac4j.core.client.finder.ClientFinder;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.engine.DefaultSecurityLogic;
 import play.i18n.Lang;
 import play.i18n.Langs;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
-import play.mvc.Http;
 import play.mvc.Result;
-import views.LoginForm;
+import repository.ProgramRepository;
+import services.applicant.ApplicantService;
+import services.program.ProgramDefinition;
+import support.ProgramBuilder;
+import views.applicant.ApplicantUpsellCreateAccountView;
 
-public class HomeControllerAuthenticatedTest extends WithMockedProfiles {
+public class RedirectControllerTest extends WithMockedProfiles {
+  private ProgramDefinition programDefinition;
+
   @Before
   public void setUp() {
     resetDatabase();
@@ -52,23 +55,19 @@ public class HomeControllerAuthenticatedTest extends WithMockedProfiles {
           }
         });
     config.setSecurityLogic(securityLogic);
-  }
 
-  @Test
-  public void testAuthenticatedSecurePage() {
-    Http.RequestBuilder request =
-        fakeRequest(routes.HomeController.securePlayIndex())
-            .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
-    Result result = route(app, request);
-    assertThat(result.status()).isEqualTo(HttpConstants.OK);
+    programDefinition = ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
   }
 
   @Test
   public void testLanguageSelectorShown() {
     Applicant applicant = createApplicantWithMockedProfile();
-    HomeController controller = instanceOf(HomeController.class);
+    RedirectController controller = instanceOf(RedirectController.class);
     Result result =
-        controller.index(addCSRFToken(fakeRequest()).build()).toCompletableFuture().join();
+        controller
+            .programByName(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
+            .toCompletableFuture()
+            .join();
     ;
     assertThat(result.redirectLocation())
         .contains(
@@ -81,37 +80,51 @@ public class HomeControllerAuthenticatedTest extends WithMockedProfiles {
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
 
-    HomeController controller =
-        new HomeController(
-            instanceOf(LoginForm.class),
-            instanceOf(ProfileUtils.class),
-            instanceOf(MessagesApi.class),
+    RedirectController controller =
+        new RedirectController(
             instanceOf(HttpExecutionContext.class),
+            instanceOf(ApplicantService.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(ProgramRepository.class),
+            instanceOf(ApplicantUpsellCreateAccountView.class),
+            instanceOf(MessagesApi.class),
             mockLangs);
     Result result =
-        controller.index(addCSRFToken(fakeRequest()).build()).toCompletableFuture().join();
+        controller
+            .programByName(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
+            .toCompletableFuture()
+            .join();
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantProgramsController.index(applicant.id).url());
+            controllers.applicant.routes.ApplicantProgramReviewController.preview(
+                    applicant.id, programDefinition.id())
+                .url());
   }
 
   @Test
-  public void testLanguageSelectorNoLanguage() {
+  public void testLanguageSelectorNotShownNoLanguage() {
     Applicant applicant = createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
 
-    HomeController controller =
-        new HomeController(
-            instanceOf(LoginForm.class),
-            instanceOf(ProfileUtils.class),
-            instanceOf(MessagesApi.class),
+    RedirectController controller =
+        new RedirectController(
             instanceOf(HttpExecutionContext.class),
+            instanceOf(ApplicantService.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(ProgramRepository.class),
+            instanceOf(ApplicantUpsellCreateAccountView.class),
+            instanceOf(MessagesApi.class),
             mockLangs);
     Result result =
-        controller.index(addCSRFToken(fakeRequest()).build()).toCompletableFuture().join();
+        controller
+            .programByName(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
+            .toCompletableFuture()
+            .join();
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantProgramsController.index(applicant.id).url());
+            controllers.applicant.routes.ApplicantProgramReviewController.preview(
+                    applicant.id, programDefinition.id())
+                .url());
   }
 }

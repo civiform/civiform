@@ -8,6 +8,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import controllers.routes;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -16,11 +17,13 @@ import javax.inject.Inject;
 import models.Applicant;
 import models.Program;
 import org.pac4j.play.java.Secure;
+import play.i18n.Langs;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ProgramRepository;
+import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramNotFoundException;
@@ -38,6 +41,7 @@ public class RedirectController extends CiviFormController {
   private final ProgramRepository programRepository;
   private final ApplicantUpsellCreateAccountView upsellView;
   private final MessagesApi messagesApi;
+  private final Langs langs;
 
   @Inject
   public RedirectController(
@@ -46,13 +50,15 @@ public class RedirectController extends CiviFormController {
       ProfileUtils profileUtils,
       ProgramRepository programRepository,
       ApplicantUpsellCreateAccountView upsellView,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      Langs langs) {
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
     this.profileUtils = checkNotNull(profileUtils);
     this.programRepository = checkNotNull(programRepository);
     this.upsellView = checkNotNull(upsellView);
     this.messagesApi = checkNotNull(messagesApi);
+    this.langs = checkNotNull(langs);
   }
 
   public CompletionStage<Result> programByName(Http.Request request, String programName) {
@@ -78,6 +84,13 @@ public class RedirectController extends CiviFormController {
               }
 
               Applicant applicant = applicantFuture.join();
+              ApplicantData data = applicant.getApplicantData();
+              if (langs.availables().size() <= 1 && !data.hasPreferredLocale()) {
+                data.setPreferredLocale(
+                    langs.availables().isEmpty()
+                        ? Locale.US
+                        : langs.availables().get(0).toLocale());
+              }
 
               if (!applicant.getApplicantData().hasPreferredLocale()) {
                 return redirect(
