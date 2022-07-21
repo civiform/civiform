@@ -179,8 +179,7 @@ public final class QuestionsListView extends BaseHtmlView {
         .with(renderInfoCell(latestDefinition))
         .with(renderQuestionTextCell(latestDefinition))
         .with(renderSupportedLanguages(latestDefinition))
-        .with(
-            renderReferencingPrograms(activeAndDraftQuestions.getReferencingPrograms(questionName)))
+        .with(renderReferencingPrograms(questionName, activeAndDraftQuestions))
         .with(renderActionsCell(activeDefinition, draftDefinition, deletionStatus, request));
   }
 
@@ -223,13 +222,20 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private TdTag renderReferencingPrograms(
-      ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms) {
+      String questionName, ActiveAndDraftQuestions activeAndDraftQuestions) {
+    ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
+        activeAndDraftQuestions.getReferencingPrograms(questionName);
     return td().with(
-            div(
-                String.format(
-                    "Used across %d active and %d draft programs",
-                    referencingPrograms.activeReferences().size(),
-                    referencingPrograms.draftReferences().size())))
+            p().with(
+                    span("Used across "),
+                    span(String.format("%d active", referencingPrograms.activeReferences().size()))
+                        .withClasses(Styles.FONT_SEMIBOLD))
+                .condWith(
+                    activeAndDraftQuestions.draftHasEdits(),
+                    span(" & ").withClasses(Styles.FONT_SEMIBOLD),
+                    span(String.format("%d draft", referencingPrograms.draftReferences().size()))
+                        .withClass(Styles.FONT_SEMIBOLD))
+                .with(span(" programs").withClasses(Styles.FONT_SEMIBOLD)))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, Styles.PR_12);
   }
 

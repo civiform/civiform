@@ -36,6 +36,7 @@ public final class ActiveAndDraftQuestions {
       referencingDraftProgramsByName;
   private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
       referencingActiveProgramsByName;
+  private final boolean draftHasEdits;
 
   public ActiveAndDraftQuestions(Version active, Version draft, Version withEditsDraft) {
     ImmutableMap.Builder<String, QuestionDefinition> activeToName = ImmutableMap.builder();
@@ -70,9 +71,9 @@ public final class ActiveAndDraftQuestions {
     }
     deletionStatusByName = deletionStatusBuilder.build();
 
+    draftHasEdits = draft.getPrograms().size() > 0 || draft.getQuestions().size() > 0;
     referencingActiveProgramsByName = buildReferencingProgramsMap(active);
-    Version forDraftVersion =
-        draft.getPrograms().isEmpty() && draft.getQuestions().isEmpty() ? draft : withEditsDraft;
+    Version forDraftVersion = draftHasEdits ? withEditsDraft : draft;
     referencingDraftProgramsByName = buildReferencingProgramsMap(forDraftVersion);
   }
 
@@ -145,6 +146,10 @@ public final class ActiveAndDraftQuestions {
         .setActiveReferences(referencingActiveProgramsByName.getOrDefault(name, ImmutableSet.of()))
         .setDraftReferences(referencingDraftProgramsByName.getOrDefault(name, ImmutableSet.of()))
         .build();
+  }
+
+  public boolean draftHasEdits() {
+    return draftHasEdits;
   }
 
   @AutoValue
