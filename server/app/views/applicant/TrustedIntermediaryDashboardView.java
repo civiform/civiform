@@ -30,7 +30,11 @@ import views.admin.ti.TrustedIntermediaryGroupListView;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.ToastMessage;
-import views.style.*;
+import views.style.ApplicantStyles;
+import views.style.BaseStyles;
+import views.style.ReferenceClasses;
+import views.style.StyleUtils;
+import views.style.Styles;
 
 /** Renders a page for a trusted intermediary to manage their clients. */
 public class TrustedIntermediaryDashboardView extends BaseHtmlView {
@@ -95,12 +99,14 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 .url())
         .with(
             FieldWithLabel.input()
+                .setId("search")
                 .setFieldName("search")
                 .setValue(search.orElse(""))
-                .setLabelText("Search")
+                .setLabelText("SearchText")
                 .getInputTag()
                 .withClasses(Styles.W_FULL),
             FieldWithLabel.date()
+                .setId("search-date")
                 .setFieldName("searchDate")
                 .setValue(searchDate.orElse(""))
                 .setLabelText("Search Date of Birth")

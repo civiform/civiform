@@ -13,7 +13,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
-import forms.UpdateApplicantDOB;
+import forms.UpdateApplicantDob;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Account;
@@ -113,8 +113,8 @@ public class TrustedIntermediaryController {
     if (!trustedIntermediaryGroup.get().id.equals(tiId)) {
       return unauthorized();
     }
-    Form<UpdateApplicantDOB> form =
-        formFactory.form(UpdateApplicantDOB.class).bindFromRequest(request);
+    Form<UpdateApplicantDob> form =
+        formFactory.form(UpdateApplicantDob.class).bindFromRequest(request);
     if (form.hasErrors()) {
       return redirectToDashboardWithUpdateDateOfBirthError(form.errors().get(0).message(), form);
     }
@@ -202,7 +202,7 @@ public class TrustedIntermediaryController {
   }
 
   private Result redirectToDashboardWithUpdateDateOfBirthError(
-      String errorMessage, Form<UpdateApplicantDOB> form) {
+      String errorMessage, Form<UpdateApplicantDob> form) {
     return redirect(
             routes.TrustedIntermediaryController.dashboard(
                 Optional.empty(), Optional.empty(), Optional.empty()))

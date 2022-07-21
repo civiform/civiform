@@ -36,7 +36,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   }
 
   @Test(expected = NullPointerException.class)
-  public void addApplicantTestWithMissingDOB() {
+  public void addApplicantTestWithMissingDob() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
@@ -82,7 +82,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testUpdateDOBFunctionWithExistingDOB() {
+  public void testUpdateDOBFunctionWithExistingDob() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(Helpers.fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-10-05")));
     TrustedIntermediaryGroup group = repo.listTrustedIntermediaryGroups().get(0);

@@ -100,7 +100,7 @@ public class UserRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void testWithDOB() {
+  public void testWithDob() {
     repo.createNewApplicantForTrustedIntermediaryGroup(applicantform, tiGroup);
     Account applicant = repo.lookupAccountByEmail(EMAIL).get();
     assertThat(applicant.getApplicantName())
