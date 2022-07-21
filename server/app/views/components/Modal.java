@@ -9,7 +9,7 @@ import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 /** Utility class for rendering a modal box. */
 public class Modal {

@@ -7,7 +7,7 @@ import j2html.tags.specialized.DivTag;
 import java.util.ArrayList;
 import java.util.Arrays;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 /**
  * Utility class for rendering an accordion.

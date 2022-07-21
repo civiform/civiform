@@ -26,7 +26,7 @@ import views.components.TextFormatter;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 /** Shows information for a specific program with a button to start the application. */
 public class ApplicantProgramInfoView extends BaseHtmlView {

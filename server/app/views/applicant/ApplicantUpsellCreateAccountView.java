@@ -21,7 +21,7 @@ import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** Renders a confirmation page after application submission. */
 public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {

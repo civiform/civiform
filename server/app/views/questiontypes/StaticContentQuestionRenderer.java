@@ -7,7 +7,7 @@ import j2html.tags.specialized.DivTag;
 import services.applicant.question.ApplicantQuestion;
 import views.components.TextFormatter;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 /** This renders the question text as formatted text. */
 public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer {

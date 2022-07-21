@@ -25,7 +25,7 @@ import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.EnumeratorQuestionRenderer;
 import views.style.ApplicantStyles;
-import views.style.Styles;
+
 
 /** Renders a page for answering questions in a program screen (block). */
 public final class ApplicantProgramBlockEditView extends ApplicationBaseView {

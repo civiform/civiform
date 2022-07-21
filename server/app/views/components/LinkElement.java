@@ -22,7 +22,7 @@ import play.mvc.Http;
 import scala.Option;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** Utility class for rendering link elements. */
 public class LinkElement {

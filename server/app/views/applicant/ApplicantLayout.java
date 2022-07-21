@@ -39,7 +39,7 @@ import views.html.helper.CSRF;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** Contains methods rendering common compoments used across applicant pages. */
 public class ApplicantLayout extends BaseHtmlLayout {

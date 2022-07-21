@@ -38,7 +38,7 @@ import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** Returns a list of programs that an applicant can browse, with buttons for applying. */
 public class ProgramIndexView extends BaseHtmlView {

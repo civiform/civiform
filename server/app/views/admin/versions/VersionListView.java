@@ -36,7 +36,7 @@ import views.components.LinkElement;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** Renders a page for viewing all versions. */
 public class VersionListView extends BaseHtmlView {

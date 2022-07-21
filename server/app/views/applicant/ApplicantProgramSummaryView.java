@@ -35,7 +35,7 @@ import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
-import views.style.Styles;
+
 
 /** Shows all questions in the applying program and answers to the questions if present. */
 public final class ApplicantProgramSummaryView extends BaseHtmlView {

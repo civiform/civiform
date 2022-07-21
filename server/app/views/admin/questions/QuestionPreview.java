@@ -13,7 +13,7 @@ import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
-import views.style.Styles;
+
 
 /** Contains methods for rendering preview of a question. */
 public class QuestionPreview {

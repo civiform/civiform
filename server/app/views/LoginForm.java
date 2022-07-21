@@ -23,7 +23,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import views.style.BaseStyles;
-import views.style.Styles;
+
 
 /** Renders a page for login. */
 public class LoginForm extends BaseHtmlView {
