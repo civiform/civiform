@@ -81,9 +81,9 @@ resource "aws_security_group" "rds" {
   vpc_id = module.vpc.vpc_id
 
   ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
+    from_port = 5432
+    to_port   = 5432
+    protocol  = "tcp"
     # Only apps within VPCs can access the database.
     cidr_blocks = var.private_subnets
   }
