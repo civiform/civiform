@@ -1,4 +1,3 @@
-import {Browser, Page} from 'playwright'
 import {
   startSession,
   loginAsAdmin,
@@ -254,5 +253,37 @@ describe('normal question lifecycle', () => {
         ),
       ),
     ).toBeTruthy()
+  })
+
+  it('redirects to draft question when trying to edit original question', async () => {
+    const {page} = await startSession()
+    await loginAsAdmin(page)
+
+    const adminQuestions = new AdminQuestions(page)
+    const adminPrograms = new AdminPrograms(page)
+
+    await adminQuestions.gotoAdminQuestionsPage()
+    await adminQuestions.addNameQuestion({questionName: 'name-q'})
+
+    const programName = 'test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.publishProgram(programName)
+
+    // Update the question to create new draft version.
+    await adminQuestions.gotoQuestionNewVersionPage('name-q')
+    // The ID in the URL after clicking new version corresponds to the active question form (e.g. ID=15).
+    // After a draft is created, the ID will reflect the newly created draft version (e.g. ID=16).
+    const editUrl = page.url()
+    const newQuestionText = await adminQuestions.updateQuestionText(
+      'second version',
+    )
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+
+    // Try edit the original published question and make sure that we see the draft version.
+    await page.goto(editUrl)
+    await waitForPageJsLoad(page)
+    expect(await page.inputValue('label:has-text("Question text")')).toContain(
+      newQuestionText,
+    )
   })
 })

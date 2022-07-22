@@ -23,18 +23,19 @@ resource "aws_db_instance" "civiform" {
     Type = "Civiform Database"
   }
 
-  instance_class          = var.postgres_instance_class
-  allocated_storage       = var.postgres_storage_gb
-  engine                  = "postgres"
-  engine_version          = "12"
-  username                = aws_secretsmanager_secret_version.postgres_username_secret_version.secret_string
-  password                = aws_secretsmanager_secret_version.postgres_password_secret_version.secret_string
-  vpc_security_group_ids  = [aws_security_group.rds.id]
-  db_subnet_group_name    = module.vpc.database_subnet_group_name
-  parameter_group_name    = aws_db_parameter_group.civiform.name
-  publicly_accessible     = false
-  skip_final_snapshot     = true
-  backup_retention_period = var.postgres_backup_retention_days
+  instance_class                  = var.postgres_instance_class
+  allocated_storage               = var.postgres_storage_gb
+  engine                          = "postgres"
+  engine_version                  = "12"
+  username                        = aws_secretsmanager_secret_version.postgres_username_secret_version.secret_string
+  password                        = aws_secretsmanager_secret_version.postgres_password_secret_version.secret_string
+  vpc_security_group_ids          = [aws_security_group.rds.id]
+  db_subnet_group_name            = module.vpc.database_subnet_group_name
+  parameter_group_name            = aws_db_parameter_group.civiform.name
+  publicly_accessible             = false
+  skip_final_snapshot             = true
+  backup_retention_period         = var.postgres_backup_retention_days
+  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
 }
 
 module "email_service" {

@@ -1,3 +1,4 @@
+import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -11,7 +12,7 @@ import {
 } from './support'
 
 describe('Number question for applicant flow', () => {
-  let pageObject
+  let pageObject: Page
   const numberInputError = 'div.cf-question-number-error'
 
   beforeAll(async () => {
@@ -24,7 +25,7 @@ describe('Number question for applicant flow', () => {
   })
 
   describe('single number question', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single number'
 
     beforeAll(async () => {
@@ -87,7 +88,7 @@ describe('Number question for applicant flow', () => {
   })
 
   describe('multiple number questions', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for multiple numbers'
 
     beforeAll(async () => {
