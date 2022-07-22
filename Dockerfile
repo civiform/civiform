@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM --platform=$BUILDPLATFORM eclipse-temurin:11.0.15_10-jdk-alpine
 
 ENV SBT_VERSION "1.6.2"

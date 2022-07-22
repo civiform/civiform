@@ -24,9 +24,11 @@ jobs:
           - version: prod
             image: 'civiform/civiform:latest'
             script: 'bin/build-prod'
+            platform: 'linux/amd64'
           - version: dev
             image: 'civiform/civiform-dev:latest'
             script: 'bin/build-dev'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
     concurrency:
       group: build_civiform-${{ matrix.version }}-${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
@@ -42,6 +44,7 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1
           PUSH_IMAGE: 1
+          PLATFORM: ${{ matrix.platform }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: ${{ matrix.script }}
@@ -57,18 +60,22 @@ jobs:
             image: 'civiform/formatter:latest'
             script: 'bin/build-formatter'
             file_pattern: 'formatter/'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
           - version: localstack
             image: 'civiform/civiform-localstack:latest'
             script: 'bin/build-localstack-env'
             file_pattern: 'localstack/'
+            platform: 'linux/amd64'
           - version: browser_test
             image: 'civiform/civiform-browser-test:latest'
             script: 'bin/build-browser-tests'
             file_pattern: 'browser-test/'
+            platform: 'linux/amd64'
           - version: oidc
             image: 'civiform/oidc-provider:latest'
             script: 'bin/build-dev-oidc'
             file_pattern: 'test-support/'
+            platform: 'linux/amd64'
     concurrency:
       group: build_dependancies-${{ matrix.version }}-${{ github.workflow }}-${{ github.ref }}
     steps:
@@ -97,6 +104,7 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1
           PUSH_IMAGE: 1
+          PLATFORM: ${{ matrix.platform }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: ${{ matrix.script }}

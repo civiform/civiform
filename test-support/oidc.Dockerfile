@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM node:15-alpine
 
 WORKDIR /usr/app
