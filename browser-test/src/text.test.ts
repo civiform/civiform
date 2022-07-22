@@ -1,4 +1,4 @@
-import {Page} from 'playwright';
+import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -12,8 +12,7 @@ import {
 } from './support'
 
 describe('Text question for applicant flow', () => {
-  let pageObject: Page;
-
+  let pageObject: Page
 
   beforeAll(async () => {
     const {page} = await startSession()

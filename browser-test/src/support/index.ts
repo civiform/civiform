@@ -52,7 +52,11 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
   }
 }
 
-export const startSession = async (): Promise<{browser: Browser, context: BrowserContext, page: Page}> => {
+export const startSession = async (): Promise<{
+  browser: Browser
+  context: BrowserContext
+  page: Page
+}> => {
   const browser = await chromium.launch()
   const context = await makeBrowserContext(browser)
   const page = await context.newPage()

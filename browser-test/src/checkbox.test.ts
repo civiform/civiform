@@ -1,4 +1,4 @@
-import {Page} from 'playwright';
+import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -172,7 +172,11 @@ describe('Checkbox question for applicant flow', () => {
       expect(await pageObject.isHidden(checkboxError)).toEqual(true)
 
       // Max of 2 answers allowed.
-      await applicantQuestions.answerCheckboxQuestion(['red', 'green', 'orange'])
+      await applicantQuestions.answerCheckboxQuestion([
+        'red',
+        'green',
+        'orange',
+      ])
       await applicantQuestions.answerCheckboxQuestion(['beach'])
       await applicantQuestions.clickNext()
 
@@ -190,7 +194,11 @@ describe('Checkbox question for applicant flow', () => {
 
       await applicantQuestions.answerCheckboxQuestion(['red'])
       // Max of 2 answers allowed.
-      await applicantQuestions.answerCheckboxQuestion( ['beach', 'mountains', 'city'])
+      await applicantQuestions.answerCheckboxQuestion([
+        'beach',
+        'mountains',
+        'city',
+      ])
       await applicantQuestions.clickNext()
 
       expect(await pageObject.isHidden(checkboxError)).toEqual(false)

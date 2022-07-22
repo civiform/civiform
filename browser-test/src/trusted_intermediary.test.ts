@@ -12,7 +12,7 @@ describe('Trusted intermediaries', () => {
   let page: Page
 
   beforeEach(async () => {
-    const session = await startSession();
+    const session = await startSession()
 
     browser = session.browser
     page = session.page
