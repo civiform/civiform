@@ -8,9 +8,7 @@ source bin/lib.sh
 docker::set_project_name_browser_tests
 
 docker run \
-  -v "$(pwd)/browser-test/src:/usr/src/civiform-browser-tests/src" \
-  -v "$(pwd)/browser-test/bin:/usr/src/civiform-browser-tests/bin" \
-  -v "$(pwd)/browser-test/tmp:/usr/src/civiform-browser-tests/tmp" \
+  -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
   -e RECORD_VIDEO="${RECORD_VIDEO}" \
   --network "${DOCKER_NETWORK_NAME}" \
   civiform-browser-test:latest \
