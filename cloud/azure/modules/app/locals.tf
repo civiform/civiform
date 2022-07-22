@@ -33,6 +33,7 @@ locals {
     WHITELABEL_CIVIC_ENTITY_FULL_NAME  = var.civic_entity_full_name
     WHITELABEL_SMALL_LOGO_URL          = var.civic_entity_small_logo_url
     WHITELABEL_LOGO_WITH_NAME_URL      = var.civic_entity_logo_with_name_url
+    FAVICON_URL                        = var.favicon_url
     SUPPORT_EMAIL_ADDRESS              = var.civic_entity_support_email_address
 
     AZURE_STORAGE_ACCOUNT_NAME      = azurerm_storage_account.files_storage_account.name
