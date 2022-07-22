@@ -1,3 +1,4 @@
+import {Page} from 'playwright'
 import {
   AdminPrograms,
   AdminQuestions,
@@ -11,7 +12,7 @@ import {
 } from './support'
 
 describe('Text question for applicant flow', () => {
-  let pageObject
+  let pageObject: Page
 
   beforeAll(async () => {
     const {page} = await startSession()
@@ -23,7 +24,7 @@ describe('Text question for applicant flow', () => {
   })
 
   describe('single text question', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single text q'
 
     beforeAll(async () => {
@@ -104,7 +105,7 @@ describe('Text question for applicant flow', () => {
   })
 
   describe('multiple text questions', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for multiple text qs'
 
     beforeAll(async () => {
