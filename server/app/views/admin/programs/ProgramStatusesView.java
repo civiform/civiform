@@ -58,20 +58,20 @@ public final class ProgramStatusesView extends BaseHtmlView {
   public Content render(
       Http.Request request,
       ProgramDefinition program,
-      Optional<Form<ProgramStatusesEditForm>> maybeEditForm) {
+      Optional<Form<ProgramStatusesEditForm>> maybeStatusForm) {
     Modal createStatusModal =
         makeStatusEditModal(
             request,
             program,
             Optional.empty(),
-            formForCurrentStatus(Optional.empty(), maybeEditForm));
+            formForCurrentStatus(Optional.empty(), maybeStatusForm));
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, Styles.MY_2)
             .withId(createStatusModal.getTriggerButtonId());
 
     Pair<DivTag, ImmutableList<Modal>> statusContainerAndModals =
-        renderStatusContainer(request, program, maybeEditForm);
+        renderStatusContainer(request, program, maybeStatusForm);
 
     DivTag contentDiv =
         div()
@@ -281,7 +281,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
     FormTag content =
         form()
             .withMethod("POST")
-            .withAction(routes.AdminProgramStatusesController.index(program.id()).url())
+            .withAction(routes.AdminProgramStatusesController.createOrUpdate(program.id()).url())
             .withClasses(Styles.PX_6, Styles.PY_2)
             .with(
                 makeCsrfTokenInputTag(request),

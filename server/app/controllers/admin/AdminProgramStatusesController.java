@@ -19,7 +19,6 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
-import play.mvc.Http.HttpVerbs;
 import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -30,6 +29,10 @@ import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import views.admin.programs.ProgramStatusesView;
 
+/**
+ * Controller for displaying and modifying the {@link StatusDefinitions} associated with a program.
+ * This has logic for displaying, creating, editing, and deleting statuses.
+ */
 public final class AdminProgramStatusesController extends CiviFormController {
 
   private final ProgramService service;
@@ -52,53 +55,90 @@ public final class AdminProgramStatusesController extends CiviFormController {
     this.statusTrackingEnabled = statusTrackingEnabled;
   }
 
+  /** Displays the list of {@link StatusDefinitions} associated with the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request, long programId) throws ProgramNotFoundException {
     if (!statusTrackingEnabled) {
       return notFound("status tracking is not enabled");
     }
     requestChecker.throwIfProgramNotDraft(programId);
-    ProgramDefinition program = service.getProgramDefinition(programId);
-    int previousStatusCount = program.statusDefinitions().getStatuses().size();
 
-    Optional<Form<ProgramStatusesEditForm>> maybeEditForm = Optional.empty();
-    if (request.method().equalsIgnoreCase(HttpVerbs.POST)) {
-      Form<ProgramStatusesEditForm> editForm;
-      Optional<StatusDefinitions> updatedStatus;
-      try {
-        Pair<Form<ProgramStatusesEditForm>, Optional<StatusDefinitions>> validated =
-            validateEditRequest(request, program);
-        editForm = validated.getLeft();
-        updatedStatus = validated.getRight();
-      } catch (MissingStatusException e) {
-        return redirect(routes.AdminProgramStatusesController.index(programId).url())
-            .flashing(
-                "error",
-                "The status being edited no longer exists and may have been modified in a separate"
-                    + " window.");
-      }
-      maybeEditForm = Optional.of(editForm);
-      if (!editForm.hasErrors() && updatedStatus.isPresent()) {
-        Result result = redirect(routes.AdminProgramStatusesController.index(programId).url());
-        ErrorAnd<ProgramDefinition, CiviFormError> setStatusResult =
-            service.setStatuses(programId, updatedStatus.get());
-        if (setStatusResult.isError()) {
-          String errorMessage = joinErrors(setStatusResult.getErrors());
-          return result.flashing("error", errorMessage);
-        }
-        return result.flashing(
-            "success",
-            previousStatusCount == updatedStatus.get().getStatuses().size()
-                ? "Status updated"
-                : "Status created");
-      }
-    }
-
-    return ok(statusesView.render(request, service.getProgramDefinition(programId), maybeEditForm));
+    return ok(
+        statusesView.render(
+            request,
+            service.getProgramDefinition(programId),
+            /* maybeStatusForm= */ Optional.empty()));
   }
 
-  private Pair<Form<ProgramStatusesEditForm>, Optional<StatusDefinitions>> validateEditRequest(
-      Http.Request request, ProgramDefinition program) throws MissingStatusException {
+  /**
+   * Creates a new status or updates an existing status associated with the program. Creation is
+   * signified by the "originalStatusText" form parameter being set to empty. Updates are signified
+   * by the "originalStatusText" form parameter being set to a status that already exists in the
+   * current program definition.
+   *
+   * <p>If a status is created, it's appended to the end of the list of current statuses. If a
+   * status is edited, it's replaced in-line.
+   */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result createOrUpdate(Http.Request request, long programId)
+      throws ProgramNotFoundException {
+    if (!statusTrackingEnabled) {
+      return notFound("status tracking is not enabled");
+    }
+    requestChecker.throwIfProgramNotDraft(programId);
+    ProgramDefinition program = service.getProgramDefinition(programId);
+    int previousStatusCount = program.statusDefinitions().getStatuses().size();
+    final Form<ProgramStatusesEditForm> statusForm;
+    final Optional<StatusDefinitions> updatedStatus;
+    try {
+      Pair<Form<ProgramStatusesEditForm>, Optional<StatusDefinitions>> validated =
+          validateCreateOrUpdateRequest(request, program);
+      statusForm = validated.getLeft();
+      updatedStatus = validated.getRight();
+    } catch (MissingStatusException e) {
+      return redirect(routes.AdminProgramStatusesController.index(programId).url())
+          .flashing(
+              "error",
+              "The status being edited no longer exists and may have been modified in a separate"
+                  + " window. If desired, the status can be re-created by clicking the \"Create a"
+                  + " new status\" button.");
+    }
+    if (!statusForm.hasErrors() && updatedStatus.isPresent()) {
+      Result result = redirect(routes.AdminProgramStatusesController.index(programId).url());
+      ErrorAnd<ProgramDefinition, CiviFormError> setStatusResult =
+          service.setStatuses(programId, updatedStatus.get());
+      if (setStatusResult.isError()) {
+        String errorMessage = joinErrors(setStatusResult.getErrors());
+        return result.flashing("error", errorMessage);
+      }
+      return result.flashing(
+          "success",
+          previousStatusCount == updatedStatus.get().getStatuses().size()
+              ? "Status updated"
+              : "Status created");
+    }
+    return ok(
+        statusesView.render(
+            request, service.getProgramDefinition(programId), Optional.of(statusForm)));
+  }
+
+  /**
+   * Processes the form body from a request to create or update a program's statuses. This performs
+   * validation (e.g. data is well-formed) and tentatively applies the desired update (e.g.
+   * appending a new status to the list on create or updating the existing status).
+   *
+   * @param request the request containing the HTTP form contents
+   * @param program the program whose associated statuses should be modified
+   * @return A pair containing the form used to validate the request (and any associated errors) as
+   *     well as the modified {@link StatusDefinitions} object (which is empty if there were form
+   *     errors). The form object is returned so that we 1) Can display errors inline when
+   *     re-rendering and 2) Preserve the provided inputs from the user.
+   * @throws MissingStatusException if a status edit request is made that references a non-existent
+   *     status
+   */
+  private Pair<Form<ProgramStatusesEditForm>, Optional<StatusDefinitions>>
+      validateCreateOrUpdateRequest(Http.Request request, ProgramDefinition program)
+          throws MissingStatusException {
     Form<ProgramStatusesEditForm> form =
         formFactory
             .form(ProgramStatusesEditForm.class)
@@ -107,12 +147,14 @@ public final class AdminProgramStatusesController extends CiviFormController {
       return Pair.of(form, Optional.empty());
     }
     ProgramStatusesEditForm value = form.value().get();
-    StatusDefinitions current = program.statusDefinitions();
+    StatusDefinitions currentDefs = program.statusDefinitions();
+    // An empty "originalStatusText" parameter indicates that a new
+    // status should be created.
     if (value.getOriginalStatusText().isEmpty()) {
       try {
-        current.setStatuses(
+        currentDefs.setStatuses(
             addStatus(
-                current.getStatuses(),
+                currentDefs.getStatuses(),
                 StatusDefinitions.Status.builder()
                     .setStatusText(value.getStatusText())
                     .setLocalizedStatusText(
@@ -126,9 +168,9 @@ public final class AdminProgramStatusesController extends CiviFormController {
       }
     } else {
       try {
-        current.setStatuses(
+        currentDefs.setStatuses(
             replaceStatus(
-                current.getStatuses(),
+                currentDefs.getStatuses(),
                 value.getOriginalStatusText(),
                 (existingStatus) -> {
                   return StatusDefinitions.Status.builder()
@@ -146,9 +188,15 @@ public final class AdminProgramStatusesController extends CiviFormController {
       }
     }
 
-    return form.hasErrors() ? Pair.of(form, Optional.empty()) : Pair.of(form, Optional.of(current));
+    return form.hasErrors()
+        ? Pair.of(form, Optional.empty())
+        : Pair.of(form, Optional.of(currentDefs));
   }
 
+  /**
+   * Deletes a status that is currently associated with the program as signified by the
+   * "deleteStatusText" form parameter.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result delete(Http.Request request, long programId) throws ProgramNotFoundException {
     if (!statusTrackingEnabled) {
