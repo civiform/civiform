@@ -126,6 +126,8 @@ lazy val root = (project in file("."))
     ),
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
+    // Disabled to allow attaching a remote debugger (https://stackoverflow.com/a/57396198)
+    Test / fork := false,
     // Turn off scaladoc link warnings
     Compile / doc / scalacOptions += "-no-link-warnings",
     // Turn off scaladoc

@@ -7,6 +7,13 @@
       "request": "attach",
       "hostName": "localhost",
       "port": "8457"
+    },
+    {
+      "type": "java",
+      "name": "Attach to Unit test",
+      "request": "attach",
+      "hostName": "localhost",
+      "port": "8459"
     }
   ]
 }
