@@ -1,12 +1,12 @@
 package models;
 
 import com.google.common.collect.ImmutableList;
+import repository.SearchParameters;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.time.format.DateTimeParseException;
+import java.util.*;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -55,31 +55,21 @@ public class TrustedIntermediaryGroup extends BaseModel {
     return this.description;
   }
 
-  public ImmutableList<Account> getManagedAccounts(
-      Optional<String> search, Optional<String> searchDate) {
+  public ImmutableList<Account> getManagedAccounts(SearchParameters searchParameters) throws DateTimeParseException {
     ImmutableList<Account> allAccounts = getManagedAccounts();
-    if (search.isPresent()) {
-      allAccounts =
-          allAccounts.stream()
-              .filter(
-                  account ->
-                      account
-                          .getApplicantName()
-                          .toLowerCase(Locale.ROOT)
-                          .contains(search.get().toLowerCase(Locale.ROOT)))
-              .collect(ImmutableList.toImmutableList());
-    }
-    if (searchDate.isPresent()) {
-      LocalDate localDate =
-          LocalDate.parse(searchDate.get(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-      allAccounts =
-          allAccounts.stream()
-              .filter(
-                  account ->
-                      account.getApplicantDateOfBirth().isPresent()
-                          && account.getApplicantDateOfBirth().get().equals(localDate))
-              .collect(ImmutableList.toImmutableList());
-    }
+    allAccounts = allAccounts.stream()
+        .filter(account -> {
+          if(searchParameters.search().isPresent())
+          {
+            return account.getApplicantName().toLowerCase(Locale.ROOT).contains(searchParameters.search().get().toLowerCase(Locale.ROOT));
+          }
+          if(searchParameters.searchDate().isPresent()) {
+            LocalDate localDate =
+              LocalDate.parse(searchParameters.searchDate().get(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            return account.getApplicantDateOfBirth().equals(localDate);
+          }
+          return false;
+        }).collect(ImmutableList.toImmutableList());
     return allAccounts;
   }
 }

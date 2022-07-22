@@ -16,7 +16,6 @@ import services.CfJsonDocumentContext;
 import services.LocalizedStrings;
 import services.Path;
 import services.WellKnownPaths;
-import services.ti.DateOfBirthExistsException;
 
 /**
  * Brokers access to the answer data for a specific applicant across versions.
@@ -157,10 +156,7 @@ public class ApplicantData extends CfJsonDocumentContext {
     return readDate(WellKnownPaths.APPLICANT_DOB);
   }
 
-  public void setDateOfBirth(String dateString) throws DateOfBirthExistsException {
-    if (hasPath(WellKnownPaths.APPLICANT_DOB)) {
-      throw new DateOfBirthExistsException();
-    }
+  public void setDateOfBirth(String dateString) {
     putDate(WellKnownPaths.APPLICANT_DOB, dateString);
   }
 }

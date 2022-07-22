@@ -14,6 +14,8 @@ import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
 import forms.UpdateApplicantDob;
+
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Account;
@@ -25,9 +27,9 @@ import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.SearchParameters;
 import repository.UserRepository;
 import services.PaginationInfo;
-import services.ti.DateOfBirthExistsException;
 import services.ti.EmailAddressExistsException;
 import views.applicant.TrustedIntermediaryDashboardView;
 
@@ -80,8 +82,16 @@ public class TrustedIntermediaryController {
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
-    ImmutableList<Account> managedAccounts =
-        trustedIntermediaryGroup.get().getManagedAccounts(search, searchDate);
+    SearchParameters searchParameters =  SearchParameters.builder().setSearch(search).setSearchDate(searchDate).build();
+    try {
+      ImmutableList<Account> managedAccounts =
+        trustedIntermediaryGroup.get().getManagedAccounts(searchParameters);
+    }
+    catch(DateTimeParseException e)
+    {
+      routes.TrustedIntermediaryController.dashboard(
+        Optional.empty(), Optional.empty(), Optional.empty()).flashing("error","Incorrect Date entered");
+    }
     PaginationInfo<Account> pageInfo =
         PaginationInfo.paginate(managedAccounts, PAGE_SIZE, page.get());
 
@@ -92,8 +102,7 @@ public class TrustedIntermediaryController {
             pageInfo.getPageItems(),
             pageInfo.getPageCount(),
             pageInfo.getPage(),
-            search,
-            searchDate,
+            searchParameters,
             request,
             messagesApi.preferred(request)));
   }
@@ -122,24 +131,14 @@ public class TrustedIntermediaryController {
       return redirectToDashboardWithUpdateDateOfBirthError("Date Of Birth is required.", form);
     }
 
-    try {
       Applicant applicant =
           userRepository.lookupApplicant(applicantId).toCompletableFuture().join().get();
       applicant.getApplicantData().setDateOfBirth(form.get().getDob());
       userRepository.updateApplicant(applicant);
-    } catch (DateOfBirthExistsException e) {
-      String trustedIntermediaryUrl = baseUrl + "/trustedIntermediaries";
 
-      return redirectToDashboardWithUpdateDateOfBirthError(
-          "Date Of birth for this applicant exists.  Cannot Update DOB. "
-              + " Direct applicant to sign in and go to"
-              + " "
-              + trustedIntermediaryUrl,
-          form);
-    }
     return redirect(
         routes.TrustedIntermediaryController.dashboard(
-            Optional.empty(), Optional.empty(), Optional.empty()));
+            Optional.empty(), Optional.empty(), Optional.empty())).flashing("Invalid Date entered" );
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)

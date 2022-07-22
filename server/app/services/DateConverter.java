@@ -53,4 +53,8 @@ public class DateConverter {
     ZonedDateTime dateTime = time.atZone(zoneId);
     return dateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
   }
+  public String formatDate(LocalDate date)
+  {
+    return date.format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
+  }
 }
