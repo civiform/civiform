@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM --platform=$BUILDPLATFORM eclipse-temurin:11.0.15_10-jdk-alpine
+FROM --platform=$BUILDPLATFORM eclipse-temurin:11.0.15_10-jdk
 
 ENV SBT_VERSION "1.6.2"
 ENV INSTALL_DIR /usr/local

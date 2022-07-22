@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM eclipse-temurin:11.0.15_10-jdk-alpine
+FROM --platform=$BUILDPLATFORM eclipse-temurin:11.0.15_10-jdk
 
 ENV JAVA_FORMATTER_URL "https://github.com/google/google-java-format/releases/download/google-java-format-1.9/google-java-format-1.9-all-deps.jar"
 RUN wget $JAVA_FORMATTER_URL -O /fmt.jar
