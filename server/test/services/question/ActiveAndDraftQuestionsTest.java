@@ -15,6 +15,8 @@ import support.ProgramBuilder;
 
 public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
+  private static final String TEST_QUESTION_NAME = "test-question";
+
   private VersionRepository versionRepository;
 
   @Before
@@ -26,25 +28,20 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   public void getQuestionNames() {
     Question tombstonedQuestionFromActiveVersion =
         resourceCreator.insertQuestion("tombstoned-question");
-    Question activeAndDraftQuestion = resourceCreator.insertQuestion("active-and-draft-question");
-    Question activeOnlyQuestion = resourceCreator.insertQuestion("active-only-question");
-    Question activeAndDraftQuestionUpdated =
-        resourceCreator.insertQuestion("active-and-draft-question");
-    Question draftOnlyQuestion = resourceCreator.insertQuestion("draft-only-question");
 
     versionRepository
         .getActiveVersion()
         .addQuestion(tombstonedQuestionFromActiveVersion)
-        .addQuestion(activeAndDraftQuestion)
-        .addQuestion(activeOnlyQuestion)
+        .addQuestion(resourceCreator.insertQuestion("active-and-draft-question"))
+        .addQuestion(resourceCreator.insertQuestion("active-only-question"))
         .save();
     addTombstoneToVersion(
         versionRepository.getActiveVersion(), tombstonedQuestionFromActiveVersion);
 
     versionRepository
         .getDraftVersion()
-        .addQuestion(activeAndDraftQuestionUpdated)
-        .addQuestion(draftOnlyQuestion)
+        .addQuestion(resourceCreator.insertQuestion("active-and-draft-question"))
+        .addQuestion(resourceCreator.insertQuestion("draft-only-question"))
         .save();
 
     assertThat(newActiveAndDraftQuestions().getQuestionNames())
@@ -135,32 +132,34 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
   @Test
   public void getDeletionStatus_notPartOfEitherVersion() {
-    resourceCreator.insertQuestion("some-question");
+    resourceCreator.insertQuestion(TEST_QUESTION_NAME);
 
-    assertThat(newActiveAndDraftQuestions().getDeletionStatus("some-question"))
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.NOT_ACTIVE);
   }
 
   @Test
   public void getDeletionStatus_tombstoned() {
-    Question questionActive = resourceCreator.insertQuestion("some-question");
-    versionRepository.getActiveVersion().addQuestion(questionActive).save();
-    addTombstoneToVersion(versionRepository.getDraftVersion(), questionActive);
+    Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    versionRepository.getActiveVersion().addQuestion(question).save();
+    addTombstoneToVersion(versionRepository.getDraftVersion(), question);
 
-    assertThat(newActiveAndDraftQuestions().getDeletionStatus("some-question"))
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.PENDING_DELETION);
 
     // Create an edited version of the question in the draft version
     // and ensure that it's still considered as pending deletion.
-    Question questionDraft = resourceCreator.insertQuestion("some-question");
-    versionRepository.getDraftVersion().addQuestion(questionDraft).save();
-    assertThat(newActiveAndDraftQuestions().getDeletionStatus("some-question"))
+    versionRepository
+        .getDraftVersion()
+        .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
+        .save();
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.PENDING_DELETION);
   }
 
   @Test
   public void getDeletionStatus_stillReferencedInActiveVersion() {
-    Question questionActive = resourceCreator.insertQuestion("some-question");
+    Question questionActive = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(questionActive).save();
     // newActiveProgram automatically adds the program to the active version.
     ProgramBuilder.newActiveProgram("foo")
@@ -168,14 +167,14 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .withRequiredQuestion(questionActive)
         .build();
 
-    assertThat(newActiveAndDraftQuestions().getDeletionStatus("some-question"))
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.NOT_DELETABLE);
 
     // An invalid state where the question has been tombstoned even though it's still referenced.
     // TODO(#2788): Prevent allowing this state to occur and adjust the expectation accordingly.
     addTombstoneToVersion(versionRepository.getDraftVersion(), questionActive);
 
-    assertThat(newActiveAndDraftQuestions().getDeletionStatus("some-question"))
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.PENDING_DELETION);
   }
 
@@ -184,7 +183,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     // Simulates the state where the question was created in the active version
     // and wasn't referenced. Then it was referenced by a program in the draft
     // version. In this case, the draft won't yet contain a reference to the question.
-    Question questionActive = resourceCreator.insertQuestion("some-question");
+    Question questionActive = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(questionActive).save();
     // newDraftProgram automatically adds the program to the draft version.
     ProgramBuilder.newDraftProgram("foo")
@@ -192,15 +191,61 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .withRequiredQuestion(questionActive)
         .build();
 
-    assertThat(newActiveAndDraftQuestions().getDeletionStatus("some-question"))
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.NOT_DELETABLE);
 
     // An invalid state where the question has been tombstoned even though it's still referenced.
     // TODO(#2788): Prevent allowing this state to occur and adjust the expectation accordingly.
     addTombstoneToVersion(versionRepository.getDraftVersion(), questionActive);
 
-    assertThat(newActiveAndDraftQuestions().getDeletionStatus("some-question"))
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.PENDING_DELETION);
+  }
+
+  @Test
+  public void getDeletionStatus_noLongerReferencedInDraftVersion() {
+    // Simulate the only reference to the question having been removed in an edit of the program.
+    Question questionActive = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    versionRepository.getActiveVersion().addQuestion(questionActive).save();
+    // newActiveProgram automatically adds the program to the active version.
+    ProgramBuilder.newActiveProgram("foo")
+        .withBlock("Screen 1")
+        .withRequiredQuestion(questionActive)
+        .build();
+    // Create a draft version of the program that no longer references the question.
+    // newDraftProgram automatically adds the program to the draft version.
+    ProgramBuilder.newDraftProgram("foo").withBlock("Screen 1").build();
+
+    // TODO(#2788): Allow archiving questions that aren't referenced in the draft
+    // version of the program.
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
+        .isEqualTo(DeletionStatus.NOT_DELETABLE);
+
+    // Adding a draft edit of the question continues to be considered deletable.
+    Question questionDraft = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
+    versionRepository.getDraftVersion().addQuestion(questionDraft).save();
+
+    // TODO(#2788): Allow archiving questions that aren't referenced in the draft
+    // version of the program.
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
+        .isEqualTo(DeletionStatus.NOT_DELETABLE);
+  }
+
+  @Test
+  public void getDeletionStatus_notReferencedByProgramInEitherVersion() {
+    // Create an active and draft version of a question that isn't referenced
+    // by any programs.
+    versionRepository
+        .getActiveVersion()
+        .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
+        .save();
+    versionRepository
+        .getDraftVersion()
+        .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
+        .save();
+
+    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
+        .isEqualTo(DeletionStatus.DELETABLE);
   }
 
   private ActiveAndDraftQuestions newActiveAndDraftQuestions() {
@@ -212,11 +257,4 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     assertThat(version.addTombstoneForQuestion(question)).isTrue();
     version.save();
   }
-
-  // TODO(clouser): Still need tests for a draft edit of a question.
-
-  // Referenced only in draft -> NOT_DELETABLE.
-  // Not referenced in draft, but referenced in active -> DELETABLE
-  // Not referenced in active or draft -> DELETABLE
-  // Referenced in active program, but there's an edit that removes it in draft -> DELETABLE
 }
