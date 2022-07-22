@@ -18,6 +18,23 @@ public class HtmlBundleTest {
   }
 
   @Test
+  public void testFavicon() {
+    HtmlBundle bundle = new HtmlBundle();
+    bundle.setFavicon("www.civiform.com/favicon");
+
+    Content content = bundle.render();
+    assertThat(content.body()).contains("<link rel=\"icon\" href=\"www.civiform.com/favicon\">");
+  }
+
+  @Test
+  public void testNoFavicon() {
+    HtmlBundle bundle = new HtmlBundle();
+
+    Content content = bundle.render();
+    assertThat(content.body()).doesNotContain("<link rel=\"icon\"");
+  }
+
+  @Test
   public void emptyBundleRendersOutline() {
     HtmlBundle bundle = new HtmlBundle();
 

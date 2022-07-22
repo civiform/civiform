@@ -35,6 +35,12 @@
     "tfvar": true,
     "type": "string"
   },
+  "FAVICON_URL": {
+    "required": false,
+    "secret": false,
+    "tfvar": true,
+    "type": "string"
+  },
   "CIVIFORM_APPLICANT_AUTH_PROTOCOL": {
     "required": true,
     "secret": false,
