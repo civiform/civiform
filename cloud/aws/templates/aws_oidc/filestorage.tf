@@ -23,6 +23,7 @@ resource "aws_s3_bucket_policy" "civiform_files_policy" {
 resource "aws_kms_key" "file_storage_key" {
   description             = "This key is used to encrypt files uploaded by the user"
   deletion_window_in_days = 10
+  enable_key_rotation     = true
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "civiform_files_encryption" {
