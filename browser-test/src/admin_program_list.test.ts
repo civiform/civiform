@@ -1,7 +1,6 @@
 import {
   startSession,
   loginAsAdmin,
-  AdminQuestions,
   AdminPrograms,
   endSession,
 } from './support'
@@ -11,7 +10,6 @@ describe('Most recently updated program is at top of list.', () => {
     const {browser, page} = await startSession()
 
     await loginAsAdmin(page)
-    const adminQuestions = new AdminQuestions(page)
     const adminPrograms = new AdminPrograms(page)
 
     const programOne = 'list test program one'

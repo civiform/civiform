@@ -1,3 +1,4 @@
+import {Page} from 'playwright';
 import {
   AdminPrograms,
   AdminQuestions,
@@ -13,8 +14,8 @@ import {
 describe('Static text question for applicant flow', () => {
   const staticText = 'Hello, I am some static text!'
   const programName = 'test program for static text'
-  let pageObject
-  let applicantQuestions
+  let pageObject: Page
+  let applicantQuestions: ApplicantQuestions
 
   beforeAll(async () => {
     const {page} = await startSession()

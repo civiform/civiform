@@ -1,3 +1,4 @@
+import {Page} from 'playwright';
 import {
   AdminPrograms,
   AdminQuestions,
@@ -11,7 +12,7 @@ import {
 } from './support'
 
 describe('applicant navigation flow', () => {
-  let pageObject
+  let pageObject: Page
 
   beforeAll(async () => {
     const {page} = await startSession()
@@ -23,7 +24,7 @@ describe('applicant navigation flow', () => {
   })
 
   describe('navigation with four blocks', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for navigation flows'
 
     beforeAll(async () => {

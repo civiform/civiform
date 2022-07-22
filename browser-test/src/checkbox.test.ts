@@ -1,3 +1,4 @@
+import {Page} from 'playwright';
 import {
   AdminPrograms,
   AdminQuestions,
@@ -11,7 +12,7 @@ import {
 } from './support'
 
 describe('Checkbox question for applicant flow', () => {
-  let pageObject
+  let pageObject: Page
 
   beforeAll(async () => {
     const {page} = await startSession()
@@ -23,7 +24,7 @@ describe('Checkbox question for applicant flow', () => {
   })
 
   describe('single checkbox question', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single checkbox'
 
     beforeAll(async () => {
@@ -102,7 +103,7 @@ describe('Checkbox question for applicant flow', () => {
   })
 
   describe('multiple checkbox questions', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for multiple checkboxes'
 
     beforeAll(async () => {
@@ -171,10 +172,7 @@ describe('Checkbox question for applicant flow', () => {
       expect(await pageObject.isHidden(checkboxError)).toEqual(true)
 
       // Max of 2 answers allowed.
-      await applicantQuestions.answerCheckboxQuestion(
-        ['red', 'green', 'orange'],
-        0,
-      )
+      await applicantQuestions.answerCheckboxQuestion(['red', 'green', 'orange'])
       await applicantQuestions.answerCheckboxQuestion(['beach'])
       await applicantQuestions.clickNext()
 
@@ -192,10 +190,7 @@ describe('Checkbox question for applicant flow', () => {
 
       await applicantQuestions.answerCheckboxQuestion(['red'])
       // Max of 2 answers allowed.
-      await applicantQuestions.answerCheckboxQuestion(
-        ['beach', 'mountains', 'city'],
-        1,
-      )
+      await applicantQuestions.answerCheckboxQuestion( ['beach', 'mountains', 'city'])
       await applicantQuestions.clickNext()
 
       expect(await pageObject.isHidden(checkboxError)).toEqual(false)

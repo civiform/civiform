@@ -1,3 +1,4 @@
+import {Page} from 'playwright';
 import {
   AdminPrograms,
   AdminQuestions,
@@ -11,7 +12,7 @@ import {
 } from './support'
 
 describe('address applicant flow', () => {
-  let pageObject
+  let pageObject: Page
 
   beforeAll(async () => {
     const {page} = await startSession()
@@ -23,7 +24,7 @@ describe('address applicant flow', () => {
   })
 
   describe('single required address question', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for single address'
 
     beforeAll(async () => {
@@ -120,7 +121,7 @@ describe('address applicant flow', () => {
   })
 
   describe('multiple address questions', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for multiple addresses'
 
     beforeAll(async () => {
@@ -246,7 +247,7 @@ describe('address applicant flow', () => {
 
   // One optional address followed by one required address.
   describe('optional address question', () => {
-    let applicantQuestions
+    let applicantQuestions: ApplicantQuestions
     const programName = 'test program for optional address'
 
     beforeAll(async () => {
