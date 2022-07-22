@@ -13,7 +13,7 @@ describe('manage program admins', () => {
     // Add two program admins and save
     await adminPrograms.gotoManageProgramAdminsPage(programName)
     await page.click('#add-program-admin-button')
-    var lastProgramAdminEmailInput =
+    const lastProgramAdminEmailInput =
       '#program-admin-emails div.flex-row:last-of-type input'
     await page.fill(lastProgramAdminEmailInput, 'test@test.com')
     await page.click('#add-program-admin-button')
