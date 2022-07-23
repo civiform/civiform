@@ -5,15 +5,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
 import forms.admin.ProgramStatusesEditForm;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.IntStream;
-import org.apache.commons.lang3.tuple.Pair;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -23,6 +18,7 @@ import play.mvc.Result;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.program.DuplicateStatusException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -88,109 +84,71 @@ public final class AdminProgramStatusesController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition program = service.getProgramDefinition(programId);
     int previousStatusCount = program.statusDefinitions().getStatuses().size();
-    final Form<ProgramStatusesEditForm> statusForm;
-    final Optional<StatusDefinitions> updatedStatus;
-    try {
-      Pair<Form<ProgramStatusesEditForm>, Optional<StatusDefinitions>> validated =
-          validateCreateOrUpdateRequest(request, program);
-      statusForm = validated.getLeft();
-      updatedStatus = validated.getRight();
-    } catch (MissingStatusException e) {
-      return redirect(routes.AdminProgramStatusesController.index(programId).url())
-          .flashing(
-              "error",
-              "The status being edited no longer exists and may have been modified in a separate"
-                  + " window. If desired, the status can be re-created by clicking the \"Create a"
-                  + " new status\" button.");
-    }
-    if (!statusForm.hasErrors() && updatedStatus.isPresent()) {
-      Result result = redirect(routes.AdminProgramStatusesController.index(programId).url());
-      ErrorAnd<ProgramDefinition, CiviFormError> setStatusResult =
-          service.setStatuses(programId, updatedStatus.get());
-      if (setStatusResult.isError()) {
-        String errorMessage = joinErrors(setStatusResult.getErrors());
-        return result.flashing("error", errorMessage);
-      }
-      return result.flashing(
-          "success",
-          previousStatusCount == updatedStatus.get().getStatuses().size()
-              ? "Status updated"
-              : "Status created");
-    }
-    return ok(
-        statusesView.render(
-            request, service.getProgramDefinition(programId), Optional.of(statusForm)));
-  }
 
-  /**
-   * Processes the form body from a request to create or update a program's statuses. This performs
-   * validation (e.g. data is well-formed) and tentatively applies the desired update (e.g.
-   * appending a new status to the list on create or updating the existing status).
-   *
-   * @param request the request containing the HTTP form contents
-   * @param program the program whose associated statuses should be modified
-   * @return A pair containing the form used to validate the request (and any associated errors) as
-   *     well as the modified {@link StatusDefinitions} object (which is empty if there were form
-   *     errors). The form object is returned so that we 1) Can display errors inline when
-   *     re-rendering and 2) Preserve the provided inputs from the user.
-   * @throws MissingStatusException if a status edit request is made that references a non-existent
-   *     status
-   */
-  private Pair<Form<ProgramStatusesEditForm>, Optional<StatusDefinitions>>
-      validateCreateOrUpdateRequest(Http.Request request, ProgramDefinition program)
-          throws MissingStatusException {
     Form<ProgramStatusesEditForm> form =
         formFactory
             .form(ProgramStatusesEditForm.class)
             .bindFromRequest(request, ProgramStatusesEditForm.FIELD_NAMES.toArray(new String[0]));
-    if (form.value().isEmpty()) {
-      return Pair.of(form, Optional.empty());
+    if (form.hasErrors()) {
+      // Redirecting to the index view would re-render the statuses and lose
+      // any form values / errors. Instead, re-render the view at this URL
+      // whenever there is are form validation errors, which preserves the
+      // form values.
+      return ok(statusesView.render(request, program, Optional.of(form)));
     }
-    ProgramStatusesEditForm value = form.value().get();
-    StatusDefinitions currentDefs = program.statusDefinitions();
+    final ErrorAnd<ProgramDefinition, CiviFormError> mutateResult;
+    try {
+      mutateResult = createOrEditStatusFromFormData(program, form.get());
+    } catch (DuplicateStatusException e) {
+      // Redirecting to the index view would re-render the statuses and lose
+      // any form values / errors. Instead, re-render the view at this URL
+      // whenever there is are form validation errors, which preserves the
+      // form values.
+      form = form.withError(ProgramStatusesEditForm.STATUS_TEXT_FORM_NAME, e.userFacingMessage());
+      return ok(statusesView.render(request, program, Optional.of(form)));
+    }
+    final String indexUrl = routes.AdminProgramStatusesController.index(programId).url();
+    if (mutateResult.isError()) {
+      return redirect(indexUrl).flashing("error", joinErrors(mutateResult.getErrors()));
+    }
+    return redirect(indexUrl)
+        .flashing(
+            "success",
+            previousStatusCount == mutateResult.getResult().statusDefinitions().getStatuses().size()
+                ? "Status updated"
+                : "Status created");
+  }
+
+  private ErrorAnd<ProgramDefinition, CiviFormError> createOrEditStatusFromFormData(
+      ProgramDefinition program, ProgramStatusesEditForm formData)
+      throws ProgramNotFoundException, DuplicateStatusException {
     // An empty "originalStatusText" parameter indicates that a new
     // status should be created.
-    if (value.getOriginalStatusText().isEmpty()) {
-      try {
-        currentDefs.setStatuses(
-            addStatus(
-                currentDefs.getStatuses(),
-                StatusDefinitions.Status.builder()
-                    .setStatusText(value.getStatusText())
-                    .setLocalizedStatusText(
-                        LocalizedStrings.withDefaultValue(value.getStatusText()))
-                    .setEmailBodyText(value.getEmailBody())
-                    .setLocalizedEmailBodyText(
-                        Optional.of(LocalizedStrings.withDefaultValue(value.getEmailBody())))
-                    .build()));
-      } catch (DuplicateStatusException e) {
-        form = form.withError(ProgramStatusesEditForm.STATUS_TEXT_FORM_NAME, e.userFacingMessage);
-      }
-    } else {
-      try {
-        currentDefs.setStatuses(
-            replaceStatus(
-                currentDefs.getStatuses(),
-                value.getOriginalStatusText(),
-                (existingStatus) -> {
-                  return StatusDefinitions.Status.builder()
-                      .setStatusText(value.getStatusText())
-                      .setEmailBodyText(value.getEmailBody())
-                      // Note: We preserve the existing localized status / email body
-                      // text so that existing translated content isn't destroyed upon
-                      // editing status.
-                      .setLocalizedStatusText(existingStatus.localizedStatusText())
-                      .setLocalizedEmailBodyText(existingStatus.localizedEmailBodyText())
-                      .build();
-                }));
-      } catch (DuplicateStatusException e) {
-        form = form.withError(ProgramStatusesEditForm.STATUS_TEXT_FORM_NAME, e.userFacingMessage);
-      }
+    if (formData.getOriginalStatusText().isEmpty()) {
+      return service.appendStatus(
+          program.id(),
+          StatusDefinitions.Status.builder()
+              .setStatusText(formData.getStatusText())
+              .setLocalizedStatusText(LocalizedStrings.withDefaultValue(formData.getStatusText()))
+              .setEmailBodyText(formData.getEmailBody())
+              .setLocalizedEmailBodyText(
+                  Optional.of(LocalizedStrings.withDefaultValue(formData.getEmailBody())))
+              .build());
     }
-
-    return form.hasErrors()
-        ? Pair.of(form, Optional.empty())
-        : Pair.of(form, Optional.of(currentDefs));
+    return service.editStatus(
+        program.id(),
+        formData.getOriginalStatusText(),
+        (existingStatus) -> {
+          return StatusDefinitions.Status.builder()
+              .setStatusText(formData.getStatusText())
+              .setEmailBodyText(formData.getEmailBody())
+              // Note: We preserve the existing localized status / email body
+              // text so that existing translated content isn't destroyed upon
+              // editing status.
+              .setLocalizedStatusText(existingStatus.localizedStatusText())
+              .setLocalizedEmailBodyText(existingStatus.localizedEmailBodyText())
+              .build();
+        });
   }
 
   /**
@@ -206,109 +164,18 @@ public final class AdminProgramStatusesController extends CiviFormController {
     ProgramDefinition program = service.getProgramDefinition(programId);
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
-    String rawStatusText = requestData.get(ProgramStatusesView.DELETE_STATUS_TEXT_NAME);
-    if (Strings.isNullOrEmpty(rawStatusText)) {
+    String rawDeleteStatusText = requestData.get(ProgramStatusesView.DELETE_STATUS_TEXT_NAME);
+    if (Strings.isNullOrEmpty(rawDeleteStatusText)) {
       return badRequest("missing or empty status text");
     }
-    final String statusText = rawStatusText.trim();
+    final String deleteStatusText = rawDeleteStatusText.trim();
 
-    StatusDefinitions current = program.statusDefinitions();
-    try {
-      current.setStatuses(removeStatus(current.getStatuses(), statusText));
-    } catch (MissingStatusException e) {
-      return redirect(routes.AdminProgramStatusesController.index(programId).url())
-          .flashing(
-              "error",
-              "The status being deleted no longer exists and may have been deleted in a"
-                  + " separate window.");
+    final String indexUrl = routes.AdminProgramStatusesController.index(programId).url();
+    ErrorAnd<ProgramDefinition, CiviFormError> deleteStatusResult =
+        service.deleteStatus(program.id(), deleteStatusText);
+    if (deleteStatusResult.isError()) {
+      return redirect(indexUrl).flashing("error", joinErrors(deleteStatusResult.getErrors()));
     }
-    ErrorAnd<ProgramDefinition, CiviFormError> setStatusResult =
-        service.setStatuses(programId, current);
-    Result result =
-        redirect(routes.AdminProgramStatusesController.index(programId).url())
-            .flashing("success", "Status deleted");
-    if (setStatusResult.isError()) {
-      String errorMessage = joinErrors(setStatusResult.getErrors());
-      result = result.flashing("error", errorMessage);
-    } else {
-      result = result.flashing("success", "Status deleted");
-    }
-
-    return result;
-  }
-
-  private static ImmutableList<StatusDefinitions.Status> addStatus(
-      ImmutableList<StatusDefinitions.Status> statuses, StatusDefinitions.Status newStatus)
-      throws DuplicateStatusException {
-    if (statuses.stream()
-        .filter(s -> s.statusText().equals(newStatus.statusText()))
-        .findAny()
-        .isPresent()) {
-      throw new DuplicateStatusException(newStatus.statusText());
-    }
-    return ImmutableList.<StatusDefinitions.Status>builder()
-        .addAll(statuses)
-        .add(newStatus)
-        .build();
-  }
-
-  private static ImmutableList<StatusDefinitions.Status> replaceStatus(
-      ImmutableList<StatusDefinitions.Status> statuses,
-      String replaceStatusName,
-      Function<StatusDefinitions.Status, StatusDefinitions.Status> replacerFunc)
-      throws MissingStatusException, DuplicateStatusException {
-    ImmutableMap<String, Integer> statusNameToIndex = statusNameToIndexMap(statuses);
-    if (!statusNameToIndex.containsKey(replaceStatusName)) {
-      throw new MissingStatusException();
-    }
-    StatusDefinitions.Status editedStatus =
-        replacerFunc.apply(statuses.get(statusNameToIndex.get(replaceStatusName)));
-    if (!replaceStatusName.equals(editedStatus.statusText())
-        && statusNameToIndex.containsKey(editedStatus.statusText())) {
-      throw new DuplicateStatusException(editedStatus.statusText());
-    }
-    return IntStream.range(0, statuses.size())
-        .boxed()
-        .map(
-            i -> {
-              if (i.equals(statusNameToIndex.get(replaceStatusName))) {
-                return editedStatus;
-              }
-              return statuses.get(i);
-            })
-        .collect(ImmutableList.toImmutableList());
-  }
-
-  private static ImmutableList<StatusDefinitions.Status> removeStatus(
-      ImmutableList<StatusDefinitions.Status> statuses, String removeStatusName)
-      throws MissingStatusException {
-    ImmutableMap<String, Integer> statusNameToIndex = statusNameToIndexMap(statuses);
-    if (!statusNameToIndex.containsKey(removeStatusName)) {
-      throw new MissingStatusException();
-    }
-    return IntStream.range(0, statuses.size())
-        .boxed()
-        .filter(i -> !i.equals(statusNameToIndex.get(removeStatusName)))
-        .map(i -> statuses.get(i))
-        .collect(ImmutableList.toImmutableList());
-  }
-
-  private static ImmutableMap<String, Integer> statusNameToIndexMap(
-      ImmutableList<StatusDefinitions.Status> statuses) {
-    return IntStream.range(0, statuses.size())
-        .boxed()
-        .collect(
-            ImmutableMap.toImmutableMap(i -> statuses.get(i).statusText(), i -> i, (s1, s2) -> s1));
-  }
-
-  private static final class MissingStatusException extends Exception {}
-
-  private static final class DuplicateStatusException extends Exception {
-    final String userFacingMessage;
-
-    DuplicateStatusException(String statusName) {
-      super();
-      this.userFacingMessage = String.format("A status with name %s already exists", statusName);
-    }
+    return redirect(indexUrl).flashing("success", "Status deleted");
   }
 }

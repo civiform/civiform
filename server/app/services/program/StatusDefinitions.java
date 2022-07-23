@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import services.LocalizedStrings;
 
@@ -17,6 +19,7 @@ public class StatusDefinitions {
 
   @JsonCreator
   public StatusDefinitions(@JsonProperty("statuses") ImmutableList<Status> statuses) {
+    assertStatusNamesUnique(statuses);
     this.statuses = statuses;
   }
 
@@ -36,7 +39,15 @@ public class StatusDefinitions {
    * <p>The order of the items will be maintained and used as the natural order of the statuses.
    */
   public void setStatuses(ImmutableList<Status> statuses) {
+    assertStatusNamesUnique(statuses);
     this.statuses = statuses;
+  }
+
+  private static void assertStatusNamesUnique(ImmutableList<Status> statuses) {
+    Preconditions.checkState(
+        statuses.stream().map(Status::statusText).collect(ImmutableSet.toImmutableSet()).size()
+            == statuses.size(),
+        "The provided set of statuses must have unique statusTexts.");
   }
 
   /**

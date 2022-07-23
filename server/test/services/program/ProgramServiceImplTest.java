@@ -23,7 +23,6 @@ import org.junit.Test;
 import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
@@ -1164,30 +1163,32 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
   @Test
   public void updateStatuses_programNotFound_throws() throws Exception {
+    assertThat(true).isFalse();
 
-    assertThatThrownBy(() -> ps.setStatuses(1000L, new StatusDefinitions()))
-        .isInstanceOf(ProgramNotFoundException.class)
-        .hasMessageContaining("Program not found for ID: 1000");
+    // assertThatThrownBy(() -> ps.setStatuses(1000L, new StatusDefinitions()))
+    //     .isInstanceOf(ProgramNotFoundException.class)
+    //     .hasMessageContaining("Program not found for ID: 1000");
   }
 
   @Test
   public void updateAndGetStatuses() throws Exception {
-    Program program = ProgramBuilder.newActiveProgram().build();
+    assertThat(true).isFalse();
+    // Program program = ProgramBuilder.newActiveProgram().build();
 
-    var status =
-        StatusDefinitions.Status.builder()
-            .setStatusText("Approved")
-            .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
-            .setEmailBodyText("I'm an email!")
-            .setLocalizedEmailBodyText(
-                Optional.of(LocalizedStrings.of(Locale.US, "I'm a US email!")))
-            .build();
+    // var status =
+    //     StatusDefinitions.Status.builder()
+    //         .setStatusText("Approved")
+    //         .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
+    //         .setEmailBodyText("I'm an email!")
+    //         .setLocalizedEmailBodyText(
+    //             Optional.of(LocalizedStrings.of(Locale.US, "I'm a US email!")))
+    //         .build();
 
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.setStatuses(program.id, new StatusDefinitions(ImmutableList.of(status)));
+    // ErrorAnd<ProgramDefinition, CiviFormError> result =
+    //     ps.setStatuses(program.id, new StatusDefinitions(ImmutableList.of(status)));
 
-    assertThat(result.isError()).isFalse();
-    StatusDefinitions gotStatusDef = result.getResult().statusDefinitions();
-    assertThat(gotStatusDef.getStatuses()).containsExactly(status);
+    // assertThat(result.isError()).isFalse();
+    // StatusDefinitions gotStatusDef = result.getResult().statusDefinitions();
+    // assertThat(gotStatusDef.getStatuses()).containsExactly(status);
   }
 }
