@@ -101,7 +101,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
             .build();
 
     Result result =
-        makeIndexPostRequest(
+        makeCreateOrUpdateRequest(
             program.id,
             ImmutableMap.of(
                 "originalStatusText", "",
@@ -136,17 +136,12 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
             .build();
 
     Result result =
-        controller.index(
-            addCSRFToken(
-                    fakeRequest()
-                        .method("POST")
-                        .bodyForm(
-                            ImmutableMap.of(
-                                "originalStatusText", "Approved",
-                                "statusText", "Foo",
-                                "emailBody", "Updated email content")))
-                .build(),
-            program.id);
+        makeCreateOrUpdateRequest(
+            program.id,
+            ImmutableMap.of(
+                "originalStatusText", "Approved",
+                "statusText", "Foo",
+                "emailBody", "Updated email content"));
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data())
@@ -173,7 +168,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
             .build();
 
     Result result =
-        makeIndexPostRequest(
+        makeCreateOrUpdateRequest(
             program.id,
             ImmutableMap.of(
                 "originalStatusText", APPROVED_STATUS.statusText(),
@@ -195,7 +190,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
             .build();
 
     Result result =
-        makeIndexPostRequest(
+        makeCreateOrUpdateRequest(
             program.id,
             ImmutableMap.of(
                 "originalStatusText", APPROVED_STATUS.statusText(),
@@ -218,7 +213,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
             .build();
 
     Result result =
-        makeIndexPostRequest(
+        makeCreateOrUpdateRequest(
             program.id,
             ImmutableMap.of(
                 "originalStatusText", "non-existent-original-status",
@@ -241,7 +236,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
             .build();
 
     Result result =
-        makeIndexPostRequest(
+        makeCreateOrUpdateRequest(
             program.id,
             ImmutableMap.of(
                 "originalStatusText", "",
@@ -348,9 +343,9 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
         .isInstanceOf(NotChangeableException.class);
   }
 
-  private Result makeIndexPostRequest(Long programId, ImmutableMap<String, String> formData)
+  private Result makeCreateOrUpdateRequest(Long programId, ImmutableMap<String, String> formData)
       throws ProgramNotFoundException {
-    return controller.index(
+    return controller.createOrUpdate(
         addCSRFToken(fakeRequest().method("POST").bodyForm(formData)).build(), programId);
   }
 
