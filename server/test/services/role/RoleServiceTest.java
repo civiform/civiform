@@ -207,5 +207,5 @@ public class RoleServiceTest extends ResetPostgres {
                         "The following are already CiviForm admins and could not be added as"
                             + " program admins: %s",
                         globalAdminEmail))));
-      }
+  }
 }
