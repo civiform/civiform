@@ -6,12 +6,10 @@ source bin/lib.sh
 bin/pull-image
 
 docker run \
-  -v "$(pwd)/browser-test/src:/usr/src/civiform-browser-tests/src" \
-  -v "$(pwd)/browser-test/bin:/usr/src/civiform-browser-tests/bin" \
-  -v "$(pwd)/browser-test/tmp:/usr/src/civiform-browser-tests/tmp" \
+  -v "$(pwd)/browser-test:/usr/src/civiform-browser-tests" \
   -e RECORD_VIDEO="${RECORD_VIDEO}" \
   -e BASE_URL="https://staging.seattle.civiform.com" \
   -e TEST_USER_LOGIN="${TEST_USER_LOGIN}" \
   -e TEST_USER_PASSWORD="${TEST_USER_PASSWORD}" \
   civiform-browser-test:latest \
-  yarn probe
+  /bin/bash -c "yarn install && yarn probe"
