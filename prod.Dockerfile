@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile:1
+# For production images, use the adoptium.net official JRE & JDK docker images.
 FROM --platform=$BUILDPLATFORM eclipse-temurin:11.0.15_10-jdk-alpine AS stage1
 
 ENV SBT_VERSION "1.6.2"
