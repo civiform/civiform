@@ -6,10 +6,12 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import play.data.validation.Constraints.Validatable;
+import play.data.validation.Constraints.Validate;
 import play.data.validation.ValidationError;
 import services.program.StatusDefinitions;
 
 /** Form for creating / editing program statuses. */
+@Validate
 public final class ProgramStatusesForm implements Validatable<List<ValidationError>> {
   public static final String CONFIGURED_STATUS_TEXT_FORM_NAME = "configuredStatusText";
   public static final String STATUS_TEXT_FORM_NAME = "statusText";
